@@ -63,6 +63,10 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
   public int splitnr;
   public Writer writer;
   public CountingOutputStream countingStream;
+
+  /** VFS path of the file currently open for write (lineage). */
+  public String openedFilename;
+
   public int nrRowsInBloc;
 
   /** */

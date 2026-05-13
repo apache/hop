@@ -38,9 +38,15 @@ import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoContentSchema;
+import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoPathSyntax;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -308,6 +314,10 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
     try {
       if (data.fis != null) {
+        if (data.lineageEmitPending && data.lineageUriForOpenFile != null) {
+          emitCsvFileReadLineage(data.lineageUriForOpenFile, data.totalBytesRead);
+          data.lineageEmitPending = false;
+        }
         if (data.totalBytesRead > 0) {
           dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + data.totalBytesRead;
         }
@@ -325,6 +335,10 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
       // Close the previous file...
       //
+      if (data.filenr > 0 && data.lineageUriForOpenFile != null) {
+        emitCsvFileReadLineage(data.lineageUriForOpenFile, data.totalBytesRead);
+        data.lineageEmitPending = false;
+      }
       if (data.totalBytesRead > 0) {
         dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + data.totalBytesRead;
       }
@@ -399,6 +413,13 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         resultFile.setComment("File was read by a Csv input transform");
         addResultFile(resultFile);
       }
+
+      try {
+        data.lineageUriForOpenFile = fileObject.getName().getURI();
+      } catch (Exception e) {
+        data.lineageUriForOpenFile = data.filenames[data.filenr];
+      }
+      data.lineageEmitPending = true;
 
       // Move to the next filename
       //
@@ -878,6 +899,37 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
     } catch (IOException e) {
       throw new HopFileException("Exception reading line using NIO", e);
     }
+  }
+
+  private void emitCsvFileReadLineage(String sourceUri, long bytesRead) {
+    LineageFileIoEmitter.emitTransformFileIo(
+        this,
+        FileIoOperation.READ,
+        sourceUri,
+        null,
+        bytesRead > 0 ? bytesRead : null,
+        true,
+        null,
+        csvReadContentSchema());
+  }
+
+  private FileIoContentSchema csvReadContentSchema() {
+    if (meta.getInputFields() == null || meta.getInputFields().isEmpty()) {
+      return null;
+    }
+    List<FileIoTabularColumn> cols = new ArrayList<>();
+    for (CsvInputField f : meta.getInputFields()) {
+      cols.add(
+          new FileIoTabularColumn(
+              f.getName(),
+              ValueMetaFactory.getValueMetaName(f.getType()),
+              f.getLength(),
+              f.getPrecision(),
+              null,
+              FileIoPathSyntax.DELIMITED,
+              false));
+    }
+    return new FileIoContentSchema("csv", cols, List.of());
   }
 
   @Override

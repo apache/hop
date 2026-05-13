@@ -29,6 +29,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -108,6 +110,14 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
 
       long size = fileObject.getContent().getSize();
       dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + size;
+      if (size > 0) {
+        try {
+          LineageFileIoEmitter.emitTransformFileIo(
+              this, FileIoOperation.READ, fileObject, null, size, true, null);
+        } catch (Exception ignored) {
+          // optional lineage
+        }
+      }
       data.inputStream = HopVfs.getInputStream(fileObject);
 
       // Reads the whole file into memory...

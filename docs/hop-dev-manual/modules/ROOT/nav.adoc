@@ -25,6 +25,7 @@ under the License.
 * xref:integration-testing.adoc[Integration testing]
 * xref:internationalisation.adoc[Internationalisation (i18n)]
 * xref:plugin-development.adoc[Plugins Development]
+* xref:lineage.adoc[Lineage observation hub]
 * xref:plugin-samples.adoc[Plugins Samples]
 * xref:svg-files.adoc[SVG Files]
 * xref:start-your-own-plugin.adoc[Creating your own plugin]

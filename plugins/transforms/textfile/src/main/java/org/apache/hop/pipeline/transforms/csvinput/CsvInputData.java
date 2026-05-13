@@ -64,6 +64,18 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
 
   public long totalBytesRead;
 
+  /**
+   * URI of the file currently read via NIO ({@link #fis}) — used for FILE_IO lineage without
+   * calling {@code HopVfs.getFileObject} again.
+   */
+  public String lineageUriForOpenFile;
+
+  /**
+   * When true, {@link org.apache.hop.pipeline.transforms.csvinput.CsvInput#dispose()} may emit
+   * lineage if the pipeline stops before the next file rotation.
+   */
+  public boolean lineageEmitPending;
+
   public boolean parallel;
   public int filenameFieldIndex;
   public int rownumFieldIndex;

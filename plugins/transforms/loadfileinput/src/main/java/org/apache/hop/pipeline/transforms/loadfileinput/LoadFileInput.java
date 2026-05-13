@@ -37,6 +37,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -202,6 +204,19 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         }
         // get File content
         getFileContent();
+
+        long lineageBytes =
+            data.filecontent != null
+                ? data.filecontent.length
+                : (data.fileSize > 0 ? data.fileSize : 0L);
+        LineageFileIoEmitter.emitTransformFileIo(
+            this,
+            FileIoOperation.READ,
+            data.file,
+            null,
+            lineageBytes > 0 ? lineageBytes : null,
+            true,
+            null);
 
         addFileToResultFilesName(data.file);
 

@@ -17,7 +17,7 @@
 
 package org.apache.hop.workflow.actions.webserviceavailable;
 
-import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import lombok.Getter;
@@ -25,8 +25,12 @@ import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -79,28 +83,54 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     if (!Utils.isEmpty(realURL)) {
       int connectTimeOut = Const.toInt(resolve(getConnectTimeOut()), 0);
       int readTimeOut = Const.toInt(resolve(getReadTimeOut()), 0);
-      InputStream in = null;
+      long httpStart = System.currentTimeMillis();
+      Integer httpStatus = null;
+      Long httpRespBytes = null;
+      boolean httpOk = false;
+      String httpErr = null;
       try {
 
         URLConnection conn = new URL(realURL).openConnection();
         conn.setConnectTimeout(connectTimeOut);
         conn.setReadTimeout(readTimeOut);
-        in = conn.getInputStream();
-        // Web service is available
+        if (conn instanceof HttpURLConnection) {
+          httpStatus = ((HttpURLConnection) conn).getResponseCode();
+        }
+        try (CountingInputStream countingIn = new CountingInputStream(conn.getInputStream())) {
+          byte[] buf = new byte[8192];
+          while (countingIn.read(buf) != -1) {
+            // drain body for a stable byte count
+          }
+          httpRespBytes = countingIn.getCount();
+        }
         result.setResult(true);
+        httpOk = true;
       } catch (Exception e) {
         result.setNrErrors(1);
+        httpErr = e.getMessage();
         String message =
             BaseMessages.getString(
                 PKG, "ActionWebServiceAvailable.ERROR_0004_Exception", realURL, e.toString());
         logError(message);
         result.setLogText(message);
       } finally {
-        if (in != null) {
+        if (getParentWorkflow() != null) {
           try {
-            in.close();
-          } catch (Exception e) {
-            /* Ignore */
+            LineageHttpIoEmitter.emitWorkflowActionHttpIo(
+                getParentWorkflow(),
+                this,
+                new HttpLineagePayload(
+                    HttpDirection.CLIENT,
+                    "GET",
+                    realURL,
+                    httpStatus,
+                    null,
+                    httpRespBytes != null && httpRespBytes > 0 ? httpRespBytes : null,
+                    System.currentTimeMillis() - httpStart,
+                    httpOk,
+                    httpErr));
+          } catch (Exception ignored) {
+            // optional lineage
           }
         }
       }

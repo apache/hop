@@ -55,9 +55,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   public static final String CONST_FIELD = "field";
 
   /**
-   * Flag indicating that we use authentication for connection -- GETTER --
-   *
-   * <p>-- SETTER --
+   * Flag indicating that we use authentication for connection
    *
    * @return Returns the input useAuthentication.
    * @param useAuthentication The useAuthentication to set.
@@ -66,9 +64,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private boolean useAuthentication;
 
   /**
-   * Flag indicating that we use paging -- GETTER --
-   *
-   * <p>-- SETTER --
+   * Flag indicating that we use paging
    *
    * @return Returns the input usePaging.
    * @param usePaging The usePaging to set.
@@ -77,9 +73,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private boolean usePaging;
 
   /**
-   * page size -- SETTER --
-   *
-   * <p>-- GETTER --
+   * page size
    *
    * @param pagesize The pagesize.
    * @return Returns the pagesize.
@@ -88,9 +82,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private String pageSize;
 
   /**
-   * Flag indicating that a row number field should be included in the output -- GETTER --
-   *
-   * <p>-- SETTER --
+   * Flag indicating that a row number field should be included in the output
    *
    * @return Returns the includeRowNumber.
    * @param includeRowNumber The includeRowNumber to set.
@@ -99,9 +91,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private boolean includeRowNumber;
 
   /**
-   * The name of the field in the output containing the row number -- GETTER --
-   *
-   * <p>-- SETTER --
+   * The name of the field in the output containing the row number
    *
    * @return Returns the rowNumberField.
    * @param rowNumberField The rowNumberField to set.
@@ -110,9 +100,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private String rowNumberField;
 
   /**
-   * The maximum number or lines to read -- GETTER --
-   *
-   * <p>-- SETTER --
+   * The maximum number or lines to read
    *
    * @return Returns the rowLimit.
    * @param rowLimit The rowLimit to set.
@@ -121,7 +109,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private int rowLimit;
 
   /**
-   * The Host name -- SETTER --
+   * The Host name
    *
    * @param host The host to set.
    */
@@ -129,9 +117,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private String host;
 
   /**
-   * The User name -- GETTER --
-   *
-   * <p>-- SETTER --
+   * The User name
    *
    * @return Returns the user name.
    * @param userName The username to set.
@@ -140,9 +126,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private String userName;
 
   /**
-   * The Password to use in LDAP authentication -- SETTER --
-   *
-   * <p>-- GETTER --
+   * The Password to use in LDAP authentication
    *
    * @param password The password to set.
    * @return Returns the password.
@@ -151,7 +135,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private String password;
 
   /**
-   * The Port -- SETTER --
+   * The Port
    *
    * @param port The port to set.
    */
@@ -159,9 +143,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private String port;
 
   /**
-   * The Filter string -- GETTER --
-   *
-   * <p>-- SETTER --
+   * The Filter string
    *
    * @return Returns the filter string.
    * @param filterString The filter string to set.
@@ -170,9 +152,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private String filterString;
 
   /**
-   * The Search Base -- GETTER --
-   *
-   * <p>-- SETTER --
+   * The Search Base
    *
    * @return Returns the search string.
    * @param searchBase The filter Search Base to set.
@@ -185,9 +165,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private List<LdapInputField> inputFields;
 
   /**
-   * The Time limit -- SETTER --
-   *
-   * <p>-- GETTER --
+   * The Time limit -
    *
    * @param timeLimit The timeout time limit to set.
    * @return Returns the time limit.
@@ -196,9 +174,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private int timeLimit;
 
   /**
-   * Multi valued separator -- SETTER --
-   *
-   * <p>-- GETTER --
+   * Multi valued separator
    *
    * @param multiValuedSeparator The multi-valued separator filed.
    * @return Returns the multi valued separator.
@@ -209,26 +185,18 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private static final String YES = "Y";
 
   /**
-   * -- GETTER --
-   *
    * @return Returns the input dynamicSearch.
    */
   @HopMetadataProperty(key = "dynamicsearch")
   private boolean dynamicSearch;
 
   /**
-   * -- GETTER --
-   *
    * @return Returns the input dynamicSeachFieldName.
    */
   @HopMetadataProperty(key = "dynamicseachfieldname")
   private String dynamicSearchFieldName;
 
   /**
-   * -- GETTER --
-   *
-   * <p>-- SETTER --
-   *
    * @return Returns the input dynamicFilter.
    * @param dynamicFilter the dynamicFilter to set.
    */
@@ -236,9 +204,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private boolean dynamicFilter;
 
   /**
-   * -- GETTER --
-   *
-   * <p>-- SETTER -- param dynamicFilterFieldName the dynamicFilterFieldName to set.
+   * param dynamicFilterFieldName the dynamicFilterFieldName to set.
    *
    * @return Returns the input dynamicFilterFieldName.
    */
@@ -260,7 +226,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   public static final String[] searchScopeCode = {"object", "onelevel", "subtree"};
 
   /**
-   * Protocol -- SETTER --
+   * Protocol
    *
    * @param value the protocol to set.
    */
@@ -272,16 +238,12 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   private boolean useCertificate;
 
   /**
-   * -- SETTER --
-   *
    * @param value the trustStorePath to set.
    */
   @HopMetadataProperty(key = "trustStorePath")
   private String trustStorePath;
 
   /**
-   * -- SETTER --
-   *
    * @param value the trustStorePassword to set.
    */
   @HopMetadataProperty(key = "trustStorePassword", password = true)

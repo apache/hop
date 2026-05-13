@@ -696,6 +696,8 @@ public abstract class Workflow extends Variables
       prevResult = newResult();
     }
 
+    final String[] actionLogChannelHolder = new String[1];
+
     WorkflowExecutionExtension extension =
         new WorkflowExecutionExtension(this, prevResult, actionMeta, true);
     ExtensionPointHandler.callExtensionPoint(
@@ -747,6 +749,7 @@ public abstract class Workflow extends Variables
       final long start = System.currentTimeMillis();
 
       cloneAction.getLogChannel().logDetailed("Starting action");
+      actionLogChannelHolder[0] = cloneAction.getLogChannel().getLogChannelId();
       for (IActionListener actionListener : actionListeners) {
         actionListener.beforeExecution(this, actionMeta, cloneAction);
       }
@@ -825,6 +828,8 @@ public abstract class Workflow extends Variables
 
     extension =
         new WorkflowExecutionExtension(this, prevResult, actionMeta, extension.executeAction);
+    extension.actionExecutionResult = newResult;
+    extension.actionLogChannelId = actionLogChannelHolder[0];
     ExtensionPointHandler.callExtensionPoint(
         log, this, HopExtensionPoint.WorkflowAfterActionExecution.id, extension);
 

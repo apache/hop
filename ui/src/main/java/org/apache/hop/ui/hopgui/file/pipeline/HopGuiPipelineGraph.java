@@ -98,7 +98,6 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.lineage.PipelineDataLineage;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -2761,15 +2760,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void fieldsAfter(HopGuiPipelineTransformContext context) {
     selectedTransforms = null;
     inputOutputFields(context.getTransformMeta(), false);
-  }
-
-  public void fieldsLineage() {
-    PipelineDataLineage tdl = new PipelineDataLineage(pipelineMeta);
-    try {
-      tdl.calculateLineage(variables);
-    } catch (Exception e) {
-      new ErrorDialog(hopShell(), "Lineage error", "Unexpected lineage calculation error", e);
-    }
   }
 
   @GuiContextAction(

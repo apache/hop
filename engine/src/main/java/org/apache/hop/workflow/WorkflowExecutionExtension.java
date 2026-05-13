@@ -28,6 +28,18 @@ public class WorkflowExecutionExtension {
   public ActionMeta actionMeta;
   public boolean executeAction;
 
+  /**
+   * Set for {@code WorkflowAfterActionExecution}: outcome of the action that just ran (when {@link
+   * #executeAction} was true).
+   */
+  public Result actionExecutionResult;
+
+  /**
+   * Log channel id of the action instance for the completed run (when available), for correlating
+   * with {@link org.apache.hop.core.logging.LoggingBuffer}.
+   */
+  public String actionLogChannelId;
+
   public WorkflowExecutionExtension(
       IWorkflowEngine<WorkflowMeta> workflow,
       Result result,

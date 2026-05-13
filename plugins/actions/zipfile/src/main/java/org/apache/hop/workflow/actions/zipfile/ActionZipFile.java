@@ -55,6 +55,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -499,7 +501,14 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     // Associate a file input stream for the current file.
                     //
                     addFileToZip(
-                        file, fileList, i, sourceFileOrFolder, isSourceDirectory, out, result);
+                        file,
+                        fileList,
+                        i,
+                        sourceFileOrFolder,
+                        isSourceDirectory,
+                        out,
+                        result,
+                        parentWorkflow);
 
                     // Get Zipped File
                     zippedFiles.add(fileList[i]);
@@ -509,8 +518,19 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
               }
 
               // Zip stream is now closed (central directory written); count is final
-              result.setBytesWrittenThisAction(
-                  result.getBytesWrittenThisAction() + counting.getCount());
+              long zipOutBytes = counting.getCount();
+              result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + zipOutBytes);
+              if (getParentWorkflow() != null && zipOutBytes > 0) {
+                LineageFileIoEmitter.emitWorkflowActionFileIo(
+                    getParentWorkflow(),
+                    this,
+                    FileIoOperation.WRITE,
+                    null,
+                    fileObject,
+                    zipOutBytes,
+                    true,
+                    null);
+              }
             }
 
             if (isBasic()) {
@@ -616,7 +636,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       FileObject sourceFileOrFolder,
       boolean isSourceDirectory,
       ZipOutputStream out,
-      Result result)
+      Result result,
+      IWorkflowEngine<WorkflowMeta> parentWorkflow)
       throws IOException, HopException {
     try (InputStream in = HopVfs.getInputStream(file)) {
       String relativeName;
@@ -638,12 +659,18 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
       int len;
       byte[] buffer = new byte[18024];
+      long readTotal = 0L;
       while ((len = in.read(buffer)) > 0) {
         out.write(buffer, 0, len);
         result.setBytesReadThisAction(result.getBytesReadThisAction() + len);
+        readTotal += len;
       }
       out.flush();
       out.closeEntry();
+      if (parentWorkflow != null && readTotal > 0) {
+        LineageFileIoEmitter.emitWorkflowActionFileIo(
+            parentWorkflow, this, FileIoOperation.READ, file, null, readTotal, true, null);
+      }
     }
   }
 

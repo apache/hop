@@ -346,6 +346,8 @@ public abstract class BeamPipelineEngine extends Variables
         //
         try {
           beamPipelineResults = executePipeline(beamPipeline);
+          ExtensionPointHandler.callExtensionPoint(
+              logChannel, this, HopExtensionPoint.PipelineStart.id, this);
         } catch (Throwable e) {
           hasStartupErrors.set(true);
 
@@ -383,6 +385,9 @@ public abstract class BeamPipelineEngine extends Variables
                   }
                 });
         beamThread.start();
+
+        ExtensionPointHandler.callExtensionPoint(
+            logChannel, this, HopExtensionPoint.PipelineStart.id, this);
 
         // Keep track of when this thread is done...
         //
@@ -1039,6 +1044,9 @@ public abstract class BeamPipelineEngine extends Variables
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
+
     synchronized (executionFinishedListeners) {
       for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
           executionFinishedListeners) {

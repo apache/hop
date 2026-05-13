@@ -62,6 +62,9 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -115,13 +118,22 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     if (meta.isUrlInField()) {
       data.realUrl = data.inputRowMeta.getString(rowData, data.indexOfUrlField);
     }
+    long lineageStart = System.currentTimeMillis();
+    long volIn0 = dataVolumeIn != null ? dataVolumeIn : 0L;
+    long volOut0 = dataVolumeOut != null ? dataVolumeOut : 0L;
+    String urlLineage = data.realUrl;
+    URI uri = null;
+    Integer lineageStatus = null;
+    boolean lineageOk = false;
+    String lineageErr = null;
     // Prepare HTTP POST
     try {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "HTTPPOST.Log.ConnectingToURL", data.realUrl));
       }
       URIBuilder uriBuilder = new URIBuilder(data.realUrl);
-      URI uri = uriBuilder.build();
+      uri = uriBuilder.build();
+      urlLineage = uri.toString();
       org.apache.hc.client5.http.classic.methods.HttpPost post =
           new org.apache.hc.client5.http.classic.methods.HttpPost(uri);
 
@@ -170,6 +182,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         httpResponse = httpClient.execute(target, post, localContext);
 
         int statusCode = requestStatusCode(httpResponse);
+        lineageStatus = statusCode;
         // calculate the responseTime
         long responseTime = System.currentTimeMillis() - startTime;
 
@@ -250,13 +263,31 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
           httpResponse.close();
         }
       }
+      lineageOk = true;
       return newRow;
     } catch (UnknownHostException uhe) {
+      lineageErr = uhe.getMessage();
       throw new HopException(
           BaseMessages.getString(PKG, "HTTPPOST.Error.UnknownHostException", uhe.getMessage()));
     } catch (Exception e) {
+      lineageErr = e.getMessage();
       throw new HopException(
           BaseMessages.getString(PKG, "HTTPPOST.Error.CanNotReadURL", data.realUrl), e);
+    } finally {
+      long reqDelta = (dataVolumeOut != null ? dataVolumeOut : 0L) - volOut0;
+      long respDelta = (dataVolumeIn != null ? dataVolumeIn : 0L) - volIn0;
+      LineageHttpIoEmitter.emitTransformHttpIo(
+          this,
+          new HttpLineagePayload(
+              HttpDirection.CLIENT,
+              "POST",
+              urlLineage,
+              lineageStatus,
+              reqDelta > 0 ? reqDelta : null,
+              respDelta > 0 ? respDelta : null,
+              System.currentTimeMillis() - lineageStart,
+              lineageOk,
+              lineageErr));
     }
   }
 

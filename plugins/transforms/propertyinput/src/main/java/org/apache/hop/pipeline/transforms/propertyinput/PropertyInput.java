@@ -36,6 +36,8 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -329,6 +331,22 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     return outputRow;
   }
 
+  private void emitPropertyFileReadLineage(FileObject file) {
+    if (file == null) {
+      return;
+    }
+    Long size = null;
+    try {
+      if (file.getType().hasContent()) {
+        size = file.getContent().getSize();
+      }
+    } catch (Exception ignored) {
+      // optional for lineage
+    }
+    LineageFileIoEmitter.emitTransformFileIo(
+        this, FileIoOperation.READ, file, null, size, true, null);
+  }
+
   private boolean openNextFile() {
     InputStream inputStream = null;
     try {
@@ -446,6 +464,8 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         logDetailed(
             BaseMessages.getString(PKG, "PropertyInput.Log.OpeningFile", data.file.toString()));
       }
+
+      emitPropertyFileReadLineage(data.file);
 
       if (meta.isAddResult()) {
         // Add this to the result file names...

@@ -48,6 +48,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.ILegacyXml;
@@ -414,7 +416,8 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
               FileObject destChild =
                   destinationFileFolder.resolveFile(
                       sourceFileFolder.getName().getBaseName(), NameScope.CHILD);
-              copyFileWithByteTracking(sourceFileFolder, destChild, result);
+              long copied = copyFileWithByteTracking(sourceFileFolder, destChild, result);
+              emitCopyLineage(sourceFileFolder, destChild, copied);
 
               if (isDetailed()) {
                 logDetailed(
@@ -602,7 +605,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
    * {@link Result#getBytesReadThisAction()} and {@link Result#getBytesWrittenThisAction()} match
    * bytes moved over the streams (when {@link Const#HOP_METRIC_DATA_VOLUME} is enabled).
    */
-  private void copyFileWithByteTracking(FileObject source, FileObject destination, Result result)
+  private long copyFileWithByteTracking(FileObject source, FileObject destination, Result result)
       throws IOException {
     FileObject parent = destination.getParent();
     if (parent != null && !parent.exists()) {
@@ -627,6 +630,22 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     }
     result.setBytesReadThisAction(result.getBytesReadThisAction() + read);
     result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + written);
+    return read;
+  }
+
+  private void emitCopyLineage(FileObject source, FileObject destination, long bytesTransferred) {
+    if (getParentWorkflow() == null || source == null || destination == null) {
+      return;
+    }
+    LineageFileIoEmitter.emitWorkflowActionFileIo(
+        getParentWorkflow(),
+        this,
+        FileIoOperation.COPY,
+        source,
+        destination,
+        bytesTransferred > 0 ? bytesTransferred : null,
+        true,
+        null);
   }
 
   /**
@@ -676,7 +695,8 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
         return false;
       }
 
-      copyFileWithByteTracking(sourceFile, destFile, result);
+      long copied = copyFileWithByteTracking(sourceFile, destFile, result);
+      emitCopyLineage(sourceFile, destFile, copied);
 
       if (removeSourceFiles) {
         listFilesRemove.add(sourceFile.toString());
@@ -1000,7 +1020,8 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
         }
 
         if (returncode && filename != null && info.getFile().getType() == FileType.FILE) {
-          copyFileWithByteTracking(info.getFile(), filename, copyResult);
+          long copied = copyFileWithByteTracking(info.getFile(), filename, copyResult);
+          ActionCopyFiles.this.emitCopyLineage(info.getFile(), filename, copied);
           streamCopied = true;
         }
       } catch (Exception e) {

@@ -42,6 +42,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -710,9 +712,10 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         }
 
         if (!simulate) {
-          trackBytesMoved(sourceFileFolder, result);
+          Long moved = trackBytesMoved(sourceFileFolder, result);
           destinationFilename.createFile();
           sourceFileFolder.moveTo(destinationFilename);
+          emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFilename, moved);
         }
 
         if (isDetailed()) {
@@ -742,8 +745,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         switch (ifFileExists) {
           case "overwrite_file" -> {
             if (!simulate) {
-              trackBytesMoved(sourceFileFolder, result);
+              Long moved = trackBytesMoved(sourceFileFolder, result);
               sourceFileFolder.moveTo(destinationFilename);
+              emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFilename, moved);
             }
             if (isDetailed()) {
               logDetailed(
@@ -787,8 +791,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             destinationFile = HopVfs.getFileObject(movetofilenamefull, getVariables());
 
             if (!simulate) {
-              trackBytesMoved(sourceFileFolder, result);
+              Long moved = trackBytesMoved(sourceFileFolder, result);
               sourceFileFolder.moveTo(destinationFile);
+              emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
             }
             if (isDetailed()) {
               logDetailed(
@@ -809,7 +814,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           }
           case DELETE_FILE -> {
             if (!simulate) {
+              Long sz = fileContentSizeOrNull(sourceFileFolder);
               sourceFileFolder.delete();
+              emitDeleteLineage(parentWorkflow, sourceFileFolder, sz);
             }
             if (isDetailed()) {
               logDetailed(
@@ -843,8 +850,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             destinationFile = HopVfs.getFileObject(moveToFilenameFull, getVariables());
             if (!destinationFile.exists()) {
               if (!simulate) {
-                trackBytesMoved(sourceFileFolder, result);
+                Long moved = trackBytesMoved(sourceFileFolder, result);
                 sourceFileFolder.moveTo(destinationFile);
+                emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
               }
               if (isDetailed()) {
                 logDetailed(
@@ -864,8 +872,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               switch (ifMovedFileExists) {
                 case "overwrite_file" -> {
                   if (!simulate) {
-                    trackBytesMoved(sourceFileFolder, result);
+                    Long moved = trackBytesMoved(sourceFileFolder, result);
                     sourceFileFolder.moveTo(destinationFile);
+                    emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
                   }
                   if (isDetailed()) {
                     logDetailed(
@@ -897,8 +906,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                   destinationFile = HopVfs.getFileObject(destinationFilenameFull, getVariables());
 
                   if (!simulate) {
-                    trackBytesMoved(sourceFileFolder, result);
+                    Long moved = trackBytesMoved(sourceFileFolder, result);
                     sourceFileFolder.moveTo(destinationFile);
+                    emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
                   }
                   if (isDetailed()) {
                     logDetailed(
@@ -1113,16 +1123,55 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  private void trackBytesMoved(FileObject sourceFile, Result result) {
+  /**
+   * Adds the source file size to the result data-volume counters (when {@link
+   * org.apache.hop.core.Const#HOP_METRIC_DATA_VOLUME} is enabled upstream) and returns that size
+   * for lineage.
+   */
+  private Long trackBytesMoved(FileObject sourceFile, Result result) {
     try {
       if (sourceFile.getType().hasContent()) {
         long size = sourceFile.getContent().getSize();
         result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
         result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + size);
+        return size;
       }
     } catch (Exception e) {
       logDebug("Could not get size of source file: " + sourceFile);
     }
+    return null;
+  }
+
+  private static Long fileContentSizeOrNull(FileObject f) {
+    try {
+      if (f != null && f.exists() && f.getType().hasContent()) {
+        return f.getContent().getSize();
+      }
+    } catch (Exception ignored) {
+      // ignore
+    }
+    return null;
+  }
+
+  private void emitMoveLineage(
+      IWorkflowEngine<WorkflowMeta> workflow,
+      FileObject source,
+      FileObject destination,
+      Long bytesTransferred) {
+    if (simulate || workflow == null) {
+      return;
+    }
+    LineageFileIoEmitter.emitWorkflowActionFileIo(
+        workflow, this, FileIoOperation.MOVE, source, destination, bytesTransferred, true, null);
+  }
+
+  private void emitDeleteLineage(
+      IWorkflowEngine<WorkflowMeta> workflow, FileObject source, Long bytesTransferred) {
+    if (simulate || workflow == null) {
+      return;
+    }
+    LineageFileIoEmitter.emitWorkflowActionFileIo(
+        workflow, this, FileIoOperation.DELETE, source, null, bytesTransferred, true, null);
   }
 
   private boolean createDestinationFolder(FileObject filefolder) {

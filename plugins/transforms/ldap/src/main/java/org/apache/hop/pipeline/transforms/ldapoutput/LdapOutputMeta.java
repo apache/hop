@@ -50,9 +50,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private static final Class<?> PKG = LdapOutputMeta.class;
 
   /**
-   * Flag indicating that we use authentication for connection -- GETTER --
-   *
-   * <p>-- SETTER --
+   * Flag indicating that we use authentication for connection
    *
    * @return Returns the input useAuthentication.
    * @param useAuthentication The useAuthentication to set.
@@ -61,7 +59,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private boolean useAuthentication;
 
   /**
-   * The Host name -- SETTER --
+   * The Host name
    *
    * @param host The host to set.
    */
@@ -69,9 +67,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String host;
 
   /**
-   * The User name -- GETTER --
-   *
-   * <p>-- SETTER --
+   * The User name
    *
    * @return Returns the user name.
    * @param userName The username to set.
@@ -80,9 +76,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String userName;
 
   /**
-   * The Password to use in LDAP authentication -- SETTER --
-   *
-   * <p>-- GETTER --
+   * The Password to use in LDAP authentication
    *
    * @param password The password to set.
    * @return Returns the password.
@@ -91,7 +85,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String password;
 
   /**
-   * The Port -- SETTER --
+   * The Port
    *
    * @param port The port to set.
    */
@@ -106,10 +100,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String dnFieldName;
 
   /**
-   * -- GETTER --
-   *
-   * <p>-- SETTER --
-   *
    * @return Returns the failIfNotExist.
    * @param failIfNotExist The failIfNotExist to set.
    */
@@ -131,9 +121,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   }
 
   /**
-   * Operations type -- SETTER --
-   *
-   * <p>-- GETTER --
+   * Operations type
    *
    * @param searchBase The searchBase filed.
    * @return Returns the searchBase.
@@ -142,9 +130,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String searchBase;
 
   /**
-   * Multi valued separator -- SETTER --
-   *
-   * <p>-- GETTER --
+   * Multi valued separator
    *
    * @param multiValuedSeparator The multi-valued separator filed.
    * @return Returns the multi valued separator.
@@ -158,10 +144,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private int operationType;
 
   /**
-   * -- SETTER --
-   *
-   * <p>-- GETTER --
-   *
    * @param value The oldDnFieldName filed.
    * @return Returns the oldDnFieldName.
    */
@@ -169,10 +151,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String oldDnFieldName;
 
   /**
-   * -- SETTER --
-   *
-   * <p>-- GETTER --
-   *
    * @param value The newDnFieldName filed.
    * @return Returns the newDnFieldName.
    */
@@ -180,10 +158,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String newDnFieldName;
 
   /**
-   * -- SETTER --
-   *
-   * <p>-- GETTER --
-   *
    * @param value The deleteRDN filed.
    * @return Returns the deleteRDN.
    */
@@ -258,7 +232,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
 
   public static final int DEREFALIASES_TYPE_ALWAYS = 0;
 
-  /** Protocol -- SETTER -- */
+  /** Protocol */
   @HopMetadataProperty(key = "protocol")
   private String protocol;
 
@@ -267,16 +241,12 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private boolean useCertificate;
 
   /**
-   * -- SETTER --
-   *
    * @param value the trustStorePath to set.
    */
   @HopMetadataProperty(key = "trustStorePath")
   private String trustStorePath;
 
   /**
-   * -- SETTER --
-   *
    * @param value the trustStorePassword to set.
    */
   @HopMetadataProperty(key = "trustStorePassword", password = true)

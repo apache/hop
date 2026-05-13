@@ -469,6 +469,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         //
         fireExecutionStartedListeners();
 
+        ExtensionPointHandler.callExtensionPoint(
+            logChannel, this, HopExtensionPoint.PipelineStart.id, this);
+
         // So the pipeline has been successfully started.
         // That doesn't mean that the execution itself is without error
         // To know that we need to monitor the execution remotely
@@ -1086,6 +1089,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
+
     synchronized (executionFinishedListeners) {
       for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
           executionFinishedListeners) {

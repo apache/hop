@@ -79,6 +79,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -377,11 +380,20 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     HttpPost vHttpMethod = null;
     HttpEntity httpEntity = null;
     Charset charSet = Charset.defaultCharset();
+    long httpLineageStart = System.currentTimeMillis();
+    Integer httpLineageStatus = null;
+    String httpLineageUrl = null;
+    Long httpLineageReqBytes = null;
+    Long httpLineageRespBytes = null;
+    boolean httpLineageOk = false;
+    String httpLineageErr = null;
     try {
       String xml =
           getRequestXML(
               cachedOperation,
               cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()));
+
+      httpLineageReqBytes = (long) xml.getBytes(StandardCharsets.UTF_8).length;
 
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "WebServices.Log.SOAPEnvelope"));
@@ -389,6 +401,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       }
 
       vHttpMethod = getHttpMethod(cachedURLService);
+      httpLineageUrl = vHttpMethod.getUri().toString();
 
       HttpEntity requestEntity =
           new ByteArrayEntity(xml.getBytes(StandardCharsets.UTF_8), ContentType.TEXT_XML);
@@ -405,48 +418,73 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             (org.apache.hc.core5.http.ClassicHttpResponse)
                 cachedHttpClient.execute(vHttpMethod, cachedHostConfiguration);
         responseCode = httpResponse.getCode();
+        httpLineageUrl = vHttpMethod.getUri().toString();
       }
-
-      switch (responseCode) {
-        case HttpStatus.SC_OK -> {
-          httpEntity = httpResponse.getEntity();
-          charSet = StandardCharsets.UTF_8;
-
-          processRows(
-              httpEntity.getContent(),
-              rowData,
-              rowMeta,
-              cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()),
-              charSet.toString());
+      httpLineageStatus = responseCode;
+      if (responseCode == HttpStatus.SC_OK) {
+        httpEntity = httpResponse.getEntity();
+        charSet = StandardCharsets.UTF_8;
+        if (httpEntity != null) {
+          long cl = httpEntity.getContentLength();
+          if (cl >= 0) {
+            httpLineageRespBytes = cl;
+          }
         }
-        case HttpStatus.SC_UNAUTHORIZED ->
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG, "WebServices.ERROR0011.Authentication", cachedURLService));
-        case HttpStatus.SC_NOT_FOUND ->
-            throw new HopTransformException(
-                BaseMessages.getString(PKG, "WebServices.ERROR0012.NotFound", cachedURLService));
-        case HttpStatus.SC_INTERNAL_SERVER_ERROR ->
-            throw new HopTransformException("Internal Server Error 500: " + cachedURLService);
-        default ->
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG,
-                    "WebServices.ERROR0001.ServerError",
-                    Integer.toString(responseCode),
-                    Const.NVL(readEntity(httpEntity, charSet.toString()), ""),
-                    cachedURLService));
+        processRows(
+            httpEntity.getContent(),
+            rowData,
+            rowMeta,
+            cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()),
+            charSet.toString());
+        httpLineageOk = true;
+      } else if (responseCode == HttpStatus.SC_UNAUTHORIZED) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "WebServices.ERROR0011.Authentication", cachedURLService));
+      } else if (responseCode == HttpStatus.SC_NOT_FOUND) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "WebServices.ERROR0012.NotFound", cachedURLService));
+      } else if (responseCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+        throw new HopTransformException("Internal Server Error 500: " + cachedURLService);
+      } else {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "WebServices.ERROR0001.ServerError",
+                Integer.toString(responseCode),
+                Const.NVL(readEntity(httpResponse.getEntity(), charSet.toString()), ""),
+                cachedURLService));
       }
     } catch (UnknownHostException e) {
+      httpLineageErr = e.getMessage();
       throw new HopTransformException(
           BaseMessages.getString(PKG, "WebServices.ERROR0013.UnknownHost", cachedURLService), e);
     } catch (IOException e) {
+      httpLineageErr = e.getMessage();
       throw new HopTransformException(
           BaseMessages.getString(PKG, "WebServices.ERROR0005.IOException", cachedURLService), e);
     } catch (URISyntaxException e) {
+      httpLineageErr = e.getMessage();
       throw new HopTransformException(
           BaseMessages.getString(PKG, "WebServices.ERROR0002.InvalidURI", cachedURLService), e);
     } finally {
+      try {
+        LineageHttpIoEmitter.emitTransformHttpIo(
+            this,
+            new HttpLineagePayload(
+                HttpDirection.CLIENT,
+                "POST",
+                httpLineageUrl != null ? httpLineageUrl : cachedURLService,
+                httpLineageStatus,
+                httpLineageReqBytes != null && httpLineageReqBytes > 0 ? httpLineageReqBytes : null,
+                httpLineageRespBytes != null && httpLineageRespBytes > 0
+                    ? httpLineageRespBytes
+                    : null,
+                System.currentTimeMillis() - httpLineageStart,
+                httpLineageOk,
+                httpLineageErr));
+      } catch (Exception ignored) {
+        // optional lineage
+      }
       data.argumentRows.clear(); // ready for the next batch.
     }
   }

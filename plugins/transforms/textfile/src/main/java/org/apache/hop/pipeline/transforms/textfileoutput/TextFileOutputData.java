@@ -60,6 +60,9 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
     void add(String filename, FileStream fileStreams);
 
     void forEachOpenStream(Consumer<FileStream> action);
+
+    /** Iterates each currently-open file as a (filename, stream) pair. */
+    void forEachOpenFile(java.util.function.BiConsumer<String, FileStream> action);
   }
 
   public class FileStreamsCollectionEntry {
@@ -274,6 +277,16 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
     }
 
     @Override
+    public void forEachOpenFile(java.util.function.BiConsumer<String, FileStream> action) {
+      for (int i = 0; i < streamsList.size(); i++) {
+        FileStream fs = streamsList.get(i);
+        if (fs.isOpen()) {
+          action.accept(namesList.get(i), fs);
+        }
+      }
+    }
+
+    @Override
     public void add(String filename, FileStream fileStreams) {
       namesList.add(filename);
       streamsList.add(fileStreams);
@@ -345,6 +358,16 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
       for (Map.Entry<Long, FileStreamsCollectionEntry> entry : indexMap.entrySet()) {
         if (entry.getValue().getFileStream().isOpen()) {
           action.accept(entry.getValue().getFileStream());
+        }
+      }
+    }
+
+    @Override
+    public void forEachOpenFile(java.util.function.BiConsumer<String, FileStream> action) {
+      for (Map.Entry<Long, FileStreamsCollectionEntry> entry : indexMap.entrySet()) {
+        FileStreamsCollectionEntry e = entry.getValue();
+        if (e.getFileStream().isOpen()) {
+          action.accept(e.getFileName(), e.getFileStream());
         }
       }
     }

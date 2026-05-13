@@ -27,6 +27,8 @@ import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -51,6 +53,10 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
 
     if (r == null) { // no more input to be expected...
+      // Close the currently open output file here so the FILE_IO lineage event is emitted
+      // before PipelineCompleted flushes the lineage hub. dispose() is only a safety net
+      // and runs after the flush in the local pipeline engine's normal completion path.
+      closeFile();
       setOutputDone();
       return false;
     }
@@ -230,7 +236,16 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         CountingOutputStream propsFile = new CountingOutputStream(raw)) {
       data.properties.store(propsFile, resolve(meta.getComment()));
 
-      dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + propsFile.getCount();
+      long written = propsFile.getCount();
+      dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+      if (!data.isBeamContext() && written > 0 && data.file != null) {
+        try {
+          LineageFileIoEmitter.emitTransformFileIo(
+              this, FileIoOperation.WRITE, null, data.file, written, true, null);
+        } catch (Exception ignored) {
+          // optional lineage
+        }
+      }
 
       if (meta.getFileDetails().isAddToResult()) {
         // Add this to the result file names...

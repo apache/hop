@@ -186,7 +186,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private final List<IExecutionViewer> viewers = new ArrayList<>();
 
   /**
-   * -- GETTER -- Gets locationMap
+   * Gets locationMap
    *
    * @return value of locationMap
    */

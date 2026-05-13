@@ -32,6 +32,8 @@ import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -346,6 +348,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(sourceFilename),
                 friendlyPath(targetFilename)));
       }
+      emitCopyLineage();
     } else if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(
@@ -396,6 +399,9 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(sourceFilename),
                 friendlyPath(targetFilename)));
       }
+      String sourceUri = vfsUriString(data.sourceFile);
+      String targetUri = vfsUriString(data.targetFile);
+      Long lineageBytes = nullableContentSize(data.sourceFile);
       long movedBytes = 0;
       if (isDataVolumeMetricEnabled()) {
         movedBytes = safeContentSize(data.sourceFile);
@@ -421,6 +427,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(sourceFilename),
                 friendlyPath(targetFilename)));
       }
+      emitMoveLineageAfterSuccess(sourceUri, targetUri, lineageBytes);
     } else if (isDetailed()) {
       logDetailed(
           BaseMessages.getString(
@@ -440,11 +447,14 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       }
       return;
     }
+    String sourceUri = vfsUriString(data.sourceFile);
+    Long deleteBytes = nullableContentSize(data.sourceFile);
     if (!data.sourceFile.delete()) {
       throw new HopException(
           BaseMessages.getString(
               PKG, "ProcessFiles.Error.CanNotDeleteFile", data.sourceFile.toString()));
     }
+    emitDeleteLineage(sourceUri, deleteBytes);
     if (isBasic()) {
       logBasic(
           BaseMessages.getString(
@@ -454,6 +464,50 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       logDetailed(
           BaseMessages.getString(
               PKG, "ProcessFiles.Log.Detail.FileDeleted", friendlyPath(sourceFilename)));
+    }
+  }
+
+  private void emitCopyLineage() {
+    if (meta.simulate) {
+      return;
+    }
+    Long bytes = nullableContentSize(data.targetFile);
+    if (bytes == null) {
+      bytes = nullableContentSize(data.sourceFile);
+    }
+    LineageFileIoEmitter.emitTransformFileIo(
+        this, FileIoOperation.COPY, data.sourceFile, data.targetFile, bytes, true, null);
+  }
+
+  private void emitMoveLineageAfterSuccess(String sourceUri, String targetUri, Long bytes) {
+    if (meta.simulate || sourceUri == null || targetUri == null) {
+      return;
+    }
+    LineageFileIoEmitter.emitTransformFileIo(
+        this, FileIoOperation.MOVE, sourceUri, targetUri, bytes, true, null);
+  }
+
+  private void emitDeleteLineage(String sourceUri, Long bytes) {
+    if (meta.simulate || sourceUri == null) {
+      return;
+    }
+    LineageFileIoEmitter.emitTransformFileIo(
+        this, FileIoOperation.DELETE, sourceUri, null, bytes, true, null);
+  }
+
+  private static Long nullableContentSize(FileObject file) {
+    long s = safeContentSize(file);
+    return s > 0 ? s : null;
+  }
+
+  private static String vfsUriString(FileObject file) {
+    if (file == null) {
+      return null;
+    }
+    try {
+      return file.getName().getURI();
+    } catch (Exception e) {
+      return null;
     }
   }
 

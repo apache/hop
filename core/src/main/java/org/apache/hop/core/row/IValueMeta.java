@@ -282,22 +282,16 @@ public interface IValueMeta extends Cloneable {
     BOTH("both", BaseMessages.getString(PKG, "ValueMeta.TrimType.Both"), TRIM_TYPE_BOTH);
 
     /**
-     * -- GETTER -- Gets code
-     *
      * @return value of code
      */
     @Getter private final String code;
 
     /**
-     * -- GETTER -- Gets description
-     *
      * @return value of description
      */
     @Getter private final String description;
 
     /**
-     * -- GETTER -- Gets type
-     *
      * @return value of type
      */
     @Getter private final int type;

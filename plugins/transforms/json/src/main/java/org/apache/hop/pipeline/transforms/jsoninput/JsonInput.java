@@ -21,7 +21,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -38,6 +40,11 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoContentSchema;
+import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoPathSyntax;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -367,6 +374,26 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     }
   }
 
+  /** Paths and types configured for JSON file reads (not the transform output row). */
+  private FileIoContentSchema jsonFileReadContentSchema() {
+    if (meta.getInputFields() == null || meta.getInputFields().isEmpty()) {
+      return null;
+    }
+    List<FileIoTabularColumn> cols = new ArrayList<>();
+    for (JsonInputField f : meta.getInputFields()) {
+      cols.add(
+          new FileIoTabularColumn(
+              f.getName(),
+              f.getTypeDesc(),
+              f.getLength(),
+              f.getPrecision(),
+              f.getPath(),
+              FileIoPathSyntax.JSON_PATH,
+              f.isRepeated()));
+    }
+    return FileIoContentSchema.tabularWithMergedTree("json", cols);
+  }
+
   /** get final row for output */
   private Object[] getOneOutputRow() throws HopException {
     if (meta.isInFields() && !data.hasFirstRow) {
@@ -403,7 +430,23 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
             try {
               parseNextInputToRowSet(countingIn);
             } finally {
-              dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIn.getCount();
+              long bytesRead = countingIn.getCount();
+              dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytesRead;
+              if (data.file != null && bytesRead > 0) {
+                try {
+                  LineageFileIoEmitter.emitTransformFileIo(
+                      this,
+                      FileIoOperation.READ,
+                      data.file,
+                      null,
+                      bytesRead,
+                      true,
+                      null,
+                      jsonFileReadContentSchema());
+                } catch (Exception ignored) {
+                  // optional lineage
+                }
+              }
               BaseTransform.closeQuietly(countingIn);
             }
           } else {

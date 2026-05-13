@@ -40,6 +40,8 @@ import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -578,6 +580,17 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
               BaseMessages.getString(
                   PKG, "ExcelInput.Log.OpeningFile", "" + data.filenr + " : " + data.filename));
         }
+
+        Long excelLineageBytes = null;
+        try {
+          if (data.file.getType().hasContent()) {
+            excelLineageBytes = data.file.getContent().getSize();
+          }
+        } catch (Exception ignored) {
+          // optional for lineage
+        }
+        LineageFileIoEmitter.emitTransformFileIo(
+            this, FileIoOperation.READ, data.file, null, excelLineageBytes, true, null);
 
         data.workbook =
             WorkbookFactory.getWorkbook(

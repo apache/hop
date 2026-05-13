@@ -31,6 +31,8 @@ import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -227,6 +229,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
         logDetailed("Opened new file with name [" + filename + "]");
       }
 
+      data.currentOutputFilename = filename;
       data.splitnr++;
 
       retval = true;
@@ -258,8 +261,19 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
           logDebug("Closing normal file ..");
         }
         if (data.fos instanceof CountingOutputStream cos) {
-          dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + cos.getCount();
+          long written = cos.getCount();
+          dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+          if (!data.isBeamContext() && written > 0 && data.currentOutputFilename != null) {
+            try {
+              FileObject outFile = HopVfs.getFileObject(data.currentOutputFilename, variables);
+              LineageFileIoEmitter.emitTransformFileIo(
+                  this, FileIoOperation.WRITE, null, outFile, written, true, null);
+            } catch (Exception ignored) {
+              // optional lineage
+            }
+          }
         }
+        data.currentOutputFilename = null;
         data.fos.close();
         data.fos = null;
       }

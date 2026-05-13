@@ -52,6 +52,9 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -108,10 +111,18 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
     // Prepare Http get
     URI uri = null;
+    long lineageStart = System.currentTimeMillis();
+    long volumeInBefore = dataVolumeIn != null ? dataVolumeIn : 0L;
+    data.lastHttpResponseBodyBytes = 0;
+    String urlForLineage = data.realUrl;
+    Integer lineageStatus = null;
+    boolean lineageOk = false;
+    String lineageErr = null;
     try {
       URIBuilder uriBuilder = constructUrlBuilder(rowMeta, rowData);
 
       uri = uriBuilder.build();
+      urlForLineage = uri.toString();
       HttpGet method = new HttpGet(uri);
 
       // Add Custom Http headers
@@ -144,6 +155,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
           logDetailed(BaseMessages.getString(PKG, "HTTP.Log.ResponseTime", responseTime, uri));
         }
         int statusCode = requestStatusCode(httpResponse);
+        lineageStatus = statusCode;
         // The status code
         if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "HTTP.Log.ResponseStatusCode", "" + statusCode));
@@ -176,12 +188,32 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
           httpResponse.close();
         }
       }
+      lineageOk = true;
       return newRow;
     } catch (UnknownHostException uhe) {
+      lineageErr = uhe.getMessage();
       throw new HopException(
           BaseMessages.getString(PKG, "HTTP.Error.UnknownHostException", uhe.getMessage()));
     } catch (Exception e) {
+      lineageErr = e.getMessage();
       throw new HopException(BaseMessages.getString(PKG, "HTTP.Log.UnableGetResult", uri), e);
+    } finally {
+      long respDelta = (dataVolumeIn != null ? dataVolumeIn : 0L) - volumeInBefore;
+      if (respDelta <= 0 && data.lastHttpResponseBodyBytes > 0) {
+        respDelta = data.lastHttpResponseBodyBytes;
+      }
+      LineageHttpIoEmitter.emitTransformHttpIo(
+          this,
+          new HttpLineagePayload(
+              HttpDirection.CLIENT,
+              "GET",
+              urlForLineage,
+              lineageStatus,
+              null,
+              respDelta > 0 ? respDelta : null,
+              System.currentTimeMillis() - lineageStart,
+              lineageOk,
+              lineageErr));
     }
   }
 
@@ -231,6 +263,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
 
   private String readResponseBody(HttpEntity entity) throws IOException {
     byte[] bodyBytes = EntityUtils.toByteArray(entity);
+    data.lastHttpResponseBodyBytes = bodyBytes.length;
     dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bodyBytes.length;
 
     ByteArrayEntity countedEntity =

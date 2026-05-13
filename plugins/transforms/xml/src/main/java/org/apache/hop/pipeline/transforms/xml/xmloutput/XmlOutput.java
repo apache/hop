@@ -34,6 +34,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -100,7 +102,10 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
     }
 
     if (r == null) { // no more input to be expected...
-
+      // Close the currently open output file here so the FILE_IO lineage event is emitted
+      // before PipelineCompleted flushes the lineage hub. dispose() is only a safety net
+      // and runs after the flush in the local pipeline engine's normal completion path.
+      closeFile();
       setOutputDone();
       return false;
     }
@@ -263,6 +268,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
     try {
 
       FileObject file = HopVfs.getFileObject(buildFilename(true), variables);
+      data.outputVfsFile = file;
 
       if (meta.getFileDetails().isAddToResultFilenames()) {
         // Add this to the result file names...
@@ -333,6 +339,18 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
     }
   }
 
+  private void emitXmlOutputLineage(long written) {
+    if (data.isBeamContext() || written <= 0 || data.outputVfsFile == null) {
+      return;
+    }
+    try {
+      LineageFileIoEmitter.emitTransformFileIo(
+          this, FileIoOperation.WRITE, null, data.outputVfsFile, written, true, null);
+    } catch (Exception ignored) {
+      // optional lineage
+    }
+  }
+
   private boolean closeFile() {
     boolean retval = false;
     if (data.OpenedNewFile) {
@@ -348,17 +366,20 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
           data.zip.closeEntry();
           data.zip.finish();
           if (data.countingStream != null) {
-            dataVolumeOut =
-                (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+            long written = data.countingStream.getCount();
+            dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+            emitXmlOutputLineage(written);
           }
           data.zip.close();
         } else {
           if (data.countingStream != null) {
-            dataVolumeOut =
-                (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+            long written = data.countingStream.getCount();
+            dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+            emitXmlOutputLineage(written);
           }
         }
         closeOutputStream(outputStream);
+        data.outputVfsFile = null;
 
         retval = true;
       } catch (Exception e) {

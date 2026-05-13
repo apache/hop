@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -30,6 +31,11 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoContentSchema;
+import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoPathSyntax;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -130,10 +136,12 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
         // source is a file.
 
+        FileObject yamlFile = HopVfs.getFileObject(fieldValue, variables);
         data.yaml = new YamlReader();
-        data.yaml.loadFile(HopVfs.getFileObject(fieldValue, variables));
+        data.yaml.loadFile(yamlFile);
         dataVolumeIn =
             (dataVolumeIn != null ? dataVolumeIn : 0L) + data.yaml.getBytesReadFromFile();
+        emitYamlFileReadLineage(yamlFile, data.yaml.getBytesReadFromFile());
 
         addFileToResultFilesName(data.yaml.getFile());
       } else {
@@ -148,6 +156,40 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
       return true;
     }
     return false;
+  }
+
+  private void emitYamlFileReadLineage(FileObject file, long bytesRead) {
+    if (file == null) {
+      return;
+    }
+    LineageFileIoEmitter.emitTransformFileIo(
+        this,
+        FileIoOperation.READ,
+        file,
+        null,
+        bytesRead > 0 ? bytesRead : null,
+        true,
+        null,
+        yamlFileReadContentSchema());
+  }
+
+  private FileIoContentSchema yamlFileReadContentSchema() {
+    if (meta.getInputFields() == null || meta.getInputFields().isEmpty()) {
+      return null;
+    }
+    List<FileIoTabularColumn> cols = new ArrayList<>();
+    for (YamlInputField f : meta.getInputFields()) {
+      cols.add(
+          new FileIoTabularColumn(
+              f.getName(),
+              f.getTypeDesc(),
+              f.getLength(),
+              f.getPrecision(),
+              f.getPath(),
+              FileIoPathSyntax.YAML_PATH,
+              false));
+    }
+    return FileIoContentSchema.tabularWithMergedTree("yaml", cols);
   }
 
   private void addFileToResultFilesName(FileObject file) {
@@ -196,6 +238,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
         data.yaml.loadFile(data.file);
         dataVolumeIn =
             (dataVolumeIn != null ? dataVolumeIn : 0L) + data.yaml.getBytesReadFromFile();
+        emitYamlFileReadLineage(data.file, data.yaml.getBytesReadFromFile());
 
         addFileToResultFilesName(data.file);
 

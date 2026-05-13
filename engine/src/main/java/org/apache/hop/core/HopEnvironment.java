@@ -46,6 +46,8 @@ import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType;
 import org.apache.hop.hop.plugin.HopCommandPluginType;
 import org.apache.hop.imp.ImportPluginType;
+import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.plugin.LineageSinkPluginType;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
@@ -95,6 +97,7 @@ public class HopEnvironment {
         ImportPluginType.getInstance(),
         ExecutionDataSamplerPluginType.getInstance(),
         ExecutionInfoLocationPluginType.getInstance(),
+        LineageSinkPluginType.getInstance(),
         HopCommandPluginType.getInstance(),
         DataStreamPluginType.getInstance());
   }
@@ -121,6 +124,8 @@ public class HopEnvironment {
         //
         pluginTypes.forEach(PluginRegistry::addPluginType);
         PluginRegistry.init();
+
+        LineageHub.getInstance().environmentReady();
 
         // Register the native variables and the variables from the various the plugins
         //
@@ -200,7 +205,7 @@ public class HopEnvironment {
 
   // Shutdown the Hop environment programmatically
   public static void shutdown() {
-    // Do Nothing
+    LineageHub.getInstance().shutdown();
   }
 
   /**
@@ -229,6 +234,7 @@ public class HopEnvironment {
   }
 
   public static void reset() {
+    LineageHub.getInstance().shutdown();
     HopClientEnvironment.reset();
     initialized.set(null);
   }

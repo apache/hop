@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
@@ -52,6 +53,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
@@ -257,8 +261,12 @@ public class ActionHttp extends ActionBase {
       InputStream input = null;
       long bytesReadThisRow = 0L;
       long bytesWrittenThisRow = 0L;
+      long httpLineageStart = 0L;
+      long httpLineageRequestBytes = 0L;
+      long httpLineageResponseBytes = 0L;
 
       try {
+        httpLineageStart = System.currentTimeMillis();
         String urlToUse = resolve(row.getString(urlFieldnameToUse, ""));
         String realUploadFile = resolve(row.getString(uploadFieldnameToUse, ""));
         String realTargetFile = resolve(row.getString(destinationFieldnameToUse, ""));
@@ -365,6 +373,7 @@ public class ActionHttp extends ActionBase {
             }
             if (uploadStream instanceof CountingOutputStream countingOutputStream) {
               bytesWrittenThisRow += countingOutputStream.getCount();
+              httpLineageRequestBytes = countingOutputStream.getCount();
             }
             // Close upload and file
             if (uploadStream != null) {
@@ -401,6 +410,7 @@ public class ActionHttp extends ActionBase {
         }
         bytesReadThisRow += ((CountingInputStream) input).getCount();
         bytesWrittenThisRow += ((CountingOutputStream) outputFile).getCount();
+        httpLineageResponseBytes = ((CountingInputStream) input).getCount();
 
         if (isBasic()) {
           logBasic(
@@ -423,6 +433,31 @@ public class ActionHttp extends ActionBase {
         }
 
         result.setResult(true);
+
+        if (parentWorkflow != null) {
+          Integer responseCode = null;
+          try {
+            if (connection instanceof HttpURLConnection) {
+              responseCode = ((HttpURLConnection) connection).getResponseCode();
+            }
+          } catch (Exception ignored) {
+            // optional for lineage
+          }
+          String httpMethod = Utils.isEmpty(realUploadFile) ? "GET" : "POST";
+          LineageHttpIoEmitter.emitWorkflowActionHttpIo(
+              parentWorkflow,
+              this,
+              new HttpLineagePayload(
+                  HttpDirection.CLIENT,
+                  httpMethod,
+                  urlToUse,
+                  responseCode,
+                  httpLineageRequestBytes > 0 ? httpLineageRequestBytes : null,
+                  httpLineageResponseBytes > 0 ? httpLineageResponseBytes : null,
+                  System.currentTimeMillis() - httpLineageStart,
+                  true,
+                  null));
+        }
       } catch (MalformedURLException e) {
         result.setNrErrors(1);
         logError(BaseMessages.getString(PKG, "ActionHTTP.Error.NotValidURL", url, e.getMessage()));

@@ -36,6 +36,8 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -305,7 +307,17 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
           e);
     } finally {
       if (countingStream != null) {
-        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingStream.getCount();
+        long bytesRead = countingStream.getCount();
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytesRead;
+        if (bytesRead > 0) {
+          try {
+            FileObject src = HopVfs.getFileObject(vfsFilename, variables);
+            LineageFileIoEmitter.emitTransformFileIo(
+                this, FileIoOperation.READ, src, null, bytesRead, true, null);
+          } catch (Exception ignored) {
+            // optional lineage
+          }
+        }
       }
       if (inputStream != null) {
         try {

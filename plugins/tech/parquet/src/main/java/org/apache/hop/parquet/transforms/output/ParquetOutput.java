@@ -35,6 +35,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -308,8 +310,17 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     try {
       data.writer.close();
       if (data.countingStream != null) {
-        dataVolumeOut =
-            (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+        long written = data.countingStream.getCount();
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+        if (!data.isBeamContext() && written > 0 && data.filename != null) {
+          try {
+            FileObject outFile = HopVfs.getFileObject(data.filename, variables);
+            LineageFileIoEmitter.emitTransformFileIo(
+                this, FileIoOperation.WRITE, null, outFile, written, true, null);
+          } catch (Exception ignored) {
+            // optional lineage
+          }
+        }
       }
     } catch (Exception e) {
       throw new HopException("Error closing file " + data.filename, e);

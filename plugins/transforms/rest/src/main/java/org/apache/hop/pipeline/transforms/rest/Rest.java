@@ -54,6 +54,9 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -131,6 +134,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (rowData != null) {
       newRow = rowData.clone();
     }
+    final long httpLineageT0 = System.currentTimeMillis();
+    final long httpVolIn0 = dataVolumeIn != null ? dataVolumeIn : 0L;
+    final long httpVolOut0 = dataVolumeOut != null ? dataVolumeOut : 0L;
     try {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", data.realUrl));
@@ -374,7 +380,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       if (!Utils.isEmpty(data.resultHeaderFieldName)) {
         newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, headerString);
       }
+      emitHttpLineage(httpLineageT0, httpVolIn0, httpVolOut0, status, true, null);
     } catch (Exception e) {
+      emitHttpLineage(httpLineageT0, httpVolIn0, httpVolOut0, null, false, e.getMessage());
       throw new HopException(
           BaseMessages.getString(PKG, "Rest.Error.CanNotReadURL", data.realUrl), e);
     } finally {
@@ -548,6 +556,33 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     } catch (Exception e) {
       throw new HopException("Request could not be processed", e);
     }
+  }
+
+  private void emitHttpLineage(
+      long startedAt,
+      long volumeInBefore,
+      long volumeOutBefore,
+      Integer statusCode,
+      boolean success,
+      String message) {
+    long reqDelta = (dataVolumeOut != null ? dataVolumeOut : 0L) - volumeOutBefore;
+    long respDelta = (dataVolumeIn != null ? dataVolumeIn : 0L) - volumeInBefore;
+    String url = data.realUrl;
+    if (Utils.isEmpty(url)) {
+      url = null;
+    }
+    LineageHttpIoEmitter.emitTransformHttpIo(
+        this,
+        new HttpLineagePayload(
+            HttpDirection.CLIENT,
+            data.method,
+            url,
+            statusCode,
+            reqDelta > 0 ? reqDelta : null,
+            respDelta > 0 ? respDelta : null,
+            System.currentTimeMillis() - startedAt,
+            success,
+            message));
   }
 
   private void trackRequestBytes(String entityString, Charset charset) {

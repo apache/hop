@@ -48,6 +48,14 @@ import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.FileIoContentSchema;
+import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoPathSyntax;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -181,28 +189,80 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
             new CountingInputStream(HopVfs.getInputStream(stringXML, variables));
         try {
           data.document = reader.read(countingIs);
-          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIs.getCount();
+          long bytesRead = countingIs.getCount();
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytesRead;
+          if (bytesRead > 0) {
+            try {
+              FileObject src = HopVfs.getFileObject(stringXML, variables);
+              LineageFileIoEmitter.emitTransformFileIo(
+                  this,
+                  FileIoOperation.READ,
+                  src,
+                  null,
+                  bytesRead,
+                  true,
+                  null,
+                  xmlFileReadContentSchema());
+            } catch (Exception ignored) {
+              // optional lineage
+            }
+          }
         } finally {
           BaseTransform.closeQuietly(countingIs);
         }
       } else if (readurl) {
-        // read url as source
-        HttpClient client = HttpClientManager.getInstance().createDefaultClient();
-        HttpGet method = new HttpGet(stringXML);
-        method.addHeader("Accept-Encoding", "gzip");
-        ClassicHttpResponse response = (ClassicHttpResponse) client.execute(method);
-        Header contentEncoding = response.getFirstHeader("Content-Encoding");
-        HttpEntity responseEntity = response.getEntity();
-        if (responseEntity != null) {
-          if (contentEncoding != null) {
-            String acceptEncodingValue = contentEncoding.getValue();
-            if (acceptEncodingValue.contains("gzip")) {
-              GZIPInputStream in = new GZIPInputStream(responseEntity.getContent());
-
-              data.document = reader.read(in);
+        long httpStart = System.currentTimeMillis();
+        Integer httpStatus = null;
+        Long httpRespBytes = null;
+        boolean httpOk = false;
+        ClassicHttpResponse response = null;
+        try {
+          HttpClient client = HttpClientManager.getInstance().createDefaultClient();
+          HttpGet method = new HttpGet(stringXML);
+          method.addHeader("Accept-Encoding", "gzip");
+          response = (ClassicHttpResponse) client.execute(method);
+          httpStatus = response.getCode();
+          Header contentEncoding = response.getFirstHeader("Content-Encoding");
+          HttpEntity responseEntity = response.getEntity();
+          if (responseEntity != null) {
+            if (contentEncoding != null) {
+              String acceptEncodingValue = contentEncoding.getValue();
+              if (acceptEncodingValue.contains("gzip")) {
+                CountingInputStream countingIn =
+                    new CountingInputStream(new GZIPInputStream(responseEntity.getContent()));
+                data.document = reader.read(countingIn);
+                httpRespBytes = countingIn.getCount();
+              }
+            } else {
+              CountingInputStream countingIn = new CountingInputStream(responseEntity.getContent());
+              data.document = reader.read(countingIn);
+              httpRespBytes = countingIn.getCount();
             }
-          } else {
-            data.document = reader.read(responseEntity.getContent());
+          }
+          httpOk = true;
+        } finally {
+          try {
+            LineageHttpIoEmitter.emitTransformHttpIo(
+                this,
+                new HttpLineagePayload(
+                    HttpDirection.CLIENT,
+                    "GET",
+                    stringXML,
+                    httpStatus,
+                    null,
+                    httpRespBytes != null && httpRespBytes > 0 ? httpRespBytes : null,
+                    System.currentTimeMillis() - httpStart,
+                    httpOk,
+                    null));
+          } catch (Exception ignored) {
+            // optional lineage
+          }
+          if (response != null) {
+            try {
+              response.close();
+            } catch (Exception ignored) {
+              // optional
+            }
           }
         }
       } else {
@@ -216,7 +276,23 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         try {
           reader.setEncoding(encoding);
           data.document = reader.read(countingIs);
-          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIs.getCount();
+          long bytesRead = countingIs.getCount();
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytesRead;
+          if (file != null && bytesRead > 0) {
+            try {
+              LineageFileIoEmitter.emitTransformFileIo(
+                  this,
+                  FileIoOperation.READ,
+                  file,
+                  null,
+                  bytesRead,
+                  true,
+                  null,
+                  xmlFileReadContentSchema());
+            } catch (Exception ignored) {
+              // optional lineage
+            }
+          }
         } finally {
           BaseTransform.closeQuietly(countingIs);
         }
@@ -993,6 +1069,45 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     }
     buffer.append(rest);
     return buffer.toString();
+  }
+
+  /** Loop XPath and field XPaths read from the XML file (resolved where init has run). */
+  private FileIoContentSchema xmlFileReadContentSchema() {
+    if (meta.getInputFields() == null || meta.getInputFields().isEmpty()) {
+      return null;
+    }
+    List<FileIoTabularColumn> cols = new ArrayList<>();
+    if (data != null && !Utils.isEmpty(data.PathValue)) {
+      cols.add(
+          new FileIoTabularColumn(
+              "(loopXPath)", "Node", -1, -1, data.PathValue, FileIoPathSyntax.XPATH, true));
+    } else if (!Utils.isEmpty(meta.getLoopXPath())) {
+      cols.add(
+          new FileIoTabularColumn(
+              "(loopXPath)",
+              "Node",
+              -1,
+              -1,
+              resolve(meta.getLoopXPath()),
+              FileIoPathSyntax.XPATH,
+              true));
+    }
+    for (GetXmlDataField f : meta.getInputFields()) {
+      String xp = f.getResolvedXPath();
+      if (Utils.isEmpty(xp)) {
+        xp = resolve(f.getXPath());
+      }
+      cols.add(
+          new FileIoTabularColumn(
+              f.getName(),
+              f.getType(),
+              f.getLength(),
+              f.getPrecision(),
+              Utils.isEmpty(xp) ? null : xp,
+              FileIoPathSyntax.XPATH,
+              f.isRepeat()));
+    }
+    return FileIoContentSchema.tabularWithMergedTree("xml", cols);
   }
 
   @Override

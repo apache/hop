@@ -41,6 +41,9 @@ public class HttpData extends BaseTransformData implements ITransformData {
   public int realConnectionTimeout;
   public boolean withoutPreviousTransforms;
 
+  /** Bytes read from the last HTTP response body (for lineage). */
+  public int lastHttpResponseBodyBytes;
+
   /** Default constructor. */
   public HttpData() {
     super();
