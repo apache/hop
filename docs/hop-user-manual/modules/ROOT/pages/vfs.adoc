@@ -43,6 +43,7 @@ Click the File system name to access more detailed file system documentation.
 |xref:vfs/google-cloud-storage-vfs.adoc[Google Cloud Storage]|Provides access to Google Cloud Storage buckets|`gs://`
 |xref:vfs/google-drive-vfs.adoc[Google Drive]|Provides access to Google Drive folders|`googledrive://`
 |xref:metadata-types/minio-connection.adoc[Minio connection]|Provides access to S3 endpoints using a Minio client|`any://`
+|xref:metadata-types/webdav-connection.adoc[WebDAV Connection]|Provides access to WebDAV servers via a named connection (metadata)|`+connectionName://+`
 |===
 
 == Apache VFS File System Types

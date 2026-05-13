@@ -1,0 +1,58 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Register a named WebDAV (HTTP/WebDAV or HTTPS) endpoint for use in Hop VFS paths.
+
+= WebDAV Connection
+
+== Description
+
+This metadata type registers a **named** WebDAV endpoint in your project.
+Hop exposes each connection under the **connection name** as a VFS scheme, so you reference files with:
+
+`+myConnectionName:///path/under/webdav/root+`
+
+The **WebDAV root URL** in the metadata must be a full Apache Commons VFS WebDAV URL (`webdav4://` for HTTP or `webdav4s://` for HTTPS), including the path to your DAV root (for example a Nextcloud folder root such as `+/remote.php/dav/files/username/+`).
+
+Credentials are configured in this metadata object and applied through VFS—they are **not** embedded in Hop file paths.
+
+For the underlying `webdav4` / `webdav4s` URI syntax and options, see xref:vfs.adoc[VFS] (WebDAV section).
+
+IMPORTANT: Many hosted servers redirect HTTP to HTTPS with `301`. Use **`webdav4s://`** in **WebDAV root URL** when the server expects TLS, otherwise listing or type detection can fail while desktop clients (that follow redirects for WebDAV methods) may still work.
+
+NOTE: **Username**, **password**, and **WebDAV root URL** support variable substitution. Passwords can be stored encrypted in metadata; Hop decrypts them when resolving the connection.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name| Name of this connection; used as the URI scheme in paths (`+name:///...+`)
+|Description| Optional longer description
+|WebDAV root URL| Full URL including scheme `webdav4://` or `webdav4s://`, host, optional port, and DAV path (often with a trailing slash). Example: `+webdav4s://cloud.example.com/remote.php/dav/files/admin/+`
+|Username| User name for authentication (optional if the server allows anonymous access)
+|Password| Password or application password; supports variables and encrypted values
+|Follow HTTP redirects| Passed to the HTTP client (see VFS/WebDAV provider behavior for redirect limits on WebDAV methods)
+|Preemptive basic authentication| Sends credentials proactively for servers that require it
+|===
+
+== Tips
+
+* To verify a connection, open **File → Open** (or any file dialog) and browse `+YourConnectionName:///+` or drill into a subfolder path.
+* Prefer **`webdav4s://`** for Nextcloud and similar hosts that enforce HTTPS.
+* Pick a **Name** that does not clash with https://commons.apache.org/proper/commons-vfs/filesystems.html[built-in VFS schemes] (`file`, `ftp`, `http`, …) or other registered plugins (`s3`, `azure`, `gs`, etc.).

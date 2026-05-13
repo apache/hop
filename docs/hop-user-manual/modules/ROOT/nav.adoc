@@ -461,6 +461,7 @@ under the License.
 *** xref:metadata-types/variable-resolver/pipeline-variable-resolver.adoc[Pipeline variable resolver]
 ** xref:metadata-types/static-schema-definition.adoc[Static Schema Definition]
 ** xref:hop-server/web-service.adoc[Web Service]
+** xref:metadata-types/webdav-connection.adoc[WebDAV Connection]
 ** xref:metadata-types/workflow-log.adoc[Workflow Log]
 ** xref:metadata-types/workflow-run-config.adoc[Workflow Run Configuration]
 * xref:password/passwords.adoc[Passwords]

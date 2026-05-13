@@ -22,6 +22,7 @@ import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.http4.Http4FileSystemConfigBuilder;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.vfs.webdav.metadata.WebDavConnection;
 
@@ -31,7 +32,7 @@ final class HopWebDavConnectionAuth {
 
   static void apply(FileSystemOptions opts, IVariables variables, WebDavConnection meta) {
     String user = Const.NVL(variables.resolve(meta.getUsername()), "");
-    String pass = Const.NVL(variables.resolve(meta.getPassword()), "");
+    String pass = Const.NVL(Utils.resolvePassword(variables, meta.getPassword()), "");
     if (StringUtils.isNotEmpty(user)) {
       DefaultFileSystemConfigBuilder.getInstance()
           .setUserAuthenticator(opts, new StaticUserAuthenticator(null, user, pass));
