@@ -49,6 +49,24 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
+      <name>Prepare output folder</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <success_condition>success_if_no_errors</success_condition>
+      <limit_folders>10</limit_folders>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/hop-json-integration-output</name>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>184</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>0005-enhanced-json-output-empty-stream.hpl</name>
       <description/>
       <type>PIPELINE</type>
@@ -80,6 +98,13 @@ limitations under the License.
   <hops>
     <hop>
       <from>START</from>
+      <to>Prepare output folder</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Prepare output folder</from>
       <to>0005-enhanced-json-output-empty-stream.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

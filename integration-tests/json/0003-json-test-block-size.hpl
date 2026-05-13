@@ -73,7 +73,7 @@ limitations under the License.
     <defaultPathLeafToNull>Y</defaultPathLeafToNull>
     <rownum_field/>
     <file>
-      <name>${PROJECT_HOME}/output</name>
+      <name>${java.io.tmpdir}/hop-json-integration-output</name>
       <filemask>.*.json</filemask>
       <exclude_filemask/>
       <file_required>N</file_required>

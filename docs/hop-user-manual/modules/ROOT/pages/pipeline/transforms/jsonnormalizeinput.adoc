@@ -1,0 +1,78 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The JSON Normalize Input transform reads JSON (files, URLs, or fields), selects an array of records with JsonPath, flattens nested objects into columns, and outputs one row per array element.
+
+= image:transforms/icons/JsonNormalizeInput.svg[JSON Normalize Input transform Icon, role="image-doc-icon"] JSON Normalize Input
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+The JSON Normalize Input transform is similar to xref:pipeline/transforms/jsoninput.adoc[JSON Input] for sourcing data (file, URL, or a field from a previous transform), but it is built for *tabular* extraction from JSON documents:
+
+* A *record JsonPath* selects an *array* of objects (or scalar elements). Hop emits *one output row per array element*.
+* Nested objects under each record are *flattened* into column paths using a configurable separator (default: a dot, similar to `pandas.json_normalize`).
+* On the Fields tab, each row’s *Path* is the *flattened key* (for example `customer.name`), not a separate JsonPath query into the raw file.
+
+Use this transform when your JSON has a clear list of entities (`orders`, `events`, or a root-level array) and you want a wide, denormalized row set without chaining multiple JSON Input transforms.
+
+== Samples
+Sample pipelines and data ship with the JSON transforms plugin under `plugins/transforms/json/src/main/samples/`:
+
+* `transforms/json-normalize-orders.hpl` with `data/json-normalize-orders.json` — nested `orders` array.
+* `transforms/json-normalize-root-array.hpl` with `data/json-normalize-events.json` — root-level array.
+* `transforms/json-normalize-complex-transactions.hpl` with `data/json-normalize-complex-transactions.json` — larger file with many columns and rows.
+
+Pipeline unit tests in `integration-tests/json/` (`0008`–`0010`) exercise the same scenarios in CI.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Apache Spark, Flink, Dataflow! Not verified for this transform; validate in your environment before relying on distributed execution.
+!===
+|===
+
+== Options
+
+=== File tab
+Same concepts as JSON Input: source from files / folder, URL, or a field from a previous transform (`Source is from a previous transform`). See xref:pipeline/transforms/jsoninput.adoc#_file_tab[JSON Input – File tab] for details.
+
+=== Content tab
+In addition to the usual file and row-limit options (see xref:pipeline/transforms/jsoninput.adoc#_content_tab[JSON Input – Content tab]), the Content tab adds:
+
+[options="header"]
+|===
+|Option|Description
+|Record JsonPath|JsonPath that must evaluate to an *array* of records. Each element becomes one output row. Examples: `$.orders[*]` for `{ "orders": [ {...}, ... ] }`, or `$[*]` when the file root is an array.
+|Field separator|Character(s) placed between path segments when flattening nested objects (default `.`).
+|Max flatten depth|Maximum object nesting depth to flatten. `-1` means unlimited.
+|Array handling|How to handle JSON arrays encountered while flattening: stringify (default), single element only, or error.
+|Beyond max depth|When max depth is reached: stringify, omit, or error.
+|Ignore missing field paths|If enabled, fields listed on the Fields tab that are missing on a given row are set to null instead of failing the row.
+|===
+
+=== Fields tab
+Define output fields the same way as JSON Input (name, type, format, and so on). The *Path* column must match the *flattened* key for the value after normalization, for example `orderId`, `customer.name`, or `meta.amount`.
+
+Use *Select fields from snippet* with a *single representative record* (one element of your array) to suggest flattened paths.
+
+=== Additional output fields tab
+Same as JSON Input when reading from files. See xref:pipeline/transforms/jsoninput.adoc#_additional_output_fields_tab[JSON Input – Additional output fields tab].
