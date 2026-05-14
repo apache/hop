@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.xml.advancedxmloutput;
 
 import java.util.List;
 import java.util.Map;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
@@ -27,12 +28,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -61,9 +66,94 @@ public class AdvancedXmlOutputMeta
 
   private static final Class<?> PKG = AdvancedXmlOutputMeta.class;
 
+  /** Write XML document(s) to the configured file. */
+  public static final String OPERATION_TYPE_WRITE_TO_FILE = "writetofile";
+
+  /**
+   * Append the produced XML document as a string field (one row per completed document / split).
+   */
+  public static final String OPERATION_TYPE_OUTPUT_VALUE = "outputvalue";
+
+  /** Write to the file and append the XML string field for each completed document / split. */
+  public static final String OPERATION_TYPE_BOTH = "both";
+
+  /**
+   * Where to send the XML document (same pattern as JSON Output Enhanced: writetofile / outputvalue
+   * / both). Stored by code in pipeline XML ({@code storeWithCode}) for reliable round-trip.
+   */
+  @Getter
+  public enum XmlOutputOperation implements IEnumHasCodeAndDescription {
+    WRITE_TO_FILE(
+        OPERATION_TYPE_WRITE_TO_FILE,
+        BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.OperationType.WriteToFile")),
+    OUTPUT_VALUE(
+        OPERATION_TYPE_OUTPUT_VALUE,
+        BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.OperationType.OutputValue")),
+    BOTH(
+        OPERATION_TYPE_BOTH,
+        BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.OperationType.Both"));
+
+    private final String code;
+    private final String description;
+
+    XmlOutputOperation(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+
   /** Filename / split / zip / result options. */
   @HopMetadataProperty(key = "file")
   private XmlFileOutputSupport fileSupport;
+
+  /**
+   * Destination for the transform output (same codes as {@link #OPERATION_TYPE_WRITE_TO_FILE} /
+   * {@link #OPERATION_TYPE_OUTPUT_VALUE} / {@link #OPERATION_TYPE_BOTH}).
+   */
+  @Getter(AccessLevel.NONE)
+  @Injection(name = "", group = "GENERAL")
+  @HopMetadataProperty(
+      key = "operation_type",
+      storeWithCode = true,
+      injectionKey = "OPERATION",
+      injectionKeyDescription = "AdvancedXMLOutput.Injection.OPERATION")
+  private XmlOutputOperation operationType = XmlOutputOperation.WRITE_TO_FILE;
+
+  /**
+   * Row field name for the produced XML when {@link #getOperationType()} is {@link
+   * XmlOutputOperation#OUTPUT_VALUE} or {@link XmlOutputOperation#BOTH}.
+   */
+  @HopMetadataProperty(key = "output_xml_field")
+  private String outputXmlField;
+
+  /**
+   * When true (default), each row emitted in output-to-field modes carries all input fields plus
+   * the generated XML. When false, only the XML field is emitted (narrow stream).
+   */
+  @HopMetadataProperty(
+      key = "include_input_fields_in_output",
+      defaultBoolean = true,
+      injectionKey = "INCLUDE_INPUT_FIELDS_IN_OUTPUT",
+      injectionKeyDescription = "AdvancedXMLOutput.Injection.INCLUDE_INPUT_FIELDS_IN_OUTPUT")
+  private boolean includeInputFieldsInOutput = true;
+
+  public XmlOutputOperation getOperationType() {
+    return operationType == null ? XmlOutputOperation.WRITE_TO_FILE : operationType;
+  }
+
+  public void setOperationType(XmlOutputOperation operationType) {
+    this.operationType = operationType;
+  }
 
   /** Output character encoding. */
   @HopMetadataProperty(
@@ -181,6 +271,8 @@ public class AdvancedXmlOutputMeta
     this.createEmptyElement = true;
     this.xslStylesheetType = "text/xsl";
     this.rootNode = defaultRootNode();
+    this.operationType = XmlOutputOperation.WRITE_TO_FILE;
+    this.outputXmlField = "outputXml";
   }
 
   public AdvancedXmlOutputMeta(AdvancedXmlOutputMeta m) {
@@ -202,6 +294,9 @@ public class AdvancedXmlOutputMeta
     this.xslStylesheetHref = m.xslStylesheetHref;
     this.xslStylesheetType = m.xslStylesheetType;
     this.rootNode = m.rootNode == null ? defaultRootNode() : new XmlNode(m.rootNode);
+    this.operationType = m.getOperationType();
+    this.outputXmlField = m.outputXmlField;
+    this.includeInputFieldsInOutput = m.isIncludeInputFieldsInOutput();
   }
 
   @Override
@@ -226,7 +321,37 @@ public class AdvancedXmlOutputMeta
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-    // No fields are added to the output stream; rows pass through unchanged.
+    if (!writesXmlField()) {
+      return;
+    }
+    try {
+      String fieldName = variables.resolve(outputXmlField);
+      if (!Utils.isEmpty(fieldName)) {
+        if (!includeInputFieldsInOutput) {
+          row.clear();
+        }
+        row.addValueMeta(ValueMetaFactory.createValueMeta(fieldName, IValueMeta.TYPE_STRING));
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /** Resolved operation type code for metadata compatibility and samples. */
+  public String resolvedOperationType() {
+    return getOperationType().getCode();
+  }
+
+  /** True when the pipeline should append an XML string field (output value or both). */
+  public boolean writesXmlField() {
+    XmlOutputOperation op = getOperationType();
+    return op == XmlOutputOperation.OUTPUT_VALUE || op == XmlOutputOperation.BOTH;
+  }
+
+  /** True when the transform writes physical XML file(s). */
+  public boolean writesXmlFile() {
+    XmlOutputOperation op = getOperationType();
+    return op == XmlOutputOperation.WRITE_TO_FILE || op == XmlOutputOperation.BOTH;
   }
 
   @Override
@@ -273,6 +398,33 @@ public class AdvancedXmlOutputMeta
               transformMeta);
       remarks.add(cr);
     }
+
+    if (writesXmlField() && Utils.isEmpty(variables.resolve(outputXmlField))) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "AdvancedXMLOutputMeta.CheckResult.OutputXmlFieldMissing"),
+              transformMeta));
+    }
+
+    if (writesXmlFile()
+        && fileSupport != null
+        && Utils.isEmpty(variables.resolve(fileSupport.getFileName()))) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "AdvancedXMLOutputMeta.CheckResult.FilenameMissing"),
+              transformMeta));
+    }
+
+    if (!writesXmlFile() && fileSupport != null && fileSupport.isZipped()) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "AdvancedXMLOutputMeta.CheckResult.ZipNeedsFile"),
+              transformMeta));
+    }
   }
 
   @Override
@@ -283,7 +435,7 @@ public class AdvancedXmlOutputMeta
       IHopMetadataProvider metadataProvider)
       throws HopException {
     try {
-      if (fileSupport != null && !Utils.isEmpty(fileSupport.getFileName())) {
+      if (writesXmlFile() && fileSupport != null && !Utils.isEmpty(fileSupport.getFileName())) {
         FileObject fileObject =
             HopVfs.getFileObject(variables.resolve(fileSupport.getFileName()), variables);
         fileSupport.setFileName(resourceNamingInterface.nameResource(fileObject, variables, true));

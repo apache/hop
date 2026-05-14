@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The XML Output (Advanced) transform writes rows to an XML file using a hierarchical XML tree with optional row-loop and group-by elements.
+:description: The XML Output (Advanced) transform builds hierarchical XML from input rows, with optional write-to-file, XML-as-field output, splits, and XSD generation.
 
 = image:transforms/icons/AXO.svg[XML Output (Advanced) transform Icon, role="image-doc-icon"] XML Output (Advanced)
 
@@ -25,7 +25,7 @@ under the License.
 |
 == Description
 
-The XML Output (Advanced) transform writes rows from any source to one or more XML files, using a hierarchical, user-defined XML tree.
+The XML Output (Advanced) transform builds XML from input rows using a hierarchical, user-defined tree. You can *write to file*, *append the document as a string field* (for use by a later transform), or *both*. File-oriented options apply only when a file is written.
 
 The XML tree is a recursive structure of elements, attributes and document-fragment nodes. Exactly one element in the tree must be marked as the row-*loop*: each input row produces one occurrence of that element with its full subtree. Optionally, ancestors of the loop can be marked as *group-by*: consecutive input rows that share the same group key are emitted under a single occurrence of the group element.
 
@@ -52,7 +52,10 @@ The dialog is organized into three tabs: *File*, *Content* and *XML Tree*.
 |===
 |Option|Description
 |Transform name|Name of the transform.
-|Filename|Base name of the output XML file (without extension). VFS URIs are supported.
+|Output|Where to send the XML: *Write to file*, *Output XML as field*, or *Write to file and output XML as field* (both). Stored in pipeline XML as codes `writetofile`, `outputvalue`, and `both`.
+|XML output field|Name of the field that receives the completed XML document (one value per split when splitting is enabled). Used when *Output* is *Output XML as field* or *both*.
+|Include input fields in output|When *Output* includes an XML field: if enabled (default), each emitted row contains all input fields plus the XML field; if disabled, only the XML field is emitted (narrow stream useful for chaining).
+|Filename|Base name of the output XML file (without extension). VFS URIs are supported. Required when *Output* writes to a file.
 |Extension|File extension (without the leading dot). Defaults to `xml`.
 |Encoding|Character encoding for the output file. Defaults to `UTF-8`.
 |Include transform copy number in filename|Append the transform copy number to the filename.
@@ -60,7 +63,7 @@ The dialog is organized into three tabs: *File*, *Content* and *XML Tree*.
 |Include time in filename|Append the system time (`HHmmss`) to the filename.
 |Specify custom date/time format|Use a custom date/time pattern instead of the date/time toggles above.
 |Date/time format|Java `SimpleDateFormat` pattern, used when the custom format toggle is on.
-|Split every N rows|Maximum rows per file before rolling over to a new split. `0` = no splitting.
+|Split every N rows|Maximum rows per file before rolling over to a new split, or per completed XML field segment when *Output* includes an XML field. `0` = no splitting.
 |Zip output file|Wrap each output file in a zip archive (one entry per file). Generated XSDs are written next to the archive, not inside it.
 |Do not open new file at start|Defer file creation until the first input row is received.
 |Do not create file if no rows|Delete the output file at the end of the run if no rows were ever written.
@@ -116,7 +119,12 @@ The XML Tree tab is the visual designer for the output structure. The left pane 
 |Loop|Marks this element as the row-loop element. Exactly one element must carry the flag.
 |Group-by|Marks this element as a group-by ancestor of the loop. Consecutive rows with equal `Mapped field` values share a single occurrence.
 |Force create|Output this node even when the value is `null` (uses the default value when set).
+|Remove outer wrapper (duplicate parent tag)|For `DocumentFragment` nodes only: when the fragment's root element repeats the parent element name, strip that outer wrapper so the inner XML is inserted without a duplicated wrapper (for example when feeding XML from an upstream XML Output (Advanced) into a child fragment node).
 |===
+
+== Chaining and output-to-field
+
+When *Output* is *Output XML as field* or *both*, the transform adds the configured *XML output field* to the stream for each completed document (or each split). A second XML Output (Advanced) transform can map that field with a *DocumentFragment* node. Use *Remove outer wrapper* on the fragment if the inner XML already has a root tag that would duplicate the parent element in the target tree.
 
 == Group-by behaviour
 

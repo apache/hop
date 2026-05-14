@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.advancedxmloutput;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 import javax.xml.stream.XMLStreamWriter;
@@ -72,6 +73,26 @@ public class AdvancedXmlOutputData extends BaseTransformData implements ITransfo
    * Last group-key tuple written. Same length as {@link #groupByPath}; null = no group is open yet.
    */
   public String[] currentGroupKey;
+
+  /** Last input row snapshot for attaching the XML string field (output value / both modes). */
+  public Object[] lastRowForXmlOutput;
+
+  /** True: write XML to the configured file. */
+  public boolean writeToFile;
+
+  /**
+   * True: one output row per completed XML document with the document in the {@code outputXmlField}
+   * set on {@link AdvancedXmlOutputMeta}.
+   */
+  public boolean outputXmlField;
+
+  /** When {@link #outputXmlField}, uncompressed XML bytes for the current file / segment. */
+  public ByteArrayOutputStream xmlCaptureBuffer;
+
+  /** Output row layout including the optional XML field. */
+  public IRowMeta outputRowMeta;
+
+  public int inputRowMetaSize;
 
   public AdvancedXmlOutputData() {
     super();

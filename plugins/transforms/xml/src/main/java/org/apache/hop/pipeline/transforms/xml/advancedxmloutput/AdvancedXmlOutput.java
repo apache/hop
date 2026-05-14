@@ -18,9 +18,12 @@
 package org.apache.hop.pipeline.transforms.xml.advancedxmloutput;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -39,10 +42,13 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -59,9 +65,49 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, AdvancedXmlOutputData> {
 
+  private static final Class<?> PKG = AdvancedXmlOutputMeta.class;
+
   private static final String EOL = "\n";
   private static final XMLOutputFactory XML_OUT_FACTORY = XMLOutputFactory.newInstance();
   private static final XMLInputFactory XML_IN_FACTORY = createSecureInputFactory();
+
+  /** Writes every byte to two underlying streams (e.g. file + in-memory capture). */
+  private static final class TeeOutputStream extends OutputStream {
+    private final OutputStream a;
+    private final OutputStream b;
+
+    TeeOutputStream(OutputStream a, OutputStream b) {
+      this.a = a;
+      this.b = b;
+    }
+
+    @Override
+    public void write(int c) throws IOException {
+      a.write(c);
+      b.write(c);
+    }
+
+    @Override
+    public void write(byte[] buf, int off, int len) throws IOException {
+      a.write(buf, off, len);
+      b.write(buf, off, len);
+    }
+
+    @Override
+    public void flush() throws IOException {
+      a.flush();
+      b.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+      try {
+        a.close();
+      } finally {
+        b.close();
+      }
+    }
+  }
 
   private OutputStream outputStream;
 
@@ -88,6 +134,23 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       return false;
     }
     data.splitnr = 0;
+    data.writeToFile = meta.writesXmlFile();
+    data.outputXmlField = meta.writesXmlField();
+    if (data.outputXmlField && Utils.isEmpty(resolve(meta.getOutputXmlField()))) {
+      logError(BaseMessages.getString(PKG, "AdvancedXmlOutput.Error.MissingOutputXmlField"));
+      return false;
+    }
+    if (!data.writeToFile && meta.getFileSupport().isZipped()) {
+      logError(BaseMessages.getString(PKG, "AdvancedXmlOutput.Error.ZipRequiresFile"));
+      return false;
+    }
+    if (data.writeToFile && Utils.isEmpty(resolve(meta.getFileSupport().getFileName()))) {
+      logError(BaseMessages.getString(PKG, "AdvancedXmlOutput.Error.MissingTargetFilename"));
+      return false;
+    }
+    if (!data.writeToFile) {
+      return true;
+    }
     if (meta.getFileSupport().isDoNotOpenNewFileInit()) {
       return true;
     }
@@ -119,6 +182,11 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
         return false;
       }
       data.inputRowMeta = getInputRowMeta();
+      if (data.outputXmlField) {
+        data.outputRowMeta = getInputRowMeta().clone();
+        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+        data.inputRowMetaSize = getInputRowMeta().size();
+      }
       resolveTreeStructure();
     }
 
@@ -148,10 +216,10 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       return false;
     }
 
-    // Lazy open if the user asked us to defer file creation.
-    if (!data.fileOpen && meta.getFileSupport().isDoNotOpenNewFileInit()) {
+    // Lazy open if the user asked to defer file creation, or output-to-field-only mode.
+    if (!data.fileOpen && (!data.writeToFile || meta.getFileSupport().isDoNotOpenNewFileInit())) {
       if (!openNewFile()) {
-        logError("Couldn't open file " + meta.getFileSupport().getFileName());
+        logError(BaseMessages.getString(PKG, "AdvancedXmlOutput.Error.OpenOutputFailed"));
         setErrors(1);
         return false;
       }
@@ -164,7 +232,16 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
           "Error writing XML row :" + e + Const.CR + "Row: " + getInputRowMeta().getString(r), e);
     }
 
-    putRow(getInputRowMeta(), r);
+    boolean passThroughEachRow = data.writeToFile && !data.outputXmlField;
+    if (passThroughEachRow) {
+      putRow(getInputRowMeta(), r);
+    } else if (data.outputXmlField) {
+      try {
+        data.lastRowForXmlOutput = getInputRowMeta().cloneRow(r);
+      } catch (HopValueException e) {
+        throw new HopException(e);
+      }
+    }
 
     if (checkFeedback(getLinesOutput()) && isBasic()) {
       logBasic("linenr " + getLinesOutput());
@@ -297,24 +374,51 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
 
   private boolean openNewFile() {
     data.writer = null;
+    if (data.outputXmlField) {
+      data.xmlCaptureBuffer = new java.io.ByteArrayOutputStream();
+    } else {
+      data.xmlCaptureBuffer = null;
+    }
     try {
-      String physicalName =
-          meta.getFileSupport().buildFilename(this, getCopy(), data.splitnr, true);
-      String innerName = meta.getFileSupport().buildFilename(this, getCopy(), data.splitnr, false);
-      FileObject file = HopVfs.getFileObject(physicalName, variables);
-      data.currentFile = file;
-      data.currentFileName = physicalName;
+      OutputStream payloadSink;
+      FileObject file = null;
+      String physicalName = null;
 
-      OutputStream fos = HopVfs.getOutputStream(file, false);
-      data.countingStream = new CountingOutputStream(fos);
-      if (meta.getFileSupport().isZipped()) {
-        data.zip = new ZipOutputStream(data.countingStream);
-        ZipEntry entry = new ZipEntry(new File(innerName).getName());
-        entry.setComment("Compressed by Apache Hop");
-        data.zip.putNextEntry(entry);
-        outputStream = data.zip;
+      if (data.writeToFile) {
+        physicalName = meta.getFileSupport().buildFilename(this, getCopy(), data.splitnr, true);
+        String innerName =
+            meta.getFileSupport().buildFilename(this, getCopy(), data.splitnr, false);
+        file = HopVfs.getFileObject(physicalName, variables);
+        data.currentFile = file;
+        data.currentFileName = physicalName;
+
+        OutputStream fos = HopVfs.getOutputStream(file, false);
+        data.countingStream = new CountingOutputStream(fos);
+        if (meta.getFileSupport().isZipped()) {
+          data.zip = new ZipOutputStream(data.countingStream);
+          ZipEntry entry = new ZipEntry(new File(innerName).getName());
+          entry.setComment("Compressed by Apache Hop");
+          data.zip.putNextEntry(entry);
+          payloadSink = data.zip;
+        } else {
+          data.zip = null;
+          payloadSink = data.countingStream;
+        }
       } else {
-        outputStream = data.countingStream;
+        data.currentFile = null;
+        data.currentFileName = null;
+        data.countingStream = null;
+        data.zip = null;
+        payloadSink =
+            data.xmlCaptureBuffer != null
+                ? data.xmlCaptureBuffer
+                : new java.io.ByteArrayOutputStream();
+      }
+
+      if (data.xmlCaptureBuffer != null && data.writeToFile) {
+        outputStream = new TeeOutputStream(data.xmlCaptureBuffer, payloadSink);
+      } else {
+        outputStream = payloadSink;
       }
 
       String enc = Utils.isEmpty(meta.getEncoding()) ? Const.UTF_8 : meta.getEncoding();
@@ -419,9 +523,40 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     } finally {
       data.fileOpen = false;
     }
-    if (rowsWritten && meta.isGenerateXsd()) {
+    try {
+      emitOutputXmlRowIfNeeded();
+    } catch (HopException e) {
+      logError(e.getMessage(), e);
+    }
+    if (rowsWritten && meta.isGenerateXsd() && data.writeToFile) {
       writeSiblingXsd();
     }
+  }
+
+  private void emitOutputXmlRowIfNeeded() throws HopException {
+    if (!data.outputXmlField
+        || !data.rowsWrittenToCurrentFile
+        || data.xmlCaptureBuffer == null
+        || data.lastRowForXmlOutput == null
+        || data.outputRowMeta == null) {
+      return;
+    }
+    String enc = Utils.isEmpty(meta.getEncoding()) ? Const.UTF_8 : meta.getEncoding();
+    Charset cs;
+    try {
+      cs = Charset.forName(enc);
+    } catch (Exception e) {
+      cs = StandardCharsets.UTF_8;
+    }
+    String xml = data.xmlCaptureBuffer.toString(cs);
+    Object[] out;
+    if (meta.isIncludeInputFieldsInOutput()) {
+      out = RowDataUtil.addValueData(data.lastRowForXmlOutput, data.inputRowMetaSize, xml);
+    } else {
+      out = new Object[] {xml};
+    }
+    putRow(data.outputRowMeta, out);
+    data.xmlCaptureBuffer = null;
   }
 
   /**
@@ -477,6 +612,9 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
         } catch (Exception ignore) {
           // best effort
         }
+      }
+      if (data.xmlCaptureBuffer != null) {
+        data.xmlCaptureBuffer.reset();
       }
       if (data.currentFile != null && data.currentFile.exists()) {
         // We never registered the file as a result (registration is deferred to the
@@ -539,7 +677,7 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
   }
 
   private void registerResultFile() {
-    if (!meta.getFileSupport().isAddToResultFilenames()) {
+    if (!data.writeToFile || !meta.getFileSupport().isAddToResultFilenames()) {
       return;
     }
     if (data.currentFile == null) {
@@ -785,18 +923,30 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     if (Utils.isEmpty(fragment)) {
       return;
     }
+    fragment = stripLeadingXmlDeclaration(fragment);
+    if (Utils.isEmpty(fragment)) {
+      return;
+    }
+    boolean stripOuter = node.isStripOuterFragmentElement();
+    boolean skippedOuterWrapper = false;
     // Wrap so we can have multiple top-level nodes.
     String wrapped = "<root>" + fragment + "</root>";
     try (Reader reader = new StringReader(wrapped)) {
       XMLStreamReader xr = XML_IN_FACTORY.createXMLStreamReader(reader);
       int depth = 0;
+      int stripWrapperDepth = -1;
       while (xr.hasNext()) {
         int event = xr.next();
         switch (event) {
           case XMLStreamConstants.START_ELEMENT -> {
             depth++;
             if (depth == 1 && "root".equals(xr.getLocalName())) {
-              break; // skip the wrapper itself
+              break;
+            }
+            if (stripOuter && !skippedOuterWrapper) {
+              skippedOuterWrapper = true;
+              stripWrapperDepth = depth;
+              break;
             }
             data.writer.writeStartElement(xr.getLocalName());
             for (int i = 0; i < xr.getAttributeCount(); i++) {
@@ -808,16 +958,21 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
               depth--;
               break;
             }
+            if (stripWrapperDepth == depth) {
+              stripWrapperDepth = -1;
+              depth--;
+              break;
+            }
             data.writer.writeEndElement();
             depth--;
           }
           case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA -> {
-            if (depth >= 2 || (depth == 1 && !"root".equals(xr.getLocalName()))) {
+            if (depth > 1) {
               data.writer.writeCharacters(xr.getText());
             }
           }
           default -> {
-            // ignore comments, PIs, whitespace
+            // ignore comments, PIs, whitespace-only at root
           }
         }
       }
@@ -833,6 +988,27 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
 
   private String applyTrim(String value) {
     return meta.isTrimValues() && value != null ? value.trim() : value;
+  }
+
+  /**
+   * Removes an optional UTF-8 BOM and XML declaration so a value produced by another XML Output
+   * (Advanced) transform (or any generator) can be wrapped in a synthetic root for parsing.
+   */
+  private static String stripLeadingXmlDeclaration(String fragment) {
+    if (fragment == null || fragment.isEmpty()) {
+      return fragment;
+    }
+    String s = fragment.stripLeading();
+    if (!s.isEmpty() && s.charAt(0) == '\uFEFF') {
+      s = s.substring(1).stripLeading();
+    }
+    if (s.startsWith("<?xml")) {
+      int end = s.indexOf("?>");
+      if (end >= 0) {
+        s = s.substring(end + 2).stripLeading();
+      }
+    }
+    return s;
   }
 
   private static XMLInputFactory createSecureInputFactory() {

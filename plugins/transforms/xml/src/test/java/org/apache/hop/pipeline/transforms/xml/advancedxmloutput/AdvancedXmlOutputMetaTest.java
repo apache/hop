@@ -22,6 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +50,9 @@ class AdvancedXmlOutputMetaTest {
     assertTrue(meta.getFileSupport().isDoNotCreateEmptyFile());
     assertTrue(meta.isCreateEmptyElement());
     assertTrue(meta.isBlankLineAfterXmlDeclaration());
+    assertTrue(
+        meta.isIncludeInputFieldsInOutput(),
+        "Legacy transform XML without include_input_fields_in_output defaults to true");
 
     XmlNode root = meta.getRootNode();
     assertNotNull(root);
@@ -91,6 +98,38 @@ class AdvancedXmlOutputMetaTest {
 
     assertEquals("Original", copy.getRootNode().getName());
     assertEquals("OriginalLoop", copy.getRootNode().getChildren().get(0).getName());
+  }
+
+  @Test
+  void getFieldsOmitsInputColumnsWhenIncludeInputFieldsIsFalse() {
+    AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();
+    meta.setOperationType(AdvancedXmlOutputMeta.XmlOutputOperation.OUTPUT_VALUE);
+    meta.setOutputXmlField("docXml");
+    meta.setIncludeInputFieldsInOutput(false);
+
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("a"));
+    row.addValueMeta(new ValueMetaString("b"));
+    meta.getFields(row, "axo", null, null, new Variables(), null);
+
+    assertEquals(1, row.size());
+    assertEquals("docXml", row.getValueMeta(0).getName());
+  }
+
+  @Test
+  void getFieldsKeepsInputColumnsWhenIncludeInputFieldsIsTrue() {
+    AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();
+    meta.setOperationType(AdvancedXmlOutputMeta.XmlOutputOperation.OUTPUT_VALUE);
+    meta.setOutputXmlField("docXml");
+    meta.setIncludeInputFieldsInOutput(true);
+
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("a"));
+    meta.getFields(row, "axo", null, null, new Variables(), null);
+
+    assertEquals(2, row.size());
+    assertEquals("a", row.getValueMeta(0).getName());
+    assertEquals("docXml", row.getValueMeta(1).getName());
   }
 
   @Test

@@ -165,6 +165,87 @@ class AdvancedXmlOutputSamplesTest {
   }
 
   @Test
+  void personAddressesSampleUsesDocumentFragmentUnderAddresses() throws Exception {
+    AdvancedXmlOutputMeta meta =
+        loadAdvancedXmlOutput(
+            "xml-output-advanced-person-addresses.hpl", "people xml file and field");
+
+    XmlNode root = meta.getRootNode();
+    assertEquals("people", root.getName());
+    XmlNode person = root.getChildren().get(0);
+    assertEquals("person", person.getName());
+    assertTrue(person.isLoop());
+
+    XmlNode addresses =
+        person.getChildren().stream()
+            .filter(c -> "addresses".equals(c.getName()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(XmlNode.NodeKind.Element, addresses.getKind());
+    assertEquals(1, addresses.getChildren().size());
+    XmlNode frag = addresses.getChildren().get(0);
+    assertEquals(XmlNode.NodeKind.DocumentFragment, frag.getKind());
+    assertEquals("addressesXml", frag.getMappedField());
+    assertTrue(
+        frag.isStripOuterFragmentElement(),
+        "sample uses a wrapped &lt;addresses&gt; field; strip outer avoids double wrapper");
+
+    assertTrue(meta.writesXmlFile());
+    assertTrue(meta.writesXmlField());
+    assertEquals("both", meta.resolvedOperationType());
+    assertEquals("peopleXml", meta.getOutputXmlField());
+
+    XmlNode name =
+        person.getChildren().stream()
+            .filter(c -> "name".equals(c.getName()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("person_name", name.getMappedField());
+  }
+
+  @Test
+  void chainedSampleMatchesPersonAddressesTransforms() throws Exception {
+    AdvancedXmlOutputMeta people =
+        loadAdvancedXmlOutput("xml-output-advanced-chained.hpl", "people xml file and field");
+    assertEquals("people", people.getRootNode().getName());
+    XmlNode frag =
+        people.getRootNode().getChildren().get(0).getChildren().stream()
+            .filter(c -> "addresses".equals(c.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getChildren()
+            .get(0);
+    assertEquals(XmlNode.NodeKind.DocumentFragment, frag.getKind());
+    assertEquals("addressesXml", frag.getMappedField());
+    assertTrue(frag.isStripOuterFragmentElement());
+
+    AdvancedXmlOutputMeta addresses =
+        loadAdvancedXmlOutput("xml-output-advanced-chained.hpl", "addresses to xml field");
+    assertEquals(
+        AdvancedXmlOutputMeta.XmlOutputOperation.OUTPUT_VALUE, addresses.getOperationType());
+    assertEquals("addressesXml", addresses.getOutputXmlField());
+    assertEquals(
+        "${java.io.tmpdir}/xml-output-advanced-chained-segment-unused",
+        addresses.getFileSupport().getFileName());
+  }
+
+  @Test
+  void personAddressesSampleFirstTransformOutputsAddressesSegments() throws Exception {
+    AdvancedXmlOutputMeta meta =
+        loadAdvancedXmlOutput("xml-output-advanced-person-addresses.hpl", "addresses to xml field");
+    assertEquals(AdvancedXmlOutputMeta.OPERATION_TYPE_OUTPUT_VALUE, meta.resolvedOperationType());
+    assertEquals(AdvancedXmlOutputMeta.XmlOutputOperation.OUTPUT_VALUE, meta.getOperationType());
+    assertEquals("addressesXml", meta.getOutputXmlField());
+    assertEquals(4, meta.getFileSupport().getSplitEvery());
+    XmlNode root = meta.getRootNode();
+    assertEquals("addresses", root.getName());
+    assertTrue(root.isGroupBy());
+    assertEquals("person_name", root.getMappedField());
+    XmlNode loop = root.getChildren().stream().filter(XmlNode::isLoop).findFirst().orElseThrow();
+    assertEquals("address", loop.getName());
+  }
+
+  @Test
   void splitSampleEnablesSplitEveryAndTransformNr() throws Exception {
     AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-split.hpl");
 
@@ -221,17 +302,27 @@ class AdvancedXmlOutputSamplesTest {
   @Test
   void allSamplesAreWellFormedXmlAndDeserializeCleanly() throws Exception {
     List<Path> samples = listSamples();
-    assertTrue(samples.size() >= 7, "expected the seven shipped sample pipelines");
+    assertTrue(samples.size() >= 9, "expected all shipped xml-output-advanced sample pipelines");
     for (Path p : samples) {
       Document doc = XmlHandler.loadXmlString(Files.readString(p));
       assertNotNull(doc, "could not parse " + p.getFileName());
       assertEquals("pipeline", doc.getDocumentElement().getNodeName(), "wrong root in " + p);
 
-      // Every shipped sample must contain exactly one AdvancedXMLOutput transform
-      // that round-trips through metadata serialization without errors.
-      AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput(p.getFileName().toString());
-      assertNotNull(meta.getRootNode(), "no root tree in " + p.getFileName());
-      assertNotNull(findLoop(meta.getRootNode()), "no loop element in " + p.getFileName());
+      NodeList transforms = doc.getElementsByTagName("transform");
+      int axoCount = 0;
+      for (int i = 0; i < transforms.getLength(); i++) {
+        Node t = transforms.item(i);
+        if (!"AdvancedXMLOutput".equals(XmlHandler.getTagValue(t, "type"))) {
+          continue;
+        }
+        axoCount++;
+        AdvancedXmlOutputMeta meta =
+            XmlMetadataUtil.deSerializeFromXml(
+                t, AdvancedXmlOutputMeta.class, new MemoryMetadataProvider());
+        assertNotNull(meta.getRootNode(), "no root tree in " + p.getFileName());
+        assertNotNull(findLoop(meta.getRootNode()), "no loop element in " + p.getFileName());
+      }
+      assertTrue(axoCount > 0, "no AdvancedXMLOutput in " + p.getFileName());
     }
   }
 
@@ -243,19 +334,33 @@ class AdvancedXmlOutputSamplesTest {
       throws Exception {
     Path path = SAMPLES_DIR.resolve(pipelineFilename);
     Document doc = XmlHandler.loadXmlString(Files.readString(path));
-    Node transformNode = findAdvancedXmlOutputTransformNode(doc);
+    Node transformNode = findAdvancedXmlOutputTransformNode(doc, null);
     assertNotNull(transformNode, "no AdvancedXMLOutput transform found in " + pipelineFilename);
 
     return XmlMetadataUtil.deSerializeFromXml(
         transformNode, AdvancedXmlOutputMeta.class, new MemoryMetadataProvider());
   }
 
-  private static Node findAdvancedXmlOutputTransformNode(Document doc) {
+  private static AdvancedXmlOutputMeta loadAdvancedXmlOutput(
+      String pipelineFilename, String transformName) throws Exception {
+    Path path = SAMPLES_DIR.resolve(pipelineFilename);
+    Document doc = XmlHandler.loadXmlString(Files.readString(path));
+    Node transformNode = findAdvancedXmlOutputTransformNode(doc, transformName);
+    assertNotNull(transformNode, "no AdvancedXMLOutput named " + transformName);
+
+    return XmlMetadataUtil.deSerializeFromXml(
+        transformNode, AdvancedXmlOutputMeta.class, new MemoryMetadataProvider());
+  }
+
+  private static Node findAdvancedXmlOutputTransformNode(Document doc, String transformName) {
     NodeList transforms = doc.getElementsByTagName("transform");
     for (int i = 0; i < transforms.getLength(); i++) {
       Node t = transforms.item(i);
       String type = XmlHandler.getTagValue(t, "type");
-      if ("AdvancedXMLOutput".equals(type)) {
+      if (!"AdvancedXMLOutput".equals(type)) {
+        continue;
+      }
+      if (transformName == null || transformName.equals(XmlHandler.getTagValue(t, "name"))) {
         return t;
       }
     }

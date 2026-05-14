@@ -115,6 +115,16 @@ public class XmlNode {
   @HopMetadataProperty(key = "group_by")
   private boolean groupBy;
 
+  /**
+   * When {@link #kind} is {@link NodeKind#DocumentFragment}: if true, the first element inside the
+   * field value is not emitted (only its contents). Use when the field already includes a wrapper
+   * that duplicates the parent element in the tree (e.g. field contains {@code
+   * <addresses>...</addresses>} under a modeled {@code <addresses>} element). In the tree designer
+   * this appears as "Remove outer wrapper (duplicate parent tag)".
+   */
+  @HopMetadataProperty(key = "strip_outer_fragment_element")
+  private boolean stripOuterFragmentElement;
+
   /** Children (only meaningful for {@link NodeKind#Element}). */
   @HopMetadataProperty(key = "node", groupKey = "children", isExcludedFromInjection = true)
   private List<XmlNode> children;
@@ -150,6 +160,7 @@ public class XmlNode {
     this.forceCreate = other.forceCreate;
     this.loop = other.loop;
     this.groupBy = other.groupBy;
+    this.stripOuterFragmentElement = other.stripOuterFragmentElement;
     if (other.children != null) {
       for (XmlNode c : other.children) {
         this.children.add(new XmlNode(c));
@@ -200,6 +211,7 @@ public class XmlNode {
     }
     return loop == that.loop
         && groupBy == that.groupBy
+        && stripOuterFragmentElement == that.stripOuterFragmentElement
         && forceCreate == that.forceCreate
         && type == that.type
         && length == that.length

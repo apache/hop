@@ -34,11 +34,17 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * End-to-end runtime tests for the XML Output (Advanced) transform. Each test runs an actual
@@ -291,6 +297,235 @@ class AdvancedXmlOutputTest {
   // ---------------------------------------------------------------------------
   // Zipped output
   // ---------------------------------------------------------------------------
+
+  @Test
+  void testStripOuterFragmentRemovesDuplicateWrapper(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("frag-strip");
+    AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();
+    meta.getFileSupport().setFileName(output.toString());
+    meta.getFileSupport().setExtension("xml");
+    meta.getFileSupport().setDoNotOpenNewFileInit(true);
+    meta.setGenerateXsd(false);
+
+    XmlNode people = new XmlNode("people", XmlNode.NodeKind.Element);
+    XmlNode person = new XmlNode("person", XmlNode.NodeKind.Element);
+    person.setLoop(true);
+    XmlNode name = new XmlNode("name", XmlNode.NodeKind.Element);
+    name.setMappedField("person_name");
+    XmlNode addresses = new XmlNode("addresses", XmlNode.NodeKind.Element);
+    XmlNode frag = new XmlNode("f", XmlNode.NodeKind.DocumentFragment);
+    frag.setMappedField("addresses_wrapped");
+    frag.setStripOuterFragmentElement(true);
+    addresses.addChild(frag);
+    person.addChild(name);
+    person.addChild(addresses);
+    people.addChild(person);
+    meta.setRootNode(people);
+
+    String wrapped = "<addresses><address><street>s</street></address></addresses>";
+    IRowMeta rm = new RowMeta();
+    rm.addValueMeta(new ValueMetaString("person_name"));
+    rm.addValueMeta(new ValueMetaString("addresses_wrapped"));
+    List<RowMetaAndData> rows = new ArrayList<>();
+    rows.add(new RowMetaAndData(rm, "Alice", wrapped));
+
+    runPipeline(meta, rows);
+    String xml = readWrittenFile(output);
+    assertFalse(xml.contains("<addresses><addresses>"), xml);
+    assertTrue(xml.contains("<addresses><address>"), xml);
+  }
+
+  @Test
+  void testStripOuterWorksWhenFragmentIncludesXmlDeclaration(@TempDir Path tempDir)
+      throws Exception {
+    Path output = tempDir.resolve("frag-decl");
+    AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();
+    meta.getFileSupport().setFileName(output.toString());
+    meta.getFileSupport().setExtension("xml");
+    meta.getFileSupport().setDoNotOpenNewFileInit(true);
+    meta.setGenerateXsd(false);
+
+    XmlNode people = new XmlNode("people", XmlNode.NodeKind.Element);
+    XmlNode person = new XmlNode("person", XmlNode.NodeKind.Element);
+    person.setLoop(true);
+    XmlNode name = new XmlNode("name", XmlNode.NodeKind.Element);
+    name.setMappedField("person_name");
+    XmlNode addresses = new XmlNode("addresses", XmlNode.NodeKind.Element);
+    XmlNode frag = new XmlNode("f", XmlNode.NodeKind.DocumentFragment);
+    frag.setMappedField("addressesXml");
+    frag.setStripOuterFragmentElement(true);
+    addresses.addChild(frag);
+    person.addChild(name);
+    person.addChild(addresses);
+    people.addChild(person);
+    meta.setRootNode(people);
+
+    String wrapped =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<addresses><address><street>s</street></address></addresses>";
+    IRowMeta rm = new RowMeta();
+    rm.addValueMeta(new ValueMetaString("person_name"));
+    rm.addValueMeta(new ValueMetaString("addressesXml"));
+    List<RowMetaAndData> rows = new ArrayList<>();
+    rows.add(new RowMetaAndData(rm, "Alice", wrapped));
+
+    runPipeline(meta, rows);
+    String xml = readWrittenFile(output);
+    assertFalse(xml.contains("<addresses><addresses>"), xml);
+    assertTrue(xml.contains("<addresses><address>"), xml);
+  }
+
+  @Test
+  void testOutputValueWithSplitEmitsOneRowPerSegment(@TempDir Path tempDir) throws Exception {
+    AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();
+    meta.setOperationType(AdvancedXmlOutputMeta.XmlOutputOperation.OUTPUT_VALUE);
+    meta.setOutputXmlField("docXml");
+    meta.getFileSupport().setSplitEvery(4);
+    meta.getFileSupport().setFileName(tempDir.resolve("unused").toString());
+    meta.getFileSupport().setDoNotOpenNewFileInit(true);
+    meta.setGenerateXsd(false);
+
+    XmlNode root = new XmlNode("addresses", XmlNode.NodeKind.Element);
+    root.setGroupBy(true);
+    root.setMappedField("person_name");
+    XmlNode address = new XmlNode("address", XmlNode.NodeKind.Element);
+    address.setLoop(true);
+    XmlNode st = new XmlNode("street", XmlNode.NodeKind.Element);
+    st.setMappedField("street");
+    address.addChild(st);
+    root.addChild(address);
+    meta.setRootNode(root);
+
+    IRowMeta rm = new RowMeta();
+    rm.addValueMeta(new ValueMetaString("person_name"));
+    rm.addValueMeta(new ValueMetaString("street"));
+    List<RowMetaAndData> rows = new ArrayList<>();
+    for (int i = 0; i < 4; i++) {
+      rows.add(new RowMetaAndData(rm, "Alice", "A" + i));
+    }
+    for (int i = 0; i < 4; i++) {
+      rows.add(new RowMetaAndData(rm, "Bob", "B" + i));
+    }
+
+    PipelineMeta pipelineMeta = PipelineTestFactory.generateTestTransformation(null, meta, "axo");
+    List<RowMetaAndData> out =
+        PipelineTestFactory.executeTestTransformation(
+            pipelineMeta,
+            PipelineTestFactory.INJECTOR_TRANSFORMNAME,
+            "axo",
+            PipelineTestFactory.DUMMY_TRANSFORMNAME,
+            rows);
+    assertEquals(2, out.size());
+    String xml0 = out.get(0).getString("docXml", "");
+    String xml1 = out.get(1).getString("docXml", "");
+    assertTrue(xml0.contains("<street>A0</street>") && xml0.contains("<street>A3</street>"), xml0);
+    assertTrue(xml1.contains("<street>B0</street>") && xml1.contains("<street>B3</street>"), xml1);
+  }
+
+  @Test
+  void testOutputValueXmlOnlyOmitsInputFields(@TempDir Path tempDir) throws Exception {
+    AdvancedXmlOutputMeta meta = new AdvancedXmlOutputMeta();
+    meta.setOperationType(AdvancedXmlOutputMeta.XmlOutputOperation.OUTPUT_VALUE);
+    meta.setOutputXmlField("docXml");
+    meta.setIncludeInputFieldsInOutput(false);
+    meta.getFileSupport().setSplitEvery(4);
+    meta.getFileSupport().setFileName(tempDir.resolve("unused").toString());
+    meta.getFileSupport().setDoNotOpenNewFileInit(true);
+    meta.setGenerateXsd(false);
+
+    XmlNode root = new XmlNode("addresses", XmlNode.NodeKind.Element);
+    root.setGroupBy(true);
+    root.setMappedField("person_name");
+    XmlNode address = new XmlNode("address", XmlNode.NodeKind.Element);
+    address.setLoop(true);
+    XmlNode st = new XmlNode("street", XmlNode.NodeKind.Element);
+    st.setMappedField("street");
+    address.addChild(st);
+    root.addChild(address);
+    meta.setRootNode(root);
+
+    IRowMeta rm = new RowMeta();
+    rm.addValueMeta(new ValueMetaString("person_name"));
+    rm.addValueMeta(new ValueMetaString("street"));
+    List<RowMetaAndData> rows = new ArrayList<>();
+    for (int i = 0; i < 4; i++) {
+      rows.add(new RowMetaAndData(rm, "Alice", "A" + i));
+    }
+    for (int i = 0; i < 4; i++) {
+      rows.add(new RowMetaAndData(rm, "Bob", "B" + i));
+    }
+
+    PipelineMeta pipelineMeta = PipelineTestFactory.generateTestTransformation(null, meta, "axo");
+    List<RowMetaAndData> out =
+        PipelineTestFactory.executeTestTransformation(
+            pipelineMeta,
+            PipelineTestFactory.INJECTOR_TRANSFORMNAME,
+            "axo",
+            PipelineTestFactory.DUMMY_TRANSFORMNAME,
+            rows);
+    assertEquals(2, out.size());
+    assertEquals(1, out.get(0).getRowMeta().size());
+    assertEquals("docXml", out.get(0).getRowMeta().getValueMeta(0).getName());
+    String xml0 = out.get(0).getString("docXml", "");
+    assertTrue(xml0.contains("<street>A0</street>") && xml0.contains("<street>A3</street>"), xml0);
+  }
+
+  @Test
+  void deserializedPersonAddressesSampleStripsFragmentAtRuntime(@TempDir Path tempDir)
+      throws Exception {
+    AdvancedXmlOutputMeta meta =
+        loadMetaFromSamplePipeline(
+            "xml-output-advanced-person-addresses.hpl", "people xml file and field");
+    XmlNode frag =
+        meta.getRootNode().getChildren().get(0).getChildren().stream()
+            .filter(c -> "addresses".equals(c.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getChildren()
+            .get(0);
+    assertTrue(
+        frag.isStripOuterFragmentElement(),
+        "sample fragment node must deserialize strip_outer_fragment_element");
+    assertEquals("addressesXml", frag.getMappedField());
+
+    meta.getFileSupport().setFileName(tempDir.resolve("person-addrs-from-sample").toString());
+    meta.getFileSupport().setDoNotOpenNewFileInit(true);
+    meta.setGenerateXsd(false);
+    meta.setOperationType(AdvancedXmlOutputMeta.XmlOutputOperation.WRITE_TO_FILE);
+
+    String wrapped =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<addresses><address><street>x</street><zip>1</zip><country>y</country></address></addresses>";
+    IRowMeta rm = new RowMeta();
+    rm.addValueMeta(new ValueMetaString("person_name"));
+    rm.addValueMeta(new ValueMetaString("street"));
+    rm.addValueMeta(new ValueMetaString("zip"));
+    rm.addValueMeta(new ValueMetaString("country"));
+    rm.addValueMeta(new ValueMetaString("addressesXml"));
+    List<RowMetaAndData> rows = new ArrayList<>();
+    rows.add(new RowMetaAndData(rm, "Alice", "s", "1", "BE", wrapped));
+
+    runPipeline(meta, rows);
+    String xml = readWrittenFile(tempDir.resolve("person-addrs-from-sample"));
+    assertFalse(xml.contains("<addresses><addresses>"), xml);
+  }
+
+  private static AdvancedXmlOutputMeta loadMetaFromSamplePipeline(
+      String filename, String transformName) throws Exception {
+    Path path = Path.of("src/main/samples/transforms").toAbsolutePath().resolve(filename);
+    Document doc = XmlHandler.loadXmlString(Files.readString(path));
+    NodeList transforms = doc.getElementsByTagName("transform");
+    for (int i = 0; i < transforms.getLength(); i++) {
+      Node t = transforms.item(i);
+      if ("AdvancedXMLOutput".equals(XmlHandler.getTagValue(t, "type"))
+          && transformName.equals(XmlHandler.getTagValue(t, "name"))) {
+        return XmlMetadataUtil.deSerializeFromXml(
+            t, AdvancedXmlOutputMeta.class, new MemoryMetadataProvider());
+      }
+    }
+    throw new IllegalStateException(
+        "no AdvancedXMLOutput named " + transformName + " in " + filename);
+  }
 
   @Test
   void testZippedOutputContainsValidXml(@TempDir Path tempDir) throws Exception {

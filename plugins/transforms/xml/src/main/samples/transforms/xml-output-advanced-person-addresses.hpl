@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>xml-output-advanced-person-addresses</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Long address rows: first XML Output (Advanced) builds &lt;addresses&gt; per person (group-by + loop) into field addressesXml using Output XML as field + Split every 4 rows; second transform merges into &lt;people&gt; and writes file + peopleXml. DocumentFragment removes the duplicate &lt;addresses&gt; wrapper.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/05/08 16:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/05/14 15:00:00.000</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <height>200</height>
+      <xloc>32</xloc>
+      <yloc>16</yloc>
+      <note>Grid: one row per address (4 per person × 3 people). Rows stay sorted by person so group-by works.
+
+First XML Output (Advanced): Output = &quot;Output XML as field&quot;, field addressesXml, Split every 4 rows (one segment per person; must match rows-per-group). Tree: &lt;addresses group-by person_name&gt; &lt;address loop&gt; …
+
+Second XML Output (Advanced): Output = &quot;Both&quot;, peopleXml + ${java.io.tmpdir}/xml-output-advanced-person-addresses.xml. Under each &lt;person&gt;, DocumentFragment maps addressesXml with &quot;Remove outer wrapper (duplicate parent tag)&quot; so the modeled &lt;addresses&gt; is not doubled.</note>
+      <width>720</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>people addresses grid</from>
+      <to>addresses to xml field</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>addresses to xml field</from>
+      <to>people xml file and field</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>people addresses grid</name>
+    <type>DataGrid</type>
+    <description>Three people, four addresses each (long rows, sorted by person).</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>Alice</item>
+        <item>Oak Avenue 1</item>
+        <item>1000</item>
+        <item>BE</item>
+      </line>
+      <line>
+        <item>Alice</item>
+        <item>Elm Road 12</item>
+        <item>2000</item>
+        <item>NL</item>
+      </line>
+      <line>
+        <item>Alice</item>
+        <item>Cedar Plaza 5</item>
+        <item>3000</item>
+        <item>DE</item>
+      </line>
+      <line>
+        <item>Alice</item>
+        <item>Willow Court 9</item>
+        <item>4000</item>
+        <item>LU</item>
+      </line>
+      <line>
+        <item>Bob</item>
+        <item>Pine Lane 3</item>
+        <item>5000</item>
+        <item>FR</item>
+      </line>
+      <line>
+        <item>Bob</item>
+        <item>Maple Square 7</item>
+        <item>6000</item>
+        <item>ES</item>
+      </line>
+      <line>
+        <item>Bob</item>
+        <item>Birch Walk 2</item>
+        <item>7000</item>
+        <item>IT</item>
+      </line>
+      <line>
+        <item>Bob</item>
+        <item>Spruce Ring 8</item>
+        <item>8000</item>
+        <item>PT</item>
+      </line>
+      <line>
+        <item>Carol</item>
+        <item>Aspen Row 4</item>
+        <item>9000</item>
+        <item>AT</item>
+      </line>
+      <line>
+        <item>Carol</item>
+        <item>Hickory Path 6</item>
+        <item>9100</item>
+        <item>CH</item>
+      </line>
+      <line>
+        <item>Carol</item>
+        <item>Linden Alley 11</item>
+        <item>9200</item>
+        <item>SE</item>
+      </line>
+      <line>
+        <item>Carol</item>
+        <item>Redwood Drive 22</item>
+        <item>9300</item>
+        <item>NO</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>person_name</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>street</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>zip</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>country</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>addresses to xml field</name>
+    <type>AdvancedXMLOutput</type>
+    <description>Group-by person_name, loop address; output XML only to addressesXml; split every 4 rows = one segment per person.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <operation_type>outputvalue</operation_type>
+    <output_xml_field>addressesXml</output_xml_field>
+    <encoding>UTF-8</encoding>
+    <compact_file>N</compact_file>
+    <blank_line_after_xml_decl>Y</blank_line_after_xml_decl>
+    <create_attr_if_null>N</create_attr_if_null>
+    <create_attr_if_unmapped>N</create_attr_if_unmapped>
+    <create_empty_element>Y</create_empty_element>
+    <trim_values>N</trim_values>
+    <generate_xsd>N</generate_xsd>
+    <doctype_root/>
+    <doctype_system/>
+    <doctype_public/>
+    <xsl_stylesheet_href/>
+    <xsl_stylesheet_type>text/xsl</xsl_stylesheet_type>
+    <file>
+      <name>${java.io.tmpdir}/xml-output-advanced-person-addresses-segment-unused</name>
+      <extension>xml</extension>
+      <splitevery>4</splitevery>
+      <split>Y</split>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <zipped>N</zipped>
+      <add_to_result_filenames>N</add_to_result_filenames>
+      <do_not_open_newfile_init>Y</do_not_open_newfile_init>
+      <do_not_create_empty_file>Y</do_not_create_empty_file>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+    </file>
+    <tree>
+      <name>addresses</name>
+      <kind>Element</kind>
+      <group_by>Y</group_by>
+      <mapped_field>person_name</mapped_field>
+      <children>
+        <node>
+          <name>address</name>
+          <kind>Element</kind>
+          <loop>Y</loop>
+          <children>
+            <node>
+              <name>street</name>
+              <kind>Element</kind>
+              <mapped_field>street</mapped_field>
+            </node>
+            <node>
+              <name>zip</name>
+              <kind>Element</kind>
+              <mapped_field>zip</mapped_field>
+            </node>
+            <node>
+              <name>country</name>
+              <kind>Element</kind>
+              <mapped_field>country</mapped_field>
+            </node>
+          </children>
+        </node>
+      </children>
+    </tree>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>people xml file and field</name>
+    <type>AdvancedXMLOutput</type>
+    <description>Both: final people document to temp file + peopleXml; fragment strips duplicate addresses wrapper.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <operation_type>both</operation_type>
+    <output_xml_field>peopleXml</output_xml_field>
+    <encoding>UTF-8</encoding>
+    <compact_file>N</compact_file>
+    <blank_line_after_xml_decl>Y</blank_line_after_xml_decl>
+    <create_attr_if_null>N</create_attr_if_null>
+    <create_attr_if_unmapped>N</create_attr_if_unmapped>
+    <create_empty_element>Y</create_empty_element>
+    <trim_values>N</trim_values>
+    <generate_xsd>Y</generate_xsd>
+    <doctype_root/>
+    <doctype_system/>
+    <doctype_public/>
+    <xsl_stylesheet_href/>
+    <xsl_stylesheet_type>text/xsl</xsl_stylesheet_type>
+    <file>
+      <name>${java.io.tmpdir}/xml-output-advanced-person-addresses</name>
+      <extension>xml</extension>
+      <splitevery>0</splitevery>
+      <split>N</split>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <zipped>N</zipped>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <do_not_open_newfile_init>N</do_not_open_newfile_init>
+      <do_not_create_empty_file>Y</do_not_create_empty_file>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+    </file>
+    <tree>
+      <name>people</name>
+      <kind>Element</kind>
+      <children>
+        <node>
+          <name>person</name>
+          <kind>Element</kind>
+          <loop>Y</loop>
+          <children>
+            <node>
+              <name>name</name>
+              <kind>Element</kind>
+              <mapped_field>person_name</mapped_field>
+            </node>
+            <node>
+              <name>addresses</name>
+              <kind>Element</kind>
+              <children>
+                <node>
+                  <name>from_addresses_field</name>
+                  <kind>DocumentFragment</kind>
+                  <mapped_field>addressesXml</mapped_field>
+                  <strip_outer_fragment_element>Y</strip_outer_fragment_element>
+                </node>
+              </children>
+            </node>
+          </children>
+        </node>
+      </children>
+    </tree>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

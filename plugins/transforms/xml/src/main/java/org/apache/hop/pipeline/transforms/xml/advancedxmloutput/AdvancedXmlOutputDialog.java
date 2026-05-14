@@ -65,9 +65,20 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = AdvancedXmlOutputMeta.class;
 
+  private static final AdvancedXmlOutputMeta.XmlOutputOperation[] OPERATION_ORDER = {
+    AdvancedXmlOutputMeta.XmlOutputOperation.WRITE_TO_FILE,
+    AdvancedXmlOutputMeta.XmlOutputOperation.OUTPUT_VALUE,
+    AdvancedXmlOutputMeta.XmlOutputOperation.BOTH
+  };
+
   private final AdvancedXmlOutputMeta input;
 
   // File tab
+  private Label wlOperation;
+  private CCombo wOperationType;
+  private Label wlOutputXmlField;
+  private TextVar wOutputXmlField;
+  private Button wIncludeInputFieldsInOutput;
   private TextVar wFilename;
   private Button wbFilename;
   private TextVar wExtension;
@@ -82,6 +93,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
   private Button wDoNotCreateEmptyFile;
   private Button wAddToResult;
   private CCombo wEncoding;
+  private Button wShowFiles;
 
   // Content tab
   private Button wCompactFile;
@@ -199,13 +211,61 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
     fl.marginHeight = 3;
     comp.setLayout(fl);
 
+    wlOperation = new Label(comp, SWT.RIGHT);
+    wlOperation.setText(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.OperationType.Label"));
+    PropsUi.setLook(wlOperation);
+    FormData fdWlOp = new FormData();
+    fdWlOp.left = new FormAttachment(0, 0);
+    fdWlOp.right = new FormAttachment(middle, -margin);
+    fdWlOp.top = new FormAttachment(0, margin);
+    wlOperation.setLayoutData(fdWlOp);
+
+    wOperationType = new CCombo(comp, SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wOperationType);
+    for (AdvancedXmlOutputMeta.XmlOutputOperation op : OPERATION_ORDER) {
+      wOperationType.add(op.getDescription());
+    }
+    FormData fdOp = new FormData();
+    fdOp.left = new FormAttachment(middle, 0);
+    fdOp.right = new FormAttachment(100, 0);
+    fdOp.top = new FormAttachment(0, margin);
+    wOperationType.setLayoutData(fdOp);
+    wOperationType.addListener(
+        SWT.Selection,
+        e -> {
+          updateFileWidgetsForOperation();
+          lsMod.modifyText(null);
+        });
+
+    wlOutputXmlField = new Label(comp, SWT.RIGHT);
+    wlOutputXmlField.setText(
+        BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.OutputXmlField.Label"));
+    PropsUi.setLook(wlOutputXmlField);
+    FormData fdWlOut = new FormData();
+    fdWlOut.left = new FormAttachment(0, 0);
+    fdWlOut.right = new FormAttachment(middle, -margin);
+    fdWlOut.top = new FormAttachment(wOperationType, margin);
+    wlOutputXmlField.setLayoutData(fdWlOut);
+
+    wOutputXmlField = new TextVar(variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wOutputXmlField);
+    wOutputXmlField.addModifyListener(lsMod);
+    FormData fdOutF = new FormData();
+    fdOutF.left = new FormAttachment(middle, 0);
+    fdOutF.right = new FormAttachment(100, 0);
+    fdOutF.top = new FormAttachment(wOperationType, margin);
+    wOutputXmlField.setLayoutData(fdOutF);
+
+    wIncludeInputFieldsInOutput =
+        addCheckbox(comp, wOutputXmlField, "IncludeInputFieldsInOutput", lsMod, middle, margin);
+
     // Filename row
     Label lblFn = new Label(comp, SWT.RIGHT);
     lblFn.setText(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.Filename.Label"));
     PropsUi.setLook(lblFn);
     FormData fdLblFn = new FormData();
     fdLblFn.left = new FormAttachment(0, 0);
-    fdLblFn.top = new FormAttachment(0, margin);
+    fdLblFn.top = new FormAttachment(wIncludeInputFieldsInOutput, margin);
     fdLblFn.right = new FormAttachment(middle, -margin);
     lblFn.setLayoutData(fdLblFn);
 
@@ -214,7 +274,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdBtn = new FormData();
     fdBtn.right = new FormAttachment(100, 0);
-    fdBtn.top = new FormAttachment(0, margin);
+    fdBtn.top = new FormAttachment(wIncludeInputFieldsInOutput, margin);
     wbFilename.setLayoutData(fdBtn);
 
     wFilename = new TextVar(variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -222,7 +282,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
     wFilename.addModifyListener(lsMod);
     FormData fdFn = new FormData();
     fdFn.left = new FormAttachment(middle, 0);
-    fdFn.top = new FormAttachment(0, margin);
+    fdFn.top = new FormAttachment(wIncludeInputFieldsInOutput, margin);
     fdFn.right = new FormAttachment(wbFilename, -margin);
     wFilename.setLayoutData(fdFn);
 
@@ -320,7 +380,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
         addCheckbox(comp, wDoNotOpenAtInit, "DoNotCreateEmptyFile", lsMod, middle, margin);
     wAddToResult = addCheckbox(comp, wDoNotCreateEmptyFile, "AddToResult", lsMod, middle, margin);
 
-    Button wShowFiles = new Button(comp, SWT.PUSH);
+    wShowFiles = new Button(comp, SWT.PUSH);
     wShowFiles.setText(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.ShowFiles.Button"));
     PropsUi.setLook(wShowFiles);
     FormData fdShow = new FormData();
@@ -338,6 +398,38 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
 
     comp.layout();
     tab.setControl(comp);
+    updateFileWidgetsForOperation();
+  }
+
+  private void updateFileWidgetsForOperation() {
+    if (wOperationType == null || wOperationType.isDisposed()) {
+      return;
+    }
+    int idx = wOperationType.getSelectionIndex();
+    if (idx < 0) {
+      idx = 0;
+    }
+    boolean needFile = idx == 0 || idx == 2;
+    boolean needField = idx == 1 || idx == 2;
+    wlOutputXmlField.setEnabled(needField);
+    wOutputXmlField.setEnabled(needField);
+    if (wIncludeInputFieldsInOutput != null && !wIncludeInputFieldsInOutput.isDisposed()) {
+      wIncludeInputFieldsInOutput.setEnabled(needField);
+    }
+    wFilename.setEnabled(needFile);
+    wbFilename.setEnabled(needFile);
+    wExtension.setEnabled(needFile);
+    wAddTransformnr.setEnabled(needFile);
+    wSpecifyFormat.setEnabled(needFile);
+    wSplitEvery.setEnabled(needFile || needField);
+    wZipped.setEnabled(needFile);
+    wDoNotOpenAtInit.setEnabled(needFile);
+    wDoNotCreateEmptyFile.setEnabled(needFile);
+    wAddToResult.setEnabled(needFile);
+    if (wShowFiles != null && !wShowFiles.isDisposed()) {
+      wShowFiles.setEnabled(needFile);
+    }
+    setSpecifyFormatVisibility();
   }
 
   /** Pops up a dialog with up to a handful of sample filenames built from the current settings. */
@@ -604,15 +696,23 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
   // ---------------------------------------------------------------------------
 
   private void setSpecifyFormatVisibility() {
+    int idx =
+        wOperationType != null && !wOperationType.isDisposed()
+            ? wOperationType.getSelectionIndex()
+            : 0;
+    if (idx < 0) {
+      idx = 0;
+    }
+    boolean needFile = idx == 0 || idx == 2;
     boolean specify = wSpecifyFormat != null && wSpecifyFormat.getSelection();
     if (wDateTimeFormat != null) {
-      wDateTimeFormat.setEnabled(specify);
+      wDateTimeFormat.setEnabled(needFile && specify);
     }
     if (wAddDate != null) {
-      wAddDate.setEnabled(!specify);
+      wAddDate.setEnabled(needFile && !specify);
     }
     if (wAddTime != null) {
-      wAddTime.setEnabled(!specify);
+      wAddTime.setEnabled(needFile && !specify);
     }
   }
 
@@ -707,6 +807,16 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
     }
     wFilename.setText(Const.NVL(f.getFileName(), ""));
     wExtension.setText(Const.NVL(f.getExtension(), "xml"));
+    wOperationType.select(0);
+    AdvancedXmlOutputMeta.XmlOutputOperation currentOp = input.getOperationType();
+    for (int i = 0; i < OPERATION_ORDER.length; i++) {
+      if (OPERATION_ORDER[i] == currentOp) {
+        wOperationType.select(i);
+        break;
+      }
+    }
+    wOutputXmlField.setText(Const.NVL(input.getOutputXmlField(), "outputXml"));
+    wIncludeInputFieldsInOutput.setSelection(input.isIncludeInputFieldsInOutput());
     wAddTransformnr.setSelection(f.isTransformNrInFilename());
     wAddDate.setSelection(f.isDateInFilename());
     wAddTime.setSelection(f.isTimeInFilename());
@@ -739,6 +849,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
     XmlNode root =
         input.getRootNode() != null ? new XmlNode(input.getRootNode()) : defaultRootNode();
     wTreeDesigner.setRootNode(root);
+    updateFileWidgetsForOperation();
   }
 
   private static XmlNode defaultRootNode() {
@@ -760,6 +871,14 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
       return;
     }
     transformName = wTransformName.getText();
+
+    int oxi = wOperationType.getSelectionIndex();
+    input.setOperationType(
+        oxi >= 0 && oxi < OPERATION_ORDER.length
+            ? OPERATION_ORDER[oxi]
+            : AdvancedXmlOutputMeta.XmlOutputOperation.WRITE_TO_FILE);
+    input.setOutputXmlField(wOutputXmlField.getText());
+    input.setIncludeInputFieldsInOutput(wIncludeInputFieldsInOutput.getSelection());
 
     XmlFileOutputSupport f = input.getFileSupport();
     if (f == null) {

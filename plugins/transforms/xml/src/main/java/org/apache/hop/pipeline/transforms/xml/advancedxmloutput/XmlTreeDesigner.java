@@ -99,6 +99,7 @@ public class XmlTreeDesigner extends Composite {
   private Button wpLoop;
   private Button wpGroupBy;
   private Button wpForceCreate;
+  private Button wpStripOuterFragment;
 
   /** Root of the tree being designed; never {@code null} after {@link #setRootNode(XmlNode)}. */
   private XmlNode rootNode;
@@ -375,6 +376,7 @@ public class XmlTreeDesigner extends Composite {
     wpLoop = newFlagButton(flagsRow, null, "Loop");
     wpGroupBy = newFlagButton(flagsRow, wpLoop, "GroupBy");
     wpForceCreate = newFlagButton(flagsRow, wpGroupBy, "ForceCreate");
+    wpStripOuterFragment = newFlagButton(flagsRow, wpForceCreate, "StripOuterFragment");
   }
 
   private Button newFlagButton(Composite parent, Button leftOf, String key) {
@@ -707,6 +709,7 @@ public class XmlTreeDesigner extends Composite {
         wpLoop.setSelection(false);
         wpGroupBy.setSelection(false);
         wpForceCreate.setSelection(false);
+        wpStripOuterFragment.setSelection(false);
         return;
       }
       wpName.setText(Const.NVL(n.getName(), ""));
@@ -723,6 +726,9 @@ public class XmlTreeDesigner extends Composite {
       wpLoop.setSelection(n.isLoop());
       wpGroupBy.setSelection(n.isGroupBy());
       wpForceCreate.setSelection(n.isForceCreate());
+      wpStripOuterFragment.setSelection(n.isStripOuterFragmentElement());
+      boolean frag = n.getKind() == XmlNode.NodeKind.DocumentFragment;
+      wpStripOuterFragment.setEnabled(frag);
     } finally {
       updatingProperties = false;
     }
@@ -743,6 +749,7 @@ public class XmlTreeDesigner extends Composite {
     wpLoop.setEnabled(enabled);
     wpGroupBy.setEnabled(enabled);
     wpForceCreate.setEnabled(enabled);
+    wpStripOuterFragment.setEnabled(enabled);
   }
 
   private void applyPropertiesToModel() {
@@ -773,6 +780,12 @@ public class XmlTreeDesigner extends Composite {
     n.setLoop(wantLoop);
     n.setGroupBy(wpGroupBy.getSelection());
     n.setForceCreate(wpForceCreate.getSelection());
+    if (n.getKind() == XmlNode.NodeKind.DocumentFragment) {
+      n.setStripOuterFragmentElement(wpStripOuterFragment.getSelection());
+    } else {
+      n.setStripOuterFragmentElement(false);
+    }
+    wpStripOuterFragment.setEnabled(n.getKind() == XmlNode.NodeKind.DocumentFragment);
 
     refreshSelectedTreeItemLabel();
     fireChanged();
@@ -825,6 +838,9 @@ public class XmlTreeDesigner extends Composite {
     }
     if (n.isGroupBy()) {
       sb.append("  [group-by]");
+    }
+    if (n.isStripOuterFragmentElement()) {
+      sb.append("  [strip]");
     }
     if (!Utils.isEmpty(n.getMappedField())) {
       sb.append("  ← ").append(n.getMappedField());
