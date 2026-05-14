@@ -508,6 +508,8 @@
                         <exclude>**/integration-tests/**/*.crt</exclude>
                         <exclude>**/integration-tests/**/*.csr</exclude>
                         <exclude>**/integration-tests/**/mtls.conf</exclude>
+                        <!-- Goldens compared byte-for-byte to Hop output (no ASF header; see FILE_COMPARE in xml integration HWFs) -->
+                        <exclude>**/integration-tests/xml/files/expected/**</exclude>
 
                         <!-- Samples Exclusions -->
                         <!-- plugins/engines/beam -->
