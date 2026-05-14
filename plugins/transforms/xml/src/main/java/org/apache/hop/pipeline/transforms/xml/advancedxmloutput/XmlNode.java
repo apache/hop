@@ -36,11 +36,8 @@ public class XmlNode {
 
   @SuppressWarnings("java:S115")
   public enum NodeKind {
-    /** Standard XML element with optional text content and/or children. */
     Element,
-    /** XML attribute on the parent element. */
     Attribute,
-    /** Pre-built XML fragment inserted as parsed nodes (requires the source field to hold XML). */
     DocumentFragment;
 
     public static NodeKind getIfPresent(String name) {
@@ -48,34 +45,24 @@ public class XmlNode {
     }
   }
 
-  /** Local name of the element or attribute. */
   @HopMetadataProperty(key = "name")
   private String name;
 
-  /** Optional XML namespace URI for this element (ignored for attributes in v1). */
   @HopMetadataProperty(key = "namespace")
   private String namespace;
 
-  /** Element / Attribute / DocumentFragment. */
   @HopMetadataProperty(key = "kind")
   private NodeKind kind;
 
-  /**
-   * Name of the input field whose value provides this node's content (for an element) or value (for
-   * an attribute / document fragment). Empty / null means "static node".
-   */
   @HopMetadataProperty(key = "mapped_field")
   private String mappedField;
 
-  /** Static text used when {@link #mappedField} is empty (or the field value is null). */
   @HopMetadataProperty(key = "default_value")
   private String defaultValue;
 
-  /** Optional Hop value-type override (one of {@link ValueMetaBase} type codes). 0 = auto. */
   @HopMetadataProperty(key = "type", intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
   private int type;
 
-  /** Optional conversion mask. */
   @HopMetadataProperty(key = "format")
   private String format;
 
@@ -117,7 +104,6 @@ public class XmlNode {
   @HopMetadataProperty(key = "strip_outer_fragment_element")
   private boolean stripOuterFragmentElement;
 
-  /** Children (only meaningful for {@link NodeKind#Element}). */
   @HopMetadataProperty(key = "node", groupKey = "children", isExcludedFromInjection = true)
   private List<XmlNode> children;
 
@@ -160,7 +146,6 @@ public class XmlNode {
     }
   }
 
-  /** Convenience: returns true if this node has any direct children of element kind. */
   public boolean hasElementChildren() {
     if (children == null) {
       return false;
@@ -173,7 +158,6 @@ public class XmlNode {
     return false;
   }
 
-  /** Convenience: returns true if this node has any direct children of attribute kind. */
   public boolean hasAttributeChildren() {
     if (children == null) {
       return false;

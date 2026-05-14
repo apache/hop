@@ -119,10 +119,6 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  // ---------------------------------------------------------------------------
-  // BaseTransform overrides
-  // ---------------------------------------------------------------------------
-
   @Override
   public boolean init() {
     if (!super.init()) {
@@ -259,10 +255,6 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     super.dispose();
   }
 
-  // ---------------------------------------------------------------------------
-  // Tree resolution / first-row setup
-  // ---------------------------------------------------------------------------
-
   /**
    * Walk the tree once to locate the loop node, the path from root to the loop's parent, and the
    * ordered list of group-by ancestors. Resolves field indices for every node that references an
@@ -362,10 +354,6 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       }
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // File handling
-  // ---------------------------------------------------------------------------
 
   private boolean openNewFile() {
     data.writer = null;
@@ -622,10 +610,6 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
       data.fileOpen = false;
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Row-level write
-  // ---------------------------------------------------------------------------
 
   private void writeRowToTree(Object[] r) throws Exception {
     String[] newKey = computeGroupKey(r);
@@ -1012,10 +996,6 @@ public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, Adva
     f.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     return f;
   }
-
-  // ---------------------------------------------------------------------------
-  // Helpers exposed for tests
-  // ---------------------------------------------------------------------------
 
   /** Test hook: returns the current data object's writer (so unit tests can inject a mock). */
   protected XMLStreamWriter getWriter() {

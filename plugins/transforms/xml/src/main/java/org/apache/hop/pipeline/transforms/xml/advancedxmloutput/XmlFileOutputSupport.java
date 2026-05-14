@@ -36,77 +36,66 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Setter
 public class XmlFileOutputSupport {
 
-  /** Base name of the output file. */
   @HopMetadataProperty(
       key = "name",
       injectionKey = "FILENAME",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.FILENAME")
   private String fileName;
 
-  /** Optional file extension (without leading dot). */
   @HopMetadataProperty(
       key = "extension",
       injectionKey = "EXTENSION",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.EXTENSION")
   private String extension;
 
-  /** Maximum number of input rows per file. 0 = unlimited (single file). */
   @HopMetadataProperty(
       key = "splitevery",
       injectionKey = "SPLIT_EVERY",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.SPLIT_EVERY")
   private int splitEvery;
 
-  /** Add the transform copy number to the filename. */
   @HopMetadataProperty(
       key = "split",
       injectionKey = "INC_TRANSFORMNR_IN_FILENAME",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.INC_TRANSFORMNR_IN_FILENAME")
   private boolean transformNrInFilename;
 
-  /** Add the date (yyyyMMdd) to the filename. */
   @HopMetadataProperty(
       key = "add_date",
       injectionKey = "INC_DATE_IN_FILENAME",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.INC_DATE_IN_FILENAME")
   private boolean dateInFilename;
 
-  /** Add the time (HHmmss) to the filename. */
   @HopMetadataProperty(
       key = "add_time",
       injectionKey = "INC_TIME_IN_FILENAME",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.INC_TIME_IN_FILENAME")
   private boolean timeInFilename;
 
-  /** Wrap the destination file in a zip archive. */
   @HopMetadataProperty(
       key = "zipped",
       injectionKey = "ZIPPED",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.ZIPPED")
   private boolean zipped;
 
-  /** Add the produced filename(s) to the pipeline result file list. */
   @HopMetadataProperty(
       key = "add_to_result_filenames",
       injectionKey = "ADD_TO_RESULT",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.ADD_TO_RESULT")
   private boolean addToResultFilenames;
 
-  /** Defer file creation until the first input row is received. */
   @HopMetadataProperty(
       key = "do_not_open_newfile_init",
       injectionKey = "DO_NOT_CREATE_FILE_AT_STARTUP",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.DO_NOT_CREATE_FILE_AT_STARTUP")
   private boolean doNotOpenNewFileInit;
 
-  /** Delete the output file at the end of the run if no rows were written. */
   @HopMetadataProperty(
       key = "do_not_create_empty_file",
       injectionKey = "DO_NOT_CREATE_EMPTY_FILE",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.DO_NOT_CREATE_EMPTY_FILE")
   private boolean doNotCreateEmptyFile;
 
-  /** Use a custom date-time pattern instead of the date/time flags above. */
   @HopMetadataProperty(
       key = "SpecifyFormat",
       injectionKey = "SPEFICY_FORMAT",

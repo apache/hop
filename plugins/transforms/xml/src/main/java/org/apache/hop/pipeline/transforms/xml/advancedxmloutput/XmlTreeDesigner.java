@@ -77,14 +77,11 @@ public class XmlTreeDesigner extends Composite {
 
   private final IVariables variables;
 
-  // Left side: input fields
   private org.eclipse.swt.widgets.List wInputFields;
   private Button wGetFields;
 
-  // Right top: tree + toolbar
   private Tree wTree;
 
-  // Right bottom: properties form
   private Text wpName;
   private Text wpNamespace;
   private CCombo wpKind;
@@ -101,13 +98,10 @@ public class XmlTreeDesigner extends Composite {
   private Button wpForceCreate;
   private Button wpStripOuterFragment;
 
-  /** Root of the tree being designed; never {@code null} after {@link #setRootNode(XmlNode)}. */
   private XmlNode rootNode;
 
-  /** Available input field names, used for the field combo and the drag-source list. */
   private final List<String> inputFields = new ArrayList<>();
 
-  /** Avoid feedback loops when populating the properties form for the current selection. */
   private boolean updatingProperties = false;
 
   private ChangeListener changeListener;
@@ -118,10 +112,6 @@ public class XmlTreeDesigner extends Composite {
     setLayout(new FormLayout());
     build();
   }
-
-  // ---------------------------------------------------------------------------
-  // Public API used by the host dialog
-  // ---------------------------------------------------------------------------
 
   public void setRootNode(XmlNode root) {
     this.rootNode = root == null ? defaultRoot() : root;
@@ -154,10 +144,6 @@ public class XmlTreeDesigner extends Composite {
       wGetFields.addListener(SWT.Selection, listener);
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // UI build
-  // ---------------------------------------------------------------------------
 
   private void build() {
     SashForm hSash = new SashForm(this, SWT.HORIZONTAL);
@@ -430,10 +416,6 @@ public class XmlTreeDesigner extends Composite {
     return t;
   }
 
-  // ---------------------------------------------------------------------------
-  // DnD: dragging fields from the input list to the tree
-  // ---------------------------------------------------------------------------
-
   private void setupFieldsDragSource() {
     Transfer[] transfers = new Transfer[] {TextTransfer.getInstance()};
     DragSource source = new DragSource(wInputFields, DND.DROP_COPY | DND.DROP_MOVE);
@@ -530,10 +512,6 @@ public class XmlTreeDesigner extends Composite {
         });
   }
 
-  // ---------------------------------------------------------------------------
-  // Context menu mirroring the toolbar
-  // ---------------------------------------------------------------------------
-
   private void setupTreeContextMenu() {
     Menu menu = new Menu(wTree);
 
@@ -585,10 +563,6 @@ public class XmlTreeDesigner extends Composite {
     mi.setSelection(selected);
     mi.addListener(SWT.Selection, ignore -> action.run());
   }
-
-  // ---------------------------------------------------------------------------
-  // Tree mutations
-  // ---------------------------------------------------------------------------
 
   private void addChild(XmlNode.NodeKind kind) {
     XmlNode parent = currentSelection();
@@ -645,12 +619,6 @@ public class XmlTreeDesigner extends Composite {
     fireChanged();
   }
 
-  /**
-   * Toggle the loop / group-by flag of the current selection.
-   *
-   * <p>Loop is mutually exclusive across the entire tree; setting one node as loop clears the flag
-   * elsewhere first. Group-by may co-exist on multiple ancestors of the loop.
-   */
   private void toggleSelectedFlag(boolean toggleLoop, boolean toggleGroupBy) {
     XmlNode sel = currentSelection();
     if (sel == null) {
@@ -679,10 +647,6 @@ public class XmlTreeDesigner extends Composite {
       }
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Properties form ↔ model sync
-  // ---------------------------------------------------------------------------
 
   private void handleSelectionChanged() {
     XmlNode n = currentSelection();
@@ -802,10 +766,6 @@ public class XmlTreeDesigner extends Composite {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Tree refresh / lookup
-  // ---------------------------------------------------------------------------
-
   /** Rebuilds the tree from the model. Preserves expansion where possible. */
   private void refreshTree() {
     wTree.removeAll();
@@ -908,10 +868,6 @@ public class XmlTreeDesigner extends Composite {
     }
     return null;
   }
-
-  // ---------------------------------------------------------------------------
-  // Misc
-  // ---------------------------------------------------------------------------
 
   private void refreshInputFieldsList() {
     if (wInputFields == null) {

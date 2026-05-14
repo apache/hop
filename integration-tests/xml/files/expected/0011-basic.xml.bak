@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<customers>
-<customer id="1"><firstName>Alice</firstName><lastName>Anderson</lastName><signupDate>2024-01-15</signupDate><premium>Y</premium></customer>
-<customer id="2"><firstName>Bob</firstName><lastName>Brown</lastName><signupDate>2024-02-03</signupDate><premium>N</premium></customer>
-<customer id="3"><firstName>Carol</firstName><lastName>Carter</lastName><signupDate>2024-04-21</signupDate><premium>Y</premium></customer>
-<customer id="4"><firstName>Daniel</firstName><lastName>Davis</lastName><signupDate>2024-06-30</signupDate><premium>N</premium></customer>
-</customers>

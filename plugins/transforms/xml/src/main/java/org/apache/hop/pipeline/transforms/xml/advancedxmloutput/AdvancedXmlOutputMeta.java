@@ -45,7 +45,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
-/** Metadata for the XML Output (Advanced) transform. */
 @Transform(
     id = "AdvancedXMLOutput",
     image = "AXO.svg",
@@ -62,18 +61,12 @@ public class AdvancedXmlOutputMeta
 
   private static final Class<?> PKG = AdvancedXmlOutputMeta.class;
 
-  /** Write XML document(s) to the configured file. */
   public static final String OPERATION_TYPE_WRITE_TO_FILE = "writetofile";
 
-  /**
-   * Append the produced XML document as a string field (one row per completed document / split).
-   */
   public static final String OPERATION_TYPE_OUTPUT_VALUE = "outputvalue";
 
-  /** Write to the file and append the XML string field for each completed document / split. */
   public static final String OPERATION_TYPE_BOTH = "both";
 
-  /** Stored in pipeline XML by stable code, not the enum constant name. */
   @Getter
   public enum XmlOutputOperation implements IEnumHasCodeAndDescription {
     WRITE_TO_FILE(
@@ -105,14 +98,9 @@ public class AdvancedXmlOutputMeta
     }
   }
 
-  /** Filename / split / zip / result options. */
   @HopMetadataProperty(key = "file")
   private XmlFileOutputSupport fileSupport;
 
-  /**
-   * Destination for the transform output (same codes as {@link #OPERATION_TYPE_WRITE_TO_FILE} /
-   * {@link #OPERATION_TYPE_OUTPUT_VALUE} / {@link #OPERATION_TYPE_BOTH}).
-   */
   @Getter(AccessLevel.NONE)
   @Injection(name = "", group = "GENERAL")
   @HopMetadataProperty(
@@ -122,10 +110,6 @@ public class AdvancedXmlOutputMeta
       injectionKeyDescription = "AdvancedXMLOutput.Injection.OPERATION")
   private XmlOutputOperation operationType = XmlOutputOperation.WRITE_TO_FILE;
 
-  /**
-   * Row field name for the produced XML when {@link #getOperationType()} is {@link
-   * XmlOutputOperation#OUTPUT_VALUE} or {@link XmlOutputOperation#BOTH}.
-   */
   @HopMetadataProperty(key = "output_xml_field")
   private String outputXmlField;
 
@@ -148,7 +132,6 @@ public class AdvancedXmlOutputMeta
     this.operationType = operationType;
   }
 
-  /** Output character encoding. */
   @HopMetadataProperty(
       key = "encoding",
       injectionKey = "ENCODING",
@@ -162,21 +145,18 @@ public class AdvancedXmlOutputMeta
       injectionKeyDescription = "AdvancedXMLOutput.Injection.COMPACT_FILE")
   private boolean compactFile;
 
-  /** Add a blank line after the {@code <?xml ?>} declaration. */
   @HopMetadataProperty(
       key = "blank_line_after_xml_decl",
       injectionKey = "BLANK_LINE_AFTER_XML_DECL",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.BLANK_LINE_AFTER_XML_DECL")
   private boolean blankLineAfterXmlDeclaration;
 
-  /** When true, an emitted attribute keeps its tag even if the source value is null. */
   @HopMetadataProperty(
       key = "create_attr_if_null",
       injectionKey = "CREATE_ATTR_IF_NULL",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.CREATE_ATTR_IF_NULL")
   private boolean createAttributeIfNull;
 
-  /** When true, an attribute with no mapped field is still emitted (with empty / default value). */
   @HopMetadataProperty(
       key = "create_attr_if_unmapped",
       injectionKey = "CREATE_ATTR_IF_UNMAPPED",
@@ -197,28 +177,24 @@ public class AdvancedXmlOutputMeta
       injectionKeyDescription = "AdvancedXMLOutput.Injection.TRIM_VALUES")
   private boolean trimValues;
 
-  /** Optional global decimal separator override (per-node still wins). */
   @HopMetadataProperty(
       key = "default_decimal_separator",
       injectionKey = "DEFAULT_DECIMAL_SEPARATOR",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.DEFAULT_DECIMAL_SEPARATOR")
   private String defaultDecimalSeparator;
 
-  /** Optional global grouping separator override (per-node still wins). */
   @HopMetadataProperty(
       key = "default_grouping_separator",
       injectionKey = "DEFAULT_GROUPING_SEPARATOR",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.DEFAULT_GROUPING_SEPARATOR")
   private String defaultGroupingSeparator;
 
-  /** When true, write a sibling {@code .xsd} schema describing the produced XML structure. */
   @HopMetadataProperty(
       key = "generate_xsd",
       injectionKey = "GENERATE_XSD",
       injectionKeyDescription = "AdvancedXMLOutput.Injection.GENERATE_XSD")
   private boolean generateXsd;
 
-  /** Optional DOCTYPE root element name. When set, emit DOCTYPE between the XML decl and root. */
   @HopMetadataProperty(
       key = "doctype_root",
       injectionKey = "DOCTYPE_ROOT",
@@ -252,7 +228,6 @@ public class AdvancedXmlOutputMeta
       injectionKeyDescription = "AdvancedXMLOutput.Injection.XSL_TYPE")
   private String xslStylesheetType;
 
-  /** The hierarchical XML tree definition. */
   @HopMetadataProperty(key = "tree")
   private XmlNode rootNode;
 
@@ -297,7 +272,6 @@ public class AdvancedXmlOutputMeta
     return new AdvancedXmlOutputMeta(this);
   }
 
-  /** Default tree: {@code <Rows><Row loop="true"/></Rows>} so a fresh transform validates. */
   private static XmlNode defaultRootNode() {
     XmlNode root = new XmlNode("Rows", XmlNode.NodeKind.Element);
     XmlNode loop = new XmlNode("Row", XmlNode.NodeKind.Element);
@@ -330,18 +304,15 @@ public class AdvancedXmlOutputMeta
     }
   }
 
-  /** Resolved operation type code for metadata compatibility and samples. */
   public String resolvedOperationType() {
     return getOperationType().getCode();
   }
 
-  /** True when the pipeline should append an XML string field (output value or both). */
   public boolean writesXmlField() {
     XmlOutputOperation op = getOperationType();
     return op == XmlOutputOperation.OUTPUT_VALUE || op == XmlOutputOperation.BOTH;
   }
 
-  /** True when the transform writes physical XML file(s). */
   public boolean writesXmlFile() {
     XmlOutputOperation op = getOperationType();
     return op == XmlOutputOperation.WRITE_TO_FILE || op == XmlOutputOperation.BOTH;
