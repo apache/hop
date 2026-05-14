@@ -38,9 +38,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -114,46 +116,32 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    ModifyListener lsMod = e -> input.setChanged();
+    createShell(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.Shell.Title"));
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    int margin = PropsUi.getMargin();
-    int middle = props.getMiddlePct();
+    ScrolledComposite wScrolledComposite =
+        new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wScrolledComposite);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    wScrolledComposite.setLayoutData(fdSc);
+    wScrolledComposite.setLayout(new FillLayout());
+    wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
-    // Transform name
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
+    Composite mainComposite = new Composite(wScrolledComposite, SWT.NONE);
+    PropsUi.setLook(mainComposite);
+    mainComposite.setLayout(props.createFormLayout());
 
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Label wContentTop = new Label(mainComposite, SWT.NONE);
+    wContentTop.setLayoutData(new FormData(0, 0));
 
-    // Tabs
-    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    CTabFolder wTabFolder = new CTabFolder(mainComposite, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     addFileTab(wTabFolder, lsMod, margin, middle);
@@ -162,20 +150,23 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -50);
+    fdTabFolder.top = new FormAttachment(wContentTop, margin);
+    fdTabFolder.bottom = new FormAttachment(100, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
+    wScrolledComposite.setContent(mainComposite);
+    mainComposite.pack();
+    wScrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
+    FormData fdComp = new FormData();
+    fdComp.left = new FormAttachment(0, 0);
+    fdComp.top = new FormAttachment(0, 0);
+    fdComp.right = new FormAttachment(100, 0);
+    fdComp.bottom = new FormAttachment(100, 0);
+    mainComposite.setLayoutData(fdComp);
+
+    mainComposite.pack();
 
     wTabFolder.setSelection(0);
 
@@ -186,6 +177,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
 
     input.setChanged(changed);
 
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -747,9 +739,6 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
     XmlNode root =
         input.getRootNode() != null ? new XmlNode(input.getRootNode()) : defaultRootNode();
     wTreeDesigner.setRootNode(root);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private static XmlNode defaultRootNode() {

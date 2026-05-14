@@ -299,13 +299,15 @@ public class XmlTreeDesigner extends Composite {
     layoutValueRight(lblKind, wpKind, labelWidth);
     wpKind.addModifyListener(e -> applyPropertiesToModel());
 
-    Label lblField = addLabel(props, lblKind, "MappedField", labelWidth);
+    // Attach each row below the previous row's value control (not the label): CCombo is taller than
+    // a Label, so attaching the next label under the previous label caused vertical overlap.
+    Label lblField = addLabel(props, wpKind, "MappedField", labelWidth);
     wpMappedField = new CCombo(props, SWT.BORDER);
     PropsUi.setLook(wpMappedField);
     layoutValueRight(lblField, wpMappedField, labelWidth);
     wpMappedField.addModifyListener(e -> applyPropertiesToModel());
 
-    wpDefaultValue = addLabeledText(props, lblField, "DefaultValue", labelWidth);
+    wpDefaultValue = addLabeledText(props, wpMappedField, "DefaultValue", labelWidth);
     wpFormat = addLabeledText(props, wpDefaultValue, "Format", labelWidth);
 
     Composite numericRow = new Composite(props, SWT.NONE);
