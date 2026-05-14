@@ -27,13 +27,8 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
- * Describes a single node in the hierarchical XML tree of the XML Output (Advanced) transform.
- *
- * <p>An {@code XmlNode} can represent an element or an attribute. Elements may have any number of
- * child nodes (recursive structure). Exactly one element in the tree must be marked as the loop
- * node ({@link #loop}) to indicate where input rows are emitted. Optionally, ancestors of the loop
- * node can be marked as group-by ({@link #groupBy}) to collapse consecutive rows that share the
- * same group key into a single occurrence of the group element.
+ * One node in the transform's hierarchical XML tree: element, attribute, or document fragment.
+ * Exactly one element must be the row loop; ancestors of the loop may be group-by nodes.
  */
 @Getter
 @Setter
@@ -116,11 +111,8 @@ public class XmlNode {
   private boolean groupBy;
 
   /**
-   * When {@link #kind} is {@link NodeKind#DocumentFragment}: if true, the first element inside the
-   * field value is not emitted (only its contents). Use when the field already includes a wrapper
-   * that duplicates the parent element in the tree (e.g. field contains {@code
-   * <addresses>...</addresses>} under a modeled {@code <addresses>} element). In the tree designer
-   * this appears as "Remove outer wrapper (duplicate parent tag)".
+   * For {@link NodeKind#DocumentFragment}: skip the outer element in the field value when it
+   * duplicates the parent element in the tree.
    */
   @HopMetadataProperty(key = "strip_outer_fragment_element")
   private boolean stripOuterFragmentElement;

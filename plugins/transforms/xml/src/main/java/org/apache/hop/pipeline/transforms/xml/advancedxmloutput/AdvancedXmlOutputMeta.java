@@ -45,11 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
-/**
- * Metadata for the XML Output (Advanced) transform: writes input rows to one or more XML files
- * following a hierarchical, user-defined XML tree (with one row-loop element and optional group-by
- * ancestors).
- */
+/** Metadata for the XML Output (Advanced) transform. */
 @Transform(
     id = "AdvancedXMLOutput",
     image = "AXO.svg",
@@ -77,10 +73,7 @@ public class AdvancedXmlOutputMeta
   /** Write to the file and append the XML string field for each completed document / split. */
   public static final String OPERATION_TYPE_BOTH = "both";
 
-  /**
-   * Where to send the XML document (same pattern as JSON Output Enhanced: writetofile / outputvalue
-   * / both). Stored by code in pipeline XML ({@code storeWithCode}) for reliable round-trip.
-   */
+  /** Stored in pipeline XML by stable code, not the enum constant name. */
   @Getter
   public enum XmlOutputOperation implements IEnumHasCodeAndDescription {
     WRITE_TO_FILE(
@@ -368,7 +361,6 @@ public class AdvancedXmlOutputMeta
 
     CheckResult cr;
 
-    // Tree: at least one node, exactly one loop node, mapped fields exist
     List<String> validationErrors = AdvancedXmlOutputValidator.validate(rootNode, prev);
     if (validationErrors.isEmpty()) {
       cr =

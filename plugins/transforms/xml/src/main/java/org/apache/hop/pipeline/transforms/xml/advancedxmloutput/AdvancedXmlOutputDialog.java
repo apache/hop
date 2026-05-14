@@ -54,13 +54,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/**
- * Dialog for the XML Output (Advanced) transform.
- *
- * <p>Three tabs: <b>File</b> (filename, encoding, splitting, zipping), <b>Content</b> (XML
- * declaration, formatting, doctype, xsl, xsd) and <b>XML Tree</b> (visual designer for the
- * hierarchical output structure with drag-and-drop).
- */
+/** Dialog: File, Content, and XML Tree tabs. */
 public class AdvancedXmlOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = AdvancedXmlOutputMeta.class;

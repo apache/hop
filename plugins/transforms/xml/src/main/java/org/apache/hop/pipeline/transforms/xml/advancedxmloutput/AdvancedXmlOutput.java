@@ -55,13 +55,8 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
- * Runtime engine for the XML Output (Advanced) transform.
- *
- * <p>Walks the configured {@link XmlNode} tree once at first-row time, splitting it into a "prefix
- * path" (root → loop's parent) with optional group-by ancestors, a "loop subtree" emitted for each
- * input row, and a "suffix" of closing tags. Group-by ancestors collapse consecutive input rows
- * that share the same group key into a single occurrence of the group element. Memory profile is
- * O(largest group); the writer is StAX-streaming.
+ * Runs the XML Output (Advanced) transform: resolves the tree once, opens a StAX writer, then emits
+ * prefix path, per-row loop body, and closing tags (with optional group-by).
  */
 public class AdvancedXmlOutput extends BaseTransform<AdvancedXmlOutputMeta, AdvancedXmlOutputData> {
 

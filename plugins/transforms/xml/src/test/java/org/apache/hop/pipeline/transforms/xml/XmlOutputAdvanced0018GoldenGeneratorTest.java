@@ -53,20 +53,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Run with {@code -Dhop.generate.chained.golden=true} to refresh {@code
- * integration-tests/xml/files/expected/0018-chained.xml} and {@code .xsd} from the two Advanced XML
- * Output transforms in {@code 0018-xml-output-advanced-chained.hpl} (same row set as the Data Grid
- * in that pipeline). Skipped by default.
- *
- * <p>The full {@code .hpl} is not executed here because the Data Grid transform is not on this
- * module's test classpath; the injector + two XML Output steps reproduce the same XML.
- *
- * <p>The copied {@code <?xml ...?>} line is normalized to single-quoted attributes so goldens match
- * what Hop uses in integration tests (see {@code 0011-basic.xml}) and byte-identical {@link
- * org.apache.hop.workflow.actions.filecompare.ActionFileCompare} checks succeed.
- *
- * <p>Generated XSD empty tags are normalized to self-closing form as in {@code
- * 0014-document-fragment.xsd} (some StAX impls write {@code </xs:element>} instead of {@code />}).
+ * Opt-in golden refresh ({@code -Dhop.generate.chained.golden=true}): runs injector + two XML
+ * Output (Advanced) steps with the same row set as {@code 0018-xml-output-advanced-chained.hpl},
+ * then copies XML/XSD into {@code integration-tests/xml/files/expected/}. Post-processing aligns
+ * decl quoting, XSD self-closing tags, and trailing bytes with the existing integration goldens.
  */
 class XmlOutputAdvanced0018GoldenGeneratorTest {
 
@@ -156,10 +146,7 @@ class XmlOutputAdvanced0018GoldenGeneratorTest {
     trimTrailingContentAfterXsdSchema(expectedDir.resolve("0018-chained.xsd"));
   }
 
-  /**
-   * {@link AdvancedXmlOutputXsdWriter} ends the stream right after {@code </xs:schema>} with no
-   * trailing newline (same as {@code 0011-basic.xsd}).
-   */
+  /** Drop any bytes after the closing {@code </xs:schema>} tag. */
   private static void trimTrailingContentAfterXsdSchema(Path xsd) throws Exception {
     String s = Files.readString(xsd);
     String marker = "</xs:schema>";
@@ -173,10 +160,7 @@ class XmlOutputAdvanced0018GoldenGeneratorTest {
     }
   }
 
-  /**
-   * Integration {@code FILE_COMPARE} goldens use single-quoted XML declarations (e.g. {@code
-   * 0011-basic.xml}); some StAX configurations emit double quotes during {@code mvn test}.
-   */
+  /** Match integration goldens: single-quoted {@code <?xml ?>} declaration. */
   private static void normalizeHopIntegrationXmlDecl(Path file) throws Exception {
     String s = Files.readString(file);
     String n =

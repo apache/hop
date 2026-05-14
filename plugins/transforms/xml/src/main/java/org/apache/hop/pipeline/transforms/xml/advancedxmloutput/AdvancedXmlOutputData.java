@@ -80,10 +80,7 @@ public class AdvancedXmlOutputData extends BaseTransformData implements ITransfo
   /** True: write XML to the configured file. */
   public boolean writeToFile;
 
-  /**
-   * True: one output row per completed XML document with the document in the {@code outputXmlField}
-   * set on {@link AdvancedXmlOutputMeta}.
-   */
+  /** True when the XML document is also written to the meta's output string field. */
   public boolean outputXmlField;
 
   /** When {@link #outputXmlField}, uncompressed XML bytes for the current file / segment. */
