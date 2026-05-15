@@ -78,7 +78,7 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>352</xloc>
-      <yloc>192</yloc>
+      <yloc>196</yloc>
     </GUI>
   </transform>
   <transform>
@@ -108,7 +108,7 @@ limitations under the License.
     <beyondDepthBehavior>STRINGIFY</beyondDepthBehavior>
     <rownum_field/>
     <file>
-      <name>${Internal.Pipeline.Filename.Directory}/../data/json-normalize-events.json</name>
+      <name>${PROJECT_HOME}/data/json-normalize-events.json</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -183,7 +183,7 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>128</xloc>
-      <yloc>192</yloc>
+      <yloc>196</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

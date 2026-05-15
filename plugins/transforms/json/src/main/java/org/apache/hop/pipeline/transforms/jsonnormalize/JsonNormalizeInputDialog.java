@@ -285,7 +285,6 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
           }
         });
 
-    // Enable/disable the right fields to allow a row number to be added to each row...
     wInclRownum.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -294,7 +293,6 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
           }
         });
 
-    // Whenever something changes, set the tooltip to the expanded version of the filename:
     wFilename.addModifyListener(e -> wFilename.setToolTipText(wFilename.getText()));
 
     wbbFilename.addListener(

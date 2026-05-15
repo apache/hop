@@ -154,7 +154,7 @@ public class JsonNormalizeInputMeta
       injectionKeyDescription = "JsonNormalizeInput.Injection.RECORD_PATH")
   private String recordPath;
 
-  /** Join segments when flattening (pandas json_normalize {@code sep}). */
+  /** Join segments when flattening (similar to pandas json_normalize {@code sep}). */
   @HopMetadataProperty(
       key = "fieldSeparator",
       injectionKey = "FIELD_SEPARATOR",

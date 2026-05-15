@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.vfs2.FileObject;
@@ -88,7 +89,7 @@ public class JsonNormalizeInput
     data.resolvedFields = new JsonInputField[data.nrInputFields];
     for (int i = 0; i < data.nrInputFields; i++) {
       JsonInputField field = new JsonInputField(meta.getInputFields().get(i));
-      field.setPath(resolve(field.getPath()));
+      field.setPath(resolveJsonPath(field.getPath()));
       data.resolvedFields[i] = field;
     }
     return true;
@@ -267,6 +268,23 @@ public class JsonNormalizeInput
     addFileToResultFilesname(file);
   }
 
+  /**
+   * Resolves {@code %%var%%} / {@code ${var}} like {@link #resolve(String)} but skips hex decoding
+   * ({@code $[xx]}). JsonPath wildcards such as {@code $[*]} are otherwise mangled by {@link
+   * org.apache.hop.core.util.StringUtil#environmentSubstitute}.
+   */
+  private String resolveJsonPath(String path) {
+    if (StringUtil.isEmpty(path)) {
+      return path;
+    }
+    Map<String, String> variables = new HashMap<>();
+    for (String name : getVariableNames()) {
+      variables.put(name, getVariable(name));
+    }
+    String afterWindows = StringUtil.substituteWindows(path, variables);
+    return StringUtil.substituteUnix(afterWindows, variables);
+  }
+
   private void incrementErrors() {
     setErrors(getErrors() + 1);
   }
@@ -335,7 +353,7 @@ public class JsonNormalizeInput
   }
 
   private boolean loadNextDocument() throws HopException {
-    String recordPath = resolve(meta.getRecordPath());
+    String recordPath = resolveJsonPath(meta.getRecordPath());
     while (true) {
       if (data.processingJson) {
         if (data.jsonInputs == null || !data.jsonInputs.hasNext()) {

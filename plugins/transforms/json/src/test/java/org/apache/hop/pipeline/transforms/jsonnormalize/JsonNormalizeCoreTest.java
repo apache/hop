@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.jsonnormalize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,7 +28,9 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
 
 class JsonNormalizeCoreTest {
@@ -72,6 +75,19 @@ class JsonNormalizeCoreTest {
             JsonNodeFlattener.CODE_BEYOND_STRINGIFY);
     assertTrue(m.containsKey("b"));
     assertTrue(m.get("b").isObject());
+  }
+
+  /**
+   * Hop's {@link org.apache.hop.core.variables.Variables#resolve(String)} applies hex decoding to
+   * {@code $[...]} segments, breaking JsonPath such as {@code $[*]}. {@link JsonNormalizeInput}
+   * uses {@code resolveJsonPath} (Windows + Unix substitution only) for record paths and field
+   * paths.
+   */
+  @Test
+  void environmentSubstituteManglesDollarBracketJsonPath() throws HopException {
+    HopEnvironment.init();
+    Variables variables = new Variables();
+    assertNotEquals("$[*]", variables.resolve("$[*]"));
   }
 
   @Test

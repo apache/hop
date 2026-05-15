@@ -17,20 +17,55 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The JSON Normalize Input transform reads JSON (files, URLs, or fields), selects an array of records with JsonPath, flattens nested objects into columns, and outputs one row per array element.
+:openvar: ${
+:closevar: }
+
 
 = image:transforms/icons/JsonNormalizeInput.svg[JSON Normalize Input transform Icon, role="image-doc-icon"] JSON Normalize Input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
+
 == Description
 The JSON Normalize Input transform is similar to xref:pipeline/transforms/jsoninput.adoc[JSON Input] for sourcing data (file, URL, or a field from a previous transform), but it is built for *tabular* extraction from JSON documents:
 
 * A *record JsonPath* selects an *array* of objects (or scalar elements). Hop emits *one output row per array element*.
-* Nested objects under each record are *flattened* into column paths using a configurable separator (default: a dot, similar to `pandas.json_normalize`).
+* Nested objects under each record are *flattened* into column paths using a configurable separator (default: a dot, like `customer.name` for nested keys).
 * On the Fields tab, each row’s *Path* is the *flattened key* (for example `customer.name`), not a separate JsonPath query into the raw file.
 
 Use this transform when your JSON has a clear list of entities (`orders`, `events`, or a root-level array) and you want a wide, denormalized row set without chaining multiple JSON Input transforms.
+
+[NOTE]
+====
+Choose xref:pipeline/transforms/jsoninput.adoc[JSON Input] when you need *one row per document* (or a fixed shape) and each column is filled by its *own JsonPath* into the file; choose JSON Normalize Input when the document has an *array of similar objects* and you want *one output row per array element* with *nested objects flattened* into dotted column names.
+====
+
+== Why one JSON document can need several JSON Normalize Input transforms
+
+Each transform run picks *one* **Record JsonPath** that must resolve to an *array*. That defines a single output grain: *one row per element of that array*, with fields taken from that element after flattening.
+
+You often still use **several** JSON Normalize Input transforms on the same pipeline (in parallel branches or one after another) because:
+
+* **Sibling arrays** — One file may hold unrelated lists (for example, in `hop-config.json`: `variables`, `lifecycleEnvironments`, and `projectConfigurations`). Each list has its own element shape; a single record path cannot return two arrays at once. Normalize each list with its own transform (and JsonPath such as `$.variables[*]`), or read the file once into string columns and parse those blobs in follow-up steps—see the `json-normalize-hop-config-layers.hpl` sample.
+* **Wide, sparse tables** — It is *possible* in some cases to point the record path at a very high level (for example the document root) and flatten *everything* into one enormous row, but unrelated branches then become hundreds of columns with values only on a few of them. That is hard to query and heavy for memory. Prefer a *narrow* record path per *entity type* so each hop looks like a real table: mostly dense columns, one business meaning per row.
+
+So chaining here is not a limitation of JSON compared to “doing it in one go”; it is the same design choice as picking **one repeating array per logical table**.
+
+[NOTE]
+====
+**If you use Python pandas:** The same pattern exists there—`json_normalize` is usually applied to *one* list of records at a time; several sibling arrays in one JSON file mean several normalize passes (or list-valued columns). Hop’s **Record JsonPath** selects that list; nested arrays while flattening default to **stringified** text in a column instead of extra rows, similar to keeping a list in a cell unless you normalize again.
+====
+
+== Performance, memory, and wide tables
+
+Flattening is **row-oriented** and builds a **wide** field set from **deep** or **branchy** JSON:
+
+* **Wide output** — Many distinct paths (especially long field names or deep nesting) mean many columns and larger in-memory row batches. Very large config files with hundreds of top-level branches can create *very* wide rows if you flatten the whole document in one row.
+* **Large files** — Reading big JSON documents is **not streaming per record** at the JsonPath layer; the engine must **materialize** matching structures. Prefer **narrow `Record JsonPath`** (one list of business records) instead of normalizing an enormous root when possible.
+* **Arrays left as JSON text** — Stringified array columns can be large strings; downstream steps (for example filters, calculators) pay the cost of parsing or copying that text.
+
+There is no single safe “normalize everything” default for arbitrary JSON; **choosing the right record path** is the main lever for both **correctness** and **performance**.
 
 == Samples
 Sample pipelines and data ship with the JSON transforms plugin under `plugins/transforms/json/src/main/samples/`:
@@ -38,8 +73,9 @@ Sample pipelines and data ship with the JSON transforms plugin under `plugins/tr
 * `transforms/json-normalize-orders.hpl` with `data/json-normalize-orders.json` — nested `orders` array.
 * `transforms/json-normalize-root-array.hpl` with `data/json-normalize-events.json` — root-level array.
 * `transforms/json-normalize-complex-transactions.hpl` with `data/json-normalize-complex-transactions.json` — larger file with many columns and rows.
+* `transforms/json-normalize-hop-config-layers.hpl` reads `{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json` — wide row from the root object (arrays as JSON text), then parallel branches that normalize `variables`, lifecycle environments, and project configurations from those strings. Point `HOP_CONFIG_FOLDER` at your real Hop config folder, or use the fixture under `integration-tests/json/resources/hop-config-layers-it/` to try the shape offline.
 
-Pipeline unit tests in `integration-tests/json/` (`0008`–`0010`) exercise the same scenarios in CI.
+Pipeline unit tests in `integration-tests/json/` (`0008`–`0011`) exercise these scenarios in CI, including `0011-json-normalize-hop-config-layers.hpl` for `{openvar}HOP_CONFIG_FOLDER{closevar}/hop-config.json` with parallel branches.
 
 |
 == Supported Engines
@@ -58,7 +94,7 @@ Same concepts as JSON Input: source from files / folder, URL, or a field from a 
 === Content tab
 In addition to the usual file and row-limit options (see xref:pipeline/transforms/jsoninput.adoc#_content_tab[JSON Input – Content tab]), the Content tab adds:
 
-[options="header"]
+[options="header",cols="1a,3a"]
 |===
 |Option|Description
 |Record JsonPath|JsonPath that must evaluate to an *array* of records. Each element becomes one output row. Examples: `$.orders[*]` for `{ "orders": [ {...}, ... ] }`, or `$[*]` when the file root is an array.
@@ -70,9 +106,61 @@ In addition to the usual file and row-limit options (see xref:pipeline/transform
 |===
 
 === Fields tab
-Define output fields the same way as JSON Input (name, type, format, and so on). The *Path* column must match the *flattened* key for the value after normalization, for example `orderId`, `customer.name`, or `meta.amount`.
 
-Use *Select fields from snippet* with a *single representative record* (one element of your array) to suggest flattened paths.
+The Fields tab lists output fields to extract from each *flattened* record (each element selected by **Record JsonPath**).
+The table has the following columns:
+
+[options="header",cols="1a,3a"]
+|===
+|Option|Description
+|Name|Name of the output field in the Hop stream.
+|Path|Flattened key for the value *within each record*, after nested objects are merged into dotted (or custom-separated) paths. This is *not* a JsonPath into the whole document—that is what **Record JsonPath** on the Content tab is for. Examples: `orderId`, `customer.name`. The value must match a key produced for that row by flattening (unless **Ignore missing field paths** is enabled, in which case a missing key yields null). Wildcards, filters, and regex are not used in this column—only the path string for the flattened field.
+|Type|Data type of the input field.
+|Format|An optional mask for converting the format of the original field.
+See Common Formats for information on common valid date and numeric formats you can use in this transform.
+|Length|Length of the field.
+|Precision|Number of floating point digits for number-type fields.
+|Currency|Currency symbol ($ or €, for example).
+|Decimal|A decimal point can be a . (5,000.00 for example) or , (5.000,00 for example).
+|Group|A grouping can be a , (10,000.00 for example) or . (5.000,00 for example).
+|Trim type|The trim method to apply to a string.
+|Repeat|The corresponding value from the last row repeated if a row is empty.
+|===
+
+*Select fields*
+
+Click *Select fields* in the Fields tab to open the Select Fields window.
+Select the checkbox next to each field that you want in the output.
+All fields chosen here are added to the table.
+You can search for a field name by entering it in the Search box.
+
+*Select fields from snippet*
+
+Click *Select fields from snippet* and paste JSON text—typically *one representative object* (one element of the array your **Record JsonPath** selects)—to populate the *Name*, *Path*, and *Type* columns in the Fields tab. This helps discover flattened paths after your Content-tab settings (separator, depth, array handling) are applied.
+
+*Dates and timestamps*
+
+For Hop types of *Date* and *Timestamp*, use the *Format* column to specify the incoming format. For example, for Date: `yyyy-MM-dd`. You can select a format from the dropdown or enter format text directly. Hop uses https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[SimpleDateFormat,window=_blank] (Java 8).
+
+*Examples of Timestamp formats:*
+
+* Format: yyyy-MM-dd'T'HH:mm:ss.SSSZ and Result: 2021-10-26T20:51:43.795+0000
+
+* Format: 2024-04-22T00:00:00.000Z and Result: 2024-04-22T00:00:00.000Z
 
 === Additional output fields tab
-Same as JSON Input when reading from files. See xref:pipeline/transforms/jsoninput.adoc#_additional_output_fields_tab[JSON Input – Additional output fields tab].
+
+The Additional output fields tab contains the following options to add file metadata when the transform reads from files:
+
+[options="header",cols="1a,3a"]
+|===
+|Option|Description
+|Short filename field|Specify the field that contains the filename without path information but with an extension.
+|Extension field|Specify the field that contains the extension of the filename.
+|Path field|Specify the field that contains the path in operating system format.
+|Size field|Specify the field that contains the size of the data.
+|Is hidden field|Specify the field indicating if the file is hidden or not (Boolean).
+|Last modification field|Specify the field indicating the date of the last time the file was modified.
+|Uri field|Specify the field that contains the URI.
+|Root uri field|Specify the field that contains only the root part of the URI.
+|===

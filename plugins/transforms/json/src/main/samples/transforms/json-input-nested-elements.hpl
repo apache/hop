@@ -95,7 +95,7 @@ This second transform uses the "configuration_variables" to read from, instead o
     <attributes/>
     <GUI>
       <xloc>976</xloc>
-      <yloc>256</yloc>
+      <yloc>258</yloc>
     </GUI>
   </transform>
   <transform>
@@ -183,7 +183,7 @@ This second transform uses the "configuration_variables" to read from, instead o
     <attributes/>
     <GUI>
       <xloc>432</xloc>
-      <yloc>256</yloc>
+      <yloc>258</yloc>
     </GUI>
   </transform>
   <transform>
@@ -518,7 +518,7 @@ This second transform uses the "configuration_variables" to read from, instead o
     <attributes/>
     <GUI>
       <xloc>160</xloc>
-      <yloc>256</yloc>
+      <yloc>258</yloc>
     </GUI>
   </transform>
   <transform>
@@ -610,7 +610,7 @@ This second transform uses the "configuration_variables" to read from, instead o
     <attributes/>
     <GUI>
       <xloc>704</xloc>
-      <yloc>256</yloc>
+      <yloc>258</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
