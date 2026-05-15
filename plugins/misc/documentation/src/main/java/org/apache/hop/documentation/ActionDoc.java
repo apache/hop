@@ -97,7 +97,7 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
       parentId = GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       variables = false,
-      label = "i18n:ActionDoc.RemoveMarkdown.Label")
+      label = "i18n::ActionDoc.RemoveMarkdown.Label")
   @HopMetadataProperty
   private boolean removeMarkdown = false;
 
