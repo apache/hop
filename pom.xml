@@ -472,6 +472,7 @@
                         <exclude>DISCLAIMER</exclude>
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
+                        <exclude>.asf.yaml</exclude>
                         <exclude>**/licenses/*</exclude>
                         <exclude>**/target/**</exclude>
                         <exclude>**/*.svg</exclude>
