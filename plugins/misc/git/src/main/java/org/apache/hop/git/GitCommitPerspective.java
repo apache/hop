@@ -342,6 +342,9 @@ public class GitCommitPerspective implements IHopPerspective {
   }
 
   protected void retrieveState() {
+    if (wMessage == null || wMessage.isDisposed()) {
+      return;
+    }
     try {
       AuditList auditList =
           AuditManager.getActive()
@@ -351,10 +354,7 @@ public class GitCommitPerspective implements IHopPerspective {
         message = auditList.getNames().getFirst();
       }
 
-      // In case perspective is not initialized
-      if (wMessage != null) {
-        wMessage.setText(message);
-      }
+      wMessage.setText(message);
     } catch (HopException e) {
       LogChannel.UI.logError("Error retrieve commit messages history", e);
     }

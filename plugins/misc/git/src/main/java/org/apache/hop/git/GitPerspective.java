@@ -206,7 +206,7 @@ public class GitPerspective implements IHopPerspective {
   private Table wHistoryTable;
 
   private Control wDiff; // Can be Text (web) or DiffStyledTextComp (desktop)
-  private DiffStyledTextComp wDiffStyled;
+  private Control wDiffStyled; // Declared as Control (not DiffStyledTextComp) so works in hop web
   private Text wSearchText;
   private Text wDiffText;
   // private GuiToolbarWidgets refToolBarWidgets;
@@ -1228,8 +1228,8 @@ public class GitPerspective implements IHopPerspective {
       text = "";
     }
     if (wDiffStyled != null) {
-      // Desktop: Use colored diff
-      wDiffStyled.setDiffText(text);
+      // Desktop: Use colored diff.
+      ((DiffStyledTextComp) wDiffStyled).setDiffText(text);
     } else if (wDiffText != null) {
       // Web: Use plain text
       wDiffText.setText(text);
@@ -1564,9 +1564,7 @@ public class GitPerspective implements IHopPerspective {
    */
   public void refresh(boolean refreshAll) {
     try {
-      // If perspective is not initialized
-      // TODO: Consider removing this hack when git perspectives are ready for Web
-      if (wHistoryTable == null) {
+      if (wHistoryTable == null || wHistoryTable.isDisposed()) {
         return;
       }
 

@@ -643,12 +643,6 @@ public class HopGui
   private void loadPerspectives() {
     List<String> excludedGuiElements = GuiRegistry.getDisabledGuiElements();
 
-    // TODO: Consider removing this hack when git perspectives are ready for Web
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      excludedGuiElements.add("311-GitPerspective");
-      excludedGuiElements.add("310-GitCommitPerspective");
-    }
-
     try {
       // Preload the perspectives and store them in the manager as well as the GuiRegistry
       //

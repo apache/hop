@@ -85,6 +85,13 @@ public class HopGuiEnvironment extends HopClientEnvironment {
         ClassLoader classLoader = pluginRegistry.getClassLoader(guiPlugin);
         Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray(new Class<?>[0]);
         String guiPluginClassName = guiPlugin.getClassMap().get(typeClasses[0]);
+
+        // TextDiffDialog is the side-by-side revision compare dialog. Only works on SWT
+        if (EnvironmentUtils.getInstance().isWeb()
+            && "org.apache.hop.git.TextDiffDialog".equals(guiPluginClassName)) {
+          continue;
+        }
+
         Class<?> guiPluginClass = classLoader.loadClass(guiPluginClassName);
 
         // Component widgets are defined on fields

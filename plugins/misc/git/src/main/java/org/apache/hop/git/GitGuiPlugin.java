@@ -964,6 +964,18 @@ public class GitGuiPlugin
 
   public void showTextFileDiff(String filename, String newCommitId, String oldCommitId)
       throws HopException {
+    // The side-by-side compare dialog is built on SWT StyledText/Path, which RWT/Web does
+    // not support
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      MessageBox box =
+          new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "TextDiffDialog.Name", filename));
+      box.setMessage(
+          "The side-by-side file compare is only available in the desktop client. "
+              + "Use the inline diff in the Git perspective instead.");
+      box.open();
+      return;
+    }
     try {
       String oldContent = readCommitFileContent(filename, oldCommitId);
       String newContent = readCommitFileContent(filename, newCommitId);

@@ -19,6 +19,7 @@ package org.apache.hop.git.util;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 
 public final class DistinctColor {
 
@@ -52,7 +53,7 @@ public final class DistinctColor {
       }
     }
 
-    return new Color(candidate);
+    return new Color(Display.getCurrent(), candidate);
   }
 
   private static float[] rgbToHsv(RGB rgb) {
