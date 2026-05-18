@@ -736,6 +736,7 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
   // ---------------------------------------------------------------------------
 
   private void populateInputFieldsAsync() {
+    final Display display = shell.getDisplay();
     Runnable r =
         () -> {
           TransformMeta tm = pipelineMeta.findTransform(transformName);
@@ -750,7 +751,9 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
                 inputFieldNames.add(row.getValueMeta(i).getName());
               }
             }
-            Display.getDefault().asyncExec(this::pushInputFieldsToDesigner);
+            if (!display.isDisposed()) {
+              display.asyncExec(this::pushInputFieldsToDesigner);
+            }
           } catch (HopException e) {
             logError(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.ErrorGettingFields"), e);
           }
