@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -488,6 +490,55 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
     }
   }
 
+  /**
+   * Resolves sheet entries that use regex patterns against the actual sheet names in the workbook.
+   * Non-regex entries are kept as-is; regex entries are expanded into all matching sheet names.
+   */
+  private void resolveSheetNamesFromRegex(ExcelInputData data) {
+    String[] allSheetNames = data.workbook.getSheetNames();
+    List<String> matchedNames = new ArrayList<>();
+    List<Integer> matchedStartRow = new ArrayList<>();
+    List<Integer> matchedStartCol = new ArrayList<>();
+
+    if (isDebug()) {
+      logDebug("resolveSheetNamesFromRegex: workbook has " + allSheetNames.length + " sheet(s)");
+      for (String n : allSheetNames) {
+        logDebug("  available sheet: [" + n + "]");
+      }
+    }
+
+    for (ExcelInputMeta.EISheet sheet : meta.getSheets()) {
+      if (sheet.isRegex()) {
+        logBasic("Sheet regex pattern: [" + sheet.getName() + "]");
+        try {
+          Pattern pattern = Pattern.compile(sheet.getName());
+          for (String sheetName : allSheetNames) {
+            if (pattern.matcher(sheetName).matches()) {
+              logBasic("  -> matched: [" + sheetName + "]");
+              matchedNames.add(sheetName);
+              matchedStartRow.add(sheet.getStartRow());
+              matchedStartCol.add(sheet.getStartColumn());
+            }
+          }
+        } catch (PatternSyntaxException e) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "ExcelInput.Error.InvalidSheetRegex", sheet.getName(), e.getMessage()));
+        }
+      } else {
+        logBasic("Sheet exact name: [" + sheet.getName() + "]");
+        matchedNames.add(sheet.getName());
+        matchedStartRow.add(sheet.getStartRow());
+        matchedStartCol.add(sheet.getStartColumn());
+      }
+    }
+
+    logBasic("resolveSheetNamesFromRegex: " + matchedNames.size() + " sheet(s) selected");
+    data.sheetNames = matchedNames.toArray(new String[0]);
+    data.startRow = matchedStartRow.stream().mapToInt(Integer::intValue).toArray();
+    data.startColumn = matchedStartCol.stream().mapToInt(Integer::intValue).toArray();
+  }
+
   private void handleMissingFiles() throws HopException {
     List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
 
@@ -610,10 +661,19 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
             data.startColumn[i] = data.defaultStartColumn;
             data.startRow[i] = data.defaultStartRow;
           }
+        } else if (meta.hasRegexSheets()) {
+          resolveSheetNamesFromRegex(data);
         }
       }
 
       boolean nextsheet = false;
+
+      // If no sheets were resolved (e.g. regex matched nothing), move to next file
+      if (data.sheetNames == null || data.sheetNames.length == 0) {
+        logBasic("No sheets selected for file [" + data.filename + "], skipping.");
+        jumpToNextFile();
+        return retval;
+      }
 
       // What sheet were we handling?
       if (isDetailed()) {
@@ -890,7 +950,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
         // Determine the maximum sheet name length...
         data.maxsheetlength = -1;
-        if (!meta.readAllSheets()) {
+        if (!meta.readAllSheets() && !meta.hasRegexSheets()) {
           data.sheetNames = meta.getSheetsNames();
           data.startColumn = meta.getSheetsStartColumns();
           data.startRow = meta.getSheetsStartRows();
