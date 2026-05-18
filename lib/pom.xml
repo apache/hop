@@ -656,6 +656,11 @@
                 <version>${commons-vfs2.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-vfs2-jackrabbit2</artifactId>
+                <version>${commons-vfs2.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
                 <version>${commons-net.version}</version>
