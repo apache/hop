@@ -35,8 +35,8 @@ public class HopDiff {
 
   public static final String UNCHANGED = "UNCHANGED";
   public static final String CHANGED = "CHANGED";
-  public static final String REMOVED = "REMOVED";
-  public static final String ADDED = "ADDED";
+  public static final String REMOVED = "DELETE";
+  public static final String ADDED = "INSERT";
 
   private HopDiff() {}
 
@@ -111,7 +111,7 @@ public class HopDiff {
     return pipelineMeta1;
   }
 
-  public static final String getPipelineHopName(PipelineHopMeta hopMeta) {
+  public static String getPipelineHopName(PipelineHopMeta hopMeta) {
 
     String name = "";
     TransformMeta from = hopMeta.getFromTransform();
@@ -192,8 +192,7 @@ public class HopDiff {
     return workflowMeta1;
   }
 
-  public static final String getWorkflowHopName(WorkflowHopMeta hopMeta) {
-
+  public static String getWorkflowHopName(WorkflowHopMeta hopMeta) {
     String name = "";
     ActionMeta from = hopMeta.getFromAction();
     if (from != null) {

@@ -48,10 +48,9 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
       throws HopException {
-    if (!(object instanceof PipelinePainter)) {
+    if (!(object instanceof PipelinePainter painter)) {
       return;
     }
-    PipelinePainter painter = (PipelinePainter) object;
     DPoint offset = painter.getOffset();
     IGc gc = painter.getGc();
     PipelineMeta pipelineMeta = painter.getPipelineMeta();

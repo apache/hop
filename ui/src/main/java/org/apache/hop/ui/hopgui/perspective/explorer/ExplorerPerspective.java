@@ -285,8 +285,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return "explorer-perspective";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'd', global = true)
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'd', global = true)
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'e', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'e', global = true)
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -1045,7 +1045,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    * objects. If references exist, shows a warning dialog (Yes/Details/No). If no references exist,
    * shows the standard Yes/No confirmation. Returns {@code true} if the user confirmed deletion.
    */
-  private boolean confirmDeleteWithReferenceCheck(List<String> filePaths, String displayName)
+  public boolean confirmDeleteWithReferenceCheck(List<String> filePaths, String displayName)
       throws HopException {
     String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
     List<String> searchRoots =
