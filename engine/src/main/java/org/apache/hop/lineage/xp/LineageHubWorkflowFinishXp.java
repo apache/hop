@@ -25,16 +25,18 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 @ExtensionPoint(
     id = "LineageHubWorkflowFinishXp",
     extensionPointId = "WorkflowFinish",
     description =
         "Emits lineage RUN_LIFECYCLE FINISHED or FAILED when a workflow ends and flushes the lineage hub")
-public class LineageHubWorkflowFinishXp implements IExtensionPoint<Workflow> {
+public class LineageHubWorkflowFinishXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
   @Override
-  public void callExtensionPoint(ILogChannel log, IVariables variables, Workflow workflow)
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
     RunLifecyclePhase phase =
         LineageRunLifecycleEmitter.workflowFailed(workflow, workflow.getResult())
