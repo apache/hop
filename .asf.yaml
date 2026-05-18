@@ -55,10 +55,11 @@ github:
     delete_comment_discussion: "Re: [D] {title} ({repository})"
 
   #remove ~ when enabling the protection
-  protected_branches:
+  protected_branches: ~
 #    master:
 #      required_pull_request_reviews:
 #        required_approving_review_count: 1
+
   rulesets:
     - name: "Default Branch Protection"
       type: branch
