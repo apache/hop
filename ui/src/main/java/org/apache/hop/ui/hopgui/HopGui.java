@@ -199,6 +199,7 @@ public class HopGui
   public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20410-menu-edit-nav-next";
 
   public static final String ID_MAIN_MENU_VIEW_PARENT_ID = "25000-menu-view";
+  public static final String ID_MAIN_MENU_VIEW_FULL_SCREEN = "25010-menu-view-full-screen";
   public static final String ID_MAIN_MENU_VIEW_TERMINAL = "25010-menu-view-terminal";
   public static final String ID_MAIN_MENU_VIEW_NEW_TERMINAL = "25020-menu-view-new-terminal";
 
@@ -1502,6 +1503,19 @@ public class HopGui
       parentId = ID_MAIN_MENU)
   public void menuView() {
     // Nothing is done here.
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_VIEW_FULL_SCREEN,
+      label = "i18n::HopGui.Menu.View.FullScreen",
+      parentId = ID_MAIN_MENU_VIEW_PARENT_ID)
+  @GuiKeyboardShortcut(alt = true, key = SWT.F11)
+  @GuiOsxKeyboardShortcut(command = true, control = true, key = 'F')
+  public void menuViewFullScreen() {
+    if (!shell.isDisposed()) {
+      shell.setFullScreen(!shell.getFullScreen());
+    }
   }
 
   // ======================== Run Menu ========================
