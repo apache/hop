@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<products>
+<product sku="SKU-100"><name>Widget</name><price>9.99</price><weight unit="g">120</weight><color>blue</color><tag>hardware</tag></product>
+<product sku="SKU-200"><name>Gizmo</name><price>19.95</price><weight unit="g">240</weight><color>red</color><dimensions w="10" h="5" d="3"/></product>
+<product sku="SKU-300"><name>Gadget</name><price>49.50</price><weight unit="g">560</weight><color>graphite</color><notes priority="low">Premium edition. Special characters like &amp; or &lt; are preserved as text.</notes></product>
+</products>

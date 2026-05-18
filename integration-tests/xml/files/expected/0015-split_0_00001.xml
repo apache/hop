@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<events>
+<event id="1"><kind>start</kind></event>
+<event id="2"><kind>checkpoint</kind></event>
+<event id="3"><kind>checkpoint</kind></event>
+<event id="4"><kind>checkpoint</kind></event>
+<event id="5"><kind>checkpoint</kind></event>
+</events>

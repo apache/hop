@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0018-xml-output-advanced-chained</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Integration test: two XML Output (Advanced) transforms in sequence (addresses per person as field, then people document with DocumentFragment).</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/05/14 10:10:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/05/14 10:10:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>START</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>64</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>clean output</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/hop-xml-integration-output</name>
+        </field>
+      </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>create output</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <foldername>${java.io.tmpdir}/hop-xml-integration-output</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0018-xml-output-advanced-chained.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0018-xml-output-advanced-chained.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>368</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>verify XML</name>
+      <description/>
+      <type>FILE_COMPARE</type>
+      <attributes/>
+      <filename1>${java.io.tmpdir}/hop-xml-integration-output/0018-chained.xml</filename1>
+      <filename2>${PROJECT_HOME}/files/expected/0018-chained.xml</filename2>
+      <add_filename_result>N</add_filename_result>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>verify XSD</name>
+      <description/>
+      <type>FILE_COMPARE</type>
+      <attributes/>
+      <filename1>${java.io.tmpdir}/hop-xml-integration-output/0018-chained.xsd</filename1>
+      <filename2>${PROJECT_HOME}/files/expected/0018-chained.xsd</filename2>
+      <add_filename_result>N</add_filename_result>
+      <parallel>N</parallel>
+      <xloc>720</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>XML mismatch</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>Generated XML does not match the expected output (${PROJECT_HOME}/files/expected/0018-chained.xml).</message>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>192</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>XSD mismatch</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>Generated XSD does not match the expected output (${PROJECT_HOME}/files/expected/0018-chained.xsd).</message>
+      <parallel>N</parallel>
+      <xloc>720</xloc>
+      <yloc>192</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>START</from>
+      <to>clean output</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>clean output</from>
+      <to>create output</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>create output</from>
+      <to>0018-xml-output-advanced-chained.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0018-xml-output-advanced-chained.hpl</from>
+      <to>verify XML</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>verify XML</from>
+      <to>verify XSD</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>verify XML</from>
+      <to>XML mismatch</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>verify XSD</from>
+      <to>XSD mismatch</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

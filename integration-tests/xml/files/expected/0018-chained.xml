@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<people>
+<person><name>Alice</name><addresses>
+<address><street>Oak Avenue 1</street><zip>1000</zip><country>BE</country></address>
+<address><street>Elm Road 12</street><zip>2000</zip><country>NL</country></address>
+<address><street>Cedar Plaza 5</street><zip>3000</zip><country>DE</country></address>
+<address><street>Willow Court 9</street><zip>4000</zip><country>LU</country></address>
+</addresses></person>
+<person><name>Bob</name><addresses>
+<address><street>Pine Lane 3</street><zip>5000</zip><country>FR</country></address>
+<address><street>Maple Square 7</street><zip>6000</zip><country>ES</country></address>
+<address><street>Birch Walk 2</street><zip>7000</zip><country>IT</country></address>
+<address><street>Spruce Ring 8</street><zip>8000</zip><country>PT</country></address>
+</addresses></person>
+<person><name>Carol</name><addresses>
+<address><street>Aspen Row 4</street><zip>9000</zip><country>AT</country></address>
+<address><street>Hickory Path 6</street><zip>9100</zip><country>CH</country></address>
+<address><street>Linden Alley 11</street><zip>9200</zip><country>SE</country></address>
+<address><street>Redwood Drive 22</street><zip>9300</zip><country>NO</country></address>
+</addresses></person>
+</people>
