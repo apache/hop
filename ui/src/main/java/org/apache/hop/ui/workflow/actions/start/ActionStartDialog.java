@@ -204,7 +204,11 @@ public class ActionStartDialog extends ActionDialog {
     wIntervalMinutes.setText(Const.NVL(action.getIntervalMinutes(), ""));
     wHour.setText(Const.NVL(action.getHour(), ""));
     wMinutes.setText(Const.NVL(action.getMinutes(), ""));
-    wDayOfWeek.setText(Const.NVL(action.getWeekDay(), ""));
+    int dayOfWeekIndex = Const.toInt(Const.NVL(action.getWeekDay(), "0"), 0);
+    if (dayOfWeekIndex < 0 || dayOfWeekIndex >= wDayOfWeek.getItemCount()) {
+      dayOfWeekIndex = 0;
+    }
+    wDayOfWeek.select(dayOfWeekIndex);
     wDayOfMonth.setText(Const.NVL(action.getDayOfMonth(), ""));
     wDoNotWaitOnFirstExecution.setSelection(action.isDoNotWaitOnFirstExecution());
   }
@@ -222,7 +226,11 @@ public class ActionStartDialog extends ActionDialog {
     action.setIntervalMinutes(wIntervalMinutes.getText());
     action.setHour(wHour.getText());
     action.setMinutes(wMinutes.getText());
-    action.setWeekDay(wDayOfWeek.getText());
+    int weekDayIdx = wDayOfWeek.getSelectionIndex();
+    if (weekDayIdx < 0) {
+      weekDayIdx = 0;
+    }
+    action.setWeekDay(Integer.toString(weekDayIdx));
     action.setDayOfMonth(wDayOfMonth.getText());
     action.setDoNotWaitOnFirstExecution(wDoNotWaitOnFirstExecution.getSelection());
 
