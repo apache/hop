@@ -49,10 +49,19 @@ public class JsonInputData extends BaseFileInputTransformData implements ITransf
   public int indexSourceField;
 
   public Iterator<InputStream> inputs;
-  public Iterator<JsonNode> jsonInputs; // if incoming field is JsonNode
-  public IJsonReader reader;
+
+  /** if incoming field is JsonNode */
+  public Iterator<JsonNode> jsonInputs;
+
+  public IJsonReader jsonReader;
   public IRowSet readerRowSet;
   public BitSet repeatedFields;
+
+  /**
+   * When {@link JsonInput#onNewFile} rejects an empty file with "ignore empty file" enabled, the
+   * file iterator loops to the next file instead of substituting placeholder JSON.
+   */
+  public boolean skipEmptyFile;
 
   public JsonInputData() {
     super();

@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.jayway.jsonpath.Option;
@@ -40,24 +42,24 @@ class FastJsonReaderTest {
   private static final Option[] OPTIONS_WO_DEFAULT_PATH_LEAF_TO_NULL = {
     Option.SUPPRESS_EXCEPTIONS, Option.ALWAYS_RETURN_LIST
   };
-  private EnumSet<Option> expectedOptions = EnumSet.noneOf(Option.class);
+  private final EnumSet<Option> expectedOptions = EnumSet.noneOf(Option.class);
   private JsonInputField[] fields;
 
   private FastJsonReader fJsonReader;
-  private ILogChannel logMock = mock(ILogChannel.class);
+  private final ILogChannel logMock = mock(ILogChannel.class);
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     fields = new JsonInputField[] {};
   }
 
   @Test
-  void testFastJsonReaderCreated_Default() throws HopException {
+  void testFastJsonReaderCreated_Default() {
     fJsonReader = new FastJsonReader(logMock);
     expectedOptions.addAll(Arrays.asList(DEFAULT_OPTIONS));
     assertNotNull(fJsonReader);
-    assertEquals(false, fJsonReader.isIgnoreMissingPath());
-    assertEquals(true, fJsonReader.isDefaultPathLeafToNull());
+    assertFalse(fJsonReader.isIgnoreMissingPath());
+    assertTrue(fJsonReader.isDefaultPathLeafToNull());
     assertEquals(expectedOptions, fJsonReader.getJsonConfiguration().getOptions());
   }
 
@@ -66,8 +68,8 @@ class FastJsonReaderTest {
     expectedOptions.addAll(Arrays.asList(DEFAULT_OPTIONS));
     fJsonReader = new FastJsonReader(fields, logMock);
     assertNotNull(fJsonReader);
-    assertEquals(false, fJsonReader.isIgnoreMissingPath());
-    assertEquals(true, fJsonReader.isDefaultPathLeafToNull());
+    assertFalse(fJsonReader.isIgnoreMissingPath());
+    assertTrue(fJsonReader.isDefaultPathLeafToNull());
     assertEquals(expectedOptions, fJsonReader.getJsonConfiguration().getOptions());
   }
 
@@ -76,8 +78,8 @@ class FastJsonReaderTest {
     expectedOptions.addAll(Arrays.asList(OPTIONS_WO_DEFAULT_PATH_LEAF_TO_NULL));
     fJsonReader = new FastJsonReader(fields, false, logMock);
     assertNotNull(fJsonReader);
-    assertEquals(false, fJsonReader.isIgnoreMissingPath());
-    assertEquals(false, fJsonReader.isDefaultPathLeafToNull());
+    assertFalse(fJsonReader.isIgnoreMissingPath());
+    assertFalse(fJsonReader.isDefaultPathLeafToNull());
     assertEquals(expectedOptions, fJsonReader.getJsonConfiguration().getOptions());
   }
 
@@ -86,13 +88,13 @@ class FastJsonReaderTest {
     expectedOptions.addAll(Arrays.asList(DEFAULT_OPTIONS));
     fJsonReader = new FastJsonReader(fields, true, logMock);
     assertNotNull(fJsonReader);
-    assertEquals(false, fJsonReader.isIgnoreMissingPath());
-    assertEquals(true, fJsonReader.isDefaultPathLeafToNull());
+    assertFalse(fJsonReader.isIgnoreMissingPath());
+    assertTrue(fJsonReader.isDefaultPathLeafToNull());
     assertEquals(expectedOptions, fJsonReader.getJsonConfiguration().getOptions());
   }
 
   @Test
-  void testFastJsonReaderGetMaxRowSize() throws HopException {
+  void testFastJsonReaderGetMaxRowSize() {
     List<List<Integer>> mainList = new ArrayList<>();
     List<Integer> l1 = new ArrayList<>();
     List<Integer> l2 = new ArrayList<>();
