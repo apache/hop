@@ -33,7 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowExecutionExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -44,6 +43,10 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
  * LineageHub}.
  */
 public final class LineageRunLifecycleEmitter {
+
+  public static final String OUTCOME = "outcome";
+  public static final String FAILED = "failed";
+  public static final String SUCCESS = "success";
 
   private LineageRunLifecycleEmitter() {}
 
@@ -119,7 +122,7 @@ public final class LineageRunLifecycleEmitter {
     }
     ctx.putAttribute("errors", String.valueOf(pipeline.getErrors()));
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
-      ctx.putAttribute("outcome", phase == RunLifecyclePhase.FAILED ? "failed" : "success");
+      ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
     }
     LineageHub.getInstance()
         .emit(
@@ -129,7 +132,8 @@ public final class LineageRunLifecycleEmitter {
                 new RunLifecycleLineagePayload(phase, detail)));
   }
 
-  public static void emitWorkflow(Workflow workflow, RunLifecyclePhase phase, String detail) {
+  public static void emitWorkflow(
+      IWorkflowEngine<WorkflowMeta> workflow, RunLifecyclePhase phase, String detail) {
     WorkflowMeta meta = workflow.getWorkflowMeta();
     String name = meta != null ? meta.getName() : null;
     String filename = meta != null ? meta.getFilename() : null;
@@ -139,14 +143,14 @@ public final class LineageRunLifecycleEmitter {
             .logChannelId(workflow.getLogChannelId())
             .workflowName(name);
     fillFilenameFields(ctx, filename, workflow);
-    ctx.putAttribute("errors", String.valueOf(workflow.getErrors()));
     Result result = workflow.getResult();
+    ctx.putAttribute("errors", String.valueOf(result != null ? result.getNrErrors() : 0));
     if (result != null) {
       ctx.putAttribute("nrErrors", String.valueOf(result.getNrErrors()));
       ctx.putAttribute("result", String.valueOf(result.getResult()));
     }
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
-      ctx.putAttribute("outcome", phase == RunLifecyclePhase.FAILED ? "failed" : "success");
+      ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
     }
     LineageHub.getInstance()
         .emit(
@@ -157,15 +161,13 @@ public final class LineageRunLifecycleEmitter {
   }
 
   /** Terminal failure for a workflow at {@code WorkflowFinish} time. */
-  public static boolean workflowFailed(Workflow workflow, Result result) {
-    if (workflow.getErrors() > 0) {
-      return true;
-    }
-    if (result != null) {
-      if (result.getNrErrors() > 0) {
+  public static boolean workflowFailed(IWorkflowEngine<WorkflowMeta> workflow, Result result) {
+    Result r = result != null ? result : (workflow != null ? workflow.getResult() : null);
+    if (r != null) {
+      if (r.getNrErrors() > 0) {
         return true;
       }
-      return !result.getResult();
+      return !r.getResult();
     }
     return false;
   }
@@ -184,7 +186,7 @@ public final class LineageRunLifecycleEmitter {
     ITransform transform = combi.transform;
     ctx.putAttribute("transformErrors", String.valueOf(transform.getErrors()));
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
-      ctx.putAttribute("outcome", phase == RunLifecyclePhase.FAILED ? "failed" : "success");
+      ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
     }
     LineageHub.getInstance()
         .emit(
@@ -241,7 +243,7 @@ public final class LineageRunLifecycleEmitter {
     }
 
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
-      ctx.putAttribute("outcome", phase == RunLifecyclePhase.FAILED ? "failed" : "success");
+      ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
     }
 
     LineageHub.getInstance()
