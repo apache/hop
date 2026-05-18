@@ -1,0 +1,144 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/neo4j/
+:language: en_US
+:description: The Neo4j logging schema describes the nodes and relationships Apache Hop writes when logging executions to Neo4j.
+
+= Neo4j Logging Schema
+
+Apache Hop can write execution information to Neo4j so you can inspect pipeline and workflow metadata, execution results, logging text, and lineage as a graph.
+
+The Neo4j logging graph is enabled by setting the `NEO4J_LOGGING_CONNECTION` variable to the name of a xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection].
+Set the variable to `-` to explicitly disable Neo4j logging.
+
+== Pipeline logging
+
+Pipeline logging writes the pipeline definition, transforms, hops, and runtime execution results.
+
+[options="header"]
+|===
+|Node label |Description |Common properties
+
+|`Pipeline`
+|A pipeline definition.
+|`name`, `filename`, `description`
+
+|`Transform`
+|A transform in a pipeline definition.
+|`pipelineName`, `name`, `description`, `pluginId`, `copies`, `locationX`, `locationY`
+
+|`Execution`
+|A pipeline execution or transform-copy execution.
+|`name`, `type`, `id`, `containerId`, `executionStart`, `executionEnd`, `durationMs`, `status`, `errors`, `linesInput`, `linesOutput`, `linesRead`, `linesWritten`, `linesRejected`, `loggingText`
+
+|`Usage`
+|A file, database, or other resource used by a transform.
+|`usage`, `label`
+|===
+
+[options="header"]
+|===
+|Relationship |From |To |Description
+
+|`TRANSFORM_OF_PIPELINE`
+|`Transform`
+|`Pipeline`
+|Connects a transform definition to its pipeline.
+
+|`PRECEDES`
+|`Transform`
+|`Transform`
+|Represents pipeline hops between transforms.
+
+|`EXECUTION_OF_PIPELINE`
+|`Execution`
+|`Pipeline`
+|Connects a pipeline execution to its pipeline definition.
+
+|`EXECUTION_OF_TRANSFORM`
+|`Execution`
+|`Transform`
+|Connects a transform-copy execution to its transform definition.
+
+|`PERFORMS_<usage>`
+|`Execution`
+|`Usage`
+|Connects a transform execution to a resource usage type.
+|===
+
+== Workflow logging
+
+Workflow logging follows the same pattern for workflow definitions, actions, hops, and runtime execution results.
+
+[options="header"]
+|===
+|Node label |Description |Common properties
+
+|`Workflow`
+|A workflow definition.
+|`name`, `filename`, `description`
+
+|`Action`
+|An action in a workflow definition.
+|`workflowName`, `name`, `description`, `pluginId`, `evaluation`, `launchingParallel`, `start`, `unconditional`, `locationX`, `locationY`
+
+|`Execution`
+|A workflow execution or action execution.
+|`name`, `type`, `id`, `containerId`, `executionStart`, `executionEnd`, `durationMs`, `errors`, `linesInput`, `linesOutput`, `linesRead`, `linesWritten`, `linesRejected`, `loggingText`, `result`, `nrResultRows`, `nrResultFiles`
+|===
+
+[options="header"]
+|===
+|Relationship |From |To |Description
+
+|`ACTION_OF_WORKFLOW`
+|`Action`
+|`Workflow`
+|Connects an action definition to its workflow.
+
+|`PRECEDES`
+|`Action`
+|`Action`
+|Represents workflow hops between actions.
+
+|`EXECUTION_OF_WORKFLOW`
+|`Execution`
+|`Workflow`
+|Connects a workflow execution to its workflow definition.
+
+|`EXECUTION_OF_ACTION`
+|`Execution`
+|`Action`
+|Connects an action execution to its action definition.
+|===
+
+== Execution hierarchy
+
+Apache Hop also records the log channel hierarchy for the executed work.
+Each logged object is represented as an `Execution` node with properties such as `name`, `type`, `id`, `copy`, `containerId`, `logLevel`, `registrationDate`, and `root`.
+Parent and child log channel objects are linked with the `EXECUTES` relationship.
+
+== Querying logged executions
+
+The xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Logging Info] transform reads from the `Execution` nodes to find previous pipeline and workflow execution dates.
+It can return previous execution or previous successful execution dates by matching the execution `name`, `type`, `status`, `errors`, and `executionStart` properties.
+
+== Neo4j execution information location
+
+When Neo4j is configured as an xref:metadata-types/execution-information-location.adoc[execution information location], Hop stores a richer execution graph.
+That graph uses `Execution` nodes linked by `EXECUTES`, plus supporting labels such as `ExecutionMetric`, `ExecutionData`, `ExecutionDataSetMeta`, `ExecutionDataSet`, and `ExecutionDataSetRow`.
+Those nodes are connected with relationships such as `HAS_METRIC`, `HAS_DATA`, `HAS_METADATA`, `HAS_DATASET`, and `HAS_ROW`.
