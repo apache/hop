@@ -20,12 +20,14 @@ package org.apache.hop.metadata.rest;
 import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -33,6 +35,8 @@ import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -96,6 +100,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private PasswordTextVar wKeyPassword;
   private TextVar wCertificateAlias;
 
+  private ComboVar wPaginationType;
+  private TextVar wPageParamName;
+  private TextVar wOffsetParamName;
+  private TextVar wLimitParamName;
+  private TextVar wDefaultLimit;
+  private TextVar wCursorJsonPath;
+  private TextVar wCursorXPath;
+
   private int middle;
   private int margin;
   private IVariables variables;
@@ -144,8 +156,31 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wName.setLayoutData(fdName);
     lastControl = wName;
 
-    // start authentication group (now directly below name)
-    gAuth = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    CTabFolder wTabFolder = new CTabFolder(composite, SWT.BORDER);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(100, -margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+
+    CTabItem wConnectionTabItem = new CTabItem(wTabFolder, SWT.NONE);
+    wConnectionTabItem.setFont(GuiResource.getInstance().getFontDefault());
+    wConnectionTabItem.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Tab.Connection.Title"));
+
+    Composite wConnInner = new Composite(wTabFolder, SWT.NONE);
+    FormLayout connInnerLayout = new FormLayout();
+    connInnerLayout.marginWidth = PropsUi.getFormMargin();
+    connInnerLayout.marginHeight = PropsUi.getFormMargin();
+    wConnInner.setLayout(connInnerLayout);
+    PropsUi.setLook(wConnInner);
+    wConnectionTabItem.setControl(wConnInner);
+
+    // start authentication group (first section on Connection tab)
+    gAuth = new Group(wConnInner, SWT.SHADOW_ETCHED_IN);
     gAuth.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthGroup.Label"));
     FormLayout gAuthLayout = new FormLayout();
     gAuthLayout.marginWidth = 3;
@@ -215,12 +250,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
     FormData fdAuth = new FormData();
     fdAuth.left = new FormAttachment(0, 0);
-    fdAuth.top = new FormAttachment(wName, margin);
+    fdAuth.top = new FormAttachment(0, margin);
     fdAuth.right = new FormAttachment(100, 0);
     gAuth.setLayoutData(fdAuth);
 
     // start of URL group
-    Group gUrl = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    Group gUrl = new Group(wConnInner, SWT.SHADOW_ETCHED_IN);
     gUrl.setText(BaseMessages.getString(PKG, "RestConnectionEditor.UrlGroup.Label"));
     FormLayout gUrlLayout = new FormLayout();
     gUrlLayout.marginWidth = 3;
@@ -270,7 +305,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     // end URL group
 
     // start SSL group
-    Group gSSLTrustStore = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    Group gSSLTrustStore = new Group(wConnInner, SWT.SHADOW_ETCHED_IN);
     gSSLTrustStore.setText(BaseMessages.getString(PKG, "RestConnectionEditor.SSLGroup.Label"));
     FormLayout gSSLTrustStoreLayout = new FormLayout();
     gSSLTrustStoreLayout.marginWidth = 3;
@@ -500,8 +535,25 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdSSLTrustStore.left = new FormAttachment(0, 0);
     fdSSLTrustStore.right = new FormAttachment(100, 0);
     fdSSLTrustStore.top = new FormAttachment(gUrl, margin);
+    fdSSLTrustStore.bottom = new FormAttachment(100, -margin);
     gSSLTrustStore.setLayoutData(fdSSLTrustStore);
     // end SSL group
+
+    CTabItem wPaginationTabItem = new CTabItem(wTabFolder, SWT.NONE);
+    wPaginationTabItem.setFont(GuiResource.getInstance().getFontDefault());
+    wPaginationTabItem.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Tab.Pagination.Title"));
+
+    Composite wPagInner = new Composite(wTabFolder, SWT.NONE);
+    FormLayout pagLayout = new FormLayout();
+    pagLayout.marginWidth = PropsUi.getFormMargin();
+    pagLayout.marginHeight = PropsUi.getFormMargin();
+    wPagInner.setLayout(pagLayout);
+    PropsUi.setLook(wPagInner);
+    buildPaginationWidgets(wPagInner);
+    wPaginationTabItem.setControl(wPagInner);
+
+    wTabFolder.setSelection(wConnectionTabItem);
 
     setWidgetsContent();
 
@@ -522,9 +574,198 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wKeyStorePassword,
       wKeyStoreType,
       wKeyPassword,
-      wCertificateAlias
+      wCertificateAlias,
+      wPaginationType,
+      wPageParamName,
+      wOffsetParamName,
+      wLimitParamName,
+      wDefaultLimit,
+      wCursorJsonPath,
+      wCursorXPath
     };
     enableControls(controls);
+  }
+
+  /** Builds paging settings on the dedicated Pagination tab. */
+  private void buildPaginationWidgets(Composite p) {
+    Label wlInfo = new Label(p, SWT.LEFT | SWT.WRAP);
+    wlInfo.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.Info"));
+    PropsUi.setLook(wlInfo);
+    FormData fdi = new FormData();
+    fdi.left = new FormAttachment(0, margin);
+    fdi.right = new FormAttachment(100, -margin);
+    fdi.top = new FormAttachment(0, margin);
+    wlInfo.setLayoutData(fdi);
+
+    Label wlPaginationType = new Label(p, SWT.RIGHT);
+    wlPaginationType.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.Type.Label"));
+    PropsUi.setLook(wlPaginationType);
+    FormData fdlType = new FormData();
+    fdlType.top = new FormAttachment(wlInfo, margin);
+    fdlType.left = new FormAttachment(0, margin);
+    fdlType.right = new FormAttachment(middle, -margin);
+    wlPaginationType.setLayoutData(fdlType);
+
+    wPaginationType = new ComboVar(variables, p, SWT.READ_ONLY | SWT.BORDER);
+    PropsUi.setLook(wPaginationType);
+    wPaginationType.setItems(
+        Arrays.stream(RestPaginationType.values()).map(Enum::name).toArray(String[]::new));
+    FormData fdType = new FormData();
+    fdType.top = new FormAttachment(wlInfo, margin);
+    fdType.left = new FormAttachment(middle, margin);
+    fdType.right = new FormAttachment(100, -margin);
+    wPaginationType.setLayoutData(fdType);
+    wPaginationType.addListener(
+        SWT.Selection,
+        e -> {
+          markChangedIfUserEdit();
+          refreshPaginationSensitiveFields();
+        });
+
+    Label wlPage = new Label(p, SWT.RIGHT);
+    wlPage.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.PageParam.Label"));
+    PropsUi.setLook(wlPage);
+    FormData fdLP = new FormData();
+    fdLP.top = new FormAttachment(wPaginationType, margin);
+    fdLP.left = new FormAttachment(0, margin);
+    fdLP.right = new FormAttachment(middle, -margin);
+    wlPage.setLayoutData(fdLP);
+
+    wPageParamName = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wPageParamName);
+    wPageParamName.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.PageParam.Tooltip"));
+    FormData fdP = new FormData();
+    fdP.top = new FormAttachment(wPaginationType, margin);
+    fdP.left = new FormAttachment(middle, margin);
+    fdP.right = new FormAttachment(100, -margin);
+    wPageParamName.setLayoutData(fdP);
+
+    Label wlOff = new Label(p, SWT.RIGHT);
+    wlOff.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.OffsetParam.Label"));
+    PropsUi.setLook(wlOff);
+    FormData fdLOff = new FormData();
+    fdLOff.top = new FormAttachment(wPageParamName, margin);
+    fdLOff.left = new FormAttachment(0, margin);
+    fdLOff.right = new FormAttachment(middle, -margin);
+    wlOff.setLayoutData(fdLOff);
+
+    wOffsetParamName = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wOffsetParamName);
+    FormData fdOff = new FormData();
+    fdOff.top = new FormAttachment(wPageParamName, margin);
+    fdOff.left = new FormAttachment(middle, margin);
+    fdOff.right = new FormAttachment(100, -margin);
+    wOffsetParamName.setLayoutData(fdOff);
+
+    Label wlLim = new Label(p, SWT.RIGHT);
+    wlLim.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.LimitParam.Label"));
+    PropsUi.setLook(wlLim);
+    FormData fdLL = new FormData();
+    fdLL.top = new FormAttachment(wOffsetParamName, margin);
+    fdLL.left = new FormAttachment(0, margin);
+    fdLL.right = new FormAttachment(middle, -margin);
+    wlLim.setLayoutData(fdLL);
+
+    wLimitParamName = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wLimitParamName);
+    FormData fdL = new FormData();
+    fdL.top = new FormAttachment(wOffsetParamName, margin);
+    fdL.left = new FormAttachment(middle, margin);
+    fdL.right = new FormAttachment(100, -margin);
+    wLimitParamName.setLayoutData(fdL);
+
+    Label wlDef = new Label(p, SWT.RIGHT);
+    wlDef.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.DefaultLimit.Label"));
+    PropsUi.setLook(wlDef);
+    wlDef.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.DefaultLimit.Tooltip"));
+    FormData fdLD = new FormData();
+    fdLD.top = new FormAttachment(wLimitParamName, margin);
+    fdLD.left = new FormAttachment(0, margin);
+    fdLD.right = new FormAttachment(middle, -margin);
+    wlDef.setLayoutData(fdLD);
+
+    wDefaultLimit = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wDefaultLimit);
+    wDefaultLimit.setToolTipText(wlDef.getToolTipText());
+    FormData fdDef = new FormData();
+    fdDef.top = new FormAttachment(wLimitParamName, margin);
+    fdDef.left = new FormAttachment(middle, margin);
+    fdDef.right = new FormAttachment(100, -margin);
+    wDefaultLimit.setLayoutData(fdDef);
+
+    Label wlCj = new Label(p, SWT.RIGHT);
+    wlCj.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.CursorJson.Label"));
+    PropsUi.setLook(wlCj);
+    FormData fdLCj = new FormData();
+    fdLCj.top = new FormAttachment(wDefaultLimit, margin);
+    fdLCj.left = new FormAttachment(0, margin);
+    fdLCj.right = new FormAttachment(middle, -margin);
+    wlCj.setLayoutData(fdLCj);
+
+    wCursorJsonPath = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCursorJsonPath);
+    FormData fdCj = new FormData();
+    fdCj.top = new FormAttachment(wDefaultLimit, margin);
+    fdCj.left = new FormAttachment(middle, margin);
+    fdCj.right = new FormAttachment(100, -margin);
+    wCursorJsonPath.setLayoutData(fdCj);
+
+    Label wlCx = new Label(p, SWT.RIGHT);
+    wlCx.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.CursorXPath.Label"));
+    PropsUi.setLook(wlCx);
+    FormData fdLX = new FormData();
+    fdLX.top = new FormAttachment(wCursorJsonPath, margin);
+    fdLX.left = new FormAttachment(0, margin);
+    fdLX.right = new FormAttachment(middle, -margin);
+    wlCx.setLayoutData(fdLX);
+
+    wCursorXPath = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCursorXPath);
+    FormData fdX = new FormData();
+    fdX.top = new FormAttachment(wCursorJsonPath, margin);
+    fdX.left = new FormAttachment(middle, margin);
+    fdX.right = new FormAttachment(100, -margin);
+    wCursorXPath.setLayoutData(fdX);
+
+    refreshPaginationSensitiveFields();
+  }
+
+  private void refreshPaginationSensitiveFields() {
+    if (wPaginationType == null || wPaginationType.isDisposed()) {
+      return;
+    }
+    RestPaginationType t;
+    try {
+      t = RestPaginationType.valueOf(wPaginationType.getText());
+    } catch (IllegalArgumentException ex) {
+      t = RestPaginationType.NONE;
+    }
+    boolean pageOrCursor =
+        RestPaginationType.PAGE_NUMBER.equals(t) || RestPaginationType.CURSOR.equals(t);
+    boolean offset = RestPaginationType.OFFSET_LIMIT.equals(t);
+    boolean cursor = RestPaginationType.CURSOR.equals(t);
+
+    wPageParamName.setEnabled(pageOrCursor);
+    wOffsetParamName.setEnabled(offset);
+    wLimitParamName.setEnabled(offset);
+    wDefaultLimit.setEnabled(offset);
+    wCursorJsonPath.setEnabled(cursor);
+    wCursorXPath.setEnabled(cursor);
+  }
+
+  private static int parseUnsignedIntSafe(String text) {
+    if (StringUtils.isEmpty(Const.trim(text))) {
+      return 0;
+    }
+    try {
+      return Math.max(0, Integer.parseInt(Const.trim(text)));
+    } catch (NumberFormatException e) {
+      return 0;
+    }
   }
 
   private void enableControls(Control[] controls) {
@@ -859,6 +1100,29 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           // ignore
         }
       }
+
+      RestPaginationType pag =
+          metadata.getPaginationType() == null
+              ? RestPaginationType.NONE
+              : metadata.getPaginationType();
+      String[] items = wPaginationType.getItems();
+      int idx = Arrays.asList(items).indexOf(pag.name());
+      if (idx >= 0) {
+        wPaginationType.select(idx);
+      }
+
+      wPageParamName.setText(Const.NVL(metadata.getPageParamName(), ""));
+      wOffsetParamName.setText(Const.NVL(metadata.getOffsetParamName(), ""));
+      wLimitParamName.setText(Const.NVL(metadata.getLimitParamName(), ""));
+      if (metadata.getDefaultLimit() > 0) {
+        wDefaultLimit.setText(Integer.toString(metadata.getDefaultLimit()));
+      } else {
+        wDefaultLimit.setText("");
+      }
+      wCursorJsonPath.setText(Const.NVL(metadata.getCursorJsonPath(), ""));
+      wCursorXPath.setText(Const.NVL(metadata.getCursorXPath(), ""));
+
+      refreshPaginationSensitiveFields();
     } finally {
       loadingContent = false;
     }
@@ -893,6 +1157,20 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       connection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
     }
     // Note: Certificate auth doesn't have additional fields in auth section
+
+    RestPaginationType pType;
+    try {
+      pType = RestPaginationType.valueOf(wPaginationType.getText());
+    } catch (IllegalArgumentException ex) {
+      pType = RestPaginationType.NONE;
+    }
+    connection.setPaginationType(pType);
+    connection.setPageParamName(wPageParamName.getText());
+    connection.setOffsetParamName(wOffsetParamName.getText());
+    connection.setLimitParamName(wLimitParamName.getText());
+    connection.setDefaultLimit(parseUnsignedIntSafe(wDefaultLimit.getText()));
+    connection.setCursorJsonPath(wCursorJsonPath.getText());
+    connection.setCursorXPath(wCursorXPath.getText());
   }
 
   @Override

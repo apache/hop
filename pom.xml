@@ -113,6 +113,7 @@
         <javaVersion>${target.jdk.version}</javaVersion>
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
         <jetty.version>12.1.7</jetty.version>
+        <json-path.version>2.10.0</json-path.version>
         <junit.version>6.0.3</junit.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>

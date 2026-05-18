@@ -159,6 +159,12 @@ public class RestDialog extends BaseTransformDialog {
   private TableView wStatusCodes;
   private TableView wMethods;
 
+  private Button wPaginationEnabled;
+
+  private TextVar wMaxPagesLoops;
+
+  private TextVar wResultSplitPath;
+
   public RestDialog(
       Shell parent, IVariables variables, RestMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
@@ -419,7 +425,8 @@ public class RestDialog extends BaseTransformDialog {
 
     setupMatrixParamTabContent(lsMod, margin, wMatrixParametersTab, wMatrixParametersComp);
 
-    // retry
+    addPaginationTabItem(wTabFolder, lsMod);
+
     addRetryTabItem(wTabFolder, lsMod);
 
     FormData fdTabFolder = new FormData();
@@ -450,6 +457,88 @@ public class RestDialog extends BaseTransformDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void addPaginationTabItem(CTabFolder wTabFolder, ModifyListener lsMod) {
+    CTabItem paginationTab = new CTabItem(wTabFolder, SWT.NONE);
+    paginationTab.setFont(GuiResource.getInstance().getFontDefault());
+    paginationTab.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Title"));
+
+    Composite wPagComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wPagComp);
+    FormLayout pl = new FormLayout();
+    pl.marginWidth = PropsUi.getFormMargin();
+    pl.marginHeight = PropsUi.getFormMargin();
+    wPagComp.setLayout(pl);
+
+    Label wlInfo = new Label(wPagComp, SWT.LEFT | SWT.WRAP);
+    wlInfo.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Info"));
+    PropsUi.setLook(wlInfo);
+    FormData fdInfo = new FormData();
+    fdInfo.left = new FormAttachment(0, margin);
+    fdInfo.right = new FormAttachment(100, -margin);
+    fdInfo.top = new FormAttachment(0, margin);
+    wlInfo.setLayoutData(fdInfo);
+
+    wPaginationEnabled = new Button(wPagComp, SWT.CHECK);
+    wPaginationEnabled.setText(
+        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Enable.Label"));
+    PropsUi.setLook(wPaginationEnabled);
+    wPaginationEnabled.setToolTipText(
+        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Enable.Tooltip"));
+    wPaginationEnabled.addListener(SWT.Selection, e -> input.setChanged());
+    FormData fdEn = new FormData();
+    fdEn.left = new FormAttachment(0, margin);
+    fdEn.right = new FormAttachment(100, -margin);
+    fdEn.top = new FormAttachment(wlInfo, margin);
+    wPaginationEnabled.setLayoutData(fdEn);
+
+    Label wlMaxLoops = new Label(wPagComp, SWT.RIGHT);
+    wlMaxLoops.setText(
+        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.MaxPagesLoops.Label"));
+    PropsUi.setLook(wlMaxLoops);
+    wlMaxLoops.setToolTipText(
+        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.MaxPagesLoops.Tooltip"));
+
+    FormData fdlMax = new FormData();
+    fdlMax.left = new FormAttachment(0, margin);
+    fdlMax.right = new FormAttachment(middle, -margin);
+    fdlMax.top = new FormAttachment(wPaginationEnabled, margin);
+    wlMaxLoops.setLayoutData(fdlMax);
+
+    wMaxPagesLoops = new TextVar(variables, wPagComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wMaxPagesLoops);
+    wMaxPagesLoops.setToolTipText(wlMaxLoops.getToolTipText());
+    wMaxPagesLoops.addModifyListener(lsMod);
+
+    FormData fdMax = new FormData();
+    fdMax.left = new FormAttachment(middle, margin);
+    fdMax.right = new FormAttachment(100, -margin);
+    fdMax.top = new FormAttachment(wPaginationEnabled, margin);
+    wMaxPagesLoops.setLayoutData(fdMax);
+
+    Label wlSplitPath = new Label(wPagComp, SWT.LEFT | SWT.WRAP);
+    wlSplitPath.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.SplitPath.Label"));
+    PropsUi.setLook(wlSplitPath);
+    wlSplitPath.setToolTipText(
+        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.SplitPath.Tooltip"));
+    FormData fdSplitLbl = new FormData();
+    fdSplitLbl.left = new FormAttachment(0, margin);
+    fdSplitLbl.right = new FormAttachment(100, -margin);
+    fdSplitLbl.top = new FormAttachment(wMaxPagesLoops, margin);
+    wlSplitPath.setLayoutData(fdSplitLbl);
+
+    wResultSplitPath = new TextVar(variables, wPagComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wResultSplitPath);
+    wResultSplitPath.setToolTipText(wlSplitPath.getToolTipText());
+    wResultSplitPath.addModifyListener(lsMod);
+    FormData fdSplitTxt = new FormData();
+    fdSplitTxt.left = new FormAttachment(0, margin);
+    fdSplitTxt.right = new FormAttachment(100, -margin);
+    fdSplitTxt.top = new FormAttachment(wlSplitPath, margin);
+    wResultSplitPath.setLayoutData(fdSplitTxt);
+
+    paginationTab.setControl(wPagComp);
   }
 
   private void addRetryTabItem(CTabFolder wTabFolder, ModifyListener lsMod) {
@@ -1540,6 +1629,18 @@ public class RestDialog extends BaseTransformDialog {
 
     // get retry data
     getDataForRetry();
+
+    getDataForPagination();
+  }
+
+  private void getDataForPagination() {
+    wPaginationEnabled.setSelection(input.isPaginationEnabled());
+    if (input.getMaxPagesLoops() > 0) {
+      wMaxPagesLoops.setText(Integer.toString(input.getMaxPagesLoops()));
+    } else {
+      wMaxPagesLoops.setText("");
+    }
+    wResultSplitPath.setText(Const.NVL(input.getResultSplitPath(), ""));
   }
 
   private void getDataForRetry() {
@@ -1649,8 +1750,24 @@ public class RestDialog extends BaseTransformDialog {
     input.setApplicationType(wApplicationType.getText());
     transformName = wTransformName.getText(); // return value
 
+    okForPagination();
     okForRetry();
     dispose();
+  }
+
+  private void okForPagination() {
+    input.setPaginationEnabled(wPaginationEnabled.getSelection());
+    if (!Utils.isEmpty(wMaxPagesLoops.getText())) {
+      try {
+        int parsed = Integer.parseInt(variables.resolve(Const.trim(wMaxPagesLoops.getText())));
+        input.setMaxPagesLoops(Math.max(parsed, 0));
+      } catch (NumberFormatException ex) {
+        input.setMaxPagesLoops(0);
+      }
+    } else {
+      input.setMaxPagesLoops(0);
+    }
+    input.setResultSplitPath(wResultSplitPath.getText());
   }
 
   private void okForRetry() {

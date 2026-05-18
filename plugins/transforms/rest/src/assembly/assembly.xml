@@ -52,6 +52,12 @@
         </dependencySet>
         <dependencySet>
             <includes>
+                <include>com.jayway.jsonpath:json-path:jar</include>
+            </includes>
+            <outputDirectory>plugins/transforms/rest/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
                 <include>org.glassfish.jersey.connectors:jersey-apache5-connector:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
