@@ -1223,7 +1223,24 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     return getInsertStatement(null, tableName, fields);
   }
 
+  /**
+   * Builds the INSERT statement for a table.
+   *
+   * <p>Note that {@code fields} is filled in as well as read: a dialect may complete it from the
+   * target table's columns, which is what lets a value be bound as the column type it is going into
+   * rather than as the type the incoming row happens to carry.
+   */
   public String getInsertStatement(String schemaName, String tableName, IRowMeta fields) {
+    try {
+      databaseMeta.getIDatabase().enrichInsertRowMeta(this, schemaName, tableName, fields);
+    } catch (HopDatabaseException e) {
+      // Not fatal: the insert is still built. It is logged as an error all the same, because the
+      // values are then bound from the incoming row's own types, which is the behaviour the
+      // enrichment exists to correct.
+      log.logError(
+          "Could not read target table column types for insert binding: " + e.getMessage());
+    }
+
     StringBuilder ins = new StringBuilder(128);
 
     String schemaTable = databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
