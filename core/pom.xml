@@ -462,6 +462,27 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Embedded servers used by HopVfsNetworkProvidersTest to verify the FTP/FTPS/SFTP
+             VFS providers actually exchange bytes. Test scope only. -->
+        <dependency>
+            <groupId>org.apache.ftpserver</groupId>
+            <artifactId>ftpserver-core</artifactId>
+            <version>1.2.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+            <version>2.16.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-sftp</artifactId>
+            <version>2.16.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
