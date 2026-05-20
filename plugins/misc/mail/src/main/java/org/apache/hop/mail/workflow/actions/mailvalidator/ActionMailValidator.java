@@ -18,6 +18,8 @@
 package org.apache.hop.mail.workflow.actions.mailvalidator;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -33,6 +35,8 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 
+@Getter
+@Setter
 @Action(
     id = "MAIL_VALIDATOR",
     name = "i18n::ActionMailValidator.Name",
@@ -60,64 +64,6 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
 
   public ActionMailValidator() {
     this("", "");
-  }
-
-  public void setSmtpCheck(boolean smtpcheck) {
-    this.smtpCheck = smtpcheck;
-  }
-
-  public boolean isSmtpCheck() {
-    return smtpCheck;
-  }
-
-  public String getEmailAddress() {
-    return this.emailAddress;
-  }
-
-  public void setEmailAddress(String emailAddress) {
-    this.emailAddress = emailAddress;
-  }
-
-  /**
-   * @return Returns the timeout.
-   */
-  public String getTimeout() {
-    return timeout;
-  }
-
-  /**
-   * @param timeout The timeout to set.
-   */
-  public void setTimeout(String timeout) {
-    this.timeout = timeout;
-  }
-
-  /**
-   * @return Returns the defaultSMTP.
-   */
-  public String getDefaultSMTP() {
-    return defaultSMTP;
-  }
-
-  /**
-   * @param defaultSMTP The defaultSMTP to set.
-   */
-  public void setDefaultSMTP(String defaultSMTP) {
-    this.defaultSMTP = defaultSMTP;
-  }
-
-  /**
-   * @return Returns the emailSender.
-   */
-  public String getEmailSender() {
-    return emailSender;
-  }
-
-  /**
-   * @param emailSender The emailSender to set.
-   */
-  public void setEmailSender(String emailSender) {
-    this.emailSender = emailSender;
   }
 
   /**

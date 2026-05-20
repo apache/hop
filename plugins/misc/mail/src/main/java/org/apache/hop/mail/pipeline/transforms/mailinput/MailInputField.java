@@ -139,9 +139,12 @@ public class MailInputField implements Cloneable {
     return ColumnDesc[i];
   }
 
-  public int getColumn() {
-    //    return column;
-    return getColumnByDesc(name);
+  /**
+   * Resolve the column field (stored as the localized description) to its integer column constant.
+   * The String form is exposed by the Lombok-generated {@code getColumn()} for serialization.
+   */
+  public int getColumnIndex() {
+    return getColumnByDesc(column);
   }
 
   public String getColumnCode() {

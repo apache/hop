@@ -739,7 +739,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
         int index = data.totalpreviousfields + i;
 
         try {
-          switch (meta.getInputFields().get(i).getColumn()) {
+          switch (meta.getInputFields().get(i).getColumnIndex()) {
             case MailInputField.COLUMN_MESSAGE_NR:
               r[index] = (long) message.getMessageNumber();
               break;

@@ -295,7 +295,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     for (i = 0; i < inputFields.size(); i++) {
       MailInputField field = inputFields.get(i);
       IValueMeta v = new ValueMetaString(variables.resolve(field.getName()));
-      switch (field.getColumn()) {
+      switch (field.getColumnIndex()) {
         case MailInputField.COLUMN_MESSAGE_NR,
             MailInputField.COLUMN_SIZE,
             MailInputField.COLUMN_ATTACHED_FILES_COUNT:
