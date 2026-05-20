@@ -19,28 +19,29 @@ package org.apache.hop.vfs.minio.util;
 
 import io.minio.PutObjectArgs;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.hop.core.exception.HopRuntimeException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.vfs.minio.MinioFileSystem;
 
 /** Custom OutputStream that enables an output stream onto Minio */
 @Getter
 @Setter
 public class MinioPipedOutputStream extends PipedOutputStream {
-  private static final Class<?> PKG = MinioPipedOutputStream.class;
 
   private boolean initialized = false;
   private boolean blockedUntilDone = true;
   private final PipedInputStream pipedInputStream;
   private final MinioAsyncTransferRunner asyncTransferRunner;
   private final MinioFileSystem fileSystem;
-  private AtomicBoolean result = new AtomicBoolean(false);
+
+  // Daemon-threaded so a wedged putObject (black-holed socket) can never pin the JVM, and the
+  // uploader is referenced so close() can join() it interruptibly instead of polling forever.
+  private Thread transferThread;
+  private volatile Exception transferError;
+
   private final String bucketName;
   private final String key;
 
@@ -62,7 +63,9 @@ public class MinioPipedOutputStream extends PipedOutputStream {
   private void initializeWrite() {
     if (!initialized) {
       initialized = true;
-      new Thread(asyncTransferRunner).start();
+      transferThread = new Thread(asyncTransferRunner, "minio-upload-" + bucketName + "-" + key);
+      transferThread.setDaemon(true);
+      transferThread.start();
     }
   }
 
@@ -89,14 +92,18 @@ public class MinioPipedOutputStream extends PipedOutputStream {
     initializeWrite();
     super.close();
     if (initialized && isBlockedUntilDone()) {
-      while (!result.get()) {
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-          LogChannel.GENERAL.logError(
-              BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught"), e);
-          Thread.currentThread().interrupt();
-        }
+      try {
+        // join() is interruptible: a pipeline stop interrupts the transform thread and now
+        // breaks out of here instead of looping forever on a stalled upload.
+        transferThread.join();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        transferThread.interrupt();
+        throw new InterruptedIOException(
+            "Interrupted while finishing the MinIO upload for " + bucketName + "/" + key);
+      }
+      if (transferError != null) {
+        throw new IOException("MinIO upload failed for " + bucketName + "/" + key, transferError);
       }
     }
   }
@@ -114,11 +121,8 @@ public class MinioPipedOutputStream extends PipedOutputStream {
                 .build();
         fileSystem.getClient().putObject(args);
       } catch (Exception e) {
-        throw new HopRuntimeException(
-            "Error writing to MinIO bucket " + bucketName + ", object " + key, e);
-      } finally {
-        // We're done here.
-        result.set(true);
+        // Recorded and re-thrown from close() so the failure is surfaced instead of swallowed.
+        transferError = e;
       }
     }
   }

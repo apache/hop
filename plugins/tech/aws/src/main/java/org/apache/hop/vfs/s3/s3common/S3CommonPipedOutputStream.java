@@ -20,11 +20,13 @@ package org.apache.hop.vfs.s3.s3common;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -51,7 +53,16 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
 
   private static final int DEFAULT_PART_SIZE = 5 * 1024 * 1024;
 
-  private final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+  private final ThreadPoolExecutor executor =
+      (ThreadPoolExecutor)
+          Executors.newFixedThreadPool(
+              1,
+              runnable -> {
+                Thread t = new Thread(runnable, "s3-multipart-upload");
+                t.setDaemon(true);
+                return t;
+              });
+
   private boolean initialized = false;
   @Getter @Setter private boolean blockedUntilDone = true;
   private final PipedInputStream pipedInputStream;
@@ -105,18 +116,29 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
   public void close() throws IOException {
     initializeWrite();
     super.close();
-    if (initialized && isBlockedUntilDone()) {
-      while (!result.isDone()) {
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-          LogChannel.GENERAL.logError(
-              BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught"), e);
-          Thread.currentThread().interrupt();
+    try {
+      if (initialized && isBlockedUntilDone()) {
+        Boolean ok = result.get();
+        if (ok != null && !ok) {
+          throw new IOException(
+              BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught")
+                  + " ("
+                  + bucketId
+                  + "/"
+                  + key
+                  + ")");
         }
       }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      result.cancel(true);
+      throw new InterruptedIOException(
+          "Interrupted while finishing the S3 multipart upload for " + bucketId + "/" + key);
+    } catch (ExecutionException e) {
+      throw new IOException("S3 multipart upload failed for " + bucketId + "/" + key, e.getCause());
+    } finally {
+      executor.shutdownNow();
     }
-    executor.shutdown();
   }
 
   class S3AsyncTransferRunner implements Callable<Boolean> {

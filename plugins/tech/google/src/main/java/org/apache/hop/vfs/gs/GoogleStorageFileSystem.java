@@ -19,6 +19,7 @@
 package org.apache.hop.vfs.gs;
 
 import com.google.api.gax.retrying.RetrySettings;
+import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
+import org.apache.hop.core.Const;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 import org.threeten.bp.Duration;
@@ -95,8 +97,18 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     optionsBuilder.setCredentials(
         GoogleStorageFileSystemConfigBuilder.getInstance().getGoogleCredentials(fileSystemOptions));
     optionsBuilder.setRetrySettings(retrySettings);
+    optionsBuilder.setTransportOptions(buildTransportOptions(config));
 
     return storage = optionsBuilder.build().getService();
+  }
+
+  static HttpTransportOptions buildTransportOptions(GoogleCloudConfig config) {
+    int connectTimeoutMs = Const.toInt(config.getConnectionTimeout(), 20) * 1000;
+    int readTimeoutMs = Const.toInt(config.getReadTimeout(), 20) * 1000;
+    return HttpTransportOptions.newBuilder()
+        .setConnectTimeout(connectTimeoutMs)
+        .setReadTimeout(readTimeoutMs)
+        .build();
   }
 
   String getBucketName(FileName name) {
