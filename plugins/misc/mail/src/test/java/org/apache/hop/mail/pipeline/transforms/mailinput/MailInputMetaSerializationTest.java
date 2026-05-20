@@ -52,7 +52,10 @@ class MailInputMetaSerializationTest {
     assertEquals("invoice", meta.getSubjectSearch());
 
     assertEquals(2, meta.getInputFields().size());
-    assertEquals("messageNumber", meta.getInputFields().get(0).getName());
-    assertEquals("subject", meta.getInputFields().get(1).getName());
+    assertEquals("Message number", meta.getInputFields().get(0).getName());
+    assertEquals("Subject", meta.getInputFields().get(1).getName());
+    // Legacy integer-string column values must still resolve to the right index.
+    assertEquals(MailInputField.COLUMN_MESSAGE_NR, meta.getInputFields().get(0).getColumnIndex());
+    assertEquals(MailInputField.COLUMN_SUBJECT, meta.getInputFields().get(1).getColumnIndex());
   }
 }

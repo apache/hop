@@ -52,12 +52,12 @@
     <rowlimit>0</rowlimit>
     <fields>
         <field>
-            <name>messageNumber</name>
-            <column>Message: Number</column>
+            <name>Message number</name>
+            <column>0</column>
         </field>
         <field>
-            <name>subject</name>
-            <column>Message: Subject</column>
+            <name>Subject</name>
+            <column>1</column>
         </field>
     </fields>
     <attributes></attributes>

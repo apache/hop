@@ -97,4 +97,22 @@ class MailInputFieldTest {
     // unknown desc resolves to 0 (MESSAGE_NR fallback).
     assertEquals(MailInputField.COLUMN_MESSAGE_NR, field.getColumnIndex());
   }
+
+  @Test
+  void getColumnIndexAcceptsLegacyIntegerStringFormat() {
+    // Older pipelines wrote <column>1</column> etc. when the int-returning getColumn() was
+    // serialized. getColumnIndex() must still resolve those.
+    for (int i = 0; i < MailInputField.ColumnDesc.length; i++) {
+      MailInputField field = new MailInputField();
+      field.setColumn(Integer.toString(i));
+      assertEquals(i, field.getColumnIndex(), "legacy integer format for column " + i);
+    }
+  }
+
+  @Test
+  void getColumnIndexFallsBackForOutOfRangeLegacyValues() {
+    MailInputField field = new MailInputField();
+    field.setColumn("999"); // numeric but past ColumnDesc bounds
+    assertEquals(0, field.getColumnIndex());
+  }
 }
