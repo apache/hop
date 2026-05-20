@@ -45,6 +45,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -116,15 +117,28 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
           .as(v -> v.getLength() > 0 ? "VECTOR(" + v.getLength() + ", FLOAT32)" : "VECTOR(*, *)")
           .build();
 
+  /**
+   * Oracle will not take an NVARCHAR2, NCHAR or NCLOB through {@code setString}, and in a batch it
+   * rejects mixed short and long values with ORA-01461. Every string is bound through {@link
+   * OraclePreparedStatementBinding}, which picks the right JDBC call per column; plain VARCHAR2 is
+   * included because the ORA-01461 form-of-use handling is what the batch case needs.
+   */
+  private static final List<IDatabaseTypeRule> STRING_BINDING =
+      DatabaseTypes.rules()
+          .bind(IValueMeta.TYPE_STRING, OraclePreparedStatementBinding.INSTANCE)
+          .build();
+
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {
     // A 38 digit number is an integer unless this connection asked for the strict reading. That
     // option used to sit on the interface every dialect implements; it is Oracle's own.
-    List<IDatabaseTypeRule> rules = new ArrayList<>(RAW_RULES.size() + JSON_RULES.size() + 1);
+    List<IDatabaseTypeRule> rules =
+        new ArrayList<>(RAW_RULES.size() + JSON_RULES.size() + STRING_BINDING.size() + 1);
     rules.addAll(isStrictBigNumberInterpretation() ? NUMBER_38_AS_BIGNUMBER : NUMBER_38_AS_INTEGER);
     rules.addAll(RAW_RULES);
     rules.addAll(JSON_RULES);
     rules.addAll(VECTOR_RULES);
+    rules.addAll(STRING_BINDING);
     return rules;
   }
 
@@ -1374,6 +1388,14 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
   @Override
   public boolean isOracleVariant() {
     return true;
+  }
+
+  @Override
+  public void enrichInsertRowMeta(
+      Database database, String schemaName, String tableName, IRowMeta insertRowMeta)
+      throws HopDatabaseException {
+    OraclePreparedStatementBinding.enrichInsertRowMeta(
+        database, schemaName, tableName, insertRowMeta);
   }
 
   @Override
