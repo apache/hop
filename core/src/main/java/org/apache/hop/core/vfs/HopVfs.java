@@ -166,7 +166,10 @@ public class HopVfs {
       fsm.addMimeTypeMap("application/x-gzip", "gz");
       fsm.addMimeTypeMap("application/zip", "zip");
       fsm.setFileContentInfoFactory(new FileContentInfoFilenameFactory());
-      fsm.setReplicator(new DefaultFileReplicator());
+
+      DefaultFileReplicator replicator = new DefaultFileReplicator();
+      fsm.setReplicator(replicator);
+      fsm.setTemporaryFileStore(replicator);
 
       fsm.setFilesCache(new SoftRefFilesCache());
       fsm.setCacheStrategy(CacheStrategy.ON_RESOLVE);
