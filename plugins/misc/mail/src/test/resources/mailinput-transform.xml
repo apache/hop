@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<transform>
+    <name>Mail input</name>
+    <type>MailInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+        <method>none</method>
+        <schema_name/>
+    </partitioning>
+    <servername>imap.example.com</servername>
+    <username>alice</username>
+    <password>secret</password>
+    <usessl>Y</usessl>
+    <sslport>993</sslport>
+    <usexoauth2>N</usexoauth2>
+    <protocol>IMAP</protocol>
+    <imapfolder>INBOX</imapfolder>
+    <firstmails>0</firstmails>
+    <imapfirstmails>10</imapfirstmails>
+    <delete>N</delete>
+    <senderSearch>boss@example.com</senderSearch>
+    <notTermSenderSearch>N</notTermSenderSearch>
+    <recipientSearch>me@example.com</recipientSearch>
+    <subjectSearch>invoice</subjectSearch>
+    <notTermSubjectSearch>N</notTermSubjectSearch>
+    <notTermRecipientSearch>N</notTermRecipientSearch>
+    <receivedDate1>2025/01/01 00:00:00</receivedDate1>
+    <receivedDate2>2025/12/31 23:59:59</receivedDate2>
+    <notTermReceivedDateSearch>N</notTermReceivedDateSearch>
+    <includesubfolders>N</includesubfolders>
+    <useproxy>N</useproxy>
+    <usedynamicfolder>N</usedynamicfolder>
+    <rowlimit>0</rowlimit>
+    <fields>
+        <field>
+            <name>Message number</name>
+            <column>0</column>
+        </field>
+        <field>
+            <name>Subject</name>
+            <column>1</column>
+        </field>
+    </fields>
+    <attributes></attributes>
+    <GUI>
+        <xloc>304</xloc>
+        <yloc>64</yloc>
+    </GUI>
+</transform>

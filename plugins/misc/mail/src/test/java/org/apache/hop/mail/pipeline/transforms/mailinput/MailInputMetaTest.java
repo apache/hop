@@ -151,7 +151,7 @@ class MailInputMetaTest implements IInitializer<ITransformMeta> {
       MailInputField another = (MailInputField) actual;
       return new EqualsBuilder()
           .append(testObject.getName(), another.getName())
-          .append(testObject.getColumn(), another.getColumn())
+          .append(testObject.getColumnIndex(), another.getColumnIndex())
           .isEquals();
     }
   }
