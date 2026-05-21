@@ -53,12 +53,12 @@
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j</artifactId>
+            <artifactId>langchain4j-anthropic</artifactId>
             <version>${langchain4j.version}</version>
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-anthropic</artifactId>
+            <artifactId>langchain4j-core</artifactId>
             <version>${langchain4j.version}</version>
         </dependency>
         <dependency>

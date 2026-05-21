@@ -56,14 +56,12 @@
         <dependencySet>
             <includes>
                 <include>com.squareup.retrofit2:retrofit:jar</include>
-                <include>org.apache.opennlp:opennlp-tools:jar</include>
                 <!--<include>org.jsoup:jsoup:jar</include>-->
                 <include>dev.ai4j:openai4j:jar</include>
                 <include>com.knuddels:jtokkit:jar</include>
                 <include>com.squareup.retrofit2:converter-gson:jar</include>
                 <include>com.squareup.moshi:moshi:jar</include>
                 <include>com.squareup.okhttp3:okhttp-sse:jar</include>
-                <include>dev.langchain4j:langchain4j:jar</include>
                 <include>dev.langchain4j:langchain4j-core:jar</include>
                 <include>dev.langchain4j:langchain4j-mistral-ai:jar</include>
                 <include>dev.langchain4j:langchain4j-open-ai:jar</include>
