@@ -29,7 +29,7 @@
     <name>Hop Plugins Transforms Tika</name>
 
     <properties>
-        <tika.version>3.2.3</tika.version>
+        <tika.version>3.3.0</tika.version>
     </properties>
 
     <dependencyManagement>
@@ -156,6 +156,10 @@
                 <exclusion>
                     <groupId>org.apache.poi</groupId>
                     <artifactId>poi-ooxml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.poi</groupId>
+                    <artifactId>poi-ooxml-full</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>
