@@ -23,6 +23,7 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
 import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,8 @@ import org.mockito.Mockito;
 
 class AzureFileNameParserTest {
 
+  private static MockedStatic<AzureConfigSingleton> azureConfigSingleton;
+
   private AzureFileNameParser parser;
 
   @BeforeAll
@@ -41,9 +44,16 @@ class AzureFileNameParserTest {
     AzureConfig azureConfig = new AzureConfig();
     azureConfig.setAccount("hopsa");
     azureConfig.setKey("aGVsbG93b3JsZA==");
-    MockedStatic<AzureConfigSingleton> azureConfigSingleton =
-        Mockito.mockStatic(AzureConfigSingleton.class);
+    azureConfigSingleton = Mockito.mockStatic(AzureConfigSingleton.class);
     azureConfigSingleton.when(AzureConfigSingleton::getConfig).thenReturn(azureConfig);
+  }
+
+  @AfterAll
+  static void tearDown() {
+    if (azureConfigSingleton != null) {
+      azureConfigSingleton.close();
+      azureConfigSingleton = null;
+    }
   }
 
   @BeforeEach

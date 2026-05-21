@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
 import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -43,19 +44,23 @@ import org.mockito.Mockito;
  */
 class AzureFileObjectSdkPathTest {
 
+  private static MockedStatic<AzureConfigSingleton> mocked;
+
   @BeforeAll
   static void init() {
     AzureConfig azureConfig = new AzureConfig();
     // Obvious dummy values: account is a placeholder, key is base64 of "dummy-key".
     azureConfig.setAccount("dummy-account");
     azureConfig.setKey("ZHVtbXkta2V5");
-    try {
-      // Intentionally not closed - mirrors AzureFileNameParserTest, which leaks the same static
-      // mock for the JVM lifetime. We just need a config available when the parser asks.
-      MockedStatic<AzureConfigSingleton> mocked = Mockito.mockStatic(AzureConfigSingleton.class);
-      mocked.when(AzureConfigSingleton::getConfig).thenReturn(azureConfig);
-    } catch (org.mockito.exceptions.base.MockitoException alreadyRegistered) {
-      // Another test in this JVM already mocked it; reuse that registration.
+    mocked = Mockito.mockStatic(AzureConfigSingleton.class);
+    mocked.when(AzureConfigSingleton::getConfig).thenReturn(azureConfig);
+  }
+
+  @AfterAll
+  static void tearDown() {
+    if (mocked != null) {
+      mocked.close();
+      mocked = null;
     }
   }
 
