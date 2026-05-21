@@ -102,7 +102,6 @@ import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.transport.http.apache.HttpClientConnectionFactory;
-import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
 import org.eclipse.jgit.transport.sshd.SshdSessionFactoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -134,6 +133,11 @@ public class UIGit extends VCS {
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=296201 for more details.
      */
     HttpTransport.setConnectionFactory(new HttpClientConnectionFactory());
+    SshSessionFactory.setInstance(
+        new SshdSessionFactoryBuilder()
+            .setHomeDirectory(new File(System.getProperty("user.home")))
+            .setSshDirectory(new File(System.getProperty("user.home"), ".ssh"))
+            .build(null));
   }
 
   @Getter private Git git;
@@ -677,17 +681,9 @@ public class UIGit extends VCS {
       PushCommand cmd;
 
       String url = git.getRepository().getConfig().getString("remote", "origin", "url");
+      cmd = git.push();
       if (!StringUtils.isEmpty(url) && (url.startsWith("https://") || url.startsWith("http://"))) {
-        cmd = git.push();
         cmd.setCredentialsProvider(credentialsProvider);
-      } else {
-        SshdSessionFactory customFactory =
-            new SshdSessionFactoryBuilder()
-                .setHomeDirectory(new File(System.getProperty("user.home")))
-                .setSshDirectory(new File(System.getProperty("user.home"), ".ssh"))
-                .build(null);
-        SshSessionFactory.setInstance(customFactory);
-        cmd = git.push();
       }
 
       if (name != null) {
