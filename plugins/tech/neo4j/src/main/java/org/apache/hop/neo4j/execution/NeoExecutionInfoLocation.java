@@ -673,44 +673,47 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
     // Can we push down some selector parameters?
     //
-    boolean firstCondition = true;
-    if (selector.isSelectingParents()) {
-      builder.withWhereIsNull(firstCondition, "n", EP_PARENT_ID);
-      firstCondition = false;
-    }
-    // We filter by execution ID on the nodes because the filter text is a UUID
-    //
     if (selector.isSelectingByUuid()) {
-      builder.withWhereEquals(firstCondition, "n", EP_ID, "pId", selector.filterText());
-      firstCondition = false;
-    }
-    if (selector.isSelectingFailed()) {
-      builder.withWhereEquals(firstCondition, "n", EP_FAILED, "pFailed", true);
-      firstCondition = false;
-    }
-    if (selector.isSelectingRunning()) {
-      builder.withWhereEquals(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Running");
-      firstCondition = false;
-    }
-    if (selector.isSelectingFinished()) {
-      builder.withWhereContains(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Finished");
-      firstCondition = false;
-    }
-    if (selector.isSelectingWorkflows()) {
-      builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Workflow");
-    } else if (selector.isSelectingPipelines()) {
-      builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Pipeline");
+      // We filter by execution ID on the nodes because the filter text is a UUID.
+      // An exact execution-ID match overrides every other filter (time window,
+      // parent/child, type and status) so the execution is found regardless of age.
+      //
+      builder.withWhereEquals(true, "n", EP_ID, "pId", selector.filterText());
     } else {
-      if (firstCondition) {
-        builder.withExtraClause(" WHERE ");
-      } else {
-        builder.withExtraClause(" AND ");
+      boolean firstCondition = true;
+      if (selector.isSelectingParents()) {
+        builder.withWhereIsNull(firstCondition, "n", EP_PARENT_ID);
+        firstCondition = false;
       }
-      builder.withExtraClause("n." + EP_EXECUTION_TYPE + " IN [ 'Workflow', 'Pipeline' ]");
-    }
-    if (selector.startDateFilter() != LastPeriod.NONE) {
-      builder.withExtraClause(" AND n." + EP_EXECUTION_START_DATE + " >= $fromStartDate ");
-      builder.parameters().put("fromStartDate", selector.startDateFilter().calculateStartDate());
+      if (selector.isSelectingFailed()) {
+        builder.withWhereEquals(firstCondition, "n", EP_FAILED, "pFailed", true);
+        firstCondition = false;
+      }
+      if (selector.isSelectingRunning()) {
+        builder.withWhereEquals(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Running");
+        firstCondition = false;
+      }
+      if (selector.isSelectingFinished()) {
+        builder.withWhereContains(
+            firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Finished");
+        firstCondition = false;
+      }
+      if (selector.isSelectingWorkflows()) {
+        builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Workflow");
+      } else if (selector.isSelectingPipelines()) {
+        builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Pipeline");
+      } else {
+        if (firstCondition) {
+          builder.withExtraClause(" WHERE ");
+        } else {
+          builder.withExtraClause(" AND ");
+        }
+        builder.withExtraClause("n." + EP_EXECUTION_TYPE + " IN [ 'Workflow', 'Pipeline' ]");
+      }
+      if (selector.startDateFilter() != LastPeriod.NONE) {
+        builder.withExtraClause(" AND n." + EP_EXECUTION_START_DATE + " >= $fromStartDate ");
+        builder.parameters().put("fromStartDate", selector.startDateFilter().calculateStartDate());
+      }
     }
 
     // The properties to return
