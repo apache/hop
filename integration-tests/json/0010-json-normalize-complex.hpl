@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <pipeline_version/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters/>
+    <name>0010-json-normalize-complex</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <created_user>-</created_user>
+    <modified_user>-</modified_user>
+    <created_date>2026/05/08 14:00:00.000</created_date>
+    <modified_date>2026/05/08 14:00:00.000</modified_date>
+  </info>
+  <transform>
+    <type>Dummy</type>
+    <name>Validate</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>192</yloc>
+    </GUI>
+    <description/>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>JsonNormalizeInput</type>
+    <name>JSON normalize complex</name>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownum_field/>
+    <limit>0</limit>
+    <valueField/>
+    <IsInFields>N</IsInFields>
+    <IsAFile>N</IsAFile>
+    <addresultfile>N</addresultfile>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <readurl>N</readurl>
+    <removeSourceField>N</removeSourceField>
+    <recordPath>$.transactions[*]</recordPath>
+    <fieldSeparator>.</fieldSeparator>
+    <maxFlattenDepth>-1</maxFlattenDepth>
+    <arrayHandling>STRINGIFY</arrayHandling>
+    <beyondDepthBehavior>STRINGIFY</beyondDepthBehavior>
+    <ignoreMissingField>Y</ignoreMissingField>
+    <files>
+      <file>
+        <name>${HOP_UNIT_TESTS_FOLDER}/resources/json-normalize-complex-transactions-it.json</name>
+        <file_required>N</file_required>
+        <include_subfolders>N</include_subfolders>
+      </file>
+    </files>
+    <fields>
+      <field>
+        <name>tx_id</name>
+        <length>-1</length>
+        <type>String</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <repeat>N</repeat>
+        <path>txId</path>
+      </field>
+      <field>
+        <name>gross_amount</name>
+        <length>-1</length>
+        <type>Number</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <repeat>N</repeat>
+        <path>grossAmount</path>
+      </field>
+      <field>
+        <name>status</name>
+        <length>-1</length>
+        <type>String</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <repeat>N</repeat>
+        <path>status</path>
+      </field>
+      <field>
+        <name>merchant_id</name>
+        <length>-1</length>
+        <type>String</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <repeat>N</repeat>
+        <path>merchant.id</path>
+      </field>
+      <field>
+        <name>fraud_score</name>
+        <length>-1</length>
+        <type>Integer</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <repeat>N</repeat>
+        <path>risk.fraudScore</path>
+      </field>
+      <field>
+        <name>currency</name>
+        <length>-1</length>
+        <type>String</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <repeat>N</repeat>
+        <path>currency</path>
+      </field>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>192</yloc>
+    </GUI>
+    <description/>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <order>
+    <hop>
+      <from>JSON normalize complex</from>
+      <to>Validate</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <notepads/>
+  <attributes/>
+  <transform_error_handling/>
+</pipeline>

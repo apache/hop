@@ -1,0 +1,2 @@
+lifecycle_name,lifecycle_purpose,lifecycle_projectName,lifecycle_configurationFiles_json
+dev,Testing,default,"[""dev-env-config.json""]"

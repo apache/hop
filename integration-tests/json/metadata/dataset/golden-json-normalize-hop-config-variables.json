@@ -1,0 +1,33 @@
+{
+  "base_filename": "golden-json-normalize-hop-config-variables.csv",
+  "virtualPath": "",
+  "name": "golden-json-normalize-hop-config-variables",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "var_name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "var_value",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "var_description",
+      "field_format": ""
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}

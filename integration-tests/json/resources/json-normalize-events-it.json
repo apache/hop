@@ -1,0 +1,19 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "event": "login",
+      "meta": {
+        "ip": "10.0.0.1"
+      }
+    },
+    {
+      "id": 2,
+      "event": "purchase",
+      "meta": {
+        "ip": "10.0.0.2",
+        "amount": 9.99
+      }
+    }
+  ]
+}

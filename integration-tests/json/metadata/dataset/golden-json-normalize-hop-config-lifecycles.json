@@ -1,0 +1,41 @@
+{
+  "base_filename": "golden-json-normalize-hop-config-lifecycles.csv",
+  "virtualPath": "",
+  "name": "golden-json-normalize-hop-config-lifecycles",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "lifecycle_name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "lifecycle_purpose",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "lifecycle_projectName",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "lifecycle_configurationFiles_json",
+      "field_format": ""
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}

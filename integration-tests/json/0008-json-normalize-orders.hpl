@@ -19,40 +19,51 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0003-json-test-block-size</name>
+    <name>0008-json-normalize-orders</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
-    <pipeline_status>0</pipeline_status>
     <parameters>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
-    <transform_performance_capturing_size_limit/>
-    <created_user/>
-    <created_date>2014/03/03 20:27:52.905</created_date>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/05/08 14:00:00.000</created_date>
     <modified_user>-</modified_user>
-    <modified_date>2008/05/14 08:28:56.657</modified_date>
+    <modified_date>2026/05/08 14:00:00.000</modified_date>
   </info>
   <notepads>
   </notepads>
   <order>
     <hop>
-      <from>JSON input</from>
-      <to>count rows</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>count rows</from>
-      <to>Set JSON_ROWCOUNT</to>
+      <from>JSON normalize orders</from>
+      <to>Validate</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>JSON input</name>
-    <type>JsonInput</type>
+    <name>Validate</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>JSON normalize orders</name>
+    <type>JsonNormalizeInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -69,20 +80,24 @@ limitations under the License.
     <removeSourceField>N</removeSourceField>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
-    <ignoreMissingPath>Y</ignoreMissingPath>
-    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <ignoreMissingField>Y</ignoreMissingField>
+    <recordPath>$.orders[*]</recordPath>
+    <fieldSeparator>.</fieldSeparator>
+    <maxFlattenDepth>-1</maxFlattenDepth>
+    <arrayHandling>STRINGIFY</arrayHandling>
+    <beyondDepthBehavior>STRINGIFY</beyondDepthBehavior>
     <rownum_field/>
     <file>
-      <name>${java.io.tmpdir}/hop-json-integration-output</name>
-      <filemask>.*.json</filemask>
+      <name>${HOP_UNIT_TESTS_FOLDER}/resources/json-normalize-orders-it.json</name>
+      <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
     </file>
     <fields>
       <field>
-        <name>firstname</name>
-        <path>$.data.*.firstname</path>
+        <name>orderId</name>
+        <path>orderId</path>
         <type>String</type>
         <format/>
         <currency/>
@@ -94,9 +109,35 @@ limitations under the License.
         <repeat>N</repeat>
       </field>
       <field>
-        <name>lastname</name>
-        <path>$.data.*.lastname</path>
+        <name>customer_name</name>
+        <path>customer.name</path>
         <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>customer_country</name>
+        <path>customer.country</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>total</name>
+        <path>total</path>
+        <type>Number</type>
         <format/>
         <currency/>
         <decimal/>
@@ -122,64 +163,7 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>128</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Set JSON_ROWCOUNT</name>
-    <type>SetVariable</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <default_value>0</default_value>
-        <field_name>rowcount</field_name>
-        <variable_name>JSON_ROWS</variable_name>
-        <variable_type>PARENT_WORKFLOW</variable_type>
-      </field>
-    </fields>
-    <use_formatting>Y</use_formatting>
-    <attributes/>
-    <GUI>
-      <xloc>512</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>count rows</name>
-    <type>GroupBy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <add_linenr>N</add_linenr>
-    <all_rows>N</all_rows>
-    <directory>${java.io.tmpdir}</directory>
-    <fields>
-      <field>
-        <aggregate>rowcount</aggregate>
-        <type>COUNT_ANY</type>
-      </field>
-    </fields>
-    <give_back_row>N</give_back_row>
-    <group>
-</group>
-    <ignore_aggregate>N</ignore_aggregate>
-    <prefix>grp</prefix>
-    <attributes/>
-    <GUI>
-      <xloc>304</xloc>
-      <yloc>64</yloc>
+      <yloc>192</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

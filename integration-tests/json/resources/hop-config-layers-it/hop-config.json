@@ -1,0 +1,33 @@
+{
+  "variables": [
+    {
+      "name": "HOP_EXAMPLE_A",
+      "value": "Y",
+      "description": "Sample described variable A."
+    },
+    {
+      "name": "HOP_EXAMPLE_B",
+      "value": "N",
+      "description": "Sample described variable B."
+    }
+  ],
+  "LocaleDefault": "en_US",
+  "projectsConfig": {
+    "enabled": true,
+    "lifecycleEnvironments": [
+      {
+        "name": "dev",
+        "purpose": "Testing",
+        "projectName": "default",
+        "configurationFiles": ["dev-env-config.json"]
+      }
+    ],
+    "projectConfigurations": [
+      {
+        "projectName": "default",
+        "projectHome": "/tmp/project-home",
+        "configFilename": "project-config.json"
+      }
+    ]
+  }
+}

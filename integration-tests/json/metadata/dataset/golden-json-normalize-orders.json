@@ -1,0 +1,41 @@
+{
+  "base_filename": "golden-json-normalize-orders.csv",
+  "virtualPath": "",
+  "name": "golden-json-normalize-orders",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "orderId",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "customer_name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "customer_country",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "total",
+      "field_format": ""
+    }
+  ],
+  "folder_name": "${HOP_DATASETS_FOLDER}"
+}

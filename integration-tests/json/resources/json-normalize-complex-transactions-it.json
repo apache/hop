@@ -1,0 +1,172 @@
+{
+  "transactions": [
+    {
+      "txId": "TX-00001",
+      "occurredAt": "2026-01-01T00:03:00Z",
+      "grossAmount": 227.08,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Nielsen",
+        "email": "bjorn.nielsen0@example.test",
+        "address": {
+          "line1": "9 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "2535",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4257",
+          "qty": 5,
+          "unitPrice": 56.77
+        },
+        {
+          "sku": "SKU-4611",
+          "qty": 4,
+          "unitPrice": 75.69
+        },
+        {
+          "sku": "SKU-1106",
+          "qty": 2,
+          "unitPrice": 56.77
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 27
+      }
+    },
+    {
+      "txId": "TX-00002",
+      "occurredAt": "2026-01-01T00:18:00Z",
+      "grossAmount": 362.17,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Patel",
+        "email": "fatima.patel1@example.test",
+        "address": {
+          "line1": "138 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "7201",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": null,
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4150",
+          "qty": 1,
+          "unitPrice": 362.17
+        },
+        {
+          "sku": "SKU-4733",
+          "qty": 3,
+          "unitPrice": 362.17
+        },
+        {
+          "sku": "SKU-4814",
+          "qty": 1,
+          "unitPrice": 90.54
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 46
+      }
+    },
+    {
+      "txId": "TX-00003",
+      "occurredAt": "2026-01-01T00:44:00Z",
+      "grossAmount": 270.63,
+      "currency": "GBP",
+      "status": "DECLINED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Yamamoto",
+        "email": "chen.yamamoto2@example.test",
+        "address": {
+          "line1": "137 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5010",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4598",
+          "qty": 3,
+          "unitPrice": 270.63
+        },
+        {
+          "sku": "SKU-4752",
+          "qty": 1,
+          "unitPrice": 90.21
+        },
+        {
+          "sku": "SKU-7572",
+          "qty": 3,
+          "unitPrice": 270.63
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 91
+      }
+    }
+  ]
+}
