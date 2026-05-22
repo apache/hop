@@ -64,6 +64,16 @@ public record DefaultExecutionSelector(
   }
 
   public boolean isSelected(ExecutionState executionState) {
+    // An exact execution-ID match (a UUID) overrides every state-based filter.
+    // The selection was already decided in isSelected(Execution).
+    //
+    if (isSelectingByUuid()) {
+      return true;
+    }
+    if (executionState == null) {
+      // Without a state we can't evaluate the state-based filters below.
+      return false;
+    }
     if (isSelectingParents && StringUtils.isNotEmpty(executionState.getParentId())) {
       return false;
     }
