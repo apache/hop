@@ -724,6 +724,9 @@ public class MetaInjectDialog extends BaseTransformDialog {
             }
             mapping.setSourceTransformName(newSource.transformName);
             mapping.setSourceField(newSource.fieldName);
+            if (!targetMappings.contains(mapping)) {
+              targetMappings.add(mapping);
+            }
           } else {
             if (selectSourceFieldDialog.isNoneClicked()) {
               item.setText(1, "");
@@ -950,11 +953,11 @@ public class MetaInjectDialog extends BaseTransformDialog {
   private boolean processMDIDescription(
       TransformMeta transformMeta, TreeItem transformItem, ITransformMeta metaInterface) {
     boolean hasUsedKeys = false;
-    BeanInjectionInfo transformInjectionInfo = new BeanInjectionInfo<>(metaInterface.getClass());
+    BeanInjectionInfo<?> transformInjectionInfo = new BeanInjectionInfo<>(metaInterface.getClass());
 
-    List<BeanInjectionInfo.Group> groupsList = transformInjectionInfo.getGroups();
+    var groupsList = transformInjectionInfo.getGroups();
 
-    for (BeanInjectionInfo.Group gr : groupsList) {
+    for (BeanInjectionInfo<?>.Group gr : groupsList) {
       if (!gr.hasMatchingProperty(filterString)) {
         continue;
       }
@@ -969,7 +972,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
         groupItem = null;
       }
 
-      List<BeanInjectionInfo.Property> propertyList = gr.getProperties();
+      var propertyList = gr.getProperties();
 
       for (BeanInjectionInfo<?>.Property property : propertyList) {
         if (!property.hasMatch(filterString)) {
@@ -1076,7 +1079,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
       String name = item.getText(colIndex++);
       int type = ValueMetaFactory.getIdForValueMeta(item.getText(colIndex++));
       int length = Const.toInt(item.getText(colIndex++), -1);
-      int precision = Const.toInt(item.getText(colIndex++), -1);
+      int precision = Const.toInt(item.getText(colIndex), -1);
       meta.getSourceOutputFields().add(new MetaInjectOutputField(name, type, length, precision));
     }
 
@@ -1181,12 +1184,13 @@ public class MetaInjectDialog extends BaseTransformDialog {
       if (BeanInjectionInfo.isInjectionSupported(iTransformMeta.getClass())) {
         // Add the groups...
         //
-        BeanInjectionInfo transformInjectionInfo = new BeanInjectionInfo(iTransformMeta.getClass());
-        List<BeanInjectionInfo.Group> groupsList = transformInjectionInfo.getGroups();
-        for (BeanInjectionInfo.Group group : groupsList) {
+        BeanInjectionInfo<?> transformInjectionInfo =
+            new BeanInjectionInfo<>(iTransformMeta.getClass());
+        var groupsList = transformInjectionInfo.getGroups();
+        for (BeanInjectionInfo<?>.Group group : groupsList) {
           boolean detail = StringUtils.isNotEmpty(group.getKey());
-          List<BeanInjectionInfo.Property> propertyList = group.getProperties();
-          for (BeanInjectionInfo.Property property : propertyList) {
+          var propertyList = group.getProperties();
+          for (BeanInjectionInfo<?>.Property property : propertyList) {
             mappingTargets.add(new MappingTarget(transformMeta, property.getKey(), detail));
             String groupName = group.getKey();
             String targetString = transformMeta.getName() + " | ";
