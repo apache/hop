@@ -697,6 +697,10 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     return null;
   }
 
+  /**
+   * Enables or disables Upsert, Modifier update, and Multi-update labels and checkboxes based on
+   * Update and Modifier update.
+   */
   private void setUpdateOptionControlsEnabled() {
     boolean updateSelected = wbUpdate.getSelection();
     upsertLab.setEnabled(updateSelected);
