@@ -166,7 +166,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "MongoDbInputDialog.GetCollections.Button"));
     FormData fd = new FormData();
     fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(lastControl, 0);
+    fd.top = new FormAttachment(wlCollection, 0, SWT.CENTER);
     wbGetCollections.setLayoutData(fd);
     wbGetCollections.addListener(SWT.Selection, e -> getCollectionNames());
 
@@ -175,8 +175,8 @@ public class MongoDbInputDialog extends BaseTransformDialog {
     wCollection.addModifyListener(lsMod);
     FormData fdCollection = new FormData();
     fdCollection.left = new FormAttachment(middle, 0);
-    fdCollection.top = new FormAttachment(lastControl, margin);
-    fdCollection.right = new FormAttachment(wbGetCollections, 0);
+    fdCollection.top = new FormAttachment(wlCollection, 0, SWT.CENTER);
+    fdCollection.right = new FormAttachment(wbGetCollections, -margin);
     wCollection.setLayoutData(fdCollection);
     lastControl = wCollection;
     wCollection.addListener(SWT.Selection, e -> updateQueryTitleInfo());

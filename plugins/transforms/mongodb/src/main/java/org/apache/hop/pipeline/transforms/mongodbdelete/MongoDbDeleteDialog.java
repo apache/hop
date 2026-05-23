@@ -175,7 +175,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "MongoDbDeleteDialog.GetCollections.Button")); // $NON-NLS-1$
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(lastControl, 0);
+    fd.top = new FormAttachment(wlCollection, 0, SWT.CENTER);
     wbGetCollections.setLayoutData(fd);
     wbGetCollections.addListener(SWT.Selection, e -> getCollectionNames());
 
@@ -189,7 +189,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
         });
     fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
-    fd.top = new FormAttachment(lastControl, margin);
+    fd.top = new FormAttachment(wlCollection, 0, SWT.CENTER);
     fd.right = new FormAttachment(wbGetCollections, -margin);
     wCollection.setLayoutData(fd);
 
@@ -289,9 +289,9 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
           }
         });
     fd = new FormData();
-    fd.right = new FormAttachment(100, -margin);
-    fd.top = new FormAttachment(0, margin * 3);
     fd.left = new FormAttachment(middle, 0);
+    fd.right = new FormAttachment(100, -margin);
+    fd.top = new FormAttachment(useDefinedQueryLab, 0, SWT.CENTER);
     wbUseJsonQuery.setLayoutData(fd);
 
     colInf =
