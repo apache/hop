@@ -81,8 +81,11 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
 
   private Button wbTruncate;
   private Button wbUpdate;
+  private Label upsertLab;
   private Button wbUpsert;
+  private Label multiLab;
   private Button wbMulti;
+  private Label modifierLab;
   private Button wbModifierUpdate;
 
   private TextVar wWriteRetries;
@@ -267,22 +270,16 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
         SWT.Selection,
         e -> {
           currentMeta.setChanged();
-          wbUpsert.setEnabled(wbUpdate.getSelection());
-          wbModifierUpdate.setEnabled(wbUpdate.getSelection());
-          wbMulti.setEnabled(wbUpdate.getSelection());
           if (!wbUpdate.getSelection()) {
             wbModifierUpdate.setSelection(false);
             wbMulti.setSelection(false);
             wbUpsert.setSelection(false);
           }
-          wbMulti.setEnabled(wbModifierUpdate.getSelection());
-          if (!wbMulti.getEnabled()) {
-            wbMulti.setSelection(false);
-          }
+          setUpdateOptionControlsEnabled();
         });
 
     // upsert line
-    Label upsertLab = new Label(wOutputComp, SWT.RIGHT);
+    upsertLab = new Label(wOutputComp, SWT.RIGHT);
     upsertLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Upsert.Label"));
     PropsUi.setLook(upsertLab);
     upsertLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Upsert.TipText"));
@@ -302,7 +299,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     lastControl = upsertLab;
 
     // multi line
-    Label multiLab = new Label(wOutputComp, SWT.RIGHT);
+    multiLab = new Label(wOutputComp, SWT.RIGHT);
     multiLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Multi.Label"));
     PropsUi.setLook(multiLab);
     multiLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Multi.TipText"));
@@ -323,7 +320,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     lastControl = multiLab;
 
     // modifier update
-    Label modifierLab = new Label(wOutputComp, SWT.RIGHT);
+    modifierLab = new Label(wOutputComp, SWT.RIGHT);
     modifierLab.setText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Modifier.Label"));
     PropsUi.setLook(modifierLab);
     modifierLab.setToolTipText(BaseMessages.getString(PKG, "MongoDbOutputDialog.Modifier.TipText"));
@@ -346,12 +343,13 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
         SWT.Selection,
         e -> {
           currentMeta.setChanged();
-          wbMulti.setEnabled(wbModifierUpdate.getSelection());
           if (!wbModifierUpdate.getSelection()) {
             wbMulti.setSelection(false);
           }
+          setUpdateOptionControlsEnabled();
         });
     lastControl = modifierLab;
+    setUpdateOptionControlsEnabled();
 
     // retries stuff
     Label retriesLab = new Label(wOutputComp, SWT.RIGHT);
@@ -699,6 +697,21 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     return null;
   }
 
+  /**
+   * Enables or disables Upsert, Modifier update, and Multi-update labels and checkboxes based on
+   * Update and Modifier update.
+   */
+  private void setUpdateOptionControlsEnabled() {
+    boolean updateSelected = wbUpdate.getSelection();
+    upsertLab.setEnabled(updateSelected);
+    wbUpsert.setEnabled(updateSelected);
+    modifierLab.setEnabled(updateSelected);
+    wbModifierUpdate.setEnabled(updateSelected);
+    boolean multiEnabled = updateSelected && wbModifierUpdate.getSelection();
+    multiLab.setEnabled(multiEnabled);
+    wbMulti.setEnabled(multiEnabled);
+  }
+
   private void getData() {
     wConnection.setText(Const.NVL(currentMeta.getConnectionName(), "")); //
     wCollectionField.setText(Const.NVL(currentMeta.getCollection(), "")); //
@@ -709,14 +722,11 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     wbTruncate.setSelection(currentMeta.isTruncate());
     wbModifierUpdate.setSelection(currentMeta.isModifierUpdate());
 
-    wbUpsert.setEnabled(wbUpdate.getSelection());
-    wbModifierUpdate.setEnabled(wbUpdate.getSelection());
-    wbMulti.setEnabled(wbUpdate.getSelection());
     if (!wbUpdate.getSelection()) {
       wbModifierUpdate.setSelection(false);
       wbMulti.setSelection(false);
     }
-    wbMulti.setEnabled(wbModifierUpdate.getSelection());
+    setUpdateOptionControlsEnabled();
     if (!wbMulti.getEnabled()) {
       wbMulti.setSelection(false);
     }

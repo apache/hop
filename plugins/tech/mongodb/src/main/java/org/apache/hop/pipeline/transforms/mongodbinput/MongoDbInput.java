@@ -266,6 +266,10 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
         data.collection = data.clientWrapper.getCollection(databaseName, collection);
 
         if (!meta.isOutputJson()) {
+          if (meta.getFields() == null || meta.getFields().isEmpty()) {
+            throw new HopException(
+                BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoFieldsSpecified"));
+          }
           data.setMongoFields(meta.getFields());
         }
 
