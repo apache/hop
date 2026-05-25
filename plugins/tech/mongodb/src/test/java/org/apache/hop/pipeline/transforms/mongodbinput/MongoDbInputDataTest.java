@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -378,5 +379,14 @@ class MongoDbInputDataTest {
     assertEquals(
         "my.${oneparam}.with.${a_dot_param}.otherstuff",
         MongoDbInputData.cleansePath("my.${oneparam}.with.${a.dot.param}.otherstuff"));
+  }
+
+  @Test
+  void setMongoFieldsNullIsSafe() {
+    MongoDbInputData data = new MongoDbInputData();
+    data.outputRowMeta = new RowMeta();
+    data.setMongoFields(null);
+
+    assertDoesNotThrow(data::init);
   }
 }

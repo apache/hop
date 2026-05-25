@@ -166,7 +166,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "MongoDbInputDialog.GetCollections.Button"));
     FormData fd = new FormData();
     fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(lastControl, 0);
+    fd.top = new FormAttachment(wlCollection, 0, SWT.CENTER);
     wbGetCollections.setLayoutData(fd);
     wbGetCollections.addListener(SWT.Selection, e -> getCollectionNames());
 
@@ -175,8 +175,8 @@ public class MongoDbInputDialog extends BaseTransformDialog {
     wCollection.addModifyListener(lsMod);
     FormData fdCollection = new FormData();
     fdCollection.left = new FormAttachment(middle, 0);
-    fdCollection.top = new FormAttachment(lastControl, margin);
-    fdCollection.right = new FormAttachment(wbGetCollections, 0);
+    fdCollection.top = new FormAttachment(wlCollection, 0, SWT.CENTER);
+    fdCollection.right = new FormAttachment(wbGetCollections, -margin);
     wCollection.setLayoutData(fdCollection);
     lastControl = wCollection;
     wCollection.addListener(SWT.Selection, e -> updateQueryTitleInfo());
@@ -497,25 +497,22 @@ public class MongoDbInputDialog extends BaseTransformDialog {
     meta.setExecuteForEachIncomingRow(wbExecuteForEachRow.getSelection());
 
     int numNonEmpty = wFields.nrNonEmpty();
-    if (numNonEmpty > 0) {
-      List<MongoField> outputFields = new ArrayList<>();
-      for (int i = 0; i < numNonEmpty; i++) {
-        TableItem item = wFields.getNonEmpty(i);
-        MongoField newField = new MongoField();
+    List<MongoField> outputFields = new ArrayList<>();
+    for (int i = 0; i < numNonEmpty; i++) {
+      TableItem item = wFields.getNonEmpty(i);
+      MongoField newField = new MongoField();
 
-        newField.fieldName = item.getText(1).trim();
-        newField.fieldPath = item.getText(2).trim();
-        newField.hopType = item.getText(3).trim();
+      newField.fieldName = item.getText(1).trim();
+      newField.fieldPath = item.getText(2).trim();
+      newField.hopType = item.getText(3).trim();
 
-        if (!StringUtils.isEmpty(item.getText(4))) {
-          newField.indexedValues = MongoDbInputData.indexedValsList(item.getText(4).trim());
-        }
-
-        outputFields.add(newField);
+      if (!StringUtils.isEmpty(item.getText(4))) {
+        newField.indexedValues = MongoDbInputData.indexedValsList(item.getText(4).trim());
       }
 
-      meta.setFields(outputFields);
+      outputFields.add(newField);
     }
+    meta.setFields(outputFields);
   }
 
   private void ok() {
@@ -731,6 +728,19 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         BaseMessages.getString(
             PKG,
             "MongoDbInputDialog.Warning.Message.MongoQueryContainsUnresolvedVarsFieldSubs.PreviewTitle"))) {
+      return;
+    }
+
+    if (!oneMeta.isOutputJson() && Utils.isEmpty(oneMeta.getFields())) {
+      ShowMessageDialog smd =
+          new ShowMessageDialog(
+              shell,
+              SWT.ICON_WARNING | SWT.OK,
+              BaseMessages.getString(
+                  PKG, "MongoDbInputDialog.ErrorMessage.NoFieldsForStructuredOutput.Title"),
+              BaseMessages.getString(
+                  PKG, "MongoDbInputDialog.ErrorMessage.NoFieldsForStructuredOutput"));
+      smd.open();
       return;
     }
 

@@ -258,9 +258,10 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    * @param fields the field path specifications
    */
   public void setMongoFields(List<MongoField> fields) {
-    // copy this list
     userFields = new ArrayList<>();
-
+    if (fields == null) {
+      return;
+    }
     for (MongoField f : fields) {
       userFields.add(f.copy());
     }
