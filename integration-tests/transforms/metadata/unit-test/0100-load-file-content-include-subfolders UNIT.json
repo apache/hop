@@ -1,0 +1,28 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Issue 7166: Load file content include_subfolders",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "short_file",
+          "data_set_field": "short_file"
+        }
+      ],
+      "field_order": [
+        "short_file"
+      ],
+      "data_set_name": "golden-load-file-content-include-subfolders",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0100-load-file-content-include-subfolders UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0100-load-file-content-include-subfolders.hpl"
+}

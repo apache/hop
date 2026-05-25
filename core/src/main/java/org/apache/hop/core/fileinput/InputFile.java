@@ -87,7 +87,7 @@ public class InputFile {
   }
 
   public String getIncludeSubFoldersDesc() {
-    if (fileRequired) {
+    if (includeSubFolders) {
       return BaseMessages.getString("System.Combo.Yes");
     } else {
       return BaseMessages.getString("System.Combo.No");

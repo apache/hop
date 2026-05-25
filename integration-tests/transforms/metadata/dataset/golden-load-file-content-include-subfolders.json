@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-load-file-content-include-subfolders.csv",
+  "name": "golden-load-file-content-include-subfolders",
+  "description": "Load file content with include_subfolders=Y must read root and nested txt files.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "short_file",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

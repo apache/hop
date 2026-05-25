@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-json-input-include-subfolders.csv",
+  "name": "golden-json-input-include-subfolders",
+  "description": "JSON Input with include_subfolders=Y must read root and nested json files.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "id",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
