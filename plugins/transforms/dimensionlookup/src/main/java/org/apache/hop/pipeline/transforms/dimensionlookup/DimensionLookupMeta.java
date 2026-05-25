@@ -294,7 +294,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       throw new HopTransformException(message);
     }
 
-    IValueMeta tkValueMeta = buildTkValueMeta(inputRowMeta, name, variables);
+    IValueMeta tkValueMeta = buildTkValueMeta(inputRowMeta, fields.returns.keyField, variables);
 
     if (StringUtils.isNotEmpty(fields.returns.keyRename)) {
       tkValueMeta.setName(fields.returns.keyRename);
