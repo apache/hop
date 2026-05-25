@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
     name = "i18n::JsonNormalizeInput.name",
     description = "i18n::JsonNormalizeInput.description",
     keywords = "i18n::JsonNormalizeInputMeta.keyword",
-    categoryDescription = "i18n::JsonInput.category")
+    categoryDescription = "i18n:org.apache.hop.pipeline.transforms.jsoninput:JsonInput.category")
 @Getter
 @Setter
 public class JsonNormalizeInputMeta
