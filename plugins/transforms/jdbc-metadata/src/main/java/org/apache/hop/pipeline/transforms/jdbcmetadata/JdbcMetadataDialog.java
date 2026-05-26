@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.pipeline.transform.jdbcmetadata;
+package org.apache.hop.pipeline.transforms.jdbcmetadata;
 
 import java.util.ArrayList;
 import java.util.List;
