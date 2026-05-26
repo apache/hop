@@ -1907,7 +1907,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     return null;
   }
-  
+
   private CTabItem currentTabItemFor(IHopFileTypeHandler typeHandler) {
     for (TabItemHandler item : items) {
       if (item.getTypeHandler() == typeHandler) {
