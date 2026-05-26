@@ -18,7 +18,7 @@
 package org.apache.hop.parquet.transforms.output;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
@@ -30,7 +30,8 @@ import org.apache.parquet.hadoop.ParquetWriter;
 
 @SuppressWarnings("java:S1104")
 public class ParquetOutputData extends BaseTransformData implements ITransformData {
-  public ArrayList<Integer> sourceFieldIndexes;
+  public List<Integer> sourceFieldIndexes;
+  public List<ParquetField> outputFields;
   public Configuration conf;
   public ParquetProperties props;
   public String filename;

@@ -102,22 +102,25 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     wlFilenameBase.setText(BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameBase.Label"));
     PropsUi.setLook(wlFilenameBase);
     FormData fdlFilenameBase = new FormData();
+    fdlFilenameBase.left = new FormAttachment(0, 0);
+    fdlFilenameBase.top = new FormAttachment(0, margin);
     fdlFilenameBase.right = new FormAttachment(middle, -margin);
     wlFilenameBase.setLayoutData(fdlFilenameBase);
     wFilenameBase = new TextVar(variables, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilenameBase);
     FormData fdFilenameBase = new FormData();
     fdFilenameBase.left = new FormAttachment(middle, 0);
+    fdFilenameBase.top = new FormAttachment(wlFilenameBase, 0, SWT.CENTER);
     fdFilenameBase.right = new FormAttachment(90, 0);
     wFilenameBase.setLayoutData(fdFilenameBase);
     lastControl = wFilenameBase;
 
-    Button wbFilename = new Button(wFileGroup, SWT.PUSH);
+    Button wbFilename = new Button(wFileGroup, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
     fdbFilename.left = new FormAttachment(wFilenameBase, 0);
-    fdbFilename.top = new FormAttachment(0, -margin);
+    fdbFilename.top = new FormAttachment(wFilenameBase, 0, SWT.CENTER);
     wbFilename.setLayoutData(fdbFilename);
 
     wbFilename.addListener(

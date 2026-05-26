@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -90,7 +89,9 @@ class HopVfsProvidersTest {
     writeBytes(url, "file-content".getBytes(StandardCharsets.UTF_8));
     assertEquals("file-content", readString(url));
     assertTrue(HopVfs.fileExists(url));
-    HopVfs.getFileObject(url).delete();
+    try (FileObject obj = HopVfs.getFileObject(url)) {
+      obj.delete();
+    }
   }
 
   @Test
@@ -122,9 +123,10 @@ class HopVfsProvidersTest {
   void resProviderReadsClasspathResource() throws Exception {
     // Use a resource that's guaranteed to be on the test classpath.
     String url = "res:" + getClass().getName().replace('.', '/') + ".class";
-    FileObject obj = HopVfs.getFileObject(url);
-    assertTrue(obj.exists(), url + " should exist on the classpath");
-    assertTrue(obj.getContent().getSize() > 0);
+    try (FileObject obj = HopVfs.getFileObject(url)) {
+      assertTrue(obj.exists(), url + " should exist on the classpath");
+      assertTrue(obj.getContent().getSize() > 0);
+    }
   }
 
   @Test
@@ -181,7 +183,8 @@ class HopVfsProvidersTest {
       out.write(payload);
     }
     String url = "gz:" + gz.toUri();
-    try (InputStream in = HopVfs.getFileObject(url).getContent().getInputStream()) {
+    try (FileObject obj = HopVfs.getFileObject(url);
+        InputStream in = obj.getContent().getInputStream()) {
       assertArrayEquals(payload, in.readAllBytes());
     }
   }
@@ -197,7 +200,8 @@ class HopVfsProvidersTest {
       out.write(payload);
     }
     String url = "bz2:" + bz2.toUri();
-    try (InputStream in = HopVfs.getFileObject(url).getContent().getInputStream()) {
+    try (FileObject obj = HopVfs.getFileObject(url);
+        InputStream in = obj.getContent().getInputStream()) {
       assertArrayEquals(payload, in.readAllBytes());
     }
   }
@@ -241,17 +245,16 @@ class HopVfsProvidersTest {
   }
 
   private static void writeBytes(String url, byte[] bytes) throws Exception {
-    FileObject obj = HopVfs.getFileObject(url);
-    try (OutputStream out = obj.getContent().getOutputStream()) {
+    try (FileObject obj = HopVfs.getFileObject(url);
+        OutputStream out = obj.getContent().getOutputStream()) {
       out.write(bytes);
     }
   }
 
   private static String readString(String url) throws Exception {
-    try (InputStream in = HopVfs.getFileObject(url).getContent().getInputStream()) {
+    try (FileObject obj = HopVfs.getFileObject(url);
+        InputStream in = obj.getContent().getInputStream()) {
       return new String(in.readAllBytes(), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw e;
     }
   }
 }
