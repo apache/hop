@@ -84,15 +84,18 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
   @HopMetadataProperty(key = "isFilenameDynamic")
   private boolean filenameDynamic;
 
-  @HopMetadataProperty private String dynamicFieldName;
+  @HopMetadataProperty(key = "dynamicFieldname")
+  private String dynamicFieldName;
 
   @HopMetadataProperty private String dynamicWildcard;
 
   @HopMetadataProperty private String dynamicZipFilename;
 
-  @HopMetadataProperty private String sourceFileFolderName;
+  @HopMetadataProperty(key = "sourcefilefoldername")
+  private String sourceFileFolderName;
 
-  @HopMetadataProperty private String sourceWildCard;
+  @HopMetadataProperty(key = "sourcewildcard")
+  private String sourceWildCard;
 
   @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION)
   private String connectionName;
