@@ -1,0 +1,28 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Issue 7166: JSON Input include_subfolders",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-json-input-include-subfolders",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0100-json-input-include-subfolders UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0100-json-input-include-subfolders.hpl"
+}
