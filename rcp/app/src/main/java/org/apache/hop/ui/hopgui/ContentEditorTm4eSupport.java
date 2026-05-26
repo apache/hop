@@ -337,17 +337,9 @@ final class ContentEditorTm4eSupport {
       } catch (Exception e) {
         return Collections.emptyList();
       }
-      text = normalizeLineEndings(text);
       return tokenizeLines(text, rangeOffset, rangeLength);
     }
 
-    private static String normalizeLineEndings(String text) {
-      if (text == null || text.isEmpty()) return text;
-      if (!text.contains("\r")) return text;
-      return text.replace("\r\n", "\n").replace("\r", "\n");
-    }
-
-    /** Tokenize using a string with normalized line endings (\\n only). */
     private java.util.List<ColoredToken> tokenizeLines(
         String text, int rangeOffset, int rangeLength) {
       java.util.List<ColoredToken> result = new java.util.ArrayList<>();
@@ -361,14 +353,19 @@ final class ContentEditorTm4eSupport {
         for (int lineIndex = 0; lineIndex < lines.length; lineIndex++) {
           if (lineIndex >= MAX_LINES_TO_TOKENIZE) break;
 
-          String line = lines[lineIndex];
+          String raw = lines[lineIndex];
+          int rawLen = raw.length();
+          String line = raw;
+          if (rawLen > 0 && raw.charAt(rawLen - 1) == '\r') {
+            line = raw.substring(0, rawLen - 1);
+          }
           int lineLen = line.length();
           if (lineLen > MAX_LINE_LENGTH) {
-            lineStart += lineLen + 1L;
+            lineStart += rawLen + 1L;
             continue;
           }
 
-          long lineEnd = lineStart + lineLen;
+          long lineEnd = lineStart + rawLen;
           if (lineEnd <= rangeOffset) {
             ITokenizeLineResult<org.eclipse.tm4e.core.grammar.IToken[]> res =
                 grammar.tokenizeLine(line, state, null);

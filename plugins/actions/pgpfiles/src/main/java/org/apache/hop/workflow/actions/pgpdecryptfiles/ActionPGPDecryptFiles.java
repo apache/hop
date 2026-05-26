@@ -219,7 +219,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
 
   @Override
   public Object clone() {
-    return new ActionPGPDecryptFiles();
+    return new ActionPGPDecryptFiles(this);
   }
 
   @Override

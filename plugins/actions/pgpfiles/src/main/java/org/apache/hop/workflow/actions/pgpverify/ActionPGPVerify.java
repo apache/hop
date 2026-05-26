@@ -93,7 +93,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
 
   @Override
   public Object clone() {
-    return new ActionPGPVerify();
+    return new ActionPGPVerify(this);
   }
 
   @Override
