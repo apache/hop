@@ -28,7 +28,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
 import org.apache.hop.pipeline.transforms.formula.FormulaPoi;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.Row;
@@ -108,12 +107,13 @@ public class FormulaParser {
 
       IValueMeta fieldMeta = rowMeta.getValueMeta(fieldPosition);
       if (dataRow[fieldPosition] != null) {
-        if (fieldMeta.isString()) { // most common first to avoid a lot of "if" for nothing
+        // most common first to avoid a lot of "if" for nothing
+        if (fieldMeta.isString()) {
           cell.setCellValue(rowMeta.getString(dataRow, fieldPosition));
         } else if (fieldMeta.isBoolean()) {
           cell.setCellValue(rowMeta.getBoolean(dataRow, fieldPosition));
         } else if (fieldMeta.isBigNumber()) {
-          cell.setCellValue(new HSSFRichTextString(rowMeta.getString(dataRow, fieldPosition)));
+          cell.setCellValue(rowMeta.getNumber(dataRow, fieldPosition));
         } else if (fieldMeta.isDate()) {
           cell.setCellValue(rowMeta.getDate(dataRow, fieldPosition));
         } else if (fieldMeta.isInteger()) {
