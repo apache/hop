@@ -88,7 +88,7 @@
         <httpclient5.version>5.6.1</httpclient5.version>
         <httpcore.version>4.4.16</httpcore.version>
         <icu4j.version>78.1</icu4j.version>
-        <jackcess.version>4.0.4</jackcess.version>
+        <jackcess.version>4.0.10</jackcess.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom -->
         <jackson.version>2.21.1</jackson.version>
@@ -98,7 +98,6 @@
         <jna.version>5.18.1</jna.version>
         <joda-time.version>2.14.0</joda-time.version>
         <jsch.version>2.27.8</jsch.version>
-        <json-simple.version>1.1.1</json-simple.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.6.0</json-smart.version>
         <json4s.version>3.7.0-M11</json4s.version>
@@ -151,16 +150,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-buffer</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-transport-classes-epoll</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.google.re2j</groupId>
                 <artifactId>re2j</artifactId>
