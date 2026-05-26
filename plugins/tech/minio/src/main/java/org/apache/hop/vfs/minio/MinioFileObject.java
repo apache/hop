@@ -198,7 +198,19 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     injectType(FileType.IMAGINARY);
 
     if (StringUtils.isEmpty(key)) {
-      injectType(FileType.FOLDER);
+      if (isRootBucket()) {
+        injectType(FileType.FOLDER);
+      } else {
+        try {
+          BucketExistsArgs existsArgs = BucketExistsArgs.builder().bucket(bucketName).build();
+          if (fileSystem.getClient().bucketExists(existsArgs)) {
+            injectType(FileType.FOLDER);
+          }
+        } catch (Exception e) {
+          LogChannel.GENERAL.logDebug(
+              "Unable to verify existence of bucket {0}: {1}", bucketName, e.getMessage());
+        }
+      }
       return;
     }
 

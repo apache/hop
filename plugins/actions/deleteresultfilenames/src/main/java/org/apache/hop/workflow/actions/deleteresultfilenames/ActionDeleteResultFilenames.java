@@ -87,7 +87,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
 
   @Override
   public Object clone() {
-    return new ActionDeleteResultFilenames();
+    return new ActionDeleteResultFilenames(this);
   }
 
   @Override

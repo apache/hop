@@ -1907,6 +1907,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     return null;
   }
+  
+  private CTabItem currentTabItemFor(IHopFileTypeHandler typeHandler) {
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() == typeHandler) {
+        CTabItem t = item.getTabItem();
+        return (t == null || t.isDisposed()) ? null : t;
+      }
+    }
+    return null;
+  }
 
   /**
    * Close tabs for the given filenames (e.g. after files are deleted by revert or external delete).
@@ -2124,12 +2134,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         new IContentChangedListener() {
           @Override
           public void contentChanged(Object parentObject) {
-            tabItem.setFont(GuiResource.getInstance().getFontBold());
+            CTabItem current = currentTabItemFor(fileTypeHandler);
+            if (current != null) {
+              current.setFont(GuiResource.getInstance().getFontBold());
+            }
           }
 
           @Override
           public void contentSafe(Object parentObject) {
-            tabItem.setFont(tabItem.getParent().getFont());
+            CTabItem current = currentTabItemFor(fileTypeHandler);
+            if (current != null && current.getParent() != null) {
+              current.setFont(current.getParent().getFont());
+            }
           }
         });
 
