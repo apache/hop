@@ -39,7 +39,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -114,7 +113,6 @@ class MemoryGroupByAggregationNullsTest {
    * NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
    */
   @Test
-  @Disabled("This test needs to be reviewed")
   void calcAggregateResulTestMin_1_Test() throws HopException {
     transform.setMinNullIsValued(true);
     transform.addToAggregate(new Object[] {null});
@@ -126,7 +124,6 @@ class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void calcAggregateResulTestMin_5_Test() throws HopException {
     transform.setMinNullIsValued(false);
     transform.addToAggregate(new Object[] {null});
@@ -142,7 +139,6 @@ class MemoryGroupByAggregationNullsTest {
    * default a NULL is returned when all values are NULL.
    */
   @Test
-  @Disabled("This test needs to be reviewed")
   void getAggregateResulTestMin_0_Test() throws HopValueException {
     // data.agg[0] is not null - this is the default behavior
     transform.setAllNullsAreZero(true);
@@ -151,7 +147,6 @@ class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void getAggregateResulTestMin_1_Test() throws HopValueException {
     aggregate.agg[0] = null;
     transform.setAllNullsAreZero(true);
@@ -160,7 +155,6 @@ class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void getAggregateResulTestMin_3_Test() throws HopValueException {
     aggregate.agg[0] = null;
     transform.setAllNullsAreZero(false);
@@ -169,7 +163,6 @@ class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void addToAggregateLazyConversionMinTest() throws Exception {
     vmi.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     vmi.setStorageMetadata(new ValueMetaString());
@@ -181,7 +174,6 @@ class MemoryGroupByAggregationNullsTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void addToAggregateBinaryData() throws Exception {
     MemoryGroupByMeta memoryGroupByMeta = spy(meta);
     memoryGroupByMeta.setAggregates(

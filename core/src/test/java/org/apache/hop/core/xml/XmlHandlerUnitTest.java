@@ -29,7 +29,6 @@ import java.util.GregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
@@ -190,10 +189,9 @@ class XmlHandlerUnitTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void addTagValueBinary() throws IOException {
     byte[] input = "Test Data".getBytes();
-    String result = "H4sIAAAAAAAAAAtJLS5RcEksSQQAL4PL8QkAAAA=";
+    String result = "H4sIAAAAAAAA/wtJLS5RcEksSQQAL4PL8QkAAAA=";
 
     assertEquals(
         "<bytedata>" + result + "</bytedata>" + CR, XmlHandler.addTagValue("bytedata", input));

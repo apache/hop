@@ -27,7 +27,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.parquet.transforms.input.ParquetField;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -38,7 +37,6 @@ class ParquetResourceFileTest {
   private static final String SAMPLE_FILE = "hello.parquet-00-0001.parquet";
 
   @Test
-  @Disabled("testReadSampleParquetFileSchema")
   void testReadSampleParquetFileSchema() throws Exception {
     String filename = ParquetTestUtil.resourceFilePath(getClass(), SAMPLE_FILE);
 
@@ -56,7 +54,6 @@ class ParquetResourceFileTest {
   }
 
   @Test
-  @Disabled("testReadSampleParquetFileRows")
   void testReadSampleParquetFileRows() throws Exception {
     String filename = ParquetTestUtil.resourceFilePath(getClass(), SAMPLE_FILE);
 

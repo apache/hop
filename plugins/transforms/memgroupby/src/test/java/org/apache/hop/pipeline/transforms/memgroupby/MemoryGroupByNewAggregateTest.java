@@ -18,15 +18,17 @@
 package org.apache.hop.pipeline.transforms.memgroupby;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -37,15 +39,24 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 class MemoryGroupByNewAggregateTest {
 
   static TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData> mockHelper;
-  static List<GroupType> strings;
-  static List<GroupType> statistics;
+
+  /** GroupTypes whose initial aggregate storage is a StringBuilder (Appendable). */
+  private static final Set<GroupType> APPENDABLE_TYPES =
+      EnumSet.of(GroupType.ConcatComma, GroupType.ConcatString);
+
+  /** GroupTypes whose initial aggregate storage is a Collection (List/Set). */
+  private static final Set<GroupType> COLLECTION_TYPES =
+      EnumSet.of(GroupType.Median, GroupType.Percentile, GroupType.ConcatDistinct);
+
+  /** Aggregate types that newAggregate handles. GroupType.None is not a real aggregation. */
+  private static final List<GroupType> AGGREGATE_TYPES =
+      Arrays.stream(GroupType.values()).filter(t -> t != GroupType.None).toList();
 
   MemoryGroupBy transform;
   MemoryGroupByData data;
@@ -58,16 +69,6 @@ class MemoryGroupByNewAggregateTest {
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
-
-    // In this transform we will distinct String aggregations from numeric ones
-    strings = new ArrayList<>();
-    strings.add(GroupType.ConcatComma);
-    strings.add(GroupType.ConcatString);
-
-    // Statistics will be initialized with collections...
-    statistics = new ArrayList<>();
-    statistics.add(GroupType.Median);
-    statistics.add(GroupType.Percentile);
   }
 
   @AfterAll
@@ -80,14 +81,12 @@ class MemoryGroupByNewAggregateTest {
     data = new MemoryGroupByData();
 
     List<GAggregate> aggregates = new ArrayList<>();
-    GroupType[] types = GroupType.values();
+    data.subjectnrs = new int[AGGREGATE_TYPES.size()];
 
-    data.subjectnrs = new int[types.length];
-
-    int i = 0;
-    for (GroupType type : types) {
-      data.subjectnrs[i] = i++;
-      aggregates.add(new GAggregate("x" + 1, "x", type, null));
+    for (int i = 0; i < AGGREGATE_TYPES.size(); i++) {
+      data.subjectnrs[i] = i;
+      // Each aggregate gets a distinct output field name so any error message identifies which.
+      aggregates.add(new GAggregate("agg_" + i, "x", AGGREGATE_TYPES.get(i), null));
     }
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
@@ -106,26 +105,25 @@ class MemoryGroupByNewAggregateTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
-  public void testNewAggregate() throws HopException {
-    Object[] r = new Object[16];
+  void testNewAggregate() throws HopException {
+    Object[] r = new Object[AGGREGATE_TYPES.size()];
     Arrays.fill(r, null);
 
     Aggregate agg = new Aggregate();
 
     transform.newAggregate(r, agg);
 
-    assertEquals(16, agg.agg.length, "All possible aggregation cases considered");
+    assertEquals(
+        AGGREGATE_TYPES.size(), agg.agg.length, "All possible aggregation cases considered");
 
-    // all aggregations types is int values, filled in ascending order in perconditions
     for (int i = 0; i < agg.agg.length; i++) {
-      int type = i + 1;
-      if (strings.contains(type)) {
-        assertTrue(agg.agg[i] instanceof Appendable, "This is appendable type, type=" + type);
-      } else if (statistics.contains(type)) {
-        assertTrue(agg.agg[i] instanceof Collection, "This is collection, type=" + type);
+      GroupType type = AGGREGATE_TYPES.get(i);
+      if (APPENDABLE_TYPES.contains(type)) {
+        assertInstanceOf(Appendable.class, agg.agg[i], "Expected appendable for type=" + type);
+      } else if (COLLECTION_TYPES.contains(type)) {
+        assertInstanceOf(Collection.class, agg.agg[i], "Expected collection for type=" + type);
       } else {
-        assertNull(agg.agg[i], "Aggregation initialized with null, type=" + type);
+        assertNull(agg.agg[i], "Expected null aggregate storage for type=" + type);
       }
     }
   }

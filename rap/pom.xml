@@ -97,20 +97,20 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${monaco.resources.dir}" />
+                                <mkdir dir="${monaco.resources.dir}"></mkdir>
                                 <copy todir="${monaco.resources.dir}">
                                     <fileset dir="${project.build.directory}/monaco-download/package/min">
-                                        <include name="vs/**/*.js" />
-                                        <include name="vs/**/*.css" />
+                                        <include name="vs/**/*.js"></include>
+                                        <include name="vs/**/*.css"></include>
                                     </fileset>
                                 </copy>
                                 <pathconvert dirsep="/" pathsep="${line.separator}" property="monaco.file.list">
                                     <fileset dir="${monaco.resources.dir}">
-                                        <include name="vs/**" />
+                                        <include name="vs/**"></include>
                                     </fileset>
-                                    <map from="${monaco.resources.dir}${file.separator}" to="" />
+                                    <map from="${monaco.resources.dir}${file.separator}" to=""></map>
                                 </pathconvert>
-                                <echo file="${monaco.resources.dir}/monaco-files.list" message="${monaco.file.list}" />
+                                <echo file="${monaco.resources.dir}/monaco-files.list" message="${monaco.file.list}"></echo>
                             </target>
                         </configuration>
                     </execution>

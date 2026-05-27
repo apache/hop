@@ -110,7 +110,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <copy file="${tm4e.core.download.dir}/${tm4e.core.download.file}" overwrite="true" tofile="${tm4e.core.jar}" />
+                                <copy file="${tm4e.core.download.dir}/${tm4e.core.download.file}" overwrite="true" tofile="${tm4e.core.jar}"></copy>
                             </target>
                         </configuration>
                     </execution>

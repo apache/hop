@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -43,7 +44,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -90,6 +90,11 @@ class SimpleMappingTest {
     // Mock for MappingIODefinition
     MappingIODefinition mpIODefMock = mock(MappingIODefinition.class);
 
+    // Reuse transformMockHelper.pipeline as the mapping (sub-)pipeline so the verifies below
+    // observe the same mock. Stub startThreads() to a no-op so SimpleMapping.processRow does
+    // not crash on the mock's null internal transforms list.
+    doNothing().when(transformMockHelper.pipeline).startThreads();
+
     // Set up real SimpleMappingData with some mocked elements
     simpleMpData.mappingInput = mpInputMock;
     simpleMpData.mappingOutput = mpOutputMock;
@@ -112,27 +117,23 @@ class SimpleMappingTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void testTransformSetUpAsWasStarted_AtProcessingFirstRow() throws HopException {
 
     smp =
         new SimpleMapping(
             transformMockHelper.transformMeta,
             transformMockHelper.iTransformMeta,
-            transformMockHelper.iTransformData,
+            simpleMpData,
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
-    smp.processRow();
     smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
-    assertTrue(smp.first, "The transform is processing in first");
-    assertTrue(smp.processRow());
+    assertTrue(smp.processRow(), "First processRow should return true");
     assertFalse(smp.first, "The transform is processing not in first");
     assertTrue(smp.getData().wasStarted, "The transform was started");
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void testTransformShouldProcessError_WhenMappingPipelineHasError() throws HopException {
 
     // Set Up TransMock to return the error
@@ -148,7 +149,7 @@ class SimpleMappingTest {
         new SimpleMapping(
             transformMockHelper.transformMeta,
             transformMockHelper.iTransformMeta,
-            transformMockHelper.iTransformData,
+            simpleMpData,
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
@@ -203,14 +204,8 @@ class SimpleMappingTest {
     assertFalse(smp.processRow());
   }
 
-  @AfterEach
-  void tearDown() {
-    transformMockHelper.cleanUp();
-  }
-
   @Test
-  @Disabled("This test needs to be reviewed")
-  public void testDispose() throws HopException {
+  void testDispose() throws HopException {
 
     // Set Up TransMock to return the error
     when(transformMockHelper.pipeline.getErrors()).thenReturn(0);
@@ -224,7 +219,7 @@ class SimpleMappingTest {
         new SimpleMapping(
             transformMockHelper.transformMeta,
             transformMockHelper.iTransformMeta,
-            transformMockHelper.iTransformData,
+            simpleMpData,
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);

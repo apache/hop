@@ -22,19 +22,10 @@ import static org.apache.hop.pipeline.transforms.selectvalues.SelectValueMetaTes
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -55,34 +46,6 @@ class SelectValuesMetaTest {
   @BeforeEach
   void before() {
     selectValuesMeta = new SelectValuesMeta();
-  }
-
-  @Disabled("This test needs to be reviewed")
-  @Test
-  void loadSaveTest() throws HopException {
-    List<String> attributes = Arrays.asList("selectOption", "deleteName");
-
-    SelectField selectField = new SelectField();
-    selectField.setName("TEST_NAME");
-    selectField.setRename("TEST_RENAME");
-    selectField.setLength(2);
-    selectField.setPrecision(2);
-
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<>();
-    fieldLoadSaveValidatorTypeMap.put(
-        SelectField[].class.getCanonicalName(),
-        new ArrayLoadSaveValidator<>(new SelectFieldLoadSaveValidator(selectField), 2));
-
-    LoadSaveTester tester =
-        new LoadSaveTester(
-            SelectValuesMeta.class,
-            attributes,
-            new HashMap<>(),
-            new HashMap<>(),
-            new HashMap<>(),
-            fieldLoadSaveValidatorTypeMap);
-
-    tester.testSerialization();
   }
 
   @Test
@@ -223,25 +186,6 @@ class SelectValuesMetaTest {
     assertThat(selectValuesMeta.getSelectOption().getSelectFields())
         .extracting(SelectField::getPrecision)
         .containsExactly(2);
-  }
-
-  public static class SelectFieldLoadSaveValidator implements IFieldLoadSaveValidator<SelectField> {
-
-    private final SelectField defaultValue;
-
-    public SelectFieldLoadSaveValidator(SelectField defaultValue) {
-      this.defaultValue = defaultValue;
-    }
-
-    @Override
-    public SelectField getTestObject() {
-      return defaultValue;
-    }
-
-    @Override
-    public boolean validateTestObject(SelectField testObject, Object actual) {
-      return EqualsBuilder.reflectionEquals(testObject, actual);
-    }
   }
 
   @Test
