@@ -26,6 +26,9 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.Storage.BlobListOption;
+import com.google.storage.control.v2.DeleteFolderRequest;
+import com.google.storage.control.v2.FolderName;
+import com.google.storage.control.v2.StorageControlClient;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -232,7 +235,11 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   @Override
   protected void doDelete() throws Exception {
     if (hasObject()) {
+      boolean isDirectory = blob.isDirectory();
       blob.delete();
+      if (isDirectory && isHnsEnabled()) {
+        handleHnsDirectoryDeletion(stripLeadingSlash(bucketPath));
+      }
     } else if (bucketName != null
         && !bucketName.isEmpty()
         && bucketPath != null
@@ -243,6 +250,22 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new IOException("Cannot delete: missing bucket/object path for '" + this + "'");
     }
     getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
+  }
+
+  private void handleHnsDirectoryDeletion(String path) throws IOException {
+    String folderName = FolderName.format("_", bucketName, stripTrailingSlash(path));
+    try (StorageControlClient controlClient = StorageControlClient.create()) {
+      DeleteFolderRequest folderRequest =
+          DeleteFolderRequest.newBuilder().setName(folderName).build();
+      controlClient.deleteFolder(folderRequest);
+    }
+  }
+
+  private boolean isHnsEnabled() {
+    if (bucket == null || bucket.getHierarchicalNamespace() == null) {
+      return false;
+    }
+    return bucket.getHierarchicalNamespace().getEnabled();
   }
 
   @Override
@@ -316,11 +339,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     if (!hasBucket()) {
       Page<Bucket> page = storage.list();
       for (Bucket b : page.iterateAll()) {
-        results.add(
-            new GoogleStorageFileObject(
-                scheme,
-                new GoogleStorageFileName(scheme, b.getName(), FileType.FOLDER),
-                getAbstractFileSystem()));
+        results.add(getAbstractFileSystem().resolveFile(b.getName()));
       }
     } else {
       String prefix;
@@ -351,15 +370,9 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
         cacheEntries.put(
             b.getName(), new GoogleStorageListCache.ChildInfo(childType, childSize, childLastMod));
         results.add(
-            new GoogleStorageFileObject(
-                scheme,
-                new GoogleStorageFileName(
-                    scheme,
-                    getName().getPath() + "/" + lastPathElement(stripTrailingSlash(b.getName())),
-                    childType),
-                getAbstractFileSystem(),
-                this.bucket != null ? bucket : storage.get(bucketName),
-                b));
+            getAbstractFileSystem()
+                .resolveFile(
+                    getName().getPath() + "/" + lastPathElement(stripTrailingSlash(b.getName()))));
       }
       if (!cacheEntries.isEmpty()) {
         getAbstractFileSystem().putListCache(bucketName, prefix, cacheEntries);
