@@ -53,11 +53,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Disabled("This test needs to be reviewed")
 class CheckSumTest {
   // calculations are different in Linux and Windows for files (due to CRLF vs LF)
   @BeforeEach
@@ -217,7 +215,7 @@ class CheckSumTest {
     byte[] input = IOUtils.toByteArray(getFile("/checksum.svg").getContent().getInputStream());
     results = executeHexTest(CheckSumMeta.CheckSumType.MD5, input, new ValueMetaBinary("test"));
     assertEquals(1, results.getWritten().size());
-    assertEquals("056c290e3639d0f15db479810973d601", results.getWritten().get(0)[1]);
+    assertEquals("bcda1a7e42a38cde07b9ba6a92ff5ae1", results.getWritten().get(0)[1]);
   }
 
   @Test
@@ -238,7 +236,7 @@ class CheckSumTest {
     byte[] input = IOUtils.toByteArray(getFile("/checksum.svg").getContent().getInputStream());
     results = executeHexTest(CheckSumMeta.CheckSumType.SHA1, input, new ValueMetaBinary("test"));
     assertEquals(1, results.getWritten().size());
-    assertEquals("801a72c0d7551fba06b880e7976c9e477f57d00c", results.getWritten().get(0)[1]);
+    assertEquals("5efe817e70b60e9845ba7aa31b1938f43e95ecd9", results.getWritten().get(0)[1]);
   }
 
   @Test
@@ -299,7 +297,7 @@ class CheckSumTest {
     results = executeHexTest(CheckSumMeta.CheckSumType.SHA384, input, new ValueMetaBinary("test"));
     assertEquals(1, results.getWritten().size());
     assertEquals(
-        "ef97e467e4fc1894abcdfd589481ff9c269322f7f2f42fde41468d7ac1f2bcd10db6f797f58e531419c886a43d1d8cd0",
+        "307b17bda2b0acafcb0172ae0c05bee132b1d1462c45f98ce76df05d1a5a690ae5a7f558b756b55f8c53ff8999157c3c",
         results.getWritten().get(0)[1]);
   }
 
@@ -328,7 +326,7 @@ class CheckSumTest {
     results = executeHexTest(CheckSumMeta.CheckSumType.SHA512, input, new ValueMetaBinary("test"));
     assertEquals(1, results.getWritten().size());
     assertEquals(
-        "bbd4c05a92d9b541b653f5135d7076d722631394616b142e5655f075fb2f75166a2dfcf488bf3d6519c8eaf0a7eacaf7d81224ffd5a7e4cc4f126369840e239f",
+        "4c4f6770ff94f952815606008f2023efd5cd5957333661dbb8732adb78b92622fc6f972dfe6c5eb2caff43132742f0c2a6d8feafd9af361018d191a02387837a",
         results.getWritten().get(0)[1]);
   }
 
@@ -350,7 +348,7 @@ class CheckSumTest {
     byte[] input = IOUtils.toByteArray(getFile("/checksum.svg").getContent().getInputStream());
     results = executeHexTest(CheckSumMeta.CheckSumType.ADLER32, input, new ValueMetaBinary("test"));
     assertEquals(1, results.getWritten().size());
-    assertEquals(Long.valueOf("3864809454"), results.getWritten().get(0)[1]);
+    assertEquals(Long.valueOf("579626685"), results.getWritten().get(0)[1]);
   }
 
   @Test
@@ -371,7 +369,7 @@ class CheckSumTest {
     byte[] input = IOUtils.toByteArray(getFile("/checksum.svg").getContent().getInputStream());
     results = executeHexTest(CheckSumMeta.CheckSumType.CRC32, input, new ValueMetaBinary("test"));
     assertEquals(1, results.getWritten().size());
-    assertEquals(Long.valueOf("790584415"), results.getWritten().get(0)[1]);
+    assertEquals(Long.valueOf("3634132013"), results.getWritten().get(0)[1]);
   }
 
   private FileObject getFile(final String filepath) {

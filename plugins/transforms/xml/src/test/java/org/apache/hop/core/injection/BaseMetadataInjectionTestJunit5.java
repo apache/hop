@@ -41,10 +41,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 
 /** Base class for test metadata injection using JUnit 5. */
-@Disabled("This test needs to be reviewed")
 public abstract class BaseMetadataInjectionTestJunit5<Meta extends ITransformMeta> {
   protected BeanInjectionInfo<Meta> info;
   protected BeanInjector<Meta> injector;

@@ -79,17 +79,4 @@ class MsSqlServerNativeDatabaseMetaTest {
     dbmeta.setSqlServerInstance("instance1");
     assertEquals("instance1", dbmeta.getSqlServerInstance());
   }
-
-  /*  @Ignore("This test needs to be reviewed")
-   @Test
-  void databases_WithDifferentDbConnTypes_AreTheSame_IfOneConnTypeIsSubsetOfAnother_2LevelHierarchy() {
-     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
-     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-     IDatabase mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
-     mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
-
-     assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta,
-       mssqlServerNativeDatabaseMeta ) );
-   }*/
-
 }

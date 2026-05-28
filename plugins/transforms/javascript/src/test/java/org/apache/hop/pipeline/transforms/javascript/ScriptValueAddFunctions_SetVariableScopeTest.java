@@ -29,7 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ScriptValueAddFunctions_SetVariableScopeTest {
@@ -117,7 +116,6 @@ class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void setRootScopeVariable_TwoLevelHierarchy() {
     Pipeline parent = createPipeline();
     Pipeline child = createPipeline(parent);

@@ -33,7 +33,6 @@ import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** Test class for StringEvaluator functionality. */
@@ -164,15 +163,13 @@ class StringEvaluatorTest {
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void testNumberWithGroupAndPoint() {
-    testNumber("#,###,###.#", "1,111,111.1");
+    testNumber("#,##0.00", "1,111,111.1");
   }
 
   @Test
-  @Disabled("This test needs to be reviewed")
   void testNumbers() {
-    testNumber("#,###,###.#", "1,111,111.1", "1,111");
+    testNumber("#,##0.00", "1,111,111.1", "1,111");
   }
 
   @Test

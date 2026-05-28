@@ -18,88 +18,94 @@
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.Assert;
-import org.junit.jupiter.api.Disabled;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies the batch-flush behavior of {@link DorisBulkLoader#processStreamLoad(String, boolean)}.
+ *
+ * <p>{@code initStreamLoad} (which would open a real HTTP connection to Doris) is private so it
+ * can't be stubbed; tests skip the {@code first=true} branch by pre-populating {@link
+ * DorisBulkLoaderData#dorisStreamLoad} with a mock and only exercising the post-init path.
+ */
 class DorisBulkLoaderTest {
 
-  private static boolean canWrite = true;
+  private DorisBulkLoaderMeta meta;
+  private DorisBulkLoaderData data;
+  private DorisStreamLoad streamLoad;
+  private DorisBulkLoader transform;
 
-  @Disabled("This test needs to be reviewed")
-  @Test
-  void testCallProcessStreamLoadWithOneBatch() throws Exception {
-    DorisBulkLoaderMeta meta = mock(DorisBulkLoaderMeta.class);
-    doReturn(40).when(meta).getBufferSize();
-    doReturn(2).when(meta).getBufferCount();
-    doReturn("json").when(meta).getFormat();
-
-    DorisBulkLoaderData data = mock(DorisBulkLoaderData.class);
-    IRowMeta rmi = mock(IRowMeta.class);
-    data.inputRowMeta = rmi;
-    data.dorisStreamLoad = null;
-
-    DorisBulkLoader dorisBulkLoader = mock(DorisBulkLoader.class);
-    doCallRealMethod().when(dorisBulkLoader).processStreamLoad(anyString(), anyBoolean());
-    doReturn("xxx").when(dorisBulkLoader).resolve(anyString());
-
-    dorisBulkLoader.processStreamLoad("{\"no\":1, \"name\":\"tom\", \"sex\":\"m\"}", true);
-
-    Assert.assertTrue(data.dorisStreamLoad != null, "data.dorisStreamLoad initialization failure");
-
-    data.dorisStreamLoad = mock(DorisStreamLoad.class);
-
-    doCallRealMethod().when(dorisBulkLoader).processStreamLoad(any(), anyBoolean());
-    dorisBulkLoader.processStreamLoad(null, false);
-
-    verify(data.dorisStreamLoad, times(1)).executeDorisStreamLoad();
+  @BeforeAll
+  static void initHop() throws Exception {
+    HopEnvironment.init();
   }
 
-  @Disabled("This test needs to be reviewed")
-  @Test
-  void testCallProcessStreamLoadWithTwoBatch() throws Exception {
-    DorisBulkLoaderMeta meta = mock(DorisBulkLoaderMeta.class);
+  @BeforeEach
+  void setUp() throws Exception {
+    meta = mock(DorisBulkLoaderMeta.class);
     doReturn(40).when(meta).getBufferSize();
     doReturn(2).when(meta).getBufferCount();
     doReturn("json").when(meta).getFormat();
 
-    DorisBulkLoaderData data = mock(DorisBulkLoaderData.class);
-    IRowMeta rmi = mock(IRowMeta.class);
-    data.inputRowMeta = rmi;
-    data.dorisStreamLoad = null;
+    data = new DorisBulkLoaderData();
+    streamLoad = mock(DorisStreamLoad.class);
+    data.dorisStreamLoad = streamLoad;
 
-    DorisBulkLoader dorisBulkLoader = mock(DorisBulkLoader.class);
-    doCallRealMethod().when(dorisBulkLoader).processStreamLoad(anyString(), anyBoolean());
-    doReturn("xxx").when(dorisBulkLoader).resolve(anyString());
+    // Build a real (minimal) PipelineMeta / Pipeline so BaseTransform.<init> can call
+    // pipelineMeta.findTransform() and getTargetTransformPartitioningMeta() without NPEs.
+    TransformMeta transformMeta = new TransformMeta("Doris", meta);
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(transformMeta);
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
 
-    dorisBulkLoader.processStreamLoad("{\"no\":1, \"name\":\"tom\", \"sex\":\"m\"}", true);
+    DorisBulkLoader real =
+        new DorisBulkLoader(transformMeta, meta, data, 0, pipelineMeta, pipeline);
+    transform = spy(real);
+    doReturn("xxx").when(transform).resolve(anyString());
+    doReturn(false).when(transform).isDetailed();
 
-    Assert.assertTrue(data.dorisStreamLoad != null, "data.dorisStreamLoad initialization failure");
+    ResponseContent success = mock(ResponseContent.class);
+    doReturn("Success").when(success).getStatus();
+    doReturn(1L).when(success).getNumberLoadedRows();
+    doReturn(1L).when(success).getNumberTotalRows();
+    doReturn(success).when(streamLoad).executeDorisStreamLoad();
+  }
 
-    data.dorisStreamLoad = mock(DorisStreamLoad.class);
-    when(data.dorisStreamLoad.canWrite(anyLong()))
-        .thenAnswer(
-            x -> {
-              canWrite = !canWrite;
-              return canWrite;
-            });
+  @Test
+  void testCallProcessStreamLoadWithOneBatch() throws Exception {
+    when(streamLoad.canWrite(anyLong())).thenReturn(true);
 
-    dorisBulkLoader.processStreamLoad("{\"no\":2, \"name\":\"jack\", \"sex\":\"m\"}", false);
+    // first row already started; canWrite=true so it just writes.
+    transform.processStreamLoad("{\"no\":1, \"name\":\"tom\", \"sex\":\"m\"}", false);
+    // null + first=false flushes the batch.
+    transform.processStreamLoad(null, false);
 
-    doCallRealMethod().when(dorisBulkLoader).processStreamLoad(any(), anyBoolean());
-    dorisBulkLoader.processStreamLoad(null, false);
+    verify(streamLoad, times(1)).executeDorisStreamLoad();
+  }
 
-    verify(data.dorisStreamLoad, times(2)).executeDorisStreamLoad();
+  @Test
+  void testCallProcessStreamLoadWithTwoBatch() throws Exception {
+    // canWrite=false on the second row forces an intermediate flush.
+    when(streamLoad.canWrite(anyLong())).thenReturn(true, false, true);
+
+    transform.processStreamLoad("{\"no\":1, \"name\":\"tom\", \"sex\":\"m\"}", false);
+    transform.processStreamLoad("{\"no\":2, \"name\":\"jack\", \"sex\":\"m\"}", false);
+    transform.processStreamLoad(null, false);
+
+    verify(streamLoad, times(2)).executeDorisStreamLoad();
   }
 }

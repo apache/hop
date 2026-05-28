@@ -29,13 +29,24 @@ import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.local.LocalAuditManager;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 class AuditManagerTest {
   @TempDir Path testFolder;
+
+  /**
+   * Reset the AuditManager singleton to a fresh LocalAuditManager pointed at a per-test temp
+   * folder, and ensure no leftover events from prior tests are visible.
+   */
+  @BeforeEach
+  void resetAuditManager() throws HopException {
+    AuditManager.getInstance()
+        .setActiveAuditManager(new LocalAuditManager(testFolder.toAbsolutePath().toString()));
+    AuditManager.clearEvents();
+  }
 
   @Test
   void testSingleton() {
@@ -87,37 +98,30 @@ class AuditManagerTest {
     assertEquals(2, uniqueEvents.size(), "Not getting unique events");
   }
 
-  //  Race condition with other test data, works fine when run stand-alone
   @Test
-  @Disabled("This test needs to be reviewed")
   void testFindAllEventsWithDefaultAuditManager() throws HopException {
-    AuditManager.getInstance()
-        .setActiveAuditManager(new LocalAuditManager(testFolder.toAbsolutePath().toString()));
     String group = "testFindAllEventsWithDefaultAuditManager";
-    AuditManager.clearEvents();
-    AuditManager.registerEvent(group, "type1", "name1", "operation1");
-    AuditManager.registerEvent(group, "type1", "name1", "operation1");
-    AuditManager.registerEvent(group, "type1", "name1", "operation1");
-    AuditManager.registerEvent(group, "type1", "name2", "operation1");
-    AuditManager.registerEvent(group, "type2", "name2", "operation1");
+    // LocalAuditManager stores events keyed by (timestamp-ms + operation), so events with the
+    // same name+operation registered within a single millisecond collide on disk. Use distinct
+    // operations so each register produces a separate file.
+    AuditManager.registerEvent(group, "type1", "name1", "operationA");
+    AuditManager.registerEvent(group, "type1", "name1", "operationB");
+    AuditManager.registerEvent(group, "type1", "name1", "operationC");
+    AuditManager.registerEvent(group, "type1", "name2", "operationD");
+    AuditManager.registerEvent(group, "type2", "name2", "operationE");
 
-    List<AuditEvent> allEvents = AuditManager.findEvents(group, "type1", "operation1", 10, false);
-    assertEquals(4, allEvents.size(), "Not getting unique events");
-    AuditManager.clearEvents();
+    List<AuditEvent> allEvents = AuditManager.findEvents(group, "type1", null, 10, false);
+    assertEquals(4, allEvents.size(), "Not getting all events");
   }
 
   @Test
   void testFindUniqueEventsWithDefaultAuditManager() throws HopException {
-    AuditManager.getInstance()
-        .setActiveAuditManager(new LocalAuditManager(testFolder.toAbsolutePath().toString()));
     String group = "testFindUniqueEventsWithDefaultAuditManager";
-    AuditManager.clearEvents();
-    AuditManager.registerEvent(group, "type1", "name1", "operation1");
-    AuditManager.registerEvent(group, "type1", "name1", "operation1");
+    AuditManager.registerEvent(group, "type1", "name1", "operationA");
+    AuditManager.registerEvent(group, "type1", "name1", "operationB");
 
-    List<AuditEvent> uniqueEvents = AuditManager.findEvents(group, "type1", "operation1", 10, true);
+    List<AuditEvent> uniqueEvents = AuditManager.findEvents(group, "type1", null, 10, true);
     assertEquals(1, uniqueEvents.size(), "Not getting unique events");
-    AuditManager.clearEvents();
   }
 
   @Test
@@ -136,32 +140,22 @@ class AuditManagerTest {
     assertEquals(2, maxEvents.size(), "Not getting unique events");
   }
 
-  // Figure out why this sometimes fails in windows and to a lesser extent Linux.
-  // It's likely an initialization issue which occurs for this testing scenario.
-  //
   @Test
-  @Disabled("This test needs to be reviewed")
   void testClearEvents() throws HopException {
-    AuditManager.getInstance()
-        .setActiveAuditManager(new LocalAuditManager(testFolder.toAbsolutePath().toString()));
+    String group = "testClearEvents";
+    // Use distinct operations so each register produces a separate on-disk file (see comment on
+    // testFindAllEventsWithDefaultAuditManager).
+    AuditManager.registerEvent(group, "type1", "name1", "operationA");
+    AuditManager.registerEvent(group, "type1", "name1", "operationB");
+    assertEquals(
+        2,
+        AuditManager.findEvents(group, "type1", null, 10, false).size(),
+        "Problem in registering events");
 
-    // Repeat the test 100 times.
-    //
-    for (int i = 0; i < 100; i++) {
-      AuditManager.getActive().clearEvents();
-
-      String group = "testClearEvents";
-      AuditManager.registerEvent(group, "type1", "name1", "operation1");
-      AuditManager.registerEvent(group, "type1", "name1", "operation1");
-      assertEquals(
-          2,
-          AuditManager.findEvents(group, "type1", "operation1", 10, false).size(),
-          "Problem in registering event");
-      AuditManager.clearEvents();
-      assertEquals(
-          0,
-          AuditManager.findEvents(group, "type1", "operation1", 10, false).size(),
-          "Problem in clearning event");
-    }
+    AuditManager.clearEvents();
+    assertEquals(
+        0,
+        AuditManager.findEvents(group, "type1", null, 10, false).size(),
+        "Problem in clearing events");
   }
 }

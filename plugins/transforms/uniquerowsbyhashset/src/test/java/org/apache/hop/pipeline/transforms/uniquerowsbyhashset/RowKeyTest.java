@@ -25,15 +25,11 @@ import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class RowKeyTest {
 
   @Test
-  @Disabled(
-      "This test needs to be reviewed") // TODO see what the problem is with the hash code, new
-  // commons API somewhere?
   void testHashCodeCalculationsandEquals() throws Exception {
     Object[] arr1 = new Object[9];
     arr1[0] = true;
