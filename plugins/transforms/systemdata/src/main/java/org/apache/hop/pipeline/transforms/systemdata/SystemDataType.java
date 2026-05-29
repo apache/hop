@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
+import java.util.Arrays;
 import lombok.Getter;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
@@ -132,7 +133,10 @@ public enum SystemDataType implements IEnumHasCodeAndDescription {
   }
 
   public static String[] getDescriptions() {
-    return IEnumHasCodeAndDescription.getDescriptions(SystemDataType.class);
+    return Arrays.stream(SystemDataType.values())
+        .filter(t -> t != SystemDataType.NONE)
+        .map(SystemDataType::getDescription)
+        .toArray(String[]::new);
   }
 
   SystemDataType(String code, String descriptionName) {
