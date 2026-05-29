@@ -24,17 +24,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link FormulaFieldsExtractor} */
 class FormulaFieldsExtractorTest {
 
   @Test
   void testSimpleFieldExtraction() {
-    String formula = "[field1] + [field2]";
+    String formula = "[field1] + [field2] + [field3]";
     List<String> fields = FormulaFieldsExtractor.getFormulaFieldList(formula);
 
     assertNotNull(fields);
-    assertEquals(2, fields.size());
+    assertEquals(3, fields.size());
     assertTrue(fields.contains("field1"));
     assertTrue(fields.contains("field2"));
+    assertTrue(fields.contains("field3"));
   }
 
   @Test
@@ -44,7 +46,7 @@ class FormulaFieldsExtractorTest {
 
     assertNotNull(fields);
     assertEquals(1, fields.size());
-    assertEquals("name", fields.get(0));
+    assertEquals("name", fields.getFirst());
   }
 
   @Test
@@ -106,7 +108,7 @@ class FormulaFieldsExtractorTest {
 
     assertNotNull(fields);
     assertEquals(1, fields.size());
-    assertEquals("incomplete + [complete", fields.get(0));
+    assertEquals("incomplete + [complete", fields.getFirst());
   }
 
   @Test
@@ -141,5 +143,28 @@ class FormulaFieldsExtractorTest {
     assertTrue(fields.contains("field-with-dashes"));
     assertTrue(fields.contains("field_with_underscores"));
     assertTrue(fields.contains("field.with.dots"));
+  }
+
+  @Test
+  void fieldOrderIsPreserved() {
+    List<String> fields =
+        FormulaFieldsExtractor.getFormulaFieldList("[first] + [second] * [third]");
+
+    assertEquals(List.of("first", "second", "third"), fields);
+  }
+
+  @Test
+  void onlyOpenBracketWithoutClosingBracket() {
+    List<String> fields = FormulaFieldsExtractor.getFormulaFieldList("[onlyOpen");
+
+    assertEquals(0, fields.size());
+  }
+
+  @Test
+  void trailingOpenBracketWithoutClose() {
+    List<String> fields = FormulaFieldsExtractor.getFormulaFieldList("[complete] + [incomplete");
+
+    assertEquals(1, fields.size());
+    assertEquals("complete", fields.getFirst());
   }
 }
