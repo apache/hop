@@ -164,14 +164,15 @@
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <spotless.skip>false</spotless.skip>
+        <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
+        <ui.test.argLine></ui.test.argLine>
+        <ui.test.excludedGroups></ui.test.excludedGroups>
+        <ui.test.includedGroups></ui.test.includedGroups>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Jetty: transitive deps (e.g. jersey-jetty-connector) can pull older patch lines (12.1.2).
-                 hop-libs already pins Jetty for modules that import it; root entries cover the rest of
-                 the reactor without importing hop-libs (would cycle: hop -> hop-libs -> parent hop). -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-alpn-client</artifactId>
@@ -448,11 +449,12 @@
                         </goals>
                         <configuration>
                             <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding}
-                                ${maven-surefire-plugin.argLine}</argLine>
-                            <!-- this is set by jacoco's prepare-agent execution -->
+                                ${maven-surefire-plugin.argLine} ${ui.test.argLine}</argLine>
                             <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
                             <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
                             <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
+                            <groups>${ui.test.includedGroups}</groups>
+                            <excludedGroups>${ui.test.excludedGroups}</excludedGroups>
                             <properties>
                                 <includeTags>junit5</includeTags>
                             </properties>
@@ -672,6 +674,7 @@
                 <module>engine-beam</module>
                 <module>lib</module>
                 <module>lib-jdbc</module>
+                <module>lib-p2</module>
                 <module>plugins</module>
                 <module>rap</module>
                 <module>rcp</module>
@@ -793,6 +796,7 @@
             <properties>
                 <env>mac</env>
                 <swt.artifactId>org.eclipse.swt.cocoa.macosx.aarch64</swt.artifactId>
+                <ui.test.argLine>-XstartOnFirstThread</ui.test.argLine>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -809,6 +813,13 @@
                     </dependency>
                 </dependencies>
             </dependencyManagement>
+        </profile>
+        <profile>
+            <id>uitest</id>
+            <properties>
+                <ui.test.excludedGroups></ui.test.excludedGroups>
+                <ui.test.includedGroups>uitest</ui.test.includedGroups>
+            </properties>
         </profile>
         <profile>
             <id>apache-release</id>
