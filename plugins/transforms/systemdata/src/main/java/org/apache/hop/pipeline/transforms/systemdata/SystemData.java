@@ -17,11 +17,96 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.AVAILABLE_PROCESSORS;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.COMMITTED_VIRTUAL_MEMORY_SIZE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.COPYNR;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.CURRENT_PID;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.FILENAME;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.FREE_PHYSICAL_MEMORY_SIZE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.FREE_SWAP_SPACE_SIZE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.HOSTNAME;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.HOSTNAME_REAL;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.IP_ADDRESS;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.JVM_AVAILABLE_MEMORY;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.JVM_CPU_TIME;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.JVM_FREE_MEMORY;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.JVM_MAX_MEMORY;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.JVM_TOTAL_MEMORY;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.MODIFIED_DATE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.MODIFIED_USER;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_DAY_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_DAY_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_MONTH_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_MONTH_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_QUARTER_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_QUARTER_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_WEEK_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_WEEK_END_US;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_WEEK_OPEN_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_WEEK_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_WEEK_START_US;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_YEAR_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.NEXT_YEAR_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PIPELINE_DATE_FROM;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PIPELINE_DATE_TO;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PIPELINE_NAME;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_ENTRY_NR;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_EXIT_STATUS;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_IS_STOPPED;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_LOG_TEXT;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_ERRORS;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_FILES;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_FILES_RETRIEVED;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_LINES_DELETED;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_LINES_INPUT;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_LINES_OUTPUT;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_LINES_READ;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_LINES_REJECTED;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_LINES_UPDATED;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_LINES_WRITTEN;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_NR_ROWS;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREVIOUS_RESULT_RESULT;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_DAY_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_DAY_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_MONTH_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_MONTH_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_QUARTER_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_QUARTER_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_WEEK_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_WEEK_END_US;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_WEEK_OPEN_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_WEEK_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_WEEK_START_US;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_YEAR_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.PREV_YEAR_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.SYSTEM_DATE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.SYSTEM_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_DAY_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_DAY_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_MONTH_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_MONTH_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_QUARTER_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_QUARTER_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_WEEK_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_WEEK_END_US;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_WEEK_OPEN_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_WEEK_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_WEEK_START_US;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_YEAR_END;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.THIS_YEAR_START;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.TOTAL_PHYSICAL_MEMORY_SIZE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.TOTAL_SWAP_SPACE_SIZE;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.WORKFLOW_DATE_FROM;
+import static org.apache.hop.pipeline.transforms.systemdata.SystemDataType.WORKFLOW_DATE_TO;
+
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -39,8 +124,24 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/** Get information from the System or the supervising pipeline. */
+/**
+ * Get information from the System or the supervising pipeline.
+ *
+ * <p>The transform supports a wide range of system data types (see {@link SystemDataType}),
+ * including:
+ *
+ * <ul>
+ *   <li>Pipeline and workflow execution timestamps
+ *   <li>Date/time boundaries (day, week, month, quarter, year)
+ *   <li>JVM and system metrics (memory, CPU, processors)
+ *   <li>Environment information (hostname, IP, PID)
+ *   <li>Previous execution result statistics
+ * </ul>
+ */
 public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
+  private final Map<SystemDataType, ThrowingSupplier<Object>> resolvers =
+      new EnumMap<>(SystemDataType.class);
+
   public SystemData(
       TransformMeta transformMeta,
       SystemDataMeta meta,
@@ -51,621 +152,363 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  /** Initializes the transform and prepares all field resolvers. */
+  @Override
+  public boolean init() {
+    if (super.init()) {
+      List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
+      if (!Utils.isEmpty(previous)) {
+        data.readsRows = true;
+      }
+
+      initResolvers();
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public boolean processRow() throws HopException {
+    Object[] row;
+    if (data.readsRows) {
+      row = getRow();
+      if (row == null) {
+        setOutputDone();
+        return false;
+      }
+
+      if (first) {
+        first = false;
+        data.outputRowMeta = getInputRowMeta().clone();
+        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+      }
+
+    } else {
+      // empty row
+      row = new Object[] {};
+      incrementLinesRead();
+
+      if (first) {
+        first = false;
+        data.outputRowMeta = new RowMeta();
+        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+      }
+    }
+
+    IRowMeta imeta = getInputRowMeta();
+    if (imeta == null) {
+      imeta = new RowMeta();
+      this.setInputRowMeta(imeta);
+    }
+
+    row = getSystemData(imeta, row);
+
+    if (isRowLevel()) {
+      logRowlevel("System info returned: " + data.outputRowMeta.getString(row));
+    }
+
+    putRow(data.outputRowMeta, row);
+
+    if (!data.readsRows) {
+      // Just one row and then stop!
+      setOutputDone();
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Populates system data fields into the output row.
+   *
+   * <p>This method iterates over configured fields and resolves each value using the corresponding
+   * resolver.
+   *
+   * @param inputRowMeta metadata of the input row
+   * @param inputRowData input row data
+   * @return a new row containing original data plus system fields
+   * @throws HopException if value resolution fails
+   */
   private Object[] getSystemData(IRowMeta inputRowMeta, Object[] inputRowData) throws HopException {
     Object[] row = RowDataUtil.createResizedCopy(inputRowData, data.outputRowMeta.size());
 
     for (int i = 0, index = inputRowMeta.size(); i < meta.getFields().size(); i++, index++) {
       SystemDataMeta.SystemInfoField field = meta.getFields().get(i);
-      Calendar cal;
+      row[index] = resolveFieldValue(field.getFieldType());
+    }
+    return row;
+  }
 
-      switch (field.getFieldType()) {
-        case SYSTEM_START, PIPELINE_DATE_TO:
-          row[index] = getPipeline().getExecutionStartDate();
-          break;
-        case SYSTEM_DATE:
-          row[index] = new Date();
-          break;
-        case PIPELINE_DATE_FROM:
-          row[index] =
-              calculateStartRange(
-                  getPipeline().getPipelineRunConfiguration().getExecutionInfoLocationName(),
-                  ExecutionType.Pipeline,
-                  getPipeline().getPipelineMeta().getName());
-          break;
-        case WORKFLOW_DATE_FROM:
-          if (getPipeline().getParentWorkflow() != null) {
-            row[index] =
-                calculateStartRange(
-                    getPipeline()
-                        .getParentWorkflow()
-                        .getWorkflowRunConfiguration()
-                        .getExecutionInfoLocationName(),
-                    ExecutionType.Workflow,
-                    getPipeline().getParentWorkflow().getWorkflowMeta().getName());
-          }
-          break;
-        case WORKFLOW_DATE_TO:
-          row[index] = getPipeline().getParentWorkflow().getExecutionStartDate();
-          break;
-        case PREV_DAY_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.DAY_OF_MONTH, -1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case PREV_DAY_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.DAY_OF_MONTH, -1);
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case THIS_DAY_START:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case THIS_DAY_END:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_DAY_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_DAY_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case PREV_MONTH_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, -1);
-          cal.set(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case PREV_MONTH_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, -1);
-          cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case THIS_MONTH_START:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case THIS_MONTH_END:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_MONTH_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, 1);
-          cal.set(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_MONTH_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, 1);
-          cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case COPYNR:
-          row[index] = (long) getCopy();
-          break;
-        case PIPELINE_NAME:
-          row[index] = getPipelineMeta().getName();
-          break;
-        case MODIFIED_USER:
-          row[index] = getPipelineMeta().getModifiedUser();
-          break;
-        case MODIFIED_DATE:
-          row[index] = getPipelineMeta().getModifiedDate();
-          break;
-        case HOSTNAME_REAL:
-          row[index] = Const.getHostnameReal();
-          break;
-        case HOSTNAME:
-          row[index] = Const.getHostname();
-          break;
-        case IP_ADDRESS:
-          try {
-            row[index] = Const.getIPAddress();
-          } catch (Exception e) {
-            throw new HopException(e);
-          }
-          break;
-        case FILENAME:
-          row[index] = getPipelineMeta().getFilename();
-          break;
-        case CURRENT_PID:
-          row[index] = Management.getPID();
-          break;
-        case JVM_TOTAL_MEMORY:
-          row[index] = Runtime.getRuntime().totalMemory();
-          break;
-        case JVM_FREE_MEMORY:
-          row[index] = Runtime.getRuntime().freeMemory();
-          break;
-        case JVM_MAX_MEMORY:
-          row[index] = Runtime.getRuntime().maxMemory();
-          break;
-        case JVM_AVAILABLE_MEMORY:
-          Runtime rt = Runtime.getRuntime();
-          row[index] = rt.freeMemory() + (rt.maxMemory() - rt.totalMemory());
-          break;
-        case AVAILABLE_PROCESSORS:
-          row[index] = (long) Runtime.getRuntime().availableProcessors();
-          break;
-        case JVM_CPU_TIME:
-          row[index] = Management.getJVMCpuTime() / 1000000;
-          break;
-        case TOTAL_PHYSICAL_MEMORY_SIZE:
-          row[index] = Management.getTotalPhysicalMemorySize();
-          break;
-        case TOTAL_SWAP_SPACE_SIZE:
-          row[index] = Management.getTotalSwapSpaceSize();
-          break;
-        case COMMITTED_VIRTUAL_MEMORY_SIZE:
-          row[index] = Management.getCommittedVirtualMemorySize();
-          break;
-        case FREE_PHYSICAL_MEMORY_SIZE:
-          row[index] = Management.getFreePhysicalMemorySize();
-          break;
-        case FREE_SWAP_SPACE_SIZE:
-          row[index] = Management.getFreeSwapSpaceSize();
-          break;
+  /**
+   * Initializes all resolver mappings for supported {@link SystemDataType}.
+   *
+   * <p>This method registers suppliers for:
+   *
+   * <ul>
+   *   <li>Core system fields (dates, pipeline info)
+   *   <li>Date boundary calculations
+   *   <li>JVM metrics
+   *   <li>Previous execution results
+   * </ul>
+   *
+   * <p>Initialization is idempotent and executed only once.
+   */
+  private void initResolvers() {
+    if (!resolvers.isEmpty()) {
+      return;
+    }
+    resolvers.put(SYSTEM_START, () -> getPipeline().getExecutionStartDate());
+    resolvers.put(PIPELINE_DATE_TO, () -> getPipeline().getExecutionStartDate());
+    resolvers.put(SYSTEM_DATE, Date::new);
+    resolvers.put(PIPELINE_DATE_FROM, this::pipelineDateFrom);
+    resolvers.put(WORKFLOW_DATE_FROM, this::workflowDateFrom);
+    resolvers.put(WORKFLOW_DATE_TO, this::workflowDateTo);
 
-        case PREV_WEEK_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.WEEK_OF_YEAR, -1);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case PREV_WEEK_END:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          row[index] = cal.getTime();
-          break;
-        case PREV_WEEK_OPEN_END:
-          cal = Calendar.getInstance(Locale.ROOT);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          cal.add(Calendar.DAY_OF_WEEK, -1);
-          row[index] = cal.getTime();
-          break;
-        case PREV_WEEK_START_US:
-          cal = Calendar.getInstance(Locale.US);
-          cal.add(Calendar.WEEK_OF_YEAR, -1);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case PREV_WEEK_END_US:
-          cal = Calendar.getInstance(Locale.US);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          row[index] = cal.getTime();
-          break;
-        case THIS_WEEK_START:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case THIS_WEEK_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.WEEK_OF_YEAR, 1);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          row[index] = cal.getTime();
-          break;
-        case THIS_WEEK_OPEN_END:
-          cal = Calendar.getInstance(Locale.ROOT);
-          cal.add(Calendar.WEEK_OF_YEAR, 1);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          cal.add(Calendar.DAY_OF_WEEK, -1);
-          row[index] = cal.getTime();
-          break;
-        case THIS_WEEK_START_US:
-          cal = Calendar.getInstance(Locale.US);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case THIS_WEEK_END_US:
-          cal = Calendar.getInstance(Locale.US);
-          cal.add(Calendar.WEEK_OF_YEAR, 1);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_WEEK_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.WEEK_OF_YEAR, 1);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_WEEK_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.WEEK_OF_YEAR, 2);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_WEEK_OPEN_END:
-          cal = Calendar.getInstance(Locale.ROOT);
-          cal.add(Calendar.WEEK_OF_YEAR, 2);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          cal.add(Calendar.DAY_OF_WEEK, -1);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_WEEK_START_US:
-          cal = Calendar.getInstance(Locale.US);
-          cal.add(Calendar.WEEK_OF_YEAR, 1);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_WEEK_END_US:
-          cal = Calendar.getInstance(Locale.US);
-          cal.add(Calendar.WEEK_OF_YEAR, 2);
-          cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, -1);
-          row[index] = cal.getTime();
-          break;
-        case PREV_QUARTER_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, -3 - (cal.get(Calendar.MONTH) % 3));
-          cal.set(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case PREV_QUARTER_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, -1 - (cal.get(Calendar.MONTH) % 3));
-          cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DATE));
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case THIS_QUARTER_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, -(cal.get(Calendar.MONTH) % 3));
-          cal.set(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case THIS_QUARTER_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, 2 - (cal.get(Calendar.MONTH) % 3));
-          cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DATE));
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_QUARTER_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, 3 - (cal.get(Calendar.MONTH) % 3));
-          cal.set(Calendar.DAY_OF_MONTH, 1);
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_QUARTER_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, 5 - (cal.get(Calendar.MONTH) % 3));
-          cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DATE));
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case PREV_YEAR_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.YEAR, -1);
-          cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case PREV_YEAR_END:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
-          cal.add(Calendar.DAY_OF_YEAR, -1);
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case THIS_YEAR_START:
-          cal = Calendar.getInstance();
-          cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case THIS_YEAR_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.YEAR, 1);
-          cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
-          cal.add(Calendar.DAY_OF_YEAR, -1);
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_YEAR_START:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.YEAR, 1);
-          cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
-          cal.set(Calendar.HOUR_OF_DAY, 0);
-          cal.set(Calendar.MINUTE, 0);
-          cal.set(Calendar.SECOND, 0);
-          cal.set(Calendar.MILLISECOND, 0);
-          row[index] = cal.getTime();
-          break;
-        case NEXT_YEAR_END:
-          cal = Calendar.getInstance();
-          cal.add(Calendar.YEAR, 2);
-          cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
-          cal.add(Calendar.DAY_OF_YEAR, -1);
-          cal.set(Calendar.HOUR_OF_DAY, 23);
-          cal.set(Calendar.MINUTE, 59);
-          cal.set(Calendar.SECOND, 59);
-          cal.set(Calendar.MILLISECOND, 999);
-          row[index] = cal.getTime();
-          break;
-        case PREVIOUS_RESULT_RESULT:
-          Result previousResultResult = getPipeline().getPreviousResult();
-          boolean result = false;
-          if (previousResultResult != null) {
-            result = previousResultResult.isResult();
-          }
-          row[index] = result;
-          break;
-        case PREVIOUS_RESULT_EXIT_STATUS:
-          Result previousResultExitStatus = getPipeline().getPreviousResult();
-          long exitStatus = 0;
-          if (previousResultExitStatus != null) {
-            exitStatus = previousResultExitStatus.getExitStatus();
-          }
-          row[index] = exitStatus;
-          break;
-        case PREVIOUS_RESULT_ENTRY_NR:
-          Result previousResultEntryNr = getPipeline().getPreviousResult();
-          long entryNr = 0;
-          if (previousResultEntryNr != null) {
-            entryNr = previousResultEntryNr.getEntryNr();
-          }
-          row[index] = entryNr;
-          break;
-        case PREVIOUS_RESULT_NR_FILES:
-          Result previousResultNrFiles = getPipeline().getPreviousResult();
-          long nrFiles = 0;
-          if (previousResultNrFiles != null) {
-            nrFiles = previousResultNrFiles.getResultFiles().size();
-          }
-          row[index] = nrFiles;
-          break;
-        case PREVIOUS_RESULT_NR_FILES_RETRIEVED:
-          Result previousResultNrFilesRetrieves = getPipeline().getPreviousResult();
-          long nrFilesRetrieved = 0;
-          if (previousResultNrFilesRetrieves != null) {
-            nrFilesRetrieved = previousResultNrFilesRetrieves.getNrFilesRetrieved();
-          }
-          row[index] = nrFilesRetrieved;
-          break;
-        case PREVIOUS_RESULT_NR_LINES_DELETED:
-          Result previousResultNrLinesDeleted = getPipeline().getPreviousResult();
-          long nrLinesDeleted = 0;
-          if (previousResultNrLinesDeleted != null) {
-            nrLinesDeleted = previousResultNrLinesDeleted.getNrLinesDeleted();
-          }
-          row[index] = nrLinesDeleted;
-          break;
-        case PREVIOUS_RESULT_NR_LINES_INPUT:
-          Result previousResultNrLinesInput = getPipeline().getPreviousResult();
-          long nrLinesInput = 0;
-          if (previousResultNrLinesInput != null) {
-            nrLinesInput = previousResultNrLinesInput.getNrLinesInput();
-          }
-          row[index] = nrLinesInput;
-          break;
-        case PREVIOUS_RESULT_NR_LINES_OUTPUT:
-          Result previousResultNrLinesOutput = getPipeline().getPreviousResult();
-          long nrLinesOutput = 0;
-          if (previousResultNrLinesOutput != null) {
-            nrLinesOutput = previousResultNrLinesOutput.getNrLinesOutput();
-          }
-          row[index] = nrLinesOutput;
-          break;
-        case PREVIOUS_RESULT_NR_LINES_READ:
-          Result previousResultNrLinesRead = getPipeline().getPreviousResult();
-          long nrLinesRead = 0;
-          if (previousResultNrLinesRead != null) {
-            nrLinesRead = previousResultNrLinesRead.getNrLinesRead();
-          }
-          row[index] = nrLinesRead;
-          break;
-        case PREVIOUS_RESULT_NR_LINES_REJECTED:
-          Result previousResultNrLinesRejected = getPipeline().getPreviousResult();
-          long nrLinesRejected = 0;
-          if (previousResultNrLinesRejected != null) {
-            nrLinesRejected = previousResultNrLinesRejected.getNrLinesRejected();
-          }
-          row[index] = nrLinesRejected;
-          break;
-        case PREVIOUS_RESULT_NR_LINES_UPDATED:
-          Result previousResultNrLinesUpdated = getPipeline().getPreviousResult();
-          long nrLinesUpdated = 0;
-          if (previousResultNrLinesUpdated != null) {
-            nrLinesUpdated = previousResultNrLinesUpdated.getNrLinesUpdated();
-          }
-          row[index] = nrLinesUpdated;
-          break;
-        case PREVIOUS_RESULT_NR_LINES_WRITTEN:
-          Result previousResultNrLinesWritten = getPipeline().getPreviousResult();
-          long nrLinesWritten = 0;
-          if (previousResultNrLinesWritten != null) {
-            nrLinesWritten = previousResultNrLinesWritten.getNrLinesWritten();
-          }
-          row[index] = nrLinesWritten;
-          break;
-        case PREVIOUS_RESULT_NR_ROWS:
-          Result previousResultNrRows = getPipeline().getPreviousResult();
-          long nrRows = 0;
-          if (previousResultNrRows != null) {
-            nrRows = previousResultNrRows.getRows().size();
-          }
-          row[index] = nrRows;
-          break;
-        case PREVIOUS_RESULT_IS_STOPPED:
-          Result previousResultIsStopped = getPipeline().getPreviousResult();
-          boolean stop = false;
-          if (previousResultIsStopped != null) {
-            stop = previousResultIsStopped.isStopped();
-          }
-          row[index] = stop;
-          break;
-        case PREVIOUS_RESULT_NR_ERRORS:
-          Result previousResultNrErrors = getPipeline().getPreviousResult();
-          long nrErrors = 0;
-          if (previousResultNrErrors != null) {
-            nrErrors = previousResultNrErrors.getNrErrors();
-          }
-          row[index] = nrErrors;
-          break;
-        case PREVIOUS_RESULT_LOG_TEXT:
-          Result previousResultLogText = getPipeline().getPreviousResult();
-          String errorReason = null;
-          if (previousResultLogText != null) {
-            errorReason = previousResultLogText.getLogText();
-          }
-          row[index] = errorReason;
-          break;
-        default:
-          break;
+    resolvers.put(PREV_DAY_START, () -> dayBoundary(-1, true));
+    resolvers.put(PREV_DAY_END, () -> dayBoundary(-1, false));
+    resolvers.put(THIS_DAY_START, () -> dayBoundary(0, true));
+    resolvers.put(THIS_DAY_END, () -> dayBoundary(0, false));
+    resolvers.put(NEXT_DAY_START, () -> dayBoundary(1, true));
+    resolvers.put(NEXT_DAY_END, () -> dayBoundary(1, false));
+
+    resolvers.put(PREV_MONTH_START, () -> monthBoundary(-1, true));
+    resolvers.put(PREV_MONTH_END, () -> monthBoundary(-1, false));
+    resolvers.put(THIS_MONTH_START, () -> monthBoundary(0, true));
+    resolvers.put(THIS_MONTH_END, () -> monthBoundary(0, false));
+    resolvers.put(NEXT_MONTH_START, () -> monthBoundary(1, true));
+    resolvers.put(NEXT_MONTH_END, () -> monthBoundary(1, false));
+
+    resolvers.put(PREV_WEEK_START, () -> weekBoundary(-1, Locale.getDefault(), true, false));
+    resolvers.put(PREV_WEEK_END, () -> weekBoundary(-1, Locale.getDefault(), false, false));
+    resolvers.put(PREV_WEEK_OPEN_END, () -> weekBoundary(-1, Locale.ROOT, false, true));
+    resolvers.put(PREV_WEEK_START_US, () -> weekBoundary(-1, Locale.US, true, false));
+    resolvers.put(PREV_WEEK_END_US, () -> weekBoundary(-1, Locale.US, false, false));
+    resolvers.put(THIS_WEEK_START, () -> weekBoundary(0, Locale.getDefault(), true, false));
+    resolvers.put(THIS_WEEK_END, () -> weekBoundary(0, Locale.getDefault(), false, false));
+    resolvers.put(THIS_WEEK_OPEN_END, () -> weekBoundary(0, Locale.ROOT, false, true));
+    resolvers.put(THIS_WEEK_START_US, () -> weekBoundary(0, Locale.US, true, false));
+    resolvers.put(THIS_WEEK_END_US, () -> weekBoundary(0, Locale.US, false, false));
+    resolvers.put(NEXT_WEEK_START, () -> weekBoundary(1, Locale.getDefault(), true, false));
+    resolvers.put(NEXT_WEEK_END, () -> weekBoundary(1, Locale.getDefault(), false, false));
+    resolvers.put(NEXT_WEEK_OPEN_END, () -> weekBoundary(1, Locale.ROOT, false, true));
+    resolvers.put(NEXT_WEEK_START_US, () -> weekBoundary(1, Locale.US, true, false));
+    resolvers.put(NEXT_WEEK_END_US, () -> weekBoundary(1, Locale.US, false, false));
+
+    resolvers.put(PREV_QUARTER_START, () -> quarterBoundary(-1, true));
+    resolvers.put(PREV_QUARTER_END, () -> quarterBoundary(-1, false));
+    resolvers.put(THIS_QUARTER_START, () -> quarterBoundary(0, true));
+    resolvers.put(THIS_QUARTER_END, () -> quarterBoundary(0, false));
+    resolvers.put(NEXT_QUARTER_START, () -> quarterBoundary(1, true));
+    resolvers.put(NEXT_QUARTER_END, () -> quarterBoundary(1, false));
+
+    resolvers.put(PREV_YEAR_START, () -> yearBoundary(-1, true));
+    resolvers.put(PREV_YEAR_END, () -> yearBoundary(-1, false));
+    resolvers.put(THIS_YEAR_START, () -> yearBoundary(0, true));
+    resolvers.put(THIS_YEAR_END, () -> yearBoundary(0, false));
+    resolvers.put(NEXT_YEAR_START, () -> yearBoundary(1, true));
+    resolvers.put(NEXT_YEAR_END, () -> yearBoundary(1, false));
+
+    resolvers.put(COPYNR, () -> (long) getCopy());
+    resolvers.put(PIPELINE_NAME, () -> getPipelineMeta().getName());
+    resolvers.put(FILENAME, () -> getPipelineMeta().getFilename());
+    resolvers.put(MODIFIED_USER, () -> getPipelineMeta().getModifiedUser());
+    resolvers.put(MODIFIED_DATE, () -> getPipelineMeta().getModifiedDate());
+    resolvers.put(HOSTNAME_REAL, Const::getHostnameReal);
+    resolvers.put(HOSTNAME, Const::getHostname);
+    resolvers.put(IP_ADDRESS, this::safeIpAddress);
+    resolvers.put(CURRENT_PID, Management::getPID);
+
+    // init jvm
+    initResolversJvm();
+    // init resolver result
+    initResolversResult();
+  }
+
+  private void initResolversJvm() {
+    resolvers.put(JVM_TOTAL_MEMORY, () -> Runtime.getRuntime().totalMemory());
+    resolvers.put(JVM_FREE_MEMORY, () -> Runtime.getRuntime().freeMemory());
+    resolvers.put(JVM_MAX_MEMORY, () -> Runtime.getRuntime().maxMemory());
+    resolvers.put(JVM_AVAILABLE_MEMORY, this::jvmAvailableMemory);
+    resolvers.put(AVAILABLE_PROCESSORS, () -> (long) Runtime.getRuntime().availableProcessors());
+    resolvers.put(JVM_CPU_TIME, () -> Management.getJVMCpuTime() / 1000000);
+    resolvers.put(TOTAL_PHYSICAL_MEMORY_SIZE, Management::getTotalPhysicalMemorySize);
+    resolvers.put(TOTAL_SWAP_SPACE_SIZE, Management::getTotalSwapSpaceSize);
+    resolvers.put(COMMITTED_VIRTUAL_MEMORY_SIZE, Management::getCommittedVirtualMemorySize);
+    resolvers.put(FREE_PHYSICAL_MEMORY_SIZE, Management::getFreePhysicalMemorySize);
+    resolvers.put(FREE_SWAP_SPACE_SIZE, Management::getFreeSwapSpaceSize);
+  }
+
+  private void initResolversResult() {
+    resolvers.put(
+        PREVIOUS_RESULT_RESULT, () -> previousResult() != null && previousResult().isResult());
+    resolvers.put(PREVIOUS_RESULT_EXIT_STATUS, fromPreResult(Result::getExitStatus, 0L));
+    resolvers.put(PREVIOUS_RESULT_ENTRY_NR, fromPreResult(Result::getEntryNr, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_FILES, fromPreResult(r -> r.getResultFiles().size(), 0L));
+    resolvers.put(
+        PREVIOUS_RESULT_NR_FILES_RETRIEVED, fromPreResult(Result::getNrFilesRetrieved, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_LINES_DELETED, fromPreResult(Result::getNrLinesDeleted, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_LINES_INPUT, fromPreResult(Result::getNrLinesInput, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_LINES_OUTPUT, fromPreResult(Result::getNrLinesOutput, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_LINES_READ, fromPreResult(Result::getNrLinesRead, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_LINES_REJECTED, fromPreResult(Result::getNrLinesRejected, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_LINES_UPDATED, fromPreResult(Result::getNrLinesUpdated, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_LINES_WRITTEN, fromPreResult(Result::getNrLinesWritten, 0L));
+    resolvers.put(PREVIOUS_RESULT_NR_ROWS, fromPreResult(r -> r.getRows().size(), 0L));
+    resolvers.put(
+        PREVIOUS_RESULT_IS_STOPPED, () -> previousResult() != null && previousResult().isStopped());
+    resolvers.put(PREVIOUS_RESULT_NR_ERRORS, fromPreResult(Result::getNrErrors, 0L));
+    resolvers.put(PREVIOUS_RESULT_LOG_TEXT, fromPreResult(Result::getLogText, null));
+  }
+
+  /**
+   * Creates a resolver that extracts a value from the previous execution result.
+   *
+   * <p>If the previous result is {@code null}, the provided default value is returned.
+   *
+   * @param func function to extract value from {@link Result}
+   * @param defaultValue fallback value when result is not available
+   * @param <T> return type
+   * @return a supplier that safely resolves the value
+   */
+  private <T> ThrowingSupplier<T> fromPreResult(Function<Result, T> func, T defaultValue) {
+    return () -> {
+      Result r = previousResult();
+      return r == null ? defaultValue : func.apply(r);
+    };
+  }
+
+  /**
+   * Resolves the value for a given system data type.
+   *
+   * @param type the system data type
+   * @return the resolved value, or {@code null} if no resolver exists
+   * @throws HopException if resolution fails
+   */
+  private Object resolveFieldValue(SystemDataType type) throws HopException {
+    ThrowingSupplier<Object> supplier = resolvers.get(type);
+    return supplier == null ? null : supplier.get();
+  }
+
+  private Date pipelineDateFrom() throws HopException {
+    return calculateStartRange(
+        getPipeline().getPipelineRunConfiguration().getExecutionInfoLocationName(),
+        ExecutionType.Pipeline,
+        getPipeline().getPipelineMeta().getName());
+  }
+
+  private Date workflowDateFrom() throws HopException {
+    if (getPipeline().getParentWorkflow() == null) {
+      return null;
+    }
+    return calculateStartRange(
+        getPipeline()
+            .getParentWorkflow()
+            .getWorkflowRunConfiguration()
+            .getExecutionInfoLocationName(),
+        ExecutionType.Workflow,
+        getPipeline().getParentWorkflow().getWorkflowMeta().getName());
+  }
+
+  private Date workflowDateTo() {
+    return getPipeline().getParentWorkflow() == null
+        ? null
+        : getPipeline().getParentWorkflow().getExecutionStartDate();
+  }
+
+  /**
+   * Computes the start or end of a day relative to the current date.
+   *
+   * @param dayOffset offset from current day (e.g., -1 = previous day)
+   * @param start {@code true} for start of day, {@code false} for end of day
+   * @return calculated date
+   */
+  private Date dayBoundary(int dayOffset, boolean start) {
+    Calendar cal = Calendar.getInstance();
+    cal.add(Calendar.DAY_OF_MONTH, dayOffset);
+    setDayTime(cal, start);
+    return cal.getTime();
+  }
+
+  private Date monthBoundary(int monthOffset, boolean start) {
+    Calendar cal = Calendar.getInstance();
+    cal.add(Calendar.MONTH, monthOffset);
+    cal.set(Calendar.DAY_OF_MONTH, start ? 1 : cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    setDayTime(cal, start);
+    return cal.getTime();
+  }
+
+  private Date weekBoundary(int weekOffset, Locale locale, boolean start, boolean openEnd) {
+    Calendar cal =
+        locale == null || Locale.getDefault().equals(locale)
+            ? Calendar.getInstance()
+            : Calendar.getInstance(locale);
+    if (start) {
+      cal.add(Calendar.WEEK_OF_YEAR, weekOffset);
+      cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+      setDayTime(cal, true);
+    } else {
+      cal.add(Calendar.WEEK_OF_YEAR, weekOffset + 1);
+      cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+      cal.set(Calendar.HOUR_OF_DAY, 0);
+      cal.set(Calendar.MINUTE, 0);
+      cal.set(Calendar.SECOND, 0);
+      cal.set(Calendar.MILLISECOND, -1);
+      if (openEnd) {
+        cal.add(Calendar.DAY_OF_WEEK, -1);
       }
     }
+    return cal.getTime();
+  }
 
-    return row;
+  private Date quarterBoundary(int quarterOffset, boolean start) {
+    Calendar cal = Calendar.getInstance();
+    int monthShift =
+        start
+            ? (quarterOffset * 3) - (cal.get(Calendar.MONTH) % 3)
+            : (quarterOffset * 3 + 2) - (cal.get(Calendar.MONTH) % 3);
+    cal.add(Calendar.MONTH, monthShift);
+    cal.set(Calendar.DAY_OF_MONTH, start ? 1 : cal.getActualMaximum(Calendar.DATE));
+    setDayTime(cal, start);
+    return cal.getTime();
+  }
+
+  private Date yearBoundary(int yearOffset, boolean start) {
+    Calendar cal = Calendar.getInstance();
+    if (start) {
+      cal.add(Calendar.YEAR, yearOffset);
+      cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
+      setDayTime(cal, true);
+    } else {
+      cal.add(Calendar.YEAR, yearOffset + 1);
+      cal.set(Calendar.DAY_OF_YEAR, cal.getActualMinimum(Calendar.DATE));
+      cal.add(Calendar.DAY_OF_YEAR, -1);
+      setDayTime(cal, false);
+    }
+    return cal.getTime();
+  }
+
+  private void setDayTime(Calendar cal, boolean start) {
+    cal.set(Calendar.HOUR_OF_DAY, start ? 0 : 23);
+    cal.set(Calendar.MINUTE, start ? 0 : 59);
+    cal.set(Calendar.SECOND, start ? 0 : 59);
+    cal.set(Calendar.MILLISECOND, start ? 0 : 999);
+  }
+
+  private Object safeIpAddress() throws HopException {
+    try {
+      return Const.getIPAddress();
+    } catch (Exception e) {
+      throw new HopException(e);
+    }
+  }
+
+  private long jvmAvailableMemory() {
+    Runtime rt = Runtime.getRuntime();
+    return rt.freeMemory() + (rt.maxMemory() - rt.totalMemory());
+  }
+
+  private Result previousResult() {
+    return getPipeline().getPreviousResult();
   }
 
   /** Calculate the start of the data range for a pipeline. */
@@ -703,66 +546,14 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
     return metadataProvider.getSerializer(ExecutionInfoLocation.class).load(resolve(locationName));
   }
 
-  @Override
-  public boolean processRow() throws HopException {
-    Object[] row;
-    if (data.readsRows) {
-      row = getRow();
-      if (row == null) {
-        setOutputDone();
-        return false;
-      }
-
-      if (first) {
-        first = false;
-        data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-      }
-
-    } else {
-      row = new Object[] {}; // empty row
-      incrementLinesRead();
-
-      if (first) {
-        first = false;
-        data.outputRowMeta = new RowMeta();
-        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-      }
-    }
-
-    IRowMeta imeta = getInputRowMeta();
-    if (imeta == null) {
-      imeta = new RowMeta();
-      this.setInputRowMeta(imeta);
-    }
-
-    row = getSystemData(imeta, row);
-
-    if (isRowLevel()) {
-      logRowlevel("System info returned: " + data.outputRowMeta.getString(row));
-    }
-
-    putRow(data.outputRowMeta, row);
-
-    if (!data.readsRows) {
-      // Just one row and then stop!
-      setOutputDone();
-      return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public boolean init() {
-    if (super.init()) {
-      List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (!Utils.isEmpty(previous)) {
-        data.readsRows = true;
-      }
-
-      return true;
-    }
-    return false;
+  /**
+   * Functional interface similar to {@link java.util.function.Supplier}, but allows throwing {@link
+   * HopException}.
+   *
+   * @param <T> supplied value type
+   */
+  @FunctionalInterface
+  private interface ThrowingSupplier<T> {
+    T get() throws HopException;
   }
 }
