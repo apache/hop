@@ -18,9 +18,13 @@
 package org.apache.hop.pipeline.transforms.delete;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
+@Getter
+@Setter
 public class DeleteKeyField {
 
   /** which field in input stream to compare with? */
@@ -65,42 +69,14 @@ public class DeleteKeyField {
     this.keyStream2 = f.keyStream2;
   }
 
-  public String getKeyStream() {
-    return keyStream;
-  }
-
-  public void setKeyStream(String keyStream) {
-    this.keyStream = keyStream;
-  }
-
-  public String getKeyLookup() {
-    return keyLookup;
-  }
-
-  public void setKeyLookup(String keyLookup) {
-    this.keyLookup = keyLookup;
-  }
-
-  public String getKeyCondition() {
-    return keyCondition;
-  }
-
-  public void setKeyCondition(String keyCondition) {
-    this.keyCondition = keyCondition;
-  }
-
-  public String getKeyStream2() {
-    return keyStream2;
-  }
-
-  public void setKeyStream2(String keyStream2) {
-    this.keyStream2 = keyStream2;
-  }
-
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     DeleteKeyField that = (DeleteKeyField) o;
     return keyStream.equals(that.keyStream)
         && keyLookup.equals(that.keyLookup)
