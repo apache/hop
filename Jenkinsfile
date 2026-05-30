@@ -113,6 +113,21 @@ pipeline {
                 }
             }
         }
+        stage('UI Tests (SWTBot)') {
+            when {
+                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
+                }
+            steps {
+                echo 'Running SWTBot UI tests under Xvfb'
+                sh "xvfb-run -a --server-args='-screen 0 1280x1024x24' mvn $MAVEN_PARAMS -Puitest -Dassemblies=false -Djacoco.skip=true test"
+            }
+            post {
+                always {
+                    junit(testResults: '**/surefire-reports/*.xml', allowEmptyResults: true)
+                    archiveArtifacts(artifacts: '**/screenshots/**', allowEmptyArchive: true)
+                }
+            }
+        }
         stage('Unzip Apache Hop'){
             when {
                   anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }

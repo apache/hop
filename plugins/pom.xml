@@ -85,5 +85,41 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
+        <!-- SWTBot UI-test stack, available to any plugin that adds a @Tag("uitest") test extending
+             org.apache.hop.ui.testing.SwtBotTestBase. hop-ui/core/engine/SWT are already provided
+             above; these add the harness, the standalone look-and-feel impls, and the SWTBot jars
+             (hamcrest/slf4j/junit4 come transitively from the swtbot wrapper). All test-scope, so
+             non-UI plugins carry them on the test classpath only and are otherwise unaffected. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui-rcp</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>org.eclipse.swtbot.swt.finder</artifactId>
+            <version>${swtbot.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>org.eclipse.swtbot.swt.finder</artifactId>
+            <version>${swtbot.version}</version>
+            <classifier>junit5</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <!-- The SWTBot UI-test stack above is on every plugin's test classpath. The @Tag("uitest")
+         gating and the uitest / swtbot-mac profiles are inherited from the root pom, so a plugin
+         needs no extra config to add a UI test extending org.apache.hop.ui.testing.SwtBotTestBase. -->
 </project>

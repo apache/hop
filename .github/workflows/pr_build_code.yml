@@ -55,3 +55,37 @@ jobs:
         run: mvn spotless:check
       - name: Build with Maven
         run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Djacoco.skip=true --file pom.xml
+
+  # Add a UI and run the UI tests only
+  ui-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 21
+        uses: actions/setup-java@v1
+        with:
+          java-version: 21
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            ${{ runner.os }}-m2-
+            ${{ runner.os }}-
+      # SWT uses the GTK3 native bindings on Linux; Xvfb provides the virtual display.
+      - name: Install Xvfb and SWT GTK libraries
+        run: sudo apt-get update && sudo apt-get install -y xvfb libgtk-3-0
+      - name: Run SWTBot UI tests under Xvfb
+        run: >
+          xvfb-run -a --server-args="-screen 0 1280x1024x24"
+          mvn -B -V -Puitest -Dassemblies=false -Djacoco.skip=true package
+      - name: Upload SWTBot failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swtbot-screenshots
+          path: '**/screenshots/**'
+          if-no-files-found: ignore
