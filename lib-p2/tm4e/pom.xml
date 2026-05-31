@@ -32,6 +32,7 @@
     <name>Eclipse TM4E Core Wrapper</name>
 
     <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <tm4e.core.download.dir>${project.build.directory}/download</tm4e.core.download.dir>
         <tm4e.core.download.file>org.eclipse.tm4e.core_0.17.2.202511281144.jar</tm4e.core.download.file>
         <tm4e.core.download.url>https://download.eclipse.org/tm4e/releases/0.17.2/plugins/${tm4e.core.download.file}</tm4e.core.download.url>
@@ -141,19 +142,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>apache-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
