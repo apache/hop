@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.ssh;
 
-import com.trilead.ssh2.Connection;
+import com.jcraft.jsch.Session;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -714,20 +714,20 @@ public class SshDialog extends BaseTransformDialog {
   private void test() {
     Exception exception = null;
     String errMsg = null;
-    Connection connection = null;
+    Session session = null;
 
     SshMeta meta = new SshMeta();
     getInfo(meta);
 
     try {
-      connection = SshData.openConnection(variables, meta);
+      session = SshData.openConnection(variables, meta);
     } catch (Exception e) {
       exception = e;
       errMsg = e.getMessage();
     } finally {
-      if (connection != null) {
+      if (session != null) {
         try {
-          connection.close();
+          session.disconnect();
         } catch (Exception e) {
           /* Ignore */
         }

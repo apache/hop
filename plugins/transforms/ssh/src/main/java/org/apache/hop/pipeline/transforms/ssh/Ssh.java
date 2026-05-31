@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.ssh;
 
-import com.trilead.ssh2.Session;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -44,7 +43,6 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
 
   @Override
   public boolean processRow() throws HopException {
-
     Object[] row;
     if (meta.isDynamicCommandField()) {
       row = getRow();
@@ -76,7 +74,8 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
       }
     } else {
       if (!data.wroteOneRow) {
-        row = new Object[] {}; // empty row
+        // empty row
+        row = new Object[] {};
         incrementLinesRead();
         data.wroteOneRow = true;
         if (first) {
@@ -101,12 +100,12 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
     }
     // Reserve room
     Object[] rowData = new Object[data.nrOutputFields];
-    for (int i = 0; i < data.nrInputFields; i++) {
-      rowData[i] = row[i]; // no data is changed, clone is not needed here.
+    // no data is changed, clone is not needed here.
+    if (data.nrInputFields >= 0) {
+      System.arraycopy(row, 0, rowData, 0, data.nrInputFields);
     }
     int index = data.nrInputFields;
 
-    Session session = null;
     try {
       if (meta.isDynamicCommandField()) {
         // get commands
@@ -116,8 +115,6 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
         }
       }
 
-      // Open a session
-      session = data.conn.openSession();
       if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "SSH.Log.SessionOpened"));
       }
@@ -126,10 +123,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "SSH.Log.RunningCommand", data.commands));
       }
-      session.execCommand(data.commands);
-
-      // Read Stdout, Sterr and exitStatus
-      SessionResult sessionresult = new SessionResult(session);
+      SessionResult sessionresult = SessionResult.executeCommand(data.session, data.commands);
       if (isDebug()) {
         logDebug(
             BaseMessages.getString(
@@ -145,7 +139,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
 
       if (!Utils.isEmpty(data.stdTypeField)) {
         // Add stdtype to output
-        rowData[index++] = sessionresult.isStdTypeErr();
+        rowData[index] = sessionresult.isStdErrorType();
       }
 
       if (isRowLevel()) {
@@ -160,30 +154,23 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
         logDetailed(BaseMessages.getString(PKG, "SSH.LineNumber", "" + getLinesRead()));
       }
     } catch (Exception e) {
-
-      boolean sendToErrorRow = false;
       String errorMessage = null;
 
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
         logError(BaseMessages.getString(PKG, "SSH.ErrorInTransformRunning") + e.getMessage());
         setErrors(1);
         stopAll();
-        setOutputDone(); // signal end to receiver(s)
+        // signal end to receiver(s)
+        setOutputDone();
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(getInputRowMeta(), row, 1, errorMessage, null, "SSH001");
-      }
+      // Simply add this row to the error row
+      putError(getInputRowMeta(), row, 1, errorMessage, null, "SSH001");
     } finally {
-      if (session != null) {
-        session.close();
-        if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "SSH.Log.SessionClosed"));
-        }
+      if (isDebug()) {
+        logDebug(BaseMessages.getString(PKG, "SSH.Log.SessionClosed"));
       }
     }
 
@@ -216,7 +203,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
 
       try {
         // Open connection
-        data.conn = SshData.openConnection(this, meta);
+        data.session = SshData.openConnection(this, meta);
 
         if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "SSH.Log.ConnectionOpened"));
@@ -230,5 +217,14 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
       return true;
     }
     return false;
+  }
+
+  @Override
+  public void dispose() {
+    if (data.session != null && data.session.isConnected()) {
+      data.session.disconnect();
+      data.session = null;
+    }
+    super.dispose();
   }
 }
