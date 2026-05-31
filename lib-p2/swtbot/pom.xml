@@ -32,6 +32,7 @@
     <name>Eclipse SWTBot Wrapper</name>
 
     <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <swtbot.download.dir>${project.build.directory}/download</swtbot.download.dir>
         <swtbot.finder.file>org.eclipse.swtbot.swt.finder_4.3.0.202506021445.jar</swtbot.finder.file>
         <swtbot.finder.jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</swtbot.finder.jar>
@@ -144,19 +145,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>apache-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
