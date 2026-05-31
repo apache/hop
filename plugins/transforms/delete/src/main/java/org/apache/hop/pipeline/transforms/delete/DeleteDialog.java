@@ -385,8 +385,7 @@ public class DeleteDialog extends BaseTransformDialog {
    * Updates dialog control states based on the current configuration.
    *
    * <p>Batch deletes are disabled when this transform uses error handling and the selected database
-   * does not support batch updates together with error handling (for example mysql and
-   * look-likes).
+   * does not support batch updates together with error handling (for example mysql and look-likes).
    */
   public void setFlags() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
