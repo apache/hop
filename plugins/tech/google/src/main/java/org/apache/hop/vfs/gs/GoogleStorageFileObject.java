@@ -374,12 +374,8 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       } else {
         page = storage.list(bucketName, BlobListOption.currentDirectory());
       }
-      String selfName = bucketPath.isEmpty() ? "" : appendTrailingSlash(bucketPath);
       Map<String, GoogleStorageListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
       for (Blob b : page.iterateAll()) {
-        if (b.getName().equals(selfName)) {
-          continue;
-        }
         if (this.blob != null && b.getName().equals(this.blob.getName())) {
           continue;
         }
