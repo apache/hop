@@ -89,13 +89,20 @@ unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile -t docker.io/apache/hop:X.XX -t docker.io/apache/hop:latest --push
 
 # Create and push Hop Web
-docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t docker.io/apache/hop-web:X.XX -t docker.io/apache/hop-web:latest --push
+docker buildx build --platform linux/amd64,linux/arm64 . -f docker/web.Dockerfile -t docker.io/apache/hop-web:X.XX -t docker.io/apache/hop-web:latest --push
 
 # Create image
-docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.dataflowTemplate -t docker.io/apache/hop-dataflow-template:X.XX -t docker.io/apache/hop-dataflow-template:latest --push
-docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web-fatjar -t docker.io/apache/hop-web:X.XX-beam -t docker.io/apache/hop-web:latest-beam --push
+docker buildx build --platform linux/amd64,linux/arm64 . -f docker/dataflowTemplate.Dockerfile -t docker.io/apache/hop-dataflow-template:X.XX -t docker.io/apache/hop-dataflow-template:latest --push
+docker buildx build --platform linux/amd64,linux/arm64 . -f docker/web-fatjar.Dockerfile -t docker.io/apache/hop-web:X.XX-beam -t docker.io/apache/hop-web:latest-beam --push
 
 ----
+
+== Update the pre-release in GitHub
+- Go to the  https://github.com/apache/hop/releases[releases page]
+- Edit the pre-release version
+- Add the Hop source code artifacts as attached binaries
+- Mark the Release label as Latest
+- Update the release
 
 == Update the website
 
