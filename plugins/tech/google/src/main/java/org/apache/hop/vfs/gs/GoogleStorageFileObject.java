@@ -204,6 +204,9 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       }
       Map<String, GoogleStorageListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
       for (Blob b : page.iterateAll()) {
+        if (stripTrailingSlash(b.getName()).equals(stripTrailingSlash(bucketPath))) {
+          continue;
+        }
         results.add(lastPathElement(stripTrailingSlash(b.getName())));
         FileType childType = b.isDirectory() ? FileType.FOLDER : FileType.FILE;
         long childSize = b.getSize() != null ? b.getSize() : 0L;
@@ -376,7 +379,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       }
       Map<String, GoogleStorageListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
       for (Blob b : page.iterateAll()) {
-        if (this.blob != null && b.getName().equals(this.blob.getName())) {
+        if (stripTrailingSlash(b.getName()).equals(stripTrailingSlash(bucketPath))) {
           continue;
         }
         FileType childType = b.isDirectory() ? FileType.FOLDER : FileType.FILE;
@@ -387,7 +390,9 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
                 : Instant.EPOCH;
         cacheEntries.put(
             b.getName(), new GoogleStorageListCache.ChildInfo(childType, childSize, childLastMod));
-        results.add(getAbstractFileSystem().resolveFile(bucketName + "/" + b.getName()));
+        results.add(
+            getAbstractFileSystem()
+                .resolveFile("/" + bucketName + "/" + stripTrailingSlash(b.getName())));
       }
       if (!cacheEntries.isEmpty()) {
         getAbstractFileSystem().putListCache(bucketName, prefix, cacheEntries);
