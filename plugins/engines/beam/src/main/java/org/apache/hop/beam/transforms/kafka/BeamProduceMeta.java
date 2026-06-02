@@ -46,12 +46,13 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
 @Transform(
     id = "BeamKafkaProduce",
-    name = "Beam Kafka Produce",
-    description = "Send messages to a Kafka Topic (Producer)",
+    name = "i18n::BeamProduceDialog.DialogTitle",
+    description = "i18n::BeamProduceDialog.Description",
     image = "beam-kafka-output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamProduceMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamkafkaproduce.html")
+    documentationUrl = "/pipeline/transforms/beamkafkaproduce.html",
+    supportedEngines = {"Beam*"})
 public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData>
     implements IBeamPipelineTransformHandler {
 

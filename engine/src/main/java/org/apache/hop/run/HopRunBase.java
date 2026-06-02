@@ -43,6 +43,7 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -52,6 +53,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -60,6 +62,7 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
+import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.ParameterException;
@@ -133,6 +136,14 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       names = {"-o", "--printoptions"},
       description = "Print the used options")
   protected boolean printingOptions = false;
+
+  @CommandLine.Option(
+      names = {"-au", "--allow-unsupported"},
+      description =
+          "Allow running pipelines or workflows that contain transforms or actions marked UNSUPPORTED on the selected engine. "
+              + "By default such runs are rejected at startup with the list of incompatible elements; "
+              + "this flag is the CLI equivalent of the GUI \"Run anyway\" override.")
+  protected boolean allowUnsupported = false;
 
   protected IVariables variables;
   protected String realRunConfigurationName;
@@ -280,6 +291,24 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
               variables, pipelineRunConfigurationName, metadataProvider, pipelineMeta);
       pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
       pipeline.initializeFrom(null);
+
+      List<EngineCompatibilityChecker.Violation> pipelineViolations =
+          EngineCompatibilityChecker.checkPipeline(pipelineMeta, pipeline);
+      gateOnViolations(
+          log,
+          pipelineViolations,
+          "pipeline",
+          pipelineMeta.getName() != null ? pipelineMeta.getName() : realFilename,
+          pipeline.getPluginId());
+
+      // Propagate the CLI --allow-unsupported flag into the variables map so the engine-side deep
+      // gate (Pipeline.prepareExecution + Workflow.executeFromStart) honors it for nested children
+      // (ActionPipeline, PipelineExecutor, WorkflowExecutor, Repeat, ActionWorkflow), which all
+      // thread parent IVariables.
+      if (allowUnsupported) {
+        configuration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
+      }
+
       pipeline.setVariables(configuration.getVariablesMap());
 
       // configure the variables and parameters
@@ -374,6 +403,14 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
           WorkflowEngineFactory.createWorkflowEngine(
               variables, runConfigurationName, metadataProvider, workflowMeta, workflowLog);
       workflow.getWorkflowMeta().setInternalHopVariables(workflow);
+
+      // Propagate the CLI --allow-unsupported flag into the variables map so the engine-side deep
+      // gate (Workflow.executeFromStart) honors it for nested workflow/pipeline executions, which
+      // all thread parent IVariables.
+      if (allowUnsupported) {
+        configuration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
+      }
+
       workflow.setVariables(configuration.getVariablesMap());
 
       // Copy the parameter definitions from the metadata, with empty values
@@ -396,6 +433,17 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
         }
         workflow.setStartActionMeta(startActionMeta);
       }
+
+      List<EngineCompatibilityChecker.Violation> workflowViolations =
+          EngineCompatibilityChecker.checkWorkflow(workflowMeta, workflow);
+      String workflowEngineId =
+          PluginRegistry.getInstance().getPluginId(WorkflowEnginePluginType.class, workflow);
+      gateOnViolations(
+          log,
+          workflowViolations,
+          "workflow",
+          workflowMeta.getName() != null ? workflowMeta.getName() : realFilename,
+          workflowEngineId);
 
       log.logMinimal("Starting workflow: " + workflowMeta.getFilename());
 
@@ -423,6 +471,58 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
 
   protected LogLevel determineLogLevel() {
     return LogLevel.lookupCode(variables.resolve(level));
+  }
+
+  /**
+   * Aborts the run when {@code violations} is non-empty unless {@code --allow-unsupported} was
+   * passed. The CLI equivalent of the GUI's "Run anyway" override — strict by default because
+   * headless contexts (CI, scheduled jobs) want to fail fast rather than silently produce wrong
+   * results.
+   */
+  protected void gateOnViolations(
+      ILogChannel log,
+      List<EngineCompatibilityChecker.Violation> violations,
+      String elementType,
+      String elementName,
+      String engineId)
+      throws HopException {
+    if (violations == null || violations.isEmpty()) {
+      return;
+    }
+    String header =
+        "Engine '"
+            + engineId
+            + "' has "
+            + violations.size()
+            + " incompatible "
+            + (elementType.equals("workflow") ? "action(s)" : "transform(s)")
+            + " in "
+            + elementType
+            + " '"
+            + elementName
+            + "':";
+    String body = EngineCompatibilityChecker.formatViolations(violations);
+    if (allowUnsupported) {
+      log.logMinimal(header + " (overridden via --allow-unsupported)");
+      log.logMinimal(body);
+      return;
+    }
+    log.logError(header);
+    log.logError(body);
+    log.logError(
+        "Pass --allow-unsupported (-au) to bypass this check. The "
+            + elementType
+            + " will not start.");
+    throw new HopException(
+        "Engine '"
+            + engineId
+            + "' refuses "
+            + violations.size()
+            + " element(s) in "
+            + elementType
+            + " '"
+            + elementName
+            + "'. Use --allow-unsupported to override.");
   }
 
   protected boolean isPipeline() {

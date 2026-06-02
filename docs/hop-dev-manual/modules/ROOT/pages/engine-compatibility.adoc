@@ -1,0 +1,141 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How to declare which engines a transform or action supports, how engine plugins surface their own verdicts, and how Hop combines the two to filter palettes, validate runs, and gate execution.
+[[EngineCompatibility]]
+= Engine compatibility
+
+Hop runs pipelines on multiple engines (Local, Remote, Beam Direct / Dataflow / Spark / Flink, plus engine plugins shipped outside the core tree).
+Not every transform or action works on every engine — for example, the Beam-specific transforms `BeamInput`, `BeamOutput`, `BeamWindow`, `BeamTimestamp`, … only run on a Beam engine, and a few transforms like `GroupBy` or `UniqueRows` are hard-banned by the Beam converter.
+
+The engine-compatibility system lets transform/action authors *and* engine plugin authors *and* third-party fragments contribute to one combined verdict (`SUPPORTED` / `UNSUPPORTED` / `UNKNOWN`) per (plugin, engine) pair.
+The verdict drives:
+
+* the **palette filter** in HopGui ("Design for: <engine>" combo on the pipeline and workflow canvases),
+* the **run-time gate** in `HopGui` and `hop-run` that refuses to start a pipeline or workflow containing UNSUPPORTED elements (with an explicit "Run anyway" override),
+* and the **deep gate** in `Pipeline.prepareExecution()` / `Workflow.startExecution()` that catches nested executions (e.g. a workflow that calls a sub-pipeline via the `Pipeline` action).
+
+`UNKNOWN` is the backwards-compatible default — every existing plugin without annotations resolves to `UNKNOWN`, and the UI treats it as "show in palette, no warning". Only authoritative `UNSUPPORTED` verdicts hide entries or block runs.
+
+== Three sources of verdicts
+
+A verdict is produced by combining three sources, in this order of authority. Any `UNSUPPORTED` wins (most restrictive); otherwise the highest-confidence verdict wins.
+
+=== 1. Annotation on the transform / action
+
+Open-string fields on `@Transform` and `@Action`. The trailing `*` wildcard is supported (e.g. `Beam*` matches every Beam engine id). Pick allow-list *or* deny-list, not both — setting both fails at plugin registration.
+
+[source,java]
+----
+@Transform(
+    id = "BeamInput",
+    name = "i18n::BeamInputDialog.DialogTitle",
+    ...,
+    supportedEngines = {"Beam*"})
+public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
+    implements IBeamPipelineTransformHandler {
+  ...
+}
+----
+
+[source,java]
+----
+@Transform(
+    id = "MySpecialJoin",
+    ...,
+    excludedEngines = {"BeamSparkPipelineEngine"})
+public class MySpecialJoinMeta extends BaseTransformMeta<MySpecialJoin, MySpecialJoinData> {
+  ...
+}
+----
+
+The engine id is the `id()` value of the corresponding `@PipelineEnginePlugin` / `@WorkflowEnginePlugin` — `Local`, `Remote`, `BeamDirectPipelineEngine`, `BeamDataFlowPipelineEngine`, `BeamSparkPipelineEngine`, `BeamFlinkPipelineEngine`, plus whatever your external engine plugin declares.
+
+=== 2. Engine-side `supports()` method
+
+A `default` method on `IPipelineEngine` and `IWorkflowEngine`:
+
+[source,java]
+----
+default EngineCompatibility supports(IPlugin transformPlugin) {
+  return EngineCompatibility.unknown();
+}
+----
+
+Engines override this to surface authoritative verdicts.
+For example, `BeamPipelineEngine.supports` returns `SUPPORTED` for transforms registered in the converter's handler map or implementing `IBeamPipelineTransformHandler`, `UNSUPPORTED` for the hard-banned classes (`GroupByMeta`, `UniqueRowsMeta`), and `UNKNOWN` for everything else — the long tail that falls through to the generic `ParDo` wrapper.
+
+A new engine plugin only needs to implement this if it wants finer-grained control than the annotation gives. Returning `UNKNOWN` is always safe.
+
+=== 3. `@TransformEngineSupport` fragment
+
+For the case where a *third party* wants to declare compatibility for a transform they don't own (the transform's annotation is closed-world from their perspective), drop a fragment in your jar:
+
+[source,java]
+----
+@TransformEngineSupport(
+    id = "TableInput",
+    supportedEngines = {"MyEngine"})
+public class TableInputMyEngineSupport {}  // marker class, body unused
+----
+
+At startup, `TransformEngineSupportPluginType` (a `BaseFragmentType` subclass) picks these up and merges the values into the host transform's `IPlugin` via `IPlugin.merge`.
+The merge is a union (duplicates removed, order preserved); your engine support is added to whatever the host already declared.
+
+The same allow-list-XOR-deny-list constraint applies — setting both arrays on a single fragment fails at registration.
+
+== Resolution algorithm
+
+`EngineCompatibilityResolver.resolve(plugin, engineId, engine::supports)` combines the engine verdict and the annotation verdict (fragment values are already merged into the annotation arrays via `IPlugin.merge`).
+Any `UNSUPPORTED` wins; engine `SUPPORTED` overrides annotation `UNKNOWN`; annotation `SUPPORTED` overrides engine `UNKNOWN`; otherwise the result is `UNKNOWN`.
+
+The walker is `EngineCompatibilityChecker.checkPipeline(...)` / `checkWorkflow(...)` — it walks the pipeline or workflow meta and returns the list of `Violation` records for every UNSUPPORTED entry.
+The CLI gate (`HopRunBase.gateOnViolations`) and the GUI `EngineCompatibilityRunGate` both delegate to it.
+
+== Override at run time
+
+Run-time enforcement is strict by default. When a run would otherwise be refused, the user can explicitly override per execution:
+
+* CLI: `hop-run --allow-unsupported` (short: `-au`).
+* HopGui: the run-dialog gate pops an "Engine compatibility" warning listing the violations with **Run anyway** / **Cancel** buttons.
+
+Both paths set the `Const.HOP_ALLOW_UNSUPPORTED` variable (`HOP_ALLOW_UNSUPPORTED=Y`) on the execution configuration's variables map.
+That variable propagates automatically into nested child pipelines and workflows because every executor (`ActionPipeline`, `PipelineExecutor`, `Repeat`, `WorkflowExecutor`, `ActionWorkflow`, …) threads parent `IVariables` through to its children.
+So one click of "Run anyway" — or one `-au` flag — covers the full call tree of that single run.
+
+The deep gate in `Pipeline.prepareExecution()` reads this variable on each invocation, logs the violations once at `MINIMAL` level, and lets the run proceed instead of throwing.
+
+== Designing for a specific engine in HopGui
+
+The pipeline and workflow canvas toolbars carry a **Design for:** combo (next to the zoom controls). The selection is persisted in `hop-config.json` (`HopGuiPaletteDesignPipelineEngine`, `HopGuiPaletteDesignWorkflowEngine`) and filters the right-click palette to only show transforms / actions that resolve to `SUPPORTED` or `UNKNOWN` on the selected engine. `UNSUPPORTED` entries are hidden so they cannot be accidentally added; `UNKNOWN` stays visible because it is the safe default for plugins that simply haven't opted into the system.
+
+The combo offers, in order: **All engines** (disables the filter), then **Hop** — a synthetic group that unifies the local and remote engines (they share the same plugin compatibility surface from a designer's perspective, so the combo doesn't split them) — then every other registered engine, alphabetically. The Beam engines therefore appear together after Hop, and third-party engines slot in wherever their display name puts them. Internally the Hop group expands to `{Local, Remote}` and a plugin is shown when *any* group member accepts it; only `UNSUPPORTED` on *every* member hides it.
+
+== Reference
+
+[options="header"]
+|===
+|Type | Where | Purpose
+|`@Transform.supportedEngines()` / `excludedEngines()` | `core/...annotations/Transform.java` | Transform-author declaration. `String[]`, trailing-`*` wildcards.
+|`@Action.supportedEngines()` / `excludedEngines()` | `core/...annotations/Action.java` | Action-author declaration.
+|`IPipelineEngine.supports(IPlugin)` | `engine/...pipeline/engine/IPipelineEngine.java` | Engine-side verdict. Default returns `UNKNOWN`.
+|`IWorkflowEngine.supports(IPlugin)` | `engine/...workflow/engine/IWorkflowEngine.java` | Same, for workflow engines.
+|`@TransformEngineSupport` | `engine/...annotations/TransformEngineSupport.java` | Third-party fragment that augments a transform's declared engine list.
+|`EngineCompatibility` | `core/...core/plugins/EngineCompatibility.java` | The `SUPPORTED` / `UNSUPPORTED(reason)` / `UNKNOWN` value type.
+|`EngineCompatibilityResolver` | `core/...core/plugins/EngineCompatibilityResolver.java` | Combination algorithm + trailing-wildcard match + union helpers.
+|`EngineCompatibilityChecker` | `engine/...pipeline/engine/EngineCompatibilityChecker.java` | Walks `PipelineMeta` / `WorkflowMeta` and returns `Violation` records.
+|`Const.HOP_ALLOW_UNSUPPORTED` | `core/...core/Const.java` | Override variable name. Set to `Y` to bypass the gate for a single run.
+|===

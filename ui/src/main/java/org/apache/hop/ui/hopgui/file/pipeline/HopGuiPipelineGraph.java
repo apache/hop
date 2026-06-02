@@ -145,6 +145,7 @@ import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -183,6 +184,7 @@ import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
@@ -252,6 +254,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "HopGuiPipelineGraph-ToolBar-10530-Zoom-100Pct";
   public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
       "HopGuiPipelineGraph-ToolBar-10540-Zoom-To-Fit";
+
+  public static final String TOOLBAR_ITEM_DESIGN_ENGINE =
+      "HopGuiPipelineGraph-ToolBar-10550-Design-Engine";
 
   public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
       "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
@@ -2179,6 +2184,86 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return Arrays.asList(PipelinePainter.magnificationDescriptions);
   }
 
+  /**
+   * Lets the user pick which engine they are designing for. The selection persists across Hop
+   * restarts via {@code hop-config.json} and the right-click palette filters out transforms the
+   * engine marks UNSUPPORTED. "All engines" disables the filter — the canonical default for new
+   * users.
+   */
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DESIGN_ENGINE,
+      label = "Design for:",
+      toolTip =
+          "Filter the right-click transform palette to the engine you are designing for. The selection persists across restarts.",
+      type = GuiToolbarElementType.COMBO,
+      alignRight = true,
+      comboValuesMethod = "getDesignEngineLabels")
+  public void designEngineChanged() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String selected = combo.getText();
+    String engineId = PaletteEngineFilter.getPipelineEngineIdForLabel(selected);
+    PaletteEngineFilter.setPipelineDesignEngineId(engineId);
+  }
+
+  /** Combo values for {@link #TOOLBAR_ITEM_DESIGN_ENGINE} — referenced by reflection. */
+  public List<String> getDesignEngineLabels() {
+    return PaletteEngineFilter.getPipelineEngineLabels();
+  }
+
+  /**
+   * Push the persisted design-engine label into the toolbar combo so the user sees their previous
+   * choice on every new tab. Called from {@link #addToolBar} after the widgets are created.
+   */
+  /**
+   * Dispose the combo ToolItem and the preceding label-separator ToolItem the toolbar framework
+   * inserts for any item whose {@code @GuiToolbarElement.label} is non-empty (see {@code
+   * GuiToolbarWidgets.addToolbarWidgetsToToolBar}). Without removing the leading label-separator
+   * the "Design for:" CLabel hangs around with no widget next to it.
+   */
+  private void disposeDesignEngineToolbarItem() {
+    ToolItem comboItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (comboItem == null || comboItem.isDisposed()) {
+      return;
+    }
+    ToolBar parentBar = comboItem.getParent();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      int idx = parentBar.indexOf(comboItem);
+      if (idx > 0) {
+        ToolItem maybeLabel = parentBar.getItem(idx - 1);
+        if (maybeLabel != null
+            && !maybeLabel.isDisposed()
+            && (maybeLabel.getStyle() & SWT.SEPARATOR) != 0
+            && maybeLabel.getControl() instanceof CLabel labelControl) {
+          if (!labelControl.isDisposed()) {
+            labelControl.dispose();
+          }
+          maybeLabel.dispose();
+        }
+      }
+    }
+    Control wrappedCombo = comboItem.getControl();
+    if (wrappedCombo != null && !wrappedCombo.isDisposed()) {
+      wrappedCombo.dispose();
+    }
+    comboItem.dispose();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      parentBar.pack();
+    }
+  }
+
+  private void setDesignEngineComboFromConfig() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String engineId = PaletteEngineFilter.getPipelineDesignEngineId();
+    combo.setText(PaletteEngineFilter.getPipelineEngineLabelForId(engineId));
+  }
+
   private void addToolBar() {
     try {
       // Create a new toolbar at the top of the main composite...
@@ -2189,6 +2274,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       toolBarWidgets = new GuiToolbarWidgets();
       toolBarWidgets.registerGuiPluginObject(this);
       toolBarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+      if (org.apache.hop.ui.hopgui.PaletteEngineFilter.shouldShowPipelineComboFilter()) {
+        setDesignEngineComboFromConfig();
+      } else {
+        disposeDesignEngineToolbarItem();
+      }
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment(0, 0);
       layoutData.top = new FormAttachment(0, 0);

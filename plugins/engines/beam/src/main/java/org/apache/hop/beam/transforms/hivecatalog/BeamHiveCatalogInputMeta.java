@@ -47,7 +47,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Experimental",
     keywords = "i18n::BeamHiveCatalogInputDialog.keyword",
-    documentationUrl = "/pipeline/transforms/beamhivecataloginput.html")
+    documentationUrl = "/pipeline/transforms/beamhivecataloginput.html",
+    supportedEngines = {"Beam*"})
 public class BeamHiveCatalogInputMeta
     extends BaseTransformMeta<BeamHiveCatalogInput, BeamHiveCatalogInputData>
     implements IBeamPipelineTransformHandler {

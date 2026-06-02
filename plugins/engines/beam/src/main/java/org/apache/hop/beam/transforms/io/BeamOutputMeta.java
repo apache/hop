@@ -49,7 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::BeamOutputDialog.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamOutputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamfileoutput.html")
+    documentationUrl = "/pipeline/transforms/beamfileoutput.html",
+    supportedEngines = {"Beam*"})
 public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData>
     implements IBeamPipelineTransformHandler {
 

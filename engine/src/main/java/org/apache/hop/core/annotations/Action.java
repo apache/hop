@@ -67,4 +67,20 @@ public @interface Action {
 
   /** an Array of ActionTransformTypes for this action */
   ActionTransformType[] actionTransformTypes() default {};
+
+  /**
+   * Allow-list of workflow engine plugin ids this action is supported on. Empty (the default) means
+   * no opinion — engines may still accept or reject via their own {@code
+   * IWorkflowEngine.supports()} verdict. Trailing wildcards are supported (e.g. {@code "*"} for
+   * any). If both {@link #supportedEngines()} and {@link #excludedEngines()} are non-empty,
+   * registration fails — pick one form per action.
+   */
+  String[] supportedEngines() default {};
+
+  /**
+   * Deny-list counterpart to {@link #supportedEngines()}. Engines listed here are treated as
+   * UNSUPPORTED in the UI and run dialog regardless of the engine's own verdict. Same wildcard
+   * rules apply.
+   */
+  String[] excludedEngines() default {};
 }

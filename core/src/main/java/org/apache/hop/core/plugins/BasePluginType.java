@@ -594,6 +594,20 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return new String[] {};
   }
 
+  /**
+   * Override for annotations that declare an engine-compat allow-list (e.g.
+   * {@code @Transform.supportedEngines()}). Default is an empty array — the plugin type does not
+   * opt into engine compatibility metadata.
+   */
+  protected String[] extractSupportedEngines(T annotation) {
+    return new String[0];
+  }
+
+  /** Override for annotations that declare an engine-compat deny-list. Default empty. */
+  protected String[] extractExcludedEngines(T annotation) {
+    return new String[0];
+  }
+
   protected void registerPluginJars() throws HopPluginException {
 
     List<PluginClassFile> pluginClassFiles = findAnnotatedClassFiles(pluginClass.getName());
@@ -723,6 +737,20 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
             forumUrl,
             suggestion,
             includeJdbcDrivers);
+
+    String[] supportedEngines = extractSupportedEngines(annotation);
+    String[] excludedEngines = extractExcludedEngines(annotation);
+    if (supportedEngines != null
+        && supportedEngines.length > 0
+        && excludedEngines != null
+        && excludedEngines.length > 0) {
+      throw new HopPluginException(
+          "Plugin "
+              + ids[0]
+              + " declares both supportedEngines and excludedEngines on its annotation. Pick one form — the allow-list or the deny-list — not both.");
+    }
+    plugin.setSupportedEngines(supportedEngines);
+    plugin.setExcludedEngines(excludedEngines);
 
     ParentFirst parentFirstAnnotation = clazz.getAnnotation(ParentFirst.class);
     if (parentFirstAnnotation != null) {
