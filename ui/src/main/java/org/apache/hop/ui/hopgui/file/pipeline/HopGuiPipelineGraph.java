@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -146,6 +145,7 @@ import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -184,6 +184,7 @@ import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
@@ -253,6 +254,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "HopGuiPipelineGraph-ToolBar-10530-Zoom-100Pct";
   public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
       "HopGuiPipelineGraph-ToolBar-10540-Zoom-To-Fit";
+
+  public static final String TOOLBAR_ITEM_DESIGN_ENGINE =
+      "HopGuiPipelineGraph-ToolBar-10550-Design-Engine";
 
   public static final String TOOLBAR_ITEM_EDIT_PIPELINE =
       "HopGuiPipelineGraph-ToolBar-10450-EditPipeline";
@@ -730,6 +734,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // Click on the transform info icon means: Edit transformation description
           //
           this.editDescription((TransformMeta) areaOwner.getOwner());
+          avoidContextDialog = true;
+          currentTransform = null;
+          iconDragStartScreen = null;
           done = true;
           break;
 
@@ -1087,6 +1094,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // Release after a drag may land on another transform's name; fall through to complete
           // drag
           break;
+        case TRANSFORM_INFO_ICON:
+          // Description edit was handled in mouseDown; do not open the transform context menu
+          return;
         default:
           break;
       }
@@ -1151,7 +1161,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             also = !Utils.isEmpty(selectedTransforms);
             hopGui.undoDelegate.addUndoPosition(
                 pipelineMeta,
-                selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
+                selectedNotes.toArray(new NotePadMeta[0]),
                 indexes,
                 previousNoteLocations,
                 pipelineMeta.getSelectedNoteLocations(),
@@ -1161,7 +1171,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             int[] indexes = pipelineMeta.getTransformIndexes(selectedTransforms);
             hopGui.undoDelegate.addUndoPosition(
                 pipelineMeta,
-                selectedTransforms.toArray(new TransformMeta[selectedTransforms.size()]),
+                selectedTransforms.toArray(new TransformMeta[0]),
                 indexes,
                 previousTransformLocations,
                 pipelineMeta.getSelectedTransformLocations(),
@@ -2174,6 +2184,86 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return Arrays.asList(PipelinePainter.magnificationDescriptions);
   }
 
+  /**
+   * Lets the user pick which engine they are designing for. The selection persists across Hop
+   * restarts via {@code hop-config.json} and the right-click palette filters out transforms the
+   * engine marks UNSUPPORTED. "All engines" disables the filter — the canonical default for new
+   * users.
+   */
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DESIGN_ENGINE,
+      label = "Design for:",
+      toolTip =
+          "Filter the right-click transform palette to the engine you are designing for. The selection persists across restarts.",
+      type = GuiToolbarElementType.COMBO,
+      alignRight = true,
+      comboValuesMethod = "getDesignEngineLabels")
+  public void designEngineChanged() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String selected = combo.getText();
+    String engineId = PaletteEngineFilter.getPipelineEngineIdForLabel(selected);
+    PaletteEngineFilter.setPipelineDesignEngineId(engineId);
+  }
+
+  /** Combo values for {@link #TOOLBAR_ITEM_DESIGN_ENGINE} — referenced by reflection. */
+  public List<String> getDesignEngineLabels() {
+    return PaletteEngineFilter.getPipelineEngineLabels();
+  }
+
+  /**
+   * Push the persisted design-engine label into the toolbar combo so the user sees their previous
+   * choice on every new tab. Called from {@link #addToolBar} after the widgets are created.
+   */
+  /**
+   * Dispose the combo ToolItem and the preceding label-separator ToolItem the toolbar framework
+   * inserts for any item whose {@code @GuiToolbarElement.label} is non-empty (see {@code
+   * GuiToolbarWidgets.addToolbarWidgetsToToolBar}). Without removing the leading label-separator
+   * the "Design for:" CLabel hangs around with no widget next to it.
+   */
+  private void disposeDesignEngineToolbarItem() {
+    ToolItem comboItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (comboItem == null || comboItem.isDisposed()) {
+      return;
+    }
+    ToolBar parentBar = comboItem.getParent();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      int idx = parentBar.indexOf(comboItem);
+      if (idx > 0) {
+        ToolItem maybeLabel = parentBar.getItem(idx - 1);
+        if (maybeLabel != null
+            && !maybeLabel.isDisposed()
+            && (maybeLabel.getStyle() & SWT.SEPARATOR) != 0
+            && maybeLabel.getControl() instanceof CLabel labelControl) {
+          if (!labelControl.isDisposed()) {
+            labelControl.dispose();
+          }
+          maybeLabel.dispose();
+        }
+      }
+    }
+    Control wrappedCombo = comboItem.getControl();
+    if (wrappedCombo != null && !wrappedCombo.isDisposed()) {
+      wrappedCombo.dispose();
+    }
+    comboItem.dispose();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      parentBar.pack();
+    }
+  }
+
+  private void setDesignEngineComboFromConfig() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String engineId = PaletteEngineFilter.getPipelineDesignEngineId();
+    combo.setText(PaletteEngineFilter.getPipelineEngineLabelForId(engineId));
+  }
+
   private void addToolBar() {
     try {
       // Create a new toolbar at the top of the main composite...
@@ -2184,6 +2274,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       toolBarWidgets = new GuiToolbarWidgets();
       toolBarWidgets.registerGuiPluginObject(this);
       toolBarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+      if (org.apache.hop.ui.hopgui.PaletteEngineFilter.shouldShowPipelineComboFilter()) {
+        setDesignEngineComboFromConfig();
+      } else {
+        disposeDesignEngineToolbarItem();
+      }
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment(0, 0);
       layoutData.top = new FormAttachment(0, 0);
@@ -2284,29 +2379,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public boolean setFocus() {
-    return (canvas != null && !canvas.isDisposed()) ? canvas.setFocus() : false;
-  }
-
-  public void renameTransform(TransformMeta transformMeta, String transformName) {
-    String newname = transformName;
-
-    TransformMeta smeta = pipelineMeta.findTransform(newname, transformMeta);
-    int nr = 2;
-    while (smeta != null) {
-      newname = transformName + " " + nr;
-      smeta = pipelineMeta.findTransform(newname);
-      nr++;
-    }
-    if (nr > 2) {
-      transformName = newname;
-      modalMessageDialog(
-          BaseMessages.getString(PKG, "HopGui.Dialog.TransformnameExists.Title"),
-          BaseMessages.getString(PKG, "HopGui.Dialog.TransformnameExists.Message", transformName),
-          SWT.OK | SWT.ICON_INFORMATION);
-    }
-    transformMeta.setName(transformName);
-    transformMeta.setChanged();
-    redraw();
+    return canvas != null && !canvas.isDisposed() && canvas.setFocus();
   }
 
   public void clearSettings() {
@@ -2675,7 +2748,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (trimmed.matches("\\d+")) {
       return true;
     }
-    // Variable pattern: ${VARIABLE}
+    // Variable pattern: '${VARIABLE}'
     return trimmed.matches("\\$\\{[^}]+\\}");
   }
 
@@ -3245,7 +3318,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void editPipelineProperties(HopGuiPipelineContext context) {
-    editProperties(pipelineMeta, hopGui, true);
+    editProperties(pipelineMeta, hopGui);
   }
 
   @GuiToolbarElement(
@@ -3257,7 +3330,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut(control = true, key = 't')
   @GuiOsxKeyboardShortcut(command = true, key = 't')
   public void editPipelineProperties() {
-    editProperties(pipelineMeta, hopGui, true);
+    editProperties(pipelineMeta, hopGui);
   }
 
   public void newTransform(String description) {
@@ -4011,8 +4084,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta.hasChanged();
   }
 
-  public boolean editProperties(
-      PipelineMeta pipelineMeta, HopGui hopGui, boolean allowDirectoryChange) {
+  public boolean editProperties(PipelineMeta pipelineMeta, HopGui hopGui) {
     return editProperties(pipelineMeta, hopGui, null);
   }
 
@@ -4770,18 +4842,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             });
   }
 
-  private String[] convertArguments(Map<String, String> arguments) {
-    String[] argumentNames = arguments.keySet().toArray(new String[arguments.size()]);
-    Arrays.sort(argumentNames);
-
-    String[] args = new String[argumentNames.length];
-    for (int i = 0; i < args.length; i++) {
-      String argumentName = argumentNames[i];
-      args[i] = arguments.get(argumentName);
-    }
-    return args;
-  }
-
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_STOP,
@@ -4867,7 +4927,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // If the pipeline is done, we want to do the end processing, etc.
       //
       pipeline.addExecutionFinishedListener(
-          pipeline -> {
+          p -> {
             checkPipelineEnded();
             checkErrorVisuals();
             stopRedrawTimer();

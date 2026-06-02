@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.excelwriter;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.pipeline.transforms.excelwriter.ods.OdsWorkbookHandle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -28,12 +29,15 @@ public class ExcelWriterWorkbookDefinition {
   private String fileName;
   private Workbook workbook;
   private Sheet sheet;
+  private OdsWorkbookHandle odsWorkbookHandle;
   private int posX;
   private int posY;
   private int datalines;
   private int splitNr;
   private CellStyle[] cellStyleCache;
   private CellStyle[] cellLinkStyleCache;
+  private String[] odsStyleNameCache;
+  private String[] odsLinkStyleNameCache;
 
   public ExcelWriterWorkbookDefinition(
       String fileName, FileObject file, Workbook workbook, Sheet sheet, int posX, int posY) {
@@ -45,6 +49,21 @@ public class ExcelWriterWorkbookDefinition {
     this.posY = posY;
     this.datalines = 0;
     this.splitNr = 0;
+  }
+
+  public ExcelWriterWorkbookDefinition(
+      String fileName, FileObject file, OdsWorkbookHandle odsWorkbookHandle, int posX, int posY) {
+    this.fileName = fileName;
+    this.file = file;
+    this.odsWorkbookHandle = odsWorkbookHandle;
+    this.posX = posX;
+    this.posY = posY;
+    this.datalines = 0;
+    this.splitNr = 0;
+  }
+
+  public boolean isOds() {
+    return odsWorkbookHandle != null;
   }
 
   public FileObject getFile() {
@@ -69,6 +88,14 @@ public class ExcelWriterWorkbookDefinition {
 
   public void setSheet(Sheet sheet) {
     this.sheet = sheet;
+  }
+
+  public OdsWorkbookHandle getOdsWorkbookHandle() {
+    return odsWorkbookHandle;
+  }
+
+  public void setOdsWorkbookHandle(OdsWorkbookHandle odsWorkbookHandle) {
+    this.odsWorkbookHandle = odsWorkbookHandle;
   }
 
   public int getPosX() {
@@ -122,6 +149,24 @@ public class ExcelWriterWorkbookDefinition {
   public void clearStyleCache(int nrFields) {
     cellStyleCache = new CellStyle[nrFields];
     cellLinkStyleCache = new CellStyle[nrFields];
+    odsStyleNameCache = new String[nrFields];
+    odsLinkStyleNameCache = new String[nrFields];
+  }
+
+  public void cacheOdsStyle(int fieldNr, String styleName) {
+    odsStyleNameCache[fieldNr] = styleName;
+  }
+
+  public void cacheOdsLinkStyle(int fieldNr, String styleName) {
+    odsLinkStyleNameCache[fieldNr] = styleName;
+  }
+
+  public String getCachedOdsStyle(int fieldNr) {
+    return odsStyleNameCache[fieldNr];
+  }
+
+  public String getCachedOdsLinkStyle(int fieldNr) {
+    return odsLinkStyleNameCache[fieldNr];
   }
 
   public void cacheStyle(int fieldNr, CellStyle style) {

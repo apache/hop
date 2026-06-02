@@ -43,8 +43,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "BeamBQInput",
-    name = "Beam BigQuery Input",
-    description = "Reads from a BigQuery table in Beam",
+    name = "i18n::BeamBQInputDialog.DialogTitle",
+    description = "i18n::BeamBQInputDialog.Description",
     image = "beam-bq-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamBQInputDialog.keyword",

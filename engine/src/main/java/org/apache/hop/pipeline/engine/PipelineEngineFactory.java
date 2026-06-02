@@ -148,6 +148,7 @@ public class PipelineEngineFactory {
     }
 
     IPipelineEngine<T> pipelineEngine = pluginRegistry.loadClass(plugin, IPipelineEngine.class);
+    pipelineEngine.setPluginId(enginePluginId);
     pipelineEngine.setPipelineRunConfiguration(pipelineRunConfiguration);
 
     // Apply the variables in the pipeline run configuration

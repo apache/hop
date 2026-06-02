@@ -1,0 +1,24 @@
+{
+  "variables" : [
+    {
+      "name" : "SSH_HOSTNAME",
+      "value" : "ssh",
+      "description" : "Hostname of the SSH server container (service name in integration-tests-ssh.yaml)"
+    },
+    {
+      "name" : "SSH_USER",
+      "value" : "hop",
+      "description" : "SSH user created in docker/integration-tests/ssh.Dockerfile"
+    },
+    {
+      "name" : "SSH_PASSWORD",
+      "value" : "hop_ssh_password",
+      "description" : "Password for the SSH user (see ssh.Dockerfile)"
+    },
+    {
+      "name" : "SSH_PORT",
+      "value" : "22",
+      "description" : ""
+    }
+  ]
+}

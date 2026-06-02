@@ -181,7 +181,50 @@ public interface IPlugin {
       Optional.ofNullable(fragment.getCasesUrl()).ifPresent(this::setCasesUrl);
       Optional.ofNullable(fragment.getForumUrl()).ifPresent(this::setForumUrl);
       Optional.ofNullable(fragment.getClassLoaderGroup()).ifPresent(this::setClassLoaderGroup);
+      String[] fragmentSupported = fragment.getSupportedEngines();
+      if (fragmentSupported != null && fragmentSupported.length > 0) {
+        this.setSupportedEngines(
+            EngineCompatibilityResolver.unionEngineIds(
+                this.getSupportedEngines(), fragmentSupported));
+      }
+      String[] fragmentExcluded = fragment.getExcludedEngines();
+      if (fragmentExcluded != null && fragmentExcluded.length > 0) {
+        this.setExcludedEngines(
+            EngineCompatibilityResolver.unionEngineIds(
+                this.getExcludedEngines(), fragmentExcluded));
+      }
     }
+  }
+
+  /**
+   * Engine plugin id patterns this transform/action is supported on. Default is empty (no opinion).
+   * Trailing wildcard supported: {@code "Beam*"}.
+   *
+   * <p>Default returns an empty array so existing external {@link IPlugin} implementations stay
+   * binary-compatible. Concrete plugins backed by {@code @Transform}/{@code @Action} annotations
+   * populate this from the annotation; compatibility fragments add to it via {@link #merge}.
+   */
+  default String[] getSupportedEngines() {
+    return new String[0];
+  }
+
+  /**
+   * Setter counterpart to {@link #getSupportedEngines()}. Default no-op so existing {@link IPlugin}
+   * implementations stay binary-compatible — concrete plugins ({@link Plugin}) override this to
+   * actually store the value. Only used by {@link #merge}.
+   */
+  default void setSupportedEngines(String[] supportedEngines) {
+    // intentional no-op default: external IPlugin implementers don't have to participate
+  }
+
+  /** Deny-list counterpart to {@link #getSupportedEngines()}. */
+  default String[] getExcludedEngines() {
+    return new String[0];
+  }
+
+  /** Setter counterpart to {@link #getExcludedEngines()}. Default no-op (see setter docs). */
+  default void setExcludedEngines(String[] excludedEngines) {
+    // intentional no-op default
   }
 
   /**

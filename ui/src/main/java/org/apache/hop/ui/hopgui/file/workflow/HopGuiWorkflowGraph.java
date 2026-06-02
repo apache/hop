@@ -111,6 +111,7 @@ import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -155,6 +156,7 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
@@ -217,6 +219,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-To-Fit";
+
+  public static final String TOOLBAR_ITEM_DESIGN_ENGINE =
+      "HopGuiWorkflowGraph-ToolBar-10550-Design-Engine";
 
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
       "HopGuiWorkflowGraph-ToolBar-10450-EditWorkflow";
@@ -347,6 +352,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private Point[] previousNoteLocations;
   private ActionMeta currentAction;
   private boolean ignoreNextClick;
+  private boolean avoidContextDialog;
   private boolean doubleClick;
   private Runnable pendingShowContextDialogRunnable;
   private boolean dragSelection;
@@ -673,6 +679,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Click on the info icon means: Edit action description
           //
           editActionDescription((ActionMeta) areaOwner.getOwner());
+          avoidContextDialog = true;
+          currentAction = null;
+          actionDragStartScreen = null;
           done = true;
           break;
 
@@ -947,6 +956,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             return;
           }
           break;
+        case ACTION_INFO_ICON:
+          // Description edit was handled in mouseDown; do not open the action context menu
+          return;
         default:
           break;
       }
@@ -1143,6 +1155,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       singleClickHop = clickedWorkflowHop;
     }
     clickedWorkflowHop = null;
+
+    if (avoidContextDialog) {
+      avoidContextDialog = false;
+      selectionRegion = null;
+      return;
+    }
 
     // Only do this "mouseUp()" if this is not part of a double click...
     //
@@ -1698,6 +1716,75 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     super.zoomFitToScreen();
   }
 
+  /**
+   * Lets the user pick which workflow engine they are designing for. The selection persists across
+   * Hop restarts and the right-click palette filters out actions the engine marks UNSUPPORTED.
+   */
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DESIGN_ENGINE,
+      label = "Design for:",
+      toolTip =
+          "Filter the right-click action palette to the workflow engine you are designing for. The selection persists across restarts.",
+      type = GuiToolbarElementType.COMBO,
+      alignRight = true,
+      comboValuesMethod = "getDesignEngineLabels")
+  public void designEngineChanged() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String selected = combo.getText();
+    String engineId = PaletteEngineFilter.getWorkflowEngineIdForLabel(selected);
+    PaletteEngineFilter.setWorkflowDesignEngineId(engineId);
+  }
+
+  /** Combo values for {@link #TOOLBAR_ITEM_DESIGN_ENGINE} — referenced by reflection. */
+  public List<String> getDesignEngineLabels() {
+    return PaletteEngineFilter.getWorkflowEngineLabels();
+  }
+
+  /** See {@code HopGuiPipelineGraph#disposeDesignEngineToolbarItem} — same shape, workflow side. */
+  private void disposeDesignEngineToolbarItem() {
+    ToolItem comboItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (comboItem == null || comboItem.isDisposed()) {
+      return;
+    }
+    ToolBar parentBar = comboItem.getParent();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      int idx = parentBar.indexOf(comboItem);
+      if (idx > 0) {
+        ToolItem maybeLabel = parentBar.getItem(idx - 1);
+        if (maybeLabel != null
+            && !maybeLabel.isDisposed()
+            && (maybeLabel.getStyle() & SWT.SEPARATOR) != 0
+            && maybeLabel.getControl() instanceof CLabel labelControl) {
+          if (!labelControl.isDisposed()) {
+            labelControl.dispose();
+          }
+          maybeLabel.dispose();
+        }
+      }
+    }
+    Control wrappedCombo = comboItem.getControl();
+    if (wrappedCombo != null && !wrappedCombo.isDisposed()) {
+      wrappedCombo.dispose();
+    }
+    comboItem.dispose();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      parentBar.pack();
+    }
+  }
+
+  private void setDesignEngineComboFromConfig() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String engineId = PaletteEngineFilter.getWorkflowDesignEngineId();
+    combo.setText(PaletteEngineFilter.getWorkflowEngineLabelForId(engineId));
+  }
+
   public List<String> getZoomLevels() {
     return Arrays.asList(PipelinePainter.magnificationDescriptions);
   }
@@ -1713,6 +1800,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       toolBarWidgets = new GuiToolbarWidgets();
       toolBarWidgets.registerGuiPluginObject(this);
       toolBarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+      if (org.apache.hop.ui.hopgui.PaletteEngineFilter.shouldShowWorkflowComboFilter()) {
+        setDesignEngineComboFromConfig();
+      } else {
+        disposeDesignEngineToolbarItem();
+      }
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment(0, 0);
       layoutData.top = new FormAttachment(0, 0);

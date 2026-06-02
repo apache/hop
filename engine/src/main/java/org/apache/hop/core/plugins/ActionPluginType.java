@@ -121,4 +121,14 @@ public class ActionPluginType extends BasePluginType<Action> {
   protected boolean extractIncludeJdbcDrivers(Action annotation) {
     return annotation.isIncludeJdbcDrivers();
   }
+
+  @Override
+  protected String[] extractSupportedEngines(Action annotation) {
+    return annotation.supportedEngines();
+  }
+
+  @Override
+  protected String[] extractExcludedEngines(Action annotation) {
+    return annotation.excludedEngines();
+  }
 }

@@ -55,12 +55,13 @@ import org.joda.time.Duration;
 
 @Transform(
     id = "BeamWindow",
-    name = "Beam Window",
-    description = "Create a Beam Window",
+    name = "i18n::BeamWindowDialog.DialogTitle",
+    description = "i18n::BeamWindowDialog.Description",
     image = "beam-window.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamWindowMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamwindow.html")
+    documentationUrl = "/pipeline/transforms/beamwindow.html",
+    supportedEngines = {"Beam*"})
 public class BeamWindowMeta extends BaseTransformMeta<Dummy, DummyData>
     implements IBeamPipelineTransformHandler {
 

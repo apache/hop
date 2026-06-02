@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.ssh;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -36,6 +38,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 @Transform(
     id = "SSH",
     image = "ssh.svg",
@@ -198,141 +202,5 @@ public class SshMeta extends BaseTransformMeta<Ssh, SshData> {
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  public String getCommand() {
-    return command;
-  }
-
-  public void setCommand(String command) {
-    this.command = command;
-  }
-
-  public boolean isDynamicCommandField() {
-    return dynamicCommandField;
-  }
-
-  public void setDynamicCommandField(boolean dynamicCommandField) {
-    this.dynamicCommandField = dynamicCommandField;
-  }
-
-  public String getCommandFieldName() {
-    return commandFieldName;
-  }
-
-  public void setCommandFieldName(String commandFieldName) {
-    this.commandFieldName = commandFieldName;
-  }
-
-  public String getServerName() {
-    return serverName;
-  }
-
-  public void setServerName(String serverName) {
-    this.serverName = serverName;
-  }
-
-  public String getPort() {
-    return port;
-  }
-
-  public void setPort(String port) {
-    this.port = port;
-  }
-
-  public String getUserName() {
-    return userName;
-  }
-
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public boolean isUsePrivateKey() {
-    return usePrivateKey;
-  }
-
-  public void setUsePrivateKey(boolean usePrivateKey) {
-    this.usePrivateKey = usePrivateKey;
-  }
-
-  public String getKeyFileName() {
-    return keyFileName;
-  }
-
-  public void setKeyFileName(String keyFileName) {
-    this.keyFileName = keyFileName;
-  }
-
-  public String getPassPhrase() {
-    return passPhrase;
-  }
-
-  public void setPassPhrase(String passPhrase) {
-    this.passPhrase = passPhrase;
-  }
-
-  public String getStdOutFieldName() {
-    return stdOutFieldName;
-  }
-
-  public void setStdOutFieldName(String stdOutFieldName) {
-    this.stdOutFieldName = stdOutFieldName;
-  }
-
-  public String getStdErrFieldName() {
-    return stdErrFieldName;
-  }
-
-  public void setStdErrFieldName(String stdErrFieldName) {
-    this.stdErrFieldName = stdErrFieldName;
-  }
-
-  public String getTimeOut() {
-    return timeOut;
-  }
-
-  public void setTimeOut(String timeOut) {
-    this.timeOut = timeOut;
-  }
-
-  public String getProxyHost() {
-    return proxyHost;
-  }
-
-  public void setProxyHost(String proxyHost) {
-    this.proxyHost = proxyHost;
-  }
-
-  public String getProxyPort() {
-    return proxyPort;
-  }
-
-  public void setProxyPort(String proxyPort) {
-    this.proxyPort = proxyPort;
-  }
-
-  public String getProxyUsername() {
-    return proxyUsername;
-  }
-
-  public void setProxyUsername(String proxyUsername) {
-    this.proxyUsername = proxyUsername;
-  }
-
-  public String getProxyPassword() {
-    return proxyPassword;
-  }
-
-  public void setProxyPassword(String proxyPassword) {
-    this.proxyPassword = proxyPassword;
   }
 }

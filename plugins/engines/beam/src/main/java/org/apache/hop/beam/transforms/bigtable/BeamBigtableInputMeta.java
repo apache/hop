@@ -53,7 +53,8 @@ import org.json.simple.JSONObject;
     image = "beam-gcp-bigtable-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamBigtableInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beambigtableinput.html")
+    documentationUrl = "/pipeline/transforms/beambigtableinput.html",
+    supportedEngines = {"Beam*"})
 public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData>
     implements IBeamPipelineTransformHandler {
 

@@ -49,7 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "beam-gcp-pubsub-subscribe.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamSubscribeMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamgcpsubscriber.html")
+    documentationUrl = "/pipeline/transforms/beamgcpsubscriber.html",
+    supportedEngines = {"Beam*"})
 public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubscribeData>
     implements IBeamPipelineTransformHandler {
 

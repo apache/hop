@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -29,13 +30,16 @@ import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.hopgui.EngineCompatibilityRunGate;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.workflow.dialog.WorkflowExecutionConfigurationDialog;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
@@ -88,6 +92,37 @@ public class HopGuiWorkflowRunDelegate {
         newWorkflowExecutionConfigurationDialog(executionConfiguration, workflowMeta);
 
     if (dialog.open()) {
+
+      // Engine-compatibility pre-flight: refuse to start a workflow that contains actions the
+      // selected workflow engine marks UNSUPPORTED. The user can explicitly "Run anyway".
+      List<EngineCompatibilityChecker.Violation> compatViolations =
+          EngineCompatibilityRunGate.checkWorkflowForRun(
+              workflowMeta,
+              executionConfiguration.getRunConfiguration(),
+              hopGui.getMetadataProvider());
+      if (!compatViolations.isEmpty()) {
+        String compatEngineId = "";
+        try {
+          WorkflowRunConfiguration wrc =
+              hopGui
+                  .getMetadataProvider()
+                  .getSerializer(WorkflowRunConfiguration.class)
+                  .load(executionConfiguration.getRunConfiguration());
+          if (wrc != null && wrc.getEngineRunConfiguration() != null) {
+            compatEngineId = wrc.getEngineRunConfiguration().getEnginePluginId();
+          }
+        } catch (Exception ignored) {
+          // dialog still works with the empty-label fallback
+        }
+        if (!EngineCompatibilityRunGate.confirmRunAnyway(
+            hopGui.getShell(), "workflow", compatEngineId, compatViolations)) {
+          return;
+        }
+        // Run-scoped (not persisted): propagate the override into the execution variables so the
+        // engine-side deep gate in Workflow.executeFromStart and any nested child pipelines/
+        // workflows honor it.
+        executionConfiguration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
+      }
 
       workflowGraph.workflowLogDelegate.addWorkflowLog();
 

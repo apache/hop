@@ -85,4 +85,22 @@ public @interface Transform {
 
   /** an Array of ActionTransformTypes for this transform */
   ActionTransformType[] actionTransformTypes() default {};
+
+  /**
+   * Allow-list of pipeline engine plugin ids this transform is supported on. Empty (the default)
+   * means the transform expresses no opinion — engines may still accept or reject it via their own
+   * {@code IPipelineEngine.supports()} verdict. A trailing wildcard is supported: {@code "Beam*"}
+   * matches every engine id starting with {@code "Beam"}, {@code "*"} matches every engine. The
+   * full id ({@code "BeamDirectPipelineEngine"}, {@code "Local"}, …) is the engine plugin's
+   * {@code @PipelineEnginePlugin.id} value. If both {@link #supportedEngines()} and {@link
+   * #excludedEngines()} are non-empty, registration fails — pick one form per transform.
+   */
+  String[] supportedEngines() default {};
+
+  /**
+   * Deny-list counterpart to {@link #supportedEngines()}. A transform that lists an engine here is
+   * treated as UNSUPPORTED on that engine in the UI and run dialog, regardless of the engine's own
+   * verdict. Empty (the default) means no exclusions; same wildcard rules apply.
+   */
+  String[] excludedEngines() default {};
 }
