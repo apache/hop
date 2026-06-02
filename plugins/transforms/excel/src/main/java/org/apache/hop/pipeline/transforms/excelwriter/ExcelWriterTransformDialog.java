@@ -177,6 +177,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
   private static final String LABEL_FORMATXLSX = "ExcelWriterDialog.FormatXLSX.Label";
   private static final String LABEL_FORMATXLS = "ExcelWriterDialog.FormatXLS.Label";
+  private static final String LABEL_FORMATODS = "ExcelWriterDialog.FormatODS.Label";
 
   public ExcelWriterTransformDialog(
       Shell parent,
@@ -273,9 +274,11 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     String xlsLabel = BaseMessages.getString(PKG, LABEL_FORMATXLS);
     String xlsxLabel = BaseMessages.getString(PKG, LABEL_FORMATXLSX);
-    wExtension.setItems(new String[] {xlsLabel, xlsxLabel});
+    String odsLabel = BaseMessages.getString(PKG, LABEL_FORMATODS);
+    wExtension.setItems(new String[] {xlsLabel, xlsxLabel, odsLabel});
     wExtension.setData(xlsLabel, "xls");
     wExtension.setData(xlsxLabel, "xlsx");
+    wExtension.setData(odsLabel, "ods");
 
     PropsUi.setLook(wExtension);
     wExtension.addModifyListener(lsMod);
@@ -1555,10 +1558,11 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
                 shell,
                 wFilename,
                 variables,
-                new String[] {"*.xlsx", "*.xls", "*.*"},
+                new String[] {"*.xlsx", "*.xls", "*.ods", "*.*"},
                 new String[] {
                   BaseMessages.getString(PKG, LABEL_FORMATXLSX),
                   BaseMessages.getString(PKG, LABEL_FORMATXLS),
+                  BaseMessages.getString(PKG, LABEL_FORMATODS),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
@@ -1569,10 +1573,11 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
                 shell,
                 wTemplateFilename,
                 variables,
-                new String[] {"*.xlsx", "*.xls", "*.*"},
+                new String[] {"*.xlsx", "*.xls", "*.ods", "*.*"},
                 new String[] {
                   BaseMessages.getString(PKG, LABEL_FORMATXLSX),
                   BaseMessages.getString(PKG, LABEL_FORMATXLS),
+                  BaseMessages.getString(PKG, LABEL_FORMATODS),
                   BaseMessages.getString(PKG, "System.FileType.AllFiles")
                 },
                 true));
@@ -1739,9 +1744,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     }
     wDoNotOpenNewFileInit.setSelection(file.isDoNotOpenNewFileInit());
     if (file.getExtension() != null) {
-
       if (file.getExtension().equals("xlsx")) {
         wExtension.select(1);
+      } else if (file.getExtension().equals("ods")) {
+        wExtension.select(2);
       } else {
         wExtension.select(0);
       }
@@ -2012,15 +2018,22 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
   }
 
   private void enableExtension() {
-    wProtectSheet.setEnabled(wExtension.getSelectionIndex() == 0);
-    if (wExtension.getSelectionIndex() == 0) {
+    int extensionIndex = wExtension.getSelectionIndex();
+    boolean xlsFormat = extensionIndex == 0;
+    boolean odsFormat = extensionIndex == 2;
+    wProtectSheet.setEnabled(xlsFormat || odsFormat);
+    if (xlsFormat || odsFormat) {
       wPassword.setEnabled(wProtectSheet.getSelection());
-      wProtectedBy.setEnabled(wProtectSheet.getSelection());
+      wProtectedBy.setEnabled(wProtectSheet.getSelection() && xlsFormat);
       wStreamData.setEnabled(false);
-    } else {
+    } else if (extensionIndex == 1) {
       wPassword.setEnabled(false);
       wProtectedBy.setEnabled(false);
       wStreamData.setEnabled(true);
+    } else {
+      wPassword.setEnabled(false);
+      wProtectedBy.setEnabled(false);
+      wStreamData.setEnabled(false);
     }
   }
 
