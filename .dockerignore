@@ -5,6 +5,7 @@
 !/assemblies/client/target/hop-*
 !/assemblies/client/target/hop
 !/integration-tests/scripts
+!/integration-tests/ssh/keys
 !/assemblies/web/target
 !/assemblies/plugins/target
 !/docker

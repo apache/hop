@@ -163,6 +163,7 @@
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
+        <sonar.exclusions>integration-tests/ssh/keys/**</sonar.exclusions>
         <spotless.skip>false</spotless.skip>
         <target.jdk.version>21</target.jdk.version>
     </properties>
