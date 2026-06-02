@@ -30,6 +30,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -75,11 +76,16 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
       }
     }
 
-    // Also add all the transform creation actions...
+    // Also add all the transform creation actions, optionally filtered by the user-selected
+    // design engine (UNSUPPORTED transforms are hidden; SUPPORTED and UNKNOWN stay visible).
     //
+    PaletteEngineFilter filter = PaletteEngineFilter.forPipelineDesign();
     PluginRegistry registry = PluginRegistry.getInstance();
     List<IPlugin> transformPlugins = registry.getPlugins(TransformPluginType.class);
     for (IPlugin transformPlugin : transformPlugins) {
+      if (!filter.isPluginAllowed(transformPlugin)) {
+        continue;
+      }
       GuiAction createTransformAction =
           new GuiAction(
               "pipeline-graph-create-transform-" + transformPlugin.getIds()[0],

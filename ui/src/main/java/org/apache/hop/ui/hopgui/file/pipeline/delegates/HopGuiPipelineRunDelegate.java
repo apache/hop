@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -31,12 +32,16 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
+import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.hopgui.EngineCompatibilityRunGate;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.debug.PipelineDebugDialog;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
@@ -164,6 +169,42 @@ public class HopGuiPipelineRunDelegate {
     }
 
     if (execConfigAnswer) {
+      // Engine-compatibility pre-flight: refuse to start a pipeline that contains transforms the
+      // selected engine has marked UNSUPPORTED (annotation deny-list or engine-private ban such
+      // as Beam's hard-coded GroupBy refusal). The user can explicitly "Run anyway" — the GUI
+      // counterpart of the CLI's --allow-unsupported flag.
+      List<EngineCompatibilityChecker.Violation> compatViolations =
+          EngineCompatibilityRunGate.checkPipelineForRun(
+              pipelineMeta,
+              executionConfiguration.getRunConfiguration(),
+              hopGui.getMetadataProvider());
+      if (!compatViolations.isEmpty()) {
+        String compatEngineId =
+            PaletteEngineFilter.getPipelineEngineIdForLabel(PaletteEngineFilter.NO_FILTER_LABEL);
+        // The label-for-id helper already handles the empty-id case; we still need the engine id
+        // for the dialog title, so resolve it from the run config directly.
+        try {
+          PipelineRunConfiguration prc =
+              hopGui
+                  .getMetadataProvider()
+                  .getSerializer(PipelineRunConfiguration.class)
+                  .load(executionConfiguration.getRunConfiguration());
+          if (prc != null && prc.getEngineRunConfiguration() != null) {
+            compatEngineId = prc.getEngineRunConfiguration().getEnginePluginId();
+          }
+        } catch (Exception ignored) {
+          // dialog still works with the empty-label fallback
+        }
+        if (!EngineCompatibilityRunGate.confirmRunAnyway(
+            hopGui.getShell(), "pipeline", compatEngineId, compatViolations)) {
+          return null;
+        }
+        // Run-scoped (not persisted): propagate the override into the execution variables so the
+        // engine-side deep gate in Pipeline.prepareExecution and any nested child pipelines/
+        // workflows honor it.
+        executionConfiguration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
+      }
+
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
 

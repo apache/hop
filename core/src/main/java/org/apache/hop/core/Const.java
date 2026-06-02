@@ -176,6 +176,19 @@ public class Const {
       description = "A comma separated list pointing to folders with JDBC drivers to add.")
   public static final String HOP_SHARED_JDBC_FOLDERS = "HOP_SHARED_JDBC_FOLDERS";
 
+  /**
+   * Per-run override for the engine-compatibility gate in {@code Pipeline.prepareExecution} /
+   * {@code Workflow.startExecution}. Set to 'Y' to run a pipeline or workflow that contains
+   * transforms or actions the selected engine has marked UNSUPPORTED. CLI sets it from {@code
+   * hop-run --allow-unsupported}; HopGui sets it when the user clicks "Run anyway".
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "N",
+      description =
+          "Set to 'Y' to bypass the engine-compatibility gate and run pipelines/workflows that contain transforms or actions marked UNSUPPORTED on the selected engine. Run-scoped, not persisted.")
+  public static final String HOP_ALLOW_UNSUPPORTED = "HOP_ALLOW_UNSUPPORTED";
+
   /** The operating system the hop platform runs on */
   @Variable(
       scope = VariableScope.SYSTEM,

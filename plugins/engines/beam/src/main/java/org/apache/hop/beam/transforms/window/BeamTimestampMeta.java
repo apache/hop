@@ -44,12 +44,13 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
 @Transform(
     id = "BeamTimestamp",
-    name = "Beam Timestamp",
-    description = "Add timestamps to a bounded data source",
+    name = "i18n::BeamTimestampDialog.DialogTitle",
+    description = "i18n::BeamTimestampDialog.Description",
     image = "beam-timestamp.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamTimestampMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamtimestamp.html")
+    documentationUrl = "/pipeline/transforms/beamtimestamp.html",
+    supportedEngines = {"Beam*"})
 public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData>
     implements IBeamPipelineTransformHandler {
 

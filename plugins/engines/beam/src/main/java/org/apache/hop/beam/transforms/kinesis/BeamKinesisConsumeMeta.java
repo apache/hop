@@ -52,7 +52,8 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
     image = "beam-kinesis-consume.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamKinesisConsumeMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamkinesisconsume.html")
+    documentationUrl = "/pipeline/transforms/beamkinesisconsume.html",
+    supportedEngines = {"Beam*"})
 public class BeamKinesisConsumeMeta extends BaseTransformMeta<BeamKinesisConsume, DummyData>
     implements IBeamPipelineTransformHandler {
 
