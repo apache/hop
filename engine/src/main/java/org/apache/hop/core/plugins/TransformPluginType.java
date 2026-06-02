@@ -110,4 +110,14 @@ public class TransformPluginType extends BasePluginType<Transform> {
   protected boolean extractIncludeJdbcDrivers(Transform annotation) {
     return annotation.isIncludeJdbcDrivers();
   }
+
+  @Override
+  protected String[] extractSupportedEngines(Transform annotation) {
+    return annotation.supportedEngines();
+  }
+
+  @Override
+  protected String[] extractExcludedEngines(Transform annotation) {
+    return annotation.excludedEngines();
+  }
 }

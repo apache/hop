@@ -45,7 +45,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "beam-gcp-pubsub-publish.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamPublishMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamgcppublisher.html")
+    documentationUrl = "/pipeline/transforms/beamgcppublisher.html",
+    supportedEngines = {"Beam*"})
 public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishData>
     implements IBeamPipelineTransformHandler {
 

@@ -16,21 +16,21 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Beam BigQuery Output transform can be used to write data to a BigQuery table using the Beam execution engine.
+:description: The BigQuery Output transform writes data to a Google Cloud BigQuery table. It runs on the local Hop engine (via streaming inserts) as well as every Beam engine (Direct, Dataflow, Spark, Flink).
 
-= image:transforms/icons/beam-bq-output.svg[Beam BigQuery Output Icon, role="image-doc-icon"] Beam BigQuery Output
+= image:transforms/icons/beam-bq-output.svg[BigQuery Output Icon, role="image-doc-icon"] BigQuery Output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Beam BigQuery Output transform can be used to write data to a link:https://cloud.google.com/bigquery[BigQuery] table using the Beam execution engine.
+The BigQuery Output transform writes data to a link:https://cloud.google.com/bigquery[Google Cloud BigQuery] table. On the local Hop engine it uses the BigQuery Java client's streaming `insertAll` API (batches of up to 500 rows); on Beam engines it uses the Beam-native BigQuery sink.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
-!Hop Engine! image:cross.svg[Not Supported, 24]
+!Hop Engine! image:check_mark.svg[Supported, 24]
 !Spark! image:check_mark.svg[Supported, 24]
 !Flink! image:check_mark.svg[Supported, 24]
 !Dataflow! image:check_mark.svg[Supported, 24]
@@ -43,10 +43,15 @@ The Beam BigQuery Output transform can be used to write data to a link:https://c
 |===
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
-|Project ID|The Google Cloud Platform project.
-|Data set ID|The BigQuery dataset ID.
+|Project ID|The Google Cloud Platform project. Leave blank to use the application-default project from `GOOGLE_APPLICATION_CREDENTIALS`.
+|Data set ID|The BigQuery dataset ID. Must already exist.
 |Table ID|The BigQuery table ID.
-|Create table if needed|Whether or not to create the table if it does not exist. (default: true)
-|Truncate table|Whether or not to truncate the table before inserting.
-|Fail if the table is not empty|Throws an error if the table is not empty.
+|Create table if needed|Create the table when it does not yet exist. The schema is derived from the input row meta (Hop type → BigQuery `STANDARD_SQL` type). Default: true.
+|Truncate table|Empty the table before writing. On the Hop engine this runs a `TRUNCATE TABLE` DDL — free, no DML quota, preserves schema/partitioning/clustering.
+|Fail if the table is not empty|Refuses to run if the target table already has rows. Mutually useful with `Truncate table` for idempotent loads.
 |===
+
+[NOTE]
+====
+BigQuery streaming inserts have their own quotas (10 000 rows / 10 MB per `insertAll` request, 100 000 rows/sec/project default) — separate from DML quotas. Rows are visible to `SELECT` almost immediately but live in the streaming buffer for up to ~90 minutes before they migrate to managed storage; DML against those rows is rejected until then, but DDL (including `TRUNCATE TABLE` from the Truncate option) is fine.
+====

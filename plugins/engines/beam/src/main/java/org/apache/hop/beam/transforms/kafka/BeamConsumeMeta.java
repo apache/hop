@@ -46,12 +46,13 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
 @Transform(
     id = "BeamKafkaConsume",
-    name = "Beam Kafka Consume",
-    description = "Get messages from Kafka topics (Kafka Consumer)",
+    name = "i18n::BeamConsumeDialog.DialogTitle",
+    description = "i18n::BeamConsumeDialog.Description",
     image = "beam-kafka-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamConsumeMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamkafkaconsume.html")
+    documentationUrl = "/pipeline/transforms/beamkafkaconsume.html",
+    supportedEngines = {"Beam*"})
 public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData>
     implements IBeamPipelineTransformHandler {
 

@@ -45,6 +45,7 @@ import org.apache.beam.sdk.util.ThrowingSupplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
@@ -64,6 +65,8 @@ import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.plugins.EngineCompatibility;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -1726,6 +1729,53 @@ public abstract class BeamPipelineEngine extends Variables
   @Override
   public PipelineEngineCapabilities getEngineCapabilities() {
     return engineCapabilities;
+  }
+
+  /**
+   * Authoritative compatibility verdict for the four Beam runners. Reads the same static metadata
+   * the converter does, so the answer at design time matches what actually happens at run time.
+   *
+   * <ol>
+   *   <li>Meta class on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_META_TYPES}
+   *       list → UNSUPPORTED with the canonical user-facing reason.
+   *   <li>Plugin id in {@link HopPipelineMetaToBeamPipelineConverter#EXPLICIT_HANDLER_PLUGIN_IDS} →
+   *       SUPPORTED.
+   *   <li>Meta class implements {@link IBeamPipelineTransformHandler} → SUPPORTED (the
+   *       transform-meta ships its own Beam handler).
+   *   <li>Otherwise → UNKNOWN. The converter falls back to {@code BeamGenericTransformHandler}
+   *       which wraps the transform in a {@code ParDo}; this works for most transforms but is not a
+   *       guarantee.
+   * </ol>
+   *
+   * Per-runner subclasses (Direct/Dataflow/Spark/Flink) may override to express runner-specific
+   * exclusions — e.g. a Spark-only ban — but the default surfaces what is true today: all four
+   * runners share one handler map.
+   */
+  @Override
+  public EngineCompatibility supports(IPlugin transformPlugin) {
+    if (transformPlugin == null) {
+      return EngineCompatibility.unknown();
+    }
+    Class<?> mainType = transformPlugin.getMainType();
+    if (mainType != null) {
+      String banReason =
+          HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(mainType);
+      if (banReason != null) {
+        return EngineCompatibility.unsupported(banReason);
+      }
+      if (IBeamPipelineTransformHandler.class.isAssignableFrom(mainType)) {
+        return EngineCompatibility.supported();
+      }
+    }
+    String[] ids = transformPlugin.getIds();
+    if (ids != null) {
+      for (String id : ids) {
+        if (HopPipelineMetaToBeamPipelineConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)) {
+          return EngineCompatibility.supported();
+        }
+      }
+    }
+    return EngineCompatibility.unknown();
   }
 
   /**

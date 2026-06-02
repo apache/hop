@@ -37,6 +37,7 @@ import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformEngineSupportPluginType;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.VariableRegistry;
@@ -84,6 +85,7 @@ public class HopEnvironment {
     return Arrays.asList(
         RowDistributionPluginType.getInstance(),
         TransformPluginType.getInstance(),
+        TransformEngineSupportPluginType.getInstance(),
         PartitionerPluginType.getInstance(),
         ActionPluginType.getInstance(),
         HopServerPluginType.getInstance(),

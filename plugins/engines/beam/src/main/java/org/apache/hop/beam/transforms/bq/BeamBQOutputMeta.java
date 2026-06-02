@@ -36,18 +36,16 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.dummy.Dummy;
-import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
 @Transform(
     id = "BeamBQOutput",
     image = "beam-bq-output.svg",
-    name = "Beam BigQuery Output",
-    description = "Writes to a BigQuery table in Beam",
+    name = "i18n::BeamBQOutputDialog.DialogTitle",
+    description = "i18n::BeamBQOutputDialog.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BigData",
     documentationUrl = "/pipeline/transforms/beambigqueryoutput.html",
     keywords = "i18n::BeamBQOutputDialog.keyword")
-public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData>
+public class BeamBQOutputMeta extends BaseTransformMeta<BeamBQOutput, BeamBQOutputData>
     implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
@@ -83,9 +81,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData>
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    // This is an endpoint in Beam, produces no further output
-    //
-    inputRowMeta.clear();
+    // Pass-through on the Hop engine — the transform writes to BigQuery as a side-effect and
+    // forwards input rows downstream so users can chain (e.g.) a Write to log or another sink.
+    // The Beam translation in handleTransform still treats this as a sink (PDone).
   }
 
   @Override

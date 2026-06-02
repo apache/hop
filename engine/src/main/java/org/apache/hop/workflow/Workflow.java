@@ -59,6 +59,7 @@ import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -71,12 +72,14 @@ import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.start.ActionStart;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
 
 /**
  * This class executes a workflow as defined by a WorkflowMeta object.
@@ -382,6 +385,57 @@ public abstract class Workflow extends Variables
       HopEnvironment.setExecutionInformation(this);
 
       log.logBasic(BaseMessages.getString(PKG, CONST_WORKFLOW_STARTED));
+
+      // Engine-compatibility deep gate (backstop). The CLI/GUI surface-level gates fire before the
+      // run-config dialog, but nested executions (ActionWorkflow, WorkflowExecutor, ...) all funnel
+      // through executeFromStart without re-asking. This check refuses to start a workflow with
+      // UNSUPPORTED actions unless HOP_ALLOW_UNSUPPORTED is set. Skipped when the workflow is
+      // marked as engine-internal on the extension-data map.
+      Map<String, Object> wfExtData = getExtensionDataMap();
+      boolean isInternalWorkflow =
+          wfExtData != null
+              && wfExtData.get(Pipeline.EXTENSION_DATA_INTERNAL_PIPELINE_FLAG) != null;
+      if (!isInternalWorkflow) {
+        List<EngineCompatibilityChecker.Violation> compatViolations =
+            EngineCompatibilityChecker.checkWorkflow(workflowMeta, this);
+        if (!compatViolations.isEmpty()) {
+          String wfEngineId =
+              PluginRegistry.getInstance().getPluginId(WorkflowEnginePluginType.class, this);
+          String allowVar = getVariable(Const.HOP_ALLOW_UNSUPPORTED);
+          boolean allow =
+              allowVar != null
+                  && ("Y".equals(allowVar)
+                      || "y".equals(allowVar)
+                      || "true".equalsIgnoreCase(allowVar)
+                      || "1".equals(allowVar));
+          if (allow) {
+            log.logMinimal(
+                "Engine '"
+                    + wfEngineId
+                    + "' refuses "
+                    + compatViolations.size()
+                    + " action(s) in workflow '"
+                    + workflowMeta.getName()
+                    + "' — override via "
+                    + Const.HOP_ALLOW_UNSUPPORTED);
+            log.logMinimal(EngineCompatibilityChecker.formatViolations(compatViolations));
+          } else {
+            throw new HopException(
+                "Engine '"
+                    + wfEngineId
+                    + "' refuses "
+                    + compatViolations.size()
+                    + " action(s) in workflow '"
+                    + workflowMeta.getName()
+                    + "':\n"
+                    + EngineCompatibilityChecker.formatViolations(compatViolations)
+                    + "\nSet variable "
+                    + Const.HOP_ALLOW_UNSUPPORTED
+                    + "=Y, pass --allow-unsupported on the CLI, or choose \"Run anyway\" in the GUI"
+                    + " to override.");
+          }
+        }
+      }
 
       ExtensionPointHandler.callExtensionPoint(log, this, HopExtensionPoint.WorkflowStart.id, this);
 

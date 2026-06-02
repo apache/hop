@@ -73,6 +73,28 @@ import org.jboss.jandex.IndexView;
 public class HopPipelineMetaToBeamPipelineConverter {
 
   public static final String CONST_TRANSFORM = "Transform ";
+
+  /**
+   * Transform plugin ids that have a dedicated, hand-written Beam handler installed by {@link
+   * #addDefaultTransformHandlers()}. Used by {@code BeamPipelineEngine.supports} to surface a
+   * SUPPORTED verdict at design time without instantiating a converter. Keep this in lockstep with
+   * {@link #addDefaultTransformHandlers()}.
+   */
+  public static final Set<String> EXPLICIT_HANDLER_PLUGIN_IDS =
+      Set.of(BeamConst.STRING_MERGE_JOIN_PLUGIN_ID, BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID);
+
+  /**
+   * Transform meta classes that Beam refuses to run at all, mapped to the user-facing reason. The
+   * runtime check in {@link #validateTransformBeamUsage} consults this map; {@code
+   * BeamPipelineEngine.supports} surfaces the same reason at design time.
+   */
+  public static final Map<Class<?>, String> HARD_BANNED_META_TYPES =
+      Map.of(
+          GroupByMeta.class,
+          "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.",
+          UniqueRowsMeta.class,
+          "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows");
+
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;
 
@@ -600,13 +622,12 @@ public class HopPipelineMetaToBeamPipelineConverter {
   }
 
   private void validateTransformBeamUsage(ITransformMeta meta) throws HopException {
-    if (meta instanceof GroupByMeta) {
-      throw new HopException(
-          "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.");
+    if (meta == null) {
+      return;
     }
-    if (meta instanceof UniqueRowsMeta) {
-      throw new HopException(
-          "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows");
+    String banReason = HARD_BANNED_META_TYPES.get(meta.getClass());
+    if (banReason != null) {
+      throw new HopException(banReason);
     }
   }
 
