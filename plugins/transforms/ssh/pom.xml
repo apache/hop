@@ -29,15 +29,28 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms SSH</name>
 
-    <properties>
-        <sshlib.version>2.2.43</sshlib.version>
-    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>org.connectbot</groupId>
-            <artifactId>sshlib</artifactId>
-            <version>${sshlib.version}</version>
+            <groupId>com.github.mwiede</groupId>
+            <artifactId>jsch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+            <version>2.16.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

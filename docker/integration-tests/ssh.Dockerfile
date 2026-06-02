@@ -17,7 +17,9 @@
 # under the License.
 #
 # Minimal SSH server for integration tests: allows password auth and TCP forwarding
-# so Hop can tunnel to Postgres through this container.
+# so Hop can tunnel to Postgres through this container. Public-key auth is also
+# enabled for the SSH transform private-key integration test; the matching key
+# pair lives in integration-tests/ssh/keys (test-only, never used outside the IT).
 #
 FROM alpine:3.19
 
@@ -27,8 +29,19 @@ RUN apk add --no-cache openssh && \
     echo "hop:hop_ssh_password" | chpasswd && \
     sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && \
     sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/^#\?PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config && \
     sed -i 's/^#\?AllowTcpForwarding.*/AllowTcpForwarding yes/' /etc/ssh/sshd_config && \
     sed -i 's/^#\?GatewayPorts.*/GatewayPorts no/' /etc/ssh/sshd_config
+
+# Authorize the integration-test public key for the hop user. sshd enforces
+# StrictModes, so ownership and permissions must be exact or pubkey auth fails.
+COPY integration-tests/ssh/keys/it_rsa.pub /tmp/it_rsa.pub
+RUN mkdir -p /home/hop/.ssh && \
+    cat /tmp/it_rsa.pub > /home/hop/.ssh/authorized_keys && \
+    rm -f /tmp/it_rsa.pub && \
+    chown -R hop:hop /home/hop/.ssh && \
+    chmod 700 /home/hop/.ssh && \
+    chmod 600 /home/hop/.ssh/authorized_keys
 
 EXPOSE 22
 
