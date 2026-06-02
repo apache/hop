@@ -20,9 +20,13 @@ package org.apache.hop.pipeline.transforms.delete;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
+@Getter
+@Setter
 public class DeleteLookupField {
 
   @HopMetadataProperty(
@@ -65,48 +69,14 @@ public class DeleteLookupField {
     this.tableName = tableName;
   }
 
-  /**
-   * @return Returns the tableName.
-   */
-  public String getTableName() {
-    return tableName;
-  }
-
-  /**
-   * @param tableName The tableName to set.
-   */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public List<DeleteKeyField> getFields() {
-    return fields;
-  }
-
-  /**
-   * @param fields The fields to set
-   */
-  public void setFields(List<DeleteKeyField> fields) {
-    this.fields = fields;
-  }
-
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     DeleteLookupField that = (DeleteLookupField) o;
     return fields.equals(that.fields)
         && Objects.equals(schemaName, that.schemaName)
