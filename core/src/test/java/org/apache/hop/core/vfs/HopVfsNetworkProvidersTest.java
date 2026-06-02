@@ -17,6 +17,7 @@
 package org.apache.hop.core.vfs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
@@ -24,7 +25,9 @@ import com.sun.net.httpserver.HttpsServer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,6 +73,7 @@ class HopVfsNetworkProvidersTest {
   private static final String FTP_PASS = "secret";
   private static final String SFTP_USER = "alice";
   private static final String SFTP_PASS = "secret";
+  private static String LOCALHOST;
 
   @TempDir static Path sharedRoot;
 
@@ -93,19 +97,27 @@ class HopVfsNetworkProvidersTest {
   private static SshServer sshServer;
   private static int sftpPort;
 
+  static {
+    try {
+      LOCALHOST = InetAddress.getLocalHost().getHostAddress();
+    } catch (final UnknownHostException e) {
+      fail(e);
+    }
+  }
+
   @BeforeAll
   static void startServers() throws Exception {
     keyStorePath = generateTestKeyStore();
 
     // HTTP
-    httpServer = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
+    httpServer = HttpServer.create(new InetSocketAddress(LOCALHOST, 0), 0);
     httpPort = httpServer.getAddress().getPort();
     httpServer.createContext("/payload.txt", new FixedPayloadHandler("http-payload"));
     httpServer.start();
 
     // HTTPS
     SSLContext sslContext = buildServerSslContext(keyStorePath);
-    httpsServer = HttpsServer.create(new InetSocketAddress("localhost", 0), 0);
+    httpsServer = HttpsServer.create(new InetSocketAddress(LOCALHOST, 0), 0);
     httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
     httpsServer.createContext("/secure.txt", new FixedPayloadHandler("https-payload"));
     httpsServer.start();
@@ -158,19 +170,22 @@ class HopVfsNetworkProvidersTest {
   @Test
   @DisplayName("http:// fetches a payload from an embedded HttpServer")
   void httpProviderReadsFromEmbeddedServer() throws Exception {
-    assertEquals("http-payload", readToString("http://localhost:" + httpPort + "/payload.txt"));
+    assertEquals(
+        "http-payload", readToString("http://" + LOCALHOST + ":" + httpPort + "/payload.txt"));
   }
 
   @Test
   @DisplayName("https:// fetches a payload over TLS from an embedded HttpsServer")
   void httpsProviderReadsFromEmbeddedServer() throws Exception {
-    assertEquals("https-payload", readToString("https://localhost:" + httpsPort + "/secure.txt"));
+    assertEquals(
+        "https-payload", readToString("https://" + LOCALHOST + ":" + httpsPort + "/secure.txt"));
   }
 
   @Test
   @DisplayName("ftp:// fetches a payload from an embedded Apache FtpServer")
   void ftpProviderReadsFromEmbeddedServer() throws Exception {
-    String url = "ftp://" + FTP_USER + ":" + FTP_PASS + "@localhost:" + ftpPort + "/greeting.txt";
+    String url =
+        "ftp://" + FTP_USER + ":" + FTP_PASS + "@" + LOCALHOST + ":" + ftpPort + "/greeting.txt";
     FileSystemOptions opts = new FileSystemOptions();
     FtpFileSystemConfigBuilder.getInstance().setPassiveMode(opts, true);
     assertEquals("ftp-payload", readWithOptions(url, opts));
@@ -179,7 +194,8 @@ class HopVfsNetworkProvidersTest {
   @Test
   @DisplayName("ftps:// fetches a payload over TLS from an embedded Apache FtpServer")
   void ftpsProviderReadsFromEmbeddedServer() throws Exception {
-    String url = "ftps://" + FTP_USER + ":" + FTP_PASS + "@localhost:" + ftpsPort + "/greeting.txt";
+    String url =
+        "ftps://" + FTP_USER + ":" + FTP_PASS + "@" + LOCALHOST + ":" + ftpsPort + "/greeting.txt";
     FileSystemOptions opts = new FileSystemOptions();
     FtpsFileSystemConfigBuilder ftps = FtpsFileSystemConfigBuilder.getInstance();
     ftps.setPassiveMode(opts, true);
@@ -191,7 +207,15 @@ class HopVfsNetworkProvidersTest {
   @DisplayName("sftp:// fetches a payload from an embedded Apache MINA SSHD server")
   void sftpProviderReadsFromEmbeddedServer() throws Exception {
     String url =
-        "sftp://" + SFTP_USER + ":" + SFTP_PASS + "@localhost:" + sftpPort + "/greeting.txt";
+        "sftp://"
+            + SFTP_USER
+            + ":"
+            + SFTP_PASS
+            + "@"
+            + LOCALHOST
+            + ":"
+            + sftpPort
+            + "/greeting.txt";
     assertEquals("sftp-payload", readToString(url));
   }
 
@@ -238,7 +262,7 @@ class HopVfsNetworkProvidersTest {
                 "-dname",
                 "CN=localhost, OU=Hop, O=Apache, L=Test, S=Test, C=US",
                 "-ext",
-                "SAN=DNS:localhost,IP:127.0.0.1",
+                "SAN=DNS:localhost,IP:" + LOCALHOST,
                 "-noprompt")
             .redirectErrorStream(true)
             .start();
@@ -302,7 +326,7 @@ class HopVfsNetworkProvidersTest {
 
   private static SshServer startSftp(Path home) throws IOException {
     SshServer sshd = SshServer.setUpDefaultServer();
-    sshd.setHost("localhost");
+    sshd.setHost(LOCALHOST);
     sshd.setPort(0);
     sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(sharedRoot.resolve("hostkey.ser")));
     sshd.setPasswordAuthenticator(AcceptAllPasswordAuthenticator.INSTANCE);
