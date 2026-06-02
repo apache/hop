@@ -347,6 +347,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private Point[] previousNoteLocations;
   private ActionMeta currentAction;
   private boolean ignoreNextClick;
+  private boolean avoidContextDialog;
   private boolean doubleClick;
   private Runnable pendingShowContextDialogRunnable;
   private boolean dragSelection;
@@ -673,6 +674,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Click on the info icon means: Edit action description
           //
           editActionDescription((ActionMeta) areaOwner.getOwner());
+          avoidContextDialog = true;
+          currentAction = null;
+          actionDragStartScreen = null;
           done = true;
           break;
 
@@ -947,6 +951,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             return;
           }
           break;
+        case ACTION_INFO_ICON:
+          // Description edit was handled in mouseDown; do not open the action context menu
+          return;
         default:
           break;
       }
@@ -1143,6 +1150,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       singleClickHop = clickedWorkflowHop;
     }
     clickedWorkflowHop = null;
+
+    if (avoidContextDialog) {
+      avoidContextDialog = false;
+      selectionRegion = null;
+      return;
+    }
 
     // Only do this "mouseUp()" if this is not part of a double click...
     //
