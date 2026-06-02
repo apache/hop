@@ -170,6 +170,21 @@ public final class PaletteEngineFilter {
   }
 
   /**
+   * True iff the pipeline-canvas combo has at least two meaningful options besides {@link
+   * #NO_FILTER_LABEL} — i.e. the user actually has something to choose between. When false the
+   * canvas toolbar hides the combo to avoid visual clutter (common when a user has removed all Beam
+   * engine plugins and only the Hop engine is left).
+   */
+  public static boolean shouldShowPipelineComboFilter() {
+    return getPipelineEngineLabels().size() > 2;
+  }
+
+  /** Workflow counterpart of {@link #shouldShowPipelineComboFilter()}. */
+  public static boolean shouldShowWorkflowComboFilter() {
+    return getWorkflowEngineLabels().size() > 2;
+  }
+
+  /**
    * {@code "All engines"} when {@code engineId} is empty; {@code "Hop"} when it is one of the
    * grouped ids or the synthetic group id itself; the plugin name otherwise.
    */
