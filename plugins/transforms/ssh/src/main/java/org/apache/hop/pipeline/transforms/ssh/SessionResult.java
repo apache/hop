@@ -17,106 +17,104 @@
 
 package org.apache.hop.pipeline.transforms.ssh;
 
-import com.trilead.ssh2.Session;
-import java.io.BufferedReader;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.util.Utils;
 
 public class SessionResult {
 
-  private String stdOut;
-  private String stdErr;
-  private boolean stdErrorType;
+  private static final int CHANNEL_POLL_MS = 50;
+  private static final int CHANNEL_MAX_WAIT_MS = 120_000;
 
-  public SessionResult(Session session) throws HopException {
-    readStd(session);
+  @Getter @Setter private String stdOut;
+  @Getter private String stdErr;
+  @Getter @Setter private boolean stdErrorType;
+
+  public static SessionResult executeCommand(Session session, String command) throws HopException {
+    ChannelExec channel = null;
+    try {
+      channel = (ChannelExec) session.openChannel("exec");
+      channel.setCommand(command);
+      channel.connect();
+      SessionResult result = new SessionResult();
+      result.readFromChannel(channel);
+      return result;
+    } catch (JSchException e) {
+      throw new HopException(e);
+    } finally {
+      if (channel != null) {
+        channel.disconnect();
+      }
+    }
   }
 
   private void setStdErr(String value) {
     this.stdErr = value;
-    if (!Utils.isEmpty(getStdErr())) {
-      setStdTypeErr(true);
+    if (stdErr != null && !stdErr.isEmpty()) {
+      setStdErrorType(true);
     }
-  }
-
-  public String getStdErr() {
-    return this.stdErr;
   }
 
   public String getStd() {
-    return getStdOut() + getStdErr();
+    return (getStdOut() == null ? "" : getStdOut()) + (getStdErr() == null ? "" : getStdErr());
   }
 
-  private void setStdOut(String value) {
-    this.stdOut = value;
-  }
-
-  public String getStdOut() {
-    return this.stdOut;
-  }
-
-  private void setStdTypeErr(boolean value) {
-    this.stdErrorType = value;
-  }
-
-  public boolean isStdTypeErr() {
-    return this.stdErrorType;
-  }
-
-  private void readStd(Session session) throws HopException {
-    InputStream isOut = null;
-    InputStream isErr = null;
+  private void readFromChannel(ChannelExec channel) throws HopException {
     try {
-      isOut = session.getStdout();
-      isErr = session.getStderr();
+      InputStream isOut = channel.getInputStream();
+      InputStream isErr = channel.getErrStream();
+      byte[] buffer = new byte[8192];
+      StringBuilder stdout = new StringBuilder();
+      StringBuilder stderr = new StringBuilder();
 
-      setStdOut(readInputStream(isOut));
-      setStdErr(readInputStream(isErr));
-
-    } catch (Exception e) {
-      throw new HopException(e);
-    } finally {
-      try {
-        if (isOut != null) {
-          isOut.close();
+      long deadline = System.currentTimeMillis() + CHANNEL_MAX_WAIT_MS;
+      while (true) {
+        appendAvailable(isOut, buffer, stdout);
+        appendAvailable(isErr, buffer, stderr);
+        if (channel.isClosed()) {
+          if (isStreamDrained(isOut) && isStreamDrained(isErr)) {
+            break;
+          }
+        } else if (System.currentTimeMillis() > deadline) {
+          throw new HopException("Timed out waiting for SSH command to complete");
+        } else {
+          try {
+            Thread.sleep(CHANNEL_POLL_MS);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new HopException(e);
+          }
         }
-        if (isErr != null) {
-          isErr.close();
-        }
-      } catch (Exception e) {
-        /* Ignore */
       }
+
+      setStdOut(stdout.toString());
+      setStdErr(stderr.toString());
+    } catch (IOException e) {
+      throw new HopException(e);
     }
   }
 
-  private String readInputStream(InputStream std) throws HopException {
-    BufferedReader br = null;
-    try {
-      br = new BufferedReader(new InputStreamReader(std));
-
-      String line = "";
-      StringBuilder stringStdout = new StringBuilder();
-
-      if ((line = br.readLine()) != null) {
-        stringStdout.append(line);
-      }
-      while ((line = br.readLine()) != null) {
-        stringStdout.append("\n" + line);
-      }
-
-      return stringStdout.toString();
-    } catch (Exception e) {
-      throw new HopException(e);
-    } finally {
-      try {
-        if (br != null) {
-          br.close();
-        }
-      } catch (Exception e) {
-        /* Ignore */
-      }
+  private static void appendAvailable(InputStream in, byte[] buffer, StringBuilder target)
+      throws IOException {
+    if (in == null) {
+      return;
     }
+    while (in.available() > 0) {
+      int read = in.read(buffer, 0, buffer.length);
+      if (read < 0) {
+        break;
+      }
+      target.append(new String(buffer, 0, read, StandardCharsets.UTF_8));
+    }
+  }
+
+  private boolean isStreamDrained(InputStream in) throws IOException {
+    return in == null || in.available() == 0;
   }
 }

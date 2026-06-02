@@ -48,9 +48,10 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>org.connectbot:sshlib:jar</include>
+                <include>com.github.mwiede:jsch:jar</include>
             </includes>
             <outputDirectory>plugins/transforms/ssh/lib</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
     </dependencySets>
 </assembly>
