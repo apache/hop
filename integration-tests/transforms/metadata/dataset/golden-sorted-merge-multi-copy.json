@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-sorted-merge-multi-copy.csv",
+  "name": "golden-sorted-merge-multi-copy",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "field",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
