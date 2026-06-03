@@ -103,6 +103,30 @@ class MetaInjectMetaTest {
   }
 
   @Test
+  void exportResources() throws HopException {
+    IVariables variables = mock(IVariables.class);
+    IResourceNaming resourceNamingInterface = mock(IResourceNaming.class);
+    IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
+
+    MetaInjectMeta injectMetaSpy = spy(metaInjectMeta);
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    Map<String, ResourceDefinition> definitions = Collections.emptyMap();
+    doReturn(TEST_FILE_NAME)
+        .when(pipelineMeta)
+        .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);
+    doReturn(pipelineMeta).when(injectMetaSpy).loadPipelineMeta(metadataProvider, variables);
+
+    String actualExportedFileName =
+        injectMetaSpy.exportResources(
+            variables, definitions, resourceNamingInterface, metadataProvider);
+    assertEquals(TEST_FILE_NAME, actualExportedFileName);
+    assertEquals(EXPORTED_FILE_NAME, injectMetaSpy.getFileName());
+    verify(pipelineMeta)
+        .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);
+    verify(pipelineMeta).setFilename(EXPORTED_FILE_NAME);
+  }
+
+  @Test
   void testSampleMetaMapping() throws Exception {
     Map<String, Set<String>> map = HopMetadataInjector.findInjectionGroupKeys(MetaInjectMeta.class);
     assertNotNull(map);
