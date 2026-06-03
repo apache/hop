@@ -142,7 +142,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
           // Get the indexes of the specified sort fields...
           data.fieldIndices = new int[meta.getMergeFields().size()];
           for (int f = 0; f < data.fieldIndices.length; f++) {
-            SortedMergeMeta.MergeField mergeField = meta.getMergeFields().get(i);
+            SortedMergeMeta.MergeField mergeField = meta.getMergeFields().get(f);
             data.fieldIndices[f] = data.rowMeta.indexOfValue(mergeField.getFieldName());
             if (data.fieldIndices[f] < 0) {
               throw new HopTransformException(
