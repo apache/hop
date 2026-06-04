@@ -119,24 +119,24 @@ public class ValueMetaAndData {
     meta.setGroupingSymbol(null);
     meta.setCurrencySymbol(null);
 
-    StringBuilder retval = new StringBuilder(128);
-    retval.append("<" + XML_TAG + ">");
-    retval.append(XmlHandler.addTagValue("name", meta.getName(), false));
-    retval.append(XmlHandler.addTagValue("type", meta.getTypeDesc(), false));
+    StringBuilder xml = new StringBuilder(128);
+    xml.append(XmlHandler.openTag(XML_TAG));
+    xml.append(XmlHandler.addTagValue("name", meta.getName(), false));
+    xml.append(XmlHandler.addTagValue("type", meta.getTypeDesc(), false));
 
-    retval.append(XmlHandler.addTagValue("length", meta.getLength(), false));
-    retval.append(XmlHandler.addTagValue("precision", meta.getPrecision(), false));
-    retval.append(XmlHandler.addTagValue("mask", meta.getConversionMask(), false));
+    xml.append(XmlHandler.addTagValue("length", meta.getLength(), false));
+    xml.append(XmlHandler.addTagValue("precision", meta.getPrecision(), false));
+    xml.append(XmlHandler.addTagValue("mask", meta.getConversionMask(), false));
 
     try {
-      retval.append(XmlHandler.addTagValue("text", meta.getCompatibleString(valueData), false));
+      xml.append(XmlHandler.addTagValue("text", meta.getCompatibleString(valueData), false));
     } catch (HopValueException e) {
-      retval.append(XmlHandler.addTagValue("text", "", false));
+      xml.append(XmlHandler.addTagValue("text", "", false));
     }
-    retval.append(XmlHandler.addTagValue("isnull", meta.isNull(valueData), false));
-    retval.append("</" + XML_TAG + ">");
+    xml.append(XmlHandler.addTagValue("isnull", meta.isNull(valueData), false));
+    xml.append(XmlHandler.closeTag(XML_TAG));
 
-    return retval.toString();
+    return xml.toString();
   }
 
   /**

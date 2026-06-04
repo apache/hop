@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -31,10 +33,18 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.xml.XmlHandler;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Node;
 
 /** Unit test for {@link ValueMetaAndData} */
 class ValueMetaAndDataTests {
+
+  @BeforeAll
+  static void beforeClassSetUp() throws HopException {
+    HopClientEnvironment.init();
+  }
 
   @Test
   void testStringType() {
@@ -102,5 +112,18 @@ class ValueMetaAndDataTests {
 
     assertInstanceOf(ValueMetaSerializable.class, vm.getValueMeta());
     assertEquals(obj, vm.getValueData());
+  }
+
+  @Test
+  void testGetXmlRoundTrip() throws Exception {
+    ValueMetaAndData vm = new ValueMetaAndData(new ValueMetaString("field"), "value & <tag>");
+
+    String xml = vm.getXml();
+    Node node = XmlHandler.loadXmlString(xml, ValueMetaAndData.XML_TAG);
+    ValueMetaAndData copy = new ValueMetaAndData(node);
+
+    assertInstanceOf(ValueMetaString.class, copy.getValueMeta());
+    assertEquals("field", copy.getValueMeta().getName());
+    assertEquals("value & <tag>", copy.getValueData());
   }
 }
