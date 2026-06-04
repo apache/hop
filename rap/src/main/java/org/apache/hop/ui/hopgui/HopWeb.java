@@ -35,6 +35,7 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
@@ -55,6 +56,24 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 public class HopWeb implements ApplicationConfiguration {
 
   public static final String CONST_LIGHT = "light";
+
+  private static final String WEB_PAGE_TITLE = "Apache Hop Web";
+
+  /**
+   * Returns the browser page title for Hop Web, including the Apache Hop version when it is
+   * available from the runtime manifest ({@link HopVersionProvider}). If no implementation version
+   * is present, only {@link #WEB_PAGE_TITLE} is returned.
+   *
+   * @return page title such as {@code Apache Hop Web - 2.19.0-SNAPSHOT}, or {@code Apache Hop Web}
+   *     when the version is unknown
+   */
+  private static String getWebPageTitle() {
+    String version = new HopVersionProvider().getVersion()[0];
+    if (StringUtils.isNotEmpty(version)) {
+      return WEB_PAGE_TITLE + " - " + version;
+    }
+    return WEB_PAGE_TITLE;
+  }
 
   @Override
   public void configure(Application application) {
@@ -149,14 +168,16 @@ public class HopWeb implements ApplicationConfiguration {
     application.addStyleSheet("dark", "org/apache/hop/ui/hopgui/dark-mode.css");
     application.addStyleSheet(CONST_LIGHT, "org/apache/hop/ui/hopgui/light-mode.css");
 
+    String webPageTitle = getWebPageTitle();
+
     Map<String, String> propertiesLight = new HashMap<>();
-    propertiesLight.put(WebClient.PAGE_TITLE, "Apache Hop Web");
+    propertiesLight.put(WebClient.PAGE_TITLE, webPageTitle);
     propertiesLight.put(WebClient.FAVICON, "ui/images/logo_icon.png");
     propertiesLight.put(WebClient.THEME_ID, CONST_LIGHT);
     propertiesLight.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
 
     Map<String, String> propertiesDark = new HashMap<>();
-    propertiesDark.put(WebClient.PAGE_TITLE, "Apache Hop Web");
+    propertiesDark.put(WebClient.PAGE_TITLE, webPageTitle);
     propertiesDark.put(WebClient.FAVICON, "ui/images/logo_icon.png");
     propertiesDark.put(WebClient.THEME_ID, "dark");
     propertiesDark.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));

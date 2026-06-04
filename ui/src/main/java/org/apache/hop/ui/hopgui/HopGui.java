@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
@@ -446,6 +447,23 @@ public class HopGui
     }
   }
 
+  /**
+   * Returns the main window title, including the Apache Hop version when it is available from the
+   * runtime manifest ({@link HopVersionProvider}). If no implementation version is present (for
+   * example when running from the IDE classpath), only the localized application name is returned.
+   *
+   * @return window title such as {@code Hop - 2.19.0}, or {@code Hop} when the version is unknown
+   */
+  protected String getApplicationWindowTitle() {
+    String appName = BaseMessages.getString(PKG, "HopGui.Application.Name");
+    String version = new HopVersionProvider().getVersion()[0];
+    if (StringUtils.isNotEmpty(version)) {
+      return appName + " - " + version;
+    }
+
+    return appName;
+  }
+
   /** Build the shell */
   protected void open() {
     // Hand Windows a multi-resolution icon set so it can pick the right size for each slot
@@ -475,7 +493,7 @@ public class HopGui
 
     PropsUi.setLook(shell);
 
-    shell.setText(BaseMessages.getString(PKG, "HopGui.Application.Name"));
+    shell.setText(getApplicationWindowTitle());
     addMainMenu();
     addMainToolbar();
     addStatusToolbar();
