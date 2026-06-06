@@ -122,7 +122,7 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     PropsUi.setLook(wParallelism);
     wParallelism.setToolTipText(getString(PKG, "DetectLanguageDialog.Parallelism.Tooltip"));
     FormData fdParallelism = new FormData();
-    fdParallelism.left = new FormAttachment(middle, -margin);
+    fdParallelism.left = new FormAttachment(middle, 0);
     fdParallelism.top = new FormAttachment(wCorpusFieldName, margin);
     fdParallelism.right = new FormAttachment(100, 0);
     wParallelism.setLayoutData(fdParallelism);
