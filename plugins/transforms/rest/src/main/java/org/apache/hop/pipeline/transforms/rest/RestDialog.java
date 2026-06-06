@@ -159,9 +159,17 @@ public class RestDialog extends BaseTransformDialog {
   private TableView wStatusCodes;
   private TableView wMethods;
 
+  private Label wlPaginationInfo;
+
+  private Label wlPaginationEnabled;
+
   private Button wPaginationEnabled;
 
+  private Label wlMaxPagesLoops;
+
   private TextVar wMaxPagesLoops;
+
+  private Label wlSplitPath;
 
   private TextVar wResultSplitPath;
 
@@ -451,6 +459,7 @@ public class RestDialog extends BaseTransformDialog {
     activateUrlInfield();
     activateMethodInfield();
     activateTrustStoreFields();
+    activatePaginationTab();
     setMethod();
     input.setChanged(changed);
     focusTransformName();
@@ -471,71 +480,80 @@ public class RestDialog extends BaseTransformDialog {
     pl.marginHeight = PropsUi.getFormMargin();
     wPagComp.setLayout(pl);
 
-    Label wlInfo = new Label(wPagComp, SWT.LEFT | SWT.WRAP);
-    wlInfo.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Info"));
-    PropsUi.setLook(wlInfo);
+    wlPaginationInfo = new Label(wPagComp, SWT.LEFT | SWT.WRAP);
+    wlPaginationInfo.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Info"));
+    PropsUi.setLook(wlPaginationInfo);
     FormData fdInfo = new FormData();
     fdInfo.left = new FormAttachment(0, margin);
     fdInfo.right = new FormAttachment(100, -margin);
     fdInfo.top = new FormAttachment(0, margin);
-    wlInfo.setLayoutData(fdInfo);
+    wlPaginationInfo.setLayoutData(fdInfo);
+
+    wlPaginationEnabled = new Label(wPagComp, SWT.RIGHT);
+    wlPaginationEnabled.setText(
+        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Enable.Label"));
+    PropsUi.setLook(wlPaginationEnabled);
+    wlPaginationEnabled.setToolTipText(
+        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Enable.Tooltip"));
+    FormData fdlEn = new FormData();
+    fdlEn.left = new FormAttachment(0, margin);
+    fdlEn.right = new FormAttachment(middle, -margin);
+    fdlEn.top = new FormAttachment(wlPaginationInfo, margin);
+    wlPaginationEnabled.setLayoutData(fdlEn);
 
     wPaginationEnabled = new Button(wPagComp, SWT.CHECK);
-    wPaginationEnabled.setText(
-        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Enable.Label"));
     PropsUi.setLook(wPaginationEnabled);
-    wPaginationEnabled.setToolTipText(
-        BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.Enable.Tooltip"));
+    wPaginationEnabled.setToolTipText(wlPaginationEnabled.getToolTipText());
     wPaginationEnabled.addListener(SWT.Selection, e -> input.setChanged());
     FormData fdEn = new FormData();
-    fdEn.left = new FormAttachment(0, margin);
+    fdEn.left = new FormAttachment(middle, margin);
     fdEn.right = new FormAttachment(100, -margin);
-    fdEn.top = new FormAttachment(wlInfo, margin);
+    fdEn.top = new FormAttachment(wlPaginationEnabled, 0, SWT.CENTER);
     wPaginationEnabled.setLayoutData(fdEn);
 
-    Label wlMaxLoops = new Label(wPagComp, SWT.RIGHT);
-    wlMaxLoops.setText(
+    wlMaxPagesLoops = new Label(wPagComp, SWT.RIGHT);
+    wlMaxPagesLoops.setText(
         BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.MaxPagesLoops.Label"));
-    PropsUi.setLook(wlMaxLoops);
-    wlMaxLoops.setToolTipText(
+    PropsUi.setLook(wlMaxPagesLoops);
+    wlMaxPagesLoops.setToolTipText(
         BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.MaxPagesLoops.Tooltip"));
 
     FormData fdlMax = new FormData();
     fdlMax.left = new FormAttachment(0, margin);
     fdlMax.right = new FormAttachment(middle, -margin);
     fdlMax.top = new FormAttachment(wPaginationEnabled, margin);
-    wlMaxLoops.setLayoutData(fdlMax);
+    wlMaxPagesLoops.setLayoutData(fdlMax);
 
     wMaxPagesLoops = new TextVar(variables, wPagComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMaxPagesLoops);
-    wMaxPagesLoops.setToolTipText(wlMaxLoops.getToolTipText());
+    wMaxPagesLoops.setToolTipText(wlMaxPagesLoops.getToolTipText());
     wMaxPagesLoops.addModifyListener(lsMod);
 
     FormData fdMax = new FormData();
     fdMax.left = new FormAttachment(middle, margin);
     fdMax.right = new FormAttachment(100, -margin);
-    fdMax.top = new FormAttachment(wPaginationEnabled, margin);
+    fdMax.top = new FormAttachment(wlMaxPagesLoops, 0, SWT.CENTER);
     wMaxPagesLoops.setLayoutData(fdMax);
 
-    Label wlSplitPath = new Label(wPagComp, SWT.LEFT | SWT.WRAP);
+    wlSplitPath = new Label(wPagComp, SWT.RIGHT);
     wlSplitPath.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.SplitPath.Label"));
     PropsUi.setLook(wlSplitPath);
     wlSplitPath.setToolTipText(
         BaseMessages.getString(PKG, "RestDialog.Tab.Pagination.SplitPath.Tooltip"));
-    FormData fdSplitLbl = new FormData();
-    fdSplitLbl.left = new FormAttachment(0, margin);
-    fdSplitLbl.right = new FormAttachment(100, -margin);
-    fdSplitLbl.top = new FormAttachment(wMaxPagesLoops, margin);
-    wlSplitPath.setLayoutData(fdSplitLbl);
+    FormData fdlSplit = new FormData();
+    fdlSplit.left = new FormAttachment(0, margin);
+    fdlSplit.right = new FormAttachment(middle, -margin);
+    fdlSplit.top = new FormAttachment(wMaxPagesLoops, margin);
+    wlSplitPath.setLayoutData(fdlSplit);
 
     wResultSplitPath = new TextVar(variables, wPagComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wResultSplitPath);
     wResultSplitPath.setToolTipText(wlSplitPath.getToolTipText());
     wResultSplitPath.addModifyListener(lsMod);
     FormData fdSplitTxt = new FormData();
-    fdSplitTxt.left = new FormAttachment(0, margin);
+    fdSplitTxt.left = new FormAttachment(middle, margin);
     fdSplitTxt.right = new FormAttachment(100, -margin);
-    fdSplitTxt.top = new FormAttachment(wlSplitPath, margin);
+    fdSplitTxt.top = new FormAttachment(wlSplitPath, 0, SWT.CENTER);
     wResultSplitPath.setLayoutData(fdSplitTxt);
 
     paginationTab.setControl(wPagComp);
@@ -855,6 +873,28 @@ public class RestDialog extends BaseTransformDialog {
             activateTrustStoreFields();
           }
         });
+  }
+
+  private void activatePaginationTab() {
+    boolean hasConnection = wSelectionLine != null && !Utils.isEmpty(wSelectionLine.getText());
+    if (wlPaginationEnabled != null && !wlPaginationEnabled.isDisposed()) {
+      wlPaginationEnabled.setEnabled(hasConnection);
+    }
+    if (wPaginationEnabled != null && !wPaginationEnabled.isDisposed()) {
+      wPaginationEnabled.setEnabled(hasConnection);
+    }
+    if (wlMaxPagesLoops != null && !wlMaxPagesLoops.isDisposed()) {
+      wlMaxPagesLoops.setEnabled(hasConnection);
+    }
+    if (wMaxPagesLoops != null && !wMaxPagesLoops.isDisposed()) {
+      wMaxPagesLoops.setEnabled(hasConnection);
+    }
+    if (wlSplitPath != null && !wlSplitPath.isDisposed()) {
+      wlSplitPath.setEnabled(hasConnection);
+    }
+    if (wResultSplitPath != null && !wResultSplitPath.isDisposed()) {
+      wResultSplitPath.setEnabled(hasConnection);
+    }
   }
 
   private void activateTrustStoreFields() {
@@ -1419,7 +1459,17 @@ public class RestDialog extends BaseTransformDialog {
     fdSelectionLine.top = new FormAttachment(wGeneralComp, margin);
     fdSelectionLine.right = new FormAttachment(100, -margin);
     wSelectionLine.setLayoutData(fdSelectionLine);
-    wSelectionLine.addListener(SWT.Selection, e -> input.setChanged(true));
+    wSelectionLine.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged(true);
+          activatePaginationTab();
+        });
+    wSelectionLine.addModifyListener(
+        e -> {
+          input.setChanged(true);
+          activatePaginationTab();
+        });
     try {
       wSelectionLine.fillItems();
     } catch (Exception e) {

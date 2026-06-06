@@ -226,7 +226,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    */
   @SuppressWarnings("java:S5527")
   protected RestExchangeResult invokeRestExchange(
-      Object[] rowData, String uriOverrideFull, LinkedHashMap<String, String> pagingQueries)
+      Object[] rowData,
+      String uriOverrideFull,
+      LinkedHashMap<String, String> pagingQueries,
+      LinkedHashMap<String, String> pagingBodyParams,
+      LinkedHashMap<String, String> pagingHeaderParams)
       throws HopException {
 
     applyDynamicRowUrlAndMethod(rowData);
@@ -339,9 +343,28 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         connection.applyBearerAndApiKeyHeaders(invocationBuilder, headerMap);
       }
 
+      if (pagingHeaderParams != null && !pagingHeaderParams.isEmpty()) {
+        for (Map.Entry<String, String> e : pagingHeaderParams.entrySet()) {
+          if (!Utils.isEmpty(e.getKey())) {
+            headerMap.putSingle(e.getKey(), e.getValue() == null ? "" : e.getValue());
+          }
+        }
+      }
+
       String entityString = null;
       if (data.useBody) {
         entityString = NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
+        if (isDebug()) {
+          logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entityString));
+        }
+      }
+      if (pagingBodyParams != null && !pagingBodyParams.isEmpty()) {
+        String contentTypeForMerge = contentType;
+        if (Utils.isEmpty(contentTypeForMerge) && data.mediaType != null) {
+          contentTypeForMerge = data.mediaType.toString();
+        }
+        entityString =
+            PagingBodyMerge.merge(NVL(entityString, ""), pagingBodyParams, contentTypeForMerge);
         if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entityString));
         }
@@ -482,7 +505,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    */
   @SuppressWarnings("java:S5527")
   protected Object[] callRest(Object[] rowData) throws HopException {
-    RestExchangeResult exchange = invokeRestExchange(rowData, null, new LinkedHashMap<>());
+    RestExchangeResult exchange =
+        invokeRestExchange(
+            rowData, null, new LinkedHashMap<>(), new LinkedHashMap<>(), new LinkedHashMap<>());
     return assembleResultRow(rowData == null ? null : rowData.clone(), exchange);
   }
 
@@ -519,11 +544,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     RestExchangeResult firstExchange = null;
     while (hasMore && loopIdx < maxLoops) {
       String uriOv =
-          RestPaginationType.LINK_HEADER.equals(pagingType)
-              ? (loopIdx == 0 ? null : state.linkNextUrl)
-              : null;
+          usesLinkStylePaging(pagingType) ? (loopIdx == 0 ? null : state.linkNextUrl) : null;
 
-      if (RestPaginationType.LINK_HEADER.equals(pagingType) && uriOv != null) {
+      if (usesLinkStylePaging(pagingType) && uriOv != null) {
         String nextKey = normalizeUrlForPagingDedup(uriOv);
         if (linkPagingFetchedUrls.contains(nextKey)) {
           logBasic(BaseMessages.getString(PKG, "Rest.Log.LinkPaginationStoppedRepeatedUrl", uriOv));
@@ -532,12 +555,17 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       LinkedHashMap<String, String> pageQs = buildPagingQuery(connection, pagingType, state);
+      LinkedHashMap<String, String> pageBody = buildPagingBody(connection, pagingType, state);
+      LinkedHashMap<String, String> pageHeaders = buildPagingHeaders(connection, pagingType, state);
 
-      RestExchangeResult ex = invokeRestExchange(rowData, uriOv, pageQs);
+      RestExchangeResult ex = invokeRestExchange(rowData, uriOv, pageQs, pageBody, pageHeaders);
+      logBasic(
+          BaseMessages.getString(
+              PKG, "Rest.Log.PaginationFetchedPage", loopIdx + 1, NVL(ex.requestUrl, "")));
       if (firstExchange == null) {
         firstExchange = ex;
       }
-      if (RestPaginationType.LINK_HEADER.equals(pagingType)) {
+      if (usesLinkStylePaging(pagingType)) {
         String fetchedKey = normalizeUrlForPagingDedup(ex.requestUrl);
         if (!linkPagingFetchedUrls.add(fetchedKey)) {
           logBasic(
@@ -566,7 +594,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (connection == null) {
       return 100;
     }
-    if (RestPaginationType.OFFSET_LIMIT.equals(connection.getPaginationType())) {
+    RestPaginationType type = connection.getPaginationType();
+    if (RestPaginationType.OFFSET_LIMIT.equals(type)
+        || RestPaginationType.BODY_CURSOR.equals(type)
+        || RestPaginationType.HEADER_CURSOR.equals(type)) {
       int lim = connection.getDefaultLimit();
       return lim > 0 ? lim : 100;
     }
@@ -593,14 +624,66 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           q.put(NVL(resolve(conn.getPageParamName()), "cursor"), state.cursorToken);
         }
       }
-      case LINK_HEADER, NONE -> {
-        /* query carried in URL itself */
+      case BODY_CURSOR -> appendCursorBatchToQueryIfGet(conn, state, q);
+      case HEADER_CURSOR, LINK_HEADER, BODY_NEXT_URL, NONE -> {
+        /* header, URL, or body carries paging tokens */
       }
       default -> {
         /* exhaustive */
       }
     }
     return q;
+  }
+
+  private LinkedHashMap<String, String> buildPagingBody(
+      RestConnection conn, RestPaginationType type, PaginationState state) {
+    LinkedHashMap<String, String> body = new LinkedHashMap<>();
+    if (conn == null || type == null || !RestPaginationType.BODY_CURSOR.equals(type)) {
+      return body;
+    }
+    if (isGetPagingMethod()) {
+      return body;
+    }
+    appendCursorBatchParams(conn, state, body);
+    return body;
+  }
+
+  private LinkedHashMap<String, String> buildPagingHeaders(
+      RestConnection conn, RestPaginationType type, PaginationState state) {
+    LinkedHashMap<String, String> headers = new LinkedHashMap<>();
+    if (conn == null || type == null || !RestPaginationType.HEADER_CURSOR.equals(type)) {
+      return headers;
+    }
+    appendCursorBatchParams(conn, state, headers);
+    return headers;
+  }
+
+  private void appendCursorBatchToQueryIfGet(
+      RestConnection conn, PaginationState state, LinkedHashMap<String, String> query) {
+    if (!isGetPagingMethod()) {
+      return;
+    }
+    appendCursorBatchParams(conn, state, query);
+  }
+
+  private void appendCursorBatchParams(
+      RestConnection conn, PaginationState state, LinkedHashMap<String, String> target) {
+    if (state.effectiveLimit > 0) {
+      target.put(
+          NVL(resolve(conn.getLimitParamName()), "limit"), Integer.toString(state.effectiveLimit));
+    }
+    if (!Utils.isEmpty(state.cursorToken)) {
+      target.put(NVL(resolve(conn.getPageParamName()), "cursor"), state.cursorToken);
+    }
+  }
+
+  private boolean isGetPagingMethod() {
+    return RestMeta.HTTP_METHOD_GET.equals(NVL(data.method, ""));
+  }
+
+  private static boolean usesLinkStylePaging(RestPaginationType pagingType) {
+    return RestPaginationType.LINK_HEADER.equals(pagingType)
+        || RestPaginationType.BODY_NEXT_URL.equals(pagingType);
   }
 
   private boolean continuePaginationAfterExchange(
@@ -627,6 +710,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         state.linkNextUrl = extractRelNextUri(ex.headers);
         return !Utils.isEmpty(state.linkNextUrl);
       }
+      case BODY_NEXT_URL -> {
+        state.linkNextUrl = extractNextPageUrlFromBody(conn, ex.body).orElse(null);
+        return !Utils.isEmpty(state.linkNextUrl);
+      }
       case OFFSET_LIMIT -> {
         if (!hadPayload) {
           return false;
@@ -645,6 +732,15 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         if (!hadPayload) {
           return false;
         }
+        return extractCursorForNext(conn, ex.body)
+            .map(
+                tok -> {
+                  state.cursorToken = tok;
+                  return true;
+                })
+            .orElse(false);
+      }
+      case BODY_CURSOR, HEADER_CURSOR -> {
         return extractCursorForNext(conn, ex.body)
             .map(
                 tok -> {
@@ -947,6 +1043,53 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       /* JsonPath suppressed option may yield null upstream */
     }
     return java.util.Optional.empty();
+  }
+
+  private java.util.Optional<String> extractNextPageUrlFromBody(RestConnection conn, String body) {
+    if (conn == null) {
+      return java.util.Optional.empty();
+    }
+    String appType = NVL(resolve(meta.getApplicationType()), "");
+    try {
+      if (RestMeta.APPLICATION_TYPE_JSON.equals(appType)) {
+        if (Utils.isEmpty(conn.getNextPageUrlJsonPath())) {
+          return java.util.Optional.empty();
+        }
+        Object raw =
+            JsonPath.using(JSON_PATH_CONFIGURATION)
+                .parse(NVL(body, "{}"))
+                .read(resolveSplitPathOrPagingExpression(conn.getNextPageUrlJsonPath()));
+        return normalizeNextPageUrl(raw);
+      }
+
+      if (RestMeta.APPLICATION_TYPE_XML.equals(appType)
+          || RestMeta.APPLICATION_TYPE_TEXT_XML.equals(appType)
+          || RestMeta.APPLICATION_TYPE_ATOM_XML.equals(appType)) {
+        if (Utils.isEmpty(conn.getNextPageUrlXPath())) {
+          return java.util.Optional.empty();
+        }
+        DocumentBuilderFactory df = documentBuilderFactory();
+        Document doc;
+        try (StringReader sr = new StringReader(NVL(body, ""))) {
+          doc = df.newDocumentBuilder().parse(new InputSource(sr));
+        }
+        XPathFactory xpf = XPathFactory.newInstance();
+        XPathExpression expr =
+            xpf.newXPath().compile(resolveSplitPathOrPagingExpression(conn.getNextPageUrlXPath()));
+        return normalizeNextPageUrl(expr.evaluate(doc));
+      }
+    } catch (Exception ignored) {
+      /* suppressed JsonPath / XPath failures */
+    }
+    return java.util.Optional.empty();
+  }
+
+  private static java.util.Optional<String> normalizeNextPageUrl(Object raw) {
+    if (raw == null) {
+      return java.util.Optional.empty();
+    }
+    String s = raw.toString().trim();
+    return s.isEmpty() ? java.util.Optional.empty() : java.util.Optional.of(s);
   }
 
   private Response executeWithRetry(Supplier<Response> requestSupplier) throws HopException {

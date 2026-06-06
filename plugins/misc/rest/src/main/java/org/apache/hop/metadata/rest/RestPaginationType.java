@@ -45,5 +45,30 @@ public enum RestPaginationType {
    * Encode a cursor token query parameter ({@link RestConnection#pageParamName}, typically named
    * {@code cursor}) from the previous response body using JsonPath/XPath expressions in metadata.
    */
-  CURSOR
+  CURSOR,
+
+  /**
+   * Merge cursor and batch-size fields into the HTTP request body on POST/PUT/PATCH (form
+   * url-encoded or JSON). The next cursor is read from the response with JsonPath/XPath (as with
+   * {@link #CURSOR}). Pagination stops when the next cursor is empty — not when a page returns zero
+   * rows (Slack-style APIs may return sparse pages while {@code next_cursor} is still set).
+   *
+   * <p>On GET requests, cursor and batch-size are sent as query parameters instead (HTTP clients
+   * typically ignore GET bodies).
+   */
+  BODY_CURSOR,
+
+  /**
+   * Send the cursor token as an HTTP request header ({@link RestConnection#pageParamName}). The
+   * next cursor is read from the response with JsonPath/XPath. Pagination stops when the next
+   * cursor is empty.
+   */
+  HEADER_CURSOR,
+
+  /**
+   * Read the next page URL from the JSON/XML response body (JsonPath/XPath on the connection) and
+   * request it as an absolute URL on the following iteration (same loop semantics as {@link
+   * #LINK_HEADER}).
+   */
+  BODY_NEXT_URL
 }

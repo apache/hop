@@ -165,6 +165,20 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "cursor_x_path")
   private String cursorXPath;
 
+  /**
+   * JsonPath against the JSON response body to read the next page URL ({@link
+   * RestPaginationType#BODY_NEXT_URL}).
+   */
+  @HopMetadataProperty(key = "next_page_url_json_path")
+  private String nextPageUrlJsonPath;
+
+  /**
+   * XPath against the XML response body to read the next page URL ({@link
+   * RestPaginationType#BODY_NEXT_URL}).
+   */
+  @HopMetadataProperty(key = "next_page_url_x_path")
+  private String nextPageUrlXPath;
+
   public RestConnection(IVariables variables) {
     this.variables = variables;
   }

@@ -107,6 +107,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wDefaultLimit;
   private TextVar wCursorJsonPath;
   private TextVar wCursorXPath;
+  private TextVar wNextPageUrlJsonPath;
+  private TextVar wNextPageUrlXPath;
 
   private int middle;
   private int margin;
@@ -581,7 +583,9 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wLimitParamName,
       wDefaultLimit,
       wCursorJsonPath,
-      wCursorXPath
+      wCursorXPath,
+      wNextPageUrlJsonPath,
+      wNextPageUrlXPath
     };
     enableControls(controls);
   }
@@ -597,12 +601,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdi.top = new FormAttachment(0, margin);
     wlInfo.setLayoutData(fdi);
 
+    Control lastControl = wlInfo;
+
     Label wlPaginationType = new Label(p, SWT.RIGHT);
     wlPaginationType.setText(
         BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.Type.Label"));
     PropsUi.setLook(wlPaginationType);
     FormData fdlType = new FormData();
-    fdlType.top = new FormAttachment(wlInfo, margin);
+    fdlType.top = new FormAttachment(lastControl, margin);
     fdlType.left = new FormAttachment(0, margin);
     fdlType.right = new FormAttachment(middle, -margin);
     wlPaginationType.setLayoutData(fdlType);
@@ -612,7 +618,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wPaginationType.setItems(
         Arrays.stream(RestPaginationType.values()).map(Enum::name).toArray(String[]::new));
     FormData fdType = new FormData();
-    fdType.top = new FormAttachment(wlInfo, margin);
+    fdType.top = new FormAttachment(wlPaginationType, 0, SWT.CENTER);
     fdType.left = new FormAttachment(middle, margin);
     fdType.right = new FormAttachment(100, -margin);
     wPaginationType.setLayoutData(fdType);
@@ -622,12 +628,13 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           markChangedIfUserEdit();
           refreshPaginationSensitiveFields();
         });
+    lastControl = wPaginationType;
 
     Label wlPage = new Label(p, SWT.RIGHT);
     wlPage.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.PageParam.Label"));
     PropsUi.setLook(wlPage);
     FormData fdLP = new FormData();
-    fdLP.top = new FormAttachment(wPaginationType, margin);
+    fdLP.top = new FormAttachment(lastControl, margin);
     fdLP.left = new FormAttachment(0, margin);
     fdLP.right = new FormAttachment(middle, -margin);
     wlPage.setLayoutData(fdLP);
@@ -637,16 +644,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wPageParamName.setToolTipText(
         BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.PageParam.Tooltip"));
     FormData fdP = new FormData();
-    fdP.top = new FormAttachment(wPaginationType, margin);
+    fdP.top = new FormAttachment(wlPage, 0, SWT.CENTER);
     fdP.left = new FormAttachment(middle, margin);
     fdP.right = new FormAttachment(100, -margin);
     wPageParamName.setLayoutData(fdP);
+    lastControl = wPageParamName;
 
     Label wlOff = new Label(p, SWT.RIGHT);
     wlOff.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.OffsetParam.Label"));
     PropsUi.setLook(wlOff);
     FormData fdLOff = new FormData();
-    fdLOff.top = new FormAttachment(wPageParamName, margin);
+    fdLOff.top = new FormAttachment(lastControl, margin);
     fdLOff.left = new FormAttachment(0, margin);
     fdLOff.right = new FormAttachment(middle, -margin);
     wlOff.setLayoutData(fdLOff);
@@ -654,16 +662,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wOffsetParamName = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOffsetParamName);
     FormData fdOff = new FormData();
-    fdOff.top = new FormAttachment(wPageParamName, margin);
+    fdOff.top = new FormAttachment(wlOff, 0, SWT.CENTER);
     fdOff.left = new FormAttachment(middle, margin);
     fdOff.right = new FormAttachment(100, -margin);
     wOffsetParamName.setLayoutData(fdOff);
+    lastControl = wOffsetParamName;
 
     Label wlLim = new Label(p, SWT.RIGHT);
     wlLim.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.LimitParam.Label"));
     PropsUi.setLook(wlLim);
     FormData fdLL = new FormData();
-    fdLL.top = new FormAttachment(wOffsetParamName, margin);
+    fdLL.top = new FormAttachment(lastControl, margin);
     fdLL.left = new FormAttachment(0, margin);
     fdLL.right = new FormAttachment(middle, -margin);
     wlLim.setLayoutData(fdLL);
@@ -671,10 +680,11 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wLimitParamName = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLimitParamName);
     FormData fdL = new FormData();
-    fdL.top = new FormAttachment(wOffsetParamName, margin);
+    fdL.top = new FormAttachment(wlLim, 0, SWT.CENTER);
     fdL.left = new FormAttachment(middle, margin);
     fdL.right = new FormAttachment(100, -margin);
     wLimitParamName.setLayoutData(fdL);
+    lastControl = wLimitParamName;
 
     Label wlDef = new Label(p, SWT.RIGHT);
     wlDef.setText(
@@ -683,7 +693,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wlDef.setToolTipText(
         BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.DefaultLimit.Tooltip"));
     FormData fdLD = new FormData();
-    fdLD.top = new FormAttachment(wLimitParamName, margin);
+    fdLD.top = new FormAttachment(lastControl, margin);
     fdLD.left = new FormAttachment(0, margin);
     fdLD.right = new FormAttachment(middle, -margin);
     wlDef.setLayoutData(fdLD);
@@ -692,16 +702,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     PropsUi.setLook(wDefaultLimit);
     wDefaultLimit.setToolTipText(wlDef.getToolTipText());
     FormData fdDef = new FormData();
-    fdDef.top = new FormAttachment(wLimitParamName, margin);
+    fdDef.top = new FormAttachment(wlDef, 0, SWT.CENTER);
     fdDef.left = new FormAttachment(middle, margin);
     fdDef.right = new FormAttachment(100, -margin);
     wDefaultLimit.setLayoutData(fdDef);
+    lastControl = wDefaultLimit;
 
     Label wlCj = new Label(p, SWT.RIGHT);
     wlCj.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.CursorJson.Label"));
     PropsUi.setLook(wlCj);
     FormData fdLCj = new FormData();
-    fdLCj.top = new FormAttachment(wDefaultLimit, margin);
+    fdLCj.top = new FormAttachment(lastControl, margin);
     fdLCj.left = new FormAttachment(0, margin);
     fdLCj.right = new FormAttachment(middle, -margin);
     wlCj.setLayoutData(fdLCj);
@@ -709,16 +720,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wCursorJsonPath = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCursorJsonPath);
     FormData fdCj = new FormData();
-    fdCj.top = new FormAttachment(wDefaultLimit, margin);
+    fdCj.top = new FormAttachment(wlCj, 0, SWT.CENTER);
     fdCj.left = new FormAttachment(middle, margin);
     fdCj.right = new FormAttachment(100, -margin);
     wCursorJsonPath.setLayoutData(fdCj);
+    lastControl = wCursorJsonPath;
 
     Label wlCx = new Label(p, SWT.RIGHT);
     wlCx.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.CursorXPath.Label"));
     PropsUi.setLook(wlCx);
     FormData fdLX = new FormData();
-    fdLX.top = new FormAttachment(wCursorJsonPath, margin);
+    fdLX.top = new FormAttachment(lastControl, margin);
     fdLX.left = new FormAttachment(0, margin);
     fdLX.right = new FormAttachment(middle, -margin);
     wlCx.setLayoutData(fdLX);
@@ -726,10 +738,46 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wCursorXPath = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCursorXPath);
     FormData fdX = new FormData();
-    fdX.top = new FormAttachment(wCursorJsonPath, margin);
+    fdX.top = new FormAttachment(wlCx, 0, SWT.CENTER);
     fdX.left = new FormAttachment(middle, margin);
     fdX.right = new FormAttachment(100, -margin);
     wCursorXPath.setLayoutData(fdX);
+    lastControl = wCursorXPath;
+
+    Label wlNu = new Label(p, SWT.RIGHT);
+    wlNu.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.NextUrlJson.Label"));
+    PropsUi.setLook(wlNu);
+    FormData fdLNu = new FormData();
+    fdLNu.top = new FormAttachment(lastControl, margin);
+    fdLNu.left = new FormAttachment(0, margin);
+    fdLNu.right = new FormAttachment(middle, -margin);
+    wlNu.setLayoutData(fdLNu);
+
+    wNextPageUrlJsonPath = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wNextPageUrlJsonPath);
+    FormData fdNu = new FormData();
+    fdNu.top = new FormAttachment(wlNu, 0, SWT.CENTER);
+    fdNu.left = new FormAttachment(middle, margin);
+    fdNu.right = new FormAttachment(100, -margin);
+    wNextPageUrlJsonPath.setLayoutData(fdNu);
+    lastControl = wNextPageUrlJsonPath;
+
+    Label wlNx = new Label(p, SWT.RIGHT);
+    wlNx.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.NextUrlXPath.Label"));
+    PropsUi.setLook(wlNx);
+    FormData fdLNx = new FormData();
+    fdLNx.top = new FormAttachment(lastControl, margin);
+    fdLNx.left = new FormAttachment(0, margin);
+    fdLNx.right = new FormAttachment(middle, -margin);
+    wlNx.setLayoutData(fdLNx);
+
+    wNextPageUrlXPath = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wNextPageUrlXPath);
+    FormData fdNx = new FormData();
+    fdNx.top = new FormAttachment(wlNx, 0, SWT.CENTER);
+    fdNx.left = new FormAttachment(middle, margin);
+    fdNx.right = new FormAttachment(100, -margin);
+    wNextPageUrlXPath.setLayoutData(fdNx);
 
     refreshPaginationSensitiveFields();
   }
@@ -744,17 +792,26 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     } catch (IllegalArgumentException ex) {
       t = RestPaginationType.NONE;
     }
+    boolean bodyCursor = RestPaginationType.BODY_CURSOR.equals(t);
+    boolean headerCursor = RestPaginationType.HEADER_CURSOR.equals(t);
+    boolean bodyNextUrl = RestPaginationType.BODY_NEXT_URL.equals(t);
     boolean pageOrCursor =
-        RestPaginationType.PAGE_NUMBER.equals(t) || RestPaginationType.CURSOR.equals(t);
+        RestPaginationType.PAGE_NUMBER.equals(t)
+            || RestPaginationType.CURSOR.equals(t)
+            || bodyCursor
+            || headerCursor;
     boolean offset = RestPaginationType.OFFSET_LIMIT.equals(t);
-    boolean cursor = RestPaginationType.CURSOR.equals(t);
+    boolean cursor = RestPaginationType.CURSOR.equals(t) || bodyCursor || headerCursor;
+    boolean limitBatch = offset || bodyCursor || headerCursor;
 
     wPageParamName.setEnabled(pageOrCursor);
     wOffsetParamName.setEnabled(offset);
-    wLimitParamName.setEnabled(offset);
-    wDefaultLimit.setEnabled(offset);
+    wLimitParamName.setEnabled(limitBatch);
+    wDefaultLimit.setEnabled(limitBatch);
     wCursorJsonPath.setEnabled(cursor);
     wCursorXPath.setEnabled(cursor);
+    wNextPageUrlJsonPath.setEnabled(bodyNextUrl);
+    wNextPageUrlXPath.setEnabled(bodyNextUrl);
   }
 
   private static int parseUnsignedIntSafe(String text) {
@@ -1121,6 +1178,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       }
       wCursorJsonPath.setText(Const.NVL(metadata.getCursorJsonPath(), ""));
       wCursorXPath.setText(Const.NVL(metadata.getCursorXPath(), ""));
+      wNextPageUrlJsonPath.setText(Const.NVL(metadata.getNextPageUrlJsonPath(), ""));
+      wNextPageUrlXPath.setText(Const.NVL(metadata.getNextPageUrlXPath(), ""));
 
       refreshPaginationSensitiveFields();
     } finally {
@@ -1171,6 +1230,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setDefaultLimit(parseUnsignedIntSafe(wDefaultLimit.getText()));
     connection.setCursorJsonPath(wCursorJsonPath.getText());
     connection.setCursorXPath(wCursorXPath.getText());
+    connection.setNextPageUrlJsonPath(wNextPageUrlJsonPath.getText());
+    connection.setNextPageUrlXPath(wNextPageUrlXPath.getText());
   }
 
   @Override
