@@ -27,10 +27,9 @@ import java.util.regex.Pattern;
 import org.apache.hop.core.util.Utils;
 
 /**
- * Generic RFC 5988 / RFC 8288 {@code Link} header handling for pagination: find the bracketed URI
- * whose {@code rel=} parameter mentions the {@code next} relation token (similar in spirit to n8n's
- * "response contains next URL" mode, except the pointer often lives in the {@code Link} header—as
- * with GitHub and many other REST APIs—rather than the body).
+ * RFC 5988 / RFC 8288 {@code Link} header handling for pagination: find the bracketed URI whose
+ * {@code rel=} parameter mentions the {@code next} relation token (as used by GitHub, Shopify, and
+ * other REST APIs that advertise the next page in the {@code Link} header rather than the body).
  *
  * @see <a href="https://www.rfc-editor.org/rfc/rfc5988">RFC 5988 Web Linking</a>
  * @see <a href="https://www.rfc-editor.org/rfc/rfc8288">RFC 8288</a>
