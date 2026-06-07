@@ -26,9 +26,13 @@ import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Node;
 
 class ActionSftpPutTest {
   @BeforeEach
@@ -71,5 +75,31 @@ class ActionSftpPutTest {
     assertTrue(action.isCreateDestinationFolder());
     assertTrue(action.isPreserveTargetFileTimestamp());
     assertTrue(action.isSuccessWhenNoFile());
+  }
+
+  @Test
+  void testLegacyRemoveTagPromotedToDelete() throws Exception {
+    // Pre-2.18 files stored "delete after put" as <remove>Y</remove>. After the
+    // @HopMetadataProperty
+    // migration that tag is no longer mapped, so it must be promoted to AfterFtpAction.DELETE on
+    // load, otherwise those workflows silently stop deleting the source files.
+    ActionSftpPut action = loadFromXml("<action><remove>Y</remove></action>");
+    assertEquals(ActionSftpPut.AfterFtpAction.DELETE, action.getAfterSftpAction());
+  }
+
+  @Test
+  void testMissingAfterActionDefaultsToNothingNotNull() throws Exception {
+    // A legacy file without <aftersftpput> must not leave the enum null (it would NPE the dialog
+    // and
+    // the execute() switch).
+    ActionSftpPut action = loadFromXml("<action></action>");
+    assertEquals(ActionSftpPut.AfterFtpAction.NOTHING, action.getAfterSftpAction());
+  }
+
+  private static ActionSftpPut loadFromXml(String xml) throws Exception {
+    Node node = XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), "action");
+    ActionSftpPut action = new ActionSftpPut();
+    action.loadXml(node, new MemoryMetadataProvider(), new Variables());
+    return action;
   }
 }

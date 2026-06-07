@@ -244,5 +244,15 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
       this.fieldName = f.fieldName;
       this.fieldType = f.fieldType;
     }
+
+    /**
+     * A missing or unrecognized {@code <type>} (e.g. legacy or hand-edited pipelines) must behave
+     * as {@link SystemDataType#NONE}, matching the pre-@HopMetadataProperty {@code
+     * getTypeFromString()} fallback. Returning {@code null} caused NPEs in {@link
+     * SystemDataMeta#getFields} and {@link SystemDataMeta#check} and in the dialog.
+     */
+    public SystemDataType getFieldType() {
+      return fieldType == null ? SystemDataType.NONE : fieldType;
+    }
   }
 }

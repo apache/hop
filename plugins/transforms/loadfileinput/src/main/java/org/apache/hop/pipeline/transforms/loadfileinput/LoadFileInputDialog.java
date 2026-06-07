@@ -1158,8 +1158,12 @@ public class LoadFileInputDialog extends BaseTransformDialog {
           inputFile.getFileName(),
           inputFile.getFileMask(),
           inputFile.getExcludeFileMask(),
-          inputFile.isFileRequired() ? CONST_COMBO_YES : CONST_COMBO_NO,
-          inputFile.isIncludeSubFolders() ? CONST_COMBO_YES : CONST_COMBO_NO);
+          inputFile.isFileRequired()
+              ? BaseMessages.getString(PKG, CONST_COMBO_YES)
+              : BaseMessages.getString(PKG, CONST_COMBO_NO),
+          inputFile.isIncludeSubFolders()
+              ? BaseMessages.getString(PKG, CONST_COMBO_YES)
+              : BaseMessages.getString(PKG, CONST_COMBO_NO));
     }
     wFilenameList.optimizeTableView();
 

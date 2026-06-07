@@ -60,6 +60,22 @@ class TeraFastMetaTest {
   }
 
   @Test
+  void testFieldListsAreNeverNullAfterConstructionAndSetDefault() {
+    // Regression: the @HopMetadataProperty refactor dropped the constructor initialization of these
+    // lists, leaving them null after construction/setDefault(). That caused NPEs when opening the
+    // dialog, running check(), or executing processRow() on a freshly added TeraFast transform.
+    TeraFastMeta meta = new TeraFastMeta();
+    assertNotNull(meta.getTableFieldList());
+    assertNotNull(meta.getStreamFieldList());
+
+    meta.setDefault();
+    assertNotNull(meta.getTableFieldList());
+    assertNotNull(meta.getStreamFieldList());
+    assertTrue(meta.getTableFieldList().isEmpty());
+    assertTrue(meta.getStreamFieldList().isEmpty());
+  }
+
+  @Test
   void testClone() {
     TeraFastMeta meta = new TeraFastMeta();
     meta.setDefault();

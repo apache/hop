@@ -654,6 +654,10 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
 
   private void getFileSize(FileObject file) {
     try {
+      // Count every processed file (both SIZE and COUNT evaluation types); this running total is
+      // surfaced in the logs. The @HopMetadataProperty rewrite dropped this increment, leaving the
+      // reported file count stuck at 0.
+      realFilesCount = realFilesCount.add(ONE);
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(

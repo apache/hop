@@ -27,6 +27,15 @@ import org.junit.jupiter.api.Test;
 class MySqlBulkLoaderMetaTest {
 
   @Test
+  void testMissingFieldFormatDefaultsToOk() {
+    // Regression: a field with no/empty <field_format_ok> (legacy, injection-generated or
+    // hand-edited fields) must behave as OK, not null. Null caused a dialog NPE on open and changed
+    // the bytes written to the bulk-load file at runtime.
+    MySqlBulkLoaderMeta.Field field = new MySqlBulkLoaderMeta.Field();
+    assertEquals(MySqlBulkLoaderMeta.FieldFormatType.OK, field.getFieldFormatType());
+  }
+
+  @Test
   void testNewSerialization() throws Exception {
     MySqlBulkLoaderMeta meta =
         TransformSerializationTestUtil.testSerialization(
