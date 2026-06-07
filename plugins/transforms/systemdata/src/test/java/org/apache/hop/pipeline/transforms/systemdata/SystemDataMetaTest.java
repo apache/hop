@@ -69,6 +69,35 @@ class SystemDataMetaTest {
   }
 
   @Test
+  void testFieldWithMissingTypeDefaultsToNoneAndDoesNotThrow() throws Exception {
+    // Regression: a field whose <type> is missing/empty (legacy or hand-edited pipelines) used to
+    // map to NONE. The enum migration made it deserialize to null, causing NPEs in getFields(),
+    // check() and the dialog. getFieldType() must never return null.
+    String xml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + "<fields><field><name>legacy</name></field></fields>"
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    SystemDataMeta meta = new SystemDataMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        SystemDataMeta.class,
+        meta,
+        new MemoryMetadataProvider());
+
+    assertEquals(1, meta.getFields().size());
+    assertEquals(SystemDataType.NONE, meta.getFields().getFirst().getFieldType());
+
+    // None of the consumers below must throw a NullPointerException.
+    RowMeta rowMeta = new RowMeta();
+    meta.getFields(rowMeta, "t", null, null, new Variables(), null);
+    assertEquals(IValueMeta.TYPE_NONE, rowMeta.getValueMeta(0).getType());
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, null, null, null, null, null, new Variables(), null);
+    assertFalse(remarks.isEmpty());
+  }
+
+  @Test
   void testGetFieldsDefaultType() throws Exception {
     SystemDataMeta meta = new SystemDataMeta();
 

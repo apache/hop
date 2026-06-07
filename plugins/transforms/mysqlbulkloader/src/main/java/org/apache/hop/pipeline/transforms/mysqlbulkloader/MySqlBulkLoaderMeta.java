@@ -497,6 +497,16 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
           IEnumHasCodeAndDescription.lookupDescription(
               FieldFormatType.class, description, FieldFormatType.OK);
     }
+
+    /**
+     * A missing or empty {@code <field_format_ok>} (legacy, injection-generated or hand-edited
+     * fields) must behave as {@link FieldFormatType#OK}, matching the pre-@HopMetadataProperty
+     * String default. Returning {@code null} caused a dialog NPE on open and changed the bytes
+     * written to the bulk-load file at runtime.
+     */
+    public FieldFormatType getFieldFormatType() {
+      return fieldFormatType == null ? FieldFormatType.OK : fieldFormatType;
+    }
   }
 
   /** Added for backwards compatibility with older XML "mapping" blocks. */

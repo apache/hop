@@ -35,9 +35,11 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
@@ -51,6 +53,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.sftp.SftpClient;
+import org.w3c.dom.Node;
 
 /** This defines an SFTP put action. */
 @Action(
@@ -181,6 +184,25 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     this.destinationFolder = a.destinationFolder;
     this.createDestinationFolder = a.createDestinationFolder;
     this.successWhenNoFile = a.successWhenNoFile;
+  }
+
+  @Override
+  public void loadXml(Node entryNode, IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopXmlException {
+    super.loadXml(entryNode, metadataProvider, variables);
+
+    // A missing/empty <aftersftpput> deserializes the enum to null; default it to NOTHING so the
+    // dialog and the execute() switch never hit a NullPointerException on legacy pipelines.
+    if (afterSftpAction == null) {
+      afterSftpAction = AfterFtpAction.NOTHING;
+    }
+
+    // Backward compatibility: pre-2.18 files stored "delete after put" as <remove>Y</remove>
+    // instead of <aftersftpput>delete</aftersftpput>. Promote it so those workflows keep deleting.
+    if (afterSftpAction == AfterFtpAction.NOTHING
+        && "Y".equalsIgnoreCase(XmlHandler.getTagValue(entryNode, "remove"))) {
+      afterSftpAction = AfterFtpAction.DELETE;
+    }
   }
 
   @Override
