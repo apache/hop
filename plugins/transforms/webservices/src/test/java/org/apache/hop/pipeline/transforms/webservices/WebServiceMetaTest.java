@@ -18,12 +18,18 @@
 package org.apache.hop.pipeline.transforms.webservices;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 class WebServiceMetaTest {
 
@@ -58,6 +64,25 @@ class WebServiceMetaTest {
 
     validateFieldsIn(meta);
     validateFieldsOut(meta);
+  }
+
+  @Test
+  void testLegacyPipelineWithoutCompatibleElementDefaultsToTrue() throws Exception {
+    assertTrue(fromXml("<wsURL>url</wsURL>").isCompatible());
+  }
+
+  /** An explicit value must always win over the default. */
+  @Test
+  void testExplicitCompatibleFlagIsRespected() throws Exception {
+    assertTrue(fromXml("<compatible>Y</compatible>").isCompatible());
+    assertFalse(fromXml("<compatible>N</compatible>").isCompatible());
+  }
+
+  private static WebServiceMeta fromXml(String innerXml) throws Exception {
+    Document document = XmlHandler.loadXmlString("<transform>" + innerXml + "</transform>");
+    Node node = XmlHandler.getSubNode(document, "transform");
+    return XmlMetadataUtil.deSerializeFromXml(
+        node, WebServiceMeta.class, new MemoryMetadataProvider());
   }
 
   private static void validateFieldsOut(WebServiceMeta meta) {

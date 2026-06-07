@@ -118,7 +118,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
   private int callTransform;
 
   /** Use the 2.5/3.0 parsing logic (available for compatibility reasons) */
-  @HopMetadataProperty(key = "compatible")
+  @HopMetadataProperty(key = "compatible", defaultBoolean = true)
   private boolean compatible;
 
   /** The name of the repeating element name. Empty = a single row return */
