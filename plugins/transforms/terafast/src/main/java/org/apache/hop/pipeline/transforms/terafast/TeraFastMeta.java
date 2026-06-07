@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.terafast;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -108,10 +109,10 @@ public class TeraFastMeta extends BaseTransformMeta<ITransform, ITransformData> 
   private String targetTable;
 
   @HopMetadataProperty(key = "table_field_list")
-  private List<String> tableFieldList;
+  private List<String> tableFieldList = new ArrayList<>();
 
   @HopMetadataProperty(key = "stream_field_list")
-  private List<String> streamFieldList;
+  private List<String> streamFieldList = new ArrayList<>();
 
   @HopMetadataProperty(
       key = "connectionName",
