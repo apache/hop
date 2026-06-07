@@ -19,23 +19,12 @@ package org.apache.hop.pipeline.transforms.memgroupby;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.hop.beam.core.BeamHop;
-import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
@@ -47,7 +36,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.memgroupby.beam.GroupByTransform;
 
 @Transform(
     id = "MemoryGroupBy",
@@ -58,8 +46,7 @@ import org.apache.hop.pipeline.transforms.memgroupby.beam.GroupByTransform;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::MemoryGroupByMeta.keyword",
     documentationUrl = "/pipeline/transforms/memgroupby.html")
-public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGroupByData>
-    implements IBeamPipelineTransformHandler {
+public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGroupByData> {
   private static final Class<?> PKG = MemoryGroupByMeta.class;
 
   /** Fields to group over */
@@ -232,94 +219,6 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  @Override
-  public boolean isInput() {
-    return false;
-  }
-
-  @Override
-  public boolean isOutput() {
-    return false;
-  }
-
-  /**
-   * Handle the transform in a Beam pipeline
-   *
-   * @param log
-   * @param variables
-   * @param runConfigurationName
-   * @param runConfiguration
-   * @param dataSamplersJson
-   * @param metadataProvider
-   * @param pipelineMeta
-   * @param transformMeta
-   * @param transformCollectionMap
-   * @param pipeline
-   * @param rowMeta
-   * @param previousTransforms
-   * @param input
-   * @param parentLogChannelId
-   * @throws HopException
-   */
-  @Override
-  public void handleTransform(
-      ILogChannel log,
-      IVariables variables,
-      String runConfigurationName,
-      IBeamPipelineEngineRunConfiguration runConfiguration,
-      String dataSamplersJson,
-      IHopMetadataProvider metadataProvider,
-      PipelineMeta pipelineMeta,
-      TransformMeta transformMeta,
-      Map<String, PCollection<HopRow>> transformCollectionMap,
-      Pipeline pipeline,
-      IRowMeta rowMeta,
-      List<TransformMeta> previousTransforms,
-      PCollection<HopRow> input,
-      String parentLogChannelId)
-      throws HopException {
-
-    MemoryGroupByMeta meta = new MemoryGroupByMeta();
-    BeamHop.loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
-
-    String[] subjectFields = new String[meta.getAggregates().size()];
-    String[] aggregateCodes = new String[meta.getAggregates().size()];
-
-    for (int i = 0; i < meta.getAggregates().size(); i++) {
-      GAggregate aggregate = meta.getAggregates().get(i);
-
-      aggregateCodes[i] = aggregate.getType().getCode();
-      subjectFields[i] = aggregate.getSubject();
-    }
-
-    List<String> groups = new ArrayList<>();
-    meta.getGroups().forEach(group -> groups.add(group.getField()));
-
-    PTransform<PCollection<HopRow>, PCollection<HopRow>> groupByTransform =
-        new GroupByTransform(
-            transformMeta.getName(),
-            JsonRowMeta.toJson(rowMeta), // The io row
-            groups.toArray(new String[0]),
-            subjectFields,
-            aggregateCodes,
-            new String[] {});
-
-    // Apply the transform to the previous io transform PCollection(s)
-    //
-    PCollection<HopRow> transformPCollection =
-        input.apply(transformMeta.getName(), groupByTransform);
-
-    // Save this in the map
-    //
-    transformCollectionMap.put(transformMeta.getName(), transformPCollection);
-    log.logBasic(
-        "Handled Group By (TRANSFORM) : "
-            + transformMeta.getName()
-            + ", gets data from "
-            + previousTransforms.size()
-            + " previous transform(s)");
   }
 
   @SuppressWarnings("java:S115")
