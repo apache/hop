@@ -1,0 +1,28 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "field",
+          "data_set_field": "field"
+        }
+      ],
+      "field_order": [
+        "field"
+      ],
+      "data_set_name": "golden-sorted-merge-multi-copy",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0102-sorted-merge-multi-copy UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0102-sorted-merge-multi-copy.hpl"
+}
