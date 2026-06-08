@@ -1439,12 +1439,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine-beam</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-constant</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

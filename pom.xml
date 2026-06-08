@@ -97,7 +97,7 @@
     </distributionManagement>
 
     <properties>
-        <apache-beam.version>2.71.0</apache-beam.version>
+        <apache-beam.version>2.74.0</apache-beam.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
@@ -674,7 +674,6 @@
             <modules>
                 <module>core</module>
                 <module>engine</module>
-                <module>engine-beam</module>
                 <module>lib</module>
                 <module>lib-jdbc</module>
                 <module>lib-p2</module>
@@ -905,7 +904,6 @@
                             <excludes>hop-plugins/**.zip</excludes>
                             <excludes>hop-core/**.zip</excludes>
                             <excludes>hop-engine/**.zip</excludes>
-                            <excludes>hop-engine-beam/**.zip</excludes>
                             <excludes>hop-ui-rap/**.zip</excludes>
                             <excludes>hop-ui-rcp/**.zip</excludes>
                             <excludes>hop-rest/**.zip</excludes>
