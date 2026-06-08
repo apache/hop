@@ -28,7 +28,6 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -227,18 +226,13 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
     //
     LocalPipelineEngine loggingPipeline =
         new LocalPipelineEngine(loggingPipelineMeta, variables, pipeline);
-
-    // Do NOT link the logging pipeline to parent to avoid linking the stopped() signal
-    //
     loggingPipeline.setParentPipeline(null);
-    loggingPipeline.setParent(null);
 
     // Flag it as a logging pipeline so we don't log ourselves...
     //
     loggingPipeline.getExtensionDataMap().put(PIPELINE_LOGGING_FLAG, "Y");
 
-    // Only log errors
-    loggingPipeline.setLogLevel(LogLevel.ERROR);
+    loggingPipeline.setLogLevel(pipelineLog.getLogLevel());
     loggingPipeline.prepareExecution();
 
     // Grab the WorkflowLogging transforms and inject the pipeline information...
