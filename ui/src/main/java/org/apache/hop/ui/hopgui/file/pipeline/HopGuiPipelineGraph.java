@@ -810,6 +810,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
             Point p = currentTransform.getLocation();
             iconOffset = new Point(real.x - p.x, real.y - p.y);
+
+            // The RAP/web client does not deliver mouse-move events while a button is held, so the
+            // movement threshold in mouseMove() can never fire during a press. Arm the drag right
+            // away on mouse-down so the transform follows the cursor and is dropped on mouse-up;
+            // native SWT keeps the threshold behaviour to distinguish a click from a drag.
+            if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
+              iconDragCommitted = true;
+              dragSelection = true;
+              canvas.setData("mode", "drag");
+              selectedTransforms = pipelineMeta.getSelectedTransforms();
+              selectedTransform = currentTransform;
+              pipelineGridDelegate.onPipelineSelectionChanged();
+              for (ITransformSelectionListener listener : currentTransformListeners) {
+                listener.onUpdateSelection(currentTransform);
+              }
+            }
           }
           redraw();
           done = true;

@@ -660,6 +660,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
             Point p = currentAction.getLocation();
             iconOffset = new Point(real.x - p.x, real.y - p.y);
+
+            // The RAP/web client does not deliver mouse-move events while a button is held, so the
+            // movement threshold in mouseMove() can never fire during a press. Arm the drag right
+            // away on mouse-down so the action follows the cursor and is dropped on mouse-up;
+            // native
+            // SWT keeps the threshold behaviour to distinguish a click from a drag.
+            if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
+              actionDragCommitted = true;
+              dragSelection = true;
+              canvas.setData("mode", "drag");
+              selectedActions = workflowMeta.getSelectedActions();
+              selectedAction = currentAction;
+            }
           }
           updateGui();
           done = true;
