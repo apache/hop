@@ -370,6 +370,11 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       for (RowMetaAndData rd : rowMetaAndData) {
         rowBuffer.getBuffer().add(rowMeta.cloneRow(rd.getData()));
       }
+      // A group can mix streamed keys and constant keys. Merge them
+      RowBuffer constantBuffer = injectionGroupData.get(groupKey);
+      if (constantBuffer != null) {
+        mergeConstantsIntoGroupBuffer(rowBuffer, constantBuffer);
+      }
       injectionGroupData.put(groupKey, rowBuffer);
     }
 
@@ -492,6 +497,41 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     row[rowMeta.size() - 1] = mapping.getSourceField();
     // Let's not forget to update the row after re-sizing it.
     rows.set(0, row);
+  }
+
+  /**
+   * Merge the constant values collected for a group (a single row holding one value per constant
+   * key) into every streamed row of that same group. Without this, a group that mixes streamed keys
+   * and constant keys would lose its constants when the streamed buffer replaces the constant
+   * buffer in injectionGroupData
+   */
+  // Package-private for unit testing (see MetaInjectTest).
+  static void mergeConstantsIntoGroupBuffer(RowBuffer streamedBuffer, RowBuffer constantBuffer) {
+    List<Object[]> constantRows = constantBuffer.getBuffer();
+    if (constantRows.isEmpty()) {
+      return;
+    }
+    IRowMeta streamedMeta = streamedBuffer.getRowMeta();
+    IRowMeta constantMeta = constantBuffer.getRowMeta();
+    Object[] constantValues = constantRows.getFirst();
+    int streamedSize = streamedMeta.size();
+    int constantSize = constantMeta.size();
+
+    // Extend the metadata with the constant columns.
+    //
+    for (int c = 0; c < constantSize; c++) {
+      streamedMeta.addValueMeta(constantMeta.getValueMeta(c).clone());
+    }
+    // Extend every streamed row with the (identical) constant values.
+    //
+    List<Object[]> streamedRows = streamedBuffer.getBuffer();
+    for (int r = 0; r < streamedRows.size(); r++) {
+      Object[] row = RowDataUtil.createResizedCopy(streamedRows.get(r), streamedMeta.size());
+      for (int c = 0; c < constantSize; c++) {
+        row[streamedSize + c] = constantValues[c];
+      }
+      streamedRows.set(r, row);
+    }
   }
 
   private static String lookupGroupKey(
@@ -706,7 +746,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
    * @param targetTransform
    * @param targetTransformMeta
    */
-  private void newInjectionConstants(
+  // Package-private for unit testing of the constant-injection path (see MetaInjectTest).
+  void newInjectionConstants(
       IVariables variables, String targetTransform, ITransformMeta targetTransformMeta)
       throws HopException {
     if (isDetailed()) {
@@ -720,7 +761,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     for (MetaInjectMapping mapping : meta.getMappings()) {
 
       if (mapping.getTargetTransformName().equalsIgnoreCase(targetTransform)
-          && StringUtils.isNotEmpty(mapping.getSourceTransformName())) {
+          && StringUtils.isEmpty(mapping.getSourceTransformName())) {
         // This is the transform to collect data for...
         // We also know which transform to read the data from. (source)
         //
