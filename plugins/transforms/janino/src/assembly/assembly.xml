@@ -58,6 +58,8 @@
         </dependencySet>
         <dependencySet>
             <includes>
+                <include>org.apache.xbean:xbean-asm9-shaded:jar</include>
+                <include>org.apache.xbean:xbean-finder-shaded:jar</include>
                 <include>org.codehaus.janino:janino:jar</include>
                 <include>org.codehaus.janino:commons-compiler:jar</include>
             </includes>

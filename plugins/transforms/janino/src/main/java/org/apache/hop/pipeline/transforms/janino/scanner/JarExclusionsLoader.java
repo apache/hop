@@ -16,8 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.janino.scanner;
 
-import static java.util.Optional.ofNullable;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,10 +28,8 @@ import org.apache.xbean.finder.filter.Filters;
 
 public class JarExclusionsLoader {
   public Predicate<String> load(String resourcePath) {
-    try (var is =
-        ofNullable(Thread.currentThread().getContextClassLoader())
-            .orElseGet(ClassLoader::getSystemClassLoader)
-            .getResourceAsStream(resourcePath)) {
+    try (final var is =
+        JarExclusionsLoader.class.getClassLoader().getResourceAsStream(resourcePath)) {
       if (is == null) {
         throw new IllegalArgumentException("Resource not found: " + resourcePath);
       }
