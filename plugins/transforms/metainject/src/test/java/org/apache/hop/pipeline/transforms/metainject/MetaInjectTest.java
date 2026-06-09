@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,12 +29,16 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -217,6 +222,84 @@ class MetaInjectTest {
     assertEquals("INJECTED", streamed.getBuffer().get(0)[1]);
     assertEquals("y", streamed.getBuffer().get(1)[0]);
     assertEquals("INJECTED", streamed.getBuffer().get(1)[1]);
+  }
+
+  /**
+   * Regression test for the multi-data-grid scenario reported on top of <a
+   * href="https://github.com/apache/hop/issues/7246">#7246</a>: a single injection group of a
+   * {@code @HopMetadataProperty} template transform (e.g. the Select Values "fields" group) can be
+   * fed from two <em>different</em> source transforms - FIELD_NAME from one data grid, FIELD_RENAME
+   * from another. Every mapping must resolve its own source field and the columns must be zipped
+   * together by row index. The rewrite used to cache the group row layout from the first source
+   * only, so the second source's field was looked up in the wrong layout and injection failed with
+   * "... to inject could not be found". This worked in 2.17 (legacy BeanInjector path).
+   *
+   * <p>This mirrors {@code injectMetadataIntoTemplateTransform}, which calls {@code
+   * collectDataForOneMappingGroup} once per mapping and then {@code buildGroupRowBuffer} to
+   * materialize the group.
+   */
+  @Test
+  void groupFedFromTwoSourcesZipsBothColumns() {
+    String groupKey = "FIELDS";
+
+    // FIELD_NAME is injected from the "field names" data grid (column "name").
+    IRowMeta namesMeta = new RowMeta();
+    namesMeta.addValueMeta(new ValueMetaString("name"));
+    List<RowMetaAndData> nameRows = new ArrayList<>();
+    nameRows.add(new RowMetaAndData(namesMeta, "field1"));
+    nameRows.add(new RowMetaAndData(namesMeta, "field2"));
+
+    MetaInjectMapping nameMapping = new MetaInjectMapping();
+    nameMapping.setTargetTransformName("Select values");
+    nameMapping.setTargetAttributeKey("FIELD_NAME");
+    nameMapping.setTargetDetail(true);
+    nameMapping.setSourceTransformName("field names");
+    nameMapping.setSourceField("name");
+
+    // FIELD_RENAME is injected from a *different* data grid ("field renames", column "newname").
+    IRowMeta renamesMeta = new RowMeta();
+    renamesMeta.addValueMeta(new ValueMetaString("newname"));
+    List<RowMetaAndData> renameRows = new ArrayList<>();
+    renameRows.add(new RowMetaAndData(renamesMeta, "renamed1"));
+    renameRows.add(new RowMetaAndData(renamesMeta, "renamed2"));
+
+    MetaInjectMapping renameMapping = new MetaInjectMapping();
+    renameMapping.setTargetTransformName("Select values");
+    renameMapping.setTargetAttributeKey("FIELD_RENAME");
+    renameMapping.setTargetDetail(true);
+    renameMapping.setSourceTransformName("field renames");
+    renameMapping.setSourceField("newname");
+
+    Map<String, List<RowMetaAndData>> rowMap = new HashMap<>();
+    rowMap.put("field names", nameRows);
+    rowMap.put("field renames", renameRows);
+
+    // Both keys belong to the same injection group, so they accumulate into the same column list.
+    Map<String, List<MetaInject.GroupColumn>> groupColumnsMap = new HashMap<>();
+
+    // Each mapping must resolve its own source field; neither call may throw "could not be found".
+    assertDoesNotThrow(
+        () ->
+            MetaInject.collectDataForOneMappingGroup(
+                nameMapping, groupColumnsMap, groupKey, nameRows));
+    assertDoesNotThrow(
+        () ->
+            MetaInject.collectDataForOneMappingGroup(
+                renameMapping, groupColumnsMap, groupKey, renameRows),
+        "Injecting a group from a second data grid must not fail with "
+            + "'The field ... to inject could not be found'");
+
+    // The two columns, from two different grids, must zip together into the group rows.
+    RowBuffer groupBuffer = MetaInject.buildGroupRowBuffer(groupColumnsMap.get(groupKey), rowMap);
+
+    assertEquals(2, groupBuffer.getRowMeta().size());
+    assertEquals("FIELD_NAME", groupBuffer.getRowMeta().getValueMeta(0).getName());
+    assertEquals("FIELD_RENAME", groupBuffer.getRowMeta().getValueMeta(1).getName());
+    assertEquals(2, groupBuffer.getBuffer().size());
+    assertEquals("field1", groupBuffer.getBuffer().get(0)[0]);
+    assertEquals("renamed1", groupBuffer.getBuffer().get(0)[1]);
+    assertEquals("field2", groupBuffer.getBuffer().get(1)[0]);
+    assertEquals("renamed2", groupBuffer.getBuffer().get(1)[1]);
   }
 
   private PipelineMeta mockSingleTransformPipelineMeta(
