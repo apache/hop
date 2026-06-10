@@ -45,6 +45,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
@@ -185,8 +186,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       // Wait a little bit.
       try {
         Thread.sleep(50);
-      } catch (Exception e) {
-        // Ignore errors
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       }
     }
     copyResult(injectPipeline);
@@ -333,14 +334,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     // These are the values to inject into keys belonging to the groups.
     //
     Map<String, RowBuffer> injectionGroupData = new HashMap<>();
-
-    // What is the row layout for a particular group data?
-    //
-    Map<String, IRowMeta> groupRowMetaMap = new HashMap<>();
-
-    // We keep track of where an injection group data comes from.
-    //
-    Map<String, String> groupSourceMap = new HashMap<>();
+    Map<String, List<GroupColumn>> groupColumnsMap = new HashMap<>();
 
     // We already have the rows.  We just need to rename the fields to the injection key
     //
@@ -349,26 +343,20 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
           targetTransformName,
           mapping,
           injectionKeyGroupMap,
-          groupRowMetaMap,
-          groupSourceMap,
+          groupColumnsMap,
           injectionGroupData,
           injectionKeyData,
           targetTransformMeta.getClass());
     }
 
-    // Now all source rows are mapped and we can construct the group data map
-    //
-    for (Entry<String, String> e : groupSourceMap.entrySet()) {
+    for (Entry<String, List<GroupColumn>> e : groupColumnsMap.entrySet()) {
       String groupKey = e.getKey();
-      String sourceTransformName = e.getValue();
-      IRowMeta rowMeta = groupRowMetaMap.get(groupKey);
-      List<RowMetaAndData> rowMetaAndData = data.rowMap.get(sourceTransformName);
-      // Make a copy of the row metadata and data to avoid any risk of
-      // another transform modifying the rows during injection.
-      //
-      RowBuffer rowBuffer = new RowBuffer(rowMeta.clone());
-      for (RowMetaAndData rd : rowMetaAndData) {
-        rowBuffer.getBuffer().add(rowMeta.cloneRow(rd.getData()));
+      RowBuffer rowBuffer = buildGroupRowBuffer(e.getValue(), data.rowMap);
+
+      // A group can mix streamed keys and constant keys. Merge them
+      RowBuffer constantBuffer = injectionGroupData.get(groupKey);
+      if (constantBuffer != null) {
+        mergeConstantsIntoGroupBuffer(rowBuffer, constantBuffer);
       }
       injectionGroupData.put(groupKey, rowBuffer);
     }
@@ -385,8 +373,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       String targetTransformName,
       MetaInjectMapping mapping,
       Map<String, Set<String>> injectionKeyGroupMap,
-      Map<String, IRowMeta> groupRowMetaMap,
-      Map<String, String> groupSourceMap,
+      Map<String, List<GroupColumn>> groupColumnsMap,
       Map<String, RowBuffer> injectionGroupData,
       Map<String, Object> injectionKeyData,
       Class<?> targetMetaClass)
@@ -404,8 +391,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       if (sourceRows != null && !sourceRows.isEmpty()) {
         // We need to collect the data for the mapping
         //
-        collectDataForOneMappingGroup(
-            mapping, groupRowMetaMap, groupSourceMap, groupKey, sourceRows);
+        collectDataForOneMappingGroup(mapping, groupColumnsMap, groupKey, sourceRows);
       } else {
         // See if this is a constant without a source
         //
@@ -435,22 +421,15 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     }
   }
 
-  private static void collectDataForOneMappingGroup(
+  // Package-private for unit testing (see MetaInjectTest).
+  static void collectDataForOneMappingGroup(
       MetaInjectMapping mapping,
-      Map<String, IRowMeta> groupRowMetaMap,
-      Map<String, String> groupSourceMap,
+      Map<String, List<GroupColumn>> groupColumnsMap,
       String groupKey,
       List<RowMetaAndData> sourceRows)
       throws HopTransformException {
-    IRowMeta rowMeta;
-    rowMeta =
-        groupRowMetaMap.computeIfAbsent(groupKey, f -> sourceRows.getFirst().getRowMeta().clone());
-    int index = rowMeta.indexOfValue(mapping.getSourceField());
-    if (index < 0) {
-      // Is the field already renamed to the target?
-      //
-      index = rowMeta.indexOfValue(mapping.getTargetAttributeKey());
-    }
+    IRowMeta sourceRowMeta = sourceRows.getFirst().getRowMeta();
+    int index = sourceRowMeta.indexOfValue(mapping.getSourceField());
     if (index < 0) {
       throw new HopTransformException(
           "The field '"
@@ -459,15 +438,55 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
               + mapping.getSourceTransformName()
               + "' to inject could not be found");
     }
-    // We give the value the name of the target injection key
-    //
-    IValueMeta valueMeta = rowMeta.getValueMeta(index);
-    valueMeta.setName(mapping.getTargetAttributeKey());
-
-    // Let's keep track of where the rows are coming from for the current group
-    //
-    groupSourceMap.put(groupKey, mapping.getSourceTransformName());
+    groupColumnsMap
+        .computeIfAbsent(groupKey, f -> new ArrayList<>())
+        .add(
+            new GroupColumn(
+                mapping.getTargetAttributeKey(), mapping.getSourceTransformName(), index));
   }
+
+  /**
+   * Build the row buffer for a single injection group by reading each column from its own source
+   * transform and zipping them together by row index. Columns may come from different source
+   * transforms with different row counts; shorter columns leave a {@code null} (which the injector
+   * skips) for the missing rows.
+   */
+  static RowBuffer buildGroupRowBuffer(
+      List<GroupColumn> columns, Map<String, List<RowMetaAndData>> rowMap) {
+    // Build the group's row layout (one value per column, named after its injection key) and find
+    // the longest column so every row of every source is represented.
+    //
+    RowMeta groupRowMeta = new RowMeta();
+    int rowCount = 0;
+    for (GroupColumn column : columns) {
+      List<RowMetaAndData> sourceRows = rowMap.get(column.sourceTransformName());
+      IValueMeta valueMeta =
+          sourceRows.getFirst().getRowMeta().getValueMeta(column.columnIndex()).clone();
+      valueMeta.setName(column.targetKey());
+      groupRowMeta.addValueMeta(valueMeta);
+      rowCount = Math.max(rowCount, sourceRows.size());
+    }
+
+    RowBuffer rowBuffer = new RowBuffer(groupRowMeta);
+    for (int r = 0; r < rowCount; r++) {
+      Object[] row = RowDataUtil.allocateRowData(columns.size());
+      for (int c = 0; c < columns.size(); c++) {
+        GroupColumn column = columns.get(c);
+        List<RowMetaAndData> sourceRows = rowMap.get(column.sourceTransformName());
+        if (r < sourceRows.size()) {
+          row[c] = sourceRows.get(r).getData()[column.columnIndex()];
+        }
+      }
+      rowBuffer.getBuffer().add(row);
+    }
+    return rowBuffer;
+  }
+
+  /**
+   * A single streamed column of an injection group: which injection key it feeds, which source
+   * transform it is read from, and the index of the source field in that transform's row.
+   */
+  record GroupColumn(String targetKey, String sourceTransformName, int columnIndex) {}
 
   private static void addConstantToGroupData(
       MetaInjectMapping mapping, Map<String, RowBuffer> injectionGroupData, String groupKey) {
@@ -492,6 +511,41 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     row[rowMeta.size() - 1] = mapping.getSourceField();
     // Let's not forget to update the row after re-sizing it.
     rows.set(0, row);
+  }
+
+  /**
+   * Merge the constant values collected for a group (a single row holding one value per constant
+   * key) into every streamed row of that same group. Without this, a group that mixes streamed keys
+   * and constant keys would lose its constants when the streamed buffer replaces the constant
+   * buffer in injectionGroupData
+   */
+  // Package-private for unit testing (see MetaInjectTest).
+  static void mergeConstantsIntoGroupBuffer(RowBuffer streamedBuffer, RowBuffer constantBuffer) {
+    List<Object[]> constantRows = constantBuffer.getBuffer();
+    if (constantRows.isEmpty()) {
+      return;
+    }
+    IRowMeta streamedMeta = streamedBuffer.getRowMeta();
+    IRowMeta constantMeta = constantBuffer.getRowMeta();
+    Object[] constantValues = constantRows.getFirst();
+    int streamedSize = streamedMeta.size();
+    int constantSize = constantMeta.size();
+
+    // Extend the metadata with the constant columns.
+    //
+    for (int c = 0; c < constantSize; c++) {
+      streamedMeta.addValueMeta(constantMeta.getValueMeta(c).clone());
+    }
+    // Extend every streamed row with the (identical) constant values.
+    //
+    List<Object[]> streamedRows = streamedBuffer.getBuffer();
+    for (int r = 0; r < streamedRows.size(); r++) {
+      Object[] row = RowDataUtil.createResizedCopy(streamedRows.get(r), streamedMeta.size());
+      for (int c = 0; c < constantSize; c++) {
+        row[streamedSize + c] = constantValues[c];
+      }
+      streamedRows.set(r, row);
+    }
   }
 
   private static String lookupGroupKey(
@@ -640,8 +694,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     if (isDetailed()) {
       logDetailed("Handing transform '" + targetTransform + "' injection!");
     }
-    BeanInjectionInfo injectionInfo = new BeanInjectionInfo(targetTransformMeta.getClass());
-    BeanInjector injector = new BeanInjector(injectionInfo, metadataProvider);
+    BeanInjectionInfo<?> injectionInfo = new BeanInjectionInfo<>(targetTransformMeta.getClass());
+    BeanInjector<?> injector = new BeanInjector<>(injectionInfo, metadataProvider);
 
     // Collect all the metadata for this target transform...
     //
@@ -706,21 +760,22 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
    * @param targetTransform
    * @param targetTransformMeta
    */
-  private void newInjectionConstants(
+  // Package-private for unit testing of the constant-injection path (see MetaInjectTest).
+  void newInjectionConstants(
       IVariables variables, String targetTransform, ITransformMeta targetTransformMeta)
       throws HopException {
     if (isDetailed()) {
       logDetailed("Handing transform '" + targetTransform + "' constants injection!");
     }
-    BeanInjectionInfo injectionInfo = new BeanInjectionInfo(targetTransformMeta.getClass());
-    BeanInjector injector = new BeanInjector(injectionInfo, metadataProvider);
+    BeanInjectionInfo<?> injectionInfo = new BeanInjectionInfo<>(targetTransformMeta.getClass());
+    BeanInjector<?> injector = new BeanInjector<>(injectionInfo, metadataProvider);
 
     // Collect all the metadata for this target transform...
     //
     for (MetaInjectMapping mapping : meta.getMappings()) {
 
       if (mapping.getTargetTransformName().equalsIgnoreCase(targetTransform)
-          && StringUtils.isNotEmpty(mapping.getSourceTransformName())) {
+          && StringUtils.isEmpty(mapping.getSourceTransformName())) {
         // This is the transform to collect data for...
         // We also know which transform to read the data from. (source)
         //
@@ -828,10 +883,10 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       PipelineMeta injectedPipelineMeta,
       Set<String> unavailableTargetTransforms) {
     Set<MetaInjectMapping> missingKeys = new HashSet<>();
-    Map<String, BeanInjectionInfo> beanInfos = getUsedTransformBeanInfos(injectedPipelineMeta);
+    Map<String, BeanInjectionInfo<?>> beanInfos = getUsedTransformBeanInfos(injectedPipelineMeta);
     for (MetaInjectMapping mapping : mappings) {
       if (!unavailableTargetTransforms.contains(mapping.getTargetTransformName())) {
-        BeanInjectionInfo info = beanInfos.get(mapping.getTargetTransformName().toUpperCase());
+        BeanInjectionInfo<?> info = beanInfos.get(mapping.getTargetTransformName().toUpperCase());
         if (info != null && !info.getProperties().containsKey(mapping.getTargetAttributeKey())) {
           missingKeys.add(mapping);
         }
@@ -840,13 +895,13 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     return missingKeys;
   }
 
-  private static Map<String, BeanInjectionInfo> getUsedTransformBeanInfos(
+  private static Map<String, BeanInjectionInfo<?>> getUsedTransformBeanInfos(
       PipelineMeta pipelineMeta) {
-    Map<String, BeanInjectionInfo> res = new HashMap<>();
+    Map<String, BeanInjectionInfo<?>> res = new HashMap<>();
     for (TransformMeta transformMeta : pipelineMeta.getUsedTransforms()) {
       Class<? extends ITransformMeta> transformMetaClass = transformMeta.getTransform().getClass();
       if (BeanInjectionInfo.isInjectionSupported(transformMetaClass)) {
-        res.put(transformMeta.getName().toUpperCase(), new BeanInjectionInfo(transformMetaClass));
+        res.put(transformMeta.getName().toUpperCase(), new BeanInjectionInfo<>(transformMetaClass));
       }
     }
     return res;

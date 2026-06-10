@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "col1",
+          "data_set_field": "col1"
+        },
+        {
+          "transform_field": "col3",
+          "data_set_field": "col3"
+        }
+      ],
+      "field_order": [
+        "col1",
+        "col3"
+      ],
+      "data_set_name": "golden-mdi-shared-field",
+      "transform_name": "output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0090-mdi-shared-field-template UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0090-mdi-shared-field-template-injected.hpl"
+}
