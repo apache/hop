@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-mdi-edge-cases.csv",
+  "name": "golden-mdi-edge-cases",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "ID",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "AA",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "b",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "c",
+      "field_format": "####0;-####0"
+    }
+  ],
+  "folder_name": ""
+}
