@@ -17,20 +17,31 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -130,6 +141,165 @@ class MetaInjectTest {
     } catch (Exception ex) {
       fail();
     }
+  }
+
+  /**
+   * Regression test for <a href="https://github.com/apache/hop/issues/7246">#7246</a>: a constant
+   * value (a mapping without a source transform) must be injected into a legacy
+   * {@code @InjectionSupported} template transform.
+   */
+  @Test
+  void newInjectionConstants_injectsConstantWithoutSourceTransform() throws Exception {
+    InjectableTestTransformMeta targetMeta = new InjectableTestTransformMeta();
+
+    // A "constant" mapping has no source transform; the literal value to inject is held in the
+    // source field of the mapping.
+    MetaInjectMapping constantMapping = new MetaInjectMapping();
+    constantMapping.setTargetTransformName(TEST_TARGET_TRANSFORM_NAME);
+    constantMapping.setTargetAttributeKey("THERE");
+    constantMapping.setSourceTransformName(null);
+    constantMapping.setSourceField(TEST_VALUE);
+
+    when(metaInject.getMeta().getMappings()).thenReturn(Collections.singletonList(constantMapping));
+
+    metaInject.newInjectionConstants(metaInject, TEST_TARGET_TRANSFORM_NAME, targetMeta);
+
+    assertEquals(TEST_VALUE, targetMeta.there);
+  }
+
+  /**
+   * A mapping that streams from a source transform is handled by {@code newInjection()} and must
+   * not be treated as a constant here. Otherwise the source field <em>name</em> would be injected
+   * as a literal value, corrupting the streamed injection.
+   */
+  @Test
+  void newInjectionConstants_ignoresMappingWithSourceTransform() throws Exception {
+    InjectableTestTransformMeta targetMeta = new InjectableTestTransformMeta();
+
+    MetaInjectMapping streamedMapping = new MetaInjectMapping();
+    streamedMapping.setTargetTransformName(TEST_TARGET_TRANSFORM_NAME);
+    streamedMapping.setTargetAttributeKey("THERE");
+    streamedMapping.setSourceTransformName(TEST_SOURCE_TRANSFORM_NAME);
+    streamedMapping.setSourceField(TEST_FIELD);
+
+    when(metaInject.getMeta().getMappings()).thenReturn(Collections.singletonList(streamedMapping));
+
+    metaInject.newInjectionConstants(metaInject, TEST_TARGET_TRANSFORM_NAME, targetMeta);
+
+    assertNull(targetMeta.there);
+  }
+
+  /**
+   * Regression test for <a href="https://github.com/apache/hop/issues/7246">#7246</a>: when an
+   * injection group mixes a streamed key and a constant key, the constant value must be merged into
+   * every streamed row instead of being dropped when the streamed buffer is stored.
+   */
+  @Test
+  void mergeConstantsIntoGroupBuffer_addsConstantToEveryStreamedRow() {
+    RowMeta streamedMeta = new RowMeta();
+    streamedMeta.addValueMeta(new ValueMetaString("FIELD_NAME"));
+    List<Object[]> streamedRows = new ArrayList<>();
+    streamedRows.add(new Object[] {"x"});
+    streamedRows.add(new Object[] {"y"});
+    RowBuffer streamed = new RowBuffer(streamedMeta, streamedRows);
+
+    RowMeta constantMeta = new RowMeta();
+    constantMeta.addValueMeta(new ValueMetaString("REPLACE_VALUE"));
+    List<Object[]> constantRows = new ArrayList<>();
+    constantRows.add(new Object[] {"INJECTED"});
+    RowBuffer constant = new RowBuffer(constantMeta, constantRows);
+
+    MetaInject.mergeConstantsIntoGroupBuffer(streamed, constant);
+
+    // The constant column is appended to the metadata...
+    assertEquals(2, streamed.getRowMeta().size());
+    assertEquals("FIELD_NAME", streamed.getRowMeta().getValueMeta(0).getName());
+    assertEquals("REPLACE_VALUE", streamed.getRowMeta().getValueMeta(1).getName());
+    // ...and the constant value is present in every streamed row. (Hop over-allocates the row
+    // array, so we check the cells by index rather than comparing the whole array.)
+    assertEquals(2, streamed.getBuffer().size());
+    assertEquals("x", streamed.getBuffer().get(0)[0]);
+    assertEquals("INJECTED", streamed.getBuffer().get(0)[1]);
+    assertEquals("y", streamed.getBuffer().get(1)[0]);
+    assertEquals("INJECTED", streamed.getBuffer().get(1)[1]);
+  }
+
+  /**
+   * Regression test for the multi-data-grid scenario reported on top of <a
+   * href="https://github.com/apache/hop/issues/7246">#7246</a>: a single injection group of a
+   * {@code @HopMetadataProperty} template transform (e.g. the Select Values "fields" group) can be
+   * fed from two <em>different</em> source transforms - FIELD_NAME from one data grid, FIELD_RENAME
+   * from another. Every mapping must resolve its own source field and the columns must be zipped
+   * together by row index. The rewrite used to cache the group row layout from the first source
+   * only, so the second source's field was looked up in the wrong layout and injection failed with
+   * "... to inject could not be found". This worked in 2.17 (legacy BeanInjector path).
+   *
+   * <p>This mirrors {@code injectMetadataIntoTemplateTransform}, which calls {@code
+   * collectDataForOneMappingGroup} once per mapping and then {@code buildGroupRowBuffer} to
+   * materialize the group.
+   */
+  @Test
+  void groupFedFromTwoSourcesZipsBothColumns() {
+    String groupKey = "FIELDS";
+
+    // FIELD_NAME is injected from the "field names" data grid (column "name").
+    IRowMeta namesMeta = new RowMeta();
+    namesMeta.addValueMeta(new ValueMetaString("name"));
+    List<RowMetaAndData> nameRows = new ArrayList<>();
+    nameRows.add(new RowMetaAndData(namesMeta, "field1"));
+    nameRows.add(new RowMetaAndData(namesMeta, "field2"));
+
+    MetaInjectMapping nameMapping = new MetaInjectMapping();
+    nameMapping.setTargetTransformName("Select values");
+    nameMapping.setTargetAttributeKey("FIELD_NAME");
+    nameMapping.setTargetDetail(true);
+    nameMapping.setSourceTransformName("field names");
+    nameMapping.setSourceField("name");
+
+    // FIELD_RENAME is injected from a *different* data grid ("field renames", column "newname").
+    IRowMeta renamesMeta = new RowMeta();
+    renamesMeta.addValueMeta(new ValueMetaString("newname"));
+    List<RowMetaAndData> renameRows = new ArrayList<>();
+    renameRows.add(new RowMetaAndData(renamesMeta, "renamed1"));
+    renameRows.add(new RowMetaAndData(renamesMeta, "renamed2"));
+
+    MetaInjectMapping renameMapping = new MetaInjectMapping();
+    renameMapping.setTargetTransformName("Select values");
+    renameMapping.setTargetAttributeKey("FIELD_RENAME");
+    renameMapping.setTargetDetail(true);
+    renameMapping.setSourceTransformName("field renames");
+    renameMapping.setSourceField("newname");
+
+    Map<String, List<RowMetaAndData>> rowMap = new HashMap<>();
+    rowMap.put("field names", nameRows);
+    rowMap.put("field renames", renameRows);
+
+    // Both keys belong to the same injection group, so they accumulate into the same column list.
+    Map<String, List<MetaInject.GroupColumn>> groupColumnsMap = new HashMap<>();
+
+    // Each mapping must resolve its own source field; neither call may throw "could not be found".
+    assertDoesNotThrow(
+        () ->
+            MetaInject.collectDataForOneMappingGroup(
+                nameMapping, groupColumnsMap, groupKey, nameRows));
+    assertDoesNotThrow(
+        () ->
+            MetaInject.collectDataForOneMappingGroup(
+                renameMapping, groupColumnsMap, groupKey, renameRows),
+        "Injecting a group from a second data grid must not fail with "
+            + "'The field ... to inject could not be found'");
+
+    // The two columns, from two different grids, must zip together into the group rows.
+    RowBuffer groupBuffer = MetaInject.buildGroupRowBuffer(groupColumnsMap.get(groupKey), rowMap);
+
+    assertEquals(2, groupBuffer.getRowMeta().size());
+    assertEquals("FIELD_NAME", groupBuffer.getRowMeta().getValueMeta(0).getName());
+    assertEquals("FIELD_RENAME", groupBuffer.getRowMeta().getValueMeta(1).getName());
+    assertEquals(2, groupBuffer.getBuffer().size());
+    assertEquals("field1", groupBuffer.getBuffer().get(0)[0]);
+    assertEquals("renamed1", groupBuffer.getBuffer().get(0)[1]);
+    assertEquals("field2", groupBuffer.getBuffer().get(1)[0]);
+    assertEquals("renamed2", groupBuffer.getBuffer().get(1)[1]);
   }
 
   private PipelineMeta mockSingleTransformPipelineMeta(
