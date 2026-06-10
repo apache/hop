@@ -81,16 +81,20 @@ public class FileInputList {
       IVariables variables, List<InputFile> inputFiles, FileTypeFilter[] fileTypeFilters) {
     FileInputList fileInputList = new FileInputList();
 
-    for (InputFile inputFile : inputFiles) {
+    for (int i = 0; i < inputFiles.size(); i++) {
+      final InputFile inputFile = inputFiles.get(i);
       final String oneFile = variables.resolve(inputFile.getFileName());
       final String oneMask = variables.resolve(inputFile.getFileMask());
       final String excludeOneMask = variables.resolve(inputFile.getExcludeFileMask());
       final boolean oneRequired = inputFile.isFileRequired();
       final boolean subDirs = inputFile.isIncludeSubFolders();
+
+      FileTypeFilter selectedFilter = inputFile.getFileTypeFilter();
+      if (fileTypeFilters != null && i < fileTypeFilters.length && fileTypeFilters[i] != null) {
+        selectedFilter = fileTypeFilters[i];
+      }
       final FileTypeFilter filter =
-          ((fileTypeFilters == null || inputFile.getFileTypeFilter() == null)
-              ? FileTypeFilter.ONLY_FILES
-              : inputFile.getFileTypeFilter());
+          selectedFilter == null ? FileTypeFilter.ONLY_FILES : selectedFilter;
 
       if (Utils.isEmpty(oneFile)) {
         continue;
