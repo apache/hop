@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.variables.Variables;
@@ -27,6 +31,97 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  /**
+   * Regression guard: the "Rownum in output" option must actually populate the row-number column.
+   * It regressed (commit 6bdc5fd095) because TextFileInputMeta.isIncludeRowNumber() was stubbed to
+   * return false, so getFields added the column but convertLineToRow never filled it (null on every
+   * row).
+   */
+  @Test
+  void testIncludeRowNumberIsPopulated() throws Exception {
+    meta.getContent().setFileFormat("unix");
+    meta.getContent().setIncludeRowNumber(true);
+    meta.getContent().setRowNumberField("rownr");
+
+    initByFile("default.csv");
+    setFields(
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f3", -1, -1));
+
+    process();
+
+    int idx = data.outputRowMeta.indexOfValue("rownr");
+    assertTrue(idx >= 0, "rownr column should be present");
+    assertEquals(3, rows.size());
+    for (int i = 0; i < rows.size(); i++) {
+      assertNotNull(rows.get(i)[idx], "rownr must not be null on row " + i);
+      assertEquals((long) (i + 1), ((Number) rows.get(i)[idx]).longValue());
+    }
+  }
+
+  /**
+   * Regression guard for the "include filename in output" option, broken the same way as rownum
+   * (TextFileInputMeta.isIncludeFilename() was stubbed to return false).
+   */
+  @Test
+  void testIncludeFilenameIsPopulated() throws Exception {
+    meta.getContent().setFileFormat("unix");
+    meta.getContent().setIncludeFilename(true);
+    meta.getContent().setFilenameField("fname");
+
+    initByFile("default.csv");
+    setFields(
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f3", -1, -1));
+
+    process();
+
+    int idx = data.outputRowMeta.indexOfValue("fname");
+    assertTrue(idx >= 0, "fname column should be present");
+    assertEquals(3, rows.size());
+    for (int i = 0; i < rows.size(); i++) {
+      Object value = rows.get(i)[idx];
+      assertNotNull(value, "filename must not be null on row " + i);
+      assertTrue(value.toString().endsWith("default.csv"), "unexpected filename: " + value);
+    }
+  }
+
+  /**
+   * Regression guard for the additional-output-field misalignment: getFields adds these columns
+   * with StringUtils.isNotBlank(...) but the runtime used to add/shift them with a plain != null
+   * check. An empty-string field name (how the UI serializes an unused field) would then be written
+   * by the runtime even though getFields skipped it, shifting every following column by one. Here a
+   * blank short-filename field precedes a real extension field, so the extension column must hold
+   * the file extension - not the misaligned short filename.
+   */
+  @Test
+  void testBlankAdditionalFieldDoesNotMisalignColumns() throws Exception {
+    meta.getContent().setFileFormat("unix");
+    // Unused field serialized as an empty string (not null), preceding a real one.
+    meta.getAdditionalOutputFields().setShortFilenameField("");
+    meta.getAdditionalOutputFields().setExtensionField("theext");
+
+    initByFile("default.csv");
+    setFields(
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f3", -1, -1));
+
+    process();
+
+    // The blank short-filename field must NOT have produced a column.
+    assertTrue(
+        data.outputRowMeta.indexOfValue("") < 0, "a blank field name must not create a column");
+    int idx = data.outputRowMeta.indexOfValue("theext");
+    assertTrue(idx >= 0, "extension column should be present");
+    assertEquals(3, rows.size());
+    for (int i = 0; i < rows.size(); i++) {
+      assertEquals("csv", rows.get(i)[idx], "extension column misaligned on row " + i);
+    }
+  }
 
   @Test
   void testDefaultOptions() throws Exception {

@@ -664,12 +664,12 @@ public class TextFileInputMeta
 
   @Override
   public boolean isIncludeFilename() {
-    return false;
+    return content.includeFilename;
   }
 
   @Override
   public boolean isIncludeRowNumber() {
-    return false;
+    return content.includeRowNumber;
   }
 
   public String[] getInfoTransforms() {

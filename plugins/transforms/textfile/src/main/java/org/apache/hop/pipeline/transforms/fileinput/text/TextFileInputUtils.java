@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.ITextFileInputField;
@@ -536,42 +537,46 @@ public class TextFileInputUtils {
         }
 
         // Possibly add short filename...
-        if (additionalOutputFields.getShortFilenameField() != null) {
+        // The conditions below must stay in sync with TextFileInputMeta.getFields(), which adds
+        // these columns using StringUtils.isNotBlank(...). Using a plain != null check here would
+        // populate (and shift) columns that getFields never added when a field name is set to an
+        // empty/blank string, misaligning every following additional output field.
+        if (StringUtils.isNotBlank(additionalOutputFields.getShortFilenameField())) {
           r[index] = shortFilename;
           index++;
         }
         // Add Extension
-        if (additionalOutputFields.getExtensionField() != null) {
+        if (StringUtils.isNotBlank(additionalOutputFields.getExtensionField())) {
           r[index] = extension;
           index++;
         }
         // add path
-        if (additionalOutputFields.getPathField() != null) {
+        if (StringUtils.isNotBlank(additionalOutputFields.getPathField())) {
           r[index] = path;
           index++;
         }
         // Add Size
-        if (additionalOutputFields.getSizeField() != null) {
+        if (StringUtils.isNotBlank(additionalOutputFields.getSizeField())) {
           r[index] = size;
           index++;
         }
         // add Hidden
-        if (additionalOutputFields.getHiddenField() != null) {
+        if (StringUtils.isNotBlank(additionalOutputFields.getHiddenField())) {
           r[index] = hidden;
           index++;
         }
         // Add modification date
-        if (additionalOutputFields.getLastModificationField() != null) {
+        if (StringUtils.isNotBlank(additionalOutputFields.getLastModificationField())) {
           r[index] = modificationDateTime;
           index++;
         }
         // Add Uri
-        if (additionalOutputFields.getUriField() != null) {
+        if (StringUtils.isNotBlank(additionalOutputFields.getUriField())) {
           r[index] = uri;
           index++;
         }
         // Add RootUri
-        if (additionalOutputFields.getRootUriField() != null) {
+        if (StringUtils.isNotBlank(additionalOutputFields.getRootUriField())) {
           r[index] = rooturi;
           index++;
         }
