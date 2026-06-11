@@ -37,7 +37,7 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0091-mdi-edge-cases-template UNIT",
+  "name": "0058-mdi-edge-cases-template UNIT",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0091-mdi-edge-cases-template-injected.hpl"
+  "pipeline_filename": "./0058-mdi-edge-cases-template-injected.hpl"
 }

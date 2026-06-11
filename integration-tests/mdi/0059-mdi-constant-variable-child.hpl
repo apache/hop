@@ -19,38 +19,27 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0091-mdi-edge-cases-template</name>
+    <name>0059-mdi-constant-variable-child</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description/>
-    <extended_description/>
-    <pipeline_version/>
+    <description>Template: the "Add constant" value is injected by the parent as a constant containing a variable</description>
     <pipeline_type>Normal</pipeline_type>
     <parameters>
     </parameters>
-    <capture_transform_performance>N</capture_transform_performance>
-    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
-    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
-    <created_user>-</created_user>
-    <created_date>2026/06/10 09:00:00.000</created_date>
-    <modified_user>-</modified_user>
-    <modified_date>2026/06/10 09:00:00.000</modified_date>
   </info>
-  <notepads>
-  </notepads>
   <order>
     <hop>
-      <from>input rows</from>
-      <to>Select values</to>
+      <from>seed</from>
+      <to>Add constant</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values</from>
-      <to>output</to>
+      <from>Add constant</from>
+      <to>out</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>input rows</name>
+    <name>seed</name>
     <type>DataGrid</type>
     <description/>
     <distribute>Y</distribute>
@@ -62,18 +51,7 @@ limitations under the License.
     </partitioning>
     <data>
       <line>
-        <item>1</item>
-        <item>11</item>
-        <item>21</item>
-        <item>31</item>
-        <item>99</item>
-      </line>
-      <line>
-        <item>2</item>
-        <item>12</item>
-        <item>22</item>
-        <item>32</item>
-        <item>98</item>
+        <item>x</item>
       </line>
     </data>
     <fields>
@@ -81,47 +59,19 @@ limitations under the License.
         <length>-1</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
-        <name>id</name>
-        <type>String</type>
-      </field>
-      <field>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <name>a</name>
-        <type>String</type>
-      </field>
-      <field>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <name>b</name>
-        <type>String</type>
-      </field>
-      <field>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <name>c</name>
-        <type>String</type>
-      </field>
-      <field>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <name>extra</name>
+        <name>seed</name>
         <type>String</type>
       </field>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>272</xloc>
-      <yloc>192</yloc>
+      <xloc>144</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Select values</name>
-    <type>SelectValues</type>
+    <name>Add constant</name>
+    <type>Constant</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -131,16 +81,27 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <fields>
-      <select_unspecified>N</select_unspecified>
+      <field>
+        <name>injected</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif>PLACEHOLDER</nullif>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>560</xloc>
-      <yloc>192</yloc>
+      <xloc>336</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>output</name>
+    <name>out</name>
     <type>Dummy</type>
     <description/>
     <distribute>Y</distribute>
@@ -152,8 +113,8 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>800</xloc>
-      <yloc>192</yloc>
+      <xloc>528</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

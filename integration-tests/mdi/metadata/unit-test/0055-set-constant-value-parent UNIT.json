@@ -19,10 +19,10 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0088-set-constant-value-parent UNIT",
+  "name": "0055-set-constant-value-parent UNIT",
   "description": "",
   "trans_test_tweaks": [],
   "persist_filename": "",
-  "pipeline_filename": "./0088-set-constant-value-parent.hpl",
+  "pipeline_filename": "./0055-set-constant-value-parent.hpl",
   "test_type": "UNIT_TEST"
 }
