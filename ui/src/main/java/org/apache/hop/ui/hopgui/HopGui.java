@@ -2046,11 +2046,12 @@ public class HopGui
       return;
     }
     String activePerspectiveId = activePerspective != null ? activePerspective.getId() : "";
+    List<String> disabledGuiElements = GuiRegistry.getDisabledGuiElements();
 
     // Collect visible descriptors, then add in reverse order so extra buttons go on top
     List<SidebarToolbarItemDescriptor> visible = new ArrayList<>();
     for (SidebarToolbarItemDescriptor d : sidebarToolbarDescriptors) {
-      if (!d.isAvailable()) {
+      if (!d.isAvailable() || disabledGuiElements.contains(d.getId())) {
         continue;
       }
       boolean show;
