@@ -152,7 +152,7 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0087-load-file-content-validate UNIT",
+  "name": "0054-load-file-content-validate UNIT",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0087-load-file-content-validate.hpl"
+  "pipeline_filename": "./0054-load-file-content-validate.hpl"
 }

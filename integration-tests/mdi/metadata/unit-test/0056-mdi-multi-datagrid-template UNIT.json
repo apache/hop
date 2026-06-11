@@ -27,7 +27,7 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0089-mdi-multi-datagrid-template UNIT",
+  "name": "0056-mdi-multi-datagrid-template UNIT",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0089-mdi-multi-datagrid-template-injected.hpl"
+  "pipeline_filename": "./0056-mdi-multi-datagrid-template-injected.hpl"
 }

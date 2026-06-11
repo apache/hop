@@ -42,6 +42,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -187,6 +188,50 @@ class MetaInjectTest {
     metaInject.newInjectionConstants(metaInject, TEST_TARGET_TRANSFORM_NAME, targetMeta);
 
     assertNull(targetMeta.there);
+  }
+
+  /**
+   * Regression test: a constant value containing variables must be resolved before it is injected
+   * into a {@code @HopMetadataProperty} template transform. The legacy {@code @InjectionSupported}
+   * path ({@link MetaInject#newInjectionConstants}) always resolved them; the rewritten
+   * scalar-constant path did not, so variables leaked through unresolved (worked in 2.17).
+   */
+  @Test
+  void collectInjectionKeyValue_resolvesVariablesInConstant() throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable("MY_VAR", "resolved-value");
+
+    // A "constant" mapping: no source transform, the literal value sits in the source field.
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetAttributeKey("SOME_KEY");
+    mapping.setSourceTransformName(null);
+    mapping.setSourceField("${MY_VAR}");
+
+    Map<String, Object> injectionKeyData = new HashMap<>();
+    MetaInject.collectInjectionKeyValue(variables, mapping, null, injectionKeyData);
+
+    assertEquals("resolved-value", injectionKeyData.get("SOME_KEY"));
+  }
+
+  /**
+   * Same regression as {@link #collectInjectionKeyValue_resolvesVariablesInConstant()} but for a
+   * constant that belongs to an injection group (list) key.
+   */
+  @Test
+  void addConstantToGroupData_resolvesVariablesInConstant() {
+    Variables variables = new Variables();
+    variables.setVariable("MY_VAR", "resolved-value");
+
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetAttributeKey("SOME_KEY");
+    mapping.setSourceField("${MY_VAR}");
+
+    Map<String, RowBuffer> injectionGroupData = new HashMap<>();
+    MetaInject.addConstantToGroupData(variables, mapping, injectionGroupData, "GROUP");
+
+    RowBuffer buffer = injectionGroupData.get("GROUP");
+    assertNotNull(buffer);
+    assertEquals("resolved-value", buffer.getBuffer().getFirst()[0]);
   }
 
   /**

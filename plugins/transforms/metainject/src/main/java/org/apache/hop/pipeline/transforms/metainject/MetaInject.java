@@ -396,7 +396,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         // See if this is a constant without a source
         //
         if (StringUtils.isEmpty(mapping.getSourceTransformName())) {
-          addConstantToGroupData(mapping, injectionGroupData, groupKey);
+          addConstantToGroupData(this, mapping, injectionGroupData, groupKey);
         }
       }
     } else if (mapping.isTargetDetail()) {
@@ -405,7 +405,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       //
       if (HopMetadataInjector.isTopLevelInjectionKey(
           targetMetaClass, mapping.getTargetAttributeKey())) {
-        collectInjectionKeyValue(mapping, sourceRows, injectionKeyData);
+        collectInjectionKeyValue(this, mapping, sourceRows, injectionKeyData);
       } else {
         throw new HopTransformException(
             "The injection group key for target key '"
@@ -417,7 +417,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       // This also captures the "Constant" mappings where we don't have source rows to feed the
       // injection.
       //
-      collectInjectionKeyValue(mapping, sourceRows, injectionKeyData);
+      collectInjectionKeyValue(this, mapping, sourceRows, injectionKeyData);
     }
   }
 
@@ -488,8 +488,12 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
    */
   record GroupColumn(String targetKey, String sourceTransformName, int columnIndex) {}
 
-  private static void addConstantToGroupData(
-      MetaInjectMapping mapping, Map<String, RowBuffer> injectionGroupData, String groupKey) {
+  // Package-private for unit testing of the constant-injection path (see MetaInjectTest).
+  static void addConstantToGroupData(
+      IVariables variables,
+      MetaInjectMapping mapping,
+      Map<String, RowBuffer> injectionGroupData,
+      String groupKey) {
     // We need to add or extend a single row in a row buffer for the given group.
     //
     RowBuffer rowBuffer = injectionGroupData.computeIfAbsent(groupKey, f -> new RowBuffer());
@@ -508,7 +512,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       row = rows.getFirst();
     }
     row = RowDataUtil.createResizedCopy(row, rowMeta.size());
-    row[rowMeta.size() - 1] = mapping.getSourceField();
+    // Resolve variables in the constant value, just like the legacy newInjectionConstants() path.
+    row[rowMeta.size() - 1] = variables.resolve(mapping.getSourceField());
     // Let's not forget to update the row after re-sizing it.
     rows.set(0, row);
   }
@@ -562,7 +567,9 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     return null;
   }
 
-  private static void collectInjectionKeyValue(
+  // Package-private for unit testing of the constant-injection path (see MetaInjectTest).
+  static void collectInjectionKeyValue(
+      IVariables variables,
       MetaInjectMapping mapping,
       List<RowMetaAndData> sourceRows,
       Map<String, Object> injectionKeyData)
@@ -571,8 +578,10 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       if (StringUtils.isEmpty(mapping.getSourceTransformName())) {
         // This is a constant String value to set.
         // The value is set in the source field.
+        // Resolve variables in the constant, just like the legacy newInjectionConstants() path.
         //
-        injectionKeyData.put(mapping.getTargetAttributeKey(), mapping.getSourceField());
+        injectionKeyData.put(
+            mapping.getTargetAttributeKey(), variables.resolve(mapping.getSourceField()));
       }
       return;
     }
