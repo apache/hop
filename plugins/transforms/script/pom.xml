@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms Script</name>
 
     <properties>
-        <graaljs.version>23.0.2</graaljs.version>
+        <graaljs.version>25.0.3</graaljs.version>
         <groovy.version>4.0.30</groovy.version>
         <jython.version>2.7.4</jython.version>
     </properties>
@@ -58,10 +58,19 @@
             <artifactId>groovy-jsr223</artifactId>
             <version>${groovy.version}</version>
         </dependency>
-        <!-- GraalVM JavaScript (JSR 223) for ECMAScript on Java 17+ where Nashorn was removed -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-language</artifactId>
+            <version>${graaljs.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
+            <version>${graaljs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-runtime</artifactId>
             <version>${graaljs.version}</version>
         </dependency>
         <dependency>
@@ -90,12 +99,6 @@
             <artifactId>hop-transform-rowgenerator</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js</artifactId>
-            <version>${graaljs.version}</version>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>
