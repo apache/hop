@@ -89,9 +89,9 @@
         <httpcore.version>4.4.16</httpcore.version>
         <icu4j.version>78.1</icu4j.version>
         <jackcess.version>4.0.10</jackcess.version>
-        <jackson-annotations.version>2.21</jackson-annotations.version>
+        <jackson-annotations.version>2.22</jackson-annotations.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom -->
-        <jackson.version>2.21.1</jackson.version>
+        <jackson.version>2.22.0</jackson.version>
         <jakarta.version>3.1.0</jakarta.version>
         <javassist.version>3.30.2-GA</javassist.version>
         <jetty.version>12.1.7</jetty.version>

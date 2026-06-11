@@ -52,7 +52,8 @@
                 <include>org.apache.groovy:groovy-jsr223:jar</include>
                 <include>org.python:jython-standalone:jar</include>
                 <include>org.graalvm.js:js-scriptengine:jar</include>
-                <include>org.graalvm.js:js:jar</include>
+                <include>org.graalvm.js:js-language:jar</include>
+                <include>org.graalvm.truffle:truffle-runtime:jar</include>
                 <include>org.graalvm.regex:regex:jar</include>
                 <include>org.graalvm.truffle:truffle-api:jar</include>
                 <include>org.graalvm.sdk:graal-sdk:jar</include>
