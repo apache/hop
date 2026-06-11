@@ -32,7 +32,9 @@
         <dependency>
             <groupId>net.sf.jt400</groupId>
             <artifactId>jt400</artifactId>
-            <scope>runtime</scope>
+            <!-- compile scope: the AS400 Command action (folded in from the former
+                 hop-action-as400command module) imports com.ibm.as400.access.* directly. -->
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

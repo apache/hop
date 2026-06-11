@@ -44,12 +44,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-as400command</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-checkdbconnection</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -195,24 +189,6 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mssqlbulkload</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mysqlbulkfile</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mysqlbulkload</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-pgpfiles</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -262,12 +238,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-snmptrap</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-snowflake</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

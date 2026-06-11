@@ -30,7 +30,19 @@
             <outputDirectory>plugins/databases/vertica</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/dependencies.xml</source>
+            <outputDirectory>plugins/databases/vertica</outputDirectory>
+            <filtered>true</filtered>
+        </file>
     </files>
+
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
+        </fileSet>
+    </fileSets>
 
     <dependencySets>
         <dependencySet>
@@ -38,6 +50,16 @@
                 <include>org.apache.hop:hop-databases-vertica:jar</include>
             </includes>
             <outputDirectory>plugins/databases/vertica</outputDirectory>
+        </dependencySet>
+        <!-- Runtime libs folded in from the former hop-transform-verticabulkloader
+             module (commons-dbcp2 and transitive runtime deps; vertica-jdbc is
+             provided and therefore not bundled). -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>org.apache.hop:hop-databases-vertica:jar</exclude>
+            </excludes>
+            <outputDirectory>plugins/databases/vertica/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>
