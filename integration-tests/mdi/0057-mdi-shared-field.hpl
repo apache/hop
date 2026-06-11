@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0090-mdi-shared-field</name>
+    <name>0057-mdi-shared-field</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description>Injects one and the same source field into several injection targets: two keys (FIELD_NAME and FIELD_RENAME) of one Select Values group and the FIELD_NAME key of a second Select Values transform. Verifies that reusing a single input column for multiple injection transforms/groups works.</description>
     <extended_description/>
@@ -55,11 +55,11 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/0090-mdi-shared-field-template.hpl</filename>
+    <filename>${PROJECT_HOME}/0057-mdi-shared-field-template.hpl</filename>
     <run_configuration>local</run_configuration>
     <source_transform/>
     <source_output_fields>    </source_output_fields>
-    <target_file>${PROJECT_HOME}/0090-mdi-shared-field-template-injected.hpl</target_file>
+    <target_file>${PROJECT_HOME}/0057-mdi-shared-field-template-injected.hpl</target_file>
     <create_parent_folder>Y</create_parent_folder>
     <no_execution>N</no_execution>
     <stream_source_transform/>

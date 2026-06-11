@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0087-load-file-content</name>
+    <name>0054-load-file-content</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -40,22 +40,22 @@ limitations under the License.
   <order>
     <hop>
       <from>golden-load-file-content</from>
-      <to>0087-load-file-content-template.hpl</to>
+      <to>0054-load-file-content-template.hpl</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>golden-load-file-content-files</from>
-      <to>0087-load-file-content-template.hpl</to>
+      <to>0054-load-file-content-template.hpl</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>golden-load-file-content-fields</from>
-      <to>0087-load-file-content-template.hpl</to>
+      <to>0054-load-file-content-template.hpl</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>0087-load-file-content-template.hpl</name>
+    <name>0054-load-file-content-template.hpl</name>
     <type>MetaInject</type>
     <description/>
     <distribute>Y</distribute>
@@ -65,7 +65,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/0087-load-file-content-template.hpl</filename>
+    <filename>${PROJECT_HOME}/0054-load-file-content-template.hpl</filename>
     <run_configuration>local</run_configuration>
     <source_transform/>
     <source_output_fields>    </source_output_fields>
