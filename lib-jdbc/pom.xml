@@ -29,20 +29,20 @@
     <name>Hop JDBC Libraries</name>
 
     <properties>
-        <clickhouse.jdbc.version>0.9.6</clickhouse.jdbc.version>
+        <clickhouse.jdbc.version>0.9.8</clickhouse.jdbc.version>
         <cratedb-jdbc.version>2.7.0</cratedb-jdbc.version>
         <derby.version>10.17.1.0</derby.version>
-        <duckdb.version>1.4.4.0</duckdb.version>
-        <h2.version>2.3.232</h2.version>
+        <duckdb.version>1.5.3.0</duckdb.version>
+        <h2.version>2.4.240</h2.version>
         <hsqldb.version>2.7.4</hsqldb.version>
         <jt400.version>21.0.6</jt400.version>
-        <monetdb.version>12.0</monetdb.version>
+        <monetdb.version>12.2</monetdb.version>
         <mssqlnative.version>13.4.0.jre11</mssqlnative.version>
-        <mysql.version>9.1.0</mysql.version>
+        <mysql.version>9.7.0</mysql.version>
         <postgresql.version>42.7.11</postgresql.version>
-        <redshift.version>2.2.2</redshift.version>
-        <snowflake.jdbc.version>4.2.0</snowflake.jdbc.version>
-        <sqlite.version>3.51.2.0</sqlite.version>
+        <redshift.version>2.2.7</redshift.version>
+        <snowflake.jdbc.version>4.3.0</snowflake.jdbc.version>
+        <sqlite.version>3.53.2.0</sqlite.version>
         <vertica.jdbc.version>25.3.0-0</vertica.jdbc.version>
     </properties>
 
