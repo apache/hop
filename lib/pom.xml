@@ -102,6 +102,8 @@
         <json-smart.version>2.6.0</json-smart.version>
         <json4s.version>3.7.0-M11</json4s.version>
         <jsoup.version>1.22.1</jsoup.version>
+        <ez-vcard.version>0.12.2</ez-vcard.version>
+        <vinnie.version>2.0.2</vinnie.version>
         <jspecify.version>1.0.0</jspecify.version>
         <juniversalchardet.version>2.5.0</juniversalchardet.version>
         <kafka-avro-serializer.version>7.6.1</kafka-avro-serializer.version>
@@ -919,6 +921,16 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>${jsoup.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.googlecode.ez-vcard</groupId>
+                <artifactId>ez-vcard</artifactId>
+                <version>${ez-vcard.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.mangstadt</groupId>
+                <artifactId>vinnie</artifactId>
+                <version>${vinnie.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>

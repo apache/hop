@@ -163,6 +163,7 @@
         <module>update</module>
         <module>validator</module>
         <module>valuemapper</module>
+        <module>vcard</module>
         <module>webserviceavailable</module>
         <module>webservices</module>
         <module>workflowexecutor</module>
