@@ -21,6 +21,7 @@ package org.apache.hop.metadata.inject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -99,6 +100,76 @@ class HopMetadataInjectorTest {
     e = company.getEmployees().get(1);
     assertEquals("Micky", e.getFirstName());
     assertEquals("Mouse", e.getLastName());
+  }
+
+  /**
+   * Regression test for <a href="https://github.com/apache/hop/issues/7275">#7275</a>: when a
+   * template list already holds pre-configured items and only a subset of the item's fields is
+   * injected, the fields that are not injected must keep their pre-defined values (merge by
+   * position) instead of being wiped. The legacy array-based injection left un-injected attributes
+   * untouched; the list rebuild used to clear everything.
+   */
+  @Test
+  void injectListMergesWithPreConfiguredItems() throws Exception {
+    Company company = new Company();
+    // Two pre-defined employees with BOTH first and last name set (as a template would).
+    Employee predefined1 = new Employee();
+    predefined1.setFirstName("placeholder1");
+    predefined1.setLastName("Duck");
+    Employee predefined2 = new Employee();
+    predefined2.setFirstName("placeholder2");
+    predefined2.setLastName("Mouse");
+    company.getEmployees().add(predefined1);
+    company.getEmployees().add(predefined2);
+
+    // Inject ONLY the first name (last name is not part of the injected row buffer).
+    Map<String, Object> injectionKeyMap = new HashMap<>();
+    Map<String, RowBuffer> injectionGroupMap = new HashMap<>();
+    RowBuffer rowBuffer = new RowBuffer();
+    rowBuffer.setRowMeta(new RowMetaBuilder().addString("FIRST_NAME").build());
+    rowBuffer.addRow("Donald");
+    rowBuffer.addRow("Micky");
+    injectionGroupMap.put("EMPLOYEES", rowBuffer);
+
+    HopMetadataInjector.inject(
+        new MemoryMetadataProvider(), company, injectionKeyMap, injectionGroupMap);
+
+    assertEquals(2, company.getEmployees().size());
+    // First name is overwritten by injection...
+    assertEquals("Donald", company.getEmployees().get(0).getFirstName());
+    assertEquals("Micky", company.getEmployees().get(1).getFirstName());
+    // ...but the un-injected last name keeps the pre-defined value.
+    assertEquals("Duck", company.getEmployees().get(0).getLastName());
+    assertEquals("Mouse", company.getEmployees().get(1).getLastName());
+  }
+
+  /**
+   * When the injection provides more rows than the template pre-defines, the extra rows are added
+   * as new items (so adding lines beyond the pre-defined ones still works).
+   */
+  @Test
+  void injectListExtendsBeyondPreConfiguredItems() throws Exception {
+    Company company = new Company();
+    Employee predefined = new Employee();
+    predefined.setFirstName("placeholder");
+    predefined.setLastName("Keep");
+    company.getEmployees().add(predefined);
+
+    Map<String, RowBuffer> injectionGroupMap = new HashMap<>();
+    RowBuffer rowBuffer = new RowBuffer();
+    rowBuffer.setRowMeta(new RowMetaBuilder().addString("FIRST_NAME").build());
+    rowBuffer.addRow("Donald");
+    rowBuffer.addRow("Micky"); // beyond the single pre-defined item
+    injectionGroupMap.put("EMPLOYEES", rowBuffer);
+
+    HopMetadataInjector.inject(
+        new MemoryMetadataProvider(), company, new HashMap<>(), injectionGroupMap);
+
+    assertEquals(2, company.getEmployees().size());
+    assertEquals("Donald", company.getEmployees().get(0).getFirstName());
+    assertEquals("Keep", company.getEmployees().get(0).getLastName()); // preserved
+    assertEquals("Micky", company.getEmployees().get(1).getFirstName());
+    assertNull(company.getEmployees().get(1).getLastName()); // brand new item
   }
 
   @Test
