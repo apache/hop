@@ -35,6 +35,12 @@ public class CheckSumData extends BaseTransformData implements ITransformData {
 
   public MessageDigest digest;
 
+  public String separator;
+
+  public String prefix;
+
+  public String suffix;
+
   public CheckSumData() {
     super();
     this.nrInfields = 0;

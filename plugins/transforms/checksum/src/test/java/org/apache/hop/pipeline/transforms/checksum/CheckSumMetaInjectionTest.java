@@ -38,6 +38,9 @@ class CheckSumMetaInjectionTest extends BaseMetadataInjectionTestJunit5<CheckSum
     check("RESULT_FIELD", () -> meta.getResultFieldName());
     check("TYPE", () -> meta.getCheckSumType(), CheckSumMeta.CheckSumType.class);
     check("RESULT_TYPE", () -> meta.getResultType(), CheckSumMeta.ResultType.class);
+    check("SEPARATOR", () -> meta.getSeparator());
+    check("PREFIX", () -> meta.getPrefix());
+    check("SUFFIX", () -> meta.getSuffix());
     check("FIELD_NAME", () -> meta.getFields().get(0).getName());
   }
 }

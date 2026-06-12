@@ -87,20 +87,22 @@ class CheckSumTest {
     }
   }
 
-  private Pipeline buildHexadecimalChecksumPipeline(CheckSumMeta.CheckSumType checkSumType) {
+  private Pipeline buildHexadecimalChecksumPipeline(
+      CheckSumMeta.CheckSumType checkSumType, CheckSumMeta meta) {
     // Create a new pipeline...
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName(getClass().getName());
 
     // Create a CheckSum Transform
     String checkSumTransformName = "CheckSum";
-    CheckSumMeta meta = new CheckSumMeta();
 
     // Set required fields
     meta.setResultFieldName("hex");
     meta.setCheckSumType(checkSumType);
     meta.setResultType(CheckSumMeta.ResultType.HEXADECIMAL);
-    meta.setFields(List.of(new Field("test")));
+    if (meta.getFields().isEmpty()) {
+      meta.setFields(List.of(new Field("test")));
+    }
 
     String checkSumPluginPid =
         PluginRegistry.getInstance().getPluginId(TransformPluginType.class, meta);
@@ -174,7 +176,27 @@ class CheckSumTest {
    */
   private MockRowListener executeHexTest(
       CheckSumMeta.CheckSumType checkSumType, Object input, IValueMeta meta) throws Exception {
-    Pipeline pipeline = buildHexadecimalChecksumPipeline(checkSumType);
+    CheckSumMeta checkSumMeta = new CheckSumMeta();
+    return executeHexTest(checkSumType, input, meta, checkSumMeta);
+  }
+
+  private MockRowListener executeHexTest(
+      CheckSumMeta.CheckSumType checkSumType,
+      Object input,
+      IValueMeta meta,
+      CheckSumMeta checkSumMeta)
+      throws Exception {
+    return executeHexTest(
+        checkSumType, new Object[] {input}, createStringRowMeta(meta), checkSumMeta);
+  }
+
+  private MockRowListener executeHexTest(
+      CheckSumMeta.CheckSumType checkSumType,
+      Object[] input,
+      RowMeta inputRowMeta,
+      CheckSumMeta checkSumMeta)
+      throws Exception {
+    Pipeline pipeline = buildHexadecimalChecksumPipeline(checkSumType, checkSumMeta);
 
     pipeline.prepareExecution();
 
@@ -183,18 +205,44 @@ class CheckSumTest {
     output.addRowListener(listener);
 
     RowProducer rp = pipeline.addRowProducer("CheckSum", 0);
-    RowMeta inputRowMeta = createStringRowMeta(meta);
     ((BaseTransform) pipeline.getRunThread("CheckSum", 0)).setInputRowMeta(inputRowMeta);
 
     pipeline.startThreads();
 
-    rp.putRow(inputRowMeta, new Object[] {input});
+    rp.putRow(inputRowMeta, input);
     rp.finished();
 
     pipeline.waitUntilFinished();
     pipeline.stopAll();
     pipeline.cleanup();
     return listener;
+  }
+
+  @Test
+  void testHexOutput_md5WithPrefixSeparatorSuffix() throws Exception {
+    CheckSumMeta checkSumMeta = new CheckSumMeta();
+    checkSumMeta.setPrefix("CUST");
+    checkSumMeta.setSeparator("|");
+    checkSumMeta.setFields(List.of(new Field("field1"), new Field("field2")));
+
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("field1"));
+    inputRowMeta.addValueMeta(new ValueMetaString("field2"));
+
+    MockRowListener results =
+        executeHexTest(
+            CheckSumMeta.CheckSumType.MD5, new Object[] {"123", "456"}, inputRowMeta, checkSumMeta);
+    assertEquals(1, results.getWritten().size());
+    assertEquals("2be9b4ef70bfdf76000b88c22201d74e", results.getWritten().get(0)[2]);
+
+    checkSumMeta = new CheckSumMeta();
+    checkSumMeta.setPrefix("PROD");
+    checkSumMeta.setFields(List.of(new Field("field1")));
+    results =
+        executeHexTest(
+            CheckSumMeta.CheckSumType.MD5, "123", new ValueMetaString("field1"), checkSumMeta);
+    assertEquals(1, results.getWritten().size());
+    assertEquals("f096da61d5fd73a19569a76c53998200", results.getWritten().get(0)[1]);
   }
 
   @Test

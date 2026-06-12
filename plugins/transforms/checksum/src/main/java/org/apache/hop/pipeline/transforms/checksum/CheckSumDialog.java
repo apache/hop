@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -57,6 +58,12 @@ public class CheckSumDialog extends BaseTransformDialog {
   private TableView wFields;
 
   private Text wResult;
+
+  private TextVar wPrefix;
+
+  private TextVar wSeparator;
+
+  private TextVar wSuffix;
 
   private ColumnInfo[] columnInfo;
 
@@ -148,13 +155,64 @@ public class CheckSumDialog extends BaseTransformDialog {
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
 
+    // Prefix
+    Label wlPrefix = new Label(shell, SWT.RIGHT);
+    wlPrefix.setText(BaseMessages.getString(PKG, "CheckSumDialog.Prefix.Label"));
+    PropsUi.setLook(wlPrefix);
+    FormData fdlPrefix = new FormData();
+    fdlPrefix.left = new FormAttachment(0, 0);
+    fdlPrefix.right = new FormAttachment(middle, -margin);
+    fdlPrefix.top = new FormAttachment(wResult, margin);
+    wlPrefix.setLayoutData(fdlPrefix);
+    wPrefix = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wPrefix);
+    FormData fdPrefix = new FormData();
+    fdPrefix.left = new FormAttachment(middle, 0);
+    fdPrefix.top = new FormAttachment(wResult, margin);
+    fdPrefix.right = new FormAttachment(100, 0);
+    wPrefix.setLayoutData(fdPrefix);
+
+    // Separator
+    Label wlSeparator = new Label(shell, SWT.RIGHT);
+    wlSeparator.setText(BaseMessages.getString(PKG, "CheckSumDialog.Separator.Label"));
+    PropsUi.setLook(wlSeparator);
+    FormData fdlSeparator = new FormData();
+    fdlSeparator.left = new FormAttachment(0, 0);
+    fdlSeparator.right = new FormAttachment(middle, -margin);
+    fdlSeparator.top = new FormAttachment(wPrefix, margin);
+    wlSeparator.setLayoutData(fdlSeparator);
+    wSeparator = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSeparator);
+    FormData fdSeparator = new FormData();
+    fdSeparator.left = new FormAttachment(middle, 0);
+    fdSeparator.top = new FormAttachment(wPrefix, margin);
+    fdSeparator.right = new FormAttachment(100, 0);
+    wSeparator.setLayoutData(fdSeparator);
+
+    // Suffix
+    Label wlSuffix = new Label(shell, SWT.RIGHT);
+    wlSuffix.setText(BaseMessages.getString(PKG, "CheckSumDialog.Suffix.Label"));
+    PropsUi.setLook(wlSuffix);
+    FormData fdlSuffix = new FormData();
+    fdlSuffix.left = new FormAttachment(0, 0);
+    fdlSuffix.right = new FormAttachment(middle, -margin);
+    fdlSuffix.top = new FormAttachment(wSeparator, margin);
+    wlSuffix.setLayoutData(fdlSuffix);
+    wSuffix = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSuffix);
+    FormData fdSuffix = new FormData();
+    fdSuffix.left = new FormAttachment(middle, 0);
+    fdSuffix.top = new FormAttachment(wSeparator, margin);
+    fdSuffix.right = new FormAttachment(100, 0);
+    wSuffix.setLayoutData(fdSuffix);
+
     // Table with fields
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "CheckSumDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wResult, margin);
+    fdlFields.top = new FormAttachment(wSuffix, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int nrCols = 1;
@@ -260,6 +318,9 @@ public class CheckSumDialog extends BaseTransformDialog {
     wType.setText(input.getCheckSumType().getDescription());
     wResult.setText(Const.NVL(input.getResultFieldName(), ""));
     wResultType.setText(input.getResultType().getDescription());
+    wPrefix.setText(Const.NVL(input.getPrefix(), ""));
+    wSeparator.setText(Const.NVL(input.getSeparator(), ""));
+    wSuffix.setText(Const.NVL(input.getSuffix(), ""));
 
     Table table = wFields.table;
     if (!input.getFields().isEmpty()) {
@@ -290,6 +351,9 @@ public class CheckSumDialog extends BaseTransformDialog {
     input.setCheckSumType(CheckSumMeta.CheckSumType.getTypeFromDescription(wType.getText()));
     input.setResultFieldName(wResult.getText());
     input.setResultType(CheckSumMeta.ResultType.getTypeFromDescription(wResultType.getText()));
+    input.setPrefix(wPrefix.getText());
+    input.setSeparator(wSeparator.getText());
+    input.setSuffix(wSuffix.getText());
 
     input.getFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {
