@@ -123,13 +123,11 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
       data.passThroughIndexes = new ArrayList<>();
       data.oneRowMeta = data.oneRowSet.getRowMeta();
       if (data.oneRowMeta == null) {
-        data.oneRowMeta =
-            getPipelineMeta().getPrevTransformFields(this, meta.getReferenceTransform());
+        data.oneRowMeta = getPipelineMeta().getTransformFields(this, meta.getReferenceTransform());
       }
       data.twoRowMeta = data.twoRowSet.getRowMeta();
       if (data.twoRowMeta == null) {
-        data.twoRowMeta =
-            getPipelineMeta().getPrevTransformFields(this, meta.getCompareTransform());
+        data.twoRowMeta = getPipelineMeta().getTransformFields(this, meta.getCompareTransform());
       }
       for (PassThroughField field : meta.getPassThroughFields()) {
         int index;
