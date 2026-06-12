@@ -369,7 +369,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     }
   }
 
-  private void collectDataForOneMapping(
+  void collectDataForOneMapping(
       String targetTransformName,
       MetaInjectMapping mapping,
       Map<String, Set<String>> injectionKeyGroupMap,
@@ -407,10 +407,12 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
           targetMetaClass, mapping.getTargetAttributeKey())) {
         collectInjectionKeyValue(this, mapping, sourceRows, injectionKeyData);
       } else {
-        throw new HopTransformException(
-            "The injection group key for target key '"
-                + mapping.getTargetAttributeKey()
-                + "' was not found.");
+        logBasic(
+            BaseMessages.getString(
+                PKG,
+                "MetaInject.TargetKeyNotFound.Warning",
+                mapping.getTargetAttributeKey(),
+                targetTransformName));
       }
     } else {
       // A simple property from the first row.

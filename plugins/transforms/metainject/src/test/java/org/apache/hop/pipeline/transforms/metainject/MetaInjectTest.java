@@ -235,6 +235,45 @@ class MetaInjectTest {
   }
 
   /**
+   * Regression test: a mapping to a target key that no longer exists in the template transform
+   * (e.g. an option removed in a newer Hop version, such as CSV Input's {@code INPUT_IF_NULL}) must
+   * NOT fail the whole injection. The mapping is logged as a warning and skipped, so a pipeline
+   * built against an older Hop version keeps running. Before the fix this threw a
+   * HopTransformException and the transform aborted.
+   */
+  @Test
+  void collectDataForOneMapping_unknownTargetKey_warnsInsteadOfThrowing() {
+    MetaInjectMapping mapping = new MetaInjectMapping();
+    mapping.setTargetTransformName(TEST_TARGET_TRANSFORM_NAME);
+    mapping.setTargetAttributeKey("INPUT_IF_NULL"); // a key that no longer exists in the target
+    mapping.setTargetDetail(true);
+    mapping.setSourceTransformName(null);
+    mapping.setSourceField("anything");
+
+    Map<String, Set<String>> injectionKeyGroupMap = new HashMap<>(); // key is in no group
+    Map<String, List<MetaInject.GroupColumn>> groupColumnsMap = new HashMap<>();
+    Map<String, RowBuffer> injectionGroupData = new HashMap<>();
+    Map<String, Object> injectionKeyData = new HashMap<>();
+
+    metaInject.getData().rowMap = new HashMap<>();
+
+    assertDoesNotThrow(
+        () ->
+            metaInject.collectDataForOneMapping(
+                TEST_TARGET_TRANSFORM_NAME,
+                mapping,
+                injectionKeyGroupMap,
+                groupColumnsMap,
+                injectionGroupData,
+                injectionKeyData,
+                InjectableTestTransformMeta.class));
+
+    // The unknown key is skipped: nothing is collected for injection.
+    assertTrue(injectionKeyData.isEmpty());
+    assertTrue(injectionGroupData.isEmpty());
+  }
+
+  /**
    * Regression test for <a href="https://github.com/apache/hop/issues/7246">#7246</a>: when an
    * injection group mixes a streamed key and a constant key, the constant value must be merged into
    * every streamed row instead of being dropped when the streamed buffer is stored.
