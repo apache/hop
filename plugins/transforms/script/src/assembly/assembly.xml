@@ -54,9 +54,16 @@
                 <include>org.graalvm.js:js-scriptengine:jar</include>
                 <include>org.graalvm.js:js-language:jar</include>
                 <include>org.graalvm.truffle:truffle-runtime:jar</include>
-                <include>org.graalvm.regex:regex:jar</include>
                 <include>org.graalvm.truffle:truffle-api:jar</include>
-                <include>org.graalvm.sdk:graal-sdk:jar</include>
+                <include>org.graalvm.truffle:truffle-compiler:jar</include>
+                <include>org.graalvm.regex:regex:jar</include>
+                <include>org.graalvm.polyglot:polyglot:jar</include>
+                <include>org.graalvm.sdk:collections:jar</include>
+                <include>org.graalvm.sdk:nativeimage:jar</include>
+                <include>org.graalvm.sdk:word:jar</include>
+                <include>org.graalvm.sdk:jniutils:jar</include>
+                <include>org.graalvm.shadowed:icu4j:jar</include>
+                <include>org.graalvm.shadowed:xz:jar</include>
             </includes>
             <outputDirectory>plugins/transforms/script/lib</outputDirectory>
         </dependencySet>
@@ -66,7 +73,6 @@
                 <include>org.ow2.asm:asm-commons:jar</include>
                 <include>org.ow2.asm:asm-tree:jar</include>
                 <include>org.ow2.asm:asm-util:jar</include>
-                <include>com.ibm.icu:icu4j:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
