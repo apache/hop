@@ -562,7 +562,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(
-                ActionPGPEncryptFiles.ActionType.SIGN.getDescription(),
+                ActionPGPEncryptFiles.ActionType.ENCRYPT.getDescription(),
                 wSourceFileFolder.getText(),
                 wWildcard.getText(),
                 null,
@@ -1640,9 +1640,9 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
       pgpFile.setActionType(
           ActionPGPEncryptFiles.ActionType.lookupWithDescription(item.getText(1)));
       pgpFile.setSourceFileFolder(item.getText(2));
-      pgpFile.setUserId(item.getText(3));
-      pgpFile.setDestinationFileFolder(item.getText(4));
-      pgpFile.setWildcard(item.getText(5));
+      pgpFile.setWildcard(item.getText(3));
+      pgpFile.setUserId(item.getText(4));
+      pgpFile.setDestinationFileFolder(item.getText(5));
     }
     dispose();
   }
