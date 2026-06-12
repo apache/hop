@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -522,6 +523,7 @@ public class HopMetadataInjector {
       //
       List<Object> list =
           (List<Object>) ReflectionUtil.findGetter(objectClass, field).invoke(object);
+      List<Object> existingItems = new ArrayList<>(list);
       list.clear();
 
       // Which class is being listed?
@@ -539,17 +541,20 @@ public class HopMetadataInjector {
       // The keys (and their types) are in the row metadata.
       //
       IRowMeta rowMeta = rowBuffer.getRowMeta();
+      int rowIndex = 0;
       for (Object[] row : rowBuffer.getBuffer()) {
         // Is this a primitive type we're dealing with?
         //
         if (listItemClass.isPrimitive() || listItemClass.equals(String.class)) {
           // The row contains a single value that we simply need to add to the list
-          //
           list.add(row[0]);
         } else {
-          //  Create a new list item for every row.
-          //
-          Object listItemObject = listItemClass.getConstructor().newInstance();
+          // Reuse the pre-defined template item at the same position so its non-injected fields
+          // are preserved; only create a new item when injecting beyond the pre-defined rows.
+          Object listItemObject =
+              rowIndex < existingItems.size()
+                  ? existingItems.get(rowIndex)
+                  : listItemClass.getConstructor().newInstance();
 
           // Add it to the list
           list.add(listItemObject);
@@ -574,6 +579,7 @@ public class HopMetadataInjector {
             }
           }
         }
+        rowIndex++;
       }
     } catch (Exception e) {
       throw new HopException(
