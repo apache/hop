@@ -218,7 +218,10 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     this.successConditionBroken = a.successConditionBroken;
     this.successConditionBrokenExit = a.successConditionBrokenExit;
     this.limitFiles = a.limitFiles;
-    a.pgpFiles.forEach(f -> this.pgpFiles.add(new PgpFile(f)));
+    this.pgpFiles = new ArrayList<>();
+    if (a.pgpFiles != null) {
+      a.pgpFiles.forEach(f -> this.pgpFiles.add(new PgpFile(f)));
+    }
   }
 
   @Override
