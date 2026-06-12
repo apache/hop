@@ -1059,6 +1059,19 @@ public class Const {
   public static final String HOP_QUERY_PREVIEW_TIMEOUT = "HOP_QUERY_PREVIEW_TIMEOUT";
 
   /**
+   * Default JDBC {@link java.sql.Statement#setQueryTimeout(int)} in whole seconds for database
+   * <strong>query preview</strong> UIs (for example the initial value in the preview settings
+   * dialog). Normal pipeline execution does not use this variable for Table Input statement
+   * timeouts. Set in Hop configuration, project, environment, or pipeline variables.
+   */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "false",
+      description =
+          "Make the data type detection in RDBMS connections compatible with 2.18 and before.")
+  public static final String HOP_DB_DDL_COMPATIBLE = "HOP_DB_DDL_COMPATIBLE";
+
+  /**
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal
    * class to avoid integer overflow while rounding
    *

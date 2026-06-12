@@ -74,11 +74,12 @@ The options table contains a list of key/value pairs that can be added to your J
 
 For example, to add additional options to a MS SQL database, you can add options to achieve a JDBC URL like the one below. Apache Hop will take care of these properties in the background, there usually is no need to manually modify the JDBC URL (but you _can_, and in a `Generic` connection, you _have to_).
 
-```
+[source]
+----
 jdbc:sqlserver://localhost:1433;" +
      "databaseName=AdventureWorks;integratedSecurity=true;" +
      "encrypt=true;trustServerCertificate=true
-```
+----
 
 [%noheader, width="50%", cols="4,1"]
 |===
@@ -86,6 +87,47 @@ jdbc:sqlserver://localhost:1433;" +
 |encrypt|true
 |trustServerCertificate|true
 |===
+
+== Hard-coded JDBC to Hop data type mappings
+
+Below are the mappings applied by Hop when converting from database column types to Hop data types when `HOP_DB_DDL_COMPATIBLE` is `false` (the default).
+
+[cols="2,2", options="header"]
+|===
+| JDBC type | Hop type
+
+| `CHAR`, `VARCHAR`, `NVARCHAR`, `LONGVARCHAR`, `NCHAR`, `LONGNVARCHAR`
+| String
+
+| `CLOB`, `NCLOB`
+| String (large text)
+
+| `INTEGER`, `SMALLINT`, `TINYINT`
+| Integer
+
+| `BIGINT` (signed)
+| Integer
+
+| `BIGINT` (unsigned)
+| BigNumber
+
+| `FLOAT`, `DOUBLE`, `REAL`, `DECIMAL`, `NUMERIC`
+| Number (with length/precision rules; BigNumber when needed)
+
+| `DATE`, `TIME`
+| Date
+
+| `TIMESTAMP`
+| Timestamp (or Date if the database does not support Timestamp)
+
+| `BOOLEAN`, `BIT`
+| Boolean
+
+| `BINARY`, `BLOB`, `VARBINARY`, `LONGVARBINARY`
+| Binary (with database-specific overrides)
+|===
+
+Unmapped types (for example `OTHER` for UUID or INET) return no match from the hard-coded path and fall through to legacy method of figuring out the data type, which was asking all the different value metadata plugin types for a guess.
 
 // tag::website-links[]
 // end::website-links[]
