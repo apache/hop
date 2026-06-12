@@ -1059,10 +1059,11 @@ public class Const {
   public static final String HOP_QUERY_PREVIEW_TIMEOUT = "HOP_QUERY_PREVIEW_TIMEOUT";
 
   /**
-   * Default JDBC {@link java.sql.Statement#setQueryTimeout(int)} in whole seconds for database
-   * <strong>query preview</strong> UIs (for example the initial value in the preview settings
-   * dialog). Normal pipeline execution does not use this variable for Table Input statement
-   * timeouts. Set in Hop configuration, project, environment, or pipeline variables.
+   * Apache Hop 2.18 and before (even before Hop) used an optimistic system where each value type is
+   * given a chance to interpret the database field data type. This was done to support special data
+   * types like GIS, and so on. If you set this variable to true the old system is used. If not Hop
+   * tries first to do an explicit mapping of the most comm data types before falling back to the
+   * old system.
    */
   @Variable(
       scope = VariableScope.SYSTEM,
