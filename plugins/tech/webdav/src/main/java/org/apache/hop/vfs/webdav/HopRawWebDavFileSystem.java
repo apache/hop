@@ -17,14 +17,17 @@
 package org.apache.hop.vfs.webdav;
 
 import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.webdav4.Webdav4FileSystem;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.protocol.HttpClientContext;
 
 /**
- * Subclass solely to expose {@link Webdav4FileSystem}'s protected constructor from application
- * code.
+ * Exposes {@link Webdav4FileSystem}'s protected constructor from application code and produces
+ * {@link HopWireWebDavFileObject}s so extended DAV collections (CardDAV address books, CalDAV
+ * calendars) are typed correctly.
  */
 final class HopRawWebDavFileSystem extends Webdav4FileSystem {
 
@@ -34,5 +37,10 @@ final class HopRawWebDavFileSystem extends Webdav4FileSystem {
       HttpClient httpClient,
       HttpClientContext httpClientContext) {
     super(rootName, fileSystemOptions, httpClient, httpClientContext);
+  }
+
+  @Override
+  protected FileObject createFile(AbstractFileName name) throws Exception {
+    return new HopWireWebDavFileObject(name, this);
   }
 }

@@ -104,7 +104,7 @@ public class WebDavConnectionEditor extends MetadataEditor<WebDavConnection> {
     fdlRootUrl.left = new FormAttachment(0, 0);
     fdlRootUrl.right = new FormAttachment(middle, -margin);
     wlRootUrl.setLayoutData(fdlRootUrl);
-    wRootUrl = new TextVar(getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRootUrl = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wRootUrl);
     FormData fdRootUrl = new FormData();
     fdRootUrl.top = new FormAttachment(wlRootUrl, 0, SWT.CENTER);
@@ -121,7 +121,7 @@ public class WebDavConnectionEditor extends MetadataEditor<WebDavConnection> {
     fdlUsername.left = new FormAttachment(0, 0);
     fdlUsername.right = new FormAttachment(middle, -margin);
     wlUsername.setLayoutData(fdlUsername);
-    wUsername = new TextVar(getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wUsername = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUsername);
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
@@ -138,7 +138,8 @@ public class WebDavConnectionEditor extends MetadataEditor<WebDavConnection> {
     fdlPassword.left = new FormAttachment(0, 0);
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
-    wPassword = new PasswordTextVar(getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPassword =
+        new PasswordTextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
     fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
