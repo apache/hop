@@ -30,20 +30,7 @@
 
     <properties>
         <ez-vcard.version>0.12.2</ez-vcard.version>
-        <vinnie.version>2.0.2</vinnie.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-libs</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -51,12 +38,6 @@
             <artifactId>ez-vcard</artifactId>
             <version>${ez-vcard.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
