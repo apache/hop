@@ -35,16 +35,16 @@ class VCardFieldDiscoveryTest {
   @Test
   void discoverFromSampleCard() throws Exception {
     VCard card = new VCard();
-    card.setFormattedName(new FormattedName("Edwin Weber"));
+    card.setFormattedName(new FormattedName("Hop Test"));
     StructuredName name = new StructuredName();
-    name.setFamily("Weber");
-    name.setGiven("Edwin");
+    name.setFamily("Test");
+    name.setGiven("Hop");
     card.setStructuredName(name);
-    card.setUid(new Uid("partner-739"));
+    card.setUid(new Uid("hop-test-001"));
     Email email = new Email("test@example.com");
     email.getTypes().add(EmailType.INTERNET);
     card.addEmail(email);
-    Telephone tel = new Telephone("+31-626766031");
+    Telephone tel = new Telephone("+1-555-0100");
     tel.getTypes().add(TelephoneType.VOICE);
     tel.getTypes().add(TelephoneType.WORK);
     card.addTelephoneNumber(tel);

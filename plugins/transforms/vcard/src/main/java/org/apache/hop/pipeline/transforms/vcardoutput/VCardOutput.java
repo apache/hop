@@ -102,7 +102,11 @@ public class VCardOutput extends BaseTransform<VCardOutputMeta, VCardOutputData>
         outputRow[outputIndex] = vcardText;
       }
       putRow(data.outputRowMeta, outputRow);
+    } else if (meta.isPassInputFields() || meta.writesToFile()) {
+      putRow(getInputRowMeta(), row);
     }
+
+    incrementLinesOutput();
 
     return true;
   }

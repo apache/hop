@@ -277,6 +277,8 @@ under the License.
 *** xref:pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class]
 *** xref:pipeline/transforms/userdefinedjavaexpression.adoc[User Defined Java Expression]
 *** xref:pipeline/transforms/valuemapper.adoc[Value Mapper]
+*** xref:pipeline/transforms/vcardinput.adoc[vCard Input]
+*** xref:pipeline/transforms/vcardoutput.adoc[vCard Output]
 *** xref:pipeline/transforms/verticabulkloader.adoc[Vertica Bulk Loader]
 *** xref:pipeline/transforms/webservices.adoc[Web services lookup]
 *** xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor]

@@ -1593,13 +1593,13 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-vcard</artifactId>
+            <artifactId>hop-transform-valuemapper</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-valuemapper</artifactId>
+            <artifactId>hop-transform-vcard</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

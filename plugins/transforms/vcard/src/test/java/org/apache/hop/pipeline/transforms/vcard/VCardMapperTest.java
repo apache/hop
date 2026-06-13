@@ -31,11 +31,11 @@ class VCardMapperTest {
       """
       BEGIN:VCARD
       VERSION:3.0
-      FN:Edwin Weber
-      N:Weber;Edwin;;;
-      UID:odoo-partner-739
-      EMAIL;TYPE=INTERNET:eacweber@gmail.com
-      TEL;TYPE=VOICE,WORK:+31-626766031
+      FN:Hop Test
+      N:Test;Hop;;;
+      UID:hop-test-001
+      EMAIL;TYPE=INTERNET:test@example.com
+      TEL;TYPE=VOICE,WORK:+1-555-0100
       END:VCARD
       """;
 
@@ -44,16 +44,43 @@ class VCardMapperTest {
     VCard card = VCardMapper.parseAll(SAMPLE).get(0);
     VCardFieldMapping emailMapping =
         new VCardFieldMapping(VCardPropertyType.EMAIL, "email", "INTERNET");
-    assertEquals("eacweber@gmail.com", VCardMapper.extractValue(card, emailMapping));
+    assertEquals("test@example.com", VCardMapper.extractValue(card, emailMapping));
     VCardFieldMapping emailTypeMapping =
         new VCardFieldMapping(VCardPropertyType.EMAIL_TYPE, "email_type", "INTERNET");
     assertEquals("INTERNET", VCardMapper.extractValue(card, emailTypeMapping));
     VCardFieldMapping telMapping =
         new VCardFieldMapping(VCardPropertyType.TEL, "tel", "VOICE,WORK");
-    assertEquals("+31-626766031", VCardMapper.extractValue(card, telMapping));
+    assertEquals("+1-555-0100", VCardMapper.extractValue(card, telMapping));
     VCardFieldMapping telTypeMapping =
         new VCardFieldMapping(VCardPropertyType.TEL_TYPE, "tel_type", "VOICE,WORK");
     assertEquals("VOICE,WORK", VCardMapper.extractValue(card, telTypeMapping));
+  }
+
+  @Test
+  void roundTripPreservesMappedFields() throws Exception {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("fn"));
+    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("uid"));
+    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email"));
+    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email_type"));
+
+    VCard card = new VCard();
+    Object[] row = new Object[] {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
+
+    List<VCardFieldMapping> mappings =
+        List.of(
+            new VCardFieldMapping(VCardPropertyType.FN, "fn"),
+            new VCardFieldMapping(VCardPropertyType.UID, "uid"),
+            new VCardFieldMapping(VCardPropertyType.EMAIL, "email", "INTERNET,WORK"),
+            new VCardFieldMapping(VCardPropertyType.EMAIL_TYPE, "email_type", "INTERNET,WORK"));
+    VCardMapper.applyMappings(card, row, rowMeta, mappings, false, false);
+
+    String text = VCardMapper.write(card, VCardVersion.V3_0);
+    VCard parsed = VCardMapper.parseAll(text).get(0);
+    assertEquals("Hop Test", VCardMapper.extractValue(parsed, mappings.get(0)));
+    assertEquals("hop-test-001", VCardMapper.extractValue(parsed, mappings.get(1)));
+    assertEquals("test@example.com", VCardMapper.extractValue(parsed, mappings.get(2)));
+    assertEquals("INTERNET,WORK", VCardMapper.extractValue(parsed, mappings.get(3)));
   }
 
   @Test

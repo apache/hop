@@ -1,0 +1,8 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:Hop Test
+N:Test;Hop;;;
+UID:hop-test-001
+EMAIL;TYPE=INTERNET:test@example.com
+TEL;TYPE=VOICE,WORK:+1-555-0100
+END:VCARD
