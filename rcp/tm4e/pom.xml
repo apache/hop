@@ -27,7 +27,6 @@
 
     <groupId>org.eclipse</groupId>
     <artifactId>org.eclipse.tm4e.core</artifactId>
-    <version>2.18.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Eclipse TM4E Core Wrapper</name>
 

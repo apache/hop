@@ -31,14 +31,13 @@
 
     <properties>
         <jface.text.version>3.29.0</jface.text.version>
-        <tm4e.core.version>2.18.0</tm4e.core.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.eclipse.tm4e.core</artifactId>
-            <version>${tm4e.core.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.platform</groupId>
