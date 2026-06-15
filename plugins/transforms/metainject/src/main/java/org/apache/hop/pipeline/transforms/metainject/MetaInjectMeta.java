@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -264,13 +265,19 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
           executorPipelineMeta.exportResources(
               variables, definitions, resourceNamingInterface, metadataProvider);
 
+      // To get a relative path to it, we inject
+      // ${Internal.Entry.Current.Directory}
+      //
+      String newFilename =
+          "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + proposedNewFilename;
+
       // Set the correct filename inside the XML.
       //
-      executorPipelineMeta.setFilename(proposedNewFilename);
+      executorPipelineMeta.setFilename(newFilename);
 
       // change it in the entry
       //
-      templateFileName = proposedNewFilename;
+      templateFileName = newFilename;
 
       return proposedNewFilename;
     } catch (Exception e) {

@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.LogChannel;
@@ -57,53 +58,30 @@ import org.mockito.Mockito;
 class MetaInjectTest {
 
   private static final String INJECTOR_TRANSFORM_NAME = "TEST_TRANSFORM_FOR_INJECTION";
-
   private static final String TEST_VALUE = "TEST_VALUE";
-
-  private static final String TEST_VARIABLE = "TEST_VARIABLE";
-
-  private static final String TEST_PARAMETER = "TEST_PARAMETER";
-
   private static final String TEST_TARGET_TRANSFORM_NAME = "TEST_TARGET_TRANSFORM_NAME";
-
   private static final String TEST_SOURCE_TRANSFORM_NAME = "TEST_SOURCE_TRANSFORM_NAME";
-
-  private static final String TEST_ATTR_VALUE = "TEST_ATTR_VALUE";
-
   private static final String TEST_FIELD = "TEST_FIELD";
-
-  private static final String UNAVAILABLE_TRANSFORM = "UNAVAILABLE_TRANSFORM";
-
   private MetaInject metaInject;
-
-  private MetaInjectMeta meta;
-
-  private MetaInjectData data;
-
   private PipelineMeta pipelineMeta;
-
-  private Pipeline pipeline;
-
-  private IHopMetadataProvider metadataProvider;
 
   @BeforeEach
   void before() throws Exception {
     pipelineMeta = Mockito.spy(new PipelineMeta());
-    meta = new MetaInjectMeta();
-    data = new MetaInjectData();
+    MetaInjectData data = new MetaInjectData();
     data.pipelineMeta = pipelineMeta;
     metaInject =
         TransformMockUtil.getTransform(
             MetaInject.class, MetaInjectMeta.class, MetaInjectData.class, "MetaInjectTest");
     metaInject = Mockito.spy(metaInject);
     metaInject.init();
-    metadataProvider = mock(IHopMetadataProvider.class);
+    IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     metaInject.setMetadataProvider(metadataProvider);
     doReturn(pipelineMeta).when(metaInject).getPipelineMeta();
 
     PipelineMeta internalPipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
-    pipeline = new LocalPipelineEngine();
+    Pipeline pipeline = new LocalPipelineEngine();
     pipeline.setLogChannel(LogChannel.GENERAL);
     pipeline = Mockito.spy(pipeline);
     doReturn(pipeline).when(metaInject).getPipeline();
@@ -134,7 +112,7 @@ class MetaInjectTest {
   }
 
   @Test
-  void testTransformChangeListener() throws Exception {
+  void testTransformChangeListener() {
     MetaInjectMeta mim = new MetaInjectMeta();
     TransformMeta sm = new TransformMeta("testTransform", mim);
     try {
@@ -150,7 +128,7 @@ class MetaInjectTest {
    * {@code @InjectionSupported} template transform.
    */
   @Test
-  void newInjectionConstants_injectsConstantWithoutSourceTransform() throws Exception {
+  void newInjectionConstants_injectsConstantWithoutSourceTransform() throws HopException {
     InjectableTestTransformMeta targetMeta = new InjectableTestTransformMeta();
 
     // A "constant" mapping has no source transform; the literal value to inject is held in the
@@ -384,16 +362,6 @@ class MetaInjectTest {
     assertEquals("renamed1", groupBuffer.getBuffer().get(0)[1]);
     assertEquals("field2", groupBuffer.getBuffer().get(1)[0]);
     assertEquals("renamed2", groupBuffer.getBuffer().get(1)[1]);
-  }
-
-  private PipelineMeta mockSingleTransformPipelineMeta(
-      final String targetTransformName, ITransformMeta smi) {
-    TransformMeta transformMeta = mock(TransformMeta.class);
-    when(transformMeta.getTransform()).thenReturn(smi);
-    when(transformMeta.getName()).thenReturn(targetTransformName);
-    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
-    when(pipelineMeta.getUsedTransforms()).thenReturn(Collections.singletonList(transformMeta));
-    return pipelineMeta;
   }
 
   @InjectionSupported(localizationPrefix = "", groups = "groups")
