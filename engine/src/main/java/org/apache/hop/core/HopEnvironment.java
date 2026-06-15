@@ -155,8 +155,11 @@ public class HopEnvironment {
         //
         for (DescribedVariable describedVariable : hopConfig.getDescribedVariables()) {
           if (StringUtils.isNotEmpty(describedVariable.getName())) {
-            System.setProperty(
-                describedVariable.getName(), Const.NVL(describedVariable.getValue(), ""));
+            String propName = describedVariable.getName();
+            // Don't override command-line system properties (e.g., -Dname=value)
+            if (!System.getProperties().containsKey(propName)) {
+              System.setProperty(propName, Const.NVL(describedVariable.getValue(), ""));
+            }
           }
         }
 
