@@ -22,6 +22,7 @@ import java.security.MessageDigest;
 import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -83,6 +84,10 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
         }
       }
       data.fieldnr = data.fieldnrs.length;
+
+      data.separator = Const.NVL(resolve(meta.getSeparator()), "");
+      data.prefix = Const.NVL(resolve(meta.getPrefix()), "");
+      data.suffix = Const.NVL(resolve(meta.getSuffix()), "");
 
       try {
         if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.MD5
@@ -155,40 +160,67 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
   }
 
   private byte[] createCheckSum(Object[] r) throws Exception {
-
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    boolean valueAdded = false;
-
-    // Loop through fields
-    for (int i = 0; i < data.fieldnr; i++) {
-      IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
-      if (valueMeta.isBinary()) {
-        byte[] bytes = getInputRowMeta().getBinary(r, data.fieldnrs[i]);
-        if (bytes != null) {
-          valueAdded = true;
-          baos.write(bytes);
-        }
-      } else {
-        Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
-        if (value != null) {
-          valueAdded = true;
-          baos.write(value.toString().getBytes());
-        }
-      }
-    }
+    byte[] byteArray = buildCheckSumInputBytes(r);
 
     // Return null when all input values are null.
-    if (!valueAdded) {
+    if (byteArray == null) {
       return null;
     }
 
     // Updates the digest using the specified array of bytes
-    data.digest.update(baos.toByteArray());
+    data.digest.update(byteArray);
 
     // Completes the hash computation by performing final operations such as padding
     // After digest has been called, the MessageDigest object is reset to its initialized state
 
     return data.digest.digest();
+  }
+
+  private byte[] buildCheckSumInputBytes(Object[] r) throws Exception {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    if (!appendCheckSumContent(baos, r)) {
+      return null;
+    }
+    return baos.toByteArray();
+  }
+
+  private boolean appendCheckSumContent(ByteArrayOutputStream baos, Object[] r) throws Exception {
+    boolean valueAdded = false;
+    boolean fieldValueAdded = false;
+
+    if (!Utils.isEmpty(data.prefix)) {
+      baos.write(data.prefix.getBytes());
+      valueAdded = true;
+    }
+
+    // Loop through fields
+    for (int i = 0; i < data.fieldnr; i++) {
+      IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
+      byte[] fieldBytes = null;
+      if (valueMeta.isBinary()) {
+        fieldBytes = getInputRowMeta().getBinary(r, data.fieldnrs[i]);
+      } else {
+        Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
+        if (value != null) {
+          fieldBytes = value.toString().getBytes();
+        }
+      }
+      if (fieldBytes != null) {
+        if (fieldValueAdded && !Utils.isEmpty(data.separator)) {
+          baos.write(data.separator.getBytes());
+        }
+        baos.write(fieldBytes);
+        fieldValueAdded = true;
+        valueAdded = true;
+      }
+    }
+
+    if (!Utils.isEmpty(data.suffix)) {
+      baos.write(data.suffix.getBytes());
+      valueAdded = true;
+    }
+
+    return valueAdded;
   }
 
   private static String getStringFromBytes(byte[] bytes) {
@@ -205,36 +237,12 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
 
   private Long calculCheckSum(Object[] r) throws Exception {
     Long retval;
-    byte[] byteArray;
-
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    boolean valueAdded = false;
-
-    // Loop through fields
-    for (int i = 0; i < data.fieldnr; i++) {
-      IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.fieldnrs[i]);
-
-      if (valueMeta.isBinary()) {
-        byte[] bytes = getInputRowMeta().getBinary(r, data.fieldnrs[i]);
-        if (bytes != null) {
-          valueAdded = true;
-          baos.write(bytes);
-        }
-      } else {
-        Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
-        if (value != null) {
-          valueAdded = true;
-          baos.write(value.toString().getBytes());
-        }
-      }
-    }
+    byte[] byteArray = buildCheckSumInputBytes(r);
 
     // Return null when all input values are null.
-    if (!valueAdded) {
+    if (byteArray == null) {
       return null;
     }
-
-    byteArray = baos.toByteArray();
 
     if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.CRC32) {
       CRC32 crc32 = new CRC32();

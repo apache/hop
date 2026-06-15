@@ -55,6 +55,12 @@ These are the types that are available:
 * SHA-256 : Secure Hash Algorithm 2 : http://en.wikipedia.org/wiki/SHA-256
 |Result Type|Some checksum types allow to set different result types: String, Hexadecimal and Binary
 |Result field|The name of the result field containing the checksum
+|Prefix|An optional string to prepend before the field values when building the input for the checksum calculation.
+This is useful to distinguish hash keys from different topics, for example `CUST` for customer keys and `PROD` for product keys.
+|Separator|An optional string to insert between the field values when building the input for the checksum calculation.
+This helps generate more unique hash codes when multiple fields are concatenated.
+|Suffix|An optional string to append after the field values when building the input for the checksum calculation.
+Like the prefix, this can be used to distinguish hash keys from different topics.
 |Fields used in the checksum|The names of the fields to include in the checksum calculation.
 Note: You can use the "Get Fields" button to insert all input fields from previous transforms.
 |===

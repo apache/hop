@@ -188,6 +188,24 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
       injectionKeyDescription = "CheckSum.Injection.RESULT_TYPE")
   private ResultType resultType;
 
+  @HopMetadataProperty(
+      key = "separator",
+      injectionKey = "SEPARATOR",
+      injectionKeyDescription = "CheckSum.Injection.SEPARATOR")
+  private String separator;
+
+  @HopMetadataProperty(
+      key = "prefix",
+      injectionKey = "PREFIX",
+      injectionKeyDescription = "CheckSum.Injection.PREFIX")
+  private String prefix;
+
+  @HopMetadataProperty(
+      key = "suffix",
+      injectionKey = "SUFFIX",
+      injectionKeyDescription = "CheckSum.Injection.SUFFIX")
+  private String suffix;
+
   public CheckSumMeta() {
     fields = new ArrayList<>();
     checkSumType = CheckSumType.CRC32;
@@ -200,6 +218,9 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     meta.checkSumType = checkSumType;
     meta.resultFieldName = resultFieldName;
     meta.resultType = resultType;
+    meta.separator = separator;
+    meta.prefix = prefix;
+    meta.suffix = suffix;
     for (Field field : fields) {
       meta.fields.add(new Field(field));
     }
@@ -396,5 +417,53 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
    */
   public void setResultType(ResultType resultType) {
     this.resultType = resultType;
+  }
+
+  /**
+   * Gets separator
+   *
+   * @return value of separator
+   */
+  public String getSeparator() {
+    return separator;
+  }
+
+  /**
+   * @param separator The separator to set
+   */
+  public void setSeparator(String separator) {
+    this.separator = separator;
+  }
+
+  /**
+   * Gets prefix
+   *
+   * @return value of prefix
+   */
+  public String getPrefix() {
+    return prefix;
+  }
+
+  /**
+   * @param prefix The prefix to set
+   */
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
+
+  /**
+   * Gets suffix
+   *
+   * @return value of suffix
+   */
+  public String getSuffix() {
+    return suffix;
+  }
+
+  /**
+   * @param suffix The suffix to set
+   */
+  public void setSuffix(String suffix) {
+    this.suffix = suffix;
   }
 }

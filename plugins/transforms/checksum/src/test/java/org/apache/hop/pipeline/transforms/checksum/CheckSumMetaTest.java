@@ -58,7 +58,14 @@ class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
   @Test
   void testSerialization() throws HopException {
     List<String> attributes =
-        Arrays.asList("fields", "resultFieldName", "checkSumType", "resultType");
+        Arrays.asList(
+            "fields",
+            "resultFieldName",
+            "checkSumType",
+            "resultType",
+            "separator",
+            "prefix",
+            "suffix");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
