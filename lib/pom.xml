@@ -67,6 +67,7 @@
         <encoder.version>1.4.0</encoder.version>
         <epam-parso-version>2.0.13</epam-parso-version>
         <error-prone-annotations.version>2.35.1</error-prone-annotations.version>
+        <ez-vcard.version>0.12.2</ez-vcard.version>
         <failureaccess.version>1.0.1</failureaccess.version>
         <flexjson.version>3.3</flexjson.version>
         <gax.version>2.46.1</gax.version>
@@ -139,6 +140,7 @@
         <springframework4.version>4.3.18</springframework4.version>
         <stax2-api.version>4.2.2</stax2-api.version>
         <tyrus-standalone-client.version>1.13.1</tyrus-standalone-client.version>
+        <vinnie.version>2.0.2</vinnie.version>
         <woodstox.version>7.1.1</woodstox.version>
         <xerces.version>2.12.2</xerces.version>
         <xml-apis-ext.version>1.3.04</xml-apis-ext.version>
@@ -919,6 +921,16 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>${jsoup.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.googlecode.ez-vcard</groupId>
+                <artifactId>ez-vcard</artifactId>
+                <version>${ez-vcard.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.mangstadt</groupId>
+                <artifactId>vinnie</artifactId>
+                <version>${vinnie.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>

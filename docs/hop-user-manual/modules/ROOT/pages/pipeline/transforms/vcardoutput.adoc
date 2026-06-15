@@ -1,0 +1,115 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The vCard Output transform builds vCard text from stream fields and optionally writes .vcf files.
+
+= image:transforms/icons/vcard.svg[vCard Output transform Icon, role="image-doc-icon"] vCard Output
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The vCard Output transform builds vCard (`.vcf`) contact data from incoming stream fields.
+
+You can output the generated vCard text as a field, write it to a file, or both. Field mappings connect stream fields to vCard properties. For `EMAIL` and `TEL`, TYPE parameters can be set in the mapping or supplied from companion fields such as `email_type` and `tel_type`.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+=== File Tab
+
+==== Settings
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform. This name has to be unique in a single pipeline.
+|Operation|How the transform delivers output:
+
+1. Output vCard field only — pass generated vCard text as a stream field
+2. Write to file only — write `.vcf` files without adding an output field
+3. Output vCard field and write to file — both of the above
+
+|vCard version|vCard format version to write (`3.0` or `4.0`).
+|Output vCard field|Name of the field that receives the generated vCard text when the operation includes output value.
+|Pass input fields to output|When enabled, all incoming fields are copied to the output row together with the vCard field.
+|Add PRODID when missing|Adds a PRODID property when the vCard does not already contain one.
+|Add REV timestamp when missing|Adds a REV property with the current timestamp when missing.
+|===
+
+==== Output file
+
+These options apply when the operation writes to a file.
+
+[options="header"]
+|===
+|Option|Description
+|Filename in field|When enabled, the output path is taken from a field in the input stream.
+|Filename field|The field that contains the output filename when *Filename in field* is enabled.
+|Filename|Base path and name of the output file when the filename is not taken from a field.
+|Append|Append to an existing file instead of overwriting it.
+|Create parent folder|Create missing parent folders for the output path.
+|Do not create file at start|Defer file creation until the first input row arrives.
+|Extension|Output file extension (default: `vcf`).
+|Encoding|Character encoding used to write the file.
+|Include date in filename?|Adds the current date to the generated filename.
+|Include time in filename?|Adds the current time to the generated filename.
+|Show filename(s)|Previews the output filename based on the current settings.
+|Add file to result filenames|Adds written files to the pipeline result.
+|===
+
+=== Fields Tab
+
+[options="header"]
+|===
+|Option|Description
+|Field mappings|Maps stream fields to vCard properties.
+|Stream field|The incoming field that supplies the value.
+|vCard property|The vCard property to write (for example FN, EMAIL, TEL).
+|TYPE parameters|Optional TYPE values for EMAIL and TEL (comma-separated). Companion type fields override this when mapped with the same TYPE filter.
+|Get fields|Suggests mappings from incoming stream field names.
+|Enter mapping|Opens the mapping dialog to match stream fields to vCard properties.
+|===
+
+== Use cases
+
+* Export CRM or database contact rows to `.vcf` files.
+* Pass vCard text to downstream transforms (messaging, APIs, storage).
+* Round-trip testing with xref:pipeline/transforms/vcardinput.adoc[vCard Input].
+
+== Metadata injection support
+
+All fields of this transform support metadata injection.
+You can use this transform with xref:pipeline/transforms/metainject.adoc[ETL Metadata Injection] to pass metadata to your pipeline at runtime.
+
+== See also
+
+* xref:pipeline/transforms/vcardinput.adoc[vCard Input]
+* xref:pipeline/transforms/enhancedjsonoutput.adoc[Enhanced JSON Output]
+* xref:pipeline/transforms/textfileoutput.adoc[Text File Output]

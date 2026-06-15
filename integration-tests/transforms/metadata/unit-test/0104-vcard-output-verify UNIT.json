@@ -1,0 +1,43 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "fn",
+          "data_set_field": "fn"
+        },
+        {
+          "transform_field": "uid",
+          "data_set_field": "uid"
+        },
+        {
+          "transform_field": "email",
+          "data_set_field": "email"
+        },
+        {
+          "transform_field": "email_type",
+          "data_set_field": "email_type"
+        }
+      ],
+      "field_order": [
+        "fn",
+        "uid",
+        "email",
+        "email_type"
+      ],
+      "data_set_name": "golden-vcard-output",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0104-vcard-output-verify UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0104-vcard-output-verify.hpl"
+}
