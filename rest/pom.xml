@@ -29,11 +29,6 @@
     <packaging>war</packaging>
     <name>Hop REST</name>
 
-    <properties>
-        <jakarta.version>4.0.0</jakarta.version>
-        <jersey.version>3.1.11</jersey.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -54,7 +49,6 @@
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>${jakarta.version}</version>
         </dependency>
 
         <dependency>
@@ -92,27 +86,18 @@
             <artifactId>hop-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey</groupId>
-            <artifactId>jersey-bom</artifactId>
-            <version>${jersey.version}</version>
-            <type>pom</type>
-        </dependency>
-
+        <!-- jersey versions come from the jersey-bom managed in hop-libs -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
-            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
-            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <version>${jersey.version}</version>
         </dependency>
     </dependencies>
 
