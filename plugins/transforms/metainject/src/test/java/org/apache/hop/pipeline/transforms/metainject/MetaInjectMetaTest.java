@@ -21,9 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -33,12 +40,24 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.inject.HopMetadataInjector;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MetaInjectMetaTest {
+
+  private static final String TEST_FILE_NAME = "TEST_FILE_NAME";
+
+  private static final String EXPORTED_FILE_NAME =
+      "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + TEST_FILE_NAME;
+
+  private static MetaInjectMeta metaInjectMeta;
 
   @BeforeEach
   void beforeEach() throws Exception {
@@ -53,6 +72,7 @@ class MetaInjectMetaTest {
     for (String className : classNames) {
       registry.registerPluginClass(className, ValueMetaPluginType.class, ValueMetaPlugin.class);
     }
+    metaInjectMeta = new MetaInjectMeta();
   }
 
   @Test
@@ -120,7 +140,7 @@ class MetaInjectMetaTest {
         injectMetaSpy.exportResources(
             variables, definitions, resourceNamingInterface, metadataProvider);
     assertEquals(TEST_FILE_NAME, actualExportedFileName);
-    assertEquals(EXPORTED_FILE_NAME, injectMetaSpy.getFileName());
+    assertEquals(EXPORTED_FILE_NAME, injectMetaSpy.getTemplateFileName());
     verify(pipelineMeta)
         .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);
     verify(pipelineMeta).setFilename(EXPORTED_FILE_NAME);
