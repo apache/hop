@@ -31,11 +31,13 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.w3c.dom.Node;
 
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class ResultFileTest {
@@ -74,6 +76,28 @@ class ResultFileTest {
         timeBeforeFile.compareTo(resultFile.getTimestamp()) <= 0
             && timeAfterFile.compareTo(resultFile.getTimestamp()) >= 0,
         "ResultFile timestamp is created in the expected window");
+
+    tempFile.delete();
+  }
+
+  @Test
+  void testGetXmlRoundTrip() throws Exception {
+    File tempDir = tempDirPath.toFile();
+    FileObject tempFile = HopVfs.createTempFile("prefix", "suffix", tempDir.getAbsolutePath());
+    ResultFile resultFile =
+        new ResultFile(ResultFile.FILE_TYPE_WARNING, tempFile, "parent & one", "origin <two>");
+    resultFile.setComment("comment & <tag>");
+
+    String xml = resultFile.getXml();
+    Node node = XmlHandler.loadXmlString(xml, "result-file");
+    ResultFile copy = new ResultFile(node);
+
+    assertEquals(resultFile.getType(), copy.getType());
+    assertEquals(resultFile.getFile().getName().toString(), copy.getFile().getName().toString());
+    assertEquals(resultFile.getOriginParent(), copy.getOriginParent());
+    assertEquals(resultFile.getOrigin(), copy.getOrigin());
+    assertEquals(resultFile.getComment(), copy.getComment());
+    assertEquals(resultFile.getTimestamp(), copy.getTimestamp());
 
     tempFile.delete();
   }
