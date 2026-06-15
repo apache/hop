@@ -219,6 +219,20 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       injectionGroupKey = "RETRY_METHODS")
   private List<String> retryMethods;
 
+  @HopMetadataProperty(key = "paginationEnabled", injectionKey = "PAGINATION_ENABLED")
+  private boolean paginationEnabled;
+
+  @HopMetadataProperty(key = "maxPagesLoops", injectionKey = "MAX_PAGES_LOOPS")
+  private int maxPagesLoops;
+
+  /**
+   * Optional JsonPath ({@link #APPLICATION_TYPE_JSON}) or XPath ({@link #APPLICATION_TYPE_XML})
+   * that selects an array or node-set; each matched element becomes one outgoing row instead of
+   * buffering whole responses.
+   */
+  @HopMetadataProperty(key = "resultSplitPath", injectionKey = "RESULT_SPLIT_PATH")
+  private String resultSplitPath;
+
   public RestMeta() {
     super(); // allocate BaseTransformMeta
     headerFields = new ArrayList<>();
@@ -259,6 +273,10 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.retryDelayMs = RestConst.DEFAULT_RETRY_DELAY_MS;
     this.retryStatusCodes.addAll(RestConst.retryStatusCodes());
     this.retryMethods.addAll(RestConst.retryMethods());
+
+    this.paginationEnabled = false;
+    this.maxPagesLoops = RestConst.DEFAULT_MAX_PAGES_LOOPS;
+    this.resultSplitPath = null;
   }
 
   @Override

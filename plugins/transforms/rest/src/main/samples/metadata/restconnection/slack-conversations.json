@@ -1,0 +1,14 @@
+{
+  "auth_type": "No Auth",
+  "base_url": "https://slack.com",
+  "test_url": "https://slack.com/api/api.test",
+  "ignoreSsl": false,
+  "pagination_type": "BODY_CURSOR",
+  "page_param_name": "cursor",
+  "limit_param_name": "limit",
+  "default_limit": 5,
+  "cursor_json_path": "$.response_metadata.next_cursor",
+  "trustStorePassword": "Encrypted ",
+  "trustStoreFile": "",
+  "name": "slack-conversations"
+}

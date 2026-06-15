@@ -16,6 +16,8 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:openvar: ${
+:closevar: }
 :description: The REST Client transform enables you to consume RESTful services.
 
 = image:transforms/icons/rest.svg[REST Client transform Icon, role="image-doc-icon"] REST Client
@@ -31,6 +33,8 @@ The REST client transform can use a pre-defined xref:metadata-types/rest-connect
 When using a REST connection, the URL (hard-coded or accepted from a field) will be considered a path relative to the base URL defined in the REST connection. Header values that are specified in the `Headers` tab of the transform will overwrite any headers with the same name that were defined in the REST connection.
 
 When used without a REST connection, the full URL needs to be specified.
+
+When pagination is enabled on this transform and the selected xref:metadata-types/rest-connection.adoc[REST connection] defines a non-`NONE` pagination strategy, Hop issues multiple HTTP requests per incoming row and can split each page into multiple output rows (see the **Pagination** tab). At **Basic** log level, each fetched page is logged (`REST pagination: fetched results page …`).
 
 == Example
 The REST client Transform returns a "result" field (can change the name), and the field is often used in the next transform. For example, it can be read in by a JSON input transform that extracts the fields specified on the Fields tab.
@@ -134,3 +138,30 @@ Use the Matrix Parameters tab to define matrix parameter values for POST, PUT, D
 |Parameter|The field from the incoming Hop stream that contains the matrix parameter information
 |Parameter|The name of the outgoing Hop field from this transform
 |===
+
+=== Pagination tab
+
+Use this tab to loop over paged REST APIs. Paging behaviour (Link header, offset/limit, page number, cursor) is defined on the xref:metadata-types/rest-connection.adoc[REST connection] metadata. This tab controls whether the loop runs and how each HTTP response is turned into Hop rows.
+
+[options="header"]
+|===
+|Option|Description
+|Enable pagination loop for incoming rows|When enabled and the REST connection uses a non-`NONE` pagination strategy, Hop performs multiple HTTP requests per input row until the API has no more pages or a safeguard limit is reached. When disabled, or when the connection pagination strategy is `NONE`, Hop performs a single request (legacy behaviour).
+|Maximum page requests per input row|Hard cap on HTTP iterations per input row while following link headers, cursors, offsets, or page numbers. Leave blank or `0` to use the built-in safeguard (default 256).
+|Optional result split JsonPath/XPath|When set and **Application type** is JSON or XML, Hop emits one output row per JsonPath or XPath match instead of one row with the full response body. Typical for top-level arrays (`$[*]`) or nested collections (`$.results[*]`). Supports `{openvar}VAR{closevar}` and `%%VAR%%` substitution. This field does not apply Hop's `$[HH]` hexadecimal byte decoding, so bracketed JsonPath selectors (for example `$[*]`) are preserved.
+|===
+
+Paging stops when:
+
+* the connection strategy reports no further page (no `rel="next"` link, empty page, or missing cursor),
+* HTTP status is outside the 2xx range,
+* the maximum page request limit is reached, or
+* for `LINK_HEADER`, the next URL was already fetched (cycle guard).
+
+When a split path is configured but a page yields no matching elements, Hop fails with a clear error unless the response is a recognised empty paged collection (for example `{"results":[]}`).
+
+TIP: GitHub's public REST API requires a `User-Agent` header. Add it on the **Headers** tab (or use a Bearer token on the connection for higher rate limits). A `401` response with `No Auth` usually means an invalid `Authorization` header was sent (for example an unresolved `{openvar}GH_TOKEN{closevar}` placeholder).
+
+== Samples
+
+link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/transforms/rest-client-github-releases-loop.hpl[rest-client-github-releases-loop.hpl] — lists `apache/hop` GitHub releases via `LINK_HEADER` pagination (`per_page=5`), splits `$[*]`, and parses fields with a JSON Input transform. Connection metadata: link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/metadata/restconnection/github-releases.json[github-releases.json] (in the REST transform samples project).

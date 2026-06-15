@@ -27,6 +27,9 @@ public class RestConst {
   public static final int DEFAULT_RETRY_TIMES = 0;
   public static final long DEFAULT_RETRY_DELAY_MS = 200L;
 
+  /** Maximum pages fetched per incoming row when pagination is enabled (safeguard). */
+  public static final int DEFAULT_MAX_PAGES_LOOPS = 256;
+
   /**
    * By default, the HTTP status codes that should be retried include 429, 500, 502, 503, and 504.
    */

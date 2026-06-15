@@ -1,0 +1,10 @@
+{
+  "auth_type": "No Auth",
+  "base_url": "https://api.github.com",
+  "test_url": "https://api.github.com/repos/apache/hop/releases?per_page=1",
+  "ignoreSsl": false,
+  "pagination_type": "LINK_HEADER",
+  "trustStorePassword": "Encrypted ",
+  "trustStoreFile": "",
+  "name": "github-releases"
+}

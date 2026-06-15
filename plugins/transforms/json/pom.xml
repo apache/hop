@@ -31,7 +31,6 @@
 
     <properties>
         <encoder.version>1.4.0</encoder.version>
-        <json-path.version>2.10.0</json-path.version>
     </properties>
 
     <dependencyManagement>
