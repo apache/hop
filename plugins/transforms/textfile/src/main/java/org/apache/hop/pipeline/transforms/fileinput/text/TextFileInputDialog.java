@@ -917,13 +917,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wbSeparator);
     FormData fdbSeparator = new FormData();
     fdbSeparator.right = new FormAttachment(100, 0);
-    fdbSeparator.top = new FormAttachment(wFiletype, 0);
+    fdbSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
     wbSeparator.setLayoutData(fdbSeparator);
     wSeparator = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSeparator);
     wSeparator.addModifyListener(lsMod);
     FormData fdSeparator = new FormData();
-    fdSeparator.top = new FormAttachment(wFiletype, margin);
+    fdSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
     fdSeparator.left = new FormAttachment(middle, 0);
     fdSeparator.right = new FormAttachment(wbSeparator, -margin);
     wSeparator.setLayoutData(fdSeparator);
