@@ -1059,6 +1059,20 @@ public class Const {
   public static final String HOP_QUERY_PREVIEW_TIMEOUT = "HOP_QUERY_PREVIEW_TIMEOUT";
 
   /**
+   * Apache Hop 2.18 and before (even before Hop) used an optimistic system where each value type is
+   * given a chance to interpret the database field data type. This was done to support special data
+   * types like GIS, and so on. If you set this variable to true the old system is used. If not Hop
+   * tries first to do an explicit mapping of the most comm data types before falling back to the
+   * old system.
+   */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "false",
+      description =
+          "Make the data type detection in RDBMS connections compatible with 2.18 and before.")
+  public static final String HOP_DB_DDL_COMPATIBLE = "HOP_DB_DDL_COMPATIBLE";
+
+  /**
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal
    * class to avoid integer overflow while rounding
    *
