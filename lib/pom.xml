@@ -30,31 +30,22 @@
 
     <properties>
         <ST4.version>4.3.4</ST4.version>
-        <accessors-smart.version>2.4.9</accessors-smart.version>
-        <akka.version>2.5.32</akka.version>
         <angus-activation.version>2.0.3</angus-activation.version>
         <angus-mail.version>2.0.5</angus-mail.version>
         <annotations.version>26.1.0</annotations.version>
-        <apache-flink.version>1.19.3</apache-flink.version>
-        <apache-spark.version>3.5.1</apache-spark.version>
         <asm.version>9.9.1</asm.version>
         <avro.version>1.12.1</avro.version>
         <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
-        <bahir.version>2.1.1</bahir.version>
         <bcprov-jdk18on.version>1.84</bcprov-jdk18on.version>
-        <blueprints-core.version>2.6.0</blueprints-core.version>
         <caffeine.version>3.2.3</caffeine.version>
         <checker-qual.version>3.54.0</checker-qual.version>
         <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
         <common-utils.version>7.6.1</common-utils.version>
-        <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <commons-codec.version>1.21.0</commons-codec.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <commons-compress.version>1.28.0</commons-compress.version>
-        <commons-configuration.version>1.10</commons-configuration.version>
         <commons-csv.version>1.14.1</commons-csv.version>
-        <commons-fileupload.version>1.6</commons-fileupload.version>
         <commons-io.version>2.21.0</commons-io.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.3.5</commons-logging.version>
@@ -62,24 +53,9 @@
         <commons-net.version>3.12.0</commons-net.version>
         <commons-text.version>1.15.0</commons-text.version>
         <commons-vfs2.version>2.10.0</commons-vfs2.version>
-        <curator.version>5.4.0</curator.version>
-        <databricks.version>4.0.0</databricks.version>
         <encoder.version>1.4.0</encoder.version>
         <epam-parso-version>2.0.13</epam-parso-version>
         <error-prone-annotations.version>2.35.1</error-prone-annotations.version>
-        <ez-vcard.version>0.12.2</ez-vcard.version>
-        <failureaccess.version>1.0.1</failureaccess.version>
-        <flexjson.version>3.3</flexjson.version>
-        <gax.version>2.46.1</gax.version>
-        <google-api-client.version>2.2.0</google-api-client.version>
-        <google-api-common.version>2.13.0</google-api-common.version>
-        <google-api-services-bigquery.version>v2-rev20240229-2.0.0</google-api-services-bigquery.version>
-        <google-api-services-storage.version>v1-rev20240311-2.0.0</google-api-services-storage.version>
-        <google-auth-library-credentials.version>1.40.0</google-auth-library-credentials.version>
-        <google-auth-library-oauth2-http.version>1.40.0</google-auth-library-oauth2-http.version>
-        <google-cloud-storage.version>2.15.0</google-cloud-storage.version>
-        <google-http-client.version>1.42.3</google-http-client.version>
-        <google-oauth-client.version>1.34.1</google-oauth-client.version>
         <gson.version>2.12.1</gson.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom
         Replace exclusions beam-vendor-guava-xxx-jre-->
@@ -93,15 +69,21 @@
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom -->
         <jackson.version>2.22.0</jackson.version>
-        <jakarta.version>3.1.0</jakarta.version>
+        <jakarta-activation-api.version>2.1.4</jakarta-activation-api.version>
+        <jakarta-annotation-api.version>3.0.0</jakarta-annotation-api.version>
+        <jakarta-servlet-api.version>6.1.0</jakarta-servlet-api.version>
+        <jakarta-ws-rs-api.version>4.0.0</jakarta-ws-rs-api.version>
+        <jakarta-xml-bind-api.version>4.0.5</jakarta-xml-bind-api.version>
+        <jakarta-xml-soap-api.version>3.0.2</jakarta-xml-soap-api.version>
+        <jakarta-xml-ws-api.version>4.0.3</jakarta-xml-ws-api.version>
         <javassist.version>3.30.2-GA</javassist.version>
+        <jersey.version>4.0.2</jersey.version>
         <jetty.version>12.1.7</jetty.version>
         <jna.version>5.18.1</jna.version>
         <joda-time.version>2.14.0</joda-time.version>
         <jsch.version>2.27.8</jsch.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.6.0</json-smart.version>
-        <json4s.version>3.7.0-M11</json4s.version>
         <jsoup.version>1.22.1</jsoup.version>
         <jspecify.version>1.0.0</jspecify.version>
         <juniversalchardet.version>2.5.0</juniversalchardet.version>
@@ -110,20 +92,13 @@
         <kafka-schema-registry-client.version>7.6.1</kafka-schema-registry-client.version>
         <kaml.version>0.104.0</kaml.version>
         <kotlin.version>1.9.25</kotlin.version>
-        <kryo.version>5.3.0</kryo.version>
         <log4j.version>2.25.4</log4j.version>
         <lz4-java.version>1.11.0</lz4-java.version>
-        <metrics.version>4.2.12</metrics.version>
-        <minlog.version>1.3.1</minlog.version>
         <msal4j-persistence.version>1.3.0</msal4j-persistence.version>
         <msal4j.version>1.16.1</msal4j.version>
         <nimbus-jose.version>10.6</nimbus-jose.version>
-        <ognl.version>3.3.4</ognl.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.16.4</okio.version>
-        <paho.version>1.2.1</paho.version>
-        <paranamer.version>2.8</paranamer.version>
-        <perfmark.version>0.26.0</perfmark.version>
         <picocli-version>4.7.7</picocli-version>
         <poi.version>5.5.1</poi.version>
         <protobuf-java.version>4.34.1</protobuf-java.version>
@@ -133,24 +108,64 @@
         <reactor-netty.version>1.3.3</reactor-netty.version>
         <rhino.version>1.9.1</rhino.version>
         <saxon.version>8.7</saxon.version>
-        <scala.version>2.12.17</scala.version>
         <slf4j.version>2.0.17</slf4j.version>
         <snakeyaml.version>2.6</snakeyaml.version>
-        <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
-        <springframework4.version>4.3.18</springframework4.version>
         <stax2-api.version>4.2.2</stax2-api.version>
-        <tyrus-standalone-client.version>1.13.1</tyrus-standalone-client.version>
-        <vinnie.version>2.0.2</vinnie.version>
         <woodstox.version>7.1.1</woodstox.version>
         <xerces.version>2.12.2</xerces.version>
         <xml-apis-ext.version>1.3.04</xml-apis-ext.version>
         <xmlunit.version>2.11.0</xmlunit.version>
-        <xstream.version>1.4.21</xstream.version>
         <zstd-jni.version>1.5.7-7</zstd-jni.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Jersey (JAX-RS) - single managed version for the whole stack (client, server,
+                 containers, connectors, hk2, media) across engine/rest and the REST plugins. -->
+            <dependency>
+                <groupId>org.glassfish.jersey</groupId>
+                <artifactId>jersey-bom</artifactId>
+                <version>${jersey.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Jakarta (JAX-RS / servlet / bind / soap / ws / activation / annotation) APIs,
+                 single managed version centralized here for engine, rest and the plugins. -->
+            <dependency>
+                <groupId>jakarta.activation</groupId>
+                <artifactId>jakarta.activation-api</artifactId>
+                <version>${jakarta-activation-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta-annotation-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${jakarta-servlet-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.ws.rs</groupId>
+                <artifactId>jakarta.ws.rs-api</artifactId>
+                <version>${jakarta-ws-rs-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta-xml-bind-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.soap</groupId>
+                <artifactId>jakarta.xml.soap-api</artifactId>
+                <version>${jakarta-xml-soap-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.ws</groupId>
+                <artifactId>jakarta.xml.ws-api</artifactId>
+                <version>${jakarta-xml-ws-api.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.re2j</groupId>
                 <artifactId>re2j</artifactId>
@@ -205,11 +220,6 @@
                 <groupId>com.charleskorn.kaml</groupId>
                 <artifactId>kaml</artifactId>
                 <version>${kaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.thoughtworks.xstream</groupId>
-                <artifactId>xstream</artifactId>
-                <version>${xstream.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.antlr</groupId>
@@ -269,11 +279,6 @@
                 <version>${commons-text.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.databricks</groupId>
-                <artifactId>spark-avro_2.11</artifactId>
-                <version>${databricks.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.epam</groupId>
                 <artifactId>parso</artifactId>
                 <version>${epam-parso-version}</version>
@@ -300,22 +305,7 @@
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-cbor</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-smile</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -331,11 +321,6 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jr</groupId>
-                <artifactId>jackson-jr-objects</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -424,11 +409,6 @@
                 <version>${angus-mail.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.tinkerpop.blueprints</groupId>
-                <artifactId>blueprints-core</artifactId>
-                <version>${blueprints-core.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.wcohen</groupId>
                 <artifactId>com.wcohen.secondstring</artifactId>
                 <version>${com.wcohen.secondstring.version}</version>
@@ -442,16 +422,6 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-                <version>${commons-configuration.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>${commons-fileupload.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -584,11 +554,6 @@
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.flexjson</groupId>
-                <artifactId>flexjson</artifactId>
-                <version>${flexjson.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.saxon</groupId>
@@ -822,11 +787,6 @@
                 <version>${jspecify.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.glassfish.tyrus.bundles</groupId>
-                <artifactId>tyrus-standalone-client</artifactId>
-                <version>${tyrus-standalone-client.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
                 <version>${javassist.version}</version>
@@ -921,16 +881,6 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>${jsoup.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.googlecode.ez-vcard</groupId>
-                <artifactId>ez-vcard</artifactId>
-                <version>${ez-vcard.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.mangstadt</groupId>
-                <artifactId>vinnie</artifactId>
-                <version>${vinnie.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
