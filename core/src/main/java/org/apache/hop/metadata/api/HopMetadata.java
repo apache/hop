@@ -43,6 +43,15 @@ public @interface HopMetadata {
 
   String image() default "ui/images/folder.svg";
 
+  /**
+   * The category this metadata type belongs to. Used purely for presentation (e.g. grouping types
+   * under a common heading in the metadata perspective). Use one of the stable ids defined in
+   * {@link HopMetadataCategory}. An empty value (the default) groups the type under "Other".
+   *
+   * @return the category id for this metadata type
+   */
+  String category() default "";
+
   String documentationUrl() default "";
 
   /**

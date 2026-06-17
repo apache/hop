@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -36,6 +37,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::MinioMeta.Name",
     description = "i18n::MinioMeta.Description",
     image = "minio.svg",
+    category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/minio-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_MINIO_CONNECTION)
 public class MinioMeta extends HopMetadataBase implements Serializable, IHopMetadata {

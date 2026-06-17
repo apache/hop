@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -40,6 +41,7 @@ import org.json.simple.parser.JSONParser;
     name = "i18n::GraphModel.name",
     description = "i18n::GraphModel.description",
     image = "neo4j_logo.svg",
+    category = HopMetadataCategory.DATA_DEFINITION,
     documentationUrl = "/metadata-types/neo4j/neo4j-graphmodel.html",
     hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_MODEL)
 public class GraphModel extends HopMetadataBase implements IHopMetadata {

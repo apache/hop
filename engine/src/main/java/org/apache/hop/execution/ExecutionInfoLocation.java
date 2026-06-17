@@ -21,6 +21,7 @@ package org.apache.hop.execution;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -30,6 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::ExecutionInfoLocation.name",
     description = "i18n::ExecutionInfoLocation.description",
     image = "ui/images/location.svg",
+    category = HopMetadataCategory.EXECUTION,
     documentationUrl = "/metadata-types/execution-information-location.html",
     hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_LOCATION,
     supportsGlobalReplace = true)

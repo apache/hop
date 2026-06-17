@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -38,6 +39,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::WebDavConnection.Name",
     description = "i18n::WebDavConnection.Description",
     image = "ui/images/authentication.svg",
+    category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/webdav-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_WEBDAV_CONNECTION)
 public class WebDavConnection extends HopMetadataBase implements Serializable, IHopMetadata {

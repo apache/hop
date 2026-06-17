@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -36,6 +37,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::ExecutionDataProfile.name",
     description = "i18n::ExecutionDataProfile.description",
     image = "ui/images/analyzer.svg",
+    category = HopMetadataCategory.EXECUTION,
     documentationUrl = "/metadata-types/execution-data-profile.html",
     hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_DATA_PROFILE,
     supportsGlobalReplace = true)

@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -37,6 +38,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::BeamFileDefinition.name",
     description = "i18n::BeamFileDefinition.description",
     image = "ui/images/folder.svg",
+    category = HopMetadataCategory.DATA_DEFINITION,
     documentationUrl = "/metadata-types/beam-file-definition.html",
     hopMetadataPropertyType = HopMetadataPropertyType.BEAM_FILE_DEFINITION)
 public class FileDefinition extends HopMetadataBase implements Serializable, IHopMetadata {

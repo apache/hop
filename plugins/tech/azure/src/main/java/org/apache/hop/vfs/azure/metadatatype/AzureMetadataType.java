@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -30,6 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::AzureMetadataType.Name",
     description = "i18n::AzureMetadataType.Description",
     image = "ui/images/authentication.svg",
+    category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/azure-authentication.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_AZURE_CONNECTION)
 @Getter

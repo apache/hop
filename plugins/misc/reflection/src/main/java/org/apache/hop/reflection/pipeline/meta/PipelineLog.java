@@ -25,6 +25,7 @@ import lombok.Setter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -34,6 +35,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::PipelineLog.name",
     description = "i18n::PipelineLog.description",
     image = "pipeline-log.svg",
+    category = HopMetadataCategory.LOGGING,
     documentationUrl = "/metadata-types/pipeline-log.html",
     hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_LOG)
 @Getter

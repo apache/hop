@@ -46,6 +46,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -59,6 +60,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
     name = "i18n::RestConnection.name",
     description = "i18n::RestConnection.description",
     image = "rest.svg",
+    category = HopMetadataCategory.CONNECTIONS,
     documentationUrl = "/metadata-types/rest-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION,
     supportsGlobalReplace = true)
