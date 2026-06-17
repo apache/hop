@@ -147,4 +147,9 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
   default void setDropTargetFolder(CTabFolder folder) {
     // Do nothing by default
   }
+
+  /** Clear search/filter text fields when a new project is activated. */
+  default void clearSearchFilters() {
+    // Do nothing by default
+  }
 }

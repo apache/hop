@@ -60,6 +60,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -252,6 +253,30 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
+
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName() + "ProjectActivated",
+            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            HopGuiEvents.ProjectActivated.name());
+  }
+
+  @Override
+  public void clearSearchFilters() {
+    filterText = "";
+    if (toolBarWidgets != null) {
+      ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
+      if (item != null && !item.isDisposed()) {
+        org.eclipse.swt.widgets.Control control = item.getControl();
+        if (control != null && !control.isDisposed() && control instanceof Text text) {
+          text.setText("");
+        }
+      }
+    }
+    if (hopGui != null && hopGui.isActivePerspective(this)) {
+      refresh();
+    }
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {
