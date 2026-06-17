@@ -126,6 +126,9 @@ class EncrTest {
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %%VAR%% String");
     assertEquals(" %%VAR%% String", encryption);
 
+    encryption = Encr.encryptPasswordIfNotUsingVariables("#{vault:hop/data/some-db:password}");
+    assertEquals("#{vault:hop/data/some-db:password}", encryption);
+
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %% VAR String");
     assertEquals("Encrypted 2be988fed4f87a4a599599d64cc9ba1dd", encryption);
 
@@ -158,6 +161,10 @@ class EncrTest {
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %%VAR%% String");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
     assertEquals(" %%VAR%% String", decryption);
+
+    encryption = Encr.encryptPasswordIfNotUsingVariables("#{vault:hop/data/some-db:password}");
+    decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
+    assertEquals("#{vault:hop/data/some-db:password}", decryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %% VAR String");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
