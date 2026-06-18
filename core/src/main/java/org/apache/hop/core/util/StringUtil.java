@@ -371,6 +371,7 @@ public class StringUtil {
       String aString, List<String> list, boolean includeSystemVariables) {
     getUsedVariables(aString, UNIX_OPEN, UNIX_CLOSE, list, includeSystemVariables);
     getUsedVariables(aString, WINDOWS_OPEN, WINDOWS_CLOSE, list, includeSystemVariables);
+    getUsedVariables(aString, RESOLVER_OPEN, RESOLVER_CLOSE, list, includeSystemVariables);
   }
 
   public static String generateRandomString(
