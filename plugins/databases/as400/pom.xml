@@ -28,6 +28,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases AS400</name>
 
+    <properties>
+        <hop.jdbc.driver1>net.sf.jt400:jt400</hop.jdbc.driver1>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.sf.jt400</groupId>

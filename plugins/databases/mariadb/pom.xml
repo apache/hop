@@ -28,21 +28,11 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases MariaDB</name>
 
-    <properties>
-        <mariadb.version>3.5.7</mariadb.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-mysql</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-            <version>${mariadb.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -60,6 +60,26 @@
             <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
             <version>${dependency.jgit.revision}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- JUnit 4 API needed by org.eclipse.jgit.junit.RepositoryTestCase (TemporaryFolder, etc.) -->
         <dependency>
             <groupId>junit</groupId>

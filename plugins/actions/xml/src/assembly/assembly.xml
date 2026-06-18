@@ -27,12 +27,12 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/actions/xml</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>plugins/actions/xml</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -44,21 +44,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-action-xml:jar</include>
-            </includes>
-            <outputDirectory>plugins/actions/xml</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>provided</scope>
-            <includes>
-                <include>xerces:xercesImpl:jar</include>
-                <include>xml-apis:xml-apis:jar</include>
-                <include>net.sf.saxon:*:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

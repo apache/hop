@@ -30,6 +30,8 @@
     <name>Hop Plugins Transforms Excel</name>
 
     <properties>
+        <hop.libcore.exclude1>org.apache.hop:hop-misc-static-schema</hop.libcore.exclude1>
+        <hop.libcore.exclude2>org.apache.hop:hop-transform-textfile</hop.libcore.exclude2>
         <odfdom-java.version>0.8.7</odfdom-java.version>
     </properties>
 

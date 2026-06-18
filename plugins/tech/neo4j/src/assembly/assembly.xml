@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/tech/neo4j</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,31 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-tech-neo4j:jar</include>
-            </includes>
-            <outputDirectory>plugins/tech/neo4j</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-tech-neo4j:jar</exclude>
-                <exclude>org.reactivestreams:reactive-streams:jar</exclude>
-                <exclude>io.projectreactor:reactor-core:jar</exclude>
-                <exclude>io.netty::jar</exclude>
-            </excludes>
-            <outputDirectory>plugins/tech/neo4j/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <includes>
-                <include>org.reactivestreams:reactive-streams:jar</include>
-                <include>io.projectreactor:reactor-core:jar</include>
-                <include>io.netty::jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

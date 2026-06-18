@@ -26,77 +26,13 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/tech/cassandra</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-tech-cassandra:jar</include>
-            </includes>
-            <outputDirectory>plugins/tech/cassandra</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-tech-cassandra:jar</exclude>
-                <exclude>com.github.spotbugs:spotbugs-annotations:jar</exclude>
-                <exclude>org.antlr:antlr-runtime:jar</exclude>
-                <exclude>org.ow2.asm:asm:jar</exclude>
-                <exclude>org.ow2.asm:asm-commons:jar</exclude>
-                <exclude>org.ow2.asm:asm-tree:jar</exclude>
-                <exclude>org.ow2.asm:asm-util:jar</exclude>
-                <exclude>org.lz4:lz4-java:jar</exclude>
-                <exclude>org.yaml:snakeyaml:jar</exclude>
-                <exclude>io.netty::jar</exclude>
-                <exclude>org.checkerframework:checker-qual:jar</exclude>
-                <exclude>commons-cli:commons-cli:jar</exclude>
-                <exclude>com.google.errorprone:error_prone_annotations:jar</exclude>
-                <exclude>com.github.stephenc.jcip:jcip-annotations:jar</exclude>
-                <exclude>net.java.dev.jna::jar</exclude>
-                <exclude>com.github.luben:zstd-jni:jar</exclude>
-                <exclude>org.reactivestreams:reactive-streams:jar</exclude>
-                <exclude>org.bouncycastle::jar</exclude>
-                <exclude>com.github.ben-manes.caffeine:caffeine:jar</exclude>
-                <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar</exclude>
-                <exclude>org.antlr:ST4:jar</exclude>
-                <exclude>javax.inject:javax.inject:jar</exclude>
-                <exclude>org.jspecify:jspecify:jar</exclude>
-                <exclude>io.dropwizard.metrics:*:jar</exclude>
-            </excludes>
-            <outputDirectory>plugins/tech/cassandra/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>provided</scope>
-            <includes>
-                <include>org.apache.commons:commons-math3:jar</include>
-                <include>org.yaml:snakeyaml:jar</include>
-                <include>org.antlr:antlr-runtime:jar</include>
-                <include>org.ow2.asm:asm:jar</include>
-                <include>org.ow2.asm:asm-commons:jar</include>
-                <include>org.ow2.asm:asm-tree:jar</include>
-                <include>org.ow2.asm:asm-util:jar</include>
-                <include>org.lz4:lz4-java:jar</include>
-                <include>org.yaml:snakeyaml:jar</include>
-                <include>io.netty::jar</include>
-                <include>org.checkerframework:checker-qual:jar</include>
-                <include>commons-cli:commons-cli:jar</include>
-                <include>com.google.errorprone:error_prone_annotations:jar</include>
-                <include>com.github.stephenc.jcip:jcip-annotations:jar</include>
-                <include>net.java.dev.jna::jar</include>
-                <include>com.github.luben:zstd-jni:jar</include>
-                <include>org.reactivestreams:reactive-streams:jar</include>
-                <include>org.bouncycastle::jar</include>
-                <include>com.github.ben-manes.caffeine:caffeine:jar</include>
-                <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar</include>
-                <include>org.antlr:ST4:jar</include>
-                <include>javax.inject:javax.inject:jar</include>
-                <include>org.jspecify:jspecify:jar</include>
-                <include>io.dropwizard.metrics:*:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

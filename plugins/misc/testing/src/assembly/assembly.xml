@@ -27,23 +27,12 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/misc/testing</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-misc-testing:jar</include>
-            </includes>
-            <outputDirectory>plugins/misc/testing</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <includes>
-                <include>org.apache.commons:commons-csv</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

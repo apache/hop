@@ -28,6 +28,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Kafka</name>
 
+    <properties>
+        <hop.libcore.exclude1>org.apache.hop:hop-transform-pipelineexecutor</hop.libcore.exclude1>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -123,6 +127,11 @@
                     <artifactId>snappy-java</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -27,23 +27,13 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/databases/snowflake</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-databases-snowflake:jar</include>
-            </includes>
-            <outputDirectory>plugins/databases/snowflake</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>net.snowflake:snowflake-jdbc:jar</include>
-            </includes>
-            <outputDirectory>lib/jdbc</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

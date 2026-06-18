@@ -28,6 +28,12 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Javascript</name>
 
+    <properties>
+        <hop.libcore.exclude1>org.apache.hop:hop-transform-fieldsplitter</hop.libcore.exclude1>
+        <hop.libcore.exclude2>org.apache.hop:hop-transform-loadfileinput</hop.libcore.exclude2>
+        <hop.libcore.exclude3>org.apache.hop:hop-transform-rowgenerator</hop.libcore.exclude3>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -41,10 +47,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-mail</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-fieldsplitter</artifactId>
@@ -61,6 +63,11 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-rowgenerator</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

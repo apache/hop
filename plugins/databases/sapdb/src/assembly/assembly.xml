@@ -27,18 +27,14 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/databases/sapdb</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
 
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-databases-sapdb:jar</include>
-            </includes>
-            <outputDirectory>plugins/databases/sapdb</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

@@ -32,6 +32,7 @@
     <properties>
         <graaljs.version>25.0.3</graaljs.version>
         <groovy.version>4.0.30</groovy.version>
+        <hop.libcore.exclude1>org.apache.hop:hop-transform-rowgenerator</hop.libcore.exclude1>
         <jython.version>2.7.4</jython.version>
     </properties>
 
@@ -74,22 +75,6 @@
             <version>${graaljs.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-tree</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.python</groupId>
             <artifactId>jython-standalone</artifactId>
             <version>${jython.version}</version>
@@ -98,6 +83,26 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-rowgenerator</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

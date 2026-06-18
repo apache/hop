@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/actions/snmptrap</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,18 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-action-snmptrap:jar</include>
-            </includes>
-            <outputDirectory>plugins/actions/snmptrap</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.snmp4j:snmp4j:jar</include>
-            </includes>
-            <outputDirectory>plugins/actions/snmptrap/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

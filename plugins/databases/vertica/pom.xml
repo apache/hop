@@ -30,6 +30,7 @@
 
     <properties>
         <commons-dbcp2.version>2.14.0</commons-dbcp2.version>
+        <hop.libcore.exclude1>com.vertica.jdbc:vertica-jdbc</hop.libcore.exclude1>
     </properties>
 
     <!-- Dependencies folded in from the former hop-transform-verticabulkloader module.

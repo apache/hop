@@ -50,11 +50,13 @@
         <dependency>
             <groupId>com.github.mwiede</groupId>
             <artifactId>jsch</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
             <version>${commons-net-version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

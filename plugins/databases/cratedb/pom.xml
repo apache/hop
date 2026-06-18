@@ -28,6 +28,11 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases CrateDB</name>
 
+    <properties>
+        <hop.jdbc.driver1>io.crate:crate-jdbc</hop.jdbc.driver1>
+        <hop.libcore.exclude1>org.apache.hop:hop-databases-postgresql</hop.libcore.exclude1>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -44,12 +49,18 @@
         <dependency>
             <groupId>io.crate</groupId>
             <artifactId>crate-jdbc</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-postgresql</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

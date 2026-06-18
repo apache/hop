@@ -28,6 +28,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases DuckDB</name>
 
+    <properties>
+        <hop.jdbc.driver1>org.duckdb:duckdb_jdbc</hop.jdbc.driver1>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -44,6 +48,7 @@
         <dependency>
             <groupId>org.duckdb</groupId>
             <artifactId>duckdb_jdbc</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

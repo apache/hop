@@ -28,6 +28,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases MS SQL Server (native)</name>
 
+    <properties>
+        <hop.jdbc.driver1>com.microsoft.sqlserver:mssql-jdbc</hop.jdbc.driver1>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -42,14 +46,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-mssql</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>

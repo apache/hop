@@ -27,29 +27,18 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/databases/redshift</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>plugins/databases/redshift</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-databases-redshift:jar</include>
-            </includes>
-            <outputDirectory>plugins/databases/redshift</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>provided</scope>
-            <includes>
-                <include>com.amazon.redshift:redshift-jdbc42:jar</include>
-            </includes>
-            <outputDirectory>lib/jdbc</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

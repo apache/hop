@@ -37,7 +37,7 @@
             <groupId>com.googlecode.ez-vcard</groupId>
             <artifactId>ez-vcard</artifactId>
             <version>${ez-vcard.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/actions/sendnagiospassivecheck</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,19 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-action-sendnagiospassivecheck:jar</include>
-            </includes>
-            <outputDirectory>plugins/actions/sendnagiospassivecheck</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.googlecode.jsendnsca:jsendnsca:jar</include>
-            </includes>
-            <outputDirectory>plugins/actions/sendnagiospassivecheck/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
-</assembly>
 
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
+</assembly>

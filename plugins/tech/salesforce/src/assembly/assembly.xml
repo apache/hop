@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/tech/salesforce</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,19 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-tech-salesforce:jar</include>
-            </includes>
-            <outputDirectory>plugins/tech/salesforce</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.force.api:force-wsc:jar</include>
-                <include>com.force.api:force-partner-api:jar</include>
-            </includes>
-            <outputDirectory>plugins/tech/salesforce/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

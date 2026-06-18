@@ -28,6 +28,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases H2</name>
 
+    <properties>
+        <hop.jdbc.driver1>com.h2database:h2</hop.jdbc.driver1>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -44,6 +48,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

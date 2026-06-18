@@ -27,29 +27,12 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/databases/access</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-databases-access:jar</include>
-            </includes>
-            <outputDirectory>plugins/databases/access</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>io.github.spannm:ucanaccess:jar</include>
-                <include>org.hsqldb:hsqldb:jar</include>
-            </includes>
-            <outputDirectory>lib/jdbc</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>io.github.spannm:jackcess:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>
