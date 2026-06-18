@@ -45,6 +45,7 @@ import org.apache.hop.git.util.FileTypeUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -278,6 +279,20 @@ public class GitPerspective implements IHopPerspective {
 
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
+
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName() + "ProjectActivated",
+            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            HopGuiEvents.ProjectActivated.name());
+  }
+
+  @Override
+  public void clearSearchFilters() {
+    if (wSearchText != null && !wSearchText.isDisposed()) {
+      wSearchText.setText("");
+    }
   }
 
   protected void createRefTree(Composite parent) {
@@ -1521,7 +1536,13 @@ public class GitPerspective implements IHopPerspective {
     }
 
     String search = wSearchText.getText().trim();
-    plotRenderer.setFiltered(!Utils.isEmpty(search));
+    if (plotRenderer != null) {
+      plotRenderer.setFiltered(!Utils.isEmpty(search));
+    }
+
+    if (GitGuiPlugin.getInstance().getGit() == null) {
+      return;
+    }
 
     refreshHistory();
   }

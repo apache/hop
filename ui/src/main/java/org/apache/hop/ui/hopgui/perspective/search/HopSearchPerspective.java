@@ -37,6 +37,7 @@ import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -343,6 +344,24 @@ public class HopSearchPerspective implements IHopPerspective {
     wResults.table.addListener(
         SWT.Selection, e -> wbOpen.setEnabled(wResults.getSelectionIndices().length == 1));
     wResults.table.addListener(SWT.DefaultSelection, this::open);
+
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName() + "ProjectActivated",
+            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            HopGuiEvents.ProjectActivated.name());
+  }
+
+  @Override
+  public void clearSearchFilters() {
+    if (wSearchString != null && !wSearchString.isDisposed()) {
+      wSearchString.setText("");
+    }
+    if (wResults != null && !wResults.isDisposed()) {
+      wResults.table.removeAll();
+    }
+    allSearchResults = new ArrayList<>();
   }
 
   private void open(Event event) {

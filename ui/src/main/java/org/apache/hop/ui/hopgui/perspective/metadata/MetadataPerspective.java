@@ -232,6 +232,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         .addEventListener(
             getClass().getName(), e -> refresh(), HopGuiEvents.MetadataChanged.name());
 
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName() + "ProjectActivated",
+            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            HopGuiEvents.ProjectActivated.name());
+
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
@@ -1823,6 +1830,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   /** Filter the tree based on search text */
+  @Override
+  public void clearSearchFilters() {
+    if (searchText != null && !searchText.isDisposed()) {
+      searchText.setText("");
+    } else {
+      currentSearchFilter = "";
+    }
+  }
+
   protected void filterTree() {
     if (searchText == null || searchText.isDisposed()) {
       return;

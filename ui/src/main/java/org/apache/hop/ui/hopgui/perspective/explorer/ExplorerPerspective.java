@@ -341,11 +341,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         .getEventsHandler()
         .addEventListener(
             getClass().getName() + "ProjectActivated",
-            e -> {
-              refresh();
-              // Defer so namespace and UI are fully updated after project switch
-              hopGui.getDisplay().asyncExec(() -> applyRestoredState());
-            },
+            e ->
+                hopGui
+                    .getDisplay()
+                    .asyncExec(
+                        () -> {
+                          clearSearchFilters();
+                          refresh();
+                          applyRestoredState();
+                        }),
             HopGuiEvents.ProjectActivated.name());
 
     hopGui
@@ -2771,6 +2775,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       image = "ui/images/refresh.svg")
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
+  @Override
+  public void clearSearchFilters() {
+    if (searchText != null && !searchText.isDisposed()) {
+      searchText.setText("");
+    } else {
+      filterText = "";
+    }
+  }
+
   public void refresh() {
     try {
       determineRootFolderName(hopGui);
