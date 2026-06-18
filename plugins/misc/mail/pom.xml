@@ -44,11 +44,12 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-mail</artifactId>
+            <artifactId>angus-activation</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-activation</artifactId>
+            <artifactId>angus-mail</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

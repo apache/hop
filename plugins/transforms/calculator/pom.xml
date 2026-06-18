@@ -38,6 +38,7 @@
             <groupId>com.wcohen</groupId>
             <artifactId>com.wcohen.secondstring</artifactId>
             <version>${com.wcohen.secondstring.version}</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>

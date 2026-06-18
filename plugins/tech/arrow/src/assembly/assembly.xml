@@ -26,12 +26,12 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/tech/arrow</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>plugins/tech/arrow</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -43,35 +43,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-tech-arrow:jar</include>
-            </includes>
-            <outputDirectory>plugins/tech/arrow</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-tech-arrow:jar</exclude>
-                <exclude>com.squareup.okio::jar</exclude>
-                <exclude>org.apache.commons:commons-compress:jar</exclude>
-                <exclude>org.apache.commons:commons-lang3:jar</exclude>
-                <exclude>commons-io:commons-io:jar</exclude>
-                <exclude>com.google.guava:*:jar</exclude>
-                <exclude>com.google.code.findbugs:jsr305:jar</exclude>
-                <exclude>com.google.errorprone:error_prone_annotations:jar</exclude>
-                <exclude>com.google.j2objc:j2objc-annotations:jar</exclude>
-                <exclude>org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar</exclude>
-                <exclude>org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar</exclude>
-                <exclude>org.jetbrains.kotlin:kotlin-stdlib:jar</exclude>
-                <exclude>org.jetbrains:annotations:jar</exclude>
-                <exclude>org.checkerframework:checker-qual:jar</exclude>
-                <exclude>org.xerial.snappy:snappy-java:jar</exclude>
-                <exclude>com.squareup.okhttp3:okhttp:jar</exclude>
-                <exclude>org.bouncycastle::jar</exclude>
-            </excludes>
-            <outputDirectory>plugins/tech/arrow/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

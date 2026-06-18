@@ -28,10 +28,15 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases Monet DB</name>
 
+    <properties>
+        <hop.jdbc.driver1>monetdb:monetdb-jdbc</hop.jdbc.driver1>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>monetdb</groupId>
             <artifactId>monetdb-jdbc</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

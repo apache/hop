@@ -29,6 +29,10 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases Redshift</name>
 
+    <properties>
+        <hop.jdbc.driver1>com.amazon.redshift:redshift-jdbc42</hop.jdbc.driver1>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

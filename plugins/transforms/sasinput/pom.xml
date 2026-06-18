@@ -45,6 +45,7 @@
         <dependency>
             <groupId>com.epam</groupId>
             <artifactId>parso</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

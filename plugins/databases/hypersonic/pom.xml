@@ -28,10 +28,15 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases Hypersonic</name>
 
+    <properties>
+        <hop.jdbc.driver1>org.hsqldb:hsqldb</hop.jdbc.driver1>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -26,28 +26,13 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/tech/webdav</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-tech-webdav:jar</include>
-            </includes>
-            <outputDirectory>plugins/tech/webdav</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-tech-webdav:jar</exclude>
-                <exclude>org.apache.commons:commons-lang3:jar</exclude>
-                <exclude>commons-io:commons-io:jar</exclude>
-                <exclude>org.apache.commons:commons-vfs2:jar</exclude>
-                <exclude>org.apache.commons:commons-vfs2-jackrabbit2:jar</exclude>
-            </excludes>
-            <outputDirectory>plugins/tech/webdav/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

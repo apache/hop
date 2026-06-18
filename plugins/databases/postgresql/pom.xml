@@ -29,10 +29,15 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Databases PostgreSQL</name>
 
+    <properties>
+        <hop.jdbc.driver1>org.postgresql:postgresql</hop.jdbc.driver1>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

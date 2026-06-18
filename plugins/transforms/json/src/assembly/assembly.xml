@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/json</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,26 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-json:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/json</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.jayway.jsonpath:json-path:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/json/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>net.minidev:json-smart:jar</include>
-                <include>net.minidev:accessors-smart:jar</include>
-                <include>org.ow2.asm:asm:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

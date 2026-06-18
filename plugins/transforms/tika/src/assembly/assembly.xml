@@ -26,7 +26,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/tika</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -38,47 +38,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-tika:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/tika</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-transform-tika:jar</exclude>
-                <exclude>org.jsoup:jsoup:jar</exclude>
-                <exclude>info.picocli:picocli:jar</exclude>
-            </excludes>
-            <outputDirectory>plugins/transforms/tika/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>provided</scope>
-            <includes>
-                <include>org.ow2.asm:asm:jar</include>
-                <include>com.epam:parso:jar</include>
-                <include>com.healthmarketscience.jackcess:jackcess:jar</include>
-                <include>org.apache.poi:*</include>
-                <include>com.zaxxer:*</include>
-                <include>org.apache.xmlbeans:*</include>
-                <include>com.github.virtuald:*</include>
-                <include>commons-codec:commons-codec:jar</include>
-                <include>commons-logging:commons-logging:jar</include>
-                <include>org.apache.commons:commons-lang3:jar</include>
-                <include>org.apache.commons:commons-csv</include>
-                <include>org.apache.commons:commons-compress:jar</include>
-                <include>org.apache.commons:commons-math3:jar</include>
-                <include>com.github.albfernandez:juniversalchardet:jar</include>
-                <include>xerces:xercesImpl:jar</include>
-                <include>xml-apis:xml-apis:jar</include>
-                <include>org.apache.commons:commons-collections4:jar</include>
-                <include>org.apache.logging.log4j:log4j-api:jar</include>
-                <include>org.jsoup:jsoup:jar</include>
-                <include>info.picocli:picocli:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>
