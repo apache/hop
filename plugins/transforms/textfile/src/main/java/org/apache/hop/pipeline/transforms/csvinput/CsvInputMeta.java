@@ -271,8 +271,11 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
         }
       } else {
         for (CsvInputField inputField : inputFields) {
-          IValueMeta valueMeta =
-              ValueMetaFactory.createValueMeta(inputField.getName(), inputField.getType());
+          int fieldType = inputField.getType();
+          if (fieldType == IValueMeta.TYPE_NONE) {
+            fieldType = IValueMeta.TYPE_STRING;
+          }
+          IValueMeta valueMeta = ValueMetaFactory.createValueMeta(inputField.getName(), fieldType);
           valueMeta.setConversionMask(inputField.getFormat());
           valueMeta.setLength(inputField.getLength());
           valueMeta.setPrecision(inputField.getPrecision());

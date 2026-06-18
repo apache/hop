@@ -19,14 +19,17 @@ package org.apache.hop.ui.core.dialog;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.core.ProgressNullMonitorListener;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
@@ -45,7 +48,8 @@ public class ProgressMonitorDialog {
   protected Shell parent;
   protected Shell shell;
   private Display display;
-  protected IProgressMonitor progressMonitor;
+
+  @Getter protected IProgressMonitor progressMonitor;
 
   private Label wlTask;
   private Label wlSubTask;
@@ -59,17 +63,13 @@ public class ProgressMonitorDialog {
     this.progressMonitor = new ProgressMonitor();
   }
 
-  /**
-   * Returns the progress monitor to use for operations run in this progress dialog.
-   *
-   * @return the progress monitor
-   */
-  public IProgressMonitor getProgressMonitor() {
-    return progressMonitor;
-  }
-
   public void run(boolean cancelable, IRunnableWithProgress runnable)
       throws InvocationTargetException, InterruptedException {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      runnable.run(new ProgressNullMonitorListener());
+      return;
+    }
+
     createModalShell(cancelable);
     int margin = layoutProgressWidgets();
     addCancelButtonIfNeeded(cancelable, margin);
