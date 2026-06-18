@@ -18,11 +18,13 @@
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,12 +63,14 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.DefaultLogLevel;
@@ -188,6 +192,7 @@ import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -288,6 +293,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String START_HOP_NODE = "startHopNode";
   public static final String PIPELINE_GRAPH_DIALOG_HOP_CAUSES_LOOP_MESSAGE =
       "PipelineGraph.Dialog.HopCausesLoop.Message";
+
+  public static final String PIPELINE_GRAPH_TABS = "HopGuiPipelineGraph.Tabs.ID";
 
   private final ILogChannel log;
 
@@ -4386,6 +4393,53 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
+  private static final String EXTRA_TAB_ID = "EXTRA_TAB_ID";
+
+  private void addPluginTabs() {
+    GuiRegistry guiRegistry = GuiRegistry.getInstance();
+    List<GuiTabItem> tabsList = guiRegistry.getGuiTabsMap().get(PIPELINE_GRAPH_TABS);
+    if (tabsList != null) {
+      tabsList.sort(Comparator.comparing(GuiTabItem::getId));
+      for (GuiTabItem tabItem : tabsList) {
+
+        // Check if tab already exist
+        if (checkTabExist(tabItem)) {
+          continue;
+        }
+
+        // Create the tab
+        try {
+          Class<?> pluginTabClass = tabItem.getMethod().getDeclaringClass();
+          Constructor<?> constructor =
+              pluginTabClass.getConstructor(HopGui.class, HopGuiPipelineGraph.class);
+          Object object = constructor.newInstance(hopGui, this);
+          CTabItem tab = (CTabItem) tabItem.getMethod().invoke(object, extraViewTabFolder);
+          tab.setData(EXTRA_TAB_ID, tabItem.getId());
+        } catch (Exception e) {
+          new ErrorDialog(
+              getShell(),
+              CONST_ERROR,
+              "Hop was unable to invoke @GuiTab method "
+                  + tabItem.getMethod().getName()
+                  + " with the parent composite as argument",
+              e);
+        }
+      }
+      extraViewTabFolder.layout();
+    }
+  }
+
+  private boolean checkTabExist(GuiTabItem guiTabItem) {
+    if (extraViewTabFolder != null) {
+      for (CTabItem item : this.extraViewTabFolder.getItems()) {
+        if (guiTabItem.getId().equals(item.getData(EXTRA_TAB_ID))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   @Override
   public void close() {
     perspective.remove(this);
@@ -4867,6 +4921,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelineLogDelegate.addPipelineLog();
     pipelineGridDelegate.addPipelineGrid();
     pipelineCheckDelegate.addPipelineCheck();
+    addPluginTabs();
     if (extraViewTabFolder.getSelectionIndex() == -1) {
       extraViewTabFolder.setSelection(0);
     }
