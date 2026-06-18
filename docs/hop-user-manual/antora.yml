@@ -17,7 +17,7 @@
 
 name: manual
 title: User manual
-version: 2.18.0
-display_version: 2.18.0
+version: 2.18.1
+display_version: 2.18.1
 nav:
   - modules/ROOT/nav.adoc
