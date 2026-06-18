@@ -17,10 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,12 +33,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.inject.HopMetadataInjector;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -129,5 +133,36 @@ class CsvInputMetaTest {
     assertEquals(1, map.size());
     Set<String> fields = map.get("INPUT_FIELDS");
     assertEquals(9, fields.size());
+  }
+
+  /**
+   * Regression test for issue #7301: a field whose type was left undetermined (None) by "Get
+   * Fields" - typically an all-empty column - must fall back to String when building the output row
+   * so the data can still be read and previewed. Before the fix, getFields() produced a None-typed
+   * value which threw "Unknown type None specified" while rendering (PreviewRowsDialog).
+   */
+  @Test
+  void getFieldsFallsBackToStringForNoneTypedField() throws Exception {
+    HopClientEnvironment.init();
+
+    CsvInputField field = new CsvInputField();
+    field.setName("id_4_name");
+    field.setType(IValueMeta.TYPE_NONE);
+
+    CsvInputMeta meta = new CsvInputMeta();
+    meta.setFields(new CsvInputField[] {field});
+    meta.setLazyConversionActive(true); // matches the <binary-string> storage in the report
+
+    RowMeta rowMeta = new RowMeta();
+    meta.getFields(rowMeta, "csv", null, null, new Variables(), null);
+
+    IValueMeta valueMeta = rowMeta.getValueMeta(0);
+    assertEquals(IValueMeta.TYPE_STRING, valueMeta.getType());
+
+    // PreviewRowsDialog.getDataForRow() renders each value through IRowMeta#getString(); a
+    // None-typed value used to throw here.
+    Object[] row = {"abc".getBytes(StandardCharsets.UTF_8)};
+    assertDoesNotThrow(() -> rowMeta.getString(row, 0));
+    assertEquals("abc", rowMeta.getString(row, 0));
   }
 }
