@@ -356,17 +356,22 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
   }
 
   private List<String> getSqlReservedWords() {
+    String connection = wConnection != null ? wConnection.getText() : input.getConnection();
+
     // Do not search keywords when connection is empty
-    if (Utils.isEmpty(input.getConnection())) {
+    if (Utils.isEmpty(connection)) {
       return List.of();
     }
 
     // If connection is a variable that can't be resolved
-    if (variables.resolve(input.getConnection()).startsWith("${")) {
+    if (variables.resolve(connection).startsWith("${")) {
       return List.of();
     }
 
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+    if (databaseMeta == null) {
+      return List.of();
+    }
     return Arrays.stream(databaseMeta.getReservedWords()).toList();
   }
 
