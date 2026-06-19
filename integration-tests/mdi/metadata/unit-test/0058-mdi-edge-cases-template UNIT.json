@@ -1,0 +1,43 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "ID",
+          "data_set_field": "ID"
+        },
+        {
+          "transform_field": "AA",
+          "data_set_field": "AA"
+        },
+        {
+          "transform_field": "b",
+          "data_set_field": "b"
+        },
+        {
+          "transform_field": "c",
+          "data_set_field": "c"
+        }
+      ],
+      "field_order": [
+        "ID",
+        "AA",
+        "b",
+        "c"
+      ],
+      "data_set_name": "golden-mdi-edge-cases",
+      "transform_name": "output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0058-mdi-edge-cases-template UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0058-mdi-edge-cases-template-injected.hpl"
+}

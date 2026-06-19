@@ -37,6 +37,12 @@ The Get Table Names transform gets table names from a database connection.
 !===
 |===
 
+== Preview
+
+The *Preview* button opens the same preview settings dialog as Table Input (row limit and query timeout in seconds). The JDBC statement timeout is applied **only in preview mode** from the Hop GUI.
+
+You can set a default for the timeout field with the xref:variables.adoc#_available_global_variables[`HOP_QUERY_PREVIEW_TIMEOUT`] application variable. See xref:pipeline/transforms/tableinput.adoc#_preview[Table Input: Preview] for the same behaviour details.
+
 == Options
 
 [options="header"]

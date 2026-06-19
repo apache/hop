@@ -36,7 +36,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Delete data in a database table. */
 public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
-
   private static final Class<?> PKG = DeleteMeta.class;
 
   public Delete(
@@ -75,10 +74,11 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
               PKG,
               "Delete.Log.SetValuesForDelete",
               data.deleteParameterRowMeta.getString(deleteRow),
-              rowMeta.getString(row)));
+              rowMeta.getString(row),
+              meta.isUseBatchUpdate()));
     }
 
-    data.db.insertRow(data.prepStatementDelete);
+    data.db.insertRow(data.prepStatementDelete, meta.isUseBatchUpdate(), true);
     incrementLinesUpdated();
   }
 
@@ -86,10 +86,10 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
   public boolean processRow() throws HopException {
     boolean sendToErrorRow = false;
     String errorMessage = null;
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
-
+    // Get row from input rowset & set row busy!
+    Object[] r = getRow();
+    // no more input to be expected...
+    if (r == null) {
       setOutputDone();
       return false;
     }
@@ -151,24 +151,24 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
     }
 
     try {
-      deleteValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
-      putRow(
-          data.outputRowMeta, r); // output the same rows of data, but with a copy of the metadata
+      // add new values to the row in rowset[0].
+      deleteValues(getInputRowMeta(), r);
+      // output the same rows of data, but with a copy of the metadata
+      putRow(data.outputRowMeta, r);
 
       if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "Delete.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
-
       if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
-
         logError(BaseMessages.getString(PKG, "Delete.Log.ErrorInTransform") + e.getMessage());
         setErrors(1);
         stopAll();
-        setOutputDone(); // signal end to receiver(s)
+        // signal end to receiver(s)
+        setOutputDone();
         return false;
       }
 
@@ -225,7 +225,6 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
   @Override
   public boolean init() {
     if (super.init()) {
-
       if (Utils.isEmpty(meta.getConnection())) {
         logError(BaseMessages.getString(PKG, "Delete.Init.ConnectionMissing", getTransformName()));
         return false;
@@ -238,16 +237,13 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       }
 
       data.db = new Database(this, variables, databaseMeta);
-
       try {
         data.db.connect();
-
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "Delete.Log.ConnectedToDB"));
         }
 
         data.db.setCommit(meta.getCommitSize(this));
-
         return true;
       } catch (HopException ke) {
         logError(BaseMessages.getString(PKG, "Delete.Log.ErrorOccurred") + ke.getMessage());
@@ -274,18 +270,26 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
       try {
         if (!data.db.isAutoCommit()) {
           if (getErrors() == 0) {
-            data.db.commit();
+            if (dispose) {
+              data.db.emptyAndCommit(data.prepStatementDelete, meta.isUseBatchUpdate());
+              data.prepStatementDelete = null;
+            } else {
+              data.db.commit();
+            }
           } else {
             data.db.rollback();
           }
         }
-        if (dispose) data.db.closeUpdate();
+        if (dispose && data.prepStatementDelete != null) {
+          data.db.closePreparedStatement(data.prepStatementDelete);
+          data.prepStatementDelete = null;
+        }
       } catch (HopDatabaseException e) {
         logError(
             BaseMessages.getString(PKG, "Delete.Log.UnableToCommitUpdateConnection")
                 + data.db
                 + "] :"
-                + e.toString());
+                + e);
         setErrors(1);
       } finally {
         if (dispose) {

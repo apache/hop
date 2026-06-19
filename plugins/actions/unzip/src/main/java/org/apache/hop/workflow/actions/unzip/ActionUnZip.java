@@ -44,6 +44,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -480,7 +482,9 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           if (!children[i].getType().equals(FileType.FOLDER)) {
             boolean unzip = true;
 
-            String filename = children[i].getName().getPath();
+            // Match RegExp against the file name only (like other file actions). getPath() is the
+            // full path from the FS root, so patterns such as "daily_.*\\.zip" never matched.
+            String sourceMatchName = children[i].getName().getBaseName();
 
             Pattern patternSource = null;
 
@@ -490,7 +494,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
             // First see if the file matches the regular expression!
             if (patternSource != null) {
-              Matcher matcher = patternSource.matcher(filename);
+              Matcher matcher = patternSource.matcher(sourceMatchName);
               unzip = matcher.matches();
             }
             if (unzip) {
@@ -543,6 +547,8 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         long size = sourceFileObject.getContent().getSize();
         if (size > 0) {
           result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
+          emitFileIoLineage(
+              parentWorkflow, FileIoOperation.READ, sourceFileObject, null, size, true, null);
         }
       }
 
@@ -723,9 +729,21 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                   if (is != null) {
                     byte[] buff = new byte[2048];
                     int len;
+                    long entryBytes = 0L;
                     while ((len = is.read(buff)) > 0) {
                       os.write(buff, 0, len);
                       result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + len);
+                      entryBytes += len;
+                    }
+                    if (entryBytes > 0) {
+                      emitFileIoLineage(
+                          parentWorkflow,
+                          FileIoOperation.COPY,
+                          item,
+                          newFileObject,
+                          entryBytes,
+                          true,
+                          null);
                     }
 
                     // Add filename to result filenames
@@ -781,7 +799,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
       // Unzip done...
       if (afterUnzip > 0) {
-        doUnzipPostProcessing(sourceFileObject, movetodir, realMovetodirectory);
+        doUnzipPostProcessing(sourceFileObject, movetodir, realMovetodirectory, result);
       }
       retval = true;
     } catch (Exception e) {
@@ -795,11 +813,40 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
+  private void emitFileIoLineage(
+      IWorkflowEngine<WorkflowMeta> wf,
+      FileIoOperation operation,
+      FileObject source,
+      FileObject target,
+      Long bytesTransferred,
+      boolean success,
+      String message) {
+    if (wf == null) {
+      return;
+    }
+    LineageFileIoEmitter.emitWorkflowActionFileIo(
+        wf, this, operation, source, target, bytesTransferred, success, message);
+  }
+
   /** Moving or deleting source file. */
   private void doUnzipPostProcessing(
-      FileObject sourceFileObject, FileObject movetodir, String realMovetodirectory)
+      FileObject sourceFileObject, FileObject movetodir, String realMovetodirectory, Result result)
       throws FileSystemException {
+    IWorkflowEngine<WorkflowMeta> wf = getParentWorkflow();
     if (afterUnzip == 1) {
+      Long deleteBytes = null;
+      try {
+        if (sourceFileObject.getType().hasContent()) {
+          long sz = sourceFileObject.getContent().getSize();
+          if (sz > 0) {
+            deleteBytes = sz;
+          }
+        }
+      } catch (Exception ignored) {
+        // optional for lineage
+      }
+      emitFileIoLineage(
+          wf, FileIoOperation.DELETE, sourceFileObject, null, deleteBytes, true, null);
       // delete zip file
       boolean deleted = sourceFileObject.delete();
       if (!deleted) {
@@ -822,7 +869,32 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             movetodir + Const.FILE_SEPARATOR + sourceFileObject.getName().getBaseName();
         destFile = HopVfs.getFileObject(destinationFilename, getVariables());
 
+        long archiveSize = 0;
+        try {
+          if (sourceFileObject.getType().hasContent()) {
+            long sz = sourceFileObject.getContent().getSize();
+            if (sz > 0) {
+              archiveSize = sz;
+            }
+          }
+        } catch (Exception ignored) {
+          // best-effort for metrics only
+        }
+
+        emitFileIoLineage(
+            wf,
+            FileIoOperation.MOVE,
+            sourceFileObject,
+            destFile,
+            archiveSize > 0 ? archiveSize : null,
+            true,
+            null);
+
         sourceFileObject.moveTo(destFile);
+
+        if (archiveSize > 0) {
+          result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + archiveSize);
+        }
 
         // File moved
         if (isDetailed()) {

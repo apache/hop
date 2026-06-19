@@ -21,12 +21,16 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-databases-h2</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Databases H2</name>
+
+    <properties>
+        <hop.jdbc.driver1>com.h2database:h2</hop.jdbc.driver1>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -44,6 +48,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

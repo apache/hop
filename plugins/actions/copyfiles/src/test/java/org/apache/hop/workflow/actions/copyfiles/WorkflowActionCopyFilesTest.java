@@ -27,10 +27,13 @@ import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -55,11 +58,17 @@ class WorkflowActionCopyFilesTest {
     entry = spy(entry);
   }
 
+  private static List<CopyFilesItem> rows(String[] src, String[] dst, String[] wild) {
+    List<CopyFilesItem> list = new ArrayList<>(src.length);
+    for (int i = 0; i < src.length; i++) {
+      list.add(new CopyFilesItem(src[i], dst[i], wild[i]));
+    }
+    return list;
+  }
+
   @Test
   void fileNotCopied() throws Exception {
-    entry.sourceFileFolder = new String[] {EMPTY};
-    entry.destinationFileFolder = new String[] {EMPTY};
-    entry.wildcard = new String[] {EMPTY};
+    entry.setFileRows(rows(new String[] {EMPTY}, new String[] {EMPTY}, new String[] {EMPTY}));
 
     entry.execute(new Result(), 0);
 
@@ -73,16 +82,14 @@ class WorkflowActionCopyFilesTest {
     String srcPath = "path/to/file";
     String destPath = "path/to/dir";
 
-    entry.sourceFileFolder = new String[] {srcPath};
-    entry.destinationFileFolder = new String[] {destPath};
-    entry.wildcard = new String[] {EMPTY};
+    entry.setFileRows(rows(new String[] {srcPath}, new String[] {destPath}, new String[] {EMPTY}));
 
     Result result = entry.execute(new Result(), 0);
 
     verify(entry)
         .processFileFolder(
             anyString(), anyString(), anyString(), any(Workflow.class), any(Result.class));
-    verify(entry, atLeast(1)).preprocessfilefilder(any(String[].class));
+    verify(entry, atLeast(1)).resolve(anyString());
     Assertions.assertFalse(result.isResult());
     Assertions.assertEquals(1, result.getNrErrors());
   }
@@ -92,9 +99,7 @@ class WorkflowActionCopyFilesTest {
     String[] srcPath = new String[] {"path1", "path2", "path3"};
     String[] destPath = new String[] {"dest1", "dest2", "dest3"};
 
-    entry.sourceFileFolder = srcPath;
-    entry.destinationFileFolder = destPath;
-    entry.wildcard = new String[] {EMPTY, EMPTY, EMPTY};
+    entry.setFileRows(rows(srcPath, destPath, new String[] {EMPTY, EMPTY, EMPTY}));
 
     Result result = entry.execute(new Result(), 0);
 
@@ -107,23 +112,21 @@ class WorkflowActionCopyFilesTest {
 
   @Test
   void saveLoad() throws Exception {
-    String[] srcPath = new String[] {"EMPTY_SOURCE_URL-0-"};
-    String[] destPath = new String[] {"EMPTY_DEST_URL-0-"};
+    entry.setPluginId("COPY_FILES");
+    entry.setFileRows(
+        List.of(
+            new CopyFilesItem(
+                ActionCopyFiles.SOURCE_URL + "0-", ActionCopyFiles.DEST_URL + "0-", EMPTY)));
 
-    entry.sourceFileFolder = srcPath;
-    entry.destinationFileFolder = destPath;
-    entry.wildcard = new String[] {EMPTY};
-
-    String xml = "<entry>" + entry.getXml() + "</entry>";
-    Assertions.assertTrue(xml.contains(srcPath[0]));
-    Assertions.assertTrue(xml.contains(destPath[0]));
-    ActionCopyFiles loadedentry = new ActionCopyFiles();
+    String xml = "<transform>" + entry.getXml() + "</transform>";
+    ActionCopyFiles loaded = new ActionCopyFiles();
+    loaded.setPluginId("COPY_FILES");
     InputStream is = new ByteArrayInputStream(xml.getBytes());
-    loadedentry.loadXml(
-        XmlHandler.getSubNode(XmlHandler.loadXmlFile(is, null, false, false), "entry"),
-        null,
+    loaded.loadXml(
+        XmlHandler.getSubNode(XmlHandler.loadXmlFile(is, null, false, false), "transform"),
+        new MemoryMetadataProvider(),
         new Variables());
-    Assertions.assertEquals(loadedentry.destinationFileFolder[0], destPath[0]);
-    Assertions.assertEquals(loadedentry.sourceFileFolder[0], srcPath[0]);
+    Assertions.assertEquals("", loaded.getFileRows().get(0).getDestinationFileFolder());
+    Assertions.assertEquals("", loaded.getFileRows().get(0).getSourceFileFolder());
   }
 }

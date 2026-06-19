@@ -1,0 +1,129 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "source_field",
+          "data_set_field": "source_field"
+        },
+        {
+          "transform_field": "source_transform",
+          "data_set_field": "source_transform"
+        },
+        {
+          "transform_field": "target_attribute_key",
+          "data_set_field": "target_attribute_key"
+        },
+        {
+          "transform_field": "target_detail",
+          "data_set_field": "target_detail"
+        },
+        {
+          "transform_field": "target_transform_name",
+          "data_set_field": "target_transform_name"
+        }
+      ],
+      "field_order": [
+        "target_transform_name",
+        "target_attribute_key",
+        "target_detail",
+        "source_transform",
+        "source_field"
+      ],
+      "data_set_name": "golden-meta-inject-mappings",
+      "transform_name": "validate mappings"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "source_output_field_length",
+          "data_set_field": "source_output_field_length"
+        },
+        {
+          "transform_field": "source_output_field_name",
+          "data_set_field": "source_output_field_name"
+        },
+        {
+          "transform_field": "source_output_field_precision",
+          "data_set_field": "source_output_field_precision"
+        },
+        {
+          "transform_field": "source_output_field_type",
+          "data_set_field": "source_output_field_type"
+        }
+      ],
+      "field_order": [
+        "source_output_field_name",
+        "source_output_field_type",
+        "source_output_field_length",
+        "source_output_field_precision"
+      ],
+      "data_set_name": "golden-meta-inject--fields",
+      "transform_name": "validate fields"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "allow_empty_stream_on_execution",
+          "data_set_field": "allow_empty_stream_on_execution"
+        },
+        {
+          "transform_field": "create_parent_folder",
+          "data_set_field": "create_parent_folder"
+        },
+        {
+          "transform_field": "filename",
+          "data_set_field": "filename"
+        },
+        {
+          "transform_field": "no_execution",
+          "data_set_field": "no_execution"
+        },
+        {
+          "transform_field": "run_configuration",
+          "data_set_field": "run_configuration"
+        },
+        {
+          "transform_field": "source_transform",
+          "data_set_field": "source_transform"
+        },
+        {
+          "transform_field": "stream_source_transform",
+          "data_set_field": "stream_source_transform"
+        },
+        {
+          "transform_field": "stream_target_transform",
+          "data_set_field": "stream_target_transform"
+        },
+        {
+          "transform_field": "target_file",
+          "data_set_field": "target_file"
+        }
+      ],
+      "field_order": [
+        "filename",
+        "run_configuration",
+        "source_transform",
+        "target_file",
+        "create_parent_folder",
+        "no_execution",
+        "allow_empty_stream_on_execution",
+        "stream_source_transform",
+        "stream_target_transform"
+      ],
+      "data_set_name": "golden-meta-inject",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0045-meta-inject-valiate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0045-meta-inject-valiate.hpl"
+}

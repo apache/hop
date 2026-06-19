@@ -30,15 +30,20 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.listeners.IContentChangedListener;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.actions.ActionFake;
 import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
@@ -56,7 +61,7 @@ class WorkflowMetaTest {
   private IContentChangedListener listener;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws HopPluginException {
     workflowMeta = new WorkflowMeta();
     workflowMeta.setNameSynchronizedWithFilename(false);
     // prepare
@@ -65,6 +70,9 @@ class WorkflowMetaTest {
     workflowMeta.setName(WORKFLOW_META_NAME);
 
     variables = new Variables();
+
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginClass(ActionFake.class.getName(), ActionPluginType.class, Action.class);
   }
 
   @Test
@@ -123,35 +131,6 @@ class WorkflowMetaTest {
     workflowMeta.setChanged(true);
 
     verifyNoMoreInteractions(listener);
-  }
-
-  @Test
-  void shouldUseCoordinatesOfItsTransformsAndNotesWhenCalculatingMinimumPoint() {
-    Point actionPoint = new Point(500, 500);
-    Point notePadMetaPoint = new Point(400, 400);
-    ActionMeta actionMeta = mock(ActionMeta.class);
-    when(actionMeta.getLocation()).thenReturn(actionPoint);
-    NotePadMeta notePadMeta = mock(NotePadMeta.class);
-    when(notePadMeta.getLocation()).thenReturn(notePadMetaPoint);
-
-    // empty Workflow return 0 coordinate point
-    Point point = workflowMeta.getMinimum();
-    assertEquals(0, point.x);
-    assertEquals(0, point.y);
-
-    // when Workflow contains a single transform or note, then workflowMeta should return
-    // coordinates of it, subtracting borders
-    workflowMeta.addAction(0, actionMeta);
-    Point actualTransformPoint = workflowMeta.getMinimum();
-    assertEquals(actionPoint.x - WorkflowMeta.BORDER_INDENT, actualTransformPoint.x);
-    assertEquals(actionPoint.y - WorkflowMeta.BORDER_INDENT, actualTransformPoint.y);
-
-    // when Workflow contains transform or notes, then workflowMeta should return minimal
-    // coordinates of them, subtracting borders
-    workflowMeta.addNote(notePadMeta);
-    Point transformPoint = workflowMeta.getMinimum();
-    assertEquals(notePadMetaPoint.x - WorkflowMeta.BORDER_INDENT, transformPoint.x);
-    assertEquals(notePadMetaPoint.y - WorkflowMeta.BORDER_INDENT, transformPoint.y);
   }
 
   @Test
@@ -344,5 +323,79 @@ class WorkflowMetaTest {
     assertEquals(
         "Original value defined at run execution",
         variables.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+  }
+
+  @Test
+  void testXmlSerialization() throws Exception {
+    ActionFake fake1 = new ActionFake();
+    fake1.setSomeProperty("prop1");
+    ActionMeta a1 = new ActionMeta(fake1);
+    a1.setName("a1");
+    workflowMeta.addAction(a1);
+
+    ActionFake fake2 = new ActionFake();
+    fake2.setSomeProperty("prop2");
+    ActionMeta a2 = new ActionMeta(fake2);
+    a2.setName("a2");
+    workflowMeta.addAction(a2);
+
+    ActionFake fake3 = new ActionFake();
+    fake3.setSomeProperty("prop3");
+    ActionMeta a3 = new ActionMeta(fake3);
+    a3.setName("a3");
+    workflowMeta.addAction(a3);
+
+    WorkflowHopMeta a12 = new WorkflowHopMeta(a1, a2);
+    a12.setEvaluation(true);
+    a12.setUnconditional(false);
+    workflowMeta.addWorkflowHop(a12);
+    WorkflowHopMeta a23 = new WorkflowHopMeta(a2, a3);
+    a23.setEvaluation(false);
+    a23.setUnconditional(true);
+    workflowMeta.addWorkflowHop(a23);
+
+    // Serialize to XML
+    String xml = workflowMeta.getXml(new Variables());
+
+    // Re-inflate it
+    //
+    Node node = XmlHandler.loadXmlString(xml, WorkflowMeta.XML_TAG);
+    WorkflowMeta copy = new WorkflowMeta(node, new MemoryMetadataProvider(), new Variables());
+
+    assertEquals(3, copy.nrActions());
+
+    ActionMeta copy1 = copy.getAction(0);
+    assertEquals("a1", copy1.getName());
+    assertNotNull(copy1.getAction());
+    if (copy1.getAction() instanceof ActionFake action) {
+      assertEquals("prop1", action.getSomeProperty());
+    }
+
+    ActionMeta copy2 = copy.getAction(1);
+    assertEquals("a2", copy2.getName());
+    assertNotNull(copy2.getAction());
+    if (copy2.getAction() instanceof ActionFake action) {
+      assertEquals("prop2", action.getSomeProperty());
+    }
+
+    ActionMeta copy3 = copy.getAction(2);
+    assertEquals("a3", copy3.getName());
+    assertNotNull(copy3.getAction());
+    if (copy3.getAction() instanceof ActionFake action) {
+      assertEquals("prop3", action.getSomeProperty());
+    }
+
+    assertEquals(2, copy.nrWorkflowHops());
+    WorkflowHopMeta copy12 = copy.getWorkflowHop(0);
+    assertTrue(copy12.isEvaluation());
+    assertFalse(copy12.isUnconditional());
+    assertEquals(copy1, copy12.getFrom());
+    assertEquals(copy2, copy12.getTo());
+
+    WorkflowHopMeta copy23 = copy.getWorkflowHop(1);
+    assertFalse(copy23.isEvaluation());
+    assertTrue(copy23.isUnconditional());
+    assertEquals(copy2, copy23.getFrom());
+    assertEquals(copy3, copy23.getTo());
   }
 }

@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.ftp;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -884,9 +885,7 @@ public class ActionFtpDialog extends ActionDialog {
     fdlIfFileExists.top = new FormAttachment(wlOnlyNew, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(wgLocalSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wIfFileExists.add(BaseMessages.getString(PKG, "ActionFtp.Skip.Label"));
-    wIfFileExists.add(BaseMessages.getString(PKG, "ActionFtp.Give_Unique_Name.Label"));
-    wIfFileExists.add(BaseMessages.getString(PKG, "ActionFtp.Fail.Label"));
+    wIfFileExists.setItems(ActionFtp.IfFileExistsOperation.getDescriptions());
     wIfFileExists.select(0); // +1: starts at -1
 
     PropsUi.setLook(wIfFileExists);
@@ -1185,9 +1184,9 @@ public class ActionFtpDialog extends ActionDialog {
     // Add listeners
     wTest.addListener(SWT.Selection, e -> test());
     wbTestFolderExists.addListener(
-        SWT.Selection, e -> checkRemoteFolder(false, true, wMoveToDirectory.getText()));
+        SWT.Selection, e -> checkRemoteFolder(wMoveToDirectory.getText()));
     wbTestChangeFolderExists.addListener(
-        SWT.Selection, e -> checkRemoteFolder(true, false, wFtpDirectory.getText()));
+        SWT.Selection, e -> checkRemoteFolder(wFtpDirectory.getText()));
 
     getData();
     activateMoveTo();
@@ -1209,7 +1208,7 @@ public class ActionFtpDialog extends ActionDialog {
   }
 
   private void test() {
-    if (connectToFtp(false, false)) {
+    if (connectToFtp()) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       mb.setMessage(
           BaseMessages.getString(PKG, "ActionFtp.Connected.OK", wServerName.getText()) + Const.CR);
@@ -1219,20 +1218,20 @@ public class ActionFtpDialog extends ActionDialog {
     closeFtpConnection();
   }
 
-  private void checkRemoteFolder(boolean ftpFolder, boolean checkMoveFolder, String foldername) {
-    if (!Utils.isEmpty(foldername) && connectToFtp(ftpFolder, checkMoveFolder)) {
+  private void checkRemoteFolder(String folderName) {
+    if (!Utils.isEmpty(folderName) && connectToFtp()) {
       try {
-        boolean exists = ftpclient.changeWorkingDirectory(foldername);
+        boolean exists = ftpclient.changeWorkingDirectory(folderName);
         if (exists) {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(
-              BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", foldername) + Const.CR);
+              BaseMessages.getString(PKG, "ActionFtp.FolderExists.OK", folderName) + Const.CR);
           mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Ok"));
           mb.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
           mb.setMessage(
-              BaseMessages.getString(PKG, "ActionFtp.FolderExists.NOK", foldername) + Const.CR);
+              BaseMessages.getString(PKG, "ActionFtp.FolderExists.NOK", folderName) + Const.CR);
           mb.setText(BaseMessages.getString(PKG, "ActionFtp.FolderExists.Title.Bad"));
           mb.open();
         }
@@ -1245,7 +1244,7 @@ public class ActionFtpDialog extends ActionDialog {
     }
   }
 
-  private boolean connectToFtp(boolean checkFolder, boolean checkMoveToFolder) {
+  private boolean connectToFtp() {
     try {
       if (ftpclient == null || !ftpclient.isConnected()) {
         ActionFtp actionFtp = new ActionFtp();
@@ -1256,13 +1255,13 @@ public class ActionFtpDialog extends ActionDialog {
 
         // Explicit authentication verification
         try {
-          if (ftpclient == null || !ftpclient.isConnected()) {
-            throw new Exception("FTP client is null or not connected.");
+          if (!ftpclient.isConnected()) {
+            throw new HopException("FTP client is null or not connected.");
           }
           // Attempting to list files to validate authentication
           ftpclient.listFiles();
         } catch (Exception authEx) {
-          throw new Exception("FTP authentication failed: " + authEx.getMessage(), authEx);
+          throw new HopException("FTP authentication failed: " + authEx.getMessage(), authEx);
         }
       }
       return true;
@@ -1357,7 +1356,7 @@ public class ActionFtpDialog extends ActionDialog {
     wSocksProxyPort.setText(Const.NVL(action.getSocksProxyPort(), "1080"));
     wSocksProxyUsername.setText(Const.NVL(action.getSocksProxyUsername(), ""));
     wSocksProxyPassword.setText(Const.NVL(action.getSocksProxyPassword(), ""));
-    wIfFileExists.select(action.ifFileExists);
+    wIfFileExists.setText(action.ifFileExistsOperation.getDescription());
 
     if (action.getNrLimit() != null) {
       wNrErrorsLessThan.setText(action.getNrLimit());
@@ -1440,17 +1439,8 @@ public class ActionFtpDialog extends ActionDialog {
     action.setSocksProxyPort(wSocksProxyPort.getText());
     action.setSocksProxyUsername(wSocksProxyUsername.getText());
     action.setSocksProxyPassword(wSocksProxyPassword.getText());
-
-    if (wIfFileExists.getSelectionIndex() == 1) {
-      action.ifFileExists = action.ifFileExistsCreateUniq;
-      action.stringIfFileExists = ActionFtp.STRING_IF_FILE_EXISTS_CREATE_UNIQ;
-    } else if (wIfFileExists.getSelectionIndex() == 2) {
-      action.ifFileExists = action.ifFileExistsFail;
-      action.stringIfFileExists = ActionFtp.STRING_IF_FILE_EXISTS_FAIL;
-    } else {
-      action.ifFileExists = action.ifFileExistsSkip;
-      action.stringIfFileExists = ActionFtp.STRING_IF_FILE_EXISTS_SKIP;
-    }
+    action.setIfFileExistsOperation(
+        ActionFtp.IfFileExistsOperation.lookupDescription(wIfFileExists.getText()));
 
     action.setNrLimit(wNrErrorsLessThan.getText());
 

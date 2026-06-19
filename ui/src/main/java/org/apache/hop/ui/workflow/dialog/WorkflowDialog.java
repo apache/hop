@@ -18,7 +18,7 @@
 package org.apache.hop.ui.workflow.dialog;
 
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -54,7 +54,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
@@ -95,8 +94,6 @@ public class WorkflowDialog extends Dialog {
   private Text wDescription;
 
   private Text wExtendedDescription;
-
-  private Combo wWorkflowStatus;
 
   // Workflow version
   private Text wVersion;
@@ -313,30 +310,6 @@ public class WorkflowDialog extends Dialog {
     fdExtendedDescription.bottom = new FormAttachment(50, -margin);
     wExtendedDescription.setLayoutData(fdExtendedDescription);
 
-    // Workflow Status
-    Label wlWorkflowStatus = new Label(wWorkflowComp, SWT.RIGHT);
-    wlWorkflowStatus.setText(BaseMessages.getString(PKG, "WorkflowDialog.WorkflowStatus.Label"));
-    PropsUi.setLook(wlWorkflowStatus);
-    FormData fdlWorkflowStatus = new FormData();
-    fdlWorkflowStatus.left = new FormAttachment(0, 0);
-    fdlWorkflowStatus.right = new FormAttachment(middle, -margin);
-    fdlWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin);
-    wlWorkflowStatus.setLayoutData(fdlWorkflowStatus);
-    wWorkflowStatus = new Combo(wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wWorkflowStatus.add(BaseMessages.getString(PKG, "WorkflowDialog.Draft_WorkflowStatus.Label"));
-    wWorkflowStatus.add(
-        BaseMessages.getString(PKG, "WorkflowDialog.Production_WorkflowStatus.Label"));
-    wWorkflowStatus.add("");
-    // +1: starts at -1
-    wWorkflowStatus.select(-1);
-
-    PropsUi.setLook(wWorkflowStatus);
-    FormData fdWorkflowStatus = new FormData();
-    fdWorkflowStatus.left = new FormAttachment(middle, 0);
-    fdWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin);
-    fdWorkflowStatus.right = new FormAttachment(100, 0);
-    wWorkflowStatus.setLayoutData(fdWorkflowStatus);
-
     // Workflow version:
     Label wlVersion = new Label(wWorkflowComp, SWT.RIGHT);
     wlVersion.setText(BaseMessages.getString(PKG, "WorkflowDialog.Version.Label"));
@@ -344,14 +317,14 @@ public class WorkflowDialog extends Dialog {
     FormData fdlVersion = new FormData();
     fdlVersion.left = new FormAttachment(0, 0);
     fdlVersion.right = new FormAttachment(middle, -margin);
-    fdlVersion.top = new FormAttachment(wWorkflowStatus, margin);
+    fdlVersion.top = new FormAttachment(wExtendedDescription, margin);
     wlVersion.setLayoutData(fdlVersion);
     wVersion = new Text(wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wVersion);
     wVersion.addModifyListener(lsMod);
     FormData fdVersion = new FormData();
     fdVersion.left = new FormAttachment(middle, 0);
-    fdVersion.top = new FormAttachment(wWorkflowStatus, margin);
+    fdVersion.top = new FormAttachment(wExtendedDescription, margin);
     fdVersion.right = new FormAttachment(100, 0);
     wVersion.setLayoutData(fdVersion);
 
@@ -539,7 +512,7 @@ public class WorkflowDialog extends Dialog {
     shell.dispose();
   }
 
-  /** Copy information from the meta-data input to the dialog fields. */
+  /** Copy information from the metadata input to the dialog fields. */
   public void getData() {
     wWorkflowName.setText(Const.NVL(workflowMeta.getName(), ""));
     wNameFilenameSync.setSelection(workflowMeta.isNameSynchronizedWithFilename());
@@ -548,7 +521,6 @@ public class WorkflowDialog extends Dialog {
     wDescription.setText(Const.NVL(workflowMeta.getDescription(), ""));
     wExtendedDescription.setText(Const.NVL(workflowMeta.getExtendedDescription(), ""));
     wVersion.setText(Const.NVL(workflowMeta.getWorkflowVersion(), ""));
-    wWorkflowStatus.select(workflowMeta.getWorkflowStatus() - 1);
 
     if (workflowMeta.getCreatedUser() != null) {
       wCreateUser.setText(workflowMeta.getCreatedUser());
@@ -609,13 +581,6 @@ public class WorkflowDialog extends Dialog {
     workflowMeta.setDescription(wDescription.getText());
     workflowMeta.setExtendedDescription(wExtendedDescription.getText());
     workflowMeta.setWorkflowVersion(wVersion.getText());
-    if (wWorkflowStatus.getSelectionIndex() != 2) {
-      // Saving the index as meta data is in fact pretty bad, but since
-      // it was already in ...
-      workflowMeta.setWorkflowStatus(wWorkflowStatus.getSelectionIndex() + 1);
-    } else {
-      workflowMeta.setWorkflowStatus(-1);
-    }
 
     // Clear and add parameters
     workflowMeta.removeAllParameters();

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
-import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -74,12 +73,22 @@ public class YamlInputDialog extends BaseTransformDialog {
   public static final String CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE =
       "YamlInputDialog.ErrorParsingData.DialogMessage";
 
+  protected static final String[] NO_YES_DEC =
+      new String[] {
+        BaseMessages.getString(PKG, "System.Combo.No"),
+        BaseMessages.getString(PKG, "System.Combo.Yes")
+      };
+
   private Label wlFilename;
   private Label wlYamlIsAFile;
-  private Button wbbFilename; // Browse: add file or directory
-  private Button wbdFilename; // Delete
-  private Button wbeFilename; // Edit
-  private Button wbaFilename; // Add or change
+  // Browse: add file or directory
+  private Button wbbFilename;
+  // Delete
+  private Button wbdFilename;
+  // Edit
+  private Button wbeFilename;
+  // Add or change
+  private Button wbaFilename;
   private TextVar wFilename;
 
   private Label wlFilenameList;
@@ -102,10 +111,10 @@ public class YamlInputDialog extends BaseTransformDialog {
   private Label wlInclFilenameField;
   private TextVar wInclFilenameField;
   private Label wlAddResult;
-  private Button wInclRownum;
+  private Button wInclRowNum;
 
-  private Label wlInclRownumField;
-  private TextVar wInclRownumField;
+  private Label wlInclRowNumField;
+  private TextVar wInclRowNumField;
 
   private Label wlLimit;
   private Text wLimit;
@@ -120,12 +129,7 @@ public class YamlInputDialog extends BaseTransformDialog {
   private Label wlDoNotFailIfNoFile;
   private Button wDoNotFailIfNoFile;
 
-  private YamlInputMeta input;
-
-  public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
-
-  ArrayList<String> listpath = new ArrayList<>();
-  String precNodeName = null;
+  private final YamlInputMeta input;
 
   public YamlInputDialog(
       Shell parent, IVariables variables, YamlInputMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -169,29 +173,27 @@ public class YamlInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wOutputField);
     wOutputField.setText(BaseMessages.getString(PKG, "YamlInputDialog.wOutputField.Label"));
 
-    FormLayout outputfieldgroupLayout = new FormLayout();
-    outputfieldgroupLayout.marginWidth = 10;
-    outputfieldgroupLayout.marginHeight = 10;
-    wOutputField.setLayout(outputfieldgroupLayout);
+    FormLayout outPutFieldGroupLayout = new FormLayout();
+    outPutFieldGroupLayout.marginWidth = 10;
+    outPutFieldGroupLayout.marginHeight = 10;
+    wOutputField.setLayout(outPutFieldGroupLayout);
 
-    // Is XML string defined in a Field
+    // Source is defined in a field
     Label wlXmlStreamField = new Label(wOutputField, SWT.RIGHT);
     wlXmlStreamField.setText(BaseMessages.getString(PKG, "YamlInputDialog.wlXmlStreamField.Label"));
     PropsUi.setLook(wlXmlStreamField);
     FormData fdlXMLStreamField = new FormData();
-    fdlXMLStreamField.left = new FormAttachment(0, -margin);
-    fdlXMLStreamField.top = new FormAttachment(0, margin);
-    fdlXMLStreamField.right = new FormAttachment(middle, -margin);
+    fdlXMLStreamField.left = new FormAttachment(0, 0);
+    fdlXMLStreamField.right = new FormAttachment(middle, 0);
     wlXmlStreamField.setLayoutData(fdlXMLStreamField);
     wYAMLStreamField = new Button(wOutputField, SWT.CHECK);
     PropsUi.setLook(wYAMLStreamField);
     wYAMLStreamField.setToolTipText(
         BaseMessages.getString(PKG, "YamlInputDialog.wYAMLStreamField.Tooltip"));
     FormData fdYAMLStreamField = new FormData();
-    fdYAMLStreamField.left = new FormAttachment(middle, -margin);
-    fdYAMLStreamField.top = new FormAttachment(wlXmlStreamField, 0, SWT.CENTER);
+    fdYAMLStreamField.left = new FormAttachment(wlXmlStreamField, margin);
     wYAMLStreamField.setLayoutData(fdYAMLStreamField);
-    SelectionAdapter lsyamlstream =
+    SelectionAdapter lsYamlStream =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
@@ -199,25 +201,25 @@ public class YamlInputDialog extends BaseTransformDialog {
             input.setChanged();
           }
         };
-    wYAMLStreamField.addSelectionListener(lsyamlstream);
+    wYAMLStreamField.addSelectionListener(lsYamlStream);
 
-    // Is XML source is a file?
+    // Source is a filename
     wlYamlIsAFile = new Label(wOutputField, SWT.RIGHT);
     wlYamlIsAFile.setText(BaseMessages.getString(PKG, "YamlInputDialog.XMLIsAFile.Label"));
     PropsUi.setLook(wlYamlIsAFile);
     FormData fdlXMLIsAFile = new FormData();
-    fdlXMLIsAFile.left = new FormAttachment(0, -margin);
-    fdlXMLIsAFile.top = new FormAttachment(wYAMLStreamField, margin);
-    fdlXMLIsAFile.right = new FormAttachment(middle, -margin);
+    fdlXMLIsAFile.left = new FormAttachment(0, 0);
+    fdlXMLIsAFile.top = new FormAttachment(wlXmlStreamField, margin);
+    fdlXMLIsAFile.right = new FormAttachment(middle, 0);
     wlYamlIsAFile.setLayoutData(fdlXMLIsAFile);
     wYAMLIsAFile = new Button(wOutputField, SWT.CHECK);
     PropsUi.setLook(wYAMLIsAFile);
     wYAMLIsAFile.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.XMLIsAFile.Tooltip"));
     FormData fdYAMLIsAFile = new FormData();
-    fdYAMLIsAFile.left = new FormAttachment(middle, -margin);
-    fdYAMLIsAFile.top = new FormAttachment(wlYamlIsAFile, 0, SWT.CENTER);
+    fdYAMLIsAFile.left = new FormAttachment(wlYamlIsAFile, margin);
+    fdYAMLIsAFile.top = new FormAttachment(wYAMLStreamField, margin);
     wYAMLIsAFile.setLayoutData(fdYAMLIsAFile);
-    SelectionAdapter lsyamlisafile =
+    SelectionAdapter lsYamlIsFile =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
@@ -225,16 +227,16 @@ public class YamlInputDialog extends BaseTransformDialog {
             enableFileSettings();
           }
         };
-    wYAMLIsAFile.addSelectionListener(lsyamlisafile);
+    wYAMLIsAFile.addSelectionListener(lsYamlIsFile);
 
-    // If XML string defined in a Field
+    // Get source from a field
     wlYamlField = new Label(wOutputField, SWT.RIGHT);
     wlYamlField.setText(BaseMessages.getString(PKG, "YamlInputDialog.wlYamlField.Label"));
     PropsUi.setLook(wlYamlField);
     FormData fdlXMLField = new FormData();
-    fdlXMLField.left = new FormAttachment(0, -margin);
-    fdlXMLField.top = new FormAttachment(wYAMLIsAFile, margin);
-    fdlXMLField.right = new FormAttachment(middle, -margin);
+    fdlXMLField.left = new FormAttachment(0, 0);
+    fdlXMLField.top = new FormAttachment(wlYamlIsAFile, margin);
+    fdlXMLField.right = new FormAttachment(middle, 0);
     wlYamlField.setLayoutData(fdlXMLField);
 
     wYAMLLField = new CCombo(wOutputField, SWT.BORDER | SWT.READ_ONLY);
@@ -242,9 +244,9 @@ public class YamlInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wYAMLLField);
     wYAMLLField.addModifyListener(lsMod);
     FormData fdXMLField = new FormData();
-    fdXMLField.left = new FormAttachment(middle, -margin);
+    fdXMLField.left = new FormAttachment(wlYamlField, margin);
     fdXMLField.top = new FormAttachment(wYAMLIsAFile, margin);
-    fdXMLField.right = new FormAttachment(100, -margin);
+    fdXMLField.right = new FormAttachment(100, 0);
     wYAMLLField.setLayoutData(fdXMLField);
     wYAMLLField.addFocusListener(
         new FocusListener() {
@@ -367,40 +369,40 @@ public class YamlInputDialog extends BaseTransformDialog {
     fdbShowFiles.bottom = new FormAttachment(100, 0);
     wbShowFiles.setLayoutData(fdbShowFiles);
 
-    ColumnInfo[] colinfo = new ColumnInfo[4];
-    colinfo[0] =
+    ColumnInfo[] colInfo = new ColumnInfo[4];
+    colInfo[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "YamlInputDialog.Files.Filename.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
-    colinfo[1] =
+    colInfo[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "YamlInputDialog.Files.Wildcard.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
 
-    colinfo[0].setUsingVariables(true);
-    colinfo[1].setUsingVariables(true);
-    colinfo[1].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.Files.Wildcard.Tooltip"));
-    colinfo[2] =
+    colInfo[0].setUsingVariables(true);
+    colInfo[1].setUsingVariables(true);
+    colInfo[1].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.Files.Wildcard.Tooltip"));
+    colInfo[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "YamlInputDialog.Required.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            YamlInputMeta.RequiredFilesDesc);
-    colinfo[2].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.Required.Tooltip"));
-    colinfo[3] =
+            NO_YES_DEC);
+    colInfo[2].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.Required.Tooltip"));
+    colInfo[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "YamlInputDialog.IncludeSubDirs.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            YamlInputMeta.RequiredFilesDesc);
-    colinfo[3].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.IncludeSubDirs.Tooltip"));
+            NO_YES_DEC);
+    colInfo[3].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.IncludeSubDirs.Tooltip"));
 
     wFilenameList =
         new TableView(
             variables,
             wFileComp,
             SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER,
-            colinfo,
+            colInfo,
             2,
             lsMod,
             props);
@@ -449,10 +451,10 @@ public class YamlInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wXmlConf);
     wXmlConf.setText(BaseMessages.getString(PKG, "YamlInputDialog.wXmlConf.Label"));
 
-    FormLayout xmlConfgroupLayout = new FormLayout();
-    xmlConfgroupLayout.marginWidth = 10;
-    xmlConfgroupLayout.marginHeight = 10;
-    wXmlConf.setLayout(xmlConfgroupLayout);
+    FormLayout xmlConfGroupLayout = new FormLayout();
+    xmlConfGroupLayout.marginWidth = 10;
+    xmlConfGroupLayout.marginHeight = 10;
+    wXmlConf.setLayout(xmlConfGroupLayout);
 
     // Ignore Empty File
     wlIgnoreEmptyFile = new Label(wXmlConf, SWT.RIGHT);
@@ -460,7 +462,6 @@ public class YamlInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlIgnoreEmptyFile);
     FormData fdlIgnoreEmptyFile = new FormData();
     fdlIgnoreEmptyFile.left = new FormAttachment(0, 0);
-    fdlIgnoreEmptyFile.top = new FormAttachment(0, margin);
     fdlIgnoreEmptyFile.right = new FormAttachment(middle, -margin);
     wlIgnoreEmptyFile.setLayoutData(fdlIgnoreEmptyFile);
     wIgnoreEmptyFile = new Button(wXmlConf, SWT.CHECK);
@@ -469,7 +470,6 @@ public class YamlInputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "YamlInputDialog.IgnoreEmptyFile.Tooltip"));
     FormData fdIgnoreEmptyFile = new FormData();
     fdIgnoreEmptyFile.left = new FormAttachment(middle, 0);
-    fdIgnoreEmptyFile.top = new FormAttachment(wlIgnoreEmptyFile, 0, SWT.CENTER);
     wIgnoreEmptyFile.setLayoutData(fdIgnoreEmptyFile);
     wIgnoreEmptyFile.addSelectionListener(new ComponentSelectionListener(input));
 
@@ -529,17 +529,16 @@ public class YamlInputDialog extends BaseTransformDialog {
     wAdditionalFields.setText(
         BaseMessages.getString(PKG, "YamlInputDialog.wAdditionalFields.Label"));
 
-    FormLayout additionalFieldsgroupLayout = new FormLayout();
-    additionalFieldsgroupLayout.marginWidth = 10;
-    additionalFieldsgroupLayout.marginHeight = 10;
-    wAdditionalFields.setLayout(additionalFieldsgroupLayout);
+    FormLayout additionalFieldsGroupLayout = new FormLayout();
+    additionalFieldsGroupLayout.marginWidth = 10;
+    additionalFieldsGroupLayout.marginHeight = 10;
+    wAdditionalFields.setLayout(additionalFieldsGroupLayout);
 
     wlInclFilename = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclFilename.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclFilename.Label"));
     PropsUi.setLook(wlInclFilename);
     FormData fdlInclFilename = new FormData();
     fdlInclFilename.left = new FormAttachment(0, 0);
-    fdlInclFilename.top = new FormAttachment(wXmlConf, 4 * margin);
     fdlInclFilename.right = new FormAttachment(middle, -margin);
     wlInclFilename.setLayoutData(fdlInclFilename);
     wInclFilename = new Button(wAdditionalFields, SWT.CHECK);
@@ -548,7 +547,6 @@ public class YamlInputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "YamlInputDialog.InclFilename.Tooltip"));
     FormData fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment(middle, 0);
-    fdInclFilename.top = new FormAttachment(wlInclFilename, 0, SWT.CENTER);
     wInclFilename.setLayoutData(fdInclFilename);
     wInclFilename.addSelectionListener(new ComponentSelectionListener(input));
 
@@ -558,7 +556,6 @@ public class YamlInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlInclFilenameField);
     FormData fdlInclFilenameField = new FormData();
     fdlInclFilenameField.left = new FormAttachment(wInclFilename, margin);
-    fdlInclFilenameField.top = new FormAttachment(wLimit, 4 * margin);
     wlInclFilenameField.setLayoutData(fdlInclFilenameField);
     wInclFilenameField =
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -566,43 +563,42 @@ public class YamlInputDialog extends BaseTransformDialog {
     wInclFilenameField.addModifyListener(lsMod);
     FormData fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment(wlInclFilenameField, margin);
-    fdInclFilenameField.top = new FormAttachment(wLimit, 4 * margin);
     fdInclFilenameField.right = new FormAttachment(100, 0);
     wInclFilenameField.setLayoutData(fdInclFilenameField);
 
-    Label wlInclRownum = new Label(wAdditionalFields, SWT.RIGHT);
-    wlInclRownum.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownum.Label"));
-    PropsUi.setLook(wlInclRownum);
-    FormData fdlInclRownum = new FormData();
-    fdlInclRownum.left = new FormAttachment(0, 0);
-    fdlInclRownum.top = new FormAttachment(wInclFilenameField, margin);
-    fdlInclRownum.right = new FormAttachment(middle, -margin);
-    wlInclRownum.setLayoutData(fdlInclRownum);
-    wInclRownum = new Button(wAdditionalFields, SWT.CHECK);
-    PropsUi.setLook(wInclRownum);
-    wInclRownum.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownum.Tooltip"));
-    FormData fdRownum = new FormData();
-    fdRownum.left = new FormAttachment(middle, 0);
-    fdRownum.top = new FormAttachment(wlInclRownum, 0, SWT.CENTER);
-    wInclRownum.setLayoutData(fdRownum);
-    wInclRownum.addSelectionListener(new ComponentSelectionListener(input));
+    Label wlInclRowNum = new Label(wAdditionalFields, SWT.RIGHT);
+    wlInclRowNum.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownum.Label"));
+    PropsUi.setLook(wlInclRowNum);
+    FormData fdlInclRowNum = new FormData();
+    fdlInclRowNum.left = new FormAttachment(0, 0);
+    fdlInclRowNum.top = new FormAttachment(wInclFilenameField, margin);
+    fdlInclRowNum.right = new FormAttachment(middle, -margin);
+    wlInclRowNum.setLayoutData(fdlInclRowNum);
+    wInclRowNum = new Button(wAdditionalFields, SWT.CHECK);
+    PropsUi.setLook(wInclRowNum);
+    wInclRowNum.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownum.Tooltip"));
+    FormData fdRowNum = new FormData();
+    fdRowNum.left = new FormAttachment(middle, 0);
+    fdRowNum.top = new FormAttachment(wlInclRowNum, 0, SWT.CENTER);
+    wInclRowNum.setLayoutData(fdRowNum);
+    wInclRowNum.addSelectionListener(new ComponentSelectionListener(input));
 
-    wlInclRownumField = new Label(wAdditionalFields, SWT.RIGHT);
-    wlInclRownumField.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownumField.Label"));
-    PropsUi.setLook(wlInclRownumField);
-    FormData fdlInclRownumField = new FormData();
-    fdlInclRownumField.left = new FormAttachment(wInclRownum, margin);
-    fdlInclRownumField.top = new FormAttachment(wInclFilenameField, margin);
-    wlInclRownumField.setLayoutData(fdlInclRownumField);
-    wInclRownumField =
+    wlInclRowNumField = new Label(wAdditionalFields, SWT.RIGHT);
+    wlInclRowNumField.setText(BaseMessages.getString(PKG, "YamlInputDialog.InclRownumField.Label"));
+    PropsUi.setLook(wlInclRowNumField);
+    FormData fdlInclRowNumField = new FormData();
+    fdlInclRowNumField.left = new FormAttachment(wInclRowNum, margin);
+    fdlInclRowNumField.top = new FormAttachment(wInclFilenameField, margin);
+    wlInclRowNumField.setLayoutData(fdlInclRowNumField);
+    wInclRowNumField =
         new TextVar(variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wInclRownumField);
-    wInclRownumField.addModifyListener(lsMod);
-    FormData fdInclRownumField = new FormData();
-    fdInclRownumField.left = new FormAttachment(wlInclRownumField, margin);
-    fdInclRownumField.top = new FormAttachment(wInclFilenameField, margin);
-    fdInclRownumField.right = new FormAttachment(100, 0);
-    wInclRownumField.setLayoutData(fdInclRownumField);
+    PropsUi.setLook(wInclRowNumField);
+    wInclRowNumField.addModifyListener(lsMod);
+    FormData fdInclRowNumField = new FormData();
+    fdInclRowNumField.left = new FormAttachment(wlInclRowNumField, margin);
+    fdInclRowNumField.top = new FormAttachment(wInclFilenameField, margin);
+    fdInclRowNumField.right = new FormAttachment(100, 0);
+    wInclRowNumField.setLayoutData(fdInclRowNumField);
 
     FormData fdAdditionalFields = new FormData();
     fdAdditionalFields.left = new FormAttachment(0, margin);
@@ -622,17 +618,16 @@ public class YamlInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wAddFileResult);
     wAddFileResult.setText(BaseMessages.getString(PKG, "YamlInputDialog.wAddFileResult.Label"));
 
-    FormLayout addFileResultgroupLayout = new FormLayout();
-    addFileResultgroupLayout.marginWidth = 10;
-    addFileResultgroupLayout.marginHeight = 10;
-    wAddFileResult.setLayout(addFileResultgroupLayout);
+    FormLayout addFileResultGroupLayout = new FormLayout();
+    addFileResultGroupLayout.marginWidth = 10;
+    addFileResultGroupLayout.marginHeight = 10;
+    wAddFileResult.setLayout(addFileResultGroupLayout);
 
     wlAddResult = new Label(wAddFileResult, SWT.RIGHT);
     wlAddResult.setText(BaseMessages.getString(PKG, "YamlInputDialog.AddResult.Label"));
     PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
-    fdlAddResult.top = new FormAttachment(wAdditionalFields, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(wAddFileResult, SWT.CHECK);
@@ -640,7 +635,6 @@ public class YamlInputDialog extends BaseTransformDialog {
     wAddResult.setToolTipText(BaseMessages.getString(PKG, "YamlInputDialog.AddResult.Tooltip"));
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment(middle, 0);
-    fdAddResult.top = new FormAttachment(wlAddResult, 0, SWT.CENTER);
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener(new ComponentSelectionListener(input));
 
@@ -689,9 +683,9 @@ public class YamlInputDialog extends BaseTransformDialog {
     fdGet.bottom = new FormAttachment(100, 0);
     wGet.setLayoutData(fdGet);
 
-    final int FieldsRows = input.getInputFields().length;
+    final int FieldsRows = input.getInputFields().size();
 
-    ColumnInfo[] colinf =
+    ColumnInfo[] colInf =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Name.Column"),
@@ -733,15 +727,15 @@ public class YamlInputDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.TrimType.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YamlInputField.trimTypeDesc,
+              YamlInputField.TRIM_TYPE_DESC,
               true)
         };
 
-    colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(
+    colInf[0].setUsingVariables(true);
+    colInf[0].setToolTip(
         BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Name.Column.Tooltip"));
-    colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(
+    colInf[1].setUsingVariables(true);
+    colInf[1].setToolTip(
         BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.XPath.Column.Tooltip"));
 
     wFields =
@@ -749,7 +743,7 @@ public class YamlInputDialog extends BaseTransformDialog {
             variables,
             wFieldsComp,
             SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
+            colInf,
             FieldsRows,
             lsMod,
             props);
@@ -786,7 +780,7 @@ public class YamlInputDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
-            wFilenameList.add(new String[] {wFilename.getText(), wFilemask.getText()});
+            wFilenameList.add(wFilename.getText(), wFilemask.getText());
             wFilename.setText("");
             wFilemask.setText("");
             wFilenameList.removeEmptyRows();
@@ -832,9 +826,9 @@ public class YamlInputDialog extends BaseTransformDialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             try {
-              YamlInputMeta tfii = new YamlInputMeta();
-              getInfo(tfii);
-              FileInputList fileInputList = tfii.getFiles(variables);
+              YamlInputMeta im = new YamlInputMeta();
+              getInfo(im);
+              FileInputList fileInputList = im.getFiles(variables);
               String[] files = fileInputList.getFileStrings();
               if (files != null && files.length > 0) {
                 EnterSelectionDialog esd =
@@ -875,11 +869,11 @@ public class YamlInputDialog extends BaseTransformDialog {
         });
 
     // Enable/disable the right fields to allow a row number to be added to each row...
-    wInclRownum.addSelectionListener(
+    wInclRowNum.addSelectionListener(
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setIncludeRownum();
+            setIncludeRowNum();
           }
         });
 
@@ -887,29 +881,24 @@ public class YamlInputDialog extends BaseTransformDialog {
     wFilename.addModifyListener(e -> wFilename.setToolTipText(wFilename.getText()));
 
     // Listen to the Browse... button
-    if (wbbFilename != null) {
-      // Listen to the browse button next to the file name
-      //
-      wbbFilename.addListener(
-          SWT.Selection,
-          e ->
-              BaseDialog.presentFileDialog(
-                  shell,
-                  wFilename,
-                  variables,
-                  new String[] {"*.yaml;*.YAML;*.yml;*.YML", "*"},
-                  new String[] {
-                    "Yaml files", BaseMessages.getString(PKG, "System.FileType.AllFiles")
-                  },
-                  true));
-    }
-
+    wbbFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wFilename,
+                variables,
+                new String[] {"*.yaml;*.YAML;*.yml;*.YML", "*"},
+                new String[] {
+                  "Yaml files", BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                },
+                true));
     wTabFolder.setSelection(0);
 
     getData(input);
     activateStreamField();
     setIncludeFilename();
-    setIncludeRownum();
+    setIncludeRowNum();
     input.setChanged(changed);
     wFields.optWidth(true);
 
@@ -922,7 +911,6 @@ public class YamlInputDialog extends BaseTransformDialog {
 
   private void setXMLStreamField() {
     try {
-
       wYAMLLField.removeAll();
 
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
@@ -1040,9 +1028,9 @@ public class YamlInputDialog extends BaseTransformDialog {
     wInclFilenameField.setEnabled(wInclFilename.getSelection());
   }
 
-  public void setIncludeRownum() {
-    wlInclRownumField.setEnabled(wInclRownum.getSelection());
-    wInclRownumField.setEnabled(wInclRownum.getSelection());
+  public void setIncludeRowNum() {
+    wlInclRowNumField.setEnabled(wInclRowNum.getSelection());
+    wInclRowNumField.setEnabled(wInclRowNum.getSelection());
   }
 
   /**
@@ -1051,97 +1039,56 @@ public class YamlInputDialog extends BaseTransformDialog {
    * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData(YamlInputMeta in) {
-    if (in.getFileName() != null) {
-      wFilenameList.removeAll();
-
-      for (int i = 0; i < in.getFileName().length; i++) {
-        wFilenameList.add(
-            new String[] {
-              in.getFileName()[i],
-              in.getFileMask()[i],
-              in.getRequiredFilesDesc(in.getFileRequired()[i]),
-              in.getRequiredFilesDesc(in.getIncludeSubFolders()[i])
-            });
-      }
-      wFilenameList.removeEmptyRows();
-      wFilenameList.setRowNums();
-      wFilenameList.optWidth(true);
+    int index = 0;
+    for (YamlInputMeta.YamlFile file : in.getYamlFiles()) {
+      TableItem item = wFilenameList.table.getItem(index++);
+      item.setText(1, Const.NVL(file.getFilename(), ""));
+      item.setText(2, Const.NVL(file.getFileMask(), ""));
+      item.setText(3, file.isFileRequired() ? NO_YES_DEC[1] : NO_YES_DEC[0]);
+      item.setText(4, file.isIncludingSubFolders() ? NO_YES_DEC[1] : NO_YES_DEC[0]);
     }
-    wInclFilename.setSelection(in.includeFilename());
-    wInclRownum.setSelection(in.includeRowNumber());
-    wAddResult.setSelection(in.addResultFile());
-    wIgnoreEmptyFile.setSelection(in.isIgnoreEmptyFile());
-    wDoNotFailIfNoFile.setSelection(in.isdoNotFailIfNoFile());
+    wFilenameList.optimizeTableView();
+
+    wInclFilename.setSelection(in.isIncludeFilename());
+    wInclRowNum.setSelection(in.isIncludeRowNumber());
+    wAddResult.setSelection(in.isAddingResultFile());
+    wIgnoreEmptyFile.setSelection(in.isIgnoringEmptyFile());
+    wDoNotFailIfNoFile.setSelection(in.isDoNotFailIfNoFile());
     wYAMLStreamField.setSelection(in.isInFields());
-    wYAMLIsAFile.setSelection(in.getIsAFile());
-
-    if (in.getYamlField() != null) {
-      wYAMLLField.setText(in.getYamlField());
-    }
-
-    if (in.getFilenameField() != null) {
-      wInclFilenameField.setText(in.getFilenameField());
-    }
-    if (in.getRowNumberField() != null) {
-      wInclRownumField.setText(in.getRowNumberField());
-    }
+    wYAMLIsAFile.setSelection(in.isSourceFile());
+    wYAMLLField.setText(Const.NVL(in.getYamlField(), ""));
+    wInclFilenameField.setText(Const.NVL(in.getFilenameField(), ""));
+    wInclRowNumField.setText(Const.NVL(in.getRowNumberField(), ""));
     wLimit.setText("" + in.getRowLimit());
 
     if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "YamlInputDialog.Log.GettingFieldsInfo"));
     }
-    for (int i = 0; i < in.getInputFields().length; i++) {
-      YamlInputField field = in.getInputFields()[i];
+    for (int i = 0; i < in.getInputFields().size(); i++) {
+      YamlInputField field = in.getInputFields().get(i);
+      TableItem item = wFields.table.getItem(i);
+      String length = "" + field.getLength();
+      String precision = "" + field.getPrecision();
+      String decimalSymbol = field.getDecimalSymbol();
 
-      if (field != null) {
-        TableItem item = wFields.table.getItem(i);
-        String name = field.getName();
-        String path = field.getPath();
-        String type = field.getTypeDesc();
-        String format = field.getFormat();
-        String length = "" + field.getLength();
-        String prec = "" + field.getPrecision();
-        String curr = field.getCurrencySymbol();
-        String group = field.getGroupSymbol();
-        String decim = field.getDecimalSymbol();
-        String trim = field.getTrimTypeDesc();
-
-        if (name != null) {
-          item.setText(1, name);
-        }
-        if (path != null) {
-          item.setText(2, path);
-        }
-        if (type != null) {
-          item.setText(3, type);
-        }
-        if (format != null) {
-          item.setText(4, format);
-        }
-        if (length != null && !"-1".equals(length)) {
-          item.setText(5, length);
-        }
-        if (prec != null && !"-1".equals(prec)) {
-          item.setText(6, prec);
-        }
-        if (curr != null) {
-          item.setText(7, curr);
-        }
-        if (decim != null) {
-          item.setText(8, decim);
-        }
-        if (group != null) {
-          item.setText(9, group);
-        }
-        if (trim != null) {
-          item.setText(10, trim);
-        }
+      item.setText(1, Const.NVL(field.getName(), ""));
+      item.setText(2, Const.NVL(field.getPath(), ""));
+      item.setText(3, Const.NVL(field.getTypeDesc(), ""));
+      item.setText(4, Const.NVL(field.getFormat(), ""));
+      if (!"-1".equals(length)) {
+        item.setText(5, length);
       }
+      if (!"-1".equals(precision)) {
+        item.setText(6, precision);
+      }
+      item.setText(7, Const.NVL(field.getCurrencySymbol(), ""));
+      if (decimalSymbol != null) {
+        item.setText(8, decimalSymbol);
+      }
+      item.setText(9, Const.NVL(field.getGroupSymbol(), ""));
+      item.setText(10, Const.NVL(field.getTrimTypeDesc(), ""));
     }
-
-    wFields.removeEmptyRows();
-    wFields.setRowNums();
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
   }
 
   private void cancel() {
@@ -1164,35 +1111,36 @@ public class YamlInputDialog extends BaseTransformDialog {
   }
 
   private void getInfo(YamlInputMeta in) {
-    transformName = wTransformName.getText(); // return value
+    // return value
+    transformName = wTransformName.getText();
 
     // copy info to TextFileInputMeta class (input)
     in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
     in.setFilenameField(wInclFilenameField.getText());
-    in.setRowNumberField(wInclRownumField.getText());
-    in.setAddResultFile(wAddResult.getSelection());
+    in.setRowNumberField(wInclRowNumField.getText());
+    in.setAddingResultFile(wAddResult.getSelection());
     in.setIncludeFilename(wInclFilename.getSelection());
-    in.setIncludeRowNumber(wInclRownum.getSelection());
-    in.setIgnoreEmptyFile(wIgnoreEmptyFile.getSelection());
-    in.setdoNotFailIfNoFile(wDoNotFailIfNoFile.getSelection());
+    in.setIncludeRowNumber(wInclRowNum.getSelection());
+    in.setIgnoringEmptyFile(wIgnoreEmptyFile.getSelection());
+    in.setDoNotFailIfNoFile(wDoNotFailIfNoFile.getSelection());
 
     in.setInFields(wYAMLStreamField.getSelection());
-    in.setIsAFile(wYAMLIsAFile.getSelection());
+    in.setSourceFile(wYAMLIsAFile.getSelection());
     in.setYamlField(wYAMLLField.getText());
 
-    int nrFiles = wFilenameList.getItemCount();
-    int nrFields = wFields.nrNonEmpty();
+    in.getYamlFiles().clear();
+    for (TableItem item : wFilenameList.getNonEmptyItems()) {
+      YamlInputMeta.YamlFile file = new YamlInputMeta.YamlFile();
+      file.setFilename(item.getText(1));
+      file.setFileMask(item.getText(2));
+      file.setFileRequired(NO_YES_DEC[1].equalsIgnoreCase(item.getText(3)));
+      file.setIncludingSubFolders(NO_YES_DEC[1].equalsIgnoreCase(item.getText(4)));
+      in.getYamlFiles().add(file);
+    }
 
-    in.allocate(nrFiles, nrFields);
-    in.setFileName(wFilenameList.getItems(0));
-    in.setFileMask(wFilenameList.getItems(1));
-    in.setFileRequired(wFilenameList.getItems(2));
-    in.setIncludeSubFolders(wFilenameList.getItems(3));
-
-    for (int i = 0; i < nrFields; i++) {
+    in.getInputFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
       YamlInputField field = new YamlInputField();
-
-      TableItem item = wFields.getNonEmpty(i);
 
       field.setName(item.getText(1));
       field.setPath(item.getText(2));
@@ -1205,7 +1153,7 @@ public class YamlInputDialog extends BaseTransformDialog {
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(YamlInputField.getTrimTypeByDesc(item.getText(10)));
 
-      in.getInputFields()[i] = field;
+      in.getInputFields().add(field);
     }
   }
 

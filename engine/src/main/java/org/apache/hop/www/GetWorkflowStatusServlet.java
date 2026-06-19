@@ -59,7 +59,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
   private static final String CONST_TD_CLOSE = "</td>";
 
   private static final byte[] XML_HEADER =
-      XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8);
+      XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8);
 
   public GetWorkflowStatusServlet() {}
 

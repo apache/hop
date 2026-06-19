@@ -17,7 +17,7 @@
 
 package org.apache.hop.beam.transforms.bq;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class BQField {

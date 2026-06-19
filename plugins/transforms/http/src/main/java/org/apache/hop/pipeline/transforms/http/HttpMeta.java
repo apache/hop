@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.row.IRowMeta;
@@ -160,7 +161,7 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
     this.closeIdleConnectionsTime = String.valueOf(DEFAULT_CLOSE_CONNECTIONS_TIME);
     this.resultFields.fieldName = CONST_RESULT;
 
-    this.encoding = "UTF-8";
+    this.encoding = Const.UTF_8;
   }
 
   public HttpMeta(HttpMeta m) {

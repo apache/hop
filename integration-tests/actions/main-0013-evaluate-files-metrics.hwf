@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0013-evaluate-files-metrics</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/04/02 11:58:48.230</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/04/02 11:58:48.230</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>empty?</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <result_filenames_wildcard/>
+      <Result_field_file/>
+      <Result_field_wildcard/>
+      <Result_field_includesubfolders/>
+      <fields>
+        <field>
+          <source_filefolder>${PROJECT_HOME}/files-0013/empty.txt</source_filefolder>
+          <wildcard/>
+          <include_subFolders>N</include_subFolders>
+        </field>
+      </fields>
+      <comparevalue>0</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successnumbercondition>equal</successnumbercondition>
+      <source_files>files</source_files>
+      <evaluation_type>size</evaluation_type>
+      <scale>bytes</scale>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>10 bytes</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <result_filenames_wildcard/>
+      <Result_field_file/>
+      <Result_field_wildcard/>
+      <Result_field_includesubfolders/>
+      <fields>
+      </fields>
+      <comparevalue>10</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successnumbercondition>equal</successnumbercondition>
+      <source_files>filenamesresult</source_files>
+      <evaluation_type>size</evaluation_type>
+      <scale>bytes</scale>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>add 10-bytes.txt</name>
+      <description/>
+      <type>ADD_RESULT_FILENAMES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <delete_all_before>N</delete_all_before>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${PROJECT_HOME}/files-0013</name>
+          <filemask>10-bytes.txt</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>&gt; 5 bytes</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <result_filenames_wildcard/>
+      <Result_field_file/>
+      <Result_field_wildcard/>
+      <Result_field_includesubfolders/>
+      <fields>
+      </fields>
+      <comparevalue>5</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successnumbercondition>greater</successnumbercondition>
+      <source_files>filenamesresult</source_files>
+      <evaluation_type>size</evaluation_type>
+      <scale>bytes</scale>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>&lt; 2 kbytes</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <result_filenames_wildcard/>
+      <Result_field_file/>
+      <Result_field_wildcard/>
+      <Result_field_includesubfolders/>
+      <fields>
+      </fields>
+      <comparevalue>2</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successnumbercondition>smaller</successnumbercondition>
+      <source_files>filenamesresult</source_files>
+      <evaluation_type>size</evaluation_type>
+      <scale>kbytes</scale>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>2 files</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <result_filenames_wildcard/>
+      <Result_field_file/>
+      <Result_field_wildcard/>
+      <Result_field_includesubfolders/>
+      <fields>
+        <field>
+          <source_filefolder>${PROJECT_HOME}/files-0013/</source_filefolder>
+          <wildcard>.*\.txt</wildcard>
+          <include_subFolders>N</include_subFolders>
+        </field>
+      </fields>
+      <comparevalue>2</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successnumbercondition>equal</successnumbercondition>
+      <source_files>files</source_files>
+      <evaluation_type>count</evaluation_type>
+      <scale>kbytes</scale>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>empty?</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>empty?</from>
+      <to>add 10-bytes.txt</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>add 10-bytes.txt</from>
+      <to>10 bytes</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>10 bytes</from>
+      <to>&gt; 5 bytes</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>&gt; 5 bytes</from>
+      <to>&lt; 2 kbytes</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>&lt; 2 kbytes</from>
+      <to>2 files</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>2 files</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

@@ -42,7 +42,9 @@ class TerminalShellDetectorTest {
           "Windows should detect PowerShell or cmd");
     } else if (os.contains("mac") || os.contains("nix") || os.contains("nux")) {
       // Unix-like systems should return a shell in /bin
-      assertTrue(shell.startsWith("/bin/"), "Unix-like systems should return a shell in /bin");
+      assertTrue(
+          shell.startsWith("/bin/") || shell.startsWith("/usr/bin/"),
+          "Unix-like systems should return a shell in /bin or /usr/bin");
     }
   }
 

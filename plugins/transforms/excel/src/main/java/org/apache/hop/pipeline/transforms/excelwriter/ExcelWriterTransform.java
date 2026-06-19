@@ -37,10 +37,13 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.excelwriter.ods.OdsExcelWriter;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
@@ -81,6 +84,8 @@ public class ExcelWriterTransform
   public static final int BYTE_ARRAY_MAX_OVERRIDE = 250000000;
   public static final String CONST_COULDN_T_BE_FOUND_IN_THE_INPUT_STREAM =
       "] couldn't be found in the input stream!";
+
+  private OdsExcelWriter odsExcelWriter;
 
   public ExcelWriterTransform(
       TransformMeta transformMeta,
@@ -280,7 +285,7 @@ public class ExcelWriterTransform
     data.usedFiles.clear();
   }
 
-  private void createParentFolder(FileObject filename) throws Exception {
+  public void createParentFolder(FileObject filename) throws Exception {
     // Check for parent folder
     FileObject parentfolder = null;
     try {
@@ -330,6 +335,10 @@ public class ExcelWriterTransform
   }
 
   private void closeOutputFile(ExcelWriterWorkbookDefinition file) throws HopException {
+    if (file.isOds()) {
+      getOdsExcelWriter().closeOutputFile(file);
+      return;
+    }
     OutputStream out = null;
     CountingOutputStream countingOut = null;
     try {
@@ -378,7 +387,16 @@ public class ExcelWriterTransform
         try {
           out.flush();
           if (countingOut != null) {
-            dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + countingOut.getCount();
+            long written = countingOut.getCount();
+            dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+            if (!data.isBeamContext() && written > 0 && file.getFile() != null) {
+              try {
+                LineageFileIoEmitter.emitTransformFileIo(
+                    this, FileIoOperation.WRITE, null, file.getFile(), written, true, null);
+              } catch (Exception ignored) {
+                // optional lineage
+              }
+            }
           }
           out.close();
         } catch (Exception e) {
@@ -425,6 +443,10 @@ public class ExcelWriterTransform
 
   public void writeNextLine(ExcelWriterWorkbookDefinition workbookDefinition, Object[] r)
       throws HopException {
+    if (workbookDefinition.isOds()) {
+      getOdsExcelWriter().writeNextLine(workbookDefinition, r);
+      return;
+    }
     try {
       openLine(workbookDefinition.getSheet(), workbookDefinition.getPosY());
       Row xlsRow = workbookDefinition.getSheet().getRow(workbookDefinition.getPosY());
@@ -784,10 +806,14 @@ public class ExcelWriterTransform
   }
 
   public void prepareNextOutputFile(Object[] row) throws HopException {
+    if (ExcelWriterOutputFormat.isOds(meta.getFile().getExtension())) {
+      getOdsExcelWriter().prepareNextOutputFile(row);
+      return;
+    }
     try {
       // Validation
       //
-      // sheet name shouldn't exceed 31 character
+      // sheet name shouldn't exceed 31 character (Excel limit)
       if (data.realSheetname != null && data.realSheetname.length() > 31) {
         throw new HopException(
             BaseMessages.getString(
@@ -1206,7 +1232,7 @@ public class ExcelWriterTransform
    * @param fileName
    * @return
    */
-  private int getNextSplitNr(String fileName) {
+  public int getNextSplitNr(String fileName) {
     int splitNr = 0;
     boolean fileFound = false;
     // Check if file exists and fetch max splitNr
@@ -1224,5 +1250,24 @@ public class ExcelWriterTransform
       splitNr++;
     }
     return splitNr;
+  }
+
+  OdsExcelWriter getOdsExcelWriter() {
+    if (odsExcelWriter == null) {
+      odsExcelWriter = new OdsExcelWriter(this);
+    }
+    return odsExcelWriter;
+  }
+
+  public void recordBytesWritten(long written, FileObject file) {
+    dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+    if (!data.isBeamContext() && written > 0 && file != null) {
+      try {
+        LineageFileIoEmitter.emitTransformFileIo(
+            this, FileIoOperation.WRITE, null, file, written, true, null);
+      } catch (Exception ignored) {
+        // optional lineage
+      }
+    }
   }
 }

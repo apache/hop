@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.loadsave.getter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 public class FieldGetter<T> implements IGetter<T> {
   private final Field field;
@@ -32,7 +33,7 @@ public class FieldGetter<T> implements IGetter<T> {
     try {
       return (T) field.get(obj);
     } catch (Exception e) {
-      throw new RuntimeException("Error getting " + field + " on " + obj, e);
+      throw new HopRuntimeException("Error getting " + field + " on " + obj, e);
     }
   }
 

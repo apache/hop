@@ -23,6 +23,8 @@ import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIShe
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -481,7 +483,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     fdlSheetnameList.right = new FormAttachment(middle, -margin);
     wlSheetnameList.setLayoutData(fdlSheetnameList);
 
-    ColumnInfo[] shinfo = new ColumnInfo[3];
+    ColumnInfo[] shinfo = new ColumnInfo[4];
     shinfo[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ExcelInputDialog.SheetName.Column"),
@@ -497,6 +499,15 @@ public class ExcelInputDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "ExcelInputDialog.StartColumn.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    shinfo[3] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "ExcelInputDialog.IsRegex.Column"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {
+              BaseMessages.getString(PKG, "System.Combo.No"),
+              BaseMessages.getString(PKG, "System.Combo.Yes")
+            },
+            true);
 
     wSheetNameList =
         new TableView(
@@ -1147,6 +1158,11 @@ public class ExcelInputDialog extends BaseTransformDialog {
       item.setText(1, Const.NVL(sheetname, ""));
       item.setText(2, Const.NVL(startrow, ""));
       item.setText(3, Const.NVL(startcol, ""));
+      item.setText(
+          4,
+          sheet.isRegex()
+              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              : BaseMessages.getString(PKG, "System.Combo.No"));
     }
     wSheetNameList.optimizeTableView();
 
@@ -1221,6 +1237,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
       sheet.setName(item.getText(1));
       sheet.setStartRow(Const.toInt(item.getText(2), 0));
       sheet.setStartColumn(Const.toInt(item.getText(3), 0));
+      sheet.setRegex(
+          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(4)));
       meta.getSheets().add(sheet);
     }
 
@@ -1768,18 +1786,43 @@ public class ExcelInputDialog extends BaseTransformDialog {
    * @param workbook excel workbook for processing
    * @throws HopPluginException In case something goes wrong
    */
+  /**
+   * Finds the index of the first EISheet entry that matches the given sheet name, taking regex
+   * entries into account. Returns -1 if no match found.
+   */
+  private int findMatchingSheetIndex(String sheetName, ExcelInputMeta meta) {
+    List<ExcelInputMeta.EISheet> sheets = meta.getSheets();
+    for (int i = 0; i < sheets.size(); i++) {
+      ExcelInputMeta.EISheet entry = sheets.get(i);
+      if (entry.isRegex()) {
+        try {
+          if (Pattern.compile(entry.getName()).matcher(sheetName).matches()) {
+            return i;
+          }
+        } catch (PatternSyntaxException ignored) {
+          // invalid regex — skip
+        }
+      } else {
+        if (sheetName.equals(entry.getName())) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
   private void processingWorkbook(IRowMeta fields, ExcelInputMeta meta, IKWorkbook workbook)
       throws HopPluginException {
     int nrSheets = workbook.getNumberOfSheets();
     for (int j = 0; j < nrSheets; j++) {
       IKSheet sheet = workbook.getSheet(j);
 
-      // See if it's a selected sheet:
+      // See if it's a selected sheet (supports both exact names and regex patterns):
       int sheetIndex;
       if (meta.readAllSheets()) {
         sheetIndex = 0;
       } else {
-        sheetIndex = Const.indexOfString(sheet.getName(), meta.getSheetsNames());
+        sheetIndex = findMatchingSheetIndex(sheet.getName(), meta);
       }
       if (sheetIndex >= 0) {
         // We suppose it's the complete range we're looking for...
@@ -1871,7 +1914,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
       }
 
       // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
       int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
       if (idx >= 0) {
         wEncoding.select(idx);

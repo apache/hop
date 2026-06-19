@@ -29,4 +29,7 @@ This page provides an overview of the tools that are available in the platform.
 * xref:hop-tools/hop-search.adoc[Hop Search]
 * xref:hop-tools/hop-import.adoc[Hop Import]
 * xref:hop-tools/hop-doc.adoc[Hop Documentation]
+* xref:hop-tools/hop-python/hop-python.adoc[Hop Python (PyHop)]
+* xref:hop-tools/hop-arrow-command.adoc[Hop Arrow (Flight server)]
+
 * xref:hop-server/index.adoc[Hop Server]

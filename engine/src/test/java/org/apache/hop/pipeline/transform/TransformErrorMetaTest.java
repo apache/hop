@@ -19,14 +19,30 @@ package org.apache.hop.pipeline.transform;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.transform.transforms.FakeMeta;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Node;
 
 class TransformErrorMetaTest {
+  @BeforeEach
+  void setUp() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginClass(
+        FakeMeta.class.getName(), TransformPluginType.class, Transform.class);
+  }
 
   @Test
   void testGetErrorRowMeta() {
@@ -56,5 +72,39 @@ class TransformErrorMetaTest {
     assertEquals("errorFields", result.getValueMeta(2).getName());
     assertEquals(IValueMeta.TYPE_STRING, result.getValueMeta(3).getType());
     assertEquals("errorCodes", result.getValueMeta(3).getName());
+  }
+
+  @Test
+  void testSerialization() throws Exception {
+    List<TransformMeta> transforms = new ArrayList<>();
+    TransformMeta t1 = new TransformMeta("t1", new FakeMeta());
+    transforms.add(t1);
+    TransformMeta t2 = new TransformMeta("t1", new FakeMeta());
+    transforms.add(t2);
+
+    TransformErrorMeta meta = new TransformErrorMeta();
+    meta.setSourceTransform(t1);
+    meta.setTargetTransform(t2);
+    meta.setEnabled(true);
+    meta.setMaxErrors("400");
+    meta.setMinPercentRows("100");
+    meta.setMaxPercentErrors("25");
+    meta.setErrorFieldsValueName("errorFields");
+    meta.setErrorCodesValueName("errorCodes");
+    meta.setErrorDescriptionsValueName("errorDescriptions");
+
+    String xml = meta.getXml();
+    Node node = XmlHandler.loadXmlString(xml, TransformErrorMeta.XML_ERROR_TAG);
+    TransformErrorMeta copy = new TransformErrorMeta(node, transforms);
+
+    assertEquals(meta.getSourceTransform(), copy.getSourceTransform());
+    assertEquals(meta.getTargetTransform(), copy.getTargetTransform());
+    assertTrue(copy.isEnabled());
+    assertEquals("400", copy.getMaxErrors());
+    assertEquals("100", copy.getMinPercentRows());
+    assertEquals("25", copy.getMaxPercentErrors());
+    assertEquals("errorFields", copy.getErrorFieldsValueName());
+    assertEquals("errorCodes", copy.getErrorCodesValueName());
+    assertEquals("errorDescriptions", copy.getErrorDescriptionsValueName());
   }
 }

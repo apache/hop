@@ -73,7 +73,7 @@ public class DelegatingDriver implements Driver {
   /**
    * This method is added to make this driver compile on Java7
    *
-   * @return always null until we finally switch over to Java7 with the codebase (TODO)
+   * @return always null until we finally switch over to Java7 with the codebase
    */
   @Override
   public Logger getParentLogger() {

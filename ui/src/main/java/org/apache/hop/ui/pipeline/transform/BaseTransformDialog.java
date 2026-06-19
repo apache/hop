@@ -1141,7 +1141,6 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     }
 
     int choice = 0;
-    boolean isOpenDialog = false;
 
     if (!keys.isEmpty()) {
       // Ask what we should do with the existing data in the transform.
@@ -1150,12 +1149,10 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
       int idx = getFieldsChoiceDialog.open();
       choice = idx & 0xFF;
-      // Mark that the dialog was actually opened.
-      isOpenDialog = true;
     }
 
-    // Cancel clicked, Close x
-    if ((choice == 0 && isOpenDialog) || choice == 3 || choice == 255) {
+    // Cancel (index 3), window closed without a button (0xFF), or undecided (-1 & 0xFF == 255)
+    if (choice == 3 || choice == 255) {
       return;
     }
 

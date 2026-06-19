@@ -160,8 +160,9 @@ public class StandardizePhoneNumber
 
         if (!Utils.isEmpty(standardize.getNumberTypeField())) {
           int i = data.outputRowMeta.indexOfValue(standardize.getNumberTypeField());
-          if (phoneNumber != null) outputRow[i] = phoneNumberService.getNumberType(phoneNumber);
-          else outputRow[i] = "ERROR";
+          if (phoneNumber != null) {
+            outputRow[i] = phoneNumberService.getNumberType(phoneNumber).toString();
+          } else outputRow[i] = "ERROR";
         }
 
         if (!Utils.isEmpty(standardize.getIsValidNumberField())) {

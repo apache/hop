@@ -264,7 +264,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wPrevious);
-    wPrevious.setSelection(action.argFromPrevious);
+    wPrevious.setSelection(action.isArgFromPrevious());
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionMoveFiles.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
@@ -291,12 +291,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     fdlFields.top = new FormAttachment(wSettings, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int rows =
-        action.sourceFileFolder == null
-            ? 1
-            : (action.sourceFileFolder.length == 0 ? 0 : action.sourceFileFolder.length);
-
-    ColumnInfo[] colinf =
+    ColumnInfo[] columnInfos =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionMoveFiles.Fields.SourceFileFolder.Label"),
@@ -312,24 +307,25 @@ public class ActionMoveFilesDialog extends ActionDialog {
               false),
         };
 
-    colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(
+    columnInfos[0].setUsingVariables(true);
+    columnInfos[0].setToolTip(
         BaseMessages.getString(PKG, "ActionMoveFiles.Fields.SourceFileFolder.Tooltip"));
-    colinf[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
-    colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(
+    columnInfos[0].setTextVarButtonSelectionListener(getFileSelectionAdapter());
+    columnInfos[1].setUsingVariables(true);
+    columnInfos[1].setToolTip(
         BaseMessages.getString(PKG, "ActionMoveFiles.Fields.DestinationFileFolder.Tooltip"));
-    colinf[1].setTextVarButtonSelectionListener(getFileSelectionAdapter());
-    colinf[2].setUsingVariables(true);
-    colinf[2].setToolTip(BaseMessages.getString(PKG, "ActionMoveFiles.Fields.Wildcard.Tooltip"));
+    columnInfos[1].setTextVarButtonSelectionListener(getFileSelectionAdapter());
+    columnInfos[2].setUsingVariables(true);
+    columnInfos[2].setToolTip(
+        BaseMessages.getString(PKG, "ActionMoveFiles.Fields.Wildcard.Tooltip"));
 
     wFields =
         new TableView(
             variables,
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            rows,
+            columnInfos,
+            1,
             lsMod,
             props);
 
@@ -366,13 +362,13 @@ public class ActionMoveFilesDialog extends ActionDialog {
     wDestinationFileTab.setText(
         BaseMessages.getString(PKG, "ActionMoveFiles.DestinationFileTab.Label"));
 
-    FormLayout destcontentLayout = new FormLayout();
-    destcontentLayout.marginWidth = 3;
-    destcontentLayout.marginHeight = 3;
+    FormLayout destinationContentLayout = new FormLayout();
+    destinationContentLayout.marginWidth = 3;
+    destinationContentLayout.marginHeight = 3;
 
     Composite wDestinationFileComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wDestinationFileComp);
-    wDestinationFileComp.setLayout(destcontentLayout);
+    wDestinationFileComp.setLayout(destinationContentLayout);
 
     // DestinationFile grouping?
     // ////////////////////////
@@ -1170,38 +1166,26 @@ public class ActionMoveFilesDialog extends ActionDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
-    wMoveEmptyFolders.setSelection(action.moveEmptyFolders);
+    wMoveEmptyFolders.setSelection(action.isMoveEmptyFolders());
 
-    if (action.sourceFileFolder != null) {
-      for (int i = 0; i < action.sourceFileFolder.length; i++) {
-        TableItem ti = wFields.table.getItem(i);
-        if (action.sourceFileFolder[i] != null) {
-          ti.setText(1, action.sourceFileFolder[i]);
-        }
-        if (action.destinationFileFolder[i] != null) {
-          ti.setText(2, action.destinationFileFolder[i]);
-        }
-        if (action.wildcard[i] != null) {
-          ti.setText(3, action.wildcard[i]);
-        }
-      }
-      wFields.setRowNums();
-      wFields.optWidth(true);
+    for (ActionMoveFiles.FileToMove fileToMove : action.getFilesToMove()) {
+      TableItem ti = new TableItem(wFields.table, SWT.NONE);
+      ti.setText(1, Const.NVL(fileToMove.getSourceFileFolder(), ""));
+      ti.setText(2, Const.NVL(fileToMove.getDestinationFileFolder(), ""));
+      ti.setText(3, Const.NVL(fileToMove.getWildcard(), ""));
     }
-    wPrevious.setSelection(action.argFromPrevious);
-    wIncludeSubfolders.setSelection(action.includeSubfolders);
-    wDestinationIsAFile.setSelection(action.destinationIsAFile);
-    wCreateDestinationFolder.setSelection(action.createDestinationFolder);
+    wFields.optimizeTableView();
 
-    wAddFileToResult.setSelection(action.addResultFilenames);
+    wPrevious.setSelection(action.isArgFromPrevious());
+    wIncludeSubfolders.setSelection(action.isIncludeSubfolders());
+    wDestinationIsAFile.setSelection(action.isDestinationIsAFile());
+    wCreateDestinationFolder.setSelection(action.isCreateDestinationFolder());
 
-    wCreateMoveToFolder.setSelection(action.createMoveToFolder);
+    wAddFileToResult.setSelection(action.isAddResultFilenames());
 
-    if (action.getNrErrorsLessThan() != null) {
-      wNrErrorsLessThan.setText(action.getNrErrorsLessThan());
-    } else {
-      wNrErrorsLessThan.setText("10");
-    }
+    wCreateMoveToFolder.setSelection(action.isCreateMoveToFolder());
+
+    wNrErrorsLessThan.setText(Const.NVL(action.getNrErrorsLessThan(), "10"));
 
     if (action.getSuccessCondition() != null) {
       if (action
@@ -1221,18 +1205,16 @@ public class ActionMoveFilesDialog extends ActionDialog {
       switch (action.getIfFileExists()) {
         case CONST_OVERWRITE_FILE -> wIfFileExists.select(1);
         case CONST_UNIQUE_NAME -> wIfFileExists.select(2);
-        case "delete_file" -> wIfFileExists.select(3);
-        case "move_file" -> wIfFileExists.select(4);
-        case "fail" -> wIfFileExists.select(5);
+        case ActionMoveFiles.DELETE_FILE -> wIfFileExists.select(3);
+        case ActionMoveFiles.MOVE_FILE -> wIfFileExists.select(4);
+        case ActionMoveFiles.FAIL -> wIfFileExists.select(5);
         default -> wIfFileExists.select(0);
       }
     } else {
       wIfFileExists.select(0);
     }
 
-    if (action.getDestinationFolder() != null) {
-      wDestinationFolder.setText(action.getDestinationFolder());
-    }
+    wDestinationFolder.setText(Const.NVL(action.getDestinationFolder(), ""));
 
     if (action.getIfMovedFileExists() != null) {
       switch (action.getIfMovedFileExists()) {
@@ -1246,21 +1228,17 @@ public class ActionMoveFilesDialog extends ActionDialog {
     }
     wDoNotKeepFolderStructure.setSelection(action.isDoNotKeepFolderStructure());
     wAddDateBeforeExtension.setSelection(action.isAddDateBeforeExtension());
-    wSimulate.setSelection(action.simulate);
+    wSimulate.setSelection(action.isSimulate());
 
     wAddDate.setSelection(action.isAddDate());
     wAddTime.setSelection(action.isAddTime());
     wSpecifyFormat.setSelection(action.isSpecifyFormat());
-    if (action.getDateTimeFormat() != null) {
-      wDateTimeFormat.setText(action.getDateTimeFormat());
-    }
+    wDateTimeFormat.setText(Const.NVL(action.getDateTimeFormat(), ""));
 
     wAddMovedDate.setSelection(action.isAddMovedDate());
     wAddMovedTime.setSelection(action.isAddMovedTime());
     wSpecifyMoveFormat.setSelection(action.isSpecifyMoveFormat());
-    if (action.getMovedDateTimeFormat() != null) {
-      wMovedDateTimeFormat.setText(action.getMovedDateTimeFormat());
-    }
+    wMovedDateTimeFormat.setText(Const.NVL(action.getMovedDateTimeFormat(), ""));
     wAddMovedDateBeforeExtension.setSelection(action.isAddMovedDateBeforeExtension());
   }
 
@@ -1287,7 +1265,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     action.setMoveEmptyFolders(wMoveEmptyFolders.getSelection());
     action.setIncludeSubfolders(wIncludeSubfolders.getSelection());
     action.setArgFromPrevious(wPrevious.getSelection());
-    action.setAddresultfilesname(wAddFileToResult.getSelection());
+    action.setAddResultFilenames(wAddFileToResult.getSelection());
     action.setDestinationIsAFile(wDestinationIsAFile.getSelection());
     action.setCreateDestinationFolder(wCreateDestinationFolder.getSelection());
     action.setNrErrorsLessThan(wNrErrorsLessThan.getText());
@@ -1343,29 +1321,16 @@ public class ActionMoveFilesDialog extends ActionDialog {
     action.setMovedDateTimeFormat(wMovedDateTimeFormat.getText());
     action.setAddMovedDateBeforeExtension(wAddMovedDateBeforeExtension.getSelection());
 
-    int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (!Utils.isEmpty(arg)) {
-        nr++;
-      }
+    action.getFilesToMove().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+      action.getFilesToMove().add(fileToMove);
+
+      fileToMove.setSourceFileFolder(item.getText(1));
+      fileToMove.setDestinationFileFolder(item.getText(2));
+      fileToMove.setWildcard(item.getText(3));
     }
-    action.sourceFileFolder = new String[nr];
-    action.destinationFileFolder = new String[nr];
-    action.wildcard = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String source = wFields.getNonEmpty(i).getText(1);
-      String dest = wFields.getNonEmpty(i).getText(2);
-      String wild = wFields.getNonEmpty(i).getText(3);
-      if (!Utils.isEmpty(source)) {
-        action.sourceFileFolder[nr] = source;
-        action.destinationFileFolder[nr] = dest;
-        action.wildcard[nr] = wild;
-        nr++;
-      }
-    }
+
     dispose();
   }
 }

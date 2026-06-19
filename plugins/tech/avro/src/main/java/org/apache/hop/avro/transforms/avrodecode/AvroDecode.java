@@ -17,10 +17,8 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
-import java.util.Map;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericContainer;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.hop.core.exception.HopException;
@@ -107,7 +105,7 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
     return true;
   }
 
-  public static final int getStandardHopType(Schema.Field field) throws HopException {
+  public static int getStandardHopType(Schema.Field field) throws HopException {
     Schema.Type type = field.schema().getType();
     int basicType = getBasicType(type);
     if (basicType != 0) {
@@ -139,72 +137,38 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
     };
   }
 
-  public static final Object getStandardHopObject(Schema.Field field, Object avroValue)
-      throws HopException {
-    Object hopValue;
+  @VisibleForTesting
+  public static Object getStandardHopObject(Schema.Field field, Object avroValue) {
     if (avroValue == null) {
-      hopValue = null;
-    } else {
-      Schema.Type type = field.schema().getType();
-      switch (type) {
-        case NULL:
-          hopValue = null;
-          break;
-        case ENUM:
-          hopValue = avroValue.toString();
-          break;
-        case STRING:
-          hopValue = ((Utf8) avroValue).toString();
-          break;
-        case BYTES, LONG, DOUBLE:
-          hopValue = avroValue;
-          break;
-        case INT:
-          hopValue = (long) (int) avroValue;
-          break;
-        case FLOAT:
-          hopValue = (double) (float) avroValue;
-          break;
-        case BOOLEAN:
-          hopValue = (boolean) avroValue;
-          break;
-        case RECORD:
-          GenericData.Record record = (GenericData.Record) avroValue;
-          hopValue = record.toString();
-          break;
-        case ARRAY:
-          GenericData.Array array = (GenericData.Array) avroValue;
-          hopValue = array.toString();
-          break;
-        case MAP:
-          Map<Utf8, Object> map = (Map<Utf8, Object>) avroValue;
-          hopValue = map.toString();
-          break;
-        case UNION:
-          // This value can be a set of possible values...
-          //
-          if (avroValue instanceof Long
-              || avroValue instanceof Double
-              || avroValue instanceof String
-              || avroValue instanceof Boolean
-              || avroValue instanceof byte[]) {
-            hopValue = avroValue;
-          } else if (avroValue instanceof Float) {
-            hopValue = Double.valueOf((float) avroValue);
-          } else if (avroValue instanceof Integer) {
-            hopValue = Integer.valueOf((int) avroValue).longValue();
-          } else {
-            hopValue = avroValue.toString();
-          }
-          break;
-        case FIXED:
-          GenericContainer container = (GenericContainer) avroValue;
-          hopValue = container.toString();
-          break;
-        default:
-          throw new HopException("Schema type " + type + " isn't handled yet");
-      }
+      return null;
     }
-    return hopValue;
+
+    return convertBySchemaType(field.schema().getType(), avroValue);
+  }
+
+  private static Object convertBySchemaType(Schema.Type type, Object avroValue) {
+    return switch (type) {
+      case NULL -> null;
+      case ENUM, RECORD, ARRAY, MAP, FIXED -> avroValue.toString();
+      case STRING -> ((Utf8) avroValue).toString();
+      case BYTES, LONG, DOUBLE -> avroValue;
+      case INT -> (long) (int) avroValue;
+      case FLOAT -> (double) (float) avroValue;
+      case BOOLEAN -> (boolean) avroValue;
+      case UNION -> union(avroValue);
+    };
+  }
+
+  private static Object union(Object avroValue) {
+    return switch (avroValue) {
+      case Long l -> l;
+      case Double d -> d;
+      case String s -> s;
+      case Boolean b -> b;
+      case byte[] b -> b;
+      case Float f -> (double) f;
+      case Integer i -> i.longValue();
+      default -> avroValue.toString();
+    };
   }
 }

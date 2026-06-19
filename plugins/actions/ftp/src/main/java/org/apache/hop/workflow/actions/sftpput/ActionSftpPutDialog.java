@@ -146,10 +146,10 @@ public class ActionSftpPutDialog extends ActionDialog {
     PropsUi.setLook(wServerSettings);
     wServerSettings.setText(
         BaseMessages.getString(PKG, "ActionSftpPut.ServerSettings.Group.Label"));
-    FormLayout serverSettingsgroupLayout = new FormLayout();
-    serverSettingsgroupLayout.marginWidth = 10;
-    serverSettingsgroupLayout.marginHeight = 10;
-    wServerSettings.setLayout(serverSettingsgroupLayout);
+    FormLayout serverSettingsGroupLayout = new FormLayout();
+    serverSettingsGroupLayout.marginWidth = 10;
+    serverSettingsGroupLayout.marginHeight = 10;
+    wServerSettings.setLayout(serverSettingsGroupLayout);
 
     // ServerName line
     Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
@@ -297,11 +297,11 @@ public class ActionSftpPutDialog extends ActionDialog {
             false);
     PropsUi.setLook(wKeyFilePass);
     wKeyFilePass.addModifyListener(lsMod);
-    FormData fdkeyfilePass = new FormData();
-    fdkeyfilePass.left = new FormAttachment(0, 0);
-    fdkeyfilePass.top = new FormAttachment(wKeyFilename, margin);
-    fdkeyfilePass.right = new FormAttachment(100, 0);
-    wKeyFilePass.setLayoutData(fdkeyfilePass);
+    FormData fdKeyFilePass = new FormData();
+    fdKeyFilePass.left = new FormAttachment(0, 0);
+    fdKeyFilePass.top = new FormAttachment(wKeyFilename, margin);
+    fdKeyFilePass.right = new FormAttachment(100, 0);
+    wKeyFilePass.setLayoutData(fdKeyFilePass);
 
     Label wlProxyType = new Label(wServerSettings, SWT.RIGHT);
     wlProxyType.setText(BaseMessages.getString(PKG, "ActionSftpPut.ProxyType.Label"));
@@ -746,10 +746,10 @@ public class ActionSftpPutDialog extends ActionDialog {
     Group wTargetFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wTargetFiles);
     wTargetFiles.setText(BaseMessages.getString(PKG, "ActionSftpPut.TargetFiles.Group.Label"));
-    FormLayout targetFilesgroupLayout = new FormLayout();
-    targetFilesgroupLayout.marginWidth = 10;
-    targetFilesgroupLayout.marginHeight = 10;
-    wTargetFiles.setLayout(targetFilesgroupLayout);
+    FormLayout targetFilesGroupLayout = new FormLayout();
+    targetFilesGroupLayout.marginWidth = 10;
+    targetFilesGroupLayout.marginHeight = 10;
+    wTargetFiles.setLayout(targetFilesGroupLayout);
 
     // FtpDirectory line
     Label wlScpDirectory = new Label(wTargetFiles, SWT.RIGHT);
@@ -925,8 +925,8 @@ public class ActionSftpPutDialog extends ActionDialog {
     }
   }
 
-  private boolean connectToSftp(boolean checkFolder, String remotefoldername) {
-    boolean retval = false;
+  private boolean connectToSftp(boolean checkFolder, String remoteFolderName) {
+    boolean success = false;
     try {
 
       if (sftpClient == null) {
@@ -952,10 +952,10 @@ public class ActionSftpPutDialog extends ActionDialog {
         // login to ftp host ...
         sftpClient.login(Utils.resolvePassword(variables, wPassword.getText()));
 
-        retval = true;
+        success = true;
       }
       if (checkFolder) {
-        retval = sftpClient.folderExists(remotefoldername);
+        success = sftpClient.folderExists(remoteFolderName);
       }
 
     } catch (Exception e) {
@@ -976,7 +976,7 @@ public class ActionSftpPutDialog extends ActionDialog {
       mb.setText(BaseMessages.getString(PKG, "ActionSftpPut.ErrorConnect.Title.Bad"));
       mb.open();
     }
-    return retval;
+    return success;
   }
 
   private void checkRemoteFolder() {
@@ -997,7 +997,7 @@ public class ActionSftpPutDialog extends ActionDialog {
     super.dispose();
   }
 
-  /** Copy information from the meta-data input to the dialog fields. */
+  /** Copy information from the metadata input to the dialog fields. */
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
     wServerName.setText(Const.NVL(action.getServerName(), ""));
@@ -1007,7 +1007,7 @@ public class ActionSftpPutDialog extends ActionDialog {
     wScpDirectory.setText(Const.NVL(action.getRemoteDirectory(), ""));
     wLocalDirectory.setText(Const.NVL(action.getLocalDirectory(), ""));
     wWildcard.setText(Const.NVL(action.getWildcard(), ""));
-    wGetPrevious.setSelection(action.isCopyPrevious());
+    wGetPrevious.setSelection(action.isCopyingPrevious());
     wGetPreviousFiles.setSelection(action.isCopyingPreviousFiles());
     wAddFilenameToResult.setSelection(action.isAddFilenameResut());
     wUsePublicKey.setSelection(action.isUseKeyFilename());
@@ -1022,7 +1022,9 @@ public class ActionSftpPutDialog extends ActionDialog {
     wProxyPassword.setText(Const.NVL(action.getProxyPassword(), ""));
     wCreateRemoteFolder.setSelection(action.isCreateRemoteFolder());
 
-    wAfterFtpPut.setText(ActionSftpPut.getAfterSftpPutDesc(action.getAfterFtps()));
+    if (action.getAfterSftpAction() != null) {
+      wAfterFtpPut.setText(action.getAfterSftpAction().getDescription());
+    }
     wDestinationFolder.setText(Const.NVL(action.getDestinationFolder(), ""));
     wCreateDestinationFolder.setSelection(action.isCreateDestinationFolder());
     wPreserveTimestamp.setSelection(action.isPreserveTargetFileTimestamp());
@@ -1072,7 +1074,8 @@ public class ActionSftpPutDialog extends ActionDialog {
     action.setProxyPassword(wProxyPassword.getText());
     action.setCreateRemoteFolder(wCreateRemoteFolder.getSelection());
     action.setPreserveTargetFileTimestamp(wPreserveTimestamp.getSelection());
-    action.setAfterFtps(ActionSftpPut.getAfterSftpPutByDesc(wAfterFtpPut.getText()));
+    action.setAfterSftpAction(
+        ActionSftpPut.AfterFtpAction.lookupDescription(wAfterFtpPut.getText()));
     action.setCreateDestinationFolder(wCreateDestinationFolder.getSelection());
     action.setDestinationFolder(wDestinationFolder.getText());
     action.setSuccessWhenNoFile(wSuccessWhenNoFile.getSelection());
@@ -1103,12 +1106,11 @@ public class ActionSftpPutDialog extends ActionDialog {
   }
 
   private void afterFtpPutActivate() {
-    boolean moveFile =
-        ActionSftpPut.getAfterSftpPutByDesc(wAfterFtpPut.getText())
-            == ActionSftpPut.AFTER_FTPSPUT_MOVE;
-    boolean doNothing =
-        ActionSftpPut.getAfterSftpPutByDesc(wAfterFtpPut.getText())
-            == ActionSftpPut.AFTER_FTPSPUT_NOTHING;
+    ActionSftpPut.AfterFtpAction after =
+        ActionSftpPut.AfterFtpAction.lookupDescription(wAfterFtpPut.getText());
+
+    boolean moveFile = after == ActionSftpPut.AfterFtpAction.MOVE;
+    boolean doNothing = after == ActionSftpPut.AfterFtpAction.NOTHING;
 
     wlDestinationFolder.setEnabled(moveFile);
     wDestinationFolder.setEnabled(moveFile);

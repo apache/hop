@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters/>
+    <name>0098-pipeline-executor-group10-segmented-main-midgroup-4copy</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Regression: group_size=10 with child_path switching after row 5 in one batch (5x A then 5x B). The executor must flush the partial group when the path changes so each child receives only matching rows. copies=4.</description>
+    <created_user>-</created_user>
+    <modified_user>-</modified_user>
+    <created_date>2026/04/16 12:00:00.000</created_date>
+    <modified_date>2026/04/16 12:00:00.000</modified_date>
+  </info>
+  <transform>
+    <type>DataGrid</type>
+    <name>Data grid</name>
+    <fields>
+      <field>
+        <name>sort_key</name>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>child_path</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>expected_child</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item>1</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-a.hpl</item>
+        <item>A</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-a.hpl</item>
+        <item>A</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-a.hpl</item>
+        <item>A</item>
+      </line>
+      <line>
+        <item>4</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-a.hpl</item>
+        <item>A</item>
+      </line>
+      <line>
+        <item>5</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-a.hpl</item>
+        <item>A</item>
+      </line>
+      <line>
+        <item>6</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-b.hpl</item>
+        <item>B</item>
+      </line>
+      <line>
+        <item>7</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-b.hpl</item>
+        <item>B</item>
+      </line>
+      <line>
+        <item>8</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-b.hpl</item>
+        <item>B</item>
+      </line>
+      <line>
+        <item>9</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-b.hpl</item>
+        <item>B</item>
+      </line>
+      <line>
+        <item>10</item>
+        <item>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-b.hpl</item>
+        <item>B</item>
+      </line>
+    </data>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>160</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>SortRows</type>
+    <name>Sort rows</name>
+    <fields>
+      <field>
+        <name>sort_key</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <directory>${java.io.tmpdir}</directory>
+    <sort_prefix>out0098</sort_prefix>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
+    <compress>N</compress>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>160</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>PipelineExecutor</type>
+    <name>Pipeline executor grouped</name>
+    <run_configuration>local</run_configuration>
+    <filenameInField>Y</filenameInField>
+    <filenameField>child_path</filenameField>
+    <group_size>10</group_size>
+    <parameters/>
+    <inherit_all_vars>N</inherit_all_vars>
+    <execution_result_target_transform>Assert child pipelines succeeded</execution_result_target_transform>
+    <execution_time_field>ExecutionTime</execution_time_field>
+    <execution_result_field>ExecutionResult</execution_result_field>
+    <execution_errors_field>ExecutionNrErrors</execution_errors_field>
+    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
+    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
+    <execution_lines_input_field>ExecutionLinesInput</execution_lines_input_field>
+    <execution_lines_output_field>ExecutionLinesOutput</execution_lines_output_field>
+    <execution_lines_rejected_field>ExecutionLinesRejected</execution_lines_rejected_field>
+    <execution_lines_updated_field>ExecutionLinesUpdated</execution_lines_updated_field>
+    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
+    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
+    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
+    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
+    <filename>${PROJECT_HOME}/0098-pipeline-executor-group10-segmented-child-b.hpl</filename>
+    <distribute>Y</distribute>
+    <copies>4</copies>
+    <GUI>
+      <xloc>576</xloc>
+      <yloc>160</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>Abort</type>
+    <name>Abort on child failure</name>
+    <row_threshold>0</row_threshold>
+    <always_log_rows>Y</always_log_rows>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>320</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>FilterRows</type>
+    <name>Assert child pipelines succeeded</name>
+    <compare>
+      <condition>
+        <negated>Y</negated>
+        <operator>-</operator>
+        <leftvalue>ExecutionNrErrors</leftvalue>
+        <function>&gt;</function>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>0</text>
+          <length>-1</length>
+          <precision>0</precision>
+          <isnull>N</isnull>
+          <mask>####0;-####0</mask>
+        </value>
+        <conditions/>
+      </condition>
+    </compare>
+    <send_true_to>OK</send_true_to>
+    <send_false_to>Abort on child failure</send_false_to>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>160</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>Dummy</type>
+    <name>OK</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>1008</xloc>
+      <yloc>160</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <order>
+    <hop>
+      <from>Data grid</from>
+      <to>Sort rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort rows</from>
+      <to>Pipeline executor grouped</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Pipeline executor grouped</from>
+      <to>Assert child pipelines succeeded</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Assert child pipelines succeeded</from>
+      <to>OK</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Assert child pipelines succeeded</from>
+      <to>Abort on child failure</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <notepads>
+    <notepad>
+      <note>Single batch of 10: path switches after row 5. Expect child A with rows 1-5 only, then child B with rows 6-10 only (partial flush on path change). copies=4.</note>
+      <fontname>.AppleSystemUIFont</fontname>
+      <fontsize>13</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>14</fontcolorred>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorblue>90</fontcolorblue>
+      <backgroundcolorred>201</backgroundcolorred>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <bordercolorred>14</bordercolorred>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorblue>90</bordercolorblue>
+      <xloc>48</xloc>
+      <yloc>16</yloc>
+      <width>560</width>
+      <height>132</height>
+    </notepad>
+  </notepads>
+  <attributes/>
+  <transform_error_handling/>
+</pipeline>

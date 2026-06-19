@@ -79,6 +79,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     buttons.add(wCancel);
     BaseTransformDialog.positionBottomButtons(
         shell, buttons.toArray(new Button[0]), PropsUi.getMargin(), null);
+    shell.setDefaultButton(wOk);
 
     Button wHelp = editor.createHelpButton(shell);
     FormData fdHelp = new FormData();
@@ -102,6 +103,8 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
 
     // Create editor controls
     editor.createControl(area);
+
+    shell.addListener(SWT.Activate, e -> editor.refreshOnDialogActivate());
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 

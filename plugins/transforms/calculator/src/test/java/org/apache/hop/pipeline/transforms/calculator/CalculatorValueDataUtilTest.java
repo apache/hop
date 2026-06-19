@@ -32,11 +32,12 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileNotFoundException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
@@ -1413,7 +1414,7 @@ class CalculatorValueDataUtilTest {
     try {
       return ValueMetaFactory.createValueMeta(name, valueType);
     } catch (HopPluginException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 }

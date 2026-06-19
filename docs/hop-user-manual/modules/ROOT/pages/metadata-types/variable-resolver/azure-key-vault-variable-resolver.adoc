@@ -109,7 +109,7 @@ Using Azure Portal:
 6. Note down the **Application (client) ID** and **Directory (tenant) ID**
 7. Go to **Certificates & secrets** → **New client secret**
 8. Add a description and expiration period
-9. Click **Add** and immediately copy the **Value** (you won't be able to see it again!)
+9. Click **Add** and immediately copy the **V** (you won't be able to see it again!)
 
 Using Azure CLI:
 
@@ -162,7 +162,7 @@ Using Azure Portal:
 1. Navigate to your Key Vault
 2. Go to **Secrets** → **Generate/Import**
 3. Enter a **Name** (e.g., `database-password`)
-4. Enter the **Value** (the actual secret)
+4. Enter the **V** (the actual secret)
 5. Click **Create**
 
 Using Azure CLI:

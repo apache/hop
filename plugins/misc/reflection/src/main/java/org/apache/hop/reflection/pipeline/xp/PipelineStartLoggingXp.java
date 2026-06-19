@@ -20,14 +20,14 @@ package org.apache.hop.reflection.pipeline.xp;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -167,7 +167,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
                 executeLoggingPipeline(
                     pipelineLog, "stop", loggingPipelineFilename, pipeline, variables);
               } catch (Exception e) {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "Unable to do interval logging for Pipeline Log object '"
                         + pipelineLog.getName()
                         + "'",
@@ -189,7 +189,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
                     executeLoggingPipeline(
                         pipelineLog, "interval", loggingPipelineFilename, pipeline, variables);
                   } catch (Exception e) {
-                    throw new RuntimeException(
+                    throw new HopRuntimeException(
                         "Unable to do interval logging for Pipeline Log object '"
                             + pipelineLog.getName()
                             + "'",
@@ -226,18 +226,13 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
     //
     LocalPipelineEngine loggingPipeline =
         new LocalPipelineEngine(loggingPipelineMeta, variables, pipeline);
-
-    // Do NOT link the logging pipeline to parent to avoid linking the stopped() signal
-    //
     loggingPipeline.setParentPipeline(null);
-    loggingPipeline.setParent(null);
 
     // Flag it as a logging pipeline so we don't log ourselves...
     //
     loggingPipeline.getExtensionDataMap().put(PIPELINE_LOGGING_FLAG, "Y");
 
-    // Only log errors
-    loggingPipeline.setLogLevel(LogLevel.ERROR);
+    loggingPipeline.setLogLevel(pipelineLog.getLogLevel());
     loggingPipeline.prepareExecution();
 
     // Grab the WorkflowLogging transforms and inject the pipeline information...

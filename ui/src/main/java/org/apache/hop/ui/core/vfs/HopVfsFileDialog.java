@@ -29,7 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -1247,7 +1247,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           }
         }
 
-        if (HopVfs.getFileObject(filename).isFolder()) {
+        if (HopVfs.getFileObject(filename, variables).isFolder()) {
           String fullPath = FilenameUtils.concat(filename, saveFilename);
           wFilename.setText(fullPath);
           // Select the saveFilename part...

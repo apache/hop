@@ -29,6 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
@@ -113,6 +116,8 @@ import org.eclipse.swt.widgets.Text;
 import org.w3c.dom.Node;
 
 @GuiPlugin(name = "i18n::PipelineExecutionViewer.Name")
+@Getter
+@Setter
 public class PipelineExecutionViewer extends BaseExecutionViewer
     implements IExecutionViewer, PaintListener, MouseListener {
   private static final Class<?> PKG = PipelineExecutionViewer.class;
@@ -556,6 +561,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Look up the key in the metadata...
       //
       ExecutionData data = loadSelectedTransformData();
+      if (data == null) {
+        return;
+      }
+      Map<String, Map<String, String>> dataSetErrors = data.getDataSetErrors();
 
       for (ExecutionDataSetMeta setMeta : data.getSetMetaData().values()) {
         if (setDescription.equals(setMeta.getDescription())) {
@@ -565,6 +574,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           if (rowBuffer != null) {
             java.util.List<ColumnInfo> columns = new ArrayList<>();
             IRowMeta rowMeta = rowBuffer.getRowMeta();
+            Map<String, String> valueErrorsMap =
+                dataSetErrors.computeIfAbsent(setMeta.getSetKey(), f -> new HashMap<>());
+
             // Add a column for every
             for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
               ColumnInfo columnInfo =
@@ -573,6 +585,15 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
               columnInfo.setValueMeta(valueMeta);
               columnInfo.setToolTip(valueMeta.toStringMeta());
               columnInfo.setImage(GuiResource.getInstance().getImage(valueMeta));
+
+              // Add a tooltip concerning a data conversion error, if there are any
+              //
+              String error = valueErrorsMap.get(valueMeta.getName());
+              if (StringUtils.isNotEmpty(error)) {
+                columnInfo.setToolTip(error);
+                columnInfo.setImage(GuiResource.getInstance().getImageError());
+              }
+
               columns.add(columnInfo);
             }
 
@@ -606,6 +627,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
               }
             }
             dataView.optWidth(true);
+
+            // We found the data set we'd been looking for. We can break out of the loop.
+            //
             break;
           }
         }
@@ -705,12 +729,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   @Override
   public void zoomFitToScreen() {
     super.zoomFitToScreen();
-  }
-
-  @Override
-  protected Point getArea() {
-    org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
-    return new Point(rect.width, rect.height);
   }
 
   public void drawPipelineImage(GC swtGc, int width, int height, float magnificationFactor) {
@@ -1059,7 +1077,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           if (childExecutions.isEmpty()) {
             break;
           }
-          Execution child = childExecutions.get(0);
+          Execution child = childExecutions.getFirst();
 
           // Don't load logging text as that can be a lot of data.
           // Lazily load that when the logging text comes into focus.
@@ -1092,7 +1110,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
       Execution transformExecution;
       if (executions.size() == 1) {
-        transformExecution = executions.get(0);
+        transformExecution = executions.getFirst();
       } else {
         transformExecution = selectExecution(executions);
       }
@@ -1109,7 +1127,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
       Execution childExecution;
       if (childExecutions.size() == 1) {
-        childExecution = childExecutions.get(0);
+        childExecution = childExecutions.getFirst();
       } else {
         childExecution = selectExecution(childExecutions);
       }
@@ -1277,98 +1295,5 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     }
     // If we're still here, return the pipeline log channel ID
     return getLogChannelId();
-  }
-
-  /**
-   * Gets pipelineMeta
-   *
-   * @return value of pipelineMeta
-   */
-  public PipelineMeta getPipelineMeta() {
-    return pipelineMeta;
-  }
-
-  /**
-   * Gets execution
-   *
-   * @return value of execution
-   */
-  @Override
-  public Execution getExecution() {
-    return execution;
-  }
-
-  /**
-   * Gets selectedTransform
-   *
-   * @return value of selectedTransform
-   */
-  public TransformMeta getSelectedTransform() {
-    return selectedTransform;
-  }
-
-  /**
-   * Sets selectedTransform
-   *
-   * @param selectedTransform value of selectedTransform
-   */
-  public void setSelectedTransform(TransformMeta selectedTransform) {
-    this.selectedTransform = selectedTransform;
-  }
-
-  /**
-   * Gets locationName
-   *
-   * @return value of locationName
-   */
-  @Override
-  public String getLocationName() {
-    return locationName;
-  }
-
-  /**
-   * Gets selectedTransformData
-   *
-   * @return value of selectedTransformData
-   */
-  public ExecutionData getSelectedTransformData() {
-    return selectedTransformData;
-  }
-
-  /**
-   * Sets selectedTransformData
-   *
-   * @param selectedTransformData value of selectedTransformData
-   */
-  public void setSelectedTransformData(ExecutionData selectedTransformData) {
-    this.selectedTransformData = selectedTransformData;
-  }
-
-  /**
-   * Gets dataList
-   *
-   * @return value of dataList
-   */
-  public org.eclipse.swt.widgets.List getDataList() {
-    return dataList;
-  }
-
-  /**
-   * Sets dataList
-   *
-   * @param dataList value of dataList
-   */
-  public void setDataList(org.eclipse.swt.widgets.List dataList) {
-    this.dataList = dataList;
-  }
-
-  /**
-   * Gets perspective
-   *
-   * @return value of perspective
-   */
-  @Override
-  public ExecutionPerspective getPerspective() {
-    return perspective;
   }
 }

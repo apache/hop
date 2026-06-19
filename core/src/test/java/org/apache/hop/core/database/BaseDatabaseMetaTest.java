@@ -30,7 +30,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -87,7 +89,7 @@ class BaseDatabaseMetaTest {
     assertEquals("_", nativeMeta.getFieldnameProtector());
     assertEquals("_1ABC_123", nativeMeta.getSafeFieldname("1ABC 123"));
     assertNull(nativeMeta.customizeValueFromSqlType(new ValueMetaString("FOO"), null, 0));
-    assertTrue(nativeMeta.isFullExceptionLog(new RuntimeException("xxxx")));
+    assertTrue(nativeMeta.isFullExceptionLog(new HopRuntimeException("xxxx")));
   }
 
   @Test
@@ -321,7 +323,7 @@ class BaseDatabaseMetaTest {
     ValueMetaString v = new ValueMetaString("id");
     v.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     ValueMetaString storage = new ValueMetaString("id");
-    storage.setStringEncoding("UTF-8");
+    storage.setStringEncoding(Const.UTF_8);
     v.setStorageMetadata(storage);
     v.setLength(36);
     v.setPrecision(0);

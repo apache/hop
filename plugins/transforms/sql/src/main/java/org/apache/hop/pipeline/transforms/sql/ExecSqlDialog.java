@@ -524,6 +524,9 @@ public class ExecSqlDialog extends BaseTransformDialog {
     }
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    if (databaseMeta == null) {
+      return List.of();
+    }
     return Arrays.stream(databaseMeta.getReservedWords()).toList();
   }
 

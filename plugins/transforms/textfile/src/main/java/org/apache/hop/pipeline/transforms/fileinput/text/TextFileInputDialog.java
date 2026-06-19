@@ -121,6 +121,8 @@ public class TextFileInputDialog extends BaseTransformDialog
   public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
   public static final String CONST_SYSTEM_LABEL_EXTENSION = "System.Label.Extension";
+  public static final String TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE =
+      "TextFileInputDialog.NoValidFile.DialogMessage";
 
   private CTabFolder wTabFolder;
 
@@ -917,13 +919,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wbSeparator);
     FormData fdbSeparator = new FormData();
     fdbSeparator.right = new FormAttachment(100, 0);
-    fdbSeparator.top = new FormAttachment(wFiletype, 0);
+    fdbSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
     wbSeparator.setLayoutData(fdbSeparator);
     wSeparator = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSeparator);
     wSeparator.addModifyListener(lsMod);
     FormData fdSeparator = new FormData();
-    fdSeparator.top = new FormAttachment(wFiletype, margin);
+    fdSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
     fdSeparator.left = new FormAttachment(middle, 0);
     fdSeparator.right = new FormAttachment(wbSeparator, -margin);
     wSeparator.setLayoutData(fdSeparator);
@@ -2470,7 +2472,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       }
 
       // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
       int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
       if (idx >= 0) {
         wEncoding.select(idx);
@@ -2550,11 +2552,11 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getFileInput().getInputFiles().clear();
     for (TableItem item : wFilenameList.getNonEmptyItems()) {
       InputFile inputFile = new InputFile();
-      inputFile.setFileName(item.getText(0));
-      inputFile.setFileMask(item.getText(1));
-      inputFile.setExcludeFileMask(item.getText(2));
-      inputFile.setFileRequired(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(3)));
-      inputFile.setIncludeSubFolders(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(4)));
+      inputFile.setFileName(item.getText(1));
+      inputFile.setFileMask(item.getText(2));
+      inputFile.setExcludeFileMask(item.getText(3));
+      inputFile.setFileRequired(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(4)));
+      inputFile.setIncludeSubFolders(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(5)));
       meta.getFileInput().getInputFiles().add(inputFile);
     }
 
@@ -2620,6 +2622,22 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private void get() {
     if (wFiletype.getText().equalsIgnoreCase("CSV")) {
+      TextFileInputMeta oneMeta = new TextFileInputMeta();
+      getInfo(oneMeta, true);
+      try {
+        if (oneMeta.getFileInputList(variables).nrOfFiles() == 0) {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE));
+          mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
+          mb.open();
+          return;
+        }
+      } catch (Exception e) {
+        displayErrorDialog(
+            new HopException(e), "TextFileInputDialog.ErrorGettingData.DialogMessage");
+        return;
+      }
       getFields();
     }
   }
@@ -2805,7 +2823,8 @@ public class TextFileInputDialog extends BaseTransformDialog
         }
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage(BaseMessages.getString(PKG, "TextFileInputDialog.NoValidFile.DialogMessage"));
+        mb.setMessage(
+            BaseMessages.getString(PKG, TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE));
         mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
@@ -3316,6 +3335,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     CompressionInputStream inputStream = null;
     try {
       FileObject fileObject = meta.getHeaderFileObject(variables);
+      if (fileObject == null) {
+        logError(BaseMessages.getString(PKG, TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE));
+        return null;
+      }
       fileInputStream = HopVfs.getInputStream(fileObject);
       ICompressionProvider provider =
           CompressionProviderFactory.getInstance()

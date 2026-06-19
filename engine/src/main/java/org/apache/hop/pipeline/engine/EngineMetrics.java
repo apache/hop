@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
 
 /** Describes the metrics you can get from an execution engine */
@@ -75,7 +76,7 @@ public class EngineMetrics {
    */
   public void setComponentMetric(IEngineComponent component, IEngineMetric metric, Long amount) {
     if (component == null || metric == null) {
-      throw new RuntimeException("Please provide a component and a metric to set");
+      throw new HopRuntimeException("Please provide a component and a metric to set");
     }
     Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get(component);
     if (metricsMap == null) {
@@ -106,7 +107,7 @@ public class EngineMetrics {
    */
   public Long getComponentMetric(IEngineComponent component, IEngineMetric metric) {
     if (component == null || metric == null) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please provide a component and a name for the metric to retrieve");
     }
     Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get(component);
@@ -125,7 +126,7 @@ public class EngineMetrics {
    */
   public void incrementComponentMetric(IEngineComponent component, IEngineMetric metric) {
     if (component == null || metric == null) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please provide a component and a name for the metric to increment");
     }
     Long amount = getComponentMetric(component, metric);
@@ -145,7 +146,8 @@ public class EngineMetrics {
    */
   public Long removeComponentMetric(IEngineComponent component, IEngineMetric metric) {
     if (component == null || metric == null) {
-      throw new RuntimeException("Please provide a component and a name for the metric to remove");
+      throw new HopRuntimeException(
+          "Please provide a component and a name for the metric to remove");
     }
     Map<IEngineMetric, Long> metricsMap = componentMetricsMap.get(component);
     if (metricsMap == null) {
@@ -157,7 +159,7 @@ public class EngineMetrics {
   public void addCompomentPerformanceSnapShot(
       IEngineComponent component, PerformanceSnapShot snapShot) {
     if (component == null || snapShot == null) {
-      throw new RuntimeException("Please provide a component and a snapshot to add");
+      throw new HopRuntimeException("Please provide a component and a snapshot to add");
     }
     List<PerformanceSnapShot> snapShots = componentPerformanceSnapshots.get(component);
     if (snapShots == null) {

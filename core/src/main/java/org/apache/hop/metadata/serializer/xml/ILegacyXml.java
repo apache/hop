@@ -19,6 +19,7 @@
 package org.apache.hop.metadata.serializer.xml;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 public interface ILegacyXml {
@@ -30,4 +31,16 @@ public interface ILegacyXml {
    * @throws HopException In case there's an unexpected error in the old XML format.
    */
   void convertLegacyXml(Node node) throws HopException;
+
+  /**
+   * Same as {@link #convertLegacyXml(Node)} with access to the metadata provider used while loading
+   * pipeline/workflow XML. Default delegates to {@link #convertLegacyXml(Node)}.
+   *
+   * @param node The node containing the object properties (often the full transform/action node)
+   * @param metadataProvider May be null when not available
+   */
+  default void convertLegacyXml(Node node, IHopMetadataProvider metadataProvider)
+      throws HopException {
+    convertLegacyXml(node);
+  }
 }

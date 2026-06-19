@@ -27,7 +27,6 @@ public class PGPDecryptStreamData extends BaseTransformData implements ITransfor
   public int indexOfField;
   public IRowMeta previousRowMeta;
   public IRowMeta outputRowMeta;
-  public int NrPrevFields;
 
   public GPG gpg;
   public String passPhrase;

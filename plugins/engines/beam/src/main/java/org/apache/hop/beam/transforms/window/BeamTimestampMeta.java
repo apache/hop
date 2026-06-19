@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.TimestampFn;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
@@ -44,12 +44,13 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
 @Transform(
     id = "BeamTimestamp",
-    name = "Beam Timestamp",
-    description = "Add timestamps to a bounded data source",
+    name = "i18n::BeamTimestampDialog.DialogTitle",
+    description = "i18n::BeamTimestampDialog.Description",
     image = "beam-timestamp.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamTimestampMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamtimestamp.html")
+    documentationUrl = "/pipeline/transforms/beamtimestamp.html",
+    supportedEngines = {"Beam*"})
 public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData>
     implements IBeamPipelineTransformHandler {
 

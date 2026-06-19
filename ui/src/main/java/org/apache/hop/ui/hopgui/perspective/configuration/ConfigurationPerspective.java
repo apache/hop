@@ -34,6 +34,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TableView;
@@ -106,6 +107,7 @@ public class ConfigurationPerspective implements IHopPerspective {
   private List<Control> highlightedControls = new ArrayList<>();
   private String currentSearchText = ""; // Track current search for re-applying highlights
   private Color highlightColor; // Custom neutral highlight color
+  private Text searchBox;
   @Getter private static ConfigurationPerspective instance;
 
   public ConfigurationPerspective() {
@@ -180,7 +182,7 @@ public class ConfigurationPerspective implements IHopPerspective {
     treeComposite.setLayout(new FormLayout());
 
     // Search box at the top
-    Text searchBox =
+    searchBox =
         new Text(treeComposite, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
     PropsUi.setLook(searchBox);
     searchBox.setMessage(BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Text"));
@@ -304,6 +306,23 @@ public class ConfigurationPerspective implements IHopPerspective {
     Shell shell = (sashForm != null && !sashForm.isDisposed()) ? sashForm.getShell() : null;
     if (shell != null) {
       HopGui.getInstance().replaceKeyboardShortcutListeners(shell, keyHandler);
+    }
+
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName() + "ProjectActivated",
+            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            HopGuiEvents.ProjectActivated.name());
+  }
+
+  @Override
+  public void clearSearchFilters() {
+    if (searchBox != null && !searchBox.isDisposed()) {
+      searchBox.setText("");
+    } else {
+      currentSearchText = "";
+      clearHighlights();
     }
   }
 

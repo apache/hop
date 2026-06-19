@@ -20,9 +20,9 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
@@ -78,7 +78,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     final int totalNumberOfTransforms = 2;
     final String fileContent = "a;1\r" + "b;2\r";
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(1, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(1, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -90,7 +90,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
 
     final String fileContent = "a;1\r" + "b;2\r" + "c;3";
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(2, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(1, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -112,7 +112,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
             + "ij;999\r"
             + "jk;000\r";
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(5, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(5, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -134,7 +134,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
             + "ij;999\r"
             + "jk;000";
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(5, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(5, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -145,7 +145,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     final String fileContent = "a;1\r\n" + "b;2\r\n";
     final int totalNumberOfTransforms = 2;
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(1, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(1, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -156,7 +156,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     final String fileContent = "a;1\r\n" + "b;2";
     final int totalNumberOfTransforms = 2;
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     int t1 = createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms);
     int t2 = createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms);
@@ -176,7 +176,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
 
     final int totalNumberOfTransforms = 3;
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(2, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(2, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -196,7 +196,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
 
     final int totalNumberOfTransforms = 2;
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(1, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(2, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -208,7 +208,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
 
     final int totalNumberOfTransforms = 2;
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     assertEquals(1, createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms));
     assertEquals(2, createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms));
@@ -232,7 +232,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
             + "jk,10\r\n"
             + "lm,11\r\n";
 
-    File sharedFile = createTestFile("UTF-8", fileContent);
+    File sharedFile = createTestFile(StandardCharsets.UTF_8, fileContent);
 
     int t1 = createAndRunOneTransform(sharedFile, 0, totalNumberOfTransforms, true, ",");
     int t2 = createAndRunOneTransform(sharedFile, 1, totalNumberOfTransforms, true, ",");
@@ -321,7 +321,7 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   private CsvInputMeta createMeta(
-      File file, TextFileInputField[] fields, boolean headerPresent, String delimiter) {
+      File file, CsvInputField[] fields, boolean headerPresent, String delimiter) {
     CsvInputMeta meta = createMeta(file, fields);
 
     meta.setDelimiter(delimiter);

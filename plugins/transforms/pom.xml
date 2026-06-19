@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-plugins-transforms</artifactId>
@@ -31,7 +31,6 @@
     <modules>
         <module>abort</module>
         <module>addsequence</module>
-        <module>addsnowflakeid</module>
         <module>analyticquery</module>
         <module>append</module>
         <module>blockingtransform</module>
@@ -46,13 +45,13 @@
         <module>combinationlookup</module>
         <module>concatfields</module>
         <module>constant</module>
-        <module>cratedbbulkloader</module>
         <module>creditcardvalidator</module>
         <module>cubeinput</module>
         <module>cubeoutput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>datagrid</module>
+        <module>datastream</module>
         <module>dbimpact</module>
         <module>dbproc</module>
         <module>ddl</module>
@@ -63,7 +62,6 @@
         <module>detectlanguage</module>
         <module>detectlastrow</module>
         <module>dimensionlookup</module>
-        <module>dorisbulkloader</module>
         <module>drools</module>
         <module>dynamicsqlrow</module>
         <module>edi2xml</module>
@@ -110,15 +108,10 @@
         <module>metadata</module>
         <module>metainject</module>
         <module>metastructure</module>
-        <module>monetdbbulkloader</module>
-        <module>mongodb</module>
         <module>multimerge</module>
-        <module>mysqlbulkloader</module>
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
-        <module>orabulkloader</module>
-        <module>pgbulkloader</module>
         <module>pgp</module>
         <module>pipelineexecutor</module>
         <module>processfiles</module>
@@ -142,7 +135,6 @@
         <module>setvalueconstant</module>
         <module>setvaluefield</module>
         <module>setvariable</module>
-        <module>snowflake</module>
         <module>sort</module>
         <module>sortedmerge</module>
         <module>splitfieldtorows</module>
@@ -163,7 +155,6 @@
         <module>tableexists</module>
         <module>tableinput</module>
         <module>tableoutput</module>
-        <module>terafast</module>
         <module>textfile</module>
         <module>tika</module>
         <module>tokenreplacement</module>
@@ -172,7 +163,7 @@
         <module>update</module>
         <module>validator</module>
         <module>valuemapper</module>
-        <module>verticabulkloader</module>
+        <module>vcard</module>
         <module>webserviceavailable</module>
         <module>webservices</module>
         <module>workflowexecutor</module>

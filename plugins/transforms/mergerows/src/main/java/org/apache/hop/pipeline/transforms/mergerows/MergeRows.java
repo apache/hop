@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.mergerows;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -123,13 +123,11 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
       data.passThroughIndexes = new ArrayList<>();
       data.oneRowMeta = data.oneRowSet.getRowMeta();
       if (data.oneRowMeta == null) {
-        data.oneRowMeta =
-            getPipelineMeta().getPrevTransformFields(this, meta.getReferenceTransform());
+        data.oneRowMeta = getPipelineMeta().getTransformFields(this, meta.getReferenceTransform());
       }
       data.twoRowMeta = data.twoRowSet.getRowMeta();
       if (data.twoRowMeta == null) {
-        data.twoRowMeta =
-            getPipelineMeta().getPrevTransformFields(this, meta.getCompareTransform());
+        data.twoRowMeta = getPipelineMeta().getTransformFields(this, meta.getCompareTransform());
       }
       for (PassThroughField field : meta.getPassThroughFields()) {
         int index;

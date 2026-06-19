@@ -24,6 +24,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.ExecutorUtil;
 
@@ -156,7 +157,7 @@ public class HopLogStore {
 
   public static HopLogStore getInstance() {
     if (store == null) {
-      throw new RuntimeException("Central Log Store is not initialized!!!");
+      throw new HopRuntimeException("Central Log Store is not initialized!!!");
     }
     return store;
   }

@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
@@ -102,12 +102,20 @@ public class Project extends ConfigFile implements IConfigFile {
     this.configFilename = configFilename;
   }
 
+  public void saveToFile(boolean keepIfExists) throws HopException {
+    try (FileObject file = HopVfs.getFileObject(configFilename)) {
+      if (!keepIfExists || !file.exists()) {
+        saveToFile();
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          "Error checking existence of project configuration file '" + configFilename + "'", e);
+    }
+  }
+
   @Override
   public void saveToFile() throws HopException {
-    try {
-
-      FileObject file = HopVfs.getFileObject(configFilename);
-
+    try (FileObject file = HopVfs.getFileObject(configFilename)) {
       // Does the parent folder of the file exist?
       //
       if (!file.getParent().exists()) {

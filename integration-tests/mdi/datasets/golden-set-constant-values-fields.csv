@@ -1,0 +1,4 @@
+name,value,mask,set_empty_string
+f1,const1,,N
+f2,2026/03/25,yyyy/MM/dd,N
+f3,,,Y

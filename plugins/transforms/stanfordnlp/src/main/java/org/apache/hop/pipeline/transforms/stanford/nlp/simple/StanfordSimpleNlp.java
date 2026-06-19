@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
@@ -64,7 +65,7 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopRuntimeException(e);
         }
       }
     }
@@ -152,7 +153,7 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopRuntimeException(e);
         }
       }
     }
@@ -179,7 +180,7 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
       try {
         processSentence(sentence);
       } catch (HopTransformException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
   }

@@ -131,10 +131,13 @@ public abstract class BaseFileInputMeta<
           XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "exclude_filemask", i));
       String fileRequired =
           XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "file_required", i));
+      String includeSubfolders =
+          XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "include_subfolders", i));
       inputFile.setFileName(fileName);
       inputFile.setFileMask(fileMask);
       inputFile.setExcludeFileMask(fileExcludeMask);
       inputFile.setFileRequired(Const.toBoolean(fileRequired));
+      inputFile.setIncludeSubFolders(Const.toBoolean(includeSubfolders));
       inputFiles.add(inputFile);
     }
   }

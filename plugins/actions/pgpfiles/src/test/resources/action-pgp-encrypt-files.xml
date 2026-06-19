@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<action>
+    <gpglocation>pgp-location</gpglocation>
+    <arg_from_previous>Y</arg_from_previous>
+    <include_subfolders>Y</include_subfolders>
+    <add_result_filesname>Y</add_result_filesname>
+    <destination_is_a_file>Y</destination_is_a_file>
+    <create_destination_folder>Y</create_destination_folder>
+    <add_date>Y</add_date>
+    <add_time>Y</add_time>
+    <SpecifyFormat>Y</SpecifyFormat>
+    <date_time_format>date-time-format</date_time_format>
+    <nr_errors_less_than>10</nr_errors_less_than>
+    <success_condition>success_when_at_least</success_condition>
+    <AddDateBeforeExtension>Y</AddDateBeforeExtension>
+    <DoNotKeepFolderStructure>Y</DoNotKeepFolderStructure>
+    <iffileexists>move_file</iffileexists>
+    <destinationFolder>dest-folder</destinationFolder>
+    <ifmovedfileexists>overwrite_file</ifmovedfileexists>
+    <moved_date_time_format>date-time-format</moved_date_time_format>
+    <create_move_to_folder>Y</create_move_to_folder>
+    <add_moved_date>Y</add_moved_date>
+    <add_moved_time>Y</add_moved_time>
+    <SpecifyMoveFormat>Y</SpecifyMoveFormat>
+    <AddMovedDateBeforeExtension>Y</AddMovedDateBeforeExtension>
+    <asciiMode>Y</asciiMode>
+    <fields>
+        <field>
+            <action_type>encrypt</action_type>
+            <source_filefolder>folder1</source_filefolder>
+            <userid>user1</userid>
+            <destination_filefolder>target1</destination_filefolder>
+            <wildcard>wildcard1</wildcard>
+        </field>
+        <field>
+            <action_type>sign</action_type>
+            <source_filefolder>folder2</source_filefolder>
+            <userid>user2</userid>
+            <destination_filefolder>target2</destination_filefolder>
+            <wildcard>wildcard2</wildcard>
+        </field>
+        <field>
+            <action_type>signandencrypt</action_type>
+            <source_filefolder>folder3</source_filefolder>
+            <userid>user3</userid>
+            <destination_filefolder>target3</destination_filefolder>
+            <wildcard>wildcard3</wildcard>
+        </field>
+    </fields>
+</action>
+

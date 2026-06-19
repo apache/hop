@@ -26,9 +26,10 @@ import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -575,7 +576,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               } else if (classType.equalsIgnoreCase("java.lang.String")) {
                 return new BigDecimal(Long.parseLong((String) result));
               } else {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "JavaScript conversion to BigNumber not implemented for " + classType);
               }
 
@@ -585,14 +586,14 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               }
             case IValueMeta.TYPE_NONE:
               {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "No data output data type was specified for new field ["
                         + field.getName()
                         + "]");
               }
             default:
               {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "JavaScript conversion not implemented for type "
                         + field.getHopType()
                         + " ("
@@ -611,41 +612,42 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     }
   }
 
+  private void processEndOfStream() {
+    try {
+      if (bindings != null) {
+        // Checking for EndScript
+        if (!Utils.isEmpty(strEndScript)) {
+          data.engine.eval(strEndScript, bindings);
+          if (isDetailed()) {
+            logDetailed(("End Script found!"));
+          }
+        } else {
+          if (isDetailed()) {
+            logDetailed(("No end Script found!"));
+          }
+        }
+      }
+    } catch (Exception e) {
+      logError(BaseMessages.getString(PKG, "Script.Log.UnexpectedError") + " : " + e);
+      logError(
+          BaseMessages.getString(PKG, "Script.Log.ErrorStackTrace")
+              + Const.CR
+              + Const.getStackTracker(e));
+      setErrors(1);
+      stopAll();
+    }
+  }
+
   @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow();
-    if (r == null && !first) {
-      // Modification for Additional End Function
-      try {
-        if (data.engine != null) {
 
-          // Run the start and transformation scripts once if there are no incoming rows
-
-          // Checking for EndScript
-          if (!Utils.isEmpty(strEndScript)) {
-            data.engine.eval(strEndScript, bindings);
-            if (isDetailed()) {
-              logDetailed(("End Script found!"));
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(("No end Script found!"));
-            }
-          }
-        }
-      } catch (Exception e) {
-        logError(BaseMessages.getString(PKG, "Script.Log.UnexpectedError") + " : " + e);
-        logError(
-            BaseMessages.getString(PKG, "Script.Log.ErrorStackTrace")
-                + Const.CR
-                + Const.getStackTracker(e));
-        setErrors(1);
-        stopAll();
-      }
-
-      if (data.engine != null) {
-        setOutputDone();
-      }
+    // If this transform receives input, we stop if there are no more rows.
+    // If this transform doesn't receive input we probably want to generate rows.
+    //
+    if (r == null && (!first || data.hasPreviousTransforms)) {
+      processEndOfStream();
+      setOutputDone();
       return false;
     }
 
@@ -685,9 +687,10 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     // validation and sorting don't get ClassCastException.
     if (rowMeta != null && row != null) {
       for (int i = 0; i < rowMeta.size() && i < row.length; i++) {
-        if (rowMeta.getValueMeta(i).getType() == IValueMeta.TYPE_INTEGER
-            && row[i] instanceof Integer) {
-          row[i] = Long.valueOf(((Integer) row[i]).longValue());
+        if ((rowMeta.getValueMeta(i).getType() == IValueMeta.TYPE_INTEGER)
+            && (row[i] instanceof Integer intRow)) {
+          //noinspection UnnecessaryBoxing
+          row[i] = Long.valueOf(intRow.longValue());
         }
       }
     }
@@ -699,6 +702,9 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     if (!super.init()) {
       return false;
     }
+
+    TransformMeta[] prevTransforms = getPipelineMeta().getPrevTransforms(getTransformMeta());
+    data.hasPreviousTransforms = (prevTransforms != null) && (prevTransforms.length > 0);
 
     // Add init code here.
     // Get the actual Scripts from our MetaData

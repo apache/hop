@@ -1,0 +1,36 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "event",
+          "data_set_field": "event"
+        },
+        {
+          "transform_field": "meta_ip",
+          "data_set_field": "meta_ip"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-json-normalize-root-array",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0009-json-normalize-root-array UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0009-json-normalize-root-array.hpl"
+}

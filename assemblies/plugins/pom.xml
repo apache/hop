@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-assemblies-plugins</artifactId>
@@ -39,12 +39,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-addresultfilenames</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-as400command</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -200,24 +194,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mssqlbulkload</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mysqlbulkfile</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-mysqlbulkload</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-pgpfiles</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -267,12 +243,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-snmptrap</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-snowflake</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -686,6 +656,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-py4j</artifactId>
+            <version>2.19.0-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-reflection</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -711,10 +687,16 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-resolvers-pipeline</artifactId>
-            <version>2.18.0-SNAPSHOT</version>
+            <version>2.19.0-SNAPSHOT</version>
             <type>zip</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-arrow</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-avro</artifactId>
@@ -771,6 +753,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-mongodb</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-neo4j</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -801,6 +789,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-webdav</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-abort</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -808,12 +802,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-addsequence</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-addsnowflakeid</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -903,12 +891,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-cratedbbulkloader</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-creditcardvalidator</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -940,6 +922,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-datagrid</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-datastream</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1000,12 +988,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-dimensionlookup</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-dorisbulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1287,25 +1269,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-monetdbbulkloader</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-mongodb</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-multimerge</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-mysqlbulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1324,18 +1288,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-numberrange</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-orabulkloader</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-pgbulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1479,12 +1431,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-snowflake-bulkloader</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-sort</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1605,12 +1551,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-terafast</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-textfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1659,7 +1599,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-verticabulkloader</artifactId>
+            <artifactId>hop-transform-vcard</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -44,7 +44,7 @@ class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputEnclosureTest");
@@ -113,7 +113,7 @@ class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   public void doTest(String content, String enclosure) throws Exception {
     IRowSet output = new QueueRowSet();
 
-    File tmp = createTestFile("utf-8", content);
+    File tmp = createTestFile(StandardCharsets.UTF_8, content);
     try {
       CsvInputMeta meta = createMeta(tmp, createInputFileFields("f1", "f2"), enclosure);
       CsvInputData data = new CsvInputData();
@@ -146,7 +146,7 @@ class CsvInputEnclosureTest extends CsvInputUnitTestBase {
     assertNull(output.getRowImmediate());
   }
 
-  private CsvInputMeta createMeta(File file, TextFileInputField[] fields, String enclosure) {
+  private CsvInputMeta createMeta(File file, CsvInputField[] fields, String enclosure) {
     CsvInputMeta meta = createMeta(file, fields);
     meta.setDelimiter(SEMICOLON);
     meta.setEnclosure(enclosure);

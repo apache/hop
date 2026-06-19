@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-xml-output.csv",
+  "name": "golden-xml-output",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "one",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "two",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": 9,
+      "field_type": 1,
+      "field_precision": 2,
+      "field_name": "three",
+      "field_format": "#.00"
+    }
+  ],
+  "folder_name": ""
+}

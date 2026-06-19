@@ -28,67 +28,80 @@ public class CalculatorMetaFunction implements Cloneable {
 
   @HopMetadataProperty(
       key = "field_name",
+      injectionKey = "field_name",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.FieldName")
   private String fieldName;
 
   @HopMetadataProperty(
       key = "calc_type",
+      injectionKey = "calc_type",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.CalculationType",
       storeWithCode = true)
   private CalculationType calcType;
 
   @HopMetadataProperty(
       key = "field_a",
+      injectionKey = "field_a",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.FieldA")
   private String fieldA;
 
   @HopMetadataProperty(
       key = "field_b",
+      injectionKey = "field_b",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.FieldB")
   private String fieldB;
 
   @HopMetadataProperty(
       key = "field_c",
+      injectionKey = "field_c",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.FieldC")
   private String fieldC;
 
   @HopMetadataProperty(
       key = "value_type",
+      injectionKey = "value_type",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValueType")
   private String valueType;
 
   @HopMetadataProperty(
       key = "value_length",
+      injectionKey = "value_length",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValueLength")
   private int valueLength;
 
   @HopMetadataProperty(
       key = "value_precision",
+      injectionKey = "value_precision",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValuePrecision")
   private int valuePrecision;
 
   @HopMetadataProperty(
       key = "conversion_mask",
+      injectionKey = "conversion_mask",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValueFormat")
   private String conversionMask;
 
   @HopMetadataProperty(
       key = "decimal_symbol",
+      injectionKey = "decimal_symbol",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValueDecimal")
   private String decimalSymbol;
 
   @HopMetadataProperty(
       key = "grouping_symbol",
+      injectionKey = "grouping_symbol",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValueGroup")
   private String groupingSymbol;
 
   @HopMetadataProperty(
       key = "currency_symbol",
+      injectionKey = "currency_symbol",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.ValueCurrency")
   private String currencySymbol;
 
   @HopMetadataProperty(
       key = "remove",
+      injectionKey = "remove",
       injectionKeyDescription = "CalculatorMeta.Injection.Calculation.Remove")
   private boolean removedFromResult;
 

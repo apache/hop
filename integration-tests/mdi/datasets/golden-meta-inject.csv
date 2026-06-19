@@ -1,0 +1,2 @@
+filename,run_configuration,source_transform,target_file,create_parent_folder,no_execution,allow_empty_stream_on_execution,stream_source_transform,stream_target_transform
+${PROJECT_HOME}/0038-json-input-template.hpl,local,sourceTransform,${java.io.tmpdir}/json-input.hpl,Y,Y,N,sourceTransform,targetTransform

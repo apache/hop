@@ -18,6 +18,7 @@
 package org.apache.hop.metadata.api;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopMissingPluginsException;
 
 /**
  * This describes a standard interface for instantiating metadata objects and providing the unique
@@ -32,8 +33,11 @@ public interface IHopMetadataObjectFactory {
    * @param parentObject The optional parent object if certain things like variables need to be
    *     inherited from it.
    * @return The instantiated object
+   * @throws HopException in case something went seriously wrong creating the object.
+   * @throws HopMissingPluginsException in case the plugin with the given ID isn't available.
    */
-  Object createObject(String id, Object parentObject) throws HopException;
+  Object createObject(String id, Object parentObject)
+      throws HopException, HopMissingPluginsException;
 
   /**
    * get the ID for the given object. Usually this is the plugin ID.

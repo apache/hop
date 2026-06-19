@@ -59,21 +59,44 @@ The following properties are used to define the mappings:
 |===
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline.
-|Fieldname to use|Field to use as the mapping source
-|Target field name|Field to use as the mapping Target
-|Default upon non-matching|Defines a default value for situations where the source value is not empty, but there is no match
-|Field values table|Contains the mapping of source value to converted target value.
-|Target field type |Specifies the data type of the mapped (target) values.
-If not set, the transform falls back to:
+|Fieldname to use|Field to use as the mapping source.
+|Target field name|Field to write mapped values to.
+Leave empty to overwrite the source field in place.
+|Keep original value on non-match|When enabled, a source value that does not match any row in the field values table keeps the **original source value** (when overwriting in place) or copies it into the **new target field**.
+In that case **Default upon non-matching** is disabled in the dialog and ignored at runtime.
 
-- String when writing to a new target field.
-
-- The same type as the source field when overwriting the source field.
-It fails if the values are incompatible.
+When disabled, a non-match uses **Default upon non-matching** if it is set; otherwise the output is **null** (for both overwrite and new-field modes).
+|Default upon non-matching|Defines a default value when the source value is not empty but does not match any mapping row.
+Disabled when **Keep original value on non-match** is enabled.
+|Target field type|Specifies the data type of the mapped (target) values.
+If not set, the transform uses **String** (including when overwriting an existing field in place, so the output column type matches string mapped values).
+|Field values table|Table with one row per mapping: **Source value**, **Target value**, and **Empty string equals null** (Yes/No per row).
+See <<empty-string-equals-null,Empty string equals null>> below.
 
 |===
 
+[[keep-original-on-non-match]]
+=== Keep original value on non-match
+
+Use this when unmatched values should stay as the incoming data instead of becoming null or the default.
+
+* Overwrite mode (no target field): the source field is left unchanged for non-matches (except normal storage-type handling where applicable).
+* New field mode: the new column receives the source value converted to the target field type.
+
+When the option is on, **Default upon non-matching** is not used.
+
+[[empty-string-equals-null]]
+=== Empty string equals null (field values)
+
+Each mapping row has an **Empty string equals null** column (Yes/No).
+
+* **Yes** (default for new rows): after variables are resolved, if the **target** value for that row is blank, the transform stores **null** as the mapped result instead of converting an empty string to the target type.
+* **No**: an empty target is converted like any other value (for example an empty string for a string-typed target).
+
+This applies both to normal source-to-target rows and to the special row used to map null/empty source values when <<mapping-null-values,mapping null and empty source values>> is configured.
+
+[[mapping-null-values]]
 === Mapping NULL values
 If there is an empty source value defined, NULLs and empty strings are mapped to the corresponding target value. Only one empty mapping is allowed.
 
-If the input stream contains NULL values, and no mapping for NULLs is defined, NULL is returned (and not the default target)
+If the input stream contains NULL values, and no mapping for NULLs is defined, NULL is returned (and not the default target).

@@ -69,10 +69,10 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.json.HopJson;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.util.EnvUtil;
@@ -253,8 +253,6 @@ public class ValueMetaBase implements IValueMeta {
   protected boolean ignoreWhitespace;
 
   protected final Comparator<Object> comparator;
-
-  private static final ILogChannel log = HopLogStore.getLogChannelFactory().create("ValueMetaBase");
 
   /** The trim type codes */
   public static final String[] trimTypeCode = {"none", "left", "right", "both"};
@@ -3330,7 +3328,7 @@ public class ValueMetaBase implements IValueMeta {
         }
       }
     } catch (ClassCastException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           this
               + MSG_DATA_TYPE_ERROR
               + object.getClass().getName()
@@ -3579,7 +3577,7 @@ public class ValueMetaBase implements IValueMeta {
                             + getType());
                 }
               } catch (ClassCastException e) {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     this
                         + MSG_DATA_TYPE_ERROR
                         + o.getClass().getName()
@@ -3853,7 +3851,7 @@ public class ValueMetaBase implements IValueMeta {
                           + getType());
               }
             } catch (ClassCastException e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   this
                       + MSG_DATA_TYPE_ERROR
                       + o.getClass().getName()
@@ -3964,7 +3962,7 @@ public class ValueMetaBase implements IValueMeta {
             throw new IOException(this + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
         }
       } catch (ClassCastException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             this
                 + MSG_DATA_TYPE_ERROR
                 + object.getClass().getName()
@@ -3975,7 +3973,7 @@ public class ValueMetaBase implements IValueMeta {
                 + "]",
             e);
       } catch (Exception e) {
-        throw new RuntimeException(this + " : there was a value XML encoding error", e);
+        throw new HopRuntimeException(this + " : there was a value XML encoding error", e);
       }
     } else {
       // If the object is null: give an empty string
@@ -4171,7 +4169,7 @@ public class ValueMetaBase implements IValueMeta {
       // We tried everything else so we assume this value is not null.
       //
     } catch (ClassCastException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to verify if [" + this + "] is null or not because of an error:" + e, e);
     }
   }
@@ -5697,7 +5695,7 @@ public class ValueMetaBase implements IValueMeta {
             data = resultSet.getTimestamp(index + 1);
             break; // Timestamp extends java.util.Date
           } else if (iDatabase.isNetezzaVariant()) {
-            // workaround for IBM netezza jdbc 'special' implementation
+            // workaround for IBM Netezza jdbc 'special' implementation
             data = getNetezzaDateValueWorkaround(iDatabase, resultSet, index + 1);
             break;
           } else {
@@ -5774,14 +5772,14 @@ public class ValueMetaBase implements IValueMeta {
             } else {
               String string = getString(data);
 
-              int maxlen = databaseMeta.getMaxTextFieldLength();
+              int maxFieldLength = databaseMeta.getMaxTextFieldLength();
               int len = string.length();
 
-              // Take the last maxlen characters of the string...
-              int begin = Math.max(len - maxlen, 0);
+              // Take the last maximum length in characters of the string.
+              int begin = Math.max(len - maxFieldLength, 0);
               if (begin > 0) {
-                // Truncate if logging result if it exceeds database maximum string field length
-                log.logMinimal(
+                // Truncate string if it exceeds database maximum string field length
+                LogChannel.GENERAL.logMinimal(
                     String.format(
                         "Truncating %d symbols of original message in '%s' field",
                         begin, getName()));

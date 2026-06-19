@@ -67,15 +67,33 @@ public class TransformMockUtil {
               IllegalAccessException,
               IllegalArgumentException,
               InvocationTargetException {
-    Constructor<T> kons =
-        klass.getConstructor(
-            TransformMeta.class,
-            ITransformData.class,
-            int.class,
-            PipelineMeta.class,
-            Pipeline.class);
-    return kons.newInstance(
-        mock.transformMeta, mock.iTransformData, 0, mock.pipelineMeta, mock.pipeline);
+    Constructor<?> kons = null;
+    for (Constructor<?> c : klass.getConstructors()) {
+      Class<?>[] params = c.getParameterTypes();
+      if (params.length == 6
+          && params[0] == TransformMeta.class
+          && params[3] == int.class
+          && params[4] == PipelineMeta.class
+          && params[5] == Pipeline.class) {
+        kons = c;
+        break;
+      }
+    }
+    if (kons == null) {
+      throw new NoSuchMethodException(
+          "No (TransformMeta, Meta, Data, int, PipelineMeta, Pipeline) constructor on " + klass);
+    }
+    @SuppressWarnings("unchecked")
+    T instance =
+        (T)
+            kons.newInstance(
+                mock.transformMeta,
+                mock.iTransformMeta,
+                mock.iTransformData,
+                0,
+                mock.pipelineMeta,
+                mock.pipeline);
+    return instance;
   }
 
   public static <T extends BaseTransform, K extends ITransformMeta, Data extends ITransformData>

@@ -26,9 +26,10 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import org.apache.commons.collections4.iterators.ArrayIterator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -524,7 +525,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
                 .getSerializer(MailServerConnection.class)
                 .load(meta.getConnectionName());
       } catch (HopException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Mail Server Connection " + meta.getConnectionName() + " could not be found");
       }
       try {
@@ -738,7 +739,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
         int index = data.totalpreviousfields + i;
 
         try {
-          switch (meta.getInputFields().get(i).getColumn()) {
+          switch (meta.getInputFields().get(i).getColumnIndex()) {
             case MailInputField.COLUMN_MESSAGE_NR:
               r[index] = (long) message.getMessageNumber();
               break;

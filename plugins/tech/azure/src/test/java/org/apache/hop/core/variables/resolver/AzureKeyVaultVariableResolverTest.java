@@ -35,6 +35,7 @@ import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import java.lang.reflect.Field;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -216,7 +217,7 @@ class AzureKeyVaultVariableResolverTest {
 
     // Mock a generic exception
     when(mockSecretClient.getSecret("error-secret"))
-        .thenThrow(new RuntimeException("Azure service error"));
+        .thenThrow(new HopRuntimeException("Azure service error"));
 
     String result = resolver.resolve("error-secret", variables);
 

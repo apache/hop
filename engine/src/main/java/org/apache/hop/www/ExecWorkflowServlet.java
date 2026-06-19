@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 import java.io.Serial;
 import java.util.Enumeration;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -104,7 +104,7 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
 
     if (useJson) {
       response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
     } else {
       String encoding = System.getProperty("HOP_DEFAULT_SERVLET_ENCODING", null);
       if (encoding != null && !Utils.isEmpty(encoding.trim())) {
@@ -112,7 +112,7 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
         response.setContentType("text/html; charset=" + encoding);
       } else {
         response.setContentType("text/xml");
-        response.setCharacterEncoding(Const.XML_ENCODING);
+        response.setCharacterEncoding(Const.UTF_8);
       }
     }
 

@@ -36,7 +36,7 @@ class DynamicWaitTimesTest {
   AtomicInteger activeStreamIndex = new AtomicInteger();
 
   @Test
-  public void testSingleStreamStatus() {
+  void testSingleStreamStatus() {
     IRowSet rowSet = new BlockingRowSet(3);
     status = DynamicWaitTimes.build(Collections.singletonList(rowSet), () -> 0, 20);
     assertEquals(1, status.get());
@@ -49,7 +49,7 @@ class DynamicWaitTimesTest {
   }
 
   @Test
-  public void testMultiStreamStatus() {
+  void testMultiStreamStatus() {
     List<IRowSet> rowSetList =
         new ArrayList<>(
             Arrays.asList(new BlockingRowSet(1), new BlockingRowSet(2), new BlockingRowSet(7)));

@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -31,12 +32,16 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
+import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.hopgui.EngineCompatibilityRunGate;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.debug.PipelineDebugDialog;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
@@ -49,8 +54,7 @@ public class HopGuiPipelineRunDelegate {
   private HopGui hopGui;
 
   private PipelineExecutionConfiguration pipelineExecutionConfiguration;
-  private PipelineExecutionConfiguration pipelinePreviewExecutionConfiguration;
-  private PipelineExecutionConfiguration pipelineDebugExecutionConfiguration;
+  private PipelineExecutionConfiguration pipelinePreviewDebugExecutionConfiguration;
 
   /**
    * This contains a map between the name of a pipeline and the PipelineMeta object. If the pipeline
@@ -58,11 +62,8 @@ public class HopGuiPipelineRunDelegate {
    */
   private List<PipelineMeta> pipelineMap;
 
-  /** Remember the debugging configuration per pipeline */
-  private Map<PipelineMeta, PipelineDebugMeta> pipelineDebugMetaMap;
-
-  /** Remember the preview configuration per pipeline */
-  private Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewMetaMap;
+  /** Remember preview and debug configuration per pipeline */
+  private Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewDebugMetaMap;
 
   /**
    * @param hopGui
@@ -72,19 +73,16 @@ public class HopGuiPipelineRunDelegate {
     this.pipelineGraph = pipelineGraph;
 
     pipelineExecutionConfiguration = new PipelineExecutionConfiguration();
-    pipelinePreviewExecutionConfiguration = new PipelineExecutionConfiguration();
-    pipelineDebugExecutionConfiguration = new PipelineExecutionConfiguration();
+    pipelinePreviewDebugExecutionConfiguration = new PipelineExecutionConfiguration();
 
     pipelineMap = new ArrayList<>();
-    pipelineDebugMetaMap = new HashMap<>();
-    pipelinePreviewMetaMap = new HashMap<>();
+    pipelinePreviewDebugMetaMap = new HashMap<>();
   }
 
   public PipelineExecutionConfiguration executePipeline(
       final ILogChannel log,
       final PipelineMeta pipelineMeta,
-      final boolean preview,
-      final boolean debug,
+      final boolean previewDebug,
       LogLevel logLevel)
       throws HopException {
 
@@ -97,10 +95,8 @@ public class HopGuiPipelineRunDelegate {
     PipelineDebugMeta pipelineDebugMeta = null;
     PipelineExecutionConfiguration executionConfiguration = null;
 
-    if (preview) {
-      executionConfiguration = getPipelinePreviewExecutionConfiguration();
-    } else if (debug) {
-      executionConfiguration = getPipelineDebugExecutionConfiguration();
+    if (previewDebug) {
+      executionConfiguration = getPipelinePreviewDebugExecutionConfiguration();
     } else {
       executionConfiguration = getPipelineExecutionConfiguration();
     }
@@ -109,49 +105,24 @@ public class HopGuiPipelineRunDelegate {
     //
     pipelineMeta.setMetadataProvider(hopGui.getMetadataProvider());
 
-    if (debug) {
-      // See if we have debugging information stored somewhere?
-      //
-      pipelineDebugMeta = pipelineDebugMetaMap.get(pipelineMeta);
-      if (pipelineDebugMeta == null) {
-        pipelineDebugMeta = new PipelineDebugMeta(pipelineMeta);
-        pipelineDebugMetaMap.put(pipelineMeta, pipelineDebugMeta);
-      }
+    if (previewDebug) {
+      // Collect the first N rows from selected transforms; pause-on-breakpoint is configured per
+      // transform in the dialog (TransformDebugMeta#setPausingOnBreakPoint).
+      pipelineDebugMeta =
+          pipelinePreviewDebugMetaMap.computeIfAbsent(pipelineMeta, PipelineDebugMeta::new);
 
-      // Set the default number of rows to retrieve on all selected transforms...
-      //
+      // Reset execution-state flag from any previous run so the finished listener
+      // is not silently skipped when the same PipelineDebugMeta object is reused.
+      pipelineDebugMeta.setStopClosePressed(false);
+
       List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
       if (!Utils.isEmpty(selectedTransforms)) {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
         for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
           TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);
           transformDebugMeta.setRowCount(PropsUi.getInstance().getDefaultPreviewSize());
-          transformDebugMeta.setPausingOnBreakPoint(true);
-          transformDebugMeta.setReadingFirstRows(false);
-          pipelineDebugMeta.getTransformDebugMetaMap().put(transformMeta, transformDebugMeta);
-        }
-      }
-
-    } else if (preview) {
-      // See if we have preview information stored somewhere?
-      //
-      pipelineDebugMeta = pipelinePreviewMetaMap.get(pipelineMeta);
-      if (pipelineDebugMeta == null) {
-        pipelineDebugMeta = new PipelineDebugMeta(pipelineMeta);
-
-        pipelinePreviewMetaMap.put(pipelineMeta, pipelineDebugMeta);
-      }
-
-      // Set the default number of preview rows on all selected transforms...
-      //
-      List<TransformMeta> selectedTransforms = pipelineMeta.getSelectedTransforms();
-      if (!Utils.isEmpty(selectedTransforms)) {
-        pipelineDebugMeta.getTransformDebugMetaMap().clear();
-        for (TransformMeta transformMeta : pipelineMeta.getSelectedTransforms()) {
-          TransformDebugMeta transformDebugMeta = new TransformDebugMeta(transformMeta);
-          transformDebugMeta.setRowCount(PropsUi.getInstance().getDefaultPreviewSize());
-          transformDebugMeta.setPausingOnBreakPoint(false);
           transformDebugMeta.setReadingFirstRows(true);
+          transformDebugMeta.setPausingOnBreakPoint(false);
           pipelineDebugMeta.getTransformDebugMetaMap().put(transformMeta, transformDebugMeta);
         }
       }
@@ -159,14 +130,12 @@ public class HopGuiPipelineRunDelegate {
 
     int debugAnswer = PipelineDebugDialog.DEBUG_CONFIG;
 
-    if (debug || preview) {
+    if (previewDebug) {
       PipelineDebugDialog pipelineDebugDialog =
           new PipelineDebugDialog(
               hopGui.getShell(), pipelineGraph.getVariables(), pipelineDebugMeta);
       debugAnswer = pipelineDebugDialog.open();
       if (debugAnswer == PipelineDebugDialog.DEBUG_CANCEL) {
-        // If we cancel the debug dialog, we don't go further with the execution either.
-        //
         return null;
       }
     }
@@ -178,7 +147,7 @@ public class HopGuiPipelineRunDelegate {
     executionConfiguration.getUsedVariables(pipelineGraph.getVariables(), pipelineMeta);
     executionConfiguration.setLogLevel(logLevel);
 
-    if (debug || preview) {
+    if (previewDebug) {
       // Make sure to re-set the default parameter values. They could have been changed since the
       // last execution.
       //
@@ -192,7 +161,7 @@ public class HopGuiPipelineRunDelegate {
 
     boolean execConfigAnswer = true;
 
-    if (debugAnswer == PipelineDebugDialog.DEBUG_CONFIG && pipelineMeta.isShowDialog()) {
+    if (debugAnswer == PipelineDebugDialog.DEBUG_CONFIG) {
       PipelineExecutionConfigurationDialog dialog =
           new PipelineExecutionConfigurationDialog(
               hopGui.getShell(), executionConfiguration, pipelineMeta);
@@ -200,6 +169,42 @@ public class HopGuiPipelineRunDelegate {
     }
 
     if (execConfigAnswer) {
+      // Engine-compatibility pre-flight: refuse to start a pipeline that contains transforms the
+      // selected engine has marked UNSUPPORTED (annotation deny-list or engine-private ban such
+      // as Beam's hard-coded GroupBy refusal). The user can explicitly "Run anyway" — the GUI
+      // counterpart of the CLI's --allow-unsupported flag.
+      List<EngineCompatibilityChecker.Violation> compatViolations =
+          EngineCompatibilityRunGate.checkPipelineForRun(
+              pipelineMeta,
+              executionConfiguration.getRunConfiguration(),
+              hopGui.getMetadataProvider());
+      if (!compatViolations.isEmpty()) {
+        String compatEngineId =
+            PaletteEngineFilter.getPipelineEngineIdForLabel(PaletteEngineFilter.NO_FILTER_LABEL);
+        // The label-for-id helper already handles the empty-id case; we still need the engine id
+        // for the dialog title, so resolve it from the run config directly.
+        try {
+          PipelineRunConfiguration prc =
+              hopGui
+                  .getMetadataProvider()
+                  .getSerializer(PipelineRunConfiguration.class)
+                  .load(executionConfiguration.getRunConfiguration());
+          if (prc != null && prc.getEngineRunConfiguration() != null) {
+            compatEngineId = prc.getEngineRunConfiguration().getEnginePluginId();
+          }
+        } catch (Exception ignored) {
+          // dialog still works with the empty-label fallback
+        }
+        if (!EngineCompatibilityRunGate.confirmRunAnyway(
+            hopGui.getShell(), "pipeline", compatEngineId, compatViolations)) {
+          return null;
+        }
+        // Run-scoped (not persisted): propagate the override into the execution variables so the
+        // engine-side deep gate in Pipeline.prepareExecution and any nested child pipelines/
+        // workflows honor it.
+        executionConfiguration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
+      }
+
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
 
@@ -217,10 +222,7 @@ public class HopGuiPipelineRunDelegate {
           HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id,
           executionConfiguration);
 
-      // Verify if there is at least one transform specified to debug or preview...
-      // TODO: Is this a local preview or debugging execution? We might want to get rid of the
-      // distinction
-      if (debug || preview) {
+      if (previewDebug) {
         if (pipelineDebugMeta.getNrOfUsedTransforms() == 0) {
           MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
           box.setText(
@@ -291,38 +293,17 @@ public class HopGuiPipelineRunDelegate {
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
   }
 
-  /**
-   * Gets pipelinePreviewExecutionConfiguration
-   *
-   * @return value of pipelinePreviewExecutionConfiguration
-   */
-  public PipelineExecutionConfiguration getPipelinePreviewExecutionConfiguration() {
-    return pipelinePreviewExecutionConfiguration;
+  /** Execution settings for pipeline preview and debug runs. */
+  public PipelineExecutionConfiguration getPipelinePreviewDebugExecutionConfiguration() {
+    return pipelinePreviewDebugExecutionConfiguration;
   }
 
   /**
-   * @param pipelinePreviewExecutionConfiguration The pipelinePreviewExecutionConfiguration to set
+   * @param pipelinePreviewDebugExecutionConfiguration The preview and debug execution configuration
    */
-  public void setPipelinePreviewExecutionConfiguration(
-      PipelineExecutionConfiguration pipelinePreviewExecutionConfiguration) {
-    this.pipelinePreviewExecutionConfiguration = pipelinePreviewExecutionConfiguration;
-  }
-
-  /**
-   * Gets pipelineDebugExecutionConfiguration
-   *
-   * @return value of pipelineDebugExecutionConfiguration
-   */
-  public PipelineExecutionConfiguration getPipelineDebugExecutionConfiguration() {
-    return pipelineDebugExecutionConfiguration;
-  }
-
-  /**
-   * @param pipelineDebugExecutionConfiguration The pipelineDebugExecutionConfiguration to set
-   */
-  public void setPipelineDebugExecutionConfiguration(
-      PipelineExecutionConfiguration pipelineDebugExecutionConfiguration) {
-    this.pipelineDebugExecutionConfiguration = pipelineDebugExecutionConfiguration;
+  public void setPipelinePreviewDebugExecutionConfiguration(
+      PipelineExecutionConfiguration pipelinePreviewDebugExecutionConfiguration) {
+    this.pipelinePreviewDebugExecutionConfiguration = pipelinePreviewDebugExecutionConfiguration;
   }
 
   /**
@@ -341,36 +322,16 @@ public class HopGuiPipelineRunDelegate {
     this.pipelineMap = pipelineMap;
   }
 
-  /**
-   * Gets pipelineDebugMetaMap
-   *
-   * @return value of pipelineDebugMetaMap
-   */
-  public Map<PipelineMeta, PipelineDebugMeta> getPipelineDebugMetaMap() {
-    return pipelineDebugMetaMap;
+  /** Preview and debug metadata remembered per pipeline. */
+  public Map<PipelineMeta, PipelineDebugMeta> getPipelinePreviewDebugMetaMap() {
+    return pipelinePreviewDebugMetaMap;
   }
 
   /**
-   * @param pipelineDebugMetaMap The pipelineDebugMetaMap to set
+   * @param pipelinePreviewDebugMetaMap The preview and debug meta map to set
    */
-  public void setPipelineDebugMetaMap(Map<PipelineMeta, PipelineDebugMeta> pipelineDebugMetaMap) {
-    this.pipelineDebugMetaMap = pipelineDebugMetaMap;
-  }
-
-  /**
-   * Gets pipelinePreviewMetaMap
-   *
-   * @return value of pipelinePreviewMetaMap
-   */
-  public Map<PipelineMeta, PipelineDebugMeta> getPipelinePreviewMetaMap() {
-    return pipelinePreviewMetaMap;
-  }
-
-  /**
-   * @param pipelinePreviewMetaMap The pipelinePreviewMetaMap to set
-   */
-  public void setPipelinePreviewMetaMap(
-      Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewMetaMap) {
-    this.pipelinePreviewMetaMap = pipelinePreviewMetaMap;
+  public void setPipelinePreviewDebugMetaMap(
+      Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewDebugMetaMap) {
+    this.pipelinePreviewDebugMetaMap = pipelinePreviewDebugMetaMap;
   }
 }

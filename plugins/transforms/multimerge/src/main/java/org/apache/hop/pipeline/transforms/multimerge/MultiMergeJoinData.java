@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -48,7 +49,7 @@ public class MultiMergeJoinData extends BaseTransformData implements ITransformD
                 a.row, data.metas[b.index], b.row, data.keyNrs[a.index], data.keyNrs[b.index]);
         return cmp > 0 ? 1 : cmp < 0 ? -1 : 0;
       } catch (HopException e) {
-        throw new RuntimeException(e.getMessage());
+        throw new HopRuntimeException(e.getMessage());
       }
     }
   }

@@ -1,0 +1,48 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "str",
+          "data_set_field": "str"
+        },
+        {
+          "transform_field": "int",
+          "data_set_field": "int"
+        },
+        {
+          "transform_field": "num",
+          "data_set_field": "num"
+        },
+        {
+          "transform_field": "uuid",
+          "data_set_field": "uuid"
+        },
+        {
+          "transform_field": "sysdate",
+          "data_set_field": "sysdate"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-data-stream",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0095-data-stream-random-access-file-read UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0095-data-stream-random-access-file-read.hpl"
+}

@@ -1,0 +1,22 @@
+{
+  "orders": [
+    {
+      "orderId": "A-100",
+      "customer": {
+        "name": "Alice",
+        "country": "NL"
+      },
+      "total": 199.5,
+      "tags": ["priority", "wholesale"]
+    },
+    {
+      "orderId": "A-101",
+      "customer": {
+        "name": "Bob",
+        "country": "BE"
+      },
+      "total": 42.0,
+      "tags": ["retail"]
+    }
+  ]
+}

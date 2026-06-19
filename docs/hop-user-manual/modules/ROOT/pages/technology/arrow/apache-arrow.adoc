@@ -1,0 +1,44 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../../assets/images/
+:page-pagination:
+:description: Apache Arrow
+
+= Apache Arrow
+
+Apache Arrow is a cross-language, columnar in-memory data format and toolkit for efficient analytics and data interchange.
+
+Hop leverages Arrow for high-performance streaming between pipelines and external tools, particularly Python.
+
+Key features used in Hop:
+
+* Arrow IPC (streaming and file formats)
+* Arrow Flight (RPC-based streaming)
+
+See the official documentation:
+
+* https://arrow.apache.org/docs/[Apache Arrow Documentation]
+* https://arrow.apache.org/docs/java/[Arrow Java]
+* https://arrow.apache.org/docs/python/[PyArrow]
+
+== How Hop uses Arrow:
+
+* xref:metadata-types/data-stream/arrow-random-access-file.adoc[Apache Arrow Random Access File data stream type]
+* xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow File Stream data stream type]
+* xref:metadata-types/data-stream/arrow-flight.adoc[Apache Arrow Flight data stream type]
+* xref:hop-tools/hop-arrow-command.adoc[The Hop Arrow Flight server]
+

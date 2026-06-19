@@ -20,6 +20,8 @@ package org.apache.hop.beam.run;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.StreamingOptions;
@@ -60,8 +62,10 @@ public class MainDataflowTemplate {
       HopEnvironment.init();
 
       // Read metadata from external source
-      String pipelineMetaXml = readFileIntoString(options.getHopPipelineLocation(), "UTF-8");
-      String metadataJson = readFileIntoString(options.getHopMetadataLocation(), "UTF-8");
+      String pipelineMetaXml =
+          readFileIntoString(options.getHopPipelineLocation(), StandardCharsets.UTF_8);
+      String metadataJson =
+          readFileIntoString(options.getHopMetadataLocation(), StandardCharsets.UTF_8);
 
       // default variable space
       IVariables variables = Variables.getADefaultVariableSpace();
@@ -88,9 +92,9 @@ public class MainDataflowTemplate {
     }
   }
 
-  private static String readFileIntoString(String filename, String encoding) throws IOException {
+  private static String readFileIntoString(String filename, Charset charset) throws IOException {
     try (InputStream inputStream = HopVfs.getInputStream(filename)) {
-      return IOUtils.toString(inputStream, encoding);
+      return IOUtils.toString(inputStream, charset);
     } catch (Exception e) {
       throw new IOException("Error reading from file " + filename, e);
     }

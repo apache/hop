@@ -117,7 +117,7 @@ limitations under the License.
     <encoding>UTF-8</encoding>
     <addtoresult>N</addtoresult>
     <file>
-      <name>${PROJECT_HOME}/output/testfile.js</name>
+      <name>${java.io.tmpdir}/hop-json-integration-output/testfile.js</name>
       <split_output_after>0</split_output_after>
       <extention>json</extention>
       <append>N</append>

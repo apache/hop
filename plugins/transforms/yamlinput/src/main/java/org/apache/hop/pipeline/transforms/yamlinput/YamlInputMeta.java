@@ -20,16 +20,17 @@ package org.apache.hop.pipeline.transforms.yamlinput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -39,6 +40,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -55,488 +57,134 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::YamlInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/yamlinput.html")
+@Getter
+@Setter
 public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
   private static final Class<?> PKG = YamlInputMeta.class;
 
-  private static final String YES = "Y";
+  @Getter
+  @Setter
+  public static class YamlFile {
+    @HopMetadataProperty(key = "name", injectionKey = "filename")
+    private String filename;
 
-  public static final String[] RequiredFilesDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-  public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
-  public static final String CONST_SPACES = "      ";
-  public static final String CONST_FIELD = "field";
+    @HopMetadataProperty(key = "filemask")
+    private String fileMask;
 
-  /** Array of filenames */
-  private String[] fileName;
+    @HopMetadataProperty(key = "file_required")
+    private boolean fileRequired;
 
-  /** Wildcard or filemask (regular expression) */
-  private String[] fileMask;
+    @HopMetadataProperty(key = "include_subfolders")
+    private boolean includingSubFolders;
 
-  /** Array of boolean values as string, indicating if a file is required. */
-  private String[] fileRequired;
+    public YamlFile() {
+      filename = "";
+      fileMask = "";
+      fileRequired = false;
+    }
+
+    public YamlFile(YamlFile f) {
+      this();
+      this.filename = f.filename;
+      this.fileMask = f.fileMask;
+      this.fileRequired = f.fileRequired;
+      this.includingSubFolders = f.includingSubFolders;
+    }
+  }
 
   /** Flag indicating that we should include the filename in the output */
+  @HopMetadataProperty(key = "include")
   private boolean includeFilename;
 
   /** The name of the field in the output containing the filename */
+  @HopMetadataProperty(key = "include_field")
   private String filenameField;
 
   /** Flag indicating that a row number field should be included in the output */
+  @HopMetadataProperty(key = "rownum")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
+  @HopMetadataProperty(key = "rownum_field")
   private String rowNumberField;
 
   /** The maximum number or lines to read */
+  @HopMetadataProperty(key = "limit")
   private long rowLimit;
 
-  /** The fields to import... */
-  private YamlInputField[] inputFields;
-
   /** The encoding to use for reading: null or empty string means system default encoding */
+  @HopMetadataProperty(key = "encoding")
   private String encoding;
 
   /** Is In fields */
+  @HopMetadataProperty(key = "YamlField")
   private String yamlField;
 
   /** Is In fields */
+  @HopMetadataProperty(key = "IsInFields")
   private boolean inFields;
 
   /** Is a File */
-  private boolean isAFile;
+  @HopMetadataProperty(key = "IsAFile")
+  private boolean sourceFile;
 
   /** Flag: add result filename */
-  private boolean addResultFile;
+  @HopMetadataProperty(key = "addresultfile")
+  private boolean addingResultFile;
 
   /** Flag: set XML Validating */
+  @HopMetadataProperty(key = "validating")
   private boolean validating;
 
   /** Flag : do we ignore empty files */
-  private boolean isIgnoreEmptyFile;
-
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
-  private String[] includeSubFolders;
+  @HopMetadataProperty(key = "IsIgnoreEmptyFile")
+  private boolean ignoringEmptyFile;
 
   /** Flag : do not fail if no file */
+  @HopMetadataProperty(key = "doNotFailIfNoFile")
   private boolean doNotFailIfNoFile;
 
+  @HopMetadataProperty(key = "file", groupKey = "files")
+  private List<YamlFile> yamlFiles;
+
+  /** The fields to import... */
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<YamlInputField> inputFields;
+
   public YamlInputMeta() {
-    super(); // allocate BaseTransformMeta
-  }
+    super();
+    this.yamlFiles = new ArrayList<>();
+    this.inputFields = new ArrayList<>();
 
-  /**
-   * @return the add result filesname flag
-   */
-  public boolean addResultFile() {
-    return addResultFile;
-  }
-
-  /**
-   * @return the validating flag
-   */
-  public boolean isValidating() {
-    return validating;
-  }
-
-  /**
-   * @param validating the validating flag to set
-   */
-  public void setValidating(boolean validating) {
-    this.validating = validating;
-  }
-
-  public void setAddResultFile(boolean addResultFile) {
-    this.addResultFile = addResultFile;
-  }
-
-  /**
-   * @return Returns the input fields.
-   */
-  public YamlInputField[] getInputFields() {
-    return inputFields;
-  }
-
-  /**
-   * @param inputFields The input fields to set.
-   */
-  public void setInputFields(YamlInputField[] inputFields) {
-    this.inputFields = inputFields;
-  }
-
-  /** Get XML field. */
-  public String getYamlField() {
-    return yamlField;
-  }
-
-  /** Set XML field. */
-  public void setYamlField(String yamlField) {
-    this.yamlField = yamlField;
-  }
-
-  /** Get the IsInFields. */
-  public boolean isInFields() {
-    return inFields;
-  }
-
-  /**
-   * @param inFields set the inFields.
-   */
-  public void setInFields(boolean inFields) {
-    this.inFields = inFields;
-  }
-
-  /**
-   * @return Returns the fileMask.
-   */
-  public String[] getFileMask() {
-    return fileMask;
-  }
-
-  /**
-   * @param fileMask The fileMask to set.
-   */
-  public void setFileMask(String[] fileMask) {
-    this.fileMask = fileMask;
-  }
-
-  public String[] getFileRequired() {
-    return fileRequired;
-  }
-
-  public void setFileRequired(String[] fileRequiredin) {
-    for (int i = 0; i < fileRequiredin.length; i++) {
-      this.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
-    }
-  }
-
-  public void setIncludeSubFolders(String[] includeSubFoldersin) {
-    for (int i = 0; i < includeSubFoldersin.length; i++) {
-      this.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
-    }
-  }
-
-  /**
-   * @return Returns the fileName.
-   */
-  public String[] getFileName() {
-    return fileName;
-  }
-
-  /**
-   * @param fileName The fileName to set.
-   */
-  public void setFileName(String[] fileName) {
-    this.fileName = fileName;
-  }
-
-  /**
-   * @return Returns the filenameField.
-   */
-  public String getFilenameField() {
-    return filenameField;
-  }
-
-  /**
-   * @param filenameField The filenameField to set.
-   */
-  public void setFilenameField(String filenameField) {
-    this.filenameField = filenameField;
-  }
-
-  /**
-   * @return Returns the includeFilename.
-   */
-  public boolean includeFilename() {
-    return includeFilename;
-  }
-
-  /**
-   * @param includeFilename The includeFilename to set.
-   */
-  public void setIncludeFilename(boolean includeFilename) {
-    this.includeFilename = includeFilename;
-  }
-
-  /**
-   * @return Returns the includeRowNumber.
-   */
-  public boolean includeRowNumber() {
-    return includeRowNumber;
-  }
-
-  /**
-   * @param includeRowNumber The includeRowNumber to set.
-   */
-  public void setIncludeRowNumber(boolean includeRowNumber) {
-    this.includeRowNumber = includeRowNumber;
-  }
-
-  /**
-   * @return Returns the rowLimit.
-   */
-  public long getRowLimit() {
-    return rowLimit;
-  }
-
-  /**
-   * @param rowLimit The rowLimit to set.
-   */
-  public void setRowLimit(long rowLimit) {
-    this.rowLimit = rowLimit;
-  }
-
-  /**
-   * @return the IsIgnoreEmptyFile flag
-   */
-  public boolean isIgnoreEmptyFile() {
-    return isIgnoreEmptyFile;
-  }
-
-  /**
-   * @param isIgnoreEmptyFile the isIgnoreEmptyFile to set
-   */
-  public void setIgnoreEmptyFile(boolean isIgnoreEmptyFile) {
-    this.isIgnoreEmptyFile = isIgnoreEmptyFile;
-  }
-
-  /**
-   * @return the doNotFailIfNoFile flag
-   */
-  public boolean isdoNotFailIfNoFile() {
-    return doNotFailIfNoFile;
-  }
-
-  /**
-   * @param doNotFailIfNoFile the doNotFailIfNoFile to set
-   */
-  public void setdoNotFailIfNoFile(boolean doNotFailIfNoFile) {
-    this.doNotFailIfNoFile = doNotFailIfNoFile;
-  }
-
-  /**
-   * @return Returns the rowNumberField.
-   */
-  public String getRowNumberField() {
-    return rowNumberField;
-  }
-
-  /**
-   * @param rowNumberField The rowNumberField to set.
-   */
-  public void setRowNumberField(String rowNumberField) {
-    this.rowNumberField = rowNumberField;
-  }
-
-  /**
-   * @return the encoding
-   */
-  public String getEncoding() {
-    return encoding;
-  }
-
-  /**
-   * @param encoding the encoding to set
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  public boolean getIsAFile() {
-    return isAFile;
-  }
-
-  public void setIsAFile(boolean isAFile) {
-    this.isAFile = isAFile;
-  }
-
-  public String[] getIncludeSubFolders() {
-    return includeSubFolders;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    YamlInputMeta retval = (YamlInputMeta) super.clone();
-
-    int nrFiles = fileName.length;
-    int nrFields = inputFields.length;
-
-    retval.allocate(nrFiles, nrFields);
-
-    System.arraycopy(fileName, 0, retval.fileName, 0, nrFiles);
-    System.arraycopy(fileMask, 0, retval.fileMask, 0, nrFiles);
-    System.arraycopy(fileRequired, 0, retval.fileRequired, 0, nrFiles);
-    System.arraycopy(includeSubFolders, 0, retval.includeSubFolders, 0, nrFiles);
-
-    for (int i = 0; i < nrFields; i++) {
-      if (inputFields[i] != null) {
-        retval.inputFields[i] = (YamlInputField) inputFields[i].clone();
-      }
-    }
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(400);
-
-    retval.append("    ").append(XmlHandler.addTagValue("include", includeFilename));
-    retval.append("    ").append(XmlHandler.addTagValue("include_field", filenameField));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
-    retval.append("    ").append(XmlHandler.addTagValue("addresultfile", addResultFile));
-    retval.append("    ").append(XmlHandler.addTagValue("validating", validating));
-    retval.append("    " + XmlHandler.addTagValue("IsIgnoreEmptyFile", isIgnoreEmptyFile));
-    retval.append("    " + XmlHandler.addTagValue("doNotFailIfNoFile", doNotFailIfNoFile));
-
-    retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-
-    retval.append("    <file>").append(Const.CR);
-    for (int i = 0; i < fileName.length; i++) {
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fileName[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filemask", fileMask[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("file_required", fileRequired[i]));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders[i]));
-    }
-    retval.append("    </file>").append(Const.CR);
-
-    retval.append("    <fields>").append(Const.CR);
-    for (YamlInputField field : inputFields) {
-      retval.append(field.getXml());
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
-    retval.append("    ").append(XmlHandler.addTagValue("IsInFields", inFields));
-    retval.append("    ").append(XmlHandler.addTagValue("IsAFile", isAFile));
-    retval.append("    ").append(XmlHandler.addTagValue("YamlField", yamlField));
-
-    return retval.toString();
-  }
-
-  public String getRequiredFilesDesc(String tt) {
-    if (Utils.isEmpty(tt)) {
-      return RequiredFilesDesc[0];
-    }
-    if (tt.equalsIgnoreCase(RequiredFilesCode[1])) {
-      return RequiredFilesDesc[1];
-    } else {
-      return RequiredFilesDesc[0];
-    }
-  }
-
-  public String getRequiredFilesCode(String tt) {
-    if (tt == null) {
-      return RequiredFilesCode[0];
-    }
-    if (tt.equals(RequiredFilesDesc[1])) {
-      return RequiredFilesCode[1];
-    } else {
-      return RequiredFilesCode[0];
-    }
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      includeFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include"));
-      filenameField = XmlHandler.getTagValue(transformNode, "include_field");
-
-      addResultFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "addresultfile"));
-      validating = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "validating"));
-      isIgnoreEmptyFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsIgnoreEmptyFile"));
-      doNotFailIfNoFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "doNotFailIfNoFile"));
-
-      includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      encoding = XmlHandler.getTagValue(transformNode, "encoding");
-
-      Node filenode = XmlHandler.getSubNode(transformNode, "file");
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-      allocate(nrFiles, nrFields);
-
-      for (int i = 0; i < nrFiles; i++) {
-        Node filenamenode = XmlHandler.getSubNodeByNr(filenode, "name", i);
-        Node filemasknode = XmlHandler.getSubNodeByNr(filenode, "filemask", i);
-        Node fileRequirednode = XmlHandler.getSubNodeByNr(filenode, "file_required", i);
-        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr(filenode, "include_subfolders", i);
-        fileName[i] = XmlHandler.getNodeValue(filenamenode);
-        fileMask[i] = XmlHandler.getNodeValue(filemasknode);
-        fileRequired[i] = XmlHandler.getNodeValue(fileRequirednode);
-        includeSubFolders[i] = XmlHandler.getNodeValue(includeSubFoldersnode);
-      }
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-        YamlInputField field = new YamlInputField(fnode);
-        inputFields[i] = field;
-      }
-
-      // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong(XmlHandler.getTagValue(transformNode, "limit"), 0L);
-      inFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsInFields"));
-      isAFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsAFile"));
-      yamlField = XmlHandler.getTagValue(transformNode, "YamlField");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "YamlInputMeta.Exception.ErrorLoadingXml", e.toString()));
-    }
-  }
-
-  public void allocate(int nrfiles, int nrFields) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
-    inputFields = new YamlInputField[nrFields];
-  }
-
-  @Override
-  public void setDefault() {
-    isIgnoreEmptyFile = false;
     doNotFailIfNoFile = true;
-    includeFilename = false;
     filenameField = "";
-    includeRowNumber = false;
     rowNumberField = "";
-    isAFile = false;
-    addResultFile = false;
-    validating = false;
-
-    int nrFiles = 0;
-    int nrFields = 0;
-
-    allocate(nrFiles, nrFields);
-
-    for (int i = 0; i < nrFiles; i++) {
-      fileName[i] = "filename" + (i + 1);
-      fileMask[i] = "";
-      fileRequired[i] = RequiredFilesCode[0];
-      includeSubFolders[i] = RequiredFilesCode[0];
-    }
-
-    for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new YamlInputField(CONST_FIELD + (i + 1));
-    }
-
     rowLimit = 0;
-
-    inFields = false;
     yamlField = "";
+  }
+
+  public YamlInputMeta(YamlInputMeta m) {
+    this();
+    this.includeFilename = m.includeFilename;
+    this.filenameField = m.filenameField;
+    this.includeRowNumber = m.includeRowNumber;
+    this.rowNumberField = m.rowNumberField;
+    this.rowLimit = m.rowLimit;
+    this.encoding = m.encoding;
+    this.yamlField = m.yamlField;
+    this.inFields = m.inFields;
+    this.sourceFile = m.sourceFile;
+    this.addingResultFile = m.addingResultFile;
+    this.validating = m.validating;
+    this.ignoringEmptyFile = m.ignoringEmptyFile;
+    this.doNotFailIfNoFile = m.doNotFailIfNoFile;
+    m.yamlFiles.forEach(y -> this.yamlFiles.add(new YamlFile(y)));
+    m.inputFields.forEach(f -> this.inputFields.add(new YamlInputField(f)));
+  }
+
+  @Override
+  public YamlInputMeta clone() {
+    return new YamlInputMeta(this);
   }
 
   @Override
@@ -549,8 +197,8 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     int i;
-    for (i = 0; i < inputFields.length; i++) {
-      YamlInputField field = inputFields[i];
+    for (i = 0; i < inputFields.size(); i++) {
+      YamlInputField field = inputFields.get(i);
 
       int type = field.getType();
       if (type == IValueMeta.TYPE_NONE) {
@@ -590,19 +238,18 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
   }
 
   public FileInputList getFiles(IVariables variables) {
-    return FileInputList.createFileList(
-        variables,
-        FileInputList.buildInputFiles(
-            fileName, fileMask, null, fileRequired, includeSubFolderBoolean(), null));
-  }
-
-  private boolean[] includeSubFolderBoolean() {
-    int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
-    for (int i = 0; i < len; i++) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase(includeSubFolders[i]);
+    List<InputFile> inputFiles = new ArrayList<>();
+    for (YamlFile file : yamlFiles) {
+      InputFile inputFile = new InputFile();
+      inputFile.setFileName(file.getFilename());
+      inputFile.setFileMask(file.getFileMask());
+      inputFile.setIncludeSubFolders(file.isIncludingSubFolders());
+      inputFile.setFileRequired(file.isFileRequired());
+      // Not provided in this transform
+      inputFile.setExcludeFileMask(null);
+      inputFiles.add(inputFile);
     }
-    return includeSubFolderBoolean;
+    return FileInputList.createFileList(variables, inputFiles, null);
   }
 
   @Override
@@ -635,7 +282,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       remarks.add(cr);
     }
 
-    if (getInputFields().length <= 0) {
+    if (getInputFields().size() <= 0) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -693,8 +340,8 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
    * pray that the file is on a shared drive or something like that.
    *
    * @param variables the variable variables to use
-   * @param definitions
-   * @param iResourceNaming
+   * @param definitions The definitions to use.
+   * @param iResourceNaming The resource naming method.
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
@@ -710,7 +357,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      List<String> newFilenames = new ArrayList<>();
+      List<YamlFile> newFiles = new ArrayList<>();
 
       if (!isInFields()) {
         FileInputList fileList = getFiles(variables);
@@ -721,23 +368,52 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
             if (fileObject.exists()) {
               // Convert to an absolute path and add it to the list.
               //
-              newFilenames.add(fileObject.getName().getPath());
+              YamlFile newFile = new YamlFile();
+              newFile.setFilename(fileObject.getName().getPath());
+              newFiles.add(newFile);
             }
           }
 
-          // Still here: set a new list of absolute filenames!
+          // Replace with the absolute paths
           //
-          fileName = newFilenames.toArray(new String[newFilenames.size()]);
-          fileMask = new String[newFilenames.size()]; // all null since converted to absolute path.
-          fileRequired = new String[newFilenames.size()]; // all null, turn to "Y" :
-          for (int i = 0; i < newFilenames.size(); i++) {
-            fileRequired[i] = "Y";
-          }
+          yamlFiles = newFiles;
         }
       }
       return null;
     } catch (Exception e) {
       throw new HopException(e);
+    }
+  }
+
+  @Override
+  public void convertLegacyXml(Node node) throws HopException {
+    Node fileNode = XmlHandler.getSubNode(node, "file");
+    int count = XmlHandler.countNodes(fileNode, "name");
+    if (fileNode == null || count == 0) {
+      // This is already using the new files/file structure.
+      return;
+    }
+
+    yamlFiles.clear();
+    for (int i = 0; i < count; i++) {
+      YamlFile inputFile = new YamlFile();
+      String fileName = XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "name", i));
+      String fileMask = XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "filemask", i));
+      boolean fileRequired =
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "file_required", i)));
+      boolean includeSubFolders =
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getNodeValue(
+                      XmlHandler.getSubNodeByNr(fileNode, "include_subfolders", i)));
+
+      inputFile.setFilename(fileName);
+      inputFile.setFileMask(fileMask);
+      inputFile.setFileRequired(fileRequired);
+      inputFile.setIncludingSubFolders(includeSubFolders);
+      yamlFiles.add(inputFile);
     }
   }
 }

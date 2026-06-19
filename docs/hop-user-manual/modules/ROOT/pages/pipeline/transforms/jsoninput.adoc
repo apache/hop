@@ -23,9 +23,14 @@ under the License.
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
+
 == Description
 The JSON input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
 
+[NOTE]
+====
+Use JSON Input when each column should come from its *own JsonPath* (or you are not *exploding* a list into many rows). For an *array of records* where each element becomes a row and *nested objects are flattened* into dotted column names, use xref:pipeline/transforms/jsonnormalizeinput.adoc[JSON Normalize Input] instead.
+====
 
 == TIPS
 * JSONPath expressions can use either dot notation or square bracket notation. 
@@ -59,7 +64,7 @@ Check the `json-input-nested-elements.hpl` sample in the Samples project for an 
 
 === File Tab
 
-[options="header"]
+[options="header",cols="1a,3a"]
 |===
 |Option|Description
 |Source is from a previous transform a|Select to retrieve the source from a previously defined field.
@@ -104,7 +109,7 @@ a|Specify the source location if the source is not defined in a field.
 
 The Content tab contains the following options for configuring which data to retrieve:
 
-[options="header"]
+[options="header",cols="1a,3a"]
 |===
 |Option|Description
 |Ignore empty file|Select to skip empty files.
@@ -125,7 +130,7 @@ Results are not limited when set to zero.
 The Fields tab displays field definitions to extract values from the JSON structure.
 The table in this tab contain the following columns:
 
-[options="header"]
+[options="header",cols="1a,3a"]
 |===
 |Option|Description
 |Name|Name of field that maps to the corresponding field in the JSON input stream.
@@ -177,7 +182,7 @@ You can use Regex in the Path expression.
 
 The Additional output fields tab contains the following options to specify additional information about the file to process:
 
-[options="header"]
+[options="header",cols="1a,3a"]
 |===
 |Option|Description
 |Short filename field|Specify the field that contains the filename without path information but with an extension.
@@ -218,7 +223,7 @@ For example if we have a JSON file like this
 ```
 
 When extracting the fields id and Name using the following field definition:
-[%header]
+[options="header", cols="1a, 3a"]
 |===
 |Field name|Json Path
 |id| `$.persons.*.id`

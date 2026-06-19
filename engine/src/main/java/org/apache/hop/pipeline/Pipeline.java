@@ -26,8 +26,6 @@ import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.PREPARING;
 import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.RUNNING;
 import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.STOPPED;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -44,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.BlockingBatchingRowSet;
@@ -62,6 +59,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPipelineException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -97,6 +95,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.EngineMetric;
 import org.apache.hop.pipeline.engine.EngineMetrics;
@@ -148,6 +147,26 @@ public abstract class Pipeline
   public static final String METRIC_NAME_DATA_VOLUME = "data_volume";
   public static final String METRIC_NAME_DATA_VOLUME_IN = "data_volume_in";
   public static final String METRIC_NAME_DATA_VOLUME_OUT = "data_volume_out";
+
+  /**
+   * Key set on {@link #getExtensionDataMap()} by internal callers (logging probe, data probe,
+   * anonymous runner, dialog previews, ...) to mark a pipeline as engine-internal so the
+   * engine-compatibility deep gate skips it. The reflection XPs use their own flags
+   * (PipelineStartLoggingXp / PipelineDataProbeXp) which are honored alongside this one.
+   */
+  public static final String EXTENSION_DATA_INTERNAL_PIPELINE_FLAG = "__hop_internal_pipeline__";
+
+  /**
+   * Mirror of {@code PipelineStartLoggingXp.PIPELINE_LOGGING_FLAG}. Duplicated here because the
+   * engine module cannot depend on the reflection plugin module; the value must stay in sync.
+   */
+  static final String EXTENSION_DATA_PIPELINE_LOGGING_FLAG = "PipelineLoggingActive";
+
+  /**
+   * Mirror of {@code PipelineDataProbeXp.PIPELINE_DATA_PROBE_FLAG}. Duplicated here because the
+   * engine module cannot depend on the reflection plugin module; the value must stay in sync.
+   */
+  static final String EXTENSION_DATA_PIPELINE_DATA_PROBE_FLAG = "PipelineDataProbeActive";
 
   /** The package name, used for internationalization of messages. */
   private static final Class<?> PKG = Pipeline.class;
@@ -347,10 +366,6 @@ public abstract class Pipeline
 
   /** The command line arguments for the pipeline. */
   protected String[] arguments;
-
-  @Getter private HttpServletResponse servletResponse;
-
-  @Setter @Getter private HttpServletRequest servletRequest;
 
   private final Map<String, Object> extensionDataMap;
 
@@ -566,6 +581,59 @@ public abstract class Pipeline
         "Executing this pipeline using the Local Pipeline Engine with run configuration '"
             + pipelineRunConfiguration.getName()
             + "'");
+
+    // Engine-compatibility deep gate (backstop). The CLI/GUI surface-level gates fire BEFORE the
+    // user sees the run-config dialog, but nested executions (ActionPipeline, PipelineExecutor,
+    // Repeat, WorkflowExecutor, mappings, sub-workflows...) all funnel through prepareExecution
+    // without re-asking. This check makes sure an UNSUPPORTED transform in a child pipeline still
+    // refuses to run unless the override is set. Skipped for engine-internal pipelines (logging
+    // probe, data probe, anonymous runner, dialog previews) which are marked with one of the
+    // internal flags on the extension-data map.
+    Map<String, Object> extData = getExtensionDataMap();
+    boolean isInternalPipeline =
+        extData != null
+            && (extData.get(EXTENSION_DATA_INTERNAL_PIPELINE_FLAG) != null
+                || extData.get(EXTENSION_DATA_PIPELINE_LOGGING_FLAG) != null
+                || extData.get(EXTENSION_DATA_PIPELINE_DATA_PROBE_FLAG) != null);
+    if (!isInternalPipeline) {
+      List<EngineCompatibilityChecker.Violation> compatViolations =
+          EngineCompatibilityChecker.checkPipeline(pipelineMeta, this);
+      if (!compatViolations.isEmpty()) {
+        String allowVar = getVariable(Const.HOP_ALLOW_UNSUPPORTED);
+        boolean allow =
+            allowVar != null
+                && ("Y".equals(allowVar)
+                    || "y".equals(allowVar)
+                    || "true".equalsIgnoreCase(allowVar)
+                    || "1".equals(allowVar));
+        if (allow) {
+          log.logMinimal(
+              "Engine '"
+                  + getPluginId()
+                  + "' refuses "
+                  + compatViolations.size()
+                  + " transform(s) in pipeline '"
+                  + pipelineMeta.getName()
+                  + "' — override via "
+                  + Const.HOP_ALLOW_UNSUPPORTED);
+          log.logMinimal(EngineCompatibilityChecker.formatViolations(compatViolations));
+        } else {
+          throw new HopException(
+              "Engine '"
+                  + getPluginId()
+                  + "' refuses "
+                  + compatViolations.size()
+                  + " transform(s) in pipeline '"
+                  + pipelineMeta.getName()
+                  + "':\n"
+                  + EngineCompatibilityChecker.formatViolations(compatViolations)
+                  + "\nSet variable "
+                  + Const.HOP_ALLOW_UNSUPPORTED
+                  + "=Y, pass --allow-unsupported on the CLI, or choose \"Run anyway\" in the GUI"
+                  + " to override.");
+        }
+      }
+    }
 
     ExtensionPointHandler.callExtensionPoint(
         log, this, HopExtensionPoint.PipelinePrepareExecution.id, this);
@@ -1258,7 +1326,7 @@ public abstract class Pipeline
             ExtensionPointHandler.callExtensionPoint(
                 log, this, HopExtensionPoint.PipelineFinish.id, pipeline);
           } catch (HopException e) {
-            throw new RuntimeException("Error calling extension point at end of pipeline", e);
+            throw new HopRuntimeException("Error calling extension point at end of pipeline", e);
           }
 
           // First of all, stop the performance snapshot timer if there is is
@@ -1304,7 +1372,7 @@ public abstract class Pipeline
                   ExtensionPointHandler.callExtensionPoint(
                       log, this, HopExtensionPoint.TransformFinished.id, combi);
                 } catch (HopException e) {
-                  throw new RuntimeException(
+                  throw new HopRuntimeException(
                       "Unexpected error in calling extension point upon transform finish", e);
                 }
               });
@@ -1522,7 +1590,7 @@ public abstract class Pipeline
         }
       }
     } catch (InterruptedException e) {
-      throw new RuntimeException("Waiting for pipeline to be finished interrupted!", e);
+      throw new HopRuntimeException("Waiting for pipeline to be finished interrupted!", e);
     }
   }
 
@@ -2982,30 +3050,6 @@ public abstract class Pipeline
     if (pipelineMeta != null) {
       pipelineMeta.setMetadataProvider(metadataProvider);
     }
-  }
-
-  /**
-   * Sets encoding of HttpServletResponse according to System encoding.Check if system encoding is
-   * null or an empty and set it to HttpServletResponse when not and writes error to log if null.
-   * Throw IllegalArgumentException if input parameter is null.
-   *
-   * @param response the HttpServletResponse to set encoding, mayn't be null
-   */
-  public void setServletReponse(HttpServletResponse response) {
-    if (response == null) {
-      throw new IllegalArgumentException("HttpServletResponse cannot be null ");
-    }
-    String encoding = System.getProperty(Const.HOP_DEFAULT_SERVLET_ENCODING, null);
-    // true if encoding is null or an empty (also for the next kin of strings: " ")
-    if (!StringUtils.isBlank(encoding)) {
-      try {
-        response.setCharacterEncoding(encoding.trim());
-        response.setContentType("text/html; charset=" + encoding);
-      } catch (Exception ex) {
-        LogChannel.GENERAL.logError("Unable to encode data with encoding : '" + encoding + "'", ex);
-      }
-    }
-    this.servletResponse = response;
   }
 
   public synchronized void doTopologySortOfTransforms() {

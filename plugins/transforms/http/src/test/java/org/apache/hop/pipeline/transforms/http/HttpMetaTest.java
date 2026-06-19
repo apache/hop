@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
@@ -75,7 +76,7 @@ class HttpMetaTest {
     assertEquals("responseHeaders", meta.getResultFields().getResponseHeaderFieldName());
     assertEquals("responseTime", meta.getResultFields().getResponseTimeFieldName());
 
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
     assertEquals("http-user", meta.getHttpLogin());
     assertEquals("http-password", meta.getHttpPassword());
     assertEquals("url", meta.getUrl());

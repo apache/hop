@@ -17,7 +17,12 @@
 
 package org.apache.hop.core.database;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /** Contains the information that's stored in a single catalog. */
+@Getter
+@Setter
 public class Catalog {
   private String catalogName;
   private String[] items;
@@ -29,33 +34,5 @@ public class Catalog {
 
   public Catalog(String catalogName) {
     this(catalogName, new String[] {});
-  }
-
-  /**
-   * @return Returns the catalogName.
-   */
-  public String getCatalogName() {
-    return catalogName;
-  }
-
-  /**
-   * @param catalogName The catalogName to set.
-   */
-  public void setCatalogName(String catalogName) {
-    this.catalogName = catalogName;
-  }
-
-  /**
-   * @return Returns the items.
-   */
-  public String[] getItems() {
-    return items;
-  }
-
-  /**
-   * @param items The items to set.
-   */
-  public void setItems(String[] items) {
-    this.items = items;
   }
 }

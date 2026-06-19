@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -43,12 +45,17 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /** Test class for the "Get XML Data" transform. */
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class GetXMLDataTest {
+  @BeforeEach
+  void init() throws Exception {
+    HopEnvironment.init();
+  }
 
   public IRowMeta createRowMetaInterface() {
     IRowMeta rm = new RowMeta();
@@ -197,7 +204,6 @@ class GetXMLDataTest {
   void testGetXMLDataSimple1() throws Exception {
     // Create a new pipeline...
     //
-
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("getxmldata1");
 
@@ -290,7 +296,7 @@ class GetXMLDataTest {
     fields[4].setGroupSymbol("");
     fields[4].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
-    gxdm.setEncoding("UTF-8");
+    gxdm.setEncoding(Const.UTF_8);
     gxdm.setAFile(false);
     gxdm.setInFields(true);
     gxdm.setLoopXPath("Level1/Level2/Props");
@@ -391,7 +397,7 @@ class GetXMLDataTest {
     fields[0].setGroupSymbol("");
     fields[0].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
-    gxdm.setEncoding("UTF-8");
+    gxdm.setEncoding(Const.UTF_8);
     gxdm.setAFile(false);
     gxdm.setInFields(true);
     gxdm.setLoopXPath("Level1/Level2/Props");

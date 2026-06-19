@@ -20,17 +20,25 @@ package org.apache.hop.pipeline.transforms.systemdata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link SystemDataMeta} */
 class SystemDataMetaTest {
   @Test
   void testLoadSave() throws Exception {
@@ -60,11 +68,124 @@ class SystemDataMetaTest {
     validate(metaCopy);
   }
 
+  @Test
+  void testFieldWithMissingTypeDefaultsToNoneAndDoesNotThrow() throws Exception {
+    // Regression: a field whose <type> is missing/empty (legacy or hand-edited pipelines) used to
+    // map to NONE. The enum migration made it deserialize to null, causing NPEs in getFields(),
+    // check() and the dialog. getFieldType() must never return null.
+    String xml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + "<fields><field><name>legacy</name></field></fields>"
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    SystemDataMeta meta = new SystemDataMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        SystemDataMeta.class,
+        meta,
+        new MemoryMetadataProvider());
+
+    assertEquals(1, meta.getFields().size());
+    assertEquals(SystemDataType.NONE, meta.getFields().getFirst().getFieldType());
+
+    // None of the consumers below must throw a NullPointerException.
+    RowMeta rowMeta = new RowMeta();
+    meta.getFields(rowMeta, "t", null, null, new Variables(), null);
+    assertEquals(IValueMeta.TYPE_NONE, rowMeta.getValueMeta(0).getType());
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, null, null, null, null, null, new Variables(), null);
+    assertFalse(remarks.isEmpty());
+  }
+
+  @Test
+  void testGetFieldsDefaultType() throws Exception {
+    SystemDataMeta meta = new SystemDataMeta();
+
+    SystemDataMeta.SystemInfoField field = new SystemDataMeta.SystemInfoField();
+    field.setFieldName("noneField");
+    field.setFieldType(SystemDataType.NONE);
+
+    meta.getFields().add(field);
+
+    RowMeta rowMeta = new RowMeta();
+    meta.getFields(rowMeta, "t", null, null, new Variables(), null);
+
+    assertEquals(IValueMeta.TYPE_NONE, rowMeta.getValueMeta(0).getType());
+  }
+
+  @Test
+  void testCheckErrorWhenTypeNone() {
+    SystemDataMeta meta = new SystemDataMeta();
+
+    SystemDataMeta.SystemInfoField field = new SystemDataMeta.SystemInfoField();
+    field.setFieldName("f1");
+    field.setFieldType(SystemDataType.NONE);
+
+    meta.getFields().add(field);
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, null, null, null, null, null, new Variables(), null);
+
+    assertFalse(remarks.isEmpty());
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.getFirst().getType());
+  }
+
+  @Test
+  void testCheckOk() {
+    SystemDataMeta meta = new SystemDataMeta();
+
+    SystemDataMeta.SystemInfoField field = new SystemDataMeta.SystemInfoField();
+    field.setFieldName("f1");
+    field.setFieldType(SystemDataType.SYSTEM_DATE);
+
+    meta.getFields().add(field);
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, null, null, null, null, null, new Variables(), null);
+
+    assertEquals(1, remarks.size());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.getFirst().getType());
+  }
+
+  @Test
+  void testCloneDeepCopy() {
+    SystemDataMeta meta = new SystemDataMeta();
+
+    SystemDataMeta.SystemInfoField field = new SystemDataMeta.SystemInfoField();
+    field.setFieldName("f1");
+    field.setFieldType(SystemDataType.SYSTEM_DATE);
+
+    meta.getFields().add(field);
+
+    SystemDataMeta cloned = (SystemDataMeta) meta.clone();
+
+    assertNotSame(meta, cloned);
+    assertEquals(meta.getFields().size(), cloned.getFields().size());
+
+    assertNotSame(meta.getFields().getFirst(), cloned.getFields().getFirst());
+  }
+
+  @Test
+  void testCopyConstructor() {
+    SystemDataMeta meta = new SystemDataMeta();
+
+    SystemDataMeta.SystemInfoField field = new SystemDataMeta.SystemInfoField();
+    field.setFieldName("f1");
+    field.setFieldType(SystemDataType.SYSTEM_DATE);
+
+    meta.getFields().add(field);
+
+    SystemDataMeta copy = new SystemDataMeta(meta);
+
+    assertEquals(1, copy.getFields().size());
+    assertNotSame(meta.getFields().getFirst(), copy.getFields().getFirst());
+  }
+
   private static void validate(SystemDataMeta meta) {
     assertNotNull(meta.getFields());
     assertFalse(meta.getFields().isEmpty());
     assertEquals(8, meta.getFields().size());
-    SystemDataMeta.SystemInfoField f1 = meta.getFields().get(0);
+    SystemDataMeta.SystemInfoField f1 = meta.getFields().getFirst();
     assertEquals("variable_sysdate", f1.getFieldName());
     assertEquals(SystemDataType.SYSTEM_DATE, f1.getFieldType());
 

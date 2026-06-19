@@ -30,6 +30,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -95,6 +97,7 @@ public abstract class BaseFileInputTransform<
       data.dataErrorLineHandler.handleFile(data.file);
 
       data.reader = createReader(meta, data, data.file);
+      emitLineageFileRead(data.file);
     } catch (Exception e) {
       if (!handleOpenFileException(e, errorIgnored, skipBadFiles)) {
         return false;
@@ -157,6 +160,23 @@ public abstract class BaseFileInputTransform<
     if (bytes > 0) {
       dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytes;
     }
+  }
+
+  /** Best-effort {@link FileIoOperation#READ} lineage for the file being opened. */
+  private void emitLineageFileRead(FileObject file) {
+    if (file == null) {
+      return;
+    }
+    Long size = null;
+    try {
+      if (file.getType().hasContent()) {
+        size = file.getContent().getSize();
+      }
+    } catch (Exception ignored) {
+      // optional metadata for lineage only
+    }
+    LineageFileIoEmitter.emitTransformFileIo(
+        this, FileIoOperation.READ, file, null, size, true, null);
   }
 
   /** Read files from previous transform. */

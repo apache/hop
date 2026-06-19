@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-script</artifactId>
@@ -30,8 +30,9 @@
     <name>Hop Plugins Transforms Script</name>
 
     <properties>
-        <graaljs.version>23.0.2</graaljs.version>
+        <graaljs.version>25.0.3</graaljs.version>
         <groovy.version>4.0.30</groovy.version>
+        <hop.libcore.exclude1>org.apache.hop:hop-transform-rowgenerator</hop.libcore.exclude1>
         <jython.version>2.7.4</jython.version>
     </properties>
 
@@ -58,27 +59,20 @@
             <artifactId>groovy-jsr223</artifactId>
             <version>${groovy.version}</version>
         </dependency>
-        <!-- GraalVM JavaScript (JSR 223) for ECMAScript on Java 17+ where Nashorn was removed -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-language</artifactId>
+            <version>${graaljs.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
             <version>${graaljs.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-tree</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-runtime</artifactId>
+            <version>${graaljs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.python</groupId>
@@ -92,10 +86,24 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js</artifactId>
-            <version>${graaljs.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

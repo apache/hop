@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -35,7 +36,8 @@ class XmlJoinMetaGetFieldsTest {
   PipelineMeta pipelineMeta;
 
   @BeforeEach
-  void setup() {
+  void setup() throws Exception {
+    HopClientEnvironment.init();
     xmlJoinMeta = new XmlJoinMeta();
     pipelineMeta = mock(PipelineMeta.class);
   }

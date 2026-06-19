@@ -36,6 +36,7 @@ import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -119,8 +120,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public static final String ELEMENT_ID_PASSWORD = "password";
 
   /**
-   * Boolean to indicate if savepoints can be released Most databases do, so we set it to true.
-   * Child classes can overwrite with false if need be.
+   * Boolean to indicate if savepoint can be released Most databases do, so we set it to true. Child
+   * classes can overwrite with false if need be.
    */
   protected boolean releaseSavepoint = true;
 
@@ -238,9 +239,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public void setPluginName(String pluginName) {
     this.pluginName = pluginName;
   }
-
-  @Override
-  public abstract int[] getAccessTypeList();
 
   /**
    * @return Returns the accessType.
@@ -453,7 +451,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
         retval.attributes.put(key, attributes.get(key));
       }
     } catch (CloneNotSupportedException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
     return retval;
   }

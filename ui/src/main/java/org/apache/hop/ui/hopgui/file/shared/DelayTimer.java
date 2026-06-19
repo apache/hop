@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.shared;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 /** A timer where you can attach a timer to. Once the time is up, the listeners are fired off. */
 public class DelayTimer implements Runnable {
@@ -83,7 +84,7 @@ public class DelayTimer implements Runnable {
     try {
       return Boolean.valueOf(prolonger.call());
     } catch (Exception e) {
-      throw new RuntimeException("Prolonger call finished with error", e);
+      throw new HopRuntimeException("Prolonger call finished with error", e);
     }
   }
 

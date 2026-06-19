@@ -54,6 +54,17 @@
                 <exclude>com.amazonaws:aws-java-sdk-kms:jar</exclude>
                 <exclude>com.amazonaws:aws-java-sdk-s3:jar</exclude>
                 <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar</exclude>
+                <exclude>software.amazon.awssdk:s3:jar</exclude>
+                <exclude>software.amazon.awssdk:sns:jar</exclude>
+                <exclude>io.netty::jar</exclude>
+                <exclude>org.apache.httpcomponents::jar</exclude>
+                <exclude>software.amazon.awssdk:json-utils:jar</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations:jar</exclude>
+                <exclude>software.amazon.awssdk:*:jar</exclude>
+                <exclude>commons-codec:commons-codec:jar</exclude>
+                <exclude>software.amazon.eventstream:eventstream:jar</exclude>
+                <exclude>org.reactivestreams:reactive-streams:jar</exclude>
+                <exclude>org.slf4j:slf4j-api:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/aws/lib</outputDirectory>
         </dependencySet>
@@ -65,6 +76,17 @@
                 <include>com.amazonaws:aws-java-sdk-kms:jar</include>
                 <include>com.amazonaws:aws-java-sdk-s3:jar</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar</include>
+                <include>software.amazon.awssdk:s3:jar</include>
+                <include>software.amazon.awssdk:sns:jar</include>
+                <include>io.netty::jar</include>
+                <include>org.apache.httpcomponents::jar</include>
+                <include>software.amazon.awssdk:json-utils:jar</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations:jar</include>
+                <include>software.amazon.awssdk:*:jar</include>
+                <include>commons-codec:commons-codec:jar</include>
+                <include>software.amazon.eventstream:eventstream:jar</include>
+                <include>org.reactivestreams:reactive-streams:jar</include>
+                <include>org.slf4j:slf4j-api:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

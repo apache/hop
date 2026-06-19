@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -90,22 +91,25 @@ class HopGuiEventsHandlerTest {
   @Test
   void testAddEventExceptions() {
     // The GUI ID can't be null or empty
-    assertThrows(RuntimeException.class, () -> events.addEventListener(null, e -> {}, "eventId-1"));
-    assertThrows(RuntimeException.class, () -> events.addEventListener("", e -> {}, "eventId-1"));
+    assertThrows(
+        HopRuntimeException.class, () -> events.addEventListener(null, e -> {}, "eventId-1"));
+    assertThrows(
+        HopRuntimeException.class, () -> events.addEventListener("", e -> {}, "eventId-1"));
 
     // We need at least 1 non-null event ID
-    assertThrows(RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}));
+    assertThrows(HopRuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}));
     assertThrows(
-        RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}, (String[]) null));
-    assertThrows(RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}, ""));
+        HopRuntimeException.class,
+        () -> events.addEventListener("guiId-1", e -> {}, (String[]) null));
+    assertThrows(HopRuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}, ""));
   }
 
   @Test
   void testFireEventExceptions() {
     // The GUI ID can't be null or empty
-    assertThrows(RuntimeException.class, () -> events.fire());
-    assertThrows(RuntimeException.class, () -> events.fire(""));
-    assertThrows(RuntimeException.class, () -> events.fire((Object[]) null));
+    assertThrows(HopRuntimeException.class, () -> events.fire());
+    assertThrows(HopRuntimeException.class, () -> events.fire(""));
+    assertThrows(HopRuntimeException.class, () -> events.fire((Object[]) null));
   }
 
   @Test

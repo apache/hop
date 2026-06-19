@@ -25,6 +25,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -80,7 +81,8 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
       Metrics.counter(org.apache.hop.pipeline.Pipeline.METRIC_NAME_INIT, transformName).inc();
     } catch (Exception e) {
       Metrics.counter(org.apache.hop.pipeline.Pipeline.METRIC_NAME_ERROR, transformName).inc();
-      throw new RuntimeException("Error in setup of converting row generator row into Hop rows", e);
+      throw new HopRuntimeException(
+          "Error in setup of converting row generator row into Hop rows", e);
     }
   }
 
@@ -111,7 +113,7 @@ public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
       processContext.output(new HopRow(rowCopy));
       writtenCounter.inc();
     } catch (HopException e) {
-      throw new RuntimeException("Unable to create copy of row", e);
+      throw new HopRuntimeException("Unable to create copy of row", e);
     }
   }
 }

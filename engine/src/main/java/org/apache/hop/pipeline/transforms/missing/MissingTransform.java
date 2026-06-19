@@ -17,21 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.missing;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.dummy.Dummy;
-import org.apache.hop.pipeline.transforms.dummy.DummyData;
-import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
-public class MissingTransform extends Dummy {
+/**
+ * Runtime stand-in for a transform whose plugin is not installed. {@link Missing} declares {@code
+ * BaseTransformMeta<MissingTransform, MissingData>}, so {@link
+ * org.apache.hop.pipeline.transform.BaseTransformMeta#createTransform} must find a constructor
+ * {@code (TransformMeta, Missing, MissingData, int, PipelineMeta, Pipeline)}.
+ */
+public class MissingTransform extends BaseTransform<Missing, MissingData> {
   private static final Class<?> PKG = MissingTransform.class;
 
   public MissingTransform(
       TransformMeta transformMeta,
-      DummyMeta meta,
-      DummyData data,
+      Missing meta,
+      MissingData data,
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
@@ -44,5 +49,16 @@ public class MissingTransform extends Dummy {
       logError(BaseMessages.getString(PKG, "MissingPipelineTransform.Log.CannotRunPipeline"));
     }
     return false;
+  }
+
+  @Override
+  public boolean processRow() throws HopException {
+    Object[] r = getRow();
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+    putRow(getInputRowMeta(), r);
+    return true;
   }
 }

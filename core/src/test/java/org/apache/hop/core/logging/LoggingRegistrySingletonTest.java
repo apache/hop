@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -88,7 +89,7 @@ class LoggingRegistrySingletonTest {
       try {
         start.await();
       } catch (InterruptedException e) {
-        throw new RuntimeException();
+        throw new HopRuntimeException();
       }
       return LoggingRegistry.getInstance();
     }

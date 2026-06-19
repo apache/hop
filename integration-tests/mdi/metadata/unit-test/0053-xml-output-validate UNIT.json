@@ -1,0 +1,141 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "encoding",
+          "data_set_field": "encoding"
+        },
+        {
+          "transform_field": "SpecifyFormat",
+          "data_set_field": "SpecifyFormat"
+        },
+        {
+          "transform_field": "add_date",
+          "data_set_field": "add_date"
+        },
+        {
+          "transform_field": "add_time",
+          "data_set_field": "add_time"
+        },
+        {
+          "transform_field": "add_to_result_filenames",
+          "data_set_field": "add_to_result_filenames"
+        },
+        {
+          "transform_field": "date_time_format",
+          "data_set_field": "date_time_format"
+        },
+        {
+          "transform_field": "do_not_open_newfile_init",
+          "data_set_field": "do_not_open_newfile_init"
+        },
+        {
+          "transform_field": "extension",
+          "data_set_field": "extension"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "omit_null_values",
+          "data_set_field": "omit_null_values"
+        },
+        {
+          "transform_field": "split",
+          "data_set_field": "split"
+        },
+        {
+          "transform_field": "splitevery",
+          "data_set_field": "splitevery"
+        },
+        {
+          "transform_field": "zipped",
+          "data_set_field": "zipped"
+        },
+        {
+          "transform_field": "name_space",
+          "data_set_field": "name_space"
+        },
+        {
+          "transform_field": "xml_main_element",
+          "data_set_field": "xml_main_element"
+        },
+        {
+          "transform_field": "xml_repeat_element",
+          "data_set_field": "xml_repeat_element"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-xml-output",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "contentType",
+          "data_set_field": "contentType"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "fieldName"
+        },
+        {
+          "transform_field": "element",
+          "data_set_field": "elementName"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "format",
+          "data_set_field": "format"
+        },
+        {
+          "transform_field": "currency",
+          "data_set_field": "currencySymbol"
+        },
+        {
+          "transform_field": "decimal",
+          "data_set_field": "decimalSymbol"
+        },
+        {
+          "transform_field": "group",
+          "data_set_field": "groupingSymbol"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "nullif",
+          "data_set_field": "nullString"
+        },
+        {
+          "transform_field": "precision",
+          "data_set_field": "precision"
+        }
+      ],
+      "field_order": [
+        "fieldName"
+      ],
+      "data_set_name": "golden-xml-output-fields",
+      "transform_name": "validate fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0053-xml-output-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0053-xml-output-validate.hpl"
+}

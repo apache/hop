@@ -1,0 +1,58 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "organisation",
+          "data_set_field": "organisation"
+        },
+        {
+          "transform_field": "acronym",
+          "data_set_field": "acronym"
+        },
+        {
+          "transform_field": "project",
+          "data_set_field": "project"
+        },
+        {
+          "transform_field": "javaFileCount",
+          "data_set_field": "javaFileCount"
+        },
+        {
+          "transform_field": "awesome",
+          "data_set_field": "awesome"
+        },
+        {
+          "transform_field": "used-apache-projects",
+          "data_set_field": "used-apache-projects"
+        },
+        {
+          "transform_field": "statistics",
+          "data_set_field": "statistics"
+        }
+      ],
+      "field_order": [
+        "organisation",
+        "acronym",
+        "project",
+        "javaFileCount",
+        "awesome",
+        "used-apache-projects",
+        "statistics"
+      ],
+      "data_set_name": "golden-yaml-input",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0088-yaml-input-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0088-yaml-input-validate.hpl"
+}

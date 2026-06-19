@@ -20,7 +20,7 @@ package org.apache.hop.beam.transforms.pubsub;
 import java.util.List;
 import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamDefaults;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamSubscribeTransform;
@@ -49,7 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "beam-gcp-pubsub-subscribe.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamSubscribeMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamgcpsubscriber.html")
+    documentationUrl = "/pipeline/transforms/beamgcpsubscriber.html",
+    supportedEngines = {"Beam*"})
 public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubscribeData>
     implements IBeamPipelineTransformHandler {
 

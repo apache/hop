@@ -18,7 +18,7 @@
 package org.apache.hop.testing.transforms.datasetinput;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;

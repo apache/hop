@@ -78,8 +78,6 @@ public class ActionFtpDeleteDialog extends ActionDialog {
 
   private Combo wProtocol;
 
-  private Label wlUsePublicKey;
-
   private Button wUsePublicKey;
 
   private boolean changed;
@@ -138,6 +136,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
 
   @Override
   public IAction open() {
+    Label wlUsePublicKey;
     createShell(BaseMessages.getString(PKG, "ActionFtpDelete.Title"), action);
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
@@ -999,7 +998,6 @@ public class ActionFtpDeleteDialog extends ActionDialog {
 
   private boolean connectToFtp() {
     boolean success = false;
-    String realServername = null;
     try {
 
       if (ftpclient == null || !ftpclient.isConnected()) {
@@ -1027,7 +1025,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
-                  PKG, "ActionFtpDelete.ErrorConnect.NOK", realServername, e.getMessage())
+                  PKG, "ActionFtpDelete.ErrorConnect.NOK", wServerName.getText(), e.getMessage())
               + Const.CR);
       mb.setText(BaseMessages.getString(PKG, "ActionFtpDelete.ErrorConnect.Title.Bad"));
       mb.open();
@@ -1108,7 +1106,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wSocksProxyUsername.setText(Const.NVL(action.getSocksProxyUsername(), ""));
     wSocksProxyPassword.setText(Const.NVL(action.getSocksProxyPassword(), ""));
 
-    wNrErrorsLessThan.setText(Const.NVL(action.getLimitSuccess(), "10"));
+    wNrErrorsLessThan.setText(Const.NVL(action.getNrLimitSuccess(), "10"));
 
     if (action.getSuccessCondition() != null) {
       if (action
@@ -1124,7 +1122,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
       wSuccessCondition.select(0);
     }
 
-    wUsePublicKey.setSelection(action.isUsePublicKey());
+    wUsePublicKey.setSelection(action.isUsingPublicKey());
     wKeyFilename.setText(Const.nullToEmpty(action.getKeyFilename()));
     wKeyFilePass.setText(Const.nullToEmpty(action.getKeyFilePass()));
 
@@ -1179,7 +1177,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     actionFtpDelete.setSocksProxyUsername(wSocksProxyUsername.getText());
     actionFtpDelete.setSocksProxyPassword(wSocksProxyPassword.getText());
 
-    actionFtpDelete.setLimitSuccess(wNrErrorsLessThan.getText());
+    actionFtpDelete.setNrLimitSuccess(wNrErrorsLessThan.getText());
 
     if (wSuccessCondition.getSelectionIndex() == 1) {
       actionFtpDelete.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED);
@@ -1189,7 +1187,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
       actionFtpDelete.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ALL_FILES_DOWNLOADED);
     }
 
-    actionFtpDelete.setUsePublicKey(wUsePublicKey.getSelection());
+    actionFtpDelete.setUsingPublicKey(wUsePublicKey.getSelection());
     actionFtpDelete.setKeyFilename(wKeyFilename.getText());
     actionFtpDelete.setKeyFilePass(wKeyFilePass.getText());
 

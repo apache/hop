@@ -20,7 +20,7 @@ package org.apache.hop.core.logging;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.util.StringUtil;
@@ -142,7 +142,8 @@ public class LogMessage implements ILogMessage {
   @Override
   public String getMessage() {
     String formatted = message;
-    if (arguments != null) {
+    // Skip MessageFormat when there are no substitution arguments
+    if (arguments != null && arguments.length > 0) {
       // get all "tokens" enclosed by curly brackets within the message
       final List<String> tokens = new ArrayList<>();
       StringUtil.getUsedVariables(formatted, "{", "}", tokens, true);

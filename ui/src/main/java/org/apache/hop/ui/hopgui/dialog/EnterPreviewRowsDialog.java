@@ -155,10 +155,11 @@ public class EnterPreviewRowsDialog extends Dialog {
 
     BaseTransformDialog.setSize(shell);
 
-    // Immediately show the only preview entry
     if (transformNames.size() == 1) {
       wTransformList.select(0);
-      show();
+      showPreviewForIndex(parent, 0);
+      dispose();
+      return transformName;
     }
 
     shell.open();
@@ -190,18 +191,28 @@ public class EnterPreviewRowsDialog extends Dialog {
     }
 
     int nr = wTransformList.getSelectionIndex();
+    if (nr < 0) {
+      return;
+    }
+    showPreviewForIndex(shell, nr);
+  }
 
-    java.util.List<Object[]> buffer = rowDatas.get(nr);
-    IRowMeta rowMeta = rowMetas.get(nr);
-    String name = transformNames.get(nr);
+  private void showPreviewForIndex(Shell parentShell, int index) {
+    if (rowDatas.isEmpty() || index < 0 || index >= rowDatas.size()) {
+      return;
+    }
+
+    java.util.List<Object[]> buffer = rowDatas.get(index);
+    IRowMeta rowMeta = rowMetas.get(index);
+    String name = transformNames.get(index);
 
     if (rowMeta != null && !Utils.isEmpty(buffer)) {
       PreviewRowsDialog prd =
           new PreviewRowsDialog(
-              shell, Variables.getADefaultVariableSpace(), SWT.NONE, name, rowMeta, buffer);
+              parentShell, Variables.getADefaultVariableSpace(), SWT.NONE, name, rowMeta, buffer);
       prd.open();
     } else {
-      MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+      MessageBox mb = new MessageBox(parentShell, SWT.ICON_INFORMATION | SWT.OK);
       mb.setText(
           BaseMessages.getString(PKG, "EnterPreviewRowsDialog.Dialog.NoPreviewRowsFound.Title"));
       mb.setMessage(

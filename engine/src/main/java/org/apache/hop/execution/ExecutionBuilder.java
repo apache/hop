@@ -217,9 +217,6 @@ public final class ExecutionBuilder {
   }
 
   public ExecutionBuilder withExecutorType(ExecutionType executionType) {
-    assert executionType != null : "Please specify execution type Pipeline or Workflow, not null";
-    assert executionType == ExecutionType.Pipeline || executionType == ExecutionType.Workflow
-        : "Please specify execution type Pipeline or Workflow";
     this.executionType = executionType;
     return this;
   }

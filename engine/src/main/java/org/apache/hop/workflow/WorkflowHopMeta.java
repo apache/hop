@@ -18,15 +18,20 @@
 package org.apache.hop.workflow;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.w3c.dom.Node;
 
 /** This class defines a hop from one action copy to another. */
+@Getter
+@Setter
 public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneable {
   private static final Class<?> PKG = WorkflowHopMeta.class;
 
@@ -34,7 +39,16 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
   public static final String XML_UNCONDITIONAL_TAG = "unconditional";
   private static final String CONST_SPACE = "      ";
 
+  @HopMetadataProperty(key = "from", storeWithName = true, lookupInList = "workflowActions")
+  protected ActionMeta from;
+
+  @HopMetadataProperty(key = "to", storeWithName = true, lookupInList = "workflowActions")
+  protected ActionMeta to;
+
+  @HopMetadataProperty(key = "evaluation")
   private boolean evaluation;
+
+  @HopMetadataProperty(key = "unconditional")
   private boolean unconditional;
 
   public WorkflowHopMeta() {

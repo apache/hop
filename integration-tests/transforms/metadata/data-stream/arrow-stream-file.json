@@ -1,0 +1,11 @@
+{
+  "virtualPath": "",
+  "dataStream": {
+    "ArrowStreamFile": {
+      "filename": "${java.io.tmpdir}/stream-0096.arrow",
+      "batchSize": "50"
+    }
+  },
+  "name": "arrow-stream-file",
+  "description": ""
+}

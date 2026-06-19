@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.dbproc;
 
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;

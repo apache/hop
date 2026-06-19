@@ -22,20 +22,17 @@ import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AddSheetRequest;
-import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesRequest;
-import com.google.api.services.sheets.v4.model.ClearValuesResponse;
 import com.google.api.services.sheets.v4.model.DeleteSheetRequest;
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.Sheet;
@@ -43,12 +40,12 @@ import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.UpdateSheetPropertiesRequest;
-import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -62,6 +59,11 @@ public class GoogleSheetsOutput
 
   private String spreadsheetID;
   private NetHttpTransport httpTransport;
+
+  @FunctionalInterface
+  private interface RequestExecutor<T> {
+    T execute() throws Exception;
+  }
 
   public GoogleSheetsOutput(
       TransformMeta transformMeta,
@@ -79,7 +81,7 @@ public class GoogleSheetsOutput
     JsonFactory jsonFactory;
     NetHttpTransport httpTransport;
     String scope;
-    Boolean exists = false;
+    boolean exists = false;
 
     if (super.init()) {
 
@@ -106,28 +108,16 @@ public class GoogleSheetsOutput
                 .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                 .build();
         spreadsheetID = resolve(meta.getSpreadsheetKey());
-        @SuppressWarnings("java:S125")
-        // "properties has { key='id' and value='"+wsID+"'}";
-        String q = "mimeType='application/vnd.google-apps.spreadsheet'";
-        FileList result =
-            service
-                .files()
-                .list()
-                .setSupportsAllDrives(true)
-                .setIncludeItemsFromAllDrives(true)
-                .setQ(q)
-                .setPageSize(100)
-                .setFields("nextPageToken, files(id, name)")
-                .execute();
-        List<File> spreadsheets = result.getFiles();
 
-        for (File spreadsheet : spreadsheets) {
-          if (spreadsheetID.equals(spreadsheet.getId())) {
-            exists = true; // file exists
-            if (isBasic()) {
-              logBasic("Spreadsheet:" + spreadsheetID + " exists");
-            }
-          }
+        service
+            .files()
+            .get(spreadsheetID)
+            .setSupportsAllDrives(true)
+            .setFields("id, mimeType")
+            .execute();
+        exists = true;
+        if (isBasic()) {
+          logBasic("Spreadsheet:" + spreadsheetID + " exists");
         }
 
         boolean worksheetExists = false;
@@ -142,7 +132,10 @@ public class GoogleSheetsOutput
                   .build();
 
           Spreadsheet spreadSheet =
-              data.service.spreadsheets().get(resolve(meta.getSpreadsheetKey())).execute();
+              executeSheetsRequestWithRetry(
+                  () ->
+                      data.service.spreadsheets().get(resolve(meta.getSpreadsheetKey())).execute(),
+                  "loading spreadsheet metadata");
           List<Sheet> sheets = spreadSheet.getSheets();
           for (Sheet sheet : sheets) {
             if (sheet.getProperties().getTitle().equals(resolve(meta.getWorksheetId()))) {
@@ -155,10 +148,13 @@ public class GoogleSheetsOutput
                 List<Request> requests = Collections.singletonList(request);
                 BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest =
                     new BatchUpdateSpreadsheetRequest().setRequests(requests);
-                data.service
-                    .spreadsheets()
-                    .batchUpdate(spreadsheetID, batchUpdateSpreadsheetRequest)
-                    .execute();
+                executeSheetsRequestWithRetry(
+                    () ->
+                        data.service
+                            .spreadsheets()
+                            .batchUpdate(spreadsheetID, batchUpdateSpreadsheetRequest)
+                            .execute(),
+                    "deleting worksheet before replace");
                 worksheetExists = false;
                 if (isDetailed()) {
                   logDetailed("deleted sheet " + sheet.getProperties().getTitle());
@@ -177,10 +173,13 @@ public class GoogleSheetsOutput
                                 new SheetProperties().setTitle(resolve(meta.getWorksheetId())))));
             BatchUpdateSpreadsheetRequest body =
                 new BatchUpdateSpreadsheetRequest().setRequests(requests);
-            data.service
-                .spreadsheets()
-                .batchUpdate(resolve(meta.getSpreadsheetKey()), body)
-                .execute();
+            executeSheetsRequestWithRetry(
+                () ->
+                    data.service
+                        .spreadsheets()
+                        .batchUpdate(resolve(meta.getSpreadsheetKey()), body)
+                        .execute(),
+                "creating worksheet");
           }
         }
 
@@ -204,11 +203,12 @@ public class GoogleSheetsOutput
                 new Spreadsheet()
                     .setProperties(new SpreadsheetProperties().setTitle(spreadsheetID));
             Sheets.Spreadsheets.Create request = data.service.spreadsheets().create(spreadsheet);
-            Spreadsheet response = request.execute();
+            Spreadsheet response =
+                executeSheetsRequestWithRetry(() -> request.execute(), "creating spreadsheet");
             spreadsheetID = response.getSpreadsheetId();
             meta.setSpreadsheetKey(spreadsheetID); //
             // If it does not exist we use the Worksheet ID to rename 'Sheet ID'
-            if (resolve(meta.getWorksheetId()) != "Sheet1") {
+            if (!"Sheet1".equals(resolve(meta.getWorksheetId()))) {
 
               SheetProperties title =
                   new SheetProperties().setSheetId(0).setTitle(resolve(meta.getWorksheetId()));
@@ -226,7 +226,10 @@ public class GoogleSheetsOutput
               BatchUpdateSpreadsheetRequest requestBody = new BatchUpdateSpreadsheetRequest();
               requestBody.setRequests(requests);
               // now you can execute batchUpdate with your sheetsService and SHEET_ID
-              data.service.spreadsheets().batchUpdate(spreadsheetID, requestBody).execute();
+              executeSheetsRequestWithRetry(
+                  () ->
+                      data.service.spreadsheets().batchUpdate(spreadsheetID, requestBody).execute(),
+                  "renaming default worksheet");
             }
           } else {
             logError("Append and Create options cannot be activated altogether");
@@ -294,24 +297,198 @@ public class GoogleSheetsOutput
         }
 
         if (!exists && !meta.isCreate()) {
-          logError("File does not Exist");
+          logError(
+              "Spreadsheet not found (ID: "
+                  + spreadsheetID
+                  + "). Verify the spreadsheet key and that the service account has access. "
+                  + "If running inside GCP, rate limiting can also cause empty responses.");
           return false;
         }
 
-      } catch (Exception e) {
-        logError(
-            "Error: for worksheet : "
+      } catch (HttpResponseException e) {
+        // Sheets/Drive API calls (spreadsheets().get(), batchUpdate, permissions, etc.) can throw
+        // 429/503 under resource limits - never report these as "file does not exist"
+        logResourceLimitOrApiError(
+            e,
+            "worksheet: "
                 + resolve(meta.getWorksheetId())
-                + " in spreadsheet :"
-                + resolve(meta.getSpreadsheetKey())
-                + e.getMessage(),
-            e);
+                + " in spreadsheet: "
+                + resolve(meta.getSpreadsheetKey()));
+        return false;
+      } catch (Exception e) {
+        // Unwrap in case a wrapper (e.g. HopException) has HttpResponseException as cause
+        HttpResponseException httpEx = findHttpResponseException(e);
+        if (httpEx != null) {
+          logResourceLimitOrApiError(
+              httpEx,
+              "worksheet: "
+                  + resolve(meta.getWorksheetId())
+                  + " in spreadsheet: "
+                  + resolve(meta.getSpreadsheetKey()));
+        } else {
+          logError(
+              "Error: for worksheet : "
+                  + resolve(meta.getWorksheetId())
+                  + " in spreadsheet :"
+                  + resolve(meta.getSpreadsheetKey())
+                  + " - "
+                  + e.getMessage(),
+              e);
+        }
         return false;
       }
 
       return true;
     }
     return false;
+  }
+
+  /**
+   * Log a clear error for resource limits (429, 500, 503) or other API errors, so they are never
+   * mistaken for "file does not exist".
+   */
+  private void logResourceLimitOrApiError(HttpResponseException e, String context) {
+    int statusCode = e.getStatusCode();
+    if (statusCode == 429) {
+      logError(
+          "Google API rate limit exceeded (429 Too Many Requests) for "
+              + context
+              + ". This often occurs when running inside GCP with low latency. "
+              + "Consider adding delays between pipeline runs. Details: "
+              + e.getMessage(),
+          e);
+    } else if (statusCode == 403) {
+      logError(
+          "Access denied (403) for "
+              + context
+              + ". Ensure the service account has access. Details: "
+              + e.getMessage(),
+          e);
+    } else if (statusCode == 500) {
+      logError(
+          "Google API internal server error (500) for "
+              + context
+              + ". This is a transient Google backend error ('backendError'). "
+              + "Try again later. Details: "
+              + e.getMessage(),
+          e);
+    } else if (statusCode == 503) {
+      logError(
+          "Google API temporarily unavailable (503) for "
+              + context
+              + ". Try again later. Details: "
+              + e.getMessage(),
+          e);
+    } else if (statusCode == 404) {
+      logError(
+          "Spreadsheet or worksheet not found (404) for "
+              + context
+              + ". Verify the spreadsheet key and worksheet name. Details: "
+              + e.getMessage(),
+          e);
+    } else {
+      logError(
+          "Google API error (HTTP "
+              + statusCode
+              + ") for "
+              + context
+              + ". Details: "
+              + e.getMessage(),
+          e);
+    }
+  }
+
+  /** Walk the cause chain to find an HttpResponseException (e.g. when wrapped by HopException). */
+  private HttpResponseException findHttpResponseException(Throwable t) {
+    for (Throwable current = t; current != null; current = current.getCause()) {
+      if (current instanceof HttpResponseException) {
+        return (HttpResponseException) current;
+      }
+    }
+    return null;
+  }
+
+  private boolean isRetryableSheetsStatus(int statusCode) {
+    return statusCode == 429 || statusCode == 500 || statusCode == 503;
+  }
+
+  private <T> T executeSheetsRequestWithRetry(RequestExecutor<T> executor, String context)
+      throws Exception {
+    int maxRetries = getRetryAttempts();
+    long retryDelayMs = getRetryDelayMs();
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        return executor.execute();
+      } catch (Exception e) {
+        HttpResponseException httpEx =
+            (e instanceof HttpResponseException)
+                ? (HttpResponseException) e
+                : findHttpResponseException(e);
+        if (httpEx == null) {
+          throw e;
+        }
+        int statusCode = httpEx.getStatusCode();
+        if (!isRetryableSheetsStatus(statusCode) || attempt >= maxRetries - 1) {
+          throw httpEx;
+        }
+        if (isBasic()) {
+          logBasic(
+              "Retrying "
+                  + context
+                  + " in "
+                  + retryDelayMs
+                  + "ms after HTTP "
+                  + statusCode
+                  + " (attempt "
+                  + (attempt + 1)
+                  + "/"
+                  + maxRetries
+                  + ")");
+        }
+        try {
+          TimeUnit.MILLISECONDS.sleep(retryDelayMs);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          throw ie;
+        }
+        retryDelayMs *= 2;
+      }
+    }
+    throw new HopException("Unexpected retry loop exit for: " + context);
+  }
+
+  private int getRetryAttempts() {
+    return parsePositiveInt(resolve(meta.getRetryAttempts()), 3, "retry attempts");
+  }
+
+  private long getRetryDelayMs() {
+    long retryDelaySeconds =
+        parsePositiveInt(resolve(meta.getRetryDelayMs()), 2, "retry delay (s)");
+    return retryDelaySeconds * 1000L;
+  }
+
+  private int parsePositiveInt(String value, int defaultValue, String fieldName) {
+    if (Utils.isEmpty(value)) {
+      return defaultValue;
+    }
+    try {
+      int parsed = Integer.parseInt(value.trim());
+      if (parsed < 1) {
+        logBasic(
+            "Invalid " + fieldName + " value '" + value + "', falling back to " + defaultValue);
+        return defaultValue;
+      }
+      return parsed;
+    } catch (NumberFormatException e) {
+      logBasic(
+          "Unable to parse "
+              + fieldName
+              + " value '"
+              + value
+              + "', falling back to "
+              + defaultValue);
+      return defaultValue;
+    }
   }
 
   @Override
@@ -391,7 +568,8 @@ public class GoogleSheetsOutput
                       + resolve(meta.getSpreadsheetKey()));
             }
             if (request != null) {
-              ClearValuesResponse response = request.execute();
+              executeSheetsRequestWithRetry(
+                  () -> request.execute(), "clearing worksheet before write");
             } else {
               if (isBasic()) {
                 logBasic("Nothing to clear");
@@ -403,13 +581,15 @@ public class GoogleSheetsOutput
             }
             ValueRange body = new ValueRange().setValues(data.rows);
             String valueInputOption = "USER_ENTERED";
-            UpdateValuesResponse result =
-                data.service
-                    .spreadsheets()
-                    .values()
-                    .update(resolve(meta.getSpreadsheetKey()), range, body)
-                    .setValueInputOption(valueInputOption)
-                    .execute();
+            executeSheetsRequestWithRetry(
+                () ->
+                    data.service
+                        .spreadsheets()
+                        .values()
+                        .update(resolve(meta.getSpreadsheetKey()), range, body)
+                        .setValueInputOption(valueInputOption)
+                        .execute(),
+                "updating worksheet values");
 
           } else { // Appending if option is checked
 
@@ -435,7 +615,7 @@ public class GoogleSheetsOutput
                     .append(resolve(meta.getSpreadsheetKey()), range, body);
             request.setValueInputOption(valueInputOption);
             request.setInsertDataOption(insertDataOption);
-            AppendValuesResponse response = request.execute();
+            executeSheetsRequestWithRetry(() -> request.execute(), "appending worksheet values");
           }
         } else {
           if (isBasic()) {
@@ -459,8 +639,72 @@ public class GoogleSheetsOutput
 
         putRow(data.outputRowMeta, row);
       }
+    } catch (HttpResponseException e) {
+      String context =
+          "worksheet: "
+              + resolve(meta.getWorksheetId())
+              + " in spreadsheet: "
+              + resolve(meta.getSpreadsheetKey());
+      int statusCode = e.getStatusCode();
+      String msg;
+      if (statusCode == 429) {
+        msg =
+            "Google API rate limit exceeded (429) while writing to "
+                + context
+                + ". This often occurs when running inside GCP. Details: "
+                + e.getMessage();
+      } else if (statusCode == 503) {
+        msg =
+            "Google API temporarily unavailable (503) while writing to "
+                + context
+                + ". Try again later. Details: "
+                + e.getMessage();
+      } else if (statusCode == 403) {
+        msg = "Access denied (403) while writing to " + context + ". Details: " + e.getMessage();
+      } else {
+        msg =
+            "Google API error (HTTP "
+                + statusCode
+                + ") while writing to "
+                + context
+                + ": "
+                + e.getMessage();
+      }
+      throw new HopException(msg, e);
     } catch (Exception e) {
-      throw new HopException(e.getMessage());
+      HttpResponseException httpEx = findHttpResponseException(e);
+      if (httpEx != null) {
+        String context =
+            "worksheet: "
+                + resolve(meta.getWorksheetId())
+                + " in spreadsheet: "
+                + resolve(meta.getSpreadsheetKey());
+        int statusCode = httpEx.getStatusCode();
+        String msg;
+        if (statusCode == 429) {
+          msg =
+              "Google API rate limit exceeded (429) while writing to "
+                  + context
+                  + ". This often occurs when running inside GCP. Details: "
+                  + httpEx.getMessage();
+        } else if (statusCode == 503) {
+          msg =
+              "Google API temporarily unavailable (503) while writing to "
+                  + context
+                  + ". Try again later. Details: "
+                  + httpEx.getMessage();
+        } else {
+          msg =
+              "Google API error (HTTP "
+                  + statusCode
+                  + ") while writing to "
+                  + context
+                  + ": "
+                  + httpEx.getMessage();
+        }
+        throw new HopException(msg, httpEx);
+      }
+      throw new HopException(e.getMessage(), e);
     } finally {
       data.currentRow++;
     }

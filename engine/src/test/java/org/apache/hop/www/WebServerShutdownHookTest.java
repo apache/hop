@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.junit.jupiter.api.Test;
 
 class WebServerShutdownHookTest {
@@ -39,7 +40,7 @@ class WebServerShutdownHookTest {
   @Test
   void runSwallowsStopServerException() throws Exception {
     WebServer webServer = mock(WebServer.class);
-    doThrow(new RuntimeException("stop failed")).when(webServer).stopServer();
+    doThrow(new HopRuntimeException("stop failed")).when(webServer).stopServer();
     WebServerShutdownHook hook = new WebServerShutdownHook(webServer);
     hook.run();
     verify(webServer).stopServer();

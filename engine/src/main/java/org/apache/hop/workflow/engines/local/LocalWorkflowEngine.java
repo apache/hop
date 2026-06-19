@@ -23,7 +23,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
@@ -31,6 +31,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.util.ExecutorUtil;
@@ -138,7 +139,10 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                 // All fine?  Commit!
                 //
                 try {
-                  if (result.isResult() && !result.isStopped() && result.getNrErrors() == 0) {
+                  if (result.isResult()
+                      && !result.isStopped()
+                      && !workflow.isStopped()
+                      && result.getNrErrors() == 0) {
                     try {
                       database.commit(true);
                       workflow
@@ -330,7 +334,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                 lastLogLineNr.set(executionState.getLastLogLineNr());
               }
             } catch (Exception e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Error registering execution info data from transforms at location "
                       + executionInfoLocation.getName(),
                   e);

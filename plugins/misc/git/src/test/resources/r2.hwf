@@ -55,7 +55,7 @@ limitations under the License.
     <action>
       <name>Workflow</name>
       <description />
-      <type>JOB</type>
+      <type>WORKFLOW</type>
       <specification_method>filename</specification_method>
       <job_object_id />
       <filename />
@@ -84,7 +84,7 @@ limitations under the License.
     <action>
       <name>Workflow 2</name>
       <description />
-      <type>JOB</type>
+      <type>WORKFLOW</type>
       <specification_method>filename</specification_method>
       <job_object_id />
       <filename />

@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/formula</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,31 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-formula:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/formula</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>provided</scope>
-            <includes>
-                <include>com.github.virtuald:curvesapi:jar</include>
-                <include>org.apache.poi:poi:jar</include>
-                <include>org.apache.poi:poi-ooxml:jar</include>
-                <include>org.apache.poi:poi-ooxml-lite:jar</include>
-                <include>org.apache.xmlbeans:xmlbeans:jar</include>
-                <include>org.apache.commons:commons-collections4:jar</include>
-                <include>commons-codec:commons-codec:jar</include>
-                <include>commons-io:commons-io:jar</include>
-                <include>com.zaxxer:SparseBitSet:jar</include>
-                <include>org.apache.commons:commons-math3:jar</include>
-                <include>org.apache.commons:commons-compress:jar</include>
-                <include>xerces:xercesImpl:jar</include>
-                <include>xml-apis:xml-apis:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

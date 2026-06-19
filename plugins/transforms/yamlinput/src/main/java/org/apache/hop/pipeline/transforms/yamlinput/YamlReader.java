@@ -17,18 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
@@ -37,7 +37,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.yaml.snakeyaml.Yaml;
 
@@ -46,36 +45,31 @@ import org.yaml.snakeyaml.Yaml;
  * streams.
  */
 public class YamlReader {
-
   private static final String DEFAULT_LIST_VALUE_NAME = "Value";
 
-  private String filename;
   private String string;
-  private FileObject file;
+  @Getter private FileObject file;
 
   // document
   // Store all documents available
   private List<Object> documents;
   // Store current document
-  private Object document;
+  @Getter private Object document;
   // Store document iterator
-  private Iterator<Object> documenti;
+  private Iterator<Object> documentIt;
 
   // object current inside a document
   // In case we use a list
   private Object dataList;
   // Store object iterator
-  private Iterator<Object> dataListi;
-
+  private Iterator<Object> dataListIt;
   private boolean useMap;
-
-  private Yaml yaml;
+  @Getter private Yaml yaml;
 
   /** Bytes read from the last loaded file (for data volume tracking). */
-  private long bytesReadFromFile;
+  @Getter private long bytesReadFromFile;
 
   public YamlReader() {
-    this.filename = null;
     this.string = null;
     this.file = null;
     this.documents = new ArrayList<>();
@@ -86,42 +80,15 @@ public class YamlReader {
 
   public void loadFile(FileObject file) throws Exception {
     this.file = file;
-    this.filename = HopVfs.getFilename(file);
 
-    InputStream is = null;
-    try {
-      is = HopVfs.getInputStream(getFile());
-      CountingInputStream countingStream = new CountingInputStream(is);
-      is = countingStream;
-
+    try (CountingInputStream is = new CountingInputStream(HopVfs.getInputStream(getFile()))) {
       for (Object data : getYaml().loadAll(is)) {
         documents.add(data);
         this.useMap = (data instanceof Map);
       }
-      bytesReadFromFile = countingStream.getCount();
-      this.documenti = documents.iterator();
-
-    } finally {
-      if (is != null) {
-        is.close();
-      }
+      bytesReadFromFile = is.getCount();
+      this.documentIt = documents.iterator();
     }
-  }
-
-  /** Returns bytes read from the last file loaded via {@link #loadFile(FileObject)}. */
-  public long getBytesReadFromFile() {
-    return bytesReadFromFile;
-  }
-
-  public void loadFile(String filename, IVariables variables) throws Exception {
-    this.filename = filename;
-    this.file = HopVfs.getFileObject(filename, variables);
-
-    loadFile(this.file);
-  }
-
-  private Yaml getYaml() {
-    return this.yaml;
   }
 
   public void loadString(String string) {
@@ -131,298 +98,152 @@ public class YamlReader {
       documents.add(data);
       this.useMap = (data instanceof Map);
     }
-    this.documenti = documents.iterator();
+    this.documentIt = documents.iterator();
   }
 
   public boolean isMapUsed() {
     return this.useMap;
   }
 
-  public Object[] getRow(IRowMeta rowMeta) throws HopException {
-
-    Object[] retval = null;
-
-    if (getDocument() != null) {
-      if (isMapUsed()) {
-        Map<Object, Object> map = (Map<Object, Object>) getDocument();
-        retval = new Object[rowMeta.size()];
-        for (int i = 0; i < rowMeta.size(); i++) {
-          IValueMeta valueMeta = rowMeta.getValueMeta(i);
-          Object o = null;
-          if (Utils.isEmpty(valueMeta.getName())) {
-            o = getDocument().toString();
-          } else {
-            o = map.get(valueMeta.getName());
-          }
-          retval[i] = getValue(o, valueMeta);
-        }
-
-        // We have done with this document
-        finishDocument();
-      } else {
-        if (dataList != null) {
-
-          List<Object> list = (List<Object>) getDocument();
-          if (list.size() == 1) {
-            Iterator<Object> it = list.iterator();
-            Object value = it.next();
-            Map<Object, Object> map = (Map<Object, Object>) value;
-            retval = new Object[rowMeta.size()];
-            for (int i = 0; i < rowMeta.size(); i++) {
-              IValueMeta valueMeta = rowMeta.getValueMeta(i);
-              Object o = null;
-              if (Utils.isEmpty(valueMeta.getName())) {
-                o = getDocument().toString();
-              } else {
-                o = map.get(valueMeta.getName());
-              }
-              retval[i] = getValue(o, valueMeta);
-            }
-          } else {
-
-            IValueMeta valueMeta = rowMeta.getValueMeta(0);
-            retval = new Object[1];
-
-            retval[0] = getValue(dataList, valueMeta);
-          }
-          dataList = null;
-        } else {
-          // We are using List
-          if (dataListi.hasNext()) {
-            dataList = dataListi.next();
-          } else {
-            // We have done with this document
-            finishDocument();
-          }
-        }
-      }
-    } else {
-      // See if we have another document
+  /** get row */
+  public Object[] getRow(IRowMeta rowMeta) {
+    if (document == null) {
       getNextDocument();
     }
 
-    if (retval == null && !isfinishedDocument()) {
+    if (document == null) {
+      return new Object[0];
+    }
+
+    Object[] row = fetchRow(rowMeta);
+    if (row.length == 0 && !isFinishedDocument()) {
       return getRow(rowMeta);
     }
-    return retval;
+    return row;
   }
 
-  private Object getValue(Object value, IValueMeta valueMeta) {
-
-    if (value == null) {
-      return null;
-    }
-    Object o = null;
-
-    if (value instanceof List) {
-      value = getYaml().dump(value);
+  private Object[] fetchRow(IRowMeta rowMeta) {
+    if (isMapUsed()) {
+      return processMapRow(rowMeta, (Map<?, ?>) document);
     }
 
-    switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_INTEGER:
-        if (value instanceof Integer integerValue) {
-          o = Long.valueOf(integerValue);
-        } else if (value instanceof BigInteger bigIntegerValue) {
-          o = bigIntegerValue.longValue();
-        } else if (value instanceof Long longValue) {
-          o = Long.valueOf(longValue);
-        } else {
-          o = Long.valueOf(value.toString());
-        }
-        break;
-      case IValueMeta.TYPE_NUMBER:
-        if (value instanceof Integer integerValue) {
-          o = Double.valueOf(integerValue);
-        } else if (value instanceof BigInteger bigIntegerValue) {
-          o = bigIntegerValue.doubleValue();
-        } else if (value instanceof Long longValue) {
-          o = Double.valueOf(longValue);
-        } else if (value instanceof Double) {
-          o = value;
-        } else {
-          o = Double.valueOf((String) value);
-        }
-        break;
-      case IValueMeta.TYPE_BIGNUMBER:
-        if (value instanceof Integer integerValue) {
-          o = new BigDecimal(integerValue);
-        } else if (value instanceof BigInteger bigIntegerValue) {
-          o = new BigDecimal(bigIntegerValue);
-        } else if (value instanceof Long longValue) {
-          o = new BigDecimal(longValue);
-        } else if (value instanceof Double doubleValue) {
-          o = BigDecimal.valueOf(doubleValue);
-        }
-        break;
-      case IValueMeta.TYPE_BOOLEAN:
-        o = value;
-        break;
-      case IValueMeta.TYPE_DATE:
-        o = value;
-        break;
-      case IValueMeta.TYPE_BINARY:
-        o = value;
-        break;
-      default:
-        String s = setMap(value);
+    return processListRow(rowMeta);
+  }
 
-        // Do trimming
-        switch (valueMeta.getTrimType()) {
-          case YamlInputField.TYPE_TRIM_LEFT:
-            s = Const.ltrim(s);
-            break;
-          case YamlInputField.TYPE_TRIM_RIGHT:
-            s = Const.rtrim(s);
-            break;
-          case YamlInputField.TYPE_TRIM_BOTH:
-            s = Const.trim(s);
-            break;
-          default:
-            break;
-        }
-        o = s;
+  private Object[] handleCurrentListValue(IRowMeta rowMeta) {
+    List<?> list = (List<?>) document;
 
-        break;
+    if (list.size() == 1 && list.getFirst() instanceof Map<?, ?> map) {
+      return processMapRow(rowMeta, map);
     }
-    return o;
+
+    IValueMeta valueMeta = rowMeta.getValueMeta(0);
+    return new Object[] {getValue(dataList, valueMeta)};
+  }
+
+  private Object[] processListRow(IRowMeta rowMeta) {
+    if (dataList == null) {
+      return advanceListIterator();
+    }
+
+    Object[] row = handleCurrentListValue(rowMeta);
+    dataList = null;
+    return row;
+  }
+
+  private Object[] processMapRow(IRowMeta rowMeta, Map<?, ?> map) {
+    Object[] row = new Object[rowMeta.size()];
+
+    for (int i = 0; i < rowMeta.size(); i++) {
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+
+      Object value =
+          Utils.isEmpty(valueMeta.getName()) ? document.toString() : map.get(valueMeta.getName());
+
+      row[i] = getValue(value, valueMeta);
+    }
+
+    finishDocument();
+    return row;
+  }
+
+  private Object[] advanceListIterator() {
+    if (!dataListIt.hasNext()) {
+      finishDocument();
+      return new Object[0];
+    }
+
+    dataList = dataListIt.next();
+    return new Object[0];
   }
 
   private void getNextDocument() {
     // See if we have another document
-    if (this.documenti.hasNext()) {
+    if (this.documentIt.hasNext()) {
       // We have another document
-      this.document = this.documenti.next();
+      this.document = this.documentIt.next();
       if (!isMapUsed()) {
+        @SuppressWarnings("unchecked")
         List<Object> list = (List<Object>) getDocument();
-        dataListi = list.iterator();
+        dataListIt = list.iterator();
       }
     }
   }
 
   private String setMap(Object value) {
-    String result = value.toString();
+    StringBuilder result = new StringBuilder(value.toString());
     if (value instanceof Map) {
-
+      @SuppressWarnings("unchecked")
       Map<Object, Object> map = (Map<Object, Object>) value;
-      Iterator it = map.entrySet().iterator();
+      Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
 
       int nr = 0;
       while (it.hasNext()) {
-        Map.Entry pairs = (Map.Entry) it.next();
+        Map.Entry<Object, Object> pairs = it.next();
         String res = pairs.getKey().toString() + ":  " + setMap(pairs.getValue());
         if (nr == 0) {
-          result = "{" + res;
+          result = new StringBuilder("{" + res);
         } else {
-          result += "," + res;
+          result.append(",").append(res);
         }
         nr++;
       }
       if (nr > 0) {
-        result += "}";
+        result.append("}");
       }
     }
-    return result;
-  }
-
-  public RowMeta getFields() {
-    RowMeta rowMeta = new RowMeta();
-
-    Iterator<Object> ito = documents.iterator();
-    while (ito.hasNext()) {
-      Object data = ito.next();
-      if (data instanceof Map) {
-        // First check if we deals with a map
-
-        Map<Object, Object> map = (Map<Object, Object>) data;
-        Iterator it = map.entrySet().iterator();
-        while (it.hasNext()) {
-          Map.Entry pairs = (Map.Entry) it.next();
-          String valueName = pairs.getKey().toString();
-          IValueMeta valueMeta;
-          try {
-            valueMeta = ValueMetaFactory.createValueMeta(valueName, getType(pairs.getValue()));
-          } catch (HopPluginException e) {
-            valueMeta = new ValueMetaNone(valueName);
-          }
-          rowMeta.addValueMeta(valueMeta);
-        }
-      } else if (data instanceof List) {
-
-        rowMeta = new RowMeta();
-        // Maybe we deals with List
-        List<Object> list = (List<Object>) data;
-        Iterator<Object> it = list.iterator();
-        Object value = it.next();
-
-        if (list.size() == 1) {
-          Map<Object, Object> map = (Map<Object, Object>) value;
-          Iterator its = map.entrySet().iterator();
-          while (its.hasNext()) {
-            Map.Entry pairs = (Map.Entry) its.next();
-            String valueName = pairs.getKey().toString();
-            IValueMeta valueMeta;
-            try {
-              valueMeta = ValueMetaFactory.createValueMeta(valueName, getType(pairs.getValue()));
-            } catch (HopPluginException e) {
-              valueMeta = new ValueMetaNone(valueName);
-            }
-            rowMeta.addValueMeta(valueMeta);
-          }
-        } else {
-          IValueMeta valueMeta;
-          try {
-            valueMeta = ValueMetaFactory.createValueMeta(DEFAULT_LIST_VALUE_NAME, getType(value));
-          } catch (HopPluginException e) {
-            valueMeta = new ValueMetaNone(DEFAULT_LIST_VALUE_NAME);
-          }
-          rowMeta.addValueMeta(valueMeta);
-        }
-      }
-    }
-
-    return rowMeta;
+    return result.toString();
   }
 
   private int getType(Object value) {
-
-    if (value instanceof Integer) {
-      return IValueMeta.TYPE_INTEGER;
+    if (value == null) {
+      return IValueMeta.TYPE_STRING;
     }
-    if (value instanceof Double) {
-      return IValueMeta.TYPE_NUMBER;
-    } else if (value instanceof Long) {
-      return IValueMeta.TYPE_INTEGER;
-    } else if (value instanceof Date) {
-      return IValueMeta.TYPE_DATE;
-    } else if (value instanceof java.sql.Date) {
-      return IValueMeta.TYPE_DATE;
-    } else if (value instanceof Timestamp) {
-      return IValueMeta.TYPE_DATE;
-    } else if (value instanceof Boolean) {
-      return IValueMeta.TYPE_BOOLEAN;
-    } else if (value instanceof BigInteger) {
-      return IValueMeta.TYPE_BIGNUMBER;
-    } else if (value instanceof BigDecimal) {
-      return IValueMeta.TYPE_BIGNUMBER;
-    } else if (value instanceof Byte) {
-      return IValueMeta.TYPE_BINARY;
-    }
-    return IValueMeta.TYPE_STRING;
-  }
 
-  private Object getDocument() {
-    return this.document;
+    return switch (value) {
+      case Integer ignored -> IValueMeta.TYPE_INTEGER;
+      case Long ignored -> IValueMeta.TYPE_INTEGER;
+      case Double ignored -> IValueMeta.TYPE_NUMBER;
+      case Boolean ignored -> IValueMeta.TYPE_BOOLEAN;
+      case BigInteger ignored -> IValueMeta.TYPE_BIGNUMBER;
+      case BigDecimal ignored -> IValueMeta.TYPE_BIGNUMBER;
+      case Byte ignored -> IValueMeta.TYPE_BINARY;
+      case Timestamp ignored -> IValueMeta.TYPE_DATE;
+      case java.sql.Date ignored -> IValueMeta.TYPE_DATE;
+      case java.util.Date ignored -> IValueMeta.TYPE_DATE;
+      default -> IValueMeta.TYPE_STRING;
+    };
   }
 
   private void finishDocument() {
     this.document = null;
   }
 
-  private boolean isfinishedDocument() {
+  private boolean isFinishedDocument() {
     return (this.document == null);
   }
 
-  public void close() throws Exception {
+  public void close() throws IOException {
     if (file != null) {
       file.close();
     }
@@ -430,11 +251,141 @@ public class YamlReader {
     this.yaml = null;
   }
 
-  public FileObject getFile() {
-    return this.file;
-  }
-
   public String getStringValue() {
     return this.string;
+  }
+
+  /** get value */
+  private Object getValue(Object value, IValueMeta valueMeta) {
+    if (value == null) {
+      return null;
+    }
+
+    Object normalizedValue = normalizeList(value);
+
+    return switch (valueMeta.getType()) {
+      case IValueMeta.TYPE_INTEGER -> convertToInteger(normalizedValue);
+      case IValueMeta.TYPE_NUMBER -> convertToDouble(normalizedValue);
+      case IValueMeta.TYPE_BIGNUMBER -> convertToBigDecimal(normalizedValue);
+      case IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_DATE, IValueMeta.TYPE_BINARY -> normalizedValue;
+      default -> convertToString(normalizedValue, valueMeta);
+    };
+  }
+
+  private Object normalizeList(Object value) {
+    if (value instanceof List) {
+      String dumped = getYaml().dump(value);
+      if (StringUtils.isEmpty(dumped)) {
+        return dumped;
+      }
+
+      return stripTrailingLineBreaks(dumped);
+    }
+    return value;
+  }
+
+  /** SnakeYAML {@code dump} ends the stream with a line break; strip it for cell values. */
+  private static String stripTrailingLineBreaks(String s) {
+    int end = s.length();
+    while (end > 0) {
+      char c = s.charAt(end - 1);
+      if (c != '\n' && c != '\r') {
+        break;
+      }
+      end--;
+    }
+    return s.substring(0, end);
+  }
+
+  /** object -> long */
+  private Long convertToInteger(Object value) {
+    return switch (value) {
+      case Integer i -> i.longValue();
+      case BigInteger bi -> bi.longValue();
+      case Long l -> l;
+      default -> Long.valueOf(value.toString());
+    };
+  }
+
+  /** object -> double */
+  private Double convertToDouble(Object value) {
+    return switch (value) {
+      case Integer i -> i.doubleValue();
+      case BigInteger bi -> bi.doubleValue();
+      case Long l -> l.doubleValue();
+      case Double d -> d;
+      default -> Double.valueOf(value.toString());
+    };
+  }
+
+  private BigDecimal convertToBigDecimal(Object value) {
+    return switch (value) {
+      case Integer i -> new BigDecimal(i);
+      case BigInteger bi -> new BigDecimal(bi);
+      case Long l -> BigDecimal.valueOf(l);
+      case Double d -> BigDecimal.valueOf(d);
+      default -> null;
+    };
+  }
+
+  private String convertToString(Object value, IValueMeta valueMeta) {
+    String s = setMap(value);
+    return applyTrim(s, valueMeta);
+  }
+
+  private String applyTrim(String s, IValueMeta valueMeta) {
+    return switch (valueMeta.getTrimType()) {
+      case YamlInputField.TYPE_TRIM_LEFT -> Const.ltrim(s);
+      case YamlInputField.TYPE_TRIM_RIGHT -> Const.rtrim(s);
+      case YamlInputField.TYPE_TRIM_BOTH -> Const.trim(s);
+      default -> s;
+    };
+  }
+
+  /** get fields. */
+  public RowMeta getFields() {
+    RowMeta rowMeta = new RowMeta();
+
+    for (Object data : documents) {
+      if (data instanceof Map<?, ?> map) {
+        appendFromMap(rowMeta, map);
+      } else if (data instanceof List<?> list) {
+        appendFromList(rowMeta, list);
+      }
+    }
+
+    return rowMeta;
+  }
+
+  private void appendFromList(RowMeta rowMeta, List<?> list) {
+    if (list.isEmpty()) {
+      return;
+    }
+
+    Object first = list.getFirst();
+    if (list.size() == 1 && first instanceof Map<?, ?> map) {
+      appendFromMap(rowMeta, map);
+    } else {
+      addField(rowMeta, DEFAULT_LIST_VALUE_NAME, first);
+    }
+  }
+
+  private void appendFromMap(RowMeta rowMeta, Map<?, ?> map) {
+    for (Map.Entry<?, ?> entry : map.entrySet()) {
+      addField(rowMeta, entry.getKey(), entry.getValue());
+    }
+  }
+
+  private void addField(RowMeta rowMeta, Object key, Object value) {
+    String fieldName = String.valueOf(key);
+
+    IValueMeta valueMeta;
+    try {
+      valueMeta = ValueMetaFactory.createValueMeta(fieldName, getType(value));
+    } catch (HopPluginException e) {
+      valueMeta = new ValueMetaNone(fieldName);
+    }
+
+    rowMeta.addValueMeta(valueMeta);
   }
 }

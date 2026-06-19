@@ -28,11 +28,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import org.apache.commons.lang.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -78,6 +81,8 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   public static final Comparator<DatabaseMeta> comparator =
       (DatabaseMeta dbm1, DatabaseMeta dbm2) -> dbm1.getName().compareToIgnoreCase(dbm2.getName());
 
+  @Getter
+  @Setter
   @HopMetadataProperty(key = "rdbms")
   private IDatabase iDatabase;
 
@@ -192,22 +197,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   /**
-   * @return the system dependend database interface for this database metadata definition
-   */
-  public IDatabase getIDatabase() {
-    return iDatabase;
-  }
-
-  /**
-   * Set the system dependend database interface for this database metadata definition
-   *
-   * @param iDatabase the system dependend database interface
-   */
-  public void setIDatabase(IDatabase iDatabase) {
-    this.iDatabase = iDatabase;
-  }
-
-  /**
    * Search for the right type of IDatabase object and clone it.
    *
    * @param databaseType the type of IDatabase to look for (description)
@@ -286,7 +275,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     try {
       iDatabase = getIDatabase(type);
     } catch (HopDatabaseException kde) {
-      throw new RuntimeException("Database type not found!", kde);
+      throw new HopRuntimeException("Database type not found!", kde);
     }
 
     setName(name);
@@ -306,7 +295,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     try {
       iDatabase = getIDatabase(type);
     } catch (HopDatabaseException kde) {
-      throw new RuntimeException("Database type [" + type + "] not found!", kde);
+      throw new HopRuntimeException("Database type [" + type + "] not found!", kde);
     }
 
     setAccessType(oldInterface.getAccessType());
@@ -931,10 +920,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       clearDatabaseInterfacesMap();
       // doCreate() above doesn't declare any exceptions so anything that comes out SHOULD be a
       // runtime exception
-      if (e instanceof RuntimeException runtimeException) {
+      if (e instanceof HopRuntimeException runtimeException) {
         throw runtimeException;
       } else {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
   }

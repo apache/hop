@@ -32,6 +32,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHasName;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.copy.CopyContext;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -43,13 +45,31 @@ import org.w3c.dom.Node;
  * This class describes the fact that a single Action can be used multiple times in the same
  * Workflow. Therefore, it contains a link to an Action, a position, a number, etc.
  */
-public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttributes, IBaseMeta {
+public class ActionMeta
+    implements Cloneable, IGuiPosition, IChanged, IAttributes, IBaseMeta, IHasName {
   public static final String XML_TAG = "action";
 
   private static final String XML_ATTRIBUTE_WORKFLOW_ACTION_COPY = AttributesUtil.XML_TAG + "_hac";
   private static final String CONST_SPACE = "      ";
 
+  @HopMetadataProperty(inline = true)
   private IAction action;
+
+  @HopMetadataProperty(inline = true)
+  private Point location;
+
+  /** Flag to indicate that the actions following this one are launched in parallel */
+  @HopMetadataProperty(key = "parallel")
+  private boolean launchingInParallel;
+
+  /** protected for easy access by subclasses */
+  @HopMetadataProperty(
+      key = "group",
+      groupKey = XML_ATTRIBUTE_WORKFLOW_ACTION_COPY,
+      mapKeyWrapper = "name",
+      mapValueWrapper = "attribute",
+      mapValueClass = HashMap.class)
+  private Map<String, Map<String, String>> attributesMap;
 
   private String suggestion = "";
 
@@ -57,14 +77,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
 
   private boolean isDeprecated;
 
-  private Point location;
-
-  /** Flag to indicate that the actions following this one are launched in parallel */
-  private boolean launchingInParallel;
-
   private WorkflowMeta parentWorkflowMeta;
-
-  private Map<String, Map<String, String>> attributesMap;
 
   public ActionMeta() {
     clear();

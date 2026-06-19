@@ -133,7 +133,7 @@ limitations under the License.
     </fields>
     <fileAppended>N</fileAppended>
     <fileAsCommand>N</fileAsCommand>
-    <fileName>${PROJECT_HOME}/output/json-block.js</fileName>
+    <fileName>${java.io.tmpdir}/hop-json-integration-output/json-block.js</fileName>
     <jsonBloc>data</jsonBloc>
     <nrRowsInBloc>123</nrRowsInBloc>
     <operation_type>writetofile</operation_type>

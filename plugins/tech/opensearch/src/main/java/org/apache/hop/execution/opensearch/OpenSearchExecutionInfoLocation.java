@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -66,6 +66,7 @@ import org.json.simple.parser.JSONParser;
 public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLocation
     implements IExecutionInfoLocation {
   public static final Class<?> PKG = OpenSearchExecutionInfoLocation.class;
+  public static final String STRICT_DATE_OPTIONAL_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
   @GuiWidgetElement(
       id = "url",
@@ -489,15 +490,20 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
 
       // This array contains the results wrapped in its own structure.
       //
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
+      SimpleDateFormat sdf = new SimpleDateFormat(STRICT_DATE_OPTIONAL_TIME_FORMAT);
       sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
       for (Object row : dataRows) {
         JSONArray dataRow = (JSONArray) row;
         String id = (String) dataRow.get(0);
-        Long creationEpoch = (Long) dataRow.get(1);
-        Date creationDate = new Date(creationEpoch);
-        ids.add(new DatedId(id, creationDate));
+        Object timestamp = dataRow.get(1);
+        if (timestamp instanceof Long creationEpoch) {
+          Date creationDate = new Date(creationEpoch);
+          ids.add(new DatedId(id, creationDate));
+        } else if (timestamp instanceof String dtString) {
+          Date creationDate = (sdf).parse(dtString);
+          ids.add(new DatedId(id, creationDate));
+        }
       }
     } catch (Exception e) {
       throw new HopException("Error finding execution ids from OpenSearch", e);
@@ -536,7 +542,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                   "properties": {
                     "id"  : { "type": "text"},
                     "name": { "type": "text"},
-                    "creationDate": { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                    "creationDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                     "summary": {
                       "type" : "nested",
                       "properties": {
@@ -559,9 +565,9 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                     "executionState": {
                       "type" : "nested",
                       "properties": {
-                        "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
-                        "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
-                        "updateTime":         { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "updateTime":         { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                         "statusDescription":  { "type": "text" }
                       }
                     },

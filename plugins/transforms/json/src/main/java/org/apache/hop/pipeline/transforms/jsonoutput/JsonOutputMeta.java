@@ -124,7 +124,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   public JsonOutputMeta() {
     super();
     outputFields = new ArrayList<>();
-    encoding = Const.XML_ENCODING;
+    encoding = Const.UTF_8;
     outputValue = "outputValue";
     jsonBloc = "data";
     nrRowsInBloc = "0";

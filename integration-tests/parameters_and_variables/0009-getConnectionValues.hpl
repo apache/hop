@@ -199,7 +199,7 @@ com (for direct db connection)
   </transform>
   <transform>
     <name>Text file input</name>
-    <type>TextFileInput</type>
+    <type>TextFileInput2</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>

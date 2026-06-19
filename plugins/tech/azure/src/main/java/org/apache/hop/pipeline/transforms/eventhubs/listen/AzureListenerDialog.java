@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;

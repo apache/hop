@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.common;
 
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.gui.ITextFileInputField;
@@ -66,7 +67,7 @@ public interface ICsvInputAwareMeta<T extends ITextFileInputField> {
    * @param variables the {@link PipelineMeta}
    * @return null if the {@link FileObject} cannot be created.
    */
-  FileObject getHeaderFileObject(final IVariables variables);
+  FileObject getHeaderFileObject(final IVariables variables) throws HopFileException;
 
   /**
    * Gets the fields.

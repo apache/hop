@@ -1,0 +1,139 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "messageOutputName",
+          "data_set_field": "messageOutputName"
+        },
+        {
+          "transform_field": "messageType",
+          "data_set_field": "messageType"
+        },
+        {
+          "transform_field": "keyOutputName",
+          "data_set_field": "keyOutputName"
+        },
+        {
+          "transform_field": "keyType",
+          "data_set_field": "keyType"
+        },
+        {
+          "transform_field": "topicOutputName",
+          "data_set_field": "topicOutputName"
+        },
+        {
+          "transform_field": "partitionOutputName",
+          "data_set_field": "partitionOutputName"
+        },
+        {
+          "transform_field": "offsetOutputName",
+          "data_set_field": "offsetOutputName"
+        },
+        {
+          "transform_field": "timestampOutputName",
+          "data_set_field": "timestampOutputName"
+        },
+        {
+          "transform_field": "batchDuration",
+          "data_set_field": "batchDuration"
+        },
+        {
+          "transform_field": "subTransform",
+          "data_set_field": "subTransform"
+        },
+        {
+          "transform_field": "executionInformationLocation",
+          "data_set_field": "executionInformationLocation"
+        },
+        {
+          "transform_field": "pipelinePath",
+          "data_set_field": "pipelinePath"
+        },
+        {
+          "transform_field": "directBootstrapServers",
+          "data_set_field": "directBootstrapServers"
+        },
+        {
+          "transform_field": "batchSize",
+          "data_set_field": "batchSize"
+        },
+        {
+          "transform_field": "AUTO_COMMIT",
+          "data_set_field": "AUTO_COMMIT"
+        },
+        {
+          "transform_field": "consumerGroup",
+          "data_set_field": "consumerGroup"
+        },
+        {
+          "transform_field": "executionDataProfile",
+          "data_set_field": "executionDataProfile"
+        }
+      ],
+      "field_order": [
+        "messageOutputName",
+        "messageType",
+        "keyOutputName",
+        "keyType",
+        "topicOutputName",
+        "partitionOutputName",
+        "offsetOutputName",
+        "timestampOutputName",
+        "batchDuration",
+        "subTransform",
+        "executionInformationLocation",
+        "pipelinePath",
+        "directBootstrapServers",
+        "batchSize",
+        "AUTO_COMMIT",
+        "consumerGroup",
+        "executionDataProfile"
+      ],
+      "data_set_name": "golden-kafka-consumer-input",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "topic",
+          "data_set_field": "topic"
+        }
+      ],
+      "field_order": [
+        "topic"
+      ],
+      "data_set_name": "golden-kafka-consumer-input-topics",
+      "transform_name": "validate topics"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "property",
+          "data_set_field": "property"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "property",
+        "value"
+      ],
+      "data_set_name": "golden-kafka-consumer-input-options",
+      "transform_name": "validate options"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0047-kafka-consumer-input-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0047-kafka-consumer-input-validate.hpl"
+}

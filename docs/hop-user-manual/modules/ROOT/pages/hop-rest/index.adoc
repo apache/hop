@@ -270,7 +270,7 @@ The 'Execution' services are deployed under sub-path `execution/`.
 
 The body to post can contain the following options (see also: the example above)
 
-* `execute`: the name of the Web Service metadata element to use
+* `service`: the name of the Web Service metadata element to use
 * `runConfig`: the name of the pipeline run configuration to use
 * `variables`: a map with variables (or parameters) with their names and values
 * `bodyContent`: this will be set as a variable using the body content variable option in the Web Service metadata.

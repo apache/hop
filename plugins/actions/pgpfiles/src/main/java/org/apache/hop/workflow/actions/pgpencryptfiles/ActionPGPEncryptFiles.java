@@ -19,10 +19,13 @@ package org.apache.hop.workflow.actions.pgpencryptfiles;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -34,12 +37,14 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -49,7 +54,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
+import org.jspecify.annotations.Nullable;
 
 /** This defines a 'PGP decrypt files' action. */
 @Action(
@@ -60,17 +65,12 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
     keywords = "i18n::ActionPGPEncryptFiles.keyword",
     documentationUrl = "/workflow/actions/pgpencryptfiles.html")
+@Getter
+@Setter
 @SuppressWarnings("java:S1104")
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPEncryptFiles.class;
 
-  public static final String[] actionTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionPGPEncryptFiles.ActionsType.Encrypt.Label"),
-        BaseMessages.getString(PKG, "ActionPGPEncryptFiles.ActionsType.Sign.Label"),
-        BaseMessages.getString(PKG, "ActionPGPEncryptFiles.ActionsType.SignAndEncrypt.Label"),
-      };
-  public static final String[] actionTypeCodes = new String[] {"encrypt", "sign", "signandencrypt"};
   public static final int ACTION_TYPE_ENCRYPT = 0;
   public static final int ACTION_TYPE_SIGN = 1;
   public static final int ACTION_TYPE_SIGN_AND_ENCRYPT = 2;
@@ -84,45 +84,87 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   public static final String CONST_ACTION_PGPENCRYPT_FILES_LOG_FILE_ENCRYPTED =
       "ActionPGPEncryptFiles.Log.FileEncrypted";
 
-  private SimpleDateFormat daf;
-  private GPG gpg;
-
-  public boolean argFromPrevious;
-  public boolean includeSubFolders;
-  public boolean addResultFileNames;
-  public boolean destinationIsAFile;
-  public boolean createDestinationFolder;
-
-  public int[] actionType;
-  public String[] sourceFileFolder;
-  public String[] userId;
-  public String[] destinationFileFolder;
-  public String[] wildcard;
-  private String nrErrorsLessThan;
-
-  private String successCondition;
   public static final String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
   public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
   public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
 
+  @HopMetadataProperty(key = "arg_from_previous")
+  private boolean argFromPrevious;
+
+  @HopMetadataProperty(key = "include_subfolders")
+  private boolean includeSubFolders;
+
+  @HopMetadataProperty(key = "add_result_filesname")
+  private boolean addResultFileNames;
+
+  @HopMetadataProperty(key = "destination_is_a_file")
+  private boolean destinationIsAFile;
+
+  @HopMetadataProperty(key = "create_destination_folder")
+  private boolean createDestinationFolder;
+
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<PgpFile> pgpFiles;
+
+  @HopMetadataProperty(key = "nr_errors_less_than")
+  private String nrErrorsLessThan;
+
+  @HopMetadataProperty(key = "success_condition")
+  private String successCondition;
+
+  @HopMetadataProperty(key = "add_date")
   private boolean addDate;
+
+  @HopMetadataProperty(key = "add_time")
   private boolean addTime;
+
+  @HopMetadataProperty(key = "SpecifyFormat")
   private boolean specifyFormat;
+
+  @HopMetadataProperty(key = "date_time_format")
   private String dateTimeFormat;
+
+  @HopMetadataProperty(key = "AddDateBeforeExtension")
   private boolean addDateBeforeExtension;
+
+  @HopMetadataProperty(key = "DoNotKeepFolderStructure")
   private boolean doNotKeepFolderStructure;
+
+  @HopMetadataProperty(key = "iffileexists")
   private String ifFileExists;
+
+  @HopMetadataProperty(key = "destinationFolder")
   private String destinationFolder;
+
+  @HopMetadataProperty(key = "ifmovedfileexists")
   private String ifMovedFileExists;
+
+  @HopMetadataProperty(key = "moved_date_time_format")
   private String movedDateTimeFormat;
+
+  @HopMetadataProperty(key = "AddMovedDateBeforeExtension")
   private boolean addMovedDateBeforeExtension;
+
+  @HopMetadataProperty(key = "add_moved_date")
   private boolean addMovedDate;
+
+  @HopMetadataProperty(key = "add_moved_time")
   private boolean addMovedTime;
+
+  @HopMetadataProperty(key = "SpecifyMoveFormat")
   private boolean specifyMoveFormat;
-  public boolean createMoveToFolder;
+
+  @HopMetadataProperty(key = "create_move_to_folder")
+  private boolean createMoveToFolder;
+
+  @HopMetadataProperty(key = "gpglocation")
   private String gpgLocation;
 
+  @HopMetadataProperty(key = "asciiMode")
   private boolean asciiMode;
+
+  private SimpleDateFormat daf;
+  private GPG gpg;
 
   private int nrErrors = 0;
   private int nrSuccess = 0;
@@ -132,239 +174,67 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
   public ActionPGPEncryptFiles(String n) {
     super(n, "");
-    createMoveToFolder = false;
-    specifyMoveFormat = false;
-    addMovedDate = false;
-    addMovedTime = false;
-    addMovedDateBeforeExtension = false;
-    movedDateTimeFormat = null;
-    gpgLocation = null;
+    pgpFiles = new ArrayList<>();
     ifMovedFileExists = CONST_DO_NOTHING;
-    destinationFolder = null;
-    doNotKeepFolderStructure = false;
-    argFromPrevious = false;
-    sourceFileFolder = null;
-    userId = null;
-    destinationFileFolder = null;
-    wildcard = null;
-    includeSubFolders = false;
-    addResultFileNames = false;
-    destinationIsAFile = false;
-    createDestinationFolder = false;
     nrErrorsLessThan = "10";
     successCondition = SUCCESS_IF_NO_ERRORS;
-    addDate = false;
-    addTime = false;
-    specifyFormat = false;
-    dateTimeFormat = null;
-    addDateBeforeExtension = false;
     ifFileExists = CONST_DO_NOTHING;
-    asciiMode = false;
   }
 
   public ActionPGPEncryptFiles() {
     this("");
   }
 
-  public void allocate(int nrFields) {
-    actionType = new int[nrFields];
-    sourceFileFolder = new String[nrFields];
-    userId = new String[nrFields];
-    destinationFileFolder = new String[nrFields];
-    wildcard = new String[nrFields];
+  public ActionPGPEncryptFiles(ActionPGPEncryptFiles a) {
+    super(a);
+    this.argFromPrevious = a.argFromPrevious;
+    this.includeSubFolders = a.includeSubFolders;
+    this.addResultFileNames = a.addResultFileNames;
+    this.destinationIsAFile = a.destinationIsAFile;
+    this.createDestinationFolder = a.createDestinationFolder;
+    this.nrErrorsLessThan = a.nrErrorsLessThan;
+    this.successCondition = a.successCondition;
+    this.addDate = a.addDate;
+    this.addTime = a.addTime;
+    this.specifyFormat = a.specifyFormat;
+    this.dateTimeFormat = a.dateTimeFormat;
+    this.addDateBeforeExtension = a.addDateBeforeExtension;
+    this.doNotKeepFolderStructure = a.doNotKeepFolderStructure;
+    this.ifFileExists = a.ifFileExists;
+    this.destinationFolder = a.destinationFolder;
+    this.ifMovedFileExists = a.ifMovedFileExists;
+    this.movedDateTimeFormat = a.movedDateTimeFormat;
+    this.addMovedDateBeforeExtension = a.addMovedDateBeforeExtension;
+    this.addMovedDate = a.addMovedDate;
+    this.addMovedTime = a.addMovedTime;
+    this.specifyMoveFormat = a.specifyMoveFormat;
+    this.createMoveToFolder = a.createMoveToFolder;
+    this.gpgLocation = a.gpgLocation;
+    this.asciiMode = a.asciiMode;
+    this.daf = a.daf;
+    this.gpg = a.gpg;
+    this.nrErrors = a.nrErrors;
+    this.nrSuccess = a.nrSuccess;
+    this.successConditionBroken = a.successConditionBroken;
+    this.successConditionBrokenExit = a.successConditionBrokenExit;
+    this.limitFiles = a.limitFiles;
+    this.pgpFiles = new ArrayList<>();
+    if (a.pgpFiles != null) {
+      a.pgpFiles.forEach(f -> this.pgpFiles.add(new PgpFile(f)));
+    }
   }
 
   @Override
   public Object clone() {
-    ActionPGPEncryptFiles je = (ActionPGPEncryptFiles) super.clone();
-    if (actionType != null) {
-      int nrFields = actionType.length;
-      je.allocate(nrFields);
-      System.arraycopy(actionType, 0, je.actionType, 0, nrFields);
-      System.arraycopy(sourceFileFolder, 0, je.sourceFileFolder, 0, nrFields);
-      System.arraycopy(userId, 0, je.userId, 0, nrFields);
-      System.arraycopy(destinationFileFolder, 0, je.destinationFileFolder, 0, nrFields);
-      System.arraycopy(wildcard, 0, je.wildcard, 0, nrFields);
-    }
-    return je;
+    return new ActionPGPEncryptFiles(this);
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(450);
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("gpglocation", gpgLocation));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("add_result_filesname", addResultFileNames));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("destination_is_a_file", destinationIsAFile));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("create_destination_folder", createDestinationFolder));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_time", addTime));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("DoNotKeepFolderStructure", doNotKeepFolderStructure));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("iffileexists", ifFileExists));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("destinationFolder", destinationFolder));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("ifmovedfileexists", ifMovedFileExists));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("moved_date_time_format", movedDateTimeFormat));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("create_move_to_folder", createMoveToFolder));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_moved_date", addMovedDate));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("add_moved_time", addMovedTime));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("SpecifyMoveFormat", specifyMoveFormat));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("AddMovedDateBeforeExtension", addMovedDateBeforeExtension));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("asciiMode", asciiMode));
-
-    retval.append("      <fields>").append(Const.CR);
-    if (sourceFileFolder != null) {
-      for (int i = 0; i < sourceFileFolder.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval
-            .append(CONST_SPACES_LONG)
-            .append(XmlHandler.addTagValue("action_type", getActionTypeCode(actionType[i])));
-        retval
-            .append(CONST_SPACES_LONG)
-            .append(XmlHandler.addTagValue("source_filefolder", sourceFileFolder[i]));
-        retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("userid", userId[i]));
-        retval
-            .append(CONST_SPACES_LONG)
-            .append(XmlHandler.addTagValue("destination_filefolder", destinationFileFolder[i]));
-        retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("wildcard", wildcard[i]));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  public static String getActionTypeCode(int i) {
-    if (i < 0 || i >= actionTypeCodes.length) {
-      return actionTypeCodes[0];
-    }
-    return actionTypeCodes[i];
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      gpgLocation = XmlHandler.getTagValue(entrynode, "gpglocation");
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      includeSubFolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-      addResultFileNames =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_result_filesname"));
-      destinationIsAFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "destination_is_a_file"));
-      createDestinationFolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "create_destination_folder"));
-      addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_date"));
-      addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_time"));
-      specifyFormat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "SpecifyFormat"));
-      addDateBeforeExtension =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "AddDateBeforeExtension"));
-      doNotKeepFolderStructure =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "DoNotKeepFolderStructure"));
-      dateTimeFormat = XmlHandler.getTagValue(entrynode, "date_time_format");
-      nrErrorsLessThan = XmlHandler.getTagValue(entrynode, "nr_errors_less_than");
-      successCondition = XmlHandler.getTagValue(entrynode, "success_condition");
-      ifFileExists = XmlHandler.getTagValue(entrynode, "iffileexists");
-      destinationFolder = XmlHandler.getTagValue(entrynode, "destinationFolder");
-      ifMovedFileExists = XmlHandler.getTagValue(entrynode, "ifmovedfileexists");
-      movedDateTimeFormat = XmlHandler.getTagValue(entrynode, "moved_date_time_format");
-      addMovedDateBeforeExtension =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "AddMovedDateBeforeExtension"));
-      createMoveToFolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "create_move_to_folder"));
-      addMovedDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_moved_date"));
-      addMovedTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_moved_time"));
-      specifyMoveFormat =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "SpecifyMoveFormat"));
-      asciiMode = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "asciiMode"));
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        actionType[i] =
-            getActionTypeByCode(Const.NVL(XmlHandler.getTagValue(fnode, "action_type"), ""));
-        sourceFileFolder[i] = XmlHandler.getTagValue(fnode, "source_filefolder");
-        userId[i] = XmlHandler.getTagValue(fnode, "userid");
-        destinationFileFolder[i] = XmlHandler.getTagValue(fnode, "destination_filefolder");
-        wildcard[i] = XmlHandler.getTagValue(fnode, "wildcard");
-      }
-    } catch (HopXmlException xe) {
-
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Error.Exception.UnableLoadXML"), xe);
-    }
-  }
-
-  private static int getActionTypeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < actionTypeCodes.length; i++) {
-      if (actionTypeCodes[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  @Override
-  public Result execute(Result previousResult, int nr) {
-    Result result = previousResult;
-    List<RowMetaAndData> rows = result.getRows();
-    RowMetaAndData resultRow = null;
+  public Result execute(Result result, int nr) {
     result.setNrErrors(1);
     result.setResult(false);
 
     try {
-
       nrErrors = 0;
       nrSuccess = 0;
       successConditionBroken = false;
@@ -377,10 +247,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       String moveToFolder = resolve(destinationFolder);
       // Get source and destination files, also wildcard
-      String[] vSourceFileFolder = sourceFileFolder;
-      String[] vuserid = userId;
-      String[] vDestinationFileFolder = destinationFileFolder;
-      String[] vwildcard = wildcard;
+      List<PgpFile> vPgpFiles = new ArrayList<>();
+      pgpFiles.forEach(f -> vPgpFiles.add(new PgpFile(f)));
 
       if (ifFileExists.equals("move_file")) {
         if (Utils.isEmpty(moveToFolder)) {
@@ -389,187 +257,31 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Log.Error.MoveToFolderMissing"));
           return result;
         }
-        FileObject folder = null;
-        try {
-          folder = HopVfs.getFileObject(moveToFolder, getVariables());
-          if (!folder.exists()) {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", moveToFolder));
-            }
-            if (createMoveToFolder) {
-              folder.createFolder();
-            } else {
-              logError(
-                  BaseMessages.getString(
-                      PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", moveToFolder));
-              return result;
-            }
-          }
-          if (!folder.getType().equals(FileType.FOLDER)) {
-            logError(
-                BaseMessages.getString(
-                    PKG, "ActionPGPEncryptFiles.Log.Error.NotFolder", moveToFolder));
-            return result;
-          }
-        } catch (Exception e) {
-          logError(
-              BaseMessages.getString(
-                  PKG,
-                  "ActionPGPEncryptFiles.Log.Error.GettingMoveToFolder",
-                  moveToFolder,
-                  e.getMessage()));
-          return result;
-        } finally {
-          if (folder != null) {
-            try {
-              folder.close();
-            } catch (IOException ex) {
-              /* Ignore */
-            }
-          }
+        Result createFolderResult = createMoveToFolder(result, moveToFolder);
+        if (createFolderResult != null) {
+          return createFolderResult;
         }
       }
 
       gpg = new GPG(resolve(gpgLocation), getLogChannel(), getVariables());
 
-      if (argFromPrevious && isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(
-                PKG,
-                "ActionPGPEncryptFiles.Log.ArgFromPrevious.Found",
-                (rows != null ? rows.size() : 0) + ""));
-      }
+      List<RowMetaAndData> rows = result.getRows();
       if (argFromPrevious && rows != null) {
-        for (int iteration = 0; iteration < rows.size(); iteration++) {
-          // Success condition broken?
-          if (successConditionBroken) {
-            if (!successConditionBrokenExit) {
-              logError(
-                  BaseMessages.getString(
-                      PKG,
-                      CONST_ACTION_PGPENCRYPT_FILES_ERROR_SUCCESS_CONDITIONBROKEN,
-                      "" + nrErrors));
-              successConditionBrokenExit = true;
-            }
-            result.setNrErrors(nrErrors);
-            displayResults();
-            return result;
-          }
-
-          resultRow = rows.get(iteration);
-
-          // Get source and destination file names, also wildcard
-          int vactionTypePrevious = getActionTypeByCode(resultRow.getString(0, null));
-          String vSourceFileFolderPrevious = resultRow.getString(1, null);
-          String vWildcardPrevious = resolve(resultRow.getString(2, null));
-          String vuseridPrevious = resultRow.getString(3, null);
-          String vDestinationFileFolderPrevious = resultRow.getString(4, null);
-
-          if (!Utils.isEmpty(vSourceFileFolderPrevious)
-              && !Utils.isEmpty(vDestinationFileFolderPrevious)) {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionPGPEncryptFiles.Log.ProcessingRow",
-                      vSourceFileFolderPrevious,
-                      vDestinationFileFolderPrevious,
-                      vWildcardPrevious));
-            }
-
-            if (!ProcessFileFolder(
-                vactionTypePrevious,
-                vSourceFileFolderPrevious,
-                vuseridPrevious,
-                vDestinationFileFolderPrevious,
-                vWildcardPrevious,
-                parentWorkflow,
-                result,
-                moveToFolder)) {
-              // The process fail
-              // Update Errors
-              updateErrors();
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionPGPEncryptFiles.Log.IgnoringRow",
-                      vSourceFileFolder[iteration],
-                      vDestinationFileFolder[iteration],
-                      vwildcard[iteration]));
-            }
-          }
+        Result previousRowsResult = processPreviousResultRows(result, rows, moveToFolder);
+        if (previousRowsResult != null) {
+          return previousRowsResult;
         }
-      } else if (vSourceFileFolder != null && vDestinationFileFolder != null) {
-        for (int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++) {
-          // Success condition broken?
-          if (successConditionBroken) {
-            if (!successConditionBrokenExit) {
-              logError(
-                  BaseMessages.getString(
-                      PKG,
-                      CONST_ACTION_PGPENCRYPT_FILES_ERROR_SUCCESS_CONDITIONBROKEN,
-                      "" + nrErrors));
-              successConditionBrokenExit = true;
-            }
-            result.setNrErrors(nrErrors);
-            displayResults();
-            return result;
-          }
-
-          if (!Utils.isEmpty(vSourceFileFolder[i]) && !Utils.isEmpty(vDestinationFileFolder[i])) {
-            // ok we can process this file/folder
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionPGPEncryptFiles.Log.ProcessingRow",
-                      vSourceFileFolder[i],
-                      vDestinationFileFolder[i],
-                      vwildcard[i]));
-            }
-
-            if (!ProcessFileFolder(
-                actionType[i],
-                vSourceFileFolder[i],
-                vuserid[i],
-                vDestinationFileFolder[i],
-                vwildcard[i],
-                parentWorkflow,
-                result,
-                moveToFolder)) {
-              // Update Errors
-              updateErrors();
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionPGPEncryptFiles.Log.IgnoringRow",
-                      vSourceFileFolder[i],
-                      vDestinationFileFolder[i],
-                      vwildcard[i]));
-            }
-          }
+      } else {
+        Result pgpResult = processPgpFiles(result, vPgpFiles, moveToFolder);
+        if (pgpResult != null) {
+          return pgpResult;
         }
       }
-
     } catch (Exception e) {
       updateErrors();
       logError(BaseMessages.getString("ActionPGPEncryptFiles.Error", e.getMessage()));
-    } finally {
-      if (sourceFileFolder != null) {
-        sourceFileFolder = null;
-      }
-      if (destinationFileFolder != null) {
-        destinationFileFolder = null;
-      }
     }
+
     // Success Condition
     result.setNrErrors(nrErrors);
     result.setNrLinesWritten(nrSuccess);
@@ -580,6 +292,176 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     displayResults();
 
     return result;
+  }
+
+  private @Nullable Result processPgpFiles(
+      Result result, List<PgpFile> vPgpFiles, String moveToFolder) {
+    for (PgpFile vPgpFile : vPgpFiles) {
+      if (parentWorkflow.isStopped()) {
+        break;
+      }
+      // Success condition broken?
+      if (successConditionBroken) {
+        if (!successConditionBrokenExit) {
+          logError(
+              BaseMessages.getString(
+                  PKG, CONST_ACTION_PGPENCRYPT_FILES_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
+          successConditionBrokenExit = true;
+        }
+        result.setNrErrors(nrErrors);
+        displayResults();
+        return result;
+      }
+
+      if (!Utils.isEmpty(vPgpFile.getSourceFileFolder())
+          && !Utils.isEmpty(vPgpFile.getDestinationFileFolder())) {
+        // ok we can process this file/folder
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionPGPEncryptFiles.Log.ProcessingRow",
+                  vPgpFile.getSourceFileFolder(),
+                  vPgpFile.getDestinationFileFolder(),
+                  vPgpFile.getWildcard()));
+        }
+
+        if (!processFileFolder(
+            vPgpFile.getActionType(),
+            vPgpFile.getSourceFileFolder(),
+            vPgpFile.getUserId(),
+            vPgpFile.getDestinationFileFolder(),
+            vPgpFile.getWildcard(),
+            parentWorkflow,
+            result,
+            moveToFolder)) {
+          // Update Errors
+          updateErrors();
+        }
+      } else {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionPGPEncryptFiles.Log.IgnoringRow",
+                  vPgpFile.getSourceFileFolder(),
+                  vPgpFile.getDestinationFileFolder(),
+                  vPgpFile.getWildcard()));
+        }
+      }
+    }
+    return null;
+  }
+
+  private @Nullable Result processPreviousResultRows(
+      Result result, List<RowMetaAndData> rows, String moveToFolder) throws HopValueException {
+    RowMetaAndData resultRow;
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ActionPGPEncryptFiles.Log.ArgFromPrevious.Found",
+              (rows != null ? rows.size() : 0) + ""));
+    }
+    if (rows == null) {
+      return null;
+    }
+    for (RowMetaAndData row : rows) {
+      // Success condition broken?
+      if (successConditionBroken) {
+        if (!successConditionBrokenExit) {
+          logError(
+              BaseMessages.getString(
+                  PKG, CONST_ACTION_PGPENCRYPT_FILES_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
+          successConditionBrokenExit = true;
+        }
+        result.setNrErrors(nrErrors);
+        displayResults();
+        return result;
+      }
+
+      resultRow = row;
+
+      // Get source and destination file names, also wildcard
+      PgpFile previousPgpFile = new PgpFile();
+      previousPgpFile.setActionType(ActionType.lookupWithCode(resultRow.getString(0, null)));
+      previousPgpFile.setSourceFileFolder(resultRow.getString(1, null));
+      previousPgpFile.setWildcard(resolve(resultRow.getString(2, null)));
+      previousPgpFile.setUserId(resultRow.getString(3, null));
+      previousPgpFile.setDestinationFileFolder(resultRow.getString(4, null));
+
+      if (!Utils.isEmpty(previousPgpFile.getSourceFileFolder())
+          && !Utils.isEmpty(previousPgpFile.getDestinationFileFolder())) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionPGPEncryptFiles.Log.ProcessingRow",
+                  previousPgpFile.getSourceFileFolder(),
+                  previousPgpFile.getDestinationFileFolder(),
+                  previousPgpFile.getWildcard()));
+        }
+
+        if (!processFileFolder(
+            previousPgpFile.getActionType(),
+            previousPgpFile.getSourceFileFolder(),
+            previousPgpFile.getUserId(),
+            previousPgpFile.getDestinationFileFolder(),
+            previousPgpFile.getWildcard(),
+            parentWorkflow,
+            result,
+            moveToFolder)) {
+          // The process fail
+          // Update Errors
+          updateErrors();
+        }
+      } else {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionPGPEncryptFiles.Log.IgnoringRow",
+                  previousPgpFile.getSourceFileFolder(),
+                  previousPgpFile.getDestinationFileFolder(),
+                  previousPgpFile.getWildcard()));
+        }
+      }
+    }
+    return null;
+  }
+
+  private @Nullable Result createMoveToFolder(Result result, String moveToFolder) {
+    try (FileObject folder = HopVfs.getFileObject(moveToFolder, getVariables())) {
+      if (!folder.exists()) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", moveToFolder));
+        }
+        if (createMoveToFolder) {
+          folder.createFolder();
+        } else {
+          logError(
+              BaseMessages.getString(
+                  PKG, "ActionPGPEncryptFiles.Log.Error.FolderMissing", moveToFolder));
+          return result;
+        }
+      }
+      if (!folder.getType().equals(FileType.FOLDER)) {
+        logError(
+            BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Log.Error.NotFolder", moveToFolder));
+        return result;
+      }
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "ActionPGPEncryptFiles.Log.Error.GettingMoveToFolder",
+              moveToFolder,
+              e.getMessage()));
+      return result;
+    }
+    return null;
   }
 
   private void displayResults() {
@@ -595,163 +477,134 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     }
   }
 
-  public static int getActionTypeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < actionTypeDesc.length; i++) {
-      if (actionTypeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getActionTypeByCode(tt);
-  }
-
-  public static String getActionTypeDesc(int i) {
-    if (i < 0 && i > ACTION_TYPE_SIGN_AND_ENCRYPT) {
-      return actionTypeDesc[0];
-    }
-    return actionTypeDesc[i];
-  }
-
   private boolean getSuccessStatus() {
-    boolean retval = false;
-
-    if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+    return (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
         || (nrSuccess >= limitFiles
             && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED))
-        || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
-
-    return retval;
+        || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
   }
 
-  private boolean ProcessFileFolder(
-      int actionType,
-      String sourcefilefoldername,
-      String userID,
-      String destinationfilefoldername,
+  private boolean processFileFolder(
+      ActionType actionType,
+      String sourceFileFolderName,
+      String userId,
+      String destinationFileFolderName,
       String wildcard,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result,
       String moveToFolder) {
     boolean entrystatus = false;
-    FileObject sourcefilefolder = null;
-    FileObject destinationfilefolder = null;
-    FileObject movetofolderfolder = null;
-    FileObject currentfile = null;
+    FileObject sourceFileFolder = null;
+    FileObject destinationFileFolder = null;
+    FileObject moveToFolderFolder = null;
+    FileObject currentFile = null;
 
     // Get real source, destination file and wildcard
-    String realSourceFilefoldername = resolve(sourcefilefoldername);
-    String realuserID = resolve(userID);
-    String realDestinationFilefoldername = resolve(destinationfilefoldername);
+    String realSourceFileFolderName = resolve(sourceFileFolderName);
+    String realUserId = resolve(userId);
+    String realDestinationFileFolderName = resolve(destinationFileFolderName);
     String realWildcard = resolve(wildcard);
 
     try {
-
-      sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername, getVariables());
-      destinationfilefolder = HopVfs.getFileObject(realDestinationFilefoldername, getVariables());
+      sourceFileFolder = HopVfs.getFileObject(realSourceFileFolderName, getVariables());
+      destinationFileFolder = HopVfs.getFileObject(realDestinationFileFolderName, getVariables());
       if (!Utils.isEmpty(moveToFolder)) {
-        movetofolderfolder = HopVfs.getFileObject(moveToFolder, getVariables());
+        moveToFolderFolder = HopVfs.getFileObject(moveToFolder, getVariables());
       }
 
-      if (sourcefilefolder.exists()) {
+      if (sourceFileFolder.exists()) {
 
         // Check if destination folder/parent folder exists !
         // If user wanted and if destination folder does not exist
         // Apache Hop will create it
-        if (createDestinationFolder(destinationfilefolder)) {
-
+        if (createDestinationFolder(destinationFileFolder)) {
           // Basic Tests
-          if (sourcefilefolder.getType().equals(FileType.FOLDER) && destinationIsAFile) {
+          if (sourceFileFolder.getType().equals(FileType.FOLDER) && destinationIsAFile) {
             // Source is a folder, destination is a file
             // WARNING !!! CAN NOT MOVE FOLDER TO FILE !!!
-
             logError(
                 BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Log.Forbidden"),
                 BaseMessages.getString(
                     PKG,
                     "ActionPGPEncryptFiles.Log.CanNotMoveFolderToFile",
-                    realSourceFilefoldername,
-                    realDestinationFilefoldername));
+                    realSourceFileFolderName,
+                    realDestinationFileFolderName));
 
             // Update Errors
             updateErrors();
           } else {
-            if (destinationfilefolder.getType().equals(FileType.FOLDER)
-                && sourcefilefolder.getType().equals(FileType.FILE)) {
+            if (destinationFileFolder.getType().equals(FileType.FOLDER)
+                && sourceFileFolder.getType().equals(FileType.FILE)) {
               // Source is a file, destination is a folder
               // return destination short filename
-              String shortfilename = sourcefilefolder.getName().getBaseName();
+              sourceFileFolder.getName().getBaseName();
+              String shortFileName;
 
               try {
-                shortfilename = getDestinationFilename(sourcefilefolder.getName().getBaseName());
+                shortFileName = getDestinationFilename(sourceFileFolder.getName().getBaseName());
               } catch (Exception e) {
                 logError(
                     BaseMessages.getString(
                         PKG,
                         CONST_ACTION_PGPENCRYPT_FILES_ERROR_GETTING_FILENAME,
-                        sourcefilefolder.getName().getBaseName(),
+                        sourceFileFolder.getName().getBaseName(),
                         e.toString()));
                 return entrystatus;
               }
               // Move the file to the destination folder
 
-              String destinationfilenamefull =
-                  destinationfilefolder.toString() + Const.FILE_SEPARATOR + shortfilename;
-              FileObject destinationfile =
-                  HopVfs.getFileObject(destinationfilenamefull, getVariables());
+              String destinationFileNameFull =
+                  destinationFileFolder.toString() + Const.FILE_SEPARATOR + shortFileName;
+              FileObject destinationFile =
+                  HopVfs.getFileObject(destinationFileNameFull, getVariables());
 
               entrystatus =
-                  EncryptFile(
+                  encryptFile(
                       actionType,
-                      shortfilename,
-                      sourcefilefolder,
-                      realuserID,
-                      destinationfile,
-                      movetofolderfolder,
+                      shortFileName,
+                      sourceFileFolder,
+                      realUserId,
+                      destinationFile,
+                      moveToFolderFolder,
                       parentWorkflow,
                       result);
 
-            } else if (sourcefilefolder.getType().equals(FileType.FILE) && destinationIsAFile) {
+            } else if (sourceFileFolder.getType().equals(FileType.FILE) && destinationIsAFile) {
 
               // Source is a file, destination is a file
 
               FileObject destinationfile =
-                  HopVfs.getFileObject(realDestinationFilefoldername, getVariables());
+                  HopVfs.getFileObject(realDestinationFileFolderName, getVariables());
 
               // return destination short filename
-              String shortfilename = destinationfile.getName().getBaseName();
+              destinationfile.getName().getBaseName();
+              String shortFileName;
               try {
-                shortfilename = getDestinationFilename(destinationfile.getName().getBaseName());
+                shortFileName = getDestinationFilename(destinationfile.getName().getBaseName());
               } catch (Exception e) {
                 logError(
                     BaseMessages.getString(
                         PKG,
                         CONST_ACTION_PGPENCRYPT_FILES_ERROR_GETTING_FILENAME,
-                        sourcefilefolder.getName().getBaseName(),
+                        sourceFileFolder.getName().getBaseName(),
                         e.toString()));
                 return entrystatus;
               }
 
-              String destinationfilenamefull =
-                  destinationfilefolder.getParent().toString()
+              String destinationFileNameFull =
+                  destinationFileFolder.getParent().toString()
                       + Const.FILE_SEPARATOR
-                      + shortfilename;
-              destinationfile = HopVfs.getFileObject(destinationfilenamefull, getVariables());
+                      + shortFileName;
+              destinationfile = HopVfs.getFileObject(destinationFileNameFull, getVariables());
 
               entrystatus =
-                  EncryptFile(
+                  encryptFile(
                       actionType,
-                      shortfilename,
-                      sourcefilefolder,
-                      realuserID,
+                      shortFileName,
+                      sourceFileFolder,
+                      realUserId,
                       destinationfile,
-                      movetofolderfolder,
+                      moveToFolderFolder,
                       parentWorkflow,
                       result);
 
@@ -761,11 +614,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 logDetailed("  ");
                 logDetailed(
                     BaseMessages.getString(
-                        PKG, "ActionPGPEncryptFiles.Log.FetchFolder", sourcefilefolder.toString()));
+                        PKG, "ActionPGPEncryptFiles.Log.FetchFolder", sourceFileFolder.toString()));
               }
 
               FileObject[] fileObjects =
-                  sourcefilefolder.findFiles(
+                  sourceFileFolder.findFiles(
                       new AllFileSelector() {
                         @Override
                         public boolean traverseDescendents(FileSelectInfo info) {
@@ -774,23 +627,13 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
                         @Override
                         public boolean includeFile(FileSelectInfo info) {
-                          FileObject fileObject = info.getFile();
-                          try {
+                          try (FileObject fileObject = info.getFile()) {
                             if (fileObject == null) {
                               return false;
                             }
                           } catch (Exception ex) {
                             // Upon error don't process the file.
                             return false;
-                          } finally {
-                            if (fileObject != null) {
-                              try {
-                                fileObject.close();
-                                fileObject = null;
-                              } catch (IOException ex) {
-                                /* Ignore */
-                              }
-                            }
                           }
                           return true;
                         }
@@ -811,18 +654,17 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                     return false;
                   }
                   // Fetch files in list one after one ...
-                  currentfile = fileObjects[j];
-
-                  if (!EncryptOneFile(
+                  currentFile = fileObjects[j];
+                  if (!encryptOneFile(
                       actionType,
-                      currentfile,
-                      sourcefilefolder,
-                      realuserID,
-                      realDestinationFilefoldername,
+                      currentFile,
+                      sourceFileFolder,
+                      realUserId,
+                      realDestinationFileFolderName,
                       realWildcard,
                       parentWorkflow,
                       result,
-                      movetofolderfolder)) {
+                      moveToFolderFolder)) {
                     // Update Errors
                     updateErrors();
                   }
@@ -837,48 +679,48 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               BaseMessages.getString(
                   PKG,
                   "ActionPGPEncryptFiles.Error.DestinationFolderNotFound",
-                  realDestinationFilefoldername));
+                  realDestinationFileFolderName));
         }
       } else {
         logError(
             BaseMessages.getString(
-                PKG, "ActionPGPEncryptFiles.Error.SourceFileNotExists", realSourceFilefoldername));
+                PKG, "ActionPGPEncryptFiles.Error.SourceFileNotExists", realSourceFileFolderName));
       }
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
               PKG,
               "ActionPGPEncryptFiles.Error.Exception.MoveProcess",
-              realSourceFilefoldername,
-              destinationfilefolder.toString(),
+              realSourceFileFolderName,
+              destinationFileFolder == null ? "" : destinationFileFolder.toString(),
               e.getMessage()));
       // Update Errors
       updateErrors();
     } finally {
-      if (sourcefilefolder != null) {
+      if (sourceFileFolder != null) {
         try {
-          sourcefilefolder.close();
+          sourceFileFolder.close();
         } catch (IOException ex) {
           /* Ignore */
         }
       }
-      if (destinationfilefolder != null) {
+      if (destinationFileFolder != null) {
         try {
-          destinationfilefolder.close();
+          destinationFileFolder.close();
         } catch (IOException ex) {
           /* Ignore */
         }
       }
-      if (currentfile != null) {
+      if (currentFile != null) {
         try {
-          currentfile.close();
+          currentFile.close();
         } catch (IOException ex) {
           /* Ignore */
         }
       }
-      if (movetofolderfolder != null) {
+      if (moveToFolderFolder != null) {
         try {
-          movetofolderfolder.close();
+          moveToFolderFolder.close();
         } catch (IOException ex) {
           /* Ignore */
         }
@@ -887,36 +729,36 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return entrystatus;
   }
 
-  private boolean EncryptFile(
-      int actionType,
-      String shortfilename,
-      FileObject sourcefilename,
-      String userID,
-      FileObject destinationfilename,
-      FileObject movetofolderfolder,
+  private boolean encryptFile(
+      ActionType actionType,
+      String shortFileName,
+      FileObject sourceFileName,
+      String userId,
+      FileObject destinationFileName,
+      FileObject moveToFolderFolder,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result) {
 
-    FileObject destinationfile = null;
-    boolean retval = false;
+    FileObject destinationFile = null;
+    boolean success = false;
     try {
-      if (!destinationfilename.exists()) {
+      if (!destinationFileName.exists()) {
 
-        doJob(actionType, sourcefilename, userID, destinationfilename);
+        doJob(actionType, sourceFileName, userId, destinationFileName);
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
                   PKG,
                   CONST_ACTION_PGPENCRYPT_FILES_LOG_FILE_ENCRYPTED,
-                  sourcefilename.getName().toString(),
-                  destinationfilename.getName().toString()));
+                  sourceFileName.getName().toString(),
+                  destinationFileName.getName().toString()));
         }
 
         // add filename to result filename
         if (addResultFileNames
             && !ifFileExists.equals("fail")
             && !ifFileExists.equals(CONST_DO_NOTHING)) {
-          addFileToResultFilenames(destinationfilename.toString(), result, parentWorkflow);
+          addFileToResultFilenames(destinationFileName.toString(), result, parentWorkflow);
         }
 
         updateSuccess();
@@ -925,30 +767,30 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ActionPGPEncryptFiles.Log.FileExists", destinationfilename.toString()));
+                  PKG, "ActionPGPEncryptFiles.Log.FileExists", destinationFileName.toString()));
         }
         switch (ifFileExists) {
           case "overwrite_file" -> {
-            doJob(actionType, sourcefilename, userID, destinationfilename);
+            doJob(actionType, sourceFileName, userId, destinationFileName);
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
                       "ActionPGPEncryptFiles.Log.FileOverwrite",
-                      destinationfilename.getName().toString()));
+                      destinationFileName.getName().toString()));
             }
 
             // add filename to result filename
             if (addResultFileNames
                 && !ifFileExists.equals("fail")
                 && !ifFileExists.equals(CONST_DO_NOTHING)) {
-              addFileToResultFilenames(destinationfilename.toString(), result, parentWorkflow);
+              addFileToResultFilenames(destinationFileName.toString(), result, parentWorkflow);
             }
 
             updateSuccess();
           }
           case "unique_name" -> {
-            String shortFilename = shortfilename;
+            String shortFilename = shortFileName;
 
             // return destination short filename
             try {
@@ -958,45 +800,45 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                   BaseMessages.getString(
                       PKG, CONST_ACTION_PGPENCRYPT_FILES_ERROR_GETTING_FILENAME, shortFilename),
                   e);
-              return retval;
+              return success;
             }
 
-            String movetofilenamefull =
-                destinationfilename.getParent().toString() + Const.FILE_SEPARATOR + shortFilename;
-            destinationfile = HopVfs.getFileObject(movetofilenamefull, getVariables());
+            String moveToFileNameFull =
+                destinationFileName.getParent().toString() + Const.FILE_SEPARATOR + shortFilename;
+            destinationFile = HopVfs.getFileObject(moveToFileNameFull, getVariables());
 
-            doJob(actionType, sourcefilename, userID, destinationfilename);
+            doJob(actionType, sourceFileName, userId, destinationFileName);
             if (isDetailed()) {
               logDetailed(
                   toString(),
                   BaseMessages.getString(
                       PKG,
                       CONST_ACTION_PGPENCRYPT_FILES_LOG_FILE_ENCRYPTED,
-                      sourcefilename.getName().toString(),
-                      destinationfile.getName().toString()));
+                      sourceFileName.getName().toString(),
+                      destinationFile.getName().toString()));
             }
 
             // add filename to result filename
             if (addResultFileNames
                 && !ifFileExists.equals("fail")
                 && !ifFileExists.equals(CONST_DO_NOTHING)) {
-              addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
+              addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
             }
 
             updateSuccess();
           }
           case "delete_file" -> {
-            destinationfilename.delete();
+            destinationFileName.delete();
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
                       "ActionPGPEncryptFiles.Log.FileDeleted",
-                      destinationfilename.getName().toString()));
+                      destinationFileName.getName().toString()));
             }
           }
           case "move_file" -> {
-            String shortFilename = shortfilename;
+            String shortFilename = shortFileName;
             // return destination short filename
             try {
               shortFilename = getMoveDestinationFilename(shortFilename, null);
@@ -1005,47 +847,47 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                   BaseMessages.getString(
                       PKG, CONST_ACTION_PGPENCRYPT_FILES_ERROR_GETTING_FILENAME, shortFilename),
                   e);
-              return retval;
+              return success;
             }
 
-            String movetofilenamefull =
-                movetofolderfolder.toString() + Const.FILE_SEPARATOR + shortFilename;
-            destinationfile = HopVfs.getFileObject(movetofilenamefull, getVariables());
-            if (!destinationfile.exists()) {
-              sourcefilename.moveTo(destinationfile);
+            String moveToFileNameFull =
+                moveToFolderFolder.toString() + Const.FILE_SEPARATOR + shortFilename;
+            destinationFile = HopVfs.getFileObject(moveToFileNameFull, getVariables());
+            if (!destinationFile.exists()) {
+              sourceFileName.moveTo(destinationFile);
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
                         CONST_ACTION_PGPENCRYPT_FILES_LOG_FILE_ENCRYPTED,
-                        sourcefilename.getName().toString(),
-                        destinationfile.getName().toString()));
+                        sourceFileName.getName().toString(),
+                        destinationFile.getName().toString()));
               }
 
               // add filename to result filename
               if (addResultFileNames
                   && !ifFileExists.equals("fail")
                   && !ifFileExists.equals(CONST_DO_NOTHING)) {
-                addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
+                addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
               }
 
             } else {
               switch (ifMovedFileExists) {
                 case "overwrite_file" -> {
-                  sourcefilename.moveTo(destinationfile);
+                  sourceFileName.moveTo(destinationFile);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
                             PKG,
                             "ActionPGPEncryptFiles.Log.FileOverwrite",
-                            destinationfile.getName().toString()));
+                            destinationFile.getName().toString()));
                   }
 
                   // add filename to result filename
                   if (addResultFileNames
                       && !ifFileExists.equals("fail")
                       && !ifFileExists.equals(CONST_DO_NOTHING)) {
-                    addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
+                    addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
                   }
 
                   updateSuccess();
@@ -1058,23 +900,23 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                   shortFilename += "_" + dt;
 
                   String destinationfilenamefull =
-                      movetofolderfolder.toString() + Const.FILE_SEPARATOR + shortFilename;
-                  destinationfile = HopVfs.getFileObject(destinationfilenamefull, getVariables());
+                      moveToFolderFolder.toString() + Const.FILE_SEPARATOR + shortFilename;
+                  destinationFile = HopVfs.getFileObject(destinationfilenamefull, getVariables());
 
-                  sourcefilename.moveTo(destinationfile);
+                  sourceFileName.moveTo(destinationFile);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
                             PKG,
                             CONST_ACTION_PGPENCRYPT_FILES_LOG_FILE_ENCRYPTED,
-                            destinationfile.getName().toString()));
+                            destinationFile.getName().toString()));
                   }
 
                   // add filename to result filename
                   if (addResultFileNames
                       && !ifFileExists.equals("fail")
                       && !ifFileExists.equals(CONST_DO_NOTHING)) {
-                    addFileToResultFilenames(destinationfile.toString(), result, parentWorkflow);
+                    addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
                   }
 
                   updateSuccess();
@@ -1088,6 +930,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           case "fail" ->
               // Update Errors
               updateErrors();
+          default -> {}
         }
       }
     } catch (Exception e) {
@@ -1096,111 +939,108 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           BaseMessages.getString(
               PKG,
               "ActionPGPEncryptFiles.Error.Exception.MoveProcessError",
-              sourcefilename.toString(),
-              destinationfilename.toString(),
+              sourceFileName.toString(),
+              destinationFileName.toString(),
               e.getMessage()));
     } finally {
-      if (destinationfile != null) {
+      if (destinationFile != null) {
         try {
-          destinationfile.close();
+          destinationFile.close();
         } catch (IOException ex) {
           /* Ignore */
         }
       }
     }
-    return retval;
+    return success;
   }
 
-  private boolean EncryptOneFile(
-      int actionType,
-      FileObject currentfile,
-      FileObject sourcefilefolder,
-      String userID,
-      String realDestinationFilefoldername,
+  private boolean encryptOneFile(
+      ActionType actionType,
+      FileObject currentFile,
+      FileObject sourceFileFolder,
+      String userId,
+      String realDestinationFileFolderName,
       String realWildcard,
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result,
-      FileObject movetofolderfolder) {
-    boolean entrystatus = false;
+      FileObject moveToFolderFolder) {
+    boolean entryStatus = false;
     FileObject filename = null;
 
     try {
-      if (!currentfile.toString().equals(sourcefilefolder.toString())) {
+      if (!currentFile.toString().equals(sourceFileFolder.toString())) {
         // Pass over the Base folder itself
 
         // return destination short filename
-        String sourceshortfilename = currentfile.getName().getBaseName();
-        String shortfilename = sourceshortfilename;
+        String sourceShortFileName = currentFile.getName().getBaseName();
+        String shortFileName;
         try {
-          shortfilename = getDestinationFilename(sourceshortfilename);
+          shortFileName = getDestinationFilename(sourceShortFileName);
         } catch (Exception e) {
           logError(
               BaseMessages.getString(
                   PKG,
                   CONST_ACTION_PGPENCRYPT_FILES_ERROR_GETTING_FILENAME,
-                  currentfile.getName().getBaseName(),
+                  currentFile.getName().getBaseName(),
                   e.toString()));
-          return entrystatus;
+          return entryStatus;
         }
 
-        int lenCurrent = sourceshortfilename.length();
-        String shortFilenameFromBaseFolder = shortfilename;
+        int lenCurrent = sourceShortFileName.length();
+        String shortFilenameFromBaseFolder = shortFileName;
         if (!isDoNotKeepFolderStructure()) {
           shortFilenameFromBaseFolder =
-              currentfile
-                  .toString()
-                  .substring(sourcefilefolder.toString().length(), currentfile.toString().length());
+              currentFile.toString().substring(sourceFileFolder.toString().length());
         }
         shortFilenameFromBaseFolder =
             shortFilenameFromBaseFolder.substring(
                     0, shortFilenameFromBaseFolder.length() - lenCurrent)
-                + shortfilename;
+                + shortFileName;
 
         // Built destination filename
         filename =
             HopVfs.getFileObject(
-                realDestinationFilefoldername + Const.FILE_SEPARATOR + shortFilenameFromBaseFolder,
+                realDestinationFileFolderName + Const.FILE_SEPARATOR + shortFilenameFromBaseFolder,
                 getVariables());
 
-        if (!currentfile.getParent().toString().equals(sourcefilefolder.toString())) {
+        if (!currentFile.getParent().toString().equals(sourceFileFolder.toString())) {
 
-          // Not in the Base Folder..Only if include sub folders
+          // Not in the Base Folder... Only if include sub folders
           if (includeSubFolders
-              && currentfile.getType() != FileType.FOLDER
-              && GetFileWildcard(sourceshortfilename, realWildcard)) {
-            // Folders..only if include subfolders
-            entrystatus =
-                EncryptFile(
+              && currentFile.getType() != FileType.FOLDER
+              && getFileWildcard(sourceShortFileName, realWildcard)) {
+            // Folders... only if include subfolders
+            entryStatus =
+                encryptFile(
                     actionType,
-                    shortfilename,
-                    currentfile,
-                    userID,
+                    shortFileName,
+                    currentFile,
+                    userId,
                     filename,
-                    movetofolderfolder,
+                    moveToFolderFolder,
                     parentWorkflow,
                     result);
           }
         } else {
           // In the Base Folder...
-          // Folders..only if include subfolders
-          if (currentfile.getType() != FileType.FOLDER
-              && GetFileWildcard(sourceshortfilename, realWildcard)) {
+          // Folders... only if include subfolders
+          if (currentFile.getType() != FileType.FOLDER
+              && getFileWildcard(sourceShortFileName, realWildcard)) {
             // file...Check if exists
-            entrystatus =
-                EncryptFile(
+            entryStatus =
+                encryptFile(
                     actionType,
-                    shortfilename,
-                    currentfile,
-                    userID,
+                    shortFileName,
+                    currentFile,
+                    userId,
                     filename,
-                    movetofolderfolder,
+                    moveToFolderFolder,
                     parentWorkflow,
                     result);
           }
         }
       }
-      entrystatus = true;
-
+      entryStatus = true;
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Log.Error", e.toString()));
     } finally {
@@ -1213,7 +1053,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
     }
-    return entrystatus;
+    return entryStatus;
   }
 
   private void updateErrors() {
@@ -1238,12 +1078,12 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   private void addFileToResultFilenames(
-      String fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow) {
+      String fileAddEntry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     try {
       ResultFile resultFile =
           new ResultFile(
               ResultFile.FILE_TYPE_GENERAL,
-              HopVfs.getFileObject(fileaddentry, getVariables()),
+              HopVfs.getFileObject(fileAddEntry, getVariables()),
               parentWorkflow.getWorkflowName(),
               toString());
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
@@ -1252,23 +1092,23 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         logDebug(" ------ ");
         logDebug(
             BaseMessages.getString(
-                PKG, "ActionPGPEncryptFiles.Log.FileAddedToResultFilesName", fileaddentry));
+                PKG, "ActionPGPEncryptFiles.Log.FileAddedToResultFilesName", fileAddEntry));
       }
 
     } catch (Exception e) {
       logError(
           BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Error.AddingToFilenameResult"),
-          fileaddentry + "" + e.getMessage());
+          fileAddEntry + "" + e.getMessage());
     }
   }
 
-  private boolean createDestinationFolder(FileObject filefolder) {
+  private boolean createDestinationFolder(FileObject fileFolder) {
     FileObject folder = null;
     try {
       if (destinationIsAFile) {
-        folder = filefolder.getParent();
+        folder = fileFolder.getParent();
       } else {
-        folder = filefolder;
+        folder = fileFolder;
       }
 
       if (!folder.exists()) {
@@ -1299,7 +1139,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           BaseMessages.getString(
               PKG,
               "ActionPGPEncryptFiles.Log.CanNotCreateParentFolder",
-              folder.getName().toString()),
+              folder == null ? "" : folder.getName().toString()),
           e);
 
     } finally {
@@ -1316,36 +1156,33 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
   /**********************************************************
    *
-   * @param selectedfile
-   * @param wildcard
-   * @return True if the selectedfile matches the wildcard
+   * @param selectedFile The selected file
+   * @param wildcard The wildcard
+   * @return True if the selectedFile matches the wildcard
    **********************************************************/
-  private boolean GetFileWildcard(String selectedfile, String wildcard) {
-    Pattern pattern = null;
+  private boolean getFileWildcard(String selectedFile, String wildcard) {
+    Pattern pattern;
     boolean getIt = true;
 
     if (!Utils.isEmpty(wildcard)) {
       pattern = Pattern.compile(wildcard);
       // First see if the file matches the regular expression!
-      if (pattern != null) {
-        Matcher matcher = pattern.matcher(selectedfile);
-        getIt = matcher.matches();
-      }
+      Matcher matcher = pattern.matcher(selectedFile);
+      getIt = matcher.matches();
     }
-
     return getIt;
   }
 
-  private String getDestinationFilename(String shortsourcefilename) {
-    String shortfilename = shortsourcefilename;
-    int lenstring = shortsourcefilename.length();
-    int lastindexOfDot = shortfilename.lastIndexOf('.');
+  private String getDestinationFilename(String shortSourceFileName) {
+    String shortFileName = shortSourceFileName;
+    int stringLength = shortSourceFileName.length();
+    int lastindexOfDot = shortFileName.lastIndexOf('.');
     if (lastindexOfDot == -1) {
-      lastindexOfDot = lenstring;
+      lastindexOfDot = stringLength;
     }
 
     if (isAddDateBeforeExtension()) {
-      shortfilename = shortfilename.substring(0, lastindexOfDot);
+      shortFileName = shortFileName.substring(0, lastindexOfDot);
     }
 
     if (daf == null) {
@@ -1356,258 +1193,81 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     if (isSpecifyFormat() && !Utils.isEmpty(getDateTimeFormat())) {
       daf.applyPattern(getDateTimeFormat());
       String dt = daf.format(now);
-      shortfilename += dt;
+      shortFileName += dt;
     } else {
       if (isAddDate()) {
         daf.applyPattern("yyyyMMdd");
         String d = daf.format(now);
-        shortfilename += "_" + d;
+        shortFileName += "_" + d;
       }
       if (isAddTime()) {
         daf.applyPattern("HHmmssSSS");
         String t = daf.format(now);
-        shortfilename += "_" + t;
+        shortFileName += "_" + t;
       }
     }
     if (isAddDateBeforeExtension()) {
-      shortfilename += shortsourcefilename.substring(lastindexOfDot, lenstring);
+      shortFileName += shortSourceFileName.substring(lastindexOfDot, stringLength);
     }
 
-    return shortfilename;
+    return shortFileName;
   }
 
-  private String getMoveDestinationFilename(String shortsourcefilename, String dateFormat)
+  private String getMoveDestinationFilename(String shortSourceFileName, String dateFormat)
       throws Exception {
-    String shortfilename = shortsourcefilename;
-    int lenstring = shortsourcefilename.length();
+    String shortfilename = shortSourceFileName;
+    int stringLength = shortSourceFileName.length();
     int lastindexOfDot = shortfilename.lastIndexOf('.');
     if (lastindexOfDot == -1) {
-      lastindexOfDot = lenstring;
+      lastindexOfDot = stringLength;
     }
 
     if (isAddMovedDateBeforeExtension()) {
       shortfilename = shortfilename.substring(0, lastindexOfDot);
     }
 
-    SimpleDateFormat daf = new SimpleDateFormat();
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
     Date now = new Date();
 
     if (dateFormat != null) {
-      daf.applyPattern(dateFormat);
-      String dt = daf.format(now);
+      simpleDateFormat.applyPattern(dateFormat);
+      String dt = simpleDateFormat.format(now);
       shortfilename += dt;
     } else {
 
       if (isSpecifyMoveFormat() && !Utils.isEmpty(getMovedDateTimeFormat())) {
-        daf.applyPattern(getMovedDateTimeFormat());
-        String dt = daf.format(now);
+        simpleDateFormat.applyPattern(getMovedDateTimeFormat());
+        String dt = simpleDateFormat.format(now);
         shortfilename += dt;
       } else {
         if (isAddMovedDate()) {
-          daf.applyPattern("yyyyMMdd");
-          String d = daf.format(now);
+          simpleDateFormat.applyPattern("yyyyMMdd");
+          String d = simpleDateFormat.format(now);
           shortfilename += "_" + d;
         }
         if (isAddMovedTime()) {
-          daf.applyPattern("HHmmssSSS");
-          String t = daf.format(now);
+          simpleDateFormat.applyPattern("HHmmssSSS");
+          String t = simpleDateFormat.format(now);
           shortfilename += "_" + t;
         }
       }
     }
     if (isAddMovedDateBeforeExtension()) {
-      shortfilename += shortsourcefilename.substring(lastindexOfDot, lenstring);
+      shortfilename += shortSourceFileName.substring(lastindexOfDot, stringLength);
     }
 
     return shortfilename;
   }
 
-  public void setAddDate(boolean adddate) {
-    this.addDate = adddate;
-  }
-
-  public boolean isAddDate() {
-    return addDate;
-  }
-
-  public void setAsciiMode(boolean asciiMode) {
-    this.asciiMode = asciiMode;
-  }
-
-  public boolean isAsciiMode() {
-    return asciiMode;
-  }
-
-  public boolean isAddMovedDate() {
-    return addMovedDate;
-  }
-
-  public void setAddMovedDate(boolean addMovedDate) {
-    this.addMovedDate = addMovedDate;
-  }
-
-  public boolean isAddMovedTime() {
-    return addMovedTime;
-  }
-
-  public void setAddMovedTime(boolean addMovedTime) {
-    this.addMovedTime = addMovedTime;
-  }
-
-  public void setIfFileExists(String ifFileExists) {
-    this.ifFileExists = ifFileExists;
-  }
-
-  public String getIfFileExists() {
-    return ifFileExists;
-  }
-
-  public void setIfMovedFileExists(String ifMovedFileExists) {
-    this.ifMovedFileExists = ifMovedFileExists;
-  }
-
-  public String getIfMovedFileExists() {
-    return ifMovedFileExists;
-  }
-
-  public void setAddTime(boolean addtime) {
-    this.addTime = addtime;
-  }
-
-  public boolean isAddTime() {
-    return addTime;
-  }
-
-  public void setAddDateBeforeExtension(boolean addDateBeforeExtension) {
-    this.addDateBeforeExtension = addDateBeforeExtension;
-  }
-
-  public void setAddMovedDateBeforeExtension(boolean addMovedDateBeforeExtension) {
-    this.addMovedDateBeforeExtension = addMovedDateBeforeExtension;
-  }
-
-  public boolean isSpecifyFormat() {
-    return specifyFormat;
-  }
-
-  public void setSpecifyFormat(boolean specifyFormat) {
-    this.specifyFormat = specifyFormat;
-  }
-
-  public void setSpecifyMoveFormat(boolean specifyMoveFormat) {
-    this.specifyMoveFormat = specifyMoveFormat;
-  }
-
-  public boolean isSpecifyMoveFormat() {
-    return specifyMoveFormat;
-  }
-
-  public String getDateTimeFormat() {
-    return dateTimeFormat;
-  }
-
-  public void setDateTimeFormat(String dateTimeFormat) {
-    this.dateTimeFormat = dateTimeFormat;
-  }
-
-  public String getMovedDateTimeFormat() {
-    return movedDateTimeFormat;
-  }
-
-  public void setMovedDateTimeFormat(String movedDateTimeFormat) {
-    this.movedDateTimeFormat = movedDateTimeFormat;
-  }
-
-  public boolean isAddDateBeforeExtension() {
-    return addDateBeforeExtension;
-  }
-
-  public boolean isAddMovedDateBeforeExtension() {
-    return addMovedDateBeforeExtension;
-  }
-
-  public boolean isDoNotKeepFolderStructure() {
-    return doNotKeepFolderStructure;
-  }
-
-  public void setDestinationFolder(String destinationFolder) {
-    this.destinationFolder = destinationFolder;
-  }
-
-  public String getDestinationFolder() {
-    return destinationFolder;
-  }
-
-  public void setGpgLocation(String gpgLocation) {
-    this.gpgLocation = gpgLocation;
-  }
-
-  public String getGpgLocation() {
-    return gpgLocation;
-  }
-
-  public void setDoNotKeepFolderStructure(boolean doNotKeepFolderStructure) {
-    this.doNotKeepFolderStructure = doNotKeepFolderStructure;
-  }
-
-  public void setIncludeSubFolders(boolean includeSubFolders) {
-    this.includeSubFolders = includeSubFolders;
-  }
-
-  public void setAddResultFileNames(boolean addResultFileNames) {
-    this.addResultFileNames = addResultFileNames;
-  }
-
-  /**
-   * Gets addResultFilenames
-   *
-   * @return value of addResultFilenames
-   */
-  public boolean isAddResultFileNames() {
-    return addResultFileNames;
-  }
-
-  public void setArgFromPrevious(boolean argFromPrevious) {
-    this.argFromPrevious = argFromPrevious;
-  }
-
-  public void setDestinationIsAFile(boolean destinationIsAFile) {
-    this.destinationIsAFile = destinationIsAFile;
-  }
-
-  public void setCreateDestinationFolder(boolean createDestinationFolder) {
-    this.createDestinationFolder = createDestinationFolder;
-  }
-
-  public void setCreateMoveToFolder(boolean createMoveToFolder) {
-    this.createMoveToFolder = createMoveToFolder;
-  }
-
-  public void setNrErrorsLessThan(String nrErrorsLessThan) {
-    this.nrErrorsLessThan = nrErrorsLessThan;
-  }
-
-  public String getNrErrorsLessThan() {
-    return nrErrorsLessThan;
-  }
-
-  public void setSuccessCondition(String successCondition) {
-    this.successCondition = successCondition;
-  }
-
-  public String getSuccessCondition() {
-    return successCondition;
-  }
-
   public void doJob(
-      int actionType, FileObject sourceFile, String userID, FileObject destinationFile)
+      ActionType actionType, FileObject sourceFile, String userID, FileObject destinationFile)
       throws HopException {
 
     switch (actionType) {
-      case ActionPGPEncryptFiles.ACTION_TYPE_SIGN:
+      case SIGN:
         gpg.signFile(sourceFile, userID, destinationFile, isAsciiMode());
         break;
-      case ActionPGPEncryptFiles.ACTION_TYPE_SIGN_AND_ENCRYPT:
+      case SIGN_AND_ENCRYPT:
         gpg.signAndEncryptFile(sourceFile, userID, destinationFile, isAsciiMode());
         break;
       default:
@@ -1644,8 +1304,67 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    for (int i = 0; i < sourceFileFolder.length; i++) {
+    for (int i = 0; i < pgpFiles.size(); i++) {
       ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
+    }
+  }
+
+  @Getter
+  public enum ActionType implements IEnumHasCodeAndDescription {
+    ENCRYPT(
+        "encrypt", BaseMessages.getString(PKG, "ActionPGPEncryptFiles.ActionsType.Encrypt.Label")),
+    SIGN("sign", BaseMessages.getString(PKG, "ActionPGPEncryptFiles.ActionsType.Sign.Label")),
+    SIGN_AND_ENCRYPT(
+        "signandencrypt",
+        BaseMessages.getString(PKG, "ActionPGPEncryptFiles.ActionsType.SignAndEncrypt.Label"));
+    final String code;
+    final String description;
+
+    ActionType(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static ActionType lookupWithCode(String code) {
+      return IEnumHasCode.lookupCode(ActionType.class, code, ENCRYPT);
+    }
+
+    public static ActionType lookupWithDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(ActionType.class, description, ENCRYPT);
+    }
+
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(ActionType.class);
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class PgpFile {
+    @HopMetadataProperty(key = "action_type", storeWithCode = true)
+    private ActionType actionType;
+
+    @HopMetadataProperty(key = "source_filefolder")
+    public String sourceFileFolder;
+
+    @HopMetadataProperty(key = "userid")
+    public String userId;
+
+    @HopMetadataProperty(key = "destination_filefolder")
+    public String destinationFileFolder;
+
+    @HopMetadataProperty(key = "wildcard")
+    public String wildcard;
+
+    public PgpFile() {}
+
+    public PgpFile(PgpFile f) {
+      this();
+      this.actionType = f.actionType;
+      this.sourceFileFolder = f.sourceFileFolder;
+      this.userId = f.userId;
+      this.destinationFileFolder = f.destinationFileFolder;
+      this.wildcard = f.wildcard;
     }
   }
 }

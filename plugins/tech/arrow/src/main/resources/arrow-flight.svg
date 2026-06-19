@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  - Licensed to the Apache Software Foundation (ASF) under one or more
+  - contributor license agreements.  See the NOTICE file distributed with
+  - this work for additional information regarding copyright ownership.
+  - The ASF licenses this file to You under the Apache License, Version 2.0
+  - (the "License"); you may not use this file except in compliance with
+  - the License.  You may obtain a copy of the License at
+  -
+  -      http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS,
+  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  - See the License for the specific language governing permissions and
+  - limitations under the License.
+  -
+  -->
+
+<svg
+        width="24"
+        height="24"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg">
+    <polygon
+            points="747,243 747,171 927,351 747,531 747,459 855,351 "
+            style="fill:#000000;stroke:#000000;stroke-width:1.07;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"
+            transform="matrix(0.04214871,0,0,0.04214871,-30.318065,0.06494093)"/>
+    <polygon
+            points="873,243 873,171 1053,351 873,531 873,459 981,351 "
+            style="fill:#000000;stroke:#000000;stroke-width:1.07;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"
+            transform="matrix(0.04214871,0,0,0.04214871,-30.318065,0.06494093)"/>
+    <polygon
+            points="999,243 999,171 1179,351 999,531 999,459 1107,351 "
+            style="fill:#000000;stroke:#000000;stroke-width:1.07;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"
+            transform="matrix(0.04214871,0,0,0.04214871,-30.318065,0.06494093)"/>
+    <polygon
+            fill="#0e3a5a"
+            points="13.5,5.7 15,7.6 15,2.4 9.6,3.8 12.1,4.7 10.7,6.5 8.9,4.4 3.8,9.5 5,10.7 8.8,6.9 10.7,9.2 "
+            transform="matrix(1.1089588,0,0,1.1089588,5.7452787,-0.50641656)"
+            style="fill:#51c3c4;fill-opacity:1"/>
+</svg>

@@ -82,7 +82,7 @@ pipeline {
         stage('Build & Test') {
             steps {
                 echo 'Build & Test'
-                sh "mvn $MAVEN_PARAMS clean install"
+                sh "xvfb-run -a --server-args='-screen 0 1280x1024x24' mvn $MAVEN_PARAMS clean install"
             }
         }
         stage('Code Quality') {

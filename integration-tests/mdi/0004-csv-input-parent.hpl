@@ -34,8 +34,6 @@ limitations under the License.
     <created_date>2021/05/10 10:50:11.779</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/05/10 10:50:11.779</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -67,174 +65,173 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <create_parent_folder>N</create_parent_folder>
     <filename>${PROJECT_HOME}/0004-csv-input-child.hpl</filename>
-    <source_transform>Output</source_transform>
-    <source_output_fields>
-      <source_output_field>
-        <source_output_field_name>id</source_output_field_name>
-        <source_output_field_type>Integer</source_output_field_type>
-        <source_output_field_length>15</source_output_field_length>
-        <source_output_field_precision>0</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>name</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>50</source_output_field_length>
-        <source_output_field_precision>-1</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>firstname</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>50</source_output_field_length>
-        <source_output_field_precision>-1</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>zip</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>40</source_output_field_length>
-        <source_output_field_precision>0</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>city</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>50</source_output_field_length>
-        <source_output_field_precision>-1</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>birthdate</source_output_field_name>
-        <source_output_field_type>Date</source_output_field_type>
-        <source_output_field_length>-1</source_output_field_length>
-        <source_output_field_precision>-1</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>street</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>11</source_output_field_length>
-        <source_output_field_precision>-1</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>housenr</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>20</source_output_field_length>
-        <source_output_field_precision>0</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>stateCode</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>10</source_output_field_length>
-        <source_output_field_precision>-1</source_output_field_precision>
-      </source_output_field>
-      <source_output_field>
-        <source_output_field_name>state</source_output_field_name>
-        <source_output_field_type>String</source_output_field_type>
-        <source_output_field_length>50</source_output_field_length>
-        <source_output_field_precision>-1</source_output_field_precision>
-      </source_output_field>
-    </source_output_fields>
-    <target_file/>
-    <no_execution>N</no_execution>
-    <stream_source_transform/>
-    <stream_target_transform/>
     <mappings>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>currency</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>INPUT_CURRENCY</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>currency</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>decimal</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>INPUT_DECIMAL</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>decimal</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>separator</source_field>
+        <source_transform>CSV Input metadata</source_transform>
         <target_attribute_key>DELIMITER</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_transform>CSV Input metadata</source_transform>
-        <source_field>separator</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>header</source_field>
+        <source_transform>CSV Input metadata</source_transform>
         <target_attribute_key>HEADER_PRESENT</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_transform>CSV Input metadata</source_transform>
-        <source_field>header</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>length</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>INPUT_LENGTH</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>length</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>enclosure</source_field>
+        <source_transform>CSV Input metadata</source_transform>
         <target_attribute_key>ENCLOSURE</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_transform>CSV Input metadata</source_transform>
-        <source_field>enclosure</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>precision</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>INPUT_PRECISION</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>precision</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>format</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>INPUT_FORMAT</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>format</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>lazy</source_field>
+        <source_transform>CSV Input metadata</source_transform>
         <target_attribute_key>LAZY_CONVERSION</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_transform>CSV Input metadata</source_transform>
-        <source_field>lazy</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>group</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>INPUT_GROUP</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>group</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>trimType</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>FIELD_TRIM_TYPE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>trimType</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>filename</source_field>
+        <source_transform>CSV Input metadata</source_transform>
         <target_attribute_key>FILENAME</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_transform>CSV Input metadata</source_transform>
-        <source_field>filename</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>type</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>FIELD_TYPE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>type</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>CSV file input</target_transform_name>
+        <source_field>name</source_field>
+        <source_transform>CSV Input fields</source_transform>
         <target_attribute_key>INPUT_NAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>CSV Input fields</source_transform>
-        <source_field>name</source_field>
+        <target_transform_name>CSV file input</target_transform_name>
       </mapping>
     </mappings>
+    <no_execution>N</no_execution>
+    <source_output_fields>
+      <source_output_field>
+        <source_output_field_length>15</source_output_field_length>
+        <source_output_field_name>id</source_output_field_name>
+        <source_output_field_precision>0</source_output_field_precision>
+        <source_output_field_type>Integer</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>50</source_output_field_length>
+        <source_output_field_name>name</source_output_field_name>
+        <source_output_field_precision>-1</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>50</source_output_field_length>
+        <source_output_field_name>firstname</source_output_field_name>
+        <source_output_field_precision>-1</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>40</source_output_field_length>
+        <source_output_field_name>zip</source_output_field_name>
+        <source_output_field_precision>0</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>50</source_output_field_length>
+        <source_output_field_name>city</source_output_field_name>
+        <source_output_field_precision>-1</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_name>birthdate</source_output_field_name>
+        <source_output_field_precision>-1</source_output_field_precision>
+        <source_output_field_type>Date</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>11</source_output_field_length>
+        <source_output_field_name>street</source_output_field_name>
+        <source_output_field_precision>-1</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>20</source_output_field_length>
+        <source_output_field_name>housenr</source_output_field_name>
+        <source_output_field_precision>0</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>10</source_output_field_length>
+        <source_output_field_name>stateCode</source_output_field_name>
+        <source_output_field_precision>-1</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_length>50</source_output_field_length>
+        <source_output_field_name>state</source_output_field_name>
+        <source_output_field_precision>-1</source_output_field_precision>
+        <source_output_field_type>String</source_output_field_type>
+      </source_output_field>
+    </source_output_fields>
+    <source_transform>Output</source_transform>
     <attributes/>
     <GUI>
       <xloc>304</xloc>
@@ -252,107 +249,6 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <fields>
-      <field>
-        <name>name</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>type</name>
-        <type/>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>format</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>length</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>precision</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>currency</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>decimal</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>group</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-      <field>
-        <name>trimType</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-    </fields>
     <data>
       <line>
         <item>id</item>
@@ -465,10 +361,133 @@ limitations under the License.
         <item>none</item>
       </line>
     </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>name</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>type</name>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>format</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>length</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>precision</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>currency</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>decimal</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>group</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>trimType</name>
+        <type>String</type>
+      </field>
+    </fields>
     <attributes/>
     <GUI>
       <xloc>128</xloc>
       <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>CSV Input metadata</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>filename</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>${PROJECT_HOME}/files/customers-100.txt</variable>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>separator</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>;</variable>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>enclosure</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>"</variable>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>lazy</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>false</variable>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>header</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>true</variable>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>192</yloc>
     </GUI>
   </transform>
   <transform>
@@ -486,85 +505,6 @@ limitations under the License.
     <GUI>
       <xloc>464</xloc>
       <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>CSV Input metadata</name>
-    <type>GetVariable</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>filename</name>
-        <variable>${PROJECT_HOME}/files/customers-100.txt</variable>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>separator</name>
-        <variable>;</variable>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>enclosure</name>
-        <variable>"</variable>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>lazy</name>
-        <variable>false</variable>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>header</name>
-        <variable>true</variable>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>128</xloc>
-      <yloc>192</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

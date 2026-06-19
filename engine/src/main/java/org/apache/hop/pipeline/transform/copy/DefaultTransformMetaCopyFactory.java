@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transform.copy;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -182,7 +183,7 @@ public class DefaultTransformMetaCopyFactory implements ITransformMetaCopyFactor
 
     } catch (Exception e) {
       log.logError("Error copying ITransformMeta: " + source.getClass().getSimpleName(), e);
-      throw new RuntimeException("Failed to copy transform metadata", e);
+      throw new HopRuntimeException("Failed to copy transform metadata", e);
     }
   }
 
@@ -198,7 +199,7 @@ public class DefaultTransformMetaCopyFactory implements ITransformMetaCopyFactor
       return new HashMap<>();
     }
 
-    Map<String, Map<String, String>> copy = new HashMap<>(source.size());
+    Map<String, Map<String, String>> copy = HashMap.newHashMap(source.size());
     for (Map.Entry<String, Map<String, String>> entry : source.entrySet()) {
       Map<String, String> value = entry.getValue();
       HashMap<String, String> valueCopy = (value == null) ? null : new HashMap<>(value);

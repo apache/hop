@@ -32,9 +32,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -470,7 +471,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw new RuntimeException("Error registering new Execution in Neo4j", e);
+      throw new HopRuntimeException("Error registering new Execution in Neo4j", e);
     }
   }
 
@@ -672,44 +673,47 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
     // Can we push down some selector parameters?
     //
-    boolean firstCondition = true;
-    if (selector.isSelectingParents()) {
-      builder.withWhereIsNull(firstCondition, "n", EP_PARENT_ID);
-      firstCondition = false;
-    }
-    // We filter by execution ID on the nodes because the filter text is a UUID
-    //
     if (selector.isSelectingByUuid()) {
-      builder.withWhereEquals(firstCondition, "n", EP_ID, "pId", selector.filterText());
-      firstCondition = false;
-    }
-    if (selector.isSelectingFailed()) {
-      builder.withWhereEquals(firstCondition, "n", EP_FAILED, "pFailed", true);
-      firstCondition = false;
-    }
-    if (selector.isSelectingRunning()) {
-      builder.withWhereEquals(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Running");
-      firstCondition = false;
-    }
-    if (selector.isSelectingFinished()) {
-      builder.withWhereContains(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Finished");
-      firstCondition = false;
-    }
-    if (selector.isSelectingWorkflows()) {
-      builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Workflow");
-    } else if (selector.isSelectingPipelines()) {
-      builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Pipeline");
+      // We filter by execution ID on the nodes because the filter text is a UUID.
+      // An exact execution-ID match overrides every other filter (time window,
+      // parent/child, type and status) so the execution is found regardless of age.
+      //
+      builder.withWhereEquals(true, "n", EP_ID, "pId", selector.filterText());
     } else {
-      if (firstCondition) {
-        builder.withExtraClause(" WHERE ");
-      } else {
-        builder.withExtraClause(" AND ");
+      boolean firstCondition = true;
+      if (selector.isSelectingParents()) {
+        builder.withWhereIsNull(firstCondition, "n", EP_PARENT_ID);
+        firstCondition = false;
       }
-      builder.withExtraClause("n." + EP_EXECUTION_TYPE + " IN [ 'Workflow', 'Pipeline' ]");
-    }
-    if (selector.startDateFilter() != LastPeriod.NONE) {
-      builder.withExtraClause(" AND n." + EP_EXECUTION_START_DATE + " >= $fromStartDate ");
-      builder.parameters().put("fromStartDate", selector.startDateFilter().calculateStartDate());
+      if (selector.isSelectingFailed()) {
+        builder.withWhereEquals(firstCondition, "n", EP_FAILED, "pFailed", true);
+        firstCondition = false;
+      }
+      if (selector.isSelectingRunning()) {
+        builder.withWhereEquals(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Running");
+        firstCondition = false;
+      }
+      if (selector.isSelectingFinished()) {
+        builder.withWhereContains(
+            firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Finished");
+        firstCondition = false;
+      }
+      if (selector.isSelectingWorkflows()) {
+        builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Workflow");
+      } else if (selector.isSelectingPipelines()) {
+        builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Pipeline");
+      } else {
+        if (firstCondition) {
+          builder.withExtraClause(" WHERE ");
+        } else {
+          builder.withExtraClause(" AND ");
+        }
+        builder.withExtraClause("n." + EP_EXECUTION_TYPE + " IN [ 'Workflow', 'Pipeline' ]");
+      }
+      if (selector.startDateFilter() != LastPeriod.NONE) {
+        builder.withExtraClause(" AND n." + EP_EXECUTION_START_DATE + " >= $fromStartDate ");
+        builder.parameters().put("fromStartDate", selector.startDateFilter().calculateStartDate());
+      }
     }
 
     // The properties to return
@@ -818,7 +822,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw new RuntimeException("Error updating the state of an execution in Neo4j", e);
+      throw new HopRuntimeException("Error updating the state of an execution in Neo4j", e);
     } finally {
       // Update the cache
       NeoLocationCache.store(state);
@@ -1178,7 +1182,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw new RuntimeException("Error registering execution data to Neo4j", e);
+      throw new HopRuntimeException("Error registering execution data to Neo4j", e);
     }
   }
 
@@ -1290,6 +1294,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withDelete("r", "rel"));
       // Add the new rows
       //
+      int nrErrors = 0;
       for (int rowNr = 1; rowNr <= rowBuffer.getBuffer().size(); rowNr++) {
         Object[] row = rowBuffer.getBuffer().get(rowNr - 1);
         CypherCreateBuilder builder =
@@ -1307,7 +1312,20 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                         rowNr));
         for (int v = 0; v < rowMeta.size(); v++) {
           IValueMeta valueMeta = rowMeta.getValueMeta(v);
-          builder.withValue("field" + v, valueMeta.getNativeDataType(row[v]));
+          Object valueData = null;
+          try {
+            valueData = valueMeta.getNativeDataType(row[v]);
+          } catch (Exception e) {
+            if (nrErrors++ < 10) {
+              log.logError(
+                  "Data conversion error (max 10) in field "
+                      + valueMeta.getName()
+                      + " of data set: "
+                      + setMeta,
+                  e);
+            }
+          }
+          builder.withValue("field" + v, valueData);
         }
         execute(transaction, builder);
 
@@ -1341,7 +1359,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 .withCreate("s", "r", R_HAS_ROW));
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error saving rows and their metadata in Neo4j", e);
+      throw new HopRuntimeException("Error saving rows and their metadata in Neo4j", e);
     }
   }
 
@@ -1409,6 +1427,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                     "n", DP_EXECUTION_TYPE, DP_OWNER_ID, DP_FINISHED, DP_COLLECTION_DATE));
     boolean foundData = false;
     boolean allFinished = true;
+    Map<String, Map<String, String>> dataSetErrors = new HashMap<>();
     while (result.hasNext()) {
       org.neo4j.driver.Record dataRecord = result.next();
       foundData = true;
@@ -1497,13 +1516,24 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               for (int v = 0; v < rowMeta.size(); v++) {
                 IValueMeta valueMeta = rowMeta.getValueMeta(v);
                 Value value = rowsRecord.get("n.field" + v);
-                row[v] = extractHopValue(valueMeta, value);
+                try {
+                  row[v] = extractHopValue(valueMeta, value);
+                } catch (Exception exception) {
+                  // This is usually a data conversion error because the value data type
+                  // doesn't correspond to what is described in the metadata.
+                  // We keep track of the
+                  //
+                  Map<String, String> errorsSet =
+                      dataSetErrors.computeIfAbsent(setKey, f -> new HashMap<>());
+                  errorsSet.put(valueMeta.getName(), Const.getSimpleStackTrace(exception));
+                }
               }
               rowBuffer.addRow(row);
             }
             // Store the row buffer
             //
             builder.addDataSet(setKey, rowBuffer);
+            builder.withDataSetErrors(dataSetErrors);
           }
         }
       }
@@ -1819,7 +1849,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       return objectMapper.readValue(jsonString, typeRef);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException("Error reading converting JSON String to a Map: " + jsonString, e);
+      throw new HopRuntimeException(
+          "Error reading converting JSON String to a Map: " + jsonString, e);
     }
   }
 

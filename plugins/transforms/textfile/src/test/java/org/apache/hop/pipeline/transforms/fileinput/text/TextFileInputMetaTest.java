@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
@@ -108,7 +109,7 @@ class TextFileInputMetaTest {
     assertTrue(meta.getContent().isRowNumberByFile());
     assertEquals("rowNumField", meta.getContent().getRowNumberField());
     assertEquals("mixed", meta.getContent().getFileFormat());
-    assertEquals("UTF-8", meta.getContent().getEncoding());
+    assertEquals(Const.UTF_8, meta.getContent().getEncoding());
     assertEquals("Characters", meta.getContent().getLength());
     assertTrue(meta.getFileInput().isAddingResult());
     assertEquals("CSV", meta.getContent().getFileType());

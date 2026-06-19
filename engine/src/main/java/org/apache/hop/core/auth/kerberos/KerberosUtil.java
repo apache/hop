@@ -62,7 +62,7 @@ public class KerberosUtil {
   public static final String PENTAHO_JAAS_DEBUG = "PENTAHO_JAAS_DEBUG";
 
   /** Base properties to be inherited by all other LOGIN_CONFIG* configuration maps. */
-  public static final Map<String, String> LOGIN_CONFIG_BASE = createLoginConfigBaseMap();
+  protected static final Map<String, String> LOGIN_CONFIG_BASE = createLoginConfigBaseMap();
 
   /** Login Configuration options for KERBEROS_USER mode. */
   private static final Map<String, String> LOGIN_CONFIG_OPTS_KERBEROS_USER =
@@ -99,7 +99,7 @@ public class KerberosUtil {
   }
 
   /** Login Configuration options for KERBEROS_KEYTAB mode. */
-  public static final Map<String, String> LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB =
+  protected static final Map<String, String> LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB =
       createLoginConfigOptsKerberosKeytabMap();
 
   private static Map<String, String> createLoginConfigOptsKerberosKeytabMap() {
@@ -145,12 +145,10 @@ public class KerberosUtil {
         new Subject(),
         callbacks -> {
           for (Callback callback : callbacks) {
-            if (callback instanceof NameCallback nameCallback) {
-              nameCallback.setName(principal);
-            } else if (callback instanceof PasswordCallback passwordCallback) {
-              passwordCallback.setPassword(password.toCharArray());
-            } else {
-              throw new UnsupportedCallbackException(callback);
+            switch (callback) {
+              case NameCallback nc -> nc.setName(principal);
+              case PasswordCallback pc -> pc.setPassword(password.toCharArray());
+              default -> throw new UnsupportedCallbackException(callback);
             }
           }
         },

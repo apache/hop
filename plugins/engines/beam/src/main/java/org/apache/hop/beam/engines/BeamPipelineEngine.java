@@ -42,14 +42,16 @@ import org.apache.beam.sdk.metrics.MetricResult;
 import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.beam.sdk.util.ThrowingSupplier;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
+import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
@@ -63,6 +65,8 @@ import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.plugins.EngineCompatibility;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -345,6 +349,8 @@ public abstract class BeamPipelineEngine extends Variables
         //
         try {
           beamPipelineResults = executePipeline(beamPipeline);
+          ExtensionPointHandler.callExtensionPoint(
+              logChannel, this, HopExtensionPoint.PipelineStart.id, this);
         } catch (Throwable e) {
           hasStartupErrors.set(true);
 
@@ -383,6 +389,9 @@ public abstract class BeamPipelineEngine extends Variables
                 });
         beamThread.start();
 
+        ExtensionPointHandler.callExtensionPoint(
+            logChannel, this, HopExtensionPoint.PipelineStart.id, this);
+
         // Keep track of when this thread is done...
         //
         new Thread(
@@ -401,7 +410,7 @@ public abstract class BeamPipelineEngine extends Variables
                       ExecutorUtil.cleanup(refreshTimer);
                     }
                   } catch (Exception e) {
-                    throw new RuntimeException("Error post-processing a beam pipeline", e);
+                    throw new HopRuntimeException("Error post-processing a beam pipeline", e);
                   }
                 })
             .start();
@@ -678,7 +687,8 @@ public abstract class BeamPipelineEngine extends Variables
         evaluatePipelineStatus();
       }
     } catch (Exception e) {
-      throw new RuntimeException("Stopping of pipeline '" + pipelineMeta.getName() + "' failed", e);
+      throw new HopRuntimeException(
+          "Stopping of pipeline '" + pipelineMeta.getName() + "' failed", e);
     }
   }
 
@@ -1037,6 +1047,9 @@ public abstract class BeamPipelineEngine extends Variables
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
+    ExtensionPointHandler.callExtensionPoint(
+        logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
+
     synchronized (executionFinishedListeners) {
       for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
           executionFinishedListeners) {
@@ -1149,7 +1162,7 @@ public abstract class BeamPipelineEngine extends Variables
             try {
               updatePipelineState(iLocation);
             } catch (Exception e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Error registering execution info (data and state) at location "
                       + executionInfoLocation.getName(),
                   e);
@@ -1719,6 +1732,53 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
+   * Authoritative compatibility verdict for the four Beam runners. Reads the same static metadata
+   * the converter does, so the answer at design time matches what actually happens at run time.
+   *
+   * <ol>
+   *   <li>Meta class on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_META_TYPES}
+   *       list → UNSUPPORTED with the canonical user-facing reason.
+   *   <li>Plugin id in {@link HopPipelineMetaToBeamPipelineConverter#EXPLICIT_HANDLER_PLUGIN_IDS} →
+   *       SUPPORTED.
+   *   <li>Meta class implements {@link IBeamPipelineTransformHandler} → SUPPORTED (the
+   *       transform-meta ships its own Beam handler).
+   *   <li>Otherwise → UNKNOWN. The converter falls back to {@code BeamGenericTransformHandler}
+   *       which wraps the transform in a {@code ParDo}; this works for most transforms but is not a
+   *       guarantee.
+   * </ol>
+   *
+   * Per-runner subclasses (Direct/Dataflow/Spark/Flink) may override to express runner-specific
+   * exclusions — e.g. a Spark-only ban — but the default surfaces what is true today: all four
+   * runners share one handler map.
+   */
+  @Override
+  public EngineCompatibility supports(IPlugin transformPlugin) {
+    if (transformPlugin == null) {
+      return EngineCompatibility.unknown();
+    }
+    Class<?> mainType = transformPlugin.getMainType();
+    if (mainType != null) {
+      String banReason =
+          HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(mainType);
+      if (banReason != null) {
+        return EngineCompatibility.unsupported(banReason);
+      }
+      if (IBeamPipelineTransformHandler.class.isAssignableFrom(mainType)) {
+        return EngineCompatibility.supported();
+      }
+    }
+    String[] ids = transformPlugin.getIds();
+    if (ids != null) {
+      for (String id : ids) {
+        if (HopPipelineMetaToBeamPipelineConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)) {
+          return EngineCompatibility.supported();
+        }
+      }
+    }
+    return EngineCompatibility.unknown();
+  }
+
+  /**
    * Gets namedParams
    *
    * @return value of namedParams
@@ -1899,7 +1959,7 @@ public abstract class BeamPipelineEngine extends Variables
     } catch (UnsupportedOperationException e) {
       logChannel.logBasic(e.getMessage());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
     return defaultValue;
   }

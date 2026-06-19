@@ -163,7 +163,7 @@ public class RawExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler 
   public void reload() {
     try {
       reloadListener = false;
-      String contents = readTextFileContent("UTF-8");
+      String contents = readTextFileContent(StandardCharsets.UTF_8);
       editorWidget.setTextSuppressModify(Const.NVL(contents, ""));
     } catch (Exception e) {
       LogChannel.UI.logError(

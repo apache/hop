@@ -85,40 +85,24 @@ The logging tab displays the log of the pipeline according to the log level choo
 
 image::hop-gui/pipeline/logging-pipeline.png[Logging pipeline,75%,align="left"]
 
-== Preview a pipeline
+== Preview and debug a pipeline
 
-Preview the result off a pipeline to see how it performs can be done by completing one of the following tasks:
+To inspect pipeline data while controlling how execution pauses, use **Preview & debug** (toolbar, Run menu, or transform actions). This opens a single dialog for preview rows and optional breakpoint behavior.
 
-* Using the preview image:getting-started/icons/view.svg[Run,25px,align="bottom"] icon
-* Select Run and Preview from the top menu
-* Select Preview from the transform action Menu
+You can start it in any of these ways:
+
+* Using the preview image:getting-started/icons/view.svg[Preview,25px,align="bottom"] icon on the pipeline toolbar
+* Select **Run** and **Preview & debug** from the top menu
+* Select **Preview & debug output** from the transform action menu
 * Click on the tiny bottom right icon after running the pipeline
 
 image::hop-gui/pipeline/preview-menu-pipeline.png[Preview Menu pipeline,75%,align="left"]
 
-In the pipeline preview dialog the transform from which the result must be previewed can be selected.
-Furthermore the number of rows to preview can be determined as well as a pause condition.
-When finished press the Quick Launch button.
-If you want to change the Pipeline run configuration click Configure.
-The result is displayed in ascending order.
-The result is previewed as displayed below.
+In the dialog, choose the transform whose rows you want to inspect.
+Set how many rows to retrieve (**Retrieve first rows**), and optionally enable **Pause on breakpoint** and define a **condition** so the pipeline pauses when that condition matches a row.
+When finished press **Quick Launch**.
+To change the pipeline run configuration, click **Configure**.
+
+The collected rows are shown in the preview window when execution pauses or finishes.
 
 image::hop-gui/pipeline/preview-pipeline.png[Preview pipeline,75%,align="left"]
-
-== Debug a pipeline
-
-Debugging a pipeline to eliminate errors can be done by completing one of the following tasks:
-
-* Using the debug image:getting-started/icons/debug.svg[Run,25px,align="bottom"] icon
-* Select Run and Debug from the top menu
-* Select Debug output from the transform action Menu
-
-The same dialog is displayed as when using the preview functionality, only the enabled options are different.
-
-image::hop-gui/pipeline/debug-pipeline.png[Debug pipeline,75%,align="left"]
-
-In the pipeline debug dialog the transform from which the result must be debugged can be selected.
-Furthermore the number of rows can be determined as well as a pause condition.
-When finished press the Quick Launch button.
-If you want to change the Pipeline run configuration click Configure.
-The result is displayed in descending order.

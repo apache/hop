@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,10 +30,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -42,6 +47,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.jboss.jandex.IndexWriter;
 import org.jboss.jandex.Indexer;
 
+@Getter
+@Setter
 public class FatJarBuilder {
 
   public static final String CONST_META_INF = "META-INF";
@@ -80,7 +87,6 @@ public class FatJarBuilder {
   }
 
   public void buildTargetJar() throws HopException {
-
     fileContentMap = new HashMap<>();
     classCollisionMap = new HashMap<>();
     collisionFileSet = new HashSet<>();
@@ -242,6 +248,9 @@ public class FatJarBuilder {
           }
         }
 
+        // Add the META-INF/MANIFEST.MF file:
+        addInfoManifestMf(zipOutputStream);
+
         // Add the META-INF/services files...
         //
         for (String entryName : fileContentMap.keySet()) {
@@ -266,83 +275,15 @@ public class FatJarBuilder {
     }
   }
 
-  /**
-   * Gets targetJarFile
-   *
-   * @return value of targetJarFile
-   */
-  public String getTargetJarFile() {
-    return targetJarFile;
-  }
+  private static void addInfoManifestMf(JarOutputStream zipOutputStream) throws IOException {
+    ZipEntry manifestEntry = new ZipEntry("META-INF/MANIFEST.MF");
 
-  /**
-   * @param targetJarFile The targetJarFile to set
-   */
-  public void setTargetJarFile(String targetJarFile) {
-    this.targetJarFile = targetJarFile;
-  }
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().put(new Attributes.Name("Multi-Release"), "true");
 
-  /**
-   * Gets jarFiles
-   *
-   * @return value of jarFiles
-   */
-  public List<String> getJarFiles() {
-    return jarFiles;
-  }
-
-  /**
-   * @param jarFiles The jarFiles to set
-   */
-  public void setJarFiles(List<String> jarFiles) {
-    this.jarFiles = jarFiles;
-  }
-
-  /**
-   * Gets extraTransformPluginClasses
-   *
-   * @return value of extraTransformPluginClasses
-   */
-  public String getExtraTransformPluginClasses() {
-    return extraTransformPluginClasses;
-  }
-
-  /**
-   * @param extraTransformPluginClasses The extraTransformPluginClasses to set
-   */
-  public void setExtraTransformPluginClasses(String extraTransformPluginClasses) {
-    this.extraTransformPluginClasses = extraTransformPluginClasses;
-  }
-
-  /**
-   * Gets extraXpPluginClasses
-   *
-   * @return value of extraXpPluginClasses
-   */
-  public String getExtraXpPluginClasses() {
-    return extraXpPluginClasses;
-  }
-
-  /**
-   * @param extraXpPluginClasses The extraXpPluginClasses to set
-   */
-  public void setExtraXpPluginClasses(String extraXpPluginClasses) {
-    this.extraXpPluginClasses = extraXpPluginClasses;
-  }
-
-  /**
-   * Gets fileContentMap
-   *
-   * @return value of fileContentMap
-   */
-  public Map<String, String> getFileContentMap() {
-    return fileContentMap;
-  }
-
-  /**
-   * @param fileContentMap The fileContentMap to set
-   */
-  public void setFileContentMap(Map<String, String> fileContentMap) {
-    this.fileContentMap = fileContentMap;
+    zipOutputStream.putNextEntry(manifestEntry);
+    manifest.write(zipOutputStream);
+    zipOutputStream.closeEntry();
   }
 }

@@ -53,6 +53,7 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
   private static final String WIDGET_ID_GIT_ENABLE = "10000-git-enable-plugin";
   private static final String WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS =
       "10010-git-search-parent-folders";
+  private static final String WIDGET_ID_GIT_FETCH_AUTOMATIC = "10020-git-fetch-automatic";
 
   @GuiWidgetElement(
       id = WIDGET_ID_GIT_ENABLE,
@@ -74,11 +75,20 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       description = "The git GUI searches the parent folders for a repository")
   private Boolean searchingParentFolders;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_GIT_FETCH_AUTOMATIC,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::GitConfig.FetchAutomatic.Message",
+      toolTip = "i18n::GitConfig.FetchAutomatic.Tooltip")
+  private Boolean fetchAutomatic;
+
   public static GitConfigOptionPlugin getInstance() {
     GitConfigOptionPlugin instance = new GitConfigOptionPlugin();
     GitConfig config = GitConfigSingleton.getConfig();
     instance.gitEnabled = config.isEnabled();
     instance.searchingParentFolders = config.isSearchingParentFolders();
+    instance.fetchAutomatic = config.isFetchAutomatic();
     return instance;
   }
 
@@ -106,6 +116,10 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
           log.logBasic(
               "The git GUI plugin only looks at the project home folder for a repository.");
         }
+        changed = true;
+      }
+      if (fetchAutomatic != null) {
+        config.setFetchAutomatic(fetchAutomatic);
         changed = true;
       }
 
@@ -148,6 +162,10 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
         case WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS:
           searchingParentFolders = ((Button) control).getSelection();
           GitConfigSingleton.getConfig().setSearchingParentFolders(searchingParentFolders);
+          break;
+        case WIDGET_ID_GIT_FETCH_AUTOMATIC:
+          fetchAutomatic = ((Button) control).getSelection();
+          GitConfigSingleton.getConfig().setFetchAutomatic(fetchAutomatic);
           break;
         default:
           break;

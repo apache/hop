@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -46,8 +47,8 @@ class WorkflowMapTest {
   void addWorkflowValidatesNameAndId() {
     IWorkflowEngine<WorkflowMeta> wf = mock(IWorkflowEngine.class);
     WorkflowConfiguration cfg = mock(WorkflowConfiguration.class);
-    assertThrows(RuntimeException.class, () -> map.addWorkflow("", "id", wf, cfg));
-    assertThrows(RuntimeException.class, () -> map.addWorkflow("n", null, wf, cfg));
+    assertThrows(HopRuntimeException.class, () -> map.addWorkflow("", "id", wf, cfg));
+    assertThrows(HopRuntimeException.class, () -> map.addWorkflow("n", null, wf, cfg));
   }
 
   @Test

@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -136,7 +137,7 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
     try {
       writer.init();
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           BaseMessages.getString(SSTableOutputMeta.PKG, "SSTableOutput.Error.InvalidConfig"), e);
     }
   }

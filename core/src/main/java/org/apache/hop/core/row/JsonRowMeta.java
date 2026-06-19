@@ -18,6 +18,7 @@
 
 package org.apache.hop.core.row;
 
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -47,7 +48,7 @@ public class JsonRowMeta {
 
       return jRowMeta.toJSONString();
     } catch (Exception e) {
-      throw new RuntimeException("Error converting row metadata to JSON", e);
+      throw new HopRuntimeException("Error converting row metadata to JSON", e);
     }
   }
 
@@ -67,7 +68,7 @@ public class JsonRowMeta {
 
       return rowMeta;
     } catch (Exception e) {
-      throw new RuntimeException("Error converting row metadata JSON to row metadata", e);
+      throw new HopRuntimeException("Error converting row metadata JSON to row metadata", e);
     }
   }
 }

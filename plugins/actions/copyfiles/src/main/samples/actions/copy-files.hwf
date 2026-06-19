@@ -64,10 +64,8 @@ limitations under the License.
       <create_destination_folder>Y</create_destination_folder>
       <fields>
         <field>
-          <source_filefolder>EMPTY_SOURCE_URL-0-${PROJECT_HOME}</source_filefolder>
-          <source_configuration_name>STATIC-SOURCE-FILE-0</source_configuration_name>
-          <destination_filefolder>EMPTY_DEST_URL-0-${PROJECT_HOME}/tmp-copy</destination_filefolder>
-          <destination_configuration_name>STATIC-DEST-FILE-0</destination_configuration_name>
+          <source_filefolder>${PROJECT_HOME}</source_filefolder>
+          <destination_filefolder>${PROJECT_HOME}/tmp-copy</destination_filefolder>
           <wildcard/>
         </field>
       </fields>

@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.repeatfields;
 
 import com.google.common.primitives.Ints;
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -103,12 +103,12 @@ public class RepeatFields extends BaseTransform<RepeatFieldsMeta, RepeatFieldsDa
       // What do we need to do?
       switch (repeat.getType()) {
         case Previous -> targetValue = getPreviousValue(sourceValue, targetIndex);
-        case PreviousWhenNull -> {
-          // If the source value is null, take the previous value.
-          if (sourceValueMeta.isNull(sourceValue)) {
-            targetValue = getPreviousValue(null, targetIndex);
-          }
-        }
+        case PreviousWhenNull ->
+            // If the source value is null, take the previous value.
+            targetValue =
+                sourceValueMeta.isNull(sourceValue)
+                    ? getPreviousValue(null, targetIndex)
+                    : targetValue;
         case CurrentWhenIndicated ->
             targetValue = getCurrentValueWhenIndicated(i, repeat, r, sourceValue, targetIndex);
       }

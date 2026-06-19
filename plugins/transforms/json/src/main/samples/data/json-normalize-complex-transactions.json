@@ -1,0 +1,6070 @@
+{
+  "schemaHint": "payments.transactions[*] \u2014 nested payer/merchant/settlement/analytics; lineItems kept as JSON array",
+  "transactions": [
+    {
+      "txId": "TX-00001",
+      "occurredAt": "2026-01-01T00:03:00Z",
+      "grossAmount": 227.08,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Nielsen",
+        "email": "bjorn.nielsen0@example.test",
+        "address": {
+          "line1": "9 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "2535",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4257",
+          "qty": 5,
+          "unitPrice": 56.77
+        },
+        {
+          "sku": "SKU-4611",
+          "qty": 4,
+          "unitPrice": 75.69
+        },
+        {
+          "sku": "SKU-1106",
+          "qty": 2,
+          "unitPrice": 56.77
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 27
+      }
+    },
+    {
+      "txId": "TX-00002",
+      "occurredAt": "2026-01-01T00:18:00Z",
+      "grossAmount": 362.17,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Patel",
+        "email": "fatima.patel1@example.test",
+        "address": {
+          "line1": "138 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "7201",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": null,
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4150",
+          "qty": 1,
+          "unitPrice": 362.17
+        },
+        {
+          "sku": "SKU-4733",
+          "qty": 3,
+          "unitPrice": 362.17
+        },
+        {
+          "sku": "SKU-4814",
+          "qty": 1,
+          "unitPrice": 90.54
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 46
+      }
+    },
+    {
+      "txId": "TX-00003",
+      "occurredAt": "2026-01-01T00:44:00Z",
+      "grossAmount": 270.63,
+      "currency": "GBP",
+      "status": "DECLINED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Yamamoto",
+        "email": "chen.yamamoto2@example.test",
+        "address": {
+          "line1": "137 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5010",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4598",
+          "qty": 3,
+          "unitPrice": 270.63
+        },
+        {
+          "sku": "SKU-4752",
+          "qty": 1,
+          "unitPrice": 90.21
+        },
+        {
+          "sku": "SKU-7572",
+          "qty": 3,
+          "unitPrice": 270.63
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 91
+      }
+    },
+    {
+      "txId": "TX-00004",
+      "occurredAt": "2026-01-01T00:57:00Z",
+      "grossAmount": 885.25,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Kowalski",
+        "email": "fatima.kowalski3@example.test",
+        "address": {
+          "line1": "64 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "9830",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4593",
+          "qty": 2,
+          "unitPrice": 221.31
+        },
+        {
+          "sku": "SKU-2489",
+          "qty": 1,
+          "unitPrice": 885.25
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 87
+      }
+    },
+    {
+      "txId": "TX-00005",
+      "occurredAt": "2026-01-01T01:14:00Z",
+      "grossAmount": 597.9,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Dubois",
+        "email": "gustav.dubois4@example.test",
+        "address": {
+          "line1": "175 Cedar St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "5371",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "email",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3591",
+          "qty": 4,
+          "unitPrice": 597.9
+        },
+        {
+          "sku": "SKU-5315",
+          "qty": 5,
+          "unitPrice": 298.95
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 80
+      }
+    },
+    {
+      "txId": "TX-00006",
+      "occurredAt": "2026-01-01T01:27:00Z",
+      "grossAmount": 377.03,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Rossi",
+        "email": "eduardo.rossi5@example.test",
+        "address": {
+          "line1": "126 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "2832",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "organic",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2290",
+          "qty": 1,
+          "unitPrice": 94.26
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 98
+      }
+    },
+    {
+      "txId": "TX-00007",
+      "occurredAt": "2026-01-01T01:50:00Z",
+      "grossAmount": 169.29,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Silva",
+        "email": "chen.silva6@example.test",
+        "address": {
+          "line1": "139 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "4295",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9479",
+          "qty": 4,
+          "unitPrice": 169.29
+        },
+        {
+          "sku": "SKU-5061",
+          "qty": 2,
+          "unitPrice": 169.29
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 70
+      }
+    },
+    {
+      "txId": "TX-00008",
+      "occurredAt": "2026-01-01T02:00:00Z",
+      "grossAmount": 709.29,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Dubois",
+        "email": "dina.dubois7@example.test",
+        "address": {
+          "line1": "19 Cedar St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "4899",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8744",
+          "qty": 2,
+          "unitPrice": 177.32
+        },
+        {
+          "sku": "SKU-7669",
+          "qty": 2,
+          "unitPrice": 709.29
+        },
+        {
+          "sku": "SKU-2588",
+          "qty": 4,
+          "unitPrice": 236.43
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 93
+      }
+    },
+    {
+      "txId": "TX-00009",
+      "occurredAt": "2026-01-01T02:27:00Z",
+      "grossAmount": 342.6,
+      "currency": "EUR",
+      "status": "REFUNDED",
+      "channel": "mobile_app",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Patel",
+        "email": "aisha.patel8@example.test",
+        "address": {
+          "line1": "138 Maple St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "3296",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "partner",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2235",
+          "qty": 4,
+          "unitPrice": 342.6
+        }
+      ]
+    },
+    {
+      "txId": "TX-00010",
+      "occurredAt": "2026-01-01T02:35:00Z",
+      "grossAmount": 409.37,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Nielsen",
+        "email": "ivan.nielsen9@example.test",
+        "address": {
+          "line1": "98 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "7396",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8973",
+          "qty": 2,
+          "unitPrice": 204.69
+        },
+        {
+          "sku": "SKU-5861",
+          "qty": 2,
+          "unitPrice": 409.37
+        },
+        {
+          "sku": "SKU-9883",
+          "qty": 1,
+          "unitPrice": 136.46
+        }
+      ]
+    },
+    {
+      "txId": "TX-00011",
+      "occurredAt": "2026-01-01T02:50:00Z",
+      "grossAmount": 960.97,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Novak",
+        "email": "julia.novak10@example.test",
+        "address": {
+          "line1": "173 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "7615",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2343",
+          "qty": 4,
+          "unitPrice": 320.32
+        },
+        {
+          "sku": "SKU-5272",
+          "qty": 2,
+          "unitPrice": 320.32
+        },
+        {
+          "sku": "SKU-4910",
+          "qty": 3,
+          "unitPrice": 240.24
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 38
+      }
+    },
+    {
+      "txId": "TX-00012",
+      "occurredAt": "2026-01-01T03:14:00Z",
+      "grossAmount": 623.04,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Yamamoto",
+        "email": "hana.yamamoto11@example.test",
+        "address": {
+          "line1": "130 Maple St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "3170",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "organic",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3584",
+          "qty": 4,
+          "unitPrice": 207.68
+        },
+        {
+          "sku": "SKU-9666",
+          "qty": 1,
+          "unitPrice": 207.68
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 17
+      }
+    },
+    {
+      "txId": "TX-00013",
+      "occurredAt": "2026-01-01T03:28:00Z",
+      "grossAmount": 285.34,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Patel",
+        "email": "eduardo.patel12@example.test",
+        "address": {
+          "line1": "130 Maple St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5114",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1058",
+          "qty": 3,
+          "unitPrice": 142.67
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 20
+      }
+    },
+    {
+      "txId": "TX-00014",
+      "occurredAt": "2026-01-01T03:49:00Z",
+      "grossAmount": 14.61,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Rossi",
+        "email": "hana.rossi13@example.test",
+        "address": {
+          "line1": "95 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "3426",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "email",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1653",
+          "qty": 3,
+          "unitPrice": 7.3
+        },
+        {
+          "sku": "SKU-5088",
+          "qty": 1,
+          "unitPrice": 4.87
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 79
+      }
+    },
+    {
+      "txId": "TX-00015",
+      "occurredAt": "2026-01-01T04:12:00Z",
+      "grossAmount": 415.22,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Kowalski",
+        "email": "chen.kowalski14@example.test",
+        "address": {
+          "line1": "69 Oak St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "2771",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8541",
+          "qty": 3,
+          "unitPrice": 138.41
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 28
+      }
+    },
+    {
+      "txId": "TX-00016",
+      "occurredAt": "2026-01-01T04:19:00Z",
+      "grossAmount": 865.02,
+      "currency": "USD",
+      "status": "DECLINED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Kowalski",
+        "email": "aisha.kowalski15@example.test",
+        "address": {
+          "line1": "174 Cedar St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "6425",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "partner",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5349",
+          "qty": 1,
+          "unitPrice": 865.02
+        },
+        {
+          "sku": "SKU-8119",
+          "qty": 3,
+          "unitPrice": 288.34
+        },
+        {
+          "sku": "SKU-8149",
+          "qty": 5,
+          "unitPrice": 865.02
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 24
+      }
+    },
+    {
+      "txId": "TX-00017",
+      "occurredAt": "2026-01-01T04:32:00Z",
+      "grossAmount": 522.31,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Nielsen",
+        "email": "eduardo.nielsen16@example.test",
+        "address": {
+          "line1": "111 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "6409",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "email",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6067",
+          "qty": 4,
+          "unitPrice": 174.1
+        },
+        {
+          "sku": "SKU-7592",
+          "qty": 3,
+          "unitPrice": 261.15
+        },
+        {
+          "sku": "SKU-4143",
+          "qty": 4,
+          "unitPrice": 130.58
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 78
+      }
+    },
+    {
+      "txId": "TX-00018",
+      "occurredAt": "2026-01-01T04:53:00Z",
+      "grossAmount": 290.47,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Garcia",
+        "email": "julia.garcia17@example.test",
+        "address": {
+          "line1": "114 Maple St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "4501",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9445",
+          "qty": 5,
+          "unitPrice": 96.82
+        },
+        {
+          "sku": "SKU-2530",
+          "qty": 2,
+          "unitPrice": 96.82
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 18
+      }
+    },
+    {
+      "txId": "TX-00019",
+      "occurredAt": "2026-01-01T05:15:00Z",
+      "grossAmount": 850.48,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Nielsen",
+        "email": "aisha.nielsen18@example.test",
+        "address": {
+          "line1": "127 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "4997",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "email",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3881",
+          "qty": 5,
+          "unitPrice": 212.62
+        }
+      ]
+    },
+    {
+      "txId": "TX-00020",
+      "occurredAt": "2026-01-01T05:35:00Z",
+      "grossAmount": 467.31,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Patel",
+        "email": "dina.patel19@example.test",
+        "address": {
+          "line1": "157 Cedar St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "9270",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5246",
+          "qty": 2,
+          "unitPrice": 155.77
+        },
+        {
+          "sku": "SKU-9540",
+          "qty": 4,
+          "unitPrice": 233.66
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 91
+      }
+    },
+    {
+      "txId": "TX-00021",
+      "occurredAt": "2026-01-01T05:45:00Z",
+      "grossAmount": 893.55,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Kowalski",
+        "email": "eduardo.kowalski20@example.test",
+        "address": {
+          "line1": "178 Oak St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "4505",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8633",
+          "qty": 4,
+          "unitPrice": 893.55
+        },
+        {
+          "sku": "SKU-4388",
+          "qty": 4,
+          "unitPrice": 223.39
+        },
+        {
+          "sku": "SKU-1320",
+          "qty": 5,
+          "unitPrice": 223.39
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 38
+      }
+    },
+    {
+      "txId": "TX-00022",
+      "occurredAt": "2026-01-01T06:04:00Z",
+      "grossAmount": 223.31,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "\u00d6zt\u00fcrk",
+        "email": "gustav.\u00f6zt\u00fcrk21@example.test",
+        "address": {
+          "line1": "172 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "7624",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9751",
+          "qty": 1,
+          "unitPrice": 55.83
+        },
+        {
+          "sku": "SKU-1444",
+          "qty": 1,
+          "unitPrice": 55.83
+        },
+        {
+          "sku": "SKU-3223",
+          "qty": 4,
+          "unitPrice": 111.66
+        }
+      ]
+    },
+    {
+      "txId": "TX-00023",
+      "occurredAt": "2026-01-01T06:19:00Z",
+      "grossAmount": 340.8,
+      "currency": "USD",
+      "status": "REFUNDED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Yamamoto",
+        "email": "gustav.yamamoto22@example.test",
+        "address": {
+          "line1": "21 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "1317",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "partner",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2124",
+          "qty": 1,
+          "unitPrice": 340.8
+        },
+        {
+          "sku": "SKU-5051",
+          "qty": 2,
+          "unitPrice": 340.8
+        },
+        {
+          "sku": "SKU-3496",
+          "qty": 2,
+          "unitPrice": 170.4
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 72
+      }
+    },
+    {
+      "txId": "TX-00024",
+      "occurredAt": "2026-01-01T06:43:00Z",
+      "grossAmount": 372.04,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Novak",
+        "email": "dina.novak23@example.test",
+        "address": {
+          "line1": "80 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "1420",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4978",
+          "qty": 1,
+          "unitPrice": 124.01
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 15
+      }
+    },
+    {
+      "txId": "TX-00025",
+      "occurredAt": "2026-01-01T06:58:00Z",
+      "grossAmount": 373.71,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Nielsen",
+        "email": "julia.nielsen24@example.test",
+        "address": {
+          "line1": "126 Oak St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "8102",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9548",
+          "qty": 3,
+          "unitPrice": 93.43
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 75
+      }
+    },
+    {
+      "txId": "TX-00026",
+      "occurredAt": "2026-01-01T07:09:00Z",
+      "grossAmount": 882.21,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Yamamoto",
+        "email": "eduardo.yamamoto25@example.test",
+        "address": {
+          "line1": "8 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "6325",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6576",
+          "qty": 3,
+          "unitPrice": 294.07
+        },
+        {
+          "sku": "SKU-1166",
+          "qty": 5,
+          "unitPrice": 441.11
+        }
+      ]
+    },
+    {
+      "txId": "TX-00027",
+      "occurredAt": "2026-01-01T07:33:00Z",
+      "grossAmount": 478.7,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Novak",
+        "email": "gustav.novak26@example.test",
+        "address": {
+          "line1": "76 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "7625",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "partner",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9698",
+          "qty": 3,
+          "unitPrice": 119.67
+        },
+        {
+          "sku": "SKU-6419",
+          "qty": 3,
+          "unitPrice": 119.67
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 29
+      }
+    },
+    {
+      "txId": "TX-00028",
+      "occurredAt": "2026-01-01T07:50:00Z",
+      "grossAmount": 538.17,
+      "currency": "EUR",
+      "status": "AUTHORIZED",
+      "channel": "mobile_app",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Kowalski",
+        "email": "bjorn.kowalski27@example.test",
+        "address": {
+          "line1": "190 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "5530",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "email",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4727",
+          "qty": 3,
+          "unitPrice": 269.08
+        },
+        {
+          "sku": "SKU-5952",
+          "qty": 1,
+          "unitPrice": 269.08
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 70
+      }
+    },
+    {
+      "txId": "TX-00029",
+      "occurredAt": "2026-01-01T07:57:00Z",
+      "grossAmount": 873.35,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Silva",
+        "email": "eduardo.silva28@example.test",
+        "address": {
+          "line1": "88 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "1841",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "email",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9056",
+          "qty": 1,
+          "unitPrice": 873.35
+        },
+        {
+          "sku": "SKU-3485",
+          "qty": 2,
+          "unitPrice": 291.12
+        }
+      ]
+    },
+    {
+      "txId": "TX-00030",
+      "occurredAt": "2026-01-01T08:22:00Z",
+      "grossAmount": 598.14,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Patel",
+        "email": "dina.patel29@example.test",
+        "address": {
+          "line1": "114 Maple St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "8025",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4457",
+          "qty": 3,
+          "unitPrice": 598.14
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 70
+      }
+    },
+    {
+      "txId": "TX-00031",
+      "occurredAt": "2026-01-01T08:37:00Z",
+      "grossAmount": 690.91,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Silva",
+        "email": "bjorn.silva30@example.test",
+        "address": {
+          "line1": "181 Maple St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "8438",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "partner",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2880",
+          "qty": 5,
+          "unitPrice": 345.45
+        },
+        {
+          "sku": "SKU-3441",
+          "qty": 3,
+          "unitPrice": 345.45
+        }
+      ]
+    },
+    {
+      "txId": "TX-00032",
+      "occurredAt": "2026-01-01T08:54:00Z",
+      "grossAmount": 128.72,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Garcia",
+        "email": "chen.garcia31@example.test",
+        "address": {
+          "line1": "129 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "9090",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6280",
+          "qty": 5,
+          "unitPrice": 42.91
+        },
+        {
+          "sku": "SKU-1423",
+          "qty": 1,
+          "unitPrice": 64.36
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 75
+      }
+    },
+    {
+      "txId": "TX-00033",
+      "occurredAt": "2026-01-01T09:16:00Z",
+      "grossAmount": 757.48,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Garcia",
+        "email": "aisha.garcia32@example.test",
+        "address": {
+          "line1": "47 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "8141",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "email",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7690",
+          "qty": 3,
+          "unitPrice": 252.49
+        },
+        {
+          "sku": "SKU-2713",
+          "qty": 2,
+          "unitPrice": 252.49
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 36
+      }
+    },
+    {
+      "txId": "TX-00034",
+      "occurredAt": "2026-01-01T09:22:00Z",
+      "grossAmount": 317.93,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Rossi",
+        "email": "gustav.rossi33@example.test",
+        "address": {
+          "line1": "106 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "4073",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": null,
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8242",
+          "qty": 1,
+          "unitPrice": 158.97
+        },
+        {
+          "sku": "SKU-5375",
+          "qty": 5,
+          "unitPrice": 158.97
+        },
+        {
+          "sku": "SKU-5719",
+          "qty": 4,
+          "unitPrice": 79.48
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 77
+      }
+    },
+    {
+      "txId": "TX-00035",
+      "occurredAt": "2026-01-01T09:46:00Z",
+      "grossAmount": 410.94,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Silva",
+        "email": "dina.silva34@example.test",
+        "address": {
+          "line1": "166 Oak St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "9165",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": null,
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8905",
+          "qty": 4,
+          "unitPrice": 205.47
+        },
+        {
+          "sku": "SKU-8483",
+          "qty": 5,
+          "unitPrice": 205.47
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 65
+      }
+    },
+    {
+      "txId": "TX-00036",
+      "occurredAt": "2026-01-01T10:00:00Z",
+      "grossAmount": 934.57,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Patel",
+        "email": "chen.patel35@example.test",
+        "address": {
+          "line1": "151 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "9022",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6446",
+          "qty": 5,
+          "unitPrice": 233.64
+        },
+        {
+          "sku": "SKU-8460",
+          "qty": 3,
+          "unitPrice": 467.29
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 73
+      }
+    },
+    {
+      "txId": "TX-00037",
+      "occurredAt": "2026-01-01T10:17:00Z",
+      "grossAmount": 745.97,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Kowalski",
+        "email": "gustav.kowalski36@example.test",
+        "address": {
+          "line1": "127 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "3068",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "email",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9617",
+          "qty": 4,
+          "unitPrice": 745.97
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 83
+      }
+    },
+    {
+      "txId": "TX-00038",
+      "occurredAt": "2026-01-01T10:34:00Z",
+      "grossAmount": 625.13,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Patel",
+        "email": "chen.patel37@example.test",
+        "address": {
+          "line1": "82 Cedar St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "8994",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5708",
+          "qty": 2,
+          "unitPrice": 625.13
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 97
+      }
+    },
+    {
+      "txId": "TX-00039",
+      "occurredAt": "2026-01-01T11:00:00Z",
+      "grossAmount": 33.79,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Novak",
+        "email": "bjorn.novak38@example.test",
+        "address": {
+          "line1": "96 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "3385",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3868",
+          "qty": 1,
+          "unitPrice": 8.45
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 63
+      }
+    },
+    {
+      "txId": "TX-00040",
+      "occurredAt": "2026-01-01T11:13:00Z",
+      "grossAmount": 257.7,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Silva",
+        "email": "julia.silva39@example.test",
+        "address": {
+          "line1": "174 Cedar St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "3588",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7951",
+          "qty": 3,
+          "unitPrice": 64.42
+        },
+        {
+          "sku": "SKU-5949",
+          "qty": 2,
+          "unitPrice": 64.42
+        },
+        {
+          "sku": "SKU-8916",
+          "qty": 1,
+          "unitPrice": 128.85
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 73
+      }
+    },
+    {
+      "txId": "TX-00041",
+      "occurredAt": "2026-01-01T11:24:00Z",
+      "grossAmount": 13.05,
+      "currency": "GBP",
+      "status": "REFUNDED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Garcia",
+        "email": "eduardo.garcia40@example.test",
+        "address": {
+          "line1": "74 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "6772",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": null,
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3240",
+          "qty": 1,
+          "unitPrice": 13.05
+        },
+        {
+          "sku": "SKU-6061",
+          "qty": 4,
+          "unitPrice": 13.05
+        },
+        {
+          "sku": "SKU-6977",
+          "qty": 2,
+          "unitPrice": 13.05
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 95
+      }
+    },
+    {
+      "txId": "TX-00042",
+      "occurredAt": "2026-01-01T11:49:00Z",
+      "grossAmount": 541.7,
+      "currency": "GBP",
+      "status": "DECLINED",
+      "channel": "pos",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Silva",
+        "email": "gustav.silva41@example.test",
+        "address": {
+          "line1": "66 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5835",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "email",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3306",
+          "qty": 2,
+          "unitPrice": 135.43
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 46
+      }
+    },
+    {
+      "txId": "TX-00043",
+      "occurredAt": "2026-01-01T12:02:00Z",
+      "grossAmount": 127.96,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "\u00d6zt\u00fcrk",
+        "email": "bjorn.\u00f6zt\u00fcrk42@example.test",
+        "address": {
+          "line1": "164 Maple St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "2775",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6374",
+          "qty": 5,
+          "unitPrice": 63.98
+        },
+        {
+          "sku": "SKU-2035",
+          "qty": 4,
+          "unitPrice": 42.65
+        },
+        {
+          "sku": "SKU-7689",
+          "qty": 1,
+          "unitPrice": 63.98
+        }
+      ]
+    },
+    {
+      "txId": "TX-00044",
+      "occurredAt": "2026-01-01T12:12:00Z",
+      "grossAmount": 238.62,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Garcia",
+        "email": "aisha.garcia43@example.test",
+        "address": {
+          "line1": "172 Cedar St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "9850",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7686",
+          "qty": 3,
+          "unitPrice": 238.62
+        },
+        {
+          "sku": "SKU-7070",
+          "qty": 2,
+          "unitPrice": 59.66
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 46
+      }
+    },
+    {
+      "txId": "TX-00045",
+      "occurredAt": "2026-01-01T12:28:00Z",
+      "grossAmount": 401.14,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Yamamoto",
+        "email": "bjorn.yamamoto44@example.test",
+        "address": {
+          "line1": "170 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "1349",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "organic",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4362",
+          "qty": 1,
+          "unitPrice": 200.57
+        },
+        {
+          "sku": "SKU-4538",
+          "qty": 2,
+          "unitPrice": 133.71
+        },
+        {
+          "sku": "SKU-3417",
+          "qty": 5,
+          "unitPrice": 401.14
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 16
+      }
+    },
+    {
+      "txId": "TX-00046",
+      "occurredAt": "2026-01-01T12:55:00Z",
+      "grossAmount": 867.11,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Garcia",
+        "email": "ivan.garcia45@example.test",
+        "address": {
+          "line1": "5 Oak St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "5347",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2041",
+          "qty": 4,
+          "unitPrice": 216.78
+        },
+        {
+          "sku": "SKU-6931",
+          "qty": 5,
+          "unitPrice": 867.11
+        },
+        {
+          "sku": "SKU-8405",
+          "qty": 5,
+          "unitPrice": 433.56
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 93
+      }
+    },
+    {
+      "txId": "TX-00047",
+      "occurredAt": "2026-01-01T13:02:00Z",
+      "grossAmount": 998.58,
+      "currency": "USD",
+      "status": "REFUNDED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Garcia",
+        "email": "ivan.garcia46@example.test",
+        "address": {
+          "line1": "183 Maple St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "2204",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3067",
+          "qty": 3,
+          "unitPrice": 332.86
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 67
+      }
+    },
+    {
+      "txId": "TX-00048",
+      "occurredAt": "2026-01-01T13:20:00Z",
+      "grossAmount": 794.12,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Novak",
+        "email": "eduardo.novak47@example.test",
+        "address": {
+          "line1": "116 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "7779",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2557",
+          "qty": 3,
+          "unitPrice": 198.53
+        },
+        {
+          "sku": "SKU-6120",
+          "qty": 3,
+          "unitPrice": 264.71
+        },
+        {
+          "sku": "SKU-3500",
+          "qty": 4,
+          "unitPrice": 794.12
+        }
+      ]
+    },
+    {
+      "txId": "TX-00049",
+      "occurredAt": "2026-01-01T13:47:00Z",
+      "grossAmount": 740.09,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Patel",
+        "email": "bjorn.patel48@example.test",
+        "address": {
+          "line1": "172 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "7730",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "email",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6119",
+          "qty": 3,
+          "unitPrice": 740.09
+        },
+        {
+          "sku": "SKU-9313",
+          "qty": 2,
+          "unitPrice": 370.05
+        },
+        {
+          "sku": "SKU-8900",
+          "qty": 2,
+          "unitPrice": 740.09
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 47
+      }
+    },
+    {
+      "txId": "TX-00050",
+      "occurredAt": "2026-01-01T14:05:00Z",
+      "grossAmount": 431.96,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Garcia",
+        "email": "bjorn.garcia49@example.test",
+        "address": {
+          "line1": "8 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5477",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "partner",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3972",
+          "qty": 2,
+          "unitPrice": 107.99
+        }
+      ]
+    },
+    {
+      "txId": "TX-00051",
+      "occurredAt": "2026-01-01T14:16:00Z",
+      "grossAmount": 422.72,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Patel",
+        "email": "aisha.patel50@example.test",
+        "address": {
+          "line1": "199 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "2391",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "organic",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2336",
+          "qty": 3,
+          "unitPrice": 105.68
+        },
+        {
+          "sku": "SKU-7947",
+          "qty": 4,
+          "unitPrice": 105.68
+        },
+        {
+          "sku": "SKU-7785",
+          "qty": 3,
+          "unitPrice": 211.36
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 44
+      }
+    },
+    {
+      "txId": "TX-00052",
+      "occurredAt": "2026-01-01T14:35:00Z",
+      "grossAmount": 668.79,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Patel",
+        "email": "gustav.patel51@example.test",
+        "address": {
+          "line1": "53 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "4460",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "partner",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1126",
+          "qty": 4,
+          "unitPrice": 167.2
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 68
+      }
+    },
+    {
+      "txId": "TX-00053",
+      "occurredAt": "2026-01-01T14:45:00Z",
+      "grossAmount": 400.08,
+      "currency": "USD",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Rossi",
+        "email": "dina.rossi52@example.test",
+        "address": {
+          "line1": "20 Maple St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "8033",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7636",
+          "qty": 1,
+          "unitPrice": 133.36
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 58
+      }
+    },
+    {
+      "txId": "TX-00054",
+      "occurredAt": "2026-01-01T15:04:00Z",
+      "grossAmount": 438.49,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Patel",
+        "email": "fatima.patel53@example.test",
+        "address": {
+          "line1": "191 Maple St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "4630",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "email",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9355",
+          "qty": 2,
+          "unitPrice": 146.16
+        },
+        {
+          "sku": "SKU-6752",
+          "qty": 2,
+          "unitPrice": 219.25
+        },
+        {
+          "sku": "SKU-2684",
+          "qty": 2,
+          "unitPrice": 146.16
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 19
+      }
+    },
+    {
+      "txId": "TX-00055",
+      "occurredAt": "2026-01-01T15:25:00Z",
+      "grossAmount": 755.66,
+      "currency": "USD",
+      "status": "AUTHORIZED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Silva",
+        "email": "bjorn.silva54@example.test",
+        "address": {
+          "line1": "39 Maple St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "2118",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1920",
+          "qty": 3,
+          "unitPrice": 755.66
+        },
+        {
+          "sku": "SKU-6085",
+          "qty": 4,
+          "unitPrice": 188.91
+        },
+        {
+          "sku": "SKU-1616",
+          "qty": 1,
+          "unitPrice": 251.89
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 82
+      }
+    },
+    {
+      "txId": "TX-00056",
+      "occurredAt": "2026-01-01T15:42:00Z",
+      "grossAmount": 582.42,
+      "currency": "GBP",
+      "status": "DECLINED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Dubois",
+        "email": "bjorn.dubois55@example.test",
+        "address": {
+          "line1": "147 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "4084",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8381",
+          "qty": 1,
+          "unitPrice": 194.14
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 64
+      }
+    },
+    {
+      "txId": "TX-00057",
+      "occurredAt": "2026-01-01T15:59:00Z",
+      "grossAmount": 526.44,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Nielsen",
+        "email": "chen.nielsen56@example.test",
+        "address": {
+          "line1": "100 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "6543",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "partner",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2548",
+          "qty": 5,
+          "unitPrice": 131.61
+        },
+        {
+          "sku": "SKU-5655",
+          "qty": 3,
+          "unitPrice": 263.22
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 84
+      }
+    },
+    {
+      "txId": "TX-00058",
+      "occurredAt": "2026-01-01T16:11:00Z",
+      "grossAmount": 597.06,
+      "currency": "USD",
+      "status": "DECLINED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Yamamoto",
+        "email": "chen.yamamoto57@example.test",
+        "address": {
+          "line1": "33 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "9624",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6940",
+          "qty": 3,
+          "unitPrice": 298.53
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 98
+      }
+    },
+    {
+      "txId": "TX-00059",
+      "occurredAt": "2026-01-01T16:28:00Z",
+      "grossAmount": 81.77,
+      "currency": "EUR",
+      "status": "REFUNDED",
+      "channel": "web",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Kowalski",
+        "email": "hana.kowalski58@example.test",
+        "address": {
+          "line1": "197 Cedar St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "3147",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3712",
+          "qty": 4,
+          "unitPrice": 81.77
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 92
+      }
+    },
+    {
+      "txId": "TX-00060",
+      "occurredAt": "2026-01-01T16:55:00Z",
+      "grossAmount": 749.78,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Novak",
+        "email": "dina.novak59@example.test",
+        "address": {
+          "line1": "121 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "7026",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9239",
+          "qty": 5,
+          "unitPrice": 187.44
+        },
+        {
+          "sku": "SKU-3655",
+          "qty": 2,
+          "unitPrice": 374.89
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 82
+      }
+    },
+    {
+      "txId": "TX-00061",
+      "occurredAt": "2026-01-01T17:11:00Z",
+      "grossAmount": 846.65,
+      "currency": "USD",
+      "status": "REFUNDED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Yamamoto",
+        "email": "hana.yamamoto60@example.test",
+        "address": {
+          "line1": "70 Maple St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "9410",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "email",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6727",
+          "qty": 1,
+          "unitPrice": 211.66
+        },
+        {
+          "sku": "SKU-1872",
+          "qty": 4,
+          "unitPrice": 282.22
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 47
+      }
+    },
+    {
+      "txId": "TX-00062",
+      "occurredAt": "2026-01-01T17:30:00Z",
+      "grossAmount": 716.12,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Nielsen",
+        "email": "dina.nielsen61@example.test",
+        "address": {
+          "line1": "74 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "3273",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1311",
+          "qty": 3,
+          "unitPrice": 358.06
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 93
+      }
+    },
+    {
+      "txId": "TX-00063",
+      "occurredAt": "2026-01-01T17:46:00Z",
+      "grossAmount": 291.65,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Rossi",
+        "email": "julia.rossi62@example.test",
+        "address": {
+          "line1": "164 Cedar St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "8489",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9443",
+          "qty": 5,
+          "unitPrice": 145.82
+        },
+        {
+          "sku": "SKU-3352",
+          "qty": 3,
+          "unitPrice": 72.91
+        },
+        {
+          "sku": "SKU-1025",
+          "qty": 5,
+          "unitPrice": 97.22
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 23
+      }
+    },
+    {
+      "txId": "TX-00064",
+      "occurredAt": "2026-01-01T17:59:00Z",
+      "grossAmount": 546.35,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Rossi",
+        "email": "bjorn.rossi63@example.test",
+        "address": {
+          "line1": "121 Oak St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "7338",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "email",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6649",
+          "qty": 2,
+          "unitPrice": 546.35
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 96
+      }
+    },
+    {
+      "txId": "TX-00065",
+      "occurredAt": "2026-01-01T18:16:00Z",
+      "grossAmount": 341.84,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Silva",
+        "email": "fatima.silva64@example.test",
+        "address": {
+          "line1": "162 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "3209",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "email",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1717",
+          "qty": 2,
+          "unitPrice": 341.84
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 65
+      }
+    },
+    {
+      "txId": "TX-00066",
+      "occurredAt": "2026-01-01T18:25:00Z",
+      "grossAmount": 754.51,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Rossi",
+        "email": "gustav.rossi65@example.test",
+        "address": {
+          "line1": "70 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "7029",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4060",
+          "qty": 4,
+          "unitPrice": 188.63
+        },
+        {
+          "sku": "SKU-7018",
+          "qty": 5,
+          "unitPrice": 251.5
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 54
+      }
+    },
+    {
+      "txId": "TX-00067",
+      "occurredAt": "2026-01-01T18:50:00Z",
+      "grossAmount": 297.29,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "\u00d6zt\u00fcrk",
+        "email": "bjorn.\u00f6zt\u00fcrk66@example.test",
+        "address": {
+          "line1": "115 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "7981",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6776",
+          "qty": 5,
+          "unitPrice": 74.32
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 9
+      }
+    },
+    {
+      "txId": "TX-00068",
+      "occurredAt": "2026-01-01T18:59:00Z",
+      "grossAmount": 147.06,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Yamamoto",
+        "email": "gustav.yamamoto67@example.test",
+        "address": {
+          "line1": "18 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "7001",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3513",
+          "qty": 4,
+          "unitPrice": 49.02
+        },
+        {
+          "sku": "SKU-7095",
+          "qty": 4,
+          "unitPrice": 147.06
+        },
+        {
+          "sku": "SKU-3255",
+          "qty": 5,
+          "unitPrice": 49.02
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 35
+      }
+    },
+    {
+      "txId": "TX-00069",
+      "occurredAt": "2026-01-01T19:23:00Z",
+      "grossAmount": 520.15,
+      "currency": "EUR",
+      "status": "REFUNDED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Patel",
+        "email": "dina.patel68@example.test",
+        "address": {
+          "line1": "181 Maple St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "4515",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3223",
+          "qty": 1,
+          "unitPrice": 130.04
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 56
+      }
+    },
+    {
+      "txId": "TX-00070",
+      "occurredAt": "2026-01-01T19:44:00Z",
+      "grossAmount": 69.6,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Yamamoto",
+        "email": "bjorn.yamamoto69@example.test",
+        "address": {
+          "line1": "93 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "4673",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "organic",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1430",
+          "qty": 3,
+          "unitPrice": 23.2
+        },
+        {
+          "sku": "SKU-8657",
+          "qty": 5,
+          "unitPrice": 34.8
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 8
+      }
+    },
+    {
+      "txId": "TX-00071",
+      "occurredAt": "2026-01-01T19:58:00Z",
+      "grossAmount": 413.73,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "\u00d6zt\u00fcrk",
+        "email": "eduardo.\u00f6zt\u00fcrk70@example.test",
+        "address": {
+          "line1": "82 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "2215",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3981",
+          "qty": 2,
+          "unitPrice": 103.43
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 15
+      }
+    },
+    {
+      "txId": "TX-00072",
+      "occurredAt": "2026-01-01T20:09:00Z",
+      "grossAmount": 326.04,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Silva",
+        "email": "ivan.silva71@example.test",
+        "address": {
+          "line1": "65 Oak St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5496",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3762",
+          "qty": 5,
+          "unitPrice": 163.02
+        },
+        {
+          "sku": "SKU-3804",
+          "qty": 5,
+          "unitPrice": 108.68
+        },
+        {
+          "sku": "SKU-1674",
+          "qty": 1,
+          "unitPrice": 326.04
+        }
+      ]
+    },
+    {
+      "txId": "TX-00073",
+      "occurredAt": "2026-01-01T20:36:00Z",
+      "grossAmount": 574.27,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Garcia",
+        "email": "julia.garcia72@example.test",
+        "address": {
+          "line1": "165 Maple St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "8912",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1981",
+          "qty": 2,
+          "unitPrice": 143.57
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 26
+      }
+    },
+    {
+      "txId": "TX-00074",
+      "occurredAt": "2026-01-01T20:54:00Z",
+      "grossAmount": 719.76,
+      "currency": "USD",
+      "status": "AUTHORIZED",
+      "channel": "kiosk",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Dubois",
+        "email": "fatima.dubois73@example.test",
+        "address": {
+          "line1": "195 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "9437",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "partner",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3007",
+          "qty": 3,
+          "unitPrice": 179.94
+        },
+        {
+          "sku": "SKU-5061",
+          "qty": 2,
+          "unitPrice": 719.76
+        }
+      ]
+    },
+    {
+      "txId": "TX-00075",
+      "occurredAt": "2026-01-01T21:11:00Z",
+      "grossAmount": 902.79,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "pos",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Dubois",
+        "email": "gustav.dubois74@example.test",
+        "address": {
+          "line1": "196 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "9163",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1379",
+          "qty": 1,
+          "unitPrice": 225.7
+        },
+        {
+          "sku": "SKU-9281",
+          "qty": 4,
+          "unitPrice": 451.39
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 6
+      }
+    },
+    {
+      "txId": "TX-00076",
+      "occurredAt": "2026-01-01T21:19:00Z",
+      "grossAmount": 539.0,
+      "currency": "USD",
+      "status": "REFUNDED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Garcia",
+        "email": "aisha.garcia75@example.test",
+        "address": {
+          "line1": "187 Maple St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "7606",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4189",
+          "qty": 3,
+          "unitPrice": 179.67
+        },
+        {
+          "sku": "SKU-2204",
+          "qty": 4,
+          "unitPrice": 134.75
+        },
+        {
+          "sku": "SKU-5582",
+          "qty": 5,
+          "unitPrice": 539.0
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 50
+      }
+    },
+    {
+      "txId": "TX-00077",
+      "occurredAt": "2026-01-01T21:44:00Z",
+      "grossAmount": 148.54,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Yamamoto",
+        "email": "fatima.yamamoto76@example.test",
+        "address": {
+          "line1": "10 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "6456",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6218",
+          "qty": 2,
+          "unitPrice": 37.13
+        },
+        {
+          "sku": "SKU-5902",
+          "qty": 5,
+          "unitPrice": 49.51
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 68
+      }
+    },
+    {
+      "txId": "TX-00078",
+      "occurredAt": "2026-01-01T22:02:00Z",
+      "grossAmount": 21.54,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Dubois",
+        "email": "hana.dubois77@example.test",
+        "address": {
+          "line1": "186 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "1436",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1841",
+          "qty": 5,
+          "unitPrice": 5.38
+        },
+        {
+          "sku": "SKU-3793",
+          "qty": 5,
+          "unitPrice": 5.38
+        },
+        {
+          "sku": "SKU-3421",
+          "qty": 2,
+          "unitPrice": 21.54
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 14
+      }
+    },
+    {
+      "txId": "TX-00079",
+      "occurredAt": "2026-01-01T22:12:00Z",
+      "grossAmount": 155.66,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Nielsen",
+        "email": "dina.nielsen78@example.test",
+        "address": {
+          "line1": "181 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "9498",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "social",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3837",
+          "qty": 4,
+          "unitPrice": 51.89
+        },
+        {
+          "sku": "SKU-9950",
+          "qty": 3,
+          "unitPrice": 51.89
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 31
+      }
+    },
+    {
+      "txId": "TX-00080",
+      "occurredAt": "2026-01-01T22:27:00Z",
+      "grossAmount": 772.31,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Rossi",
+        "email": "eduardo.rossi79@example.test",
+        "address": {
+          "line1": "123 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5480",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": null,
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6654",
+          "qty": 2,
+          "unitPrice": 257.44
+        },
+        {
+          "sku": "SKU-1689",
+          "qty": 3,
+          "unitPrice": 772.31
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 83
+      }
+    },
+    {
+      "txId": "TX-00081",
+      "occurredAt": "2026-01-01T22:53:00Z",
+      "grossAmount": 540.88,
+      "currency": "GBP",
+      "status": "DECLINED",
+      "channel": "pos",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Novak",
+        "email": "eduardo.novak80@example.test",
+        "address": {
+          "line1": "28 Cedar St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "4920",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4814",
+          "qty": 1,
+          "unitPrice": 540.88
+        },
+        {
+          "sku": "SKU-7771",
+          "qty": 3,
+          "unitPrice": 135.22
+        },
+        {
+          "sku": "SKU-2647",
+          "qty": 2,
+          "unitPrice": 540.88
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 52
+      }
+    },
+    {
+      "txId": "TX-00082",
+      "occurredAt": "2026-01-01T23:09:00Z",
+      "grossAmount": 964.08,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Novak",
+        "email": "hana.novak81@example.test",
+        "address": {
+          "line1": "167 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "4804",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "organic",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1595",
+          "qty": 4,
+          "unitPrice": 241.02
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 37
+      }
+    },
+    {
+      "txId": "TX-00083",
+      "occurredAt": "2026-01-01T23:28:00Z",
+      "grossAmount": 983.07,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Nielsen",
+        "email": "aisha.nielsen82@example.test",
+        "address": {
+          "line1": "130 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "5470",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "partner",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8518",
+          "qty": 3,
+          "unitPrice": 491.54
+        },
+        {
+          "sku": "SKU-1230",
+          "qty": 3,
+          "unitPrice": 327.69
+        },
+        {
+          "sku": "SKU-4164",
+          "qty": 2,
+          "unitPrice": 245.77
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 41
+      }
+    },
+    {
+      "txId": "TX-00084",
+      "occurredAt": "2026-01-01T23:33:00Z",
+      "grossAmount": 981.77,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "\u00d6zt\u00fcrk",
+        "email": "bjorn.\u00f6zt\u00fcrk83@example.test",
+        "address": {
+          "line1": "99 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "8319",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "partner",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6890",
+          "qty": 2,
+          "unitPrice": 981.77
+        },
+        {
+          "sku": "SKU-2936",
+          "qty": 4,
+          "unitPrice": 327.26
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 64
+      }
+    },
+    {
+      "txId": "TX-00085",
+      "occurredAt": "2026-01-01T23:53:00Z",
+      "grossAmount": 616.54,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Patel",
+        "email": "eduardo.patel84@example.test",
+        "address": {
+          "line1": "117 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "7121",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2341",
+          "qty": 5,
+          "unitPrice": 154.13
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 9
+      }
+    },
+    {
+      "txId": "TX-00086",
+      "occurredAt": "2026-01-02T00:14:00Z",
+      "grossAmount": 538.97,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Patel",
+        "email": "julia.patel85@example.test",
+        "address": {
+          "line1": "175 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "9008",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "email",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9409",
+          "qty": 4,
+          "unitPrice": 134.74
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 59
+      }
+    },
+    {
+      "txId": "TX-00087",
+      "occurredAt": "2026-01-02T00:35:00Z",
+      "grossAmount": 7.99,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Nielsen",
+        "email": "eduardo.nielsen86@example.test",
+        "address": {
+          "line1": "89 Cedar St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "2044",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "email",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5703",
+          "qty": 4,
+          "unitPrice": 4.0
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 93
+      }
+    },
+    {
+      "txId": "TX-00088",
+      "occurredAt": "2026-01-02T00:52:00Z",
+      "grossAmount": 917.52,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Yamamoto",
+        "email": "gustav.yamamoto87@example.test",
+        "address": {
+          "line1": "31 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "9802",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "organic",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5888",
+          "qty": 4,
+          "unitPrice": 229.38
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 31
+      }
+    },
+    {
+      "txId": "TX-00089",
+      "occurredAt": "2026-01-02T00:59:00Z",
+      "grossAmount": 937.71,
+      "currency": "EUR",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Yamamoto",
+        "email": "hana.yamamoto88@example.test",
+        "address": {
+          "line1": "158 Oak St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "4943",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "email",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1797",
+          "qty": 2,
+          "unitPrice": 937.71
+        },
+        {
+          "sku": "SKU-7590",
+          "qty": 4,
+          "unitPrice": 468.86
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 17
+      }
+    },
+    {
+      "txId": "TX-00090",
+      "occurredAt": "2026-01-02T01:22:00Z",
+      "grossAmount": 599.92,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Garcia",
+        "email": "ivan.garcia89@example.test",
+        "address": {
+          "line1": "37 Cedar St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "9540",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3869",
+          "qty": 4,
+          "unitPrice": 149.98
+        }
+      ]
+    },
+    {
+      "txId": "TX-00091",
+      "occurredAt": "2026-01-02T01:41:00Z",
+      "grossAmount": 419.23,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "\u00d6zt\u00fcrk",
+        "email": "fatima.\u00f6zt\u00fcrk90@example.test",
+        "address": {
+          "line1": "62 Oak St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "5927",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7761",
+          "qty": 4,
+          "unitPrice": 209.62
+        },
+        {
+          "sku": "SKU-7363",
+          "qty": 2,
+          "unitPrice": 139.74
+        },
+        {
+          "sku": "SKU-4331",
+          "qty": 3,
+          "unitPrice": 419.23
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 11
+      }
+    },
+    {
+      "txId": "TX-00092",
+      "occurredAt": "2026-01-02T01:53:00Z",
+      "grossAmount": 675.29,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Kowalski",
+        "email": "ivan.kowalski91@example.test",
+        "address": {
+          "line1": "123 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "6455",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "organic",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2922",
+          "qty": 4,
+          "unitPrice": 337.64
+        },
+        {
+          "sku": "SKU-4350",
+          "qty": 4,
+          "unitPrice": 337.64
+        },
+        {
+          "sku": "SKU-6269",
+          "qty": 3,
+          "unitPrice": 168.82
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 45
+      }
+    },
+    {
+      "txId": "TX-00093",
+      "occurredAt": "2026-01-02T02:11:00Z",
+      "grossAmount": 103.11,
+      "currency": "USD",
+      "status": "DECLINED",
+      "channel": "pos",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Garcia",
+        "email": "eduardo.garcia92@example.test",
+        "address": {
+          "line1": "95 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "7781",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "organic",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7841",
+          "qty": 3,
+          "unitPrice": 51.55
+        },
+        {
+          "sku": "SKU-4214",
+          "qty": 3,
+          "unitPrice": 51.55
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 63
+      }
+    },
+    {
+      "txId": "TX-00094",
+      "occurredAt": "2026-01-02T02:32:00Z",
+      "grossAmount": 643.48,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Yamamoto",
+        "email": "ivan.yamamoto93@example.test",
+        "address": {
+          "line1": "36 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "9954",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": null,
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1554",
+          "qty": 1,
+          "unitPrice": 643.48
+        },
+        {
+          "sku": "SKU-1104",
+          "qty": 4,
+          "unitPrice": 321.74
+        },
+        {
+          "sku": "SKU-4791",
+          "qty": 1,
+          "unitPrice": 321.74
+        }
+      ]
+    },
+    {
+      "txId": "TX-00095",
+      "occurredAt": "2026-01-02T02:47:00Z",
+      "grossAmount": 639.53,
+      "currency": "USD",
+      "status": "DECLINED",
+      "channel": "kiosk",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Novak",
+        "email": "ivan.novak94@example.test",
+        "address": {
+          "line1": "2 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "7739",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": null,
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5697",
+          "qty": 1,
+          "unitPrice": 159.88
+        },
+        {
+          "sku": "SKU-3937",
+          "qty": 1,
+          "unitPrice": 639.53
+        },
+        {
+          "sku": "SKU-9591",
+          "qty": 2,
+          "unitPrice": 319.76
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 32
+      }
+    },
+    {
+      "txId": "TX-00096",
+      "occurredAt": "2026-01-02T03:00:00Z",
+      "grossAmount": 959.49,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Garcia",
+        "email": "fatima.garcia95@example.test",
+        "address": {
+          "line1": "176 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "1519",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8798",
+          "qty": 1,
+          "unitPrice": 959.49
+        },
+        {
+          "sku": "SKU-3807",
+          "qty": 1,
+          "unitPrice": 239.87
+        },
+        {
+          "sku": "SKU-8109",
+          "qty": 3,
+          "unitPrice": 959.49
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 29
+      }
+    },
+    {
+      "txId": "TX-00097",
+      "occurredAt": "2026-01-02T03:12:00Z",
+      "grossAmount": 924.53,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Dubois",
+        "email": "dina.dubois96@example.test",
+        "address": {
+          "line1": "81 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "4394",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3661",
+          "qty": 5,
+          "unitPrice": 462.26
+        },
+        {
+          "sku": "SKU-7375",
+          "qty": 5,
+          "unitPrice": 308.18
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 17
+      }
+    },
+    {
+      "txId": "TX-00098",
+      "occurredAt": "2026-01-02T03:29:00Z",
+      "grossAmount": 102.19,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Rossi",
+        "email": "bjorn.rossi97@example.test",
+        "address": {
+          "line1": "199 Maple St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "1485",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "social",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6829",
+          "qty": 5,
+          "unitPrice": 25.55
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 74
+      }
+    },
+    {
+      "txId": "TX-00099",
+      "occurredAt": "2026-01-02T03:58:00Z",
+      "grossAmount": 250.21,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Patel",
+        "email": "gustav.patel98@example.test",
+        "address": {
+          "line1": "183 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "3527",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "partner",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2499",
+          "qty": 1,
+          "unitPrice": 83.4
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 13
+      }
+    },
+    {
+      "txId": "TX-00100",
+      "occurredAt": "2026-01-02T04:10:00Z",
+      "grossAmount": 559.19,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Patel",
+        "email": "chen.patel99@example.test",
+        "address": {
+          "line1": "91 Cedar St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "2524",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "social",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7779",
+          "qty": 4,
+          "unitPrice": 559.19
+        },
+        {
+          "sku": "SKU-4977",
+          "qty": 5,
+          "unitPrice": 279.6
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 17
+      }
+    },
+    {
+      "txId": "TX-00101",
+      "occurredAt": "2026-01-02T04:22:00Z",
+      "grossAmount": 67.94,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Garcia",
+        "email": "eduardo.garcia100@example.test",
+        "address": {
+          "line1": "20 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "5123",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2752",
+          "qty": 2,
+          "unitPrice": 22.65
+        },
+        {
+          "sku": "SKU-1110",
+          "qty": 4,
+          "unitPrice": 22.65
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 42
+      }
+    },
+    {
+      "txId": "TX-00102",
+      "occurredAt": "2026-01-02T04:41:00Z",
+      "grossAmount": 324.05,
+      "currency": "EUR",
+      "status": "DECLINED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Yamamoto",
+        "email": "hana.yamamoto101@example.test",
+        "address": {
+          "line1": "46 Maple St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "6228",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7161",
+          "qty": 3,
+          "unitPrice": 81.01
+        },
+        {
+          "sku": "SKU-6980",
+          "qty": 1,
+          "unitPrice": 162.03
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 23
+      }
+    },
+    {
+      "txId": "TX-00103",
+      "occurredAt": "2026-01-02T05:05:00Z",
+      "grossAmount": 213.59,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Nielsen",
+        "email": "ivan.nielsen102@example.test",
+        "address": {
+          "line1": "173 Maple St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "3280",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "organic",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-3525",
+          "qty": 4,
+          "unitPrice": 53.4
+        },
+        {
+          "sku": "SKU-2211",
+          "qty": 4,
+          "unitPrice": 53.4
+        },
+        {
+          "sku": "SKU-7566",
+          "qty": 5,
+          "unitPrice": 53.4
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 89
+      }
+    },
+    {
+      "txId": "TX-00104",
+      "occurredAt": "2026-01-02T05:12:00Z",
+      "grossAmount": 770.1,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Ivan",
+        "lastName": "Dubois",
+        "email": "ivan.dubois103@example.test",
+        "address": {
+          "line1": "145 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "7547",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "email",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5239",
+          "qty": 2,
+          "unitPrice": 385.05
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 59
+      }
+    },
+    {
+      "txId": "TX-00105",
+      "occurredAt": "2026-01-02T05:28:00Z",
+      "grossAmount": 485.35,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Rossi",
+        "email": "julia.rossi104@example.test",
+        "address": {
+          "line1": "90 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "6620",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": null,
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8801",
+          "qty": 1,
+          "unitPrice": 121.34
+        },
+        {
+          "sku": "SKU-8412",
+          "qty": 3,
+          "unitPrice": 485.35
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 14
+      }
+    },
+    {
+      "txId": "TX-00106",
+      "occurredAt": "2026-01-02T05:55:00Z",
+      "grossAmount": 801.04,
+      "currency": "GBP",
+      "status": "DECLINED",
+      "channel": "mobile_app",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Yamamoto",
+        "email": "aisha.yamamoto105@example.test",
+        "address": {
+          "line1": "142 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "6422",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4022",
+          "qty": 2,
+          "unitPrice": 200.26
+        },
+        {
+          "sku": "SKU-7481",
+          "qty": 1,
+          "unitPrice": 400.52
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 49
+      }
+    },
+    {
+      "txId": "TX-00107",
+      "occurredAt": "2026-01-02T06:14:00Z",
+      "grossAmount": 705.23,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Kowalski",
+        "email": "aisha.kowalski106@example.test",
+        "address": {
+          "line1": "94 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "4228",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "partner",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6134",
+          "qty": 5,
+          "unitPrice": 176.31
+        },
+        {
+          "sku": "SKU-7431",
+          "qty": 5,
+          "unitPrice": 705.23
+        },
+        {
+          "sku": "SKU-6700",
+          "qty": 3,
+          "unitPrice": 176.31
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 90
+      }
+    },
+    {
+      "txId": "TX-00108",
+      "occurredAt": "2026-01-02T06:29:00Z",
+      "grossAmount": 138.27,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Dubois",
+        "email": "eduardo.dubois107@example.test",
+        "address": {
+          "line1": "96 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "3316",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-7286",
+          "qty": 4,
+          "unitPrice": 69.14
+        },
+        {
+          "sku": "SKU-8973",
+          "qty": 5,
+          "unitPrice": 69.14
+        },
+        {
+          "sku": "SKU-3733",
+          "qty": 4,
+          "unitPrice": 46.09
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 57
+      }
+    },
+    {
+      "txId": "TX-00109",
+      "occurredAt": "2026-01-02T06:43:00Z",
+      "grossAmount": 140.84,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "kiosk",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Julia",
+        "lastName": "Nielsen",
+        "email": "julia.nielsen108@example.test",
+        "address": {
+          "line1": "176 Maple St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "7809",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1505",
+          "qty": 2,
+          "unitPrice": 46.95
+        }
+      ]
+    },
+    {
+      "txId": "TX-00110",
+      "occurredAt": "2026-01-02T07:05:00Z",
+      "grossAmount": 460.02,
+      "currency": "USD",
+      "status": "AUTHORIZED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Dina",
+        "lastName": "Rossi",
+        "email": "dina.rossi109@example.test",
+        "address": {
+          "line1": "69 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "7010",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "spring_sale",
+        "utmSource": "social",
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2677",
+          "qty": 2,
+          "unitPrice": 153.34
+        },
+        {
+          "sku": "SKU-1528",
+          "qty": 4,
+          "unitPrice": 153.34
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 56
+      }
+    },
+    {
+      "txId": "TX-00111",
+      "occurredAt": "2026-01-02T07:23:00Z",
+      "grossAmount": 712.19,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "phone",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Kowalski",
+        "email": "bjorn.kowalski110@example.test",
+        "address": {
+          "line1": "53 Oak St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "6747",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-5794",
+          "qty": 3,
+          "unitPrice": 237.4
+        },
+        {
+          "sku": "SKU-9428",
+          "qty": 1,
+          "unitPrice": 356.1
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 7
+      }
+    },
+    {
+      "txId": "TX-00112",
+      "occurredAt": "2026-01-02T07:30:00Z",
+      "grossAmount": 150.5,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "kiosk",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Silva",
+        "email": "eduardo.silva111@example.test",
+        "address": {
+          "line1": "37 Cedar St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "5402",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "social",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2525",
+          "qty": 4,
+          "unitPrice": 50.17
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 58
+      }
+    },
+    {
+      "txId": "TX-00113",
+      "occurredAt": "2026-01-02T07:57:00Z",
+      "grossAmount": 775.25,
+      "currency": "GBP",
+      "status": "AUTHORIZED",
+      "channel": "kiosk",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Hana",
+        "lastName": "Yamamoto",
+        "email": "hana.yamamoto112@example.test",
+        "address": {
+          "line1": "17 Cedar St",
+          "city": "Dublin",
+          "region": "L",
+          "postalCode": "D02",
+          "countryCode": "IE"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "7516",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": null
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6289",
+          "qty": 3,
+          "unitPrice": 258.42
+        },
+        {
+          "sku": "SKU-9967",
+          "qty": 5,
+          "unitPrice": 387.62
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 43
+      }
+    },
+    {
+      "txId": "TX-00114",
+      "occurredAt": "2026-01-02T08:01:00Z",
+      "grossAmount": 128.61,
+      "currency": "USD",
+      "status": "REFUNDED",
+      "channel": "kiosk",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "Nielsen",
+        "email": "aisha.nielsen113@example.test",
+        "address": {
+          "line1": "110 Oak St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "3161",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "organic",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-6905",
+          "qty": 3,
+          "unitPrice": 128.61
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 21
+      }
+    },
+    {
+      "txId": "TX-00115",
+      "occurredAt": "2026-01-02T08:29:00Z",
+      "grossAmount": 700.93,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Aisha",
+        "lastName": "\u00d6zt\u00fcrk",
+        "email": "aisha.\u00f6zt\u00fcrk114@example.test",
+        "address": {
+          "line1": "1 Oak St",
+          "city": "Porto",
+          "region": "N",
+          "postalCode": "4000",
+          "countryCode": "PT"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "8812",
+        "bankCode": "BK-EU-01"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": null,
+        "segment": "returning"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8291",
+          "qty": 1,
+          "unitPrice": 700.93
+        },
+        {
+          "sku": "SKU-6629",
+          "qty": 1,
+          "unitPrice": 175.23
+        },
+        {
+          "sku": "SKU-3165",
+          "qty": 4,
+          "unitPrice": 700.93
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 93
+      }
+    },
+    {
+      "txId": "TX-00116",
+      "occurredAt": "2026-01-02T08:49:00Z",
+      "grossAmount": 302.75,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "mobile_app",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Bjorn",
+        "lastName": "Patel",
+        "email": "bjorn.patel115@example.test",
+        "address": {
+          "line1": "136 Cedar St",
+          "city": "Lyon",
+          "region": "ARA",
+          "postalCode": "69001",
+          "countryCode": "FR"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "1138",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-4490",
+          "qty": 2,
+          "unitPrice": 75.69
+        },
+        {
+          "sku": "SKU-8248",
+          "qty": 2,
+          "unitPrice": 302.75
+        },
+        {
+          "sku": "SKU-2646",
+          "qty": 2,
+          "unitPrice": 302.75
+        }
+      ],
+      "risk": {
+        "tier": "medium",
+        "fraudScore": 44
+      }
+    },
+    {
+      "txId": "TX-00117",
+      "occurredAt": "2026-01-02T08:56:00Z",
+      "grossAmount": 646.39,
+      "currency": "GBP",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Gustav",
+        "lastName": "Yamamoto",
+        "email": "gustav.yamamoto116@example.test",
+        "address": {
+          "line1": "169 Maple St",
+          "city": "Berlin",
+          "region": "BE",
+          "postalCode": "10115",
+          "countryCode": "DE"
+        }
+      },
+      "merchant": {
+        "id": "M-TECH",
+        "displayName": "TechVault Electronics",
+        "mcc": "5732"
+      },
+      "settlement": {
+        "accountLast4": "4366",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "social",
+        "segment": "vip"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-1894",
+          "qty": 2,
+          "unitPrice": 161.6
+        },
+        {
+          "sku": "SKU-7322",
+          "qty": 1,
+          "unitPrice": 323.19
+        },
+        {
+          "sku": "SKU-9185",
+          "qty": 5,
+          "unitPrice": 646.39
+        }
+      ],
+      "risk": {
+        "tier": "low",
+        "fraudScore": 46
+      }
+    },
+    {
+      "txId": "TX-00118",
+      "occurredAt": "2026-01-02T09:14:00Z",
+      "grossAmount": 548.61,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "web",
+      "deviceType": "desktop",
+      "payer": {
+        "firstName": "Fatima",
+        "lastName": "Silva",
+        "email": "fatima.silva117@example.test",
+        "address": {
+          "line1": "151 Oak St",
+          "city": "Milan",
+          "region": "LOM",
+          "postalCode": "20121",
+          "countryCode": "IT"
+        }
+      },
+      "merchant": {
+        "id": "M-FUEL",
+        "displayName": "Northwind Fuel",
+        "mcc": "5541"
+      },
+      "settlement": {
+        "accountLast4": "1225",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "loyalty_boost",
+        "utmSource": "email",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-9300",
+          "qty": 3,
+          "unitPrice": 137.15
+        },
+        {
+          "sku": "SKU-7939",
+          "qty": 4,
+          "unitPrice": 548.61
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 78
+      }
+    },
+    {
+      "txId": "TX-00119",
+      "occurredAt": "2026-01-02T09:27:00Z",
+      "grossAmount": 513.74,
+      "currency": "EUR",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "terminal",
+      "payer": {
+        "firstName": "Chen",
+        "lastName": "Garcia",
+        "email": "chen.garcia118@example.test",
+        "address": {
+          "line1": "151 Cedar St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-FASH",
+        "displayName": "River Fashion Co",
+        "mcc": "5691"
+      },
+      "settlement": {
+        "accountLast4": "2083",
+        "bankCode": "BK-NA-02"
+      },
+      "analytics": {
+        "campaign": "black_friday",
+        "utmSource": "organic",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-2412",
+          "qty": 4,
+          "unitPrice": 513.74
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 7
+      }
+    },
+    {
+      "txId": "TX-00120",
+      "occurredAt": "2026-01-02T09:54:00Z",
+      "grossAmount": 141.52,
+      "currency": "USD",
+      "status": "CAPTURED",
+      "channel": "pos",
+      "deviceType": "tablet",
+      "payer": {
+        "firstName": "Eduardo",
+        "lastName": "Silva",
+        "email": "eduardo.silva119@example.test",
+        "address": {
+          "line1": "43 Maple St",
+          "city": "Amsterdam",
+          "region": "NH",
+          "postalCode": "1011",
+          "countryCode": "NL"
+        }
+      },
+      "merchant": {
+        "id": "M-ACME",
+        "displayName": "Acme Groceries",
+        "mcc": "5411"
+      },
+      "settlement": {
+        "accountLast4": "3079",
+        "bankCode": "BK-UK-03"
+      },
+      "analytics": {
+        "campaign": null,
+        "utmSource": "email",
+        "segment": "new"
+      },
+      "lineItems": [
+        {
+          "sku": "SKU-8034",
+          "qty": 3,
+          "unitPrice": 141.52
+        },
+        {
+          "sku": "SKU-5308",
+          "qty": 5,
+          "unitPrice": 141.52
+        }
+      ],
+      "risk": {
+        "tier": "high",
+        "fraudScore": 46
+      }
+    }
+  ]
+}

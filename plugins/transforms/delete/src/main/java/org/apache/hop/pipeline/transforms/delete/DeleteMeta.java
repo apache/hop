@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline.transforms.delete;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -46,6 +48,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * This class takes care of deleting values in a table using a certain condition and values for
  * input.
  */
+@Getter
+@Setter
 @Transform(
     id = "Delete",
     image = "delete.svg",
@@ -73,36 +77,23 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   @HopMetadataProperty(key = "commit", injectionKeyDescription = "DeleteMeta.Injection.CommitSize")
   private String commitSize;
 
+  /** Flag to indicate the use of batch deletes, disabled by default for backward compatibility */
+  @HopMetadataProperty(
+      key = "use_batch",
+      injectionKeyDescription = "DeleteMeta.Injection.UseBatchUpdate",
+      injectionKey = "BATCH_UPDATE")
+  private boolean useBatchUpdate;
+
   public DeleteMeta() {
     super();
     lookup = new DeleteLookupField();
     // allocate BaseTransformMeta
   }
 
-  public String getConnection() {
-    return connection;
-  }
-
-  public void setConnection(String connection) {
-    this.connection = connection;
-  }
-
   /**
    * @return Returns the commitSize.
    */
   public String getCommitSizeVar() {
-    return commitSize;
-  }
-
-  public DeleteLookupField getLookup() {
-    return lookup;
-  }
-
-  public void setLookup(DeleteLookupField lookup) {
-    this.lookup = lookup;
-  }
-
-  public String getCommitSize() {
     return commitSize;
   }
 
@@ -117,17 +108,11 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
     return Integer.parseInt(vs.resolve(commitSize));
   }
 
-  /**
-   * @param commitSize The commitSize to set.
-   */
-  public void setCommitSize(String commitSize) {
-    this.commitSize = commitSize;
-  }
-
   public DeleteMeta(DeleteMeta obj) {
 
     this.connection = obj.connection;
     this.commitSize = obj.commitSize;
+    this.useBatchUpdate = obj.useBatchUpdate;
     this.lookup = new DeleteLookupField(obj.lookup);
   }
 
@@ -150,8 +135,7 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
     // Default: nothing changes to rowMeta
   }
 
@@ -350,8 +334,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
 
-    SqlStatement retval =
-        new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
+    // default: nothing to do!
+    SqlStatement ret = new SqlStatement(transformMeta.getName(), databaseMeta, null);
 
     if (databaseMeta != null) {
       if (prev != null && !prev.isEmpty()) {
@@ -374,20 +358,19 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
                 idxFields[i] = keyFields.get(i).getKeyLookup();
               }
             } else {
-              retval.setError(
-                  BaseMessages.getString(PKG, "DeleteMeta.CheckResult.KeyFieldsRequired"));
+              ret.setError(BaseMessages.getString(PKG, "DeleteMeta.CheckResult.KeyFieldsRequired"));
             }
 
             // Key lookup dimensions...
             if (idxFields != null
                 && idxFields.length > 0
                 && !db.checkIndexExists(schemaTable, idxFields)) {
-              String indexname = "idx_" + lookup.getTableName() + "_lookup";
+              String indexName = "idx_" + lookup.getTableName() + "_lookup";
               crIndex =
                   db.getCreateIndexStatement(
                       lookup.getSchemaName(),
                       lookup.getTableName(),
-                      indexname,
+                      indexName,
                       idxFields,
                       false,
                       false,
@@ -397,27 +380,27 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
 
             String sql = crTable + crIndex;
             if (sql.isEmpty()) {
-              retval.setSql(null);
+              ret.setSql(null);
             } else {
-              retval.setSql(sql);
+              ret.setSql(sql);
             }
           } catch (HopException e) {
-            retval.setError(
+            ret.setError(
                 BaseMessages.getString(PKG, "DeleteMeta.Returnvalue.ErrorOccurred")
                     + e.getMessage());
           }
         } else {
-          retval.setError(
+          ret.setError(
               BaseMessages.getString(PKG, "DeleteMeta.Returnvalue.NoTableDefinedOnConnection"));
         }
       } else {
-        retval.setError(BaseMessages.getString(PKG, "DeleteMeta.Returnvalue.NoReceivingAnyFields"));
+        ret.setError(BaseMessages.getString(PKG, "DeleteMeta.Returnvalue.NoReceivingAnyFields"));
       }
     } else {
-      retval.setError(BaseMessages.getString(PKG, "DeleteMeta.Returnvalue.NoConnectionDefined"));
+      ret.setError(BaseMessages.getString(PKG, "DeleteMeta.Returnvalue.NoConnectionDefined"));
     }
 
-    return retval;
+    return ret;
   }
 
   @Override

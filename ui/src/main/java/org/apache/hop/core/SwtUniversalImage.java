@@ -20,6 +20,7 @@ package org.apache.hop.core;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -61,7 +62,7 @@ public abstract class SwtUniversalImage {
 
   private void checkDisposed() {
     if (cache == null) {
-      throw new RuntimeException("Already disposed");
+      throw new HopRuntimeException("Already disposed");
     }
   }
 

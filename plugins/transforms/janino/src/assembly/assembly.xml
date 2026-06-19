@@ -27,17 +27,17 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/janino</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>plugins/transforms/janino</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/codeExclusions.xml</source>
-            <outputDirectory>plugins/transforms/janino</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -49,19 +49,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-janino:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/janino</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.codehaus.janino:janino:jar</include>
-                <include>org.codehaus.janino:commons-compiler:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/janino/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

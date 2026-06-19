@@ -30,6 +30,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
@@ -40,6 +42,7 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * This defines a 'write to file' action. Its main use would be to create empty trigger files that
@@ -164,7 +167,18 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
         osw.write(content);
         osw.flush();
 
-        result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + counting.getCount());
+        long written = counting.getCount();
+        result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + written);
+
+        IWorkflowEngine<WorkflowMeta> wf = getParentWorkflow();
+        if (wf != null && written > 0) {
+          try (FileObject out = HopVfs.getFileObject(realFilename, getVariables())) {
+            LineageFileIoEmitter.emitWorkflowActionFileIo(
+                wf, this, FileIoOperation.WRITE, null, out, written, true, null);
+          } catch (Exception ignored) {
+            // lineage is best-effort
+          }
+        }
 
         result.setResult(true);
         result.setNrErrors(0);

@@ -19,6 +19,7 @@ package org.apache.hop.core;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.IGuiSize;
@@ -29,6 +30,8 @@ import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.w3c.dom.Node;
 
 /** Describes a note displayed on a Pipeline or Workflow. */
+@Getter
+@Setter
 public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   public static final String XML_TAG = "notepad";
 
@@ -44,70 +47,44 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   public static final int COLOR_RGB_DEFAULT_BORDER_GREEN = 58;
   public static final int COLOR_RGB_DEFAULT_BORDER_BLUE = 90;
 
-  @Setter @Getter @HopMetadataProperty private String note;
+  @HopMetadataProperty private String note;
 
-  @Setter
-  @Getter
   @HopMetadataProperty(key = "fontname")
   private String fontName;
 
-  @Setter
-  @Getter
   @HopMetadataProperty(key = "fontsize")
   private int fontSize;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "fontbold")
   private boolean fontBold;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "fontitalic")
   private boolean fontItalic;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "fontcolorred")
   private int fontColorRed;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "fontcolorgreen")
   private int fontColorGreen;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "fontcolorblue")
   private int fontColorBlue;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "backgroundcolorred")
   private int backGroundColorRed;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "backgroundcolorgreen")
   private int backGroundColorGreen;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "backgroundcolorblue")
   private int backGroundColorBlue;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "bordercolorred")
   private int borderColorRed;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "bordercolorgreen")
   private int borderColorGreen;
 
-  @Getter
-  @Setter
   @HopMetadataProperty(key = "bordercolorblue")
   private int borderColorBlue;
 
@@ -222,7 +199,7 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
           + XmlMetadataUtil.serializeObjectToXml(this)
           + XmlHandler.closeTag(XML_TAG);
     } catch (Exception e) {
-      throw new RuntimeException("Error serializing notepad metadata to XML", e);
+      throw new HopRuntimeException("Error serializing notepad metadata to XML", e);
     }
   }
 
@@ -244,28 +221,7 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
     }
   }
 
-  @Override
-  public Point getLocation() {
-    return location;
-  }
-
-  /**
-   * @return Returns the selected.
-   */
-  @Override
-  public boolean isSelected() {
-    return selected;
-  }
-
-  /**
-   * @param selected The selected to set.
-   */
-  @Override
-  public void setSelected(boolean selected) {
-    this.selected = selected;
-  }
-
-  /** Change a selected state to not-selected and vice-versa. */
+  /** Change a selected state to not-selected and vice versa. */
   public void flipSelected() {
     this.selected = !this.selected;
   }
@@ -292,14 +248,6 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   }
 
   /**
-   * @return the height
-   */
-  @Override
-  public int getHeight() {
-    return height;
-  }
-
-  /**
    * @param height the height to set
    */
   @Override
@@ -308,14 +256,6 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
       setChanged();
     }
     this.height = height;
-  }
-
-  /**
-   * @return the width
-   */
-  @Override
-  public int getWidth() {
-    return width;
   }
 
   /**

@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.net.URLEncoder;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
@@ -62,7 +62,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     }
     response.setStatus(HttpServletResponse.SC_OK);
 
-    String pipelineName = StringEscapeUtils.escapeHtml(request.getParameter("name"));
+    String pipelineName = StringEscapeUtils.escapeHtml4(request.getParameter("name"));
     String id = request.getParameter("id");
     boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
     boolean useJson = isJsonRequest(request);
@@ -73,11 +73,11 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     }
     if (useXML) {
       response.setContentType("text/xml");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-      out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+      response.setCharacterEncoding(Const.UTF_8);
+      out.print(XmlHandler.getXmlHeader(Const.UTF_8));
     } else if (useJson) {
       response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
     } else {
       response.setContentType("text/html;charset=UTF-8");
       out.println("<HTML>");

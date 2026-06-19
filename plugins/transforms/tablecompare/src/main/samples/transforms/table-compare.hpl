@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters/>
+    <name>table-compare</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <created_user>-</created_user>
+    <modified_user>-</modified_user>
+    <created_date>2023/03/07 11:23:18.711</created_date>
+    <modified_date>2023/03/07 11:23:18.711</modified_date>
+  </info>
+  <transform>
+    <type>DataGrid</type>
+    <name>Data grid</name>
+    <fields>
+      <field>
+        <name>ref_schema</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>ref_table</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>cmp_schema</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>cmp_table</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>id_fields</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>excl_fields</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>key_description</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>ref_value</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>compare_value</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line>
+        <item/>
+        <item>TestTableOld</item>
+        <item/>
+        <item>TestTableNew</item>
+        <item>id</item>
+        <item/>
+        <item>ID</item>
+        <item>TextColumn</item>
+        <item>TextColumn</item>
+      </line>
+    </data>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>80</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>Dummy</type>
+    <name>ERRORS</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>176</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>TableCompare</type>
+    <name>Table compare</name>
+    <reference_connection>localhost</reference_connection>
+    <reference_schema_field>ref_schema</reference_schema_field>
+    <reference_table_field>ref_table</reference_table_field>
+    <compare_connection>localhost</compare_connection>
+    <compare_schema_field>cmp_schema</compare_schema_field>
+    <compare_table_field>cmp_table</compare_table_field>
+    <key_fields_field>id_fields</key_fields_field>
+    <exclude_fields_field>excl_fields</exclude_fields_field>
+    <nr_errors_field>nrErrors</nr_errors_field>
+    <nr_records_reference_field>nrRecordsReferenceTable</nr_records_reference_field>
+    <nr_records_compare_field>nrRecordsCompareTable</nr_records_compare_field>
+    <nr_errors_left_join_field>nrErrorsLeftJoin</nr_errors_left_join_field>
+    <nr_errors_inner_join_field>nrErrorsInnerJoin</nr_errors_inner_join_field>
+    <nr_errors_right_join_field>nrErrorsRightJoin</nr_errors_right_join_field>
+    <key_description_field>key_description</key_description_field>
+    <value_reference_field>ref_value</value_reference_field>
+    <value_compare_field>compare_value</value_compare_field>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>80</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>Dummy</type>
+    <name>Table results</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>80</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>WriteToLog</type>
+    <name>success log</name>
+    <displayHeader>Y</displayHeader>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <fields/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>80</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>WriteToLog</type>
+    <name>fail log</name>
+    <displayHeader>Y</displayHeader>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <fields/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>176</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <order>
+    <hop>
+      <from>Data grid</from>
+      <to>Table compare</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Table compare</from>
+      <to>ERRORS</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Table compare</from>
+      <to>Table results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Table results</from>
+      <to>success log</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ERRORS</from>
+      <to>fail log</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <notepads/>
+  <attributes/>
+  <transform_error_handling>
+    <error>
+      <source_transform>Table compare</source_transform>
+      <target_transform>ERRORS</target_transform>
+      <is_enabled>Y</is_enabled>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+</pipeline>

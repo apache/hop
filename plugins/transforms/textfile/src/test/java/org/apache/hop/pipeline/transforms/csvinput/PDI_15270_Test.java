@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
@@ -109,8 +111,8 @@ class PDI_15270_Test extends CsvInputUnitTestBase {
 
   public void doTest(String content, String[] expected) throws Exception {
     IRowSet output = new QueueRowSet();
-
-    File tmp = createTestFile(ENCODING, content);
+    Charset charset = StandardCharsets.UTF_8;
+    File tmp = createTestFile(charset, content);
     try {
       CsvInputMeta meta = createMeta(tmp, createInputFileFields("f1", "f2", "f3"));
       CsvInputData data = new CsvInputData();

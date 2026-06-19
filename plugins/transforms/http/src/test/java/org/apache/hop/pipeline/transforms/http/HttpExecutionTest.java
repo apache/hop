@@ -29,6 +29,8 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
@@ -37,7 +39,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -242,7 +243,7 @@ class HttpExecutionTest {
     data.argNrs = new int[0];
     data.useHeaderParameters = true;
     data.headerParameters =
-        new org.apache.http.NameValuePair[] {
+        new NameValuePair[] {
           new BasicNameValuePair("X-Custom-Header", "" /* value comes from row */)
         };
     data.headerParametersNrs = new int[] {0};

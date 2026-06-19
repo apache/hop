@@ -26,9 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,14 +38,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -58,7 +54,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.apache.hop.workflow.actions.util.FtpHelper;
 import org.apache.hop.workflow.actions.util.IFtpConnection;
-import org.w3c.dom.Node;
 
 /** This defines an FTP put action. */
 @Getter
@@ -81,29 +76,70 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   public static final String FTP_DEFAULT_PORT = "21";
   public static final String FTP_DEFAULT_PROXY_PORT = "1080";
 
+  @HopMetadataProperty(key = "servername")
   private String serverName;
+
+  @HopMetadataProperty(key = "serverport")
   private String serverPort;
+
+  @HopMetadataProperty(key = "username")
   private String userName;
+
+  @HopMetadataProperty(key = "password", password = true)
   private String password;
+
+  @HopMetadataProperty(key = "remoteDirectory")
   private String remoteDirectory;
+
+  @HopMetadataProperty(key = "localDirectory")
   private String localDirectory;
+
+  @HopMetadataProperty(key = "wildcard")
   private String wildcard;
+
+  @HopMetadataProperty(key = "binary")
   private boolean binaryMode;
+
+  @HopMetadataProperty(key = "timeout")
   private int timeout;
+
+  @HopMetadataProperty(key = "remove")
   private boolean remove;
+
   /* Don't overwrite files */
+  @HopMetadataProperty(key = "only_new")
   private boolean onlyPuttingNewFiles;
+
+  @HopMetadataProperty(key = "active")
   private boolean activeConnection;
+
   /* how to convert list of filenames e.g. */
+  @HopMetadataProperty(key = "control_encoding")
   private String controlEncoding;
+
+  @HopMetadataProperty(key = "proxy_host")
   private String proxyHost;
+
   /* string to allow variable substitution */
+  @HopMetadataProperty(key = "proxy_port")
   private String proxyPort;
+
+  @HopMetadataProperty(key = "proxy_username")
   private String proxyUsername;
+
+  @HopMetadataProperty(key = "proxy_password", password = true)
   private String proxyPassword;
+
+  @HopMetadataProperty(key = "socksproxy_host")
   private String socksProxyHost;
+
+  @HopMetadataProperty(key = "socksproxy_port")
   private String socksProxyPort;
+
+  @HopMetadataProperty(key = "socksproxy_username")
   private String socksProxyUsername;
+
+  @HopMetadataProperty(key = "socksproxy_password", password = true)
   private String socksProxyPassword;
 
   /** Implicit encoding used before older version v2.4.1 */
@@ -126,81 +162,35 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     this("");
   }
 
-  @Override
-  public String getXml() {
-    Map<String, String> tags = new LinkedHashMap<>();
-    tags.put("servername", serverName);
-    tags.put("serverport", serverPort);
-    tags.put("username", userName);
-    tags.put(CONST_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(getPassword()));
-    tags.put("remoteDirectory", remoteDirectory);
-    tags.put(CONST_LOCAL_DIRECTORY, localDirectory);
-    tags.put("wildcard", wildcard);
-    tags.put("binary", binaryMode ? "Y" : "N");
-    tags.put("timeout", String.valueOf(timeout));
-    tags.put("remove", remove ? "Y" : "N");
-    tags.put("only_new", onlyPuttingNewFiles ? "Y" : "N");
-    tags.put("active", activeConnection ? "Y" : "N");
-    tags.put("control_encoding", controlEncoding);
-    tags.put("proxy_host", proxyHost);
-    tags.put("proxy_port", proxyPort);
-    tags.put("proxy_username", proxyUsername);
-    tags.put("proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword));
-    tags.put("socksproxy_host", socksProxyHost);
-    tags.put("socksproxy_port", socksProxyPort);
-    tags.put("socksproxy_username", socksProxyUsername);
-    tags.put("socksproxy_password", Encr.encryptPasswordIfNotUsingVariables(socksProxyPassword));
-
-    // 365 characters in spaces and tag names alone
-    StringBuilder xml = new StringBuilder(450);
-    xml.append(super.getXml());
-    tags.forEach((k, v) -> xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue(k, v)));
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      serverName = extractString(entrynode, "servername");
-      serverPort = extractString(entrynode, "serverport");
-      userName = extractString(entrynode, "username");
-      password = extractDecrypted(entrynode, CONST_PASSWORD);
-      remoteDirectory = extractString(entrynode, "remoteDirectory");
-      localDirectory = extractString(entrynode, CONST_LOCAL_DIRECTORY);
-      wildcard = extractString(entrynode, "wildcard");
-      binaryMode = extractBoolean(entrynode, "binary");
-      timeout = extractTimeout(entrynode);
-      remove = extractBoolean(entrynode, "remove");
-      onlyPuttingNewFiles = extractBoolean(entrynode, "only_new");
-      activeConnection = extractBoolean(entrynode, "active");
-      controlEncoding = extractString(entrynode, "control_encoding");
-      proxyHost = extractString(entrynode, "proxy_host");
-      proxyPort = extractString(entrynode, "proxy_port");
-      proxyUsername = extractString(entrynode, "proxy_username");
-      proxyPassword = extractDecrypted(entrynode, "proxy_password");
-      socksProxyHost = extractString(entrynode, "socksproxy_host");
-      socksProxyPort = extractString(entrynode, "socksproxy_port");
-      socksProxyUsername = extractString(entrynode, "socksproxy_username");
-      socksProxyPassword = extractDecrypted(entrynode, "socksproxy_password");
-
-      if (Utils.isEmpty(controlEncoding)) {
-        // if we couldn't retrieve an encoding, assume it's an old instance and
-        // put in the the encoding used before v 2.4.0
-        controlEncoding = LEGACY_CONTROL_ENCODING;
-      }
-    } catch (HopXmlException ex) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionFtpPut.Log.UnableToLoadFromXml"), ex);
-    }
+  public ActionFtpPut(ActionFtpPut a) {
+    super(a.getName(), a.getDescription());
+    this.serverName = a.serverName;
+    this.serverPort = a.serverPort;
+    this.userName = a.userName;
+    this.password = a.password;
+    this.remoteDirectory = a.remoteDirectory;
+    this.localDirectory = a.localDirectory;
+    this.wildcard = a.wildcard;
+    this.binaryMode = a.binaryMode;
+    this.timeout = a.timeout;
+    this.remove = a.remove;
+    this.onlyPuttingNewFiles = a.onlyPuttingNewFiles;
+    this.activeConnection = a.activeConnection;
+    this.controlEncoding = a.controlEncoding;
+    this.proxyHost = a.proxyHost;
+    this.proxyPort = a.proxyPort;
+    this.proxyUsername = a.proxyUsername;
+    this.proxyPassword = a.proxyPassword;
+    this.socksProxyHost = a.socksProxyHost;
+    this.socksProxyPort = a.socksProxyPort;
+    this.socksProxyUsername = a.socksProxyUsername;
+    this.socksProxyPassword = a.socksProxyPassword;
   }
 
   @Override
   @SuppressWarnings("java:S2975")
-  public Object clone() {
-    return super.clone();
+  public ActionFtpPut clone() {
+    return new ActionFtpPut(this);
   }
 
   @Override
@@ -462,25 +452,5 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   // package-local visibility for testing purposes
   FTPClient createAndSetUpFtpClient() throws HopException {
     return FtpClientUtil.connectAndLogin(getLogChannel(), this, this, getName());
-  }
-
-  /** extract boolean */
-  private boolean extractBoolean(Node node, String tagName) {
-    return "Y".equalsIgnoreCase(extractString(node, tagName));
-  }
-
-  /** extract timeout */
-  private int extractTimeout(Node node) {
-    return Const.toInt(extractString(node, "timeout"), 10000);
-  }
-
-  /** After extracting the string, decrypt it */
-  private String extractDecrypted(Node node, String tagName) {
-    return Encr.decryptPasswordOptionallyEncrypted(extractString(node, tagName));
-  }
-
-  /** extract string */
-  private String extractString(Node node, String tagName) {
-    return XmlHandler.getTagValue(node, tagName);
   }
 }

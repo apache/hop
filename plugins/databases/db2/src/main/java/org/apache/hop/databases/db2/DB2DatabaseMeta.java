@@ -164,37 +164,29 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         retval += "CHARACTER(1)";
         break;
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (fieldname.equalsIgnoreCase(tk) && useAutoinc) { // Technical key: auto increment field!
+        // Technical key: auto increment field!
+        if (fieldname.equalsIgnoreCase(tk) && useAutoinc) {
           retval +=
               "BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)";
         } else {
-          if (type == IValueMeta.TYPE_INTEGER) {
-            // Integer values...
-            if (length > 18) {
-              retval += "DECIMAL(" + length + ")";
-            } else if (length > 9) {
-              retval += "BIGINT";
-            } else if (length > 4) {
-              retval += "INTEGER";
-            } else {
-              retval += "SMALLINT";
+          switch (type) {
+            case IValueMeta.TYPE_INTEGER -> {
+              if (length > 18) {
+                retval += "DECIMAL(" + length + ")";
+              } else if (length > 9) {
+                retval += "BIGINT";
+              } else if (length > 4) {
+                retval += "INTEGER";
+              } else {
+                retval += "SMALLINT";
+              }
             }
-          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-            // Fixed point value...
-            if (length
-                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
-              // mantissa 2^53 of IEEE 754 binary64 "double".
-              length = 16;
+            case IValueMeta.TYPE_BIGNUMBER -> {
+              int len = (length < 1) ? 16 : length;
+              int p = (precision < 1) ? 16 : precision;
+              retval += "DECIMAL(" + len + "," + p + ")";
             }
-            if (precision
-                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
-              // to IEEE 754 binary64 "double".
-              precision = 16;
-            }
-            retval += "DECIMAL(" + length + "," + precision + ")";
-          } else {
-            // Floating point value with double precision...
-            retval += "DOUBLE";
+            default -> retval += "DOUBLE";
           }
         }
         break;

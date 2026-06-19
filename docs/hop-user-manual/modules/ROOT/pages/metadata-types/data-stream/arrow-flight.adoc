@@ -1,0 +1,102 @@
+= Apache Arrow Flight Data Stream
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+:description: Apache Arrow Flight data stream
+
+== Overview
+
+**Apache Arrow Flight** provides high-performance, low-latency RPC-based streaming using the Arrow columnar format over gRPC.
+
+This implementation allows Hop to exchange data with Python (and other Arrow Flight clients) without writing intermediate files.
+
+== Configuration
+
+The following properties are available when creating an **Arrow Flight** Data Stream:
+
+[cols="1,3"]
+|===
+| Property | Description
+
+| *Name* |
+The unique name of this Data Stream.
+This name is used as the **path** on the Flight server (`FlightDescriptor.for_path(name)`).
+
+| *Description* |
+Optional description of the stream.
+
+| *Static Schema* |
+The expected Arrow schema for this stream.
+When data is sent to the Hop Flight server, the incoming schema is checked against this static schema.
+If they do not match exactly, an error is thrown.
+
+| *Batch Size* |
+The number of rows that Apache Arrow will use per batch. (default: 500)
+
+| *Maximum Buffer Size* |
+The maximum number of rows that will be kept in the buffer on the Hop Flight server. Set it high enough to avoid losing rows. As a ballpark figure, take the throughput in rows/s and multiply that by 10 for the buffer size to avoid issues. (default: 10M)
+
+|===
+
+IMPORTANT: This is an IPC system, not a safe data queue.  The purpose is to hand data over to the receiving party as soon as possible.  That is why there is no blocking happening when we write data to the Flight server.  Rows are kept in memory to avoid stalling the gRPC back-end system as this would cause data to get lost.  The only time we wait is when we read data from the Flight server.  That is why it's recommended to start reading with one process before you write data with another.   There is a time-out configured of 1 minute giving you plenty of time.
+
+== Important Behavior
+
+* The **stream name** is simply the name of the Data Stream metadata element.
+* Schema validation is strict: the client must send data using exactly the same schema defined in the **Static Schema** field.
+* The Flight server must be started separately using the `hop arrow` xref:hop-tools/hop-arrow-command.adoc[command].
+
+== Related
+
+* xref:hop-tools/hop-arrow-command.adoc[`hop arrow` command]
+
+== Example reading with Python
+
+Here is an example of reading from a Hop Flight server with Python.  The stream name is `FlightStream` and the server was started on the default `0.0.0.0:33333`:
+
+[source,python]
+----
+import pyarrow.flight as flight
+import pyarrow as pa
+
+# Connect to your Flight server
+client = flight.FlightClient("grpc://localhost:33333")   # or "grpc://0.0.0.0:33333"
+
+# Define the stream name (must match what your server expects: the name of the Data Stream metadata element)
+stream_name = "FlightStream"
+
+# 1. Get FlightInfo (this gives you the schema and other metadata)
+descriptor = flight.FlightDescriptor.for_path(stream_name)
+
+flight_info = client.get_flight_info(descriptor)
+
+print(f"Schema: {flight_info.schema}")
+print(f"Descriptor: {flight_info.descriptor}")
+print(f"Endpoints: {len(flight_info.endpoints)}")
+
+# 2. Read the data using the first endpoint
+reader = client.do_get(flight_info.endpoints[0].ticket)
+
+# Option A: Read everything into one Table (simple)
+table = reader.read_all()
+print(f"✅ Read {len(table)} rows from stream '{stream_name}'")
+
+# Show preview
+print(table.to_pandas().head())
+
+----
+

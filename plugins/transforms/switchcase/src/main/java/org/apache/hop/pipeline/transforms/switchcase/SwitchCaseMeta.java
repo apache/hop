@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.switchcase;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -363,7 +363,49 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
 
   @Override
   public void convertIOMetaToTransformNames() {
-    // TODO
+    List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
+    int index = 0;
+    for (SwitchCaseTarget target : caseTargets) {
+      if (index < targetStreams.size()) {
+        IStream stream = targetStreams.get(index);
+        target.setCaseTargetTransformName(stream.getTransformName());
+      }
+      index++;
+    }
+    // Last stream is the default target (if any)
+    if (StringUtils.isNotEmpty(defaultTargetTransformName) && index < targetStreams.size()) {
+      defaultTargetTransformName = targetStreams.get(index).getTransformName();
+    }
+  }
+
+  @Override
+  public boolean cleanAfterHopFromRemove(TransformMeta toTransform) {
+    if (toTransform == null) {
+      return false;
+    }
+    String toName = toTransform.getName();
+    boolean changed = false;
+
+    // Clear matching case targets
+    for (SwitchCaseTarget target : caseTargets) {
+      if (toName.equals(target.getCaseTargetTransformName())) {
+        target.setCaseTargetTransformName(null);
+        changed = true;
+      }
+    }
+
+    // Clear default target if it matches
+    if (toName.equals(defaultTargetTransformName)) {
+      defaultTargetTransformName = null;
+      changed = true;
+    }
+
+    if (changed) {
+      // Reset the cached IO meta so it is rebuilt without the stale entries on next access
+      resetTransformIoMeta();
+    }
+
+    return changed;
   }
 
   private static final IStream newDefaultStream =

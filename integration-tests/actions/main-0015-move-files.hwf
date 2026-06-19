@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0015-move-files</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/04/02 13:34:56.591</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/04/02 13:34:56.591</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>move to processing</name>
+      <description/>
+      <type>MOVE_FILES</type>
+      <attributes/>
+      <move_empty_folders>N</move_empty_folders>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>N</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <simulate>N</simulate>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/action-0015/</source_filefolder>
+          <destination_filefolder>${java.io.tmpdir}/action-0015/processing/</destination_filefolder>
+          <wildcard>.*\.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unzip files-0015/files.zip</name>
+      <description/>
+      <type>UNZIP</type>
+      <attributes/>
+      <zipfilename>${PROJECT_HOME}/files-0015/</zipfilename>
+      <afterunzip>0</afterunzip>
+      <wildcard>.*\.txt</wildcard>
+      <wildcardexclude/>
+      <targetdirectory>${java.io.tmpdir}/action-0015</targetdirectory>
+      <movetodirectory/>
+      <addfiletoresult>N</addfiletoresult>
+      <isfromprevious>N</isfromprevious>
+      <adddate>N</adddate>
+      <addtime>N</addtime>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <rootzip>N</rootzip>
+      <createfolder>Y</createfolder>
+      <nr_limit>5</nr_limit>
+      <wildcardSource>.*files.zip</wildcardSource>
+      <iffileexists>1</iffileexists>
+      <create_move_to_directory>N</create_move_to_directory>
+      <addOriginalTimestamp>N</addOriginalTimestamp>
+      <setOriginalModificationDate>N</setOriginalModificationDate>
+      <success_condition>success_if_no_errors</success_condition>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>/tmp/action-0015/processing</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <foldername>${java.io.tmpdir}/action-0015/processing</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>/tmp/action-0015/archive</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <foldername>${java.io.tmpdir}/action-0015/archive</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <parallel>N</parallel>
+      <xloc>864</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>move to archive</name>
+      <description/>
+      <type>MOVE_FILES</type>
+      <attributes/>
+      <move_empty_folders>N</move_empty_folders>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>N</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>overwrite_file</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <simulate>N</simulate>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/action-0015/processing/</source_filefolder>
+          <destination_filefolder>${java.io.tmpdir}/action-0015/archive/</destination_filefolder>
+          <wildcard>.*\.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>empty source folder</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <scale>bytes</scale>
+      <source_files>files</source_files>
+      <evaluation_type>count</evaluation_type>
+      <comparevalue>0</comparevalue>
+      <successnumbercondition>equal</successnumbercondition>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/action-0015/</source_filefolder>
+          <wildcard>.*\.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>5 files in processing</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <scale>bytes</scale>
+      <source_files>files</source_files>
+      <evaluation_type>count</evaluation_type>
+      <comparevalue>5</comparevalue>
+      <successnumbercondition>equal</successnumbercondition>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/action-0015/processing/</source_filefolder>
+          <wildcard>.*\.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>empty processing folder</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <scale>bytes</scale>
+      <source_files>files</source_files>
+      <evaluation_type>count</evaluation_type>
+      <comparevalue>0</comparevalue>
+      <successnumbercondition>equal</successnumbercondition>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/action-0015/processing/</source_filefolder>
+          <wildcard>.*\.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>5 files in archive</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <scale>bytes</scale>
+      <source_files>files</source_files>
+      <evaluation_type>count</evaluation_type>
+      <comparevalue>5</comparevalue>
+      <successnumbercondition>equal</successnumbercondition>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/action-0015/archive/</source_filefolder>
+          <wildcard>.*\.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>5 files in /tmp/action-0015/</name>
+      <description/>
+      <type>EVAL_FILES_METRICS</type>
+      <attributes/>
+      <scale>bytes</scale>
+      <source_files>files</source_files>
+      <evaluation_type>count</evaluation_type>
+      <comparevalue>5</comparevalue>
+      <successnumbercondition>equal</successnumbercondition>
+      <fields>
+        <field>
+          <source_filefolder>${java.io.tmpdir}/action-0015/</source_filefolder>
+          <wildcard>.*\.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Unzip files-0015/files.zip</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>/tmp/action-0015/processing</from>
+      <to>/tmp/action-0015/archive</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>/tmp/action-0015/archive</from>
+      <to>move to processing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>move to processing</from>
+      <to>empty source folder</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>empty source folder</from>
+      <to>5 files in processing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>5 files in processing</from>
+      <to>move to archive</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>empty processing folder</from>
+      <to>5 files in archive</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>move to archive</from>
+      <to>empty processing folder</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Unzip files-0015/files.zip</from>
+      <to>5 files in /tmp/action-0015/</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>5 files in /tmp/action-0015/</from>
+      <to>/tmp/action-0015/processing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

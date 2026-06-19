@@ -49,6 +49,12 @@ public class HopMetadataBase implements IHopMetadata {
     this.virtualPath = virtualPath;
   }
 
+  public HopMetadataBase(HopMetadataBase b) {
+    this();
+    this.name = b.getName();
+    this.virtualPath = b.getVirtualPath();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

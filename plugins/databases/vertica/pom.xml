@@ -21,11 +21,38 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-databases-vertica</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Databases Vertica</name>
+
+    <properties>
+        <commons-dbcp2.version>2.14.0</commons-dbcp2.version>
+        <hop.libcore.exclude1>com.vertica.jdbc:vertica-jdbc</hop.libcore.exclude1>
+    </properties>
+
+    <!-- Dependencies folded in from the former hop-transform-verticabulkloader module.
+         The hop-libs-jdbc BOM (for the vertica-jdbc version) is imported by the
+         hop-plugins-databases parent. -->
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
+            <version>${commons-dbcp2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.vertica.jdbc</groupId>
+            <artifactId>vertica-jdbc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

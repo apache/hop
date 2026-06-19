@@ -20,7 +20,7 @@ package org.apache.hop.beam.transforms.io;
 import java.util.List;
 import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamInputTransform;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
@@ -48,7 +48,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "beam-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamfileinput.html")
+    documentationUrl = "/pipeline/transforms/beamfileinput.html",
+    supportedEngines = {"Beam*"})
 public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
     implements IBeamPipelineTransformHandler {
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -222,7 +223,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     if (!Utils.isEmpty(sqlFromFile)) {
       String path = variables.resolve(sqlFromFile);
       try {
-        return HopVfs.getTextFileContent(path, Const.XML_ENCODING);
+        return HopVfs.getTextFileContent(path, StandardCharsets.UTF_8);
       } catch (HopFileException e) {
         throw new HopException(
             BaseMessages.getString(PKG, "TableInputMeta.Exception.CouldNotLoadSqlFromFile", path),

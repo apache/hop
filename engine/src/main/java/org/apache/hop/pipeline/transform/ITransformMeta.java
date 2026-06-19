@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transform;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -494,17 +495,6 @@ public interface ITransformMeta extends ILegacyXml {
   }
 
   /**
-   * True if the transform passes it's result data straight to the servlet output. See exposing Hop
-   * data over a web service
-   *
-   * @return True if the transform passes it's result data straight to the servlet output, false
-   *     otherwise
-   */
-  default boolean passDataToServletOutput() {
-    return false;
-  }
-
-  /**
    * ￼ * This returns the expected name for the dialog that edits a action. The expected name is in
    * the org.apache.hop.ui ￼ * tree and has a class name that is the name of the action with
    * 'Dialog' added to the end. ￼ *
@@ -521,8 +511,16 @@ public interface ITransformMeta extends ILegacyXml {
   final class TransformFactory implements IHopMetadataObjectFactory {
     @Override
     public Object createObject(String id, Object parentObject) throws HopException {
-      return PluginRegistry.getInstance()
-          .loadClass(TransformPluginType.class, id, ITransformMeta.class);
+      ITransformMeta transformMeta =
+          PluginRegistry.getInstance()
+              .loadClass(TransformPluginType.class, id, ITransformMeta.class);
+      if (transformMeta == null) {
+        throw new MissingResourceException(
+            "Transform plugin with ID '" + id + "' was not found",
+            ITransformMeta.class.getName(),
+            id);
+      }
+      return transformMeta;
     }
 
     @Override

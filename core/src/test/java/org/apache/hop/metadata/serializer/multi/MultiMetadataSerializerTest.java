@@ -60,7 +60,7 @@ class MultiMetadataSerializerTest extends MetadataTestBase {
   }
 
   @Test
-  public void testLoad() throws HopException {
+  void testLoad() throws HopException {
     IHopMetadataSerializer<MetadataType1> s1 =
         multiMetadataProvider.getSerializer(MetadataType1.class);
     IHopMetadataSerializer<MetadataType2> s2 =
@@ -90,7 +90,7 @@ class MultiMetadataSerializerTest extends MetadataTestBase {
   }
 
   @Test
-  public void testSave() throws HopException {
+  void testSave() throws HopException {
 
     MetadataType1 m6 = new MetadataType1("t1o6", "d6", "v6");
     multiMetadataProvider.getSerializer(MetadataType1.class).save(m6);
@@ -122,7 +122,7 @@ class MultiMetadataSerializerTest extends MetadataTestBase {
   }
 
   @Test
-  public void testListObjectNames() throws HopException {
+  void testListObjectNames() throws HopException {
     IHopMetadataSerializer<MetadataType1> s1 =
         multiMetadataProvider.getSerializer(MetadataType1.class);
     IHopMetadataSerializer<MetadataType2> s2 =
@@ -139,7 +139,7 @@ class MultiMetadataSerializerTest extends MetadataTestBase {
   }
 
   @Test
-  public void testExists() throws HopException {
+  void testExists() throws HopException {
     IHopMetadataSerializer<MetadataType1> s1 =
         multiMetadataProvider.getSerializer(MetadataType1.class);
     IHopMetadataSerializer<MetadataType2> s2 =

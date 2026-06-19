@@ -24,7 +24,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.compress.utils.FileNameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -50,6 +50,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -374,7 +375,8 @@ public class TextFileInputMeta
   @HopMetadataProperty(
       key = "schema_definition",
       injectionKey = "SCHEMA_DEFINITION",
-      injectionKeyDescription = "TextFileInput.Injection.SCHEMA_DEFINITION")
+      injectionKeyDescription = "TextFileInput.Injection.SCHEMA_DEFINITION",
+      hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
   private String schemaDefinition;
 
   /** Reference to ignore fields tab */
@@ -662,12 +664,12 @@ public class TextFileInputMeta
 
   @Override
   public boolean isIncludeFilename() {
-    return false;
+    return content.includeFilename;
   }
 
   @Override
   public boolean isIncludeRowNumber() {
-    return false;
+    return content.includeRowNumber;
   }
 
   public String[] getInfoTransforms() {

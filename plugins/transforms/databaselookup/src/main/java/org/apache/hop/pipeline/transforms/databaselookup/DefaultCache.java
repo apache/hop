@@ -45,7 +45,7 @@ public class DefaultCache implements DatabaseLookupData.ICache {
 
   DefaultCache(DatabaseLookupData data, int capacity) {
     this.data = data;
-    map = new LinkedHashMap<>(capacity);
+    map = LinkedHashMap.newLinkedHashMap(capacity);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class DefaultCache implements DatabaseLookupData.ICache {
       }
     } else { // special handling of conditions <,>, <> etc.
       if (!data.hasDBCondition) { // e.g. LIKE not handled by this routine, yet
-        // TODO: find an alternative way to look up the data based on the condition.
+        //  find an alternative way to look up the data based on the condition.
         // Not all conditions are "=" so we are going to have to evaluate row by row
         // A sorted list or index might be a good solution here...
         //
@@ -109,7 +109,7 @@ public class DefaultCache implements DatabaseLookupData.ICache {
                 }
                 lookupIndex++;
                 break;
-                // TODO: add LIKE operator (think of changing the hasDBCondition logic then)
+                //  add LIKE operator (think of changing the hasDBCondition logic then)
               default:
                 match = false;
                 data.hasDBCondition =

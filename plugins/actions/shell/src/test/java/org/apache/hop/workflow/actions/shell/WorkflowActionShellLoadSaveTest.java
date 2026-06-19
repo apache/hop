@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.shell;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,7 @@ class WorkflowActionShellLoadSaveTest {
         ActionSerializationTestUtil.testSerialization("/shell-action.xml", ActionShell.class);
 
     assertEquals("${PROJECT_HOME}/0002-shell-test.sh", meta.getFilename());
-    assertEquals("${PROJECT_HOME}", meta.getWorkDirectory());
+    assertEquals(Const.VAR_PROJECT_HOME, meta.getWorkDirectory());
     assertEquals(1, meta.getArguments().size());
   }
 

@@ -43,7 +43,7 @@ The path you get is the exact path that was followed from for example the "grand
 == Metadata Types
 
 * xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: create or manage a connection to a Neo4j database
-* xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: crearte or manage a Neo4j (sub)graph model
+* xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: create or manage a Neo4j (sub)graph model
 
 == Workflow Actions
 
@@ -67,4 +67,6 @@ The path you get is the exact path that was followed from for example the "grand
 The Neo4j examples included in the release downloads is described in document:
 
 xref:technology/neo4j/working-with-neo4j-data.adoc[Working with Neo4j data]
+
+xref:technology/neo4j/neo4j-logging-schema.adoc[Neo4j Logging Schema] describes the graph schema used when logging executions to Neo4j.
 

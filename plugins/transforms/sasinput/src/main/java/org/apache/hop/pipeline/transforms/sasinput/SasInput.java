@@ -20,7 +20,10 @@ package org.apache.hop.pipeline.transforms.sasinput;
 import com.epam.parso.Column;
 import com.epam.parso.SasFileProperties;
 import com.epam.parso.impl.SasFileReaderImpl;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -146,47 +149,20 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
             field.setPrecision(column.getFormat().getPrecision());
             field.setType(SasUtil.getHopDataType(column.getType()));
           }
+
           Object sasValue = sasRow[index];
-          Object value = null;
-          IValueMeta inputValueMeta = null;
           String fieldName = Const.NVL(field.getRename(), field.getName());
           int outputIndex = getInputRowMeta().size() + i;
-          if (sasValue instanceof byte[] bytes) {
-            inputValueMeta = new ValueMetaString(fieldName);
-            if (sasFileProperties.getEncoding() != null) {
-              value = new String(bytes, sasFileProperties.getEncoding());
-            } else {
-              value = new String(bytes);
-            }
-          }
-          if (sasValue instanceof String) {
-            inputValueMeta = new ValueMetaString(fieldName);
-            value = sasValue;
-          }
-          if (sasValue instanceof Double) {
-            inputValueMeta = new ValueMetaNumber(fieldName);
-            value = sasValue;
-          }
-          if (sasValue instanceof Float) {
-            inputValueMeta = new ValueMetaNumber(fieldName);
-            value = sasValue;
-          }
-          if (sasValue instanceof Long) {
-            inputValueMeta = new ValueMetaInteger(fieldName);
-            value = sasValue;
-          }
-          if (sasValue instanceof Integer) {
-            inputValueMeta = new ValueMetaInteger(fieldName);
-            value = (long) (int) sasValue;
-          }
-          if (sasValue instanceof Date) {
-            inputValueMeta = new ValueMetaDate(fieldName);
-            value = sasValue;
-          }
-          if (inputValueMeta != null) {
+
+          ConvertedValue converted = convertSasValue(sasValue, fieldName, sasFileProperties);
+          if (converted != null) {
+            IValueMeta inputValueMeta = converted.meta;
+            Object value = converted.value;
+
             inputValueMeta.setLength(field.getLength());
             inputValueMeta.setPrecision(field.getPrecision());
             inputValueMeta.setConversionMask(field.getConversionMask());
+
             IValueMeta outputValueMeta = data.outputRowMeta.getValueMeta(outputIndex);
             outputRow[outputIndex] = outputValueMeta.convertData(inputValueMeta, value);
           }
@@ -240,4 +216,30 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
     }
     return indexes;
   }
+
+  @VisibleForTesting
+  public ConvertedValue convertSasValue(Object object, String field, SasFileProperties property) {
+    return switch (object) {
+      case byte[] bytes -> {
+        Charset charset =
+            property.getEncoding() != null
+                ? Charset.forName(property.getEncoding())
+                : StandardCharsets.UTF_8;
+
+        String value = new String(bytes, charset);
+        yield new ConvertedValue(new ValueMetaString(field), value);
+      }
+
+      case String s -> new ConvertedValue(new ValueMetaString(field), s);
+      case Double d -> new ConvertedValue(new ValueMetaNumber(field), d);
+      case Float f -> new ConvertedValue(new ValueMetaNumber(field), f);
+      case Long l -> new ConvertedValue(new ValueMetaInteger(field), l);
+      case Integer i -> new ConvertedValue(new ValueMetaInteger(field), (long) i);
+      case Date date -> new ConvertedValue(new ValueMetaDate(field), date);
+      case null, default -> null;
+    };
+  }
+
+  /** class valueMeta, object */
+  public record ConvertedValue(IValueMeta meta, Object value) {}
 }

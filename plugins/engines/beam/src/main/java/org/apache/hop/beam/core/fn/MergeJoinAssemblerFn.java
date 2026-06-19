@@ -25,6 +25,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -136,7 +137,8 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error initializing assembling rows", e);
-      throw new RuntimeException("Error initializing assembling output KV<row, KV<row, row>>", e);
+      throw new HopRuntimeException(
+          "Error initializing assembling output KV<row, KV<row, row>>", e);
     }
   }
 
@@ -190,7 +192,7 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error assembling rows", e);
-      throw new RuntimeException("Error assembling output KV<row, KV<row, row>>", e);
+      throw new HopRuntimeException("Error assembling output KV<row, KV<row, row>>", e);
     }
   }
 }

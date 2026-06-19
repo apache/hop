@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file. It supports both the .xls and .xlsx file formats.
+:description: The Excel Writer transform writes incoming rows to Microsoft Excel (.xls, .xlsx) or OpenDocument Spreadsheet (.ods) files.
 
 = image:transforms/icons/excelwriter.svg[Excel writer transform Icon, role="image-doc-icon"] Excel writer
 
@@ -25,9 +25,17 @@ under the License.
 |
 == Description
 
-The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file. It supports both the .xls and .xlsx file formats.
+The Excel Writer transform writes incoming rows from Hop to spreadsheet files.
+It supports three output formats:
 
-The .xls files use a binary format which is better suited for simple content, while the .xlsx files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
+* `.xls` — legacy Excel binary format (Apache POI)
+* `.xlsx` — modern Excel Open XML format (Apache POI)
+* `.ods` — OpenDocument Spreadsheet format (LibreOffice Calc, Apache OpenOffice; written via ODFDOM)
+
+The `.xls` and `.xlsx` backends share the same POI code path.
+The `.ods` backend is a separate implementation that mirrors the same transform options where the ODF format allows it.
+
+The `.xls` files use a binary format which is better suited for simple content, while the `.xlsx` files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
 
 |
 == Supported Engines
@@ -40,6 +48,16 @@ The .xls files use a binary format which is better suited for simple content, wh
 !===
 |===
 
+== Output formats
+
+[options="header"]
+|===
+|Format|Extension|Backend|Notes
+|Excel 97–2003|`.xls`|POI|Sheet password protection supported
+|Excel 2007+|`.xlsx`|POI|Streaming mode for large files; no sheet password protection
+|OpenDocument Spreadsheet|`.ods`|ODFDOM|LibreOffice Calc compatible; see <<ods-limitations>> below
+|===
+
 == Options
 
 === File & sheet tab
@@ -49,11 +67,11 @@ The .xls files use a binary format which is better suited for simple content, wh
 [options="header"]
 |===
 |Option|Description
-|Stream XLSX data|Check this option when writing large XLSX files.
+|Extension|Choose `xls`, `xlsx`, or `ods`. This determines the output file format.
+|Stream XLSX data|Check this option when writing large XLSX files (not available for `.xls` or `.ods`).
 It uses internally a streaming API and is able to write large files without any memory restrictions (of course not exceeding Excel's limit of 1,048,575 rows and 16,384 columns).
 |Create parent folder|Enable to create the parent folder
-|If output file exists|Check this option when writing large XLSX files.
-It uses internally a streaming API and is able to write large files without any memory restrictions (of course not exceeding Excel's limit of 1,048,575 rows and 16,384 columns).
+|If output file exists|Choose to reuse an existing file or create a new one.
 |Add filename(s) to result|Check to have the filename added to the result filenames
 |Wait for first row before creating file|Checking this option makes the transform create the file only after it has seen a row.
 If this is disabled the output file is always created, regardless of whether rows are actually written to the file.
@@ -65,17 +83,15 @@ If this is disabled the output file is always created, regardless of whether row
 |===
 |Option|Description
 |Sheet Name|The sheet name the transform will write rows to.
-|Make this the active sheet|If checked the Excel file will by default open on the above sheet when opened in MS Excel.
+|Make this the active sheet|If checked the spreadsheet file will open on this sheet by default (in Excel, LibreOffice Calc, etc.).
 |If sheet exists in output file|The output file already has this sheet (for example when using a template, or writing to existing files), you can choose to write to the existing sheet, or replace it.
-|Protect Sheet|The XLS file format allows to protect an entire sheet from changes.
-If checked you need to provide a password.
-Excel will indicate that the sheet was protected by the user you provide here.
+|Protect Sheet|Lock the sheet with an optional password. Supported for `.xls` and `.ods` output. The *protected by user* field applies to `.xls` only. Not supported for `.xlsx`.
 |===
 
 *Template section*
 
 When creating new files (when existing files are replaced, or completely fresh files are created) you may choose to create a copy of an existing template file instead.
-Please make sure that the template file is of the same type as the output file (both must be xls or xlsx respectively).
+The template and output file must use the same extension (`.xls`, `.xlsx`, or `.ods`).
 
 When creating new sheets, the transform may copy a sheet from the current document (the template or an otherwise existing file the transform is writing to).
 A new sheet is created if the target sheet is not present, or the existing one shall be replaced as per configuration above.
@@ -92,7 +108,7 @@ A new sheet is created if the target sheet is not present, or the existing one s
 |Write Header|If checked the first line written will contain the field names
 |Write Footer|If checked the last line written will contains the field names
 |Auto Size Columns|If checked the transform tries to automatically size the columns to fit their content.
-Since this is not a feature the xls(x) file formats support directly, results may vary.
+For `.xls`/`.xlsx` this is approximated by POI; for `.ods` the OpenDocument *optimal column width* flag is set.
 |Force formula recalculation a|If checked, the transform tries to make sure all formula fields in the output file are updated.
 
 * The xls file format supports a "dirty" flag that the transform sets.
@@ -100,6 +116,7 @@ The formulas are recalculated as soon as the file is opened in MS Excel.
 * For the xlsx file format, the transform must try to recalculate the formula fields itself.
 Since the underlying POI library does not support the full set of Excel formulas yet, this may give errors.
 The transform will throw errors if it cannot recalculate the formulas.
+* For `.ods`, formula results are cleared before save so Calc recalculates on open. Hop does not evaluate ODF formulas at write time.
 |Leave styles of existing cells unchanged|If checked, the transform will not try to set the style of existing cells it is writing to.
 This is useful when writing to pre-styled template sheets.
 |===
@@ -112,9 +129,8 @@ This is useful when writing to pre-styled template sheets.
 |Start writing at end of sheet|The transform will try to find the last line of the sheet, and start writing from there.
 |Offset by ... rows|Any non-0 number will cause the transform to move this amount of rows down (positive numbers) or up (negative numbers) before writing rows.
 Negative numbers may be useful if you need to append to a sheet, but still preserve a pre-styled footer.
-|Begin by writing ... empty lines|The transform will try to find the last line of the sheet, and start writing from there.
-|Omit Header|Any non-0 number will cause the transform to move this amount of rows down (positive numbers) or up (negative numbers) before writing rows.
-Negative numbers may be useful if you need to append to a sheet, but still preserve a pre-styled footer.
+|Begin by writing ... empty lines|When *shift existing cells down* is selected, empty rows are inserted at the write position instead of simply skipping ahead.
+|Omit Header|Skip the header row when appending to an existing sheet.
 |===
 
 *Fields section*
@@ -135,12 +151,29 @@ The `ignore manual fields` ignores any fields manually defined in the transform'
 |Format|The Excel format to use in the sheet.
 Please consult the Excel manual for valid formats.
 There are some online references as well.
+For `.ods`, common Excel format tokens are converted to OpenDocument equivalents where possible.
 |Style from cell|A cell (i.e. A1, B3 etc.) to copy the styling from for this column (usually some pre-styled cell in a template)
 |Field Title|If set, this is used for the Header/Footer instead of the Hop field name
 |Header/Footer style from cell|A cell to copy the styling from for headers/footers (usually some pre-styled cell in a template)
-|Field Contains Formula|Set to Yes, if the field contains an Excel formula (no leading '=')
+|Field Contains Formula|Set to Yes, if the field contains an Excel formula (no leading '=').
+For `.ods`, Excel-style formulas are converted to OpenFormula syntax on a best-effort basis.
 |Hyperlink|A field, that contains the target to link to.
 The supported targets are Link to other cells, http, ftp, email, and local documents
-|Cell Comment / Cell Author|The xlsx format allows to put comments on cells.
-If you'd like to generate comments, you may specify fields holding the comment and author for a given column.
+|Cell Comment / Cell Author|Comments are written for `.xlsx` and `.ods` (OpenDocument annotations).
+Excel may not display ODS annotations; LibreOffice Calc does.
 |===
+
+[[ods-limitations]]
+== ODS output notes and limitations
+
+The `.ods` backend supports the same transform dialog options as `.xls`/`.xlsx` wherever the OpenDocument format allows.
+Known differences:
+
+* *Formulas* — Excel syntax is converted to OpenFormula (`of:=...`). Complex Excel-only functions may not translate. Formula results are not calculated by Hop; LibreOffice Calc recalculates when the file is opened.
+* *Comments* — Stored as ODF annotations. Visible in LibreOffice Calc; Microsoft Excel may ignore them in `.ods` files.
+* *Hyperlinks* — Stored as ODF `text:a` elements.
+* *Format masks* — Excel format strings are mapped to ODF number formats on a best-effort basis.
+* *Style copy* — Copies the referenced cell's style name, not a full POI cell style object.
+* *Sheet protection* — Uses ODF `table:protected` with SHA-1 password hash (LibreOffice Calc compatible). The *protected by user* field is not used for `.ods`.
+* *Streaming* — The *Stream XLSX data* option applies to `.xlsx` only.
+* *Sheet names* — The 31-character Excel sheet name limit is not enforced for `.ods`.

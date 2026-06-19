@@ -29,13 +29,14 @@ import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TupleTag;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -176,7 +177,7 @@ public class TransformFn extends TransformBaseFn {
         executor.startBundle();
       }
     } catch (HopException e) {
-      throw new RuntimeException("Error at start of bundle!", e);
+      throw new HopRuntimeException("Error at start of bundle!", e);
     }
   }
 
@@ -197,7 +198,7 @@ public class TransformFn extends TransformBaseFn {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Transform execution error :" + e.getMessage());
-      throw new RuntimeException("Error executing TransformFn", e);
+      throw new HopRuntimeException("Error executing TransformFn", e);
     }
   }
 
@@ -323,8 +324,8 @@ public class TransformFn extends TransformBaseFn {
     }
 
     // If we are sending execution information to a location, see if we have any extra data
-    // samplers
-    // The data samplers list is composed of those in the data profile along with the set from
+    // samplers.  The data samplers list is composed of those in the data profile along with the set
+    // from
     // the extra ones in the parent pipeline.
     //
     lookupExecutionInformation(variables, metadataProvider);
@@ -572,7 +573,7 @@ public class TransformFn extends TransformBaseFn {
         return combi;
       }
     }
-    throw new RuntimeException(
+    throw new HopRuntimeException(
         "Configuration error, transform '" + transformName + "' not found in transformation");
   }
 
@@ -622,7 +623,8 @@ public class TransformFn extends TransformBaseFn {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Transform finishing bundle error :" + e.getMessage());
-      throw new RuntimeException("Error finalizing bundle of transform '" + transformName + "'", e);
+      throw new HopRuntimeException(
+          "Error finalizing bundle of transform '" + transformName + "'", e);
     }
   }
 

@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.eventhubs.write;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.variables.IVariables;

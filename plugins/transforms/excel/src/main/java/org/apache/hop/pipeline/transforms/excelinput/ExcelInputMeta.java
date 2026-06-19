@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -830,12 +830,24 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
         injectionKeyDescription = "ExcelInput.Injection.SHEET_START_COL")
     private int startColumn;
 
+    @HopMetadataProperty(
+        key = "is_regex",
+        injectionKey = "SHEET_IS_REGEX",
+        injectionKeyDescription = "ExcelInput.Injection.SHEET_IS_REGEX")
+    private boolean regex;
+
     public EISheet() {}
 
     public EISheet(EISheet s) {
       this.name = s.name;
       this.startRow = s.startRow;
       this.startColumn = s.startColumn;
+      this.regex = s.regex;
     }
+  }
+
+  /** Returns true if at least one sheet entry uses a regex pattern for its name. */
+  public boolean hasRegexSheets() {
+    return sheets.stream().anyMatch(EISheet::isRegex);
   }
 }

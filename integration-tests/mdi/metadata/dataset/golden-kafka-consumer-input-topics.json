@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-kafka-consumer-input-topics.csv",
+  "name": "golden-kafka-consumer-input-topics",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "topic",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

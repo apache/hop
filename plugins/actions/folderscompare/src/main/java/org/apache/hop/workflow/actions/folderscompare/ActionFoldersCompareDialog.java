@@ -411,7 +411,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
       wFilename2.setText(action.getFilename2());
     }
 
-    wIncludeSubfolders.setSelection(action.isIncludeSubfolders());
+    wIncludeSubfolders.setSelection(action.isIncludeSubFolders());
     wCompareFileContent.setSelection(action.isCompareFileContent());
     wCompareFileSize.setSelection(action.isCompareFileSize());
   }
@@ -435,7 +435,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
       mb.open();
       return;
     }
-    action.setIncludeSubfolders(wIncludeSubfolders.getSelection());
+    action.setIncludeSubFolders(wIncludeSubfolders.getSelection());
     action.setCompareFileContent(wCompareFileContent.getSelection());
     action.setCompareFileSize(wCompareFileSize.getSelection());
 

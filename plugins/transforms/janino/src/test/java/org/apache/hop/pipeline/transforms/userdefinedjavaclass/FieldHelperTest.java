@@ -19,17 +19,22 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.sql.Timestamp;
+import java.util.Date;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -285,5 +290,160 @@ class FieldHelperTest {
     new FieldHelper(row, "Data").setValue(data, new byte[] {0, 1, 2});
 
     assertArrayEquals(new byte[] {0, 1, 2}, (byte[]) data[0]);
+  }
+
+  // ------------------------------------------------------------------ constructor failure
+
+  @Test
+  void constructor_fieldNotFound_throwsIllegalArgumentException() {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("existing"));
+    assertThrows(IllegalArgumentException.class, () -> new FieldHelper(rowMeta, "missing"));
+  }
+
+  // ------------------------------------------------------------------ typed getters
+
+  @Test
+  void getObject_returnsRawValue() {
+    ValueMetaString v = new ValueMetaString("name");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    Object[] data = {"hello"};
+    assertEquals("hello", new FieldHelper(row, "name").getObject(data));
+  }
+
+  @Test
+  void getBoolean_returnsValue() throws HopValueException {
+    ValueMetaBoolean v = new ValueMetaBoolean("flag");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    assertEquals(
+        Boolean.TRUE, new FieldHelper(row, "flag").getBoolean(new Object[] {Boolean.TRUE}));
+  }
+
+  @Test
+  void getLong_returnsValue() throws HopValueException {
+    ValueMetaInteger v = new ValueMetaInteger("num");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    assertEquals(42L, new FieldHelper(row, "num").getLong(new Object[] {42L}));
+  }
+
+  @Test
+  void getDouble_returnsValue() throws HopValueException {
+    ValueMetaNumber v = new ValueMetaNumber("dbl");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    assertEquals(3.14, new FieldHelper(row, "dbl").getDouble(new Object[] {3.14}));
+  }
+
+  @Test
+  void getString_returnsValue() throws HopValueException {
+    ValueMetaString v = new ValueMetaString("s");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    assertEquals("world", new FieldHelper(row, "s").getString(new Object[] {"world"}));
+  }
+
+  @Test
+  void getBigDecimal_returnsValue() throws HopValueException {
+    ValueMetaBigNumber v = new ValueMetaBigNumber("bd");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    BigDecimal bd = new BigDecimal("123.456");
+    assertEquals(bd, new FieldHelper(row, "bd").getBigDecimal(new Object[] {bd}));
+  }
+
+  @Test
+  void getDate_returnsValue() throws HopValueException {
+    ValueMetaDate v = new ValueMetaDate("dt");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    Date d = new Date(0L);
+    assertEquals(d, new FieldHelper(row, "dt").getDate(new Object[] {d}));
+  }
+
+  // ------------------------------------------------------------------ getValueMeta / indexOfValue
+
+  @Test
+  void getValueMeta_returnsStoredMeta() {
+    ValueMetaString v = new ValueMetaString("col");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(0).when(row).indexOfValue(anyString());
+
+    assertNotNull(new FieldHelper(row, "col").getValueMeta());
+    assertEquals(v, new FieldHelper(row, "col").getValueMeta());
+  }
+
+  @Test
+  void indexOfValue_returnsStoredIndex() {
+    ValueMetaString v = new ValueMetaString("col");
+    IRowMeta row = mock(IRowMeta.class);
+    doReturn(v).when(row).searchValueMeta(anyString());
+    doReturn(2).when(row).indexOfValue(anyString());
+
+    assertEquals(2, new FieldHelper(row, "col").indexOfValue());
+  }
+
+  // ------------------------------------------------------------------ getAccessor Out variant
+
+  @Test
+  void getAccessor_outVariant_containsFieldsOut() {
+    String accessor = FieldHelper.getAccessor(false, "myField");
+    assertEquals("get(Fields.Out, \"myField\")", accessor);
+  }
+
+  // ------------------------------------------------------------------ getGetSignature: invalid
+  // Java identifier → "value"
+
+  @Test
+  void getGetSignature_invalidJavaIdentifier_usesValueAsLocalName() {
+    ValueMetaString v = new ValueMetaString("123invalid");
+    String accessor = FieldHelper.getAccessor(true, "123invalid");
+    String sig = FieldHelper.getGetSignature(accessor, v);
+    // Local variable name should be "value" when name is not a valid Java identifier
+    assertEquals("String value = get(Fields.In, \"123invalid\").getString(r);", sig);
+  }
+
+  // ------------------------------------------------------------------ getNativeDataTypeSimpleName:
+  // remaining types
+
+  @Test
+  void getNativeDataTypeSimpleName_Boolean() {
+    ValueMetaBoolean v = new ValueMetaBoolean();
+    assertEquals("Boolean", FieldHelper.getNativeDataTypeSimpleName(v));
+  }
+
+  @Test
+  void getNativeDataTypeSimpleName_Integer() {
+    ValueMetaInteger v = new ValueMetaInteger();
+    assertEquals("Long", FieldHelper.getNativeDataTypeSimpleName(v));
+  }
+
+  @Test
+  void getNativeDataTypeSimpleName_Number() {
+    ValueMetaNumber v = new ValueMetaNumber();
+    assertEquals("Double", FieldHelper.getNativeDataTypeSimpleName(v));
+  }
+
+  @Test
+  void getNativeDataTypeSimpleName_BigNumber() {
+    ValueMetaBigNumber v = new ValueMetaBigNumber();
+    assertEquals("BigDecimal", FieldHelper.getNativeDataTypeSimpleName(v));
   }
 }

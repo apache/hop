@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
@@ -206,6 +206,11 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     }
 
     if (allOK) {
+      // Expose the hop-server.xml details as Internal.Server.* variables so they
+      // are inherited by pipelines and workflows executing on this server.
+      config.setInternalHopServerVariables(config.getVariables(), port);
+      config.setInternalHopServerVariables(variables, port);
+
       boolean shouldJoin = config.isJoining();
       if (joinOverride != null) {
         shouldJoin = joinOverride;

@@ -237,12 +237,10 @@ public class EnterTextDialog extends Dialog {
     String newText = wDesc.getText();
     if (!newText.equals(origText)) {
       int save = HopGuiWorkflowGraph.showChangedWarning(shell, title);
-      if (save == SWT.CANCEL) {
-        e.doit = false;
-      } else if (save == SWT.YES) {
-        ok();
-      } else {
-        cancel();
+      switch (save) {
+        case SWT.CANCEL -> e.doit = false;
+        case SWT.YES -> ok();
+        default -> cancel();
       }
     } else {
       cancel();

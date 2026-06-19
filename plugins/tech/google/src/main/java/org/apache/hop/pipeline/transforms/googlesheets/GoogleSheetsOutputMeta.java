@@ -72,6 +72,12 @@ public class GoogleSheetsOutputMeta
   @HopMetadataProperty(key = "timeout", injectionGroupKey = "SHEET")
   private String timeout;
 
+  @HopMetadataProperty(key = "retryAttempts", injectionGroupKey = "SHEET")
+  private String retryAttempts;
+
+  @HopMetadataProperty(key = "retryDelayMs", injectionGroupKey = "SHEET")
+  private String retryDelayMs;
+
   @HopMetadataProperty(key = "impersonation", injectionGroupKey = "SHEET")
   private String impersonation;
 
@@ -87,7 +93,7 @@ public class GoogleSheetsOutputMeta
 
   @Override
   public void setDefault() {
-    this.jsonCredentialPath = "" + "client_secret.json";
+    this.jsonCredentialPath = "client_secret.json";
     this.spreadsheetKey = "";
     this.worksheetId = "";
     this.shareDomain = "";
@@ -98,6 +104,8 @@ public class GoogleSheetsOutputMeta
     this.impersonation = "";
     this.appName = "";
     this.timeout = "5";
+    this.retryAttempts = "3";
+    this.retryDelayMs = "2";
   }
 
   @Override
@@ -110,6 +118,8 @@ public class GoogleSheetsOutputMeta
     retval.setAppend(this.append);
     retval.setShareEmail(this.shareEmail);
     retval.setShareDomain(this.shareDomain);
+    retval.setRetryAttempts(this.retryAttempts);
+    retval.setRetryDelayMs(this.retryDelayMs);
     return retval;
   }
 

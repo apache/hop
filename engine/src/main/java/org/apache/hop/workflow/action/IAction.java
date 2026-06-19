@@ -19,6 +19,7 @@ package org.apache.hop.workflow.action;
 
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.IExtensionData;
@@ -29,7 +30,11 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -127,6 +132,7 @@ import org.w3c.dom.Node;
  *       Finally, the passed in prevResult object must be returned.
  * </ul>
  */
+@HopMetadataObject(xmlKey = "type", objectFactory = IAction.ActionFactory.class)
 public interface IAction extends IVariables, IHasLogChannel, ICheckResultSource, IExtensionData {
 
   /**
@@ -444,5 +450,23 @@ public interface IAction extends IVariables, IHasLogChannel, ICheckResultSource,
    */
   default boolean supportsDrillDown() {
     return false;
+  }
+
+  final class ActionFactory implements IHopMetadataObjectFactory {
+    @Override
+    public Object createObject(String id, Object parentObject) throws HopException {
+      IAction action =
+          PluginRegistry.getInstance().loadClass(ActionPluginType.class, id, IAction.class);
+      if (action == null) {
+        throw new MissingResourceException(
+            "Action plugin with ID '" + id + "' was not found", IAction.class.getName(), id);
+      }
+      return action;
+    }
+
+    @Override
+    public String getObjectId(Object object) throws HopException {
+      return PluginRegistry.getInstance().getPluginId(ActionPluginType.class, object);
+    }
   }
 }

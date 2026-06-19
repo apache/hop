@@ -19,9 +19,12 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.plugins.PartitionerPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.w3c.dom.Node;
 
@@ -70,9 +73,8 @@ import org.w3c.dom.Node;
  *       <p><i>public int getPartition(...)</i>
  * </ul>
  */
-@HopMetadataObject()
+@HopMetadataObject(xmlKey = "method", objectFactory = IPartitioner.PartitionerFactory.class)
 public interface IPartitioner {
-
   /**
    * Gets the single instance of IPartitioner.
    *
@@ -154,4 +156,17 @@ public interface IPartitioner {
    * @throws HopXmlException the hop xml exception
    */
   void loadXml(Node partitioningMethodNode) throws HopXmlException;
+
+  final class PartitionerFactory implements IHopMetadataObjectFactory {
+    @Override
+    public Object createObject(String id, Object parentObject) throws HopException {
+      return PluginRegistry.getInstance()
+          .loadClass(PartitionerPluginType.class, id, IPartitioner.class);
+    }
+
+    @Override
+    public String getObjectId(Object object) throws HopException {
+      return PluginRegistry.getInstance().getPluginId(PartitionerPluginType.class, object);
+    }
+  }
 }

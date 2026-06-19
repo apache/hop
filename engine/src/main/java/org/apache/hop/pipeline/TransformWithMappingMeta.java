@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
@@ -98,7 +98,28 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       IHopMetadataProvider metadataProvider,
       IVariables variables)
       throws HopException {
+    return loadMappingMeta(executorMeta, null, metadataProvider, variables);
+  }
+
+  /**
+   * Loads child pipeline metadata from a file.
+   *
+   * @param explicitPipelineFilename when non-empty, this path is loaded and resolved instead of the
+   *     filename stored on {@code executorMeta}. Use when the pipeline path is taken from an
+   *     incoming row at runtime so multiple transform copies must not mutate shared meta.
+   */
+  public static synchronized PipelineMeta loadMappingMeta(
+      TransformWithMappingMeta executorMeta,
+      String explicitPipelineFilename,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables)
+      throws HopException {
     PipelineMeta mappingPipelineMeta = null;
+
+    String filenameToUse =
+        !Utils.isEmpty(explicitPipelineFilename)
+            ? explicitPipelineFilename
+            : executorMeta.getFilename();
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
     // send restricted parentVariables with several important options
@@ -108,9 +129,9 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
         r.resolveCurrentDirectory(
             getVarSpaceOnlyWithRequiredParentVars(variables),
             executorMeta.getParentTransformMeta(),
-            executorMeta.getFilename());
+            filenameToUse);
 
-    String realFilename = tmpSpace.resolve(executorMeta.getFilename());
+    String realFilename = tmpSpace.resolve(filenameToUse);
     if (variables != null) {
       // This is a parent pipeline and parent variable should work here. A child file name can be
       // resolved via parent variables.

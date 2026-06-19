@@ -24,7 +24,7 @@ import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigtable.BigtableIO;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
@@ -53,7 +53,8 @@ import org.json.simple.JSONObject;
     image = "beam-gcp-bigtable-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamBigtableInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beambigtableinput.html")
+    documentationUrl = "/pipeline/transforms/beambigtableinput.html",
+    supportedEngines = {"Beam*"})
 public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData>
     implements IBeamPipelineTransformHandler {
 

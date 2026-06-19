@@ -27,12 +27,14 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.CompressionPluginType;
@@ -544,7 +546,7 @@ class TextFileOutputTest {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setEndedLine("${endvar}");
     meta.setDefault();
-    meta.setEncoding("UTF-8");
+    meta.setEncoding(Const.UTF_8);
     transformMockHelper.transformMeta.setTransform(meta);
     TextFileOutput textFileOutput =
         new TextFileOutputTestHandler(
@@ -556,7 +558,7 @@ class TextFileOutputTest {
             transformMockHelper.pipeline);
     textFileOutput.setVariable("endvar", "this is the end");
     textFileOutput.writeEndedLine();
-    assertEquals("this is the end", baos.toString("UTF-8"));
+    assertEquals("this is the end", baos.toString(StandardCharsets.UTF_8));
   }
 
   private void assertNotInvokedTwice(TextFileField field) {
@@ -751,11 +753,87 @@ class TextFileOutputTest {
     assertEquals(1, textFileOutputSpy.getResultFiles().size());
   }
 
+  /**
+   * When the file is created at pipeline start ('Do not create file at start' unchecked) and the
+   * header is enabled, the header must still be written even when no rows are received. Without the
+   * fix this produced an empty file with no header. With the transform's fields configured, the
+   * header columns come from those fields - exactly as they would for a regular row.
+   */
+  @Test
+  void testHeaderWrittenForEmptyFileCreatedAtStart_configuredFields() throws Exception {
+    assertEquals("Name Surname\n", writeHeaderOnlyFileWithoutRows(textFileFields));
+  }
+
+  /**
+   * Same as above but with no fields configured on the transform: the header columns are taken from
+   * the incoming stream metadata (resolved from the previous transform when no rows flow), again
+   * mirroring the regular-row code path.
+   */
+  @Test
+  void testHeaderWrittenForEmptyFileCreatedAtStart_allStreamFields() throws Exception {
+    assertEquals("Name Surname\n", writeHeaderOnlyFileWithoutRows(new ArrayList<>()));
+  }
+
+  /**
+   * Runs a TextFileOutput with the header enabled, the file created at pipeline start and zero
+   * rows, then returns the resulting file content. The incoming stream always carries the
+   * Name/Surname fields; {@code outputFields} controls whether those columns are explicitly
+   * configured on the transform or left empty (write all stream fields).
+   */
+  private String writeHeaderOnlyFileWithoutRows(List<TextFileField> outputFields) throws Exception {
+    FileObject file = createTemplateFile(null); // file does not exist yet
+    String pathToFile = file.getName().getURI();
+
+    TextFileOutputData textFileOutputData = new TextFileOutputData();
+    TextFileOutputTestHandler handler =
+        new TextFileOutputTestHandler(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            textFileOutputData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+
+    TextFileOutputMeta.FileSettings fileSettings =
+        Mockito.mock(TextFileOutputMeta.FileSettings.class);
+    Mockito.when(fileSettings.isDoNotOpenNewFileInit()).thenReturn(false); // create file at start
+    Mockito.when(fileSettings.isFileAppended()).thenReturn(false);
+    Mockito.when(fileSettings.getFileName()).thenReturn(pathToFile);
+    Mockito.when(transformMockHelper.iTransformMeta.getFileSettings()).thenReturn(fileSettings);
+    Mockito.when(transformMockHelper.iTransformMeta.isHeaderEnabled()).thenReturn(true);
+    Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(null);
+    Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(outputFields);
+
+    // With zero rows the output row metadata is resolved from the previous transform's fields,
+    // just like getInputRowMeta() would supply it once the first row arrives.
+    IRowMeta prevFields = Mockito.mock(IRowMeta.class);
+    for (int i = 0; i < textFileFields.size(); i++) {
+      String name = textFileFields.get(i).getName();
+      Mockito.when(prevFields.searchValueMeta(name)).thenReturn(new ValueMetaString(name));
+      Mockito.when(prevFields.getValueMeta(i)).thenReturn(new ValueMetaString(name));
+      Mockito.when(prevFields.indexOfValue(name)).thenReturn(i);
+    }
+    Mockito.when(prevFields.size()).thenReturn(textFileFields.size());
+    Mockito.when(
+            transformMockHelper.pipelineMeta.getPrevTransformFields(
+                Mockito.any(IVariables.class), Mockito.any(TransformMeta.class)))
+        .thenReturn(prevFields);
+
+    handler.init();
+    handler.setRow(null); // no rows received
+    handler.processRow();
+    handler.dispose();
+
+    assertTrue(handler.errors.isEmpty(), handler.errors.toString());
+    assertTrue(file.exists());
+    return IOUtils.toString(file.getContent().getInputStream(), StandardCharsets.UTF_8);
+  }
+
   @Test
   void testFastDumpDisableStreamEncodeTest() throws Exception {
 
     String testString = "ÖÜä";
-    String inputEncode = "UTF-8";
+    String inputEncode = Const.UTF_8;
     String outputEncode = "Windows-1252";
     Object[] rows = {testString.getBytes(inputEncode)};
 

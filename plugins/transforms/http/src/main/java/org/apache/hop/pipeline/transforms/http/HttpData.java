@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.http.NameValuePair;
 
 @SuppressWarnings("java:S1104")
 public class HttpData extends BaseTransformData implements ITransformData {
@@ -40,6 +40,9 @@ public class HttpData extends BaseTransformData implements ITransformData {
   public int realSocketTimeout;
   public int realConnectionTimeout;
   public boolean withoutPreviousTransforms;
+
+  /** Bytes read from the last HTTP response body (for lineage). */
+  public int lastHttpResponseBodyBytes;
 
   /** Default constructor. */
   public HttpData() {

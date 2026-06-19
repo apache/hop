@@ -25,6 +25,7 @@ import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.Binary;
@@ -115,7 +116,7 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
       }
       recordConsumer.endMessage();
     } catch (HopException e) {
-      throw new RuntimeException("Error writing row to Parquet", e);
+      throw new HopRuntimeException("Error writing row to Parquet", e);
     }
   }
 }

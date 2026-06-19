@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.delete;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -68,6 +68,8 @@ public class DeleteDialog extends BaseTransformDialog {
   private TextVar wTable;
 
   private TextVar wCommit;
+
+  private Button wBatch;
 
   private final DeleteMeta input;
 
@@ -183,12 +185,37 @@ public class DeleteDialog extends BaseTransformDialog {
     fdCommit.right = new FormAttachment(100, 0);
     wCommit.setLayoutData(fdCommit);
 
+    // Batch delete
+    Label wlBatch = new Label(shell, SWT.RIGHT);
+    wlBatch.setText(BaseMessages.getString(PKG, "DeleteDialog.Batch.Label"));
+    PropsUi.setLook(wlBatch);
+    FormData fdlBatch = new FormData();
+    fdlBatch.left = new FormAttachment(0, 0);
+    fdlBatch.top = new FormAttachment(wCommit, margin);
+    fdlBatch.right = new FormAttachment(middle, -margin);
+    wlBatch.setLayoutData(fdlBatch);
+    wBatch = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wBatch);
+    FormData fdBatch = new FormData();
+    fdBatch.left = new FormAttachment(middle, 0);
+    fdBatch.top = new FormAttachment(wlBatch, 0, SWT.CENTER);
+    fdBatch.right = new FormAttachment(100, 0);
+    wBatch.setLayoutData(fdBatch);
+    wBatch.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            setFlags();
+            input.setChanged();
+          }
+        });
+
     Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "DeleteDialog.Key.Label"));
     PropsUi.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment(0, 0);
-    fdlKey.top = new FormAttachment(wCommit, margin);
+    fdlKey.top = new FormAttachment(wBatch, margin);
     wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
@@ -288,6 +315,7 @@ public class DeleteDialog extends BaseTransformDialog {
 
     getData();
     setTableFieldCombo();
+    setFlags();
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -309,6 +337,7 @@ public class DeleteDialog extends BaseTransformDialog {
     }
 
     wCommit.setText(input.getCommitSizeVar());
+    wBatch.setSelection(input.isUseBatchUpdate());
 
     List<DeleteKeyField> keyFields = input.getLookup().getFields();
 
@@ -350,6 +379,25 @@ public class DeleteDialog extends BaseTransformDialog {
     transformName = null;
     input.setChanged(changed);
     dispose();
+  }
+
+  /**
+   * Updates dialog control states based on the current configuration.
+   *
+   * <p>Batch deletes are disabled when this transform uses error handling and the selected database
+   * does not support batch updates together with error handling (for example mysql and look-likes).
+   */
+  public void setFlags() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    boolean hasErrorHandling = pipelineMeta.findTransform(transformName).isDoingErrorHandling();
+
+    boolean enableBatch = wBatch.getSelection();
+    enableBatch =
+        enableBatch
+            && !(databaseMeta != null
+                && databaseMeta.supportsErrorHandlingOnBatchUpdates()
+                && hasErrorHandling);
+    wBatch.setSelection(enableBatch);
   }
 
   private void setTableFieldCombo() {
@@ -409,6 +457,7 @@ public class DeleteDialog extends BaseTransformDialog {
     int nrkeys = wKey.nrNonEmpty();
 
     inf.setCommitSize(wCommit.getText());
+    inf.setUseBatchUpdate(wBatch.getSelection());
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "DeleteDialog.Log.FoundKeys", String.valueOf(nrkeys)));

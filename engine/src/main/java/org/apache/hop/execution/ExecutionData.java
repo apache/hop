@@ -85,23 +85,17 @@ public class ExecutionData {
   @JsonDeserialize(using = ExecutionDataSetMetaDeserializer.class)
   private Map<String, ExecutionDataSetMeta> setMetaData;
 
+  /**
+   * A map with the set key as entry key. The values in the map are a link between the name of the
+   * value in the row and the (conversion) error given.
+   */
+  @JsonIgnore private Map<String, Map<String, String>> dataSetErrors;
+
   public ExecutionData() {
     this.collectionDate = new Date();
     this.dataSets = Collections.synchronizedMap(new HashMap<>());
     this.setMetaData = Collections.synchronizedMap(new HashMap<>());
-  }
-
-  public ExecutionData(
-      Date collectionDate,
-      String parentId,
-      String ownerId,
-      Map<String, RowBuffer> dataSets,
-      Map<String, ExecutionDataSetMeta> setDescriptions) {
-    this.collectionDate = collectionDate;
-    this.parentId = parentId;
-    this.ownerId = ownerId;
-    this.dataSets = dataSets;
-    this.setMetaData = setDescriptions;
+    this.dataSetErrors = Collections.synchronizedMap(new HashMap<>());
   }
 
   @Override
@@ -179,7 +173,7 @@ public class ExecutionData {
   /**
    * Encode the rows in binary compressed and encoded format fit for inclusion in JSON
    *
-   * @return
+   * @return The rows in binary Gzip Base64 encoded string format
    */
   @JsonInclude
   public String getRowsBinaryGzipBase64Encoded() throws IOException, HopFileException {
@@ -245,9 +239,9 @@ public class ExecutionData {
   /**
    * Convert the encoded rows of data back to a list of rows
    *
-   * @param encodedString
-   * @throws IOException
-   * @throws HopFileException
+   * @param encodedString The base64 encoded binary Gzip string
+   * @throws IOException In case there was an error with the encoding
+   * @throws HopFileException In case there was a data conversion issue
    */
   public void setRowsBinaryGzipBase64Encoded(String encodedString)
       throws IOException, HopFileException {

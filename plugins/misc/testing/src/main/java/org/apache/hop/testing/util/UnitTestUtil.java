@@ -19,7 +19,7 @@ package org.apache.hop.testing.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -120,7 +120,7 @@ public class UnitTestUtil {
 
       List<UnitTestResult> testResults = new ArrayList<>();
       DataSetConst.validateTransformResultAgainstUnitTest(
-          testPipeline, test, metadataProvider, testResults);
+          testPipeline, test, metadataProvider, variables, testResults);
       testResultsEvaluator.evaluateTestResults(testPipeline, testResults);
     } catch (HopException e) {
       exceptionEvaluator.evaluateTestException(test, testPipelineMeta, e);

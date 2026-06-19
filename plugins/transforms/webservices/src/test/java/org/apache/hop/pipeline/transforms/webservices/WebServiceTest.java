@@ -26,11 +26,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.net.URISyntaxException;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.apache.http.Header;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicHeader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -35,6 +35,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -92,15 +94,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
     if (first) {
       first = false;
-      data.sourceFieldIndexes = new ArrayList<>();
-      for (int i = 0; i < meta.getFields().size(); i++) {
-        ParquetField field = meta.getFields().get(i);
-        int index = getInputRowMeta().indexOfValue(field.getSourceFieldName());
-        if (index < 0) {
-          throw new HopException("Unable to find source field '" + field.getSourceFieldName());
-        }
-        data.sourceFieldIndexes.add(index);
-      }
+      resolveOutputFields();
       openNewFile();
     }
 
@@ -139,10 +133,10 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         int idx = data.sourceFieldIndexes.get(i);
         Object value = parquetRow[idx];
         if (getInputRowMeta().getValueMeta(idx).getType() == IValueMeta.TYPE_TIMESTAMP) {
-          if (value instanceof java.util.Date) {
-            parquetRow[idx] = ((java.util.Date) value).getTime();
-          } else if (value instanceof byte[]) {
-            String dateStr = new String((byte[]) value, StandardCharsets.UTF_8);
+          if (value instanceof java.util.Date date) {
+            parquetRow[idx] = date.getTime();
+          } else if (value instanceof byte[] bytes) {
+            String dateStr = new String(bytes, StandardCharsets.UTF_8);
             SimpleDateFormat sdf =
                 new SimpleDateFormat(parquetRowMeta.getValueMeta(idx).getFormatMask());
             Date date = sdf.parse(dateStr);
@@ -163,7 +157,6 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   }
 
   private void openNewFile() throws HopException {
-
     data.splitRowCount = 0;
     data.split++;
 
@@ -185,9 +178,8 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         SchemaBuilder.record("ApacheHopParquetSchema").fields();
 
     // Build the Parquet Schema
-    //
-    for (int i = 0; i < meta.getFields().size(); i++) {
-      ParquetField field = meta.getFields().get(i);
+    for (int i = 0; i < data.outputFields.size(); i++) {
+      ParquetField field = data.outputFields.get(i);
       IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i));
 
       // Start a new field
@@ -263,7 +255,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
                   data.avroSchema,
                   data.outputFile,
                   data.sourceFieldIndexes,
-                  meta.getFields())
+                  data.outputFields)
               .withPageSize(data.pageSize)
               .withDictionaryPageSize(data.dictionaryPageSize)
               .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)
@@ -275,6 +267,31 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
     } catch (Exception e) {
       throw new HopException("Unable to create output file '" + data.filename + "'", e);
+    }
+  }
+
+  void resolveOutputFields() throws HopException {
+    data.outputFields = new ArrayList<>();
+    data.sourceFieldIndexes = new ArrayList<>();
+
+    if (meta.getFields() == null || meta.getFields().isEmpty()) {
+      IRowMeta inputRowMeta = getInputRowMeta();
+      for (int i = 0; i < inputRowMeta.size(); i++) {
+        String fieldName = inputRowMeta.getValueMeta(i).getName();
+        data.outputFields.add(new ParquetField(fieldName, fieldName));
+        data.sourceFieldIndexes.add(i);
+      }
+      return;
+    }
+
+    for (ParquetField field : meta.getFields()) {
+      int index = getInputRowMeta().indexOfValue(field.getSourceFieldName());
+      if (index < 0) {
+        throw new HopException("Unable to find source field '" + field.getSourceFieldName() + "'");
+      }
+      String targetFieldName = Const.NVL(field.getTargetFieldName(), field.getSourceFieldName());
+      data.outputFields.add(new ParquetField(field.getSourceFieldName(), targetFieldName));
+      data.sourceFieldIndexes.add(index);
     }
   }
 
@@ -308,8 +325,17 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     try {
       data.writer.close();
       if (data.countingStream != null) {
-        dataVolumeOut =
-            (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+        long written = data.countingStream.getCount();
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+        if (!data.isBeamContext() && written > 0 && data.filename != null) {
+          try {
+            FileObject outFile = HopVfs.getFileObject(data.filename, variables);
+            LineageFileIoEmitter.emitTransformFileIo(
+                this, FileIoOperation.WRITE, null, outFile, written, true, null);
+          } catch (Exception ignored) {
+            // optional lineage
+          }
+        }
       }
     } catch (Exception e) {
       throw new HopException("Error closing file " + data.filename, e);

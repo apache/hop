@@ -25,7 +25,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -101,20 +101,14 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     return retval;
   }
 
-  /**
-   * Added for backwards compatibility
-   *
-   * @deprecated
-   * @param transformNode The XML node of the transform
-   * @param metadataProvider The metadata provided
-   * @throws HopXmlException When unable to read the XML
-   */
+  /** Added for backwards compatibility with older prefixed log level values. */
   @Override
-  @Deprecated(since = "2.13")
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    String loglevel = XmlHandler.getTagValue(transformNode, "loglevel");
+  public void convertLegacyXml(Node node) throws HopException {
+    if (node == null) {
+      return;
+    }
+
+    String loglevel = XmlHandler.getTagValue(node, "loglevel");
     if (loglevel != null && loglevel.startsWith("log_level_")) {
       switch (loglevel) {
         case "log_level_nothing":

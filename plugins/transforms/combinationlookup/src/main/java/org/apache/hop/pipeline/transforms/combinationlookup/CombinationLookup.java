@@ -700,7 +700,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       data.realTableName = resolve(meta.getTableName());
 
       if (meta.getCacheSize() > 0) {
-        data.cache = new HashMap<>((int) (meta.getCacheSize() * 1.5));
+        data.cache = HashMap.newHashMap((int) (meta.getCacheSize() * 1.5));
       } else {
         data.cache = new HashMap<>();
       }

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.xml.xslt;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Properties;
 import javax.xml.transform.Transformer;
@@ -85,7 +86,7 @@ public class XsltData extends BaseTransformData implements ITransformData {
         file = HopVfs.getFileObject(xslSource, variables);
         xslInputStream = HopVfs.getInputStream(file);
       } else {
-        xslInputStream = new ByteArrayInputStream(xslSource.getBytes("UTF-8"));
+        xslInputStream = new ByteArrayInputStream(xslSource.getBytes(StandardCharsets.UTF_8));
       }
 
       // Use the factory to create a template containing the xsl source

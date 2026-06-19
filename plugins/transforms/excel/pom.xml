@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-excel</artifactId>
@@ -30,6 +30,8 @@
     <name>Hop Plugins Transforms Excel</name>
 
     <properties>
+        <hop.libcore.exclude1>org.apache.hop:hop-misc-static-schema</hop.libcore.exclude1>
+        <hop.libcore.exclude2>org.apache.hop:hop-transform-textfile</hop.libcore.exclude2>
         <odfdom-java.version>0.8.7</odfdom-java.version>
     </properties>
 

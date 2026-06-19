@@ -30,11 +30,12 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.HopToBQTableRowFn;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -126,7 +127,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
             schemaField.setType("TIMESTAMP");
             break;
           default:
-            throw new RuntimeException(
+            throw new HopRuntimeException(
                 "Conversion from Hop value "
                     + valueMeta.toString()
                     + " to BigQuery TableRow isn't supported yet");
@@ -175,7 +176,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in Beam BigQuery output transform", e);
-      throw new RuntimeException("Error in Beam BigQuery output transform", e);
+      throw new HopRuntimeException("Error in Beam BigQuery output transform", e);
     }
   }
 
@@ -184,15 +185,13 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
    * must start with a letter or underscore. The maximum column name length is 300 characters. A
    * column name cannot use any of the following prefixes: _TABLE_, _FILE_, _PARTITION_.
    *
-   * <p>
-   *
    * <p>Duplicate * column names are not allowed even if the case differs. For example, a column
    * named Column1 is * considered identical to a column named column1.
    *
    * <p>NOTE: Hop metadata will never have duplicate column names. As such, we're not checking that.
    *
    * @param name The BQ field name to validate
-   * @throws HopException
+   * @throws HopException In case validation fails
    */
   public static void validateBQFieldName(String name) throws HopException {
     if (StringUtils.isEmpty(name)) {

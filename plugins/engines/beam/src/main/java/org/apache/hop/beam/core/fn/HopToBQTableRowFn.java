@@ -25,6 +25,7 @@ import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -106,7 +107,7 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
               }
               break;
             default:
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Data type conversion from Hop to BigQuery TableRow not supported yet: "
                       + valueMeta.toString());
           }
@@ -122,7 +123,7 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
     } catch (Exception e) {
       errorCounter.inc();
       LOG.info("Conversion error HopRow to BigQuery TableRow : " + e.getMessage());
-      throw new RuntimeException("Error converting HopRow to BigQuery TableRow", e);
+      throw new HopRuntimeException("Error converting HopRow to BigQuery TableRow", e);
     }
   }
 }

@@ -25,10 +25,11 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -43,6 +44,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -546,14 +548,24 @@ public class GuiCompositeWidgets {
     if (guiElements.isVariablesEnabled()) {
       int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
       if (guiElements.isPassword()) {
-        style |= SWT.PASSWORD;
+        String toolTip =
+            StringUtils.isNotEmpty(guiElements.getToolTip()) ? guiElements.getToolTip() : null;
+        // PasswordTextVar never mirrors the field value in the tooltip (TextVar may on some
+        // platforms when echo char is reported as '\\0' for PASSWORD fields).
+        PasswordTextVar textVar = new PasswordTextVar(variables, parent, style, toolTip);
+        PropsUi.setLook(textVar);
+        widgetsMap.put(guiElements.getId(), textVar);
+        addModifyListener(textVar.getTextWidget(), guiElements.getId());
+        control = textVar;
+        text = textVar.getTextWidget();
+      } else {
+        TextVar textVar = new TextVar(variables, parent, style);
+        PropsUi.setLook(textVar);
+        widgetsMap.put(guiElements.getId(), textVar);
+        addModifyListener(textVar.getTextWidget(), guiElements.getId());
+        control = textVar;
+        text = textVar.getTextWidget();
       }
-      TextVar textVar = new TextVar(variables, parent, style);
-      PropsUi.setLook(textVar);
-      widgetsMap.put(guiElements.getId(), textVar);
-      addModifyListener(textVar.getTextWidget(), guiElements.getId());
-      control = textVar;
-      text = textVar.getTextWidget();
     } else {
       int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
       if (guiElements.isPassword()) {
@@ -617,15 +629,15 @@ public class GuiCompositeWidgets {
   public ITypeFilename instantiateTypeFilename(GuiElements guiElements) {
     Class<? extends ITypeFilename> typeFilenameClass = guiElements.getTypeFilename();
     if (typeFilenameClass == null) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please specify a ITypeFilename class to use for widget " + guiElements.getId());
     }
     // Instantiate the class...
     //
     try {
-      return typeFilenameClass.newInstance();
+      return typeFilenameClass.getConstructor().newInstance();
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error instantiating class "
               + typeFilenameClass.getName()
               + " for GUI elements "

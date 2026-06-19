@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/webservices</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,18 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-webservices:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/webservices</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>wsdl4j:wsdl4j:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/webservices/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

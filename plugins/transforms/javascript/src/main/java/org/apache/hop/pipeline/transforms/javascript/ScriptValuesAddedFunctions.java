@@ -54,6 +54,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueDataUtil;
@@ -75,6 +76,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrappedException;
 
+@SuppressWarnings({"java:S1172", "java:S100"})
 public class ScriptValuesAddedFunctions extends ScriptableObject {
   @Serial private static final long serialVersionUID = 1L;
 
@@ -311,12 +313,11 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         Calendar fisOffsetDate = Calendar.getInstance();
         startDate.setTime(dIn);
         Format dfFormatter = new SimpleDateFormat("dd.MM.yyyy");
-        String strOffsetDate =
-            Context.toString(argList[1]) + String.valueOf(startDate.get(Calendar.YEAR));
+        String strOffsetDate = Context.toString(argList[1]) + startDate.get(Calendar.YEAR);
         Date dOffset = (Date) dfFormatter.parseObject(strOffsetDate);
         fisOffsetDate.setTime(dOffset);
 
-        String strFisStartDate = "01.01." + String.valueOf(startDate.get(Calendar.YEAR) + 1);
+        String strFisStartDate = "01.01." + startDate.get(Calendar.YEAR) + 1;
         fisStartDate.setTime((Date) dfFormatter.parseObject(strFisStartDate));
         int iDaysToAdd =
             (int) ((startDate.getTimeInMillis() - fisOffsetDate.getTimeInMillis()) / 86400000);
@@ -1606,7 +1607,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
                 mb.setText("alert");
                 int answer = mb.open();
                 if ((answer & SWT.CANCEL) != 0) {
-                  throw new RuntimeException("Alert dialog cancelled by user.");
+                  throw new HopRuntimeException("Alert dialog cancelled by user.");
                 }
               });
     }
@@ -1791,6 +1792,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   }
 
   // Print
+  @SuppressWarnings("java:S106")
   public static void print(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     for (Object o : argList) { // don't worry about "undefined" arguments

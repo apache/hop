@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.database;
 
+import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -71,6 +72,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.jspecify.annotations.Nullable;
 
 @GuiPlugin(description = "This is the editor for database connection metadata")
 /**
@@ -1043,7 +1045,9 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
                 SWT.NONE,
                 manager.getVariables(),
                 meta,
-                manager.getSerializer().loadAll());
+                manager.getSerializer().loadAll(),
+                true,
+                true);
         dialog.open();
       } catch (Exception e) {
         new ErrorDialog(getShell(), "Error", "Error exploring database", e);
@@ -1186,26 +1190,45 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     meta.setSshTunnelPassphrase(wSshTunnelPassphrase.getText());
   }
 
-  /** Update JDBC driver information and version */
+  /** Updates the displayed driver information, including the driver name and version. */
   protected void updateDriverInfo() {
+    String driverName;
+    String driverVersion = null;
     try {
       DatabaseMeta databaseMeta = new DatabaseMeta();
       this.getWidgetsContent(databaseMeta);
 
-      wDriverInfo.setText("");
-      String driverName = databaseMeta.getDriverClass(getVariables());
+      driverName = databaseMeta.getDriverClass(getVariables());
       if (!Utils.isEmpty(driverName)) {
         ClassLoader classLoader = databaseMeta.getIDatabase().getClass().getClassLoader();
-        Class<?> driver = classLoader.loadClass(driverName);
-
-        if (driver.getPackage().getImplementationVersion() != null) {
-          driverName = driverName + " (" + driver.getPackage().getImplementationVersion() + ")";
-        }
-
-        wDriverInfo.setText(driverName);
+        Class<? extends Driver> driverClass =
+            classLoader.loadClass(driverName).asSubclass(Driver.class);
+        driverVersion = getDriverVersion(driverClass);
       }
     } catch (Exception e) {
-      wDriverInfo.setText("No driver installed");
+      driverName = "No driver installed";
+    }
+
+    wDriverInfo.setText(driverName + (driverVersion != null ? " (" + driverVersion + ")" : ""));
+  }
+
+  /**
+   * Retrieves the version information for the specified JDBC driver class.
+   *
+   * @param driverClass The JDBC driver class for which to retrieve the version information.
+   * @return The driver version as a string, or null if the version cannot be determined.
+   */
+  private static @Nullable String getDriverVersion(Class<? extends Driver> driverClass) {
+    String version = driverClass.getPackage().getImplementationVersion();
+    if (version != null) {
+      return version;
+    }
+    try {
+      Driver driver = driverClass.getDeclaredConstructor().newInstance();
+      return driver.getMajorVersion() + "." + driver.getMinorVersion();
+    } catch (Exception e) {
+      // Ignore - version could not be determined
+      return null;
     }
   }
 

@@ -22,6 +22,7 @@ import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -60,7 +61,7 @@ public class StringToHopRowFn extends DoFn<String, HopRow> {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in setup of String to Hop Row conversion function", e);
-      throw new RuntimeException("Error in setup of String to Hop Row conversion function", e);
+      throw new HopRuntimeException("Error in setup of String to Hop Row conversion function", e);
     }
   }
 
@@ -85,7 +86,7 @@ public class StringToHopRowFn extends DoFn<String, HopRow> {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in String to Hop Row conversion function", e);
-      throw new RuntimeException("Error in String to Hop Row conversion function", e);
+      throw new HopRuntimeException("Error in String to Hop Row conversion function", e);
     }
   }
 }

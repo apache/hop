@@ -43,13 +43,10 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
 
   @Override
   public boolean processRow() throws HopException {
+    String errorMessage;
 
-    boolean sendToErrorRow = false;
-    String errorMessage = null;
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
-
+    Object[] r = getRow();
+    if (r == null) {
       setOutputDone();
       return false;
     }
@@ -57,60 +54,13 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
     try {
       if (first) {
         first = false;
-        // get the RowMeta
-        data.previousRowMeta = getInputRowMeta().clone();
-        data.NrPrevFields = data.previousRowMeta.size();
-        data.outputRowMeta = data.previousRowMeta;
-        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-        // Check is stream data field is provided
-        if (Utils.isEmpty(meta.getStreamField())) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "PGPDecryptStream.Error.DataStreamFieldMissing"));
-        }
-
-        if (meta.isPassphraseFromField()) {
-          // Passphrase from field
-          String fieldname = meta.getPassphraseFieldName();
-          if (Utils.isEmpty(fieldname)) {
-            throw new HopException(
-                BaseMessages.getString(PKG, "PGPDecryptStream.Error.PassphraseFieldMissing"));
-          }
-          data.indexOfPassphraseField = data.previousRowMeta.indexOfValue(fieldname);
-          if (data.indexOfPassphraseField < 0) {
-            // The field is unreachable !
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "PGPDecryptStream.Exception.CouldnotFindField", fieldname));
-          }
-        } else {
-          // Check is passphrase is provided
-          data.passPhrase = Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getPassphrase()));
-          if (Utils.isEmpty(data.passPhrase)) {
-            throw new HopException(
-                BaseMessages.getString(PKG, "PGPDecryptStream.Error.PassphraseMissing"));
-          }
-        }
-
-        // cache the position of the field
-        if (data.indexOfField < 0) {
-          data.indexOfField = data.previousRowMeta.indexOfValue(meta.getStreamField());
-          if (data.indexOfField < 0) {
-            // The field is unreachable !
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "PGPDecryptStream.Exception.CouldnotFindField", meta.getStreamField()));
-          }
-        }
-      } // End If first
-
-      // allocate output row
-      Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-      for (int i = 0; i < data.NrPrevFields; i++) {
-        outputRow[i] = r[i];
+        processRowFirstCall();
       }
 
-      if (meta.isPassphraseFromField()) {
+      // allocate output row
+      Object[] outputRow = RowDataUtil.createResizedCopy(r, data.outputRowMeta.size());
+
+      if (meta.isPassPhraseFromField()) {
         data.passPhrase = data.previousRowMeta.getString(r, data.indexOfPassphraseField);
         if (Utils.isEmpty(data.passPhrase)) {
           throw new HopException(
@@ -130,7 +80,7 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
       String decryptedData = data.gpg.decrypt(encryptedData, data.passPhrase);
 
       // Add encrypted data to input stream
-      outputRow[data.NrPrevFields] = decryptedData;
+      outputRow[data.outputRowMeta.size() - 1] = decryptedData;
 
       // add new values to the row.
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
@@ -144,7 +94,6 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
       }
     } catch (Exception e) {
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
         logError(
@@ -155,19 +104,58 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(
-            getInputRowMeta(),
-            r,
-            1,
-            errorMessage,
-            meta.getResultFieldName(),
-            "PGPDecryptStreamO01");
-      }
+      // Simply add this row to the error row
+      putError(
+          getInputRowMeta(), r, 1, errorMessage, meta.getResultFieldName(), "PGPDecryptStreamO01");
     }
 
     return true;
+  }
+
+  private void processRowFirstCall() throws HopException {
+    // get the RowMeta
+    data.previousRowMeta = getInputRowMeta().clone();
+    data.outputRowMeta = data.previousRowMeta;
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+    // Check is stream data field is provided
+    if (Utils.isEmpty(meta.getStreamField())) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "PGPDecryptStream.Error.DataStreamFieldMissing"));
+    }
+
+    if (meta.isPassPhraseFromField()) {
+      // Passphrase from field
+      String fieldName = meta.getPassPhraseFieldName();
+      if (Utils.isEmpty(fieldName)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "PGPDecryptStream.Error.PassphraseFieldMissing"));
+      }
+      data.indexOfPassphraseField = data.previousRowMeta.indexOfValue(fieldName);
+      if (data.indexOfPassphraseField < 0) {
+        // The field is unreachable !
+        throw new HopException(
+            BaseMessages.getString(PKG, "PGPDecryptStream.Exception.CouldnotFindField", fieldName));
+      }
+    } else {
+      // Check is passphrase is provided
+      data.passPhrase = Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getPassPhrase()));
+      if (Utils.isEmpty(data.passPhrase)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "PGPDecryptStream.Error.PassphraseMissing"));
+      }
+    }
+
+    // cache the position of the field
+    if (data.indexOfField < 0) {
+      data.indexOfField = data.previousRowMeta.indexOfValue(meta.getStreamField());
+      if (data.indexOfField < 0) {
+        // The field is unreachable !
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "PGPDecryptStream.Exception.CouldnotFindField", meta.getStreamField()));
+      }
+    }
   }
 
   @Override
@@ -181,7 +169,7 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
 
       try {
         // initiate a new GPG encryptor
-        data.gpg = new GPG(resolve(meta.getGPGLocation()), getLogChannel(), variables);
+        data.gpg = new GPG(resolve(meta.getGpgLocation()), getLogChannel(), variables);
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "PGPDecryptStream.Init.Error"), e);
         return false;

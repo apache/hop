@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 
@@ -178,7 +179,7 @@ public class StringUtil {
             // for safety: avoid recursive
             if (recursion > 50) {
               // endless loops with stack overflow
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Endless loop detected for substitution of variable: " + value);
             }
             value = substitute((String) value, variablesValues, open, close, ++recursion);
@@ -370,6 +371,7 @@ public class StringUtil {
       String aString, List<String> list, boolean includeSystemVariables) {
     getUsedVariables(aString, UNIX_OPEN, UNIX_CLOSE, list, includeSystemVariables);
     getUsedVariables(aString, WINDOWS_OPEN, WINDOWS_CLOSE, list, includeSystemVariables);
+    getUsedVariables(aString, RESOLVER_OPEN, RESOLVER_CLOSE, list, includeSystemVariables);
   }
 
   public static String generateRandomString(
@@ -601,12 +603,11 @@ public class StringUtil {
    * @return a new string with all instances of the specified character removed from the end
    */
   public static String trimEnd(final String source, char c) {
-    if (source == null) {
-      return null;
+    if (source == null || source.isEmpty()) {
+      return source;
     }
 
     int index = source.length();
-
     while (index > 0 && source.charAt(index - 1) == c) {
       index--;
     }

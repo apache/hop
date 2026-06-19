@@ -100,8 +100,7 @@ class AzureMoveFilesIT {
   }
 
   @BeforeEach
-  void setup()
-      throws URISyntaxException, InvalidKeyException, StorageException, IOException, HopException {
+  void setup() throws URISyntaxException, InvalidKeyException, StorageException, IOException {
     // Retrieve storage account from connection-string.
     final BlobContainerClient container = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
     deleteFiles(CONTAINER_NAME);
@@ -131,8 +130,11 @@ class AzureMoveFilesIT {
     ActionMoveFiles action = defaultAction();
 
     String fileToRename = getFilePath("artists.csv");
-    action.sourceFileFolder[0] = fileToRename;
-    action.destinationFileFolder[0] = fileToRename + "done";
+
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(fileToRename);
+    fileToMove.setDestinationFileFolder(fileToRename + "done");
+    action.getFilesToMove().add(fileToMove);
 
     action.execute(new Result(), 1);
 
@@ -147,8 +149,10 @@ class AzureMoveFilesIT {
     ActionMoveFiles action = defaultAction();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine();
 
-    action.sourceFileFolder[0] = getFilePath("artists2.csv");
-    action.destinationFileFolder[0] = getFilePath("alreadythere.csv");
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder("artists2.csv");
+    fileToMove.setDestinationFileFolder("alreadythere.csv");
+    action.getFilesToMove().add(fileToMove);
 
     action.execute(new Result(), 1);
 
@@ -165,8 +169,11 @@ class AzureMoveFilesIT {
     ActionMoveFiles action = defaultAction();
     IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine();
 
-    action.sourceFileFolder[0] = getFilePath("artists2.csv");
-    action.destinationFileFolder[0] = getFilePath("alreadythere.csv");
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(getFilePath("artists2.csv"));
+    fileToMove.setDestinationFileFolder(getFilePath("alreadythere.csv"));
+    action.getFilesToMove().add(fileToMove);
+
     action.setIfFileExists("do_nothing");
     action.execute(new Result(), 1);
 
@@ -181,8 +188,12 @@ class AzureMoveFilesIT {
     this.basePath = basePath;
 
     ActionMoveFiles action = defaultAction();
-    action.sourceFileFolder[0] = getFilePath("artists3.csv");
-    action.destinationFileFolder[0] = getFilePath("canbeoverwritten.csv");
+
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(getFilePath("artists3.csv"));
+    fileToMove.setDestinationFileFolder(getFilePath("canbeoverwritten.csv"));
+    action.getFilesToMove().add(fileToMove);
+
     action.setIfFileExists("overwrite_file");
 
     action.execute(new Result(), 1);
@@ -197,8 +208,12 @@ class AzureMoveFilesIT {
       throws HopException {
     this.basePath = basePath;
     ActionMoveFiles action = defaultAction();
-    action.sourceFileFolder[0] = getFilePath("artists3.csv");
-    action.destinationFileFolder[0] = getFolderPath();
+
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(getFilePath("artists3.csv"));
+    fileToMove.setDestinationFileFolder(getFolderPath());
+    action.getFilesToMove().add(fileToMove);
+
     action.setDestinationIsAFile(false);
 
     action.execute(new Result(), 1);
@@ -213,8 +228,12 @@ class AzureMoveFilesIT {
       throws HopException {
     this.basePath = basePath;
     ActionMoveFiles action = defaultAction();
-    action.sourceFileFolder[0] = getFilePath("artists3.csv");
-    action.destinationFileFolder[0] = getFilePath("fakecontainer", "artists-do-not-create-folder");
+
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(getFilePath("artists3.csv"));
+    fileToMove.setDestinationFileFolder(
+        getFilePath("fakecontainer", "artists-do-not-create-folder"));
+    action.getFilesToMove().add(fileToMove);
     action.setCreateDestinationFolder(false);
 
     action.execute(new Result(), 1);
@@ -228,10 +247,14 @@ class AzureMoveFilesIT {
   void whenUseWildCards_thenMoveFiles(String basePath) throws HopException {
     this.basePath = basePath;
     ActionMoveFiles action = defaultAction();
-    action.sourceFileFolder[0] = getFolderPath(CONTAINER_NAME);
-    action.destinationFileFolder[0] = getFolderPath(ANOTHER_CONTAINER_NAME);
-    action.wildcard[0] = ".*wildcard.*.csv";
-    action.destinationIsAFile = false;
+
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(getFolderPath(CONTAINER_NAME));
+    fileToMove.setDestinationFileFolder(getFolderPath(ANOTHER_CONTAINER_NAME));
+    fileToMove.setWildcard(".*wildcard.*.csv");
+    action.getFilesToMove().add(fileToMove);
+
+    action.setDestinationIsAFile(false);
     action.execute(new Result(), 1);
 
     assertThatFileExists(ANOTHER_CONTAINER_NAME, "artists-wildcard1.csv");
@@ -246,20 +269,18 @@ class AzureMoveFilesIT {
     // azuriteContainer.stop();
   }
 
-  private void deleteFiles(String containerName)
-      throws URISyntaxException, InvalidKeyException, StorageException {
+  private void deleteFiles(String containerName) {
     final BlobContainerClient container = blobServiceClient.getBlobContainerClient(containerName);
     container.listBlobs().forEach(blob -> container.getBlobClient(blob.getName()).deleteIfExists());
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     // Clean up the Hop environment
     HopEnvironment.shutdown();
   }
 
-  private void uploadFileIntoContainer(String containerName, String... fileNames)
-      throws URISyntaxException, StorageException, IOException {
+  private void uploadFileIntoContainer(String containerName, String... fileNames) {
 
     for (String fileName : fileNames) {
       BlobServiceClient blobServiceClient =

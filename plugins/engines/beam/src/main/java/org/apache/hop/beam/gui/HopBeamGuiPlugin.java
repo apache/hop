@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.beam.runners.dataflow.DataflowPipelineJob;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
 import org.apache.hop.core.Const;

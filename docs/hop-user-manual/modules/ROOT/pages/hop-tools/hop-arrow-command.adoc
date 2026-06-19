@@ -1,0 +1,83 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:imagesdir: ../../../assets/images/
+:page-pagination:
+:description: Hop Arrow command
+
+= Hop Arrow command
+
+== Overview
+
+The `hop arrow` sub-command is used to start Arrow-related services.
+
+=== flight-server
+
+=== Usage
+
+[source,bash]
+----
+sh hop arrow --help
+Usage: hop arrow [-hV] [--arrow-flight-host=<hostname>]
+                 [--arrow-flight-port=<port>] [-e=<environmentOption>]
+                 [-j=<projectOption>]
+Run the hop arrow command to start a flight or socket server
+      --arrow-flight-host=<hostname>
+                  The hostname on which the Apache Arrow Flight server will
+                    listen, defaults to 0.0.0.0
+      --arrow-flight-port=<port>
+                  The port on which the Apache Arrow Flight server will listen,
+                    defaults to 33333
+  -e, --environment=<environmentOption>
+                  The name of the lifecycle environment to use
+  -h, --help      Show this help message and exit.
+  -j, --project=<projectOption>
+                  The name of the project to use
+  -V, --version   Print version information and exit.
+----
+
+[source,bash]
+----
+hop arrow flight-server --environment my-environment --host 0.0.0.0 --port 33333
+----
+
+=== How it works
+
+Hop will start an Apache Arrow Flight server, listening on the specified address and port.
+
+IMPORTANT: Make to sure specify the `--project` or `--environment` options so that the server can find the referenced Data Stream metadata.
+
+==== Sending data to Flight
+
+When the Hop Flight server receives data it will try to match the specified path with the xref:metadata-types/data-stream/data-stream.adoc[Data Stream] name.  The data stream needs to be of type "Apache Arrow Flight".
+At that point, the specified
+xref:metadata-types/static-schema-definition.adoc[Schema Definition] is matched with the received https://arrow.apache.org/cookbook/py/schema.html[Schema].
+The rows are stored in memory so that they can be picked up.
+
+=== Reading data from Flight
+
+Reading data from the Flight server with Hop is as simple as referencing the same Data Stream with the xref
+
+=== Supported options:
+
+* `--arrow-flight-host` : Bind address (default: 0.0.0.0)
+* `--arrow-flight-port` : Listening port (default: 33333)
+* `--project` : Used to find the Data Stream metadata to reference
+* `--environment`: Used to find the project and metadata but also set variables.
+
+See also: xref:metadata-types/data-stream/arrow-flight.adoc[Apache Arrow Flight Data Stream]
+

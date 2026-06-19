@@ -43,6 +43,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoContentSchema;
+import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoPathSyntax;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -284,11 +289,11 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   public int getFlushInterval() {
-    String var = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_LIFE");
+    String maxStreamLife = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_LIFE");
     int flushInterval = 0;
-    if (var != null) {
+    if (maxStreamLife != null) {
       try {
-        flushInterval = Integer.parseInt(var);
+        flushInterval = Integer.parseInt(maxStreamLife);
       } catch (Exception ex) {
         // Do nothing
       }
@@ -297,11 +302,11 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   public int getMaxOpenFiles() {
-    String var = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_COUNT");
+    String maxStreamCountVar = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_COUNT");
     int maxStreamCount = 0;
-    if (var != null) {
+    if (maxStreamCountVar != null) {
       try {
-        maxStreamCount = Integer.parseInt(var);
+        maxStreamCount = Integer.parseInt(maxStreamCountVar);
       } catch (Exception ex) {
         // Do nothing
       }
@@ -399,6 +404,25 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       if (data.writer != null) {
         if (data.outputRowMeta != null && meta.isFooterEnabled()) {
           writeHeader();
+        } else if (first && meta.isHeaderEnabled()) {
+          // The file was created at pipeline start (init() -> initOutput()) but no rows were
+          // received, so the header was never written. Honor the enabled header for the empty
+          // result set.
+          String filename = getOutputFileName(null);
+          if (isWriteHeader(filename)) {
+            if (data.outputRowMeta == null) {
+              data.outputRowMeta =
+                  getPipelineMeta().getPrevTransformFields(variables, getTransformMeta());
+              if (data.outputRowMeta != null) {
+                meta.getFields(
+                    data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+              }
+            }
+            // Without column metadata there is nothing to write a header from.
+            if (data.outputRowMeta != null) {
+              writeHeader();
+            }
+          }
         }
       } else if (!Utils.isEmpty(resolve(meta.getEndedLine())) && !meta.isFileNameInField()) {
         String filename = getOutputFileName(null);
@@ -412,6 +436,11 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
         if (coll != null) {
           coll.forEachOpenStream(this::collectDataVolumeOut);
+          // Emit FILE_IO WRITE lineage for each output file before it is closed. This is the
+          // normal end-of-stream path; dispose()/close() is a safety-net for abrupt teardowns.
+          if (!data.isBeamContext()) {
+            coll.forEachOpenFile(this::emitWriteLineageForOpenStream);
+          }
           flushOpenFiles(true);
         }
       } catch (IOException e) {
@@ -819,6 +848,51 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     return total > 0 ? total : null;
   }
 
+  /**
+   * Columns actually written to the text file (subset when {@code outputFields} is set), not the
+   * full transform output row.
+   */
+  private FileIoContentSchema writtenFileContentSchema() {
+    List<FileIoTabularColumn> cols = new ArrayList<>();
+    if (meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()) {
+      for (TextFileField f : meta.getOutputFields()) {
+        String typeDesc = f.getTypeDesc();
+        if (data.outputRowMeta != null) {
+          IValueMeta v = data.outputRowMeta.searchValueMeta(f.getName());
+          if (v != null) {
+            typeDesc = v.getTypeDesc();
+          }
+        }
+        cols.add(
+            new FileIoTabularColumn(
+                f.getName(),
+                typeDesc,
+                f.getLength(),
+                f.getPrecision(),
+                null,
+                FileIoPathSyntax.NONE,
+                false));
+      }
+    } else if (data.outputRowMeta != null) {
+      for (int i = 0; i < data.outputRowMeta.size(); i++) {
+        IValueMeta v = data.outputRowMeta.getValueMeta(i);
+        cols.add(
+            new FileIoTabularColumn(
+                v.getName(),
+                v.getTypeDesc(),
+                v.getLength(),
+                v.getPrecision(),
+                null,
+                FileIoPathSyntax.DELIMITED,
+                false));
+      }
+    }
+    if (cols.isEmpty()) {
+      return null;
+    }
+    return new FileIoContentSchema("delimited", cols, List.of());
+  }
+
   /** Flushes the given stream and adds its written byte count to dataVolumeOut. */
   private void collectDataVolumeOut(TextFileOutputData.FileStream fs) {
     if (fs == null || !fs.isOpen()) {
@@ -840,7 +914,28 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     try {
       TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
       if (coll != null) {
-        collectDataVolumeOut(coll.getStream(filename));
+        TextFileOutputData.FileStream fs = coll.getStream(filename);
+        long written = 0L;
+        if (fs != null && fs.getFileOutputStream() instanceof CountingOutputStream cos) {
+          written = cos.getCount();
+        }
+        collectDataVolumeOut(fs);
+        if (!data.isBeamContext() && written > 0) {
+          try {
+            FileObject outFile = HopVfs.getFileObject(filename, this);
+            LineageFileIoEmitter.emitTransformFileIo(
+                this,
+                FileIoOperation.WRITE,
+                null,
+                outFile,
+                written,
+                true,
+                null,
+                writtenFileContentSchema());
+          } catch (Exception ignored) {
+            // lineage is best-effort
+          }
+        }
         coll.closeFile(filename);
       }
     } catch (Exception e) {
@@ -1005,13 +1100,44 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   protected void close() throws IOException {
-    if (!meta.getFileSettings().isServletOutput()) {
-      TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
-      if (coll != null) {
-        coll.forEachOpenStream(this::collectDataVolumeOut);
-        coll.flushOpenFiles(true);
+    TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+    if (coll != null) {
+      coll.forEachOpenStream(this::collectDataVolumeOut);
+      // Emit FILE_IO WRITE lineage for any still-open output streams before they are closed.
+      // closeFile(String) already handles rolled / split files mid-pipeline; this covers the
+      // common case of a single (or final) output file closed only at dispose time.
+      if (!data.isBeamContext()) {
+        coll.forEachOpenFile(this::emitWriteLineageForOpenStream);
       }
-      data.writer = null;
+      coll.flushOpenFiles(true);
+    }
+    data.writer = null;
+  }
+
+  private void emitWriteLineageForOpenStream(String filename, TextFileOutputData.FileStream fs) {
+    if (fs == null) {
+      return;
+    }
+    long written = 0L;
+    if (fs.getFileOutputStream() instanceof CountingOutputStream cos) {
+      written = cos.getCount();
+    }
+    if (written <= 0) {
+      return;
+    }
+    try {
+      FileObject outFile = HopVfs.getFileObject(filename, this);
+      LineageFileIoEmitter.emitTransformFileIo(
+          this,
+          FileIoOperation.WRITE,
+          null,
+          outFile,
+          written,
+          true,
+          null,
+          writtenFileContentSchema());
+    } catch (Exception ignored) {
+      // lineage is best-effort
     }
   }
 

@@ -51,7 +51,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Sort the rows in the input-streams based on certain criteria */
 public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
-
   private static final Class<?> PKG = SortRows.class;
 
   public SortRows(
@@ -255,12 +254,9 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
           if (data.compressFiles) {
             di =
                 getDataInputStream(
-                    new GZIPInputStream(
-                        new BufferedInputStream(data.fis.get(data.fis.size() - 1))));
+                    new GZIPInputStream(new BufferedInputStream(data.fis.getLast())));
           } else {
-            di =
-                new DataInputStream(
-                    new BufferedInputStream(data.fis.get(data.fis.size() - 1), 50000));
+            di = new DataInputStream(new BufferedInputStream(data.fis.getLast(), 50000));
           }
           data.dis.add(di);
 
@@ -281,7 +277,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         }
 
         // Sort the data row buffer
-        Collections.sort(data.tempRows, data.comparator);
+        data.tempRows.sort(data.comparator);
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "SortRows.Error.ErrorReadingBackTempFiles"), e);
       }
@@ -313,7 +309,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
           }
         }
 
-        RowTempFile rowTempFile = data.tempRows.remove(0);
+        RowTempFile rowTempFile = data.tempRows.removeFirst();
         retval = rowTempFile.row;
         int smallest = rowTempFile.fileNumber;
 
@@ -385,83 +381,15 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
 
   @Override
   public boolean processRow() throws HopException {
-
-    // wait for first for is available
     Object[] r = getRow();
-
-    List<SortRowsField> groupFields = null;
 
     if (first) {
       this.first = false;
 
-      // do we have any row at start processing?
-      if (r == null) {
-        // seems that we don't
-        this.setOutputDone();
+      if (processRowFirstCall(r)) {
         return false;
       }
-
-      IRowMeta inputRowMeta = getInputRowMeta();
-
-      // do we have group numbers?
-      if (meta.isGroupSortEnabled()) {
-        data.newBatch = true;
-
-        // we do set exact list instead of null
-        groupFields = meta.getGroupFields();
-        data.groupnrs = new int[groupFields.size()];
-
-        for (int i = 0; i < data.groupnrs.length; i++) {}
-
-        for (int i = 0; i < groupFields.size(); i++) {
-          data.groupnrs[i] = inputRowMeta.indexOfValue(groupFields.get(i).getFieldName());
-          if (data.groupnrs[i] < 0) {
-            logError(
-                BaseMessages.getString(
-                    PKG, "SortRows.Error.PresortedFieldNotFound", groupFields.get(i)));
-            setErrors(1);
-            stopAll();
-            return false;
-          }
-        }
-      }
-
-      String[] fieldNames = new String[meta.getSortFields().size()];
-      for (int i = 0; i < fieldNames.length; i++) {
-        fieldNames[i] = meta.getSortFields().get(i).getFieldName();
-      }
-      data.fieldnrs = new int[fieldNames.length];
-      List<Integer> toConvert = new ArrayList<>();
-
-      // Metadata
-      data.outputRowMeta = inputRowMeta.clone();
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-      data.comparator = new RowTemapFileComparator(data.outputRowMeta, data.fieldnrs);
-
-      for (int i = 0; i < meta.getSortFields().size(); i++) {
-        data.fieldnrs[i] = inputRowMeta.indexOfValue(meta.getSortFields().get(i).getFieldName());
-        if (data.fieldnrs[i] < 0) {
-          throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  "SortRowsMeta.CheckResult.TransformFieldNotInInputStream",
-                  meta.getSortFields().get(i).getFieldName(),
-                  getTransformName()));
-        }
-        // do we need binary conversion for this type?
-        if (inputRowMeta.getValueMeta(data.fieldnrs[i]).isStorageBinaryString()) {
-          toConvert.add(data.fieldnrs[i]);
-        }
-      }
-
-      data.convertKeysToNative = toConvert.isEmpty() ? null : new int[toConvert.size()];
-      int i = 0;
-      for (Integer in : toConvert) {
-        data.convertKeysToNative[i] = in;
-        i++;
-      }
-      data.rowComparator = new RowObjectArrayComparator(data.outputRowMeta, data.fieldnrs);
-    } // end if first
+    }
 
     // it is not first row and it is null
     if (r == null) {
@@ -472,42 +400,60 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       return false;
     }
 
-    // if Group Sort is not enabled then do the normal sort.
-    if (!meta.isGroupSortEnabled()) {
-      this.addBuffer(getInputRowMeta(), r);
-    } else {
-      // Otherwise do grouping sort
-      if (data.newBatch) {
-        data.newBatch = false;
-        setPrevious(r);
-        // this enables Sort stuff to initialize it's state.
-        this.addBuffer(getInputRowMeta(), r);
-      } else {
-        if (this.sameGroup(data.previous, r)) {
-          // setPrevious( r ); // we are not need to set it every time
-
-          // this performs SortRows normal row collection functionality.
-          this.addBuffer(getInputRowMeta(), r);
-        } else {
-          this.preSortBeforeFlush();
-
-          // flush sorted block to next transform:
-          this.passBuffer();
-
-          // new sorted block beginning
-          setPrevious(r);
-          data.newBatch = true;
-
-          this.addBuffer(getInputRowMeta(), r);
-        }
-      }
-    }
+    // Add the row to the buffer in memory.
+    // Serialize to disk if too many rows are in memory.
+    //
+    this.addBuffer(getInputRowMeta(), r);
 
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead());
     }
 
     return true;
+  }
+
+  private boolean processRowFirstCall(Object[] r) throws HopException {
+    // do we have any row at start processing?
+    if (r == null) {
+      // seems that we don't
+      this.setOutputDone();
+      return true;
+    }
+
+    IRowMeta inputRowMeta = getInputRowMeta();
+
+    data.fieldnrs = new int[meta.getSortFields().size()];
+    List<Integer> toConvert = new ArrayList<>();
+
+    // Metadata
+    data.outputRowMeta = inputRowMeta.clone();
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+    data.comparator = new RowTemapFileComparator(data.outputRowMeta, data.fieldnrs);
+
+    for (int i = 0; i < meta.getSortFields().size(); i++) {
+      data.fieldnrs[i] = inputRowMeta.indexOfValue(meta.getSortFields().get(i).getFieldName());
+      if (data.fieldnrs[i] < 0) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG,
+                "SortRowsMeta.CheckResult.TransformFieldNotInInputStream",
+                meta.getSortFields().get(i).getFieldName(),
+                getTransformName()));
+      }
+      // do we need binary conversion for this type?
+      if (inputRowMeta.getValueMeta(data.fieldnrs[i]).isStorageBinaryString()) {
+        toConvert.add(data.fieldnrs[i]);
+      }
+    }
+
+    data.convertKeysToNative = toConvert.isEmpty() ? null : new int[toConvert.size()];
+    int i = 0;
+    for (Integer in : toConvert) {
+      data.convertKeysToNative[i] = in;
+      i++;
+    }
+    data.rowComparator = new RowObjectArrayComparator(data.outputRowMeta, data.fieldnrs);
+    return false;
   }
 
   /**
@@ -639,7 +585,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
   /** Sort the entire vector, if it is not empty. */
   void quickSort(List<Object[]> elements) {
     if (CollectionUtils.isNotEmpty(elements)) {
-      Collections.sort(elements, data.rowComparator);
+      elements.sort(data.rowComparator);
 
       long nrConversions = 0L;
       for (IValueMeta valueMeta : data.outputRowMeta.getValueMetaList()) {
@@ -652,11 +598,6 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
                 PKG, "SortRows.Detailed.ReportNumberOfBinaryStringConv", nrConversions));
       }
     }
-  }
-
-  @Override
-  public void startBundle() throws HopException {
-    // Do nothing
   }
 
   /**
@@ -691,24 +632,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     }
   }
 
-  /*
-   * Group Fields Implementation heroic
-   */
-  // Is the row r of the same group as previous?
-  private boolean sameGroup(Object[] previous, Object[] r) throws HopValueException {
-    if (r == null) {
-      return false;
-    }
-    return getInputRowMeta().compare(previous, r, data.groupnrs) == 0;
-  }
-
-  private void setPrevious(Object[] r) throws HopException {
-    if (r != null) {
-      this.data.previous = getInputRowMeta().cloneRow(r);
-    }
-  }
-
-  private class SortRowsComparator {
+  private static class SortRowsComparator {
     protected IRowMeta rowMeta;
     protected int[] fieldNrs;
 

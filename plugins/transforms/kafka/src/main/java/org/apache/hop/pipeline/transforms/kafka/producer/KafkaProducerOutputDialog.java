@@ -19,9 +19,7 @@ package org.apache.hop.pipeline.transforms.kafka.producer;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopTransformException;
@@ -32,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaDialogHelper;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -51,7 +50,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -67,9 +65,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
       "KafkaProducerOutputDialog.FieldNotExists.Title";
 
   private final KafkaFactory kafkaFactory = KafkaFactory.defaultFactory();
-
-  private static final int SHELL_MIN_WIDTH = 527;
-  private static final int SHELL_MIN_HEIGHT = 569;
 
   private final KafkaProducerOutputMeta meta;
   private ModifyListener lsMod;
@@ -100,8 +95,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
 
     changed = meta.hasChanged();
     lsMod = e -> meta.setChanged();
-
-    Control lastControl = wSpacer;
 
     // Start of tabbed display
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
@@ -292,16 +285,14 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
   private void buildOptionsTable(Composite parentWidget) {
     ColumnInfo[] columns = getOptionsColumns();
 
-    if (meta.getConfig().isEmpty()) {
+    if (meta.getOptions().isEmpty()) {
       // initial call
       List<String> list = KafkaDialogHelper.getProducerAdvancedConfigOptionNames();
-      Map<String, String> advancedConfig = new LinkedHashMap<>();
       for (String item : list) {
-        advancedConfig.put(item, DEFAULT_OPTION_VALUES.getOrDefault(item, ""));
+        meta.getOptions().add(new KafkaOption(item, DEFAULT_OPTION_VALUES.getOrDefault(item, "")));
       }
-      meta.setConfig(advancedConfig);
     }
-    int fieldCount = meta.getConfig().size();
+    int fieldCount = meta.getOptions().size();
 
     optionsTable =
         new TableView(
@@ -359,10 +350,10 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
 
   private void populateOptionsData() {
     int rowIndex = 0;
-    for (Map.Entry<String, String> entry : meta.getConfig().entrySet()) {
+    for (KafkaOption option : meta.getOptions()) {
       TableItem key = optionsTable.getTable().getItem(rowIndex++);
-      key.setText(1, entry.getKey());
-      key.setText(2, entry.getValue());
+      key.setText(1, Const.NVL(option.getProperty(), ""));
+      key.setText(2, Const.NVL(option.getValue(), ""));
     }
     optionsTable.optimizeTableView();
   }
@@ -377,7 +368,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     populateOptionsData();
   }
 
-  private boolean checkIfFieldExists(String fieldName) {
+  private boolean checkMissingField(String fieldName) {
     boolean fieldFound = false;
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
@@ -395,7 +386,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
           BaseMessages.getString(PKG, "KafkaProducerOutputDialog.FailedToGetFields.DialogMessage"),
           ke);
     }
-    return fieldFound;
+    return !fieldFound;
   }
 
   private void cancel() {
@@ -419,7 +410,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     meta.setDirectBootstrapServers(wBootstrapServers.getText());
     meta.setClientId(wClientId.getText());
     meta.setTopic(wTopic.getText());
-    if (!Utils.isEmpty(wKeyField.getText()) && !checkIfFieldExists(wKeyField.getText())) {
+    if (!Utils.isEmpty(wKeyField.getText()) && checkMissingField(wKeyField.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
@@ -441,7 +432,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
       return;
     }
 
-    if (!checkIfFieldExists(wMessageField.getText())) {
+    if (checkMissingField(wMessageField.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
@@ -455,7 +446,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     }
 
     meta.setMessageField(wMessageField.getText());
-    meta.setConfig(KafkaDialogHelper.getConfig(optionsTable));
+    meta.setOptions(KafkaDialogHelper.getConfig(optionsTable));
 
     transformName = wTransformName.getText();
 

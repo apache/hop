@@ -19,6 +19,7 @@ package org.apache.hop.neo4j.core.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -66,7 +67,7 @@ public class GraphData {
     // Same number of nodes, same number of relationships,
     // Same node IDs, same properties
     // TODO:
-    throw new RuntimeException("equals() not yet implemented on GraphData");
+    throw new HopRuntimeException("equals() not yet implemented on GraphData");
   }
 
   public GraphData(GraphData source) {

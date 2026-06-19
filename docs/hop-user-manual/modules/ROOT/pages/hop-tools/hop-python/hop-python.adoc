@@ -1,0 +1,565 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+:description: Program Hop pipelines and workflows in Python
+
+:TOC:
+
+= Hop Python
+
+== Introduction
+
+Using the https://www.py4j.org[Py4J] library we can bridge the world of Java and Python.  It's one of the key components behind the popular https://spark.apache.org/docs/latest/api/python/index.html[PySpark] project.
+
+== Goals
+
+The goal is to expose Python scripting to the art of building Hop metadata, allowing for very dynamic scenarios that go way beyond techniques like xref:pipeline/metadata-injection.adoc[metadata injection].
+
+== Running the gateway
+
+The Hop Python Gateway is a small server that communicates with your python scripts.
+
+=== Running Hop Python
+
+To use the Hop Python integration, run the following `hop` command:
+
+[source,bash]
+----
+$ sh hop python
+2026/04/03 21:03:48 - HopPython - The Hop Python Gateway server was started on 127.0.0.1:25333
+----
+
+=== Usage
+
+[source,bash]
+----
+$ sh hop python --help
+Usage: hop python [-hV] [-e=<environmentOption>]
+                  [--gateway-ip-address=<gatewayAddress>]
+                  [--gateway-port=<gatewayPort>]
+                  [--gateway-stop-password=<stopPassword>]
+                  [--gateway-token=<gatewayToken>] [-j=<projectOption>]
+Run the Hop Python gateway (py4j)
+  -e, --environment=<environmentOption>
+                  The name of the lifecycle environment to use
+      --gateway-ip-address=<gatewayAddress>
+                  The server on which to run the Hop Python (py4j) gateway
+                    service.  The default is 127.0.0.1 (localhost).  Use
+                    0.0.0.0 to make the service widely available.
+      --gateway-port=<gatewayPort>
+                  The port on which to run the Hop Python (py4j) gateway
+                    service.  The default port is 25333.
+      --gateway-stop-password=<stopPassword>
+                  If you specify this password it can be used when halting the
+                    server in a Python script.  Without a password the server
+                    can not be stopped this way.
+      --gateway-token=<gatewayToken>
+                  Only allow connections to the Hop Python (py4j) gateway that
+                    provide this token
+  -h, --help      Show this help message and exit.
+  -j, --project=<projectOption>
+                  The name of the project to use
+  -V, --version   Print version information and exit.
+----
+
+=== Ports and addresses
+
+To run the gateway on different ports or make it available on different IP addresses, you can use these options:
+
+
+|===
+|Option |Description
+
+|`--gateway-port`
+|The port on which to run the Hop Python (py4j) gateway service.  The default port is 25333.
+
+|`--gateway-ip-address`
+|The IP address on which to run the Hop Python (py4j) gateway service.  The default is `127.0.0.1` (localhost).  Use `0.0.0.0` to make the service widely available.
+
+|`--gateway-token`
+|Only allow connections to the Hop Python (py4j) gateway that provide this token.
+
+|`--gateway-stop-password`
+|If you specify this password it can be used when stopping the server xref:hop-tools/hop-python/hop-python.adoc#_stopping_the_server[in a Python script].  Without a password the server can't be stopped this way.
+
+|===
+
+
+=== Projects and environments
+
+You can also enable a project or environment in your Python Gateway server:
+
+[source,bash]
+----
+$ sh hop python -j demo
+2026/04/04 16:39:48 - HopPython - Enabling project 'demo'
+2026/04/04 16:39:48 - HopPython - The Hop Python Gateway server was started on 127.0.0.1:25333
+----
+
+This sets variables like `PROJECT_HOME`, enables environment configurations, makes available metadata objects and data sets, right in your Python scripts.
+
+
+
+
+NOTE: This will run until you hit CTRL-C and stop the gateway server.
+
+== Setting up Python3
+
+=== Installation
+
+Install virtual environments support for Python3:
+
+[source,bash]
+----
+sudo apt install virtualenv python3-virtualenv -y
+----
+
+Create a new virtual environment as a new project called `project1`
+
+[source,bash]
+----
+$ virtualenv -p /usr/bin/python3 project1
+----
+
+Activate the `project1` environment:
+
+[source,bash]
+----
+$ source project1/bin/activate
+----
+
+Install Py4j in this `project1` environment:
+
+[source,bash]
+----
+$ (project1) $ pip3 install py4j
+----
+
+=== Getting started with PyHop
+
+First we import the Py4J Java gateway package and get the `PyHop` object in the `hop` variable:
+
+[source,python]
+----
+from py4j.java_gateway import JavaGateway
+gateway = JavaGateway()
+hop = gateway.entry_point.getPyHop()
+----
+
+=== Connecting to another host or port
+
+You can create gateway parameters if you deviate from the default port (25333) or hostname (127.0.0.1)
+
+[source,python]
+----
+from py4j.java_gateway import JavaGateway, GatewayParameters
+gateway_params = GatewayParameters(address='192.168.1.50', port=25333)
+gateway = JavaGateway(gateway_parameters=gateway_params)
+----
+
+=== Connecting with a token
+
+If you started the Hop Python server with a token, you need to specify it in your script:
+
+[source,python]
+----
+from py4j.java_gateway import JavaGateway, GatewayParameters
+params = GatewayParameters(auth_token="YourToken")
+gateway = JavaGateway(gateway_parameters=params)
+----
+
+
+== The basics
+
+=== Building a pipeline
+
+Create a new Hop pipeline:
+
+[source,python]
+----
+p = hop.newPipelineMeta()
+p.setName("pipeline1")
+----
+
+Create 2 new transforms and a hop in between:
+
+[source,python]
+----
+t1=hop.newTransformMeta("t1", "CSVInput")
+p.addTransform(t1)
+
+t2 = hop.newTransformMeta("t2", "Dummy")
+p.addTransform(t2)
+
+h12 = hop.newPipelineHopMeta(t1, t2)
+p.addPipelineHop(h12)
+----
+
+As you can see you need to select the plugin ID as the second parameter when asking for a new transform.  You can browse the IDs in the Plugin perspective under the `Transform` plugin type or use `print(hop.describeAvailableTransformPlugins())`
+
+Configure the CSV Input transform:
+
+[source,python]
+----
+csv = t1.getTransform()
+csv.setFilename('myfile.csv')
+csv.setHeaderPresent(True)
+csv.setEnclosure('"')
+csv.setDelimiter(',')
+csv.setEncoding('UTF-8')
+csv.setSchemaDefinition('myfile-schema')
+----
+
+Create a new field in case we don't have a schema:
+
+[source,python]
+----
+f1 = csv.newInputField()
+f1.setName("id")
+f1.setTypeWithString("Integer")
+f1.setFormat("00#")
+f1.setLength(7)
+
+csv.getInputFields().add(f1)
+----
+
+== Pipeline API
+
+Here are the methods for working with pipelines:
+
+
+|===
+|Method |Description |Returns
+
+|`loadPipelineMeta(String filename)`
+|Load the pipeline with given filename. Variables in the name are resolved.
+|`PipelineMeta`
+
+|`newPipelineMeta()`
+|Create a new pipeline metadata object
+|`PipelineMeta`
+
+|`describeAvailableTransformPlugins()`
+|Describe the available transform plugins
+|`String`
+
+|`newTransformMeta(String name, String pluginId)`
+|Create a new transform metadata object with the given name and plugin ID
+|`TransformMeta`
+
+|`newPipelineHopMeta(TransformMeta from, TransformMeta to)`
+|Create a new pipeline hop between two transforms
+|`PipelineHopMeta`
+
+|`newPipelineEngine(
+PipelineMeta pipelineMeta, String runConfiguration, String logLevelDescription)`
+|Create a new pipeline engine. You can execute your pipeline with it.
+|`IPipelineEngine`
+
+|===
+
+
+== Workflow API
+
+Building, loading, and executing workflows is similar to those for pipelines:
+
+|===
+|Method |Description |Returns
+
+|`loadWorkflowMeta(String filename)`
+|Load workflow metadata from a file. The filename can contain variable expressions.
+|`WorkflowMeta`
+
+|`newWorkflowMeta()`
+|Create a new workflow metadata object. It does not contain a START action.
+|`WorkflowMeta`
+
+|`describeAvailableActionPlugins()`
+|Describe the available action plugins
+|`String`
+
+|`newActionMeta(String name, String pluginId)`
+|Create a new action metadata object
+|`ActionMeta`
+
+|`newWorkflowHopMeta(ActionMeta from, ActionMeta to)`
+|Create a new workflow hop between two actions.
+|`WorkflowHopMeta`
+
+|`newWorkflowEngine(
+WorkflowMeta workflowMeta, String runConfiguration, String logLevelDescription)`
+|Create a new workflow engine. You can execute your workflow with it.
+|`IWorkflowEngine`
+
+|===
+
+The command to start the execution of your workflow is:
+
+[source, python]
+----
+result = workflowEngine.startExecution()
+----
+
+== Metadata
+
+You have access to the metadata in your project through a few simple methods:
+
+=== Describe available metadata plugins
+
+To get a list of all the available metadata plugins you can use the Plugins Perspective in the Hop GUI (select the `Metadata` plugin type).  Alternatively you can use:
+
+[source, python]
+----
+print(hop.describeAvailableMetadataPlugins())
+----
+
+=== Get a metadata serializer
+
+You can get a serializer with which you can perform CRUD operations with elements with the following command:
+
+[source, python]
+----
+dbSerializer = hop.getMetadataSerializer("rdbms")
+dwh = dbSerializer.load("DWH")
+----
+
+If you want to get fancy and work with all the metadata plugin keys, you can use method `listMetadataKeys()` which gives you an array of strings.Likewise, you can get a list of database element names as an array with `listMetadataElements("rdbms")`
+
+=== Creating new metadata elements
+
+To create new metadata elements we have a method for you:
+
+[source, python]
+----
+newDb = hop.newMetadataElement("rdbms")
+----
+
+=== Load a metadata element
+
+[source, python]
+----
+dwh = hop.loadMetadataElement("rdbms", "dwh")
+----
+
+=== Save or update a  metadata element
+
+[source, python]
+----
+hop.saveMetadataElement(dwh)
+----
+
+== Advanced
+
+=== Creating objects in a plugin classpath
+
+Sometimes you want to create objects that are defined in and part of an installed plugin classpath. The Hop Python Gateway server doesn't automatically have access to all classes in the Hop project.
+
+This makes the following NOT WORK:
+
+[source,python]
+----
+field = gateway.jvm.org.apache.hop.pipeline.transforms.csvinput.CsvInputField()
+----
+
+This doesn't work because the plugin has its own separate class loader isolated from the rest of Hop and the other plugins.
+
+To create new objects in the classpath of a plugin, you can use the following method to create a new input field for the CSV Input transform using the `CsvInputMeta` class:
+
+[source,python]
+----
+# Recap from the example above:
+#
+from py4j.java_gateway import JavaGateway
+hop = JavaGateway().entry_point.getPyHop()
+t=hop.newTransform("t1", "CSVInput")
+csv = t.getTransform()
+
+# Create a new CSV Input Field:
+#
+field = hop.newTransformObject(csv, "org.apache.hop.pipeline.transforms.csvinput.CsvInputField")
+----
+
+[#_stopping_the_server]
+=== Stopping the server
+
+If you're writing tests in Python and don't need the server anymore, you can stop it using:
+
+[source,python]
+----
+hop.stopServer("your-stop-password")
+----
+
+The stop server password can be specified as an option during startup of the server.
+
+
+== Examples
+
+=== Create a pipeline from scratch and run it
+
+The example below creates a new pipeline and adds 2 transforms to it:
+
+* A row generator that will generate 100M rows
+* A Dummy to consume the rows
+
+Then the example executes the pipeline, prints the log and evaluates the result.
+
+.The example
+[%collapsible]
+====
+[source,python]
+----
+import sys
+import xml.dom.minidom
+
+from py4j.java_gateway import JavaGateway
+
+gateway = JavaGateway()
+hop = gateway.entry_point.getPyHop()
+vars = hop.getVariables()
+
+# Build the pipeline metadata.
+# We simply want to generate 100M empty rows and send them to a dummy transform.
+#
+pipelineMeta = hop.newPipelineMeta()
+pipelineMeta.setName("generate-rows-test")
+
+generate = hop.newTransformMeta("generate", "RowGenerator")
+generateTransform = generate.getTransform()
+generateTransform.setRowLimit("100000000")
+
+dummy = hop.newTransformMeta("dummy", "Dummy")
+
+pipelineMeta.addTransform(generate)
+pipelineMeta.addTransform(dummy)
+pipelineMeta.addPipelineHop(hop.newPipelineHopMeta(generate, dummy))
+
+# Now we can execute this pipeline.
+# The "local" pipeline run configuration is picked up from the project metadata.
+# This project is specified with the "--project" option when you run "hop python".
+#
+pipeline = hop.newPipelineEngine(pipelineMeta, "local", "Basic")
+
+# Execute this pipeline
+#
+pipeline.execute()
+print("Execution of the pipeline has started.")
+
+# Get the status of the engine
+#
+print("Status: "+pipeline.getStatusDescription())
+
+# Wait until it's finished
+#
+pipeline.waitUntilFinished()
+
+# Evaluate the result of the pip# Get the logging from this execution
+#
+pipelineLog = hop.getLogging(pipeline.getLogChannelId())
+print("The logging of the pipeline:")
+print("----------------------------")
+print(pipelineLog)
+
+# Get the logging of a specific transform copy.
+#
+generateLog = hop.getLogging( pipeline.getTransform("generate", 0).getLogChannelId() )
+print("The logging of transform 'generate':")
+print("-------------------------------------")
+print(generateLog)
+
+# Evaluate the result of the pipeline.
+# This object contains result rows, result files, metrics, and so on.
+#
+result = pipeline.getResult()
+
+# Were there errors?
+#
+if result.getNrErrors() != 0:
+  print("Pipeline had errors!")
+
+----
+====
+
+
+=== Read rows from a data stream
+
+If you have a pipeline that generates data and you want to read from it in Python, you can do so by using a data stream for the inter-process communication (IPC). In this example we're using the xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow file stream] data stream type to pass data from Hop to Python.
+
+NOTE: You'll notice in the script that we wait until the pipeline has finished. It is possible to read batches of data from a stream file, just not the whole file as described in the example.  An alternative is to use an xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow Flight] data stream type.
+
+.The example
+[%collapsible]
+====
+[source,python]
+----
+import os
+import sys
+import time
+import xml.dom.minidom
+import pyarrow as pa
+import pyarrow.ipc as ipc
+
+from py4j.java_gateway import JavaGateway
+gateway = JavaGateway()
+hop = gateway.entry_point.getPyHop()
+vars = hop.getVariables()
+
+# Load the pipeline metadata to stream rows to a file
+#
+pipelineMeta = hop.loadPipelineMeta('${PROJECT_HOME}/data-stream-output.hpl')
+
+# Execute this pipeline
+#
+pipeline = hop.newPipelineEngine(pipelineMeta, "local", "Basic")
+
+pipeline.execute()
+
+print("Pipeline started: "+pipelineMeta.getName())
+
+# While the data streaming is done, the pipeline could be doing other things.
+# Because of that we wait until the pipeline is done.
+
+pipeline.waitUntilFinished()
+
+print("Pipeline finished: "+pipelineMeta.getName())
+
+# We use the same variable in the Hop environment as here:
+#
+file_path = vars.resolve("${STREAM_FILENAME}")
+
+print("Reading from stream file: "+file_path);
+
+# Open the data stream and read from it
+#
+with pa.memory_map(file_path, 'r') as source:
+    reader = ipc.open_stream(source)
+
+    schema = reader.schema
+    print("Schema:", schema)
+
+    # Read everything into one Table (simple & efficient for most cases)
+    table = pa.Table.from_batches(reader)
+    print(f"Total rows: {len(table)}")
+
+    # Convert to pandas (or Polars) if needed
+    df = table.to_pandas()
+
+    df = df.reset_index()
+
+    print(df.to_csv())
+----
+====
+

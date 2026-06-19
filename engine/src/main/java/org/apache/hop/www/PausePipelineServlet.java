@@ -72,11 +72,11 @@ public class PausePipelineServlet extends BaseHttpServlet implements IHopServerP
     try {
       if (useXML) {
         response.setContentType("text/xml");
-        response.setCharacterEncoding(Const.XML_ENCODING);
-        out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+        response.setCharacterEncoding(Const.UTF_8);
+        out.print(XmlHandler.getXmlHeader(Const.UTF_8));
       } else if (useJson) {
         response.setContentType("application/json");
-        response.setCharacterEncoding(Const.XML_ENCODING);
+        response.setCharacterEncoding(Const.UTF_8);
       } else {
         response.setContentType("text/html;charset=UTF-8");
         out.println("<HTML>");

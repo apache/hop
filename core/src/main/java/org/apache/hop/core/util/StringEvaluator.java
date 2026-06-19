@@ -29,9 +29,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -576,7 +577,7 @@ public class StringEvaluator {
         meta.setPrecision(precision);
         return new StringEvaluationResult(meta);
       } catch (HopPluginException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to create a new value '" + name + "' of type '" + type + "'", e);
       }
     }

@@ -41,7 +41,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -51,6 +51,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -219,7 +220,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
             getMetadataProvider().getSerializer(MailServerConnection.class).load(connectionName);
         session = connection.getSession(getVariables() /*, getLogChannel()*/);
       } catch (HopException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Mail server connection '" + connectionName + "' could not be found", e);
       }
     } else {

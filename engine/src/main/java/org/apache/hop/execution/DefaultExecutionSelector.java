@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
 public record DefaultExecutionSelector(
@@ -64,6 +64,16 @@ public record DefaultExecutionSelector(
   }
 
   public boolean isSelected(ExecutionState executionState) {
+    // An exact execution-ID match (a UUID) overrides every state-based filter.
+    // The selection was already decided in isSelected(Execution).
+    //
+    if (isSelectingByUuid()) {
+      return true;
+    }
+    if (executionState == null) {
+      // Without a state we can't evaluate the state-based filters below.
+      return false;
+    }
     if (isSelectingParents && StringUtils.isNotEmpty(executionState.getParentId())) {
       return false;
     }

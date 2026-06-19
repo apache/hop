@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -107,7 +107,6 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
   }
 
   default void getFields(final TransformMetaType meta) {
-
     final String[] incomingFieldNames = getFieldNames(meta);
     final List<String> newFieldNames = getNewFieldNames(incomingFieldNames);
 

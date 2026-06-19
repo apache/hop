@@ -21,7 +21,7 @@ import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.hop.core.Const;
 
 /**
@@ -59,6 +59,9 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
   private boolean usingLibrariesOutsidePluginFolder;
 
   private boolean includeJdbcDrivers;
+
+  private String[] supportedEngines = new String[0];
+  private String[] excludedEngines = new String[0];
 
   public Plugin(
       String[] ids,
@@ -627,5 +630,25 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
 
   public void setIncludeJdbcDrivers(boolean includeJdbcDrivers) {
     this.includeJdbcDrivers = includeJdbcDrivers;
+  }
+
+  @Override
+  public String[] getSupportedEngines() {
+    return supportedEngines;
+  }
+
+  @Override
+  public void setSupportedEngines(String[] supportedEngines) {
+    this.supportedEngines = supportedEngines == null ? new String[0] : supportedEngines;
+  }
+
+  @Override
+  public String[] getExcludedEngines() {
+    return excludedEngines;
+  }
+
+  @Override
+  public void setExcludedEngines(String[] excludedEngines) {
+    this.excludedEngines = excludedEngines == null ? new String[0] : excludedEngines;
   }
 }

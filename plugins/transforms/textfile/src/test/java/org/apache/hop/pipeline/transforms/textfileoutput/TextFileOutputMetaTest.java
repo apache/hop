@@ -32,7 +32,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -75,7 +76,6 @@ class TextFileOutputMetaTest {
         "fileNameField",
         "create_parent_folder",
         "fileName",
-        "servlet_output",
         "do_not_open_new_file_init",
         "extention",
         "append",
@@ -110,7 +110,6 @@ class TextFileOutputMetaTest {
     getterMap.put("fileNameField", "getFileNameField");
     getterMap.put("create_parent_folder", "isCreateParentFolder");
     getterMap.put("fileName", "getFileName");
-    getterMap.put("servlet_output", "isServletOutput");
     getterMap.put("do_not_open_new_file_init", "isDoNotOpenNewFileInit");
     getterMap.put("extention", "getExtension");
     getterMap.put("append", "isFileAppended");
@@ -146,7 +145,6 @@ class TextFileOutputMetaTest {
     setterMap.put("fileNameField", "setFileNameField");
     setterMap.put("create_parent_folder", "setCreateParentFolder");
     setterMap.put("fileName", "setFileName");
-    setterMap.put("servlet_output", "setServletOutput");
     setterMap.put("do_not_open_new_file_init", "setDoNotOpenNewFileInit");
     setterMap.put("extention", "setExtension");
     setterMap.put("append", "setFileAppended");
@@ -218,7 +216,7 @@ class TextFileOutputMetaTest {
     assertTrue(meta.isFooterEnabled());
     assertEquals("UNIX", meta.getFileFormat());
     assertEquals("Snappy", meta.getFileCompression());
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
     assertTrue(StringUtils.isEmpty(meta.getEndedLine()));
     assertTrue(meta.isFileNameInField());
     assertEquals("filenameField", meta.getFileNameField());
@@ -226,7 +224,6 @@ class TextFileOutputMetaTest {
 
     assertNotNull(meta.getFileSettings());
     assertEquals("filename.txt", meta.getFileSettings().getFileName());
-    assertFalse(meta.getFileSettings().isServletOutput());
     assertTrue(meta.getFileSettings().isDoNotOpenNewFileInit());
     assertEquals("txt", meta.getFileSettings().getExtension());
     assertTrue(meta.getFileSettings().isFileAppended());

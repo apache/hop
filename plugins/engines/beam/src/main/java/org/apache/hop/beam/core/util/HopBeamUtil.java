@@ -29,37 +29,40 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class HopBeamUtil {
+  private HopBeamUtil() {
+    // To not be used by accident
+  }
 
-  public static final String createTargetTupleId(String transformName, String targetTransformName) {
+  public static String createTargetTupleId(String transformName, String targetTransformName) {
     return transformName + " - TARGET - " + targetTransformName;
   }
 
-  public static final String createMainOutputTupleId(String transformName) {
+  public static String createMainOutputTupleId(String transformName) {
     return transformName + " - OUTPUT";
   }
 
-  public static final String createInfoTupleId(String transformName, String infoTransformName) {
+  public static String createInfoTupleId(String transformName, String infoTransformName) {
     return infoTransformName + " - INFO - " + transformName;
   }
 
-  public static final String createMainInputTupleId(String transformName) {
+  public static String createMainInputTupleId(String transformName) {
     return transformName + " - INPUT";
   }
 
   /**
    * Create a copy but don't over allocate objects in the target row.
    *
-   * @param hopRow
-   * @param rowMeta
-   * @return
+   * @param hopRow The HopRow to copy
+   * @param rowMeta The row metadata to copy use
+   * @return A copy of the HopRow given
    */
-  public static final HopRow copyHopRow(HopRow hopRow, IRowMeta rowMeta) {
+  public static HopRow copyHopRow(HopRow hopRow, IRowMeta rowMeta) {
     Object[] newRow = new Object[rowMeta.size()];
     System.arraycopy(hopRow.getRow(), 0, newRow, 0, rowMeta.size());
     return new HopRow(newRow);
   }
 
-  private static Object object = new Object();
+  private static final Object object = new Object();
 
   public static void loadTransformMetadataFromXml(
       String transformName,

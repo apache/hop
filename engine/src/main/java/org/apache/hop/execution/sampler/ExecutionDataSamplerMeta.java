@@ -18,7 +18,7 @@
 
 package org.apache.hop.execution.sampler;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Extra metadata about the data sampler being used */
 public class ExecutionDataSamplerMeta {

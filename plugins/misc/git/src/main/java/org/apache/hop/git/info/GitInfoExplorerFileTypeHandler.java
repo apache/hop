@@ -26,13 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.git.GitGuiPlugin;
@@ -840,7 +841,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
             LogChannel.UI.logError("Error getting changed file in revision " + revisionId, e);
           }
         } catch (Exception e) {
-          throw new RuntimeException(e);
+          throw new HopRuntimeException(e);
         }
       }
     }

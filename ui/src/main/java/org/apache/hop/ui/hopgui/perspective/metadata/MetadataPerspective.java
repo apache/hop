@@ -232,6 +232,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         .addEventListener(
             getClass().getName(), e -> refresh(), HopGuiEvents.MetadataChanged.name());
 
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName() + "ProjectActivated",
+            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            HopGuiEvents.ProjectActivated.name());
+
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
@@ -561,7 +568,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
             closeTab(event, tabItem);
           }
         });
-    tabFolder.addListener(SWT.Selection, event -> updateGui());
+    tabFolder.addListener(
+        SWT.Selection,
+        event -> {
+          MetadataEditor<?> active = getActiveEditor();
+          if (active != null) {
+            active.refreshOnDialogActivate();
+          }
+          updateGui();
+        });
     PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
@@ -917,20 +932,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   /**
-   * If the metadata type supports global replace, finds references to oldName in pipeline/workflow
-   * files, optionally shows the update dialog, and replaces references with newName. Reloads open
-   * tabs for modified files. Call this when a metadata element is renamed (from tree or from
-   * editor).
-   *
-   * @param objectKey metadata type key (e.g. "rdbms", "restconnection")
-   * @param oldName the name before rename
-   * @param newName the name after rename
-   */
-  /**
    * Finds references to {@code oldName} in pipelines/workflows and other metadata, asks the user to
    * update them, and performs the replacement. Returns {@code true} if the operation completed (or
    * there was nothing to do), {@code false} if the user cancelled a save-changes dialog and the
    * caller should abort its own operation too.
+   *
+   * @param objectKey metadata type key (e.g. "rdbms", "reconnection")
+   * @param oldName the name before rename
+   * @param newName the name after rename
    */
   public boolean performGlobalReplaceIfSupported(String objectKey, String oldName, String newName)
       throws HopException {
@@ -954,8 +963,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       return true;
     }
     List<String> searchRoots = new ArrayList<>();
-    String projectHome = hopGui.getVariables().resolve("${PROJECT_HOME}");
-    if (Utils.isEmpty(projectHome) || "${PROJECT_HOME}".equals(projectHome)) {
+    String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
+    if (Utils.isEmpty(projectHome) || Const.VAR_PROJECT_HOME.equals(projectHome)) {
       return true;
     }
     searchRoots.add(projectHome);
@@ -1370,10 +1379,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     try {
       // Check for references in pipelines/workflows and other metadata objects
       MetadataReferenceFinder finder = new MetadataReferenceFinder(hopGui.getMetadataProvider());
-      String projectHome = hopGui.getVariables().resolve("${PROJECT_HOME}");
+      String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
       List<MetadataReferenceResult> fileRefs = Collections.emptyList();
       if (MetadataRefactorUtil.supportsGlobalReplace(hopGui.getMetadataProvider(), objectKey)) {
-        if (!Utils.isEmpty(projectHome) && !"${PROJECT_HOME}".equals(projectHome)) {
+        if (!Utils.isEmpty(projectHome) && !Const.VAR_PROJECT_HOME.equals(projectHome)) {
           fileRefs = finder.findReferences(objectKey, objectName, List.of(projectHome));
         }
       }
@@ -1432,7 +1441,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   private static String toDisplayPath(String path, String projectHome) {
     if (!Utils.isEmpty(projectHome) && path.startsWith(projectHome)) {
       String rel = path.substring(projectHome.length());
-      return "${PROJECT_HOME}" + (rel.startsWith("/") ? rel : "/" + rel);
+      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : "/" + rel);
     }
     return path;
   }
@@ -1821,6 +1830,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   /** Filter the tree based on search text */
+  @Override
+  public void clearSearchFilters() {
+    if (searchText != null && !searchText.isDisposed()) {
+      searchText.setText("");
+    } else {
+      currentSearchFilter = "";
+    }
+  }
+
   protected void filterTree() {
     if (searchText == null || searchText.isDisposed()) {
       return;

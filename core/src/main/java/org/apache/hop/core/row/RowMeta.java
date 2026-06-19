@@ -46,6 +46,7 @@ import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -115,7 +116,7 @@ public class RowMeta implements IRowMeta {
     try {
       return new RowMeta(this, null);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     } finally {
       lock.readLock().unlock();
     }
@@ -230,6 +231,29 @@ public class RowMeta implements IRowMeta {
   }
 
   /**
+   * Resolves an existing column index for duplicate detection. Must be called with the write lock
+   * held. After {@link #removeValueMeta(int)} the name cache is cleared; this method still finds
+   * matches by scanning {@link #valueMetaList} (same idea as {@link #indexOfValue(String)}).
+   */
+  private Integer indexOfExistingValueMetaIgnoreCase(String name) {
+    if (Utils.isEmpty(name)) {
+      return null;
+    }
+    Integer index = cache.findAndCompare(name, valueMetaList);
+    if (index != null) {
+      return index;
+    }
+    for (int i = 0; i < valueMetaList.size(); i++) {
+      if (name.equalsIgnoreCase(valueMetaList.get(i).getName())) {
+        cache.storeMapping(name, i);
+        needRealClone = null;
+        return i;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Add a metadata value. If a value with the same name already exists, it gets renamed.
    *
    * @param meta The metadata value to add
@@ -240,7 +264,7 @@ public class RowMeta implements IRowMeta {
       lock.writeLock().lock();
       try {
         IValueMeta newMeta;
-        Integer existsIdx = cache.findAndCompare(meta.getName(), valueMetaList);
+        Integer existsIdx = indexOfExistingValueMetaIgnoreCase(meta.getName());
         if (existsIdx == null) {
           newMeta = meta;
         } else {
@@ -269,7 +293,7 @@ public class RowMeta implements IRowMeta {
       lock.writeLock().lock();
       try {
         IValueMeta newMeta;
-        Integer existsIdx = cache.findAndCompare(meta.getName(), valueMetaList);
+        Integer existsIdx = indexOfExistingValueMetaIgnoreCase(meta.getName());
         if (existsIdx == null) {
           newMeta = meta;
         } else {
@@ -461,43 +485,48 @@ public class RowMeta implements IRowMeta {
    * (IRowMeta / IValueMeta) is used. Strings use getBytes().length; other types use fixed
    * estimates. Use this when you have only the raw row (e.g. from getRowFrom) and no row meta.
    *
-   * @param dataRow the row (may be null)
+   * @param dataRow the row (maybe null)
    * @return estimated size in bytes, or null if row is null (no data)
    */
   public static Long getRowSizeEstimateFromRow(Object[] dataRow) {
     if (dataRow == null) {
       return null;
     }
+
     long total = 0L;
     for (Object v : dataRow) {
-      if (v == null) {
-        continue;
-      }
-      if (v instanceof String s) {
-        total += s.getBytes().length;
-      } else if (v instanceof byte[] b) {
-        total += b.length;
-      } else if (v instanceof BigDecimal) {
-        total += 32;
-      } else if (v instanceof Number) {
-        total += 8;
-      } else if (v instanceof Date) {
-        total += 8;
-      } else if (v instanceof Boolean) {
-        total += 1;
-      } else if (v instanceof UUID) {
-        total += 36;
-      } else if (v instanceof JsonNode jn) {
-        total += jn.toString().length() * 2L;
-      } else if (v instanceof GenericRecord gr) {
-        total += gr.toString().length() * 2L;
-      } else if (v instanceof InetAddress ia) {
-        total += ia.getHostAddress().length() * 2L;
-      } else {
-        total += 64; // Serializable or other unknown types
-      }
+      total += estimateSize(v);
     }
-    return Long.valueOf(total);
+    return total;
+  }
+
+  /**
+   * Estimates the size in bytes of a row from the Java types of its values only
+   *
+   * @param v data
+   * @return estimated size in bytes
+   */
+  private static long estimateSize(Object v) {
+    if (v == null) {
+      return 0;
+    }
+
+    return switch (v) {
+      case String s -> s.getBytes().length;
+      case byte[] b -> b.length;
+      case BigDecimal ignored -> 32;
+      case Number ignored -> 8;
+
+      case Date ignored -> 8;
+      case Boolean ignored -> 1;
+      case UUID ignored -> 36;
+
+      case JsonNode jn -> jn.toString().length() * 2L;
+      case GenericRecord gr -> gr.toString().length() * 2L;
+      case InetAddress ia -> ia.getHostAddress().length() * 2L;
+
+      default -> 64;
+    };
   }
 
   /**
@@ -1207,7 +1236,7 @@ public class RowMeta implements IRowMeta {
       byteArrayOutputStream.close();
       return byteArrayOutputStream.toByteArray();
     } catch (Exception e) {
-      throw new RuntimeException("Error serializing row to byte array", e);
+      throw new HopRuntimeException("Error serializing row to byte array", e);
     }
   }
 
@@ -1224,7 +1253,7 @@ public class RowMeta implements IRowMeta {
       DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
       return metadata.readData(dataInputStream);
     } catch (Exception e) {
-      throw new RuntimeException("Error de-serializing row of data from byte array", e);
+      throw new HopRuntimeException("Error de-serializing row of data from byte array", e);
     }
   }
 

@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "renamed1",
+          "data_set_field": "renamed1"
+        },
+        {
+          "transform_field": "renamed2",
+          "data_set_field": "renamed2"
+        }
+      ],
+      "field_order": [
+        "renamed1",
+        "renamed2"
+      ],
+      "data_set_name": "golden-mdi-multi-datagrid",
+      "transform_name": "output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0056-mdi-multi-datagrid-template UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0056-mdi-multi-datagrid-template-injected.hpl"
+}

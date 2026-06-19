@@ -17,15 +17,23 @@
 package org.apache.hop.pipeline.transforms.valuemapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,41 +48,50 @@ class ValueMapperMetaTest {
   }
 
   @Test
-  void testBackwardNoNewFieldNoType() throws Exception {
+  void testInPlaceNoTargetTypeDefaultsToString() throws Exception {
     ValueMapperMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/value-mapper-transform.xml", ValueMapperMeta.class);
 
-    // backward-compat scenario: in-place mapping, no explicit type
+    // In-place mapping, no explicit target type: output column type is String
     meta.setFieldToUse("Country_Code");
     meta.setTargetField("");
     meta.setTargetType(null);
 
-    // Input schema: only the source field, String
+    // Input schema: numeric codes mapped to country names → output must be string
     IRowMeta input = new RowMeta();
-    ValueMetaString src = new ValueMetaString("Country_Code");
-    src.setLength(50);
+    ValueMetaInteger src = new ValueMetaInteger("Country_Code");
     input.addValueMeta(src);
 
-    // target field must not exist in input
     assertNull(input.searchValueMeta("Country_Name"));
 
     IRowMeta out = input.clone();
     meta.getFields(out, "ValueMapper", null, new TransformMeta(), null, null);
 
-    // No new field added
     assertEquals(
         input.size(), out.size(), "Output meta should have same number of fields as input");
     assertNull(out.searchValueMeta("Country_Name"), "No target field should be added");
 
-    // Same field present with same name and type (String), unchanged length
-    IValueMeta inVm = input.searchValueMeta("Country_Code");
     IValueMeta outVm = out.searchValueMeta("Country_Code");
     assertNotNull(outVm, "Source field must remain present");
-    assertEquals(inVm.getType(), outVm.getType(), "Type should remain unchanged in-place");
-    assertEquals(inVm.getName(), outVm.getName(), "Name should remain unchanged");
-    assertEquals(inVm.getLength(), outVm.getLength(), "Length should remain unchanged");
+    assertEquals(IValueMeta.TYPE_STRING, outVm.getType(), "Unspecified target type must be String");
+    assertEquals("Country_Code", outVm.getName(), "Name should remain unchanged");
+    assertEquals(16, outVm.getLength(), "Length from longest mapping / default literals");
     assertEquals(IValueMeta.STORAGE_TYPE_NORMAL, outVm.getStorageType(), "Storage must be NORMAL");
+  }
+
+  @Test
+  void legacyXmlMissingEmptyStringEqualsNullDefaultsToTrue() throws Exception {
+    ValueMapperMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/value-mapper-transform.xml", ValueMapperMeta.class);
+
+    for (Values v : meta.getValues()) {
+      assertEquals(
+          true,
+          v.isEmptyStringEqualsNull(),
+          "Missing empty_string_equals_null defaults empty string equals null to true");
+    }
   }
 
   @Test
@@ -84,8 +101,7 @@ class ValueMapperMetaTest {
             "/value-mapper-transform.xml", ValueMapperMeta.class);
 
     assertEquals(7, meta.getValues().size());
-    // Test serialization with null source attribute
-    assertNull(meta.getValues().get(0).getSource());
+    assertEquals("", meta.getValues().get(0).getSource());
     assertEquals("[${NOT_DEFINED}]", meta.getValues().get(0).getTarget());
 
     assertEquals("BE", meta.getValues().get(1).getSource());
@@ -95,6 +111,10 @@ class ValueMapperMetaTest {
     assertEquals("Country_Name", meta.getTargetField());
     assertEquals("[${NOT_FOUND}]", meta.getNonMatchDefault());
 
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertFalse(
+        meta.isKeepOriginalValueOnNonMatch(),
+        "Unset keep-original resolves to N when a target field or non-match default exists");
     assertNull(meta.getTargetType(), "Expected null target type right after deserialization");
     // Before getFields: input has only the source field
     IRowMeta input = new RowMeta();
@@ -111,5 +131,129 @@ class ValueMapperMetaTest {
         IValueMeta.TYPE_STRING,
         out.searchValueMeta("Country_Name").getType(),
         "New target field should default to String type when no explicit target type is set");
+  }
+
+  @Test
+  void implicitKeepOriginalTrueWhenUnsetInPlaceAndNoDefault() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setTargetField("");
+    meta.setNonMatchDefault(null);
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertTrue(meta.isKeepOriginalValueOnNonMatch());
+  }
+
+  @Test
+  void implicitKeepOriginalFalseWhenUnsetWithTargetField() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setTargetField("out");
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertFalse(meta.isKeepOriginalValueOnNonMatch());
+  }
+
+  @Test
+  void implicitKeepOriginalFalseWhenUnsetWithNonMatchDefaultOnly() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setTargetField("");
+    meta.setNonMatchDefault("fallback");
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertFalse(meta.isKeepOriginalValueOnNonMatch());
+  }
+
+  @Test
+  void cloneCopiesValuesAndEmptyStringEqualsNull() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("src");
+    Values v = new Values();
+    v.setSource("x");
+    v.setTarget("y");
+    v.setEmptyStringEqualsNull(false);
+    meta.getValues().add(v);
+
+    meta.setKeepOriginalValueOnNonMatch(true);
+    ValueMapperMeta clone = (ValueMapperMeta) meta.clone();
+    assertEquals(1, clone.getValues().size());
+    assertTrue(clone.isKeepOriginalValueOnNonMatch());
+    assertEquals("Y", clone.getKeepOriginalValueOnNonMatch());
+    assertFalse(clone.getValues().get(0).isEmptyStringEqualsNull());
+    assertEquals("x", clone.getValues().get(0).getSource());
+    assertEquals("y", clone.getValues().get(0).getTarget());
+  }
+
+  @Test
+  void checkAddsWarningWhenNoPreviousFields() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    List<ICheckResult> remarks = new ArrayList<>();
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    meta.check(
+        remarks,
+        pipelineMeta,
+        transformMeta,
+        null,
+        new String[] {"in"},
+        new String[0],
+        null,
+        null,
+        null);
+    assertEquals(2, remarks.size());
+    assertEquals(ICheckResult.TYPE_RESULT_WARNING, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(1).getType());
+  }
+
+  @Test
+  void checkAddsErrorWhenNoInputTransforms() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    List<ICheckResult> remarks = new ArrayList<>();
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("c"));
+    meta.check(
+        remarks, pipelineMeta, transformMeta, prev, new String[0], new String[0], null, null, null);
+    assertEquals(2, remarks.size());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(1).getType());
+  }
+
+  @Test
+  void getFieldsAddsIntegerTypedTargetColumnWhenSpecified() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("id");
+    meta.setTargetField("amt");
+    meta.setTargetType("Integer");
+    meta.getValues().add(new Values("1", "42"));
+    IRowMeta in = new RowMeta();
+    in.addValueMeta(new ValueMetaString("id"));
+    IRowMeta out = in.clone();
+    meta.getFields(out, "vm", null, new TransformMeta(), null, null);
+    assertEquals(IValueMeta.TYPE_INTEGER, out.searchValueMeta("amt").getType());
+  }
+
+  @Test
+  void getFieldsUnknownTargetTypeFallsBackToStringForNewColumn() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("id");
+    meta.setTargetField("out");
+    meta.setTargetType("bogus_type_xyz");
+    meta.getValues().add(new Values("a", "b"));
+    IRowMeta in = new RowMeta();
+    in.addValueMeta(new ValueMetaString("id"));
+    IRowMeta out = in.clone();
+    meta.getFields(out, "vm", null, new TransformMeta(), null, null);
+    assertEquals(IValueMeta.TYPE_STRING, out.searchValueMeta("out").getType());
+  }
+
+  @Test
+  void inPlaceWithExplicitTargetTypeDoesNotCoerceColumnInGetFields() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("code");
+    meta.setTargetField("");
+    meta.setTargetType("String");
+    meta.getValues().add(new Values("1", "one"));
+    IRowMeta in = new RowMeta();
+    in.addValueMeta(new ValueMetaInteger("code"));
+    IRowMeta out = in.clone();
+    meta.getFields(out, "vm", null, new TransformMeta(), null, null);
+    assertEquals(IValueMeta.TYPE_INTEGER, out.searchValueMeta("code").getType());
   }
 }

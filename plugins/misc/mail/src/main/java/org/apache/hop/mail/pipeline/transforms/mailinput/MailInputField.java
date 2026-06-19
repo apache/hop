@@ -139,9 +139,29 @@ public class MailInputField implements Cloneable {
     return ColumnDesc[i];
   }
 
-  public int getColumn() {
-    //    return column;
-    return getColumnByDesc(name);
+  /**
+   * Resolve the column field (stored as the localized description) to its integer column constant.
+   * The String form is exposed by the Lombok-generated {@code getColumn()} for serialization.
+   *
+   * <p>Older pipelines persisted this field as the integer index ("0", "1", …) — when an explicit
+   * int-returning getColumn() was being serialized — so we accept that format too.
+   */
+  public int getColumnIndex() {
+    if (column == null) {
+      return 0;
+    }
+    String trimmed = column.trim();
+    if (!trimmed.isEmpty() && Character.isDigit(trimmed.charAt(0))) {
+      try {
+        int idx = Integer.parseInt(trimmed);
+        if (idx >= 0 && idx < ColumnDesc.length) {
+          return idx;
+        }
+      } catch (NumberFormatException ignored) {
+        // fall through to description lookup
+      }
+    }
+    return getColumnByDesc(column);
   }
 
   public String getColumnCode() {

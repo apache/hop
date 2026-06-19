@@ -24,10 +24,13 @@ import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.plugins.EngineCompatibility;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
@@ -76,6 +79,14 @@ public interface IPipelineEngine<T extends PipelineMeta>
    * @return The engine capabilities
    */
   PipelineEngineCapabilities getEngineCapabilities();
+
+  /**
+   * Engine's compatibility verdict for a transform plugin. Default is UNKNOWN ("no opinion, fall
+   * back to annotation"). Engines override to surface SUPPORTED / UNSUPPORTED authoritatively.
+   */
+  default EngineCompatibility supports(IPlugin transformPlugin) {
+    return EngineCompatibility.unknown();
+  }
 
   /**
    * Executes the object/subject: calls prepareExecution and startThreads in sequence.
@@ -440,7 +451,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    * @param toTransformName
    * @param toTransformCopy
    * @return The rowset if one was found.
-   * @throws RuntimeException in case the engine doesn't support this operation.
+   * @throws HopRuntimeException in case the engine doesn't support this operation.
    */
   IRowSet findRowSet(
       String fromTransformName, int fromTransformCopy, String toTransformName, int toTransformCopy);

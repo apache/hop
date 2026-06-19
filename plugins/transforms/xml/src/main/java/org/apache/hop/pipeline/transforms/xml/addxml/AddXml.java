@@ -63,7 +63,6 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
 
   @Override
   public boolean processRow() throws HopException {
-
     Object[] r = getRow(); // This also waits for a row to be finished.
     if (r == null) {
       // no more input to be expected...
@@ -74,37 +73,24 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
     if (first) {
       first = false;
 
-      data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-      // Cache the field name indexes
-      //
-      data.fieldIndexes = new int[meta.getOutputFields().length];
-      for (int i = 0; i < data.fieldIndexes.length; i++) {
-        String fieldsName = meta.getOutputFields()[i].getFieldName();
-        data.fieldIndexes[i] = getInputRowMeta().indexOfValue(fieldsName);
-        if (data.fieldIndexes[i] < 0) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "AddXML.Exception.FieldNotFound", fieldsName));
-        }
-      }
+      processRowFirstCall();
     }
 
-    Document xmldoc = getDomImplentation().createDocument(null, meta.getRootNode(), null);
-    Element root = xmldoc.getDocumentElement();
-    for (int i = 0; i < meta.getOutputFields().length; i++) {
-      XmlField outputField = meta.getOutputFields()[i];
-      String fieldname = outputField.getFieldName();
+    Document xmlDoc = getDomImplentation().createDocument(null, meta.getRootNode(), null);
+    Element root = xmlDoc.getDocumentElement();
+    for (int i = 0; i < meta.getOutputFields().size(); i++) {
+      XmlField outputField = meta.getOutputFields().get(i);
+      String fieldName = outputField.getFieldName();
 
       IValueMeta v = getInputRowMeta().getValueMeta(data.fieldIndexes[i]);
       Object valueData = r[data.fieldIndexes[i]];
 
-      if (!meta.isOmitNullValues() || !v.isNull(valueData)) {
+      if (!meta.getOmitDetails().isOmittingNullValues() || !v.isNull(valueData)) {
         String value = formatField(v, valueData, outputField);
 
         String element = outputField.getElementName();
         if (Utils.isEmpty(element)) {
-          element = fieldname;
+          element = fieldName;
         }
 
         if (Utils.isEmpty(element)) {
@@ -131,12 +117,12 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
         } else {
           /* encode as subnode */
           if (!element.equals(meta.getRootNode())) {
-            Element e = xmldoc.createElement(element);
-            Node n = xmldoc.createTextNode(value);
+            Element e = xmlDoc.createElement(element);
+            Node n = xmlDoc.createTextNode(value);
             e.appendChild(n);
             root.appendChild(e);
           } else {
-            Node n = xmldoc.createTextNode(value);
+            Node n = xmlDoc.createTextNode(value);
             root.appendChild(n);
           }
         }
@@ -144,7 +130,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
     }
 
     StringWriter sw = new StringWriter();
-    DOMSource domSource = new DOMSource(xmldoc);
+    DOMSource domSource = new DOMSource(xmlDoc);
     try {
       this.getSerializer().transform(domSource, new StreamResult(sw));
 
@@ -157,6 +143,23 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
     putRow(data.outputRowMeta, outputRowData);
 
     return true;
+  }
+
+  private void processRowFirstCall() throws HopException {
+    data.outputRowMeta = getInputRowMeta().clone();
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+    // Cache the field name indexes
+    //
+    data.fieldIndexes = new int[meta.getOutputFields().size()];
+    for (int i = 0; i < data.fieldIndexes.length; i++) {
+      String fieldsName = meta.getOutputFields().get(i).getFieldName();
+      data.fieldIndexes[i] = getInputRowMeta().indexOfValue(fieldsName);
+      if (data.fieldIndexes[i] < 0) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "AddXML.Exception.FieldNotFound", fieldsName));
+      }
+    }
   }
 
   private String formatField(IValueMeta valueMeta, Object valueData, XmlField field)
@@ -208,9 +211,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
         retval = data.df.format(valueMeta.getInteger(valueData));
       }
     } else if (valueMeta.isDate()) {
-      if (field != null
-          && !Utils.isEmpty(field.getFormat())
-          && valueMeta.getDate(valueData) != null) {
+      if (!Utils.isEmpty(field.getFormat()) && valueMeta.getDate(valueData) != null) {
         if (!Utils.isEmpty(field.getFormat())) {
           data.daf.applyPattern(field.getFormat());
         } else {
@@ -220,7 +221,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
         retval = data.daf.format(valueMeta.getDate(valueData));
       } else {
         if (valueMeta.isNull(valueData)) {
-          if (field != null && !Utils.isEmpty(field.getNullString())) {
+          if (!Utils.isEmpty(field.getNullString())) {
             retval = field.getNullString();
           }
         } else {
@@ -265,7 +266,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
         getSerializer().setOutputProperty(OutputKeys.ENCODING, meta.getEncoding());
       }
 
-      if (meta.isOmitXMLheader()) {
+      if (meta.getOmitDetails().isOmittingXmlHeader()) {
         getSerializer().setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       }
     } catch (TransformerConfigurationException | ParserConfigurationException e) {

@@ -21,9 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.w3c.dom.Node;
 
 @ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class ModPartitionerTest {
@@ -36,5 +39,15 @@ class ModPartitionerTest {
 
     assertNotNull(tester);
     tester.testSerialization();
+  }
+
+  @Test
+  void testSerializationRoundTrip() throws HopException {
+    ModPartitioner test = new ModPartitioner();
+    test.setFieldName("field1");
+
+    String xml = XmlHandler.aroundTag("p", XmlMetadataUtil.serializeObjectToXml(test));
+
+    Node node = XmlHandler.loadXmlString(xml, "p");
   }
 }

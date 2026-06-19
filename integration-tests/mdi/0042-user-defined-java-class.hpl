@@ -65,11 +65,6 @@ limitations under the License.
     </hop>
     <hop>
       <from>fields with Strings</from>
-      <to>fields</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>fields</from>
       <to>0042-user-defined-java-class-template.hpl</to>
       <enabled>Y</enabled>
     </hop>
@@ -85,137 +80,138 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/0042-user-defined-java-class-template.hpl</filename>
-    <run_configuration>local</run_configuration>
-    <source_transform/>
-    <source_output_fields>    </source_output_fields>
-    <target_file>${java.io.tmpdir}/user-defined-java-class.hpl</target_file>
-    <create_parent_folder>Y</create_parent_folder>
-    <no_execution>Y</no_execution>
     <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
-    <stream_source_transform/>
-    <stream_target_transform/>
+    <create_parent_folder>Y</create_parent_folder>
+    <filename>${PROJECT_HOME}/0042-user-defined-java-class-template.hpl</filename>
     <mappings>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>class_name</source_field>
+        <source_transform>definitions</source_transform>
         <target_attribute_key>CLASS_NAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>definitions</source_transform>
-        <source_field>class_name</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>class_source</source_field>
+        <source_transform>definitions</source_transform>
         <target_attribute_key>CLASS_SOURCE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>definitions</source_transform>
-        <source_field>class_source</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
-        <target_attribute_key>FIELD_LENGTH</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>fields</source_transform>
-        <source_field>field_length</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>parameter_value</source_field>
+        <source_transform>parameters</source_transform>
         <target_attribute_key>VALUE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>parameters</source_transform>
-        <source_field>parameter_value</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
-        <target_attribute_key>FIELD_PRECISION</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>fields</source_transform>
-        <source_field>field_precision</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>clear_result_fields</source_field>
+        <source_transform>files/user-defined-java-class.xml</source_transform>
         <target_attribute_key>CLEAR_RESULT_FIELDS</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_transform>files/user-defined-java-class.xml</source_transform>
-        <source_field>clear_result_fields</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>transform_description</source_field>
+        <source_transform>targets</source_transform>
         <target_attribute_key>TARGET_DESCRIPTION</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>targets</source_transform>
-        <source_field>transform_description</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>class_type</source_field>
+        <source_transform>definitions</source_transform>
         <target_attribute_key>CLASS_TYPE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>definitions</source_transform>
-        <source_field>class_type</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>transform_name</source_field>
+        <source_transform>targets</source_transform>
         <target_attribute_key>TARGET_TRANSFORM_NAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>targets</source_transform>
-        <source_field>transform_name</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>transform_tag</source_field>
+        <source_transform>infos</source_transform>
         <target_attribute_key>INFO_TAG</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>infos</source_transform>
-        <source_field>transform_tag</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
-        <target_attribute_key>FIELD_NAME</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>fields</source_transform>
-        <source_field>field_name</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>parameter_tag</source_field>
+        <source_transform>parameters</source_transform>
         <target_attribute_key>TAG</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>parameters</source_transform>
-        <source_field>parameter_tag</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>transform_name</source_field>
+        <source_transform>infos</source_transform>
         <target_attribute_key>INFO_TRANSFORM_NAME</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>infos</source_transform>
-        <source_field>transform_name</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>transform_description</source_field>
+        <source_transform>infos</source_transform>
         <target_attribute_key>INFO_DESCRIPTION</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>infos</source_transform>
-        <source_field>transform_description</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>parameter_description</source_field>
+        <source_transform>parameters</source_transform>
         <target_attribute_key>DESCRIPTION</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>parameters</source_transform>
-        <source_field>parameter_description</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
-        <target_transform_name>User defined Java class</target_transform_name>
+        <source_field>transform_tag</source_field>
+        <source_transform>targets</source_transform>
         <target_attribute_key>TARGET_TAG</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>targets</source_transform>
-        <source_field>transform_tag</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
       <mapping>
+        <source_field>field_name</source_field>
+        <source_transform>fields with Strings</source_transform>
+        <target_attribute_key>FIELD_NAME</target_attribute_key>
+        <target_detail>Y</target_detail>
         <target_transform_name>User defined Java class</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>field_type</source_field>
+        <source_transform>fields with Strings</source_transform>
         <target_attribute_key>FIELD_TYPE</target_attribute_key>
         <target_detail>Y</target_detail>
-        <source_transform>fields</source_transform>
-        <source_field>field_type</source_field>
+        <target_transform_name>User defined Java class</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>field_length</source_field>
+        <source_transform>fields with Strings</source_transform>
+        <target_attribute_key>FIELD_LENGTH</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java class</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>field_precision</source_field>
+        <source_transform>fields with Strings</source_transform>
+        <target_attribute_key>FIELD_PRECISION</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java class</target_transform_name>
       </mapping>
     </mappings>
+    <no_execution>Y</no_execution>
+    <run_configuration>local</run_configuration>
+    <source_output_fields>
+</source_output_fields>
+    <source_transform/>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <target_file>${java.io.tmpdir}/user-defined-java-class.hpl</target_file>
     <attributes/>
     <GUI>
       <xloc>432</xloc>
@@ -320,11 +316,9 @@ limitations under the License.
     <IsAFile>N</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
     <IsInFields>N</IsInFields>
-    <XmlField/>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
-    <extensionFieldName/>
     <fields>
       <field>
         <currency/>
@@ -388,29 +382,17 @@ limitations under the License.
       </field>
     </fields>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
-      <filemask/>
       <include_subfolders>N</include_subfolders>
       <name>${PROJECT_HOME}/files/user-defined-java-class.xml</name>
     </file>
-    <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <include_field/>
-    <lastModificationTimeFieldName/>
     <limit>0</limit>
     <loopxpath>/transform/fields/field</loopxpath>
     <namespaceaware>N</namespaceaware>
-    <pathFieldName/>
-    <prunePath/>
     <readurl>N</readurl>
-    <rootUriNameFieldName/>
     <rownum>N</rownum>
-    <rownum_field/>
-    <shortFileFieldName/>
-    <sizeFieldName/>
-    <uriNameFieldName/>
     <usetoken>N</usetoken>
     <validating>N</validating>
     <attributes/>
@@ -723,49 +705,6 @@ limitations under the License.
     <GUI>
       <xloc>96</xloc>
       <yloc>304</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>fields</name>
-    <type>ValueMapper</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <field_to_use>field_type</field_to_use>
-    <fields>
-      <field>
-        <source_value>Number</source_value>
-        <target_value>1</target_value>
-      </field>
-      <field>
-        <source_value>String</source_value>
-        <target_value>2</target_value>
-      </field>
-      <field>
-        <source_value>Date</source_value>
-        <target_value>3</target_value>
-      </field>
-      <field>
-        <source_value>Boolean</source_value>
-        <target_value>4</target_value>
-      </field>
-      <field>
-        <source_value>Integer</source_value>
-        <target_value>5</target_value>
-      </field>
-    </fields>
-    <non_match_default/>
-    <target_field/>
-    <target_type/>
-    <attributes/>
-    <GUI>
-      <xloc>208</xloc>
-      <yloc>176</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

@@ -17,23 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
-import com.google.common.base.Preconditions;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.w3c.dom.Node;
 
 @Transform(
@@ -44,81 +41,66 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "i18n::KafkaProducerOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/kafkaproducer.html")
-@InjectionSupported(
-    localizationPrefix = "KafkaProducerOutputMeta.Injection.",
-    groups = {"CONFIGURATION_PROPERTIES"})
+@Getter
+@Setter
 public class KafkaProducerOutputMeta
     extends BaseTransformMeta<KafkaProducerOutput, KafkaProducerOutputData> {
 
-  public static final String DIRECT_BOOTSTRAP_SERVERS = "directBootstrapServers";
-  public static final String CLIENT_ID = "clientId";
-  public static final String TOPIC = "topic";
-  public static final String KEY_FIELD = "keyField";
-  public static final String MESSAGE_FIELD = "messageField";
   public static final String ADVANCED_CONFIG = "advancedConfig";
   public static final String CONFIG_OPTION = "option";
   public static final String OPTION_PROPERTY = "property";
   public static final String OPTION_VALUE = "value";
 
-  @Injection(name = "DIRECT_BOOTSTRAP_SERVERS")
+  @HopMetadataProperty(
+      key = "directBootstrapServers",
+      injectionKey = "DIRECT_BOOTSTRAP_SERVERS",
+      injectionKeyDescription = "KafkaProducerOutputMeta.Injection.DIRECT_BOOTSTRAP_SERVERS")
   private String directBootstrapServers;
 
-  @Injection(name = "CLIENT_ID")
+  @HopMetadataProperty(
+      key = "clientId",
+      injectionKey = "CLIENT_ID",
+      injectionKeyDescription = "KafkaProducerOutputMeta.Injection.CLIENT_ID")
   private String clientId;
 
-  @Injection(name = "TOPIC")
-  private String topicVal;
+  @HopMetadataProperty(
+      key = "topic",
+      injectionKey = "TOPIC",
+      injectionKeyDescription = "KafkaProducerOutputMeta.Injection.TOPIC")
+  private String topic;
 
-  @Injection(name = "KEY_FIELD")
+  @HopMetadataProperty(
+      key = "keyField",
+      injectionKey = "KEY_FIELD",
+      injectionKeyDescription = "KafkaProducerOutputMeta.Injection.KEY_FIELD")
   private String keyField;
 
-  @Injection(name = "MESSAGE_FIELD")
+  @HopMetadataProperty(
+      key = "messageField",
+      injectionKey = "MESSAGE_FIELD",
+      injectionKeyDescription = "KafkaProducerOutputMeta.Injection.MESSAGE_FIELD")
   private String messageField;
 
-  @Injection(name = "NAMES", group = "CONFIGURATION_PROPERTIES")
-  protected List<String> injectedConfigNames;
-
-  @Injection(name = "VALUES", group = "CONFIGURATION_PROPERTIES")
-  protected List<String> injectedConfigValues;
-
-  private Map<String, String> config = new LinkedHashMap<>();
+  @HopMetadataProperty(
+      groupKey = "options",
+      key = "option",
+      injectionGroupKey = "CONFIGURATION_PROPERTIES",
+      injectionGroupDescription = "KafkaConsumerInputMeta.Injection.CONFIGURATION_PROPERTIES")
+  private List<KafkaOption> options;
 
   public KafkaProducerOutputMeta() {
     super();
+    this.options = new ArrayList<>();
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) {
-    setDirectBootstrapServers(XmlHandler.getTagValue(transformNode, DIRECT_BOOTSTRAP_SERVERS));
-    setClientId(XmlHandler.getTagValue(transformNode, CLIENT_ID));
-    setTopic(XmlHandler.getTagValue(transformNode, TOPIC));
-    setKeyField(XmlHandler.getTagValue(transformNode, KEY_FIELD));
-    setMessageField(XmlHandler.getTagValue(transformNode, MESSAGE_FIELD));
-
-    config = new LinkedHashMap<>();
-
-    Optional.ofNullable(XmlHandler.getSubNode(transformNode, ADVANCED_CONFIG))
-        .map(Node::getChildNodes)
-        .ifPresent(
-            nodes ->
-                IntStream.range(0, nodes.getLength())
-                    .mapToObj(nodes::item)
-                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
-                    .forEach(
-                        node -> {
-                          if (CONFIG_OPTION.equals(node.getNodeName())) {
-                            config.put(
-                                node.getAttributes().getNamedItem(OPTION_PROPERTY).getTextContent(),
-                                node.getAttributes().getNamedItem(OPTION_VALUE).getTextContent());
-                          } else {
-                            config.put(node.getNodeName(), node.getTextContent());
-                          }
-                        }));
-  }
-
-  @Override
-  public void setDefault() {
-    // no defaults
+  public KafkaProducerOutputMeta(KafkaProducerOutputMeta m) {
+    this();
+    this.directBootstrapServers = m.directBootstrapServers;
+    this.clientId = m.clientId;
+    this.topic = m.topic;
+    this.keyField = m.keyField;
+    this.messageField = m.messageField;
+    m.options.forEach(option -> this.options.add(new KafkaOption(option)));
   }
 
   @Override
@@ -132,99 +114,18 @@ public class KafkaProducerOutputMeta
     // Default: nothing changes to rowMeta
   }
 
-  public String getClientId() {
-    return clientId;
-  }
-
-  public void setClientId(String clientId) {
-    this.clientId = clientId;
-  }
-
-  public String getTopic() {
-    return topicVal;
-  }
-
-  public void setTopic(String topic) {
-    this.topicVal = topic;
-  }
-
-  public String getKeyField() {
-    return keyField;
-  }
-
-  public void setKeyField(String keyField) {
-    this.keyField = keyField;
-  }
-
-  public String getMessageField() {
-    return messageField;
-  }
-
-  public void setMessageField(String messageField) {
-    this.messageField = messageField;
-  }
-
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue(DIRECT_BOOTSTRAP_SERVERS, directBootstrapServers));
-    retval.append("    ").append(XmlHandler.addTagValue(TOPIC, topicVal));
-    retval.append("    ").append(XmlHandler.addTagValue(CLIENT_ID, clientId));
-    retval.append("    ").append(XmlHandler.addTagValue(KEY_FIELD, keyField));
-    retval.append("    ").append(XmlHandler.addTagValue(MESSAGE_FIELD, messageField));
-    retval.append("    ").append(XmlHandler.openTag(ADVANCED_CONFIG)).append(Const.CR);
-    getConfig()
-        .forEach(
-            (key, value) ->
-                retval
-                    .append("        ")
-                    .append(
-                        XmlHandler.addTagValue(
-                            CONFIG_OPTION, "", true, OPTION_PROPERTY, key, OPTION_VALUE, value)));
-    retval.append("    ").append(XmlHandler.closeTag(ADVANCED_CONFIG)).append(Const.CR);
-
-    return retval.toString();
-  }
-
-  public void setDirectBootstrapServers(final String directBootstrapServers) {
-    this.directBootstrapServers = directBootstrapServers;
-  }
-
-  public String getDirectBootstrapServers() {
-    return directBootstrapServers;
-  }
-
-  public void setConfig(Map<String, String> config) {
-    this.config = config;
-  }
-
-  public Map<String, String> getConfig() {
-    applyInjectedProperties();
-    return config;
-  }
-
-  protected void applyInjectedProperties() {
-    if (injectedConfigNames != null || injectedConfigValues != null) {
-      Preconditions.checkState(injectedConfigNames != null, "Options names were not injected");
-      Preconditions.checkState(injectedConfigValues != null, "Options values were not injected");
-      Preconditions.checkState(
-          injectedConfigNames.size() == injectedConfigValues.size(),
-          "Injected different number of options names and value");
-
-      setConfig(
-          IntStream.range(0, injectedConfigNames.size())
-              .boxed()
-              .collect(
-                  Collectors.toMap(
-                      injectedConfigNames::get,
-                      injectedConfigValues::get,
-                      (v1, v2) -> v1,
-                      LinkedHashMap::new)));
-
-      injectedConfigNames = null;
-      injectedConfigValues = null;
+  public void convertLegacyXml(Node transformNode) {
+    // Read the old options format:
+    //
+    Node advancedNode = XmlHandler.getSubNode(transformNode, ADVANCED_CONFIG);
+    if (advancedNode != null) {
+      List<Node> configNodes = XmlHandler.getNodes(advancedNode, CONFIG_OPTION);
+      for (Node configNode : configNodes) {
+        String property = XmlHandler.getTagAttribute(configNode, OPTION_PROPERTY);
+        String value = Const.NVL(XmlHandler.getTagAttribute(configNode, OPTION_VALUE), null);
+        options.add(new KafkaOption(property, value));
+      }
     }
   }
 }

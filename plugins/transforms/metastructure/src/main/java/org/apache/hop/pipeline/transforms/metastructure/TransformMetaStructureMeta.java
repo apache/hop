@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.metastructure;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -34,6 +36,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 @Transform(
     id = "TransformMetaStructure",
     name = "i18n::TransformMetaStructure.Transform.Name",
@@ -44,48 +48,56 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "metastructure.svg")
 public class TransformMetaStructureMeta
     extends BaseTransformMeta<TransformMetaStructure, TransformMetaStructureData> {
-
-  private static final Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
+  // needed by Translator
+  private static final Class<?> PKG = TransformMetaStructureMeta.class;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includePositionField;
 
-  @HopMetadataProperty private String positionFieldname;
+  @HopMetadataProperty(key = "positionFieldname")
+  private String positionFieldName;
 
-  @HopMetadataProperty(defaultBoolean = true)
-  private boolean includeFieldnameField;
+  @HopMetadataProperty(key = "includeFieldnameField", defaultBoolean = true)
+  private boolean includeFieldNameField;
 
-  @HopMetadataProperty private String fieldFieldname;
+  @HopMetadataProperty(key = "fieldFieldname")
+  private String fieldFieldName;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeCommentsField;
 
-  @HopMetadataProperty private String commentsFieldname;
+  @HopMetadataProperty(key = "commentsFieldname")
+  private String commentsFieldName;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeTypeField;
 
-  @HopMetadataProperty private String typeFieldname;
+  @HopMetadataProperty(key = "typeFieldname")
+  private String typeFieldName;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeLengthField;
 
-  @HopMetadataProperty private String lengthFieldname;
+  @HopMetadataProperty(key = "lengthFieldname")
+  private String lengthFieldName;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includePrecisionField;
 
-  @HopMetadataProperty private String precisionFieldname;
+  @HopMetadataProperty(key = "precisionFieldname")
+  private String precisionFieldName;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeMaskField;
 
-  @HopMetadataProperty private String maskFieldname;
+  @HopMetadataProperty(key = "maskFieldname")
+  private String maskFieldName;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeOriginField;
 
-  @HopMetadataProperty private String originFieldname;
+  @HopMetadataProperty(key = "originFieldname")
+  private String originFieldName;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean outputRowcount;
@@ -94,21 +106,21 @@ public class TransformMetaStructureMeta
 
   public TransformMetaStructureMeta() {
     includePositionField = true;
-    positionFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PositionName");
-    includeFieldnameField = true;
-    fieldFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.FieldName");
+    positionFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PositionName");
+    includeFieldNameField = true;
+    fieldFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.FieldName");
     includeCommentsField = true;
-    commentsFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.CommentsName");
+    commentsFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.CommentsName");
     includeTypeField = true;
-    typeFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.TypeName");
+    typeFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.TypeName");
     includeLengthField = true;
-    lengthFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.LengthName");
+    lengthFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.LengthName");
     includePrecisionField = true;
-    precisionFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PrecisionName");
+    precisionFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PrecisionName");
     includeMaskField = true;
-    maskFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.MaskName");
+    maskFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.MaskName");
     includeOriginField = true;
-    originFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.OriginName");
+    originFieldName = BaseMessages.getString(PKG, "TransformMetaStructureMeta.OriginName");
   }
 
   @Override
@@ -148,49 +160,49 @@ public class TransformMetaStructureMeta
     // create the new fields
     // Position
     if (includePositionField) {
-      IValueMeta positionFieldValue = new ValueMetaInteger(positionFieldname);
+      IValueMeta positionFieldValue = new ValueMetaInteger(positionFieldName);
       positionFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(positionFieldValue);
     }
     // field name
-    if (includeFieldnameField) {
-      IValueMeta nameFieldValue = new ValueMetaString(fieldFieldname);
+    if (includeFieldNameField) {
+      IValueMeta nameFieldValue = new ValueMetaString(fieldFieldName);
       nameFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(nameFieldValue);
     }
     // comments
     if (includeCommentsField) {
-      IValueMeta commentsFieldValue = new ValueMetaString(commentsFieldname);
+      IValueMeta commentsFieldValue = new ValueMetaString(commentsFieldName);
       commentsFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(commentsFieldValue);
     }
     // Type
     if (includeTypeField) {
-      IValueMeta typeFieldValue = new ValueMetaString(typeFieldname);
+      IValueMeta typeFieldValue = new ValueMetaString(typeFieldName);
       typeFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(typeFieldValue);
     }
     // Length
     if (includeLengthField) {
-      IValueMeta lengthFieldValue = new ValueMetaInteger(lengthFieldname);
+      IValueMeta lengthFieldValue = new ValueMetaInteger(lengthFieldName);
       lengthFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(lengthFieldValue);
     }
     // Precision
     if (includePrecisionField) {
-      IValueMeta precisionFieldValue = new ValueMetaInteger(precisionFieldname);
+      IValueMeta precisionFieldValue = new ValueMetaInteger(precisionFieldName);
       precisionFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(precisionFieldValue);
     }
     // Mask
     if (includeMaskField) {
-      IValueMeta maskFieldValue = new ValueMetaString(maskFieldname);
+      IValueMeta maskFieldValue = new ValueMetaString(maskFieldName);
       maskFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(maskFieldValue);
     }
     // Origin
     if (includeOriginField) {
-      IValueMeta originFieldValue = new ValueMetaString(originFieldname);
+      IValueMeta originFieldValue = new ValueMetaString(originFieldName);
       originFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(originFieldValue);
     }
@@ -201,149 +213,5 @@ public class TransformMetaStructureMeta
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-  }
-
-  public boolean isOutputRowcount() {
-    return outputRowcount;
-  }
-
-  public void setOutputRowcount(boolean outputRowcount) {
-    this.outputRowcount = outputRowcount;
-  }
-
-  public String getRowcountField() {
-    return rowcountField;
-  }
-
-  public void setRowcountField(String rowcountField) {
-    this.rowcountField = rowcountField;
-  }
-
-  public String getFieldFieldname() {
-    return fieldFieldname;
-  }
-
-  public void setFieldFieldname(String fieldFieldname) {
-    this.fieldFieldname = fieldFieldname;
-  }
-
-  public String getCommentsFieldname() {
-    return commentsFieldname;
-  }
-
-  public void setCommentsFieldname(String commentsFieldname) {
-    this.commentsFieldname = commentsFieldname;
-  }
-
-  public String getTypeFieldname() {
-    return typeFieldname;
-  }
-
-  public void setTypeFieldname(String typeFieldname) {
-    this.typeFieldname = typeFieldname;
-  }
-
-  public String getPositionFieldname() {
-    return positionFieldname;
-  }
-
-  public void setPositionFieldname(String positionFieldname) {
-    this.positionFieldname = positionFieldname;
-  }
-
-  public String getLengthFieldname() {
-    return lengthFieldname;
-  }
-
-  public void setLengthFieldname(String lengthFieldname) {
-    this.lengthFieldname = lengthFieldname;
-  }
-
-  public String getPrecisionFieldname() {
-    return precisionFieldname;
-  }
-
-  public void setPrecisionFieldname(String precisionFieldname) {
-    this.precisionFieldname = precisionFieldname;
-  }
-
-  public String getMaskFieldname() {
-    return maskFieldname;
-  }
-
-  public void setMaskFieldname(String name) {
-    this.maskFieldname = name;
-  }
-
-  public String getOriginFieldname() {
-    return originFieldname;
-  }
-
-  public void setOriginFieldname(String originFieldname) {
-    this.originFieldname = originFieldname;
-  }
-
-  public boolean isIncludePositionField() {
-    return includePositionField;
-  }
-
-  public void setIncludePositionField(boolean includePositionField) {
-    this.includePositionField = includePositionField;
-  }
-
-  public boolean isIncludeFieldnameField() {
-    return includeFieldnameField;
-  }
-
-  public void setIncludeFieldnameField(boolean includeFieldnameField) {
-    this.includeFieldnameField = includeFieldnameField;
-  }
-
-  public boolean isIncludeCommentsField() {
-    return includeCommentsField;
-  }
-
-  public void setIncludeCommentsField(boolean includeCommentsField) {
-    this.includeCommentsField = includeCommentsField;
-  }
-
-  public boolean isIncludeTypeField() {
-    return includeTypeField;
-  }
-
-  public void setIncludeTypeField(boolean includeTypeField) {
-    this.includeTypeField = includeTypeField;
-  }
-
-  public boolean isIncludeLengthField() {
-    return includeLengthField;
-  }
-
-  public void setIncludeLengthField(boolean includeLengthField) {
-    this.includeLengthField = includeLengthField;
-  }
-
-  public boolean isIncludePrecisionField() {
-    return includePrecisionField;
-  }
-
-  public void setIncludePrecisionField(boolean includePrecisionField) {
-    this.includePrecisionField = includePrecisionField;
-  }
-
-  public boolean isIncludeMaskField() {
-    return includeMaskField;
-  }
-
-  public void setIncludeMaskField(boolean include) {
-    this.includeMaskField = include;
-  }
-
-  public boolean isIncludeOriginField() {
-    return includeOriginField;
-  }
-
-  public void setIncludeOriginField(boolean includeOriginField) {
-    this.includeOriginField = includeOriginField;
   }
 }

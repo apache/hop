@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
@@ -79,6 +79,11 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       description =
           "The configuration file relative to the home folder. The default value is project-config.json")
   private String projectConfigFile;
+
+  @CommandLine.Option(
+      names = {"-pkf", "--project-keep-config-file"},
+      description = "Keep the existing project configuration file if it already exists")
+  private boolean projectKeepConfigFile;
 
   @CommandLine.Option(
       names = {"-ps", "--project-description"},
@@ -291,7 +296,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       //
       project.verifyProjectsChain(projectName, variables);
 
-      project.saveToFile();
+      project.saveToFile(projectKeepConfigFile);
 
       log.logBasic(
           "Project settings for '"
@@ -390,7 +395,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     // Always save, even if it's an empty file
     //
-    project.saveToFile();
+    project.saveToFile(projectKeepConfigFile);
 
     log.logBasic(
         "Configuration file for project '"

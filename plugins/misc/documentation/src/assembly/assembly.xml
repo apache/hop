@@ -28,7 +28,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/misc/documentation</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -40,24 +40,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-misc-documentation:jar</include>
-            </includes>
-            <outputDirectory>plugins/misc/documentation</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>commons-codec:*</exclude>
-                <exclude>commons-logging:*</exclude>
-                <exclude>org.slf4j:*</exclude>
-                <exclude>org.apache.httpcomponents:*</exclude>
-            </excludes>
-            <outputDirectory>plugins/misc/documentation/lib</outputDirectory>
-            <useTransitiveDependencies>true</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

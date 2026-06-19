@@ -33,7 +33,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -234,8 +234,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     // Reverse sort the IDs by date
     //
     List<DatedId> datedIds = new ArrayList<>(ids);
-    datedIds.sort(Comparator.comparing(DatedId::getDate));
-    Collections.reverse(datedIds); // Newest first
+    datedIds.sort(Comparator.comparing(DatedId::getDate).reversed());
 
     // Take only the first from the list
     //
@@ -277,8 +276,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     // Reverse sort the IDs by date
     //
     List<DatedId> datedIds = new ArrayList<>(dateIds);
-    datedIds.sort(Comparator.comparing(DatedId::getDate));
-    Collections.reverse(datedIds); // Newest first
+    // Newest first
+    datedIds.sort(Comparator.comparing(DatedId::getDate).reversed());
 
     // Take only the first from the list
     //

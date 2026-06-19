@@ -97,7 +97,7 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
       getWorkflowMap().removeWorkflow(entry);
 
       if (useXML) {
-        out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+        out.print(XmlHandler.getXmlHeader(Const.UTF_8));
         out.print(WebResult.OK.getXml());
       } else if (useJson) {
         out.println(WebResult.OK.getJson());

@@ -20,12 +20,13 @@ package org.apache.hop.workflow.actions.folderscompare;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -34,13 +35,12 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -49,7 +49,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
 /**
  * This defines a 'folder compare' action. It will compare 2 folders, and will either follow the
@@ -63,6 +62,8 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionFoldersCompare.keyword",
     documentationUrl = "/workflow/actions/comparefolders.html")
+@Getter
+@Setter
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFoldersCompare.class;
   private static final String CONST_SPACE_SHORT = "      ";
@@ -73,108 +74,56 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
   private static final String CONST_FILENAME1 = "filename1";
   private static final String CONST_FILENAME2 = "filename2";
 
-  private String filename1;
-  private String filename2;
+  @HopMetadataProperty(key = "include_subfolders")
+  private boolean includeSubFolders;
+
+  @HopMetadataProperty(key = "compare_filecontent")
+  private boolean compareFileContent;
+
+  @HopMetadataProperty(key = "compare_filesize")
+  private boolean compareFileSize;
+
+  @HopMetadataProperty(key = "compareonly")
+  private String compareOnly;
+
+  @HopMetadataProperty(key = "wildcard")
   private String wildcard;
-  private String compareonly;
-  private boolean includesubfolders;
-  private boolean comparefilecontent;
-  private boolean comparefilesize;
+
+  @HopMetadataProperty(key = "filename1")
+  private String filename1;
+
+  @HopMetadataProperty(key = "filename2")
+  private String filename2;
 
   public ActionFoldersCompare(String n) {
-
     super(n, "");
-    includesubfolders = false;
-    comparefilesize = false;
-    comparefilecontent = false;
-    compareonly = "all";
+    includeSubFolders = false;
+    compareFileSize = false;
+    compareFileContent = false;
+    compareOnly = "all";
     wildcard = null;
     filename1 = null;
     filename2 = null;
-  }
-
-  public void setCompareOnly(String comparevalue) {
-    this.compareonly = comparevalue;
-  }
-
-  public String getCompareOnly() {
-    return compareonly;
   }
 
   public ActionFoldersCompare() {
     this("");
   }
 
+  public ActionFoldersCompare(ActionFoldersCompare a) {
+    super(a);
+    this.includeSubFolders = a.includeSubFolders;
+    this.compareFileContent = a.compareFileContent;
+    this.compareFileSize = a.compareFileSize;
+    this.compareOnly = a.compareOnly;
+    this.wildcard = a.wildcard;
+    this.filename1 = a.filename1;
+    this.filename2 = a.filename2;
+  }
+
   @Override
   public Object clone() {
-    ActionFoldersCompare je = (ActionFoldersCompare) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-
-    // 133 chars in just spaces and tag names alone
-    return super.getXml()
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("include_subfolders", includesubfolders)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("compare_filecontent", comparefilecontent)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("compare_filesize", comparefilesize)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("compareonly", compareonly)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("wildcard", wildcard)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue(CONST_FILENAME1, filename1)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue(CONST_FILENAME2, filename2);
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      includesubfolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-      comparefilecontent =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "compare_filecontent"));
-      comparefilesize = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "compare_filesize"));
-
-      compareonly = XmlHandler.getTagValue(entrynode, "compareonly");
-      wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
-      filename1 = XmlHandler.getTagValue(entrynode, CONST_FILENAME1);
-      filename2 = XmlHandler.getTagValue(entrynode, CONST_FILENAME2);
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionFoldersCompare.Meta.UnableLoadXML", xe.getMessage()));
-    }
-  }
-
-  public void setIncludeSubfolders(boolean includeSubfolders) {
-    this.includesubfolders = includeSubfolders;
-  }
-
-  public boolean isIncludeSubfolders() {
-    return includesubfolders;
-  }
-
-  public void setCompareFileContent(boolean comparefilecontent) {
-    this.comparefilecontent = comparefilecontent;
-  }
-
-  public boolean isCompareFileContent() {
-    return comparefilecontent;
-  }
-
-  public void setCompareFileSize(boolean comparefilesize) {
-    this.comparefilesize = comparefilesize;
-  }
-
-  public boolean isCompareFileSize() {
-    return comparefilesize;
+    return new ActionFoldersCompare(this);
   }
 
   public String getRealWildcard() {
@@ -196,7 +145,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
    * @param file2 second file to compare
    * @param result result to add bytes read to (for data volume tracking)
    * @return true if files are equal, false if they are not
-   * @throws org.apache.hop.core.exception.HopFileException upon IO problems
+   * @throws HopFileException upon IO problems
    */
   protected boolean equalFileContents(FileObject file1, FileObject file2, Result result)
       throws HopFileException {
@@ -232,8 +181,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public Result execute(Result previousResult, int nr) {
-    Result result = previousResult;
+  public Result execute(Result result, int nr) {
     result.setResult(false);
     boolean ok = true;
 
@@ -317,13 +265,11 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
                 // Let's now fetch Folder1
                 // and for each entry, we will search it in Folder2
-                // if the entry exists..we will compare file entry (file or folder?)
+                // if the entry exists... we will compare file entry (file or folder?)
                 // if the 2 entry are file (not folder), we will compare content
                 Set<Map.Entry<String, String>> entrees = collection1.entrySet();
-                Iterator<Map.Entry<String, String>> iterateur = entrees.iterator();
 
-                while (iterateur.hasNext()) {
-                  Map.Entry<String, String> entree = iterateur.next();
+                for (Map.Entry<String, String> entree : entrees) {
                   if (!collection2.containsKey(entree.getKey())) {
                     ok = false;
                     if (isDetailed()) {
@@ -388,7 +334,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                       // Files are the same type ...
                       if (filefolder2.getType() == FileType.FILE) {
                         // Let's compare file size
-                        if (comparefilesize) {
+                        if (compareFileSize) {
                           long filefolder1Size = filefolder1.getContent().getSize();
                           long filefolder2Size = filefolder2.getContent().getSize();
                           if (filefolder1Size != filefolder2Size) {
@@ -417,7 +363,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                         }
 
                         if (ok
-                            && comparefilecontent
+                            && compareFileContent
                             && !equalFileContents(filefolder1, filefolder2, result)) {
                           // Let's compare files content..
                           ok = false;
@@ -513,43 +459,40 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
     @Override
     public boolean includeFile(FileSelectInfo info) {
+      if (info.getFile().toString().equals(sourceFolder)) {
+        return false;
+      }
+
       boolean returncode = false;
       try {
-        if (!info.getFile().toString().equals(sourceFolder)) {
-          // Pass over the Base folder itself
-          String shortFilename = info.getFile().getName().getBaseName();
+        // Pass over the Base folder itself
+        String shortFilename = info.getFile().getName().getBaseName();
 
-          if (info.getFile().getParent().equals(info.getBaseFolder())) {
-            // In the Base Folder...
-            if ((info.getFile().getType() == FileType.FILE && compareonly.equals("only_files"))
-                || (info.getFile().getType() == FileType.FOLDER
-                    && compareonly.equals("only_folders"))
-                || (getFileWildcard(shortFilename) && compareonly.equals("specify"))
-                || (compareonly.equals("all"))) {
-              returncode = true;
-            }
-          } else {
-            // Not in the Base Folder...Only if include sub folders
+        if (info.getFile().getParent().equals(info.getBaseFolder())) {
+          // In the Base Folder...
+          if ((info.getFile().getType() == FileType.FILE && compareOnly.equals("only_files"))
+              || (info.getFile().getType() == FileType.FOLDER && compareOnly.equals("only_folders"))
+              || (getFileWildcard(shortFilename) && compareOnly.equals("specify"))
+              || (compareOnly.equals("all"))) {
+            returncode = true;
+          }
+        } else {
+          // Not in the Base Folder... Only if include sub folders
 
-            if ((includesubfolders
-                    && (info.getFile().getType() == FileType.FILE
-                        && compareonly.equals("only_files"))
-                || (info.getFile().getType() == FileType.FOLDER
-                    && compareonly.equals("only_folders"))
-                || (getFileWildcard(shortFilename) && compareonly.equals("specify"))
-                || (compareonly.equals("all")))) {
-              returncode = true;
-            }
+          if ((includeSubFolders
+                  && (info.getFile().getType() == FileType.FILE && compareOnly.equals("only_files"))
+              || (info.getFile().getType() == FileType.FOLDER && compareOnly.equals("only_folders"))
+              || (getFileWildcard(shortFilename) && compareOnly.equals("specify"))
+              || (compareOnly.equals("all")))) {
+            returncode = true;
           }
         }
       } catch (Exception e) {
-
         logError(
             "Error while finding files ... in ["
                 + info.getFile().toString()
                 + "]. Exception :"
                 + e.getMessage());
-        returncode = false;
       }
       return returncode;
     }
@@ -561,20 +504,18 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
   }
 
   /**
-   * @param selectedfile
-   * @return True if the selectedfile matches the wildcard
+   * @param selectedFile The selected file
+   * @return True if the selected file matches the wildcard
    */
-  private boolean getFileWildcard(String selectedfile) {
-    Pattern pattern = null;
+  private boolean getFileWildcard(String selectedFile) {
+    Pattern pattern;
     boolean getIt = true;
 
     if (!Utils.isEmpty(wildcard)) {
       pattern = Pattern.compile(wildcard);
       // First see if the file matches the regular expression!
-      if (pattern != null) {
-        Matcher matcher = pattern.matcher(selectedfile);
-        getIt = matcher.matches();
-      }
+      Matcher matcher = pattern.matcher(selectedFile);
+      getIt = matcher.matches();
     }
 
     return getIt;
@@ -583,30 +524,6 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
   @Override
   public boolean isEvaluation() {
     return true;
-  }
-
-  public void setWildcard(String wildcard) {
-    this.wildcard = wildcard;
-  }
-
-  public String getWildcard() {
-    return wildcard;
-  }
-
-  public void setFilename1(String filename) {
-    this.filename1 = filename;
-  }
-
-  public String getFilename1() {
-    return filename1;
-  }
-
-  public void setFilename2(String filename) {
-    this.filename2 = filename;
-  }
-
-  public String getFilename2() {
-    return filename2;
   }
 
   @Override

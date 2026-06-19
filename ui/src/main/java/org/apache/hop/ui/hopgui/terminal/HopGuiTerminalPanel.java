@@ -18,7 +18,7 @@
 package org.apache.hop.ui.hopgui.terminal;
 
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
@@ -801,7 +801,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           && fontSizeState.getStateMap() != null
           && fontSizeState.getStateMap().get("value") != null) {
         int saved = Const.toInt(fontSizeState.getStateMap().get("value").toString(), 100);
-        terminalFontSizePercent = Math.max(50, Math.min(200, saved));
+        terminalFontSizePercent = Math.clamp(saved, 50, 200);
       }
 
       if (auditList.getNames().isEmpty()) {

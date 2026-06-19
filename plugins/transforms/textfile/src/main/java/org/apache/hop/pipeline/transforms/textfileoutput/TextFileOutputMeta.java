@@ -40,6 +40,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -70,10 +71,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   protected static final String[] formatMapperLineTerminator =
       new String[] {"DOS", "UNIX", "CR", "None"};
-  public static final String CONST_FORMAT = "format";
-  public static final String CONST_FIELD = "field";
-  public static final String CONST_SPACES_LONG = "        ";
-  public static final String CONST_SPACES = "      ";
 
   @Getter
   @Setter
@@ -84,16 +81,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         injectionKey = "FILENAME",
         injectionKeyDescription = "TextFileOutput.Injection.FILENAME")
     protected String fileName;
-
-    /**
-     * Whether to push the output into the output of a servlet with the executePipeline
-     * HopServer/DI-Server servlet
-     */
-    @HopMetadataProperty(
-        key = "servlet_output",
-        injectionKey = "PASS_TO_SERVLET",
-        injectionKeyDescription = "TextFileOutput.Injection.PASS_TO_SERVLET")
-    private boolean servletOutput;
 
     /** Flag : Do not open new file when pipeline start */
     @HopMetadataProperty(
@@ -193,7 +180,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       setSpecifyingFormat(false);
       setDateTimeFormat(null);
       fileName = "";
-      servletOutput = false;
       doNotOpenNewFileInit = true;
       extension = "";
       transformNrInFilename = false;
@@ -218,7 +204,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       this.fileName = f.fileName;
       this.padded = f.padded;
       this.partNrInFilename = f.partNrInFilename;
-      this.servletOutput = f.servletOutput;
       this.specifyingFormat = f.specifyingFormat;
       this.splitEveryRows = f.splitEveryRows;
       this.timeInFilename = f.timeInFilename;
@@ -333,7 +318,8 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
   @HopMetadataProperty(
       key = "schema_definition",
       injectionKey = "SCHEMA_DEFINITION",
-      injectionKeyDescription = "TextFileOutput.Injection.SCHEMA_DEFINITION")
+      injectionKeyDescription = "TextFileOutput.Injection.SCHEMA_DEFINITION",
+      hopMetadataPropertyType = HopMetadataPropertyType.STATIC_SCHEMA_DEFINITION)
   private String schemaDefinition;
 
   @HopMetadataProperty(
@@ -615,12 +601,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     } catch (Exception e) {
       throw new HopException(e);
     }
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public boolean passDataToServletOutput() {
-    return fileSettings.servletOutput;
   }
 
   public String[] getFiles(final IVariables variables) {

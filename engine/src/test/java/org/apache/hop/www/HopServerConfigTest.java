@@ -27,7 +27,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.server.HopServerMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -217,6 +220,74 @@ class HopServerConfigTest {
     assertNull(parseJettyOptions);
   }
 
+  @Test
+  void testSetInternalHopServerVariables_populatesAllVariables() {
+    HopServerMeta meta =
+        new HopServerMeta("my-server", "host.example.com", "8181", "8180", "admin", "secret");
+    meta.setWebAppName("hop");
+    meta.setSslMode(true);
+    slServerConfig.setHopServer(meta);
+
+    IVariables variables = new Variables();
+    slServerConfig.setInternalHopServerVariables(variables, 8181);
+
+    assertEquals("my-server", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_NAME));
+    assertEquals(
+        "host.example.com", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_HOSTNAME));
+    assertEquals("8181", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_PORT));
+    assertEquals("hop", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_WEB_APP_NAME));
+    assertEquals("admin", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_USERNAME));
+    assertEquals("true", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_SSL_MODE));
+  }
+
+  @Test
+  void testSetInternalHopServerVariables_resolvedPortOverridesConfigured() {
+    HopServerMeta meta = new HopServerMeta("local8080", "localhost", "8080", "8079", null, null);
+    slServerConfig.setHopServer(meta);
+
+    IVariables variables = new Variables();
+    slServerConfig.setInternalHopServerVariables(variables, 9090);
+
+    assertEquals("9090", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_PORT));
+  }
+
+  @Test
+  void testSetInternalHopServerVariables_handlesEmptyOptionalFields() {
+    HopServerMeta meta = new HopServerMeta();
+    meta.setName("minimal");
+    meta.setHostname("localhost");
+    slServerConfig.setHopServer(meta);
+
+    IVariables variables = new Variables();
+    slServerConfig.setInternalHopServerVariables(variables, 8080);
+
+    assertEquals("minimal", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_NAME));
+    assertEquals("localhost", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_HOSTNAME));
+    assertEquals("", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_WEB_APP_NAME));
+    assertEquals("", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_USERNAME));
+    assertEquals("false", variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_SSL_MODE));
+  }
+
+  @Test
+  void testSetInternalHopServerVariables_nullServerIsNoop() {
+    // No HopServerMeta on the config — should not throw and should not set any variable.
+    IVariables variables = new Variables();
+    slServerConfig.setInternalHopServerVariables(variables, 8080);
+
+    assertNull(variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_NAME));
+    assertNull(variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_HOSTNAME));
+    assertNull(variables.getVariable(Const.INTERNAL_VARIABLE_HOP_SERVER_PORT));
+  }
+
+  @Test
+  void testSetInternalHopServerVariables_nullVariablesIsNoop() {
+    HopServerMeta meta = new HopServerMeta("server", "host", "8181", "8180", null, null);
+    slServerConfig.setHopServer(meta);
+
+    // Should not throw on null variables.
+    slServerConfig.setInternalHopServerVariables(null, 8181);
+  }
+
   private Node getConfigNode(String configString) throws HopXmlException {
     Document document = XmlHandler.loadXmlString(configString);
     return XmlHandler.getSubNode(document, HopServerConfig.XML_TAG);
@@ -259,7 +330,7 @@ class HopServerConfigTest {
 
   private String getConfig(Map<String, String> jettyOptions) {
     StringBuilder xml = new StringBuilder(50);
-    xml.append(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+    xml.append(XmlHandler.getXmlHeader(Const.UTF_8));
     xml.append("<" + XML_TAG_HOP_SERVER_CONFIG + ">").append(Const.CR);
     if (jettyOptions != null) {
       xml.append("<" + XML_TAG_JETTY_OPTIONS + ">").append(Const.CR);

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.Selectors;
@@ -135,7 +135,6 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -286,8 +285,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return "explorer-perspective";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'd', global = true)
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'd', global = true)
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'e', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'e', global = true)
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -342,11 +341,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         .getEventsHandler()
         .addEventListener(
             getClass().getName() + "ProjectActivated",
-            e -> {
-              refresh();
-              // Defer so namespace and UI are fully updated after project switch
-              hopGui.getDisplay().asyncExec(() -> applyRestoredState());
-            },
+            e ->
+                hopGui
+                    .getDisplay()
+                    .asyncExec(
+                        () -> {
+                          clearSearchFilters();
+                          refresh();
+                          applyRestoredState();
+                        }),
             HopGuiEvents.ProjectActivated.name());
 
     hopGui
@@ -569,7 +572,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(SWT.DefaultSelection, this::openFile);
     PropsUi.setLook(tree);
-    logFileExplorerFont("tree", tree.getFont());
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
@@ -639,24 +641,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     //
     GuiRegistry.getInstance().executeCallbackMethods(GUI_TOOLBAR_CREATED_CALLBACK_ID);
     GuiRegistry.getInstance().executeCallbackMethods(GUI_CONTEXT_MENU_CREATED_CALLBACK_ID);
-  }
-
-  private void logFileExplorerFont(String widget, Font font) {
-    if (font == null || font.isDisposed()) {
-      return;
-    }
-    FontData[] fda = font.getFontData();
-    if (fda != null && fda.length > 0) {
-      hopGui
-          .getLog()
-          .logBasic(
-              "File explorer "
-                  + widget
-                  + " font: family="
-                  + fda[0].getName()
-                  + ", size="
-                  + fda[0].getHeight());
-    }
   }
 
   /**
@@ -1055,7 +1039,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private static String toDisplayPath(String path, String projectHome) {
     if (!StringUtils.isEmpty(projectHome) && path.startsWith(projectHome)) {
       String rel = path.substring(projectHome.length());
-      return "${PROJECT_HOME}" + (rel.startsWith("/") ? rel : "/" + rel);
+      return Const.VAR_PROJECT_HOME + (rel.startsWith("/") ? rel : "/" + rel);
     }
     return path;
   }
@@ -1065,11 +1049,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    * objects. If references exist, shows a warning dialog (Yes/Details/No). If no references exist,
    * shows the standard Yes/No confirmation. Returns {@code true} if the user confirmed deletion.
    */
-  private boolean confirmDeleteWithReferenceCheck(List<String> filePaths, String displayName)
+  public boolean confirmDeleteWithReferenceCheck(List<String> filePaths, String displayName)
       throws HopException {
-    String projectHome = hopGui.getVariables().resolve("${PROJECT_HOME}");
+    String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
     List<String> searchRoots =
-        (!Utils.isEmpty(projectHome) && !"${PROJECT_HOME}".equals(projectHome))
+        (!Utils.isEmpty(projectHome) && !Const.VAR_PROJECT_HOME.equals(projectHome))
             ? List.of(projectHome)
             : Collections.emptyList();
 
@@ -1166,21 +1150,20 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             PKG, "ExplorerPerspective.DeleteFile.WithReferences.Button.Details"));
     wDetails.addListener(
         SWT.Selection,
-        e -> {
-          new DetailsDialog(
-                  shell,
-                  BaseMessages.getString(
-                      PKG,
-                      "ExplorerPerspective.DeleteFile.WithReferences.Details.Title",
-                      displayName),
-                  GuiResource.getInstance().getImageHop(),
-                  BaseMessages.getString(
-                      PKG,
-                      "ExplorerPerspective.DeleteFile.WithReferences.Details.Message",
-                      displayName),
-                  String.join(Const.CR, detailLines))
-              .open();
-        });
+        e ->
+            new DetailsDialog(
+                    shell,
+                    BaseMessages.getString(
+                        PKG,
+                        "ExplorerPerspective.DeleteFile.WithReferences.Details.Title",
+                        displayName),
+                    GuiResource.getInstance().getImageHop(),
+                    BaseMessages.getString(
+                        PKG,
+                        "ExplorerPerspective.DeleteFile.WithReferences.Details.Message",
+                        displayName),
+                    String.join(Const.CR, detailLines))
+                .open());
     Button wNo = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wNo);
     wNo.setText(BaseMessages.getString("System.Button.No"));
@@ -1538,8 +1521,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (oldPaths == null || newPaths == null || oldPaths.size() != newPaths.size()) {
       return;
     }
-    String projectHome = hopGui.getVariables().resolve("${PROJECT_HOME}");
-    if (Utils.isEmpty(projectHome) || "${PROJECT_HOME}".equals(projectHome)) {
+    String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
+    if (Utils.isEmpty(projectHome) || Const.VAR_PROJECT_HOME.equals(projectHome)) {
       return;
     }
     List<String> searchRoots = java.util.Collections.singletonList(projectHome);
@@ -1548,7 +1531,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       Map<String, String> oldToNew = new HashMap<>();
 
       // File references (pipeline/workflow files referencing the renamed file)
-      List<MetadataReferenceResult> allFileRefs = new ArrayList<>();
       java.util.Set<String> allFilePaths = new java.util.HashSet<>();
       int totalFileRefCount = 0;
 
@@ -1570,9 +1552,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             finder.findFileReferences(searchRoots, oldPath, hopGui.getVariables());
         for (MetadataReferenceResult r : refs) {
           totalFileRefCount += r.getReferenceCount();
-          if (allFilePaths.add(r.getFilePath())) {
-            allFileRefs.add(r);
-          }
+          allFilePaths.add(r.getFilePath());
         }
 
         // Find references in metadata objects (resolve variables so ${PROJECT_HOME}/... matches)
@@ -1707,7 +1687,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           String xml = pipelineMeta.getXml(variables);
           OutputStream out = HopVfs.getOutputStream(filename, false);
           try {
-            out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+            out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
             out.write(xml.getBytes(StandardCharsets.UTF_8));
           } finally {
             out.flush();
@@ -1724,7 +1704,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           String xml = workflowMeta.getXml(variables);
           OutputStream out = HopVfs.getOutputStream(filename, false);
           try {
-            out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+            out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
             out.write(xml.getBytes(StandardCharsets.UTF_8));
           } finally {
             out.flush();
@@ -1927,6 +1907,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             && fileType.equals(item.getTypeHandler().getFileType())) {
           return item;
         }
+      }
+    }
+    return null;
+  }
+
+  private CTabItem currentTabItemFor(IHopFileTypeHandler typeHandler) {
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() == typeHandler) {
+        CTabItem t = item.getTabItem();
+        return (t == null || t.isDisposed()) ? null : t;
       }
     }
     return null;
@@ -2148,12 +2138,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         new IContentChangedListener() {
           @Override
           public void contentChanged(Object parentObject) {
-            tabItem.setFont(GuiResource.getInstance().getFontBold());
+            CTabItem current = currentTabItemFor(fileTypeHandler);
+            if (current != null) {
+              current.setFont(GuiResource.getInstance().getFontBold());
+            }
           }
 
           @Override
           public void contentSafe(Object parentObject) {
-            tabItem.setFont(tabItem.getParent().getFont());
+            CTabItem current = currentTabItemFor(fileTypeHandler);
+            if (current != null && current.getParent() != null) {
+              current.setFont(current.getParent().getFont());
+            }
           }
         });
 
@@ -2779,6 +2775,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       image = "ui/images/refresh.svg")
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
+  @Override
+  public void clearSearchFilters() {
+    if (searchText != null && !searchText.isDisposed()) {
+      searchText.setText("");
+    } else {
+      filterText = "";
+    }
+  }
+
   public void refresh() {
     try {
       determineRootFolderName(hopGui);
@@ -2873,7 +2878,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   public IHopFileType getFileType(String path) throws HopException {
 
-    // TODO: get this list from the plugin registry...
+    // get this list from the plugin registry...
     //
     for (IHopFileType hopFileType : fileTypes) {
       // Only look at the extension of the file
@@ -2901,17 +2906,30 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       // Sort by full path ascending
       Arrays.sort(children, Comparator.comparing(Object::toString));
 
+      String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
+      String metadataFolderName = null;
+      if (!Utils.isEmpty(metadataFolder)) {
+        String resolvedMetadataFolder = hopGui.getVariables().resolve(metadataFolder);
+        if (!Utils.isEmpty(resolvedMetadataFolder)) {
+          String normalizedMetadataFolder = resolvedMetadataFolder.replace('\\', '/');
+          int lastSlashIndex = normalizedMetadataFolder.lastIndexOf('/');
+          metadataFolderName =
+              (lastSlashIndex >= 0)
+                  ? normalizedMetadataFolder.substring(lastSlashIndex + 1)
+                  : normalizedMetadataFolder;
+        }
+      }
+
       for (boolean folder : new boolean[] {true, false}) {
         for (FileObject child : children) {
 
           String childName = child.getName().getBaseName();
-          String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
+          boolean isMetadataFolderMatch =
+              !Utils.isEmpty(metadataFolderName) && metadataFolderName.equals(childName);
 
           // Skip hidden files or folders
           if (!showingHiddenFiles
-              && (child.isHidden()
-                  || childName.startsWith(".")
-                  || child.toString().contains(metadataFolder))) {
+              && (child.isHidden() || childName.startsWith(".") || isMetadataFolderMatch)) {
             continue;
           }
 
@@ -3484,6 +3502,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       sash.setWeights(20, 80);
     } else {
       sash.setMaximizedControl(tabFolderWrapper);
+    }
+
+    // Shift the focus away from the perspective icon onto the active graph.
+    //
+    IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
+    if (activeHandler != null) {
+      if (activeHandler instanceof HopGuiPipelineGraph graph) {
+        graph.setFocus();
+      }
+      if (activeHandler instanceof HopGuiWorkflowGraph graph) {
+        graph.setFocus();
+      }
     }
   }
 

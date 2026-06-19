@@ -28,7 +28,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -65,6 +65,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
   private Button wbAppend;
   private Button wbReplace;
   private TextVar wTimeout;
+  private TextVar wRetryAttempts;
+  private TextVar wRetryDelayMs;
   private TextVar wImpersonation;
   private TextVar wAppName;
   private TextVar wProxyHost;
@@ -78,20 +80,6 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
       PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
     this.meta = transformMeta;
-  }
-
-  private static HttpRequestInitializer setHttpTimeout(
-      final HttpRequestInitializer requestInitializer, final String timeout) {
-    return httpRequest -> {
-      requestInitializer.initialize(httpRequest);
-      Integer to = 5;
-      if (!timeout.isEmpty()) {
-        to = Integer.parseInt(timeout);
-      }
-
-      httpRequest.setConnectTimeout(to * 60000); // 3 minutes connect timeout
-      httpRequest.setReadTimeout(to * 60000); // 3 minutes read timeout
-    };
   }
 
   @Override
@@ -149,7 +137,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
     // Appname - Label
     Label appNameLabel = new Label(serviceAccountComposite, SWT.RIGHT);
-    appNameLabel.setText("Google Application Name :");
+    appNameLabel.setText(
+        BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.ApplicationName.Label"));
     PropsUi.setLook(appNameLabel);
     FormData appNameLabelForm = new FormData();
     appNameLabelForm.top = new FormAttachment(wbPrivateKey, margin);
@@ -168,7 +157,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
     // Timeout - Label
     Label timeoutLabel = new Label(serviceAccountComposite, SWT.RIGHT);
-    timeoutLabel.setText("Time out in minutes :");
+    timeoutLabel.setText(BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.TimeOut.Label"));
     PropsUi.setLook(timeoutLabel);
     FormData timeoutLabelForm = new FormData();
     timeoutLabelForm.top = new FormAttachment(wAppName, margin);
@@ -185,13 +174,55 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     timeoutData.right = new FormAttachment(wbPrivateKey, -margin);
     wTimeout.setLayoutData(timeoutData);
 
+    // Retry attempts - Label
+    Label retryAttemptsLabel = new Label(serviceAccountComposite, SWT.RIGHT);
+    retryAttemptsLabel.setText(
+        BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.RetryAttempts.Label"));
+    PropsUi.setLook(retryAttemptsLabel);
+    FormData retryAttemptsLabelForm = new FormData();
+    retryAttemptsLabelForm.top = new FormAttachment(wTimeout, margin);
+    retryAttemptsLabelForm.left = new FormAttachment(0, 0);
+    retryAttemptsLabelForm.right = new FormAttachment(middle, -margin);
+    retryAttemptsLabel.setLayoutData(retryAttemptsLabelForm);
+
+    // Retry attempts - Text
+    wRetryAttempts =
+        new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wRetryAttempts);
+    FormData retryAttemptsData = new FormData();
+    retryAttemptsData.top = new FormAttachment(wTimeout, margin);
+    retryAttemptsData.left = new FormAttachment(middle, 0);
+    retryAttemptsData.right = new FormAttachment(wbPrivateKey, -margin);
+    wRetryAttempts.setLayoutData(retryAttemptsData);
+
+    // Retry delay - Label
+    Label retryDelayLabel = new Label(serviceAccountComposite, SWT.RIGHT);
+    retryDelayLabel.setText(
+        BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.RetryDelaySeconds.Label"));
+    PropsUi.setLook(retryDelayLabel);
+    FormData retryDelayLabelForm = new FormData();
+    retryDelayLabelForm.top = new FormAttachment(wRetryAttempts, margin);
+    retryDelayLabelForm.left = new FormAttachment(0, 0);
+    retryDelayLabelForm.right = new FormAttachment(middle, -margin);
+    retryDelayLabel.setLayoutData(retryDelayLabelForm);
+
+    // Retry delay - Text
+    wRetryDelayMs =
+        new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wRetryDelayMs);
+    FormData retryDelayData = new FormData();
+    retryDelayData.top = new FormAttachment(wRetryAttempts, margin);
+    retryDelayData.left = new FormAttachment(middle, 0);
+    retryDelayData.right = new FormAttachment(wbPrivateKey, -margin);
+    wRetryDelayMs.setLayoutData(retryDelayData);
+
     // Impersonation - Label
     Label impersonationLabel = new Label(serviceAccountComposite, SWT.RIGHT);
     impersonationLabel.setText(
         BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.ImpersonationAccount"));
     PropsUi.setLook(impersonationLabel);
     FormData impersonationLabelForm = new FormData();
-    impersonationLabelForm.top = new FormAttachment(wTimeout, margin);
+    impersonationLabelForm.top = new FormAttachment(wRetryDelayMs, margin);
     impersonationLabelForm.left = new FormAttachment(0, 0);
     impersonationLabelForm.right = new FormAttachment(middle, -margin);
     impersonationLabel.setLayoutData(impersonationLabelForm);
@@ -201,7 +232,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
         new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wImpersonation);
     FormData impersonationData = new FormData();
-    impersonationData.top = new FormAttachment(wTimeout, margin);
+    impersonationData.top = new FormAttachment(wRetryDelayMs, margin);
     impersonationData.left = new FormAttachment(middle, 0);
     impersonationData.right = new FormAttachment(wbPrivateKey, -margin);
     wImpersonation.setLayoutData(impersonationData);
@@ -529,7 +560,11 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
       }
 
       EnterSelectionDialog esd =
-          new EnterSelectionDialog(shell, names, "Worksheets", "Select a Worksheet.");
+          new EnterSelectionDialog(
+              shell,
+              names,
+              BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.Worksheets.Title"),
+              BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.Worksheets.Prompt"));
       if (selectedSheet > -1) {
         esd.setSelectedNrs(new int[] {selectedSheet});
       }
@@ -597,7 +632,11 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
       }
 
       EnterSelectionDialog esd =
-          new EnterSelectionDialog(shell, titles, "Spreadsheets", "Select a Spreadsheet.");
+          new EnterSelectionDialog(
+              shell,
+              titles,
+              BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.Spreadsheets.Title"),
+              BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.Spreadsheets.Prompt"));
       if (selectedSpreadsheet > -1) {
         esd.setSelectedNrs(new int[] {selectedSpreadsheet});
       }
@@ -613,7 +652,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
       }
 
     } catch (Exception err) {
-      new ErrorDialog(shell, "System.Dialog.Error.Title", err.getMessage(), err);
+      new ErrorDialog(
+          shell, BaseMessages.getString(PKG, "System.Dialog.Error.Title"), err.getMessage(), err);
     }
   }
 
@@ -641,9 +681,13 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
                   credential, variables.resolve(meta.getTimeout())))
           .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
           .build();
-      wlTestServiceAccountInfo.setText("Google Drive API : Success!");
+      wlTestServiceAccountInfo.setText(
+          BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.TestConnectionSuccess.Message"));
     } catch (Exception error) {
-      wlTestServiceAccountInfo.setText("Connection Failed: " + error.getMessage());
+      wlTestServiceAccountInfo.setText(
+          BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.TestConnectionFailed.Message")
+              + ": "
+              + error.getMessage());
     }
   }
 
@@ -672,6 +716,12 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     }
     if (!StringUtils.isEmpty(meta.getTimeout())) {
       this.wTimeout.setText(meta.getTimeout());
+    }
+    if (!StringUtils.isEmpty(meta.getRetryAttempts())) {
+      this.wRetryAttempts.setText(meta.getRetryAttempts());
+    }
+    if (!StringUtils.isEmpty(meta.getRetryDelayMs())) {
+      this.wRetryDelayMs.setText(meta.getRetryDelayMs());
     }
     if (!StringUtils.isEmpty(meta.getImpersonation())) {
       this.wImpersonation.setText(meta.getImpersonation());
@@ -709,6 +759,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
     meta.setShareDomain(this.wShareDomainWise.getText());
 
     meta.setTimeout(this.wTimeout.getText());
+    meta.setRetryAttempts(this.wRetryAttempts.getText());
+    meta.setRetryDelayMs(this.wRetryDelayMs.getText());
     meta.setAppName(this.wAppName.getText());
     meta.setImpersonation(this.wImpersonation.getText());
 

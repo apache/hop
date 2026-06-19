@@ -20,14 +20,15 @@ package org.apache.hop.base;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.IEngineMeta;
@@ -37,6 +38,7 @@ import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.changed.IHopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
@@ -46,7 +48,6 @@ import org.apache.hop.core.listeners.INameChangedListener;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
@@ -55,6 +56,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.server.HopServerMeta;
 
+@Getter
+@Setter
 public abstract class AbstractMeta
     implements IChanged, IUndo, IEngineMeta, INamedParameterDefinitions, IAttributes {
 
@@ -94,12 +97,15 @@ public abstract class AbstractMeta
 
   protected List<ChangeAction> undo;
 
-  // TODO serialize to XML as well using @HopMetadataProperty
+  @HopMetadataProperty(
+      key = "group",
+      groupKey = "attributes",
+      mapKeyWrapper = "name",
+      mapValueWrapper = "attribute",
+      mapValueClass = HashMap.class)
   protected Map<String, Map<String, String>> attributesMap;
 
-  protected INamedParameters namedParams = new NamedParameters();
-
-  protected IHopMetadataProvider metadataProvider;
+  @Getter @Setter protected IHopMetadataProvider metadataProvider;
 
   protected final ChangedFlag changedFlag = new ChangedFlag();
 
@@ -109,26 +115,9 @@ public abstract class AbstractMeta
 
   protected RunOptions runOptions = new RunOptions();
 
-  private boolean showDialog = true;
-  private boolean alwaysShowRunOptions = true;
-
-  public boolean isShowDialog() {
-    return showDialog;
-  }
-
-  public void setShowDialog(boolean showDialog) {
-    this.showDialog = showDialog;
-  }
-
-  public boolean isAlwaysShowRunOptions() {
-    return alwaysShowRunOptions;
-  }
-
-  public void setAlwaysShowRunOptions(boolean alwaysShowRunOptions) {
-    this.alwaysShowRunOptions = alwaysShowRunOptions;
-  }
-
   protected abstract String getExtension();
+
+  protected abstract INamedParameters getNamedParameters();
 
   public static final String extractNameFromFilename(
       boolean sync, String name, String filename, String extension) {
@@ -158,38 +147,6 @@ public abstract class AbstractMeta
       }
     }
   }
-
-  /**
-   * Sets notes
-   *
-   * @param notes value of notes
-   */
-  public void setNotes(List<NotePadMeta> notes) {
-    this.notes = notes;
-  }
-
-  /**
-   * Get the name of the pipeline. If the name is synchronized with the filename, we return the base
-   * filename.
-   *
-   * @return The name of the pipeline
-   */
-  @Override
-  public abstract String getName();
-
-  /**
-   * Set the name.
-   *
-   * @param newName The new name
-   */
-  @Override
-  public abstract void setName(String newName);
-
-  @Override
-  public abstract boolean isNameSynchronizedWithFilename();
-
-  @Override
-  public abstract void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename);
 
   /**
    * Gets the description of the workflow.
@@ -249,10 +206,6 @@ public abstract class AbstractMeta
     this.filename = newFilename;
   }
 
-  /** This method sets various internal hop variables. */
-  @Override
-  public abstract void setInternalHopVariables(IVariables variables);
-
   /**
    * Sets the internal filename hop variables.
    *
@@ -261,7 +214,7 @@ public abstract class AbstractMeta
   protected abstract void setInternalFilenameHopVariables(IVariables variables);
 
   /**
-   * Find a database connection by it's name
+   * Find a database connection by its name
    *
    * @param name The database name to look for
    * @return The database connection or null if nothing was found.
@@ -275,12 +228,12 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(DatabaseMeta.class).load(name);
     } catch (HopException e) {
-      throw new RuntimeException(CONST_UNABLE_TO_LOAD + name + CONST_FROM_METADATA, e);
+      throw new HopRuntimeException(CONST_UNABLE_TO_LOAD + name + CONST_FROM_METADATA, e);
     }
   }
 
   /**
-   * Find a database connection by it's name
+   * Find a database connection by its name
    *
    * @param name The database name to look for
    * @param variables IVariables to use to resolve possible database name
@@ -291,7 +244,7 @@ public abstract class AbstractMeta
   }
 
   /**
-   * Find a database connection by it's name
+   * Find a database connection by its name
    *
    * @param name The database name to look for
    * @param variables IVariables to use to resolve possible database name
@@ -306,7 +259,7 @@ public abstract class AbstractMeta
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(name));
       if (databaseMeta == null && haltOnMissingMeta) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             CONST_UNABLE_TO_LOAD
                 + variables.resolve(name)
                 + "' from the metadata. Please verify that the case of the connection name is correct because that could be an issue!");
@@ -314,7 +267,7 @@ public abstract class AbstractMeta
 
       return databaseMeta;
     } catch (HopException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           CONST_UNABLE_TO_LOAD + variables.resolve(name) + CONST_FROM_METADATA, e);
     }
   }
@@ -323,7 +276,7 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(DatabaseMeta.class).listObjectNames().size();
     } catch (HopException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to count the number of RDBMS connections in the metadata", e);
     }
   }
@@ -484,7 +437,7 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(HopServerMeta.class).load(getName());
     } catch (HopException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to load hop server with name '" + getName() + CONST_FROM_METADATA, e);
     }
   }
@@ -500,7 +453,7 @@ public abstract class AbstractMeta
       Collections.sort(names);
       return names.toArray(new String[0]);
     } catch (HopException e) {
-      throw new RuntimeException("Unable to get hop server names from the metadata", e);
+      throw new HopRuntimeException("Unable to get hop server names from the metadata", e);
     }
   }
 
@@ -914,7 +867,7 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(DatabaseMeta.class).loadAll();
     } catch (HopException e) {
-      throw new RuntimeException("Unable to load databases from the metadata", e);
+      throw new HopRuntimeException("Unable to load databases from the metadata", e);
     }
   }
 
@@ -929,7 +882,7 @@ public abstract class AbstractMeta
       Collections.sort(names);
       return names.toArray(new String[0]);
     } catch (HopException e) {
-      throw new RuntimeException("Unable to get database names from the metadata", e);
+      throw new HopRuntimeException("Unable to get database names from the metadata", e);
     }
   }
 
@@ -942,7 +895,7 @@ public abstract class AbstractMeta
   @Override
   public void addParameterDefinition(String key, String defValue, String description)
       throws DuplicateParamException {
-    namedParams.addParameterDefinition(key, defValue, description);
+    getNamedParameters().addParameterDefinition(key, defValue, description);
   }
 
   /*
@@ -952,7 +905,7 @@ public abstract class AbstractMeta
    */
   @Override
   public String getParameterDescription(String key) throws UnknownParamException {
-    return namedParams.getParameterDescription(key);
+    return getNamedParameters().getParameterDescription(key);
   }
 
   /*
@@ -962,7 +915,7 @@ public abstract class AbstractMeta
    */
   @Override
   public String getParameterDefault(String key) throws UnknownParamException {
-    return namedParams.getParameterDefault(key);
+    return getNamedParameters().getParameterDefault(key);
   }
 
   /*
@@ -972,7 +925,7 @@ public abstract class AbstractMeta
    */
   @Override
   public String[] listParameters() {
-    return namedParams.listParameters();
+    return getNamedParameters().listParameters();
   }
 
   /*
@@ -982,15 +935,7 @@ public abstract class AbstractMeta
    */
   @Override
   public void removeAllParameters() {
-    namedParams.removeAllParameters();
-  }
-
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
+    getNamedParameters().removeAllParameters();
   }
 
   /**
@@ -999,70 +944,6 @@ public abstract class AbstractMeta
    * @param variables the new internal name hop variable
    */
   protected abstract void setInternalNameHopVariable(IVariables variables);
-
-  /**
-   * Gets the date the pipeline was created.
-   *
-   * @return the date the pipeline was created.
-   */
-  @Override
-  public abstract Date getCreatedDate();
-
-  /**
-   * Sets the date the pipeline was created.
-   *
-   * @param createdDate The creation date to set.
-   */
-  @Override
-  public abstract void setCreatedDate(Date createdDate);
-
-  /**
-   * Sets the user by whom the pipeline was created.
-   *
-   * @param createdUser The user to set.
-   */
-  @Override
-  public abstract void setCreatedUser(String createdUser);
-
-  /**
-   * Gets the user by whom the pipeline was created.
-   *
-   * @return the user by whom the pipeline was created.
-   */
-  @Override
-  public abstract String getCreatedUser();
-
-  /**
-   * Sets the date the pipeline was modified.
-   *
-   * @param modifiedDate The modified date to set.
-   */
-  @Override
-  public abstract void setModifiedDate(Date modifiedDate);
-
-  /**
-   * Gets the date the pipeline was modified.
-   *
-   * @return the date the pipeline was modified.
-   */
-  @Override
-  public abstract Date getModifiedDate();
-
-  /**
-   * Sets the user who last modified the pipeline.
-   *
-   * @param modifiedUser The user name to set.
-   */
-  @Override
-  public abstract void setModifiedUser(String modifiedUser);
-
-  /**
-   * Gets the user who last modified the pipeline.
-   *
-   * @return the user who last modified the pipeline.
-   */
-  @Override
-  public abstract String getModifiedUser();
 
   public void clear() {
     setName(null);
@@ -1179,6 +1060,17 @@ public abstract class AbstractMeta
     } else {
       return meta1.getFilename().compareTo(meta2.getFilename());
     }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof AbstractMeta other)) {
+      return false;
+    }
+    return compare(this, other) == 0;
   }
 
   @Override

@@ -17,7 +17,7 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -56,24 +56,27 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
 
   @Override
   protected void ok() {
+    final boolean showSample;
     try {
       samples = Integer.parseInt(wNumber.getText());
-      handleOk(samples);
-      dispose();
+      showSample = wCheckbox != null && wCheckbox.getSelection();
     } catch (Exception e) {
       MessageBox mb = new MessageBox(getParent(), SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "Dialog.Error.EnterInteger"));
       mb.setText(BaseMessages.getString(PKG, "Dialog.Error.Header"));
       mb.open();
       wNumber.selectAll();
+      return;
     }
+    dispose();
+    handleOk(samples, showSample);
   }
 
-  protected void handleOk(final int samples) {
+  protected void handleOk(final int samples, final boolean showSample) {
     if (samples >= 0) {
       String message =
           parentDialog.loadFields(parentDialog.getPopulatedMeta(), samples, reloadAllFields);
-      if (wCheckbox != null && wCheckbox.getSelection()) {
+      if (showSample) {
         if (StringUtils.isNotBlank(message)) {
           final EnterTextDialog etd =
               new EnterTextDialog(
@@ -87,8 +90,8 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
           etd.setModal();
           etd.open();
         } else {
-
-          MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          // This dialog has already been disposed, so parent the message to the transform dialog.
+          MessageBox box = new MessageBox(parentDialog.getShell(), SWT.OK | SWT.ICON_ERROR);
           box.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
           box.setMessage(
               BaseMessages.getString(PKG, "GetFieldsSampleDataDialog.ScanResults.Error.Message"));

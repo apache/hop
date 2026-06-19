@@ -16,24 +16,18 @@
  */
 package org.apache.hop.core.xml;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
 /** Unit test for {@link XmlFormatter} */
 class XmlFormatterTest {
-
-  @BeforeAll
-  static void setupClass() {
-    XMLUnit.setIgnoreWhitespace(true);
-  }
 
   @Test
   void test1() throws Exception {
@@ -48,8 +42,14 @@ class XmlFormatterTest {
     }
 
     String result = XmlFormatter.format(inXml);
-    Diff diff = XMLUnit.compareXML(expectedXml, result);
-    assertTrue(diff.similar(), "XML documents are not equal: " + diff.toString());
+    Diff diff =
+        DiffBuilder.compare(expectedXml)
+            .withTest(result)
+            .ignoreWhitespace()
+            .checkForSimilar()
+            .build();
+
+    assertFalse(diff.hasDifferences(), "XML documents are not equal: " + diff);
   }
 
   @Test
@@ -66,8 +66,14 @@ class XmlFormatterTest {
     }
 
     String result = XmlFormatter.format(inXml);
-    Diff diff = XMLUnit.compareXML(expectedXml, result);
-    assertTrue(diff.similar(), "XML documents are not equal: " + diff.toString());
+    Diff diff =
+        DiffBuilder.compare(expectedXml)
+            .withTest(result)
+            .ignoreWhitespace()
+            .checkForSimilar()
+            .build();
+
+    assertFalse(diff.hasDifferences(), "XML documents are not equal: " + diff);
   }
 
   @Test
@@ -85,8 +91,14 @@ class XmlFormatterTest {
     }
 
     String result = XmlFormatter.format(inXml);
-    Diff diff = XMLUnit.compareXML(expectedXml, result);
-    assertTrue(diff.similar(), "XML documents are not equal: " + diff.toString());
+    Diff diff =
+        DiffBuilder.compare(expectedXml)
+            .withTest(result)
+            .ignoreWhitespace()
+            .checkForSimilar()
+            .build();
+
+    assertFalse(diff.hasDifferences(), "XML documents are not equal: " + diff);
   }
 
   @Test
@@ -104,7 +116,14 @@ class XmlFormatterTest {
     }
 
     String result = XmlFormatter.format(inXml);
-    Diff diff = XMLUnit.compareXML(expectedXml, result);
-    assertTrue(diff.similar(), "XML documents are not equal: " + diff.toString());
+    Diff diff =
+        DiffBuilder.compare(expectedXml)
+            .withTest(result)
+            .ignoreWhitespace()
+            .ignoreComments()
+            .checkForSimilar()
+            .build();
+
+    assertFalse(diff.hasDifferences(), "XML documents are not equal: " + diff);
   }
 }

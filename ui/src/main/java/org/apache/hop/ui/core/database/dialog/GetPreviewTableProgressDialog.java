@@ -18,13 +18,14 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -49,8 +50,15 @@ public class GetPreviewTableProgressDialog {
   private DatabaseMeta dbMeta;
   private String tableName;
   private int limit;
-  private List<Object[]> rows;
-  private IRowMeta rowMeta;
+
+  /** JDBC {@link java.sql.Statement#setQueryTimeout(int)} in seconds; 0 = driver default. */
+  private final int queryTimeoutSeconds;
+
+  private List<Object[]> rows = Collections.emptyList();
+  @Getter private IRowMeta rowMeta;
+
+  /** False when preview failed (error dialog was shown). */
+  @Getter private boolean previewSucceeded = true;
 
   private Database db;
 
@@ -61,110 +69,132 @@ public class GetPreviewTableProgressDialog {
       DatabaseMeta dbInfo,
       String schemaName,
       String tableName,
-      int limit) {
+      int limit,
+      int queryTimeoutSeconds) {
     this.shell = shell;
     this.variables = variables;
     this.dbMeta = dbInfo;
     this.tableName = dbInfo.getQuotedSchemaTableCombination(variables, schemaName, tableName);
     this.limit = limit;
-  }
-
-  public List<Object[]> open() {
-    if (!EnvironmentUtils.getInstance().isWeb()) {
-      IRunnableWithProgress op =
-          monitor -> {
-            db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
-            try {
-              db.connect();
-
-              if (limit > 0) {
-                db.setQueryLimit(limit);
-              }
-
-              rows = db.getFirstRows(tableName, limit, new ProgressMonitorAdapter(monitor));
-              rowMeta = db.getReturnRowMeta();
-            } catch (HopException e) {
-              throw new InvocationTargetException(
-                  e, "Couldn't find any rows because of an error :" + e.toString());
-            } finally {
-              db.disconnect();
-            }
-          };
-      try {
-        final ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-        // Run something in the background to cancel active database queries, forecably if needed!
-        Runnable run =
-            () -> {
-              IProgressMonitor monitor = pmd.getProgressMonitor();
-              while (pmd.getShell() == null
-                  || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-                try {
-                  Thread.sleep(100);
-                } catch (InterruptedException e) {
-                  // Ignore
-                }
-              }
-
-              if (monitor.isCanceled()) { // Disconnect and see what happens!
-
-                try {
-                  db.cancelQuery();
-                } catch (Exception e) {
-                  // Ignore
-                }
-              }
-            };
-        // Start the cancel tracker in the background!
-        new Thread(run).start();
-
-        pmd.run(true, op);
-      } catch (InvocationTargetException | InterruptedException e) {
-        showErrorDialog(e);
-        return null;
-      }
-    } else {
-      try {
-        Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-        shell.setCursor(cursor);
-
-        db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
-        db.connect();
-
-        if (limit > 0) {
-          db.setQueryLimit(limit);
-        }
-
-        rows = db.getFirstRows(tableName, limit, null);
-        rowMeta = db.getReturnRowMeta();
-
-      } catch (HopDatabaseException e) {
-        showErrorDialog(e);
-        return null;
-      } finally {
-        db.disconnect();
-      }
-    }
-
-    return rows;
+    this.queryTimeoutSeconds = Math.max(0, queryTimeoutSeconds);
   }
 
   /**
-   * Showing an error dialog
-   *
-   * @param e
+   * @return preview rows; empty when none or on failure. On failure {@link #previewSucceeded} is
+   *     false; callers typically use the Lombok-generated {@code isPreviewSucceeded()} accessor.
    */
+  public List<Object[]> open() {
+    previewSucceeded = true;
+    rows = Collections.emptyList();
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      openDesktop();
+    } else {
+      openWeb();
+    }
+    return rows;
+  }
+
+  private void openDesktop() {
+    IRunnableWithProgress op = this::runPreviewWithResources;
+    try {
+      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+      startCancelWatcherThread(pmd);
+      pmd.run(true, op);
+    } catch (InvocationTargetException e) {
+      previewSucceeded = false;
+      showErrorDialog(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      previewSucceeded = false;
+      showErrorDialog(e);
+    }
+  }
+
+  private void runPreviewWithResources(IProgressMonitor monitor) throws InvocationTargetException {
+    try (Database database =
+        new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta)) {
+      db = database;
+      database.connect();
+      if (queryTimeoutSeconds > 0) {
+        database.setStatementQueryTimeoutSeconds(queryTimeoutSeconds);
+      }
+      if (limit > 0) {
+        database.setQueryLimit(limit);
+      }
+      rows = database.getFirstRows(tableName, limit, new ProgressMonitorAdapter(monitor));
+      rowMeta = database.getReturnRowMeta();
+    } catch (HopException e) {
+      throw new InvocationTargetException(
+          e, "Couldn't find any rows because of an error :" + e.toString());
+    } finally {
+      db = null;
+    }
+  }
+
+  private void startCancelWatcherThread(ProgressMonitorDialog pmd) {
+    Runnable run =
+        () -> {
+          IProgressMonitor monitor = pmd.getProgressMonitor();
+          while (pmd.getShell() == null
+              || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+            try {
+              Thread.sleep(100);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+              return;
+            }
+          }
+          if (monitor.isCanceled()) {
+            try {
+              if (db != null) {
+                db.cancelQuery();
+              }
+            } catch (Exception e) {
+              // Ignore
+            }
+          }
+        };
+    Thread cancelWatcher = new Thread(run, "Hop-DB-Preview-CancelWatcher");
+    cancelWatcher.setDaemon(true);
+    cancelWatcher.start();
+  }
+
+  private void openWeb() {
+    Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+    try {
+      shell.setCursor(cursor);
+      try (Database database =
+          new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta)) {
+        db = database;
+        database.connect();
+        if (queryTimeoutSeconds > 0) {
+          database.setStatementQueryTimeoutSeconds(queryTimeoutSeconds);
+        }
+        if (limit > 0) {
+          database.setQueryLimit(limit);
+        }
+        rows = database.getFirstRows(tableName, limit, null);
+        rowMeta = database.getReturnRowMeta();
+      }
+    } catch (HopException e) {
+      previewSucceeded = false;
+      showErrorDialog(e);
+    } finally {
+      if (!shell.isDisposed()) {
+        shell.setCursor(null);
+      }
+      if (!cursor.isDisposed()) {
+        cursor.dispose();
+      }
+      db = null;
+    }
+  }
+
   private void showErrorDialog(Exception e) {
     new ErrorDialog(
         shell,
         BaseMessages.getString(PKG, "GetPreviewTableProgressDialog.Error.Title"),
         BaseMessages.getString(PKG, "GetPreviewTableProgressDialog.Error.Message"),
         e);
-  }
-
-  /**
-   * @return the rowMeta
-   */
-  public IRowMeta getRowMeta() {
-    return rowMeta;
   }
 }

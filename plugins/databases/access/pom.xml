@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-databases-access</artifactId>
@@ -29,6 +29,9 @@
     <name>Hop Plugins Databases Microsoft Access</name>
 
     <properties>
+        <hop.jdbc.driver1>io.github.spannm:ucanaccess</hop.jdbc.driver1>
+        <hop.jdbc.driver2>org.hsqldb:hsqldb</hop.jdbc.driver2>
+        <jackcess.version>5.1.2</jackcess.version>
         <ucanaccess.version>5.1.5</ucanaccess.version>
     </properties>
 
@@ -47,12 +50,26 @@
     <dependencies>
         <dependency>
             <groupId>io.github.spannm</groupId>
+            <artifactId>jackcess</artifactId>
+            <version>${jackcess.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spannm</groupId>
             <artifactId>ucanaccess</artifactId>
             <version>${ucanaccess.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

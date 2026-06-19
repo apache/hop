@@ -373,7 +373,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
   private void setEncodings(ComboVar cVar) {
     // Encoding of the text file:
     String encoding =
-        Const.NVL(cVar.getText(), Const.getEnvironmentVariable("file.encoding", "UTF-8"));
+        Const.NVL(cVar.getText(), Const.getEnvironmentVariable("file.encoding", Const.UTF_8));
     cVar.removeAll();
     ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
     for (Charset charSet : values) {

@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui.file;
 
-import java.util.Properties;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -27,20 +26,12 @@ import org.apache.hop.core.vfs.HopVfs;
 public abstract class HopFileTypeBase implements IHopFileType {
 
   @Override
-  public abstract String getName();
-
-  @Override
-  public abstract Properties getCapabilities();
-
-  @Override
-  public abstract String[] getFilterExtensions();
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
-    return obj.getClass().equals(this.getClass()); // same class is enough
+    // same class is enough
+    return obj.getClass().equals(this.getClass());
   }
 
   @Override

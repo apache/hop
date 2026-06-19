@@ -1,0 +1,44 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "tx_id",
+          "data_set_field": "tx_id"
+        },
+        {
+          "transform_field": "gross_amount",
+          "data_set_field": "gross_amount"
+        },
+        {
+          "transform_field": "status",
+          "data_set_field": "status"
+        },
+        {
+          "transform_field": "merchant_id",
+          "data_set_field": "merchant_id"
+        },
+        {
+          "transform_field": "fraud_score",
+          "data_set_field": "fraud_score"
+        }
+      ],
+      "field_order": [
+        "tx_id"
+      ],
+      "data_set_name": "golden-json-normalize-complex",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0010-json-normalize-complex UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0010-json-normalize-complex.hpl"
+}

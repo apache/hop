@@ -1,0 +1,3 @@
+input,tokenValue,output
+Line with ${VARIABLE1} to replace.,Value1,Line with Value1 to replace.
+Another with ${VARIABLE2} in it.,Value2,Another with Value2 in it.

@@ -35,6 +35,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
@@ -60,6 +63,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -88,6 +92,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -118,6 +123,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private static final String CONST_ERROR_UPDATING_BATCH = "Error updating batch";
 
   private int rowlimit;
+
+  /**
+   * When positive, applied to statements created in {@link #openQuery(String, IRowMeta, Object[],
+   * int, boolean)} via {@link Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC
+   * driver default (typically unlimited). Intended for short-lived GUI preview connections.
+   */
+  private int statementQueryTimeoutSeconds;
+
   private int commitsize;
 
   private Connection connection;
@@ -149,8 +162,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   /** The copy is equal to opened at the time of creation. */
   private volatile int copy;
 
-  private String connectionGroup;
-  private String partitionId;
+  @Getter @Setter private String connectionGroup;
+  @Getter @Setter private String partitionId;
 
   private IVariables variables = new Variables();
 
@@ -158,7 +171,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private String containerObjectId;
 
-  private int nrExecutedCommits;
+  @Getter @Setter private int nrExecutedCommits;
 
   private SshTunnelManager sshTunnelManager;
 
@@ -173,7 +186,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
               // Reverse the sort list
               (Integer.valueOf(o1.getType()).compareTo(o2.getType())) * -1);
     } catch (Exception e) {
-      throw new RuntimeException("Unable to get list of instantiated value meta plugin classes", e);
+      throw new HopRuntimeException(
+          "Unable to get list of instantiated value meta plugin classes", e);
     }
   }
 
@@ -201,6 +215,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     dbmd = null;
 
     rowlimit = 0;
+    statementQueryTimeoutSeconds = 0;
 
     written = 0;
 
@@ -210,7 +225,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       ExtensionPointHandler.callExtensionPoint(
           log, variables, HopExtensionPoint.DatabaseCreated.id, this);
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error calling extension point while creating database connection", e);
     }
 
@@ -259,6 +274,23 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    */
   public void setQueryLimit(int rows) {
     rowlimit = rows;
+  }
+
+  /**
+   * Sets the JDBC {@link Statement#setQueryTimeout(int)} (seconds) for statements opened by {@link
+   * #openQuery(String, IRowMeta, Object[], int, boolean)} until {@link #disconnect()}. Use {@code
+   * 0} to use the driver default.
+   *
+   * @param seconds query timeout in whole seconds; values {@code < 0} are treated as {@code 0}
+   */
+  public void setStatementQueryTimeoutSeconds(int seconds) {
+    this.statementQueryTimeoutSeconds = Math.max(0, seconds);
+  }
+
+  private void applyStatementQueryTimeout(Statement statement) throws SQLException {
+    if (statement != null && statementQueryTimeoutSeconds > 0) {
+      statement.setQueryTimeout(statementQueryTimeoutSeconds);
+    }
   }
 
   /**
@@ -606,6 +638,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
                 + hde.getMessage());
         log.logError(Const.getStackTracker(hde));
       }
+      statementQueryTimeoutSeconds = 0;
     }
   }
 
@@ -1587,6 +1620,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           pstmt.setMaxRows(rowlimit);
         }
 
+        applyStatementQueryTimeout(pstmt);
+
         log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_START, databaseMeta.getName());
         res = pstmt.executeQuery();
         log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_STOP, databaseMeta.getName());
@@ -1607,6 +1642,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (rowlimit > 0 && databaseMeta.supportsSetMaxRows()) {
           selStmt.setMaxRows(rowlimit);
         }
+
+        applyStatementQueryTimeout(selStmt);
 
         log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_START, databaseMeta.getName());
         res = selStmt.executeQuery(databaseMeta.stripCR(sql));
@@ -2363,38 +2400,43 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
   }
 
-  private IValueMeta getValueFromSqlType(
-      ResultSetMetaData rm, int i, boolean ignoreLength, boolean lazyConversion)
-      throws HopDatabaseException, SQLException {
-    // TODO If we do lazy conversion, we need to find out about the encoding
-    //
+  private static boolean ddlCompatible =
+      Const.toBoolean(EnvUtil.getSystemProperty(Const.HOP_DB_DDL_COMPATIBLE, "false"));
 
-    // Extract the name from the result set meta data...
+  private IValueMeta getValueFromSqlType(
+      ResultSetMetaData rm, int columnIndex, boolean ignoreLength, boolean lazyConversion)
+      throws HopDatabaseException, SQLException {
+    // Extract the name from the result set metadata...
     //
     String name;
     if (databaseMeta.isMySqlVariant()) {
-      name = databaseMeta.getIDatabase().getLegacyColumnName(getDatabaseMetaData(), rm, i);
+      name =
+          databaseMeta.getIDatabase().getLegacyColumnName(getDatabaseMetaData(), rm, columnIndex);
     } else {
-      name = rm.getColumnName(i);
+      name = rm.getColumnName(columnIndex);
     }
 
     // Check the name, sometimes it's empty.
     //
     if (Utils.isEmpty(name) || Const.onlySpaces(name)) {
-      name = "Field" + (i + 1);
+      name = "Field" + (columnIndex + 1);
     }
 
-    // Ask all the value meta types if they want to handle the SQL type.
-    // The first to reply something gets the workflow...
-    //
-    IValueMeta valueMeta = null;
-    for (IValueMeta valueMetaClass : valueMetaPluginClasses) {
-      IValueMeta v =
-          valueMetaClass.getValueFromSqlType(
-              this, databaseMeta, name, rm, i, ignoreLength, lazyConversion);
-      if (v != null) {
-        valueMeta = v;
-        break;
+    IValueMeta valueMeta;
+    if (ddlCompatible) {
+      // Classic approach is to ask all value metadata data types for advice
+      // on which data type the database column maps to best.
+      //
+      valueMeta =
+          getDataTypeFromAllValueMetaLegacy(rm, columnIndex, ignoreLength, lazyConversion, name);
+    } else {
+      // Map obvious JDBC types to Hop data types first, then fall back to value meta plugins
+      // for specialized types (UUID, INET, JSON, and so on).
+      //
+      valueMeta = getDataTypeFromKnownSqlType(rm, columnIndex, ignoreLength, lazyConversion, name);
+      if (valueMeta == null) {
+        valueMeta =
+            getDataTypeFromAllValueMetaLegacy(rm, columnIndex, ignoreLength, lazyConversion, name);
       }
     }
 
@@ -2406,8 +2448,276 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         "Unable to handle database column '"
             + name
             + "', on column index "
-            + i
+            + columnIndex
             + " : not a handled data type");
+  }
+
+  /**
+   * Map well-known JDBC {@link Types} values to Hop value metadata using hard-coded rules. Returns
+   * {@code null} when the SQL type is not one of the standard mappings so that specialized value
+   * meta plugins can handle it.
+   */
+  private IValueMeta getDataTypeFromKnownSqlType(
+      ResultSetMetaData rm,
+      int columnIndex,
+      boolean ignoreLength,
+      boolean lazyConversion,
+      String name)
+      throws HopDatabaseException, SQLException {
+    int sqlType = rm.getColumnType(columnIndex);
+    int valtype = IValueMeta.TYPE_NONE;
+    int length = -1;
+    int precision = -1;
+    boolean isClob = false;
+    boolean signed = false;
+    try {
+      signed = rm.isSigned(columnIndex);
+    } catch (Exception ignored) {
+      // This JDBC driver doesn't support the isSigned method.
+    }
+
+    switch (sqlType) {
+      case Types.CHAR,
+          Types.VARCHAR,
+          Types.NVARCHAR,
+          Types.LONGVARCHAR,
+          Types.NCHAR,
+          Types.LONGNVARCHAR:
+        valtype = IValueMeta.TYPE_STRING;
+        if (!ignoreLength) {
+          length = rm.getColumnDisplaySize(columnIndex);
+        }
+        break;
+
+      case Types.CLOB, Types.NCLOB:
+        valtype = IValueMeta.TYPE_STRING;
+        length = DatabaseMeta.CLOB_LENGTH;
+        isClob = true;
+        break;
+
+      case Types.BIGINT:
+        if (signed) {
+          valtype = IValueMeta.TYPE_INTEGER;
+          precision = 0;
+          length = 15;
+        } else {
+          valtype = IValueMeta.TYPE_BIGNUMBER;
+          precision = 0;
+          length = 16;
+        }
+        break;
+
+      case Types.INTEGER:
+        valtype = IValueMeta.TYPE_INTEGER;
+        precision = 0;
+        length = 9;
+        break;
+
+      case Types.SMALLINT:
+        valtype = IValueMeta.TYPE_INTEGER;
+        precision = 0;
+        length = 4;
+        break;
+
+      case Types.TINYINT:
+        valtype = IValueMeta.TYPE_INTEGER;
+        precision = 0;
+        length = 2;
+        break;
+
+      case Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL, Types.NUMERIC:
+        valtype = IValueMeta.TYPE_NUMBER;
+        length = rm.getPrecision(columnIndex);
+        precision = rm.getScale(columnIndex);
+        // Precision in the database means the number of significant digits.
+        // In Hop, it means the digits before the decimal.
+        //
+        if (length > 0 && length > precision) {
+          length -= precision;
+        }
+
+        if (length >= 126) {
+          length = -1;
+        }
+        if (precision >= 126) {
+          precision = -1;
+        }
+
+        if (sqlType == Types.DOUBLE || sqlType == Types.FLOAT || sqlType == Types.REAL) {
+          if (precision == 0) {
+            precision = -1;
+          }
+
+          if (databaseMeta.getIDatabase().isPostgresVariant()
+              && sqlType == Types.DOUBLE
+              && precision >= 16
+              && length >= 16) {
+            precision = -1;
+            length = -1;
+          }
+
+          if (databaseMeta.getIDatabase().isMySqlVariant() && precision >= length) {
+            precision = -1;
+            length = -1;
+          }
+
+          if (length > 15 || precision > 15) {
+            valtype = IValueMeta.TYPE_BIGNUMBER;
+          }
+        } else {
+          if (precision == 0) {
+            if (length <= 18 && length > 0) {
+              valtype = IValueMeta.TYPE_INTEGER;
+            } else if (length > 18) {
+              valtype = IValueMeta.TYPE_BIGNUMBER;
+            }
+          } else if (length > 15 || precision > 15) {
+            valtype = IValueMeta.TYPE_BIGNUMBER;
+          }
+        }
+
+        if (databaseMeta.getIDatabase().isPostgresVariant()
+            && sqlType == Types.NUMERIC
+            && length == 0
+            && precision == 0) {
+          valtype = IValueMeta.TYPE_BIGNUMBER;
+          length = -1;
+          precision = -1;
+        }
+
+        if (databaseMeta.getIDatabase().isOracleVariant()) {
+          if (precision == 0 && length == 38) {
+            valtype =
+                databaseMeta.getIDatabase().isStrictBigNumberInterpretation()
+                    ? IValueMeta.TYPE_BIGNUMBER
+                    : IValueMeta.TYPE_INTEGER;
+          }
+          if (precision <= 0 && length <= 0) {
+            valtype = IValueMeta.TYPE_BIGNUMBER;
+            length = -1;
+            precision = -1;
+          }
+        }
+        break;
+
+      case Types.TIMESTAMP:
+        if (databaseMeta.supportsTimestampDataType()) {
+          valtype = IValueMeta.TYPE_TIMESTAMP;
+          length = rm.getScale(columnIndex);
+        } else {
+          valtype = IValueMeta.TYPE_DATE;
+        }
+        break;
+
+      case Types.DATE, Types.TIME:
+        valtype = IValueMeta.TYPE_DATE;
+        if (databaseMeta.getIDatabase().isMySqlVariant()) {
+          String property =
+              databaseMeta.getConnectionProperties(this).getProperty("yearIsDateType");
+          if (property != null
+              && property.equalsIgnoreCase("false")
+              && rm.getColumnTypeName(columnIndex).equalsIgnoreCase("YEAR")) {
+            valtype = IValueMeta.TYPE_INTEGER;
+            precision = 0;
+            length = 4;
+          }
+        }
+        if (databaseMeta.getIDatabase().isTeradataVariant()) {
+          precision = 1;
+        }
+        break;
+
+      case Types.BOOLEAN, Types.BIT:
+        valtype = IValueMeta.TYPE_BOOLEAN;
+        break;
+
+      case Types.BINARY, Types.BLOB, Types.VARBINARY, Types.LONGVARBINARY:
+        valtype = IValueMeta.TYPE_BINARY;
+
+        if (databaseMeta.isDisplaySizeTwiceThePrecision()
+            && (2 * rm.getPrecision(columnIndex)) == rm.getColumnDisplaySize(columnIndex)) {
+          length = rm.getPrecision(columnIndex);
+        } else if (databaseMeta.getIDatabase().isOracleVariant()
+            && (sqlType == Types.VARBINARY || sqlType == Types.LONGVARBINARY)) {
+          valtype = IValueMeta.TYPE_STRING;
+          length = rm.getColumnDisplaySize(columnIndex);
+        } else if (databaseMeta.isMySqlVariant()
+            && (sqlType == Types.VARBINARY || sqlType == Types.LONGVARBINARY)) {
+          length = -1;
+        } else if (databaseMeta.getIDatabase().isSqliteVariant()) {
+          valtype = IValueMeta.TYPE_STRING;
+        } else {
+          length = -1;
+        }
+        precision = -1;
+        break;
+
+      default:
+        return null;
+    }
+
+    try {
+      IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, valtype);
+      valueMeta.setLength(length);
+      valueMeta.setPrecision(precision);
+      valueMeta.setLargeTextField(isClob);
+
+      setOriginalColumnMetadata(valueMeta, rm, columnIndex, ignoreLength);
+
+      if (lazyConversion && valtype == IValueMeta.TYPE_STRING) {
+        valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+        IValueMeta storageMetaData =
+            ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
+        storageMetaData.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+        valueMeta.setStorageMetadata(storageMetaData);
+      }
+
+      IValueMeta customized =
+          databaseMeta.getIDatabase().customizeValueFromSqlType(valueMeta, rm, columnIndex);
+      return customized == null ? valueMeta : customized;
+    } catch (Exception e) {
+      throw new HopDatabaseException(
+          "Error determining value metadata from SQL resultset metadata", e);
+    }
+  }
+
+  private void setOriginalColumnMetadata(
+      IValueMeta valueMeta, ResultSetMetaData rm, int columnIndex, boolean ignoreLength)
+      throws SQLException {
+    valueMeta.setComments(rm.getColumnLabel(columnIndex));
+    valueMeta.setOriginalColumnType(rm.getColumnType(columnIndex));
+    valueMeta.setOriginalColumnTypeName(rm.getColumnTypeName(columnIndex));
+
+    int originalPrecision = -1;
+    if (!ignoreLength) {
+      originalPrecision = rm.getPrecision(columnIndex);
+    }
+    valueMeta.setOriginalPrecision(originalPrecision);
+    valueMeta.setOriginalScale(rm.getScale(columnIndex));
+
+    boolean originalSigned = false;
+    try {
+      originalSigned = rm.isSigned(columnIndex);
+    } catch (Exception ignored) {
+      // This JDBC driver doesn't support the isSigned method.
+    }
+    valueMeta.setOriginalSigned(originalSigned);
+  }
+
+  private IValueMeta getDataTypeFromAllValueMetaLegacy(
+      ResultSetMetaData rm, int i, boolean ignoreLength, boolean lazyConversion, String name)
+      throws HopDatabaseException {
+    IValueMeta valueMeta = null;
+    for (IValueMeta valueMetaClass : valueMetaPluginClasses) {
+      IValueMeta v =
+          valueMetaClass.getValueFromSqlType(
+              this, databaseMeta, name, rm, i, ignoreLength, lazyConversion);
+      if (v != null) {
+        valueMeta = v;
+        break;
+      }
+    }
+    return valueMeta;
   }
 
   public boolean absolute(ResultSet rs, int position) throws HopDatabaseException {
@@ -4059,34 +4369,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   /**
-   * @return the connectionGroup
-   */
-  public String getConnectionGroup() {
-    return connectionGroup;
-  }
-
-  /**
-   * @param connectionGroup the connectionGroup to set
-   */
-  public void setConnectionGroup(String connectionGroup) {
-    this.connectionGroup = connectionGroup;
-  }
-
-  /**
-   * @return the partitionId
-   */
-  public String getPartitionId() {
-    return partitionId;
-  }
-
-  /**
-   * @param partitionId the partitionId to set
-   */
-  public void setPartitionId(String partitionId) {
-    this.partitionId = partitionId;
-  }
-
-  /**
    * @return the copy
    */
   public int getCopy() {
@@ -4617,20 +4899,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   @Override
   public Date getRegistrationDate() {
     return null;
-  }
-
-  /**
-   * @return the nrExecutedCommits
-   */
-  public int getNrExecutedCommits() {
-    return nrExecutedCommits;
-  }
-
-  /**
-   * @param nrExecutedCommits the nrExecutedCommits to set
-   */
-  public void setNrExecutedCommits(int nrExecutedCommits) {
-    this.nrExecutedCommits = nrExecutedCommits;
   }
 
   /**

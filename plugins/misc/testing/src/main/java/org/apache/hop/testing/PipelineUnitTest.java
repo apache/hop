@@ -20,7 +20,7 @@ package org.apache.hop.testing;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -143,11 +143,14 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
    * @throws HopException
    */
   public DataSet getGoldenDataSet(
-      ILogChannel log, IHopMetadataProvider metadataProvider, PipelineUnitTestSetLocation location)
+      ILogChannel log,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      PipelineUnitTestSetLocation location)
       throws HopException {
 
     String transformName = location.getTransformName();
-    String goldenDataSetName = location.getDataSetName();
+    String goldenDataSetName = variables.resolve(location.getDataSetName());
 
     try {
       // Look in the golden data sets list for the mentioned transform name

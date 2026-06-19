@@ -24,11 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.exception.HopXmlException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link FunctionLib} */
 class FunctionLibTest {
 
   private FunctionLib functionLib;
@@ -137,7 +139,7 @@ class FunctionLibTest {
   void testFunctionDescriptionProperties() {
     List<FunctionDescription> functions = functionLib.getFunctions();
     if (!functions.isEmpty()) {
-      FunctionDescription firstFunction = functions.get(0);
+      FunctionDescription firstFunction = functions.getFirst();
       assertNotNull(firstFunction.getName());
       assertNotNull(firstFunction.getCategory());
       // Description can be null/empty for some functions
@@ -152,5 +154,54 @@ class FunctionLibTest {
     // Test setter
     functionLib.setFunctions(originalFunctions);
     assertEquals(originalSize, functionLib.getFunctions().size());
+  }
+
+  @Test
+  void getFunctionDescriptionIsCaseInsensitive() {
+    FunctionDescription upper = functionLib.getFunctionDescription("ABS");
+    FunctionDescription lower = functionLib.getFunctionDescription("abs");
+    FunctionDescription mixed = functionLib.getFunctionDescription("AbS");
+
+    assertNotNull(upper);
+    assertNotNull(lower);
+    assertNotNull(mixed);
+    assertEquals(upper.getName(), lower.getName());
+    assertEquals(upper.getName(), mixed.getName());
+  }
+
+  @Test
+  void getFunctionsForACategoryIsCaseInsensitive() {
+    FunctionDescription abs = functionLib.getFunctionDescription("ABS");
+    assertNotNull(abs);
+
+    String[] functions = functionLib.getFunctionsForACategory(abs.getCategory().toLowerCase());
+    assertTrue(Arrays.asList(functions).contains("ABS"));
+
+    for (int i = 1; i < functions.length; i++) {
+      assertTrue(functions[i - 1].compareTo(functions[i]) <= 0);
+    }
+  }
+
+  @Test
+  void getFunctionNamesCountMatchesLibrarySize() {
+    assertEquals(functionLib.getFunctions().size(), functionLib.getFunctionNames().length);
+  }
+
+  @Test
+  void getFunctionCategoriesAreUnique() {
+    String[] categories = functionLib.getFunctionCategories();
+    long distinct = Arrays.stream(categories).distinct().count();
+    assertEquals(categories.length, distinct);
+  }
+
+  @Test
+  void absFunctionLoadedFromXmlWithExamples() {
+    FunctionDescription abs = functionLib.getFunctionDescription("ABS");
+    assertNotNull(abs);
+    assertEquals("%Category.Mathematical", abs.getCategory());
+    assertFalse(abs.getDescription().isEmpty());
+    assertEquals(3, abs.getFunctionExamples().size());
+    assertNotNull(abs.getHtmlReport());
+    assertTrue(abs.getHtmlReport().contains("ABS(2)"));
   }
 }

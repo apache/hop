@@ -25,10 +25,11 @@ import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.BQSchemaAndRecordToHopFn;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +103,7 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in beam input transform", e);
-      throw new RuntimeException("Error in beam input transform", e);
+      throw new HopRuntimeException("Error in beam input transform", e);
     }
   }
 }

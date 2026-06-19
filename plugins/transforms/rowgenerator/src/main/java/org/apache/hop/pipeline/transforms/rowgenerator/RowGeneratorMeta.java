@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.rowgenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -45,6 +47,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::RowGeneratorMeta.keyword",
     documentationUrl = "/pipeline/transforms/rowgenerator.html")
+@Getter
+@Setter
 public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGeneratorData> {
   private static final Class<?> PKG = RowGeneratorMeta.class;
 
@@ -82,10 +86,6 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
 
   public RowGeneratorMeta() {
     fields = new ArrayList<>();
-  }
-
-  @Override
-  public void setDefault() {
     rowLimit = "10";
     neverEnding = false;
     intervalInMs = "5000";
@@ -211,101 +211,5 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
   @Override
   public ITransformIOMeta getTransformIOMeta() {
     return new TransformIOMeta(false, true, false, false, false, false);
-  }
-
-  /**
-   * Gets neverEnding
-   *
-   * @return value of neverEnding
-   */
-  public boolean isNeverEnding() {
-    return neverEnding;
-  }
-
-  /**
-   * @param neverEnding The neverEnding to set
-   */
-  public void setNeverEnding(boolean neverEnding) {
-    this.neverEnding = neverEnding;
-  }
-
-  /**
-   * Gets intervalInMs
-   *
-   * @return value of intervalInMs
-   */
-  public String getIntervalInMs() {
-    return intervalInMs;
-  }
-
-  /**
-   * @param intervalInMs The intervalInMs to set
-   */
-  public void setIntervalInMs(String intervalInMs) {
-    this.intervalInMs = intervalInMs;
-  }
-
-  /**
-   * Gets rowTimeField
-   *
-   * @return value of rowTimeField
-   */
-  public String getRowTimeField() {
-    return rowTimeField;
-  }
-
-  /**
-   * @param rowTimeField The rowTimeField to set
-   */
-  public void setRowTimeField(String rowTimeField) {
-    this.rowTimeField = rowTimeField;
-  }
-
-  /**
-   * Gets lastTimeField
-   *
-   * @return value of lastTimeField
-   */
-  public String getLastTimeField() {
-    return lastTimeField;
-  }
-
-  /**
-   * @param lastTimeField The lastTimeField to set
-   */
-  public void setLastTimeField(String lastTimeField) {
-    this.lastTimeField = lastTimeField;
-  }
-
-  /**
-   * Gets rowLimit
-   *
-   * @return value of rowLimit
-   */
-  public String getRowLimit() {
-    return rowLimit;
-  }
-
-  /**
-   * @param rowLimit The rowLimit to set
-   */
-  public void setRowLimit(String rowLimit) {
-    this.rowLimit = rowLimit;
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public List<GeneratorField> getFields() {
-    return fields;
-  }
-
-  /**
-   * @param fields The fields to set
-   */
-  public void setFields(List<GeneratorField> fields) {
-    this.fields = fields;
   }
 }

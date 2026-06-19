@@ -33,8 +33,10 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopVersionProvider;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.logging.LogChannel;
@@ -54,6 +56,24 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 public class HopWeb implements ApplicationConfiguration {
 
   public static final String CONST_LIGHT = "light";
+
+  private static final String WEB_PAGE_TITLE = "Apache Hop Web";
+
+  /**
+   * Returns the browser page title for Hop Web, including the Apache Hop version when it is
+   * available from the runtime manifest ({@link HopVersionProvider}). If no implementation version
+   * is present, only {@link #WEB_PAGE_TITLE} is returned.
+   *
+   * @return page title such as {@code Apache Hop Web - 2.19.0-SNAPSHOT}, or {@code Apache Hop Web}
+   *     when the version is unknown
+   */
+  private static String getWebPageTitle() {
+    String version = new HopVersionProvider().getVersion()[0];
+    if (StringUtils.isNotEmpty(version)) {
+      return WEB_PAGE_TITLE + " - " + version;
+    }
+    return WEB_PAGE_TITLE;
+  }
 
   @Override
   public void configure(Application application) {
@@ -148,14 +168,16 @@ public class HopWeb implements ApplicationConfiguration {
     application.addStyleSheet("dark", "org/apache/hop/ui/hopgui/dark-mode.css");
     application.addStyleSheet(CONST_LIGHT, "org/apache/hop/ui/hopgui/light-mode.css");
 
+    String webPageTitle = getWebPageTitle();
+
     Map<String, String> propertiesLight = new HashMap<>();
-    propertiesLight.put(WebClient.PAGE_TITLE, "Apache Hop Web");
+    propertiesLight.put(WebClient.PAGE_TITLE, webPageTitle);
     propertiesLight.put(WebClient.FAVICON, "ui/images/logo_icon.png");
     propertiesLight.put(WebClient.THEME_ID, CONST_LIGHT);
     propertiesLight.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
 
     Map<String, String> propertiesDark = new HashMap<>();
-    propertiesDark.put(WebClient.PAGE_TITLE, "Apache Hop Web");
+    propertiesDark.put(WebClient.PAGE_TITLE, webPageTitle);
     propertiesDark.put(WebClient.FAVICON, "ui/images/logo_icon.png");
     propertiesDark.put(WebClient.THEME_ID, "dark");
     propertiesDark.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
@@ -222,7 +244,8 @@ public class HopWeb implements ApplicationConfiguration {
             String svgXml = XmlHandler.getXmlString(cacheEntry.getSvgDocument(), false, false);
             return new ByteArrayInputStream(svgXml.getBytes(StandardCharsets.UTF_8));
           } catch (Exception e) {
-            throw new RuntimeException("Error loading SVG resource filename: " + imageFilename, e);
+            throw new HopRuntimeException(
+                "Error loading SVG resource filename: " + imageFilename, e);
           }
         };
     application.addResource(imageFilename, loader);
@@ -235,7 +258,7 @@ public class HopWeb implements ApplicationConfiguration {
       InputStream inputStream = classLoader.getResourceAsStream(resourceName);
       try (inputStream) {
         if (inputStream == null) {
-          throw new RuntimeException("Resource not found: " + resourceName);
+          throw new HopRuntimeException("Resource not found: " + resourceName);
         }
         BufferedReader reader =
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -249,7 +272,7 @@ public class HopWeb implements ApplicationConfiguration {
         result = stringBuilder.toString();
       }
     } catch (IOException e) {
-      throw new RuntimeException("Failed to read text from resource: " + resourceName);
+      throw new HopRuntimeException("Failed to read text from resource: " + resourceName);
     }
     return result;
   }

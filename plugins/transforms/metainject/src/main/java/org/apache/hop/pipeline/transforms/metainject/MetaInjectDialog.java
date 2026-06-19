@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -68,7 +68,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -101,6 +100,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
       "MetaInjectDialog.ErrorLoadingSpecifiedPipeline.Message";
 
   private final MetaInjectMeta metaInjectMeta;
+  private final ArrayList<MetaInjectMapping> targetMappings;
 
   private TextVar wPath;
 
@@ -109,8 +109,6 @@ public class MetaInjectDialog extends BaseTransformDialog {
   private PipelineMeta injectPipelineMeta = null;
 
   protected boolean transModified;
-
-  private ModifyListener lsMod;
 
   protected Label wlRunConfiguration;
   protected ComboVar wRunConfiguration;
@@ -149,9 +147,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
   //
   private Tree wTree;
 
-  private Map<TreeItem, TargetTransformAttribute> treeItemTargetMap;
-
-  private final Map<TargetTransformAttribute, SourceTransformField> targetSourceMapping;
+  private Map<TreeItem, MetaInjectMapping> treeItemTargetMap;
 
   private Text wSearchText = null;
   private String filterString = null;
@@ -162,8 +158,11 @@ public class MetaInjectDialog extends BaseTransformDialog {
     metaInjectMeta = transformMeta;
     transModified = false;
 
-    targetSourceMapping = new HashMap<>();
-    targetSourceMapping.putAll(metaInjectMeta.getTargetSourceMapping());
+    // Create a copy of the mappings to work with
+    targetMappings = new ArrayList<>();
+    for (MetaInjectMapping mapping : metaInjectMeta.getMappings()) {
+      targetMappings.add(new MetaInjectMapping(mapping));
+    }
   }
 
   @Override
@@ -275,13 +274,13 @@ public class MetaInjectDialog extends BaseTransformDialog {
         return;
       }
     }
-    Set<SourceTransformField> unavailableSourceTransforms =
-        MetaInject.getUnavailableSourceTransforms(targetSourceMapping, pipelineMeta, transformMeta);
-    Set<TargetTransformAttribute> unavailableTargetTransforms =
-        MetaInject.getUnavailableTargetTransforms(targetSourceMapping, injectPipelineMeta);
-    Set<TargetTransformAttribute> missingTargetKeys =
+    Set<String> unavailableSourceTransforms =
+        MetaInject.getUnavailableSourceTransforms(targetMappings, pipelineMeta, transformMeta);
+    Set<String> unavailableTargetTransforms =
+        MetaInject.getUnavailableTargetTransforms(targetMappings, injectPipelineMeta);
+    Set<MetaInjectMapping> missingTargetKeys =
         MetaInject.getUnavailableTargetKeys(
-            targetSourceMapping, injectPipelineMeta, unavailableTargetTransforms);
+            targetMappings, injectPipelineMeta, unavailableTargetTransforms);
     if (unavailableSourceTransforms.isEmpty()
         && unavailableTargetTransforms.isEmpty()
         && missingTargetKeys.isEmpty()) {
@@ -292,18 +291,18 @@ public class MetaInjectDialog extends BaseTransformDialog {
   }
 
   private void showInvalidMappingDialog(
-      Set<SourceTransformField> unavailableSourceTransforms,
-      Set<TargetTransformAttribute> unavailableTargetTransforms,
-      Set<TargetTransformAttribute> missingTargetKeys) {
+      Set<String> unavailableSourceTransforms,
+      Set<String> unavailableTargetTransforms,
+      Set<MetaInjectMapping> missingTargetKeys) {
     MessageBox mb = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
     mb.setMessage(BaseMessages.getString(PKG, "MetaInjectDialog.InvalidMapping.Question"));
     mb.setText(BaseMessages.getString(PKG, "MetaInjectDialog.InvalidMapping.Title"));
     int id = mb.open();
     if (id == SWT.YES) {
       MetaInject.removeUnavailableTransformsFromMapping(
-          targetSourceMapping, unavailableSourceTransforms, unavailableTargetTransforms);
-      for (TargetTransformAttribute target : missingTargetKeys) {
-        targetSourceMapping.remove(target);
+          metaInjectMeta.getMappings(), unavailableSourceTransforms, unavailableTargetTransforms);
+      for (MetaInjectMapping target : missingTargetKeys) {
+        targetMappings.remove(target);
       }
     }
   }
@@ -661,37 +660,33 @@ public class MetaInjectDialog extends BaseTransformDialog {
     wInjectSComp.setMinHeight(bounds.height);
 
     wInjectTab.setControl(wInjectSComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF INJECT TAB
-    // ///////////////////////////////////////////////////////////
   }
+
+  private record TransformField(String transformName, String fieldName) {}
 
   private void treeClicked(Event event) {
     try {
       Point point = new Point(event.x, event.y);
       TreeItem item = wTree.getItem(point);
       if (item != null) {
-        TargetTransformAttribute target = treeItemTargetMap.get(item);
-        if (target != null) {
-          SourceTransformField source = targetSourceMapping.get(target);
-
+        MetaInjectMapping mapping = treeItemTargetMap.get(item);
+        if (mapping != null) {
           String[] prevTransformNames = pipelineMeta.getPrevTransformNames(transformMeta);
           Arrays.sort(prevTransformNames);
 
-          Map<String, SourceTransformField> fieldMap = new HashMap<>();
+          Map<String, TransformField> fieldMap = new HashMap<>();
           for (String prevTransformName : prevTransformNames) {
             IRowMeta fields = pipelineMeta.getTransformFields(variables, prevTransformName);
             for (IValueMeta field : fields.getValueMetaList()) {
               String key = buildTransformFieldKey(prevTransformName, field.getName());
-              fieldMap.put(key, new SourceTransformField(prevTransformName, field.getName()));
+              fieldMap.put(key, new TransformField(prevTransformName, field.getName()));
             }
           }
-          String[] sourceFields = fieldMap.keySet().toArray(new String[fieldMap.size()]);
+          String[] sourceFields = fieldMap.keySet().toArray(new String[0]);
           Arrays.sort(sourceFields);
 
           String constant =
-              source != null && source.getTransformName() == null ? source.getField() : "";
+              mapping.getSourceTransformName() == null ? mapping.getSourceField() : "";
           EnterSelectionDialog selectSourceFieldDialog =
               new EnterSelectionDialog(
                   shell,
@@ -701,38 +696,42 @@ public class MetaInjectDialog extends BaseTransformDialog {
                   constant,
                   variables);
           selectSourceFieldDialog.setAddNoneOption(true);
-          if (source != null) {
-            if (source.getTransformName() != null && !Utils.isEmpty(source.getTransformName())) {
-              String key = buildTransformFieldKey(source.getTransformName(), source.getField());
-              selectSourceFieldDialog.setCurrentValue(key);
-              int index = Const.indexOfString(key, sourceFields);
-              if (index >= 0) {
-                selectSourceFieldDialog.setSelectedNrs(
-                    new int[] {
-                      index,
-                    });
-              }
-            } else {
-              selectSourceFieldDialog.setCurrentValue(source.getField());
+          if (mapping.getSourceTransformName() != null
+              && !Utils.isEmpty(mapping.getSourceTransformName())) {
+            String key =
+                buildTransformFieldKey(mapping.getSourceTransformName(), mapping.getSourceField());
+            selectSourceFieldDialog.setCurrentValue(key);
+            int index = Const.indexOfString(key, sourceFields);
+            if (index >= 0) {
+              selectSourceFieldDialog.setSelectedNrs(
+                  new int[] {
+                    index,
+                  });
             }
+          } else {
+            selectSourceFieldDialog.setCurrentValue(mapping.getSourceField());
           }
           String selectedTransformField = selectSourceFieldDialog.open();
           if (selectedTransformField != null) {
-            SourceTransformField newSource = fieldMap.get(selectedTransformField);
+            TransformField newSource = fieldMap.get(selectedTransformField);
             if (newSource == null) {
-              newSource = new SourceTransformField(null, selectedTransformField);
+              newSource = new TransformField(null, selectedTransformField);
               item.setText(1, CONST_VALUE);
               item.setText(2, selectedTransformField);
             } else {
-              item.setText(1, newSource.getTransformName());
-              item.setText(2, newSource.getField());
+              item.setText(1, newSource.transformName);
+              item.setText(2, newSource.fieldName);
             }
-            targetSourceMapping.put(target, newSource);
+            mapping.setSourceTransformName(newSource.transformName);
+            mapping.setSourceField(newSource.fieldName);
+            if (!targetMappings.contains(mapping)) {
+              targetMappings.add(mapping);
+            }
           } else {
             if (selectSourceFieldDialog.isNoneClicked()) {
               item.setText(1, "");
               item.setText(2, "");
-              targetSourceMapping.remove(target);
+              targetMappings.remove(mapping);
             }
           }
         }
@@ -794,10 +793,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
       wPath.setText(filename);
     }
     loadPipelineFile(filename);
-    if (injectPipelineMeta == null) {
-      return false;
-    }
-    return true;
+    return injectPipelineMeta != null;
   }
 
   public void updateWidgets() {
@@ -811,21 +807,13 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wPath.setText(Const.NVL(metaInjectMeta.getFileName(), ""));
+    wPath.setText(Const.NVL(metaInjectMeta.getTemplateFileName(), ""));
 
     try {
       List<String> runConfigurations =
           metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
 
-      try {
-        ExtensionPointHandler.callExtensionPoint(
-            HopGui.getInstance().getLog(),
-            variables,
-            HopExtensionPoint.HopGuiRunConfiguration.id,
-            new Object[] {runConfigurations, PipelineMeta.XML_TAG});
-      } catch (HopException e) {
-        // Ignore errors
-      }
+      runExtensionPointHopGuiRunConfiguration(runConfigurations);
 
       wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
       wRunConfiguration.setText(Const.NVL(metaInjectMeta.getRunConfigurationName(), ""));
@@ -857,18 +845,25 @@ public class MetaInjectDialog extends BaseTransformDialog {
     wNoExecution.setSelection(!metaInjectMeta.isNoExecution());
     wAllowEmptyStreamOnExecution.setSelection(metaInjectMeta.isAllowEmptyStreamOnExecution());
 
-    wStreamingSourceTransform.setText(
-        Const.NVL(
-            metaInjectMeta.getStreamSourceTransform() == null
-                ? null
-                : metaInjectMeta.getStreamSourceTransform().getName(),
-            ""));
+    wStreamingSourceTransform.setText(Const.NVL(metaInjectMeta.getStreamSourceTransformName(), ""));
     wStreamingTargetTransform.setText(Const.NVL(metaInjectMeta.getStreamTargetTransformName(), ""));
 
     updateWidgets();
     refreshTree();
 
     wTabFolder.setSelection(0);
+  }
+
+  private void runExtensionPointHopGuiRunConfiguration(List<String> runConfigurations) {
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          HopGui.getInstance().getLog(),
+          variables,
+          HopExtensionPoint.HopGuiRunConfiguration.id,
+          new Object[] {runConfigurations, PipelineMeta.XML_TAG});
+    } catch (HopException e) {
+      // Ignore errors
+    }
   }
 
   protected String buildTransformFieldKey(String transformName, String field) {
@@ -916,13 +911,12 @@ public class MetaInjectDialog extends BaseTransformDialog {
         //
         ITransformMeta metaInterface = transformMeta.getTransform();
         if (BeanInjectionInfo.isInjectionSupported(metaInterface.getClass())) {
-          expanded = expanded || processMDIDescription(transformMeta, transformItem, metaInterface);
+          expanded = processMDIDescription(transformMeta, transformItem, metaInterface);
         }
 
         transformItem.setExpanded(expanded);
       }
-
-    } catch (Throwable t) {
+    } catch (Exception e) {
       // Ignore errors
     }
 
@@ -937,19 +931,33 @@ public class MetaInjectDialog extends BaseTransformDialog {
   }
 
   /**
-   * @param transformMeta The transform meta
-   * @param transformItem The TreeItem
-   * @param metaInterface The transform ITransformMeta
-   * @return true if there was at least one used key
+   * Match a tree row to a saved mapping by target transform and injection key only. {@link
+   * MetaInjectMapping#equals} also compares {@code targetDetail}; older pipelines may store {@code
+   * target_detail=Y} for scalar {@link org.apache.hop.metadata.api.HopMetadataProperty} keys that
+   * the UI places in the root group ({@code targetDetail=N}), which would otherwise hide sources in
+   * the tree.
    */
+  private static MetaInjectMapping findMappingForTargetKey(
+      List<MetaInjectMapping> mappings, MetaInjectMapping template) {
+    for (MetaInjectMapping m : mappings) {
+      if (Const.NVL(m.getTargetTransformName(), "")
+              .equalsIgnoreCase(Const.NVL(template.getTargetTransformName(), ""))
+          && Const.NVL(m.getTargetAttributeKey(), "")
+              .equalsIgnoreCase(Const.NVL(template.getTargetAttributeKey(), ""))) {
+        return m;
+      }
+    }
+    return null;
+  }
+
   private boolean processMDIDescription(
       TransformMeta transformMeta, TreeItem transformItem, ITransformMeta metaInterface) {
     boolean hasUsedKeys = false;
-    BeanInjectionInfo transformInjectionInfo = new BeanInjectionInfo(metaInterface.getClass());
+    BeanInjectionInfo<?> transformInjectionInfo = new BeanInjectionInfo<>(metaInterface.getClass());
 
-    List<BeanInjectionInfo.Group> groupsList = transformInjectionInfo.getGroups();
+    var groupsList = transformInjectionInfo.getGroups();
 
-    for (BeanInjectionInfo.Group gr : groupsList) {
+    for (BeanInjectionInfo<?>.Group gr : groupsList) {
       if (!gr.hasMatchingProperty(filterString)) {
         continue;
       }
@@ -964,9 +972,9 @@ public class MetaInjectDialog extends BaseTransformDialog {
         groupItem = null;
       }
 
-      List<BeanInjectionInfo.Property> propertyList = gr.getProperties();
+      var propertyList = gr.getProperties();
 
-      for (BeanInjectionInfo.Property property : propertyList) {
+      for (BeanInjectionInfo<?>.Property property : propertyList) {
         if (!property.hasMatch(filterString)) {
           continue;
         }
@@ -975,19 +983,26 @@ public class MetaInjectDialog extends BaseTransformDialog {
           TreeItem treeItem = new TreeItem(rootGroup ? transformItem : groupItem, SWT.NONE);
           treeItem.setText(Const.NVL(property.getTranslatedDescription(), property.getKey()));
 
-          TargetTransformAttribute target =
-              new TargetTransformAttribute(transformMeta.getName(), property.getKey(), !rootGroup);
-          treeItemTargetMap.put(treeItem, target);
+          MetaInjectMapping targetMapping = new MetaInjectMapping();
+          targetMapping.setTargetTransformName(transformMeta.getName());
+          targetMapping.setTargetAttributeKey(property.getKey());
+          targetMapping.setTargetDetail(!rootGroup);
 
-          SourceTransformField source = targetSourceMapping.get(target);
-          if (source != null) {
+          treeItemTargetMap.put(treeItem, targetMapping);
+
+          MetaInjectMapping mapping = findMappingForTargetKey(targetMappings, targetMapping);
+          if (mapping != null) {
+            mapping.setTargetDetail(targetMapping.isTargetDetail());
+            treeItemTargetMap.put(treeItem, mapping);
             hasUsedKeys = true;
             treeItem.setText(
                 1,
                 Const.NVL(
-                    source.getTransformName() == null ? CONST_VALUE : source.getTransformName(),
+                    mapping.getSourceTransformName() == null
+                        ? CONST_VALUE
+                        : mapping.getSourceTransformName(),
                     ""));
-            treeItem.setText(2, Const.NVL(source.getField(), ""));
+            treeItem.setText(2, Const.NVL(mapping.getSourceField(), ""));
           }
         }
       }
@@ -1053,7 +1068,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
   }
 
   private void getInfo(MetaInjectMeta meta) {
-    meta.setFileName(wPath.getText());
+    meta.setTemplateFileName(wPath.getText());
     meta.setSourceTransformName(wSourceTransform.getText());
     meta.setRunConfigurationName(wRunConfiguration.getText());
 
@@ -1064,7 +1079,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
       String name = item.getText(colIndex++);
       int type = ValueMetaFactory.getIdForValueMeta(item.getText(colIndex++));
       int length = Const.toInt(item.getText(colIndex++), -1);
-      int precision = Const.toInt(item.getText(colIndex++), -1);
+      int precision = Const.toInt(item.getText(colIndex), -1);
       meta.getSourceOutputFields().add(new MetaInjectOutputField(name, type, length, precision));
     }
 
@@ -1073,27 +1088,15 @@ public class MetaInjectDialog extends BaseTransformDialog {
     meta.setNoExecution(!wNoExecution.getSelection());
     meta.setAllowEmptyStreamOnExecution(wAllowEmptyStreamOnExecution.getSelection());
 
-    final TransformMeta streamSourceTransform =
-        pipelineMeta.findTransform(wStreamingSourceTransform.getText());
-    meta.setStreamSourceTransform(streamSourceTransform);
-    // Save streamSourceTransformName to find streamSourceTransform when loading
-    meta.setStreamSourceTransformName(
-        streamSourceTransform != null ? streamSourceTransform.getName() : "");
+    meta.setStreamSourceTransformName(wStreamingSourceTransform.getText());
     meta.setStreamTargetTransformName(wStreamingTargetTransform.getText());
 
-    meta.setTargetSourceMapping(targetSourceMapping);
+    meta.getMappings().clear();
+    meta.getMappings().addAll(targetMappings);
     meta.setChanged(true);
   }
 
-  private class MappingSource {
-    public TransformMeta transformMeta;
-    public IValueMeta valueMeta;
-
-    public MappingSource(TransformMeta transformMeta, IValueMeta valueMeta) {
-      this.transformMeta = transformMeta;
-      this.valueMeta = valueMeta;
-    }
-
+  private record MappingSource(TransformMeta transformMeta, IValueMeta valueMeta) {
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -1108,17 +1111,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
     }
   }
 
-  private class MappingTarget {
-    public TransformMeta transformMeta;
-    public String attributeKey;
-    public boolean detail;
-
-    public MappingTarget(TransformMeta transformMeta, String attributeKey, boolean detail) {
-      this.transformMeta = transformMeta;
-      this.attributeKey = attributeKey;
-      this.detail = detail;
-    }
-
+  private record MappingTarget(TransformMeta transformMeta, String attributeKey, boolean detail) {
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -1131,11 +1124,15 @@ public class MetaInjectDialog extends BaseTransformDialog {
       return Objects.equals(transformMeta, that.transformMeta)
           && Objects.equals(attributeKey, that.attributeKey);
     }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(transformMeta, attributeKey);
+    }
   }
 
   /** Enter the mapping between (unmapped) source fields and target fields. */
   private void enterMapping() {
-
     try {
       loadPipeline();
     } catch (HopException e) {
@@ -1187,12 +1184,13 @@ public class MetaInjectDialog extends BaseTransformDialog {
       if (BeanInjectionInfo.isInjectionSupported(iTransformMeta.getClass())) {
         // Add the groups...
         //
-        BeanInjectionInfo transformInjectionInfo = new BeanInjectionInfo(iTransformMeta.getClass());
-        List<BeanInjectionInfo.Group> groupsList = transformInjectionInfo.getGroups();
-        for (BeanInjectionInfo.Group group : groupsList) {
+        BeanInjectionInfo<?> transformInjectionInfo =
+            new BeanInjectionInfo<>(iTransformMeta.getClass());
+        var groupsList = transformInjectionInfo.getGroups();
+        for (BeanInjectionInfo<?>.Group group : groupsList) {
           boolean detail = StringUtils.isNotEmpty(group.getKey());
-          List<BeanInjectionInfo.Property> propertyList = group.getProperties();
-          for (BeanInjectionInfo.Property property : propertyList) {
+          var propertyList = group.getProperties();
+          for (BeanInjectionInfo<?>.Property property : propertyList) {
             mappingTargets.add(new MappingTarget(transformMeta, property.getKey(), detail));
             String groupName = group.getKey();
             String targetString = transformMeta.getName() + " | ";
@@ -1211,21 +1209,14 @@ public class MetaInjectDialog extends BaseTransformDialog {
     // Calculate the existing mappings...
     //
     List<SourceToTargetMapping> mappings = new ArrayList<>();
-    Map<TargetTransformAttribute, SourceTransformField> targetSourceMapping =
-        meta.getTargetSourceMapping();
-    for (TargetTransformAttribute targetTransformAttribute : targetSourceMapping.keySet()) {
-      SourceTransformField sourceTransformField = targetSourceMapping.get(targetTransformAttribute);
-      if (sourceTransformField == null) {
-        continue;
-      }
+    for (MetaInjectMapping mapping : meta.getMappings()) {
       int sourceIndex = -1;
       TransformMeta sourceTransformMeta =
-          pipelineMeta.findTransform(sourceTransformField.getTransformName());
+          pipelineMeta.findTransform(mapping.getSourceTransformName());
       if (sourceTransformMeta != null) {
         IRowMeta sourceRowMeta = sourceRowMetas.get(sourceTransformMeta.getName());
         if (sourceRowMeta != null) {
-          IValueMeta sourceValueMeta =
-              sourceRowMeta.searchValueMeta(sourceTransformField.getField());
+          IValueMeta sourceValueMeta = sourceRowMeta.searchValueMeta(mapping.getSourceField());
           if (sourceValueMeta != null) {
             MappingSource mappingSource = new MappingSource(sourceTransformMeta, sourceValueMeta);
             sourceIndex = mappingSources.indexOf(mappingSource);
@@ -1234,13 +1225,11 @@ public class MetaInjectDialog extends BaseTransformDialog {
       }
       int targetIndex = -1;
       TransformMeta targetTransformMeta =
-          injectPipelineMeta.findTransform(targetTransformAttribute.getTransformName());
+          injectPipelineMeta.findTransform(mapping.getTargetTransformName());
       if (targetTransformMeta != null) {
         MappingTarget mapingTarget =
             new MappingTarget(
-                targetTransformMeta,
-                targetTransformAttribute.getAttributeKey(),
-                targetTransformAttribute.isDetail());
+                targetTransformMeta, mapping.getTargetAttributeKey(), mapping.isTargetDetail());
         targetIndex = mappingTargets.indexOf(mapingTarget);
       }
       if (sourceIndex >= 0 && targetIndex >= 0) {
@@ -1259,27 +1248,25 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
       // Add the mappings...
       //
-      targetSourceMapping.clear();
+      targetMappings.clear();
 
       for (SourceToTargetMapping newMapping : newMappings) {
+        MetaInjectMapping mapping = new MetaInjectMapping();
         MappingSource mappingSource = mappingSources.get(newMapping.getSourcePosition());
-        SourceTransformField sourceTransformField =
-            new SourceTransformField(
-                mappingSource.transformMeta.getName(), mappingSource.valueMeta.getName());
-
         MappingTarget mappingTarget = mappingTargets.get(newMapping.getTargetPosition());
-        TargetTransformAttribute targetTransformAttribute =
-            new TargetTransformAttribute(
-                mappingTarget.transformMeta.getName(),
-                mappingTarget.attributeKey,
-                mappingTarget.detail);
 
-        targetSourceMapping.put(targetTransformAttribute, sourceTransformField);
+        mapping.setSourceTransformName(mappingSource.transformMeta.getName());
+        mapping.setSourceField(mappingSource.valueMeta.getName());
+        mapping.setTargetTransformName(mappingTarget.transformMeta.getName());
+        mapping.setTargetAttributeKey(mappingTarget.attributeKey);
+        mapping.setTargetDetail(mappingTarget.detail);
 
-        // Refresh the tree...
-        //
-        refreshTree();
+        targetMappings.add(mapping);
       }
+
+      // Refresh the tree...
+      //
+      refreshTree();
     }
   }
 

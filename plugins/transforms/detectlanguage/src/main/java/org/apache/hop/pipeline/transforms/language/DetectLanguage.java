@@ -33,6 +33,7 @@ import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
@@ -72,7 +73,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopRuntimeException(e);
         }
       }
     }
@@ -158,7 +159,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopRuntimeException(e);
         }
       }
     }

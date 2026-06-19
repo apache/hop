@@ -18,7 +18,8 @@
 
 name: LabelPrs
 on: [pull_request_target]
-permissions: read-all
+permissions:
+  contents: read
 jobs:
   label:
     runs-on: ubuntu-latest

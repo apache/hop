@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
@@ -136,7 +137,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
           addDatabase((DatabaseMeta) testValue);
         }
       } catch (Exception e) {
-        throw new RuntimeException("Unable to invoke setter for " + attribute, e);
+        throw new HopRuntimeException("Unable to invoke setter for " + attribute, e);
       }
       validatorMap.put(attribute, validator);
     }

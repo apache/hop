@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
@@ -67,10 +68,7 @@ public class AnonymousPipelineRunner {
       String xml = pipelineMeta.getXml(variables);
       try (StringReader stringReader = new StringReader(xml)) {
         try (InputStream inputStream =
-            ReaderInputStream.builder()
-                .setCharset(Const.XML_ENCODING)
-                .setReader(stringReader)
-                .get()) {
+            ReaderInputStream.builder().setCharset(Const.UTF_8).setReader(stringReader).get()) {
           meta = new PipelineMeta(inputStream, metadataProvider, variables);
           meta.setMetadataProvider(metadataProvider);
           LocalPipelineEngine pipeline =
@@ -79,6 +77,11 @@ public class AnonymousPipelineRunner {
           pipeline.setParent(new LoggingObject("AnonymousPipelineRunner"));
           pipeline.setMetadataProvider(metadataProvider);
           pipeline.setLogLevel(LogLevel.ERROR);
+
+          // Engine-internal pipeline: skip the engine-compatibility deep gate. This runs on the
+          // Local engine purely to fetch row metadata / sample rows for dialogs, lineage, etc.
+          // and the original pipeline's engine choice is irrelevant here.
+          pipeline.getExtensionDataMap().put(Pipeline.EXTENSION_DATA_INTERNAL_PIPELINE_FLAG, "Y");
 
           final AnonymousPipelineResults results = new AnonymousPipelineResults();
 

@@ -80,6 +80,10 @@
                 <exclude>com.azure:azure-xml:jar</exclude>
                 <exclude>com.nimbusds:nimbus-jose-jwt:jar</exclude>
                 <exclude>net.minidev:*:jar</exclude>
+                <exclude>org.ow2.asm:asm:jar</exclude>
+                <exclude>org.jctools:jctools-core:jar</exclude>
+                <exclude>org.jspecify:jspecify:jar</exclude>
+                <exclude>com.nimbusds:lang-tag:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/azure/lib</outputDirectory>
         </dependencySet>
@@ -112,6 +116,10 @@
                 <include>com.azure:azure-xml:jar</include>
                 <include>com.nimbusds:nimbus-jose-jwt:jar</include>
                 <include>net.minidev:*:jar</include>
+                <include>org.ow2.asm:asm:jar</include>
+                <include>org.jctools:jctools-core:jar</include>
+                <include>org.jspecify:jspecify:jar</include>
+                <include>com.nimbusds:lang-tag:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

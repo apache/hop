@@ -144,8 +144,7 @@ When clicking on a transform icon, the popup contains a number of actions to wor
 ** **Add web service**: use the output of this transform as a xref:hop-server/web-service.adoc[web service] with xref:hop-server/index.adoc[Hop Server].
 * Preview
 ** **View output**: view output of this transform in a running or finished pipeline.
-** **Preview output**: execute the pipeline and see the output of this transform
-** **Debug output**: execute the pipeline and debug the output of this transform. Execution will pause when the debugging conditions are met.
+** **Preview & debug output**: execute the pipeline, inspect rows from this transform, and optionally pause when a breakpoint condition is met (see xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline])
 ** **Sniff output**: take a look at 50 rows of output from the selected transform in a running pipeline
 ** **Add data probe**: streams the output rows of this transform to a pipeline defined in a xref:metadata-types/pipeline-probe.adoc[pipeline probe].
 * Logging

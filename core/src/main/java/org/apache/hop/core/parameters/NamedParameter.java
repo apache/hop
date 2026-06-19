@@ -17,17 +17,30 @@
 
 package org.apache.hop.core.parameters;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+
 /** Target class for the parameter keys. */
+@Getter
+@Setter
 public class NamedParameter {
   /** key of this parameter */
-  public String key;
+  @HopMetadataProperty(key = "name")
+  protected String key;
 
   /** Description of the parameter */
-  public String description;
+  @HopMetadataProperty(key = "description")
+  protected String description;
 
   /** Default value for this parameter */
-  public String defaultValue;
+  @HopMetadataProperty(key = "default_value")
+  protected String defaultValue;
 
   /** Actual value of the parameter. */
-  public String value;
+  protected String value;
+
+  public NamedParameter() {
+    // Nothing specific to initialize.
+  }
 }

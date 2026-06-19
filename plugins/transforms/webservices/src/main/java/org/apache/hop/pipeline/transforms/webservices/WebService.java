@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
@@ -48,7 +49,23 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -62,6 +79,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageHttpIoEmitter;
+import org.apache.hop.lineage.model.HttpDirection;
+import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -71,22 +91,6 @@ import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterList;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOperation;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.XsdType;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -376,11 +380,20 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     HttpPost vHttpMethod = null;
     HttpEntity httpEntity = null;
     Charset charSet = Charset.defaultCharset();
+    long httpLineageStart = System.currentTimeMillis();
+    Integer httpLineageStatus = null;
+    String httpLineageUrl = null;
+    Long httpLineageReqBytes = null;
+    Long httpLineageRespBytes = null;
+    boolean httpLineageOk = false;
+    String httpLineageErr = null;
     try {
       String xml =
           getRequestXML(
               cachedOperation,
               cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()));
+
+      httpLineageReqBytes = (long) xml.getBytes(StandardCharsets.UTF_8).length;
 
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "WebServices.Log.SOAPEnvelope"));
@@ -388,28 +401,42 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       }
 
       vHttpMethod = getHttpMethod(cachedURLService);
+      httpLineageUrl = vHttpMethod.getUri().toString();
 
-      HttpEntity requestEntity = new ByteArrayEntity(xml.getBytes(StandardCharsets.UTF_8));
+      HttpEntity requestEntity =
+          new ByteArrayEntity(xml.getBytes(StandardCharsets.UTF_8), ContentType.TEXT_XML);
       vHttpMethod.setEntity(requestEntity);
-      HttpResponse httpResponse = cachedHttpClient.execute(vHttpMethod);
-      int responseCode = httpResponse.getStatusLine().getStatusCode();
+      org.apache.hc.core5.http.ClassicHttpResponse httpResponse =
+          (org.apache.hc.core5.http.ClassicHttpResponse)
+              cachedHttpClient.execute(vHttpMethod, cachedHostConfiguration);
+      int responseCode = httpResponse.getCode();
       if (responseCode == HttpStatus.SC_MOVED_PERMANENTLY) {
         String newLocation = getLocationFrom(vHttpMethod);
         vHttpMethod = getHttpMethod(newLocation);
         vHttpMethod.setEntity(requestEntity);
-        httpResponse = cachedHttpClient.execute(vHttpMethod);
-        responseCode = httpResponse.getStatusLine().getStatusCode();
+        httpResponse =
+            (org.apache.hc.core5.http.ClassicHttpResponse)
+                cachedHttpClient.execute(vHttpMethod, cachedHostConfiguration);
+        responseCode = httpResponse.getCode();
+        httpLineageUrl = vHttpMethod.getUri().toString();
       }
+      httpLineageStatus = responseCode;
       if (responseCode == HttpStatus.SC_OK) {
         httpEntity = httpResponse.getEntity();
-        ContentType contentType = ContentType.getOrDefault(httpEntity);
-        charSet = contentType.getCharset();
+        charSet = StandardCharsets.UTF_8;
+        if (httpEntity != null) {
+          long cl = httpEntity.getContentLength();
+          if (cl >= 0) {
+            httpLineageRespBytes = cl;
+          }
+        }
         processRows(
             httpEntity.getContent(),
             rowData,
             rowMeta,
             cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()),
             charSet.toString());
+        httpLineageOk = true;
       } else if (responseCode == HttpStatus.SC_UNAUTHORIZED) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "WebServices.ERROR0011.Authentication", cachedURLService));
@@ -424,23 +451,41 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
                 PKG,
                 "WebServices.ERROR0001.ServerError",
                 Integer.toString(responseCode),
-                Const.NVL(EntityUtils.toString(httpEntity, charSet.toString()), ""),
+                Const.NVL(readEntity(httpResponse.getEntity(), charSet.toString()), ""),
                 cachedURLService));
       }
     } catch (UnknownHostException e) {
+      httpLineageErr = e.getMessage();
       throw new HopTransformException(
           BaseMessages.getString(PKG, "WebServices.ERROR0013.UnknownHost", cachedURLService), e);
     } catch (IOException e) {
+      httpLineageErr = e.getMessage();
       throw new HopTransformException(
           BaseMessages.getString(PKG, "WebServices.ERROR0005.IOException", cachedURLService), e);
     } catch (URISyntaxException e) {
+      httpLineageErr = e.getMessage();
       throw new HopTransformException(
           BaseMessages.getString(PKG, "WebServices.ERROR0002.InvalidURI", cachedURLService), e);
     } finally {
-      data.argumentRows.clear(); // ready for the next batch.
-      if (vHttpMethod != null) {
-        vHttpMethod.releaseConnection();
+      try {
+        LineageHttpIoEmitter.emitTransformHttpIo(
+            this,
+            new HttpLineagePayload(
+                HttpDirection.CLIENT,
+                "POST",
+                httpLineageUrl != null ? httpLineageUrl : cachedURLService,
+                httpLineageStatus,
+                httpLineageReqBytes != null && httpLineageReqBytes > 0 ? httpLineageReqBytes : null,
+                httpLineageRespBytes != null && httpLineageRespBytes > 0
+                    ? httpLineageRespBytes
+                    : null,
+                System.currentTimeMillis() - httpLineageStart,
+                httpLineageOk,
+                httpLineageErr));
+      } catch (Exception ignored) {
+        // optional lineage
       }
+      data.argumentRows.clear(); // ready for the next batch.
     }
   }
 
@@ -465,7 +510,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
     cachedURLService = cachedWsdl.getServiceEndpoint();
     cachedHostConfiguration = HttpClientContext.create();
-    cachedHttpClient = getHttpClient(cachedHostConfiguration);
+    cachedHttpClient = getHttpClient(cachedHostConfiguration, cachedURLService);
     // Generate the XML to send over, determine the correct name for the request...
     //
     cachedOperation = cachedWsdl.getOperation(meta.getOperationName());
@@ -504,35 +549,40 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     return vHttpMethod;
   }
 
-  private HttpClient getHttpClient(HttpClientContext context) {
+  private HttpClient getHttpClient(HttpClientContext context, String serviceUrl) {
     HttpClientManager.HttpClientBuilderFacade clientBuilder =
         HttpClientManager.getInstance().createBuilder();
 
     String login = resolve(meta.getHttpLogin());
+    String password = Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getHttpPassword()));
     if (StringUtils.isNotBlank(login)) {
-      clientBuilder.setCredentials(
-          login, Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getHttpPassword())));
+      clientBuilder.setCredentials(login, password);
     }
-    int proxyPort = 0;
     if (StringUtils.isNotBlank(meta.getProxyHost())) {
-      proxyPort = Const.toInt(resolve(meta.getProxyPort()), 8080);
+      int proxyPort = Const.toInt(resolve(meta.getProxyPort()), 8080);
       clientBuilder.setProxy(meta.getProxyHost(), proxyPort);
     }
     CloseableHttpClient httpClient = clientBuilder.build();
 
-    if (proxyPort != 0) {
-      // Preemptive authentication
-      HttpHost target = new HttpHost(meta.getProxyHost(), proxyPort, "http");
-      // Create AuthCache instance
+    if (StringUtils.isNotBlank(login)) {
+      HttpHost target = HttpHost.create(URI.create(serviceUrl));
       AuthCache authCache = new BasicAuthCache();
-      // Generate BASIC scheme object and add it to the local auth cache
       BasicScheme basicAuth = new BasicScheme();
+      char[] passwordChars = password != null ? password.toCharArray() : new char[0];
+      basicAuth.initPreemptive(new UsernamePasswordCredentials(login, passwordChars));
       authCache.put(target, basicAuth);
-      // Add AuthCache to the execution context
       context.setAuthCache(authCache);
     }
 
     return httpClient;
+  }
+
+  private static String readEntity(HttpEntity entity, String charset) throws IOException {
+    try {
+      return EntityUtils.toString(entity, charset);
+    } catch (org.apache.hc.core5.http.ParseException e) {
+      throw new IOException("Unable to parse SOAP response body", e);
+    }
   }
 
   @Override
@@ -559,7 +609,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       char[] tmp = new char[4096];
 
       try {
-        InputStreamReader reader = new InputStreamReader(is, encoding != null ? encoding : "UTF-8");
+        Charset charset = encoding != null ? Charset.forName(encoding) : StandardCharsets.UTF_8;
+        InputStreamReader reader = new InputStreamReader(is, charset);
         for (int cnt; (cnt = reader.read(tmp)) > 0; ) {
           sb.append(tmp, 0, cnt);
         }

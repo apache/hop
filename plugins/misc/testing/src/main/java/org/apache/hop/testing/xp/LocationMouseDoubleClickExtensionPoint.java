@@ -80,7 +80,7 @@ public class LocationMouseDoubleClickExtensionPoint
         }
       }
 
-      // Find the location that was double clicked on...
+      // Find the location that was double-clicked on...
       //
       MouseEvent e = pipelineGraphExtension.getEvent();
       Point point = pipelineGraphExtension.getPoint();
@@ -91,13 +91,15 @@ public class LocationMouseDoubleClickExtensionPoint
           // Check if this is the flask...
           //
           if (DataSetConst.AREA_DRAWN_INPUT_DATA_SET.equals(areaOwner.getParent())) {
+            pipelineGraphExtension.setPreventingDefault(true);
 
-            // Open the dataset double clicked on...
+            // Open the dataset double-clicked on...
             //
             String transformName = (String) areaOwner.getOwner();
 
             PipelineUnitTestSetLocation inputLocation = unitTest.findInputLocation(transformName);
             if (inputLocation != null) {
+              pipelineGraphExtension.setPreventingDefault(true);
               PipelineUnitTestSetLocationDialog dialog =
                   new PipelineUnitTestSetLocationDialog(
                       hopGui.getActiveShell(),
@@ -112,13 +114,15 @@ public class LocationMouseDoubleClickExtensionPoint
               }
             }
           } else if (DataSetConst.AREA_DRAWN_GOLDEN_DATA_SET.equals(areaOwner.getParent())) {
+            pipelineGraphExtension.setPreventingDefault(true);
 
-            // Open the dataset double clicked on...
+            // Open the dataset double-clicked on...
             //
             String transformName = (String) areaOwner.getOwner();
 
             PipelineUnitTestSetLocation goldenLocation = unitTest.findGoldenLocation(transformName);
             if (goldenLocation != null) {
+              pipelineGraphExtension.setPreventingDefault(true);
               PipelineUnitTestSetLocationDialog dialog =
                   new PipelineUnitTestSetLocationDialog(
                       hopGui.getActiveShell(),
@@ -134,8 +138,9 @@ public class LocationMouseDoubleClickExtensionPoint
               }
             }
           } else if (DataSetConst.AREA_DRAWN_GOLDEN_DATA_RESULT.equals(areaOwner.getParent())) {
+            pipelineGraphExtension.setPreventingDefault(true);
 
-            // Open the dataset double clicked on...
+            // Open the dataset double-clicked on...
             //
             String transformName = (String) areaOwner.getOwner();
 
@@ -156,6 +161,7 @@ public class LocationMouseDoubleClickExtensionPoint
                 return;
               }
 
+              pipelineGraphExtension.setPreventingDefault(true);
               ValidatePipelineUnitTestExtensionPoint.showUnitTestErrors(pipeline, results, hopGui);
             }
           }

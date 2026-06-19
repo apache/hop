@@ -38,6 +38,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.transforms.kafka.ConfigOption;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -145,7 +146,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
               case Double -> Double.valueOf(optionValue);
               case Boolean -> Boolean.valueOf(optionValue);
               default ->
-                  throw new RuntimeException(
+                  throw new HopRuntimeException(
                       "Config option parameter "
                           + configOption.getParameter()
                           + " uses unsupported type "
@@ -246,7 +247,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in Kafka input transform", e);
-      throw new RuntimeException("Error in Kafka input transform", e);
+      throw new HopRuntimeException("Error in Kafka input transform", e);
     }
   }
 
@@ -282,7 +283,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in setup of KV<String,String> to Hop Row conversion function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in setup of KV<String,String> to Hop Row conversion function", e);
       }
     }
@@ -302,7 +303,8 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in KV<String,String> to Hop Row conversion function", e);
-        throw new RuntimeException("Error in KV<String,String> to Hop Row conversion function", e);
+        throw new HopRuntimeException(
+            "Error in KV<String,String> to Hop Row conversion function", e);
       }
     }
   }
@@ -340,7 +342,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in setup of KV<String,GenericRecord> to Hop Row conversion function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in setup of KV<String,GenericRecord> to Hop Row conversion function", e);
       }
     }
@@ -360,7 +362,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in KV<String,GenericRecord> to Hop Row conversion function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in KV<String,GenericRecord> to Hop Row conversion function", e);
       }
     }

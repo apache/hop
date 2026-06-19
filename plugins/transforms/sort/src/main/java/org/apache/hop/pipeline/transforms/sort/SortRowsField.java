@@ -17,27 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.sort;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class SortRowsField {
-
-  public SortRowsField() {}
-
-  public SortRowsField(
-      String fieldName,
-      boolean ascending,
-      boolean caseSensitive,
-      boolean collatorEnabled,
-      int collatorStrength,
-      boolean preSortedField) {
-    this.fieldName = fieldName;
-    this.ascending = ascending;
-    this.caseSensitive = caseSensitive;
-    this.collatorEnabled = collatorEnabled;
-    this.collatorStrength = collatorStrength;
-    this.preSortedField = preSortedField;
-  }
-
   /** order by which fields? */
   @HopMetadataProperty(key = "name", injectionKey = "NAME")
   private String fieldName;
@@ -62,51 +48,30 @@ public class SortRowsField {
   @HopMetadataProperty(key = "presorted", injectionKey = "PRESORTED")
   private boolean preSortedField = false;
 
-  public String getFieldName() {
-    return fieldName;
-  }
+  public SortRowsField() {}
 
-  public void setFieldName(String fieldName) {
+  public SortRowsField(
+      String fieldName,
+      boolean ascending,
+      boolean caseSensitive,
+      boolean collatorEnabled,
+      int collatorStrength,
+      boolean preSortedField) {
     this.fieldName = fieldName;
-  }
-
-  public boolean isAscending() {
-    return ascending;
-  }
-
-  public void setAscending(boolean ascending) {
     this.ascending = ascending;
-  }
-
-  public boolean isCaseSensitive() {
-    return caseSensitive;
-  }
-
-  public void setCaseSensitive(boolean caseSensitive) {
     this.caseSensitive = caseSensitive;
-  }
-
-  public boolean isCollatorEnabled() {
-    return collatorEnabled;
-  }
-
-  public void setCollatorEnabled(boolean collatorEnabled) {
     this.collatorEnabled = collatorEnabled;
-  }
-
-  public int getCollatorStrength() {
-    return collatorStrength;
-  }
-
-  public void setCollatorStrength(int collatorStrength) {
     this.collatorStrength = collatorStrength;
-  }
-
-  public boolean isPreSortedField() {
-    return preSortedField;
-  }
-
-  public void setPreSortedField(boolean preSortedField) {
     this.preSortedField = preSortedField;
+  }
+
+  public SortRowsField(SortRowsField f) {
+    this();
+    this.fieldName = f.fieldName;
+    this.ascending = f.ascending;
+    this.caseSensitive = f.caseSensitive;
+    this.collatorEnabled = f.collatorEnabled;
+    this.collatorStrength = f.collatorStrength;
+    this.preSortedField = f.preSortedField;
   }
 }

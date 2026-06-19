@@ -1,0 +1,36 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "one",
+          "data_set_field": "one"
+        },
+        {
+          "transform_field": "two",
+          "data_set_field": "two"
+        },
+        {
+          "transform_field": "three",
+          "data_set_field": "three"
+        }
+      ],
+      "field_order": [
+        "one"
+      ],
+      "data_set_name": "golden-xml-output",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0094-xml-output-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0094-xml-output-validate.hpl"
+}

@@ -36,6 +36,10 @@ public class SQLFileOutputData extends BaseTransformData implements ITransformDa
   public OutputStreamWriter writer;
 
   public OutputStream fos;
+
+  /** Path of the SQL file currently being written (lineage). */
+  public String currentOutputFilename;
+
   public IRowMeta outputRowMeta;
 
   /** ICache of the data formatter object */

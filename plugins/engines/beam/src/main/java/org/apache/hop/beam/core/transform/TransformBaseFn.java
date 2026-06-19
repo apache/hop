@@ -28,10 +28,11 @@ import java.util.TimerTask;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.TupleTag;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
@@ -233,7 +234,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
                 try {
                   sampler.sampleRow(store, IStream.StreamType.OUTPUT, rowMeta, row);
                 } catch (HopException e) {
-                  throw new RuntimeException("Error sampling row", e);
+                  throw new HopRuntimeException("Error sampling row", e);
                 }
               }
             }

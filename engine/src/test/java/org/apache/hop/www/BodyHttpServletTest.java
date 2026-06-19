@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.IVariables;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +64,7 @@ class BodyHttpServletTest {
         HttpServletResponse response,
         boolean useXML,
         IVariables variables) {
-      throw new RuntimeException("boom");
+      throw new HopRuntimeException("boom");
     }
 
     @Override

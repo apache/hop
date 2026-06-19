@@ -30,11 +30,11 @@ import java.awt.Frame;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
@@ -43,7 +43,6 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
@@ -76,7 +75,7 @@ public class JediTerminalWidget implements ITerminalWidget {
       Composite parent, String shellPath, String workingDirectory, int fontScalePercent) {
     this.shellPath = shellPath;
     this.workingDirectory = workingDirectory;
-    this.fontScalePercent.set(Math.max(50, Math.min(200, fontScalePercent)));
+    this.fontScalePercent.set(Math.clamp(fontScalePercent, 50, 200));
 
     createWidget(parent, parent.getDisplay());
 
@@ -143,42 +142,38 @@ public class JediTerminalWidget implements ITerminalWidget {
     // Defer focus until after terminal initialization
     bridgeComposite.addListener(
         SWT.FocusIn,
-        event -> {
-          display.asyncExec(
-              () -> {
-                if (bridgeComposite.isDisposed() || jediTermWidget == null) {
-                  return;
-                }
-                new Thread(
-                        () -> {
-                          try {
-                            java.awt.EventQueue.invokeLater(
-                                () -> {
-                                  if (jediTermWidget != null) {
-                                    try {
-                                      jediTermWidget.requestFocusInWindow();
-                                    } catch (Exception e) {
-                                      log.logDebug("Could not request focus: " + e.getMessage());
+        event ->
+            display.asyncExec(
+                () -> {
+                  if (bridgeComposite.isDisposed() || jediTermWidget == null) {
+                    return;
+                  }
+                  new Thread(
+                          () -> {
+                            try {
+                              java.awt.EventQueue.invokeLater(
+                                  () -> {
+                                    if (jediTermWidget != null) {
+                                      try {
+                                        jediTermWidget.requestFocusInWindow();
+                                      } catch (Exception e) {
+                                        log.logDebug("Could not request focus: " + e.getMessage());
+                                      }
                                     }
-                                  }
-                                });
-                          } catch (Exception e) {
-                            log.logDebug("Error requesting AWT focus: " + e.getMessage());
-                          }
-                        })
-                    .start();
-              });
-        });
+                                  });
+                            } catch (Exception e) {
+                              log.logDebug("Error requesting AWT focus: " + e.getMessage());
+                            }
+                          })
+                      .start();
+                }));
 
     // Override tab listener and send it to jediTerm
     if (Const.isLinux()) {
       TraverseListener tabTraverse =
-          new TraverseListener() {
-            @Override
-            public void keyTraversed(TraverseEvent e) {
-              if (e.detail == SWT.TRAVERSE_TAB_NEXT || e.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
-                e.doit = false;
-              }
+          e -> {
+            if (e.detail == SWT.TRAVERSE_TAB_NEXT || e.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
+              e.doit = false;
             }
           };
       KeyAdapter tabKey =
@@ -299,7 +294,7 @@ public class JediTerminalWidget implements ITerminalWidget {
 
   @Override
   public void setFontScalePercent(int percent) {
-    int clamped = Math.max(50, Math.min(200, percent));
+    int clamped = Math.clamp(percent, 50, 200);
     fontScalePercent.set(clamped);
     if (jediTermWidget == null) {
       return;
@@ -313,9 +308,7 @@ public class JediTerminalWidget implements ITerminalWidget {
         () -> {
           try {
             TerminalPanel panel = jediTermWidget.getTerminalPanel();
-            Method reinit = TerminalPanel.class.getDeclaredMethod("reinitFontAndResize");
-            reinit.setAccessible(true);
-            reinit.invoke(panel);
+            MethodUtils.invokeMethod(panel, true, "reinitFontAndResize");
           } catch (Exception e) {
             log.logDebug("Terminal font reinit: " + e.getMessage());
           }

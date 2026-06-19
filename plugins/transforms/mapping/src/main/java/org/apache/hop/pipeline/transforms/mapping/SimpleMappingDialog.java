@@ -457,7 +457,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "SimpleMappingDialog.Exception.NoMappingSpecified"));
         }
         TransformMeta mappingInputTransformMeta =
-            mappingPipelineMeta.findMappingInputTransform(null);
+            SimpleMappingMeta.findMappingInputTransform(mappingPipelineMeta, null);
         return mappingPipelineMeta.getTransformFields(variables, mappingInputTransformMeta);
       }
     } else {
@@ -468,7 +468,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "SimpleMappingDialog.Exception.NoMappingSpecified"));
       }
       TransformMeta mappingOutputTransformMeta =
-          mappingPipelineMeta.findMappingOutputTransform(null);
+          SimpleMappingMeta.findMappingOutputTransform(mappingPipelineMeta, null);
       return mappingPipelineMeta.getTransformFields(variables, mappingOutputTransformMeta);
     }
   }

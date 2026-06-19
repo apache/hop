@@ -17,7 +17,7 @@
 
 package org.apache.hop.neo4j.transforms.loginfo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;

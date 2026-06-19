@@ -26,11 +26,12 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("Temp disable until we migrate to spark 4")
 class BeamSparkPipelineEngineTest extends BeamBasePipelineEngineTest {
 
-  // Disabled because of log4j library dependency problems with Spark
   @Test
   void testSparkPipelineEngine() throws Exception {
 

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class CounterTest {
   /** Constructor test 1. */
   @Test
-  public void testConstructor1() {
+  void testConstructor1() {
     Counter cnt1 = new Counter();
     assertEquals(1L, cnt1.getCounter());
     assertEquals(1L, cnt1.getIncrement());
@@ -59,7 +59,7 @@ class CounterTest {
 
   /** Test the setting of stuff. */
   @Test
-  public void testSets() {
+  void testSets() {
     Counter cnt1 = new Counter();
     cnt1.setCounter(5L);
     assertEquals(5L, cnt1.getCounter());
@@ -76,7 +76,7 @@ class CounterTest {
 
   /** Test next(). */
   @Test
-  public void testNext() {
+  void testNext() {
     Counter cnt1 = new Counter();
     cnt1.setCounter(2L);
     assertEquals(2L, cnt1.getAndNext());

@@ -22,6 +22,8 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,7 +36,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -105,7 +107,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   private String password;
 
   // Bearer auth
-  @HopMetadataProperty(key = "bearer_token")
+  @HopMetadataProperty(key = "bearer_token", password = true)
   private String bearerToken;
 
   // API auth
@@ -133,6 +135,49 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty(key = "certificateAlias")
   private String certificateAlias;
+
+  /** Optional API pagination semantics (NONE by default). */
+  @HopMetadataProperty(key = "pagination_type")
+  private RestPaginationType paginationType = RestPaginationType.NONE;
+
+  /**
+   * Query parameter name used for cursor-based paging or page-number paging ({@link
+   * #paginationType}).
+   */
+  @HopMetadataProperty(key = "page_param_name")
+  private String pageParamName;
+
+  @HopMetadataProperty(key = "offset_param_name")
+  private String offsetParamName;
+
+  @HopMetadataProperty(key = "limit_param_name")
+  private String limitParamName;
+
+  /** Default page size used with {@link RestPaginationType#OFFSET_LIMIT} when not overridden. */
+  @HopMetadataProperty(key = "default_limit")
+  private int defaultLimit;
+
+  /** JsonPath against the JSON response body to read the next cursor token. */
+  @HopMetadataProperty(key = "cursor_json_path")
+  private String cursorJsonPath;
+
+  /** XPath against the XML response body to read the next cursor token. */
+  @HopMetadataProperty(key = "cursor_x_path")
+  private String cursorXPath;
+
+  /**
+   * JsonPath against the JSON response body to read the next page URL ({@link
+   * RestPaginationType#BODY_NEXT_URL}).
+   */
+  @HopMetadataProperty(key = "next_page_url_json_path")
+  private String nextPageUrlJsonPath;
+
+  /**
+   * XPath against the XML response body to read the next page URL ({@link
+   * RestPaginationType#BODY_NEXT_URL}).
+   */
+  @HopMetadataProperty(key = "next_page_url_x_path")
+  private String nextPageUrlXPath;
 
   public RestConnection(IVariables variables) {
     this.variables = variables;
@@ -192,30 +237,111 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
       }
     }
 
-    if (authType.equals(BASIC)
-        && !StringUtils.isEmpty(username)
-        && !StringUtils.isEmpty(password)) {
+    if (authTypeEquals(BASIC) && !StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
       client.register(
           HttpAuthenticationFeature.basic(
               resolve(username), Encr.decryptPasswordOptionallyEncrypted(resolve(password))));
       target = client.target(url);
       invocationBuilder = target.request();
-    } else if (authType.equals(API_KEY)) {
-      if (!StringUtils.isEmpty(resolve(authorizationPrefix))) {
-        invocationBuilder.header(
-            resolve(authorizationHeaderName),
-            resolve(authorizationPrefix)
-                + " "
-                + Encr.decryptPasswordOptionallyEncrypted(resolve(authorizationHeaderValue)));
-      } else {
-        invocationBuilder.header(
-            resolve(authorizationHeaderName),
-            Encr.decryptPasswordOptionallyEncrypted(resolve(authorizationHeaderValue)));
-      }
-    } else if (authType.equals(BEARER) && !StringUtils.isEmpty(bearerToken)) {
-      invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + resolve(bearerToken));
+    } else {
+      applyBearerAndApiKeyHeaders(invocationBuilder, null);
     }
     return invocationBuilder;
+  }
+
+  /**
+   * Applies API-key or Bearer auth to outbound headers (when {@code outboundHeaders} is non-null)
+   * or to {@code Invocation.Builder} via successive {@link Invocation.Builder#header} calls (when
+   * {@code outboundHeaders} is null). Skips when credentials are already on the map ({@code
+   * Authorization}, or the configured API-key header name). Intended for merging into maps before
+   * {@link Invocation.Builder#headers(javax.ws.rs.core.MultivaluedMap)}, which replaces Jersey's
+   * prior headers.
+   */
+  public void applyBearerAndApiKeyHeaders(
+      Invocation.Builder invocationBuilder, MultivaluedMap<String, Object> outboundHeaders) {
+    if (invocationBuilder == null || !supportsBearerOrApiKeyAuthHeaders()) {
+      return;
+    }
+    if (authHeadersAlreadyProvidedFromMap(outboundHeaders)) {
+      return;
+    }
+
+    MultivaluedMap<String, Object> authOnly =
+        outboundHeaders != null ? outboundHeaders : new MultivaluedHashMap<>();
+
+    if (authTypeEquals(API_KEY)) {
+      String headerName = resolve(authorizationHeaderName);
+      String headerValue =
+          Encr.decryptPasswordOptionallyEncrypted(resolve(authorizationHeaderValue));
+      if (Utils.isEmpty(headerName) || Utils.isEmpty(headerValue)) {
+        return;
+      }
+      if (!StringUtils.isEmpty(resolve(authorizationPrefix))) {
+        authOnly.putSingle(headerName, resolve(authorizationPrefix) + " " + headerValue);
+      } else {
+        authOnly.putSingle(headerName, headerValue);
+      }
+    } else if (authTypeEquals(BEARER)) {
+      String token = Encr.decryptPasswordOptionallyEncrypted(resolve(bearerToken));
+      if (Utils.isEmpty(token)) {
+        return;
+      }
+      authOnly.putSingle(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+    }
+
+    if (outboundHeaders == null) {
+      authOnly.forEach(
+          (name, values) -> {
+            for (Object val : values) {
+              invocationBuilder.header(name, val);
+            }
+          });
+    }
+  }
+
+  /** True when this connection may add Bearer / API-key style headers before a request runs. */
+  private boolean supportsBearerOrApiKeyAuthHeaders() {
+    return authType != null && (authTypeEquals(API_KEY) || authTypeEquals(BEARER));
+  }
+
+  /**
+   * When merging into an outbound header map, skip adding connection auth if the map already
+   * supplies credentials: {@code Authorization}, or the connection's API-key header name (rows
+   * win).
+   */
+  private boolean authHeadersAlreadyProvidedFromMap(
+      MultivaluedMap<String, Object> outboundHeaders) {
+    if (outboundHeaders == null || outboundHeaders.isEmpty()) {
+      return false;
+    }
+    for (String key : outboundHeaders.keySet()) {
+      if (key == null) {
+        continue;
+      }
+      if ("Authorization".equalsIgnoreCase(key) && nonEmptyHeaderValue(outboundHeaders, key)) {
+        return true;
+      }
+      if (authTypeEquals(API_KEY)) {
+        String configuredName = resolve(authorizationHeaderName);
+        if (!Utils.isEmpty(configuredName)
+            && configuredName.equalsIgnoreCase(key)
+            && nonEmptyHeaderValue(outboundHeaders, key)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean authTypeEquals(String canonicalLabel) {
+    return authType != null
+        && canonicalLabel != null
+        && authType.trim().equalsIgnoreCase(canonicalLabel.trim());
+  }
+
+  private static boolean nonEmptyHeaderValue(MultivaluedMap<String, Object> headers, String key) {
+    Object o = headers.getFirst(key);
+    return o != null && !Utils.isEmpty(o.toString().trim());
   }
 
   private void setProxyHost(String proxyHost, Integer proxyPort) {
@@ -238,8 +364,22 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     return response;
   }
 
+  /**
+   * Verifies connectivity using {@link #testUrl}. Mirrors the outbound header sequence used by the
+   * REST transform ({@link jakarta.ws.rs.client.Invocation.Builder#headers}: merge Bearer / API-key
+   * headers into the map before applying it); that avoids misleading green tests where only {@link
+   * jakarta.ws.rs.client.Invocation.Builder#header} ran and pagination later replaced headers
+   * without auth.
+   */
   public void testConnection() throws HopException {
-    Response response = getInvocationBuilder(resolve(testUrl)).get();
+    String url = resolve(testUrl);
+    Invocation.Builder invocationBuilder = getInvocationBuilder(url);
+    if (supportsBearerOrApiKeyAuthHeaders()) {
+      MultivaluedHashMap<String, Object> outbound = new MultivaluedHashMap<>();
+      applyBearerAndApiKeyHeaders(invocationBuilder, outbound);
+      invocationBuilder.headers(outbound);
+    }
+    Response response = invocationBuilder.get();
     response.close();
   }
 

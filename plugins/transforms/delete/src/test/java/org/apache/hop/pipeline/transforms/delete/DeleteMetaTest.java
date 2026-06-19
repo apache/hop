@@ -18,16 +18,16 @@
 package org.apache.hop.pipeline.transforms.delete;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -49,9 +49,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+/** Unit test for {@link DeleteMeta} */
 class DeleteMetaTest implements IInitializer<ITransformMeta> {
-  LoadSaveTester loadSaveTester;
-  Class<DeleteMeta> testMetaClass = DeleteMeta.class;
+  private LoadSaveTester loadSaveTester;
+  private final Class<DeleteMeta> testMetaClass = DeleteMeta.class;
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
@@ -59,7 +60,7 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
   @BeforeEach
   void setUpLoadSave() throws Exception {
     PluginRegistry.init();
-    List<String> attributes = Arrays.asList("commit", "connection", "lookup");
+    List<String> attributes = Arrays.asList("commit", "connection", "lookup", "use_batch");
 
     Map<String, String> getterMap =
         new HashMap<>() {
@@ -67,6 +68,7 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
             put("commit", "getCommitSize");
             put("connection", "getConnection");
             put("lookup", "getLookup");
+            put("use_batch", "isUseBatchUpdate");
           }
         };
     Map<String, String> setterMap =
@@ -75,6 +77,7 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
             put("commit", "setCommitSize");
             put("connection", "setConnection");
             put("lookup", "setLookup");
+            put("use_batch", "setUseBatchUpdate");
           }
         };
 
@@ -142,9 +145,7 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
     loadSaveTester.testSerialization();
   }
 
-  private TransformMeta transformMeta;
   private Delete del;
-  private DeleteData data;
   private DeleteMeta meta;
 
   @BeforeAll
@@ -158,12 +159,12 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
     pipelineMeta.setName("delete1");
 
     meta = new DeleteMeta();
-    data = new DeleteData();
+    DeleteData data = new DeleteData();
 
     PluginRegistry plugReg = PluginRegistry.getInstance();
     String deletePid = plugReg.getPluginId(TransformPluginType.class, meta);
 
-    transformMeta = new TransformMeta(deletePid, "delete", meta);
+    TransformMeta transformMeta = new TransformMeta(deletePid, "delete", meta);
     Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
 
     Map<String, String> vars = new HashMap<>();
@@ -193,36 +194,50 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
       meta.getCommitSize(del);
       fail();
     } catch (Exception ex) {
+      // ignore ex
     }
   }
 
-  public class DeleteLookupKeyFieldInputFieldLoadSaveValidator
-      implements IFieldLoadSaveValidator<DeleteLookupField> {
-    final Random rand = new Random();
-
-    @Override
-    public DeleteLookupField getTestObject() {
-      return new DeleteLookupField(
-          UUID.randomUUID().toString(), UUID.randomUUID().toString(), new ArrayList<>());
-    }
-
-    @Override
-    public boolean validateTestObject(DeleteLookupField testObject, Object actual) {
-      if (!(actual instanceof DeleteLookupField)) {
-        return false;
-      }
-      DeleteLookupField another = (DeleteLookupField) actual;
-      return new EqualsBuilder()
-          .append(testObject.getSchemaName(), another.getSchemaName())
-          .append(testObject.getTableName(), another.getTableName())
-          .append(testObject.getFields(), another.getFields())
-          .isEquals();
-    }
+  @Test
+  void testUseBatchUpdateDefaultIsFalse() {
+    assertFalse(meta.isUseBatchUpdate());
   }
 
-  public class DeleteKeyFieldInputFieldLoadSaveValidator
+  @Test
+  void testUseBatchUpdateSetterAndGetter() {
+    meta.setUseBatchUpdate(true);
+    assertTrue(meta.isUseBatchUpdate());
+  }
+
+  @Test
+  void testCloneIncludesUseBatchUpdate() {
+    meta.setUseBatchUpdate(true);
+    DeleteMeta cloned = (DeleteMeta) meta.clone();
+    assertTrue(cloned.isUseBatchUpdate());
+  }
+
+  @Test
+  void testCopyConstructorIncludesUseBatchUpdate() {
+    meta.setUseBatchUpdate(true);
+    DeleteMeta copied = new DeleteMeta(meta);
+    assertTrue(copied.isUseBatchUpdate());
+  }
+
+  @Test
+  void testSetDefaultValues() {
+    DeleteMeta defaults = new DeleteMeta();
+    defaults.setDefault();
+    assertEquals("100", defaults.getCommitSize());
+    assertFalse(defaults.isUseBatchUpdate());
+  }
+
+  @Test
+  void testSupportsErrorHandling() {
+    assertTrue(meta.supportsErrorHandling());
+  }
+
+  public static class DeleteKeyFieldInputFieldLoadSaveValidator
       implements IFieldLoadSaveValidator<DeleteKeyField> {
-    final Random rand = new Random();
 
     @Override
     public DeleteKeyField getTestObject() {
@@ -235,10 +250,10 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public boolean validateTestObject(DeleteKeyField testObject, Object actual) {
-      if (!(actual instanceof DeleteKeyField)) {
+      if (!(actual instanceof DeleteKeyField another)) {
         return false;
       }
-      DeleteKeyField another = (DeleteKeyField) actual;
+
       return new EqualsBuilder()
           .append(testObject.getKeyLookup(), another.getKeyLookup())
           .append(testObject.getKeyCondition(), another.getKeyCondition())

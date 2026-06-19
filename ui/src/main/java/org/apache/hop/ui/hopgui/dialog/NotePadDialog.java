@@ -574,8 +574,7 @@ public class NotePadDialog extends Dialog {
   }
 
   private void ok() {
-    PropsUi propsUi = PropsUi.getInstance();
-    boolean isDark = propsUi.isDarkMode();
+    NotePadMeta originalNotePadMeta = notePadMeta;
 
     notePadMeta = new NotePadMeta();
 
@@ -605,40 +604,26 @@ public class NotePadDialog extends Dialog {
             wBorderColor.getBackground().getGreen(),
             wBorderColor.getBackground().getBlue());
 
-    if (this.notePadMeta != null) { // Editing existing note
+    if (originalNotePadMeta != null) { // Editing existing note
       RGB originalFont =
           new RGB(
-              this.notePadMeta.getFontColorRed(),
-              this.notePadMeta.getFontColorGreen(),
-              this.notePadMeta.getFontColorBlue());
+              originalNotePadMeta.getFontColorRed(),
+              originalNotePadMeta.getFontColorGreen(),
+              originalNotePadMeta.getFontColorBlue());
       RGB originalBg =
           new RGB(
-              this.notePadMeta.getBackGroundColorRed(),
-              this.notePadMeta.getBackGroundColorGreen(),
-              this.notePadMeta.getBackGroundColorBlue());
+              originalNotePadMeta.getBackGroundColorRed(),
+              originalNotePadMeta.getBackGroundColorGreen(),
+              originalNotePadMeta.getBackGroundColorBlue());
       RGB originalBorder =
           new RGB(
-              this.notePadMeta.getBorderColorRed(),
-              this.notePadMeta.getBorderColorGreen(),
-              this.notePadMeta.getBorderColorBlue());
+              originalNotePadMeta.getBorderColorRed(),
+              originalNotePadMeta.getBorderColorGreen(),
+              originalNotePadMeta.getBorderColorBlue());
 
-      if (isDark
-          && (isLightDefault(originalFont)
-              || isLightDefault(originalBg)
-              || isLightDefault(originalBorder))) {
-        // Save dark contrasted
-        fontRGB = propsUi.contrastColor(originalFont);
-        bgRGB = propsUi.contrastColor(originalBg);
-        borderRGB = propsUi.contrastColor(originalBorder);
-      } else if (!isDark
-          && (isDarkDefault(originalFont)
-              || isDarkDefault(originalBg)
-              || isDarkDefault(originalBorder))) {
-        // Save light defaults
-        if (isDarkDefault(originalFont)) fontRGB = originalFont; // Already light
-        if (isDarkDefault(originalBg)) bgRGB = originalBg;
-        if (isDarkDefault(originalBorder)) borderRGB = originalBorder;
-      }
+      fontRGB = keepOriginalColorIfUnchanged(originalFont, fontRGB);
+      bgRGB = keepOriginalColorIfUnchanged(originalBg, bgRGB);
+      borderRGB = keepOriginalColorIfUnchanged(originalBorder, borderRGB);
     }
 
     notePadMeta.setFontColorRed(fontRGB.red);
@@ -656,41 +641,9 @@ public class NotePadDialog extends Dialog {
     dispose();
   }
 
-  private boolean isDarkDefault(RGB rgb) {
-    PropsUi propsUi = PropsUi.getInstance();
-
-    // Check if RGB matches contrastColor() of each light default
-    RGB blackLight =
-        new RGB(
-            NotePadMeta.COLOR_RGB_BLACK_RED,
-            NotePadMeta.COLOR_RGB_BLACK_GREEN,
-            NotePadMeta.COLOR_RGB_BLACK_BLUE);
-    RGB bgLight =
-        new RGB(
-            NotePadMeta.COLOR_RGB_DEFAULT_BG_RED,
-            NotePadMeta.COLOR_RGB_DEFAULT_BG_GREEN,
-            NotePadMeta.COLOR_RGB_DEFAULT_BG_BLUE);
-    RGB borderLight =
-        new RGB(
-            NotePadMeta.COLOR_RGB_DEFAULT_BORDER_RED,
-            NotePadMeta.COLOR_RGB_DEFAULT_BORDER_GREEN,
-            NotePadMeta.COLOR_RGB_DEFAULT_BORDER_BLUE);
-
-    return rgb.equals(propsUi.contrastColor(blackLight))
-        || rgb.equals(propsUi.contrastColor(bgLight))
-        || rgb.equals(propsUi.contrastColor(borderLight));
-  }
-
-  private boolean isLightDefault(RGB rgb) {
-    return (rgb.red == NotePadMeta.COLOR_RGB_BLACK_RED
-            && rgb.green == NotePadMeta.COLOR_RGB_BLACK_GREEN
-            && rgb.blue == NotePadMeta.COLOR_RGB_BLACK_BLUE)
-        || (rgb.red == NotePadMeta.COLOR_RGB_DEFAULT_BG_RED
-            && rgb.green == NotePadMeta.COLOR_RGB_DEFAULT_BG_GREEN
-            && rgb.blue == NotePadMeta.COLOR_RGB_DEFAULT_BG_BLUE)
-        || (rgb.red == NotePadMeta.COLOR_RGB_DEFAULT_BORDER_RED
-            && rgb.green == NotePadMeta.COLOR_RGB_DEFAULT_BORDER_GREEN
-            && rgb.blue == NotePadMeta.COLOR_RGB_DEFAULT_BORDER_BLUE);
+  private RGB keepOriginalColorIfUnchanged(RGB originalColor, RGB selectedColor) {
+    RGB displayedOriginalColor = props.contrastColor(originalColor);
+    return selectedColor.equals(displayedOriginalColor) ? originalColor : selectedColor;
   }
 
   private void refreshTextNote() {

@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;

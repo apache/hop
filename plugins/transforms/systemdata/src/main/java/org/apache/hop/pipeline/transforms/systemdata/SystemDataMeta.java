@@ -163,6 +163,7 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
             PREVIOUS_RESULT_EXIT_STATUS,
             PREVIOUS_RESULT_ENTRY_NR,
             PREVIOUS_RESULT_NR_ERRORS,
+            PREVIOUS_RESULT_NR_ROWS,
             PREVIOUS_RESULT_NR_FILES,
             PREVIOUS_RESULT_NR_FILES_RETRIEVED,
             PREVIOUS_RESULT_NR_LINES_DELETED,
@@ -242,6 +243,16 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
     public SystemInfoField(SystemInfoField f) {
       this.fieldName = f.fieldName;
       this.fieldType = f.fieldType;
+    }
+
+    /**
+     * A missing or unrecognized {@code <type>} (e.g. legacy or hand-edited pipelines) must behave
+     * as {@link SystemDataType#NONE}, matching the pre-@HopMetadataProperty {@code
+     * getTypeFromString()} fallback. Returning {@code null} caused NPEs in {@link
+     * SystemDataMeta#getFields} and {@link SystemDataMeta#check} and in the dialog.
+     */
+    public SystemDataType getFieldType() {
+      return fieldType == null ? SystemDataType.NONE : fieldType;
     }
   }
 }

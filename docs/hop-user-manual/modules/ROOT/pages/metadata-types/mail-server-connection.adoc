@@ -33,7 +33,7 @@ xref:workflow/actions/mail.adoc[Mail] action
 |===
 |Option |Description
 |Connection name|The name to use for this mail server connection
-|Connection protocol|The connection protocol to use for this connection. Supported options are SMTP, IMAP, POP, MBOX (Only SMTP is currently supported).
+|Connection protocol|The connection protocol to use for this connection. Supported options are SMTP, IMAP, and POP. MBOX is currently not supported.
 |Server host|The mail server hostname to use for this connection
 |Server port|The mail server port to use for this connection
 |Use authentication?|Use authentication with this connection?

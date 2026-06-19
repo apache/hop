@@ -18,9 +18,11 @@
 package org.apache.hop.pipeline.transforms.formula.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.BlockingRowSet;
@@ -39,8 +41,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -52,8 +56,12 @@ import org.apache.hop.pipeline.transforms.formula.Formula;
 import org.apache.hop.pipeline.transforms.formula.FormulaData;
 import org.apache.hop.pipeline.transforms.formula.FormulaMeta;
 import org.apache.hop.pipeline.transforms.formula.FormulaMetaFunction;
+import org.apache.hop.pipeline.transforms.formula.FormulaPoi;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link FormulaParser} */
 class FormulaParserTest {
   static {
     HopLogStore.setLogChannelFactory(new ConsoleLogChannelFactory());
@@ -161,6 +169,46 @@ class FormulaParserTest {
     pipeline.setRunning(false);
 
     assertEquals(maxSize, counter.get());
+  }
+
+  /**
+   * Regression for <a href="https://github.com/apache/hop/issues/7006">#7006</a>: BigNumber fields
+   * must be passed to POI as numeric values so comparisons with numeric literals work.
+   */
+  @Test
+  void bigNumberComparesEqualToNumericLiteral() throws Exception {
+    assertTrue(
+        evaluateEqualsZero(new ValueMetaBigNumber("amount"), new Object[] {BigDecimal.ZERO}),
+        "BigNumber 0 should equal numeric literal 0 in a Formula expression");
+  }
+
+  @Test
+  void integerComparesEqualToNumericLiteral() throws Exception {
+    assertTrue(
+        evaluateEqualsZero(new ValueMetaInteger("amount"), new Object[] {0L}),
+        "Integer 0 should equal numeric literal 0 in a Formula expression");
+  }
+
+  private static boolean evaluateEqualsZero(IValueMeta valueMeta, Object[] row) throws Exception {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(valueMeta);
+
+    FormulaMetaFunction fn =
+        new FormulaMetaFunction(
+            "result", "[amount] = 0", IValueMeta.TYPE_BOOLEAN, -1, -1, "", false);
+
+    FormulaPoi poi = new FormulaPoi(msg -> {});
+    try {
+      FormulaParser parser =
+          new FormulaParser(
+              fn, rowMeta, row, poi, new Variables(), new HashMap<>(), List.of("amount"));
+
+      CellValue cellValue = parser.getFormulaValue();
+      assertEquals(CellType.BOOLEAN, cellValue.getCellType());
+      return cellValue.getBooleanValue();
+    } finally {
+      poi.destroy();
+    }
   }
 
   private static class ConsoleLogChannelFactory implements ILogChannelFactory {

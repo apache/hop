@@ -22,6 +22,7 @@ import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -63,7 +64,7 @@ public class PublishStringsFn extends DoFn<HopRow, String> {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in setup of pub/sub publish messages function", e);
-      throw new RuntimeException("Error in setup of pub/sub publish messages function", e);
+      throw new HopRuntimeException("Error in setup of pub/sub publish messages function", e);
     }
   }
 
@@ -80,13 +81,13 @@ public class PublishStringsFn extends DoFn<HopRow, String> {
         processContext.output(string);
         outputCounter.inc();
       } catch (Exception e) {
-        throw new RuntimeException("Unable to pass string", e);
+        throw new HopRuntimeException("Unable to pass string", e);
       }
 
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in pub/sub publish messages function", e);
-      throw new RuntimeException("Error in pub/sub publish messages function", e);
+      throw new HopRuntimeException("Error in pub/sub publish messages function", e);
     }
   }
 }

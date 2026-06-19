@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-engine</artifactId>
@@ -30,14 +30,9 @@
 
     <properties>
         <commons-validator.version>1.10.1</commons-validator.version>
-        <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
-        <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
-        <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
-        <jakarta.xml.soap-api.version>3.0.2</jakarta.xml.soap-api.version>
-        <jakarta.xml.ws-api.version>4.0.3</jakarta.xml.ws-api.version>
-        <jersey2.version>3.1.11</jersey2.version>
+        <!-- jakarta.* API versions are managed centrally in hop-libs -->
         <!-- mina override remove when updating jaas-->
-        <mina.core.version>2.2.5</mina.core.version>
+        <mina.core.version>2.2.7</mina.core.version>
         <snappy-java.version>1.1.10.8</snappy-java.version>
     </properties>
 
@@ -55,6 +50,12 @@
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-core</artifactId>
                 <version>${mina.core.version}</version>
+            </dependency>
+            <!-- commons-validator transitives; 1.11.0+ addresses CVE-2025-48734 -->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.11.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -80,17 +81,14 @@
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
-            <version>${jakarta.annotation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>${jakarta.servlet-api.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta.xml.bind-api.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -101,7 +99,6 @@
         <dependency>
             <groupId>jakarta.xml.soap</groupId>
             <artifactId>jakarta.xml.soap-api</artifactId>
-            <version>${jakarta.xml.soap-api.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -112,7 +109,6 @@
         <dependency>
             <groupId>jakarta.xml.ws</groupId>
             <artifactId>jakarta.xml.ws-api</artifactId>
-            <version>${jakarta.xml.ws-api.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -151,37 +147,27 @@
         <dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
             <artifactId>jersey-jetty-connector</artifactId>
-            <version>${jersey2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
-            <version>${jersey2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-            <version>${jersey2.version}</version>
+            <!-- jersey-container-servlet-core was merged into jersey-container-servlet in Jersey 4.0 -->
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>${jersey2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
-            <version>${jersey2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
-            <version>${jersey2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
-            <version>${jersey2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.metro</groupId>
@@ -202,6 +188,20 @@
         <dependency>
             <groupId>org.mozilla</groupId>
             <artifactId>rhino-all</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mozilla</groupId>
+                    <artifactId>rhino</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mozilla</groupId>
+                    <artifactId>rhino-tools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mozilla</groupId>
+                    <artifactId>rhino-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.xerial.snappy</groupId>

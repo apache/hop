@@ -142,7 +142,7 @@ public class ExplorerPerspectiveConfigPlugin
 
       if (fileExplorerVisibleByDefault != null) {
         config.setFileExplorerVisibleByDefault(fileExplorerVisibleByDefault);
-        log.logBasic(
+        log.logDetailed(
             "Explorer perspective: file explorer visible by default is set to '"
                 + fileExplorerVisibleByDefault
                 + "'");

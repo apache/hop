@@ -30,6 +30,8 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.plugins.EngineCompatibility;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
@@ -46,6 +48,19 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 
 public interface IWorkflowEngine<T extends WorkflowMeta>
     extends IVariables, ILoggingObject, INamedParameters, IExtensionData {
+
+  /**
+   * Engine-side authoritative compatibility check for an action plugin. Default returns UNKNOWN for
+   * backwards compatibility. Workflow engines override to surface what they can actually run.
+   * Combined with the plugin's annotation declarations by {@code
+   * EngineCompatibilityResolver.resolve}.
+   *
+   * @param actionPlugin the registry metadata for the action plugin to check
+   * @return the engine's verdict; UNKNOWN means "no opinion, fall back to annotation"
+   */
+  default EngineCompatibility supports(IPlugin actionPlugin) {
+    return EngineCompatibility.unknown();
+  }
 
   String getWorkflowName();
 

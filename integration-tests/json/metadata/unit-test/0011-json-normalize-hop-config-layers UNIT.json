@@ -1,0 +1,87 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [
+    {
+      "key": "HOP_CONFIG_FOLDER",
+      "value": "${HOP_UNIT_TESTS_FOLDER}/resources/hop-config-layers-it"
+    }
+  ],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "var_name",
+          "data_set_field": "var_name"
+        },
+        {
+          "transform_field": "var_value",
+          "data_set_field": "var_value"
+        },
+        {
+          "transform_field": "var_description",
+          "data_set_field": "var_description"
+        }
+      ],
+      "field_order": [
+        "var_name"
+      ],
+      "data_set_name": "golden-json-normalize-hop-config-variables",
+      "transform_name": "preview variables"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "lifecycle_name",
+          "data_set_field": "lifecycle_name"
+        },
+        {
+          "transform_field": "lifecycle_purpose",
+          "data_set_field": "lifecycle_purpose"
+        },
+        {
+          "transform_field": "lifecycle_projectName",
+          "data_set_field": "lifecycle_projectName"
+        },
+        {
+          "transform_field": "lifecycle_configurationFiles_json",
+          "data_set_field": "lifecycle_configurationFiles_json"
+        }
+      ],
+      "field_order": [
+        "lifecycle_name"
+      ],
+      "data_set_name": "golden-json-normalize-hop-config-lifecycles",
+      "transform_name": "preview lifecycles"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "projectName",
+          "data_set_field": "projectName"
+        },
+        {
+          "transform_field": "projectHome",
+          "data_set_field": "projectHome"
+        },
+        {
+          "transform_field": "configFilename",
+          "data_set_field": "configFilename"
+        }
+      ],
+      "field_order": [
+        "projectName"
+      ],
+      "data_set_name": "golden-json-normalize-hop-config-projects",
+      "transform_name": "preview project configs"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0011-json-normalize-hop-config-layers UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0011-json-normalize-hop-config-layers.hpl"
+}

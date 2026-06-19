@@ -43,6 +43,10 @@ public class AvroOutputData extends BaseTransformData implements ITransformData 
   public DateFormatSymbols dafs;
 
   public CountingOutputStream countingOutputStream;
+
+  /** Resolved data file path for the open Avro output (lineage). */
+  public String outputDataFilename;
+
   public OutputStream writer;
 
   public SimpleDateFormat defaultDateFormat;

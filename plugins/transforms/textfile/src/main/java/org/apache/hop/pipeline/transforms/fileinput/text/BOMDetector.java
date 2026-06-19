@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.hop.core.Const;
 
 /**
  * Detector of BOM prefix in file.
@@ -30,7 +31,7 @@ import java.io.InputStream;
 public class BOMDetector {
   public static final BOMMark[] MARKS =
       new BOMMark[] {
-        new BOMMark("UTF-8", 0xEF, 0xBB, 0xBF),
+        new BOMMark(Const.UTF_8, 0xEF, 0xBB, 0xBF),
         new BOMMark("UTF-32BE", 0x00, 0x00, 0xFE, 0xFF),
         new BOMMark("UTF-32LE", 0xFF, 0xFE, 0x00, 0x00),
         new BOMMark("UTF-16BE", 0xFE, 0xFF),

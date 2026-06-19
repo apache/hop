@@ -52,6 +52,13 @@ public class PipelineExecutorData extends BaseTransformData implements ITransfor
   public IValueMeta groupFieldMeta;
   public String prevFilename;
 
+  /**
+   * When the child pipeline path comes from a field, the resolved path for this transform copy
+   * only. Shared transform meta filename must not be updated at runtime so multiple copies stay
+   * isolated.
+   */
+  public String runtimeMappingFilename;
+
   public Object prevGroupFieldData;
 
   private IRowSet executorTransformOutputRowSet;

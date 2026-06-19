@@ -1,0 +1,849 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.hop.pipeline.transforms.pgbulkloader;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.database.dialog.SqlEditor;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+
+public class PGBulkLoaderDialog extends BaseTransformDialog {
+  private static final Class<?> PKG = PGBulkLoaderMeta.class;
+
+  private MetaSelectionLine<DatabaseMeta> wConnection;
+
+  private TextVar wSchema;
+
+  private TextVar wTable;
+
+  private CCombo wLoadAction;
+
+  private TableView wReturn;
+
+  private TextVar wEnclosure;
+
+  private TextVar wDelimiter;
+
+  private TextVar wDbNameOverride;
+
+  private Button wStopOnError;
+
+  private final PGBulkLoaderMeta input;
+
+  private ColumnInfo[] ciReturn;
+
+  private final List<String> inputFields = new ArrayList<>();
+
+  /** List of ColumnInfo that should have the field names of the selected database table */
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+
+  private static final String PASSTROUGH_LABEL = "PGBulkLoaderDialog.PassThrough.Label";
+
+  private static final String DATEMASK_LABEL = "PGBulkLoaderDialog.DateMask.Label";
+
+  private static final String DATETIMEMASK_LABEL = "PGBulkLoaderDialog.DateTimeMask.Label";
+
+  public PGBulkLoaderDialog(
+      Shell parent,
+      IVariables variables,
+      PGBulkLoaderMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
+  }
+
+  @Override
+  public String open() {
+    createShell(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Shell.Title"));
+
+    buildButtonBar().ok(e -> ok()).sql(e -> create()).cancel(e -> cancel()).build();
+
+    ModifyListener lsMod = e -> input.setChanged();
+    SelectionListener lsSelection =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            setTableFieldCombo();
+          }
+        };
+
+    FocusListener lsFocusLost =
+        new FocusAdapter() {
+          @Override
+          public void focusLost(FocusEvent arg0) {
+            setTableFieldCombo();
+          }
+        };
+    changed = input.hasChanged();
+
+    // Connection line
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
+    wConnection.addSelectionListener(lsSelection);
+
+    // Schema line...
+    Label wlSchema = new Label(shell, SWT.RIGHT);
+    wlSchema.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.TargetSchema.Label"));
+    PropsUi.setLook(wlSchema);
+    FormData fdlSchema = new FormData();
+    fdlSchema.left = new FormAttachment(0, 0);
+    fdlSchema.right = new FormAttachment(middle, -margin);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
+    wlSchema.setLayoutData(fdlSchema);
+
+    wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSchema);
+    wSchema.addModifyListener(lsMod);
+    wSchema.addFocusListener(lsFocusLost);
+    FormData fdSchema = new FormData();
+    fdSchema.left = new FormAttachment(middle, 0);
+    fdSchema.top = new FormAttachment(wConnection, margin);
+    fdSchema.right = new FormAttachment(100, 0);
+    wSchema.setLayoutData(fdSchema);
+
+    // Table line...
+    Label wlTable = new Label(shell, SWT.RIGHT);
+    wlTable.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.TargetTable.Label"));
+    PropsUi.setLook(wlTable);
+    FormData fdlTable = new FormData();
+    fdlTable.left = new FormAttachment(0, 0);
+    fdlTable.right = new FormAttachment(middle, -margin);
+    fdlTable.top = new FormAttachment(wSchema, margin);
+    wlTable.setLayoutData(fdlTable);
+
+    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbTable);
+    wbTable.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Browse.Button"));
+    FormData fdbTable = new FormData();
+    fdbTable.right = new FormAttachment(100, 0);
+    fdbTable.top = new FormAttachment(wSchema, margin);
+    wbTable.setLayoutData(fdbTable);
+    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTable);
+    wTable.addModifyListener(lsMod);
+    wTable.addFocusListener(lsFocusLost);
+    FormData fdTable = new FormData();
+    fdTable.left = new FormAttachment(middle, 0);
+    fdTable.top = new FormAttachment(wSchema, margin);
+    fdTable.right = new FormAttachment(wbTable, -margin);
+    wTable.setLayoutData(fdTable);
+
+    // Load Action line
+    Label wlLoadAction = new Label(shell, SWT.RIGHT);
+    wlLoadAction.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.LoadAction.Label"));
+    PropsUi.setLook(wlLoadAction);
+    FormData fdlLoadAction = new FormData();
+    fdlLoadAction.left = new FormAttachment(0, 0);
+    fdlLoadAction.right = new FormAttachment(middle, -margin);
+    fdlLoadAction.top = new FormAttachment(wTable, margin);
+    wlLoadAction.setLayoutData(fdlLoadAction);
+    wLoadAction = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wLoadAction.add(BaseMessages.getString(PKG, "PGBulkLoaderDialog.InsertLoadAction.Label"));
+    wLoadAction.add(BaseMessages.getString(PKG, "PGBulkLoaderDialog.TruncateLoadAction.Label"));
+
+    wLoadAction.select(0); // +1: starts at -1
+    wLoadAction.addModifyListener(lsMod);
+
+    PropsUi.setLook(wLoadAction);
+    FormData fdLoadAction = new FormData();
+    fdLoadAction.left = new FormAttachment(middle, 0);
+    fdLoadAction.top = new FormAttachment(wTable, margin);
+    fdLoadAction.right = new FormAttachment(100, 0);
+    wLoadAction.setLayoutData(fdLoadAction);
+
+    fdLoadAction = new FormData();
+    fdLoadAction.left = new FormAttachment(middle, 0);
+    fdLoadAction.top = new FormAttachment(wTable, margin);
+    fdLoadAction.right = new FormAttachment(100, 0);
+    wLoadAction.setLayoutData(fdLoadAction);
+
+    // Db Name Override line
+    Label wlDbNameOverride = new Label(shell, SWT.RIGHT);
+    wlDbNameOverride.setText(
+        BaseMessages.getString(PKG, "PGBulkLoaderDialog.DbNameOverride.Label"));
+    PropsUi.setLook(wlDbNameOverride);
+    FormData fdlDbNameOverride = new FormData();
+    fdlDbNameOverride.left = new FormAttachment(0, 0);
+    fdlDbNameOverride.top = new FormAttachment(wLoadAction, margin);
+    fdlDbNameOverride.right = new FormAttachment(middle, -margin);
+    wlDbNameOverride.setLayoutData(fdlDbNameOverride);
+    wDbNameOverride = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wDbNameOverride);
+    wDbNameOverride.addModifyListener(lsMod);
+    FormData fdDbNameOverride = new FormData();
+    fdDbNameOverride.left = new FormAttachment(middle, 0);
+    fdDbNameOverride.top = new FormAttachment(wLoadAction, margin);
+    fdDbNameOverride.right = new FormAttachment(100, 0);
+    wDbNameOverride.setLayoutData(fdDbNameOverride);
+
+    // Enclosure line
+    Label wlEnclosure = new Label(shell, SWT.RIGHT);
+    wlEnclosure.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Enclosure.Label"));
+    PropsUi.setLook(wlEnclosure);
+    FormData fdlEnclosure = new FormData();
+    fdlEnclosure.left = new FormAttachment(0, 0);
+    fdlEnclosure.top = new FormAttachment(wDbNameOverride, margin);
+    fdlEnclosure.right = new FormAttachment(middle, -margin);
+    wlEnclosure.setLayoutData(fdlEnclosure);
+    wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wEnclosure);
+    wEnclosure.addModifyListener(lsMod);
+    FormData fdEnclosure = new FormData();
+    fdEnclosure.left = new FormAttachment(middle, 0);
+    fdEnclosure.top = new FormAttachment(wDbNameOverride, margin);
+    fdEnclosure.right = new FormAttachment(100, 0);
+    wEnclosure.setLayoutData(fdEnclosure);
+
+    // Delimiter
+    Label wlDelimiter = new Label(shell, SWT.RIGHT);
+    wlDelimiter.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Delimiter.Label"));
+    PropsUi.setLook(wlDelimiter);
+    FormData fdlDelimiter = new FormData();
+    fdlDelimiter.left = new FormAttachment(0, 0);
+    fdlDelimiter.top = new FormAttachment(wEnclosure, margin);
+    fdlDelimiter.right = new FormAttachment(middle, -margin);
+    wlDelimiter.setLayoutData(fdlDelimiter);
+    wDelimiter = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wDelimiter);
+    wDelimiter.addModifyListener(lsMod);
+    FormData fdDelimiter = new FormData();
+    fdDelimiter.left = new FormAttachment(middle, 0);
+    fdDelimiter.top = new FormAttachment(wEnclosure, margin);
+    fdDelimiter.right = new FormAttachment(100, 0);
+    wDelimiter.setLayoutData(fdDelimiter);
+
+    // Stop on Error line
+    Label wlStopOnError = new Label(shell, SWT.RIGHT);
+    wlStopOnError.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.StopOnError.Label"));
+    PropsUi.setLook(wlStopOnError);
+    FormData fdlStopOnError = new FormData();
+    fdlStopOnError.left = new FormAttachment(0, 0);
+    fdlStopOnError.top = new FormAttachment(wDelimiter, margin);
+    fdlStopOnError.right = new FormAttachment(middle, -margin);
+    wlStopOnError.setLayoutData(fdlStopOnError);
+    wStopOnError = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wStopOnError);
+    FormData fdStopOnError = new FormData();
+    fdStopOnError.left = new FormAttachment(middle, 0);
+    fdStopOnError.top = new FormAttachment(wlStopOnError, 0, SWT.CENTER);
+    fdStopOnError.right = new FormAttachment(100, 0);
+    wStopOnError.setLayoutData(fdStopOnError);
+
+    wStopOnError.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+
+    // The field Table
+    Label wlReturn = new Label(shell, SWT.NONE);
+    wlReturn.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Fields.Label"));
+    PropsUi.setLook(wlReturn);
+    FormData fdlReturn = new FormData();
+    fdlReturn.left = new FormAttachment(0, 0);
+    fdlReturn.top = new FormAttachment(wStopOnError, margin);
+    wlReturn.setLayoutData(fdlReturn);
+
+    int upInsCols = 3;
+    int upInsRows = (input.getMappings() != null ? input.getMappings().size() : 1);
+
+    ciReturn = new ColumnInfo[upInsCols];
+    ciReturn[0] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "PGBulkLoaderDialog.ColumnInfo.TableField"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {""},
+            false);
+    ciReturn[1] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "PGBulkLoaderDialog.ColumnInfo.StreamField"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {""},
+            false);
+    ciReturn[2] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, DATEMASK_LABEL),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {
+              "",
+              BaseMessages.getString(PKG, PASSTROUGH_LABEL),
+              BaseMessages.getString(PKG, DATEMASK_LABEL),
+              BaseMessages.getString(PKG, DATETIMEMASK_LABEL)
+            },
+            true);
+    tableFieldColumns.add(ciReturn[0]);
+    wReturn =
+        new TableView(
+            variables,
+            shell,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+            ciReturn,
+            upInsRows,
+            lsMod,
+            props);
+
+    Button wGetLU = new Button(shell, SWT.PUSH);
+    wGetLU.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.GetFields.Label"));
+    FormData fdGetLU = new FormData();
+    fdGetLU.top = new FormAttachment(wlReturn, margin);
+    fdGetLU.right = new FormAttachment(100, 0);
+    wGetLU.setLayoutData(fdGetLU);
+
+    Button wDoMapping = new Button(shell, SWT.PUSH);
+    wDoMapping.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.EditMapping.Label"));
+    FormData fdDoMapping = new FormData();
+    fdDoMapping.top = new FormAttachment(wGetLU, margin);
+    fdDoMapping.right = new FormAttachment(100, 0);
+    wDoMapping.setLayoutData(fdDoMapping);
+
+    wDoMapping.addListener(SWT.Selection, arg0 -> generateMappings());
+
+    FormData fdReturn = new FormData();
+    fdReturn.left = new FormAttachment(0, 0);
+    fdReturn.top = new FormAttachment(wlReturn, margin);
+    fdReturn.right = new FormAttachment(wDoMapping, -margin); // fix margin error
+    fdReturn.bottom = new FormAttachment(wOk, -margin);
+    wReturn.setLayoutData(fdReturn);
+
+    //
+    // Search the fields in the background
+    //
+
+    final Runnable runnable =
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.add(row.getValueMeta(i).getName());
+              }
+
+              setComboBoxes();
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+            }
+          }
+        };
+    new Thread(runnable).start();
+
+    // Add listeners
+    wGetLU.addListener(SWT.Selection, e -> getUpdate());
+
+    wbTable.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            getTableName();
+          }
+        });
+
+    getData();
+    setTableFieldCombo();
+    input.setChanged(changed);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return transformName;
+  }
+
+  /** Copy information from the meta-data input to the dialog fields. */
+  public void getData() {
+    logDebug(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Log.GettingKeyInfo"));
+
+    if (input.getMappings() != null) {
+      for (int i = 0; i < input.getMappings().size(); i++) {
+        PGBulkLoaderMappingMeta mapping = input.getMappings().get(i);
+        TableItem item = wReturn.table.getItem(i);
+        if (mapping.getFieldTable() != null) {
+          item.setText(1, mapping.getFieldTable());
+        }
+        if (mapping.getFieldStream() != null) {
+          item.setText(2, mapping.getFieldStream());
+        }
+        String dateMask = mapping.getDateMask();
+        if (dateMask != null) {
+          switch (dateMask) {
+            case PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH ->
+                item.setText(3, BaseMessages.getString(PKG, PASSTROUGH_LABEL));
+            case PGBulkLoaderMeta.DATE_MASK_DATE ->
+                item.setText(3, BaseMessages.getString(PKG, DATEMASK_LABEL));
+            case PGBulkLoaderMeta.DATE_MASK_DATETIME ->
+                item.setText(3, BaseMessages.getString(PKG, DATETIMEMASK_LABEL));
+            default -> item.setText(3, "");
+          }
+        } else {
+          item.setText(3, "");
+        }
+      }
+    }
+
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
+    }
+    if (input.getSchemaName() != null) {
+      wSchema.setText(input.getSchemaName());
+    }
+    if (input.getTableName() != null) {
+      wTable.setText(input.getTableName());
+    }
+    if (input.getDelimiter() != null) {
+      wDelimiter.setText(input.getDelimiter());
+    }
+    if (input.getEnclosure() != null) {
+      wEnclosure.setText(input.getEnclosure());
+    }
+    wStopOnError.setSelection(input.isStopOnError());
+    if (input.getDbNameOverride() != null) {
+      wDbNameOverride.setText(input.getDbNameOverride());
+    }
+
+    String action = input.getLoadAction();
+    if (PGBulkLoaderMeta.ACTION_INSERT.equals(action)) {
+      wLoadAction.select(0);
+    } else if (PGBulkLoaderMeta.ACTION_TRUNCATE.equals(action)) {
+      wLoadAction.select(1);
+    } else {
+      logDebug("Internal error: load_action set to default 'insert'");
+      wLoadAction.select(0);
+    }
+
+    wReturn.setRowNums();
+    wReturn.optWidth(true);
+  }
+
+  protected void setComboBoxes() {
+    // Something was changed in the row.
+    //
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
+    // return fields
+    ciReturn[1].setComboValues(fieldNames);
+  }
+
+  /**
+   * Reads in the fields from the previous transforms and from the ONE next transform and opens an
+   * EnterMappingDialog with this information. After the user did the mapping, those information is
+   * put into the Select/Rename table.
+   */
+  private void generateMappings() {
+
+    // Determine the source and target fields...
+    //
+    IRowMeta sourceFields;
+    IRowMeta targetFields;
+
+    try {
+      sourceFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "PGBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Title"),
+          BaseMessages.getString(
+              PKG, "PGBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Message"),
+          e);
+      return;
+    }
+    // refresh data
+    input.setConnection(wConnection.getText());
+    input.setTableName(variables.resolve(wTable.getText()));
+    ITransformMeta transformMetaInterface = transformMeta.getTransform();
+    try {
+      targetFields = transformMetaInterface.getRequiredFields(variables);
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "PGBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Title"),
+          BaseMessages.getString(
+              PKG, "PGBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Message"),
+          e);
+      return;
+    }
+
+    String[] inputNames = new String[sourceFields.size()];
+    for (int i = 0; i < sourceFields.size(); i++) {
+      IValueMeta value = sourceFields.getValueMeta(i);
+      inputNames[i] = value.getName();
+    }
+
+    // Create the existing mapping list...
+    //
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
+    StringBuilder missingSourceFields = new StringBuilder();
+    StringBuilder missingTargetFields = new StringBuilder();
+
+    int nrFields = wReturn.nrNonEmpty();
+    for (int i = 0; i < nrFields; i++) {
+      TableItem item = wReturn.getNonEmpty(i);
+      String source = item.getText(2);
+      String target = item.getText(1);
+
+      int sourceIndex = sourceFields.indexOfValue(source);
+      if (sourceIndex < 0) {
+        missingSourceFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
+      }
+      int targetIndex = targetFields.indexOfValue(target);
+      if (targetIndex < 0) {
+        missingTargetFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
+      }
+      if (sourceIndex < 0 || targetIndex < 0) {
+        continue;
+      }
+
+      SourceToTargetMapping mapping = new SourceToTargetMapping(sourceIndex, targetIndex);
+      mappings.add(mapping);
+    }
+
+    // show a confirm dialog if some missing field was found
+    //
+    if (!missingSourceFields.isEmpty() || !missingTargetFields.isEmpty()) {
+
+      String message = "";
+      if (!missingSourceFields.isEmpty()) {
+        message +=
+            BaseMessages.getString(
+                    PKG,
+                    "PGBulkLoaderDialog.DoMapping.SomeSourceFieldsNotFound",
+                    missingSourceFields.toString())
+                + Const.CR;
+      }
+      if (!missingTargetFields.isEmpty()) {
+        message +=
+            BaseMessages.getString(
+                    PKG,
+                    "PGBulkLoaderDialog.DoMapping.SomeTargetFieldsNotFound",
+                    missingSourceFields.toString())
+                + Const.CR;
+      }
+      message += Const.CR;
+      message +=
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.DoMapping.SomeFieldsNotFoundContinue")
+              + Const.CR;
+
+      int answer =
+          BaseDialog.openMessageBox(
+              shell,
+              BaseMessages.getString(PKG, "PGBulkLoaderDialog.DoMapping.SomeFieldsNotFoundTitle"),
+              message,
+              SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+      boolean goOn = (answer & SWT.OK) != 0;
+      if (!goOn) {
+        return;
+      }
+    }
+    EnterMappingDialog d =
+        new EnterMappingDialog(
+            PGBulkLoaderDialog.this.shell,
+            sourceFields.getFieldNames(),
+            targetFields.getFieldNames(),
+            mappings);
+    mappings = d.open();
+
+    // mappings == null if the user pressed cancel
+    //
+    if (mappings != null) {
+      // Clear and re-populate!
+      //
+      wReturn.table.removeAll();
+      wReturn.table.setItemCount(mappings.size());
+      for (int i = 0; i < mappings.size(); i++) {
+        SourceToTargetMapping mapping = mappings.get(i);
+        TableItem item = wReturn.table.getItem(i);
+        item.setText(2, sourceFields.getValueMeta(mapping.getSourcePosition()).getName());
+        item.setText(1, targetFields.getValueMeta(mapping.getTargetPosition()).getName());
+      }
+      wReturn.setRowNums();
+      wReturn.optWidth(true);
+    }
+  }
+
+  private void cancel() {
+    transformName = null;
+    input.setChanged(changed);
+    dispose();
+  }
+
+  private void getInfo(PGBulkLoaderMeta inf) {
+    int nrFields = wReturn.nrNonEmpty();
+
+    inf.getMappings().clear();
+
+    inf.setDbNameOverride(wDbNameOverride.getText());
+
+    logDebug(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Log.FoundFields", "" + nrFields));
+
+    for (int i = 0; i < nrFields; i++) {
+      TableItem item = wReturn.getNonEmpty(i);
+      PGBulkLoaderMappingMeta mapping = new PGBulkLoaderMappingMeta();
+      mapping.setFieldTable(item.getText(1));
+      mapping.setFieldStream(item.getText(2));
+      if (BaseMessages.getString(PKG, PASSTROUGH_LABEL).equals(item.getText(3))) {
+        mapping.setDateMask(PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH);
+      } else if (BaseMessages.getString(PKG, DATEMASK_LABEL).equals(item.getText(3))) {
+        mapping.setDateMask(PGBulkLoaderMeta.DATE_MASK_DATE);
+      } else if (BaseMessages.getString(PKG, DATETIMEMASK_LABEL).equals(item.getText(3))) {
+        mapping.setDateMask(PGBulkLoaderMeta.DATE_MASK_DATETIME);
+      } else {
+        mapping.setDateMask("");
+      }
+      inf.getMappings().add(mapping);
+    }
+
+    inf.setSchemaName(wSchema.getText());
+    inf.setTableName(wTable.getText());
+    inf.setConnection(wConnection.getText());
+    inf.setDelimiter(wDelimiter.getText());
+    inf.setEnclosure(wEnclosure.getText());
+    inf.setStopOnError(wStopOnError.getSelection());
+
+    /*
+     * /* Set the loadaction
+     */
+    String action = wLoadAction.getText();
+    if (BaseMessages.getString(PKG, "PGBulkLoaderDialog.InsertLoadAction.Label").equals(action)) {
+      inf.setLoadAction(PGBulkLoaderMeta.ACTION_INSERT);
+    } else if (BaseMessages.getString(PKG, "PGBulkLoaderDialog.TruncateLoadAction.Label")
+        .equals(action)) {
+      inf.setLoadAction(PGBulkLoaderMeta.ACTION_TRUNCATE);
+    } else {
+      logDebug(
+          "Internal error: load_action set to default 'insert', value found '" + action + "'.");
+      inf.setLoadAction(PGBulkLoaderMeta.ACTION_INSERT);
+    }
+
+    transformName = wTransformName.getText(); // return value
+  }
+
+  private void ok() {
+    if (Utils.isEmpty(wTransformName.getText())) {
+      return;
+    }
+
+    // Get the information for the dialog into the input structure.
+    getInfo(input);
+
+    if (input.getConnection() == null) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.InvalidConnection.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.InvalidConnection.DialogTitle"));
+      mb.open();
+    }
+
+    dispose();
+  }
+
+  private void getTableName() {
+    String connectionName = wConnection.getText();
+    if (StringUtils.isEmpty(connectionName)) {
+      return;
+    }
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+    if (databaseMeta != null) {
+      logDebug(
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.Log.LookingAtConnection")
+              + databaseMeta.toString());
+
+      DatabaseExplorerDialog std =
+          new DatabaseExplorerDialog(
+              shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases());
+      std.setSelectedSchemaAndTable(wSchema.getText(), wTable.getText());
+      if (std.open()) {
+        wSchema.setText(Const.NVL(std.getSchemaName(), ""));
+        wTable.setText(Const.NVL(std.getTableName(), ""));
+      }
+    } else {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.InvalidConnection.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.InvalidConnection.DialogTitle"));
+      mb.open();
+    }
+  }
+
+  private void getUpdate() {
+    try {
+      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      if (r != null) {
+        ITableItemInsertListener listener =
+            (tableItem, v) -> {
+              if (v.getType() == IValueMeta.TYPE_DATE) {
+                // The default is date mask.
+                tableItem.setText(3, BaseMessages.getString(PKG, DATEMASK_LABEL));
+              } else {
+                tableItem.setText(3, "");
+              }
+              return true;
+            };
+        BaseTransformDialog.getFieldsFromPrevious(
+            r, wReturn, 1, new int[] {1, 2}, new int[] {}, -1, -1, listener);
+      }
+    } catch (HopException ke) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.FailedToGetFields.DialogMessage"),
+          ke);
+    }
+  }
+
+  // Generate code for create table...
+  // Conversions done by Database
+  private void create() {
+    try {
+      PGBulkLoaderMeta info = new PGBulkLoaderMeta();
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+      info.setMappings(new ArrayList<>());
+      getInfo(info);
+
+      String name = transformName; // new name might not yet be linked to other transforms!
+      TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+
+      IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
+
+      SqlStatement sql =
+          info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
+      if (!sql.hasError()) {
+        if (sql.hasSql()) {
+          SqlEditor sqledit =
+              new SqlEditor(
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
+          sqledit.open();
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+          mb.setMessage(BaseMessages.getString(PKG, "PGBulkLoaderDialog.NoSQLNeeds.DialogMessage"));
+          mb.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.NoSQLNeeds.DialogTitle"));
+          mb.open();
+        }
+      } else {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(sql.getError());
+        mb.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.SQLError.DialogTitle"));
+        mb.open();
+      }
+    } catch (HopException ke) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.CouldNotBuildSQL.DialogTitle"),
+          BaseMessages.getString(PKG, "PGBulkLoaderDialog.CouldNotBuildSQL.DialogMessage"),
+          ke);
+    }
+  }
+
+  private void setTableFieldCombo() {
+    Runnable fieldLoader =
+        () -> {
+          if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
+            final String tableName = wTable.getText();
+            final String connectionName = wConnection.getText();
+            final String schemaName = wSchema.getText();
+
+            // clear
+            for (ColumnInfo colInfo : tableFieldColumns) {
+              colInfo.setComboValues(new String[] {});
+            }
+            if (!Utils.isEmpty(tableName)) {
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+              if (databaseMeta != null) {
+                try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+                  db.connect();
+
+                  String schemaTable =
+                      databaseMeta.getQuotedSchemaTableCombination(
+                          variables, schemaName, tableName);
+                  IRowMeta r = db.getTableFields(schemaTable);
+                  if (null != r) {
+                    String[] fieldNames = r.getFieldNames();
+                    if (null != fieldNames) {
+                      for (ColumnInfo colInfo : tableFieldColumns) {
+                        colInfo.setComboValues(fieldNames);
+                      }
+                    }
+                  }
+                } catch (Exception e) {
+                  for (ColumnInfo colInfo : tableFieldColumns) {
+                    colInfo.setComboValues(new String[] {});
+                  }
+                  // ignore any errors here. drop downs will not be
+                  // filled, but no problem for the user
+                }
+              }
+            }
+          }
+        };
+    shell.getDisplay().asyncExec(fieldLoader);
+  }
+}

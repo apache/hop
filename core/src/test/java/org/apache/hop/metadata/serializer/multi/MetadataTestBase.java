@@ -34,9 +34,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 
-@Disabled("This test needs to be reviewed")
 class MetadataTestBase {
   protected MultiMetadataProvider multiMetadataProvider;
   protected MemoryMetadataProvider provider1;

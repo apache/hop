@@ -219,9 +219,8 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
           retval += fieldname + " ";
         }
         if (fieldname.equalsIgnoreCase(tk)
-            || // Technical key
-            fieldname.equalsIgnoreCase(pk) // Primary key
-        ) {
+            || // Technical key, Primary key
+            fieldname.equalsIgnoreCase(pk)) {
           retval += "BIGSERIAL";
         } else {
           if (type == IValueMeta.TYPE_INTEGER) {
@@ -233,11 +232,6 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
             } else {
               retval += "SMALLINT";
             }
-          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-            // Fixed point value...
-            // CrateDB doesn't support NUMERIC type for columns (only in expressions...)
-            // as a work-around we use a double, which can be cast to NUMERIC via SQL by the user
-            retval += "DOUBLE PRECISION";
           } else {
             // Floating point value with double precision...
             retval += "DOUBLE PRECISION";

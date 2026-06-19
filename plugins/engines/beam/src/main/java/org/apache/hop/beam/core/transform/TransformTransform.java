@@ -32,6 +32,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,7 +173,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error transforming data in transform '" + transformName + "'", e);
-      throw new RuntimeException("Error transforming data in transform", e);
+      throw new HopRuntimeException("Error transforming data in transform", e);
     }
   }
 }

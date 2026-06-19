@@ -83,7 +83,7 @@ public class ValidatePipelineUnitTestExtensionPoint
       //
       int errors =
           DataSetConst.validateTransformResultAgainstUnitTest(
-              pipeline, unitTest, metadataProvider, results);
+              pipeline, unitTest, metadataProvider, variables, results);
       if (errors == 0) {
         log.logBasic("Unit test '" + unitTest.getName() + "' passed successfully");
       } else {

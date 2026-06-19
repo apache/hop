@@ -33,11 +33,12 @@ import org.apache.hop.core.gui.IGc.ELineStyle;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
 @Getter
 @Setter
-public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBaseMeta> {
+public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta> {
 
   private static final Class<?> PKG = BasePainter.class;
 
@@ -71,7 +72,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   private int noteFontHeight;
 
-  protected Hop candidate;
+  protected H candidate;
 
   protected Point maximum;
   protected boolean showingNavigationView;
@@ -85,6 +86,9 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
    * UI based on "Enable infinite move" (only show when infinite move is enabled).
    */
   protected boolean showOriginBoundary;
+
+  /** In case we want to use metadata objects to help with drawing on the pipeline or workflow */
+  protected IHopMetadataProvider metadataProvider;
 
   public BasePainter(
       IGc gc,
@@ -441,7 +445,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return 19 + (lineWidth - 1) * 5; // arrowhead length
   }
 
-  protected int[] getLine(Part fs, Part ts) {
+  protected int[] getLine(P fs, P ts) {
     if (fs == null || ts == null) {
       return null;
     }
@@ -458,7 +462,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return new int[] {x1, y1, x2, y2};
   }
 
-  protected void drawArrow(EImage arrow, int[] line, Hop hop, Object startObject, Object endObject)
+  protected void drawArrow(EImage arrow, int[] line, H hop, Object startObject, Object endObject)
       throws HopException {
     Point screenFrom = real2screen(line[0], line[1]);
     Point screenTo = real2screen(line[2], line[3]);
@@ -486,7 +490,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       double theta,
       int size,
       double factor,
-      Hop jobHop,
+      H jobHop,
       Object startObject,
       Object endObject)
       throws HopException;
@@ -532,9 +536,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     // 3) Fixed width; height follows content aspect ratio (capped) so the minimap fits the graph.
     //
     int viewportHeight =
-        Math.min(
-            VIEWPORT_HEIGHT_MAX,
-            Math.max(20, (int) Math.round(VIEWPORT_WIDTH * graphRangeY / graphRangeX)));
+        Math.clamp(
+            (int) Math.round(VIEWPORT_WIDTH * graphRangeY / graphRangeX), 20, VIEWPORT_HEIGHT_MAX);
     double scale = Math.min(VIEWPORT_WIDTH / graphRangeX, viewportHeight / graphRangeY);
     double contentWidth = graphRangeX * scale;
     double contentHeight = graphRangeY * scale;
@@ -562,8 +565,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     double viewHeight = visibleHeightGraph * scale;
 
     // Clamp overlay to the drawn content area (avoid drawing outside the light blue)
-    viewX = Math.max(contentLeft, Math.min(contentLeft + contentWidth - 1, viewX));
-    viewY = Math.max(contentTop, Math.min(contentTop + contentHeight - 1, viewY));
+    viewX = Math.clamp(viewX, contentLeft, contentLeft + contentWidth - 1);
+    viewY = Math.clamp(viewY, contentTop, contentTop + contentHeight - 1);
     viewWidth = Math.min(viewWidth, contentLeft + contentWidth - viewX);
     viewHeight = Math.min(viewHeight, contentTop + contentHeight - viewY);
     viewWidth = Math.max(0, viewWidth);

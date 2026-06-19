@@ -27,23 +27,13 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/databases/sqlite</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-databases-sqlite:jar</include>
-            </includes>
-            <outputDirectory>plugins/databases/sqlite</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.xerial:sqlite-jdbc:jar</include>
-            </includes>
-            <outputDirectory>lib/jdbc</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

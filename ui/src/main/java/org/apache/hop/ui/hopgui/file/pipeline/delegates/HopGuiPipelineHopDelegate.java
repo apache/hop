@@ -230,6 +230,9 @@ public class HopGuiPipelineHopDelegate {
 
     boolean transformFromNeedAddUndoChange =
         fromTransformMeta.getTransform().cleanAfterHopFromRemove(pipelineHopMeta.getToTransform());
+    if (fromTransformMeta.getTransform() != null) {
+      fromTransformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+    }
     boolean transformToNeedAddUndoChange =
         toTransformMeta.getTransform().cleanAfterHopToRemove(fromTransformMeta);
 

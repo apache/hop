@@ -83,7 +83,6 @@ file and parent folder will be created only after transform will get any first i
 |Extension|Output file extension.
 Default value is 'json'
 |Encoding|Output file encoding
-|Pass output to servlet|Enable this option to return the data via a web service instead writing into a file.
 |Include date in filename?|If checked - output file name will contains File name value + current date.
 This may help to generate unique output files.
 |Include time in filename|If checked - output file name will contains file creation time.

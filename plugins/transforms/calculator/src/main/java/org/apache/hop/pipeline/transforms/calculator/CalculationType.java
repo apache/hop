@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import java.util.stream.Stream;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.pipeline.transforms.calculator.calculations.Constant;
 import org.apache.hop.pipeline.transforms.calculator.calculations.CopyField;

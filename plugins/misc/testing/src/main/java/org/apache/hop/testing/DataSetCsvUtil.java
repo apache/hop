@@ -25,16 +25,16 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.QuoteMode;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -49,8 +49,7 @@ import org.apache.hop.core.vfs.HopVfs;
  * file defined by the tableName in the data set
  */
 public class DataSetCsvUtil {
-
-  private static void setValueFormats(IRowMeta rowMeta) {
+  public static void setValueFormats(IRowMeta rowMeta) {
     for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
       if (StringUtils.isEmpty(valueMeta.getConversionMask())) {
         switch (valueMeta.getType()) {
@@ -196,17 +195,15 @@ public class DataSetCsvUtil {
         return new ArrayList<>();
       }
 
-      if (!sortFields.isEmpty()) {
-
+      if (!sortFields.isEmpty() && StringUtils.isNotEmpty(sortFields.getFirst())) {
         // Sort the rows...
         //
-        Collections.sort(
-            rows,
+        rows.sort(
             (o1, o2) -> {
               try {
                 return outputRowMeta.compare(o1, o2, sortIndexes);
               } catch (HopValueException e) {
-                throw new RuntimeException("Unable to compare 2 rows", e);
+                throw new HopRuntimeException("Unable to compare 2 rows", e);
               }
             });
       }

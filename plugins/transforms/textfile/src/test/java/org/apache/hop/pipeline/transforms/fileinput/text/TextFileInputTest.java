@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -75,7 +76,7 @@ class TextFileInputTest {
 
   private static InputStreamReader getInputStreamReader(String data)
       throws UnsupportedEncodingException {
-    return new InputStreamReader(new ByteArrayInputStream(data.getBytes(("UTF-8"))));
+    return new InputStreamReader(new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)));
   }
 
   private static String getInputStreamReader(

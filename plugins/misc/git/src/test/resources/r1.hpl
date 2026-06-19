@@ -61,7 +61,7 @@ limitations under the License.
   </order>
   <transform>
     <name>CSV file input</name>
-    <type>CsvInput</type>
+    <type>CSVInput</type>
     <description />
     <distribute>Y</distribute>
     <custom_distribution />

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.parquet.io.api.GroupConverter;
@@ -43,14 +44,14 @@ public class ParquetRecordMaterializer extends RecordMaterializer<RowMetaAndData
     for (ParquetField field : fields) {
       int fieldIndex = messageType.getFieldIndex(field.getSourceField());
       if (fieldIndex < 0) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error finding source field '" + field.getSourceField() + "' in the input file");
       }
       requestedFieldIndexes.add(fieldIndex);
       try {
         schemaRowMeta.addValueMeta(field.createValueMeta());
       } catch (HopException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error creating value of type " + field.getTargetType() + "'", e);
       }
     }

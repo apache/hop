@@ -29,17 +29,27 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.FileTypeFilter;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Test class for GetFileNames transform */
 class GetFileNamesTransformTest {
@@ -237,5 +247,157 @@ class GetFileNamesTransformTest {
     } catch (Exception e) {
       fail("Failed to access constants: " + e.getMessage());
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Runtime processRow coverage against a real folder tree:
+  //   tempDir/
+  //     file-a.txt  file-b.txt  data.csv
+  //     folder-one/  folder-two/
+  // ---------------------------------------------------------------------------
+
+  @TempDir private Path tempDir;
+
+  private final List<Object[]> captured = new ArrayList<>();
+  private IRowMeta capturedMeta;
+
+  private static void buildTree(Path root) throws IOException {
+    Files.createDirectories(root.resolve("folder-one"));
+    Files.createDirectories(root.resolve("folder-two"));
+    Files.writeString(root.resolve("file-a.txt"), "alpha");
+    Files.writeString(root.resolve("file-b.txt"), "beta");
+    Files.writeString(root.resolve("data.csv"), "c,d");
+  }
+
+  private GetFileNamesMeta folderMeta(FileTypeFilter filter, String mask) {
+    GetFileNamesMeta meta = new GetFileNamesMeta();
+    meta.getFilterItemList().add(new FilterItem(filter.toString()));
+    meta.getFilesList().add(new FileItem(tempDir.toAbsolutePath().toString(), mask, "", "N", "N"));
+    meta.setRaiseAnExceptionIfNoFile(false);
+    meta.setAddResultFile(false);
+    return meta;
+  }
+
+  private GetFileNames runStatic(GetFileNamesMeta meta) throws HopException {
+    captured.clear();
+    capturedMeta = null;
+    GetFileNamesData data = new GetFileNamesData();
+    GetFileNames transform =
+        new GetFileNames(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+    transform.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+            capturedMeta = rowMeta;
+            captured.add(row);
+          }
+        });
+    assertTrue(transform.init(), "init() should succeed");
+    while (transform.processRow()) {
+      // drain every output row
+    }
+    return transform;
+  }
+
+  private Set<String> capturedValues(String field) {
+    int idx = capturedMeta.indexOfValue(field);
+    Set<String> values = new HashSet<>();
+    for (Object[] row : captured) {
+      values.add((String) row[idx]);
+    }
+    return values;
+  }
+
+  @Test
+  void staticFolderAllFilesEmitsRowPerEntry() throws Exception {
+    buildTree(tempDir);
+    runStatic(folderMeta(FileTypeFilter.FILES_AND_FOLDERS, ""));
+
+    assertEquals(5, captured.size());
+    Set<String> types = capturedValues("type");
+    assertTrue(types.contains("file"), "files should be present");
+    assertTrue(types.contains("folder"), "folders should be present");
+    Set<String> names = capturedValues("short_filename");
+    assertTrue(names.contains("file-a.txt"));
+    assertTrue(names.contains("folder-one"));
+  }
+
+  @Test
+  void staticFolderOnlyFoldersEmitsFolderRows() throws Exception {
+    buildTree(tempDir);
+    runStatic(folderMeta(FileTypeFilter.ONLY_FOLDERS, ""));
+
+    assertEquals(2, captured.size(), "only the two sub-folders are expected");
+    for (String type : capturedValues("type")) {
+      assertEquals("folder", type);
+    }
+  }
+
+  @Test
+  void rowLimitStopsOutput() throws Exception {
+    buildTree(tempDir);
+    GetFileNamesMeta meta = folderMeta(FileTypeFilter.FILES_AND_FOLDERS, "");
+    meta.setRowLimit(2);
+    runStatic(meta);
+
+    assertEquals(2, captured.size());
+  }
+
+  @Test
+  void includeRowNumberAddsIncrementingField() throws Exception {
+    buildTree(tempDir);
+    GetFileNamesMeta meta = folderMeta(FileTypeFilter.ONLY_FILES, "");
+    meta.setIncludeRowNumber(true);
+    meta.setRowNumberField("rownr");
+    runStatic(meta);
+
+    assertEquals(3, captured.size());
+    int idx = capturedMeta.indexOfValue("rownr");
+    assertTrue(idx >= 0, "row number field should be present");
+    Set<Long> numbers = new HashSet<>();
+    for (Object[] row : captured) {
+      numbers.add(((Number) row[idx]).longValue());
+    }
+    assertTrue(numbers.contains(1L) && numbers.contains(2L) && numbers.contains(3L));
+  }
+
+  @Test
+  void addResultFileRegistersResultFiles() throws Exception {
+    buildTree(tempDir);
+    GetFileNamesMeta meta = folderMeta(FileTypeFilter.ONLY_FILES, "");
+    meta.setAddResultFile(true);
+    GetFileNames transform = runStatic(meta);
+
+    assertEquals(3, captured.size());
+    assertEquals(
+        3, transform.getResultFiles().size(), "each file should be added as a result file");
+  }
+
+  @Test
+  void initFailsWhenNoFilesAndRaiseException() {
+    // Empty temp folder, no matching files, raise-an-exception on -> init should fail.
+    GetFileNamesMeta meta = folderMeta(FileTypeFilter.ONLY_FILES, "");
+    meta.setRaiseAnExceptionIfNoFile(true);
+    meta.setDoNotFailIfNoFile(false);
+    GetFileNamesData data = new GetFileNamesData();
+    GetFileNames transform =
+        new GetFileNames(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+
+    assertFalse(transform.init());
+  }
+
+  @Test
+  void initSucceedsWhenNoFilesButDoNotFail() {
+    GetFileNamesMeta meta = folderMeta(FileTypeFilter.ONLY_FILES, "");
+    meta.setRaiseAnExceptionIfNoFile(true);
+    meta.setDoNotFailIfNoFile(true);
+    GetFileNamesData data = new GetFileNamesData();
+    GetFileNames transform =
+        new GetFileNames(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+
+    assertTrue(transform.init());
   }
 }

@@ -34,10 +34,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.DefaultLogLevel;
@@ -504,6 +506,25 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
             }
           }
         }
+        // Also read specific libs from a folder
+        List<Node> libsNodes = XmlHandler.getNodes(dependenciesNode, "libs");
+        for (Node libsNode : libsNodes) {
+          String relativeFolderName = XmlHandler.getTagValue(libsNode, "folder");
+          String wildcard = XmlHandler.getTagValue(libsNode, "wildcard");
+          String dependenciesFolderName =
+              parentFolderName + Const.FILE_SEPARATOR + relativeFolderName;
+          File dependenciesFolder = new File(dependenciesFolderName);
+          // Now get the jar files in this dependency folder.
+          // Only select the jar files matching the specified wildcard.
+          //
+          Pattern pattern = Pattern.compile(wildcard, Pattern.CASE_INSENSITIVE);
+          for (File libFile : jarCache.findJarFiles(dependenciesFolder)) {
+            Matcher matcher = pattern.matcher(libFile.getName());
+            if (matcher.matches()) {
+              urls.add(libFile.toURI().toURL());
+            }
+          }
+        }
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
@@ -571,6 +592,20 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
   protected String[] extractKeywords(T annotation) {
     return new String[] {};
+  }
+
+  /**
+   * Override for annotations that declare an engine-compat allow-list (e.g.
+   * {@code @Transform.supportedEngines()}). Default is an empty array — the plugin type does not
+   * opt into engine compatibility metadata.
+   */
+  protected String[] extractSupportedEngines(T annotation) {
+    return new String[0];
+  }
+
+  /** Override for annotations that declare an engine-compat deny-list. Default empty. */
+  protected String[] extractExcludedEngines(T annotation) {
+    return new String[0];
   }
 
   protected void registerPluginJars() throws HopPluginException {
@@ -702,6 +737,20 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
             forumUrl,
             suggestion,
             includeJdbcDrivers);
+
+    String[] supportedEngines = extractSupportedEngines(annotation);
+    String[] excludedEngines = extractExcludedEngines(annotation);
+    if (supportedEngines != null
+        && supportedEngines.length > 0
+        && excludedEngines != null
+        && excludedEngines.length > 0) {
+      throw new HopPluginException(
+          "Plugin "
+              + ids[0]
+              + " declares both supportedEngines and excludedEngines on its annotation. Pick one form — the allow-list or the deny-list — not both.");
+    }
+    plugin.setSupportedEngines(supportedEngines);
+    plugin.setExcludedEngines(excludedEngines);
 
     ParentFirst parentFirstAnnotation = clazz.getAnnotation(ParentFirst.class);
     if (parentFirstAnnotation != null) {

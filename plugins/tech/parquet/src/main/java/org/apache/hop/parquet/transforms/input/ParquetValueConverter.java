@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.TimeZone;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.PrimitiveConverter;
@@ -85,7 +86,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
           ObjectMapper mapper = new ObjectMapper();
           node = mapper.readTree(value.toStringUsingUTF8());
         } catch (Exception e) {
-          throw new RuntimeException("Unable to parse an json value : " + e.getMessage());
+          throw new HopRuntimeException("Unable to parse an json value : " + e.getMessage());
         }
         object = node;
         break;
@@ -116,7 +117,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
           break;
         }
       default:
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to convert Binary source data to type " + valueMeta.getTypeDesc());
     }
     group.getData()[rowIndex] = object;
@@ -155,7 +156,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
         object = convertToTimestamp(value, this.logicalTypeAnnotation);
         break;
       default:
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to convert Long source data to type " + valueMeta.getTypeDesc());
     }
     group.getData()[rowIndex] = object;
@@ -172,7 +173,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
           case IValueMeta.TYPE_STRING -> Double.toString(value);
           case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.valueOf(value);
           default ->
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Unable to convert Double/Float source data to type " + valueMeta.getTypeDesc());
         };
     group.getData()[rowIndex] = object;
@@ -189,7 +190,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
           case IValueMeta.TYPE_STRING -> value ? "true" : "false";
           case IValueMeta.TYPE_INTEGER -> value ? 1L : 0L;
           default ->
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Unable to convert Boolean source data to type " + valueMeta.getTypeDesc());
         };
     group.getData()[rowIndex] = object;
@@ -226,7 +227,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
       isUTC = false;
     }
     if (unit == null) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unknown timestamp unit for the logical type: " + logicalTypeAnnotation);
     }
     long epochMillis =
@@ -234,7 +235,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
           case MILLIS -> value;
           case MICROS -> value / 1_000L;
           case NANOS -> value / 1_000_000L;
-          default -> throw new RuntimeException("Unknown timestamp unit: " + unit);
+          default -> throw new HopRuntimeException("Unknown timestamp unit: " + unit);
         };
     // Convert the timestamp to milliseconds since the Epoch based on the original unit
     Timestamp ts = new Timestamp(epochMillis);

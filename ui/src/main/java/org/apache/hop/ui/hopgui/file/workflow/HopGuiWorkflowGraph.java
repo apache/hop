@@ -31,7 +31,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.base.AbstractMeta;
@@ -111,6 +111,7 @@ import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -155,6 +156,7 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
@@ -174,6 +176,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -216,6 +219,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-To-Fit";
+
+  public static final String TOOLBAR_ITEM_DESIGN_ENGINE =
+      "HopGuiWorkflowGraph-ToolBar-10550-Design-Engine";
 
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
       "HopGuiWorkflowGraph-ToolBar-10450-EditWorkflow";
@@ -299,7 +305,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   protected static final int SIZE = 30; // arrowhead length
 
   /** Minimum pointer movement (px) before an action icon mousedown is treated as drag. */
-  private static final int ACTION_DRAG_THRESHOLD_PX = 5;
+  private static final int ACTION_DRAG_THRESHOLD_PX = 3;
 
   protected int currentMouseX = 0;
 
@@ -346,7 +352,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private Point[] previousNoteLocations;
   private ActionMeta currentAction;
   private boolean ignoreNextClick;
+  private boolean avoidContextDialog;
   private boolean doubleClick;
+  private Runnable pendingShowContextDialogRunnable;
   private boolean dragSelection;
   private WorkflowHopMeta clickedWorkflowHop;
 
@@ -577,6 +585,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       mouseHover(event);
     }
     doubleClick = false;
+    if (pendingShowContextDialogRunnable != null) {
+      hopGui.getDisplay().timerExec(-1, pendingShowContextDialogRunnable);
+      pendingShowContextDialogRunnable = null;
+    }
     resize = null;
 
     if (ignoreNextClick) {
@@ -654,6 +666,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
             Point p = currentAction.getLocation();
             iconOffset = new Point(real.x - p.x, real.y - p.y);
+
+            // The RAP/web client does not deliver mouse-move events while a button is held, so the
+            // movement threshold in mouseMove() can never fire during a press. Arm the drag right
+            // away on mouse-down so the action follows the cursor and is dropped on mouse-up;
+            // native
+            // SWT keeps the threshold behaviour to distinguish a click from a drag.
+            if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
+              actionDragCommitted = true;
+              dragSelection = true;
+              canvas.setData("mode", "drag");
+              selectedActions = workflowMeta.getSelectedActions();
+              selectedAction = currentAction;
+            }
           }
           updateGui();
           done = true;
@@ -667,6 +692,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Click on the info icon means: Edit action description
           //
           editActionDescription((ActionMeta) areaOwner.getOwner());
+          avoidContextDialog = true;
+          currentAction = null;
+          actionDragStartScreen = null;
           done = true;
           break;
 
@@ -907,6 +935,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if (selectionRegion.isEmpty()) {
         singleClick = true;
         singleClickType = SingleClickType.Workflow;
+        selectionRegion = null;
+        canvas.setData("mode", "null");
+        setCursor(null);
+        redraw();
       } else {
         workflowMeta.unselectAll();
         selectInRect(workflowMeta, selectionRegion);
@@ -937,15 +969,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             return;
           }
           break;
+        case ACTION_INFO_ICON:
+          // Description edit was handled in mouseDown; do not open the action context menu
+          return;
         default:
           break;
       }
     }
 
     // If we mousedown on action icon but never committed to drag, treat as click (promote for click
-    // handling below)
+    // handling below). Do not promote when this mouseUp is already a background click: otherwise
+    // stale currentAction makes an empty-canvas release look like an action click and selection is
+    // never cleared.
     if (selectedAction == null
         && currentAction != null
+        && singleClickType != SingleClickType.Workflow
         && startHopAction == null
         && selectionRegion == null
         && selectedActions == null
@@ -1131,6 +1169,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
     clickedWorkflowHop = null;
 
+    if (avoidContextDialog) {
+      avoidContextDialog = false;
+      selectionRegion = null;
+      return;
+    }
+
     // Only do this "mouseUp()" if this is not part of a double click...
     //
     final boolean fSingleClick = singleClick;
@@ -1140,19 +1184,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     final WorkflowHopMeta fSingleClickHop = singleClickHop;
 
     if (PropsUi.getInstance().useDoubleClick()) {
-      hopGui
-          .getDisplay()
-          .timerExec(
-              hopGui.getDisplay().getDoubleClickTime(),
-              () ->
-                  showContextDialog(
-                      event,
-                      real,
-                      fSingleClick,
-                      fSingleClickType,
-                      fSingleClickAction,
-                      fSingleClickNote,
-                      fSingleClickHop));
+      Display display = hopGui.getDisplay();
+      pendingShowContextDialogRunnable =
+          () -> {
+            pendingShowContextDialogRunnable = null;
+            showContextDialog(
+                event,
+                real,
+                fSingleClick,
+                fSingleClickType,
+                fSingleClickAction,
+                fSingleClickNote,
+                fSingleClickHop);
+          };
+      display.timerExec(display.getDoubleClickTime(), pendingShowContextDialogRunnable);
     } else {
       showContextDialog(
           event,
@@ -1343,15 +1388,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     //
-    // Commit to drag mode only after pointer moves past threshold (avoids drag when clicking name
-    // or making a small movement)
+    // Commit to drag mode only after pointer moves past threshold while primary button is still
+    // down (avoids drag on click jitter; threshold distinguishes click vs intentional drag).
     //
     if (currentAction != null
         && iconOffset != null
         && !actionDragCommitted
         && actionDragStartScreen != null
         && startHopAction == null
-        && selectionRegion == null) {
+        && selectionRegion == null
+        && (event.stateMask & SWT.BUTTON1) != 0) {
       int dx = event.x - actionDragStartScreen.x;
       int dy = event.y - actionDragStartScreen.y;
       int thresholdSq = ACTION_DRAG_THRESHOLD_PX * ACTION_DRAG_THRESHOLD_PX;
@@ -1384,7 +1430,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       selectedNotes.add(selectedNote);
       previousNoteLocations = new Point[] {selectedNote.getLocation()};
       doRedraw = true;
-    } else if (selectionRegion != null && startHopAction == null) {
+    } else if (selectionRegion != null
+        && startHopAction == null
+        && (event.stateMask & SWT.BUTTON1) != 0) {
       // Did we select a region...?
       //
       selectionRegion.width = real.x - selectionRegion.x;
@@ -1417,11 +1465,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             && workflowMeta.findWorkflowHop(hi.getFromAction(), selectedAction) == null) {
           splitHop = true;
           lastHopSplit = hi;
-          hi.split = true;
+          hi.setSplit(true);
         }
       } else {
         if (lastHopSplit != null) {
-          lastHopSplit.split = false;
+          lastHopSplit.setSplit(false);
           lastHopSplit = null;
           splitHop = false;
         }
@@ -1681,6 +1729,75 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     super.zoomFitToScreen();
   }
 
+  /**
+   * Lets the user pick which workflow engine they are designing for. The selection persists across
+   * Hop restarts and the right-click palette filters out actions the engine marks UNSUPPORTED.
+   */
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DESIGN_ENGINE,
+      label = "Design for:",
+      toolTip =
+          "Filter the right-click action palette to the workflow engine you are designing for. The selection persists across restarts.",
+      type = GuiToolbarElementType.COMBO,
+      alignRight = true,
+      comboValuesMethod = "getDesignEngineLabels")
+  public void designEngineChanged() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String selected = combo.getText();
+    String engineId = PaletteEngineFilter.getWorkflowEngineIdForLabel(selected);
+    PaletteEngineFilter.setWorkflowDesignEngineId(engineId);
+  }
+
+  /** Combo values for {@link #TOOLBAR_ITEM_DESIGN_ENGINE} — referenced by reflection. */
+  public List<String> getDesignEngineLabels() {
+    return PaletteEngineFilter.getWorkflowEngineLabels();
+  }
+
+  /** See {@code HopGuiPipelineGraph#disposeDesignEngineToolbarItem} — same shape, workflow side. */
+  private void disposeDesignEngineToolbarItem() {
+    ToolItem comboItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (comboItem == null || comboItem.isDisposed()) {
+      return;
+    }
+    ToolBar parentBar = comboItem.getParent();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      int idx = parentBar.indexOf(comboItem);
+      if (idx > 0) {
+        ToolItem maybeLabel = parentBar.getItem(idx - 1);
+        if (maybeLabel != null
+            && !maybeLabel.isDisposed()
+            && (maybeLabel.getStyle() & SWT.SEPARATOR) != 0
+            && maybeLabel.getControl() instanceof CLabel labelControl) {
+          if (!labelControl.isDisposed()) {
+            labelControl.dispose();
+          }
+          maybeLabel.dispose();
+        }
+      }
+    }
+    Control wrappedCombo = comboItem.getControl();
+    if (wrappedCombo != null && !wrappedCombo.isDisposed()) {
+      wrappedCombo.dispose();
+    }
+    comboItem.dispose();
+    if (parentBar != null && !parentBar.isDisposed()) {
+      parentBar.pack();
+    }
+  }
+
+  private void setDesignEngineComboFromConfig() {
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_DESIGN_ENGINE);
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    String engineId = PaletteEngineFilter.getWorkflowDesignEngineId();
+    combo.setText(PaletteEngineFilter.getWorkflowEngineLabelForId(engineId));
+  }
+
   public List<String> getZoomLevels() {
     return Arrays.asList(PipelinePainter.magnificationDescriptions);
   }
@@ -1696,6 +1813,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       toolBarWidgets = new GuiToolbarWidgets();
       toolBarWidgets.registerGuiPluginObject(this);
       toolBarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+      if (org.apache.hop.ui.hopgui.PaletteEngineFilter.shouldShowWorkflowComboFilter()) {
+        setDesignEngineComboFromConfig();
+      } else {
+        disposeDesignEngineToolbarItem();
+      }
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment(0, 0);
       layoutData.top = new FormAttachment(0, 0);
@@ -1739,7 +1861,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/run.svg")
   @Override
   public void start() {
-    workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
 
     Thread thread =
@@ -2008,7 +2129,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void startWorkflowHere(HopGuiWorkflowActionContext context) {
-    workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
     Thread thread =
         new Thread(
@@ -3586,7 +3706,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       String xml = workflowMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(workflowMeta.getFilename(), false);
       try {
-        out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+        out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
         out.write(xml.getBytes(StandardCharsets.UTF_8));
         workflowMeta.clearChanged();
         updateGui();

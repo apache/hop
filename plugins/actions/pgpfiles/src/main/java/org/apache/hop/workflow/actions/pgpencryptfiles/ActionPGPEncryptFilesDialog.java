@@ -301,7 +301,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wPrevious);
-    wPrevious.setSelection(action.argFromPrevious);
+    wPrevious.setSelection(action.isArgFromPrevious());
     wPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment(middle, 0);
@@ -313,7 +313,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
 
-            RefreshArgFromPrevious();
+            refreshArgFromPrevious();
           }
         });
     FormData fdSettings = new FormData();
@@ -496,18 +496,12 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
     wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
-    int rows =
-        action.sourceFileFolder == null
-            ? 1
-            : (action.sourceFileFolder.length == 0 ? 0 : action.sourceFileFolder.length);
-    final int FieldsRows = rows;
-
-    ColumnInfo[] colinf =
+    ColumnInfo[] columnInfos =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Action.Label"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ActionPGPEncryptFiles.actionTypeDesc,
+              ActionPGPEncryptFiles.ActionType.getDescriptions(),
               false),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.SourceFileFolder.Label"),
@@ -528,28 +522,28 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
               false),
         };
 
-    colinf[1].setToolTip(
+    columnInfos[1].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.SourceFileFolder.Tooltip"));
-    colinf[2].setToolTip(
+    columnInfos[2].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Wildcard.Tooltip"));
-    colinf[3].setToolTip(
+    columnInfos[3].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.UserID.Tooltip"));
-    colinf[4].setToolTip(
+    columnInfos[4].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.DestinationFileFolder.Tooltip"));
 
-    colinf[0].setUsingVariables(true);
-    colinf[1].setUsingVariables(true);
-    colinf[2].setUsingVariables(true);
-    colinf[3].setUsingVariables(true);
-    colinf[4].setUsingVariables(true);
+    columnInfos[0].setUsingVariables(true);
+    columnInfos[1].setUsingVariables(true);
+    columnInfos[2].setUsingVariables(true);
+    columnInfos[3].setUsingVariables(true);
+    columnInfos[4].setUsingVariables(true);
 
     wFields =
         new TableView(
             variables,
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columnInfos,
+            1,
             lsMod,
             props);
 
@@ -560,7 +554,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
 
-    RefreshArgFromPrevious();
+    refreshArgFromPrevious();
 
     // Add the file to the list of files...
     SelectionAdapter selA =
@@ -568,7 +562,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
             wFields.add(
-                ActionPGPEncryptFiles.actionTypeDesc[0],
+                ActionPGPEncryptFiles.ActionType.ENCRYPT.getDescription(),
                 wSourceFileFolder.getText(),
                 wWildcard.getText(),
                 null,
@@ -597,21 +591,19 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
         });
 
     // Edit the selected file & remove from the list...
-    wbeSourceFileFolder.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int idx = wFields.getSelectionIndex();
-            if (idx >= 0) {
-              String[] string = wFields.getItem(idx);
-              wSourceFileFolder.setText(string[1]);
-              wDestinationFileFolder.setText(string[4]);
-              wWildcard.setText(string[2]);
-              wFields.remove(idx);
-            }
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
+    wbeSourceFileFolder.addListener(
+        SWT.Selection,
+        e -> {
+          int idx = wFields.getSelectionIndex();
+          if (idx >= 0) {
+            String[] string = wFields.getItem(idx);
+            wSourceFileFolder.setText(string[1]);
+            wDestinationFileFolder.setText(string[4]);
+            wWildcard.setText(string[2]);
+            wFields.remove(idx);
           }
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
         });
 
     FormData fdGeneralComp = new FormData();
@@ -638,13 +630,13 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     wDestinationFileTab.setText(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.DestinationFileTab.Label"));
 
-    FormLayout destcontentLayout = new FormLayout();
-    destcontentLayout.marginWidth = 3;
-    destcontentLayout.marginHeight = 3;
+    FormLayout destinationContentLayout = new FormLayout();
+    destinationContentLayout.marginWidth = 3;
+    destinationContentLayout.marginHeight = 3;
 
     Composite wDestinationFileComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wDestinationFileComp);
-    wDestinationFileComp.setLayout(destcontentLayout);
+    wDestinationFileComp.setLayout(destinationContentLayout);
 
     // DestinationFile grouping?
     // ////////////////////////
@@ -707,14 +699,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     fdDestinationIsAFile.top = new FormAttachment(wlDestinationIsAFile, 0, SWT.CENTER);
     fdDestinationIsAFile.right = new FormAttachment(100, 0);
     wDestinationIsAFile.setLayoutData(fdDestinationIsAFile);
-    wDestinationIsAFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-
-            action.setChanged();
-          }
-        });
+    wDestinationIsAFile.addListener(SWT.Selection, e -> action.setChanged());
 
     // Do not keep folder structure?
     wlDoNotKeepFolderStructure = new Label(wDestinationFile, SWT.RIGHT);
@@ -1179,7 +1164,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     fdDestinationFileComp.top = new FormAttachment(0, 0);
     fdDestinationFileComp.right = new FormAttachment(100, 0);
     fdDestinationFileComp.bottom = new FormAttachment(100, 0);
-    wDestinationFileComp.setLayoutData(wDestinationFileComp);
+    wDestinationFileComp.setLayoutData(fdDestinationFileComp);
 
     wDestinationFileComp.layout();
     wDestinationFileTab.setControl(wDestinationFileComp);
@@ -1342,7 +1327,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     fdAdvancedComp.top = new FormAttachment(0, 0);
     fdAdvancedComp.right = new FormAttachment(100, 0);
     fdAdvancedComp.bottom = new FormAttachment(100, 0);
-    wAdvancedComp.setLayoutData(wAdvancedComp);
+    wAdvancedComp.setLayoutData(fdAdvancedComp);
 
     wAdvancedComp.layout();
     wAdvancedTab.setControl(wAdvancedComp);
@@ -1452,8 +1437,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     wMovedDateTimeFormat.setEnabled(wSpecifyMoveFormat.getSelection());
   }
 
-  private void RefreshArgFromPrevious() {
-
+  private void refreshArgFromPrevious() {
     wlFields.setEnabled(!wPrevious.getSelection());
     wFields.setEnabled(!wPrevious.getSelection());
     wbdSourceFileFolder.setEnabled(!wPrevious.getSelection());
@@ -1480,50 +1464,31 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     }
   }
 
-  /** Copy information from the meta-data input to the dialog fields. */
+  /** Copy information from the metadata input to the dialog fields. */
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
-    if (action.sourceFileFolder != null) {
-      for (int i = 0; i < action.sourceFileFolder.length; i++) {
-        TableItem ti = wFields.table.getItem(i);
-        ti.setText(1, ActionPGPEncryptFiles.getActionTypeDesc(action.actionType[i]));
-        if (action.sourceFileFolder[i] != null) {
-          ti.setText(2, action.sourceFileFolder[i]);
-        }
-        if (action.wildcard[i] != null) {
-          ti.setText(3, action.wildcard[i]);
-        }
-        if (action.userId[i] != null) {
-          ti.setText(4, action.userId[i]);
-        }
+    getGpgFilesData();
 
-        if (action.destinationFileFolder[i] != null) {
-          ti.setText(5, action.destinationFileFolder[i]);
-        }
-      }
-      wFields.setRowNums();
-      wFields.optWidth(true);
-    }
     wAsciiMode.setSelection(action.isAsciiMode());
-    wPrevious.setSelection(action.argFromPrevious);
-    wIncludeSubfolders.setSelection(action.includeSubFolders);
-    wDestinationIsAFile.setSelection(action.destinationIsAFile);
-    wCreateDestinationFolder.setSelection(action.createDestinationFolder);
+    wPrevious.setSelection(action.isArgFromPrevious());
+    wIncludeSubfolders.setSelection(action.isIncludeSubFolders());
+    wDestinationIsAFile.setSelection(action.isDestinationIsAFile());
+    wCreateDestinationFolder.setSelection(action.isCreateDestinationFolder());
 
-    wAddFileToResult.setSelection(action.addResultFileNames);
+    wAddFileToResult.setSelection(action.isAddResultFileNames());
 
-    wCreateMoveToFolder.setSelection(action.createMoveToFolder);
+    wCreateMoveToFolder.setSelection(action.isCreateMoveToFolder());
 
-    if (action.getNrErrorsLessThan() != null) {
-      wNrErrorsLessThan.setText(action.getNrErrorsLessThan());
-    } else {
-      wNrErrorsLessThan.setText("10");
-    }
+    wNrErrorsLessThan.setText(Const.NVL(action.getNrErrorsLessThan(), "10"));
 
     if (action.getSuccessCondition() != null) {
-      if (action.getSuccessCondition().equals(action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED)) {
+      if (action
+          .getSuccessCondition()
+          .equals(ActionPGPEncryptFiles.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED)) {
         wSuccessCondition.select(1);
-      } else if (action.getSuccessCondition().equals(action.SUCCESS_IF_ERRORS_LESS)) {
+      } else if (action
+          .getSuccessCondition()
+          .equals(ActionPGPEncryptFiles.SUCCESS_IF_ERRORS_LESS)) {
         wSuccessCondition.select(2);
       } else {
         wSuccessCondition.select(0);
@@ -1546,9 +1511,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
       wIfFileExists.select(0);
     }
 
-    if (action.getDestinationFolder() != null) {
-      wDestinationFolder.setText(action.getDestinationFolder());
-    }
+    wDestinationFolder.setText(Const.NVL(action.getDestinationFolder(), ""));
 
     if (action.getIfMovedFileExists() != null) {
       switch (action.getIfMovedFileExists()) {
@@ -1567,21 +1530,27 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     wAddDate.setSelection(action.isAddDate());
     wAddTime.setSelection(action.isAddTime());
     wSpecifyFormat.setSelection(action.isSpecifyFormat());
-    if (action.getDateTimeFormat() != null) {
-      wDateTimeFormat.setText(action.getDateTimeFormat());
-    }
+    wDateTimeFormat.setText(Const.NVL(action.getDateTimeFormat(), ""));
 
-    if (action.getGpgLocation() != null) {
-      wGpgExe.setText(action.getGpgLocation());
-    }
+    wGpgExe.setText(Const.NVL(action.getGpgLocation(), ""));
 
     wAddMovedDate.setSelection(action.isAddMovedDate());
     wAddMovedTime.setSelection(action.isAddMovedTime());
     wSpecifyMoveFormat.setSelection(action.isSpecifyMoveFormat());
-    if (action.getMovedDateTimeFormat() != null) {
-      wMovedDateTimeFormat.setText(action.getMovedDateTimeFormat());
-    }
+    wMovedDateTimeFormat.setText(Const.NVL(action.getMovedDateTimeFormat(), ""));
     wAddMovedDateBeforeExtension.setSelection(action.isAddMovedDateBeforeExtension());
+  }
+
+  private void getGpgFilesData() {
+    for (ActionPGPEncryptFiles.PgpFile pgpFile : action.getPgpFiles()) {
+      TableItem ti = new TableItem(wFields.table, SWT.NONE);
+      ti.setText(1, pgpFile.getActionType().getDescription());
+      ti.setText(2, Const.NVL(pgpFile.getSourceFileFolder(), ""));
+      ti.setText(3, Const.NVL(pgpFile.getWildcard(), ""));
+      ti.setText(4, Const.NVL(pgpFile.getUserId(), ""));
+      ti.setText(5, Const.NVL(pgpFile.getDestinationFileFolder(), ""));
+    }
+    wFields.optimizeTableView();
   }
 
   @Override
@@ -1615,11 +1584,11 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     action.setCreateMoveToFolder(wCreateMoveToFolder.getSelection());
 
     if (wSuccessCondition.getSelectionIndex() == 1) {
-      action.setSuccessCondition(action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED);
+      action.setSuccessCondition(ActionPGPEncryptFiles.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED);
     } else if (wSuccessCondition.getSelectionIndex() == 2) {
-      action.setSuccessCondition(action.SUCCESS_IF_ERRORS_LESS);
+      action.setSuccessCondition(ActionPGPEncryptFiles.SUCCESS_IF_ERRORS_LESS);
     } else {
-      action.setSuccessCondition(action.SUCCESS_IF_NO_ERRORS);
+      action.setSuccessCondition(ActionPGPEncryptFiles.SUCCESS_IF_NO_ERRORS);
     }
 
     if (wIfFileExists.getSelectionIndex() == 1) {
@@ -1664,35 +1633,16 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     action.setMovedDateTimeFormat(wMovedDateTimeFormat.getText());
     action.setAddMovedDateBeforeExtension(wAddMovedDateBeforeExtension.getSelection());
 
-    int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (!Utils.isEmpty(arg)) {
-        nr++;
-      }
-    }
-    action.actionType = new int[nr];
-    action.sourceFileFolder = new String[nr];
-    action.userId = new String[nr];
-    action.destinationFileFolder = new String[nr];
-    action.wildcard = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String actionName = wFields.getNonEmpty(i).getText(1);
-      String source = wFields.getNonEmpty(i).getText(2);
-      String wild = wFields.getNonEmpty(i).getText(3);
-      String userid = wFields.getNonEmpty(i).getText(4);
-      String dest = wFields.getNonEmpty(i).getText(5);
-
-      if (!Utils.isEmpty(source)) {
-        action.actionType[nr] = ActionPGPEncryptFiles.getActionTypeByDesc(actionName);
-        action.sourceFileFolder[nr] = source;
-        action.wildcard[nr] = wild;
-        action.userId[nr] = userid;
-        action.destinationFileFolder[nr] = dest;
-        nr++;
-      }
+    action.getPgpFiles().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      ActionPGPEncryptFiles.PgpFile pgpFile = new ActionPGPEncryptFiles.PgpFile();
+      action.getPgpFiles().add(pgpFile);
+      pgpFile.setActionType(
+          ActionPGPEncryptFiles.ActionType.lookupWithDescription(item.getText(1)));
+      pgpFile.setSourceFileFolder(item.getText(2));
+      pgpFile.setWildcard(item.getText(3));
+      pgpFile.setUserId(item.getText(4));
+      pgpFile.setDestinationFileFolder(item.getText(5));
     }
     dispose();
   }

@@ -28,13 +28,11 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 public class JsonOutputField implements Cloneable {
   @HopMetadataProperty(
       key = "name",
-      injectionGroupKey = "FIELDS",
       injectionKeyDescription = "JsonOutput.Injection.JSON_FIELDNAME")
   private String fieldName;
 
   @HopMetadataProperty(
       key = "element",
-      injectionGroupKey = "FIELDS",
       injectionKeyDescription = "JsonOutput.Injection.JSON_ELEMENTNAME")
   private String elementName;
 

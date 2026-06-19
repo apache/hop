@@ -14,7 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Transforms are the cornerstone of HOP, they are used to process and transforming your data, they are the building blocks that are used to create a pipeline.
+:description: Transforms are used to process and transform your data. They are the building blocks that are used to create a pipeline.
 
 [[transform-plugins]]
 = Transform Plugins
@@ -76,6 +76,8 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/databaselookup.adoc[Database Lookup]
 * xref:pipeline/transforms/datagrid.adoc[Data Grid]
 * xref:pipeline/transforms/datasetinput.adoc[Dataset Input]
+* xref:pipeline/transforms/data-stream-input.adoc[Data Stream Input]
+* xref:pipeline/transforms/data-stream-output.adoc[Data Stream Output]
 * xref:pipeline/transforms/dbimpactinput.adoc[Database Impact Input]
 * xref:pipeline/transforms/delay.adoc[Delay row]
 * xref:pipeline/transforms/delete.adoc[Delete]
@@ -240,6 +242,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/xmlinputstream.adoc[XML Input Stream (StAX)]
 * xref:pipeline/transforms/xmljoin.adoc[XML Join]
 * xref:pipeline/transforms/xmloutput.adoc[XML Output]
+* xref:pipeline/transforms/xmloutputadvanced.adoc[XML Output (Advanced)]
 * xref:pipeline/transforms/xsdvalidator.adoc[XSD Validator]
 * xref:pipeline/transforms/xslt.adoc[XSL Transformation]
 * xref:pipeline/transforms/yamlinput.adoc[Yaml Input]

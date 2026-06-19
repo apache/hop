@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  - Licensed to the Apache Software Foundation (ASF) under one or more
+  - contributor license agreements.  See the NOTICE file distributed with
+  - this work for additional information regarding copyright ownership.
+  - The ASF licenses this file to You under the Apache License, Version 2.0
+  - (the "License"); you may not use this file except in compliance with
+  - the License.  You may obtain a copy of the License at
+  -
+  -      http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS,
+  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  - See the License for the specific language governing permissions and
+  - limitations under the License.
+  -
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="24"
+     height="24"
+     version="1.1">
+    <polygon
+            points="855,351 747,243 747,171 927,351 747,531 747,459 "
+            style="fill:#000000;stroke:#000000;stroke-width:1.07;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"
+            transform="matrix(0.04088512,0,0,0.04088512,-29.06975,-3.8891517)"/>
+    <polygon
+            points="981,351 873,243 873,171 1053,351 873,531 873,459 "
+            style="fill:#000000;stroke:#000000;stroke-width:1.07;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"
+            transform="matrix(0.04088512,0,0,0.04088512,-29.06975,-3.8891517)"/>
+    <polygon
+            points="1107,351 999,243 999,171 1179,351 999,531 999,459 "
+            style="fill:#000000;stroke:#000000;stroke-width:1.07;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10"
+            transform="matrix(0.04088512,0,0,0.04088512,-29.06975,-3.8891517)"/>
+    <polygon
+            fill="#0e3a5a"
+            points="37.236,36.378 32.01,31.153 30.666,32.497 35.893,37.723 32.746,37.723 32.747,39.624 39.136,39.621 39.136,33.296 37.236,33.296 "
+            transform="translate(-16.392526,-16.371551)"/>
+</svg>

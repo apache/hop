@@ -37,10 +37,10 @@ import org.apache.hop.core.util.Utils;
 public class DatabaseConnectionMap {
   private final ConcurrentMap<String, Database> map;
 
-  private static final DatabaseConnectionMap connectionMap = new DatabaseConnectionMap();
+  private static final DatabaseConnectionMap CONNECTION_MAP = new DatabaseConnectionMap();
 
   public static synchronized DatabaseConnectionMap getInstance() {
-    return connectionMap;
+    return CONNECTION_MAP;
   }
 
   private DatabaseConnectionMap() {
@@ -51,7 +51,7 @@ public class DatabaseConnectionMap {
    * Tries to obtain an existing <i>Database</i> instance for specified parameters. If none is
    * found, then maps the key's value to <i>database</i>. Similarly to {@linkplain
    * ConcurrentHashMap#putIfAbsent(Object, Object)} returns <i>null</i> if there was no value for
-   * the specified key and they mapped value otherwise.
+   * the specified key, and they mapped value otherwise.
    *
    * @param connectionGroup connection group
    * @param partitionID partition's id

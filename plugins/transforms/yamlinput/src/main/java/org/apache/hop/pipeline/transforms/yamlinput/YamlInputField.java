@@ -17,17 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
-import org.apache.hop.core.Const;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.w3c.dom.Node;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output
  * streams.
  */
+@Getter
+@Setter
 public class YamlInputField implements Cloneable {
   private static final Class<?> PKG = YamlInputMeta.class;
 
@@ -36,34 +39,52 @@ public class YamlInputField implements Cloneable {
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
-
-  public static final String[] trimTypeDesc = {
+  protected static final String[] TRIM_TYPE_DESC = {
     BaseMessages.getString(PKG, "YamlInputField.TrimType.None"),
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Left"),
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Right"),
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Both")
   };
-  public static final String CONST_SPACES = "        ";
 
+  @HopMetadataProperty(key = "name")
   private String name;
+
+  @HopMetadataProperty(key = "path")
   private String path;
+
+  @HopMetadataProperty(key = "type", intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
   private int type;
+
+  @HopMetadataProperty(key = "length")
   private int length;
+
+  @HopMetadataProperty(key = "format")
   private String format;
-  private int trimtype;
+
+  @HopMetadataProperty(
+      key = "trim_type",
+      intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class)
+  private int trimType;
+
+  @HopMetadataProperty(key = "precision")
   private int precision;
+
+  @HopMetadataProperty(key = "currency")
   private String currencySymbol;
+
+  @HopMetadataProperty(key = "decimal")
   private String decimalSymbol;
+
+  @HopMetadataProperty(key = "group")
   private String groupSymbol;
 
-  public YamlInputField(String fieldname) {
-    this.name = fieldname;
+  public YamlInputField(String fieldName) {
+    this.name = fieldName;
     this.path = "";
     this.length = -1;
     this.type = IValueMeta.TYPE_STRING;
     this.format = "";
-    this.trimtype = TYPE_TRIM_NONE;
+    this.trimType = TYPE_TRIM_NONE;
     this.groupSymbol = "";
     this.decimalSymbol = "";
     this.currencySymbol = "";
@@ -74,179 +95,38 @@ public class YamlInputField implements Cloneable {
     this("");
   }
 
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(400);
-
-    retval.append("      <field>").append(Const.CR);
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getName()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("path", getPath()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", getTypeDesc()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", getFormat()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", getCurrencySymbol()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", getDecimalSymbol()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("group", getGroupSymbol()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", getLength()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", getPrecision()));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("trim_type", getTrimTypeCode()));
-
-    retval.append("      </field>").append(Const.CR);
-
-    return retval.toString();
+  public YamlInputField(YamlInputField f) {
+    this();
+    this.name = f.name;
+    this.path = f.path;
+    this.type = f.type;
+    this.length = f.length;
+    this.format = f.format;
+    this.trimType = f.trimType;
+    this.precision = f.precision;
+    this.currencySymbol = f.currencySymbol;
+    this.decimalSymbol = f.decimalSymbol;
+    this.groupSymbol = f.groupSymbol;
   }
 
-  public YamlInputField(Node fnode) {
-    setName(XmlHandler.getTagValue(fnode, "name"));
-    setPath(XmlHandler.getTagValue(fnode, "path"));
-    setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-    setFormat(XmlHandler.getTagValue(fnode, "format"));
-    setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-    setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-    setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
-    setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-    setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-    setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
+  public static int getTrimTypeByDesc(String trimTypeDescription) {
+    return ValueMetaBase.getTrimTypeByDesc(trimTypeDescription);
   }
 
-  public static final int getTrimTypeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < trimTypeCode.length; i++) {
-      if (trimTypeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static final int getTrimTypeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < trimTypeDesc.length; i++) {
-      if (trimTypeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static final String getTrimTypeCode(int i) {
-    if (i < 0 || i >= trimTypeCode.length) {
-      return trimTypeCode[0];
-    }
-    return trimTypeCode[i];
-  }
-
-  public static final String getTrimTypeDesc(int i) {
-    if (i < 0 || i >= trimTypeDesc.length) {
-      return trimTypeDesc[0];
-    }
-    return trimTypeDesc[i];
+  public static String getTrimTypeDesc(int trimType) {
+    return ValueMetaBase.getTrimTypeDesc(trimType);
   }
 
   @Override
   public Object clone() {
-    try {
-      YamlInputField retval = (YamlInputField) super.clone();
-
-      return retval;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
-  }
-
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getPath() {
-    return path;
-  }
-
-  public void setPath(String fieldpath) {
-    this.path = fieldpath;
-  }
-
-  public void setName(String fieldname) {
-    this.name = fieldname;
-  }
-
-  public int getType() {
-    return type;
+    return new YamlInputField(this);
   }
 
   public String getTypeDesc() {
     return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public int getTrimType() {
-    return trimtype;
-  }
-
-  public String getTrimTypeCode() {
-    return getTrimTypeCode(trimtype);
-  }
-
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc(trimtype);
-  }
-
-  public void setTrimType(int trimtype) {
-    this.trimtype = trimtype;
-  }
-
-  public String getGroupSymbol() {
-    return groupSymbol;
-  }
-
-  public void setGroupSymbol(String groupSymbol) {
-    this.groupSymbol = groupSymbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
+    return getTrimTypeDesc(trimType);
   }
 }

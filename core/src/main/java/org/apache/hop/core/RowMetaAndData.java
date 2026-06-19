@@ -20,6 +20,7 @@ package org.apache.hop.core;
 import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.IRowMeta;
@@ -55,7 +56,7 @@ public class RowMetaAndData implements Cloneable {
     try {
       c.data = rowMeta.cloneRow(data);
     } catch (HopValueException e) {
-      throw new RuntimeException("Problem with clone row detected in RowMetaAndData", e);
+      throw new HopRuntimeException("Problem with clone row detected in RowMetaAndData", e);
     }
 
     return c;
@@ -103,7 +104,7 @@ public class RowMetaAndData implements Cloneable {
     try {
       return rowMeta.hashCode(data);
     } catch (HopValueException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Row metadata and data: unable to calculate hashcode because of a data conversion problem",
           e);
     }
@@ -114,7 +115,7 @@ public class RowMetaAndData implements Cloneable {
     try {
       return rowMeta.compare(data, ((RowMetaAndData) obj).getData()) == 0;
     } catch (HopValueException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Row metadata and data: unable to compare rows because of a data conversion problem", e);
     }
   }
@@ -321,7 +322,7 @@ public class RowMetaAndData implements Cloneable {
     } else if (destinationType.isEnum()) {
       return converter.string2enum(destinationType, vs);
     } else {
-      throw new RuntimeException(CONST_WRONG_VALUE_CONVERSION + destinationType);
+      throw new HopRuntimeException(CONST_WRONG_VALUE_CONVERSION + destinationType);
     }
   }
 

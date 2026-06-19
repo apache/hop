@@ -19,7 +19,11 @@ package org.apache.hop.pipeline.transforms.valuemapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
@@ -36,7 +40,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/** Maps String values of a certain field to new values */
+/** Maps String values of a certain field to new values. */
 @Transform(
     id = "ValueMapper",
     image = "valuemapper.svg",
@@ -45,6 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ValueMapperMeta.keyword",
     documentationUrl = "/pipeline/transforms/valuemapper.html")
+@Getter
+@Setter
 public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class;
 
@@ -65,6 +71,42 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
       injectionKey = "NON_MATCH_DEFAULT",
       injectionKeyDescription = "ValueMapper.Injection.NON_MATCH_DEFAULT")
   private String nonMatchDefault;
+
+  /** Stored as Y/N when set; {@code null} when absent from serialized metadata. */
+  @HopMetadataProperty(
+      key = "keep_original_value_on_non_match",
+      injectionKey = "KEEP_ORIGINAL_ON_NON_MATCH",
+      injectionKeyDescription = "ValueMapper.Injection.KEEP_ORIGINAL_ON_NON_MATCH")
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private String keepOriginalValueOnNonMatch;
+
+  /**
+   * When true, non-matching values keep the source field value (in-place or copied into the new
+   * target field). The non-match default is ignored. When false, a non-match uses the default if
+   * set, otherwise null (same for overwrite and new-field modes).
+   */
+  public boolean isKeepOriginalValueOnNonMatch() {
+    if (!Utils.isEmpty(keepOriginalValueOnNonMatch)) {
+      return Const.toBoolean(keepOriginalValueOnNonMatch);
+    }
+    return Utils.isEmpty(getTargetField()) && Utils.isEmpty(getNonMatchDefault());
+  }
+
+  /** Persists an explicit Y/N; used by the dialog and metadata injection. */
+  public void setKeepOriginalValueOnNonMatch(boolean value) {
+    this.keepOriginalValueOnNonMatch = value ? "Y" : "N";
+  }
+
+  public String getKeepOriginalValueOnNonMatch() {
+    return keepOriginalValueOnNonMatch;
+  }
+
+  /** Raw Y/N from metadata; empty clears to unset. */
+  public void setKeepOriginalValueOnNonMatch(String keepOriginalValueOnNonMatch) {
+    this.keepOriginalValueOnNonMatch =
+        Utils.isEmpty(keepOriginalValueOnNonMatch) ? null : keepOriginalValueOnNonMatch;
+  }
 
   @HopMetadataProperty(
       key = "target_type",
@@ -93,6 +135,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     this.fieldToUse = meta.fieldToUse;
     this.targetField = meta.targetField;
     this.nonMatchDefault = meta.nonMatchDefault;
+    this.keepOriginalValueOnNonMatch = meta.getKeepOriginalValueOnNonMatch();
     if (meta.targetType != null && meta.targetType.isEmpty()) {
       this.targetType = meta.targetType;
     } else {
@@ -100,23 +143,23 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     }
   }
 
-  /**
-   * @return Returns the fieldValue.
-   */
-  public List<Values> getValues() {
-    return values;
-  }
-
-  /**
-   * @param values The fieldValue to set.
-   */
-  public void setValues(List<Values> values) {
-    this.values = values;
-  }
-
   @Override
   public Object clone() {
     return new ValueMapperMeta(this);
+  }
+
+  /** Longest mapped target literal including non-match default (for string field sizing). */
+  private int maxLengthOfMappedStringValues() {
+    int maxlen = -1;
+    for (Values v : this.values) {
+      if (v.getTarget() != null && v.getTarget().length() > maxlen) {
+        maxlen = v.getTarget().length();
+      }
+    }
+    if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
+      maxlen = nonMatchDefault.length();
+    }
+    return maxlen;
   }
 
   @Override
@@ -130,7 +173,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
 
     IValueMeta extra = null;
 
-    // Determine target value meta type (default to String for backward compatibility)
+    // Determine target value meta type (default to String when unspecified)
     String targetTypeName = Utils.isEmpty(getTargetType()) ? "String" : getTargetType();
     int targetTypeId = ValueMetaFactory.getIdForValueMeta(targetTypeName);
     // fallback
@@ -149,18 +192,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
         // Lengths etc?
         // Take the max length of all the strings...
         //
-        int maxlen = -1;
-        for (Values v : this.values) {
-          if (v.getTarget() != null && v.getTarget().length() > maxlen) {
-            maxlen = v.getTarget().length();
-          }
-        }
-
-        // include default value in max length calculation
-        //
-        if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
-          maxlen = nonMatchDefault.length();
-        }
+        int maxlen = maxLengthOfMappedStringValues();
         extra.setLength(maxlen);
         extra.setOrigin(name);
       }
@@ -175,6 +207,25 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
       // The output of a changed field or new field is always a normal storage type...
       //
       extra.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+
+      // In-place mapping with no explicit target type: treat output as String (same as new field)
+      if (Utils.isEmpty(getTargetField())
+          && Utils.isEmpty(getTargetType())
+          && extra.getType() != IValueMeta.TYPE_STRING) {
+        int idx = r.indexOfValue(extra.getName());
+        r.removeValueMeta(idx);
+        IValueMeta stringMeta;
+        try {
+          stringMeta = ValueMetaFactory.createValueMeta(extra.getName(), IValueMeta.TYPE_STRING);
+        } catch (HopPluginException e) {
+          stringMeta = new ValueMetaString(extra.getName());
+        }
+        int maxlen = maxLengthOfMappedStringValues();
+        stringMeta.setLength(maxlen);
+        stringMeta.setOrigin(name);
+        stringMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+        r.addValueMeta(idx, stringMeta);
+      }
     }
   }
 
@@ -228,63 +279,5 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * @return Returns the fieldToUse.
-   */
-  public String getFieldToUse() {
-    return fieldToUse;
-  }
-
-  /**
-   * @param fieldToUse The fieldToUse to set.
-   */
-  public void setFieldToUse(String fieldToUse) {
-    this.fieldToUse = fieldToUse;
-  }
-
-  /**
-   * @return Returns the targetField.
-   */
-  public String getTargetField() {
-    return targetField;
-  }
-
-  /**
-   * @param targetField The targetField to set.
-   */
-  public void setTargetField(String targetField) {
-    this.targetField = targetField;
-  }
-
-  /**
-   * @return the non match default. This is the string that will be used to fill in the data when no
-   *     match is found.
-   */
-  public String getNonMatchDefault() {
-    return nonMatchDefault;
-  }
-
-  /**
-   * @param nonMatchDefault the non match default. This is the string that will be used to fill in
-   *     the data when no match is found.
-   */
-  public void setNonMatchDefault(String nonMatchDefault) {
-    this.nonMatchDefault = nonMatchDefault;
-  }
-
-  /**
-   * @return Returns the targetType.
-   */
-  public String getTargetType() {
-    return targetType;
-  }
-
-  /**
-   * @param targetType The targetType to set.
-   */
-  public void setTargetType(String targetType) {
-    this.targetType = targetType;
   }
 }

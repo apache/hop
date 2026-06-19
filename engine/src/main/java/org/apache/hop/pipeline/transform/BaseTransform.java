@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IExtensionData;
@@ -44,6 +44,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -371,7 +372,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // Sanity check
     //
     if (transformMeta.getName() == null) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "A transform in pipeline ["
               + pipelineMeta.toString()
               + "] doesn't have a name.  A transform should always have a name to identify it by.");
@@ -1859,7 +1860,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
       log.logMinimal("===> Current input row set nr=" + currentInputRowSetNr);
 
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "No row metadata obtained for row "
               + Arrays.toString(row)
               + Const.CR

@@ -50,7 +50,9 @@ This transform requires a Google service account (JSON file) and a Google Cloud 
 |option|description
 |JSON credential key file|Lets you specify or browse for spreadsheets existing in the service account drive or for the ones that are shared with the service account email.
 |Application Name|Your application name for the service account in the Google Developer Console.
-|Timeout|lets you specify an https timeout (in minutes, defaults to 5).
+|Time out (minutes) |lets you specify an https timeout (in minutes, defaults to 5).
+|Retry attempts|Number of retry attempts for retryable Google Sheets API errors (HTTP 429/500/503). Defaults to 3.
+|Retry delay (seconds)|Initial delay in seconds between retries for retryable Google Sheets API errors. Defaults to 2 seconds and uses exponential backoff for subsequent retries.
 |Impersonation|lets you impersonate your service account. Check the https://cloud.google.com/iam/docs/impersonating-service-accounts[Google docs] for more information.
 |===
 

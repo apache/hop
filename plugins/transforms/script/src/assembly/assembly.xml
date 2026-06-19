@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/script</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,35 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-script:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/script</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.apache.groovy:groovy:jar</include>
-                <include>org.apache.groovy:groovy-jsr223:jar</include>
-                <include>org.python:jython-standalone:jar</include>
-                <include>org.graalvm.js:js-scriptengine:jar</include>
-                <include>org.graalvm.js:js:jar</include>
-                <include>org.graalvm.regex:regex:jar</include>
-                <include>org.graalvm.truffle:truffle-api:jar</include>
-                <include>org.graalvm.sdk:graal-sdk:jar</include>
-                <include>com.ibm.icu:icu4j:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/script/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.ow2.asm:asm:jar</include>
-                <include>org.ow2.asm:asm-commons:jar</include>
-                <include>org.ow2.asm:asm-tree:jar</include>
-                <include>org.ow2.asm:asm-util:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

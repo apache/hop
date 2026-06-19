@@ -1,0 +1,50 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../../assets/images/
+:page-pagination:
+:description: Metadata for IPC data streams
+
+= Data Stream
+
+== Overview
+
+The **Data Stream** metadata type provides a unified, high-performance way to stream rows between Hop pipelines and external systems (especially Python via PyHop), without always needing to land data on disk.
+
+It is designed to be pluggable so that different streaming technologies can be added over time.
+
+=== Goal
+
+* Enable fast, low-latency data exchange between Hop and Python (and other Arrow-compatible tools)
+* Provide backpressure and proper streaming semantics
+* Keep the user experience consistent (select a Data Stream by name in Input/Output transforms)
+
+== Available Implementations
+
+* xref:metadata-types/data-stream/arrow-random-access-file.adoc[Apache Arrow Random Access File]
+* xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow File Stream]
+* xref:metadata-types/data-stream/arrow-flight.adoc[Apache Arrow Flight]
+
+See also:
+
+* xref:hop-tools/hop-arrow-command.adoc[`hop arrow` command]
+* xref:technology/arrow/apache-arrow.adoc[Apache Arrow Technology page]
+
+== Usage
+
+. Create a new **Data Stream** in the Metadata perspective
+. Choose the desired implementation
+. Use **Data Stream Output** or **Data Stream Input** transforms in your pipelines and select the stream by name

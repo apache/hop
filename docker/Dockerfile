@@ -48,6 +48,11 @@ ENV HOP_ENVIRONMENT_NAME=environment1
 ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
 # hop run configuration to use
 ENV HOP_RUN_CONFIG=
+# The optional hop command to execute instread of hop run
+# with command options to run
+#
+ENV HOP_COMMAND=
+ENV HOP_COMMAND_PARAMETERS=
 # parameters that should be passed on to the hop-run command
 # specify as comma separated list, e.g. PARAM_1=aaa,PARAM_2=bbb
 ENV HOP_RUN_PARAMETERS=
@@ -89,7 +94,7 @@ ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
 ENV HOP_CONFIG_OPTIONS=
 
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
-# procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
+# procps: The package includes the programs ps/home/matt.casters@vdab.be/Projects/demo, top, vmstat, w, kill, free, slabtop, and skill
 RUN addgroup -g ${HOP_GID} -S hop \
     && adduser -u ${HOP_UID} -S -D -G hop hop \
     && chmod 777 -R /tmp && chmod o+t -R /tmp \

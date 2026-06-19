@@ -1,0 +1,4 @@
+contentType,currencySymbol,decimalSymbol,elementName,fieldName,format,groupingSymbol,length,nullString,precision,type
+Element,,,element1,f1,,,100,,-1,String
+Attribute,,,element2,f2,"#",,7,,0,Integer
+Element,,,element3,f3,"#.#",,9,,2,Number

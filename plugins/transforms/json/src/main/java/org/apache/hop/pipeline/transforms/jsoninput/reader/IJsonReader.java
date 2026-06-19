@@ -41,4 +41,10 @@ public interface IJsonReader {
 
   /** parse incoming JsonNode fields into a rowset */
   public IRowSet parseJsonNodeValue(com.fasterxml.jackson.databind.JsonNode in) throws HopException;
+
+  /**
+   * One logical output row with a null for each configured field, without reading a JSON document
+   * or evaluating JSON paths (used when input is an empty stream and empty files are ignored).
+   */
+  IRowSet emptyFieldRowSet();
 }

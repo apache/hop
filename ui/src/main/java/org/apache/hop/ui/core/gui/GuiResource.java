@@ -1256,6 +1256,21 @@ public class GuiResource {
     }
   }
 
+  /**
+   * Multi-resolution icon set for {@link org.eclipse.swt.widgets.Shell#setImages(Image[])}. Giving
+   * Windows the standard sizes (16/32/48/64/128/256) lets it pick a precise match for each slot
+   * (title bar, taskbar, alt-tab, jump-list previews) instead of scaling a single 16x16 up to 64x64
+   * — which is what made the taskbar icon appear correctly only intermittently.
+   */
+  public Image[] getImagesHopUiTaskbar() {
+    int[] sizes = {16, 32, 48, 64, 128, 256};
+    Image[] images = new Image[sizes.length];
+    for (int i = 0; i < sizes.length; i++) {
+      images[i] = getZoomedImaged(imageLogo, display, sizes[i], sizes[i]);
+    }
+    return images;
+  }
+
   public void drawGradient(Display display, GC gc, Rectangle rect, boolean vertical) {
     if (!vertical) {
       gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));

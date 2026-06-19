@@ -20,7 +20,7 @@ package org.apache.hop.beam.transforms.pubsub;
 import java.util.List;
 import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamPublishTransform;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
@@ -45,7 +45,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "beam-gcp-pubsub-publish.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamPublishMeta.keyword",
-    documentationUrl = "/pipeline/transforms/beamgcppublisher.html")
+    documentationUrl = "/pipeline/transforms/beamgcppublisher.html",
+    supportedEngines = {"Beam*"})
 public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishData>
     implements IBeamPipelineTransformHandler {
 

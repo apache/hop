@@ -20,8 +20,12 @@ package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class CFields {
   /** which fields do we use to look up a value? */
   @HopMetadataProperty(
@@ -62,59 +66,5 @@ public class CFields {
       }
     }
     return -1;
-  }
-
-  /**
-   * Gets keyFields
-   *
-   * @return value of keyFields
-   */
-  public List<KeyField> getKeyFields() {
-    return keyFields;
-  }
-
-  /**
-   * Sets keyFields
-   *
-   * @param keyFields value of keyFields
-   */
-  public void setKeyFields(List<KeyField> keyFields) {
-    this.keyFields = keyFields;
-  }
-
-  /**
-   * Gets sequenceFrom
-   *
-   * @return value of sequenceFrom
-   */
-  public String getSequenceFrom() {
-    return sequenceFrom;
-  }
-
-  /**
-   * Sets sequenceFrom
-   *
-   * @param sequenceFrom value of sequenceFrom
-   */
-  public void setSequenceFrom(String sequenceFrom) {
-    this.sequenceFrom = sequenceFrom;
-  }
-
-  /**
-   * Gets returnFields
-   *
-   * @return value of returnFields
-   */
-  public ReturnFields getReturnFields() {
-    return returnFields;
-  }
-
-  /**
-   * Sets returnFields
-   *
-   * @param returnFields value of returnFields
-   */
-  public void setReturnFields(ReturnFields returnFields) {
-    this.returnFields = returnFields;
   }
 }

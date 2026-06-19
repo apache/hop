@@ -1,0 +1,7 @@
+property,value
+auto.offset.reset,latest
+ssl.key.password,
+ssl.keystore.location,
+ssl.keystore.password,
+ssl.truststore.location,
+ssl.truststore.password,

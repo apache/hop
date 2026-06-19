@@ -68,29 +68,28 @@ public final class PipelineMetricDisplayUtil {
     if (code == null) {
       return null;
     }
-    switch (code) {
+
+    return switch (code) {
       case Pipeline.METRIC_NAME_INPUT,
-          Pipeline.METRIC_NAME_READ,
-          Pipeline.METRIC_NAME_WRITTEN,
-          Pipeline.METRIC_NAME_OUTPUT,
-          Pipeline.METRIC_NAME_UPDATED,
-          Pipeline.METRIC_NAME_REJECTED,
-          Pipeline.METRIC_NAME_ERROR,
-          Pipeline.METRIC_NAME_BUFFER_IN,
-          Pipeline.METRIC_NAME_BUFFER_OUT:
-        return "rows";
-      case Pipeline.METRIC_NAME_INIT:
-        return "runs";
-      case Pipeline.METRIC_NAME_FLUSH_BUFFER:
-        return "flushes";
-      case Pipeline.METRIC_NAME_DATA_VOLUME:
-        return null; // Cell shows scaled unit (B/KB/MB/GB) via formatDataVolume()
-      case Pipeline.METRIC_NAME_DATA_VOLUME_IN:
-      case Pipeline.METRIC_NAME_DATA_VOLUME_OUT:
-        return null; // Cell shows scaled unit (B/KB/MB/GB) via formatDataVolume()
-      default:
-        return null;
-    }
+              Pipeline.METRIC_NAME_READ,
+              Pipeline.METRIC_NAME_WRITTEN,
+              Pipeline.METRIC_NAME_OUTPUT,
+              Pipeline.METRIC_NAME_UPDATED,
+              Pipeline.METRIC_NAME_REJECTED,
+              Pipeline.METRIC_NAME_ERROR,
+              Pipeline.METRIC_NAME_BUFFER_IN,
+              Pipeline.METRIC_NAME_BUFFER_OUT ->
+          "rows";
+      case Pipeline.METRIC_NAME_INIT -> "runs";
+      case Pipeline.METRIC_NAME_FLUSH_BUFFER -> "flushes";
+      case Pipeline.METRIC_NAME_DATA_VOLUME ->
+          // Cell shows scaled unit (B/KB/MB/GB) via formatDataVolume()
+          null;
+      case Pipeline.METRIC_NAME_DATA_VOLUME_IN, Pipeline.METRIC_NAME_DATA_VOLUME_OUT ->
+          // Cell shows scaled unit (B/KB/MB/GB) via formatDataVolume()
+          null;
+      default -> null;
+    };
   }
 
   /**

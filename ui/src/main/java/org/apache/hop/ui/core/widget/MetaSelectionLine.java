@@ -19,7 +19,7 @@ package org.apache.hop.ui.core.widget;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -81,6 +81,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private final Label wLabel;
   private ComboVar wCombo = null;
   private final Control wToolBar;
+
+  /** Prevents re-entrant refresh while {@link #fillItems()} runs. */
+  private boolean repopulatingItems;
 
   public MetaSelectionLine(
       IVariables variables,
@@ -227,6 +230,25 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     PropsUi.setLook(wCombo);
 
+    // Refresh the item list whenever the user focuses the control (including opening the
+    // dropdown), so names added elsewhere in the GUI are visible without reopening the dialog.
+    wCombo
+        .getCComboWidget()
+        .addListener(
+            SWT.FocusIn,
+            e -> {
+              if (repopulatingItems || wCombo.getCComboWidget().isDisposed()) {
+                return;
+              }
+              try {
+                fillItems();
+              } catch (HopException ex) {
+                LogChannel.UI.logError(
+                    "Error refreshing list of " + getMetadataDescription() + " metadata elements",
+                    ex);
+              }
+            });
+
     layout(true, true);
   }
 
@@ -318,9 +340,21 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
    * @throws HopException In case something went horribly wrong.
    */
   public void fillItems() throws HopException {
-    List<String> elementNames = manager.getSerializer().listObjectNames();
-    Collections.sort(elementNames);
-    wCombo.setItems(elementNames.toArray(new String[0]));
+    if (repopulatingItems) {
+      return;
+    }
+    repopulatingItems = true;
+    try {
+      String previous = wCombo.getText();
+      List<String> elementNames = manager.getSerializer().listObjectNames();
+      Collections.sort(elementNames);
+      wCombo.setItems(elementNames.toArray(new String[0]));
+      if (!wCombo.getCComboWidget().isDisposed()) {
+        wCombo.setText(Const.NVL(previous, ""));
+      }
+    } finally {
+      repopulatingItems = false;
+    }
   }
 
   /**

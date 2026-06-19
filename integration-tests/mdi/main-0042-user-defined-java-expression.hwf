@@ -49,8 +49,65 @@ limitations under the License.
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>0042-user-defined-java-expression.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0042-user-defined-java-expression.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Run Pipeline Unit Tests</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>0042-user-defined-java-expression-validate UNIT</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
+    <hop>
+      <from>Start</from>
+      <to>0042-user-defined-java-expression.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0042-user-defined-java-expression.hpl</from>
+      <to>Run Pipeline Unit Tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
   </hops>
   <notepads>
   </notepads>

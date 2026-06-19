@@ -35,9 +35,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.metrics.MetricsSnapshotType;
-import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -62,6 +60,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -188,7 +187,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private final List<IExecutionViewer> viewers = new ArrayList<>();
 
   /**
-   * -- GETTER -- Gets locationMap
+   * Gets locationMap
    *
    * @return value of locationMap
    */
@@ -254,6 +253,30 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
+
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            getClass().getName() + "ProjectActivated",
+            e -> hopGui.getDisplay().asyncExec(this::clearSearchFilters),
+            HopGuiEvents.ProjectActivated.name());
+  }
+
+  @Override
+  public void clearSearchFilters() {
+    filterText = "";
+    if (toolBarWidgets != null) {
+      ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
+      if (item != null && !item.isDisposed()) {
+        org.eclipse.swt.widgets.Control control = item.getControl();
+        if (control != null && !control.isDisposed() && control instanceof Text text) {
+          text.setText("");
+        }
+      }
+    }
+    if (hopGui != null && hopGui.isActivePerspective(this)) {
+      refresh();
+    }
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {
@@ -478,6 +501,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             Node pipelineNode =
                 XmlHandler.loadXmlString(execution.getExecutorXml(), PipelineMeta.XML_TAG);
             PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, provider);
+            pipelineMeta.setName(execution.getName());
+            pipelineMeta.setFilename(execution.getFilename());
             PipelineExecutionViewer viewer =
                 new PipelineExecutionViewer(
                     tabFolder, hopGui, pipelineMeta, locationName, this, execution, executionState);
@@ -489,6 +514,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             Node workflowNode =
                 XmlHandler.loadXmlString(execution.getExecutorXml(), WorkflowMeta.XML_TAG);
             WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, provider, variables);
+            workflowMeta.setName(execution.getName());
+            workflowMeta.setFilename(execution.getFilename());
             WorkflowExecutionViewer viewer =
                 new WorkflowExecutionViewer(
                     tabFolder, hopGui, workflowMeta, locationName, this, execution, executionState);
@@ -638,8 +665,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       id = TOOLBAR_ITEM_FORCE_REFRESH,
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.ForceRefresh.Tooltip",
       image = "ui/images/force-refresh.svg")
-  @GuiKeyboardShortcut(key = SWT.F5)
-  @GuiOsxKeyboardShortcut(key = SWT.F5)
+  @GuiKeyboardShortcut(key = SWT.F6)
+  @GuiOsxKeyboardShortcut(key = SWT.F6)
   public void forcedRefresh() {
     // This is a manual refresh button push.
     // As such we consider this a forced refresh.
@@ -794,16 +821,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           locationItem.setData(CONST_ERROR, e);
         }
         log.snap(endLocationRefresh);
-        MetricsDuration duration =
-            MetricsUtil.getLastDuration(log.getLogChannelId(), SNAP_ID_EIL_REFRESH);
-        if (duration != null) {
-          log.logBasic(
-              "Tree refresh of location "
-                  + Const.rpad(location.getName(), " ", 25)
-                  + " took "
-                  + duration.getDuration()
-                  + "ms");
-        }
       }
       log.setGatheringMetrics(false);
 

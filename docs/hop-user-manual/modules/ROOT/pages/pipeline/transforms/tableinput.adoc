@@ -189,6 +189,13 @@ You can inject metadata into the following fields of the Table Input transform:
 - Execute for each row?
 - Limit size
 
+== Preview
+
+The *Preview* button opens a dialog where you set how many rows to fetch and a **query timeout** in seconds (JDBC `Statement#setQueryTimeout`).
+
+* The timeout applies **only while the pipeline is running in preview mode** from the Hop GUI (not during a normal pipeline run from a run configuration or xref:hop-run/index.adoc[Hop Run]).
+* You can set a default for the timeout field with the xref:variables.adoc#_available_global_variables[`HOP_QUERY_PREVIEW_TIMEOUT`] application variable (`0` = no default from the variable). When the variable is `0` or unset, the dialog still suggests `5` seconds for the initial value.
+
 == Options
 
 [options="header"]

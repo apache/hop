@@ -28,6 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.xml.XmlHandler;
@@ -342,24 +343,28 @@ public class Result implements Cloneable {
       // Export the result files
       //
       xml.append(XmlHandler.openTag(XML_FILES_TAG));
-      for (ResultFile resultFile : resultFiles.values()) {
-        xml.append(resultFile.getXml());
+      if (resultFiles != null) {
+        for (ResultFile resultFile : resultFiles.values()) {
+          xml.append(resultFile.getXml());
+        }
       }
       xml.append(XmlHandler.closeTag(XML_FILES_TAG));
 
       xml.append(XmlHandler.openTag(XML_ROWS_TAG));
-      boolean firstRow = true;
-      IRowMeta rowMeta = null;
-      for (RowMetaAndData row : rows) {
-        if (firstRow) {
-          firstRow = false;
-          rowMeta = row.getRowMeta();
-          if (rowMeta != null) {
-            xml.append(rowMeta.getMetaXml());
+      if (rows != null) {
+        boolean firstRow = true;
+        IRowMeta rowMeta = null;
+        for (RowMetaAndData row : rows) {
+          if (firstRow) {
+            firstRow = false;
+            rowMeta = row.getRowMeta();
+            if (rowMeta != null) {
+              xml.append(rowMeta.getMetaXml());
+            }
           }
-        }
-        if (rowMeta != null) {
-          xml.append(rowMeta.getDataXml(row.getData()));
+          if (rowMeta != null) {
+            xml.append(rowMeta.getDataXml(row.getData()));
+          }
         }
       }
       xml.append(XmlHandler.closeTag(XML_ROWS_TAG));
@@ -368,7 +373,7 @@ public class Result implements Cloneable {
 
       return xml.toString();
     } catch (IOException e) {
-      throw new RuntimeException("Unexpected error encoding workflow result as XML", e);
+      throw new HopRuntimeException("Unexpected error encoding workflow result as XML", e);
     }
   }
 

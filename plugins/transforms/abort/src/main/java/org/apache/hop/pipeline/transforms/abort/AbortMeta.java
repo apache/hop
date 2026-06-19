@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-/** Meta data for the abort transform. */
+/** Metadata for the abort transform. */
 @Setter
 @Getter
 @Transform(

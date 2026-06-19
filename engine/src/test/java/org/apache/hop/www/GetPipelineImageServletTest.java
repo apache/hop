@@ -17,7 +17,6 @@
 
 package org.apache.hop.www;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -67,6 +66,6 @@ class GetPipelineImageServletTest {
 
     servlet.doGet(request, response);
 
-    verify(response).setStatus(eq(HttpServletResponse.SC_NO_CONTENT));
+    verify(response).setStatus(HttpServletResponse.SC_NO_CONTENT);
   }
 }

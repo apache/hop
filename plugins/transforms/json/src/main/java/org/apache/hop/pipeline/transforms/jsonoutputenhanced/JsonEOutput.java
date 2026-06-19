@@ -36,6 +36,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -45,6 +46,8 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -608,7 +611,8 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
 
       OutputStream outputStream;
       OutputStream fos = HopVfs.getOutputStream(filename, meta.getFileSettings().isFileAppended());
-      outputStream = fos;
+      data.countingStream = new CountingOutputStream(fos);
+      outputStream = data.countingStream;
 
       if (!Utils.isEmpty(meta.getEncoding())) {
         data.writer =
@@ -622,6 +626,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
         logDetailed(BaseMessages.getString(PKG, "JsonOutput.FileOpened", filename));
       }
 
+      data.openedFilename = filename;
       data.splitnr++;
 
       retval = true;
@@ -643,8 +648,24 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     boolean retval = false;
 
     try {
+      data.writer.flush();
+      if (data.countingStream != null) {
+        long written = data.countingStream.getCount();
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+        if (!data.isBeamContext() && written > 0 && data.openedFilename != null) {
+          try {
+            FileObject outFile = HopVfs.getFileObject(data.openedFilename, this);
+            LineageFileIoEmitter.emitTransformFileIo(
+                this, FileIoOperation.WRITE, null, outFile, written, true, null);
+          } catch (Exception ignored) {
+            // optional lineage
+          }
+        }
+      }
+      data.openedFilename = null;
       data.writer.close();
       data.writer = null;
+      data.countingStream = null;
       retval = true;
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "JsonOutput.Error.ClosingFile", e.toString()));

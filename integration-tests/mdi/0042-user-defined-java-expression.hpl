@@ -45,6 +45,78 @@ limitations under the License.
     </hop>
   </order>
   <transform>
+    <name>0042-user-defined-java-expression-template.hpl</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <create_parent_folder>Y</create_parent_folder>
+    <filename>${PROJECT_HOME}/0042-user-defined-java-expression-template.hpl</filename>
+    <mappings>
+      <mapping>
+        <source_field>replace_field</source_field>
+        <source_transform>files/janino.xml fields</source_transform>
+        <target_attribute_key>REPLACE_FIELD</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java expression</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>field_name</source_field>
+        <source_transform>files/janino.xml fields</source_transform>
+        <target_attribute_key>FIELD_NAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java expression</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>value_length</source_field>
+        <source_transform>files/janino.xml fields</source_transform>
+        <target_attribute_key>VALUE_LENGTH</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java expression</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>value_precision</source_field>
+        <source_transform>files/janino.xml fields</source_transform>
+        <target_attribute_key>VALUE_PRECISION</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java expression</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>value_type</source_field>
+        <source_transform>files/janino.xml fields</source_transform>
+        <target_attribute_key>VALUE_TYPE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java expression</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>formula_string</source_field>
+        <source_transform>files/janino.xml fields</source_transform>
+        <target_attribute_key>FIELD_FORMULA</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>User defined Java expression</target_transform_name>
+      </mapping>
+    </mappings>
+    <no_execution>Y</no_execution>
+    <run_configuration>local</run_configuration>
+    <source_output_fields>
+</source_output_fields>
+    <source_transform/>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <target_file>${java.io.tmpdir}/janino.hpl</target_file>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>files/janino.xml fields</name>
     <type>getXMLData</type>
     <description/>
@@ -58,11 +130,9 @@ limitations under the License.
     <IsAFile>N</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
     <IsInFields>N</IsInFields>
-    <XmlField/>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
-    <extensionFieldName/>
     <fields>
       <field>
         <currency/>
@@ -156,105 +226,22 @@ limitations under the License.
       </field>
     </fields>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
-      <filemask/>
       <include_subfolders>N</include_subfolders>
       <name>${PROJECT_HOME}/files/janino.xml</name>
     </file>
-    <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <include_field/>
-    <lastModificationTimeFieldName/>
     <limit>0</limit>
     <loopxpath>/transform/formula</loopxpath>
     <namespaceaware>N</namespaceaware>
-    <pathFieldName/>
-    <prunePath/>
     <readurl>N</readurl>
-    <rootUriNameFieldName/>
     <rownum>N</rownum>
-    <rownum_field/>
-    <shortFileFieldName/>
-    <sizeFieldName/>
-    <uriNameFieldName/>
     <usetoken>N</usetoken>
     <validating>N</validating>
     <attributes/>
     <GUI>
       <xloc>112</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>0042-user-defined-java-expression-template.hpl</name>
-    <type>MetaInject</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <filename>${PROJECT_HOME}/0042-user-defined-java-expression-template.hpl</filename>
-    <run_configuration>local</run_configuration>
-    <source_transform/>
-    <source_output_fields>    </source_output_fields>
-    <target_file>${java.io.tmpdir}/janino.hpl</target_file>
-    <create_parent_folder>Y</create_parent_folder>
-    <no_execution>Y</no_execution>
-    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
-    <stream_source_transform/>
-    <stream_target_transform/>
-    <mappings>
-      <mapping>
-        <target_transform_name>User defined Java expression</target_transform_name>
-        <target_attribute_key>REPLACE_FIELD</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>files/janino.xml fields</source_transform>
-        <source_field>replace_field</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java expression</target_transform_name>
-        <target_attribute_key>FIELD_NAME</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>files/janino.xml fields</source_transform>
-        <source_field>field_name</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java expression</target_transform_name>
-        <target_attribute_key>VALUE_LENGTH</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>files/janino.xml fields</source_transform>
-        <source_field>value_length</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java expression</target_transform_name>
-        <target_attribute_key>VALUE_PRECISION</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>files/janino.xml fields</source_transform>
-        <source_field>value_precision</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java expression</target_transform_name>
-        <target_attribute_key>VALUE_TYPE</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>files/janino.xml fields</source_transform>
-        <source_field>value_type</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>User defined Java expression</target_transform_name>
-        <target_attribute_key>FIELD_FORMULA</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>files/janino.xml fields</source_transform>
-        <source_field>formula_string</source_field>
-      </mapping>
-    </mappings>
-    <attributes/>
-    <GUI>
-      <xloc>320</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>

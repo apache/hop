@@ -50,6 +50,11 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
                     <systemProperties>...]]...
   -a, --startaction=<startActionName>
                           The name of the action where to start a workflow
+  -au, --allow-unsupported
+                          Allow running pipelines or workflows that contain
+                          transforms or actions marked UNSUPPORTED on the
+                          selected engine. Strict by default; this flag is the
+                          CLI equivalent of the GUI "Run anyway" override.
   -e, --environment=<environmentOption>
                           The name of the lifecycle environment to use
   -f, --file=<filename>   The filename of the workflow or pipeline to run
@@ -87,6 +92,12 @@ Check the xref:projects/projects-environments.adoc[documentation on environments
 |```-a```
 |```--startaction```
 |The name of the action where to start a workflow
+
+|```-au```
+|```--allow-unsupported```
+a|Bypass the engine-compatibility gate and run pipelines or workflows that contain transforms or actions marked UNSUPPORTED on the selected engine.
+
+Strict by default — when omitted, Hop Run refuses to start such a run and prints the list of incompatible elements. This flag is the CLI equivalent of the "Run anyway" button in the GUI run dialog. Under the hood it sets the `HOP_ALLOW_UNSUPPORTED=Y` variable on the execution, which propagates to every nested child pipeline / workflow so the override applies to the full call tree.
 
 |```-f```
 |```--file```

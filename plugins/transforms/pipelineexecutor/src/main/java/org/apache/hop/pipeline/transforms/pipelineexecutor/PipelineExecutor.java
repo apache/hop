@@ -101,10 +101,18 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         String filename = (String) row[pos];
         if (pipelineExecutorData.prevFilename == null
             || !pipelineExecutorData.prevFilename.equals(filename)) {
+          // When grouping by size, flush a partial group before switching child pipeline so each
+          // execution only receives rows for the previous path. Per-copy buffer; shared meta is
+          // not touched (see runtimeMappingFilename).
+          if (pipelineExecutorData.prevFilename != null
+              && pipelineExecutorData.groupSize > 0
+              && !pipelineExecutorData.groupBuffer.isEmpty()) {
+            executePipeline(incomingFieldValues);
+          }
           if (isDetailed()) {
             logDetailed("Identified a new pipeline to execute: '" + filename + "'");
           }
-          meta.setFilename(filename);
+          pipelineExecutorData.runtimeMappingFilename = filename;
           pipelineExecutorData.prevFilename = filename;
           initPipeline(pipelineExecutorData);
           initOnFirstProcessingIteration();
@@ -559,7 +567,8 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   PipelineMeta loadExecutorPipelineMeta() throws HopException {
-    return TransformWithMappingMeta.loadMappingMeta(meta, metadataProvider, this);
+    String explicit = meta.isFilenameInField() ? getData().runtimeMappingFilename : null;
+    return TransformWithMappingMeta.loadMappingMeta(meta, explicit, metadataProvider, this);
   }
 
   @Override

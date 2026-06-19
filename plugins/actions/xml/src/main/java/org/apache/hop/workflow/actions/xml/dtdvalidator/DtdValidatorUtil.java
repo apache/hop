@@ -140,7 +140,7 @@ public class DtdValidatorUtil {
 
           String encoding;
           if (xmlDocDTD.getXmlEncoding() == null) {
-            encoding = "UTF-8";
+            encoding = Const.UTF_8;
           } else {
             encoding = xmlDocDTD.getXmlEncoding();
           }

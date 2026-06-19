@@ -1,0 +1,3 @@
+# XML Output (Advanced) tests write under ${java.io.tmpdir}/hop-xml-integration-output; this dir is optional.
+*
+!.gitignore

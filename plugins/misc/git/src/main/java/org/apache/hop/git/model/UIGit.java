@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,8 +35,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -99,7 +102,6 @@ import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.transport.http.apache.HttpClientConnectionFactory;
-import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
 import org.eclipse.jgit.transport.sshd.SshdSessionFactoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -131,14 +133,16 @@ public class UIGit extends VCS {
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=296201 for more details.
      */
     HttpTransport.setConnectionFactory(new HttpClientConnectionFactory());
+    SshSessionFactory.setInstance(
+        new SshdSessionFactoryBuilder()
+            .setHomeDirectory(new File(System.getProperty("user.home")))
+            .setSshDirectory(new File(System.getProperty("user.home"), ".ssh"))
+            .build(null));
   }
 
-  private Git git;
+  @Getter private Git git;
   private CredentialsProvider credentialsProvider;
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getDirectory()
-   */
   public String getDirectory() {
     return directory;
   }
@@ -532,8 +536,12 @@ public class UIGit extends VCS {
 
   /** Reset to a commit (mixed) */
   public void reset(String name) {
+    reset(name, ResetType.MIXED);
+  }
+
+  public void reset(String name, ResetType type) {
     try {
-      git.reset().setRef(name).call();
+      git.reset().setRef(name).setMode(type).call();
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
@@ -579,6 +587,19 @@ public class UIGit extends VCS {
       return true;
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+    }
+    return false;
+  }
+
+  public boolean fetch() throws HopException {
+    if (!hasRemote()) {
+      throw new HopException("There is no remote set up to fetch from. Please set this up first.");
+    }
+
+    try {
+      git.fetch().setCredentialsProvider(credentialsProvider).setCheckFetchedObjects(true).call();
+    } catch (Exception e) {
+      throw new HopException("There was an error doing a git fetch", e);
     }
     return false;
   }
@@ -660,17 +681,9 @@ public class UIGit extends VCS {
       PushCommand cmd;
 
       String url = git.getRepository().getConfig().getString("remote", "origin", "url");
+      cmd = git.push();
       if (!StringUtils.isEmpty(url) && (url.startsWith("https://") || url.startsWith("http://"))) {
-        cmd = git.push();
         cmd.setCredentialsProvider(credentialsProvider);
-      } else {
-        SshdSessionFactory customFactory =
-            new SshdSessionFactoryBuilder()
-                .setHomeDirectory(new File(System.getProperty("user.home")))
-                .setSshDirectory(new File(System.getProperty("user.home"), ".ssh"))
-                .build(null);
-        SshSessionFactory.setInstance(customFactory);
-        cmd = git.push();
       }
 
       if (name != null) {
@@ -803,11 +816,44 @@ public class UIGit extends VCS {
     }
   }
 
+  /**
+   * Create a CredentialsProvider for token-based authentication (GitHub, GitLab, etc.).
+   *
+   * @param token Personal access token
+   * @return CredentialsProvider, or null if token is null/empty
+   */
+  public static CredentialsProvider createTokenCredentialsProvider(String token) {
+    if (token == null || token.trim().isEmpty()) {
+      return null;
+    }
+    return new UsernamePasswordCredentialsProvider("x-oauth-basic", token.trim());
+  }
+
   public boolean cloneRepo(String directory, String uri) {
+    return cloneRepo(directory, uri, null, 0);
+  }
+
+  /**
+   * Clone a repository with optional credentials and shallow clone depth.
+   *
+   * @param directory Local directory to clone into
+   * @param uri Repository URI (e.g. https://github.com/user/repo.git)
+   * @param credentialsProvider Optional credentials for authentication (e.g. token). If null and
+   *     auth fails, user will be prompted.
+   * @param depth Shallow clone depth (0 = full clone, 1+ = shallow with that many commits)
+   * @return true if clone succeeded
+   */
+  public boolean cloneRepo(
+      String directory, String uri, CredentialsProvider credentialsProvider, int depth) {
+    CredentialsProvider provider =
+        credentialsProvider != null ? credentialsProvider : this.credentialsProvider;
     CloneCommand cmd = Git.cloneRepository();
     cmd.setDirectory(new File(directory));
     cmd.setURI(uri);
-    cmd.setCredentialsProvider(credentialsProvider);
+    cmd.setCredentialsProvider(provider);
+    if (depth > 0) {
+      cmd.setDepth(depth);
+    }
     try {
       Git gitClone = cmd.call();
       gitClone.close();
@@ -818,12 +864,11 @@ public class UIGit extends VCS {
                   .contains(
                       CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
               || e.getMessage().contains(CONST_NOT_AUTHORIZED))) {
-        if (promptUsernamePassword()) {
-          return cloneRepo(directory, uri);
+        if (provider == null && promptUsernamePassword()) {
+          return cloneRepo(directory, uri, null, depth);
         }
-      } else {
-        showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
       }
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
     return false;
   }
@@ -945,10 +990,56 @@ public class UIGit extends VCS {
     }
   }
 
-  public boolean createBranch(String value) {
+  /**
+   * Checks if a given path is already ignored in the specified .gitignore file.
+   *
+   * @param gitIgnore The .gitignore file to be checked.
+   * @param path The path to verify against the .gitignore file.
+   * @return true if the path is already ignored; false otherwise.
+   * @throws IOException If an I/O error occurs while reading the .gitignore file.
+   */
+  private boolean isAlreadyIgnored(File gitIgnore, String path) throws IOException {
+    List<String> lines = Files.readAllLines(gitIgnore.toPath(), StandardCharsets.UTF_8);
+    return lines.stream().map(String::trim).anyMatch(line -> line.equals(path.trim()));
+  }
+
+  public void addPathToIgnore(String path) {
     try {
-      git.branchCreate().setName(value).call();
-      checkoutBranch(getExpandedName(value, VCS.TYPE_BRANCH));
+      File gitIgnore = new File(getDirectory(), ".gitignore");
+
+      boolean created = gitIgnore.createNewFile();
+
+      // Checks if a given path is already ignored
+      if (!isAlreadyIgnored(gitIgnore, path)) {
+        Files.writeString(gitIgnore.toPath(), path, StandardOpenOption.APPEND);
+      }
+
+      // If the .gitignore file is created, stage it
+      if (created) {
+        git.add().addFilepattern(".gitignore").call();
+      }
+
+    } catch (Exception e) {
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+    }
+  }
+
+  public boolean createBranch(String name) {
+    try {
+      git.branchCreate().setName(name).call();
+      checkoutBranch(getExpandedName(name, VCS.TYPE_BRANCH));
+      return true;
+    } catch (Exception e) {
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+      return false;
+    }
+  }
+
+  public boolean createBranch(String name, String commitId) {
+    try {
+      RevCommit commit = resolve(commitId);
+      git.branchCreate().setName(name).setStartPoint(commit).call();
+      checkoutBranch(getExpandedName(name, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
@@ -959,7 +1050,7 @@ public class UIGit extends VCS {
   public boolean renameBranch(String oldName, String newName) {
     try {
       git.branchRename().setOldName(oldName).setNewName(newName).call();
-      checkoutBranch(getExpandedName(newName, VCS.TYPE_BRANCH));
+      // checkoutBranch(getExpandedName(newName, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
@@ -1124,6 +1215,17 @@ public class UIGit extends VCS {
     }
   }
 
+  public boolean createTag(String name, String commitId) {
+    try {
+      RevCommit commit = resolve(commitId);
+      git.tag().setName(name).setObjectId(commit).call();
+      return true;
+    } catch (Exception e) {
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+      return false;
+    }
+  }
+
   public boolean deleteTag(String name) {
     try {
       git.tagDelete().setTags(getExpandedName(name, VCS.TYPE_TAG)).call();
@@ -1192,9 +1294,5 @@ public class UIGit extends VCS {
       LogChannel.UI.logError("Error getting list of files ignored by git", e);
       return new HashSet<>();
     }
-  }
-
-  public Git getGit() {
-    return git;
   }
 }

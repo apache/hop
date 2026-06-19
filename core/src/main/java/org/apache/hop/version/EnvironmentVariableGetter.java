@@ -17,11 +17,13 @@
 
 package org.apache.hop.version;
 
+import org.apache.hop.core.exception.HopRuntimeException;
+
 public class EnvironmentVariableGetter {
   public String getEnvVarible(String name) throws Exception {
     String result = System.getenv(name);
     if (result == null) {
-      throw new RuntimeException(name + " undefined");
+      throw new HopRuntimeException(name + " undefined");
     }
     return result;
   }

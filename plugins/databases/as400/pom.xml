@@ -21,18 +21,24 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-databases-as400</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Databases AS400</name>
 
+    <properties>
+        <hop.jdbc.driver1>net.sf.jt400:jt400</hop.jdbc.driver1>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.sf.jt400</groupId>
             <artifactId>jt400</artifactId>
-            <scope>runtime</scope>
+            <!-- compile scope: the AS400 Command action (folded in from the former
+                 hop-action-as400command module) imports com.ibm.as400.access.* directly. -->
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

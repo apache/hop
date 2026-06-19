@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-tech</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-tech-salesforce</artifactId>
@@ -32,6 +32,18 @@
     <properties>
         <com.force.api.version>58.0.0</com.force.api.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -56,11 +68,15 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Jakarta XML SOAP API (needed by Salesforce API) -->
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>jakarta.xml.soap</groupId>
             <artifactId>jakarta.xml.soap-api</artifactId>
-            <version>3.0.2</version>
+            <scope>provided</scope>
         </dependency>
         <!-- WireMock for HTTP mocking in OAuth/JWT tests -->
         <dependency>

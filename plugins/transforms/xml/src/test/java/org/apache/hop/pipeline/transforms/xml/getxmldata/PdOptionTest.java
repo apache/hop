@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.Const;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -76,8 +77,8 @@ class PdOptionTest {
   @Test
   void testSetEncoding() {
     // Setting encoding should also set isXmlSourceFile to true
-    pdOption.setEncoding("UTF-8");
-    assertEquals("UTF-8", pdOption.getEncoding());
+    pdOption.setEncoding(Const.UTF_8);
+    assertEquals(Const.UTF_8, pdOption.getEncoding());
     assertTrue(
         pdOption.isXmlSourceFile(), "Setting encoding should automatically set isXmlSourceFile");
   }
@@ -85,7 +86,7 @@ class PdOptionTest {
   @Test
   void testSetEncodingMultipleTimes() {
     // Verify that setting encoding multiple times maintains isXmlSourceFile
-    pdOption.setEncoding("UTF-8");
+    pdOption.setEncoding(Const.UTF_8);
     assertTrue(pdOption.isXmlSourceFile());
 
     pdOption.setEncoding("ISO-8859-1");
@@ -132,7 +133,7 @@ class PdOptionTest {
     // Verify the comment: "if the encoding is not null, the source must be a file"
     assertFalse(pdOption.isXmlSourceFile(), "Initially should be false");
 
-    pdOption.setEncoding("UTF-8");
+    pdOption.setEncoding(Const.UTF_8);
     assertTrue(
         pdOption.isXmlSourceFile(), "Setting encoding should indicate that source is a file");
   }
@@ -140,7 +141,7 @@ class PdOptionTest {
   @Test
   void testCommonEncodings() {
     // Test with common encoding values
-    String[] encodings = {"UTF-8", "UTF-16", "ISO-8859-1", "US-ASCII", "windows-1252"};
+    String[] encodings = {Const.UTF_8, "UTF-16", "ISO-8859-1", "US-ASCII", "windows-1252"};
 
     for (String encoding : encodings) {
       PdOption option = new PdOption();
@@ -196,7 +197,7 @@ class PdOptionTest {
   @Test
   void testFileModeConfiguration() {
     // Test configuration for file-based XML reading with encoding
-    pdOption.setEncoding("UTF-8");
+    pdOption.setEncoding(Const.UTF_8);
     pdOption.setValidating(true);
     pdOption.setLoopXPath("/file/records");
 
@@ -204,7 +205,7 @@ class PdOptionTest {
     assertTrue(pdOption.isValidating());
     assertFalse(pdOption.isUseUrl());
     assertFalse(pdOption.isUseSnippet());
-    assertEquals("UTF-8", pdOption.getEncoding());
+    assertEquals(Const.UTF_8, pdOption.getEncoding());
     assertEquals("/file/records", pdOption.getLoopXPath());
   }
 
@@ -213,7 +214,7 @@ class PdOptionTest {
     // Although not enforced by the class, test that different modes can be independently set
     pdOption.setUseUrl(true);
     pdOption.setUseSnippet(true);
-    pdOption.setEncoding("UTF-8");
+    pdOption.setEncoding(Const.UTF_8);
 
     // All can be true simultaneously (validation logic might be in the calling code)
     assertTrue(pdOption.isUseUrl());

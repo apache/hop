@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import org.apache.hop.core.auth.core.AuthenticationFactoryException;
 import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.i18n.BaseMessages;
 
 public class DefaultAuthenticationConsumerFactory
@@ -100,7 +101,7 @@ public class DefaultAuthenticationConsumerFactory
     try {
       return (IAuthenticationConsumer<Object, Object>) constructor.newInstance(createArg);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 }

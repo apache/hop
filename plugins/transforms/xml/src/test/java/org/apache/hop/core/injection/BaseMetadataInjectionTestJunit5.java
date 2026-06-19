@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IValueMeta;
@@ -40,10 +41,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 
 /** Base class for test metadata injection using JUnit 5. */
-@Disabled("This test needs to be reviewed")
 public abstract class BaseMetadataInjectionTestJunit5<Meta extends ITransformMeta> {
   protected BeanInjectionInfo<Meta> info;
   protected BeanInjector<Meta> injector;
@@ -179,7 +178,7 @@ public abstract class BaseMetadataInjectionTestJunit5<Meta extends ITransformMet
   protected void checkStringToInt(String propertyName, IIntGetter getter, String[] codes, int[] ids)
       throws HopException {
     if (codes.length != ids.length) {
-      throw new RuntimeException("Wrong codes/ids sizes");
+      throw new HopRuntimeException("Wrong codes/ids sizes");
     }
     IValueMeta valueMetaString = new ValueMetaString("f");
 

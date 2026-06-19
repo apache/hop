@@ -1,0 +1,10 @@
+{
+  "dataStream": {
+    "ArrowRandomAccessFile": {
+      "filename": "${java.io.tmpdir}/file-0095.arrow",
+      "batchSize": "50"
+    }
+  },
+  "name": "arrow-random-access-file",
+  "description": "For test 0095"
+}

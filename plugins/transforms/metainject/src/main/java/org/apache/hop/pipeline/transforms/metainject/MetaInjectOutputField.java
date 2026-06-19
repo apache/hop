@@ -17,32 +17,51 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class MetaInjectOutputField {
-
-  @Injection(name = "SOURCE_OUTPUT_NAME", group = "SOURCE_OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "source_output_field_name",
+      injectionKey = "SOURCE_OUTPUT_NAME",
+      injectionKeyDescription = "MetaInject.Injection.SOURCE_OUTPUT_NAME")
   private String name;
 
-  @Injection(
-      name = "SOURCE_OUTPUT_TYPE",
-      group = "SOURCE_OUTPUT_FIELDS",
-      converter = DataTypeConverter.class)
+  @HopMetadataProperty(
+      key = "source_output_field_type",
+      intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class,
+      injectionKey = "SOURCE_OUTPUT_TYPE",
+      injectionKeyDescription = "MetaInject.Injection.SOURCE_OUTPUT_TYPE")
   private int type;
 
-  @Injection(name = "SOURCE_OUTPUT_LENGTH", group = "SOURCE_OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "source_output_field_length",
+      injectionKey = "SOURCE_OUTPUT_LENGTH",
+      injectionKeyDescription = "MetaInject.Injection.SOURCE_OUTPUT_LENGTH")
   private int length;
 
-  @Injection(name = "SOURCE_OUTPUT_PRECISION", group = "SOURCE_OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "source_output_field_precision",
+      injectionKey = "SOURCE_OUTPUT_PRECISION",
+      injectionKeyDescription = "MetaInject.Injection.SOURCE_OUTPUT_PRECISION")
   private int precision;
 
   public MetaInjectOutputField() {}
+
+  public MetaInjectOutputField(MetaInjectOutputField f) {
+    super();
+    this.name = f.name;
+    this.type = f.type;
+    this.length = f.length;
+    this.precision = f.precision;
+  }
 
   public MetaInjectOutputField(String name, int type, int length, int precision) {
     super();
@@ -56,46 +75,7 @@ public class MetaInjectOutputField {
     return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public int getType() {
-    return type;
-  }
-
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
   public IValueMeta createValueMeta() throws HopPluginException {
     return ValueMetaFactory.createValueMeta(name, type, length, precision);
-  }
-
-  public static class DataTypeConverter extends InjectionTypeConverter {
-    @Override
-    public int string2intPrimitive(String v) throws HopValueException {
-      return ValueMetaBase.getType(v);
-    }
   }
 }

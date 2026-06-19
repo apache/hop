@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
@@ -35,14 +34,14 @@ class GetFilesRowsCountMetaTest {
     assertEquals("filesCount", meta.getFilesCountFieldName());
     assertEquals("rowsCount", meta.getRowsCountFieldName());
     assertEquals(GetFilesRowsCountMeta.SeparatorFormat.LF, meta.getRowSeparatorFormat());
-    assertNull(meta.getRowSeparator());
+    assertEquals("", meta.getRowSeparator());
     assertTrue(meta.isIncludeFilesCount());
     assertTrue(meta.isAddResultFilename());
     assertFalse(meta.isFileFromField());
     assertEquals(1, meta.getFiles().size());
     assertEquals("${PROJECT_HOME}/files/", meta.getFiles().get(0).getName());
     assertEquals(".*\\.txt$", meta.getFiles().get(0).getMask());
-    assertNull(meta.getFiles().get(0).getExcludeMask());
+    assertEquals("", meta.getFiles().get(0).getExcludeMask());
     assertTrue(meta.getFiles().get(0).isRequired());
     assertTrue(meta.getFiles().get(0).isIncludeSubFolder());
   }

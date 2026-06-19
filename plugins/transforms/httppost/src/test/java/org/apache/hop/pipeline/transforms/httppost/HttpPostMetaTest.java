@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -58,7 +59,7 @@ class HttpPostMetaTest {
     assertNull(meta.getEncoding());
 
     meta.setDefault();
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
   }
 
   public static final class HttpPostLookupFieldValidator

@@ -57,7 +57,11 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   public void renderFile(Composite composite) {
     editorWidget = ContentEditorFacade.createContentEditor(composite, getLanguageId());
 
-    reload();
+    // If it's a new file, there's no need to reload it
+    if (this.getFilename() != null) {
+      reload();
+    }
+
     reloadListener = true;
     editorWidget.addModifyListener(
         e -> {
@@ -135,7 +139,7 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   @Override
   public void reload() {
     try {
-      String contents = readTextFileContent("UTF-8");
+      String contents = readTextFileContent(StandardCharsets.UTF_8);
       editorWidget.setTextSuppressModify(Const.NVL(contents, ""));
     } catch (Exception e) {
       LogChannel.UI.logError(

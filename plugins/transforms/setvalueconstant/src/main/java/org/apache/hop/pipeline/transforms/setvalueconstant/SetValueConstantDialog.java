@@ -42,7 +42,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 public class SetValueConstantDialog extends BaseTransformDialog {
@@ -56,7 +55,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
 
   private TableView wFields;
 
-  private ColumnInfo[] colinf;
+  private ColumnInfo[] columnInfos;
 
   private Button wUseVars;
 
@@ -77,7 +76,6 @@ public class SetValueConstantDialog extends BaseTransformDialog {
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-    ModifyListener oldlsMod = lsMod;
 
     // Use variable?
     Label wlUseVars = new Label(shell, SWT.RIGHT);
@@ -103,47 +101,43 @@ public class SetValueConstantDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wUseVars, margin);
+    fdlFields.top = new FormAttachment(wlUseVars, margin);
     wlFields.setLayoutData(fdlFields);
 
     int fieldsCols = 4;
-    final int FieldsRows = input.getFields().size();
-    colinf = new ColumnInfo[fieldsCols];
-    colinf[0] =
+    columnInfos = new ColumnInfo[fieldsCols];
+    columnInfos[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SetValueConstantDialog.Fieldname.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {},
             false);
-    colinf[1] =
+    columnInfos[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SetValueConstantDialog.Value.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
-    colinf[2] =
+    columnInfos[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SetValueConstantDialog.Value.ConversionMask"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             Const.getDateFormats());
-    colinf[3] =
+    columnInfos[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SetValueConstantDialog.Value.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-              BaseMessages.getString(PKG, "System.Combo.No")
-            });
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, "System.Combo.No"));
 
     wFields =
         new TableView(
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
-            oldlsMod,
+            columnInfos,
+            input.getFields().size(),
+            lsMod,
             props);
-
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
@@ -154,25 +148,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
     //
     // Search the fields in the background
     //
-
-    final Runnable runnable =
-        () -> {
-          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-          if (transformMeta != null) {
-            try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                inputFields.add(row.getValueMeta(i).getName());
-              }
-              setComboBoxes();
-            } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-            }
-          }
-        };
-    new Thread(runnable).start();
+    new Thread(this::getPreviousFields).start();
 
     getData();
     input.setChanged(changed);
@@ -182,11 +158,28 @@ public class SetValueConstantDialog extends BaseTransformDialog {
     return transformName;
   }
 
+  private void getPreviousFields() {
+    TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+    if (transformMeta != null) {
+      try {
+        IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+        // Remember these fields...
+        for (int i = 0; i < row.size(); i++) {
+          inputFields.add(row.getValueMeta(i).getName());
+        }
+        setComboBoxes();
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+      }
+    }
+  }
+
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
-    colinf[0].setComboValues(fieldNames);
+    columnInfos[0].setComboValues(fieldNames);
   }
 
   private void get() {
@@ -209,34 +202,20 @@ public class SetValueConstantDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wUseVars.setSelection(input.isUseVars());
-    Table table = wFields.table;
-    if (!input.getFields().isEmpty()) {
-      table.removeAll();
-    }
-    for (int i = 0; i < input.getFields().size(); i++) {
-      SetValueConstantMeta.Field field = input.getField(i);
-      TableItem ti = new TableItem(table, SWT.NONE);
-      ti.setText(0, "" + (i + 1));
-      if (field.getFieldName() != null) {
-        ti.setText(1, field.getFieldName());
-      }
-      if (field.getReplaceValue() != null) {
-        ti.setText(2, field.getReplaceValue());
-      }
-      if (field.getReplaceMask() != null) {
-        ti.setText(3, field.getReplaceMask());
-      }
+    wUseVars.setSelection(input.isUsingVariables());
+    wFields.clearAll();
+    for (SetValueConstantMeta.Field field : input.getFields()) {
+      TableItem ti = new TableItem(wFields.table, SWT.NONE);
+      ti.setText(1, Const.NVL(field.getFieldName(), ""));
+      ti.setText(2, Const.NVL(field.getReplaceValue(), ""));
+      ti.setText(3, Const.NVL(field.getReplaceMask(), ""));
       ti.setText(
           4,
           field.isEmptyString()
               ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
               : BaseMessages.getString(PKG, "System.Combo.No"));
     }
-
-    wFields.setRowNums();
-    wFields.removeEmptyRows();
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
   }
 
   private void cancel() {
@@ -251,21 +230,18 @@ public class SetValueConstantDialog extends BaseTransformDialog {
     }
     transformName = wTransformName.getText(); // return value
 
-    input.setUseVars(wUseVars.getSelection());
-    int count = wFields.nrNonEmpty();
-    List<SetValueConstantMeta.Field> fields = new ArrayList<>();
+    input.setUsingVariables(wUseVars.getSelection());
 
-    for (int i = 0; i < count; i++) {
-      TableItem ti = wFields.getNonEmpty(i);
+    input.getFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
       SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();
-      field.setFieldName(ti.getText(1));
+      field.setFieldName(item.getText(1));
       field.setEmptyString(
-          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(ti.getText(4)));
-      field.setReplaceValue(field.isEmptyString() ? "" : ti.getText(2));
-      field.setReplaceMask(field.isEmptyString() ? "" : ti.getText(3));
-      fields.add(field);
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(4)));
+      field.setReplaceValue(field.isEmptyString() ? "" : item.getText(2));
+      field.setReplaceMask(field.isEmptyString() ? "" : item.getText(3));
+      input.getFields().add(field);
     }
-    input.setFields(fields);
 
     dispose();
   }

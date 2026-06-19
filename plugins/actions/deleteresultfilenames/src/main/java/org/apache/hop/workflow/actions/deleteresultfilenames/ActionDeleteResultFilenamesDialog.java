@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.deleteresultfilenames;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -29,8 +30,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -93,13 +92,11 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     fdSpecifyWildcard.top = new FormAttachment(wlSpecifyWildcard, 0, SWT.CENTER);
     fdSpecifyWildcard.right = new FormAttachment(100, 0);
     wSpecifyWildcard.setLayoutData(fdSpecifyWildcard);
-    wSpecifyWildcard.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-            CheckLimit();
-          }
+    wSpecifyWildcard.addListener(
+        SWT.Selection,
+        e -> {
+          action.setChanged();
+          checkLimit();
         });
 
     // Wildcard line
@@ -147,11 +144,12 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     fdWildcardExclude.right = new FormAttachment(100, -margin);
     wWildcardExclude.setLayoutData(fdWildcardExclude);
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener(
+    wWildcardExclude.addListener(
+        SWT.Modify,
         e -> wWildcardExclude.setToolTipText(variables.resolve(wWildcardExclude.getText())));
 
     getData();
-    CheckLimit();
+    checkLimit();
     focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -159,7 +157,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     return action;
   }
 
-  private void CheckLimit() {
+  private void checkLimit() {
     wlWildcard.setEnabled(wSpecifyWildcard.getSelection());
     wWildcard.setEnabled(wSpecifyWildcard.getSelection());
     wlWildcardExclude.setEnabled(wSpecifyWildcard.getSelection());
@@ -168,16 +166,10 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (action.getName() != null) {
-      wName.setText(action.getName());
-    }
+    wName.setText(Const.NVL(action.getName(), ""));
     wSpecifyWildcard.setSelection(action.isSpecifyWildcard());
-    if (action.getWildcard() != null) {
-      wWildcard.setText(action.getWildcard());
-    }
-    if (action.getWildcardExclude() != null) {
-      wWildcardExclude.setText(action.getWildcardExclude());
-    }
+    wWildcard.setText(Const.NVL(action.getWildcard(), ""));
+    wWildcardExclude.setText(Const.NVL(action.getWildcardExclude(), ""));
   }
 
   @Override

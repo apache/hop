@@ -17,75 +17,106 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in an XML output file */
+@Getter
+@Setter
 public class XmlField implements Cloneable {
-
-  @Injection(name = "OUTPUT_FIELD_NAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "OUTPUT_FIELD_NAME",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_FIELD_NAME")
   private String fieldName;
 
-  @Injection(name = "OUTPUT_ELEMENT_NAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "element",
+      injectionKey = "OUTPUT_ELEMENT_NAME",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_ELEMENT_NAME")
   private String elementName;
 
+  @HopMetadataProperty(
+      key = "type",
+      intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class,
+      injectionKey = "OUTPUT_TYPE",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_TYPE")
   private int type;
 
-  @Injection(name = "OUTPUT_FORMAT", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "OUTPUT_FORMAT",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_FORMAT")
   private String format;
 
-  @Injection(name = "OUTPUT_LENGTH", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "OUTPUT_LENGTH",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_LENGTH")
   private int length;
 
-  @Injection(name = "OUTPUT_PRECISION", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "OUTPUT_PRECISION",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_PRECISION")
   private int precision;
 
-  @Injection(name = "OUTPUT_CURRENCY_SYMBOL", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "OUTPUT_CURRENCY_SYMBOL",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_CURRENCY_SYMBOL")
   private String currencySymbol;
 
-  @Injection(name = "OUTPUT_DECIMAL_SYMBOL", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "OUTPUT_DECIMAL_SYMBOL",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_DECIMAL_SYMBOL")
   private String decimalSymbol;
 
-  @Injection(name = "OUTPUT_GROUPING_SYMBOL", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "OUTPUT_GROUPING_SYMBOL",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_GROUPING_SYMBOL")
   private String groupingSymbol;
 
-  @Injection(name = "OUTPUT_ATTRIBUTE", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "attribute",
+      injectionKey = "OUTPUT_ATTRIBUTE",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_ATTRIBUTE")
   private boolean attribute;
 
-  @Injection(name = "OUTPUT_ATTRIBUTE_PARENT_NAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "attributeParentName",
+      injectionKey = "OUTPUT_ATTRIBUTE_PARENT_NAME",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_ATTRIBUTE_PARENT_NAME")
   private String attributeParentName;
 
-  @Injection(name = "OUTPUT_NULL_STRING", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "nullif",
+      injectionKey = "OUTPUT_NULL_STRING",
+      injectionKeyDescription = "AddXMLMeta.Injection.OUTPUT_NULL_STRING")
   private String nullString;
 
-  public XmlField(
-      String fieldName,
-      String elementName,
-      int type,
-      String format,
-      int length,
-      int precision,
-      String currencySymbol,
-      String decimalSymbol,
-      String groupSymbol,
-      String nullString,
-      boolean attribute,
-      String attributeParentName) {
-    this.fieldName = fieldName;
-    this.elementName = elementName;
-    this.type = type;
-    this.format = format;
-    this.length = length;
-    this.precision = precision;
-    this.currencySymbol = currencySymbol;
-    this.decimalSymbol = decimalSymbol;
-    this.groupingSymbol = groupSymbol;
-    this.nullString = nullString;
-    this.attribute = attribute;
-    this.attributeParentName = attributeParentName;
-  }
-
   public XmlField() {}
+
+  public XmlField(XmlField f) {
+    this();
+    this.attribute = f.attribute;
+    this.attributeParentName = f.attributeParentName;
+    this.currencySymbol = f.currencySymbol;
+    this.decimalSymbol = f.decimalSymbol;
+    this.elementName = f.elementName;
+    this.fieldName = f.fieldName;
+    this.format = f.format;
+    this.groupingSymbol = f.groupingSymbol;
+    this.length = f.length;
+    this.nullString = f.nullString;
+    this.precision = f.precision;
+    this.type = f.type;
+  }
 
   public int compare(Object obj) {
     XmlField field = (XmlField) obj;
@@ -100,140 +131,20 @@ public class XmlField implements Cloneable {
   }
 
   @Override
-  public Object clone() {
-    try {
-      Object retval = super.clone();
-      return retval;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
-  }
-
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public String getFieldName() {
-    return fieldName;
-  }
-
-  public void setFieldName(String fieldname) {
-    this.fieldName = fieldname;
-  }
-
-  public int getType() {
-    return type;
+  public XmlField clone() {
+    return new XmlField(this);
   }
 
   public String getTypeDesc() {
     return ValueMetaBase.getTypeDesc(type);
   }
 
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  @Injection(name = "OUTPUT_TYPE", group = "OUTPUT_FIELDS")
-  public void setType(String typeDesc) {
+  @Injection(name = "", group = "OUTPUT_FIELDS")
+  public void setTypeWithDescription(String typeDesc) {
     this.type = ValueMetaBase.getType(typeDesc);
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getGroupingSymbol() {
-    return groupingSymbol;
-  }
-
-  public void setGroupingSymbol(String groupSymbol) {
-    this.groupingSymbol = groupSymbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  public String getNullString() {
-    return nullString;
-  }
-
-  public void setNullString(String nullString) {
-    this.nullString = nullString;
   }
 
   public String toString() {
     return fieldName + ":" + getTypeDesc() + ":" + elementName;
-  }
-
-  /**
-   * @return Returns the elementName.
-   */
-  public String getElementName() {
-    return elementName;
-  }
-
-  /**
-   * @param elementName The elementName to set.
-   */
-  public void setElementName(String elementName) {
-    this.elementName = elementName;
-  }
-
-  /**
-   * @return true if the field should be encoded as attribute instead of a child node.
-   */
-  public boolean isAttribute() {
-    return attribute;
-  }
-
-  /**
-   * @param attribute set to true if the field should be encoded as attribute instead of a child
-   *     node
-   */
-  public void setAttribute(boolean attribute) {
-    this.attribute = attribute;
-  }
-
-  /**
-   * @return Returns the attributeParentName.
-   */
-  public String getAttributeParentName() {
-    return attributeParentName;
-  }
-
-  /**
-   * @param attributeParentName The attributeParentName to set.
-   */
-  public void setAttributeParentName(String attributeParentName) {
-    this.attributeParentName = attributeParentName;
   }
 }

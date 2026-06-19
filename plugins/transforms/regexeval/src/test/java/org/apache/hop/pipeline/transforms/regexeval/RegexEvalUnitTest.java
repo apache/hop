@@ -22,6 +22,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -59,9 +61,15 @@ class RegexEvalUnitTest {
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
-    when(transformMockHelper.iTransformMeta.isAllowCaptureGroupsFlagSet()).thenReturn(true);
+    when(transformMockHelper.iTransformMeta.isAllowingCaptureGroups()).thenReturn(true);
+    List<RegexEvalMeta.RegexField> fields = new ArrayList<>();
     String[] outFields = new String[] {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"};
-    when(transformMockHelper.iTransformMeta.getFieldName()).thenReturn(outFields);
+    for (String outField : outFields) {
+      RegexEvalMeta.RegexField field = new RegexEvalMeta.RegexField();
+      fields.add(field);
+      field.setFieldName(outField);
+    }
+    when(transformMockHelper.iTransformMeta.getRegexFields()).thenReturn(fields);
     when(transformMockHelper.iTransformMeta.getMatcher()).thenReturn("\\.+");
     transformMockHelper.iTransformData.pattern =
         Pattern.compile("(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)");

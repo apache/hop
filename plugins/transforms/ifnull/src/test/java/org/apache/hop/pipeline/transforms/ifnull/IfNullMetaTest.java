@@ -18,7 +18,6 @@ package org.apache.hop.pipeline.transforms.ifnull;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopEnvironment;
@@ -51,13 +50,13 @@ class IfNullMetaTest {
     assertEquals(0, meta.getFields().size());
 
     assertEquals("String", meta.getValueTypes().get(0).getName());
-    assertNull(meta.getValueTypes().get(0).getValue());
+    assertEquals("", meta.getValueTypes().get(0).getValue());
     assertTrue(meta.getValueTypes().get(0).isSetEmptyString());
     assertEquals("Number", meta.getValueTypes().get(1).getName());
-    assertNull(meta.getValueTypes().get(1).getValue());
+    assertEquals("", meta.getValueTypes().get(1).getValue());
     assertFalse(meta.getValueTypes().get(1).isSetEmptyString());
     assertEquals("Date", meta.getValueTypes().get(2).getName());
-    assertNull(meta.getValueTypes().get(2).getValue());
+    assertEquals("", meta.getValueTypes().get(2).getValue());
     assertFalse(meta.getValueTypes().get(2).isSetEmptyString());
   }
 
@@ -80,7 +79,7 @@ class IfNullMetaTest {
     assertEquals("ddMMYYYY", meta.getFields().get(1).getMask());
     assertFalse(meta.getFields().get(1).isSetEmptyString());
     assertEquals("F3", meta.getFields().get(2).getName());
-    assertNull(meta.getFields().get(2).getValue());
+    assertEquals("", meta.getFields().get(2).getValue());
     assertTrue(meta.getFields().get(2).isSetEmptyString());
   }
 

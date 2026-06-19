@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.dynamicsqlrow;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -29,8 +30,8 @@ public class DynamicSqlRowData extends BaseTransformData implements ITransformDa
   IRowMeta lookupRowMeta;
 
   public Database db;
-
-  public Object[] notfound; // Values in case nothing is found...
+  // Values in case nothing is found...
+  public Object[] notfound;
 
   public int indexOfSqlField;
 
@@ -38,7 +39,7 @@ public class DynamicSqlRowData extends BaseTransformData implements ITransformDa
 
   public String previousSql;
 
-  public ArrayList<Object[]> previousrowbuffer;
+  public List<Object[]> previousrowbuffer;
 
   public boolean isCanceled;
 

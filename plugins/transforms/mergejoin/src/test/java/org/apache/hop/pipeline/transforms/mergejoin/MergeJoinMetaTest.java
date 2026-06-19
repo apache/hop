@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -37,6 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.inject.HopMetadataInjector;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -237,5 +239,15 @@ class MergeJoinMetaTest {
     meta.getFields(rowMeta, "name", infos, null, null, null);
 
     assertEquals(4, rowMeta.size());
+  }
+
+  @Test
+  void testHopMetadataMapping() throws Exception {
+    Map<String, Set<String>> map = HopMetadataInjector.findInjectionGroupKeys(MergeJoinMeta.class);
+    assertEquals(2, map.size());
+    Set<String> keys1 = map.get("KEY_FIELDS1");
+    assertEquals(1, keys1.size());
+    Set<String> keys2 = map.get("KEY_FIELDS2");
+    assertEquals(1, keys2.size());
   }
 }

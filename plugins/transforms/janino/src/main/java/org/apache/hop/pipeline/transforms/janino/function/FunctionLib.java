@@ -29,14 +29,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.HopURLClassLoader;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.pipeline.transforms.janino.scanner.ClassLoaderScanner;
 
 public class FunctionLib {
-
   private List<FunctionDescription> functions;
 
   public FunctionLib() throws HopException {
@@ -45,46 +47,53 @@ public class FunctionLib {
       PluginRegistry registry = PluginRegistry.getInstance();
       IPlugin plugin = registry.getPlugin(TransformPluginType.class, "Janino");
       ClassLoader loader = registry.getClassLoader(plugin);
-      Set<Class<?>> classes =
-          findAllClassesUsingGoogleGuice(loader, "org.apache.hop.pipeline.transforms.janino");
 
-      for (Class<?> clazz : classes) {
-        Method[] methods = clazz.getMethods();
-        for (Method method : methods) {
-          JaninoFunction annotation = method.getAnnotation(JaninoFunction.class);
-          List<FunctionExample> functionExamples = new ArrayList<>();
-          if (annotation != null) {
-            if (!Utils.isEmpty(annotation.examples())) {
-              ObjectMapper mapper = new ObjectMapper();
-              JsonNode arrayNode = mapper.readTree(annotation.examples());
-              for (JsonNode jsonNode : arrayNode) {
-                functionExamples.add(
-                    new FunctionExample(
-                        jsonNode.get("expression").asText(),
-                        jsonNode.get("result").asText(),
-                        jsonNode.get("level").asText(),
-                        jsonNode.get("comment").asText()));
-              }
-            }
-
-            FunctionDescription functionDescription =
-                new FunctionDescription(
-                    annotation.category(),
-                    annotation.name(),
-                    annotation.description(),
-                    annotation.syntax(),
-                    annotation.returns(),
-                    null,
-                    annotation.semantics(),
-                    clazz.getCanonicalName(),
-                    functionExamples);
-            functions.add(functionDescription);
-          }
+      if (loader instanceof HopURLClassLoader hucl) {
+        var cached = hucl.get(CachedFunctions.class);
+        if (cached != null) {
+          functions.addAll(cached.functions());
+          return;
         }
       }
 
+      doScan(loader);
     } catch (Exception e) {
       throw new HopException(e);
+    }
+  }
+
+  private void doScan(ClassLoader loader) throws IOException {
+    for (Method method :
+        new ClassLoaderScanner()
+            .findMethodsWithAnnotationInPackage(
+                loader, "org.apache.hop.pipeline.transforms.janino", JaninoFunction.class)) {
+      JaninoFunction annotation = method.getAnnotation(JaninoFunction.class);
+      List<FunctionExample> functionExamples = new ArrayList<>();
+      if (!Utils.isEmpty(annotation.examples())) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode arrayNode = mapper.readTree(annotation.examples());
+        for (JsonNode jsonNode : arrayNode) {
+          functionExamples.add(
+              new FunctionExample(
+                  jsonNode.get("expression").asText(),
+                  jsonNode.get("result").asText(),
+                  jsonNode.get("level").asText(),
+                  jsonNode.get("comment").asText()));
+        }
+      }
+
+      FunctionDescription functionDescription =
+          new FunctionDescription(
+              annotation.category(),
+              annotation.name(),
+              annotation.description(),
+              annotation.syntax(),
+              annotation.returns(),
+              null,
+              annotation.semantics(),
+              method.getDeclaringClass().getCanonicalName(),
+              functionExamples);
+      functions.add(functionDescription);
     }
   }
 
@@ -171,11 +180,23 @@ public class FunctionLib {
     return null;
   }
 
+  @Deprecated // shouldn't be public, kept for legacy and external usage
   public Set<Class<?>> findAllClassesUsingGoogleGuice(ClassLoader classLoader, String packageName)
       throws IOException {
     return ClassPath.from(classLoader).getAllClasses().stream()
         .filter(clazz -> clazz.getPackageName().contains(packageName))
-        .map(ClassPath.ClassInfo::load)
+        .flatMap(
+            clazz -> {
+              try {
+                return Stream.of(clazz.load());
+              } catch (Exception | Error e) {
+                // Skip classes that cannot be loaded (e.g. bad path-based class names from
+                // test-classpath entries, missing dependencies, incompatible bytecode).
+                return Stream.empty();
+              }
+            })
         .collect(Collectors.toSet());
   }
+
+  private record CachedFunctions(List<FunctionDescription> functions) {}
 }

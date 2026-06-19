@@ -33,6 +33,8 @@ public class MetaInjectData extends BaseTransformData implements ITransformData 
   public boolean streaming;
   public String streamingSourceTransformName;
   public String streamingTargetTransformName;
+  public boolean receivedRows;
+  public boolean hasEmptyList;
 
   public MetaInjectData() {
     super();

@@ -17,10 +17,18 @@
 
 package org.apache.hop.pipeline.transform;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 
+@HopMetadataObject(
+    xmlKey = "custom_distribution",
+    objectFactory = IRowDistribution.RowDistributionFactory.class,
+    optionalValue = true)
 public interface IRowDistribution {
 
   /**
@@ -39,7 +47,7 @@ public interface IRowDistribution {
    * @param rowMeta the meta-data of the row to distribute
    * @param row the data of the row data to distribute
    * @param iTransform The transform to distribute the rows in
-   * @throws HopTransformException
+   * @throws HopTransformException In case there's an error
    */
   void distributeRow(IRowMeta rowMeta, Object[] row, ITransform iTransform)
       throws HopTransformException;
@@ -50,4 +58,17 @@ public interface IRowDistribution {
    * @return the available svg file or null if the standard icon needs to be used.
    */
   SvgFile getDistributionImage();
+
+  final class RowDistributionFactory implements IHopMetadataObjectFactory {
+    @Override
+    public Object createObject(String id, Object parentObject) throws HopException {
+      return PluginRegistry.getInstance()
+          .loadClass(RowDistributionPluginType.class, id, IRowDistribution.class);
+    }
+
+    @Override
+    public String getObjectId(Object object) throws HopException {
+      return PluginRegistry.getInstance().getPluginId(RowDistributionPluginType.class, object);
+    }
+  }
 }

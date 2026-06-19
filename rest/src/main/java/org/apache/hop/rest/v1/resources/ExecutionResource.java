@@ -25,7 +25,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -179,7 +179,7 @@ public class ExecutionResource extends BaseResource {
 
       // For now just give back the request as JSON
       //
-      return Response.ok(output.toString()).type(contentType).encoding(Const.XML_ENCODING).build();
+      return Response.ok(output.toString()).type(contentType).encoding(Const.UTF_8).build();
     } catch (Exception e) {
       String errorMessage =
           "Unexpected error executing synchronous web service (pipeline) with name "

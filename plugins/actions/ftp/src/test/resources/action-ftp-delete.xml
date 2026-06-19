@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<action>
+    <protocol>FTP</protocol>
+    <servername>server</servername>
+    <port>21</port>
+    <username>user</username>
+    <password>Encrypted 2be98afc86aa7f2e4cb79ce10ce93bcc9</password>
+    <ftpdirectory>remote-folder</ftpdirectory>
+    <wildcard>wildcard</wildcard>
+    <timeout>999</timeout>
+    <active>Y</active>
+    <useproxy>Y</useproxy>
+    <proxy_host>proxy-host</proxy_host>
+    <proxy_port>proxy-port</proxy_port>
+    <proxy_username>proxy-user</proxy_username>
+    <proxy_password>Encrypted 2be98afc86aa78296a401b73dce93bcc9</proxy_password>
+    <publicpublickey>Y</publicpublickey>
+    <keyfilename>keyfile</keyfilename>
+    <keyfilepass>keypass</keyfilepass>
+    <nr_limit_success>10</nr_limit_success>
+    <success_condition>success_when_at_least</success_condition>
+    <copyprevious>Y</copyprevious>
+    <socksproxy_host>socks-host</socksproxy_host>
+    <socksproxy_port>1080</socksproxy_port>
+    <socksproxy_username>socks-user</socksproxy_username>
+    <socksproxy_password>Encrypted 2be98afc86aa7818ba812bd3dce93bcc9</socksproxy_password>
+</action>
+

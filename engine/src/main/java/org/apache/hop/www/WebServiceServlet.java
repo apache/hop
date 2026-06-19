@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
@@ -167,7 +167,7 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       } else {
         response.setContentType(contentType);
       }
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =

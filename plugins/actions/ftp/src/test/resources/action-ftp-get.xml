@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<action>
+    <port>21</port>
+    <servername>server</servername>
+    <username>username</username>
+    <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+    <ftpdirectory>remote-dir</ftpdirectory>
+    <targetdirectory>target-folder</targetdirectory>
+    <wildcard>.*</wildcard>
+    <binary>Y</binary>
+    <timeout>999</timeout>
+    <remove>Y</remove>
+    <only_new>Y</only_new>
+    <active>Y</active>
+    <control_encoding>ISO-8859-1</control_encoding>
+    <movefiles>Y</movefiles>
+    <movetodirectory>move-to-folder</movetodirectory>
+    <adddate>Y</adddate>
+    <addtime>Y</addtime>
+    <SpecifyFormat>Y</SpecifyFormat>
+    <date_time_format>dt-format</date_time_format>
+    <AddDateBeforeExtension>Y</AddDateBeforeExtension>
+    <isaddresult>Y</isaddresult>
+    <createmovefolder>Y</createmovefolder>
+    <proxy_host>proxy-host</proxy_host>
+    <proxy_port>proxy-port</proxy_port>
+    <proxy_username>proxy-username</proxy_username>
+    <proxy_password>Encrypted 2be98dfba05df8bc9bb18bd63c99dbdde</proxy_password>
+    <socksproxy_host>socks-host</socksproxy_host>
+    <socksproxy_port>1080</socksproxy_port>
+    <socksproxy_username>socks-user</socksproxy_username>
+    <socksproxy_password>Encrypted 2be98afc86aa7818ba812bd3dce93bcc9</socksproxy_password>
+    <ifFileExists>ifFileExistsCreateUniq</ifFileExists>
+    <nr_limit>10</nr_limit>
+    <success_condition>success_when_at_least</success_condition>
+</action>

@@ -21,10 +21,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopConfigException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -327,7 +328,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
             try {
               getResultRows(result, cypherStatement.getRow(), false);
             } catch (Exception e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Error parsing result of cypher statement '" + cypherStatement.getCypher() + "'",
                   e);
             }
@@ -654,7 +655,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       } catch (Exception e) {
         setErrors(getErrors() + 1);
         stopAll();
-        throw new RuntimeException("Unable to run batch of cypher statements", e);
+        throw new HopRuntimeException("Unable to run batch of cypher statements", e);
       }
     }
 

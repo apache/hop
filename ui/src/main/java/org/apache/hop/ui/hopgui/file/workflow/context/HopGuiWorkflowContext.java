@@ -29,6 +29,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -75,11 +76,16 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
       }
     }
 
-    // Also add all the entry creation actions...
+    // Also add all the entry creation actions, optionally filtered by the user-selected
+    // design engine (UNSUPPORTED actions are hidden; SUPPORTED and UNKNOWN stay visible).
     //
+    PaletteEngineFilter filter = PaletteEngineFilter.forWorkflowDesign();
     PluginRegistry registry = PluginRegistry.getInstance();
     List<IPlugin> actionPlugins = registry.getPlugins(ActionPluginType.class);
     for (IPlugin actionPlugin : actionPlugins) {
+      if (!filter.isPluginAllowed(actionPlugin)) {
+        continue;
+      }
 
       GuiAction createActionGuiAction =
           new GuiAction(

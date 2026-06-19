@@ -51,7 +51,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IHopAttribute;
@@ -94,7 +94,7 @@ public class XmlHandler {
    * @return The XML header.
    */
   public static String getXmlHeader() {
-    return getXmlHeader(Const.XML_ENCODING);
+    return getXmlHeader(Const.UTF_8);
   }
 
   /**
@@ -1239,6 +1239,10 @@ public class XmlHandler {
     } catch (Exception e) {
       throw new HopException("Error reading license file : " + realLicenseFile, e);
     }
+  }
+
+  public static String aroundTag(String tag, String xml) {
+    return openTag(tag) + xml + closeTag(tag);
   }
 }
 

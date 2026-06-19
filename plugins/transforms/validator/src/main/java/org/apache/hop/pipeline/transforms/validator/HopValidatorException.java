@@ -19,7 +19,7 @@
 package org.apache.hop.pipeline.transforms.validator;
 
 import java.io.Serial;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopValueException;
 
 public class HopValidatorException extends HopValueException {

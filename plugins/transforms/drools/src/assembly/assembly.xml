@@ -26,7 +26,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/drools</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -38,30 +38,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-drools:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/drools</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-transform-drools:jar</exclude>
-                <exclude>org.antlr:antlr-runtime:jar</exclude>
-            </excludes>
-            <outputDirectory>plugins/transforms/drools/lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.apache.poi:*</include>
-                <include>com.zaxxer:*</include>
-                <include>org.apache.xmlbeans:*</include>
-                <include>com.github.virtuald:*</include>
-                <include>org.antlr:antlr-runtime:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

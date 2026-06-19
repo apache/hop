@@ -21,7 +21,7 @@ import com.github.javafaker.Faker;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Locale;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;

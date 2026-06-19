@@ -22,42 +22,38 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link LoggingRegistry} */
 class LoggingRegistryTest {
-  public static final String LOG_CHANEL_ID_PARENT = "parent-chanel-id";
-  public static final String LOG_CHANEL_ID_CHILD = "child-chanel-id";
-  public static final String STRING_DEFAULT = "<def>";
-
-  @BeforeEach
-  void resetRegistry() {
-    LoggingRegistry.getInstance().reset();
-  }
 
   @Test
   void correctLogIdReturned_WhenLogObjectRegisteredAlready() {
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
+    String parentChannelId = UUID.randomUUID().toString();
+    String childChannelId = UUID.randomUUID().toString();
+    String mapKey = UUID.randomUUID().toString();
+
     LoggingObject parent =
         new LoggingObject(new SimpleLoggingObject("parent", LoggingObjectType.PIPELINE, null));
-    parent.setLogChannelId(LOG_CHANEL_ID_PARENT);
+    parent.setLogChannelId(parentChannelId);
 
     LoggingObject child =
         new LoggingObject(new SimpleLoggingObject("child", LoggingObjectType.TRANSFORM, parent));
-    child.setLogChannelId(LOG_CHANEL_ID_CHILD);
+    child.setLogChannelId(childChannelId);
 
-    loggingRegistry.getMap().put(STRING_DEFAULT, child);
+    loggingRegistry.getMap().put(mapKey, child);
 
     String logChanelId = loggingRegistry.registerLoggingSource(child);
 
-    assertEquals(LOG_CHANEL_ID_CHILD, logChanelId);
+    assertEquals(childChannelId, logChanelId);
   }
 
   @Test
   void testRegisterFileWriter() {
-    String id = "1";
+    String id = UUID.randomUUID().toString();
 
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
@@ -69,7 +65,7 @@ class LoggingRegistryTest {
 
   @Test
   void testFileWritersIds() {
-    String id = "1";
+    String id = UUID.randomUUID().toString();
 
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
@@ -81,7 +77,7 @@ class LoggingRegistryTest {
 
   @Test
   void testRemoveFileWriter() {
-    String id = "1";
+    String id = UUID.randomUUID().toString();
 
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
@@ -101,42 +97,49 @@ class LoggingRegistryTest {
   void nestedFileWriterBuffers_resolveInnermostAncestor() {
     LoggingRegistry reg = LoggingRegistry.getInstance();
 
+    String outerId = UUID.randomUUID().toString();
+    String innerId = UUID.randomUUID().toString();
+    String pipeId = UUID.randomUUID().toString();
+
     LoggingObject outer =
         new LoggingObject(new SimpleLoggingObject("outer", LoggingObjectType.ACTION, null));
-    outer.setLogChannelId("outer-id");
+    outer.setLogChannelId(outerId);
 
     LoggingObject inner =
         new LoggingObject(new SimpleLoggingObject("inner", LoggingObjectType.ACTION, outer));
-    inner.setLogChannelId("inner-id");
+    inner.setLogChannelId(innerId);
 
     LoggingObject pipeline =
         new LoggingObject(new SimpleLoggingObject("pipe", LoggingObjectType.PIPELINE, inner));
-    pipeline.setLogChannelId("pipe-id");
+    pipeline.setLogChannelId(pipeId);
 
-    reg.getMap().put("outer-id", outer);
-    reg.getMap().put("inner-id", inner);
-    reg.getMap().put("pipe-id", pipeline);
+    reg.getMap().put(outerId, outer);
+    reg.getMap().put(innerId, inner);
+    reg.getMap().put(pipeId, pipeline);
 
-    LogChannelFileWriterBuffer outerBuf = new LogChannelFileWriterBuffer("outer-id");
-    LogChannelFileWriterBuffer innerBuf = new LogChannelFileWriterBuffer("inner-id");
+    LogChannelFileWriterBuffer outerBuf = new LogChannelFileWriterBuffer(outerId);
+    LogChannelFileWriterBuffer innerBuf = new LogChannelFileWriterBuffer(innerId);
     reg.registerLogChannelFileWriterBuffer(outerBuf);
     reg.registerLogChannelFileWriterBuffer(innerBuf);
 
-    assertSame(innerBuf, reg.getLogChannelFileWriterBuffer("pipe-id"));
+    assertSame(innerBuf, reg.getLogChannelFileWriterBuffer(pipeId));
   }
 
   @Test
   void removeLogChannelFileWriterBuffer_doesNotRemoveDescendantBuffers() {
     LoggingRegistry reg = LoggingRegistry.getInstance();
 
-    LogChannelFileWriterBuffer outerBuf = new LogChannelFileWriterBuffer("outer-id");
-    LogChannelFileWriterBuffer innerBuf = new LogChannelFileWriterBuffer("inner-id");
+    String outerId = UUID.randomUUID().toString();
+    String innerId = UUID.randomUUID().toString();
+
+    LogChannelFileWriterBuffer outerBuf = new LogChannelFileWriterBuffer(outerId);
+    LogChannelFileWriterBuffer innerBuf = new LogChannelFileWriterBuffer(innerId);
     reg.registerLogChannelFileWriterBuffer(outerBuf);
     reg.registerLogChannelFileWriterBuffer(innerBuf);
 
-    reg.removeLogChannelFileWriterBuffer("outer-id");
+    reg.removeLogChannelFileWriterBuffer(outerId);
 
-    assertNull(reg.getLogChannelFileWriterBuffer("outer-id"));
-    assertSame(innerBuf, reg.getLogChannelFileWriterBuffer("inner-id"));
+    assertNull(reg.getLogChannelFileWriterBuffer(outerId));
+    assertSame(innerBuf, reg.getLogChannelFileWriterBuffer(innerId));
   }
 }

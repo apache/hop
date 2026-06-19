@@ -20,6 +20,7 @@ package org.apache.hop.core.util;
 import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.xml.XmlHandler;
@@ -43,7 +44,7 @@ public class JavaScriptUtils {
       case IValueMeta.TYPE_BIGNUMBER -> jsToBigNumber(value, classType);
       case IValueMeta.TYPE_BINARY -> Context.jsToJava(value, byte[].class);
       case IValueMeta.TYPE_NONE ->
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "No data output data type was specified for new field [" + fieldName + "]");
       default -> Context.jsToJava(value, Object.class);
     };
@@ -159,7 +160,7 @@ public class JavaScriptUtils {
     } else if (classType.equalsIgnoreCase("java.lang.String")) {
       return BigDecimal.valueOf(Long.valueOf((String) value));
     } else {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "JavaScript conversion to BigNumber not implemented for " + classType);
     }
   }

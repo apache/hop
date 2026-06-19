@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.jsonoutput;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -32,6 +34,11 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoContentSchema;
+import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoPathSyntax;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -339,6 +346,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         logDetailed(BaseMessages.getString(PKG, "JsonOutput.FileOpened", filename));
       }
 
+      data.openedFilename = filename;
       data.splitnr++;
 
       retval = true;
@@ -362,6 +370,32 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         false);
   }
 
+  private FileIoContentSchema jsonWrittenFileContentSchema() {
+    if (meta.getOutputFields() == null || meta.getOutputFields().isEmpty()) {
+      return null;
+    }
+    List<FileIoTabularColumn> cols = new ArrayList<>();
+    for (JsonOutputField f : meta.getOutputFields()) {
+      String typeDesc = "String";
+      if (data.outputRowMeta != null) {
+        IValueMeta v = data.outputRowMeta.searchValueMeta(f.getFieldName());
+        if (v != null) {
+          typeDesc = v.getTypeDesc();
+        }
+      }
+      cols.add(
+          new FileIoTabularColumn(
+              f.getFieldName(),
+              typeDesc,
+              -1,
+              -1,
+              Utils.isEmpty(f.getElementName()) ? null : f.getElementName(),
+              FileIoPathSyntax.JSON_PATH,
+              false));
+    }
+    return FileIoContentSchema.tabularWithMergedTree("json", cols);
+  }
+
   protected boolean closeFile() {
     if (data.writer == null) {
       return true;
@@ -371,9 +405,26 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     try {
       data.writer.flush();
       if (data.countingStream != null) {
-        dataVolumeOut =
-            (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+        long written = data.countingStream.getCount();
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+        if (!data.isBeamContext() && written > 0 && data.openedFilename != null) {
+          try {
+            FileObject outFile = HopVfs.getFileObject(data.openedFilename, this);
+            LineageFileIoEmitter.emitTransformFileIo(
+                this,
+                FileIoOperation.WRITE,
+                null,
+                outFile,
+                written,
+                true,
+                null,
+                jsonWrittenFileContentSchema());
+          } catch (Exception ignored) {
+            // optional lineage
+          }
+        }
       }
+      data.openedFilename = null;
       data.writer.close();
       data.writer = null;
       data.countingStream = null;

@@ -17,9 +17,11 @@
 
 package org.apache.hop.run;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
@@ -45,6 +47,12 @@ public class HopRun extends HopRunBase implements Runnable, IHasHopMetadataProvi
   }
 
   public static void main(String[] args) {
+
+    // Silence verbose JUL loggers from third-party JDBC drivers (e.g. Microsoft SQL Server)
+    // that write INFO messages to stderr via the default ConsoleHandler. Hop uses its own
+    // logging system (HopLogStore) so this JUL output is unwanted noise. (Fixes #7297)
+    //
+    silenceJulJdbcLoggers();
 
     HopRun hopRun = new HopRun();
 
@@ -143,5 +151,18 @@ public class HopRun extends HopRunBase implements Runnable, IHasHopMetadataProvi
     helpArgs[args.length] = "-h";
 
     cmd.parseArgs(helpArgs);
+  }
+
+  /**
+   * Suppress INFO-level JUL output from third-party JDBC drivers that would otherwise flood stderr
+   * via the default {@link java.util.logging.ConsoleHandler}. Hop uses its own logging subsystem
+   * ({@link HopLogStore}) so JUL console output is unwanted noise.
+   *
+   * <p>This must be called early in {@link #main(String[])} — before {@link HopEnvironment#init()}
+   * — so the loggers are silenced before any driver classes are loaded.
+   */
+  private static void silenceJulJdbcLoggers() {
+    // Microsoft SQL Server JDBC driver (com.microsoft.sqlserver.jdbc.TDSTokenHandler et al.)
+    Logger.getLogger("com.microsoft.sqlserver.jdbc").setLevel(Level.WARNING);
   }
 }

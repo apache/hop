@@ -32,9 +32,10 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -293,7 +294,7 @@ public class Condition implements Cloneable {
 
   /** A condition is empty when the condition is atomic and no left field is specified. */
   public boolean isEmpty() {
-    return (isAtomic() && leftValueName == null);
+    return (isAtomic() && (leftValueName == null || leftValueName.isEmpty()));
   }
 
   /**
@@ -533,7 +534,7 @@ public class Condition implements Cloneable {
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Unexpected error evaluation condition [" + this + "]", e);
+      throw new HopRuntimeException("Unexpected error evaluation condition [" + this + "]", e);
     }
 
     return evaluation;

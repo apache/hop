@@ -18,7 +18,7 @@
 
 package org.apache.hop.neo4j.core.data;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 
 public class GraphPropertyData {

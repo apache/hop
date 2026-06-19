@@ -62,13 +62,6 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
   public int freeMemoryPctLimit;
   public int memoryReporting;
 
-  /*
-   * Group Fields Implementation heroic
-   */
-  public Object[] previous;
-  public int[] groupnrs;
-  public boolean newBatch;
-
   public SortRowsData() {
     super();
 
@@ -78,7 +71,5 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
     gzis = new ArrayList<>();
     dis = new ArrayList<>();
     bufferSizes = new ArrayList<>();
-
-    previous = null; // Heroic
   }
 }

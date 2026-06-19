@@ -20,15 +20,15 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IValueMeta;
 import org.junit.jupiter.api.BeforeAll;
 
 public abstract class CsvInputUnitTestBase {
 
   static final String BUFFER_SIZE = "1024";
-  static final String ENCODING = "utf-8";
   static final String ENCLOSURE = "\"";
   static final String DELIMITER = ",";
 
@@ -37,39 +37,39 @@ public abstract class CsvInputUnitTestBase {
     HopEnvironment.init();
   }
 
-  File createTestFile(final String encoding, final String content) throws IOException {
+  File createTestFile(final Charset charset, final String content) throws IOException {
     File tempFile = File.createTempFile("PDI_tmp", ".tmp");
     tempFile.deleteOnExit();
 
-    try (PrintWriter osw = new PrintWriter(tempFile, encoding)) {
+    try (PrintWriter osw = new PrintWriter(tempFile, charset)) {
       osw.write(content);
     }
 
     return tempFile;
   }
 
-  TextFileInputField[] createInputFileFields(String... names) {
-    TextFileInputField[] fields = new TextFileInputField[names.length];
+  CsvInputField[] createInputFileFields(String... names) {
+    CsvInputField[] fields = new CsvInputField[names.length];
     for (int i = 0; i < names.length; i++) {
       fields[i] = createField(names[i]);
     }
     return fields;
   }
 
-  TextFileInputField createField(String name) {
-    TextFileInputField field = new TextFileInputField();
+  CsvInputField createField(String name) {
+    CsvInputField field = new CsvInputField();
     field.setName(name);
     field.setType(IValueMeta.TYPE_STRING);
     return field;
   }
 
-  CsvInputMeta createMeta(File file, TextFileInputField[] fields) {
+  CsvInputMeta createMeta(File file, CsvInputField[] fields) {
     CsvInputMeta meta = new CsvInputMeta();
     meta.setFilename(file.getAbsolutePath());
     meta.setBufferSize(BUFFER_SIZE);
     meta.setDelimiter(DELIMITER);
     meta.setEnclosure(ENCLOSURE);
-    meta.setEncoding(ENCODING);
+    meta.setEncoding(Const.UTF_8);
     meta.setLazyConversionActive(false);
     meta.setFields(fields);
     meta.setHeaderPresent(false);

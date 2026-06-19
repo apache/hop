@@ -19,17 +19,18 @@ package org.apache.hop.workflow.actions.pgpverify;
 
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -42,7 +43,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
-import org.w3c.dom.Node;
 
 /** This defines a PGP verify action. */
 @Action(
@@ -53,21 +53,29 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
     keywords = "i18n::ActionPGPVerify.keyword",
     documentationUrl = "/workflow/actions/pgpverify.html")
+@Getter
+@Setter
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPVerify.class;
-  public static final String CONST_SPACES = "      ";
-  public static final String CONST_GPGLOCATION = "gpglocation";
+  public static final String CONST_GPG_LOCATION = "gpglocation";
 
+  @HopMetadataProperty(key = "gpglocation")
   private String gpgLocation;
+
+  @HopMetadataProperty(key = "filename")
   private String filename;
-  private String detachedfilename;
+
+  @HopMetadataProperty(key = "detachedfilename")
+  private String detachedFilename;
+
+  @HopMetadataProperty(key = "useDetachedSignature")
   private boolean useDetachedSignature;
 
   public ActionPGPVerify(String n) {
     super(n, "");
     gpgLocation = null;
     filename = null;
-    detachedfilename = null;
+    detachedFilename = null;
     useDetachedSignature = false;
   }
 
@@ -75,83 +83,21 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  public ActionPGPVerify(ActionPGPVerify a) {
+    super(a);
+    this.gpgLocation = a.gpgLocation;
+    this.filename = a.filename;
+    this.detachedFilename = a.detachedFilename;
+    this.useDetachedSignature = a.useDetachedSignature;
+  }
+
   @Override
   public Object clone() {
-    ActionPGPVerify je = (ActionPGPVerify) super.clone();
-    return je;
+    return new ActionPGPVerify(this);
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(100);
-
-    retval.append(super.getXml());
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_GPGLOCATION, gpgLocation));
-    retval.append(CONST_SPACES).append(XmlHandler.addTagValue("filename", filename));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("detachedfilename", detachedfilename));
-    retval
-        .append(CONST_SPACES)
-        .append(XmlHandler.addTagValue("useDetachedSignature", useDetachedSignature));
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      gpgLocation = XmlHandler.getTagValue(entrynode, CONST_GPGLOCATION);
-      filename = XmlHandler.getTagValue(entrynode, "filename");
-      detachedfilename = XmlHandler.getTagValue(entrynode, "detachedfilename");
-      useDetachedSignature =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "useDetachedSignature"));
-
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "ActionPGPVerify.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node"),
-          xe);
-    }
-  }
-
-  public void setGPGLocation(String gpgLocation) {
-    this.gpgLocation = gpgLocation;
-  }
-
-  public String getGPGLocation() {
-    return gpgLocation;
-  }
-
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-
-  @Override
-  public String getFilename() {
-    return filename;
-  }
-
-  public void setDetachedfilename(String detachedfilename) {
-    this.detachedfilename = detachedfilename;
-  }
-
-  public String getDetachedfilename() {
-    return detachedfilename;
-  }
-
-  public void setUseDetachedfilename(boolean useDetachedSignature) {
-    this.useDetachedSignature = useDetachedSignature;
-  }
-
-  public boolean useDetachedfilename() {
-    return useDetachedSignature;
-  }
-
-  @Override
-  public Result execute(Result previousResult, int nr) {
-    Result result = previousResult;
+  public Result execute(Result result, int nr) {
     result.setResult(false);
     result.setNrErrors(1);
 
@@ -166,10 +112,10 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
       }
       file = HopVfs.getFileObject(realFilename, getVariables());
 
-      GPG gpg = new GPG(resolve(getGPGLocation()), getLogChannel(), getVariables());
+      GPG gpg = new GPG(resolve(getGpgLocation()), getLogChannel(), getVariables());
 
-      if (useDetachedfilename()) {
-        String signature = resolve(getDetachedfilename());
+      if (isUseDetachedSignature()) {
+        String signature = resolve(getDetachedFilename());
 
         if (Utils.isEmpty(signature)) {
           logError(BaseMessages.getString(PKG, "ActionPGPVerify.DetachedSignatureMissing"));
@@ -230,7 +176,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            CONST_GPGLOCATION,
+            CONST_GPG_LOCATION,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
   }
@@ -257,7 +203,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
       throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
-      // So let's change the gpglocation from relative to absolute by grabbing the file object...
+      // So let's change the gpg location from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
       if (!Utils.isEmpty(gpgLocation)) {

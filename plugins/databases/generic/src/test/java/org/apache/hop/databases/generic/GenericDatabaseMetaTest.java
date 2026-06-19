@@ -35,15 +35,14 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 class GenericDatabaseMetaTest {
   GenericDatabaseMeta nativeMeta;
 
-  @Mock GenericDatabaseMeta mockedMeta;
+  GenericDatabaseMeta mockedMeta = Mockito.mock(GenericDatabaseMeta.class);
 
   @BeforeEach
   void setupBefore() {
@@ -231,14 +230,15 @@ class GenericDatabaseMetaTest {
         nativeMeta.getSqlInsertAutoIncUnknownDimensionRow("FOO", "FOOKEY", "FOOVERSION"));
   }
 
-  @Disabled("This test needs to be reviewed")
   @Test
   void testSettingDialect() {
     String dialect = "testDialect";
     IDatabase[] dbInterfaces = new IDatabase[] {mockedMeta};
-    Mockito.when(DatabaseMeta.getDatabaseInterfaces()).thenReturn(dbInterfaces);
-    Mockito.when(mockedMeta.getPluginName()).thenReturn(dialect);
-    nativeMeta.addAttribute("DATABASE_DIALECT_ID", dialect);
+    try (MockedStatic<DatabaseMeta> dbMetaStatic = Mockito.mockStatic(DatabaseMeta.class)) {
+      dbMetaStatic.when(DatabaseMeta::getDatabaseInterfaces).thenReturn(dbInterfaces);
+      Mockito.when(mockedMeta.getPluginName()).thenReturn(dialect);
+      nativeMeta.addAttribute("DATABASE_DIALECT_ID", dialect);
+    }
   }
 
   @Test

@@ -27,7 +27,7 @@ under the License.
 
 The PostgreSQL Bulk Loader transform streams data from Hop to Postgresql using https://www.postgresql.org/docs/current/sql-copy.html["COPY DATA FROM STDIN"^] into the database.
 
-TIP: replace boolean fields in your pipeline stream by string fields with "Y" or "N" values to avoid errors.
+TIP: boolean stream fields are serialized as `t` or `f`, which PostgreSQL `COPY` accepts for boolean columns.
 
 |
 == Supported Engines

@@ -25,11 +25,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.config.IRestServicesProvider;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.HopLogStore;
@@ -153,7 +154,7 @@ public class Hop implements IHasHopMetadataProvider, IRestServicesProvider {
       }
 
     } catch (Exception e) {
-      throw new RuntimeException("Error initializing the Apache Hop REST services", e);
+      throw new HopRuntimeException("Error initializing the Apache Hop REST services", e);
     }
   }
 

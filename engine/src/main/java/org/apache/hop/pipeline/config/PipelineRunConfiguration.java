@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
@@ -94,6 +94,11 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     }
     this.executionDataProfileName = runConfiguration.executionDataProfileName;
     this.defaultSelection = runConfiguration.defaultSelection;
+  }
+
+  @Override
+  protected PipelineRunConfiguration clone() throws CloneNotSupportedException {
+    return new PipelineRunConfiguration(this);
   }
 
   /**

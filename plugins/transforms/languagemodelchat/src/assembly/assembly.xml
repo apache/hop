@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/languagemodelchat</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -39,60 +39,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-transform-languagemodelchat:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/languagemodelchat</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.jetbrains.kotlin::jar</include>
-                <include>com.squareup.okhttp3:okhttp:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.squareup.retrofit2:retrofit:jar</include>
-                <include>org.apache.opennlp:opennlp-tools:jar</include>
-                <!--<include>org.jsoup:jsoup:jar</include>-->
-                <include>dev.ai4j:openai4j:jar</include>
-                <include>com.knuddels:jtokkit:jar</include>
-                <include>com.squareup.retrofit2:converter-gson:jar</include>
-                <include>com.squareup.moshi:moshi:jar</include>
-                <include>com.squareup.okhttp3:okhttp-sse:jar</include>
-                <include>dev.langchain4j:langchain4j:jar</include>
-                <include>dev.langchain4j:langchain4j-core:jar</include>
-                <include>dev.langchain4j:langchain4j-mistral-ai:jar</include>
-                <include>dev.langchain4j:langchain4j-open-ai:jar</include>
-                <include>dev.langchain4j:langchain4j-hugging-face:jar</include>
-                <include>dev.langchain4j:langchain4j-anthropic:jar</include>
-                <include>dev.langchain4j:langchain4j-ollama:jar</include>
-                <!-- Ollama test containers
-                <include>org.testcontainers:testcontainers:jar</include>
-                <include>org.testcontainers:ollama:jar</include>
-                <include>junit:junit:jar</include>
-                <include>org.rnorth.duct-tape:duct-tape:jar</include>
-                <include>org.jetbrains:annotations:jar</include>
-                <include>com.github.docker-java:docker-java-api:jar</include>
-                <include>com.github.docker-java:docker-java-transport-zerodep:jar</include>
-                <include>com.github.docker-java:docker-java-transport:jar</include>
-                <include>net.java.dev.jna:jna:jar</include>
-                <include>org.testcontainers:junit-jupiter:jar</include>
-                <include>org.junit.jupiter:junit-jupiter-engine:jar</include>
-                <include>org.junit.platform:junit-platform-engine:jar</include>
-                <include>org.opentest4j:opentest4j:jar</include>
-                <include>org.junit.platform:junit-platform-commons:jar</include>
-                <include>org.junit.jupiter:junit-jupiter-api:jar</include>
-                <include>org.apiguardian:apiguardian-api:jar</include>
-                <include>org.tinylog:tinylog-impl:jar</include>
-                <include>org.tinylog:tinylog-api:jar</include>
-                <include>org.tinylog:slf4j-tinylog:jar</include>
-                -->
-            </includes>
-            <outputDirectory>plugins/transforms/languagemodelchat/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

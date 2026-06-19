@@ -58,6 +58,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -143,7 +144,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   @HopMetadataProperty private String serverPort;
 
-  @HopMetadataProperty private boolean useAuthentication;
+  @HopMetadataProperty private boolean useAuthentication = true;
 
   @HopMetadataProperty private String username;
 
@@ -152,19 +153,17 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   @HopMetadataProperty private boolean useXOAuth2;
 
-  @HopMetadataProperty private boolean useSecureAuthentication;
+  @HopMetadataProperty private boolean useSecureAuthentication = true;
 
-  @HopMetadataProperty private String secureConnectionType;
+  @HopMetadataProperty private String secureConnectionType = MailConst.SSL_TLS;
 
   @HopMetadataProperty private boolean useProxy;
-
-  @HopMetadataProperty private String proxyHost;
 
   @HopMetadataProperty private String proxyUsername;
 
   @HopMetadataProperty private String trustedHosts;
 
-  @HopMetadataProperty private boolean checkServerIdentity;
+  @HopMetadataProperty private boolean checkServerIdentity = true;
 
   /** IMAP folder if user want to move some messages */
   private Folder destinationIMAPFolder = null;
@@ -339,7 +338,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       Store theStore = getStore();
       theStore.connect(host, port, user, pwd);
     } catch (MessagingException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 
@@ -1331,7 +1330,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       props.put("mail.smtps.quitwait", "false");
     }
 
-    props.put("mail.smtp.ssl.checkServerIdentity", isCheckServerIdentity());
+    props.put("mail.smtp.ssl.checkserveridentity", String.valueOf(isCheckServerIdentity()));
     if (!Utils.isEmpty(trustedHosts)) {
       props.put("mail.smtp.ssl.trust", variables.resolve(trustedHosts));
     }
@@ -1371,7 +1370,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
     for (String p : protocols) {
       props.put(
-          MailConst.MAIL_PREFIX + p + ".ssl.checkServerIdentity",
+          MailConst.MAIL_PREFIX + p + ".ssl.checkserveridentity",
           String.valueOf(isCheckServerIdentity()));
     }
   }

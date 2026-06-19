@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-tech</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-tech-google</artifactId>
@@ -88,6 +88,10 @@
                     <artifactId>protobuf-java-util</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.conscrypt</groupId>
                     <artifactId>conscrypt-openjdk-uber</artifactId>
                 </exclusion>
@@ -116,6 +120,14 @@
             <artifactId>google-cloud-secretmanager</artifactId>
             <exclusions>
                 <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.conscrypt</groupId>
                     <artifactId>conscrypt-openjdk-uber</artifactId>
                 </exclusion>
@@ -136,6 +148,28 @@
                     <artifactId>protobuf-java-util</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.conscrypt</groupId>
+                    <artifactId>conscrypt-openjdk-uber</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage-control</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.conscrypt</groupId>
                     <artifactId>conscrypt-openjdk-uber</artifactId>
                 </exclusion>
@@ -145,6 +179,10 @@
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
             <exclusions>
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
                 <!-- Vulnerable component - need more recent version [PPP-3571] -->
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>

@@ -49,30 +49,40 @@ class WorkflowActionMoveFilesLocalTest {
   }
 
   @BeforeEach
-  void setUp() throws IOException {
+  void setUp() throws HopException {
     action = MoveFilesActionHelper.defaultAction();
     sourceFolder = testFolder.resolve("source").toFile();
-    sourceFolder.mkdirs();
+    boolean created = sourceFolder.mkdirs();
+    if (!created) {
+      throw new HopException(
+          "Folder " + sourceFolder + " was not created, or could not be created.");
+    }
     destinationFolder = testFolder.resolve("destination").toFile();
-    destinationFolder.mkdirs();
+    created = destinationFolder.mkdirs();
+    if (!created) {
+      throw new HopException(
+          "Folder " + destinationFolder + " was not created, or could not be created.");
+    }
   }
 
   @Test
   void testBasicFileMoveOperation() throws IOException, HopException {
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
-    Path destFile = destinationFolder.toPath().resolve("test.txt");
+    Path destinationFile = destinationFolder.toPath().resolve("test.txt");
 
-    action.sourceFileFolder = new String[] {sourceFile.toString()};
-    action.destinationFileFolder = new String[] {destFile.toString()};
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFile.toString());
+    fileToMove.setDestinationFileFolder(destinationFile.toString());
+    action.getFilesToMove().add(fileToMove);
     action.setDestinationIsAFile(true);
 
     Result result = action.execute(new Result(), 0);
     assertTrue(result.isResult(), "Move operation should succeed");
     assertFalse(Files.exists(sourceFile), "Source file should not exist");
-    assertTrue(Files.exists(destFile), "Destination file should exist");
+    assertTrue(Files.exists(destinationFile), "Destination file should exist");
     assertEquals(
         TEST_FILE_CONTENT,
-        Files.readString(destFile, StandardCharsets.UTF_8),
+        Files.readString(destinationFile, StandardCharsets.UTF_8),
         "File content should match");
   }
 
@@ -82,9 +92,11 @@ class WorkflowActionMoveFilesLocalTest {
     createTestFilePath(sourceFolder, "test2.txt");
     createTestFilePath(sourceFolder, "other.txt");
 
-    action.sourceFileFolder = new String[] {sourceFolder.getAbsolutePath()};
-    action.destinationFileFolder = new String[] {destinationFolder.getAbsolutePath()};
-    action.wildcard = new String[] {"test.*\\.txt"};
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFolder.getAbsolutePath());
+    fileToMove.setDestinationFileFolder(destinationFolder.getAbsolutePath());
+    fileToMove.setWildcard("test.*\\.txt");
+    action.getFilesToMove().add(fileToMove);
     action.setDestinationIsAFile(false);
 
     Result result = action.execute(new Result(), 0);
@@ -99,12 +111,14 @@ class WorkflowActionMoveFilesLocalTest {
   @Test
   void testMoveToExistingFile() throws IOException, HopException {
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
-    Path destFile = destinationFolder.toPath().resolve("test.txt");
+    Path destinationFile = destinationFolder.toPath().resolve("test.txt");
     String originalContent = "original content";
-    Files.writeString(destFile, originalContent, StandardCharsets.UTF_8);
+    Files.writeString(destinationFile, originalContent, StandardCharsets.UTF_8);
 
-    action.sourceFileFolder = new String[] {sourceFile.toString()};
-    action.destinationFileFolder = new String[] {destFile.toString()};
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFile.toString());
+    fileToMove.setDestinationFileFolder(destinationFile.toString());
+    action.getFilesToMove().add(fileToMove);
     action.setDestinationIsAFile(true);
     action.setIfFileExists("fail");
 
@@ -113,27 +127,29 @@ class WorkflowActionMoveFilesLocalTest {
     assertTrue(Files.exists(sourceFile), "Source file should still exist");
     assertEquals(
         originalContent,
-        Files.readString(destFile, StandardCharsets.UTF_8),
+        Files.readString(destinationFile, StandardCharsets.UTF_8),
         "Destination content should be unchanged");
   }
 
   @Test
   void testMoveWithOverwrite() throws IOException, HopException {
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
-    Path destFile = createTestFilePath(destinationFolder, "test.txt");
+    Path destinationFile = createTestFilePath(destinationFolder, "test.txt");
 
-    action.sourceFileFolder = new String[] {sourceFile.toString()};
-    action.destinationFileFolder = new String[] {destFile.toString()};
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFile.toString());
+    fileToMove.setDestinationFileFolder(destinationFile.toString());
+    action.getFilesToMove().add(fileToMove);
     action.setDestinationIsAFile(true);
     action.setIfFileExists("overwrite_file");
 
     Result result = action.execute(new Result(), 0);
     assertTrue(result.isResult(), "Move with overwrite should succeed");
     assertFalse(Files.exists(sourceFile), "Source file should not exist");
-    assertTrue(Files.exists(destFile), "Destination file should exist");
+    assertTrue(Files.exists(destinationFile), "Destination file should exist");
     assertEquals(
         TEST_FILE_CONTENT,
-        Files.readString(destFile, StandardCharsets.UTF_8),
+        Files.readString(destinationFile, StandardCharsets.UTF_8),
         "File content should match source");
   }
 
@@ -142,36 +158,40 @@ class WorkflowActionMoveFilesLocalTest {
     Files.deleteIfExists(destinationFolder.toPath());
 
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
-    Path destFile = destinationFolder.toPath().resolve("test.txt");
+    Path destinationFile = destinationFolder.toPath().resolve("test.txt");
 
-    action.sourceFileFolder = new String[] {sourceFile.toString()};
-    action.destinationFileFolder = new String[] {destFile.toString()};
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFile.toString());
+    fileToMove.setDestinationFileFolder(destinationFile.toString());
+    action.getFilesToMove().add(fileToMove);
     action.setDestinationIsAFile(true);
     action.setCreateDestinationFolder(true);
 
     Result result = action.execute(new Result(), 0);
     assertTrue(result.isResult(), "Move should succeed");
     assertTrue(Files.exists(destinationFolder.toPath()), "Destination folder should be created");
-    assertTrue(Files.exists(destFile), "File should be moved");
+    assertTrue(Files.exists(destinationFile), "File should be moved");
   }
 
   @Test
   void testMoveWithOverwriteFileExist() throws IOException, HopException {
     Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
-    Path destFile = createTestFilePath(destinationFolder, "test.txt");
+    Path destinationFile = createTestFilePath(destinationFolder, "test.txt");
 
-    action.sourceFileFolder = new String[] {sourceFile.toString()};
-    action.destinationFileFolder = new String[] {destinationFolder.toString()};
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFile.toString());
+    fileToMove.setDestinationFileFolder(destinationFile.toString());
+    action.getFilesToMove().add(fileToMove);
     action.setDestinationIsAFile(true);
     action.setIfFileExists("overwrite_file");
 
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult(), "Move with overwrite should succeed");
+    assertTrue(result.isResult(), "Move with overwrite should succeed");
     assertFalse(Files.exists(sourceFile), "Source file should not exist");
-    assertTrue(Files.exists(destFile), "Destination file should exist");
+    assertTrue(Files.exists(destinationFile), "Destination file should exist");
     assertEquals(
         TEST_FILE_CONTENT,
-        Files.readString(destFile, StandardCharsets.UTF_8),
+        Files.readString(destinationFile, StandardCharsets.UTF_8),
         "File content should match source");
   }
 

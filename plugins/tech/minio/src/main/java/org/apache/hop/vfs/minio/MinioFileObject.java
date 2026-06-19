@@ -44,7 +44,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -198,7 +198,19 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     injectType(FileType.IMAGINARY);
 
     if (StringUtils.isEmpty(key)) {
-      injectType(FileType.FOLDER);
+      if (isRootBucket()) {
+        injectType(FileType.FOLDER);
+      } else {
+        try {
+          BucketExistsArgs existsArgs = BucketExistsArgs.builder().bucket(bucketName).build();
+          if (fileSystem.getClient().bucketExists(existsArgs)) {
+            injectType(FileType.FOLDER);
+          }
+        } catch (Exception e) {
+          LogChannel.GENERAL.logDebug(
+              "Unable to verify existence of bucket {0}: {1}", bucketName, e.getMessage());
+        }
+      }
       return;
     }
 

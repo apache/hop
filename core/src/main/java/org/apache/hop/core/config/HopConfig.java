@@ -23,8 +23,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigFile;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 
@@ -33,10 +36,9 @@ import org.apache.hop.core.variables.DescribedVariable;
  * includes all options of the various plugins in the Hop ecosystem.
  */
 public class HopConfig extends ConfigFile {
-
   private static final String HOP_GUI_PROPERTIES_KEY = "guiProperties";
 
-  private String configFilename;
+  @Setter @Getter private String configFilename;
 
   @JsonIgnore private static HopConfig instance;
 
@@ -45,7 +47,8 @@ public class HopConfig extends ConfigFile {
       this.configFilename = Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG;
       readFromFile();
     } catch (Exception e) {
-      throw new RuntimeException("Error reading the hop config file '" + configFilename + "'", e);
+      throw new HopRuntimeException(
+          "Error reading the hop config file '" + configFilename + "'", e);
     }
   }
 
@@ -62,7 +65,7 @@ public class HopConfig extends ConfigFile {
       hopConfig.configMap.put(optionKey, optionValue);
       saveToFile();
     } catch (Exception e) {
-      throw new RuntimeException("Error saving configuration option '" + optionKey + "'", e);
+      throw new HopRuntimeException("Error saving configuration option '" + optionKey + "'", e);
     }
   }
 
@@ -72,7 +75,7 @@ public class HopConfig extends ConfigFile {
       hopConfig.configMap.putAll(extraOptions);
       hopConfig.saveToFile();
     } catch (Exception e) {
-      throw new RuntimeException("Error saving configuration options", e);
+      throw new HopRuntimeException("Error saving configuration options", e);
     }
   }
 
@@ -81,7 +84,7 @@ public class HopConfig extends ConfigFile {
       HopConfig hopConfig = getInstance();
       return hopConfig.configMap.get(optionKey);
     } catch (Exception e) {
-      throw new RuntimeException("Error reading option '" + optionKey + "'", e);
+      throw new HopRuntimeException("Error reading option '" + optionKey + "'", e);
     }
   }
 
@@ -96,7 +99,7 @@ public class HopConfig extends ConfigFile {
       }
       return value.toString();
     } catch (Exception e) {
-      throw new RuntimeException("Error reading option '" + optionKey + "'", e);
+      throw new HopRuntimeException("Error reading option '" + optionKey + "'", e);
     }
   }
 
@@ -135,7 +138,7 @@ public class HopConfig extends ConfigFile {
       Collections.sort(keys);
       return keys;
     } catch (Exception e) {
-      throw new RuntimeException("Error getting a list of sorted configuration keys", e);
+      throw new HopRuntimeException("Error getting a list of sorted configuration keys", e);
     }
   }
 
@@ -158,7 +161,7 @@ public class HopConfig extends ConfigFile {
         return map;
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error getting GUI properties from the Hop configuration", e);
+      throw new HopRuntimeException("Error getting GUI properties from the Hop configuration", e);
     }
   }
 
@@ -200,29 +203,12 @@ public class HopConfig extends ConfigFile {
     readGuiProperties().putAll(map);
   }
 
-  /**
-   * Gets configFilename
-   *
-   * @return value of configFilename
-   */
-  @Override
-  public String getConfigFilename() {
-    return configFilename;
-  }
-
-  /**
-   * @param configFilename The configFilename to set
-   */
-  @Override
-  public void setConfigFilename(String configFilename) {
-    this.configFilename = configFilename;
-  }
-
   public void reload() {
     try {
       readFromFile();
     } catch (Exception e) {
-      throw new RuntimeException("Error reading the hop config file '" + configFilename + "'", e);
+      throw new HopRuntimeException(
+          "Error reading the hop config file '" + configFilename + "'", e);
     }
   }
 }

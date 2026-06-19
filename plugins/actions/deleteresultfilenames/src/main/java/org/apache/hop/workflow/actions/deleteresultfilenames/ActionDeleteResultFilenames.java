@@ -21,16 +21,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -39,7 +40,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
 /**
  * This defines a 'deleteresultfilenames' action. Its main use would be to create empty folder that
@@ -53,18 +53,22 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionDeleteResultFilenames.keyword",
     documentationUrl = "/workflow/actions/deleteresultfilenames.html")
+@Getter
+@Setter
 public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteResultFilenames.class;
-  private static final String CONST_SPACE_SHORT = "      ";
 
-  private String folderName;
+  @HopMetadataProperty(key = "specify_wildcard")
   private boolean specifyWildcard;
+
+  @HopMetadataProperty(key = "wildcard")
   private String wildcard;
+
+  @HopMetadataProperty(key = "wildcardexclude")
   private String wildcardExclude;
 
   public ActionDeleteResultFilenames(String n) {
     super(n, "");
-    folderName = null;
     wildcardExclude = null;
     wildcard = null;
     specifyWildcard = false;
@@ -74,149 +78,80 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     this("");
   }
 
+  public ActionDeleteResultFilenames(ActionDeleteResultFilenames a) {
+    super(a);
+    this.specifyWildcard = a.specifyWildcard;
+    this.wildcard = a.wildcard;
+    this.wildcardExclude = a.wildcardExclude;
+  }
+
   @Override
   public Object clone() {
-    ActionDeleteResultFilenames je = (ActionDeleteResultFilenames) super.clone();
-    return je;
+    return new ActionDeleteResultFilenames(this);
   }
 
   @Override
-  public String getXml() {
-
-    // 75 chars in just tag names and spaces
-    return super.getXml()
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("foldername", folderName)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("specify_wildcard", specifyWildcard)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("wildcard", wildcard)
-        + CONST_SPACE_SHORT
-        + XmlHandler.addTagValue("wildcardexclude", wildcardExclude);
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      folderName = XmlHandler.getTagValue(entrynode, "foldername");
-      specifyWildcard = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "specify_wildcard"));
-      wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
-      wildcardExclude = XmlHandler.getTagValue(entrynode, "wildcardexclude");
-
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "ActionDeleteResultFilenames.CanNotLoadFromXML", xe.getMessage()));
-    }
-  }
-
-  public void setSpecifyWildcard(boolean specifyWildcard) {
-    this.specifyWildcard = specifyWildcard;
-  }
-
-  public boolean isSpecifyWildcard() {
-    return specifyWildcard;
-  }
-
-  public void setFoldername(String folderName) {
-    this.folderName = folderName;
-  }
-
-  public String getFoldername() {
-    return folderName;
-  }
-
-  public String getWildcard() {
-    return wildcard;
-  }
-
-  public String getWildcardExclude() {
-    return wildcardExclude;
-  }
-
-  public String getRealWildcard() {
-    return resolve(getWildcard());
-  }
-
-  public void setWildcard(String wildcard) {
-    this.wildcard = wildcard;
-  }
-
-  public void setWildcardExclude(String wildcardExclude) {
-    this.wildcardExclude = wildcardExclude;
-  }
-
-  @Override
-  public Result execute(Result previousResult, int nr) {
-    Result result = previousResult;
+  public Result execute(Result result, int nr) {
     result.setResult(false);
-
-    if (previousResult != null) {
-      try {
-        int size = previousResult.getResultFiles().size();
-        if (isBasic()) {
-          logBasic(
-              BaseMessages.getString(PKG, "ActionDeleteResultFilenames.log.FilesFound", "" + size));
+    try {
+      int size = result.getResultFiles().size();
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(PKG, "ActionDeleteResultFilenames.log.FilesFound", "" + size));
+      }
+      if (!specifyWildcard) {
+        // Remove all files
+        result.getResultFiles().clear();
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "ActionDeleteResultFilenames.log.DeletedFiles", "" + size));
         }
-        if (!specifyWildcard) {
-          // Delete all files
-          previousResult.getResultFiles().clear();
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "ActionDeleteResultFilenames.log.DeletedFiles", "" + size));
-          }
-        } else {
+      } else {
+        List<ResultFile> resultFiles = result.getResultFilesList();
+        if (!Utils.isEmpty(resultFiles)) {
+          for (Iterator<ResultFile> it = resultFiles.iterator();
+              it.hasNext() && !parentWorkflow.isStopped(); ) {
+            ResultFile resultFile = it.next();
+            FileObject file = resultFile.getFile();
+            if (file != null
+                && file.exists()
+                && checkFileWildcard(file.getName().getBaseName(), resolve(wildcard), true)
+                && !checkFileWildcard(
+                    file.getName().getBaseName(), resolve(wildcardExclude), false)) {
+              // Remove file from result files list
+              result.getResultFiles().remove(resultFile.getFile().toString());
 
-          List<ResultFile> resultFiles = result.getResultFilesList();
-          if (!Utils.isEmpty(resultFiles)) {
-            for (Iterator<ResultFile> it = resultFiles.iterator();
-                it.hasNext() && !parentWorkflow.isStopped(); ) {
-              ResultFile resultFile = it.next();
-              FileObject file = resultFile.getFile();
-              if (file != null
-                  && file.exists()
-                  && checkFileWildcard(file.getName().getBaseName(), resolve(wildcard), true)
-                  && !checkFileWildcard(
-                      file.getName().getBaseName(), resolve(wildcardExclude), false)) {
-                // Remove file from result files list
-                result.getResultFiles().remove(resultFile.getFile().toString());
-
-                if (isDetailed()) {
-                  logDetailed(
-                      BaseMessages.getString(
-                          PKG, "ActionDeleteResultFilenames.log.DeletedFile", file.toString()));
-                }
+              if (isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(
+                        PKG, "ActionDeleteResultFilenames.log.DeletedFile", file.toString()));
               }
             }
           }
         }
-        result.setResult(true);
-      } catch (Exception e) {
-        logError(BaseMessages.getString(PKG, "ActionDeleteResultFilenames.Error", e.toString()));
       }
+      result.setResult(true);
+    } catch (Exception e) {
+      logError(BaseMessages.getString(PKG, "ActionDeleteResultFilenames.Error", e.toString()));
     }
     return result;
   }
 
   /**
-   * @param selectedfile
-   * @param wildcard
-   * @return True if the selectedfile matches the wildcard
+   * @param selectedFile The selected file
+   * @param wildcard The wildcard
+   * @return True if the selected file matches the wildcard
    */
-  private boolean checkFileWildcard(String selectedfile, String wildcard, boolean include) {
-    Pattern pattern = null;
+  private boolean checkFileWildcard(String selectedFile, String wildcard, boolean include) {
+    Pattern pattern;
     boolean getIt = include;
 
     if (!Utils.isEmpty(wildcard)) {
       pattern = Pattern.compile(wildcard);
       // First see if the file matches the regular expression!
-      if (pattern != null) {
-        Matcher matcher = pattern.matcher(selectedfile);
-        getIt = matcher.matches();
-      }
+      Matcher matcher = pattern.matcher(selectedFile);
+      getIt = matcher.matches();
     }
 
     return getIt;

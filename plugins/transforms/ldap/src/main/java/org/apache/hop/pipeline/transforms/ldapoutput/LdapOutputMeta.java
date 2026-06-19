@@ -48,13 +48,9 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData>
     implements ILdapMeta {
   private static final Class<?> PKG = LdapOutputMeta.class;
-  public static final String CONST_SPACES = "        ";
-  public static final String CONST_FIELD = "field";
 
   /**
-   * Flag indicating that we use authentication for connection -- GETTER --
-   *
-   * <p>-- SETTER --
+   * Flag indicating that we use authentication for connection
    *
    * @return Returns the input useAuthentication.
    * @param useAuthentication The useAuthentication to set.
@@ -63,7 +59,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private boolean useAuthentication;
 
   /**
-   * The Host name -- SETTER --
+   * The Host name
    *
    * @param host The host to set.
    */
@@ -71,9 +67,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String host;
 
   /**
-   * The User name -- GETTER --
-   *
-   * <p>-- SETTER --
+   * The User name
    *
    * @return Returns the user name.
    * @param userName The username to set.
@@ -82,9 +76,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String userName;
 
   /**
-   * The Password to use in LDAP authentication -- SETTER --
-   *
-   * <p>-- GETTER --
+   * The Password to use in LDAP authentication
    *
    * @param password The password to set.
    * @return Returns the password.
@@ -93,22 +85,21 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String password;
 
   /**
-   * The Port -- SETTER --
+   * The Port
    *
    * @param port The port to set.
    */
   @HopMetadataProperty(key = "port")
+  @Getter
   private String port;
 
   /** The name of DN field */
   @HopMetadataProperty(key = "dnFieldName")
+  @Getter
+  @Setter
   private String dnFieldName;
 
   /**
-   * -- GETTER --
-   *
-   * <p>-- SETTER --
-   *
    * @return Returns the failIfNotExist.
    * @param failIfNotExist The failIfNotExist to set.
    */
@@ -130,9 +121,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   }
 
   /**
-   * Operations type -- SETTER --
-   *
-   * <p>-- GETTER --
+   * Operations type
    *
    * @param searchBase The searchBase filed.
    * @return Returns the searchBase.
@@ -141,9 +130,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String searchBase;
 
   /**
-   * Multi valued separator -- SETTER --
-   *
-   * <p>-- GETTER --
+   * Multi valued separator
    *
    * @param multiValuedSeparator The multi-valued separator filed.
    * @return Returns the multi valued separator.
@@ -157,10 +144,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private int operationType;
 
   /**
-   * -- SETTER --
-   *
-   * <p>-- GETTER --
-   *
    * @param value The oldDnFieldName filed.
    * @return Returns the oldDnFieldName.
    */
@@ -168,10 +151,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String oldDnFieldName;
 
   /**
-   * -- SETTER --
-   *
-   * <p>-- GETTER --
-   *
    * @param value The newDnFieldName filed.
    * @return Returns the newDnFieldName.
    */
@@ -179,10 +158,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private String newDnFieldName;
 
   /**
-   * -- SETTER --
-   *
-   * <p>-- GETTER --
-   *
    * @param value The deleteRDN filed.
    * @return Returns the deleteRDN.
    */
@@ -257,17 +232,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
 
   public static final int DEREFALIASES_TYPE_ALWAYS = 0;
 
-  public static final int DEREFALIASES_TYPE_NEVER = 1;
-
-  public static final int DEREFALIASES_TYPE_SEARCHING = 2;
-
-  public static final int DEREFALIASES_TYPE_FINDING = 3;
-
-  /**
-   * Protocol -- SETTER --
-   *
-   * @param value the protocol to set.
-   */
+  /** Protocol */
   @HopMetadataProperty(key = "protocol")
   private String protocol;
 
@@ -276,16 +241,12 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   private boolean useCertificate;
 
   /**
-   * -- SETTER --
-   *
    * @param value the trustStorePath to set.
    */
   @HopMetadataProperty(key = "trustStorePath")
   private String trustStorePath;
 
   /**
-   * -- SETTER --
-   *
    * @param value the trustStorePassword to set.
    */
   @HopMetadataProperty(key = "trustStorePassword", password = true)
@@ -529,32 +490,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return this.dnFieldName;
   }
 
-  /**
-   * Setter for metadata serialization - matches field name dnFieldName
-   *
-   * @param value The DN field name to set
-   */
-  public void setDnFieldName(String value) {
-    this.dnFieldName = value;
-  }
-
-  /**
-   * Getter for metadata serialization - matches field name dnFieldName
-   *
-   * @return The DN field name
-   */
-  public String getDnFieldName() {
-    return this.dnFieldName;
-  }
-
-  /**
-   * @return Returns the Port.
-   */
-  @Override
-  public String getPort() {
-    return port;
-  }
-
   @Override
   public Object clone() {
     LdapOutputMeta retval = (LdapOutputMeta) super.clone();
@@ -678,12 +613,14 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapOutputUpdateMeta.CheckResult.NoFields"),
               transformMeta);
+      remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapOutputUpdateMeta.CheckResult.FieldsOk"),
               transformMeta);
+      remarks.add(cr);
     }
   }
 

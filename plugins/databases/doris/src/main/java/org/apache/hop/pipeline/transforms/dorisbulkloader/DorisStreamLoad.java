@@ -1,0 +1,237 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.hop.pipeline.transforms.dorisbulkloader;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.UUID;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.entity.GzipCompressingEntity;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.json.HopJson;
+
+public class DorisStreamLoad {
+  private static final byte[] JSON_ARRAY_START =
+      LoadConstants.JSON_ARRAY_START.getBytes(StandardCharsets.UTF_8);
+  private static final byte[] JSON_ARRAY_END =
+      LoadConstants.JSON_ARRAY_END.getBytes(StandardCharsets.UTF_8);
+
+  /** used to serialize or deserialize json string */
+  private static final ObjectMapper OBJECT_MAPPER = HopJson.newMapper();
+
+  /** doris stream load http url */
+  private String loadUrl;
+
+  /** doris stream load http basic auth user */
+  private String loginUser;
+
+  /** doris stream load http basic auth password */
+  private String loginPassword;
+
+  /** doris stream load http request headers */
+  private Map<String, String> httpHeaders;
+
+  /** stream load format */
+  private String format;
+
+  /** stream load data line delimiter */
+  private final byte[] lineDelimiter;
+
+  private CloseableHttpClient httpClient;
+
+  /** buffered data */
+  private final RecordStream recordStream;
+
+  /** used to indicate whether it is the first record in current batch */
+  private boolean loadBatchFirstRecord;
+
+  public DorisStreamLoad(StreamLoadProperty streamLoadProperty) {
+    this.loadUrl =
+        String.format(
+            LoadConstants.LOAD_URL_PATTERN,
+            streamLoadProperty.getFeHost(),
+            streamLoadProperty.getFeHttpPort(),
+            streamLoadProperty.getDatabaseName(),
+            streamLoadProperty.getTableName());
+    this.loginUser = streamLoadProperty.getLoginUser();
+    this.loginPassword = streamLoadProperty.getLoginPassword();
+    this.httpHeaders = streamLoadProperty.getHttpHeaders();
+    this.format = httpHeaders.get(LoadConstants.FORMAT_KEY);
+    if (LoadConstants.JSON.equals(this.format)) {
+      this.lineDelimiter = LoadConstants.LINE_DELIMITER_JSON.getBytes();
+    } else {
+      this.lineDelimiter = httpHeaders.get(LoadConstants.LINE_DELIMITER_KEY).getBytes();
+    }
+    this.recordStream =
+        new RecordStream(streamLoadProperty.getBufferSize(), streamLoadProperty.getBufferCount());
+    this.loadBatchFirstRecord = true;
+  }
+
+  /**
+   * start to write data into buffer
+   *
+   * @throws IOException
+   */
+  public void startWritingIntoBuffer() throws IOException {
+    loadBatchFirstRecord = true;
+    recordStream.startInput();
+    if (LoadConstants.JSON.equals(format)) {
+      recordStream.write(JSON_ARRAY_START);
+    }
+  }
+
+  /**
+   * write record into buffer.
+   *
+   * @param record
+   * @throws IOException
+   */
+  public void writeRecord(byte[] record) throws IOException {
+    if (loadBatchFirstRecord) {
+      loadBatchFirstRecord = false;
+    } else {
+      recordStream.write(lineDelimiter);
+    }
+    recordStream.write(record);
+  }
+
+  /**
+   * if true then could write into buffer successfully
+   *
+   * @param writeLength
+   * @return
+   */
+  public boolean canWrite(long writeLength) {
+    if (LoadConstants.JSON.equals(this.format)) {
+      writeLength++;
+    }
+
+    return recordStream.canWrite(writeLength);
+  }
+
+  /**
+   * stop to load buffer data into doris by http api
+   *
+   * @throws IOException
+   */
+  public void endWritingIntoBuffer() throws IOException, InterruptedException {
+    if (LoadConstants.JSON.equals(format)) {
+      recordStream.write(JSON_ARRAY_END);
+    }
+    recordStream.endInput();
+  }
+
+  /**
+   * call doris stream load http api
+   *
+   * @return
+   * @throws IOException
+   * @throws DorisStreamLoadException
+   */
+  public ResponseContent executeDorisStreamLoad() throws IOException, DorisStreamLoadException {
+    HttpPut put = new HttpPut(loadUrl);
+    put.setHeader(HttpHeaders.EXPECT, LoadConstants.EXPECT_DEFAULT);
+    put.setHeader(HttpHeaders.AUTHORIZATION, basicAuthHeader(loginUser, loginPassword));
+    put.setHeader(
+        LoadConstants.LABEL_KEY, LoadConstants.LABEL_SUFFIX + UUID.randomUUID().toString());
+    if (LoadConstants.JSON.equals(format)) {
+      put.setHeader(LoadConstants.STRIP_OUTER_ARRAY_KEY, LoadConstants.STRIP_OUTER_ARRAY_DEFAULT);
+    } else {
+      put.setHeader(LoadConstants.COMPRESS_TYPE_KEY, LoadConstants.COMPRESS_FORMAT_GZ);
+      put.setHeader(HttpHeaders.CONTENT_ENCODING, LoadConstants.GZIP_ENCODING);
+    }
+    httpHeaders.forEach(put::setHeader);
+
+    InputStreamEntity entity =
+        new InputStreamEntity(
+            recordStream,
+            recordStream.getWriteLength(),
+            org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM);
+
+    if (LoadConstants.JSON.equals(format)) {
+      put.setEntity(entity);
+    } else {
+      GzipCompressingEntity gzipEntity = new GzipCompressingEntity(entity);
+      put.setEntity(gzipEntity);
+    }
+
+    if (httpClient == null) {
+      httpClient =
+          HttpClients.custom()
+              .setRedirectStrategy(
+                  new DefaultRedirectStrategy() {
+                    // If the connection target is FE, you need to deal with 307 redirect.
+                  })
+              .build();
+    }
+
+    CloseableHttpResponse response = httpClient.execute(put);
+    final int statusCode = response.getCode();
+    if (statusCode == 200 && response.getEntity() != null) {
+      String loadResult;
+      try {
+        loadResult = EntityUtils.toString(response.getEntity());
+      } catch (ParseException e) {
+        throw new IOException("Unable to parse Doris stream load response", e);
+      }
+      return OBJECT_MAPPER.readValue(loadResult, ResponseContent.class);
+    } else {
+      throw new DorisStreamLoadException("stream load error: " + response.getReasonPhrase());
+    }
+  }
+
+  /** support unit test */
+  public void clearRecordStream() throws InterruptedException {
+    recordStream.clearRecordStream();
+  }
+
+  public void close() throws IOException {
+    if (null != httpClient) {
+      try {
+        httpClient.close();
+      } catch (IOException e) {
+        throw new IOException("Closing httpClient failed.", e);
+      }
+    }
+  }
+
+  /**
+   * Get http basic Auth header
+   *
+   * @param username
+   * @param password
+   * @return
+   */
+  private String basicAuthHeader(String username, String password) {
+    final String tobeEncode = username + ":" + Encr.decryptPasswordOptionallyEncrypted(password);
+    byte[] encoded = Base64.encodeBase64(tobeEncode.getBytes(StandardCharsets.UTF_8));
+    return "Basic " + new String(encoded);
+  }
+}

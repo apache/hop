@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.loadsave.getter;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 public class MethodGetter<T> implements IGetter<T> {
   private final Method method;
@@ -32,7 +33,7 @@ public class MethodGetter<T> implements IGetter<T> {
     try {
       return (T) method.invoke(obj);
     } catch (Exception e) {
-      throw new RuntimeException("Error invoking " + method + " on " + obj, e);
+      throw new HopRuntimeException("Error invoking " + method + " on " + obj, e);
     }
   }
 

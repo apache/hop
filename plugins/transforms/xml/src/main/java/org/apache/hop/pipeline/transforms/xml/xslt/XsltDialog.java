@@ -62,6 +62,18 @@ import org.eclipse.swt.widgets.TableItem;
 public class XsltDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XsltMeta.class;
 
+  protected static final String[] OUTPUT_PROPERTIES = {
+    "method",
+    "version",
+    "encoding",
+    "standalone",
+    "indent",
+    "omit-xml-declaration",
+    "doctype-public",
+    "doctype-system",
+    "media-type"
+  };
+
   private LabelTextVar wResultField;
   private CCombo wField;
   private CCombo wXSLField;
@@ -85,7 +97,7 @@ public class XsltDialog extends BaseTransformDialog {
 
   private TableView wOutputProperties;
 
-  private ColumnInfo[] colinf;
+  private ColumnInfo[] columnInfos;
 
   private final Map<String, Integer> inputFields;
 
@@ -398,9 +410,7 @@ public class XsltDialog extends BaseTransformDialog {
     fdlOutputProperties.top = new FormAttachment(0, margin);
     wlOutputProperties.setLayoutData(fdlOutputProperties);
 
-    final int OutputPropertiesRows = input.getOutputPropertyName().length;
-
-    colinf =
+    columnInfos =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "XsltDialog.ColumnInfo.OutputProperties.Name"),
@@ -412,16 +422,16 @@ public class XsltDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
-    colinf[0].setComboValues(XsltMeta.outputProperties);
-    colinf[1].setUsingVariables(true);
+    columnInfos[0].setComboValues(OUTPUT_PROPERTIES);
+    columnInfos[1].setUsingVariables(true);
 
     wOutputProperties =
         new TableView(
             variables,
             wAdditionalComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            OutputPropertiesRows,
+            columnInfos,
+            1,
             lsMod,
             props);
     FormData fdOutputProperties = new FormData();
@@ -448,9 +458,7 @@ public class XsltDialog extends BaseTransformDialog {
     fdGet.right = new FormAttachment(100, 0);
     wGet.setLayoutData(fdGet);
 
-    final int FieldsRows = input.getParameterField().length;
-
-    colinf =
+    columnInfos =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "XsltDialog.ColumnInfo.Name"),
@@ -462,15 +470,15 @@ public class XsltDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
-    colinf[1].setUsingVariables(true);
+    columnInfos[1].setUsingVariables(true);
 
     wFields =
         new TableView(
             variables,
             wAdditionalComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columnInfos,
+            1,
             lsMod,
             props);
     FormData fdFields = new FormData();
@@ -598,41 +606,39 @@ public class XsltDialog extends BaseTransformDialog {
     if (input.getXslFilename() != null) {
       wXSLFilename.setText(input.getXslFilename());
     }
-    if (input.getResultfieldname() != null) {
-      wResultField.setText(input.getResultfieldname());
+    if (input.getResultFieldName() != null) {
+      wResultField.setText(input.getResultFieldName());
     }
-    if (input.getFieldname() != null) {
-      wField.setText(input.getFieldname());
-    }
-
-    if (input.getXSLFileField() != null) {
-      wXSLField.setText(input.getXSLFileField());
+    if (input.getFieldName() != null) {
+      wField.setText(input.getFieldName());
     }
 
-    wXSLFileField.setSelection(input.useXSLField());
-    wXSLFieldIsAFile.setSelection(input.isXSLFieldIsAFile());
+    if (input.getXslFileField() != null) {
+      wXSLField.setText(input.getXslFileField());
+    }
 
-    if (input.getXSLFactory() != null) {
-      wXSLTFactory.setText(input.getXSLFactory());
+    wXSLFileField.setSelection(input.isXslFileFieldUse());
+    wXSLFieldIsAFile.setSelection(input.isXslFieldIsAFile());
+
+    if (input.getXslFactory() != null) {
+      wXSLTFactory.setText(input.getXslFactory());
     } else {
       wXSLTFactory.setText("JAXP");
     }
 
-    if (input.getParameterName() != null) {
-      for (int i = 0; i < input.getParameterName().length; i++) {
-        TableItem item = wFields.table.getItem(i);
-        item.setText(1, Const.NVL(input.getParameterField()[i], ""));
-        item.setText(2, Const.NVL(input.getParameterName()[i], ""));
-      }
+    for (XsltMeta.Parameter parameter : input.getParameters()) {
+      TableItem item = new TableItem(wFields.table, SWT.NONE);
+      item.setText(1, Const.NVL(parameter.getParameterField(), ""));
+      item.setText(2, Const.NVL(parameter.getParameterName(), ""));
     }
+    wFields.optimizeTableView();
 
-    if (input.getOutputPropertyName() != null) {
-      for (int i = 0; i < input.getOutputPropertyName().length; i++) {
-        TableItem item = wOutputProperties.table.getItem(i);
-        item.setText(1, Const.NVL(input.getOutputPropertyName()[i], ""));
-        item.setText(2, Const.NVL(input.getOutputPropertyValue()[i], ""));
-      }
+    for (XsltMeta.OutputProperty outputProperty : input.getOutputProperties()) {
+      TableItem item = new TableItem(wOutputProperties.table, SWT.NONE);
+      item.setText(1, Const.NVL(outputProperty.getOutputPropertyName(), ""));
+      item.setText(2, Const.NVL(outputProperty.getOutputPropertyValue(), ""));
     }
+    wOutputProperties.optimizeTableView();
   }
 
   private void cancel() {
@@ -645,51 +651,47 @@ public class XsltDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     input.setXslFilename(wXSLFilename.getText());
-    input.setResultfieldname(wResultField.getText());
-    input.setFieldname(wField.getText());
-    input.setXSLFileField(wXSLField.getText());
-    input.setXSLFactory(wXSLTFactory.getText());
+    input.setResultFieldName(wResultField.getText());
+    input.setFieldName(wField.getText());
+    input.setXslFileField(wXSLField.getText());
+    input.setXslFactory(wXSLTFactory.getText());
 
-    input.setXSLField(wXSLFileField.getSelection());
-    input.setXSLFieldIsAFile(wXSLFieldIsAFile.getSelection());
-    int nrparams = wFields.nrNonEmpty();
-    int nroutputprops = wOutputProperties.nrNonEmpty();
-    input.allocate(nrparams, nroutputprops);
+    input.setXslFileFieldUse(wXSLFileField.getSelection());
+    input.setXslFieldIsAFile(wXSLFieldIsAFile.getSelection());
 
-    if (isDebug()) {
-      logDebug(
-          BaseMessages.getString(PKG, "HTTPDialog.Log.FoundArguments", String.valueOf(nrparams)));
+    input.getParameters().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      XsltMeta.Parameter parameter = new XsltMeta.Parameter();
+      input.getParameters().add(parameter);
+      parameter.setParameterField(item.getText(1));
+      parameter.setParameterName(item.getText(2));
     }
 
-    for (int i = 0; i < nrparams; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      input.getParameterField()[i] = item.getText(1);
-      input.getParameterName()[i] = item.getText(2);
+    input.getOutputProperties().clear();
+    for (TableItem item : wOutputProperties.getNonEmptyItems()) {
+      XsltMeta.OutputProperty outputProperty = new XsltMeta.OutputProperty();
+      input.getOutputProperties().add(outputProperty);
+      outputProperty.setOutputPropertyName(item.getText(1));
+      outputProperty.setOutputPropertyValue(item.getText(2));
     }
 
-    for (int i = 0; i < nroutputprops; i++) {
-      TableItem item = wOutputProperties.getNonEmpty(i);
-      input.getOutputPropertyName()[i] = item.getText(1);
-      input.getOutputPropertyValue()[i] = item.getText(2);
-    }
     dispose();
   }
 
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
-    fields.putAll(inputFields);
+    final Map<String, Integer> fields = new HashMap<>(inputFields);
 
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<>(keySet);
 
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
+    String[] fieldNames = entries.toArray(new String[0]);
 
     Const.sortStrings(fieldNames);
-    colinf[0].setComboValues(fieldNames);
+    columnInfos[0].setComboValues(fieldNames);
   }
 
   private void get() {

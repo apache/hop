@@ -38,6 +38,7 @@ exitWithCode() {
 write_server_config() {
   HOP_SERVER_USER=${HOP_SERVER_USER:-cluster}
   HOP_SERVER_PASS=${HOP_SERVER_PASS:-cluster}
+  HOP_SERVER_AUTH=${HOP_SERVER_AUTH:-true}
   HOP_SERVER_HOSTNAME=${HOP_SERVER_HOSTNAME:-0.0.0.0}
 
   HOP_SERVER_XML=/tmp/hop-server.xml
@@ -109,10 +110,18 @@ if [ -f "${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}" ]; then
   source "${HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH}"
 fi
 
+# Set empty defaults on the Hop command options.
+#
+HOP_COMMAND="${HOP_COMMAND:-}"
+HOP_COMMAND_PARAMETERS="${HOP_COMMAND_PARAMETERS:-}"
+
 # The common execution options for short and long lived containers
 # The default log level is Basic
 #
-HOP_EXEC_OPTIONS="--level=${HOP_LOG_LEVEL}"
+HOP_EXEC_OPTIONS=""
+if [ -z "${HOP_COMMAND}" ]; then
+  HOP_EXEC_OPTIONS="--level=${HOP_LOG_LEVEL}"
+fi
 
 # For backward compatibility we'll still understand the HOP_PROJECT_DIRECTORY variable
 #
@@ -152,7 +161,7 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
   fi
 
   log "Registering project ${HOP_PROJECT_NAME} in the Hop container configuration"
-  log "${DEPLOYMENT_PATH}/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_FOLDER}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
+  log "${DEPLOYMENT_PATH}/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_FOLDER}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}' --project-keep-config-file"
 
   if $("${DEPLOYMENT_PATH}"/hop-conf.sh -pl | grep -q -E "^  ${HOP_PROJECT_NAME} :"); then
     log "project ${HOP_PROJECT_NAME} already exists"
@@ -161,7 +170,8 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
       --project="${HOP_PROJECT_NAME}" \
       --project-create \
       --project-home="${HOP_PROJECT_FOLDER}" \
-      --project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}"
+      --project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}" \
+      --project-keep-config-file
   fi
 
   HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --project=${HOP_PROJECT_NAME}"
@@ -193,7 +203,7 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
   else
     log "Not creating an environment in the container"
   fi
-
+[ -z "${HOP_COMMAND}" ]
 else
   log "Not creating a project or environment in the container"
 fi
@@ -205,11 +215,11 @@ if [ -n "${HOP_CONFIG_OPTIONS}" ]; then
   #
   echo "Configuring Hop with : ${HOP_CONFIG_OPTIONS}"
   "${DEPLOYMENT_PATH}"/hop-conf.sh \
-    "{HOP_CONFIG_OPTIONS}" \
+    "${HOP_CONFIG_OPTIONS}" \
     2>&1 | tee ${HOP_LOG_PATH}
 fi
 
-if [ -z "${HOP_FILE_PATH}" ]; then
+if [ -z "${HOP_FILE_PATH}" ] && [ -z "${HOP_COMMAND}" ]; then
   write_server_config
   log "Starting a hop-server on port "${HOP_SERVER_PORT}
   "${DEPLOYMENT_PATH}"/hop-server.sh \
@@ -220,7 +230,7 @@ if [ -z "${HOP_FILE_PATH}" ]; then
   exitWithCode "${PIPESTATUS[0]}"
 else
 
-  if [ -z "${HOP_RUN_CONFIG}" ]; then
+  if [ -z "${HOP_RUN_CONFIG}" ] && [ -z "${HOP_COMMAND}" ]; then
     log "Please specify which run configuration you want to use to execute with variable HOP_RUN_CONFIG"
     exitWithCode 9
   fi
@@ -239,13 +249,25 @@ else
     HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --startaction=${HOP_START_ACTION}"
   fi
 
-  log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
-  "${DEPLOYMENT_PATH}"/hop-run.sh \
-    --file="${HOP_FILE_PATH}" \
-    --runconfig="${HOP_RUN_CONFIG}" \
-    --parameters="${HOP_RUN_PARAMETERS}" \
-    ${HOP_EXEC_OPTIONS} \
-    2>&1 | tee "${HOP_LOG_PATH}"
+  # Optionally execute a hop command instead of hop-run.sh
+  #
+  if [ -n "${HOP_COMMAND}" ]; then
+    log "Executing command: ${DEPLOYMENT_PATH}/hop ${HOP_COMMAND} ${HOP_EXEC_OPTIONS} ${HOP_COMMAND_PARAMETERS}"
 
-  exitWithCode "${PIPESTATUS[0]}"
+    "${DEPLOYMENT_PATH}"/hop \
+      ${HOP_COMMAND} \
+      ${HOP_EXEC_OPTIONS} \
+      ${HOP_COMMAND_PARAMETERS} \
+      2>&1 | tee "${HOP_LOG_PATH}"
+    exitWithCode "${PIPESTATUS[0]}"
+  else
+    log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
+    "${DEPLOYMENT_PATH}"/hop-run.sh \
+      --file="${HOP_FILE_PATH}" \
+      --runconfig="${HOP_RUN_CONFIG}" \
+      --parameters="${HOP_RUN_PARAMETERS}" \
+      ${HOP_EXEC_OPTIONS} \
+      2>&1 | tee "${HOP_LOG_PATH}"
+    exitWithCode "${PIPESTATUS[0]}"
+  fi
 fi

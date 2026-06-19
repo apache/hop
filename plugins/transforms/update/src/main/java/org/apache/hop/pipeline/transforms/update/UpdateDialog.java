@@ -19,9 +19,10 @@ package org.apache.hop.pipeline.transforms.update;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -33,6 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -40,6 +42,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -47,6 +50,8 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -54,6 +59,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -107,11 +113,70 @@ public class UpdateDialog extends BaseTransformDialog {
     buildButtonBar().ok(e -> ok()).sql(e -> create()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-    ModifyListener lsTableMod =
-        arg0 -> {
-          input.setChanged();
-          setTableFieldCombo();
+
+    changed = input.hasChanged();
+
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+
+    addGeneralTab(wTabFolder, lsMod);
+    addKeysTab(wTabFolder, lsMod);
+    addFieldsTab(wTabFolder, lsMod);
+
+    wTabFolder.setLayoutData(
+        FormDataBuilder.builder()
+            .left()
+            .top(wSpacer, margin)
+            .right()
+            .bottom(wOk, -margin)
+            .result());
+    wTabFolder.setSelection(0);
+
+    //
+    // Search the fields in the background
+    //
+
+    final Runnable runnable =
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.add(row.getValueMeta(i).getName());
+              }
+
+              setComboBoxes();
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+            }
+          }
         };
+    new Thread(runnable).start();
+
+    getData();
+    setActiveIgnoreLookup();
+    setTableFieldCombo();
+    input.setChanged(changed);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return transformName;
+  }
+
+  private void addGeneralTab(CTabFolder wTabFolder, ModifyListener lsMod) {
+
+    Composite composite = new Composite(wTabFolder, SWT.NONE);
+    composite.setLayout(props.createFormLayout());
+    PropsUi.setLook(composite);
+
+    CTabItem tabItem = new CTabItem(wTabFolder, SWT.NONE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
+    tabItem.setText(BaseMessages.getString(PKG, "UpdateDialog.GeneralTab.Title"));
+    tabItem.setControl(composite);
+
     SelectionListener lsSelection =
         new SelectionAdapter() {
           @Override
@@ -120,14 +185,18 @@ public class UpdateDialog extends BaseTransformDialog {
             setTableFieldCombo();
           }
         };
-    changed = input.hasChanged();
+    ModifyListener lsTableMod =
+        event -> {
+          input.setChanged();
+          setTableFieldCombo();
+        };
 
     // Connection line
-    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(composite, null, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
-    Label wlSchema = new Label(shell, SWT.RIGHT);
+    Label wlSchema = new Label(composite, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "UpdateDialog.TargetSchema.Label"));
     PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
@@ -136,15 +205,16 @@ public class UpdateDialog extends BaseTransformDialog {
     fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
-    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbSchema = new Button(composite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
-    wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
@@ -154,7 +224,7 @@ public class UpdateDialog extends BaseTransformDialog {
     wSchema.setLayoutData(fdSchema);
 
     // Table line...
-    Label wlTable = new Label(shell, SWT.RIGHT);
+    Label wlTable = new Label(composite, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "UpdateDialog.TargetTable.Label"));
     PropsUi.setLook(wlTable);
     FormData fdlTable = new FormData();
@@ -163,15 +233,16 @@ public class UpdateDialog extends BaseTransformDialog {
     fdlTable.top = new FormAttachment(wbSchema, margin);
     wlTable.setLayoutData(fdlTable);
 
-    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbTable = new Button(composite, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
-    wbTable.setText(BaseMessages.getString(PKG, "UpdateDialog.Browse.Button"));
+    wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wbSchema, margin);
     wbTable.setLayoutData(fdbTable);
+    wbTable.addListener(SWT.Selection, e -> getTableName());
 
-    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
@@ -181,15 +252,15 @@ public class UpdateDialog extends BaseTransformDialog {
     wTable.setLayoutData(fdTable);
 
     // Commit line
-    Label wlCommit = new Label(shell, SWT.RIGHT);
-    wlCommit.setText(BaseMessages.getString(PKG, "UpdateDialog..Commit.Label"));
+    Label wlCommit = new Label(composite, SWT.RIGHT);
+    wlCommit.setText(BaseMessages.getString(PKG, "UpdateDialog.Commit.Label"));
     PropsUi.setLook(wlCommit);
     FormData fdlCommit = new FormData();
     fdlCommit.left = new FormAttachment(0, 0);
     fdlCommit.top = new FormAttachment(wTable, margin);
     fdlCommit.right = new FormAttachment(middle, -margin);
     wlCommit.setLayoutData(fdlCommit);
-    wCommit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCommit = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCommit);
     wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();
@@ -199,7 +270,7 @@ public class UpdateDialog extends BaseTransformDialog {
     wCommit.setLayoutData(fdCommit);
 
     // Batch update
-    Label wlBatch = new Label(shell, SWT.RIGHT);
+    Label wlBatch = new Label(composite, SWT.RIGHT);
     wlBatch.setText(BaseMessages.getString(PKG, "UpdateDialog.Batch.Label"));
     PropsUi.setLook(wlBatch);
     FormData fdlBatch = new FormData();
@@ -207,7 +278,7 @@ public class UpdateDialog extends BaseTransformDialog {
     fdlBatch.top = new FormAttachment(wCommit, margin);
     fdlBatch.right = new FormAttachment(middle, -margin);
     wlBatch.setLayoutData(fdlBatch);
-    wBatch = new Button(shell, SWT.CHECK);
+    wBatch = new Button(composite, SWT.CHECK);
     PropsUi.setLook(wBatch);
     FormData fdBatch = new FormData();
     fdBatch.left = new FormAttachment(middle, 0);
@@ -224,7 +295,7 @@ public class UpdateDialog extends BaseTransformDialog {
         });
 
     // UsePart update
-    Label wlSkipLookup = new Label(shell, SWT.RIGHT);
+    Label wlSkipLookup = new Label(composite, SWT.RIGHT);
     wlSkipLookup.setText(BaseMessages.getString(PKG, "UpdateDialog.SkipLookup.Label"));
     PropsUi.setLook(wlSkipLookup);
     FormData fdlSkipLookup = new FormData();
@@ -232,7 +303,7 @@ public class UpdateDialog extends BaseTransformDialog {
     fdlSkipLookup.top = new FormAttachment(wBatch, margin);
     fdlSkipLookup.right = new FormAttachment(middle, -margin);
     wlSkipLookup.setLayoutData(fdlSkipLookup);
-    wSkipLookup = new Button(shell, SWT.CHECK);
+    wSkipLookup = new Button(composite, SWT.CHECK);
     wSkipLookup.setToolTipText(BaseMessages.getString(PKG, "UpdateDialog.SkipLookup.Tooltip"));
     PropsUi.setLook(wSkipLookup);
     FormData fdSkipLookup = new FormData();
@@ -249,7 +320,7 @@ public class UpdateDialog extends BaseTransformDialog {
           }
         });
 
-    wlErrorIgnored = new Label(shell, SWT.RIGHT);
+    wlErrorIgnored = new Label(composite, SWT.RIGHT);
     wlErrorIgnored.setText(BaseMessages.getString(PKG, "UpdateDialog.ErrorIgnored.Label"));
     PropsUi.setLook(wlErrorIgnored);
     FormData fdlErrorIgnored = new FormData();
@@ -257,7 +328,7 @@ public class UpdateDialog extends BaseTransformDialog {
     fdlErrorIgnored.top = new FormAttachment(wSkipLookup, margin);
     fdlErrorIgnored.right = new FormAttachment(middle, -margin);
     wlErrorIgnored.setLayoutData(fdlErrorIgnored);
-    wErrorIgnored = new Button(shell, SWT.CHECK);
+    wErrorIgnored = new Button(composite, SWT.CHECK);
     PropsUi.setLook(wErrorIgnored);
     wErrorIgnored.setToolTipText(BaseMessages.getString(PKG, "UpdateDialog.ErrorIgnored.ToolTip"));
     FormData fdErrorIgnored = new FormData();
@@ -273,14 +344,14 @@ public class UpdateDialog extends BaseTransformDialog {
           }
         });
 
-    wlIgnoreFlagField = new Label(shell, SWT.LEFT);
+    wlIgnoreFlagField = new Label(composite, SWT.LEFT);
     wlIgnoreFlagField.setText(BaseMessages.getString(PKG, "UpdateDialog.FlagField.Label"));
     PropsUi.setLook(wlIgnoreFlagField);
     FormData fdlIgnoreFlagField = new FormData();
     fdlIgnoreFlagField.left = new FormAttachment(wErrorIgnored, margin);
     fdlIgnoreFlagField.top = new FormAttachment(wSkipLookup, margin);
     wlIgnoreFlagField.setLayoutData(fdlIgnoreFlagField);
-    wIgnoreFlagField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wIgnoreFlagField = new Text(composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wIgnoreFlagField);
     wIgnoreFlagField.addModifyListener(lsMod);
     FormData fdIgnoreFlagField = new FormData();
@@ -288,14 +359,22 @@ public class UpdateDialog extends BaseTransformDialog {
     fdIgnoreFlagField.top = new FormAttachment(wSkipLookup, margin);
     fdIgnoreFlagField.right = new FormAttachment(100, 0);
     wIgnoreFlagField.setLayoutData(fdIgnoreFlagField);
+  }
 
-    Label wlKey = new Label(shell, SWT.NONE);
+  private void addKeysTab(CTabFolder wTabFolder, ModifyListener lsMod) {
+    Composite composite = new Composite(wTabFolder, SWT.NONE);
+    composite.setLayout(props.createFormLayout());
+    PropsUi.setLook(composite);
+
+    CTabItem tabItem = new CTabItem(wTabFolder, SWT.NONE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
+    tabItem.setText(BaseMessages.getString(PKG, "UpdateDialog.KeysTab.Title"));
+    tabItem.setControl(composite);
+
+    Label wlKey = new Label(composite, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "UpdateDialog.Key.Label"));
+    wlKey.setLayoutData(FormDataBuilder.builder().left().top().result());
     PropsUi.setLook(wlKey);
-    FormData fdlKey = new FormData();
-    fdlKey.left = new FormAttachment(0, 0);
-    fdlKey.top = new FormAttachment(wIgnoreFlagField, margin);
-    wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
     int nrKeyRows =
@@ -343,35 +422,37 @@ public class UpdateDialog extends BaseTransformDialog {
     wKey =
         new TableView(
             variables,
-            shell,
+            composite,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKey,
             nrKeyRows,
             lsMod,
             props);
 
-    wGet = new Button(shell, SWT.PUSH);
+    wGet = new Button(composite, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "UpdateDialog.GetFields.Button"));
-    fdGet = new FormData();
-    fdGet.right = new FormAttachment(100, 0);
-    fdGet.top = new FormAttachment(wlKey, margin);
-    wGet.setLayoutData(fdGet);
+    wGet.addListener(SWT.Selection, e -> getKeysFields());
+    setButtonPositions(new Button[] {wGet}, margin, null);
 
-    FormData fdKey = new FormData();
-    fdKey.left = new FormAttachment(0, 0);
-    fdKey.top = new FormAttachment(wlKey, margin);
-    fdKey.right = new FormAttachment(wGet, -margin);
-    fdKey.bottom = new FormAttachment(wlKey, 190);
-    wKey.setLayoutData(fdKey);
+    wKey.setLayoutData(
+        FormDataBuilder.builder().top(wlKey, margin).bottom(wGet, -margin).fullWidth().result());
+  }
 
-    // THE UPDATE/INSERT TABLE
-    Label wlReturn = new Label(shell, SWT.NONE);
+  private void addFieldsTab(CTabFolder wTabFolder, ModifyListener lsMod) {
+    Composite composite = new Composite(wTabFolder, SWT.NONE);
+    composite.setLayout(props.createFormLayout());
+    PropsUi.setLook(composite);
+
+    CTabItem tabItem = new CTabItem(wTabFolder, SWT.NONE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
+    tabItem.setText(BaseMessages.getString(PKG, "UpdateDialog.FieldsTab.Title"));
+    tabItem.setControl(composite);
+
+    // The update field Table
+    Label wlReturn = new Label(composite, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "UpdateDialog.Return.Label"));
+    wlReturn.setLayoutData(FormDataBuilder.builder().left().top().result());
     PropsUi.setLook(wlReturn);
-    FormData fdlReturn = new FormData();
-    fdlReturn.left = new FormAttachment(0, 0);
-    fdlReturn.top = new FormAttachment(wKey, margin);
-    wlReturn.setLayoutData(fdlReturn);
 
     int upInsCols = 2;
     int upInsRows =
@@ -396,78 +477,24 @@ public class UpdateDialog extends BaseTransformDialog {
     wReturn =
         new TableView(
             variables,
-            shell,
+            composite,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
             upInsRows,
             lsMod,
             props);
 
-    Button wGetLU = new Button(shell, SWT.PUSH);
-    wGetLU.setText(BaseMessages.getString(PKG, "UpdateDialog.GetAndUpdateFields"));
-    FormData fdGetLU = new FormData();
-    fdGetLU.top = new FormAttachment(wlReturn, margin);
-    fdGetLU.right = new FormAttachment(100, 0);
-    wGetLU.setLayoutData(fdGetLU);
+    Button wGetUpdateFields = new Button(composite, SWT.PUSH);
+    wGetUpdateFields.setText(BaseMessages.getString(PKG, "UpdateDialog.GetAndUpdateFields"));
+    wGetUpdateFields.addListener(SWT.Selection, e -> getUpdateFields());
+    setButtonPositions(new Button[] {wGetUpdateFields}, margin, null);
 
-    FormData fdReturn = new FormData();
-    fdReturn.left = new FormAttachment(0, 0);
-    fdReturn.top = new FormAttachment(wlReturn, margin);
-    fdReturn.right = new FormAttachment(wGetLU, -margin);
-    fdReturn.bottom = new FormAttachment(100, -50);
-    wReturn.setLayoutData(fdReturn);
-
-    //
-    // Search the fields in the background
-    //
-
-    final Runnable runnable =
-        () -> {
-          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-          if (transformMeta != null) {
-            try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                inputFields.add(row.getValueMeta(i).getName());
-              }
-
-              setComboBoxes();
-            } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-            }
-          }
-        };
-    new Thread(runnable).start();
-
-    // Add listeners
-    wGet.addListener(SWT.Selection, e -> get());
-    wGetLU.addListener(SWT.Selection, e -> getUpdate());
-
-    wbSchema.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getSchemaNames();
-          }
-        });
-    wbTable.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getTableName();
-          }
-        });
-
-    getData();
-    setActiveIgnoreLookup();
-    setTableFieldCombo();
-    input.setChanged(changed);
-    focusTransformName();
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
-    return transformName;
+    wReturn.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlReturn, margin)
+            .bottom(wGetUpdateFields, -margin)
+            .fullWidth()
+            .result());
   }
 
   public void setActiveIgnoreLookup() {
@@ -728,7 +755,7 @@ public class UpdateDialog extends BaseTransformDialog {
     }
   }
 
-  private void get() {
+  private void getKeysFields() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null && !r.isEmpty()) {
@@ -749,7 +776,7 @@ public class UpdateDialog extends BaseTransformDialog {
     }
   }
 
-  private void getUpdate() {
+  private void getUpdateFields() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null && !r.isEmpty()) {

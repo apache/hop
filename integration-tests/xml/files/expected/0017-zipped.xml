@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<transactions>
+<transaction id="TX-1001"><date>2026-01-15</date><amount>1,250.00 EUR</amount></transaction>
+<transaction id="TX-1002"><date>2026-01-15</date><amount>87,500.50 EUR</amount></transaction>
+<transaction id="TX-1003"><date>2026-01-16</date><amount>250.75 EUR</amount></transaction>
+<transaction id="TX-1004"><date>2026-01-16</date><amount>3,450.99 EUR</amount></transaction>
+</transactions>

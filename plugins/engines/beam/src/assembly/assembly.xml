@@ -158,6 +158,17 @@
                 <exclude>org.apache.commons:commons-lang3:jar</exclude>
                 <exclude>commons-collections:commons-collections:jar</exclude>
                 <exclude>com.fasterxml.woodstox:woodstox-core:jar</exclude>
+                <exclude>com.ibm.icu:icu4j:jar</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations:jar</exclude>
+                <exclude>software.amazon.awssdk:*:jar</exclude>
+                <exclude>software.amazon.eventstream:eventstream:jar</exclude>
+                <exclude>javax.annotation:javax.annotation-api:jar</exclude>
+                <exclude>javax.inject:javax.inject:jar</exclude>
+                <exclude>org.jctools:jctools-core:jar</exclude>
+                <exclude>com.nimbusds:lang-tag:jar</exclude>
+                <exclude>io.dropwizard.metrics:*:jar</exclude>
+                <exclude>com.eclipsesource.minimal-json:minimal-json:jar</exclude>
+                <exclude>org.slf4j:slf4j-api:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -259,6 +270,17 @@
                 <include>org.apache.commons:commons-lang3:jar</include>
                 <include>commons-collections:commons-collections:jar</include>
                 <include>com.fasterxml.woodstox:woodstox-core:jar</include>
+                <include>com.ibm.icu:icu4j:jar</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations:jar</include>
+                <include>software.amazon.awssdk:*:jar</include>
+                <include>software.amazon.eventstream:eventstream:jar</include>
+                <include>javax.annotation:javax.annotation-api:jar</include>
+                <include>javax.inject:javax.inject:jar</include>
+                <include>org.jctools:jctools-core:jar</include>
+                <include>com.nimbusds:lang-tag:jar</include>
+                <include>io.dropwizard.metrics:*:jar</include>
+                <include>com.eclipsesource.minimal-json:minimal-json:jar</include>
+                <include>org.slf4j:slf4j-api:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

@@ -1,0 +1,61 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How does ETL Metadata Injection work in Hop transforms?
+
+[[metadata-injection]]
+
+:toc:
+
+= ETL Metadata Injection
+
+== Introduction
+
+https://hop.apache.org//manual/latest/pipeline/transforms/metainject.html[ETL Metadata Injection] is a transform that allows you to modify the properties of a specified "template" pipeline.  The transforms that will be executed are chosen, but their properties and settings are "injected" at runtime.
+
+This transform uses a mapping between information that the transform reads from source transforms in the form of one or more rows of data in source fields.  These fields can then be mapped to target transform fields in the specified "template" pipeline.
+
+== Hop Metadata Property annotations
+
+How can you specify how a field to be injected shows up in the ETL Metadata Injection dialog?  You can use the `@HopMetadataProperty` annotation. For more example on how this is used to serialize metadata, see the xref:metadata-serialization.adoc[Metadata Serialization] page.
+
+By default, if a field is annotated, it's going to be visible.
+You can specify that a field has a specific `injectionKey` for backward compatibility with older forms or annotations.
+
+For lists, you can use the `injectionGroupKey`.
+
+[IMPORTANT]
+The ETL Metadata Injection transform requires all keys in a single transform metadata class to be unique.
+
+Avoid giving a `File` object in a list of files a key or injectionKey value of `name` if you would do the same in a Field class in a list of fields.
+
+== Internationalization (i18n)
+
+To allow for meaningful descriptions of the injectable fields to show up in the ETL Metadata Injection transform dialog you an specify properties `injectionKeyDescription` and `injectionGroupDescription`.  The specified strings reference an entry to the message bundles in the transform, e.g. `messages_en_US.properties` and their localized variants.
+
+[TIP]
+You can list the values that are acceptable in the injection key description.
+
+== Data conversions
+
+The injection system will try to use the already specified methods for XML/JSON serialization but there are also these options:
+
+* `InjectionTypeConverter` specified by `injectionConverter`
+* `IIntCodeConverter` specified by `intCodeConverter`
+* `IStringObjectConverter` specified by `injectionStringObjectConverter`
+* `IStringEncoder` specified by `stringEncoder`
+
+

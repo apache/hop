@@ -28,7 +28,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/misc/rest</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -40,18 +40,8 @@
         </fileSet>
     </fileSets>
 
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-misc-rest:jar</include>
-            </includes>
-            <outputDirectory>plugins/misc/rest</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.glassfish.jersey.connectors:jersey-apache-connector:jar</include>
-            </includes>
-            <outputDirectory>plugins/misc/rest/lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

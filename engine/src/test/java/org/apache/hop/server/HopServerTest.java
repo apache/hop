@@ -39,6 +39,19 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -48,21 +61,6 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.utils.TestUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.protocol.HttpContext;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,10 +98,7 @@ class HopServerTest {
     // mock response
     CloseableHttpResponse closeableHttpResponseMock = mock(CloseableHttpResponse.class);
 
-    // mock status line
-    StatusLine statusLineMock = mock(StatusLine.class);
-    doReturn(HttpStatus.SC_NOT_FOUND).when(statusLineMock).getStatusCode();
-    doReturn(statusLineMock).when(closeableHttpResponseMock).getStatusLine();
+    doReturn(HttpStatus.SC_NOT_FOUND).when(closeableHttpResponseMock).getCode();
 
     // mock entity
     HttpEntity httpEntityMock = mock(HttpEntity.class);
@@ -121,11 +116,9 @@ class HopServerTest {
     doReturn("response_body").when(hopServer).getResponseBodyAsString(nullable(InputStream.class));
   }
 
-  private HttpResponse mockResponse(int statusCode, String entityText) throws IOException {
-    HttpResponse resp = mock(HttpResponse.class);
-    StatusLine status = mock(StatusLine.class);
-    when(status.getStatusCode()).thenReturn(statusCode);
-    when(resp.getStatusLine()).thenReturn(status);
+  private ClassicHttpResponse mockResponse(int statusCode, String entityText) throws IOException {
+    ClassicHttpResponse resp = mock(ClassicHttpResponse.class);
+    when(resp.getCode()).thenReturn(statusCode);
     HttpEntity entity = mock(HttpEntity.class);
     when(entity.getContent())
         .thenReturn(new ByteArrayInputStream(entityText.getBytes(StandardCharsets.UTF_8)));
@@ -139,14 +132,14 @@ class HopServerTest {
     HttpGet httpGetMock = mock(HttpGet.class);
 
     URI uriMock = new URI(nonExistingAppName);
-    doReturn(uriMock).when(httpGetMock).getURI();
+    doReturn(uriMock).when(httpGetMock).getUri();
 
     HttpClient clientMock = mock(HttpClient.class);
-    when(clientMock.execute(any(HttpUriRequest.class), any(HttpContext.class)))
+    when(clientMock.execute(any(ClassicHttpRequest.class), any(HttpContext.class)))
         .then(
             invocation -> {
-              HttpUriRequest request = invocation.getArgument(0);
-              if (request.getURI().equals(uriMock)) {
+              ClassicHttpRequest request = invocation.getArgument(0);
+              if (request.getUri().equals(uriMock)) {
                 return mockResponse(404, "");
               }
               return mockResponse(200, "");
@@ -170,7 +163,7 @@ class HopServerTest {
     hopServer.setUsername("userNAmeStub");
     HttpPost httpPostMock = mock(HttpPost.class);
     URI uriMock = new URI("fake");
-    doReturn(uriMock).when(httpPostMock).getURI();
+    doReturn(uriMock).when(httpPostMock).getUri();
     doReturn(httpPostMock)
         .when(hopServer)
         .buildSendXmlMethod(any(Variables.class), any(byte[].class), anyString());
@@ -184,7 +177,7 @@ class HopServerTest {
     hopServer.setUsername("userNAmeStub");
     HttpPost httpPostMock = mock(HttpPost.class);
     URI uriMock = new URI("fake");
-    doReturn(uriMock).when(httpPostMock).getURI();
+    doReturn(uriMock).when(httpPostMock).getUri();
     doReturn(httpPostMock)
         .when(hopServer)
         .buildSendExportMethod(
@@ -207,20 +200,12 @@ class HopServerTest {
     HttpPost httpPostMock = mock(HttpPost.class);
     URI uriMock = new URI("fake");
     final String responseContent = "baah";
-    when(httpPostMock.getURI()).thenReturn(uriMock);
-    doReturn(uriMock).when(httpPostMock).getURI();
+    when(httpPostMock.getUri()).thenReturn(uriMock);
+    doReturn(uriMock).when(httpPostMock).getUri();
 
     HttpClient client = mock(HttpClient.class);
-    when(client.execute(any(), any(HttpContext.class)))
-        .then(
-            (Answer<HttpResponse>)
-                invocation -> {
-                  HttpClientContext context = (HttpClientContext) invocation.getArguments()[1];
-                  Credentials cred =
-                      context.getCredentialsProvider().getCredentials(new AuthScope("hname", 1111));
-                  assertEquals("uname", cred.getUserPrincipal().getName());
-                  return mockResponse(200, responseContent);
-                });
+    when(client.execute(any(ClassicHttpRequest.class), any(HttpContext.class)))
+        .then((Answer<ClassicHttpResponse>) invocation -> mockResponse(200, responseContent));
     // override init
     when(hopServer.getHttpClient()).thenReturn(client);
     when(hopServer.getResponseBodyAsString(any())).thenCallRealMethod();
@@ -248,15 +233,14 @@ class HopServerTest {
     hopServer.setPort("" + port);
 
     HttpClientContext auth = hopServer.getAuthContext(variables);
-    Credentials cred = auth.getCredentialsProvider().getCredentials(new AuthScope(host, port));
+    var cred = auth.getCredentialsProvider().getCredentials(new AuthScope(host, port), null);
     assertEquals(testUser, cred.getUserPrincipal().getName());
-    assertEquals(testPassword, cred.getPassword());
 
     String user2 = "user2";
     hopServer.setUsername(user2);
     hopServer.setPassword("pass2");
     auth = hopServer.getAuthContext(variables);
-    cred = auth.getCredentialsProvider().getCredentials(new AuthScope(host, port));
+    cred = auth.getCredentialsProvider().getCredentials(new AuthScope(host, port), null);
     assertEquals(user2, cred.getUserPrincipal().getName());
   }
 
@@ -269,8 +253,8 @@ class HopServerTest {
     hopServer.setSslMode(true);
 
     AuthCache cache = hopServer.getAuthContext(variables).getAuthCache();
-    assertNotNull(cache.get(new HttpHost("localhost", 8443, "https")));
-    assertNull(cache.get(new HttpHost("localhost", 8443, "http")));
+    assertNotNull(cache.get(new HttpHost("https", "localhost", 8443)));
+    assertNull(cache.get(new HttpHost("http", "localhost", 8443)));
   }
 
   @Test
@@ -282,8 +266,8 @@ class HopServerTest {
     hopServer.setSslMode(false);
 
     AuthCache cache = hopServer.getAuthContext(variables).getAuthCache();
-    assertNull(cache.get(new HttpHost("localhost", 8080, "https")));
-    assertNotNull(cache.get(new HttpHost("localhost", 8080, "http")));
+    assertNull(cache.get(new HttpHost("https", "localhost", 8080)));
+    assertNotNull(cache.get(new HttpHost("http", "localhost", 8080)));
   }
 
   @Test

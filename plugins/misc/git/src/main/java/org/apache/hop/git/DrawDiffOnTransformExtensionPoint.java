@@ -25,6 +25,7 @@ import static org.apache.hop.git.HopDiff.CHANGED;
 import static org.apache.hop.git.HopDiff.REMOVED;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.DPoint;
@@ -47,10 +48,9 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
       throws HopException {
-    if (!(object instanceof PipelinePainter)) {
+    if (!(object instanceof PipelinePainter painter)) {
       return;
     }
-    PipelinePainter painter = (PipelinePainter) object;
     DPoint offset = painter.getOffset();
     IGc gc = painter.getGc();
     PipelineMeta pipelineMeta = painter.getPipelineMeta();
@@ -90,7 +90,7 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
                         gc.getMagnification(),
                         0);
                   } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new HopRuntimeException(e);
                   }
                 } else {
                   transform.getAttributesMap().remove(ATTR_GIT);

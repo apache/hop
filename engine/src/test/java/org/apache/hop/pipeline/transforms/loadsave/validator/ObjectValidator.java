@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.test.util.JavaBeanManipulator;
@@ -65,7 +66,7 @@ public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
       }
       return object;
     } catch (Exception e) {
-      throw new RuntimeException("Unable to instantiate " + clazz, e);
+      throw new HopRuntimeException("Unable to instantiate " + clazz, e);
     }
   }
 
@@ -90,7 +91,7 @@ public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
           }
         }
         if (validatorMethod == null) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "Unable to find validator for " + attribute + " " + getter.getGenericType());
         }
         if (!(Boolean)
@@ -100,7 +101,7 @@ public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
       }
       return true;
     } catch (Exception e) {
-      throw new RuntimeException("Unable to instantiate " + clazz, e);
+      throw new HopRuntimeException("Unable to instantiate " + clazz, e);
     }
   }
 }

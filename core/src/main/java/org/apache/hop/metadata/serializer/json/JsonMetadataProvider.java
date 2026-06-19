@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.serializer.json;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -31,6 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.BaseMetadataProvider;
 
+@Getter
+@Setter
 public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMetadataProvider {
 
   public static final String DEFAULT_DESCRIPTION = "JSON metadata";
@@ -89,32 +93,6 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
 
     return new JsonMetadataSerializer<>(
         this, serializerBaseFolderName, managedClass, variables, description);
-  }
-
-  /**
-   * Gets twoWayPasswordEncoder
-   *
-   * @return value of twoWayPasswordEncoder
-   */
-  @Override
-  public ITwoWayPasswordEncoder getTwoWayPasswordEncoder() {
-    return twoWayPasswordEncoder;
-  }
-
-  /**
-   * @param twoWayPasswordEncoder The twoWayPasswordEncoder to set
-   */
-  public void setTwoWayPasswordEncoder(ITwoWayPasswordEncoder twoWayPasswordEncoder) {
-    this.twoWayPasswordEncoder = twoWayPasswordEncoder;
-  }
-
-  /**
-   * Gets baseFolder
-   *
-   * @return value of baseFolder
-   */
-  public String getBaseFolder() {
-    return baseFolder;
   }
 
   /**

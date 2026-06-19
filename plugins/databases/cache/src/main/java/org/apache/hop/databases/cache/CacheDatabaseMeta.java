@@ -157,37 +157,35 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         retval += "CHAR(1)";
         break;
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (fieldname.equalsIgnoreCase(tk)) { // Technical & primary key : see at bottom
+        // Technical & primary key : see at bottom
+        if (fieldname.equalsIgnoreCase(tk)) {
           retval += "DECIMAL";
         } else {
-          if (type == IValueMeta.TYPE_INTEGER) {
-            // Integer values...
-            if (length > 9) {
-              retval += "DECIMAL(" + length + ")";
-            } else {
-              retval += "INT";
+          switch (type) {
+            case IValueMeta.TYPE_INTEGER -> {
+              // Integer values...
+              if (length > 9) {
+                retval += "DECIMAL(" + length + ")";
+              } else {
+                retval += "INT";
+              }
             }
-          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-            // Fixed point value...
-            if (length
-                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
+            case IValueMeta.TYPE_BIGNUMBER -> {
+              // user configured no value for length. Use 16 digits, which is comparable to
               // mantissa 2^53 of IEEE 754 binary64 "double".
-              length = 16;
+              int len = (length < 1) ? 16 : length;
+              // user configured no value for precision. Use 16 digits, which is comparable to IEEE
+              // 754 binary64 "double".
+              int p = (precision < 1) ? 16 : precision;
+              retval += "DECIMAL(" + len + "," + p + ")";
             }
-            if (precision
-                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
-              // to IEEE 754 binary64 "double".
-              precision = 16;
-            }
-            retval += "DECIMAL(" + length + "," + precision + ")";
-          } else {
-            // Floating point value with double precision...
-            retval += "DOUBLE";
+              // Floating point value with double precision...
+            default -> retval += "DOUBLE";
           }
         }
         break;
-      case IValueMeta
-          .TYPE_STRING: // CLOBs are just VARCHAR in the Cache database: can be very large!
+        // CLOBs are just VARCHAR in the Cache database: can be very large!
+      case IValueMeta.TYPE_STRING:
         retval += "VARCHAR";
         if (length > 0) {
           retval += "(" + length + ")";

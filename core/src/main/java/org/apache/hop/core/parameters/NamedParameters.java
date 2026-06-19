@@ -21,13 +21,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** This class is an implementation of INamedParameters. */
+@Getter
+@Setter
 public class NamedParameters implements INamedParameters {
+
   /** Map to store named parameters in. */
+  @HopMetadataProperty(
+      key = "parameter",
+      storeMapAsList = "key",
+      mapValueClass = NamedParameter.class)
   protected Map<String, NamedParameter> params = new HashMap<>();
 
   /** Default constructor. */
@@ -42,10 +52,10 @@ public class NamedParameters implements INamedParameters {
     if (params.get(key) == null) {
       NamedParameter oneParam = new NamedParameter();
 
-      oneParam.key = key;
-      oneParam.defaultValue = defValue;
-      oneParam.description = description;
-      oneParam.value = "";
+      oneParam.setKey(key);
+      oneParam.setDefaultValue(defValue);
+      oneParam.setDescription(description);
+      oneParam.setValue("");
 
       params.put(key, oneParam);
     } else {
@@ -71,7 +81,7 @@ public class NamedParameters implements INamedParameters {
 
     NamedParameter theParam = params.get(key);
     if (theParam != null) {
-      value = theParam.value;
+      value = theParam.getValue();
     }
 
     return value;
@@ -83,7 +93,7 @@ public class NamedParameters implements INamedParameters {
 
     NamedParameter theParam = params.get(key);
     if (theParam != null) {
-      value = theParam.defaultValue;
+      value = theParam.getDefaultValue();
     }
 
     return value;
@@ -103,7 +113,7 @@ public class NamedParameters implements INamedParameters {
   public void setParameterValue(String key, String value) {
     NamedParameter theParam = params.get(key);
     if (theParam != null) {
-      theParam.value = value;
+      theParam.setValue(value);
     }
   }
 
@@ -118,7 +128,7 @@ public class NamedParameters implements INamedParameters {
     for (String key : keys) {
       NamedParameter theParam = params.get(key);
       if (theParam != null) {
-        theParam.value = "";
+        theParam.setValue("");
       }
     }
   }
@@ -127,7 +137,8 @@ public class NamedParameters implements INamedParameters {
   public void activateParameters(IVariables variables) {
     for (NamedParameter param : params.values()) {
       if (StringUtils.isNotEmpty(param.key)) {
-        variables.setVariable(param.key, Const.NVL(param.value, Const.NVL(param.defaultValue, "")));
+        variables.setVariable(
+            param.getKey(), Const.NVL(param.getValue(), Const.NVL(param.getDefaultValue(), "")));
       }
     }
   }

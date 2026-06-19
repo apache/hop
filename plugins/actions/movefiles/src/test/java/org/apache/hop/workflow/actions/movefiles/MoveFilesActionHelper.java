@@ -37,7 +37,6 @@ public class MoveFilesActionHelper {
     action.setMoveEmptyFolders(false);
     action.setSimulate(false);
     action.setArgFromPrevious(false);
-    action.allocate(1);
     action.setDestinationIsAFile(true);
     return action;
   }

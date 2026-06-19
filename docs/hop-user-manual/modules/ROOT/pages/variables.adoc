@@ -287,6 +287,7 @@ Set to 0 to keep all rows indefinitely (default)
 |HOP_MAX_WORKFLOW_TRACKER_SIZE|5000|The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)
 |HOP_PASSWORD_ENCODER_PLUGIN|Hop|Specifies the password encoder plugin to use by ID (Hop is the default).
 |HOP_PIPELINE_ROWSET_SIZE|-|Name of the environment variable that contains the size of the pipeline rowset size. This overwrites values that you set pipeline settings
+|HOP_QUERY_PREVIEW_TIMEOUT|0|Default JDBC statement query timeout in **seconds** for database query preview (for example the initial value in the preview settings dialog for Table Input / Get table names, and related preview flows). `0` means no default from this variable. Does not apply to normal pipeline execution for those transforms' JDBC timeouts in the same way; use the preview dialog to set the timeout for a given preview run.
 |HOP_PLUGIN_CLASSES||A comma delimited list of classes to scan for plugin annotations
 |HOP_ROWSET_GET_TIMEOUT|50|The name of the variable that optionally contains an alternative rowset get timeout (in ms).
 This only makes a difference for extremely short lived pipelines.
@@ -362,4 +363,19 @@ Additionally, the following environment variables can help you to add even more 
 |${Internal.Transform.ID} |N |The unique ID of the transform instance. Useful for tracking transform execution and debugging.
 |${Internal.Transform.BundleNr} |N |The bundle number for partitioned execution, helpful in load-balancing or distributing data across partitions.
 |${Internal.Action.ID} |N |The unique ID of the current action (entry) in a workflow. Useful for tracking specific actions within a larger workflow.
+|===
+
+=== Hop server internal variables
+
+The variables below are only set when a pipeline or workflow is executed on a Hop server. They are populated from the `hop-server.xml` configuration file at server startup and inherited by every pipeline and workflow that runs on that server, so you can reference the server's own coordinates from within your pipelines and workflows (for example to build callback URLs or to log the server that processed a request).
+
+[%header, width="90%", cols="2,1,5"]
+|===
+|Variable |Default |Description
+|${Internal.Server.Name} |N |The name of the Hop server as configured in `hop-server.xml` (the `<name>` element of the `hop-server` definition).
+|${Internal.Server.Hostname} |N |The hostname the Hop server is bound to, as configured in `hop-server.xml`. If a `network_interface` was configured, this is the resolved IP address for that interface.
+|${Internal.Server.Port} |N |The HTTP port the Hop server is listening on. This is the actual port the server bound to, which may differ from the value in `hop-server.xml` when the server was started with command-line overrides.
+|${Internal.Server.WebAppName} |N |The web application name (context path) the Hop server is exposed under, as configured in `hop-server.xml`. Empty when no web app name was set.
+|${Internal.Server.Username} |N |The username configured for the Hop server in `hop-server.xml`. Empty when authentication is not configured.
+|${Internal.Server.SslMode} |N |`true` when the Hop server is configured to use SSL/TLS, `false` otherwise.
 |===

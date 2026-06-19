@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<transform>
+    <name>Send mail</name>
+    <type>Mail</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+        <method>none</method>
+        <schema_name/>
+    </partitioning>
+    <server>smtp.example.com</server>
+    <port>587</port>
+    <destination>to@example.com</destination>
+    <destinationCc>cc@example.com</destinationCc>
+    <destinationBCc>bcc@example.com</destinationBCc>
+    <replyto>bot@example.com</replyto>
+    <replytoname>Bot</replytoname>
+    <subject>Test subject</subject>
+    <include_date>Y</include_date>
+    <contact_person>Alice</contact_person>
+    <contact_phone>+1</contact_phone>
+    <comment>hello world</comment>
+    <include_files>N</include_files>
+    <zip_files>N</zip_files>
+    <use_auth>Y</use_auth>
+    <auth_user>alice</auth_user>
+    <auth_password>secret</auth_password>
+    <usexoauth2>N</usexoauth2>
+    <only_comment>N</only_comment>
+    <use_HTML>Y</use_HTML>
+    <use_secure_auth>Y</use_secure_auth>
+    <use_Priority>Y</use_Priority>
+    <priority>high</priority>
+    <importance>high</importance>
+    <sensitivity>normal</sensitivity>
+    <secureconnectiontype>TLS</secureconnectiontype>
+    <encoding>UTF-8</encoding>
+    <check_server_identity>Y</check_server_identity>
+    <trusted_hosts>smtp.example.com</trusted_hosts>
+    <attributes></attributes>
+    <GUI>
+        <xloc>304</xloc>
+        <yloc>64</yloc>
+    </GUI>
+</transform>

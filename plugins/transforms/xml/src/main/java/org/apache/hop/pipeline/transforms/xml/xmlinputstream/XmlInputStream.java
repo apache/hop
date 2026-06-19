@@ -30,6 +30,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.XMLEvent;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -42,6 +43,8 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -228,7 +231,17 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
     if (data.inputStream != null) {
       try {
         if (data.inputStream instanceof CountingInputStream cis) {
-          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + cis.getCount();
+          long bytesRead = cis.getCount();
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytesRead;
+          FileObject fo = data.fileObject;
+          if (fo != null && bytesRead > 0) {
+            try {
+              LineageFileIoEmitter.emitTransformFileIo(
+                  this, FileIoOperation.READ, fo, null, bytesRead, true, null);
+            } catch (Exception ignored) {
+              // optional lineage
+            }
+          }
         }
         data.inputStream.close();
       } catch (IOException e) {

@@ -26,11 +26,12 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 /**
  * XML formatting for better VCS diff.
  *
- * <p>It preserve formatting only in cases: 1) inside one tag if there are only characters, 2) in
+ * <p>It preserves formatting only in cases: 1) inside one tag if there are only characters, 2) in
  * comments, 3) if there are some characters outside tags
  */
 public class XmlFormatter {
@@ -139,7 +140,7 @@ public class XmlFormatter {
             wr.writeEndDocument();
             break;
           default:
-            throw new RuntimeException("Unknown XML event: " + event);
+            throw new HopRuntimeException("Unknown XML event: " + event);
         }
       }
 
@@ -147,7 +148,7 @@ public class XmlFormatter {
 
       return result.toString();
     } catch (XMLStreamException ex) {
-      throw new RuntimeException(ex);
+      throw new HopRuntimeException(ex);
     } finally {
       try {
         if (wr != null) {

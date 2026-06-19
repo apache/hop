@@ -24,6 +24,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -378,14 +379,15 @@ public class TextFileCSVImportProgressDialog<T extends ITextFileInputField>
 
     for (int i = 0; i < nrFields; i++) {
       T field = meta.getInputFields().get(i);
-      StringEvaluator evaluator = evaluators.get(i);
-      List<StringEvaluationResult> evaluationResults = evaluator.getStringEvaluationResults();
+      StringEvaluator evaluator = i < evaluators.size() ? evaluators.get(i) : null;
+      List<StringEvaluationResult> evaluationResults =
+          evaluator == null ? Collections.emptyList() : evaluator.getStringEvaluationResults();
 
       // If we didn't find any matching result, it's a String...
       //
       if (evaluationResults.isEmpty()) {
         field.setType(IValueMeta.TYPE_STRING);
-        field.setLength(evaluator.getMaxLength());
+        field.setLength(evaluator == null ? -1 : evaluator.getMaxLength());
       } else {
         StringEvaluationResult result = evaluator.getAdvicedResult();
         if (result != null) {

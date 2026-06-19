@@ -807,7 +807,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       SalesforceInsertField field = new SalesforceInsertField();
       field.setUpdateLookup(item.getText(1));
       field.setUpdateStream(item.getText(2));
-      field.setUseExternalId(Boolean.parseBoolean(item.getText(3)));
+      field.setUseExternalId("Y".equals(item.getText(3)));
       fields.add(field);
     }
     meta.setFields(fields);

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
@@ -55,6 +57,8 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::FilterRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/filterrows.html")
+@Getter
+@Setter
 public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData> {
   private static final Class<?> PKG = FilterRowsMeta.class;
 

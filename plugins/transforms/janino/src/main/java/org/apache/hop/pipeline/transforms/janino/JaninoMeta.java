@@ -24,7 +24,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -37,11 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-@InjectionSupported(
-    localizationPrefix = "Janino.Injection.",
-    groups = {
-      "FORMULA",
-    })
 @Transform(
     id = "Janino",
     image = "janino.svg",
@@ -55,12 +49,27 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class;
 
+  /** Default matches Janino bytecode default ({@code UnitCompiler#getDefaultTargetVersion()}). */
+  public static final int JAVA_TARGET_VERSION_DEFAULT = 6;
+
+  public static final int JAVA_TARGET_VERSION_MIN = 6;
+  public static final int JAVA_TARGET_VERSION_MAX = 21;
+
   /** The formula calculations to be performed */
   @HopMetadataProperty(
       key = "formula",
       injectionGroupKey = "FORMULA",
       injectionGroupDescription = "Janino.Injection.FORMULA")
   private List<JaninoMetaFunction> functions;
+
+  /**
+   * Java language / class file level passed to Janino ({@link
+   * org.codehaus.janino.ExpressionEvaluator #setSourceVersion} and {@link
+   * org.codehaus.janino.ExpressionEvaluator#setTargetVersion}). When unset or invalid, {@link
+   * #JAVA_TARGET_VERSION_DEFAULT} is used.
+   */
+  @HopMetadataProperty(key = "java_target_version")
+  private int javaTargetVersion = JAVA_TARGET_VERSION_DEFAULT;
 
   public JaninoMeta() {
     super();
@@ -70,6 +79,19 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
   public JaninoMeta(JaninoMeta m) {
     this();
     m.functions.forEach(f -> this.functions.add(new JaninoMetaFunction(f)));
+    this.javaTargetVersion = m.javaTargetVersion;
+  }
+
+  /**
+   * Resolved Janino compiler source/target version (major Java version number), for backwards
+   * compatibility when pipelines omit {@link #javaTargetVersion} or contain invalid values.
+   */
+  public int getEffectiveJavaTargetVersion() {
+    if (javaTargetVersion < JAVA_TARGET_VERSION_MIN
+        || javaTargetVersion > JAVA_TARGET_VERSION_MAX) {
+      return JAVA_TARGET_VERSION_DEFAULT;
+    }
+    return javaTargetVersion;
   }
 
   @Override

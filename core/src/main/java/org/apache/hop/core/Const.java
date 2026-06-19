@@ -49,11 +49,11 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang.text.StrBuilder;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.text.StrBuilder;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.EnvUtil;
@@ -175,6 +175,19 @@ public class Const {
       scope = VariableScope.SYSTEM,
       description = "A comma separated list pointing to folders with JDBC drivers to add.")
   public static final String HOP_SHARED_JDBC_FOLDERS = "HOP_SHARED_JDBC_FOLDERS";
+
+  /**
+   * Per-run override for the engine-compatibility gate in {@code Pipeline.prepareExecution} /
+   * {@code Workflow.startExecution}. Set to 'Y' to run a pipeline or workflow that contains
+   * transforms or actions the selected engine has marked UNSUPPORTED. CLI sets it from {@code
+   * hop-run --allow-unsupported}; HopGui sets it when the user clicks "Run anyway".
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "N",
+      description =
+          "Set to 'Y' to bypass the engine-compatibility gate and run pipelines/workflows that contain transforms or actions marked UNSUPPORTED on the selected engine. Run-scoped, not persisted.")
+  public static final String HOP_ALLOW_UNSUPPORTED = "HOP_ALLOW_UNSUPPORTED";
 
   /** The operating system the hop platform runs on */
   @Variable(
@@ -302,7 +315,10 @@ public class Const {
   public static final String GENERALIZED_DATE_TIME_FORMAT_MILLIS = "yyyyddMM_hhmmssSSS";
 
   /** Default we store our information in Unicode UTF-8 character set. */
-  public static final String XML_ENCODING = "UTF-8";
+  public static final String UTF_8 = "UTF-8";
+
+  /** Placeholder for the project home directory. */
+  public static final String VAR_PROJECT_HOME = "${PROJECT_HOME}";
 
   /** Allow or disallow doctype declarations in XML. " */
   @Variable(value = "N", description = "A variable allow or disallow doctype declarations in XML")
@@ -397,6 +413,30 @@ public class Const {
       INTERNAL_VARIABLE_PREFIX + ".Transform.BundleNr";
 
   public static final String INTERNAL_VARIABLE_ACTION_ID = INTERNAL_VARIABLE_PREFIX + ".Action.ID";
+
+  /** The Hop server name as configured in hop-server.xml */
+  public static final String INTERNAL_VARIABLE_HOP_SERVER_NAME =
+      INTERNAL_VARIABLE_PREFIX + ".Server.Name";
+
+  /** The Hop server hostname */
+  public static final String INTERNAL_VARIABLE_HOP_SERVER_HOSTNAME =
+      INTERNAL_VARIABLE_PREFIX + ".Server.Hostname";
+
+  /** The Hop server HTTP port */
+  public static final String INTERNAL_VARIABLE_HOP_SERVER_PORT =
+      INTERNAL_VARIABLE_PREFIX + ".Server.Port";
+
+  /** The Hop server web application name */
+  public static final String INTERNAL_VARIABLE_HOP_SERVER_WEB_APP_NAME =
+      INTERNAL_VARIABLE_PREFIX + ".Server.WebAppName";
+
+  /** The Hop server username */
+  public static final String INTERNAL_VARIABLE_HOP_SERVER_USERNAME =
+      INTERNAL_VARIABLE_PREFIX + ".Server.Username";
+
+  /** Whether the Hop server is running in SSL mode */
+  public static final String INTERNAL_VARIABLE_HOP_SERVER_SSL_MODE =
+      INTERNAL_VARIABLE_PREFIX + ".Server.SslMode";
 
   /** The default maximum for the nr of lines in the GUI logs */
   public static final int MAX_NR_LOG_LINES = 5000;
@@ -1004,6 +1044,33 @@ public class Const {
               + "you can give it a bit of extra with manually. (in pixels)")
   public static final String HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN =
       "HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN";
+
+  /**
+   * Default JDBC {@link java.sql.Statement#setQueryTimeout(int)} in whole seconds for database
+   * <strong>query preview</strong> UIs (for example the initial value in the preview settings
+   * dialog). Normal pipeline execution does not use this variable for Table Input statement
+   * timeouts. Set in Hop configuration, project, environment, or pipeline variables.
+   */
+  @Variable(
+      scope = VariableScope.APPLICATION,
+      value = "20",
+      description =
+          "Default JDBC statement query timeout in seconds for database query preview (0 = unset).")
+  public static final String HOP_QUERY_PREVIEW_TIMEOUT = "HOP_QUERY_PREVIEW_TIMEOUT";
+
+  /**
+   * Apache Hop 2.18 and before (even before Hop) used an optimistic system where each value type is
+   * given a chance to interpret the database field data type. This was done to support special data
+   * types like GIS, and so on. If you set this variable to true the old system is used. If not Hop
+   * tries first to do an explicit mapping of the most comm data types before falling back to the
+   * old system.
+   */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "false",
+      description =
+          "Make the data type detection in RDBMS connections compatible with 2.18 and before.")
+  public static final String HOP_DB_DDL_COMPATIBLE = "HOP_DB_DDL_COMPATIBLE";
 
   /**
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal
@@ -1889,6 +1956,27 @@ public class Const {
   }
 
   /**
+   * Implements Oracle style NVL function. The first value of the ones provided, that isn't null or
+   * empty is returned.
+   *
+   * @param values The values to test for null/empty.
+   * @return null if no arguments given or null. Otherwise, returns the first value of the ones
+   *     provided, that isn't null or empty is returned.
+   */
+  public static String coalesce(String... values) {
+    if (values == null || values.length == 0) {
+      return null;
+    }
+    for (int i = 0; i < values.length - 1; i++) {
+      String value = values[i];
+      if (value != null && !value.isEmpty()) {
+        return value;
+      }
+    }
+    return values[values.length - 1];
+  }
+
+  /**
    * Return empty string "" in case the given parameter is null, otherwise return the same value.
    *
    * @param source The source value to check for null.
@@ -2711,7 +2799,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.escapeHtml(content);
+    return StringEscapeUtils.escapeHtml4(content);
   }
 
   /**
@@ -2724,7 +2812,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.unescapeHtml(content);
+    return StringEscapeUtils.unescapeHtml4(content);
   }
 
   /**
@@ -2750,7 +2838,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.escapeSql(content);
+    return content.replace("'", "''");
   }
 
   /**
@@ -2947,7 +3035,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.escapeXml(content);
+    return StringEscapeUtils.escapeXml10(content);
   }
 
   /**

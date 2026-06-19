@@ -27,6 +27,7 @@ import lombok.Setter;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -168,7 +169,7 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
    * @param description The description to set
    */
   public void setDescription(String description) {
-    throw new RuntimeException(
+    throw new HopRuntimeException(
         "The description of the multi metadata provider can't be changed. "
             + "It's derived from the list of providers it contains.");
   }

@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.ssh;
 
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.HTTPProxyData;
-import java.io.CharArrayWriter;
-import java.io.InputStream;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.ProxyHTTP;
+import com.jcraft.jsch.Session;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileContent;
+import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -40,8 +39,9 @@ import org.apache.hop.pipeline.transform.ITransformData;
 @SuppressWarnings("java:S1104")
 public class SshData extends BaseTransformData implements ITransformData {
   private static final Class<?> PKG = SshMeta.class;
+
   public int indexOfCommand;
-  public Connection conn;
+  public Session session;
   public boolean wroteOneRow;
   public String commands;
   public int nrInputFields;
@@ -56,17 +56,15 @@ public class SshData extends BaseTransformData implements ITransformData {
   public SshData() {
     super();
     this.indexOfCommand = -1;
-    this.conn = null;
+    this.session = null;
     this.wroteOneRow = false;
     this.commands = null;
     this.stdOutField = null;
     this.stdTypeField = null;
   }
 
-  public static Connection openConnection(IVariables variables, SshMeta meta) throws HopException {
-    Connection connection = null;
-    char[] content = null;
-    boolean isAuthenticated;
+  public static Session openConnection(IVariables variables, SshMeta meta) throws HopException {
+    Session session = null;
 
     String hostname = variables.resolve(meta.getServerName());
     int port = Const.toInt(variables.resolve(meta.getPort()), 22);
@@ -77,80 +75,91 @@ public class SshData extends BaseTransformData implements ITransformData {
         Encr.decryptPasswordOptionallyEncrypted(variables.resolve(meta.getPassPhrase()));
 
     try {
-      // perform some checks
+      JSch jsch = new JSch();
+
       if (meta.isUsePrivateKey()) {
         String keyFilename = variables.resolve(meta.getKeyFileName());
         if (StringUtils.isEmpty(keyFilename)) {
           throw new HopException(BaseMessages.getString(PKG, "SSH.Error.PrivateKeyFileMissing"));
         }
         FileObject keyFileObject = HopVfs.getFileObject(keyFilename, variables);
-
         if (!keyFileObject.exists()) {
           throw new HopException(
               BaseMessages.getString(PKG, "SSH.Error.PrivateKeyNotExist", keyFilename));
         }
-
-        FileContent keyFileContent = keyFileObject.getContent();
-
-        CharArrayWriter charArrayWriter = new CharArrayWriter((int) keyFileContent.getSize());
-
-        try (InputStream in = keyFileContent.getInputStream()) {
-          IOUtils.copy(in, charArrayWriter, StandardCharsets.UTF_8);
+        if (keyFileObject.getName().getURI().startsWith("file:")) {
+          String localKeyPath = HopVfs.getFilename(keyFileObject);
+          if (Utils.isEmpty(passPhrase)) {
+            jsch.addIdentity(localKeyPath);
+          } else {
+            jsch.addIdentity(localKeyPath, passPhrase);
+          }
+        } else {
+          byte[] keyBytes = keyFileObject.getContent().getByteArray();
+          byte[] passphraseBytes =
+              Utils.isEmpty(passPhrase) ? new byte[0] : passPhrase.getBytes(StandardCharsets.UTF_8);
+          jsch.addIdentity(username, keyBytes, null, passphraseBytes);
         }
-
-        content = charArrayWriter.toCharArray();
       }
 
-      // Create a new connection
-      connection = new Connection(hostname, port);
+      session = jsch.getSession(username, hostname, port);
+
+      if (!meta.isUsePrivateKey() && !Utils.isEmpty(password)) {
+        session.setPassword(password);
+      }
+
+      Properties config = new Properties();
+      config.put("StrictHostKeyChecking", "no");
+      config.put("PreferredAuthentications", "publickey,keyboard-interactive,password");
+      session.setConfig(config);
 
       String proxyHost = variables.resolve(meta.getProxyHost());
-      int proxyPort = Const.toInt(variables.resolve(meta.getProxyPort()), 23);
+      int proxyPort = Const.toInt(variables.resolve(meta.getProxyPort()), 80);
       String proxyUsername = variables.resolve(meta.getProxyUsername());
       String proxyPassword =
           Encr.decryptPasswordOptionallyEncrypted(variables.resolve(meta.getProxyPassword()));
 
-      /* We want to connect through a HTTP proxy */
       if (!Utils.isEmpty(proxyHost)) {
-        /* Now connect */
-        // if the proxy requires basic authentication:
+        ProxyHTTP proxy = new ProxyHTTP(proxyHost + ":" + proxyPort);
         if (!Utils.isEmpty(proxyUsername)) {
-          connection.setProxyData(
-              new HTTPProxyData(proxyHost, proxyPort, proxyUsername, proxyPassword));
-        } else {
-          connection.setProxyData(new HTTPProxyData(proxyHost, proxyPort));
+          proxy.setUserPasswd(proxyUsername, proxyPassword);
         }
+        session.setProxy(proxy);
       }
 
       int timeOut = Const.toInt(variables.resolve(meta.getTimeOut()), 0);
-
-      // and connect
       if (timeOut == 0) {
-        connection.connect();
+        session.connect();
       } else {
-        connection.connect(null, 0, timeOut * 1000);
+        session.connect(timeOut * 1000);
       }
 
-      // authenticate
-      if (meta.isUsePrivateKey()) {
-        isAuthenticated =
-            connection.authenticateWithPublicKey(username, content, variables.resolve(passPhrase));
-      } else {
-        isAuthenticated = connection.authenticateWithPassword(username, password);
-      }
-      if (!isAuthenticated) {
+      if (!session.isConnected()) {
         throw new HopException(
             BaseMessages.getString(PKG, "SSH.Error.AuthenticationFailed", username));
       }
+    } catch (JSchException e) {
+      if (session != null) {
+        session.disconnect();
+      }
+      if (isAuthFailure(e)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SSH.Error.AuthenticationFailed", username), e);
+      }
+      throw new HopException(
+          BaseMessages.getString(PKG, "SSH.Error.ErrorConnecting", hostname, username), e);
     } catch (Exception e) {
-      // Something wrong happened
-      // do not forget to disconnect if connected
-      if (connection != null) {
-        connection.close();
+      if (session != null) {
+        session.disconnect();
       }
       throw new HopException(
           BaseMessages.getString(PKG, "SSH.Error.ErrorConnecting", hostname, username), e);
     }
-    return connection;
+    return session;
+  }
+
+  private static boolean isAuthFailure(JSchException e) {
+    String message = e.getMessage();
+    return message != null && message.toLowerCase().contains("auth fail");
   }
 }

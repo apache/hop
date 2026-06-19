@@ -20,35 +20,25 @@ package org.apache.hop.metadata.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
 public class ReflectionUtil {
+  private ReflectionUtil() {}
+
   /** myAttribute ==> setMyAttribute */
-  public static final String getSetterMethodName(String name) {
-
-    StringBuilder setter = new StringBuilder();
-    setter.append("set");
-    setter.append(name.substring(0, 1).toUpperCase());
-    setter.append(name.substring(1));
-
-    return setter.toString();
+  public static String getSetterMethodName(String name) {
+    return "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
   }
 
   /** myAttribute ==> getMyAttribute */
-  public static final String getGetterMethodName(String name, boolean isBoolean) {
-
-    StringBuilder setter = new StringBuilder();
-    setter.append(isBoolean ? "is" : "get");
-    setter.append(name.substring(0, 1).toUpperCase());
-    setter.append(name.substring(1));
-
-    return setter.toString();
+  public static String getGetterMethodName(String name, boolean isBoolean) {
+    return (isBoolean ? "is" : "get") + name.substring(0, 1).toUpperCase() + name.substring(1);
   }
 
   /**
@@ -57,23 +47,29 @@ public class ReflectionUtil {
    *
    * <p>This means that it's possible to inherit from other classes during serialization.
    *
-   * @param clazz
+   * @param clazz The class to find fields for.
    * @return A set of fields.
    */
-  public static final List<Field> findAllFields(Class<?> clazz) {
-    Set<Field> fieldsSet = new HashSet<>();
+  public static List<Field> findAllFields(Class<?> clazz) {
+    List<Field> fields = new ArrayList<>();
 
     // Find the fields from the root class
     //
-    for (Field classField : clazz.getDeclaredFields()) {
-      fieldsSet.add(classField);
+    for (Field field : clazz.getDeclaredFields()) {
+      if (doesNotHaveFieldWithName(fields, field.getName())) {
+        fields.add(field);
+      }
     }
+
     // If this class has a parent class, grab the fields
     //
     Class<?> superClass = clazz.getSuperclass();
     while (superClass != null) {
-      for (Field superClassField : superClass.getDeclaredFields()) {
-        fieldsSet.add(superClassField);
+      Field[] parentFields = superClass.getDeclaredFields();
+      for (Field parentField : parentFields) {
+        if (doesNotHaveFieldWithName(fields, parentField.getName())) {
+          fields.add(parentField);
+        }
       }
 
       // Repeat this process until we have no more super class
@@ -81,10 +77,8 @@ public class ReflectionUtil {
       superClass = superClass.getSuperclass();
     }
 
-    List<Field> fields = new ArrayList<>(fieldsSet);
-
     // Sort the fields by name
-    Collections.sort(fields, Comparator.comparing(Field::getName));
+    fields.sort(Comparator.comparing(Field::getName));
 
     return fields;
   }
@@ -100,16 +94,33 @@ public class ReflectionUtil {
    *     the field is not included.
    * @return A sorted list of fields.
    */
-  public static final List<Field> findAllFields(
-      Class<?> clazz, Function<Field, String> sortFunction) {
-    Set<Field> fieldsSet = new HashSet<>();
+  public static List<Field> findAllFields(Class<?> clazz, Function<Field, String> sortFunction) {
+    return findAllFields(clazz, sortFunction, true);
+  }
+
+  /**
+   * Find all fields from the given class as well as the fields from all the parent classes. It will
+   * recurse all the way to the top class from which the given class inherits from. This means that
+   * it's possible to inherit from other classes during serialization.
+   *
+   * <p>IMPORTANT: Unless asked to be sorted we keep the fields in the same order as found in the
+   * class.
+   *
+   * @param clazz The class to investigate.
+   * @param sortFunction the function to extract the key to sort on. If the function returns null
+   *     the field is not included.
+   * @return A sorted list of fields.
+   */
+  public static List<Field> findAllFields(
+      Class<?> clazz, Function<Field, String> sortFunction, boolean sortFields) {
+    List<Field> fields = new ArrayList<>();
 
     // Find the fields from the root class
     //
     for (Field classField : clazz.getDeclaredFields()) {
       String keyField = sortFunction.apply(classField);
       if (keyField != null) {
-        fieldsSet.add(classField);
+        fields.add(classField);
       }
     }
     // If this class has a parent class, grab the fields
@@ -118,8 +129,8 @@ public class ReflectionUtil {
     while (superClass != null) {
       for (Field superClassField : superClass.getDeclaredFields()) {
         String keyField = sortFunction.apply(superClassField);
-        if (keyField != null) {
-          fieldsSet.add(superClassField);
+        if (keyField != null && doesNotHaveFieldWithName(fields, superClassField.getName())) {
+          fields.add(superClassField);
         }
       }
 
@@ -128,15 +139,24 @@ public class ReflectionUtil {
       superClass = superClass.getSuperclass();
     }
 
-    List<Field> fields = new ArrayList<>(fieldsSet);
-
     // Sort the fields by name
-    Collections.sort(fields, Comparator.comparing(sortFunction::apply));
+    if (sortFields) {
+      fields.sort(Comparator.comparing(sortFunction));
+    }
 
     return fields;
   }
 
-  public static final Object getFieldValue(Object object, String fieldName, boolean isBoolean)
+  private static boolean doesNotHaveFieldWithName(List<Field> fields, String name) {
+    for (Field field : fields) {
+      if (field.getName().equals(name)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static Object getFieldValue(Object object, String fieldName, boolean isBoolean)
       throws HopException {
     Class<?> objectClass = object.getClass();
     String getterMethodName = ReflectionUtil.getGetterMethodName(fieldName, isBoolean);
@@ -155,7 +175,7 @@ public class ReflectionUtil {
     }
   }
 
-  public static final void setFieldValue(
+  public static void setFieldValue(
       Object object, String fieldName, Class<?> fieldType, Object fieldValue) throws HopException {
     Class<?> objectClass = object.getClass();
     String setterMethodName = ReflectionUtil.getSetterMethodName(fieldName);
@@ -181,5 +201,63 @@ public class ReflectionUtil {
       throw new HopException(
           "Unable to get the name of Hop metadata class '" + object.getClass().getName() + "'", e);
     }
+  }
+
+  public static Method findGetter(Class<?> clazz, Field field) throws NoSuchMethodException {
+    String name = field.getName();
+    String methodName;
+    if (field.getGenericType().equals(Boolean.class)
+        || field.getGenericType().equals(boolean.class)) {
+      methodName = "is" + StringUtils.capitalize(name);
+    } else {
+      methodName = "get" + StringUtils.capitalize(name);
+    }
+    return clazz.getMethod(methodName);
+  }
+
+  public static Method findSetter(Class<?> clazz, Field field) throws NoSuchMethodException {
+    String name = field.getName();
+    String methodName = "set" + StringUtils.capitalize(name);
+    return clazz.getMethod(methodName, field.getType());
+  }
+
+  /**
+   * Find all fields from the given class as well as the fields from all the parent classes. It will
+   * recurse all the way to the top class from which the given class inherits from.
+   *
+   * <p>This means that it's possible to inherit from other classes during serialization.
+   *
+   * @param clazz The class to investigate.
+   * @param prefix If you specify a non-null value only the methods starting with this prefix will
+   *     be returned.
+   * @return The list of methods with the given prefix.
+   */
+  public static List<Method> findAllMethods(Class<?> clazz, String prefix) {
+    Set<Method> methodSet = new HashSet<>();
+
+    // Find the methods from the root class
+    //
+    for (Method classMethod : clazz.getDeclaredMethods()) {
+      if (StringUtils.isEmpty(prefix) || classMethod.getName().startsWith(prefix)) {
+        methodSet.add(classMethod);
+      }
+    }
+
+    // If this class has a parent class, grab the methods there as well
+    //
+    Class<?> superClass = clazz.getSuperclass();
+    while (superClass != null) {
+      for (Method superClassMethod : superClass.getDeclaredMethods()) {
+        if (StringUtils.isEmpty(prefix) || superClassMethod.getName().startsWith(prefix)) {
+          methodSet.add(superClassMethod);
+        }
+      }
+
+      // Repeat this process until we have no more super class
+      //
+      superClass = superClass.getSuperclass();
+    }
+
+    return new ArrayList<>(methodSet);
   }
 }

@@ -30,8 +30,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -87,11 +85,10 @@ public class ActionPGPVerifyDialog extends ActionDialog {
     PropsUi.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "ActionPGPVerify.Settings.Group.Label"));
 
-    FormLayout settingsgroupLayout = new FormLayout();
-    settingsgroupLayout.marginWidth = 10;
-    settingsgroupLayout.marginHeight = 10;
-
-    wSettings.setLayout(settingsgroupLayout);
+    FormLayout settingsGroupLayout = new FormLayout();
+    settingsGroupLayout.marginWidth = 10;
+    settingsGroupLayout.marginHeight = 10;
+    wSettings.setLayout(settingsGroupLayout);
 
     // GPGLocation line
     Label wlGPGLocation = new Label(wSettings, SWT.RIGHT);
@@ -165,14 +162,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
     fdUseDetachedSignature.top = new FormAttachment(wFilename, margin);
     fdUseDetachedSignature.right = new FormAttachment(100, -margin);
     wUseDetachedSignature.setLayoutData(fdUseDetachedSignature);
-    wUseDetachedSignature.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-
-            enableDetachedSignature();
-          }
-        });
+    wUseDetachedSignature.addListener(SWT.Selection, e -> enableDetachedSignature());
 
     // DetachedFilename line
     wlDetachedFilename = new Label(wSettings, SWT.RIGHT);
@@ -236,6 +226,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
     fdSettings.right = new FormAttachment(100, -margin);
     fdSettings.bottom = new FormAttachment(wCancel, -margin);
     wSettings.setLayoutData(fdSettings);
+
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
@@ -249,19 +240,13 @@ public class ActionPGPVerifyDialog extends ActionDialog {
     return action;
   }
 
-  /** Copy information from the meta-data input to the dialog fields. */
+  /** Copy information from the metadata input to the dialog fields. */
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
-    if (action.getGPGLocation() != null) {
-      wGPGLocation.setText(action.getGPGLocation());
-    }
-    if (action.getFilename() != null) {
-      wFilename.setText(action.getFilename());
-    }
-    if (action.getDetachedfilename() != null) {
-      wDetachedFilename.setText(action.getDetachedfilename());
-    }
-    wUseDetachedSignature.setSelection(action.useDetachedfilename());
+    wGPGLocation.setText(Const.NVL(action.getGpgLocation(), ""));
+    wFilename.setText(Const.NVL(action.getFilename(), ""));
+    wDetachedFilename.setText(Const.NVL(action.getDetachedFilename(), ""));
+    wUseDetachedSignature.setSelection(action.isUseDetachedSignature());
   }
 
   @Override
@@ -284,10 +269,10 @@ public class ActionPGPVerifyDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setGPGLocation(wGPGLocation.getText());
+    action.setGpgLocation(wGPGLocation.getText());
     action.setFilename(wFilename.getText());
-    action.setDetachedfilename(wDetachedFilename.getText());
-    action.setUseDetachedfilename(wUseDetachedSignature.getSelection());
+    action.setDetachedFilename(wDetachedFilename.getText());
+    action.setUseDetachedSignature(wUseDetachedSignature.getSelection());
     dispose();
   }
 

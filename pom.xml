@@ -20,12 +20,12 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>35</version>
+        <version>38</version>
     </parent>
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>2.18.0-SNAPSHOT</version>
+    <version>2.19.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Orchestration Platform</name>
@@ -97,7 +97,7 @@
     </distributionManagement>
 
     <properties>
-        <apache-beam.version>2.71.0</apache-beam.version>
+        <apache-beam.version>2.74.0</apache-beam.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
@@ -105,12 +105,15 @@
         <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
         <byte-buddy.version>1.18.7</byte-buddy.version>
         <cyclonedx-maven-plugin.version>2.8.1</cyclonedx-maven-plugin.version>
+        <grpc.version>1.80.0</grpc.version>
         <hadoop.version>3.4.2</hadoop.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jandex.version>3.5.3</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
+        <javaVersion>${target.jdk.version}</javaVersion>
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
         <jetty.version>12.1.7</jetty.version>
+        <json-path.version>2.10.0</json-path.version>
         <junit.version>6.0.3</junit.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
@@ -121,7 +124,7 @@
         <lombok.version>1.18.42</lombok.version>
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
-        <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-surefire-plugin.argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito-core.version}/mockito-core-${mockito-core.version}.jar
             -Xshare:off
             -Duser.timezone=UTC
@@ -149,26 +152,29 @@
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
         <maven.compiler.source>${target.jdk.version}</maven.compiler.source>
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
+        <minimalMavenBuildVersion>3.6.3</minimalMavenBuildVersion>
         <mockito-core.version>5.22.0</mockito-core.version>
-        <netty.version>4.2.8.Final</netty.version>
+        <netty.version>4.2.15.Final</netty.version>
         <objenesis.version>3.5</objenesis.version>
-        <opentelemetry.version>1.56.0</opentelemetry.version>
+        <opentelemetry.version>1.62.0</opentelemetry.version>
         <org.eclipse.platform.version>3.132.0</org.eclipse.platform.version>
-        <project.build.outputTimestamp>1770029303</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1779880334</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
+        <sonar.exclusions>integration-tests/ssh/keys/**</sonar.exclusions>
         <spotless.skip>false</spotless.skip>
+        <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
+        <ui.test.argLine></ui.test.argLine>
+        <ui.test.excludedGroups></ui.test.excludedGroups>
+        <ui.test.includedGroups></ui.test.includedGroups>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Jetty: transitive deps (e.g. jersey-jetty-connector) can pull older patch lines (12.1.2).
-                 hop-libs already pins Jetty for modules that import it; root entries cover the rest of
-                 the reactor without importing hop-libs (would cycle: hop -> hop-libs -> parent hop). -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-alpn-client</artifactId>
@@ -271,9 +277,11 @@
         <repository>
             <releases>
                 <enabled>true</enabled>
+                <checksumPolicy>fail</checksumPolicy>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
+                <checksumPolicy>fail</checksumPolicy>
             </snapshots>
             <id>central</id>
             <name>Maven Central</name>
@@ -284,9 +292,11 @@
         <pluginRepository>
             <releases>
                 <enabled>false</enabled>
+                <checksumPolicy>fail</checksumPolicy>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>fail</checksumPolicy>
             </snapshots>
             <id>apache.snapshots</id>
             <url>https://repository.apache.org/snapshots/</url>
@@ -319,17 +329,86 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco-maven-plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*Dialog*</exclude>
+                        <exclude>**/dialog/**</exclude>
+                        <exclude>**/*Gui*Graph*</exclude>
+                        <exclude>**/*Editor*</exclude>
+                        <exclude>**/org/apache/hop/neo4j/perspective/HopNeo4jPerspective*</exclude>
+                        <exclude>**/org/apache/hop/neo4j/execution/path/**</exclude>
+                        <exclude>**/org/apache/hop/neo4j/execution/NeoExecutionInfoLocation*</exclude>
+                        <exclude>**/org/apache/hop/neo4j/logging/util/LoggingCore*</exclude>
+                        <exclude>**/org/apache/hop/git/GitGuiPlugin*</exclude>
+                        <exclude>**/org/apache/hop/git/info/GitInfoExplorerFileTypeHandler*</exclude>
+                        <exclude>**/org/apache/hop/git/info/DiffStyledTextComp*</exclude>
+                        <exclude>**/org/apache/hop/git/config/GitConfigOptionPlugin*</exclude>
+                        <exclude>**/org/apache/hop/git/model/VCS*</exclude>
+                        <exclude>**/org/apache/hop/projects/gui/**</exclude>
+                        <exclude>**/org/apache/hop/projects/xp/HopGuiStartProjectLoad*</exclude>
+                        <exclude>**/org/apache/hop/projects/config/ProjectsConfigOptionPlugin*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/perspective/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/terminal/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/welcome/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/shared/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/partition/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/file/**/delegates/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/delegates/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/context/GuiContextUtil*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/file/pipeline/HopGuiLogBrowser*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGui</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGui$$*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGuiKeyHandler*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/ContentEditorFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/ToolbarFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGuiEnvironment*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/TextSizeUtilFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/CanvasListener*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/CanvasFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/widget/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/gui/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/vfs/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/metadata/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/PropsUi*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/WidgetUtils*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/ConstUi*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/FormDataBuilder*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/GetFieldsDialogOperation*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/SimpleFileSelection*</exclude>
+                        <exclude>**/org/apache/hop/ui/util/Swt*</exclude>
+                        <exclude>**/org/apache/hop/ui/util/EnvironmentUtils*</exclude>
+                        <exclude>**/org/apache/hop/ui/util/HelpUtils*</exclude>
+                        <exclude>**/org/apache/hop/ui/www/**</exclude>
+                        <exclude>**/org/apache/hop/core/SwtUniversalImageSvg*</exclude>
+                        <exclude>**/*FacadeImpl*</exclude>
+                        <exclude>**/HopGuiImpl*</exclude>
+                        <exclude>**/GuiContextUtilImpl*</exclude>
+                        <exclude>**/CanvasListenerImpl*</exclude>
+                        <exclude>**/SvgLabelListenerImpl*</exclude>
+                        <exclude>**/GuiResourceImpl*</exclude>
+                        <exclude>**/ToolBarToolbarContainer*</exclude>
+                        <exclude>**/RuleBasedSourceViewerConfiguration*</exclude>
+                        <exclude>**/ContentEditorTm4eSupport*</exclude>
+                        <exclude>**/SafeCTabFolderRenderer*</exclude>
+                        <exclude>**/PrintSpool*</exclude>
+                        <exclude>**/WebToolbarContainer*</exclude>
+                        <exclude>**/CanvasZoomHandler*</exclude>
+                        <exclude>**/RapHopWebUrlUpdater*</exclude>
+                        <exclude>**/RapClientOsProvider*</exclude>
+                        <exclude>**/HopWebEntryPoint*</exclude>
+                        <exclude>**/HopWebServletContextListener*</exclude>
+                        <exclude>**/HopWebAuditManagerProvider*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopWeb</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopWeb$$*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/Clipboard*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>coverage-initialize</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*Dialog*</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>coverage-report</id>
@@ -337,11 +416,6 @@
                             <goal>report</goal>
                         </goals>
                         <phase>post-integration-test</phase>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*Dialog*</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -377,11 +451,12 @@
                         </goals>
                         <configuration>
                             <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding}
-                                ${maven-surefire-plugin.argLine}</argLine>
-                            <!-- this is set by jacoco's prepare-agent execution -->
+                                ${maven-surefire-plugin.argLine} ${ui.test.argLine}</argLine>
                             <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
                             <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
                             <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
+                            <groups>${ui.test.includedGroups}</groups>
+                            <excludedGroups>${ui.test.excludedGroups}</excludedGroups>
                             <properties>
                                 <includeTags>junit5</includeTags>
                             </properties>
@@ -401,6 +476,7 @@
                         <exclude>DISCLAIMER</exclude>
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
+                        <exclude>.asf.yaml</exclude>
                         <exclude>**/licenses/*</exclude>
                         <exclude>**/target/**</exclude>
                         <exclude>**/*.svg</exclude>
@@ -443,6 +519,10 @@
                         <exclude>**/integration-tests/**/*.crt</exclude>
                         <exclude>**/integration-tests/**/*.csr</exclude>
                         <exclude>**/integration-tests/**/mtls.conf</exclude>
+                        <!-- Goldens compared byte-for-byte to Hop output (no ASF header; see FILE_COMPARE in xml integration HWFs) -->
+                        <exclude>**/integration-tests/xml/files/expected/**</exclude>
+                        <exclude>**/integration-tests/ssh/keys/it_rsa</exclude>
+                        <exclude>**/integration-tests/ssh/keys/it_rsa.pub</exclude>
 
                         <!-- Samples Exclusions -->
                         <!-- plugins/engines/beam -->
@@ -476,7 +556,7 @@
                             <failOnError>true</failOnError>
                             <failOnWarnings>${javadoc.failOnWarnings}</failOnWarnings>
                             <doclint>all,-missing</doclint>
-                            <source>${maven.compiler.source}</source>
+                            <source>${target.jdk.version}</source>
                             <encoding>${project.build.sourceEncoding}</encoding>
                             <docencoding>${project.reporting.outputEncoding}</docencoding>
                             <maxmemory>512m</maxmemory>
@@ -595,9 +675,9 @@
             <modules>
                 <module>core</module>
                 <module>engine</module>
-                <module>engine-beam</module>
                 <module>lib</module>
                 <module>lib-jdbc</module>
+                <module>lib-p2</module>
                 <module>plugins</module>
                 <module>rap</module>
                 <module>rcp</module>
@@ -719,6 +799,7 @@
             <properties>
                 <env>mac</env>
                 <swt.artifactId>org.eclipse.swt.cocoa.macosx.aarch64</swt.artifactId>
+                <ui.test.argLine>-XstartOnFirstThread</ui.test.argLine>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -735,6 +816,13 @@
                     </dependency>
                 </dependencies>
             </dependencyManagement>
+        </profile>
+        <profile>
+            <id>uitest</id>
+            <properties>
+                <ui.test.excludedGroups></ui.test.excludedGroups>
+                <ui.test.includedGroups>uitest</ui.test.includedGroups>
+            </properties>
         </profile>
         <profile>
             <id>apache-release</id>
@@ -817,7 +905,6 @@
                             <excludes>hop-plugins/**.zip</excludes>
                             <excludes>hop-core/**.zip</excludes>
                             <excludes>hop-engine/**.zip</excludes>
-                            <excludes>hop-engine-beam/**.zip</excludes>
                             <excludes>hop-ui-rap/**.zip</excludes>
                             <excludes>hop-ui-rcp/**.zip</excludes>
                             <excludes>hop-rest/**.zip</excludes>

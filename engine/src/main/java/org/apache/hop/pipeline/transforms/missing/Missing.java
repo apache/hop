@@ -17,31 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.missing;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 
+@Getter
+@Setter
 public class Missing extends BaseTransformMeta<MissingTransform, MissingData> {
-
   private String transformName;
   private String missingPluginId;
 
   public Missing(String transformName, String missingPluginId) {
     this.transformName = transformName;
-    this.missingPluginId = missingPluginId;
-  }
-
-  public String getTransformName() {
-    return transformName;
-  }
-
-  public void setTransformName(String transformName) {
-    this.transformName = transformName;
-  }
-
-  public String getMissingPluginId() {
-    return missingPluginId;
-  }
-
-  public void setMissingPluginId(String missingPluginId) {
     this.missingPluginId = missingPluginId;
   }
 }

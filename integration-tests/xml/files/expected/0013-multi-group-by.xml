@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<regions>
+<region code="EU">
+<order id="1001"><customer>Alice Anderson</customer>
+<lines>
+<line sku="SKU-100"><qty>2</qty><price>9.99</price></line>
+<line sku="SKU-150"><qty>3</qty><price>4.25</price></line>
+</lines>
+</order>
+<order id="1002"><customer>Bob Brown</customer>
+<lines>
+<line sku="SKU-200"><qty>1</qty><price>19.95</price></line>
+<line sku="SKU-250"><qty>1</qty><price>5.00</price></line>
+</lines>
+</order>
+</region>
+<region code="NA">
+<order id="2001"><customer>Diane Davis</customer>
+<lines>
+<line sku="SKU-510"><qty>1</qty><price>14.00</price></line>
+<line sku="SKU-520"><qty>2</qty><price>6.50</price></line>
+</lines>
+</order>
+<order id="2002"><customer>Eric Evans</customer>
+<lines>
+<line sku="SKU-600"><qty>4</qty><price>2.50</price></line>
+<line sku="SKU-610"><qty>2</qty><price>3.10</price></line>
+</lines>
+</order>
+</region>
+</regions>

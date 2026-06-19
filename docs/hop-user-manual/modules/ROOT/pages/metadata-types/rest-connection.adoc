@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:openvar: ${
+:closevar: }
 :page-pagination:
 :description:
 
@@ -40,7 +42,7 @@ xref:pipeline/transforms/rest.adoc[REST client]
 |Authentication type|Select how Hop should authenticate when this metadata is used. The available choices are described below.
 |===
 
-Use environment variables or Hop variables (for example `${PROJECT_HOME}`) in any text box. The connection resolves variables when the metadata is loaded, so the same definition can be reused from pipelines, workflows, and the Hop GUI test button.
+Use environment variables or Hop variables (for example `{openvar}PROJECT_HOME{closevar}`) in any text box. The connection resolves variables when the metadata is loaded, so the same definition can be reused from pipelines, workflows, and the Hop GUI test button.
 
 == Authentication
 
@@ -71,6 +73,38 @@ Use environment variables or Hop variables (for example `${PROJECT_HOME}`) in an
 
 Use the `Test` button to validate the selected authentication method and SSL settings against the test or base URL. The dialog resolves variables before running the test so it matches pipeline execution.
 
+== Pagination
+
+The **Pagination** tab defines how the xref:pipeline/transforms/rest.adoc[REST client] transform advances through paged API responses when pagination is enabled on the transform.
+
+Pagination is configured on the connection; the REST client reads these settings and performs the HTTP loop. When the connection pagination strategy is `NONE`, the REST client performs a single request per incoming row (legacy behaviour).
+
+[options="header"]
+|===
+|Option |Description
+|Pagination strategy|How Hop obtains the next page. See the strategies below. Default is `NONE`.
+|Page / cursor query parameter name|Query parameter name for `PAGE_NUMBER` or `CURSOR` paging (for example `page` or `cursor`). Ignored by `OFFSET_LIMIT` and `LINK_HEADER`.
+|Offset query parameter name|Query parameter for the starting index in `OFFSET_LIMIT` paging. Defaults to `offset` when blank.
+|Limit query parameter name|Query parameter for the batch size in `OFFSET_LIMIT` paging. Defaults to `limit` when blank.
+|Default batch size|Page size sent with `OFFSET_LIMIT` paging. When `0`, Hop falls back to an internal default (100).
+|Cursor JsonPath|JsonPath expression against a JSON response body to read the next cursor token (`CURSOR` + JSON application type).
+|Cursor XPath|XPath expression against an XML response body to read the next cursor token (`CURSOR` + XML application type).
+|===
+
+=== Pagination strategies
+
+[options="header"]
+|===
+|Strategy |How the next page is determined
+|`NONE`|No pagination metadata is applied. Use this for single-request APIs.
+|`LINK_HEADER`|Follows the RFC 5988 `Link` response header: Hop requests the bracketed URI whose `rel` relation includes `next`. GitHub, Shopify, and similar APIs use this style. Hop stops when no `next` link is present or when the same URL would be requested again (cycle guard).
+|`OFFSET_LIMIT`|Adds offset/limit (or custom-named) query parameters. After each successful non-empty page, the offset increases by the batch size. An empty page ends the loop.
+|`PAGE_NUMBER`|Adds a page query parameter starting at `1` and increments it after each successful non-empty page. An empty page ends the loop.
+|`CURSOR`|Adds a cursor query parameter on follow-up requests. The token is extracted from the previous response with JsonPath (JSON) or XPath (XML). An empty page or missing next token ends the loop.
+|===
+
+TIP: For `LINK_HEADER`, the path on the REST client transform is still relative to `Base URL` on the first request. Subsequent requests use the absolute URL from the `next` link as returned by the API.
+
 == Samples
 
-None
+link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/metadata/restconnection/github-releases.json[github-releases.json] — public GitHub API, `LINK_HEADER` pagination (used by link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/transforms/rest-client-github-releases-loop.hpl[rest-client-github-releases-loop.hpl] in the REST transform samples project).

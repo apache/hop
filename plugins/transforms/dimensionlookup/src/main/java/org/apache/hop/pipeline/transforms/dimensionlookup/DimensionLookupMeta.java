@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -294,7 +294,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       throw new HopTransformException(message);
     }
 
-    IValueMeta tkValueMeta = buildTkValueMeta(inputRowMeta, name, variables);
+    IValueMeta tkValueMeta = buildTkValueMeta(inputRowMeta, fields.returns.keyField, variables);
 
     if (StringUtils.isNotEmpty(fields.returns.keyRename)) {
       tkValueMeta.setName(fields.returns.keyRename);
@@ -342,9 +342,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       throws HopTransformException {
     IValueMeta tkValueMeta;
     switch (fields.returns.creationMethod) {
-      case SEQUENCE:
-      case TABLE_MAXIMUM:
-      case AUTO_INCREMENT:
+      case SEQUENCE, TABLE_MAXIMUM, AUTO_INCREMENT:
         tkValueMeta = new ValueMetaInteger(name, 9, 0);
         break;
       case UUID:
@@ -895,7 +893,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     // Verify the absolute basic settings like having a database, table, input fields, technical
     // key, ...
     //
-    validateBasicSettings(variables, pipelineMeta, previousRowMeta);
+    validateBasicSettings(variables, metadataProvider, previousRowMeta);
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
 
@@ -986,11 +984,20 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   private void validateBasicSettings(
-      IVariables variables, PipelineMeta pipelineMeta, IRowMeta previousRowMeta)
+      IVariables variables, IHopMetadataProvider metadataProvider, IRowMeta previousRowMeta)
       throws HopTransformException {
 
     // Raise an exception in case connection is missing
-    pipelineMeta.findDatabase(connection, variables, true);
+    try {
+      String databaseName = variables.resolve(connection);
+      if (!metadataProvider.getSerializer(DatabaseMeta.class).exists(databaseName)) {
+        throw new HopTransformException(
+            "Database connection '" + databaseName + "' does not exist");
+      }
+    } catch (Exception e) {
+      throw new HopTransformException(
+          "Error found validating database connection " + connection, e);
+    }
 
     if (fields.keys.isEmpty()) {
       throw new HopTransformException(

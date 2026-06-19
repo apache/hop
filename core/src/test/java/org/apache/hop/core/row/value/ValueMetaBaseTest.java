@@ -39,8 +39,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.sql.PreparedStatement;
@@ -56,8 +54,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -70,9 +68,6 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -703,23 +698,6 @@ class ValueMetaBaseTest {
 
     // no logging occurred as max string length equals to logging text length
     assertEquals(0, events.size());
-  }
-
-  @Test
-  void testValueMetaBaseOnlyHasOneLogger() throws NoSuchFieldException, IllegalAccessException {
-    Field log = ValueMetaBase.class.getDeclaredField("log");
-    assertTrue(Modifier.isStatic(log.getModifiers()));
-    assertTrue(Modifier.isFinal(log.getModifiers()));
-    log.setAccessible(true);
-    try {
-      assertEquals(
-          LoggingRegistry.getInstance()
-              .findExistingLoggingSource(new LoggingObject("ValueMetaBase"))
-              .getLogChannelId(),
-          ((ILogChannel) log.get(null)).getLogChannelId());
-    } finally {
-      log.setAccessible(false);
-    }
   }
 
   Date local(int year, int month, int dat, int hrs, int min, int sec, int ms) {

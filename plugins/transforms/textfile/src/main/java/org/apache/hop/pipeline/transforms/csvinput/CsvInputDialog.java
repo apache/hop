@@ -29,7 +29,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -771,7 +770,7 @@ public class CsvInputDialog extends BaseTransformDialog
       }
 
       // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
       int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
       if (idx >= 0) {
         wEncoding.select(idx);
@@ -825,7 +824,7 @@ public class CsvInputDialog extends BaseTransformDialog
 
     final List<String> fieldName = newFieldNames == null ? new ArrayList() : newFieldNames;
     for (int i = 0; i < inputMeta.getInputFields().size(); i++) {
-      TextFileInputField field = inputMeta.getInputFields().get(i);
+      CsvInputField field = inputMeta.getInputFields().get(i);
       final TableItem item = getTableItem(field.getName(), true);
       // update the item only if we are reloading all fields, or the field is new
       if (!reloadAllFields && !fieldName.contains(field.getName())) {
@@ -841,7 +840,7 @@ public class CsvInputDialog extends BaseTransformDialog
       item.setText(colnr++, Const.NVL(field.getCurrencySymbol(), ""));
       item.setText(colnr++, Const.NVL(field.getDecimalSymbol(), ""));
       item.setText(colnr++, Const.NVL(field.getGroupSymbol(), ""));
-      item.setText(colnr++, Const.NVL(field.getTrimTypeDesc(), ""));
+      item.setText(colnr, Const.NVL(field.getTrimTypeDesc(), ""));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -880,7 +879,8 @@ public class CsvInputDialog extends BaseTransformDialog
 
     inputMeta.getInputFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {
-      TextFileInputField f = new TextFileInputField();
+      CsvInputField f = new CsvInputField();
+      inputMeta.getInputFields().add(f);
 
       int colnr = 1;
       f.setName(item.getText(colnr++));

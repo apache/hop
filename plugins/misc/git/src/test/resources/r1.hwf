@@ -52,7 +52,7 @@ limitations under the License.
     <action>
       <name>Workflow</name>
       <description />
-      <type>JOB</type>
+      <type>WORKFLOW</type>
       <specification_method>filename</specification_method>
       <job_object_id />
       <filename />
@@ -84,7 +84,7 @@ limitations under the License.
     <action>
       <name>Pipeline</name>
       <description />
-      <type>TRANS</type>
+      <type>PIPELINE</type>
       <specification_method>filename</specification_method>
       <trans_object_id />
       <filename />

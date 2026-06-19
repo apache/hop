@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
@@ -37,14 +37,18 @@ import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformEngineSupportPluginType;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
+import org.apache.hop.datastream.plugin.DataStreamPluginType;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType;
 import org.apache.hop.hop.plugin.HopCommandPluginType;
 import org.apache.hop.imp.ImportPluginType;
+import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.plugin.LineageSinkPluginType;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
@@ -81,6 +85,7 @@ public class HopEnvironment {
     return Arrays.asList(
         RowDistributionPluginType.getInstance(),
         TransformPluginType.getInstance(),
+        TransformEngineSupportPluginType.getInstance(),
         PartitionerPluginType.getInstance(),
         ActionPluginType.getInstance(),
         HopServerPluginType.getInstance(),
@@ -94,7 +99,9 @@ public class HopEnvironment {
         ImportPluginType.getInstance(),
         ExecutionDataSamplerPluginType.getInstance(),
         ExecutionInfoLocationPluginType.getInstance(),
-        HopCommandPluginType.getInstance());
+        LineageSinkPluginType.getInstance(),
+        HopCommandPluginType.getInstance(),
+        DataStreamPluginType.getInstance());
   }
 
   public static void init(List<IPluginType> pluginTypes) throws HopException {
@@ -119,6 +126,8 @@ public class HopEnvironment {
         //
         pluginTypes.forEach(PluginRegistry::addPluginType);
         PluginRegistry.init();
+
+        LineageHub.getInstance().environmentReady();
 
         // Register the native variables and the variables from the various the plugins
         //
@@ -146,8 +155,11 @@ public class HopEnvironment {
         //
         for (DescribedVariable describedVariable : hopConfig.getDescribedVariables()) {
           if (StringUtils.isNotEmpty(describedVariable.getName())) {
-            System.setProperty(
-                describedVariable.getName(), Const.NVL(describedVariable.getValue(), ""));
+            String propName = describedVariable.getName();
+            // Don't override command-line system properties (e.g., -Dname=value)
+            if (!System.getProperties().containsKey(propName)) {
+              System.setProperty(propName, Const.NVL(describedVariable.getValue(), ""));
+            }
           }
         }
 
@@ -198,7 +210,7 @@ public class HopEnvironment {
 
   // Shutdown the Hop environment programmatically
   public static void shutdown() {
-    // Do Nothing
+    LineageHub.getInstance().shutdown();
   }
 
   /**
@@ -227,6 +239,7 @@ public class HopEnvironment {
   }
 
   public static void reset() {
+    LineageHub.getInstance().shutdown();
     HopClientEnvironment.reset();
     initialized.set(null);
   }
