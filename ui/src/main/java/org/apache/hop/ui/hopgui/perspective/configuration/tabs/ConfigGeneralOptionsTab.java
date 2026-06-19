@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -469,6 +470,8 @@ public class ConfigGeneralOptionsTab {
           // Clear both session and persistent dialog positions
           props.clearSessionScreens();
           props.clearPersistedDialogScreens();
+          // Also reset the remembered perspective tree-panel widths to their defaults.
+          SashFormMemory.resetAll();
 
           // Show confirmation message
           org.apache.hop.ui.core.dialog.MessageBox mb =

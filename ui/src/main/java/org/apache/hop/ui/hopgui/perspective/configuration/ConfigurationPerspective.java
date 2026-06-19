@@ -44,6 +44,7 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
+import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -298,7 +299,7 @@ public class ConfigurationPerspective implements IHopPerspective {
       categoryTree.setSelection(firstItem);
     }
 
-    sashForm.setWeights(20, 80);
+    SashFormMemory.persist(sashForm, "configuration-perspective-tree-width");
 
     // Register with key handler so activate shortcut (Ctrl+Shift+C / Cmd+Shift+C) works
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();

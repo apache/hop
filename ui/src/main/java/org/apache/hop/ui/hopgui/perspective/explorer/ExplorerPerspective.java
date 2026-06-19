@@ -114,6 +114,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
+import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -209,6 +210,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-ContextMenu-10401-CopyPath";
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
+  private static final String TREE_WIDTH_AUDIT_TYPE = "explorer-perspective-tree-width";
   private static final String EXPLORER_AUDIT_TYPE = "explorer-perspective-state";
   private static final String STATE_PANEL_VISIBLE_KEY = "panel-visible";
   private static final String STATE_PANEL_VISIBLE_PROP = "visible";
@@ -323,7 +325,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     createTree(sash);
     createTabFolder(sash);
 
-    sash.setWeights(20, 80);
+    SashFormMemory.persist(sash, TREE_WIDTH_AUDIT_TYPE);
 
     // Set initial file explorer panel visibility from configuration only.
     // Saved state is applied later in applyRestoredState() after startup (and project) so
@@ -3499,7 +3501,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     if (fileExplorerPanelVisible) {
       sash.setMaximizedControl(null);
-      sash.setWeights(20, 80);
+      SashFormMemory.restore(sash, TREE_WIDTH_AUDIT_TYPE);
     } else {
       sash.setMaximizedControl(tabFolderWrapper);
     }
@@ -3753,7 +3755,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       fileExplorerPanelVisible = savedVisibility;
       if (fileExplorerPanelVisible) {
         sash.setMaximizedControl(null);
-        sash.setWeights(20, 80);
+        SashFormMemory.restore(sash, TREE_WIDTH_AUDIT_TYPE);
       } else {
         sash.setMaximizedControl(tabFolderWrapper);
       }
