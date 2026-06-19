@@ -34,11 +34,14 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Node;
 
 /** Unit test for {@link ValueMetaAndData} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
 class ValueMetaAndDataTests {
 
   @BeforeAll
