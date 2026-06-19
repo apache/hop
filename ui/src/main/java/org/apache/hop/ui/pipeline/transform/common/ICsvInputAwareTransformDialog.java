@@ -135,6 +135,9 @@ public interface ICsvInputAwareTransformDialog {
    */
   default InputStreamReader getReader(
       final ICsvInputAwareMeta meta, final InputStream inputStream) {
+    if (inputStream == null) {
+      return null;
+    }
     InputStreamReader reader = null;
     try {
       String realEncoding = getVariables().resolve(meta.getEncoding());
@@ -163,6 +166,9 @@ public interface ICsvInputAwareTransformDialog {
   default String loadFieldsImpl(final ICsvInputAwareMeta meta, final int samples) {
 
     InputStream inputStream = getInputStream(meta);
+    if (inputStream == null) {
+      return null;
+    }
     try {
       final InputStreamReader reader = getReader(meta, inputStream);
       final ICsvInputAwareImportProgressDialog pd =

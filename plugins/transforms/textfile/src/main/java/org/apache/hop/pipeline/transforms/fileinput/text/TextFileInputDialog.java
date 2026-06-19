@@ -121,6 +121,8 @@ public class TextFileInputDialog extends BaseTransformDialog
   public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
   public static final String CONST_SYSTEM_LABEL_EXTENSION = "System.Label.Extension";
+  public static final String TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE =
+      "TextFileInputDialog.NoValidFile.DialogMessage";
 
   private CTabFolder wTabFolder;
 
@@ -2620,6 +2622,22 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private void get() {
     if (wFiletype.getText().equalsIgnoreCase("CSV")) {
+      TextFileInputMeta oneMeta = new TextFileInputMeta();
+      getInfo(oneMeta, true);
+      try {
+        if (oneMeta.getFileInputList(variables).nrOfFiles() == 0) {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(
+              BaseMessages.getString(PKG, TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE));
+          mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
+          mb.open();
+          return;
+        }
+      } catch (Exception e) {
+        displayErrorDialog(
+            new HopException(e), "TextFileInputDialog.ErrorGettingData.DialogMessage");
+        return;
+      }
       getFields();
     }
   }
@@ -2805,7 +2823,8 @@ public class TextFileInputDialog extends BaseTransformDialog
         }
       } else {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage(BaseMessages.getString(PKG, "TextFileInputDialog.NoValidFile.DialogMessage"));
+        mb.setMessage(
+            BaseMessages.getString(PKG, TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE));
         mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
         mb.open();
       }
@@ -3316,6 +3335,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     CompressionInputStream inputStream = null;
     try {
       FileObject fileObject = meta.getHeaderFileObject(variables);
+      if (fileObject == null) {
+        logError(BaseMessages.getString(PKG, TEXT_FILE_INPUT_DIALOG_NO_VALID_FILE_DIALOG_MESSAGE));
+        return null;
+      }
       fileInputStream = HopVfs.getInputStream(fileObject);
       ICompressionProvider provider =
           CompressionProviderFactory.getInstance()
