@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -31,6 +32,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::WebService.name",
     description = "i18n::WebService.description",
     image = "ui/images/webservice.svg",
+    category = HopMetadataCategory.SERVERS,
     documentationUrl = "/metadata-types/web-service.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SERVER_WEB_SERVICE)
 @Getter

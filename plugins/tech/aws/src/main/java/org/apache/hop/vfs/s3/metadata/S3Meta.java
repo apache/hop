@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -34,6 +35,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::S3Meta.name",
     description = "i18n::S3Meta.description",
     image = "s3.svg",
+    category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/s3-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_S3_CONNECTION)
 public class S3Meta extends HopMetadataBase implements Serializable, IHopMetadata {

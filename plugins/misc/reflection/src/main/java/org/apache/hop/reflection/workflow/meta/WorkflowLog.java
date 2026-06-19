@@ -25,6 +25,7 @@ import lombok.Setter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -34,6 +35,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::WorkflowLog.name",
     description = "i18n::WorkflowLog.description",
     image = "workflow-log.svg",
+    category = HopMetadataCategory.LOGGING,
     documentationUrl = "/metadata-types/workflow-log.html",
     hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_LOG)
 @Getter

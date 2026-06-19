@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -35,6 +36,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::AsyncWebService.name",
     description = "i18n::AsyncWebService.description",
     image = "ui/images/server.svg",
+    category = HopMetadataCategory.SERVERS,
     documentationUrl = "/metadata-types/async-web-service.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SERVER_WEB_SERVICE_ASYNC)
 @Getter

@@ -20,8 +20,12 @@ package org.apache.hop.ui.hopgui.perspective.metadata;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import org.apache.hop.core.Const;
@@ -37,6 +41,9 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.history.AuditList;
+import org.apache.hop.history.AuditManager;
+import org.apache.hop.history.IAuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -59,6 +66,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
@@ -90,6 +98,7 @@ import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -100,6 +109,7 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -133,8 +143,22 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   public static final Class<?> PKG = MetadataPerspective.class; // i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
 
+  /**
+   * Audit-trail key under which the project's (possibly empty) virtual folders are stored so they
+   * survive refresh and restart. Each entry is {@code typeKey + FOLDER_AUDIT_SEPARATOR + path}.
+   */
+  private static final String FOLDER_AUDIT_TYPE = "metadata-virtual-folders";
+
+  private static final String FOLDER_AUDIT_SEPARATOR = "\t";
+
+  /**
+   * Audit-trail key under which the tree-panel sash weights are stored (global, not per-project).
+   */
+  private static final String SASH_WEIGHTS_AUDIT_TYPE = "metadata-perspective-tree-width";
+
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetadataPerspective-Toolbar";
 
+  public static final String TOOLBAR_ITEM_NEW_TYPE = "MetadataPerspective-Toolbar-09000-NewType";
   public static final String TOOLBAR_ITEM_NEW = "MetadataPerspective-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
@@ -144,14 +168,30 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       "MetadataPerspective-Toolbar-10060-ExpandAll";
   public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
       "MetadataPerspective-Toolbar-10070-CollapseAll";
+  public static final String TOOLBAR_ITEM_SHOW_EMPTY =
+      "MetadataPerspective-Toolbar-10080-ShowEmpty";
   public static final String TOOLBAR_ITEM_REFRESH = "MetadataPerspective-Toolbar-10100-Refresh";
 
   private static final String KEY_HELP = "Help";
   private static final String KEY_TYPE = "type";
   public static final String FILE = "File";
   public static final String FOLDER = "Folder";
+
+  /** A metadata type node (groups the items of one {@code @HopMetadata} type). */
+  public static final String TYPE = "MetadataItem";
+
+  /** A category header node grouping several metadata types. */
+  public static final String CATEGORY = "Category";
+
   public static final String VIRTUAL_PATH = "virtualPath";
   public static final String ERROR = "Error";
+
+  /** Icons for the "show empty types" toggle button (icon reflects the action it will perform). */
+  private static final String IMAGE_SHOW_ALL = "ui/images/show-all.svg";
+
+  private static final String IMAGE_SHOW_SELECTED = "ui/images/show-selected.svg";
+
+  private static final int FILTER_DEBOUNCE_MS = 250;
 
   @Getter private static MetadataPerspective instance;
 
@@ -160,9 +200,30 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   private Tree tree;
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
+  private Composite editorArea;
+  private StackLayout editorStackLayout;
+  private MetadataOverview overview;
   private GuiToolbarWidgets toolBarWidgets;
   private Text searchText;
+  private Label resultCountLabel;
   private String currentSearchFilter = "";
+
+  /** When {@code false} (the default) metadata types and categories with no items are hidden. */
+  private boolean showEmptyTypes = false;
+
+  /**
+   * In-memory view of all metadata types and their items; loaded once per {@link #reloadModel()}.
+   */
+  private final List<MetadataTypeModel> typeModels = new ArrayList<>();
+
+  /** Stable node ids whose default expand state has been seeded into TreeMemory this session. */
+  private final Set<String> treeStateSeeded = new HashSet<>();
+
+  /** Debounced search action so we don't rebuild the tree on every keystroke. */
+  private final Runnable filterRunnable = this::applyFilter;
+
+  /** Debounced save of the tree-panel sash weights so we don't write on every drag pixel. */
+  private final Runnable sashWeightsSaver = this::saveSashWeights;
 
   private final List<MetadataEditor<?>> editors = new ArrayList<>();
 
@@ -212,18 +273,25 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     sash.setLayoutData(new FormDataBuilder().fullSize().result());
 
     createTree(sash);
-    createTabFolder(sash);
+
+    // The right-hand side stacks the editor tab folder and an overview/landing page; the overview
+    // is shown whenever no editor tab is open.
+    editorArea = new Composite(sash, SWT.NONE);
+    editorStackLayout = new StackLayout();
+    editorArea.setLayout(editorStackLayout);
+    PropsUi.setLook(editorArea);
+    overview = new MetadataOverview(editorArea, this);
+    createTabFolder(editorArea);
+    editorStackLayout.topControl = overview;
+    editorArea.layout();
 
     sash.setWeights(new int[] {20, 80});
+    // Restore the saved tree-panel width and persist it whenever the divider is dragged.
+    loadSashWeights();
+    editorArea.addListener(SWT.Resize, e -> scheduleSaveSashWeights());
 
     this.refresh();
     this.updateSelection();
-
-    // Set the top level items in the tree to be expanded
-    //
-    for (TreeItem item : tree.getItems()) {
-      TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, item, true);
-    }
 
     // refresh the metadata when it changes.
     //
@@ -273,12 +341,22 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     // Add search listener
     searchText.addListener(SWT.Modify, e -> filterTree());
 
+    // Result count shown under the search box while a filter is active (empty otherwise)
+    resultCountLabel = new Label(treeComposite, SWT.NONE);
+    PropsUi.setLook(resultCountLabel);
+    FormData countFormData = new FormData();
+    countFormData.left = new FormAttachment(0, 0);
+    countFormData.top = new FormAttachment(searchText, 0);
+    countFormData.right = new FormAttachment(100, 0);
+    countFormData.height = 0; // collapsed until a search filter is active (see updateResultCount)
+    resultCountLabel.setLayoutData(countFormData);
+
     // Create a composite with toolbar and tree for the border
     Composite composite = new Composite(treeComposite, SWT.BORDER);
     composite.setLayout(new FormLayout());
     FormData layoutData = new FormData();
     layoutData.left = new FormAttachment(0, 0);
-    layoutData.top = new FormAttachment(searchText, PropsUi.getMargin());
+    layoutData.top = new FormAttachment(resultCountLabel, PropsUi.getMargin());
     layoutData.right = new FormAttachment(100, 0);
     layoutData.bottom = new FormAttachment(100, 0);
     composite.setLayoutData(layoutData);
@@ -306,12 +384,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         SWT.DefaultSelection,
         event -> {
           TreeItem treeItem = tree.getSelection()[0];
-          if (treeItem != null && treeItem.getData(KEY_TYPE).equals(FILE)) {
-            if (treeItem.getParentItem() == null) {
-              onNewMetadata();
-            } else {
-              onEditMetadata();
-            }
+          if (treeItem != null && FILE.equals(treeItem.getData(KEY_TYPE))) {
+            onEditMetadata();
           }
         });
 
@@ -329,7 +403,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
             MenuItem menuItem;
 
             switch ((String) treeItem.getData(KEY_TYPE)) {
-              case "MetadataItem", FOLDER:
+              case TYPE:
                 menuItem = new MenuItem(menu, SWT.POP_UP);
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
                 menuItem.addListener(SWT.Selection, e -> onNewMetadata());
@@ -337,6 +411,24 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.NewFolder"));
                 menuItem.addListener(SWT.Selection, e -> createNewFolder());
                 new MenuItem(menu, SWT.SEPARATOR);
+                break;
+              case FOLDER:
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.New"));
+                menuItem.addListener(SWT.Selection, e -> onNewMetadata());
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.NewFolder"));
+                menuItem.addListener(SWT.Selection, e -> createNewFolder());
+                new MenuItem(menu, SWT.SEPARATOR);
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(
+                    BaseMessages.getString(PKG, "MetadataPerspective.Menu.DeleteFolder"));
+                menuItem.setImage(GuiResource.getInstance().getImageDelete());
+                menuItem.addListener(SWT.Selection, e -> onDeleteFolder());
+                new MenuItem(menu, SWT.SEPARATOR);
+                break;
+              case CATEGORY:
+                addNewTypeMenuItemsForCategory(menu, (String) treeItem.getData());
                 break;
               case FILE:
                 menuItem = new MenuItem(menu, SWT.POP_UP);
@@ -367,10 +459,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 break;
             }
 
-            menuItem = new MenuItem(menu, SWT.POP_UP);
-            menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Help"));
-            menuItem.setImage(GuiResource.getInstance().getImageHelp());
-            menuItem.addListener(SWT.Selection, e -> onHelpMetadata());
+            // Help is not meaningful on a category header.
+            if (!CATEGORY.equals(treeItem.getData(KEY_TYPE))) {
+              menuItem = new MenuItem(menu, SWT.POP_UP);
+              menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Help"));
+              menuItem.setImage(GuiResource.getInstance().getImageHelp());
+              menuItem.addListener(SWT.Selection, e -> onHelpMetadata());
+            }
 
             tree.setMenu(menu);
             menu.setVisible(true);
@@ -390,8 +485,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     treeEditor.horizontalAlignment = SWT.LEFT;
     treeEditor.grabHorizontal = true;
 
-    // Remember tree node expanded/Collapsed
-    TreeMemory.addTreeListener(tree, METADATA_PERSPECTIVE_TREE);
+    // Remember expand/collapse within the session (shared TreeMemory, keyed by stable node ids).
+    tree.addListener(SWT.Expand, e -> recordTreeState((TreeItem) e.item, true));
+    tree.addListener(SWT.Collapse, e -> recordTreeState((TreeItem) e.item, false));
 
     // Drag and drop: reorganize within tree (same type only) and drag to canvas to open
     createTreeDragSource(tree);
@@ -403,11 +499,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * class item.
    */
   private String getObjectKey(TreeItem item) {
-    TreeItem root = item;
-    while (root.getParentItem() != null) {
-      root = root.getParentItem();
+    // Walk up to the nearest node that carries a metadata type key: a type node or a folder node
+    // (both store the key in their data). Category and file nodes do not, so we keep climbing.
+    // Returns null when no type ancestor exists (e.g. a category header is selected).
+    TreeItem current = item;
+    while (current != null) {
+      String nodeType = (String) current.getData(KEY_TYPE);
+      if (TYPE.equals(nodeType) || FOLDER.equals(nodeType)) {
+        return (String) current.getData();
+      }
+      current = current.getParentItem();
     }
-    return (String) root.getData();
+    return null;
   }
 
   private void createTreeDragSource(Tree tree) {
@@ -591,7 +694,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         SWT.Selection,
         e -> {
           if (sash.getMaximizedControl() == null) {
-            sash.setMaximizedControl(tabFolder);
+            sash.setMaximizedControl(editorArea);
             item.setImage(GuiResource.getInstance().getImageMinimizePanel());
           } else {
             sash.setMaximizedControl(null);
@@ -683,6 +786,69 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     tabFolder.setSelection(tabItem);
 
     editor.setFocus();
+
+    // An editor is open: show the tab folder instead of the overview page.
+    showEditors();
+  }
+
+  /** Shows the editor tab folder (used when at least one editor tab is open). */
+  private void showEditors() {
+    if (editorStackLayout == null || editorArea == null || editorArea.isDisposed()) {
+      return;
+    }
+    if (editorStackLayout.topControl != tabFolder) {
+      editorStackLayout.topControl = tabFolder;
+      editorArea.layout();
+    }
+  }
+
+  /**
+   * Shows the overview/landing page (used when no editor tab is open) and refreshes its content.
+   */
+  private void showOverview() {
+    if (editorStackLayout == null || editorArea == null || editorArea.isDisposed()) {
+      return;
+    }
+    if (overview != null && !overview.isDisposed()) {
+      overview.setCards(buildOverviewCards());
+    }
+    if (editorStackLayout.topControl != overview) {
+      editorStackLayout.topControl = overview;
+      editorArea.layout();
+    }
+  }
+
+  /** Builds the overview cards (one per metadata type) from the cached model. */
+  private List<MetadataOverview.TypeCard> buildOverviewCards() {
+    List<MetadataOverview.TypeCard> cards = new ArrayList<>();
+    for (MetadataTypeModel typeModel : typeModels) {
+      cards.add(
+          new MetadataOverview.TypeCard(
+              typeModel.categoryId,
+              typeModel.key,
+              typeModel.typeName,
+              typeModel.description,
+              typeModel.image,
+              typeModel.metadataClass.getClassLoader(),
+              typeModel.items.size()));
+    }
+    return cards;
+  }
+
+  /** Selects (and reveals) the tree node for the given metadata type, if it is currently shown. */
+  public void selectType(String key) {
+    TreeItem typeItem = findTypeItem(key);
+    if (typeItem != null) {
+      typeItem.setExpanded(true);
+      tree.setSelection(typeItem);
+      tree.showSelection();
+      updateSelection();
+    }
+  }
+
+  /** Creates a new metadata item of the given type from the overview page. */
+  public void createNewMetadataFromOverview(String key) {
+    createMetadataOfType(key, "");
   }
 
   /**
@@ -748,6 +914,101 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
   }
 
+  /**
+   * Global "new" button: opens a category-grouped menu of every metadata type so a new item can be
+   * created regardless of the current tree selection (including types whose node is currently
+   * hidden because it has no items).
+   */
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_NEW_TYPE,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.NewType.Tooltip",
+      image = "ui/images/add.svg")
+  public void onNewMetadataType() {
+    Menu menu = new Menu(tree);
+    addNewTypeMenuItems(menu, null);
+    // Position the drop-down just below the toolbar button.
+    ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_NEW_TYPE);
+    if (toolItem != null && !toolItem.getParent().isDisposed()) {
+      ToolBar toolBar = toolItem.getParent();
+      Rectangle bounds = toolItem.getBounds();
+      Point location = toolBar.toDisplay(bounds.x, bounds.y + bounds.height);
+      menu.setLocation(location);
+    }
+    menu.setVisible(true);
+  }
+
+  /**
+   * Adds one "New &lt;type&gt;" item per metadata type to {@code menu}, optionally restricted to a
+   * single category. Types are grouped by category (in the configured category order, with a
+   * separator between groups) and keep the model's name order within a group.
+   */
+  private void addNewTypeMenuItems(Menu menu, String onlyCategoryId) {
+    List<String> categoryIds = new ArrayList<>();
+    for (MetadataTypeModel typeModel : typeModels) {
+      if ((onlyCategoryId == null || onlyCategoryId.equals(typeModel.categoryId))
+          && !categoryIds.contains(typeModel.categoryId)) {
+        categoryIds.add(typeModel.categoryId);
+      }
+    }
+    categoryIds.sort(
+        Comparator.comparingInt(MetadataCategories::orderOf)
+            .thenComparing(MetadataCategories::labelFor));
+
+    boolean needSeparator = false;
+    for (String categoryId : categoryIds) {
+      if (needSeparator) {
+        new MenuItem(menu, SWT.SEPARATOR);
+      }
+      for (MetadataTypeModel typeModel : typeModels) {
+        if (!typeModel.categoryId.equals(categoryId)) {
+          continue;
+        }
+        MenuItem typeMenuItem = new MenuItem(menu, SWT.POP_UP);
+        typeMenuItem.setText(
+            BaseMessages.getString(PKG, "MetadataPerspective.Menu.NewOfType", typeModel.typeName));
+        typeMenuItem.setImage(
+            GuiResource.getInstance()
+                .getImage(
+                    typeModel.image,
+                    typeModel.metadataClass.getClassLoader(),
+                    ConstUi.SMALL_ICON_SIZE,
+                    ConstUi.SMALL_ICON_SIZE));
+        String key = typeModel.key;
+        typeMenuItem.addListener(SWT.Selection, e -> createMetadataOfType(key, ""));
+      }
+      needSeparator = true;
+    }
+  }
+
+  /** Adds "New &lt;type&gt;" items for a single category (used by the category context menu). */
+  private void addNewTypeMenuItemsForCategory(Menu menu, String categoryId) {
+    addNewTypeMenuItems(menu, categoryId);
+  }
+
+  /**
+   * Toggle button controlling whether metadata types and categories with no items are shown in the
+   * tree. The icon swaps to reflect the action a click will perform.
+   */
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_SHOW_EMPTY,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.ShowEmpty.Tooltip",
+      image = IMAGE_SHOW_ALL)
+  public void onToggleShowEmpty() {
+    showEmptyTypes = !showEmptyTypes;
+    toolBarWidgets.setToolbarItemImage(
+        TOOLBAR_ITEM_SHOW_EMPTY, showEmptyTypes ? IMAGE_SHOW_SELECTED : IMAGE_SHOW_ALL);
+    toolBarWidgets.setToolbarItemToolTip(
+        TOOLBAR_ITEM_SHOW_EMPTY,
+        BaseMessages.getString(
+            PKG,
+            showEmptyTypes
+                ? "MetadataPerspective.ToolbarElement.HideEmpty.Tooltip"
+                : "MetadataPerspective.ToolbarElement.ShowEmpty.Tooltip"));
+    renderTree();
+  }
+
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_NEW,
@@ -759,34 +1020,32 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
 
     TreeItem treeItem = tree.getSelection()[0];
-    if (treeItem != null) {
-      String objectKey;
-      if (treeItem.getParentItem() == null) {
-        objectKey = (String) treeItem.getData();
-      } else {
-        objectKey = (String) treeItem.getParentItem().getData();
-      }
+    if (treeItem == null) {
+      return;
+    }
+    String objectKey = getObjectKey(treeItem);
+    if (objectKey == null) {
+      // A category header (or label) is selected: there is no single type to create here. Use the
+      // global "new" button (or its menu) to create an item of an arbitrary type.
+      return;
+    }
+    createMetadataOfType(objectKey, Const.NVL((String) treeItem.getData(VIRTUAL_PATH), ""));
+  }
 
-      try {
-        IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
-        Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
-        MetadataManager<IHopMetadata> manager =
-            new MetadataManager<>(
-                HopGui.getInstance().getVariables(),
-                metadataProvider,
-                metadataClass,
-                hopGui.getShell());
-
-        manager.newMetadataWithEditor((String) treeItem.getData(VIRTUAL_PATH));
-
-        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataCreated.name());
-      } catch (Exception e) {
-        new ErrorDialog(
-            getShell(),
-            BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Header"),
-            BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Message"),
-            e);
-      }
+  /**
+   * Creates a new metadata item of the given type at the given virtual path and opens its editor.
+   */
+  private void createMetadataOfType(String objectKey, String virtualPath) {
+    try {
+      MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
+      manager.newMetadataWithEditor(Const.NVL(virtualPath, ""));
+      hopGui.getEventsHandler().fire(HopGuiEvents.MetadataCreated.name());
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Header"),
+          BaseMessages.getString(PKG, "MetadataPerspective.CreateMetadata.Error.Message"),
+          e);
     }
     refresh();
   }
@@ -1368,8 +1627,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
     TreeItem treeItem = tree.getSelection()[0];
 
-    // No delete on folder
-    if (!treeItem.getData(KEY_TYPE).equals(FILE)) {
+    // Folders have their own delete handling; categories/labels can't be deleted.
+    if (FOLDER.equals(treeItem.getData(KEY_TYPE))) {
+      onDeleteFolder();
+      return;
+    }
+    if (!FILE.equals(treeItem.getData(KEY_TYPE))) {
       return;
     }
 
@@ -1581,29 +1844,21 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   public void onHelpMetadata() {
-
     if (tree.getSelectionCount() != 1) {
       return;
     }
-    String objectKey = null;
-    TreeItem treeItem = tree.getSelection()[0];
-    if (treeItem != null) {
-      if (treeItem.getParentItem() != null) {
-        treeItem = treeItem.getParentItem();
-      }
-      objectKey = (String) treeItem.getData();
+    String objectKey = getObjectKey(tree.getSelection()[0]);
+    if (objectKey == null) {
+      return;
     }
-
-    if (objectKey != null) {
-      try {
-        MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
-        HopMetadata annotation = manager.getManagedClass().getAnnotation(HopMetadata.class);
-        IPlugin plugin =
-            PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());
-        HelpUtils.openHelp(getShell(), plugin);
-      } catch (Exception ex) {
-        new ErrorDialog(getShell(), ERROR, "Error opening URL", ex);
-      }
+    try {
+      MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
+      HopMetadata annotation = manager.getManagedClass().getAnnotation(HopMetadata.class);
+      IPlugin plugin =
+          PluginRegistry.getInstance().getPlugin(MetadataPluginType.class, annotation.key());
+      HelpUtils.openHelp(getShell(), plugin);
+    } catch (Exception ex) {
+      new ErrorDialog(getShell(), ERROR, "Error opening URL", ex);
     }
   }
 
@@ -1651,6 +1906,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     try {
       for (TreeItem item : tree.getItems()) {
         expandTreeItem(item, true);
+        recordAllTreeState(item);
       }
     } finally {
       tree.setRedraw(true);
@@ -1671,6 +1927,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     try {
       for (TreeItem item : tree.getItems()) {
         expandTreeItem(item, false);
+        recordAllTreeState(item);
       }
     } finally {
       tree.setRedraw(true);
@@ -1685,138 +1942,381 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
+    reloadModel();
+    renderTree();
+    // Keep the overview catalog in sync when it is the visible panel (no editor open).
+    if (overview != null
+        && !overview.isDisposed()
+        && editorStackLayout != null
+        && editorStackLayout.topControl == overview) {
+      overview.setCards(buildOverviewCards());
+    }
+  }
+
+  /**
+   * Loads the metadata model from disk into memory: one {@link MetadataTypeModel} per metadata type
+   * with its items (name + virtual path). This is the only place that reads metadata objects from
+   * the provider, so search filtering (handled entirely by {@link #renderTree()}) never touches
+   * disk.
+   */
+  private void reloadModel() {
+    typeModels.clear();
     try {
-      tree.setRedraw(false);
-      tree.removeAll();
-
-      // top level: object key
-      //
       IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
-      List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
-      // Sort by name
-      Collections.sort(
-          metadataClasses,
-          (cl1, cl2) -> {
-            HopMetadata a1 = HopMetadataUtil.getHopMetadataAnnotation(cl1);
-            HopMetadata a2 = HopMetadataUtil.getHopMetadataAnnotation(cl2);
-            return a1.name().compareTo(a2.name());
-          });
-
-      for (Class<IHopMetadata> metadataClass : metadataClasses) {
+      for (Class<IHopMetadata> metadataClass : metadataProvider.getMetadataClasses()) {
         HopMetadata annotation = HopMetadataUtil.getHopMetadataAnnotation(metadataClass);
-        Image image =
-            GuiResource.getInstance()
-                .getImage(
-                    annotation.image(),
-                    metadataClass.getClassLoader(),
-                    ConstUi.SMALL_ICON_SIZE,
-                    ConstUi.SMALL_ICON_SIZE);
+        if (annotation == null) {
+          continue;
+        }
+        MetadataTypeModel typeModel =
+            new MetadataTypeModel(
+                annotation.key(),
+                MetadataCategories.normalize(annotation.category()),
+                Const.NVL(TranslateUtil.translate(annotation.name(), metadataClass), ""),
+                Const.NVL(TranslateUtil.translate(annotation.description(), metadataClass), ""),
+                annotation.image(),
+                metadataClass);
 
-        TreeItem classItem = new TreeItem(tree, SWT.NONE);
-        classItem.setText(
-            0, Const.NVL(TranslateUtil.translate(annotation.name(), metadataClass), ""));
-        classItem.setImage(image);
-        classItem.setExpanded(true);
-        classItem.setData(annotation.key());
-        classItem.setData(KEY_HELP, annotation.description());
-        classItem.setData(VIRTUAL_PATH, "");
-        classItem.setData(KEY_TYPE, "MetadataItem");
-
-        // level 1: object names
-        //
         IHopMetadataSerializer<IHopMetadata> serializer =
             metadataProvider.getSerializer(metadataClass);
         List<String> names = serializer.listObjectNames();
         Collections.sort(names);
-
-        for (final String name : names) {
-          // Apply filter - skip non-matching items
-          if (!matchesFilter(name)) {
-            continue;
-          }
-
-          IHopMetadata hopMetadata;
+        for (String name : names) {
+          String virtualPath;
           try {
-            hopMetadata = serializer.load(name);
+            virtualPath = Const.NVL(serializer.load(name).getVirtualPath(), "");
           } catch (HopException e) {
-            // Ignore missing metadata items
+            // Ignore missing/corrupt metadata items
             LogChannel.GENERAL.logError("Error loading metadata object:" + name);
             continue;
           }
-          TreeItem parentItem = classItem;
+          typeModel.items.add(new MetadataItemModel(name, virtualPath));
+        }
+        typeModels.add(typeModel);
+      }
+      // Attach explicitly-created (persisted) virtual folders so empty ones survive
+      // refresh/restart.
+      loadPersistedFolders();
+      // Sort the types by their (translated) display name.
+      typeModels.sort(Comparator.comparing(typeModel -> typeModel.typeName));
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Header"),
+          BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Message"),
+          e);
+    }
+  }
 
-          if (!Utils.isEmpty(hopMetadata.getVirtualPath())) {
-            List<String> folders =
-                new ArrayList<>(Arrays.asList(hopMetadata.getVirtualPath().split("/")));
-            // remove empty elements
-            folders.removeAll(Arrays.asList("", null));
+  /**
+   * Reads the project's persisted virtual folders from the audit trail and attaches each path to
+   * its metadata type model, so explicitly-created (and possibly empty) folders are rendered.
+   */
+  private void loadPersistedFolders() {
+    Map<String, MetadataTypeModel> byKey = new LinkedHashMap<>();
+    for (MetadataTypeModel typeModel : typeModels) {
+      byKey.put(typeModel.key, typeModel);
+    }
+    try {
+      AuditList list =
+          AuditManager.getActive().retrieveList(getAuditNamespace(), FOLDER_AUDIT_TYPE);
+      if (list == null || list.getNames() == null) {
+        return;
+      }
+      for (String entry : list.getNames()) {
+        int sep = entry.indexOf(FOLDER_AUDIT_SEPARATOR);
+        if (sep < 0) {
+          continue;
+        }
+        MetadataTypeModel typeModel = byKey.get(entry.substring(0, sep));
+        String path = entry.substring(sep + FOLDER_AUDIT_SEPARATOR.length());
+        if (typeModel != null
+            && !Utils.isEmpty(path)
+            && !typeModel.folderVirtualPaths.contains(path)) {
+          typeModel.folderVirtualPaths.add(path);
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error reading metadata virtual folders from the audit trail", e);
+    }
+  }
 
-            for (String folder : folders) {
-              TreeItem alreadyExists = null;
-              if (!folder.isEmpty()) {
-                // check if folder already exists on this level
-                alreadyExists = null;
-                for (TreeItem childItem : parentItem.getItems()) {
-                  if (childItem.getData(KEY_TYPE).equals(FOLDER)
-                      && childItem.getText().equals(folder)) {
-                    alreadyExists = childItem;
-                  }
-                }
+  /** Persists an (empty) virtual folder path for a metadata type in the project's audit trail. */
+  private void persistFolder(String typeKey, String virtualPath) {
+    try {
+      IAuditManager auditManager = AuditManager.getActive();
+      String namespace = getAuditNamespace();
+      AuditList list = auditManager.retrieveList(namespace, FOLDER_AUDIT_TYPE);
+      if (list == null || list.getNames() == null) {
+        list = new AuditList(new ArrayList<>());
+      }
+      String entry = typeKey + FOLDER_AUDIT_SEPARATOR + virtualPath;
+      if (!list.getNames().contains(entry)) {
+        list.getNames().add(entry);
+        auditManager.storeList(namespace, FOLDER_AUDIT_TYPE, list);
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error storing metadata virtual folder in the audit trail", e);
+    }
+  }
 
-                if (alreadyExists != null) {
-                  parentItem = alreadyExists;
-                } else {
-                  TreeItem folderItem = new TreeItem(parentItem, SWT.NONE);
-                  folderItem.setText(folder);
-                  folderItem.setData(annotation.key());
-                  folderItem.setImage(GuiResource.getInstance().getImageFolder());
-                  folderItem.setData(
-                      VIRTUAL_PATH,
-                      folderItem.getParentItem().getData(VIRTUAL_PATH) + "/" + folder);
-                  folderItem.setData(KEY_TYPE, FOLDER);
+  /** The audit group for the current project (falls back to the default HopGui namespace). */
+  private static String getAuditNamespace() {
+    return Const.NVL(HopNamespace.getNamespace(), HopGui.DEFAULT_HOP_GUI_NAMESPACE);
+  }
 
-                  // Expand folders when filtering to show matches
-                  if (!Utils.isEmpty(currentSearchFilter)) {
-                    folderItem.setExpanded(true);
-                  }
+  /** Restores the saved tree-panel sash weights (a global layout preference), if any. */
+  private void loadSashWeights() {
+    if (sash == null || sash.isDisposed()) {
+      return;
+    }
+    try {
+      AuditList list =
+          AuditManager.getActive()
+              .retrieveList(HopGui.DEFAULT_HOP_GUI_NAMESPACE, SASH_WEIGHTS_AUDIT_TYPE);
+      if (list == null || list.getNames() == null || list.getNames().size() < 2) {
+        return;
+      }
+      int[] weights = new int[list.getNames().size()];
+      for (int i = 0; i < weights.length; i++) {
+        weights[i] = Integer.parseInt(list.getNames().get(i).trim());
+      }
+      sash.setWeights(weights);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error reading the metadata tree-panel width from the audit trail", e);
+    }
+  }
 
-                  parentItem = folderItem;
-                }
+  /** Debounced trigger to save the sash weights after the divider stops moving. */
+  private void scheduleSaveSashWeights() {
+    if (sash == null || sash.isDisposed()) {
+      return;
+    }
+    Display display = sash.getDisplay();
+    display.timerExec(-1, sashWeightsSaver);
+    display.timerExec(400, sashWeightsSaver);
+  }
+
+  /** Persists the current tree-panel sash weights (global, not per-project). */
+  private void saveSashWeights() {
+    if (sash == null || sash.isDisposed()) {
+      return;
+    }
+    int[] weights = sash.getWeights();
+    if (weights == null || weights.length < 2) {
+      return;
+    }
+    try {
+      List<String> values = new ArrayList<>();
+      for (int weight : weights) {
+        values.add(Integer.toString(weight));
+      }
+      AuditManager.getActive()
+          .storeList(
+              HopGui.DEFAULT_HOP_GUI_NAMESPACE, SASH_WEIGHTS_AUDIT_TYPE, new AuditList(values));
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error storing the metadata tree-panel width in the audit trail", e);
+    }
+  }
+
+  /**
+   * Deletes the selected virtual folder: any items inside it (or its sub-folders) are moved up to
+   * the parent folder, and the folder (plus any persisted empty sub-folders) is removed from the
+   * audit trail. Items are never deleted here.
+   */
+  public void onDeleteFolder() {
+    if (tree.getSelectionCount() != 1) {
+      return;
+    }
+    TreeItem treeItem = tree.getSelection()[0];
+    if (!FOLDER.equals(treeItem.getData(KEY_TYPE))) {
+      return;
+    }
+    String typeKey = getObjectKey(treeItem);
+    String folderPath = Const.NVL((String) treeItem.getData(VIRTUAL_PATH), "");
+    if (typeKey == null || folderPath.isEmpty()) {
+      return;
+    }
+
+    String parentPath = parentPath(folderPath);
+    List<MetadataItemModel> affected = new ArrayList<>();
+    MetadataTypeModel typeModel = findTypeModel(typeKey);
+    if (typeModel != null) {
+      for (MetadataItemModel item : typeModel.items) {
+        if (isUnderFolder(item.virtualPath, folderPath)) {
+          affected.add(item);
+        }
+      }
+    }
+
+    MessageBox confirm = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    confirm.setText(BaseMessages.getString(PKG, "MetadataPerspective.DeleteFolder.Title"));
+    confirm.setMessage(
+        affected.isEmpty()
+            ? BaseMessages.getString(
+                PKG, "MetadataPerspective.DeleteFolder.Confirm", treeItem.getText())
+            : BaseMessages.getString(
+                PKG,
+                "MetadataPerspective.DeleteFolder.ConfirmWithItems",
+                treeItem.getText(),
+                affected.size()));
+    if ((confirm.open() & SWT.YES) == 0) {
+      return;
+    }
+
+    try {
+      if (!affected.isEmpty()) {
+        IHopMetadataProvider provider = hopGui.getMetadataProvider();
+        IHopMetadataSerializer<IHopMetadata> serializer =
+            provider.getSerializer(provider.getMetadataClassForKey(typeKey));
+        for (MetadataItemModel item : affected) {
+          IHopMetadata metadata = serializer.load(item.name);
+          // The affected paths all start with folderPath, so swap that prefix for the parent path.
+          metadata.setVirtualPath(parentPath + item.virtualPath.substring(folderPath.length()));
+          serializer.save(metadata);
+        }
+        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+      }
+      removePersistedFoldersUnder(typeKey, folderPath);
+      refresh();
+      updateSelection();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "MetadataPerspective.DeleteFolder.Error.Header"),
+          BaseMessages.getString(PKG, "MetadataPerspective.DeleteFolder.Error.Message"),
+          e);
+    }
+  }
+
+  /** Returns the parent of a virtual folder path ({@code "/a/b" -> "/a"}, {@code "/a" -> ""}). */
+  private static String parentPath(String folderPath) {
+    int idx = folderPath.lastIndexOf('/');
+    return idx <= 0 ? "" : folderPath.substring(0, idx);
+  }
+
+  /**
+   * True when {@code itemPath} is the folder itself or sits inside it (or one of its sub-folders).
+   */
+  private static boolean isUnderFolder(String itemPath, String folderPath) {
+    String path = Const.NVL(itemPath, "");
+    return path.equals(folderPath) || path.startsWith(folderPath + "/");
+  }
+
+  private MetadataTypeModel findTypeModel(String typeKey) {
+    for (MetadataTypeModel typeModel : typeModels) {
+      if (typeModel.key.equals(typeKey)) {
+        return typeModel;
+      }
+    }
+    return null;
+  }
+
+  /** Drops the given folder and any persisted sub-folder beneath it from the audit trail. */
+  private void removePersistedFoldersUnder(String typeKey, String folderPath) {
+    try {
+      IAuditManager auditManager = AuditManager.getActive();
+      String namespace = getAuditNamespace();
+      AuditList list = auditManager.retrieveList(namespace, FOLDER_AUDIT_TYPE);
+      if (list == null || list.getNames() == null || list.getNames().isEmpty()) {
+        return;
+      }
+      String prefix = typeKey + FOLDER_AUDIT_SEPARATOR;
+      boolean changed =
+          list.getNames()
+              .removeIf(
+                  entry -> {
+                    if (!entry.startsWith(prefix)) {
+                      return false;
+                    }
+                    String path = entry.substring(prefix.length());
+                    return path.equals(folderPath) || path.startsWith(folderPath + "/");
+                  });
+      if (changed) {
+        auditManager.storeList(namespace, FOLDER_AUDIT_TYPE, list);
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error removing metadata virtual folder from the audit trail", e);
+    }
+  }
+
+  /**
+   * Rebuilds the tree from the in-memory model (see {@link #reloadModel()}), grouping types under
+   * category headers and applying the current search filter and the hide-empty setting. Performs no
+   * disk I/O, so it is cheap enough to run on every keystroke.
+   */
+  private void renderTree() {
+    if (tree == null || tree.isDisposed()) {
+      return;
+    }
+    try {
+      // Capture scroll (top item) and selection so a rebuild doesn't jump back to the top.
+      String topId = nodeIdentity(tree.getTopItem());
+      TreeItem[] selection = tree.getSelection();
+      String selectionId = selection.length > 0 ? nodeIdentity(selection[0]) : null;
+
+      tree.setRedraw(false);
+      tree.removeAll();
+
+      boolean filtering = !Utils.isEmpty(currentSearchFilter);
+      int totalMatches = 0;
+
+      // Group the (name-sorted) types by their category id.
+      Map<String, List<MetadataTypeModel>> typesByCategory = new LinkedHashMap<>();
+      for (MetadataTypeModel typeModel : typeModels) {
+        typesByCategory
+            .computeIfAbsent(typeModel.categoryId, k -> new ArrayList<>())
+            .add(typeModel);
+      }
+      // Order categories: known categories first (declaration order), then unknown, "Other" last.
+      List<String> categoryIds = new ArrayList<>(typesByCategory.keySet());
+      categoryIds.sort(
+          Comparator.comparingInt(MetadataCategories::orderOf)
+              .thenComparing(MetadataCategories::labelFor));
+
+      for (String categoryId : categoryIds) {
+        boolean categoryMatches = filtering && contains(MetadataCategories.labelFor(categoryId));
+        TreeItem categoryItem = null;
+        for (MetadataTypeModel typeModel : typesByCategory.get(categoryId)) {
+          boolean typeMatches = filtering && (categoryMatches || contains(typeModel.typeName));
+          List<MetadataItemModel> shownItems;
+          if (!filtering || typeMatches) {
+            shownItems = typeModel.items;
+          } else {
+            shownItems = new ArrayList<>();
+            for (MetadataItemModel itemModel : typeModel.items) {
+              if (contains(itemModel.name)) {
+                shownItems.add(itemModel);
               }
             }
           }
-
-          TreeItem item = new TreeItem(parentItem, SWT.NONE);
-          item.setText(0, Const.NVL(name, ""));
-          item.setData(VIRTUAL_PATH, parentItem.getData(VIRTUAL_PATH));
-          item.setData(KEY_TYPE, FILE);
-          MetadataEditor<?> editor = this.findEditor(annotation.key(), name);
-          if (editor != null && editor.hasChanged()) {
-            item.setFont(GuiResource.getInstance().getFontBold());
+          boolean showType =
+              filtering
+                  ? (typeMatches || !shownItems.isEmpty())
+                  : (showEmptyTypes
+                      || !typeModel.items.isEmpty()
+                      || !typeModel.folderVirtualPaths.isEmpty());
+          if (!showType) {
+            continue;
           }
+          totalMatches += shownItems.size();
+          if (categoryItem == null) {
+            categoryItem = createCategoryItem(categoryId);
+          }
+          buildTypeNode(categoryItem, typeModel, shownItems, filtering);
         }
       }
 
-      // Remove empty class items (those with no children after filtering)
-      if (!Utils.isEmpty(currentSearchFilter)) {
-        List<TreeItem> itemsToRemove = new ArrayList<>();
-        for (TreeItem classItem : tree.getItems()) {
-          if (classItem.getItemCount() == 0) {
-            itemsToRemove.add(classItem);
-          } else {
-            // Expand class items when filtering to show matches
-            classItem.setExpanded(true);
-          }
-        }
-        for (TreeItem item : itemsToRemove) {
-          item.dispose();
-        }
-      }
+      updateResultCount(filtering, totalMatches);
 
       TreeUtil.setOptimalWidthOnColumns(tree);
-      TreeMemory.setExpandedFromMemory(tree, METADATA_PERSPECTIVE_TREE);
+      // Apply the remembered expand/collapse state (also force-expands everything while filtering).
+      applyTreeMemory();
 
       tree.setRedraw(true);
+
+      // Restore the selection and scroll position captured above.
+      restoreTreeViewState(topId, selectionId);
 
       updateGui();
       updateSelection();
@@ -1829,33 +2329,283 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
   }
 
-  /** Filter the tree based on search text */
-  @Override
-  public void clearSearchFilters() {
-    if (searchText != null && !searchText.isDisposed()) {
-      searchText.setText("");
-    } else {
-      currentSearchFilter = "";
+  /**
+   * Stable identity for any tree node (category, type, folder or item), independent of display
+   * text, used to re-find a node after a rebuild. Returns {@code null} for unknown/disposed nodes.
+   */
+  private String nodeIdentity(TreeItem item) {
+    if (item == null || item.isDisposed()) {
+      return null;
+    }
+    String type = (String) item.getData(KEY_TYPE);
+    if (CATEGORY.equals(type)) {
+      return "C\t" + item.getData();
+    }
+    if (TYPE.equals(type)) {
+      return "T\t" + item.getData();
+    }
+    if (FOLDER.equals(type)) {
+      return "F\t" + item.getData() + "\t" + item.getData(VIRTUAL_PATH);
+    }
+    if (FILE.equals(type)) {
+      return "I\t"
+          + getObjectKey(item)
+          + "\t"
+          + item.getData(VIRTUAL_PATH)
+          + "\t"
+          + item.getText(0);
+    }
+    return null;
+  }
+
+  /**
+   * Re-selects and re-scrolls to the nodes identified by {@code selectionId} / {@code topId} (as
+   * produced by {@link #nodeIdentity}) after the tree has been rebuilt. Missing nodes are ignored.
+   */
+  private void restoreTreeViewState(String topId, String selectionId) {
+    if (topId == null && selectionId == null) {
+      return;
+    }
+    TreeItem[] found = new TreeItem[2]; // [0] = top item, [1] = selection
+    findTreeItems(tree.getItems(), topId, selectionId, found);
+    if (found[1] != null) {
+      tree.setSelection(found[1]);
+    }
+    if (found[0] != null) {
+      tree.setTopItem(found[0]);
     }
   }
 
+  private void findTreeItems(TreeItem[] items, String topId, String selectionId, TreeItem[] found) {
+    for (TreeItem item : items) {
+      String id = nodeIdentity(item);
+      if (id != null) {
+        if (topId != null && topId.equals(id)) {
+          found[0] = item;
+        }
+        if (selectionId != null && selectionId.equals(id)) {
+          found[1] = item;
+        }
+      }
+      findTreeItems(item.getItems(), topId, selectionId, found);
+    }
+  }
+
+  /** Clears the search filter (e.g. when switching projects). */
+  @Override
+  public void clearSearchFilters() {
+    currentSearchFilter = "";
+    if (searchText != null && !searchText.isDisposed()) {
+      searchText.setText("");
+    }
+  }
+
+  private TreeItem createCategoryItem(String categoryId) {
+    TreeItem categoryItem = new TreeItem(tree, SWT.NONE);
+    categoryItem.setText(MetadataCategories.labelFor(categoryId));
+    categoryItem.setImage(
+        GuiResource.getInstance()
+            .getImage(
+                MetadataCategories.imageFor(categoryId),
+                getClass().getClassLoader(),
+                ConstUi.SMALL_ICON_SIZE,
+                ConstUi.SMALL_ICON_SIZE));
+    categoryItem.setData(categoryId);
+    categoryItem.setData(KEY_TYPE, CATEGORY);
+    categoryItem.setData(VIRTUAL_PATH, "");
+    return categoryItem;
+  }
+
+  /** Builds a metadata type node (with item count) and its folder/item subtree under a category. */
+  private void buildTypeNode(
+      TreeItem categoryItem,
+      MetadataTypeModel typeModel,
+      List<MetadataItemModel> shownItems,
+      boolean filtering) {
+    Image image =
+        GuiResource.getInstance()
+            .getImage(
+                typeModel.image,
+                typeModel.metadataClass.getClassLoader(),
+                ConstUi.SMALL_ICON_SIZE,
+                ConstUi.SMALL_ICON_SIZE);
+
+    int count = filtering ? shownItems.size() : typeModel.items.size();
+    TreeItem classItem = new TreeItem(categoryItem, SWT.NONE);
+    classItem.setText(0, typeModel.typeName + " (" + count + ")");
+    classItem.setImage(image);
+    classItem.setData(typeModel.key);
+    classItem.setData(KEY_HELP, typeModel.description);
+    classItem.setData(VIRTUAL_PATH, "");
+    classItem.setData(KEY_TYPE, TYPE);
+
+    // Materialize explicitly-created (possibly empty) folders first so they show without any items.
+    // Skip while filtering: empty folders never match a search.
+    if (!filtering) {
+      for (String folderPath : typeModel.folderVirtualPaths) {
+        resolveFolderItem(classItem, typeModel.key, folderPath);
+      }
+    }
+
+    for (MetadataItemModel itemModel : shownItems) {
+      TreeItem parentItem =
+          Utils.isEmpty(itemModel.virtualPath)
+              ? classItem
+              : resolveFolderItem(classItem, typeModel.key, itemModel.virtualPath);
+
+      TreeItem item = new TreeItem(parentItem, SWT.NONE);
+      item.setText(0, Const.NVL(itemModel.name, ""));
+      item.setData(VIRTUAL_PATH, parentItem.getData(VIRTUAL_PATH));
+      item.setData(KEY_TYPE, FILE);
+      MetadataEditor<?> editor = this.findEditor(typeModel.key, itemModel.name);
+      if (editor != null && editor.hasChanged()) {
+        item.setFont(GuiResource.getInstance().getFontBold());
+      }
+    }
+  }
+
+  /**
+   * Ensures the folder chain for {@code virtualPath} exists under {@code typeItem}, creating folder
+   * nodes as needed, and returns the deepest folder node (or {@code typeItem} for an empty path).
+   */
+  private TreeItem resolveFolderItem(TreeItem typeItem, String typeKey, String virtualPath) {
+    TreeItem parentItem = typeItem;
+    if (Utils.isEmpty(virtualPath)) {
+      return parentItem;
+    }
+    List<String> folders = new ArrayList<>(Arrays.asList(virtualPath.split("/")));
+    folders.removeAll(Arrays.asList("", null));
+    for (String folder : folders) {
+      if (folder.isEmpty()) {
+        continue;
+      }
+      TreeItem alreadyExists = null;
+      for (TreeItem childItem : parentItem.getItems()) {
+        if (FOLDER.equals(childItem.getData(KEY_TYPE)) && childItem.getText().equals(folder)) {
+          alreadyExists = childItem;
+        }
+      }
+      if (alreadyExists != null) {
+        parentItem = alreadyExists;
+      } else {
+        TreeItem folderItem = new TreeItem(parentItem, SWT.NONE);
+        folderItem.setText(folder);
+        folderItem.setData(typeKey);
+        folderItem.setImage(GuiResource.getInstance().getImageFolder());
+        folderItem.setData(
+            VIRTUAL_PATH, folderItem.getParentItem().getData(VIRTUAL_PATH) + "/" + folder);
+        folderItem.setData(KEY_TYPE, FOLDER);
+        parentItem = folderItem;
+      }
+    }
+    return parentItem;
+  }
+
+  /**
+   * Stable TreeMemory key for an expandable node, independent of its display text so a changing
+   * item count never invalidates a remembered state. Returns {@code null} for non-expandable nodes.
+   */
+  private String[] treeMemoryPath(TreeItem item) {
+    String type = (String) item.getData(KEY_TYPE);
+    if (CATEGORY.equals(type)) {
+      return new String[] {"C", (String) item.getData()};
+    }
+    if (TYPE.equals(type)) {
+      return new String[] {"T", (String) item.getData()};
+    }
+    if (FOLDER.equals(type)) {
+      return new String[] {"F", (String) item.getData(), (String) item.getData(VIRTUAL_PATH)};
+    }
+    return null;
+  }
+
+  /** Applies the remembered expand/collapse state to the whole tree (see {@link #renderTree()}). */
+  private void applyTreeMemory() {
+    for (TreeItem item : tree.getItems()) {
+      applyTreeMemory(item);
+    }
+  }
+
+  private void applyTreeMemory(TreeItem item) {
+    String[] path = treeMemoryPath(item);
+    if (path != null) {
+      if (!Utils.isEmpty(currentSearchFilter)) {
+        // While searching, expand everything so matches are visible (not recorded as a choice).
+        item.setExpanded(true);
+      } else {
+        // Categories expand by default; types and folders collapse by default. Seed each
+        // default-expanded node once per session so the default holds until the user changes it.
+        boolean defaultExpanded = "C".equals(path[0]);
+        if (defaultExpanded && treeStateSeeded.add(String.join(" ", path))) {
+          TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, true);
+        }
+        item.setExpanded(TreeMemory.getInstance().isExpanded(METADATA_PERSPECTIVE_TREE, path));
+      }
+    }
+    for (TreeItem child : item.getItems()) {
+      applyTreeMemory(child);
+    }
+  }
+
+  /** Records a user expand/collapse into the shared TreeMemory (ignored while searching). */
+  private void recordTreeState(TreeItem item, boolean expanded) {
+    if (item == null || item.isDisposed() || !Utils.isEmpty(currentSearchFilter)) {
+      return;
+    }
+    String[] path = treeMemoryPath(item);
+    if (path != null) {
+      TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, expanded);
+      treeStateSeeded.add(String.join(" ", path));
+    }
+  }
+
+  /**
+   * Records the current expand state of a node and its children (used after expand/collapse all).
+   */
+  private void recordAllTreeState(TreeItem item) {
+    recordTreeState(item, item.getExpanded());
+    for (TreeItem child : item.getItems()) {
+      recordAllTreeState(child);
+    }
+  }
+
+  /** Case-insensitive containment test of {@code text} against the current search filter. */
+  private boolean contains(String text) {
+    return text != null && text.toLowerCase().contains(currentSearchFilter.toLowerCase());
+  }
+
+  /** Filter the tree based on search text, debounced so we don't rebuild on every keystroke. */
   protected void filterTree() {
     if (searchText == null || searchText.isDisposed()) {
       return;
     }
-
-    currentSearchFilter = searchText.getText();
-
-    // Refresh to rebuild the tree with or without filter
-    refresh();
+    Display display = searchText.getDisplay();
+    display.timerExec(-1, filterRunnable);
+    display.timerExec(FILTER_DEBOUNCE_MS, filterRunnable);
   }
 
-  /** Check if a metadata name matches the current filter */
-  private boolean matchesFilter(String name) {
-    if (Utils.isEmpty(currentSearchFilter)) {
-      return true;
+  private void applyFilter() {
+    if (searchText == null || searchText.isDisposed()) {
+      return;
     }
-    return name != null && name.toLowerCase().contains(currentSearchFilter.toLowerCase());
+    currentSearchFilter = searchText.getText();
+    renderTree();
+  }
+
+  /** Updates the "n results" label shown under the search box while a filter is active. */
+  private void updateResultCount(boolean filtering, int matches) {
+    if (resultCountLabel == null || resultCountLabel.isDisposed()) {
+      return;
+    }
+    resultCountLabel.setText(
+        filtering
+            ? BaseMessages.getString(PKG, "MetadataPerspective.Search.ResultCount", matches)
+            : "");
+    // Collapse the label's row when no filter is active so there is no gap above the tree.
+    if (resultCountLabel.getLayoutData() instanceof FormData formData) {
+      formData.height = filtering ? SWT.DEFAULT : 0;
+    }
+    resultCountLabel.getParent().layout();
   }
 
   /** Recursively expand or collapse a tree item and all its children */
@@ -1869,21 +2619,24 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   protected void updateSelection() {
 
     boolean isMetadataSelected = false;
-    boolean isAnythingSelected = false;
+    boolean isFolderSelected = false;
+    boolean canCreateHere = false;
 
     if (tree.getSelectionCount() > 0) {
-      isAnythingSelected = true;
       TreeItem treeItem = tree.getSelection()[0];
-      if (treeItem.getData(KEY_TYPE).equals(FILE)) {
-        isMetadataSelected = true;
-      }
+      String nodeType = (String) treeItem.getData(KEY_TYPE);
+      isMetadataSelected = FILE.equals(nodeType);
+      isFolderSelected = FOLDER.equals(nodeType);
+      // The context "New" applies to a type, folder or file (all resolve to a type key), but not
+      // to a category header or a plain label.
+      canCreateHere = getObjectKey(treeItem) != null;
     }
 
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, isAnythingSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, canCreateHere);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, isMetadataSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, isMetadataSelected || isFolderSelected);
   }
 
   @Override
@@ -1908,6 +2661,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         //
         if (tabFolder.getItemCount() == 0) {
           HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
+          // Bring back the overview/landing page.
+          showOverview();
         }
 
         // Update Gui menu and toolbar
@@ -2011,40 +2766,41 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     return annotation.key();
   }
 
-  public void goToType(Class<? extends IHopMetadata> managedClass) {
-    String key = getKeyOfMetadataClass(managedClass);
-    // Look at all the top level items in the tree
-    //
-    for (TreeItem item : tree.getItems()) {
-      String classKey = (String) item.getData();
-      if (key.equals(classKey)) {
-        // Found the item.
-        //
-        tree.setSelection(item);
-        tree.showSelection();
-        return;
+  /** Finds the tree node for a metadata type (by key), searching inside the category headers. */
+  private TreeItem findTypeItem(String key) {
+    for (TreeItem categoryItem : tree.getItems()) {
+      for (TreeItem typeItem : categoryItem.getItems()) {
+        if (TYPE.equals(typeItem.getData(KEY_TYPE)) && key.equals(typeItem.getData())) {
+          return typeItem;
+        }
       }
+    }
+    return null;
+  }
+
+  public void goToType(Class<? extends IHopMetadata> managedClass) {
+    TreeItem typeItem = findTypeItem(getKeyOfMetadataClass(managedClass));
+    if (typeItem != null) {
+      tree.setSelection(typeItem);
+      tree.showSelection();
     }
   }
 
   public void goToElement(Class<? extends IHopMetadata> managedClass, String elementName) {
-    String key = getKeyOfMetadataClass(managedClass);
-    for (TreeItem item : tree.getItems()) {
-      String classKey = (String) item.getData();
-      if (key.equals(classKey)) {
-        // Found the type.
-        //
-        for (TreeItem elementItem : item.getItems()) {
-          if (elementName.equals(elementItem.getText())) {
-            tree.setSelection(elementItem);
-            tree.showSelection();
-            onEditMetadata();
-            return;
-          }
-        }
-        goToType(managedClass);
+    TreeItem typeItem = findTypeItem(getKeyOfMetadataClass(managedClass));
+    if (typeItem == null) {
+      return;
+    }
+    for (TreeItem elementItem : typeItem.getItems()) {
+      if (elementName.equals(elementItem.getText())) {
+        tree.setSelection(elementItem);
+        tree.showSelection();
+        onEditMetadata();
+        return;
       }
     }
+    // Element not directly under the type node (or not loaded): at least reveal the type.
+    goToType(managedClass);
   }
 
   public void createNewFolder() {
@@ -2053,6 +2809,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       return;
     }
     TreeItem item = selection[0];
+    String typeKey = getObjectKey(item);
+    if (typeKey == null) {
+      return; // A category header or label is selected: nothing to add a folder to.
+    }
+    String parentPath = Const.NVL((String) item.getData(VIRTUAL_PATH), "");
     EnterStringDialog dialog =
         new EnterStringDialog(
             getShell(),
@@ -2061,34 +2822,65 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
             BaseMessages.getString(
                 PKG,
                 "MetadataPerspective.CreateFolder.Message",
-                ((String) item.getData(VIRTUAL_PATH)).isEmpty()
-                    ? item.getText()
-                    : (String) item.getData(VIRTUAL_PATH)));
+                parentPath.isEmpty() ? item.getText() : parentPath));
     String folder = dialog.open();
-    if (!Utils.isEmpty(folder)) {
-      for (TreeItem treeItem : item.getItems()) {
-        if (folder.equals(treeItem.getText()) && treeItem.getData("type").equals(FOLDER)) {
-          MessageBox msgDialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
-          msgDialog.setText(
-              BaseMessages.getString(PKG, "MetadataPerspective.CreateFolder.Error.Header"));
-          msgDialog.setMessage(
-              BaseMessages.getString(PKG, "MetadataPerspective.CreateFolder.Error.Message"));
-          msgDialog.open();
-          return;
-        }
+    if (Utils.isEmpty(folder)) {
+      return;
+    }
+    // Reject a duplicate folder name on this level.
+    for (TreeItem treeItem : item.getItems()) {
+      if (folder.equals(treeItem.getText()) && FOLDER.equals(treeItem.getData(KEY_TYPE))) {
+        MessageBox msgDialog = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+        msgDialog.setText(
+            BaseMessages.getString(PKG, "MetadataPerspective.CreateFolder.Error.Header"));
+        msgDialog.setMessage(
+            BaseMessages.getString(PKG, "MetadataPerspective.CreateFolder.Error.Message"));
+        msgDialog.open();
+        return;
       }
-      TreeItem newFolder = new TreeItem(item, SWT.NONE);
-      newFolder.setText(folder);
-      newFolder.setData(item.getData());
-      newFolder.setImage(GuiResource.getInstance().getImageFolder());
-      newFolder.setData(VIRTUAL_PATH, item.getData(VIRTUAL_PATH) + "/" + folder);
-      newFolder.setData(KEY_TYPE, FOLDER);
-      TreeItem emptyString = new TreeItem(newFolder, SWT.NONE);
-      emptyString.setText(
-          BaseMessages.getString(PKG, "MetadataPerspective.CreateFolder.EmptyFolder"));
-      emptyString.setData(KEY_TYPE, "Label");
-      emptyString.setForeground(tree.getDisplay().getSystemColor(SWT.COLOR_GRAY));
-      newFolder.setExpanded(true);
+    }
+    // Persist the folder so it survives refresh/restart, then rebuild the tree from the model.
+    persistFolder(typeKey, parentPath + "/" + folder);
+    refresh();
+  }
+
+  /** In-memory view of one metadata type and its items, loaded once per {@link #reloadModel()}. */
+  private static final class MetadataTypeModel {
+    private final String key;
+    private final String categoryId;
+    private final String typeName;
+    private final String description;
+    private final String image;
+    private final Class<IHopMetadata> metadataClass;
+    private final List<MetadataItemModel> items = new ArrayList<>();
+
+    /** Explicitly created virtual folder paths (persisted), shown even when they hold no items. */
+    private final List<String> folderVirtualPaths = new ArrayList<>();
+
+    private MetadataTypeModel(
+        String key,
+        String categoryId,
+        String typeName,
+        String description,
+        String image,
+        Class<IHopMetadata> metadataClass) {
+      this.key = key;
+      this.categoryId = categoryId;
+      this.typeName = typeName;
+      this.description = description;
+      this.image = image;
+      this.metadataClass = metadataClass;
+    }
+  }
+
+  /** In-memory view of a single metadata item: its name and (optional) virtual folder path. */
+  private static final class MetadataItemModel {
+    private final String name;
+    private final String virtualPath;
+
+    private MetadataItemModel(String name, String virtualPath) {
+      this.name = name;
+      this.virtualPath = virtualPath;
     }
   }
 }

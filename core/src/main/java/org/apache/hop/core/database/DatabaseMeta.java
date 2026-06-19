@@ -51,6 +51,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -65,6 +66,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     name = "i18n::DatabaseMeta.name",
     description = "i18n::DatabaseMeta.description",
     image = "ui/images/database.svg",
+    category = HopMetadataCategory.CONNECTIONS,
     documentationUrl = "/metadata-types/rdbms-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION,
     supportsGlobalReplace = true)

@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -30,6 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::GoogleStorageMetadataType.Name",
     description = "i18n::GoogleStorageMetadataType.Description",
     image = "ui/images/authentication.svg",
+    category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/google-storage-authentication.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_GCP_CONNECTION)
 @Getter

@@ -26,6 +26,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -36,6 +37,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     name = "i18n::PipelineRunConfiguration.name",
     description = "i18n::PipelineRunConfiguration.description",
     image = "ui/images/pipeline_run_config.svg",
+    category = HopMetadataCategory.RUN_CONFIG,
     documentationUrl = "/metadata-types/pipeline-run-config.html",
     hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG,
     supportsGlobalReplace = true)

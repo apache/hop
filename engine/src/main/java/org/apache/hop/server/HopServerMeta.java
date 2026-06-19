@@ -74,6 +74,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -104,6 +105,7 @@ import org.w3c.dom.Node;
     name = "i18n::HopServer.name",
     description = "i18n::HopServer.description",
     image = "ui/images/server.svg",
+    category = HopMetadataCategory.SERVERS,
     documentationUrl = "/metadata-types/hop-server.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION,
     supportsGlobalReplace = true)

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -31,6 +32,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::PipelineProbe.name",
     description = "i18n::PipelineProbe.desciption",
     image = "probe.svg",
+    category = HopMetadataCategory.LOGGING,
     documentationUrl = "/metadata-types/pipeline-probe.html",
     hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_PROBE)
 public class PipelineProbe extends HopMetadataBase implements IHopMetadata {

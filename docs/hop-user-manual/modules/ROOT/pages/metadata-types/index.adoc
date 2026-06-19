@@ -36,14 +36,14 @@ By default, Hop contains the following metadata types:
 
 
 * xref:hop-server/async-web-service.adoc[Asynchronous Web Service]: Execute and query a workflow asynchronously through a web service.
-* xref:metadata-types/azure-authentication.adoc[Azure Blob Storage Authentication]: A Azure Blob Storage connection type.
+* xref:metadata-types/azure-authentication.adoc[Azure Connection]: An Azure Blob Storage connection type.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
 xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can be used for Inter Process Communication (IPC) or fast data serialization.
 * xref:metadata-types/execution-data-profile.adoc[Execution Data Profile]: Collects and profiles data as it flows through a pipeline using configurable samplers for insight into value ranges, nulls, and row samples.
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location]: Defines where and how Apache Hop stores execution metadata, supporting local files, remote servers, Neo4j, or Elastic for later inspection and analysis.
-* xref:metadata-types/google-storage-authentication.adoc[Google Storage Authentication]: A Google Cloud Storage connection type.
+* xref:metadata-types/google-storage-authentication.adoc[Google Storage Connection]: A Google Cloud Storage connection type.
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
 * xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Describes a mail server connection

@@ -18,7 +18,7 @@ under the License.
 :page-pagination:
 :description: This is used to register multiple Google cloud storage accounts
 
-= Google Storage Authentication
+= Google Storage Connection
 
 == Description
 This metadata type can be used to add a new Google Cloud Storage file system to your project. This allows you to connect to multiple storage accounts at the same time.

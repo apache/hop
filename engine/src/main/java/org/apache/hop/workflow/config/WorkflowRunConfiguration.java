@@ -20,6 +20,7 @@ package org.apache.hop.workflow.config;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -30,6 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     name = "i18n::WorkflowRunConfiguration.name",
     description = "i18n::WorkflowRunConfiguration.description",
     image = "ui/images/workflow_run_config.svg",
+    category = HopMetadataCategory.RUN_CONFIG,
     documentationUrl = "/metadata-types/workflow-run-config.html",
     hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG,
     supportsGlobalReplace = true)

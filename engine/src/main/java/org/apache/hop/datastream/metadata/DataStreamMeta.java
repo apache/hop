@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.apache.hop.datastream.plugin.IDataStream;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -32,6 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::DataStream.name",
     description = "i18n::DataStream.description",
     image = "ui/images/arrow-stream.svg",
+    category = HopMetadataCategory.DATA_DEFINITION,
     documentationUrl = "/metadata-types/data-stream.html",
     hopMetadataPropertyType = HopMetadataPropertyType.DATA_STREAM,
     supportsGlobalReplace = true)

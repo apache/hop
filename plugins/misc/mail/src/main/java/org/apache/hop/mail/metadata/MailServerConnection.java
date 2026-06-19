@@ -66,6 +66,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mail.common.MailConst;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -79,6 +80,7 @@ import org.eclipse.angus.mail.pop3.POP3SSLStore;
     name = "i18n::MailServerConnection.name",
     description = "i18n::MailServerConnection.description",
     image = "mail.svg",
+    category = HopMetadataCategory.CONNECTIONS,
     documentationUrl = "/metadata-types/mail-server-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION,
     supportsGlobalReplace = true)

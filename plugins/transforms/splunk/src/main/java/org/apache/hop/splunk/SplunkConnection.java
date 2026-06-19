@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
+import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -35,6 +36,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "i18n::SplunkConnection.name",
     description = "i18n::SplunkConnection.description",
     image = "splunk.svg",
+    category = HopMetadataCategory.CONNECTIONS,
     documentationUrl = "/metadata-types/splunk-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.SPLUNK_CONNECTION,
     supportsGlobalReplace = true)
