@@ -1520,6 +1520,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         }
       }
       incrementLinesRejected();
+      if (!Utils.isEmpty(errorDescriptions)) {
+        logError(errorDescriptions);
+      }
+    } else if (transformErrorMeta.isEnabled()) {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "BaseTransform.Exception.ErrorHandlingRouteUnavailable",
+              transformErrorMeta.getTargetTransform().getName()));
+      setErrors(1);
+      stopAll();
     }
 
     verifyRejectionRates();

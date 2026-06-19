@@ -616,10 +616,18 @@ public class TransformMeta
    * @return true if error handling is defined and enabled
    */
   public boolean isDoingErrorHandling() {
-    return transform.supportsErrorHandling()
-        && transformErrorMeta != null
-        && transformErrorMeta.getTargetTransform() != null
-        && transformErrorMeta.isEnabled();
+    if (!transform.supportsErrorHandling()
+        || transformErrorMeta == null
+        || transformErrorMeta.getTargetTransform() == null
+        || !transformErrorMeta.isEnabled()) {
+      return false;
+    }
+
+    if (parentPipelineMeta != null) {
+      return parentPipelineMeta.findPipelineHop(this, transformErrorMeta.getTargetTransform())
+          != null;
+    }
+    return true;
   }
 
   /**

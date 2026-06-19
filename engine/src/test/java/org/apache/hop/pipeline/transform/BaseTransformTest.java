@@ -67,11 +67,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
+/** Unit test for {@link BaseTransform} */
 @ExtendWith(MockitoExtension.class)
 class BaseTransformTest {
   private TransformMockHelper<ITransformMeta, ITransformData> mockHelper;
 
-  @Mock IRowHandler rowHandler;
+  @Mock private IRowHandler rowHandler;
 
   @BeforeEach
   void setup() {
@@ -300,6 +301,32 @@ class BaseTransformTest {
     baseTransform.putError(iRowMeta, objects, 3L, "desc", "field1,field2", "errorCode");
     verify(rowHandler, times(1))
         .putError(iRowMeta, objects, 3L, "desc", "field1,field2", "errorCode");
+  }
+
+  @Test
+  void putErrorStopsPipelineWhenErrorRowSetUnavailable() throws HopException {
+    TransformMeta targetMeta = mock(TransformMeta.class);
+    when(targetMeta.getName()).thenReturn("Write to log error");
+    TransformErrorMeta errorMeta = new TransformErrorMeta(mockHelper.transformMeta, targetMeta);
+    errorMeta.setEnabled(true);
+    when(mockHelper.transformMeta.getTransformErrorMeta()).thenReturn(errorMeta);
+
+    BaseTransform<ITransformMeta, ITransformData> base =
+        spy(
+            new BaseTransform<>(
+                mockHelper.transformMeta,
+                mockHelper.iTransformMeta,
+                mockHelper.iTransformData,
+                0,
+                mockHelper.pipelineMeta,
+                mockHelper.pipeline));
+
+    IRowMeta iRowMeta = new RowMeta();
+    Object[] objects = new Object[] {"Bob", "Col"};
+    base.putError(iRowMeta, objects, 1L, "PKIX path building failed", null, "Rest001");
+
+    verify(base).stopAll();
+    assertTrue(base.getErrors() > 0);
   }
 
   @Test

@@ -20,9 +20,13 @@ package org.apache.hop.pipeline.transforms.rest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.core.MediaType;
@@ -34,6 +38,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
 import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
@@ -45,9 +54,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+/** Unit test for {@link Rest} */
 class RestProcessRowTest {
   private TransformMockHelper<RestMeta, RestData> mockHelper;
-  private Rest rest;
 
   @BeforeEach
   void setup() {
@@ -74,7 +83,7 @@ class RestProcessRowTest {
     data.config = new ClientConfig();
     data.mediaType = MediaType.APPLICATION_JSON_TYPE;
 
-    rest =
+    Rest rest =
         new Rest(
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
 
@@ -513,5 +522,53 @@ class RestProcessRowTest {
     assertEquals("statusCode", data.resultCodeFieldName);
     assertEquals("responseTime", data.resultResponseFieldName);
     assertEquals("headers", data.resultHeaderFieldName);
+  }
+
+  @Test
+  void processRowHardFailsWhenErrorHopDisabledAndSslFails() throws HopException {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    RestMeta restMeta = new RestMeta();
+    restMeta.setMethod(RestMeta.HTTP_METHOD_GET);
+    restMeta.setUrl("https://example.com");
+    restMeta.setResultField(new ResultField());
+
+    TransformMeta sourceMeta = new TransformMeta("REST client", restMeta);
+    TransformMeta errorTarget = new TransformMeta("Write to log error", new DummyMeta());
+    pipelineMeta.addTransform(sourceMeta);
+    pipelineMeta.addTransform(errorTarget);
+
+    PipelineHopMeta errorHop = new PipelineHopMeta(sourceMeta, errorTarget);
+    errorHop.setEnabled(false);
+    pipelineMeta.addPipelineHop(errorHop);
+
+    TransformErrorMeta errMeta = new TransformErrorMeta(sourceMeta, errorTarget);
+    errMeta.setEnabled(true);
+    sourceMeta.setTransformErrorMeta(errMeta);
+    sourceMeta.setParentPipelineMeta(pipelineMeta);
+
+    RestData data = new RestData();
+    data.config = new ClientConfig();
+    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.realUrl = "https://example.com";
+
+    Rest rest = spy(new Rest(sourceMeta, restMeta, data, 0, pipelineMeta, mockHelper.pipeline));
+    rest.setMetadataProvider(mock(IHopMetadataProvider.class));
+
+    IRowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("field1"));
+    Object[] inputRow = new Object[] {"value1"};
+    rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
+    when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
+
+    HopException sslError = new HopException("SSLHandshakeException: PKIX path building failed");
+    Mockito.doThrow(sslError).when(rest).callRest(any());
+
+    boolean result = rest.processRow();
+
+    assertFalse(result);
+    verify(rest).stopAll();
+    assertTrue(rest.getErrors() > 0);
+    verify(rest, never()).putError(any(), any(), anyLong(), any(), any(), any());
   }
 }
