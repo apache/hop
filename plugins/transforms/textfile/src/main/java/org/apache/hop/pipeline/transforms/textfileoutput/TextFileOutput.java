@@ -404,6 +404,25 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
       if (data.writer != null) {
         if (data.outputRowMeta != null && meta.isFooterEnabled()) {
           writeHeader();
+        } else if (first && meta.isHeaderEnabled()) {
+          // The file was created at pipeline start (init() -> initOutput()) but no rows were
+          // received, so the header was never written. Honor the enabled header for the empty
+          // result set.
+          String filename = getOutputFileName(null);
+          if (isWriteHeader(filename)) {
+            if (data.outputRowMeta == null) {
+              data.outputRowMeta =
+                  getPipelineMeta().getPrevTransformFields(variables, getTransformMeta());
+              if (data.outputRowMeta != null) {
+                meta.getFields(
+                    data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+              }
+            }
+            // Without column metadata there is nothing to write a header from.
+            if (data.outputRowMeta != null) {
+              writeHeader();
+            }
+          }
         }
       } else if (!Utils.isEmpty(resolve(meta.getEndedLine())) && !meta.isFileNameInField()) {
         String filename = getOutputFileName(null);
