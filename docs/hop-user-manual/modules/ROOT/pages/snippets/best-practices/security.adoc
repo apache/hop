@@ -32,13 +32,6 @@ As a project we provide you with many powerful tools that can do as much as you 
 much like a programming language or scripting tool in the way that you can create, modify and delete things at
 your hearts content.  Please understand that this is a feature, not a security risk.
 
-=== Scripting
-
-The scripting actions and transforms in Hop are capable of doing just about anything if you know how.
-It's not a best practice to do "anything", in fact the best practice is to make use of the transforms as little
-as possible to make the maintenance load of your data integration solutions as light as possible.  If you can't avoid
-using scripting, put some process in place to code review the scripts and keep them simple and transparent.
-
 === Securing your work
 
 When dealing with sensitive information that might be needed to interact with databases, remote folders, websites,
@@ -75,6 +68,12 @@ see: xref:metadata-types/variable-resolver/index.adoc[Variable Resolvers].
 Again, just using a key vault is insufficient: make sure you protect the secrets (keys, users, passwords) to connect
 to the key vault you're using.
 
+=== Secure your Hop Server
+
+If you're running the Hop Server on a Kubernetes or VM constellation you can secure network access from and to the
+clients that way.  Otherwise, consider setting up SSL communication to prevent anyone from listening in on the network
+traffic.  Please see the xref:hop-server/index.adoc#_ssl_configuration[SSL Configuration] documentation here.
+
 === Remove unused plugins
 
 Every organisation has its own typical mix of deployed technologies.  As a best practice, remove any plugin that
@@ -82,9 +81,54 @@ supports technology that you're not using.  Go through the list of plugins in th
 anything that you're not going to need.  Focus especially on older technology that might contain drivers that
 perhaps haven't been updated in a while.  You can safely remove any folder in the `plugins/` folder.
 
-=== Secure your Hop Server
+=== Scripting
 
-If you're running the Hop Server on a Kubernetes or VM constellation you can secure network access from and to the
-clients that way.  Otherwise, consider setting up SSL communication to prevent anyone from listening in on the network
-traffic.  Please see the xref:hop-server/index.adoc#_ssl_configuration[SSL Configuration] documentation here.
+The scripting actions and transforms in Hop are capable of doing just about anything if you know how.
+It's not a best practice to do "anything", in fact the best practice is to make use of the transforms as little
+as possible to make the maintenance load of your data integration solutions as light as possible.  If you can't avoid
+using scripting, put some process in place to code review the scripts and keep them simple and transparent.
 
+==== Remove unused scripting plugins
+
+The JavaScript, Script, and other coding transforms are powerful but can execute arbitrary code, potentially leading to
+code injection or data exfiltration risks.
+
+[WARNING]
+====
+Scripting transforms can execute arbitrary code. If you're reading data from untrusted sources or allowing user input
+to influence script logic, you risk code injection attacks, data exfiltration, or unintended side effects on your system.
+====
+
+==== Removing the plugins
+
+If you don't want to use scripting transforms, you can remove the associated plugins:
+
+[source,shell]
+----
+# Navigate to your Hop installation directory
+cd $HOP_HOME/plugins
+
+# Remove the scripting-related plugin directories
+rm -rf transforms/script/ # Groovy, Python
+rm -rf transforms/javascript/ # JavaScript
+rm -rf transforms/janino/ #UDJC, UDJE, Java Filter
+
+# Restart Hop Gui or Hop Server to apply changes
+----
+
+[WARNING]
+====
+Before removing plugins, verify that no workflows or pipelines depend on the removed transforms. Broken workflows or pipelines will fail to execute.
+====
+
+===== Security best practices for scripting
+
+If you do use scripting transforms, follow these guidelines:
+
+* **Limit script scope** - Keep scripts focused and minimal. Prefer native Hop transforms when possible.
+
+* **Code review process** - Establish a formal review process for all scripts used in production workflows.
+
+* **Audit script execution** - Log when and how scripts are executed, especially in production environments.
+
+* **Use sandboxed environments** - Where possible, run scripts in isolated environments with limited system access.
