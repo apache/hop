@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transform>
+    <include>N</include>
+    <rownum>N</rownum>
+    <readurl>N</readurl>
+    <removeSourceField>N</removeSourceField>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <files/>
+    <fields>
+        <field>
+            <name>test_source</name>
+            <path>$.test[*].test_source</path>
+            <type>String</type>
+            <format/>
+            <currency/>
+            <decimal/>
+            <group/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <trim_type>none</trim_type>
+            <repeat>N</repeat>
+        </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>Y</IsInFields>
+    <IsAFile>Y</IsAFile>
+    <valueField>filename</valueField>
+</transform>

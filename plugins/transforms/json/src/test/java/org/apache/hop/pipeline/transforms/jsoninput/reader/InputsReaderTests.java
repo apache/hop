@@ -539,7 +539,8 @@ class InputsReaderTests {
   }
 
   @Test
-  void iterator_inFieldsAndSourceIsFile_usesFileBranch() throws Exception {
+  void iterator_inFieldsAndSourceIsFile_readsPathFromFieldEvenWithoutAcceptingFilenamesFlag()
+      throws Exception {
     final String path = BASE_RAM_DIR + "isFile.json";
     try (FileObject writeTo = HopVfs.getFileObject(path)) {
       writeTo.createFile();
@@ -548,27 +549,57 @@ class InputsReaderTests {
       }
     }
 
-    // New FileObject for the list so size/exists match what onNewFile + getInputStream see (RAM
-    // VFS).
     try (FileObject f1 = HopVfs.getFileObject(path)) {
       assertTrue(f1.exists(), "file must exist before iterator");
       assertTrue(f1.getContent().getSize() > 0, "file must be non-empty before iterator");
 
-      JsonInputMeta meta = createFileListMeta(List.of(f1));
+      JsonInputMeta meta = new JsonInputMeta();
+      meta.setDefault();
+      ensureMinimalInputField(meta);
       meta.setInFields(true);
-      // Use setIsAFile (not only Lombok setSourceAFile) so sourceAFile is set on anonymous
-      // JsonInputMeta subclasses.
       meta.setIsAFile(true);
+      // Simulate XML deserialization: inFields set without syncing acceptingFilenames.
       meta.getFileInput().setAcceptingFilenames(false);
-      meta.setFieldValue("_");
+      meta.setFieldValue("pathcol");
+
+      JsonInputData data = new JsonInputData();
+      data.indexSourceField = 0;
+      JsonInput jsonInput =
+          newJsonInputWithStringRows(meta, data, "pathcol", new Object[] {f1.getName().getURI()});
+
+      InputsReader reader = new InputsReader(jsonInput, meta, data, new RecordingErrorHandler());
+      var it = reader.iterator();
+      assertTrue(it.hasNext(), "inFields+isAFile must read file path from the input field");
+      try (InputStream in = it.next()) {
+        assertNotNull(in, "expected stream after onNewFile accepted the file");
+        assertTrue(IOUtils.toString(in, StandardCharsets.UTF_8).contains("store"));
+      }
+      assertFalse(it.hasNext());
+    }
+  }
+
+  @Test
+  void iterator_staticFileList_whenNotInFields() throws Exception {
+    final String path = BASE_RAM_DIR + "staticList.json";
+    try (FileObject writeTo = HopVfs.getFileObject(path)) {
+      writeTo.createFile();
+      try (OutputStream os = writeTo.getContent().getOutputStream()) {
+        os.write(BASIC_JSON.getBytes(StandardCharsets.UTF_8));
+      }
+    }
+
+    try (FileObject f1 = HopVfs.getFileObject(path)) {
+      JsonInputMeta meta = createFileListMeta(List.of(f1));
+      meta.setInFields(false);
+      meta.setIsAFile(true);
 
       JsonInputData data = new JsonInputData();
       JsonInput jsonInput = newJsonInputWithoutInputRows(meta, data);
       InputsReader reader = new InputsReader(jsonInput, meta, data, new RecordingErrorHandler());
       var it = reader.iterator();
-      assertTrue(it.hasNext(), "!inFields || getIsAFile must be true to use file list iterator");
+      assertTrue(it.hasNext(), "static file list must be used when source is not from a field");
       try (InputStream in = it.next()) {
-        assertNotNull(in, "expected stream after onNewFile accepted the file");
+        assertNotNull(in);
         assertTrue(IOUtils.toString(in, StandardCharsets.UTF_8).contains("store"));
       }
       assertFalse(it.hasNext());
