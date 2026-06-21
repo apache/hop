@@ -93,9 +93,15 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   public void drawWorkflow() throws HopException {
     // Make sure the canvas is scaled 100%
     gc.setTransform(0.0f, 0.0f, 1.0f);
+
     // First clear the image in the background color
     gc.setBackground(EColor.BACKGROUND);
     gc.fillRectangle(0, 0, area.x, area.y);
+
+    // Draw the grid if this option is enabled
+    if (gridSize > 1) {
+      drawGrid();
+    }
 
     // Draw the workflow onto the image
     //
@@ -155,9 +161,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   }
 
   private void drawActions() throws HopException {
-    if (gridSize > 1) {
-      drawGrid();
-    }
+
     drawOriginBoundary();
 
     try {
