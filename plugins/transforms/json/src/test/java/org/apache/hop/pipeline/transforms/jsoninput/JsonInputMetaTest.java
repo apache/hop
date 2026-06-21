@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,6 +83,29 @@ class JsonInputMetaTest {
         metaCopy,
         new MemoryMetadataProvider());
     validate(metaCopy);
+  }
+
+  @Test
+  void xmlLoadSyncsAcceptingFilenamesWhenSourceIsInField() throws Exception {
+    Path path =
+        Paths.get(
+            Objects.requireNonNull(getClass().getResource("/json-input-in-fields.xml")).toURI());
+    JsonInputMeta meta = new JsonInputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(Files.readString(path), TransformMeta.XML_TAG),
+        JsonInputMeta.class,
+        meta,
+        new MemoryMetadataProvider());
+
+    assertTrue(meta.isInFields());
+    assertTrue(meta.getIsAFile());
+    assertTrue(
+        meta.getFileInput().isAcceptingFilenames(),
+        "IsInFields=Y must sync acceptingFilenames after XML load");
+    assertEquals(
+        "filename",
+        meta.getFileInput().getAcceptingField(),
+        "valueField must sync acceptingField after XML load");
   }
 
   private static void validate(JsonInputMeta meta) {
