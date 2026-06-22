@@ -1635,9 +1635,9 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Align {@link TransformErrorMeta#isEnabled()} with the enabled state of the hop to the error
-   * target. Pipelines saved before error hops were flagged in hop metadata can have error handling
-   * marked enabled while the hop to the target transform is disabled.
+   * Align {@link TransformErrorMeta} with the enabled state of the hop to the error target.
+   * Pipelines saved before error hops were flagged in hop metadata can have error handling marked
+   * enabled while the hop to the target transform is disabled.
    */
   public void syncTransformErrorHandlingWithHops() {
     for (TransformMeta transformMeta : transforms) {
