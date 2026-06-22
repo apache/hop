@@ -25,6 +25,16 @@ import org.apache.hop.core.reflection.StringSearcher;
 
 public abstract class BaseSearchableAnalyser<T> {
 
+  /**
+   * Match a single property of a searchable. Only the property <em>value</em> (the actual content)
+   * is matched - not the internal property name/label - so the search behaves like a content search
+   * instead of matching field labels. When it matches, the property name is recorded as the result
+   * description so the UI can show <em>where</em> the hit was.
+   *
+   * @param propertyName a human-readable label for the property (e.g. "pipeline description"); used
+   *     only to describe the match, it is not matched against
+   * @param propertyValue the actual value that is matched against
+   */
   protected void matchProperty(
       ISearchable<T> parent,
       List<ISearchResult> searchResults,
@@ -32,26 +42,17 @@ public abstract class BaseSearchableAnalyser<T> {
       String propertyName,
       String propertyValue,
       String component) {
-    if (searchQuery.matches(propertyName)) {
-      searchResults.add(
-          new SearchResult(
-              parent,
-              propertyName,
-              "matching property name: " + propertyName,
-              component,
-              propertyValue));
-    }
     if (StringUtils.isNotEmpty(propertyValue) && searchQuery.matches(propertyValue)) {
       searchResults.add(
-          new SearchResult(
-              parent,
-              propertyValue,
-              "matching property value: " + propertyValue,
-              component,
-              propertyValue));
+          new SearchResult(parent, propertyValue, propertyName, component, propertyValue));
     }
   }
 
+  /**
+   * Reflectively match the string fields of an object (e.g. a transform's or action's settings).
+   * Only field <em>values</em> are matched, not the Java field names. The field name is recorded in
+   * the description so the UI can show which setting matched.
+   */
   protected void matchObjectFields(
       ISearchable<T> searchable,
       List<ISearchResult> searchResults,
@@ -63,24 +64,15 @@ public abstract class BaseSearchableAnalyser<T> {
     StringSearcher.findMetaData(
         object, 1, stringSearchResults, searchable.getSearchableObject(), searchable);
     for (StringSearchResult stringSearchResult : stringSearchResults) {
-      if (searchQuery.matches(stringSearchResult.getFieldName())) {
-        searchResults.add(
-            new SearchResult(
-                searchable,
-                stringSearchResult.getFieldName(),
-                descriptionPrefix + " : " + stringSearchResult.getFieldName(),
-                component,
-                stringSearchResult.getString()));
-      }
       String resultString = stringSearchResult.getString();
-      if (resultString != null && searchQuery.matches(resultString)) {
+      if (StringUtils.isNotEmpty(resultString) && searchQuery.matches(resultString)) {
         searchResults.add(
             new SearchResult(
                 searchable,
-                stringSearchResult.getString(),
+                resultString,
                 descriptionPrefix + " : " + stringSearchResult.getFieldName(),
                 component,
-                stringSearchResult.getString()));
+                resultString));
       }
     }
   }

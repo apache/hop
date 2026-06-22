@@ -25,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for HopGuiTerminalPanel business logic.
+ * Unit tests for HopGuiBottomDock business logic.
  *
  * <p>Note: This class tests non-UI logic only. Full integration tests with SWT UI components
  * require a display environment and are better suited for integration tests.
  */
 @SuppressWarnings("all")
-class HopGuiTerminalPanelTest {
+class HopGuiBottomDockTest {
 
   @Test
   void testExtractShellNameLogic() {
