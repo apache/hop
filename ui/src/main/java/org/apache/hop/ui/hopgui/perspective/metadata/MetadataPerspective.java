@@ -90,6 +90,7 @@ import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemReorder;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -150,11 +151,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   private static final String FOLDER_AUDIT_TYPE = "metadata-virtual-folders";
 
   private static final String FOLDER_AUDIT_SEPARATOR = "\t";
-
-  /**
-   * Audit-trail key under which the tree-panel sash weights are stored (global, not per-project).
-   */
-  private static final String SASH_WEIGHTS_AUDIT_TYPE = "metadata-perspective-tree-width";
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetadataPerspective-Toolbar";
 
@@ -222,9 +218,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   /** Debounced search action so we don't rebuild the tree on every keystroke. */
   private final Runnable filterRunnable = this::applyFilter;
 
-  /** Debounced save of the tree-panel sash weights so we don't write on every drag pixel. */
-  private final Runnable sashWeightsSaver = this::saveSashWeights;
-
   private final List<MetadataEditor<?>> editors = new ArrayList<>();
 
   private final MetadataFileType metadataFileType;
@@ -285,10 +278,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     editorStackLayout.topControl = overview;
     editorArea.layout();
 
-    sash.setWeights(new int[] {20, 80});
     // Restore the saved tree-panel width and persist it whenever the divider is dragged.
-    loadSashWeights();
-    editorArea.addListener(SWT.Resize, e -> scheduleSaveSashWeights());
+    SashFormMemory.persist(sash, "metadata-perspective-tree-width");
 
     this.refresh();
     this.updateSelection();
@@ -2063,60 +2054,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   /** The audit group for the current project (falls back to the default HopGui namespace). */
   private static String getAuditNamespace() {
     return Const.NVL(HopNamespace.getNamespace(), HopGui.DEFAULT_HOP_GUI_NAMESPACE);
-  }
-
-  /** Restores the saved tree-panel sash weights (a global layout preference), if any. */
-  private void loadSashWeights() {
-    if (sash == null || sash.isDisposed()) {
-      return;
-    }
-    try {
-      AuditList list =
-          AuditManager.getActive()
-              .retrieveList(HopGui.DEFAULT_HOP_GUI_NAMESPACE, SASH_WEIGHTS_AUDIT_TYPE);
-      if (list == null || list.getNames() == null || list.getNames().size() < 2) {
-        return;
-      }
-      int[] weights = new int[list.getNames().size()];
-      for (int i = 0; i < weights.length; i++) {
-        weights[i] = Integer.parseInt(list.getNames().get(i).trim());
-      }
-      sash.setWeights(weights);
-    } catch (Exception e) {
-      LogChannel.UI.logError("Error reading the metadata tree-panel width from the audit trail", e);
-    }
-  }
-
-  /** Debounced trigger to save the sash weights after the divider stops moving. */
-  private void scheduleSaveSashWeights() {
-    if (sash == null || sash.isDisposed()) {
-      return;
-    }
-    Display display = sash.getDisplay();
-    display.timerExec(-1, sashWeightsSaver);
-    display.timerExec(400, sashWeightsSaver);
-  }
-
-  /** Persists the current tree-panel sash weights (global, not per-project). */
-  private void saveSashWeights() {
-    if (sash == null || sash.isDisposed()) {
-      return;
-    }
-    int[] weights = sash.getWeights();
-    if (weights == null || weights.length < 2) {
-      return;
-    }
-    try {
-      List<String> values = new ArrayList<>();
-      for (int weight : weights) {
-        values.add(Integer.toString(weight));
-      }
-      AuditManager.getActive()
-          .storeList(
-              HopGui.DEFAULT_HOP_GUI_NAMESPACE, SASH_WEIGHTS_AUDIT_TYPE, new AuditList(values));
-    } catch (Exception e) {
-      LogChannel.UI.logError("Error storing the metadata tree-panel width in the audit trail", e);
-    }
   }
 
   /**

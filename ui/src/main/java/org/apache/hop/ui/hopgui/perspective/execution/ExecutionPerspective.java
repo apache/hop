@@ -82,6 +82,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
+import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -152,9 +153,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   public static final String FILTER_NAME_DATE_ID = "name - date - ID";
 
   private static final String EXECUTION_AUDIT_TYPE = "execution-perspective-gui";
-  private static final String AUDIT_SASH_WEIGHTS = "sash-weights";
-  private static final String AUDIT_SASH_LEFT = "sash-left";
-  private static final String AUDIT_SASH_RIGHT = "sash-right";
   private static final String AUDIT_EXECUTION_TOOLBAR = "toolbar";
   private static final String AUDIT_ONLY_PARENTS = "only-parents";
   private static final String AUDIT_ONLY_FAILED = "only-failed";
@@ -239,7 +237,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     createTree(sash);
     createTabFolder(sash);
 
-    sash.setWeights(new int[] {30, 70});
+    SashFormMemory.persist(sash, "execution-perspective-tree-width");
 
     restoreState();
 
@@ -1200,11 +1198,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
                   AUDIT_TIME_FILTER,
                   timeFilter.getCode())));
 
-      int[] sashWeights = sash.getWeights();
-      stateMap.add(
-          new AuditState(
-              AUDIT_SASH_WEIGHTS,
-              Map.of(AUDIT_SASH_LEFT, sashWeights[0], AUDIT_SASH_RIGHT, sashWeights[1])));
       AuditManager.getActive()
           .saveAuditStateMap(HopNamespace.getNamespace(), EXECUTION_AUDIT_TYPE, stateMap);
     } catch (Exception e) {
@@ -1231,14 +1224,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       filterText = toolbarState.extractString(AUDIT_FILTER_TEXT, "");
       String timeFilterName = toolbarState.extractString(AUDIT_TIME_FILTER, "");
       timeFilter = IEnumHasCode.lookupCode(LastPeriod.class, timeFilterName, LastPeriod.ONE_HOUR);
-
-      AuditState sashState = stateMap.get(AUDIT_SASH_WEIGHTS);
-      if (sashState == null) {
-        sashState = new AuditState();
-      }
-      int left = sashState.extractInteger(AUDIT_SASH_LEFT, 30);
-      int right = sashState.extractInteger(AUDIT_SASH_RIGHT, 70);
-      sash.setWeights(left, right);
 
       updateGui();
       refresh();

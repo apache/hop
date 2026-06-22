@@ -62,6 +62,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.jgit.api.CherryPickResult;
 import org.eclipse.jgit.api.Git;
@@ -267,9 +268,9 @@ public class GitPerspective implements IHopPerspective {
     createFileTree(wSashFormViewer);
     createDiffView(wSashFormViewer);
 
-    wSashForm.setWeights(10, 90);
-    wSashFormCommit.setWeights(70, 30);
-    wSashFormViewer.setWeights(30, 70);
+    SashFormMemory.persist(wSashForm, "git-perspective-tree-width");
+    SashFormMemory.persist(wSashFormCommit, "git-perspective-commit-split", 70, 30);
+    SashFormMemory.persist(wSashFormViewer, "git-perspective-viewer-split", 30, 70);
 
     // Restore options
     restorePerspectiveSettings();
