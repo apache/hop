@@ -349,6 +349,7 @@ public abstract class BeamPipelineEngine extends Variables
         //
         try {
           beamPipelineResults = executePipeline(beamPipeline);
+          populateEngineMetrics();
           ExtensionPointHandler.callExtensionPoint(
               logChannel, this, HopExtensionPoint.PipelineStart.id, this);
         } catch (Throwable e) {
@@ -416,30 +417,34 @@ public abstract class BeamPipelineEngine extends Variables
             .start();
       }
 
-      // We have stuff running in the background, let's keep track of the progress regularly
-      //
-      refreshTimer = new Timer();
-      refreshTimer.schedule(
-          new TimerTask() {
-            @Override
-            public void run() {
-              try {
-                populateEngineMetrics();
+      // Keep track of progress while the pipeline is still running in the background.
+      // Blocking runners (e.g. Flink with [local]) finish before this point; skip the timer then.
+      boolean pipelineAlreadyFinished =
+          beamPipelineResults != null
+              && PipelineResult.State.DONE.equals(safelyCall(() -> beamPipelineResults.getState()));
+      if (!pipelineAlreadyFinished) {
+        refreshTimer = new Timer();
+        refreshTimer.schedule(
+            new TimerTask() {
+              @Override
+              public void run() {
+                try {
+                  populateEngineMetrics();
 
-                // Stop this timer in case of error (hardening in case of race condition)
-                //
-                if (hasStartupErrors.get()) {
-                  ExecutorUtil.cleanup(refreshTimer);
+                  // Stop this timer in case of error (hardening in case of race condition)
+                  //
+                  if (hasStartupErrors.get()) {
+                    ExecutorUtil.cleanup(refreshTimer);
+                  }
+                } catch (Throwable e) {
+                  logChannel.logError(
+                      "Error refreshing engine metrics in the Beam pipeline engine", e);
                 }
-              } catch (Throwable e) {
-                logChannel.logError(
-                    "Error refreshing engine metrics in the Beam pipeline engine", e);
               }
-            }
-          },
-          0L,
-          1000L);
-
+            },
+            0L,
+            1000L);
+      }
     } catch (Throwable e) {
       throw new HopException("Unexpected error starting Beam pipeline", e);
     } finally {
@@ -588,6 +593,7 @@ public abstract class BeamPipelineEngine extends Variables
             logChannel.logBasic("Beam pipeline execution has finished.");
           }
           setStatus(ComponentExecutionStatus.STATUS_FINISHED);
+          cancelRefreshTimer = true;
           break;
         case STOPPED, CANCELLED:
           if (!isStopped()) {
