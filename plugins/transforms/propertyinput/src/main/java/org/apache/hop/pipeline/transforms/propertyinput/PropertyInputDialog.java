@@ -23,7 +23,6 @@ import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
@@ -478,7 +477,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
     wlFileType.setLayoutData(fdlFileType);
     wFileType = new CCombo(wSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
     wFileType.setEditable(true);
-    wFileType.setItems(ResultFile.FileType.getDescriptions());
+    wFileType.setItems(PropertyInputMeta.FileType.getDescriptions());
     PropsUi.setLook(wFileType);
     FormData fdFileType = new FormData();
     fdFileType.left = new FormAttachment(middle, 0);
