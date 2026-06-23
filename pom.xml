@@ -484,6 +484,8 @@
                         <exclude>**/hop.pwd</exclude>
                         <exclude>**/*.iml</exclude>
                         <exclude>.dockerignore</exclude>
+                        <!-- symlink alias of AGENTS.md (header lives on the target) -->
+                        <exclude>CLAUDE.md</exclude>
 
                         <!-- Unit Test Exclusions -->
                         <exclude>**/test/**/*.txt</exclude>
