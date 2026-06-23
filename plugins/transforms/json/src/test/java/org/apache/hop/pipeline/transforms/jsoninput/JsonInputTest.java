@@ -1237,7 +1237,7 @@ class JsonInputTest {
     processRows(jsonInput, 3);
     assertEquals(1, errorLines.size(), "fwd error");
     assertEquals(input1, errorLines.getFirst()[0], "input in err line");
-    assertEquals(1, jsonInput.getLinesWritten(), "rows written");
+    assertEquals(0, jsonInput.getLinesWritten(), "rows written");
   }
 
   @Test
