@@ -49,6 +49,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
@@ -115,6 +116,17 @@ public class ConfigGuiOptionsTab {
   private Button wMetricsPanelShowDataVolumeOut;
   private Combo wDefaultLocale;
 
+  private Combo wAutoLayoutDirection;
+  private Text wAutoLayoutLayerSpacing;
+  private Text wAutoLayoutNodeSpacing;
+  private Text wAutoLayoutCrossingIterations;
+  private Button wAutoLayoutMoveNotes;
+
+  /** Auto-layout direction codes, parallel to the localized labels shown in the combo. */
+  private static final String[] AUTO_LAYOUT_DIRECTION_CODES = {
+    "LEFT_RIGHT", "RIGHT_LEFT", "TOP_BOTTOM", "BOTTOM_TOP"
+  };
+
   private boolean isReloading = false; // Flag to prevent saving during reload
   private boolean isInitializing = false; // Flag to prevent saving during initialization
 
@@ -176,6 +188,17 @@ public class ConfigGuiOptionsTab {
       wMiddlePct.setText(Integer.toString(props.getMiddlePct()));
       wGridSize.setText(Integer.toString(props.getCanvasGridSize()));
       wShowCanvasGrid.setSelection(props.isShowCanvasGridEnabled());
+
+      if (wAutoLayoutDirection != null && !wAutoLayoutDirection.isDisposed()) {
+        int directionIndex =
+            Const.indexOfString(props.getAutoLayoutDirection(), AUTO_LAYOUT_DIRECTION_CODES);
+        wAutoLayoutDirection.select(Math.max(0, directionIndex));
+        wAutoLayoutLayerSpacing.setText(Integer.toString(props.getAutoLayoutLayerSpacing()));
+        wAutoLayoutNodeSpacing.setText(Integer.toString(props.getAutoLayoutNodeSpacing()));
+        wAutoLayoutCrossingIterations.setText(
+            Integer.toString(props.getAutoLayoutCrossingIterations()));
+        wAutoLayoutMoveNotes.setSelection(props.isAutoLayoutMoveNotes());
+      }
 
       wHideViewport.setSelection(!props.isHideViewportEnabled()); // Inverted logic
       wUseDoubleClick.setSelection(props.useDoubleClick());
@@ -295,6 +318,34 @@ public class ConfigGuiOptionsTab {
 
     // Track the last control for vertical positioning
     org.eclipse.swt.widgets.Control lastControl = null;
+
+    // Expand all / Collapse all buttons for the sections below
+    Composite wExpandButtons = new Composite(wLookComp, SWT.NONE);
+    PropsUi.setLook(wExpandButtons);
+    wExpandButtons.setLayout(new RowLayout(SWT.HORIZONTAL));
+    FormData fdExpandButtons = new FormData();
+    fdExpandButtons.left = new FormAttachment(0, 0);
+    fdExpandButtons.top = new FormAttachment(0, margin);
+    wExpandButtons.setLayoutData(fdExpandButtons);
+
+    int iconSize = (int) (PropsUi.getInstance().getZoomFactor() * 24);
+
+    Button wExpandAll = new Button(wExpandButtons, SWT.PUSH);
+    PropsUi.setLook(wExpandAll);
+    wExpandAll.setImage(
+        GuiResource.getInstance().getImage("ui/images/expand-all.svg", iconSize, iconSize));
+    wExpandAll.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.ExpandAll.Tooltip"));
+    wExpandAll.addListener(SWT.Selection, e -> setAllSectionsExpanded(wLookComp, sLookComp, true));
+
+    Button wCollapseAll = new Button(wExpandButtons, SWT.PUSH);
+    PropsUi.setLook(wCollapseAll);
+    wCollapseAll.setImage(
+        GuiResource.getInstance().getImage("ui/images/collapse-all.svg", iconSize, iconSize));
+    wCollapseAll.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.CollapseAll.Tooltip"));
+    wCollapseAll.addListener(
+        SWT.Selection, e -> setAllSectionsExpanded(wLookComp, sLookComp, false));
+    lastControl = wExpandButtons;
 
     // Preferred language - at the top
     org.eclipse.swt.widgets.Control[] defaultLocaleControls =
@@ -757,6 +808,132 @@ public class ConfigGuiOptionsTab {
 
     lastControl = canvasExpandBar;
 
+    // Auto-layout section - using ExpandBar
+    ExpandBar autoLayoutExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    PropsUi.setLook(autoLayoutExpandBar);
+
+    FormData fdAutoLayoutExpandBar = new FormData();
+    fdAutoLayoutExpandBar.left = new FormAttachment(0, 0);
+    fdAutoLayoutExpandBar.right = new FormAttachment(100, 0);
+    fdAutoLayoutExpandBar.top = new FormAttachment(lastControl, 2 * margin);
+    autoLayoutExpandBar.setLayoutData(fdAutoLayoutExpandBar);
+
+    Composite autoLayoutContent = new Composite(autoLayoutExpandBar, SWT.NONE);
+    PropsUi.setLook(autoLayoutContent);
+    FormLayout autoLayoutLayout = new FormLayout();
+    autoLayoutLayout.marginWidth = PropsUi.getFormMargin();
+    autoLayoutLayout.marginHeight = PropsUi.getFormMargin();
+    autoLayoutContent.setLayout(autoLayoutLayout);
+
+    org.eclipse.swt.widgets.Control lastAutoLayoutControl = null;
+
+    // Direction
+    String[] directionLabels = {
+      BaseMessages.getString(PKG, "EnterOptionsDialog.AutoLayout.Direction.LeftRight"),
+      BaseMessages.getString(PKG, "EnterOptionsDialog.AutoLayout.Direction.RightLeft"),
+      BaseMessages.getString(PKG, "EnterOptionsDialog.AutoLayout.Direction.TopBottom"),
+      BaseMessages.getString(PKG, "EnterOptionsDialog.AutoLayout.Direction.BottomTop")
+    };
+    org.eclipse.swt.widgets.Control[] directionControls =
+        createComboField(
+            autoLayoutContent,
+            "EnterOptionsDialog.AutoLayout.Direction.Label",
+            "EnterOptionsDialog.AutoLayout.Direction.ToolTip",
+            directionLabels,
+            lastAutoLayoutControl,
+            margin);
+    wAutoLayoutDirection = (Combo) directionControls[1];
+    int directionIndex =
+        Const.indexOfString(props.getAutoLayoutDirection(), AUTO_LAYOUT_DIRECTION_CODES);
+    wAutoLayoutDirection.select(Math.max(0, directionIndex));
+    lastAutoLayoutControl = wAutoLayoutDirection;
+
+    // Layer spacing
+    org.eclipse.swt.widgets.Control[] layerSpacingControls =
+        createTextField(
+            autoLayoutContent,
+            "EnterOptionsDialog.AutoLayout.LayerSpacing.Label",
+            "EnterOptionsDialog.AutoLayout.LayerSpacing.ToolTip",
+            Integer.toString(props.getAutoLayoutLayerSpacing()),
+            lastAutoLayoutControl,
+            margin);
+    wAutoLayoutLayerSpacing = (Text) layerSpacingControls[1];
+    wAutoLayoutLayerSpacing.setMessage(
+        BaseMessages.getString(PKG, ENTER_OPTIONS_DIALOG_ENTER_NUMBER_HINT));
+    wAutoLayoutLayerSpacing.addListener(SWT.Verify, this::verifyNumber);
+    lastAutoLayoutControl = wAutoLayoutLayerSpacing;
+
+    // Node spacing
+    org.eclipse.swt.widgets.Control[] nodeSpacingControls =
+        createTextField(
+            autoLayoutContent,
+            "EnterOptionsDialog.AutoLayout.NodeSpacing.Label",
+            "EnterOptionsDialog.AutoLayout.NodeSpacing.ToolTip",
+            Integer.toString(props.getAutoLayoutNodeSpacing()),
+            lastAutoLayoutControl,
+            margin);
+    wAutoLayoutNodeSpacing = (Text) nodeSpacingControls[1];
+    wAutoLayoutNodeSpacing.setMessage(
+        BaseMessages.getString(PKG, ENTER_OPTIONS_DIALOG_ENTER_NUMBER_HINT));
+    wAutoLayoutNodeSpacing.addListener(SWT.Verify, this::verifyNumber);
+    lastAutoLayoutControl = wAutoLayoutNodeSpacing;
+
+    // Crossing-reduction iterations
+    org.eclipse.swt.widgets.Control[] iterationsControls =
+        createTextField(
+            autoLayoutContent,
+            "EnterOptionsDialog.AutoLayout.CrossingIterations.Label",
+            "EnterOptionsDialog.AutoLayout.CrossingIterations.ToolTip",
+            Integer.toString(props.getAutoLayoutCrossingIterations()),
+            lastAutoLayoutControl,
+            margin);
+    wAutoLayoutCrossingIterations = (Text) iterationsControls[1];
+    wAutoLayoutCrossingIterations.setMessage(
+        BaseMessages.getString(PKG, ENTER_OPTIONS_DIALOG_ENTER_NUMBER_HINT));
+    wAutoLayoutCrossingIterations.addListener(SWT.Verify, this::verifyNumber);
+    lastAutoLayoutControl = wAutoLayoutCrossingIterations;
+
+    // Move notes with their nearest node
+    wAutoLayoutMoveNotes =
+        createCheckbox(
+            autoLayoutContent,
+            "EnterOptionsDialog.AutoLayout.MoveNotes.Label",
+            "EnterOptionsDialog.AutoLayout.MoveNotes.ToolTip",
+            props.isAutoLayoutMoveNotes(),
+            lastAutoLayoutControl,
+            margin);
+
+    ExpandItem autoLayoutItem = new ExpandItem(autoLayoutExpandBar, SWT.NONE);
+    autoLayoutItem.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Section.AutoLayout"));
+    autoLayoutItem.setControl(autoLayoutContent);
+    autoLayoutItem.setHeight(autoLayoutContent.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+    autoLayoutItem.setExpanded(true);
+
+    autoLayoutExpandBar.addListener(
+        SWT.Expand,
+        e ->
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
+                        wLookComp.layout();
+                        sLookComp.setMinHeight(wLookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    }));
+    autoLayoutExpandBar.addListener(
+        SWT.Collapse,
+        e ->
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
+                        wLookComp.layout();
+                        sLookComp.setMinHeight(wLookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    }));
+
+    lastControl = autoLayoutExpandBar;
+
     // Tables & grids section - using ExpandBar
     ExpandBar tablesExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
     PropsUi.setLook(tablesExpandBar);
@@ -1184,6 +1361,19 @@ public class ConfigGuiOptionsTab {
     props.setLineWidth(Const.toInt(wLineWidth.getText(), props.getLineWidth()));
     props.setMiddlePct(Const.toInt(wMiddlePct.getText(), props.getMiddlePct()));
     props.setCanvasGridSize(Const.toInt(wGridSize.getText(), 1));
+    int directionIndex = wAutoLayoutDirection.getSelectionIndex();
+    if (directionIndex < 0 || directionIndex >= AUTO_LAYOUT_DIRECTION_CODES.length) {
+      directionIndex = 0;
+    }
+    props.setAutoLayoutDirection(AUTO_LAYOUT_DIRECTION_CODES[directionIndex]);
+    props.setAutoLayoutLayerSpacing(
+        Const.toInt(wAutoLayoutLayerSpacing.getText(), props.getAutoLayoutLayerSpacing()));
+    props.setAutoLayoutNodeSpacing(
+        Const.toInt(wAutoLayoutNodeSpacing.getText(), props.getAutoLayoutNodeSpacing()));
+    props.setAutoLayoutCrossingIterations(
+        Const.toInt(
+            wAutoLayoutCrossingIterations.getText(), props.getAutoLayoutCrossingIterations()));
+    props.setAutoLayoutMoveNotes(wAutoLayoutMoveNotes.getSelection());
     props.setGlobalZoomFactor(Const.toDouble(wGlobalZoom.getText().replace("%", ""), 100) / 100);
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
     props.setHideViewportEnabled(
@@ -1296,6 +1486,29 @@ public class ConfigGuiOptionsTab {
    * @param margin The margin to use
    * @return An array containing [Label, Text] controls
    */
+  /** Expand or collapse every section (ExpandBar) on the Look &amp; Feel tab and relayout. */
+  private void setAllSectionsExpanded(
+      Composite lookComp, ScrolledComposite scrolled, boolean expanded) {
+    for (Control c : lookComp.getChildren()) {
+      if (c instanceof ExpandBar) {
+        for (ExpandItem item : ((ExpandBar) c).getItems()) {
+          item.setExpanded(expanded);
+        }
+      }
+    }
+    lookComp.layout();
+    scrolled.setMinHeight(lookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+  }
+
+  /** Reject any change that would make the text field contain something other than digits. */
+  private void verifyNumber(Event e) {
+    String currentText = ((Text) e.widget).getText();
+    String newText = currentText.substring(0, e.start) + e.text + currentText.substring(e.end);
+    if (!newText.isEmpty() && !newText.matches("\\d+")) {
+      e.doit = false;
+    }
+  }
+
   private org.eclipse.swt.widgets.Control[] createTextField(
       Composite parent,
       String labelKey,

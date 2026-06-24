@@ -149,6 +149,7 @@ import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.WorkflowMetaLayout;
 import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -177,6 +178,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -219,6 +221,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
       "HopGuiWorkflowGraph-ToolBar-10530-Zoom-To-Fit";
+  public static final String TOOLBAR_ITEM_AUTO_LAYOUT =
+      "HopGuiWorkflowGraph-ToolBar-10535-Auto-Layout";
 
   public static final String TOOLBAR_ITEM_DESIGN_ENGINE =
       "HopGuiWorkflowGraph-ToolBar-10550-Design-Engine";
@@ -1729,6 +1733,97 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     super.zoomFitToScreen();
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_AUTO_LAYOUT,
+      toolTip = "i18n::HopGuiWorkflowGraph.GuiAction.AutoLayout.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/auto-layout.svg")
+  public void autoLayoutWorkflow(Event e) {
+    // Click arranges the whole graph; Shift-click arranges only the selected actions.
+    boolean selectionOnly = e != null && (e.stateMask & SWT.SHIFT) != 0;
+    applyAutoLayout(selectionOnly);
+  }
+
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'l')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'l')
+  public void autoLayoutWorkflowShortcut() {
+    applyAutoLayout(false);
+  }
+
+  /**
+   * Auto-layout the workflow, recording all the moves as a single undo action.
+   *
+   * @param selectionOnly when true only the selected actions are arranged (anchored to where the
+   *     selection was); otherwise the whole workflow is arranged.
+   */
+  private void applyAutoLayout(boolean selectionOnly) {
+    List<ActionMeta> subset = null;
+    List<ActionMeta> moving;
+    if (selectionOnly) {
+      subset = workflowMeta.getSelectedActions();
+      if (subset == null || subset.size() < 2) {
+        return; // Nothing meaningful to arrange.
+      }
+      moving = new ArrayList<>(subset);
+    } else {
+      int n = workflowMeta.nrActions();
+      if (n == 0) {
+        return;
+      }
+      moving = new ArrayList<>(n);
+      for (int i = 0; i < n; i++) {
+        moving.add(workflowMeta.getAction(i));
+      }
+    }
+
+    // Auto-layout may also reposition notes; capture them so the whole thing is one undo step.
+    List<NotePadMeta> notes = new ArrayList<>(workflowMeta.getNotes());
+    Point[] notesBefore = captureNoteLocations(notes);
+
+    Point[] before = captureLocations(moving);
+    WorkflowMetaLayout.layout(workflowMeta, PropsUi.getInstance().getAutoLayoutOptions(), subset);
+    Point[] after = captureLocations(moving);
+    Point[] notesAfter = captureNoteLocations(notes);
+
+    // Record notes first, then actions, linked into a single undo action (nextAlso).
+    boolean also = false;
+    if (!notes.isEmpty()) {
+      also = true;
+      hopGui.undoDelegate.addUndoPosition(
+          workflowMeta,
+          notes.toArray(new NotePadMeta[0]),
+          workflowMeta.getNoteIndexes(notes),
+          notesBefore,
+          notesAfter,
+          also);
+    }
+    int[] indexes = workflowMeta.getActionIndexes(moving);
+    hopGui.undoDelegate.addUndoPosition(
+        workflowMeta, moving.toArray(new ActionMeta[0]), indexes, before, after, also);
+
+    workflowMeta.setChanged();
+    updateGui();
+  }
+
+  private static Point[] captureLocations(List<ActionMeta> actions) {
+    Point[] points = new Point[actions.size()];
+    for (int i = 0; i < actions.size(); i++) {
+      Point p = actions.get(i).getLocation();
+      points[i] = new Point(p.x, p.y);
+    }
+    return points;
+  }
+
+  private static Point[] captureNoteLocations(List<NotePadMeta> notes) {
+    Point[] points = new Point[notes.size()];
+    for (int i = 0; i < notes.size(); i++) {
+      Point p = notes.get(i).getLocation();
+      points[i] = new Point(p.x, p.y);
+    }
+    return points;
+  }
+
   /**
    * Lets the user pick which workflow engine they are designing for. The selection persists across
    * Hop restarts and the right-click palette filters out actions the engine marks UNSUPPORTED.
@@ -2377,6 +2472,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       categoryOrder = "1")
   public void editWorkflowProperties(HopGuiWorkflowContext context) {
     editProperties(workflowMeta, hopGui, true);
+  }
+
+  @GuiContextAction(
+      id = "workflow-graph-zzz-auto-layout",
+      parentId = HopGuiWorkflowContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.AutoLayout.Name",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.AutoLayout.Tooltip",
+      image = "ui/images/auto-layout.svg",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
+      categoryOrder = "1",
+      keywords = {"auto", "layout", "arrange", "align", "tidy", "sugiyama"})
+  public void autoLayout(HopGuiWorkflowContext context) {
+    applyAutoLayout(false);
   }
 
   @GuiToolbarElement(

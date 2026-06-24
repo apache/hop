@@ -25,6 +25,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.IGuiSize;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.layout.LayeredGraphLayout;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.history.AuditManager;
@@ -72,6 +73,11 @@ public class PropsUi extends Props {
   private static final String HIDE_MENU_BAR = "HideMenuBar";
   private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
+  private static final String AUTO_LAYOUT_DIRECTION = "AutoLayoutDirection";
+  private static final String AUTO_LAYOUT_LAYER_SPACING = "AutoLayoutLayerSpacing";
+  private static final String AUTO_LAYOUT_NODE_SPACING = "AutoLayoutNodeSpacing";
+  private static final String AUTO_LAYOUT_CROSSING_ITERATIONS = "AutoLayoutCrossingIterations";
+  private static final String AUTO_LAYOUT_MOVE_NOTES = "AutoLayoutMoveNotes";
   private static final String LEGACY_PERSPECTIVE_MODE = "LegacyPerspectiveMode";
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
@@ -1163,6 +1169,73 @@ public class PropsUi extends Props {
 
   public void setCanvasGridSize(int gridSize) {
     setProperty(CANVAS_GRID_SIZE, Integer.toString(gridSize));
+  }
+
+  /**
+   * The auto-layout flow direction, as a {@link
+   * org.apache.hop.core.layout.LayeredGraphLayout.Direction} name. Defaults to {@code LEFT_RIGHT}.
+   */
+  public String getAutoLayoutDirection() {
+    return getProperty(AUTO_LAYOUT_DIRECTION, "LEFT_RIGHT");
+  }
+
+  public void setAutoLayoutDirection(String direction) {
+    setProperty(AUTO_LAYOUT_DIRECTION, direction);
+  }
+
+  /** Auto-layout distance between consecutive layers, along the flow direction. */
+  public int getAutoLayoutLayerSpacing() {
+    return Const.toInt(
+        getProperty(AUTO_LAYOUT_LAYER_SPACING, ""), LayeredGraphLayout.DEFAULT_X_SPACING);
+  }
+
+  public void setAutoLayoutLayerSpacing(int spacing) {
+    setProperty(AUTO_LAYOUT_LAYER_SPACING, Integer.toString(spacing));
+  }
+
+  /** Auto-layout distance between nodes within a layer, perpendicular to the flow direction. */
+  public int getAutoLayoutNodeSpacing() {
+    return Const.toInt(
+        getProperty(AUTO_LAYOUT_NODE_SPACING, ""), LayeredGraphLayout.DEFAULT_Y_SPACING);
+  }
+
+  public void setAutoLayoutNodeSpacing(int spacing) {
+    setProperty(AUTO_LAYOUT_NODE_SPACING, Integer.toString(spacing));
+  }
+
+  /** Auto-layout number of barycenter crossing-reduction sweeps. */
+  public int getAutoLayoutCrossingIterations() {
+    return Const.toInt(
+        getProperty(AUTO_LAYOUT_CROSSING_ITERATIONS, ""), LayeredGraphLayout.DEFAULT_ITERATIONS);
+  }
+
+  public void setAutoLayoutCrossingIterations(int iterations) {
+    setProperty(AUTO_LAYOUT_CROSSING_ITERATIONS, Integer.toString(iterations));
+  }
+
+  /** Whether auto-layout moves notes along with the node they sit closest to. Defaults to true. */
+  public boolean isAutoLayoutMoveNotes() {
+    return YES.equalsIgnoreCase(getProperty(AUTO_LAYOUT_MOVE_NOTES, YES));
+  }
+
+  public void setAutoLayoutMoveNotes(boolean moveNotes) {
+    setProperty(AUTO_LAYOUT_MOVE_NOTES, moveNotes ? YES : NO);
+  }
+
+  /** Build layout options from the stored auto-layout preferences. */
+  public LayeredGraphLayout.Options getAutoLayoutOptions() {
+    LayeredGraphLayout.Direction direction;
+    try {
+      direction = LayeredGraphLayout.Direction.valueOf(getAutoLayoutDirection());
+    } catch (IllegalArgumentException e) {
+      direction = LayeredGraphLayout.Direction.LEFT_RIGHT;
+    }
+    return new LayeredGraphLayout.Options()
+        .setDirection(direction)
+        .setLayerSpacing(getAutoLayoutLayerSpacing())
+        .setNodeSpacing(getAutoLayoutNodeSpacing())
+        .setCrossingIterations(getAutoLayoutCrossingIterations())
+        .setMoveNotes(isAutoLayoutMoveNotes());
   }
 
   /**
