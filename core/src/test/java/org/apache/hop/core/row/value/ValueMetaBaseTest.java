@@ -647,6 +647,29 @@ class ValueMetaBaseTest {
   }
 
   @Test
+  void testCompareBinaryUnsignedAndLength() throws HopValueException {
+    IValueMeta binaryMeta = new ValueMetaBinary("hash");
+
+    // Unsigned byte comparison: 0xFF (255) > 0x00 (0)
+    byte[] highByte = new byte[] {(byte) 0xFF};
+    byte[] lowByte = new byte[] {0};
+    assertEquals(1, binaryMeta.compare(highByte, lowByte));
+    assertEquals(-1, binaryMeta.compare(lowByte, highByte));
+
+    // Compare common prefix before length (matches PostgreSQL bytea ORDER BY)
+    byte[] shorterHigher = new byte[] {2};
+    byte[] longerLower = new byte[] {1, 0};
+    assertEquals(1, binaryMeta.compare(shorterHigher, longerLower));
+    assertEquals(-1, binaryMeta.compare(longerLower, shorterHigher));
+
+    // Shorter value is smaller when it is a prefix of the longer value
+    byte[] prefix = new byte[] {1, 2, 3};
+    byte[] extended = new byte[] {1, 2, 3, 4};
+    assertEquals(-1, binaryMeta.compare(prefix, extended));
+    assertEquals(1, binaryMeta.compare(extended, prefix));
+  }
+
+  @Test
   void testDateParsing8601() throws Exception {
     ValueMetaDate dateMeta = new ValueMetaDate("date");
     dateMeta.setDateFormatLenient(false);
