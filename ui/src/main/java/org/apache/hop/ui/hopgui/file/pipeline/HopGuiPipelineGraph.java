@@ -103,6 +103,7 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineMetaLayout;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -205,6 +206,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -254,6 +256,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "HopGuiPipelineGraph-ToolBar-10530-Zoom-100Pct";
   public static final String TOOLBAR_ITEM_ZOOM_TO_FIT =
       "HopGuiPipelineGraph-ToolBar-10540-Zoom-To-Fit";
+  public static final String TOOLBAR_ITEM_AUTO_LAYOUT =
+      "HopGuiPipelineGraph-ToolBar-10545-Auto-Layout";
 
   public static final String TOOLBAR_ITEM_DESIGN_ENGINE =
       "HopGuiPipelineGraph-ToolBar-10550-Design-Engine";
@@ -2196,6 +2200,99 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     super.zoom100Percent();
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_AUTO_LAYOUT,
+      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.AutoLayout.Tooltip",
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/auto-layout.svg")
+  public void autoLayoutPipeline(Event e) {
+    // Click arranges the whole graph; Shift-click arranges only the selected transforms.
+    boolean selectionOnly = e != null && (e.stateMask & SWT.SHIFT) != 0;
+    applyAutoLayout(selectionOnly);
+  }
+
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'l')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'l')
+  public void autoLayoutPipelineShortcut() {
+    applyAutoLayout(false);
+  }
+
+  /**
+   * Auto-layout the pipeline, recording all the moves as a single undo action.
+   *
+   * @param selectionOnly when true only the selected transforms are arranged (anchored to where the
+   *     selection was); otherwise the whole pipeline is arranged.
+   */
+  private void applyAutoLayout(boolean selectionOnly) {
+    selectionRegion = null;
+
+    List<TransformMeta> subset = null;
+    List<TransformMeta> moving;
+    if (selectionOnly) {
+      subset = pipelineMeta.getSelectedTransforms();
+      if (subset == null || subset.size() < 2) {
+        return; // Nothing meaningful to arrange.
+      }
+      moving = new ArrayList<>(subset);
+    } else {
+      int n = pipelineMeta.nrTransforms();
+      if (n == 0) {
+        return;
+      }
+      moving = new ArrayList<>(n);
+      for (int i = 0; i < n; i++) {
+        moving.add(pipelineMeta.getTransform(i));
+      }
+    }
+
+    // Auto-layout may also reposition notes; capture them so the whole thing is one undo step.
+    List<NotePadMeta> notes = new ArrayList<>(pipelineMeta.getNotes());
+    Point[] notesBefore = captureNoteLocations(notes);
+
+    Point[] before = captureLocations(moving);
+    PipelineMetaLayout.layout(pipelineMeta, PropsUi.getInstance().getAutoLayoutOptions(), subset);
+    Point[] after = captureLocations(moving);
+    Point[] notesAfter = captureNoteLocations(notes);
+
+    // Record notes first, then transforms, linked into a single undo action (nextAlso).
+    boolean also = false;
+    if (!notes.isEmpty()) {
+      also = true;
+      hopGui.undoDelegate.addUndoPosition(
+          pipelineMeta,
+          notes.toArray(new NotePadMeta[0]),
+          pipelineMeta.getNoteIndexes(notes),
+          notesBefore,
+          notesAfter,
+          also);
+    }
+    int[] indexes = pipelineMeta.getTransformIndexes(moving);
+    hopGui.undoDelegate.addUndoPosition(
+        pipelineMeta, moving.toArray(new TransformMeta[0]), indexes, before, after, also);
+
+    pipelineMeta.setChanged();
+    updateGui();
+  }
+
+  private static Point[] captureLocations(List<TransformMeta> transforms) {
+    Point[] points = new Point[transforms.size()];
+    for (int i = 0; i < transforms.size(); i++) {
+      Point p = transforms.get(i).getLocation();
+      points[i] = new Point(p.x, p.y);
+    }
+    return points;
+  }
+
+  private static Point[] captureNoteLocations(List<NotePadMeta> notes) {
+    Point[] points = new Point[notes.size()];
+    for (int i = 0; i < notes.size(); i++) {
+      Point p = notes.get(i).getLocation();
+      points[i] = new Point(p.x, p.y);
+    }
+    return points;
+  }
+
   public List<String> getZoomLevels() {
     return Arrays.asList(PipelinePainter.magnificationDescriptions);
   }
@@ -3224,6 +3321,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           pipelineMeta, new NotePadMeta[] {context.getNotePadMeta().clone()}, new int[] {idx});
       updateGui();
     }
+  }
+
+  @GuiContextAction(
+      id = "pipeline-graph-zzz-auto-layout",
+      parentId = HopGuiPipelineContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.ContextualAction.AutoLayout.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.ContextualAction.AutoLayout.Tooltip",
+      image = "ui/images/auto-layout.svg",
+      category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Basic.Text",
+      categoryOrder = "1",
+      keywords = {"auto", "layout", "arrange", "align", "tidy", "sugiyama"})
+  public void autoLayout(HopGuiPipelineContext context) {
+    applyAutoLayout(false);
   }
 
   @GuiContextAction(

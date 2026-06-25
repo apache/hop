@@ -29,6 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 public class BaseGuiWidgets {
@@ -211,6 +212,15 @@ public class BaseGuiWidgets {
 
         Object guiPluginInstance =
             findGuiPluginInstance(classLoader, listenerClassName, instanceId);
+        // Prefer a method that accepts the SWT Event (e.g. to read modifier keys such as Shift).
+        try {
+          Method withEvent =
+              guiPluginInstance.getClass().getDeclaredMethod(listenerMethodName, Event.class);
+          withEvent.invoke(guiPluginInstance, e);
+          return;
+        } catch (NoSuchMethodException noEventMethod) {
+          // Fall back to the standard no-argument method.
+        }
         Method listenerMethod = guiPluginInstance.getClass().getDeclaredMethod(listenerMethodName);
         listenerMethod.invoke(guiPluginInstance);
 

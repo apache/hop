@@ -49,4 +49,6 @@ image::getting-started/getting-started-pipeline-toolbar.png[Hop - Pipeline Toolb
 |||
 |distribute horizontally|image:getting-started/icons/distribute-horizontally.svg[Distribute Horizontally,25px,align="bottom"]|Distribute the selected transforms evenly between the left-most and right-most transform in your selection
 |distribute vertically|image:getting-started/icons/distribute-vertically.svg[Distribute Vertically,25px,align="bottom"]|Distribute the selected transforms evenly between the top-most and bottom-most transform in your selection
+|||
+|arrange (auto-layout)|image:getting-started/icons/auto-layout.svg[Auto-layout,25px,align="bottom"]|automatically arrange the transforms into a clean, layered left-to-right layout with no overlaps. Click (or `Ctrl/Cmd+Shift+L`) arranges the whole pipeline; Shift-click arranges only the selected transforms, keeping the rest in place. The whole operation is a single undo step. Notes are moved along with the transform they sit closest to (notes that aren't near any transform are left in place); this can be turned off. The layout direction, spacing, crossing-reduction iterations and note behaviour can be tuned in the xref:hop-gui/perspective-configuration.adoc[configuration perspective] (Auto-layout section).
 |===
