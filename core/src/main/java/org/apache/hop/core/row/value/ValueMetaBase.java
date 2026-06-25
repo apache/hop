@@ -4272,22 +4272,7 @@ public class ValueMetaBase implements IValueMeta {
         break;
 
       case TYPE_BINARY:
-        byte[] b1 = (byte[]) data1;
-        byte[] b2 = (byte[]) data2;
-
-        int byteLength = Math.min(b1.length, b2.length);
-
-        cmp = b1.length - b2.length;
-        if (cmp == 0) {
-          for (int i = 0; i < byteLength; i++) {
-            cmp = b1[i] - b2[i];
-            if (cmp != 0) {
-              cmp = cmp < 0 ? -1 : 1;
-              break;
-            }
-          }
-        }
-
+        cmp = Integer.signum(Arrays.compareUnsigned((byte[]) data1, (byte[]) data2));
         break;
       default:
         throw new HopValueException(
