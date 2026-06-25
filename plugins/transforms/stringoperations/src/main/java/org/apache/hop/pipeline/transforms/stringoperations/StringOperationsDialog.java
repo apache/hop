@@ -95,7 +95,7 @@ public class StringOperationsDialog extends BaseTransformDialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKey,
-            1,
+            input.getOperations().size(),
             lsMod,
             props);
 
@@ -250,6 +250,7 @@ public class StringOperationsDialog extends BaseTransformDialog {
       item.setText(11, operation.getRemoveSpecialChars().getDescription());
     }
 
+    wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
   }
