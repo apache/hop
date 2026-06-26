@@ -229,7 +229,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
     // Get all the IDs from disk if we don't have it in the cache.
     //
-    retrieveIds(includeChildren, ids, limit, null);
+    retrieveIds(includeChildren, ids, limit, IExecutionSelector.ALL);
 
     // Reverse sort the IDs by date
     //
@@ -254,12 +254,13 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   @Override
   public List<String> findExecutionIDs(IExecutionSelector selector) throws HopException {
+    final IExecutionSelector activeSelector = selector == null ? IExecutionSelector.ALL : selector;
     Set<DatedId> dateIds = new HashSet<>();
 
-    if (selector.isSelectingByUuid()) {
+    if (activeSelector.isSelectingByUuid()) {
       // We try the cache and simply loading the file itself by ID.
       //
-      CacheEntry cacheEntry = loadCacheEntry(selector.filterText());
+      CacheEntry cacheEntry = loadCacheEntry(activeSelector.filterText());
       if (cacheEntry != null) {
         return List.of(cacheEntry.getId());
       }
@@ -267,11 +268,11 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
     // The data in the cache is the most recent, so we start with that.
     //
-    getExecutionIdsFromCache(dateIds, selector);
+    getExecutionIdsFromCache(dateIds, activeSelector);
 
     // Get all the IDs from disk if we don't have it in the cache.
     //
-    retrieveIds(!selector.isSelectingParents(), dateIds, 50, selector);
+    retrieveIds(!activeSelector.isSelectingParents(), dateIds, 50, activeSelector);
 
     // Reverse sort the IDs by date
     //

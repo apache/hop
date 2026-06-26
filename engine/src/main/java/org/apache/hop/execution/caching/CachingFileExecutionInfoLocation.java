@@ -137,6 +137,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
   protected void retrieveIds(
       boolean includeChildren, Set<DatedId> ids, int limit, final IExecutionSelector selector)
       throws HopException {
+    final IExecutionSelector activeSelector = selector == null ? IExecutionSelector.ALL : selector;
     try {
       FileObject[] files = getAllFileObjects(actualRootFolder);
 
@@ -146,7 +147,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
         // We do a first filtering on the modification date
         // This is probably the execution end date, so we add an hour.
         //
-        LastPeriod dateFilter = selector.startDateFilter();
+        LastPeriod dateFilter = activeSelector.startDateFilter();
         if (dateFilter != null) {
           LocalDateTime roughStartDate = dateFilter.calculateStartDate().minusHours(1);
           long startDate =
@@ -165,10 +166,10 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           // Not much loaded from disk or cache
           continue;
         }
-        if (!selector.isSelected(entry.getExecution())) {
+        if (!activeSelector.isSelected(entry.getExecution())) {
           continue;
         }
-        if (!selector.isSelected(entry.getExecutionState())) {
+        if (!activeSelector.isSelected(entry.getExecutionState())) {
           continue;
         }
 
