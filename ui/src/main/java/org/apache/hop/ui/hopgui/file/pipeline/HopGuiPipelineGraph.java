@@ -83,6 +83,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.ExecutorUtil;
@@ -345,7 +346,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private PipelineHopMeta lastHopSplit;
 
-  private org.apache.hop.core.gui.Rectangle selectionRegion;
+  private Rectangle selectionRegion;
 
   @Getter @Setter private List<ICheckResult> remarks;
 
@@ -953,7 +954,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       //
       canvas.setData("mode", "select");
       if (!control && event.button == 1) {
-        selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
+        selectionRegion = new Rectangle(real.x, real.y, 0, 0);
         // Change cursor when selecting a region
         setCursor(getDisplay().getSystemCursor(SWT.CURSOR_CROSS));
       }
@@ -2387,7 +2388,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       toolBarWidgets = new GuiToolbarWidgets();
       toolBarWidgets.registerGuiPluginObject(this);
       toolBarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
-      if (org.apache.hop.ui.hopgui.PaletteEngineFilter.shouldShowPipelineComboFilter()) {
+      if (PaletteEngineFilter.shouldShowPipelineComboFilter()) {
         setDesignEngineComboFromConfig();
       } else {
         disposeDesignEngineToolbarItem();
@@ -2592,6 +2593,40 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             .getPlugin(TransformPluginType.class, context.getTransformMeta().getPluginId());
 
     HelpUtils.openHelp(getShell(), plugin);
+  }
+
+  @GuiContextAction(
+      id = "pipeline-graph-transform-11000-layout-check",
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Info,
+      name = "Layout Check",
+      tooltip = "Check that the row layouts of all previous transforms are identical",
+      image = "ui/images/check.svg",
+      category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Routing.Text",
+      categoryOrder = "1")
+  public void layoutCheck(HopGuiPipelineTransformContext context) {
+    pipelineHopDelegate.checkLayoutOfTransformInput(
+        context.getTransformMeta(), context.getPipelineMeta());
+  }
+
+  public boolean isLayoutIdentical(IRowMeta rm1, IRowMeta rm2) {
+    if (rm1 == null || rm2 == null) {
+      return rm1 == rm2;
+    }
+    if (rm1.size() != rm2.size()) {
+      return false;
+    }
+    for (int i = 0; i < rm1.size(); i++) {
+      IValueMeta vm1 = rm1.getValueMeta(i);
+      IValueMeta vm2 = rm2.getValueMeta(i);
+      if (!vm1.getName().equalsIgnoreCase(vm2.getName())) {
+        return false;
+      }
+      if (vm1.getType() != vm2.getType()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @GuiContextAction(
