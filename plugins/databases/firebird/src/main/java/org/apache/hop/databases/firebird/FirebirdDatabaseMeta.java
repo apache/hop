@@ -17,10 +17,12 @@
 
 package org.apache.hop.databases.firebird;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -65,6 +67,20 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   @Override
   public String getDriverClass() {
     return "org.firebirdsql.jdbc.FBDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("org.firebirdsql.jdbc:jaybird")
+        .defaultVersion("6.0.5")
+        .licenseCategory("X")
+        .licenseName("LGPL-2.1")
+        .licenseUrl("https://github.com/FirebirdSQL/jaybird/blob/master/LICENSE")
+        .vendor("Firebird (Jaybird)")
+        .vendorUrl("https://firebirdsql.org/en/jdbc-driver/")
+        .excludes(List.of("org.jspecify:jspecify"))
+        .build();
   }
 
   @Override

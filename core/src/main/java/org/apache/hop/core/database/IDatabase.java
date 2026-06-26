@@ -264,6 +264,18 @@ public interface IDatabase extends Cloneable {
   String getDriverClass();
 
   /**
+   * Optional descriptor that lets Hop download this database's JDBC driver on demand. The default
+   * is {@code null}, meaning there is no downloadable driver. Database plugins - including
+   * external, third-party ones - override this to point Hop at their driver's Maven coordinate and
+   * license, so the driver definition lives next to the rest of the database metadata.
+   *
+   * @return the driver download descriptor, or {@code null} when none is available
+   */
+  default DriverDownload getDriverDownload() {
+    return null;
+  }
+
+  /**
    * @param hostname the hostname
    * @param port the port as a string
    * @param databaseName the database name

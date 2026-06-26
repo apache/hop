@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 2.7.4
+|Install | `hop driver install hypersonic`
 |Hop Dependencies | None
 |Documentation | http://hsqldb.org/doc/2.0/guide/dbproperties-chapt.html[Documentation Link]
 |JDBC Url | jdbc:hsqldb:hsql//hostname
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

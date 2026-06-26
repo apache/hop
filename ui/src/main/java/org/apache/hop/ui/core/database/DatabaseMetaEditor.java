@@ -32,6 +32,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.DatabaseTestResults;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
@@ -88,6 +89,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private Text wName;
   private Combo wConnectionType;
   private Label wDriverInfo;
+  private Button wbDownloadDriver;
   private TextVar wManualUrl;
   private Label wlUsername;
   private TextVar wUsername;
@@ -340,15 +342,27 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlDriverInfo.right = new FormAttachment(middle, -margin);
     wlDriverInfo.setLayoutData(fdlDriverInfo);
 
+    // "Download driver" button - shown only when the selected database type has a downloadable
+    // driver in the catalog that isn't installed yet (toggled in updateDriverInfo()).
+    wbDownloadDriver = new Button(wGeneralComp, SWT.PUSH);
+    PropsUi.setLook(wbDownloadDriver);
+    wbDownloadDriver.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.DownloadDriver"));
+    FormData fdDownloadDriver = new FormData();
+    fdDownloadDriver.top = new FormAttachment(wlDriverInfo, 0, SWT.CENTER);
+    fdDownloadDriver.right = new FormAttachment(100, 0);
+    wbDownloadDriver.setLayoutData(fdDownloadDriver);
+    wbDownloadDriver.addListener(SWT.Selection, e -> downloadDriver());
+    wbDownloadDriver.setVisible(false);
+
     wDriverInfo = new Label(wGeneralComp, SWT.LEFT);
     wDriverInfo.setEnabled(false);
     PropsUi.setLook(wDriverInfo);
     FormData fdDriverInfo = new FormData();
     fdDriverInfo.top = new FormAttachment(wlDriverInfo, 0, SWT.CENTER);
     fdDriverInfo.left = new FormAttachment(middle, 0);
-    fdDriverInfo.right = new FormAttachment(100, 0);
+    fdDriverInfo.right = new FormAttachment(wbDownloadDriver, -margin);
     wDriverInfo.setLayoutData(fdDriverInfo);
-    lastControl = wDriverInfo;
+    lastControl = wbDownloadDriver;
 
     // Username field - only create if not excluded
     //
@@ -1194,22 +1208,66 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   protected void updateDriverInfo() {
     String driverName;
     String driverVersion = null;
+    boolean driverLoaded = false;
+    IDatabase database = null;
     try {
       DatabaseMeta databaseMeta = new DatabaseMeta();
       this.getWidgetsContent(databaseMeta);
+      database = databaseMeta.getIDatabase();
 
       driverName = databaseMeta.getDriverClass(getVariables());
       if (!Utils.isEmpty(driverName)) {
-        ClassLoader classLoader = databaseMeta.getIDatabase().getClass().getClassLoader();
+        ClassLoader classLoader = database.getClass().getClassLoader();
         Class<? extends Driver> driverClass =
             classLoader.loadClass(driverName).asSubclass(Driver.class);
         driverVersion = getDriverVersion(driverClass);
+        driverLoaded = true;
       }
     } catch (Exception e) {
       driverName = "No driver installed";
     }
 
     wDriverInfo.setText(driverName + (driverVersion != null ? " (" + driverVersion + ")" : ""));
+    updateDownloadButton(database, driverLoaded);
+  }
+
+  /**
+   * Show the "Download driver" button only when the selected database type declares a downloadable
+   * driver ({@link IDatabase#getDriverDownload()}) and that driver isn't loadable yet.
+   */
+  private void updateDownloadButton(IDatabase database, boolean driverLoaded) {
+    if (wbDownloadDriver == null || wbDownloadDriver.isDisposed()) {
+      return;
+    }
+    boolean show = !driverLoaded && database != null && database.getDriverDownload() != null;
+    wbDownloadDriver.setVisible(show);
+  }
+
+  /** Download + install the JDBC driver for the currently selected database type. */
+  private void downloadDriver() {
+    try {
+      DatabaseMeta databaseMeta = new DatabaseMeta();
+      this.getWidgetsContent(databaseMeta);
+      IDatabase database = databaseMeta.getIDatabase();
+      DriverDownload download = database == null ? null : database.getDriverDownload();
+      if (download == null) {
+        return;
+      }
+      JdbcDriverDownloadDialog dialog =
+          new JdbcDriverDownloadDialog(
+              getShell(), databaseMeta.getPluginId(), databaseMeta.getPluginName(), download);
+      if (dialog.open()) {
+        // The dialog hot-loads the driver into the plugin classloader, so refresh the label - it
+        // may already be available without a restart.
+        updateDriverInfo();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "JdbcDriverDownloadDialog.Error.Title"),
+          BaseMessages.getString(PKG, "JdbcDriverDownloadDialog.Error.Generic"),
+          e);
+    }
   }
 
   /**

@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -49,6 +50,19 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getDriverClass() {
     return "org.hsqldb.jdbcDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("org.hsqldb:hsqldb")
+        .defaultVersion("2.7.4")
+        .licenseCategory("A")
+        .licenseName("BSD-3-Clause (HSQLDB License)")
+        .licenseUrl("https://hsqldb.org/web/hsqlLicense.html")
+        .vendor("HSQLDB")
+        .vendorUrl("https://hsqldb.org/")
+        .build();
   }
 
   @Override

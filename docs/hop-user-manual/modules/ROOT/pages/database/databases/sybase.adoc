@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included in Database installation
-|Version Included | None
+|Install | `hop driver install sybase --accept-license`
 |Hop Dependencies | None
 |Documentation | http://jtds.sourceforge.net/faq.html[Documentation Link]
 |JDBC Url | jdbc:jtds:sybase://<server>[:<port>][/<database>][;<property>=<value>[;...]]
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

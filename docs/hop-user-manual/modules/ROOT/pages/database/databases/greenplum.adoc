@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/datadirect-datadirect_jdbc.html
-|Version Included | None
+|Install | `hop driver install greenplum`
 |Hop Dependencies | Postgresql Plugin
 |Documentation | https://gpdb.docs.pivotal.io/590/datadirect/datadirect_jdbc.html[Documentation Link]
 |JDB Url | jdbc:pivotal:greenplum://host:port;DatabaseName=<name>
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

@@ -25,11 +25,9 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://docs.intersystems.com/latest/csp/docbook/DocBook.UI.Page.cls?KEY=BGJD_intro
-|Version Included | None
 |Hop Dependencies | None
 |Documentation | https://cedocs.intersystems.com/latest/csp/docbook/DocBook.UI.Page.cls?KEY=BGJD[Documentation Link]
 |JDBC Url  | jdbc:Cache://hostname:1972/database
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 NOTE: Old driver connection, prefer new InterSystems Iris connection.

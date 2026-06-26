@@ -23,6 +23,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.SqlScriptParser;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -102,6 +103,19 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "oracle.jdbc.driver.OracleDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.oracle.database.jdbc:ojdbc11")
+        .defaultVersion("23.26.2.0.0")
+        .licenseCategory("X")
+        .licenseName("Oracle Free Use Terms and Conditions (OTN)")
+        .licenseUrl("https://www.oracle.com/downloads/licenses/oracle-free-license.html")
+        .vendor("Oracle")
+        .vendorUrl("https://www.oracle.com/database/technologies/appdev/jdbc.html")
+        .build();
   }
 
   @Override

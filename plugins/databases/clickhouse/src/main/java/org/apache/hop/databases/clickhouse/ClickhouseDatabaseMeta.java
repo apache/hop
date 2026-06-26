@@ -18,11 +18,13 @@
 
 package org.apache.hop.databases.clickhouse;
 
+import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -61,6 +63,20 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getDriverClass() {
     return "com.clickhouse.jdbc.ClickHouseDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.clickhouse:clickhouse-jdbc:jar:all")
+        .defaultVersion("0.9.8")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://github.com/ClickHouse/clickhouse-java/blob/main/LICENSE")
+        .vendor("ClickHouse")
+        .vendorUrl("https://clickhouse.com/docs/integrations/java")
+        .excludes(List.of("*:*"))
+        .build();
   }
 
   @Override

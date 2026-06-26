@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 2.7.0
+|Install | `hop driver install cratedb`
 |Hop Dependencies | None
 |Documentation | https://cratedb.com/docs/jdbc/en/latest/index.html[Documentation Link]
 |JDBC Url  | jdbc:crate://host:port/database
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

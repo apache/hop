@@ -25,11 +25,10 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://dev.mysql.com/downloads/connector/j/[Driver Link] (Use Platform Independent)
-|Version Included | None
+|Install | `hop driver install mysql --accept-license`
 |Hop Dependencies | None
 |Documentation | https://dev.mysql.com/doc/connector-j/8.0/en/[Documentation Link]
 |JDBC Url | jdbc:mysql://hostname:3306/databaseName
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 **Important:** When creating a connection for mysql make sure you select the correct "database type". +

@@ -27,11 +27,10 @@ under the License.
 | Feature | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 3.1.3
+|Install | `hop driver install hive`
 |Hop Dependencies | None
 |Documentation | https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Clients#HiveServer2Clients-JDBC[Documentation Link]
 |JDBC Url | jdbc:hive2://<host:port>,<host2:port2>/databaseName
-|Driver folder | Hop Installation/plugins/databases/hive/lib
 |===
 
 == Partitions

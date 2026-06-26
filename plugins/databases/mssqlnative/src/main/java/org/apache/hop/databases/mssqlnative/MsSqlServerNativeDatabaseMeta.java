@@ -23,6 +23,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -118,6 +119,20 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   @Override
   public String getDriverClass() {
     return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.microsoft.sqlserver:mssql-jdbc")
+        .defaultVersion("13.4.0.jre11")
+        .licenseCategory("A")
+        .licenseName("MIT")
+        .licenseUrl("https://github.com/microsoft/mssql-jdbc/blob/main/LICENSE")
+        .vendor("Microsoft")
+        .vendorUrl(
+            "https://learn.microsoft.com/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server")
+        .build();
   }
 
   @Override

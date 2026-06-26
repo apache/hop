@@ -17,7 +17,9 @@
 
 package org.apache.hop.databases.cratedb;
 
+import java.util.List;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
@@ -36,6 +38,20 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
   @Override
   public String getDriverClass() {
     return "io.crate.client.jdbc.CrateDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("io.crate:crate-jdbc")
+        .defaultVersion("2.7.0")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://github.com/crate/crate-jdbc/blob/master/LICENSE")
+        .vendor("CrateDB")
+        .vendorUrl("https://cratedb.com/docs/jdbc/")
+        .excludes(List.of("com.fasterxml.jackson.core:*", "com.google.guava:*", "org.slf4j:*"))
+        .build();
   }
 
   @Override

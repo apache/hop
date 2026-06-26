@@ -34,9 +34,8 @@ We suggest you place the driver JAR file either in the `lib/jdbc` folder or in t
 | Option | Info
 |Type | Relational
 |Driver | Download from the SingleStore website
-|Version Included | None
+|Install | `hop driver install singlestore --accept-license`
 |Hop Dependencies | None
 |Documentation | https://docs.singlestore.com/cloud/developer-resources/connect-with-application-development-tools/connect-with-java-jdbc/the-singlestore-jdbc-driver/[Documentation Link]
 |JDBC Url | jdbc:singlestore://<database_computer>[:<port>]/<database_name>
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

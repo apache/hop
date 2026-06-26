@@ -25,12 +25,11 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 10.17.1.0
+|Install | `hop driver install derby`
 |Hop Dependencies | None
 |Documentation | https://db.apache.org/derby/derby_downloads.html[Documentation Link]
 |JDBC Url | jdbc:derby:<host>[:<port>]/<database>
 |JDBC Url Embedded | jdbc:derby:<database>
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 NOTE: Derby JDBC driver has two different modes, if you want to use Derby Embbeded, replace the _derbyclient.jar_ file with _derby.jar_

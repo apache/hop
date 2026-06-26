@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -157,12 +158,23 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     };
   }
 
-  public String getDriverClassName() {
-    return driverClassName;
-  }
-
-  public void setDriverClassName(String driverClassName) {
-    this.driverClassName = driverClassName;
+  @Override
+  public DriverDownload getDriverDownload() {
+    // Only offer MySQL Connector/J for databases that actually use it (Doris, Infobright, ...).
+    String driverClass = getDriverClass();
+    if (driverClass == null || !driverClass.contains("mysql")) {
+      return null;
+    }
+    return DriverDownload.builder()
+        .mavenCoordinate("com.mysql:mysql-connector-j")
+        .defaultVersion("9.7.0")
+        .licenseCategory("X")
+        .licenseName("GPLv2 with Universal FOSS Exception")
+        .licenseUrl("https://github.com/mysql/mysql-connector-j/blob/release/9.x/LICENSE")
+        .vendor("Oracle / MySQL")
+        .vendorUrl("https://dev.mysql.com/downloads/connector/j/")
+        .excludes(List.of("com.google.protobuf:protobuf-java"))
+        .build();
   }
 
   @Override

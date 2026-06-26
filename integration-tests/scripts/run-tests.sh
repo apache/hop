@@ -31,6 +31,31 @@ if [ -z "${SUREFIRE_REPORT}" ]; then
   SUREFIRE_REPORT="true"
 fi
 
+# Install any JDBC drivers required by this test set, using the Hop driver-download CLI.
+# Driven by HOP_DRIVERS_DOWNLOAD (comma separated driver ids, each optionally with a version, e.g.
+# "vertica,mysql:9.2.0"), set per test in the integration-tests-*.yaml compose files. Restricted
+# (Category X) drivers need HOP_DRIVERS_ACCEPT_LICENSE=true (the default here for the test run).
+if [ -n "${HOP_DRIVERS_DOWNLOAD}" ]; then
+  ACCEPT_FLAG=""
+  case "${HOP_DRIVERS_ACCEPT_LICENSE:-true}" in
+  true | TRUE | True | Y | y | yes | YES | 1) ACCEPT_FLAG="--accept-license" ;;
+  *) ;;
+  esac
+  for DRIVER_SPEC in ${HOP_DRIVERS_DOWNLOAD//,/ }; do
+    DRIVER_ID="${DRIVER_SPEC%%:*}"
+    VERSION_FLAG=""
+    if [ "${DRIVER_SPEC}" != "${DRIVER_ID}" ]; then
+      VERSION_FLAG="--driver-version=${DRIVER_SPEC#*:}"
+    fi
+    echo "Installing JDBC driver for the tests: ${DRIVER_SPEC}"
+    # shellcheck disable=SC2086
+    if ! bash "${HOP_LOCATION}/hop" driver install "${DRIVER_ID}" ${VERSION_FLAG} ${ACCEPT_FLAG}; then
+      echo "ERROR: failed to install JDBC driver '${DRIVER_SPEC}'"
+      exit 1
+    fi
+  done
+fi
+
 # Ensure surefire-reports directory exists and is writable
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 chmod 777 "${CURRENT_DIR}"/../surefire-reports/ 2>/dev/null || true

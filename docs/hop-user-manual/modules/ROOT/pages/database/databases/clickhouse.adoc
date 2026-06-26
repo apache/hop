@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Columnar
 |Driver | Included
-|Version Included | 0.9.8
+|Install | `hop driver install clickhouse`
 |Hop Dependencies | None
 |Documentation | https://github.com/blynkkk/clickhouse4j[Documentation Link]
 |JDBC Url | jdbc:clickhouse://<host>:<port>[/<database>]
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

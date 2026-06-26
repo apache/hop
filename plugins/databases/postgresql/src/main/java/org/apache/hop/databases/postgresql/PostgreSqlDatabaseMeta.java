@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -74,6 +75,25 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public String getDriverClass() {
     return "org.postgresql.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    // Only offer the PostgreSQL driver for databases that actually use it. Subclasses that use a
+    // different JDBC driver (CrateDB, Redshift, ...) override getDriverClass() and declare their
+    // own.
+    if (!"org.postgresql.Driver".equals(getDriverClass())) {
+      return null;
+    }
+    return DriverDownload.builder()
+        .mavenCoordinate("org.postgresql:postgresql")
+        .defaultVersion("42.7.11")
+        .licenseCategory("A")
+        .licenseName("BSD-2-Clause")
+        .licenseUrl("https://jdbc.postgresql.org/about/license/")
+        .vendor("PostgreSQL Global Development Group")
+        .vendorUrl("https://jdbc.postgresql.org/")
+        .build();
   }
 
   @Override

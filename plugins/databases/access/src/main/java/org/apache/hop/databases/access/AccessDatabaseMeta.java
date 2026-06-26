@@ -17,10 +17,12 @@
 
 package org.apache.hop.databases.access;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -42,6 +44,20 @@ public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "net.ucanaccess.jdbc.UcanaccessDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("io.github.spannm:ucanaccess")
+        .defaultVersion("5.1.5")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://github.com/spannm/ucanaccess/blob/main/LICENSE")
+        .vendor("UCanAccess (spannm fork)")
+        .vendorUrl("https://github.com/spannm/ucanaccess")
+        .excludes(List.of("org.apache.poi:poi"))
+        .build();
   }
 
   @Override

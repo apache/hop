@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -56,6 +57,19 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     } else {
       return "org.apache.derby.client.ClientAutoloadedDriver";
     }
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("org.apache.derby:derbyclient")
+        .defaultVersion("10.17.1.0")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
+        .vendor("Apache Derby")
+        .vendorUrl("https://db.apache.org/derby/")
+        .build();
   }
 
   @Override

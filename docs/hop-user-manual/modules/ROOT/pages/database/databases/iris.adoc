@@ -25,9 +25,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://intersystems-community.github.io/iris-driver-distribution/[Driver Link]
-|Version Included | None
 |Hop Dependencies | None
 |Documentation | https://docs.intersystems.com/iris20223/csp/docbook/Doc.View.cls?KEY=BJAVA_connecting[Documentation Link]
 |JDBC Url  | jdbc:IRIS://hostname:port/database
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

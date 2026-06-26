@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -52,6 +53,19 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "com.ingres.jdbc.IngresDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.ingres.jdbc:iijdbc")
+        .defaultVersion("12.1-4.6.5")
+        .licenseCategory("X")
+        .licenseName("Actian Ingres JDBC License")
+        .licenseUrl("https://www.actian.com/")
+        .vendor("Actian Ingres")
+        .vendorUrl("https://docs.actian.com/")
+        .build();
   }
 
   @Override

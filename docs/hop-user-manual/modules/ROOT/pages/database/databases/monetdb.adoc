@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Column Store
 |Driver | Included
-|Version Included | 12.2
+|Install | `hop driver install monetdb`
 |Hop Dependencies | None
 |Documentation | https://www.monetdb.org/Documentation/Manuals/SQLreference/Programming/JDBC[Documentation Link]
 |JDBC Url |  jdbc:monetdb://hostname/databaseName
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

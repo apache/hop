@@ -24,6 +24,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -135,6 +136,20 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "org.apache.hive.jdbc.HiveDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("org.apache.hive:hive-jdbc:jar:standalone")
+        .defaultVersion("4.2.0")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
+        .vendor("Apache Hive")
+        .vendorUrl("https://hive.apache.org/")
+        .excludes(List.of("*:*"))
+        .build();
   }
 
   @Override

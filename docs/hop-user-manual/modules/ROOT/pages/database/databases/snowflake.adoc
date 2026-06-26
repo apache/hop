@@ -27,12 +27,11 @@ under the License.
 |===
 | Option | Info
 |Type | Relational
-|Driver | Included
-|Version Included | 4.3.0
+|Driver | Not bundled because of its size - install on demand
+|Install | `hop driver install snowflake`
 |Hop Dependencies | None
 |Documentation | https://docs.snowflake.net/manuals/user-guide/jdbc-configure.html[Documentation Link]
 |JDBC Url | `jdbc:snowflake://<account_name>.snowflakecomputing.com/?<connection_params>`
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 == Establishing a Snowflake SSL Authenticated Connection.

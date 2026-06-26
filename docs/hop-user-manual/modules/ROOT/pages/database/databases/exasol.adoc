@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://docs.exasol.com/db/latest/connect_exasol/drivers/jdbc.htm#JDBCDriver
-|Version Included | None
+|Install | `hop driver install exasol4 --accept-license`
 |Hop Dependencies | None
 |Documentation | https://docs.exasol.com/connect_exasol/drivers/jdbc.htm[Documentation Link]
 |JDBC Url | jdbc:exa:<server>:<port8563>
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

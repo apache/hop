@@ -22,6 +22,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -97,6 +98,19 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "com.exasol.jdbc.EXADriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.exasol:exasol-jdbc")
+        .defaultVersion("26.2.7")
+        .licenseCategory("X")
+        .licenseName("EXASOL License")
+        .licenseUrl("https://docs.exasol.com/db/latest/connect_exasol/drivers/jdbc.htm")
+        .vendor("Exasol")
+        .vendorUrl("https://www.exasol.com/")
+        .build();
   }
 
   @Override

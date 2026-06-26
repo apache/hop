@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -48,6 +49,20 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "com.vertica.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.vertica.jdbc:vertica-jdbc")
+        .defaultVersion("25.3.0-0")
+        .licenseCategory("X")
+        .licenseName("Vertica JDBC Driver License")
+        .licenseUrl(
+            "https://docs.vertica.com/latest/en/connecting-to/client-libraries/client-drivers/jdbc/")
+        .vendor("OpenText Vertica")
+        .vendorUrl("https://docs.vertica.com/")
+        .build();
   }
 
   @Override
