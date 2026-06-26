@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.gui.IGuiPosition;
+import org.apache.hop.core.gui.Point;
 
 /**
  * Reusable layered (Sugiyama-style) DAG auto-layout core, decoupled from any particular Hop model.
@@ -153,6 +155,112 @@ public final class LayeredGraphLayout {
       }
     }
     return best;
+  }
+
+  /**
+   * High-level layout over positioned model objects. Arranges {@code nodes} (indexed 0..n-1, with
+   * {@code edges} referring to those indices), writing the result back via {@link
+   * IGuiPosition#setLocation(int, int)}. Shared by the pipeline and workflow adapters.
+   *
+   * <p>When {@code anchorToOriginal} is true the arranged block is translated so its top-left lands
+   * where the supplied nodes originally were (used for "arrange selection only"). When {@link
+   * Options#isMoveNotes()} is set, each note in {@code notes} is moved along with the node it sits
+   * closest to (within one layer/node spacing); notes far from every node are left in place.
+   *
+   * @param nodes the nodes to arrange, in edge-index order
+   * @param edges directed edges as {@code int[]{fromIndex, toIndex}} into {@code nodes}
+   * @param notes free-floating items (e.g. notes) to optionally reposition, or null
+   * @param options the layout tuning options
+   * @param anchorToOriginal whether to anchor the result to the nodes' original top-left
+   */
+  public static void layoutPositioned(
+      List<? extends IGuiPosition> nodes,
+      List<int[]> edges,
+      List<? extends IGuiPosition> notes,
+      Options options,
+      boolean anchorToOriginal) {
+    if (nodes == null) {
+      return;
+    }
+    int n = nodes.size();
+    if (n == 0) {
+      return;
+    }
+    if (options == null) {
+      options = new Options();
+    }
+
+    Point origin = anchorToOriginal ? topLeftOfPositions(nodes) : null;
+    final Point[] computed = new Point[n];
+    layout(n, edges, options, (node, x, y) -> computed[node] = new Point(x, y));
+
+    // Translate so the arranged block lands where the nodes used to be.
+    int dx = 0;
+    int dy = 0;
+    if (anchorToOriginal) {
+      Point computedMin = topLeftOfPoints(computed);
+      dx = origin.x - computedMin.x;
+      dy = origin.y - computedMin.y;
+    }
+
+    // Capture node positions before/after so notes can follow the node they're closest to.
+    int[] beforeX = new int[n];
+    int[] beforeY = new int[n];
+    int[] afterX = new int[n];
+    int[] afterY = new int[n];
+    for (int i = 0; i < n; i++) {
+      IGuiPosition node = nodes.get(i);
+      Point before = node.getLocation();
+      beforeX[i] = before.x;
+      beforeY[i] = before.y;
+      if (computed[i] != null) {
+        afterX[i] = computed[i].x + dx;
+        afterY[i] = computed[i].y + dy;
+        node.setLocation(afterX[i], afterY[i]);
+      } else {
+        afterX[i] = before.x;
+        afterY[i] = before.y;
+      }
+    }
+
+    if (options.isMoveNotes() && notes != null) {
+      double threshold = Math.max(options.getLayerSpacing(), options.getNodeSpacing());
+      for (IGuiPosition note : notes) {
+        Point p = note.getLocation();
+        if (p == null) {
+          continue;
+        }
+        int nearest = nearestNode(p.x, p.y, beforeX, beforeY, threshold);
+        if (nearest >= 0) {
+          note.setLocation(
+              p.x + (afterX[nearest] - beforeX[nearest]),
+              p.y + (afterY[nearest] - beforeY[nearest]));
+        }
+      }
+    }
+  }
+
+  private static Point topLeftOfPositions(List<? extends IGuiPosition> positions) {
+    int minX = Integer.MAX_VALUE;
+    int minY = Integer.MAX_VALUE;
+    for (IGuiPosition position : positions) {
+      Point p = position.getLocation();
+      minX = Math.min(minX, p.x);
+      minY = Math.min(minY, p.y);
+    }
+    return new Point(minX, minY);
+  }
+
+  private static Point topLeftOfPoints(Point[] points) {
+    int minX = Integer.MAX_VALUE;
+    int minY = Integer.MAX_VALUE;
+    for (Point p : points) {
+      if (p != null) {
+        minX = Math.min(minX, p.x);
+        minY = Math.min(minY, p.y);
+      }
+    }
+    return new Point(minX, minY);
   }
 
   /** Callback to receive the computed position for each node index. */

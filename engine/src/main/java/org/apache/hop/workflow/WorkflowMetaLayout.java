@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.layout.LayeredGraphLayout;
 import org.apache.hop.workflow.action.ActionMeta;
 
@@ -115,78 +113,6 @@ public final class WorkflowMetaLayout {
     }
 
     boolean anchor = subset != null && !subset.isEmpty();
-    Point origin = anchor ? topLeftOfActions(actions) : null;
-    final Point[] computed = new Point[n];
-    LayeredGraphLayout.layout(n, edges, options, (node, x, y) -> computed[node] = new Point(x, y));
-
-    // Translate so the arranged block lands where the selection used to be.
-    int dx = 0;
-    int dy = 0;
-    if (anchor) {
-      Point computedMin = topLeft(computed);
-      dx = origin.x - computedMin.x;
-      dy = origin.y - computedMin.y;
-    }
-
-    // Capture the node positions before/after so notes can follow the node they're closest to.
-    int[] nodeBeforeX = new int[n];
-    int[] nodeBeforeY = new int[n];
-    int[] nodeAfterX = new int[n];
-    int[] nodeAfterY = new int[n];
-    for (int i = 0; i < n; i++) {
-      Point before = actions.get(i).getLocation();
-      nodeBeforeX[i] = before.x;
-      nodeBeforeY[i] = before.y;
-      if (computed[i] != null) {
-        nodeAfterX[i] = computed[i].x + dx;
-        nodeAfterY[i] = computed[i].y + dy;
-        actions.get(i).setLocation(nodeAfterX[i], nodeAfterY[i]);
-      } else {
-        nodeAfterX[i] = before.x;
-        nodeAfterY[i] = before.y;
-      }
-    }
-
-    if (options.isMoveNotes()) {
-      double threshold = Math.max(options.getLayerSpacing(), options.getNodeSpacing());
-      for (int i = 0; i < workflowMeta.nrNotes(); i++) {
-        NotePadMeta note = workflowMeta.getNote(i);
-        Point p = note.getLocation();
-        if (p == null) {
-          continue;
-        }
-        int nearest = LayeredGraphLayout.nearestNode(p.x, p.y, nodeBeforeX, nodeBeforeY, threshold);
-        if (nearest >= 0) {
-          note.setLocation(
-              p.x + (nodeAfterX[nearest] - nodeBeforeX[nearest]),
-              p.y + (nodeAfterY[nearest] - nodeBeforeY[nearest]));
-        }
-      }
-    }
-  }
-
-  /** The minimum x and minimum y across the locations of the given actions (as one Point). */
-  private static Point topLeftOfActions(List<ActionMeta> actions) {
-    int minX = Integer.MAX_VALUE;
-    int minY = Integer.MAX_VALUE;
-    for (ActionMeta a : actions) {
-      Point p = a.getLocation();
-      minX = Math.min(minX, p.x);
-      minY = Math.min(minY, p.y);
-    }
-    return new Point(minX, minY);
-  }
-
-  /** The minimum x and minimum y across the given points (as one Point). */
-  private static Point topLeft(Point[] points) {
-    int minX = Integer.MAX_VALUE;
-    int minY = Integer.MAX_VALUE;
-    for (Point p : points) {
-      if (p != null) {
-        minX = Math.min(minX, p.x);
-        minY = Math.min(minY, p.y);
-      }
-    }
-    return new Point(minX, minY);
+    LayeredGraphLayout.layoutPositioned(actions, edges, workflowMeta.getNotes(), options, anchor);
   }
 }
