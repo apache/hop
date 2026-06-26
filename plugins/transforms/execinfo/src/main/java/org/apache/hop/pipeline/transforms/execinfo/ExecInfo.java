@@ -316,7 +316,7 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
   }
 
   private String getValueName(IRowMeta rowMeta, Object[] row) throws HopException {
-    String nameField = resolve(meta.getIdFieldName());
+    String nameField = resolve(meta.getNameFieldName());
     String name = rowMeta.getString(row, nameField, "");
     if (StringUtils.isEmpty(name)) {
       throw new HopException(

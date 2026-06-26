@@ -1,0 +1,13 @@
+{
+  "executionInfoLocation": {
+    "caching-file-location": {
+      "persistenceDelay": "5000",
+      "rootFolder": "${CACHING_FILE_LOCATION}",
+      "maxCacheAge": "86400000"
+    }
+  },
+  "dataLoggingDelay": "2000",
+  "name": "caching-file",
+  "description": "",
+  "dataLoggingInterval": "5000"
+}

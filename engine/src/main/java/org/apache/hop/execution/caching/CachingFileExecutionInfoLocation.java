@@ -120,7 +120,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     try {
       CacheEntry entry = new CacheEntry();
       entry.setId(executionId);
-      String filename = entry.calculateFilename(rootFolder);
+      String filename = entry.calculateFilename(actualRootFolder);
       if (!HopVfs.fileExists(filename)) {
         return null;
       }

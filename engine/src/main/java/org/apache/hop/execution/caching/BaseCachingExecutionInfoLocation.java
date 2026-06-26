@@ -476,7 +476,12 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   protected static void addChildIds(CacheEntry entry, Set<DatedId> ids) {
     for (String childId : entry.getChildIds()) {
       Execution childExecution = entry.getChildExecution(childId);
-      ids.add(new DatedId(childExecution.getId(), childExecution.getRegistrationDate()));
+      // We're only interested to know about pipelines and workflows here.
+      //
+      if (childExecution.getExecutionType() == ExecutionType.Pipeline
+          || childExecution.getExecutionType() == ExecutionType.Workflow) {
+        ids.add(new DatedId(childExecution.getId(), childExecution.getRegistrationDate()));
+      }
     }
   }
 
