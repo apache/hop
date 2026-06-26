@@ -170,10 +170,14 @@ public class DataSetCsvUtil {
             for (int i = 0; i < dataSetFieldIndexes.length; i++) {
               int index = dataSetFieldIndexes[i];
 
-              IValueMeta valueMeta = setRowMeta.getValueMeta(index);
-              constantValueMeta.setConversionMetadata(valueMeta);
-              String value = csvRecord.get(index);
-              row[i] = valueMeta.convertData(constantValueMeta, value);
+              if (index >= 0 && index < setRowMeta.size() && index < csvRecord.size()) {
+                IValueMeta valueMeta = setRowMeta.getValueMeta(index);
+                constantValueMeta.setConversionMetadata(valueMeta);
+                String value = csvRecord.get(index);
+                row[i] = valueMeta.convertData(constantValueMeta, value);
+              } else {
+                row[i] = null;
+              }
             }
             rows.add(row);
           }
