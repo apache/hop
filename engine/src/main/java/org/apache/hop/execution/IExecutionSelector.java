@@ -55,4 +55,62 @@ public interface IExecutionSelector {
    * @return True if the filter string is a UUID.
    */
   boolean isSelectingByUuid();
+
+  static final IExecutionSelector ALL =
+      new IExecutionSelector() {
+        @Override
+        public boolean isSelectingParents() {
+          return false;
+        }
+
+        @Override
+        public boolean isSelectingFailed() {
+          return false;
+        }
+
+        @Override
+        public boolean isSelectingRunning() {
+          return false;
+        }
+
+        @Override
+        public boolean isSelectingFinished() {
+          return false;
+        }
+
+        @Override
+        public boolean isSelectingPipelines() {
+          return false;
+        }
+
+        @Override
+        public boolean isSelectingWorkflows() {
+          return false;
+        }
+
+        @Override
+        public String filterText() {
+          return null;
+        }
+
+        @Override
+        public LastPeriod startDateFilter() {
+          return null;
+        }
+
+        @Override
+        public boolean isSelected(Execution execution) {
+          return true;
+        }
+
+        @Override
+        public boolean isSelected(ExecutionState executionState) {
+          return true;
+        }
+
+        @Override
+        public boolean isSelectingByUuid() {
+          return false;
+        }
+      };
 }

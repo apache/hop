@@ -1,0 +1,9 @@
+{
+  "variables" : [
+    {
+      "name" : "CACHING_FILE_LOCATION",
+      "value" : "/tmp/caching-file-location",
+      "description" : "The location of the caching file location"
+    }
+  ]
+}
