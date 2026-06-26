@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+    <path d="M5 8 H8 V3 H10" fill="none" stroke="#0e3a5a" stroke-width="1"/>
+    <path d="M8 8 V13 H10" fill="none" stroke="#0e3a5a" stroke-width="1"/>
+    <rect x="1" y="6" width="4" height="4" fill="#0e3a5a"/>
+    <rect x="10" y="1" width="4" height="4" fill="#0e3a5a"/>
+    <rect x="10" y="11" width="4" height="4" fill="#0e3a5a"/>
+</svg>
