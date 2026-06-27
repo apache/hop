@@ -44,6 +44,7 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
   @HopMetadataProperty private boolean loggingParentsOnly;
+  @HopMetadataProperty private boolean failParentOnLoggingFailure;
 
   @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
   private String pipelineFilename;
@@ -62,6 +63,7 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
   public PipelineLog() {
     enabled = true;
     loggingParentsOnly = false;
+    failParentOnLoggingFailure = false;
     executingAtStart = true;
     executingPeriodically = false;
     intervalInSeconds = "30";
@@ -73,6 +75,7 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
   public PipelineLog(String name) {
     super(name);
     pipelinesToLog = new ArrayList<>();
+    failParentOnLoggingFailure = false;
   }
 
   public PipelineLog(
@@ -84,7 +87,8 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
       boolean executingPeriodically,
       String intervalInSeconds,
       boolean executingAtEnd,
-      List<PipelineToLogLocation> pipelinesToLog) {
+      List<PipelineToLogLocation> pipelinesToLog,
+      boolean failParentOnLoggingFailure) {
     super(name);
     this.enabled = enabled;
     this.loggingParentsOnly = loggingParentsOnly;
@@ -94,5 +98,6 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
     this.intervalInSeconds = intervalInSeconds;
     this.executingAtEnd = executingAtEnd;
     this.pipelinesToLog = pipelinesToLog;
+    this.failParentOnLoggingFailure = failParentOnLoggingFailure;
   }
 }
