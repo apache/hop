@@ -863,9 +863,6 @@ public class XmlMetadataUtil {
         break;
       }
     }
-    if (value == null) {
-      throw new HopXmlException("Unable to find object with name " + name + " in list " + listName);
-    }
     return value;
   }
 
