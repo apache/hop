@@ -1,0 +1,34 @@
+{
+  "variables": [],
+  "LocaleDefault": "en_US",
+  "guiProperties": {
+    "DarkMode": "Y"
+  },
+  "projectsConfig": {
+    "enabled": true,
+    "projectMandatory": true,
+    "environmentMandatory": false,
+    "defaultProject": "odata",
+    "defaultEnvironment": null,
+    "standardParentProject": "odata",
+    "standardProjectsFolder": null,
+    "projectConfigurations": [
+      {
+        "projectName": "odata",
+        "projectHome": "${HOP_CONFIG_FOLDER}",
+        "configFilename": "project-config.json"
+      }
+    ],
+    "lifecycleEnvironments": [
+      {
+        "name": "dev",
+        "purpose": "Testing",
+        "projectName": "odata",
+        "configurationFiles": [
+          "${PROJECT_HOME}/dev-env-config.json"
+        ]
+      }
+    ],
+    "projectLifecycles": []
+  }
+}

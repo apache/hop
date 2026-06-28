@@ -1,0 +1,58 @@
+[
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/odata"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json; charset=utf-8"]
+      },
+      "body": "{\"value\": [{\"name\": \"Customers\", \"kind\": \"EntitySet\", \"url\": \"Customers\"}]}"
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/odata/$metadata"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/xml; charset=utf-8"]
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?><edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\"><edmx:DataServices><Schema Namespace=\"Hop.Test\" xmlns=\"http://docs.oasis-open.org/odata/ns/edm\"><EntityType Name=\"Customer\"><Key><PropertyRef Name=\"Id\"/></Key><Property Name=\"Id\" Type=\"Edm.Int32\" Nullable=\"false\"/><Property Name=\"Name\" Type=\"Edm.String\" Nullable=\"false\"/><Property Name=\"Balance\" Type=\"Edm.Decimal\"/></EntityType><EntityContainer Name=\"DefaultContainer\"><EntitySet Name=\"Customers\" EntityType=\"Hop.Test.Customer\"/></EntityContainer></Schema></edmx:DataServices></edmx:Edmx>"
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/odata/Customers"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json; charset=utf-8"]
+      },
+      "body": "{\"value\": [{\"Id\": 1, \"Name\": \"Alice\", \"Balance\": 100.50}, {\"Id\": 2, \"Name\": \"Bob\", \"Balance\": 250.00}], \"@odata.nextLink\": \"http://odata_mock:1080/odata/Customers?%24skip=2\"}"
+    }
+  },
+  {
+    "priority": 10,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/odata/Customers",
+      "queryStringParameters": {
+        "$skip": ["2"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json; charset=utf-8"]
+      },
+      "body": "{\"value\": [{\"Id\": 3, \"Name\": \"Charlie\", \"Balance\": 0.00}]}"
+    }
+  }
+]

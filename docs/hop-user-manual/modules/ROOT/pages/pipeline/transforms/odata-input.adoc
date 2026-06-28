@@ -1,0 +1,104 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The OData Input transform retrieves data from OData V2 and V4 service endpoints.
+
+= image:transforms/icons/odata.svg[OData Input transform Icon, role="image-doc-icon"] OData Input
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The OData Input transform enables you to query OData (Open Data Protocol) services. OData is an OASIS standard that defines a set of best practices for building and consuming RESTful APIs. For more information, visit the official link:https://www.odata.org/[OData Documentation].
+
+This transform performs GET requests against OData Entity Sets, maps JSON properties to Apache Hop rows, and automatically handles relative pagination using standard `@odata.nextLink` (OData V4) and `__next` (OData V2) metadata attributes.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Connection Options
+
+The Connection tab allows you to configure the service endpoint and optional credentials.
+
+image::transforms/odata-input-connection-tab.png[OData Input Connection Tab, align="center"]
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of this transform as it appears in the pipeline workspace.
+|OData Service Root URL|The base URL of the OData service (e.g., `https://services.odata.org/V4/TripPinServiceRW/`).
+|Authentication Type|The authentication type to use:
+* `No Authentication`: Anonymous connection.
+* `Basic Authentication`: Use standard Username/Password credentials.
+* `Bearer Token`: Use a Bearer token in the `Authorization` header.
+|Username (Basic Auth)|The username for Basic authentication.
+|Password (Basic Auth)|The password for Basic authentication.
+|Token (Bearer / OAuth2)|The bearer token value.
+|OData Entity Set|The OData entity set to query (e.g., `People` or `Airports`).
+|Get Entity Sets|Retrieves and displays a drop-down list of available entity sets from the service endpoint.
+|===
+
+== Query Options
+
+The OData Query tab allows you to configure filtering, ordering, and field selection properties.
+
+image::transforms/odata-input-query-tab.png[OData Input Query Tab, align="center"]
+
+[options="header"]
+|===
+|Option|Description
+|$select|A comma-separated list of properties to select (e.g., `UserName,FirstName,LastName`).
+|$filter|An OData expression to filter matching entities (e.g., `Gender eq 'Male'`).
+|$orderby|Specifies the sorting order of the results (e.g., `LastName asc, FirstName desc`).
+|$top|Limits the number of entities returned on each page request (e.g., `50`).
+|$skip|Specifies the number of entities to skip from the beginning of the list.
+|===
+
+== Fields Mapping
+
+The Fields tab defines how properties in the returned OData JSON response map to Apache Hop row fields.
+
+image::transforms/odata-input-fields-tab.png[OData Input Fields Tab, align="center"]
+
+[options="header"]
+|===
+|Option|Description
+|Name in Hop|The name of the field as it will be produced in the Apache Hop pipeline.
+|OData Path|The JSON property path of the field within the entity JSON object (e.g., `UserName`, `AddressInfo/0/City/Name` for nested structures).
+|Type|The Hop data type (String, Integer, Number, Date, Boolean, BigNumber).
+|Format|Optional parsing format for date or numeric fields.
+|Get Fields|Connects to the `$metadata` endpoint of the OData service and automatically populates the fields list based on the selected Entity Set's schema properties.
+|===
+
+== Example
+
+To query a public OData service:
+1. Set the **Service Root URL** to `https://services.odata.org/V4/TripPinServiceRW/`.
+2. Set the **Entity Set** to `People`.
+3. Go to the **Fields** tab and click **Get Fields** to pull all metadata fields (`UserName`, `FirstName`, `LastName`, etc.).
+4. (Optional) In the **OData Query** tab, add a `$filter` such as `FirstName eq 'John'` or a `$select` of `UserName,Emails`.
+5. Run the pipeline to stream entities into downstream transforms.

@@ -1,0 +1,9 @@
+{
+  "variables" : [
+    {
+      "name" : "HOSTNAME",
+      "value" : "odata_mock",
+      "description" : "hostname of odata_mock container"
+    }
+  ]
+}

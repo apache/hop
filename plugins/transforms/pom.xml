@@ -112,6 +112,7 @@
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
+        <module>odata</module>
         <module>pgp</module>
         <module>pipelineexecutor</module>
         <module>processfiles</module>
