@@ -23,18 +23,21 @@ import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.w3c.dom.Node;
 
 @Transform(
     id = "Janino",
@@ -202,5 +205,22 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  @Override
+  public void convertLegacyXml(Node node) throws HopException {
+    int nrCalcs = XmlHandler.countNodes(node, "formula");
+    for (int i = 0; i < nrCalcs; i++) {
+      Node calcnode = XmlHandler.getSubNodeByNr(node, "formula", i);
+      if (calcnode != null) {
+        String expression = XmlHandler.getTagValue(calcnode, "formula");
+        if (expression != null && i < functions.size()) {
+          JaninoMetaFunction fn = functions.get(i);
+          if (Utils.isEmpty(fn.getFormula())) {
+            fn.setFormula(expression);
+          }
+        }
+      }
+    }
   }
 }

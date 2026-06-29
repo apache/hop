@@ -340,4 +340,42 @@ class JaninoMetaTest {
   void supportsErrorHandling_returnsTrue() {
     assertTrue(new JaninoMeta().supportsErrorHandling());
   }
+
+  // ------------------------------------------------------------------ convertLegacyXml
+
+  @Test
+  void testConvertLegacyXml() throws Exception {
+    String xml =
+        "<transform>"
+            + "    <formula>"
+            + "        <field_name>f1</field_name>"
+            + "        <formula>expression1</formula>"
+            + "        <value_type>String</value_type>"
+            + "        <value_length>100</value_length>"
+            + "        <value_precision>-1</value_precision>"
+            + "        <replace_field>replace1</replace_field>"
+            + "    </formula>"
+            + "    <formula>"
+            + "        <field_name>f2</field_name>"
+            + "        <formula>expression2</formula>"
+            + "        <value_type>Integer</value_type>"
+            + "        <value_length>7</value_length>"
+            + "        <value_precision>-1</value_precision>"
+            + "        <replace_field>replace2</replace_field>"
+            + "    </formula>"
+            + "</transform>";
+
+    JaninoMeta meta = new JaninoMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        JaninoMeta.class,
+        meta,
+        new MemoryMetadataProvider());
+
+    assertEquals(2, meta.getFunctions().size());
+    assertEquals("f1", meta.getFunctions().get(0).getFieldName());
+    assertEquals("expression1", meta.getFunctions().get(0).getFormula());
+    assertEquals("f2", meta.getFunctions().get(1).getFieldName());
+    assertEquals("expression2", meta.getFunctions().get(1).getFormula());
+  }
 }
