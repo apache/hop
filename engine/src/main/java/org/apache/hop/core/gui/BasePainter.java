@@ -273,15 +273,22 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
     if (area == null || area.x <= 0 || area.y <= 0) {
       return;
     }
-    // Grid is drawn in screen coordinates: each graph point (gx, gy) maps to screen (gx*mag,
-    // gy*mag). The origin (0,0) of the pipeline is at screen (offset.x, offset.y). We only draw
-    // grid points inside the visible screen area [0, area.x] x [0, area.y] and in the workable
-    // region (screen x >= offset.x and screen y >= offset.y).
+    // Grid is drawn at identity transform (screen pixels). offset is in graph units, so a graph
+    // point (gx, gy) maps to screen ((offset.x + gx) * mag, (offset.y + gy) * mag) -- the same
+    // mapping the painter uses for nodes, which are drawn at (offset + location) and scaled by mag.
+    // The pipeline origin (0,0) therefore sits at screen (offset.x * mag, offset.y * mag). We only
+    // draw grid points inside the visible area [0, area.x] x [0, area.y] and in the workable region
+    // (screen x >= origin and y >= origin).
     float mag = Math.max(0.1f, magnification);
 
-    // Visible screen bounds clamped to workable area (no hatched region)
-    int screenMinX = Math.max(0, (int) Math.round(offset.x));
-    int screenMinY = Math.max(0, (int) Math.round(offset.y));
+    // Pipeline origin (0,0) in screen pixels. offset is in graph units -> multiply by
+    // magnification.
+    double originScreenX = offset.x * mag;
+    double originScreenY = offset.y * mag;
+
+    // Visible screen bounds clamped to the workable area (no hatched region)
+    int screenMinX = Math.max(0, (int) Math.round(originScreenX));
+    int screenMinY = Math.max(0, (int) Math.round(originScreenY));
     int screenMaxX = area.x;
     int screenMaxY = area.y;
     if (screenMaxX <= screenMinX || screenMaxY <= screenMinY) {
@@ -301,9 +308,10 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
       step *= 2;
     }
 
-    // First grid position inside the visible workable area
-    double startX = screenMinX + step + (offset.x * mag) % step;
-    double startY = screenMinX + step + (offset.y * mag) % step;
+    // First grid position at or after the visible workable origin, aligned to the graph origin
+    // (grid lines sit at screen position origin + k*step, the same lattice nodes snap to).
+    double startX = originScreenX + Math.ceil((screenMinX - originScreenX) / step) * step;
+    double startY = originScreenY + Math.ceil((screenMinY - originScreenY) / step) * step;
 
     gc.setForeground(EColor.BLACK);
 
