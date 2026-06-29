@@ -54,6 +54,7 @@ With a file location you can write execution information to files in a path on t
 Options:
 
 * *Root folder*: the folder to write the execution information to.
+* *Create folder?*: automatically create the root folder if it doesn't exist.
 
 === Caching File Location
 
@@ -67,6 +68,7 @@ Certain navigation operations in the GUI, for example to find related executions
 Options:
 
 * *Root folder*: the folder in which execution information is stored in JSON files
+* *Create folder?*: automatically create the root folder if it doesn't exist.
 * *Persistence delay*: This is the maximum time to wait before execution information is written to disk, expressed in milliseconds.
 * *Maximum cache age*: This is the maximum time to keep execution information around in memory, before clearing it out, expressed in milliseconds.  It's advised to keep this below the expected duration of your workflow or pipeline.
 

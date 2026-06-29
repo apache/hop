@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -64,16 +65,28 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
   @HopMetadataProperty
   protected String rootFolder;
 
+  @GuiWidgetElement(
+      id = "createParentFolder",
+      order = "015",
+      parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      toolTip = "i18n::CachingFileExecutionInfoLocation.CreateParentFolder.Tooltip",
+      label = "i18n::CachingFileExecutionInfoLocation.CreateParentFolder.Label")
+  @HopMetadataProperty
+  protected boolean createParentFolder;
+
   protected String actualRootFolder;
 
   public CachingFileExecutionInfoLocation() {
     super();
     this.actualRootFolder = null;
+    this.createParentFolder = true;
   }
 
   public CachingFileExecutionInfoLocation(CachingFileExecutionInfoLocation location) {
     super(location);
     this.rootFolder = location.rootFolder;
+    this.createParentFolder = location.createParentFolder;
     this.actualRootFolder = location.actualRootFolder;
   }
 
@@ -88,6 +101,17 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     // The actual root folder
     //
     actualRootFolder = variables.resolve(rootFolder);
+
+    if (createParentFolder && StringUtils.isNotEmpty(actualRootFolder)) {
+      try {
+        FileObject folder = HopVfs.getFileObject(actualRootFolder);
+        if (!folder.exists()) {
+          folder.createFolder();
+        }
+      } catch (Exception e) {
+        throw new HopException("Error creating root folder " + actualRootFolder, e);
+      }
+    }
 
     super.initialize(variables, metadataProvider);
   }

@@ -82,20 +82,34 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @HopMetadataProperty
   protected String rootFolder;
 
+  @GuiWidgetElement(
+      id = "createParentFolder",
+      order = "015",
+      parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      toolTip = "i18n::LocalExecutionInfoLocation.CreateParentFolder.Tooltip",
+      label = "i18n::LocalExecutionInfoLocation.CreateParentFolder.Label")
+  @HopMetadataProperty
+  protected boolean createParentFolder;
+
   private IVariables variables;
 
-  public FileExecutionInfoLocation() {}
+  public FileExecutionInfoLocation() {
+    this.createParentFolder = true;
+  }
 
   public FileExecutionInfoLocation(String rootFolder) {
     this.pluginId = "local-folder";
     this.pluginName = "File location";
     this.rootFolder = rootFolder;
+    this.createParentFolder = true;
   }
 
   public FileExecutionInfoLocation(FileExecutionInfoLocation location) {
     this.pluginId = location.pluginId;
     this.pluginName = location.pluginName;
     this.rootFolder = location.rootFolder;
+    this.createParentFolder = location.createParentFolder;
   }
 
   public FileExecutionInfoLocation clone() {
@@ -106,6 +120,18 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
       throws HopException {
     this.variables = variables;
+
+    if (createParentFolder && StringUtils.isNotEmpty(rootFolder)) {
+      String actualRootFolder = variables.resolve(rootFolder);
+      try {
+        FileObject folder = HopVfs.getFileObject(actualRootFolder);
+        if (!folder.exists()) {
+          folder.createFolder();
+        }
+      } catch (Exception e) {
+        throw new HopException("Error creating root folder " + actualRootFolder, e);
+      }
+    }
   }
 
   @Override
@@ -645,6 +671,14 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
   public void setRootFolder(String rootFolder) {
     this.rootFolder = rootFolder;
+  }
+
+  public boolean isCreateParentFolder() {
+    return createParentFolder;
+  }
+
+  public void setCreateParentFolder(boolean createParentFolder) {
+    this.createParentFolder = createParentFolder;
   }
 
   private static class ExecutionIdAndDate {
