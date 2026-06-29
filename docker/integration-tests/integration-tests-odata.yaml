@@ -1,0 +1,39 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+services:
+  integration_test_database:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      odata_mock:
+        condition: service_started
+    links:
+      - odata_mock
+
+  odata_mock:
+    image: mockserver/mockserver:5.15.0
+    hostname: odata_mock
+    ports:
+      - "1080"
+    environment:
+      - MOCKSERVER_INITIALIZATION_JSON_PATH=/config/initializerJson.json
+      - MOCKSERVER_LOG_LEVEL=WARN
+    volumes:
+      - ../../integration-tests/odata/import/initializerJson.json:/config/initializerJson.json
+      - ../../integration-tests/odata/import/metadata.xml:/config/metadata.xml
