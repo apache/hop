@@ -80,6 +80,7 @@ import org.mockito.stubbing.Answer;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/** Unit test for {@link PipelineMeta} */
 class PipelineMetaTest {
   public static final String TRANSFORM_NAME = "Any transform name";
 
@@ -688,6 +689,71 @@ class PipelineMetaTest {
 
     assertNotNull(copy.findTransform("T1"));
     assertNotNull(copy.findTransform("T1").getTransformErrorMeta());
+  }
+
+  @Test
+  void syncTransformErrorHandlingWithHopsAlignsErrorMetaWithHopEnabledState() {
+    TransformMeta source = new TransformMeta("REST client", new FakeMeta());
+    TransformMeta errorTarget = new TransformMeta("Write to log error", new FakeMeta());
+    pipelineMeta.addTransform(source);
+    pipelineMeta.addTransform(errorTarget);
+
+    PipelineHopMeta errorHop = new PipelineHopMeta(source, errorTarget);
+    errorHop.setEnabled(false);
+    pipelineMeta.addPipelineHop(errorHop);
+
+    TransformErrorMeta errorMeta = new TransformErrorMeta(source, errorTarget);
+    errorMeta.setEnabled(true);
+    source.setTransformErrorMeta(errorMeta);
+
+    pipelineMeta.lookupReferencesAfterLoading();
+
+    assertFalse(errorMeta.isEnabled());
+    assertFalse(source.isDoingErrorHandling());
+  }
+
+  @Test
+  void lookupReferencesAfterLoadingKeepsErrorHandlingActiveWhenHopEnabled() {
+    TransformMeta source = new TransformMeta("REST client", new FakeMeta());
+    TransformMeta errorTarget = new TransformMeta("Write to log error", new FakeMeta());
+    pipelineMeta.addTransform(source);
+    pipelineMeta.addTransform(errorTarget);
+
+    PipelineHopMeta errorHop = new PipelineHopMeta(source, errorTarget);
+    errorHop.setEnabled(true);
+    pipelineMeta.addPipelineHop(errorHop);
+
+    TransformErrorMeta errorMeta = new TransformErrorMeta(source, errorTarget);
+    errorMeta.setEnabled(true);
+    source.setTransformErrorMeta(errorMeta);
+
+    pipelineMeta.lookupReferencesAfterLoading();
+
+    assertTrue(errorMeta.isEnabled());
+    assertTrue(source.isDoingErrorHandling());
+  }
+
+  @Test
+  void syncTransformErrorHandlingAppliesDefaultErrorFieldNamesForLegacyPipelines() {
+    TransformMeta source = new TransformMeta("REST client", new FakeMeta());
+    TransformMeta errorTarget = new TransformMeta("Write to log error", new FakeMeta());
+    pipelineMeta.addTransform(source);
+    pipelineMeta.addTransform(errorTarget);
+
+    PipelineHopMeta errorHop = new PipelineHopMeta(source, errorTarget);
+    errorHop.setEnabled(true);
+    pipelineMeta.addPipelineHop(errorHop);
+
+    TransformErrorMeta errorMeta = new TransformErrorMeta(source, errorTarget);
+    errorMeta.setEnabled(true);
+    source.setTransformErrorMeta(errorMeta);
+
+    pipelineMeta.syncTransformErrorHandlingWithHops();
+
+    assertEquals(TransformErrorMeta.FIELD_ERROR_ROW, errorMeta.getNrErrorsValueName());
+    assertEquals(
+        TransformErrorMeta.FIELD_ERROR_DESCRIPTION, errorMeta.getErrorDescriptionsValueName());
+    assertEquals(TransformErrorMeta.FIELD_ERROR_CODE, errorMeta.getErrorCodesValueName());
   }
 
   @Test

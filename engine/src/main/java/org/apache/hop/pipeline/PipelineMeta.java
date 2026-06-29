@@ -1631,6 +1631,46 @@ public class PipelineMeta extends AbstractMeta
       // This is rarely used, for example in getTableFields.getTableFields()
       transformMeta.setParentPipelineMeta(this);
     }
+    syncTransformErrorHandlingWithHops();
+  }
+
+  /**
+   * Align {@link TransformErrorMeta} with the enabled state of the hop to the error target.
+   * Pipelines saved before error hops were flagged in hop metadata can have error handling marked
+   * enabled while the hop to the target transform is disabled.
+   */
+  public void syncTransformErrorHandlingWithHops() {
+    for (TransformMeta transformMeta : transforms) {
+      TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+      if (errorMeta == null || errorMeta.getTargetTransform() == null) {
+        continue;
+      }
+      PipelineHopMeta hop = findPipelineHop(transformMeta, errorMeta.getTargetTransform(), true);
+      if (hop != null) {
+        errorMeta.setEnabled(hop.isEnabled());
+      }
+      applyDefaultErrorHandlingFieldNamesIfUnset(errorMeta);
+    }
+  }
+
+  /**
+   * Legacy pipelines often enable error handling without naming the extra error columns, so
+   * rejected rows carry no description field for downstream transforms (e.g. Write to log).
+   */
+  private static void applyDefaultErrorHandlingFieldNamesIfUnset(TransformErrorMeta errorMeta) {
+    if (!errorMeta.isEnabled()) {
+      return;
+    }
+    if (!Utils.isEmpty(errorMeta.getNrErrorsValueName())
+        || !Utils.isEmpty(errorMeta.getErrorDescriptionsValueName())
+        || !Utils.isEmpty(errorMeta.getErrorFieldsValueName())
+        || !Utils.isEmpty(errorMeta.getErrorCodesValueName())) {
+      return;
+    }
+    // error nr, error code, error description
+    errorMeta.setNrErrorsValueName(TransformErrorMeta.FIELD_ERROR_ROW);
+    errorMeta.setErrorCodesValueName(TransformErrorMeta.FIELD_ERROR_CODE);
+    errorMeta.setErrorDescriptionsValueName(TransformErrorMeta.FIELD_ERROR_DESCRIPTION);
   }
 
   /**

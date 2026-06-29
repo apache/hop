@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1520,6 +1521,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         }
       }
       incrementLinesRejected();
+      if (!Utils.isEmpty(errorDescriptions)) {
+        logError(errorDescriptions);
+      }
+    } else if (transformErrorMeta.isEnabled()) {
+      String name =
+          Objects.nonNull(transformErrorMeta.getTargetTransform())
+              ? transformErrorMeta.getTargetTransform().getName()
+              : "targetTransform is null";
+      logError(
+          BaseMessages.getString(
+              PKG, "BaseTransform.Exception.ErrorHandlingRouteUnavailable", name));
+      setErrors(1);
+      stopAll();
     }
 
     verifyRejectionRates();

@@ -24,7 +24,6 @@ import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.junit.jupiter.api.Test;
@@ -34,9 +33,11 @@ class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
   @Test
   void testFlinkPipelineEngine() throws Exception {
 
-    IPipelineEngineRunConfiguration configuration =
-        new BeamFlinkPipelineRunConfiguration("[local]", "6");
+    // [collection] avoids MiniCluster startup; BATCH_FORCED is the Flink default for batch jobs.
+    BeamFlinkPipelineRunConfiguration configuration =
+        new BeamFlinkPipelineRunConfiguration("[collection]", "1");
     configuration.setEnginePluginId("BeamFlinkPipelineEngine");
+    configuration.setTempLocation(System.getProperty("java.io.tmpdir"));
     PipelineRunConfiguration pipelineRunConfiguration =
         new PipelineRunConfiguration(
             "flink",

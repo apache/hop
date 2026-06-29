@@ -873,6 +873,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         //
         else if (event.button == 2 || (event.button == 1 && control)) {
           hop.setEnabled(!hop.isEnabled());
+          updateErrorMetaForHop(hop);
           updateGui();
         } else {
           // A hop: show context dialog in mouseUp()
@@ -2120,7 +2121,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
     errorMeta.setEnabled(true);
     errorMeta.setTargetTransform(candidate.getToTransform());
+    applyDefaultErrorHandlingFieldNames(errorMeta);
     candidate.getFromTransform().setTransformErrorMeta(errorMeta);
+  }
+
+  private static void applyDefaultErrorHandlingFieldNames(TransformErrorMeta errorMeta) {
+    // error nr
+    if (Utils.isEmpty(errorMeta.getNrErrorsValueName())) {
+      errorMeta.setNrErrorsValueName(TransformErrorMeta.FIELD_ERROR_ROW);
+    }
+
+    // error code
+    if (Utils.isEmpty(errorMeta.getErrorCodesValueName())) {
+      errorMeta.setErrorCodesValueName(TransformErrorMeta.FIELD_ERROR_CODE);
+    }
+
+    // error description
+    if (Utils.isEmpty(errorMeta.getErrorDescriptionsValueName())) {
+      errorMeta.setErrorDescriptionsValueName(TransformErrorMeta.FIELD_ERROR_DESCRIPTION);
+    }
   }
 
   @Override
@@ -3088,7 +3107,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void updateErrorMetaForHop(PipelineHopMeta hop) {
-    if (hop != null && hop.isErrorHop()) {
+    if (hop == null || hop.getFromTransform() == null || hop.getToTransform() == null) {
+      return;
+    }
+    if (hop.getFromTransform().isSendingErrorRowsToTransform(hop.getToTransform())) {
       TransformErrorMeta errorMeta = hop.getFromTransform().getTransformErrorMeta();
       if (errorMeta != null) {
         errorMeta.setEnabled(hop.isEnabled());

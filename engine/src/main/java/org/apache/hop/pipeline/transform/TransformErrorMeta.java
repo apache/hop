@@ -45,6 +45,12 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
   public static final String XML_SOURCE_TRANSFORM_TAG = "source_transform";
   public static final String XML_TARGET_TRANSFORM_TAG = "target_transform";
 
+  /** error nr, error code, error description */
+  public static final String FIELD_ERROR_ROW = "error_row";
+
+  public static final String FIELD_ERROR_DESCRIPTION = "error_description";
+  public static final String FIELD_ERROR_CODE = "error_code";
+
   /** The source transform that can send the error rows */
   @HopMetadataProperty(key = "source_transform", storeWithName = true, lookupInList = "transforms")
   private TransformMeta sourceTransform;
