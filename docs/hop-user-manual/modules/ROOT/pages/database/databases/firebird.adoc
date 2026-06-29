@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://firebirdsql.org/en/jdbc-driver/[Driver Link]
-|Version Included | None
+|Install | `hop driver install firebird --accept-license`
 |Hop Dependencies | None
 |Documentation | https://firebirdsql.github.io/jaybird-manual/jaybird_manual.html[Documentation Link]
 |JDBC Url | jdbc:firebirdsql://localhost:3050/c:/database/example.fdb
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

@@ -18,6 +18,7 @@ package org.apache.hop.databases.redshift;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
@@ -44,6 +45,19 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
   @Override
   public String getDriverClass() {
     return "com.amazon.redshift.jdbc42.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.amazon.redshift:redshift-jdbc42")
+        .defaultVersion("2.2.7")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://github.com/aws/amazon-redshift-jdbc-driver/blob/master/LICENSE")
+        .vendor("Amazon Web Services")
+        .vendorUrl("https://docs.aws.amazon.com/redshift/latest/mgmt/jdbc20-download-driver.html")
+        .build();
   }
 
   @Override

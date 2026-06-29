@@ -105,6 +105,22 @@ The `-XX:+AggressiveHeap` option tells the container to use all memory assigned 
 |
 | Comma separated list to locations where JDBC drivers live (default is /lib/jdbc).
 
+|```HOP_DRIVERS_DOWNLOAD```
+|
+| Comma separated list of JDBC drivers to download and install on container start, before Hop is launched.
+Each entry is a driver id (run `hop driver list` to see them), optionally followed by `:version`, for example `oracle,mariadb:3.4.1,mysql`.
+See <<Downloading JDBC drivers>>.
+
+|```HOP_DRIVERS_ACCEPT_LICENSE```
+|
+| Set to `true` to accept the vendor license of restricted (Category X) drivers such as Oracle, MySQL, MariaDB and DB2.
+Required to download those drivers, since Apache Hop does not distribute them.
+
+|```HOP_DRIVERS_MAVEN_REPO```
+|
+| Optional Maven repository base URL to download the drivers from (defaults to Maven Central).
+Point this at an internal Nexus or Artifactory for air-gapped environments.
+
 |```HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH```
 |
 | Optional path to a custom entrypoint extension script file.
@@ -328,6 +344,44 @@ docker run \
 In this example, a project is created in the container and exposed in the Hop Python server.  This gives you access to project metadata or similarly environment configurations.
 
 NOTE: The option to run commands is available from Hop version 2.18.
+
+== Downloading JDBC drivers
+
+Apache Hop ships the JDBC drivers it is allowed to redistribute (PostgreSQL, MS SQL Server, Snowflake, ...). Drivers with a restricted license - Oracle, MySQL, MariaDB, IBM DB2 and others - are *not* bundled and have to be added to the `lib/jdbc` folder yourself.
+
+The container can do this for you on start-up. Set `HOP_DRIVERS_DOWNLOAD` to a comma separated list of driver ids and the entrypoint runs `hop driver install` for each one *before* Hop is launched, so the drivers are picked up by the normal `lib/jdbc` scan. Each entry is a driver id, optionally followed by `:version`. Run `hop driver list` (inside the container or a local Hop install) to see the available ids.
+
+Because the restricted drivers are downloaded from the vendor / Maven Central under the vendor's license, you must explicitly accept that license by setting `HOP_DRIVERS_ACCEPT_LICENSE=true`. Without it, restricted drivers are skipped with an error. Apache Hop neither hosts nor redistributes these drivers; obtaining them this way is your action under the vendor's terms.
+
+.Download the Oracle and MariaDB drivers in a short-lived container
+[source,shell]
+----
+docker run -it --rm \
+  --env HOP_DRIVERS_DOWNLOAD="oracle,mariadb:3.4.1" \
+  --env HOP_DRIVERS_ACCEPT_LICENSE=true \
+  --env HOP_PROJECT_FOLDER=/project \
+  --env HOP_PROJECT_NAME=my-project \
+  --env HOP_FILE_PATH='${PROJECT_HOME}/main.hpl' \
+  --env HOP_RUN_CONFIG=local \
+  --mount type=bind,source=/path/to/project,target=/project \
+  apache/hop
+----
+
+For air-gapped environments, point the download at an internal Maven mirror with `HOP_DRIVERS_MAVEN_REPO`:
+
+[source,shell]
+----
+docker run -it --rm \
+  --env HOP_DRIVERS_DOWNLOAD="oracle" \
+  --env HOP_DRIVERS_ACCEPT_LICENSE=true \
+  --env HOP_DRIVERS_MAVEN_REPO=https://nexus.internal/repository/maven-public/ \
+  ... \
+  apache/hop
+----
+
+The download is supported by the client/server image (running pipelines, workflows or `hop-server`) and the Hop web image. The drivers and their transitive dependencies are written to `HOP_SHARED_JDBC_FOLDERS` (default `lib/jdbc`). If the container filesystem is read-only, make sure that folder is writable, for example by mounting a volume over it.
+
+NOTE: `HOP_DRIVERS_DOWNLOAD` is available from Hop version 2.19.
 
 == Custom Entrypoint Extension Shell Script
 

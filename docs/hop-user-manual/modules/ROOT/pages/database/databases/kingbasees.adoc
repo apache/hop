@@ -25,9 +25,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver |
-|Version Included | None
 |Hop Dependencies | None
 |Documentation | https://www.kingbase.com.cn/zhuanti/kes/html/jdbc.html[Documentation Link]
 |JDBC Url | jdbc:kingbase8://host:port/database
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

@@ -29,10 +29,8 @@ WARNING: the database name field is not used in a Databricks connection. Use the
 | Option | Info
 |Type | Relational
 |Driver | https://docs.databricks.com/aws/en/integrations/jdbc/download[Driver Link]
-|Version Included | None
 |Hop Dependencies | None
 |Documentation | https://docs.databricks.com/aws/en/integrations/jdbc/[Documentation Link]
 |JDBC Url  | jdbc:databricks://<server-hostname>:443;httpPath=<http-path>[;<setting1>=<value1>;<setting2>=<value2>;<settingN>=<valueN>]
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
 

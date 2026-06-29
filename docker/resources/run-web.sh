@@ -29,6 +29,52 @@ exitWithCode() {
   exit "${1}"
 }
 
+# Download JDBC drivers on container start, before Tomcat is launched, so they are picked up by the
+# lib/jdbc scan. Driven by environment variables:
+#   HOP_DRIVERS_DOWNLOAD        comma-separated driver ids, each optionally with a version,
+#                               e.g. "oracle,mariadb:3.4.1,mysql". Run 'hop driver list' for ids.
+#   HOP_DRIVERS_ACCEPT_LICENSE  set to "true" to accept the vendor license of restricted (Category X)
+#                               drivers (Oracle, MariaDB, MySQL, DB2, ...). Required for those.
+#   HOP_DRIVERS_MAVEN_REPO      optional Maven repository base URL (defaults to Maven Central).
+install_jdbc_drivers() {
+  local drivers="${HOP_DRIVERS_DOWNLOAD:-}"
+  if [ -z "${drivers}" ]; then
+    return 0
+  fi
+
+  local accept_flag=""
+  case "${HOP_DRIVERS_ACCEPT_LICENSE:-}" in
+  true | TRUE | True | Y | y | yes | YES | 1) accept_flag="--accept-license" ;;
+  *) ;;
+  esac
+
+  local repo_flag=""
+  if [ -n "${HOP_DRIVERS_MAVEN_REPO:-}" ]; then
+    repo_flag="--repo=${HOP_DRIVERS_MAVEN_REPO}"
+  fi
+
+  log "Installing JDBC drivers: ${drivers}"
+
+  local spec id version version_flag
+  for spec in ${drivers//,/ }; do
+    spec="$(echo "${spec}" | tr -d '[:space:]')"
+    [ -z "${spec}" ] && continue
+
+    id="${spec%%:*}"
+    version=""
+    [ "${spec}" != "${id}" ] && version="${spec#*:}"
+    version_flag=""
+    [ -n "${version}" ] && version_flag="--driver-version=${version}"
+
+    log "Installing JDBC driver '${id}'${version:+ (version ${version})}"
+    # shellcheck disable=SC2086
+    if ! "${DEPLOYMENT_PATH}"/hop driver install "${id}" ${version_flag} ${repo_flag} ${accept_flag}; then
+      log "Error: failed to install JDBC driver '${id}'"
+      exitWithCode 8
+    fi
+  done
+}
+
 # The common execution options for short and long lived containers
 # The default log level is Basic
 #
@@ -102,6 +148,8 @@ else
   log "Not creating a project or environment in the container"
 fi
 
+# Download requested JDBC drivers (HOP_DRIVERS_DOWNLOAD) before Tomcat starts.
+install_jdbc_drivers
 
 # if we have a /config/tomcat-users.xml file, copy it to the conf folder.
 if [ -f "/config/tomcat-users.xml" ]; then

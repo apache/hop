@@ -46,6 +46,16 @@ public class HopURLClassLoader extends URLClassLoader {
     return key.cast(cache.computeIfAbsent(key, k -> provider));
   }
 
+  /**
+   * Public entry point to add a jar to this classloader at runtime, e.g. a JDBC driver downloaded
+   * while Hop is running. After this the classes in the jar become loadable without a restart.
+   *
+   * @param url the jar URL to add
+   */
+  public void addJar(URL url) {
+    addURL(url);
+  }
+
   @Override
   protected void addURL(URL url) {
     super.addURL(url);

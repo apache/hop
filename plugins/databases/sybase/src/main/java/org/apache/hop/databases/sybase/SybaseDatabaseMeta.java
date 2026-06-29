@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -59,6 +60,19 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "net.sourceforge.jtds.jdbc.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("net.sourceforge.jtds:jtds")
+        .defaultVersion("1.3.1")
+        .licenseCategory("X")
+        .licenseName("LGPL-2.1")
+        .licenseUrl("https://jtds.sourceforge.net/license.html")
+        .vendor("jTDS")
+        .vendorUrl("https://jtds.sourceforge.net/")
+        .build();
   }
 
   @Override

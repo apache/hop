@@ -23,6 +23,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -63,6 +64,19 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   @Override
   public String getDriverClass() {
     return "com.teradata.jdbc.TeraDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.teradata.jdbc:terajdbc")
+        .defaultVersion("20.00.00.58")
+        .licenseCategory("X")
+        .licenseName("Teradata JDBC Driver License Agreement")
+        .licenseUrl("https://downloads.teradata.com/download/connectivity/jdbc-driver")
+        .vendor("Teradata")
+        .vendorUrl("https://downloads.teradata.com/download/connectivity/jdbc-driver")
+        .build();
   }
 
   @Override

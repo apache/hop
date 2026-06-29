@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -49,6 +50,19 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "org.h2.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.h2database:h2")
+        .defaultVersion("2.4.240")
+        .licenseCategory("B")
+        .licenseName("EPL-1.0 / MPL-2.0")
+        .licenseUrl("https://www.h2database.com/html/license.html")
+        .vendor("H2 Database Engine")
+        .vendorUrl("https://www.h2database.com/")
+        .build();
   }
 
   @Override

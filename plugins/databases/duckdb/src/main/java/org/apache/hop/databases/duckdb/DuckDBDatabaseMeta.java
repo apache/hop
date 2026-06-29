@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -138,6 +139,19 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "org.duckdb.DuckDBDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("org.duckdb:duckdb_jdbc")
+        .defaultVersion("1.5.4.0")
+        .licenseCategory("A")
+        .licenseName("MIT")
+        .licenseUrl("https://github.com/duckdb/duckdb-java/blob/main/LICENSE")
+        .vendor("DuckDB")
+        .vendorUrl("https://duckdb.org/docs/stable/clients/java")
+        .build();
   }
 
   @Override

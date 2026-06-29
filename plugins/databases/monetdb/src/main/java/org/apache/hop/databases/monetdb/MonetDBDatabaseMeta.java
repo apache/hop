@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -76,6 +77,20 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "org.monetdb.jdbc.MonetDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("monetdb:monetdb-jdbc")
+        .defaultVersion("12.2")
+        .licenseCategory("B")
+        .licenseName("MPL-2.0")
+        .licenseUrl("https://www.mozilla.org/en-US/MPL/2.0/")
+        .vendor("MonetDB")
+        .vendorUrl("https://www.monetdb.org/")
+        .repositoryUrl("https://clojars.org/repo/")
+        .build();
   }
 
   @Override

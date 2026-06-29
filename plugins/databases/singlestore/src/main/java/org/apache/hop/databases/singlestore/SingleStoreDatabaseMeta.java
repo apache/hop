@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -89,6 +90,19 @@ public class SingleStoreDatabaseMeta extends BaseDatabaseMeta implements IDataba
   @Override
   public String getDriverClass() {
     return "com.singlestore.jdbc.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.singlestore:singlestore-jdbc-client")
+        .defaultVersion("1.2.11")
+        .licenseCategory("X")
+        .licenseName("LGPL-2.1")
+        .licenseUrl("https://github.com/memsql/S2-JDBC-Connector/blob/main/LICENSE")
+        .vendor("SingleStore")
+        .vendorUrl("https://docs.singlestore.com/")
+        .build();
   }
 
   @Override

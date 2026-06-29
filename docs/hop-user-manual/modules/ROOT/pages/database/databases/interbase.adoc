@@ -25,9 +25,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included in Database installation
-|Version Included | None
 |Hop Dependencies | None
 |Documentation | http://docwiki.embarcadero.com/InterBase/2020/en/Programming_with_JDBC[Documentation Link]
 |JDBC Url | jdbc:interbase://hostname:3050/path/to/database.ib
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

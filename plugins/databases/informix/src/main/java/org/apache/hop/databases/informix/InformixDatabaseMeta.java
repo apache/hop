@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -71,6 +72,19 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   @Override
   public String getDriverClass() {
     return "com.informix.jdbc.IfxDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.ibm.informix:jdbc")
+        .defaultVersion("15.0.1.2")
+        .licenseCategory("X")
+        .licenseName("IBM International Program License Agreement")
+        .licenseUrl("https://www.ibm.com/products/informix")
+        .vendor("IBM Informix")
+        .vendorUrl("https://www.ibm.com/docs/en/informix-servers")
+        .build();
   }
 
   @Override

@@ -28,11 +28,10 @@ Please see the https://doris.apache.org[Apache Doris website] for more informati
 | Option | Info
 |Type | Relational
 |Driver | https://dev.mysql.com/downloads/connector/j/[Drivere Link] (Use Platform Independent)
-|Version Included | None
+|Install | `hop driver install doris --accept-license`
 |Hop Dependencies | None
 |Documentation | https://dev.mysql.com/doc/connector-j/8.0/en/[Documentation Link]
 |JDBC Url | jdbc:mysql://hostname:9030/databaseName
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 The port of JDBC Url is same as the query port of Frontend in Doris.

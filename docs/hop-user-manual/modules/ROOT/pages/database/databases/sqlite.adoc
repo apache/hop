@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 3.53.2.0
+|Install | `hop driver install sqlite`
 |Hop Dependencies | None
 |Documentation | https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[Documentation Link]
 |JDBC Url | jdbc:sqlite:sample.db
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

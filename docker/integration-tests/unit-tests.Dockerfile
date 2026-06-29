@@ -86,11 +86,6 @@ RUN chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
   && cd ${DEPLOYMENT_PATH}/hop \
   && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar
 
-
-# Download Additional drivers/dependencies
-ADD --chown=${JENKINS_USER}:${JENKINS_GROUP} https://repo1.maven.org/maven2/com/vertica/jdbc/vertica-jdbc/23.4.0-0/vertica-jdbc-23.4.0-0.jar /opt/hop/lib/jdbc/vertica-jdbc-23.4.0-0.jar
-ADD --chown=${JENKINS_USER}:${JENKINS_GROUP} https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/9.2.0/mysql-connector-j-9.2.0.jar /opt/hop/lib/jdbc/mysql-connector-j-9.2.0.jar
-
 # make volume available so that hop pipeline and workflow files can be provided easily
 VOLUME ["/files"]
 USER ${JENKINS_USER}

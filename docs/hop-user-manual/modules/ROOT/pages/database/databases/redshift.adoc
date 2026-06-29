@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | Included
-|Version Included | 2.2.7
+|Install | `hop driver install redshift`
 |Hop Dependencies | Postgresql Database plugin
 |Documentation | https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html[Documentation Link]
 |JDBC Url | jdbc:redshift://endpoint:port/database
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

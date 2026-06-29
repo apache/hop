@@ -20,8 +20,10 @@ services:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
+    environment:
+      - HOP_DRIVERS_DOWNLOAD=vertica
     links:
-      - vertica 
+      - vertica
 
   vertica:
     image: vertica/vertica-ce:latest

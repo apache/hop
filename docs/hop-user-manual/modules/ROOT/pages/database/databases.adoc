@@ -26,18 +26,42 @@ Apache Hop has optimized support for many database types. If you are using an un
 To create a database connection go to the metadata perspective, right-click on `Relational Database Connections` and select `New`.
 
 The connection is saved in a central location and can then be used by all pipelines and workflows.
-If you have set your project to work with Hop, the database information will be in the `{openvar}PROJECT_HOME{closevar}/metadata/rdbms` folder. For each connection, separate a .json file will be generated in this folder. This json file will have the name of the connection and will contain all of the connection information.
+If you have set your project to work with Hop, the database information will be in the `{openvar}PROJECT_HOME{closevar}/metadata/rdbms` folder. For each connection, a separate .json file will be generated in this folder. This json file will have the name of the connection and will contain all of the connection information.
 
 == Adding JDBC drivers
 
-Apache Hop includes JDBC drivers for all databases that provide their drivers under a license that is compatible with the Apache Public License. All JDBC drivers that come with Apache Hop can be found in `lib/jdbc` in your Apache Hop installation folder.
+Apache Hop ships the JDBC drivers it is allowed to redistribute - those under a license compatible with the Apache License - in the `lib/jdbc` folder of your installation. For databases whose driver has a restricted license, or that simply isn't bundled, Hop can download the driver for you on demand, or you can add it manually.
 
-The documentation for the various database types in following subsections will show you whether the driver for your database is included. If it included, the connection editor will also show the version of the installed driver. If the driver isn't included, the documentation will guide you to the download location.
+The connection editor shows the installed driver and its version for the selected database type. When no driver is installed but one is available to download, a *Download driver* button appears next to it.
 
-Set the `HOP_SHARED_JDBC_FOLDERS` environment variable to a folder that contains your additional JDBC folders. Having them in a central folder helps you to easily upgrade or change your Apache Hop installation, without the need to add your JDBC drivers every time.
-This variable accepts a comma separated list to point to multiple directories the default value when not set is `lib/jdbc`, e.g. `<PATH_TO_YOUR_HOP_INSTALLATION>/lib/jdbc,<PATH_TO_YOUR_JDBC_FOLDER>`.
+=== Downloading a driver on demand
 
-To avoid conflicts, make sure you only have on driver for each database, and make sure you don't have multiple copies of your drivers, e.g. both in `HOP_SHARED_JDBC_FOLDERS` and `hop/lib/jdbc` folder.
+Apache Hop knows the Maven coordinates of the JDBC driver for most database types and can download it - together with the dependencies it needs - from a public repository (Maven Central by default) at your request. There are three ways to do this:
+
+* *In the GUI*: open the database connection editor and select your database type. If the driver isn't installed yet and a download is available, click *Download driver*. For restricted drivers (proprietary, or copyleft licenses such as LGPL/GPL) you first have to read and accept the vendor's license in the dialog. The driver is downloaded into your JDBC folder and hot-loaded, so you can usually test the connection without restarting Hop.
+
+* *From the command line*: `hop driver list` lists every database type with a downloadable driver, its license category and whether it is already installed. `hop driver install <id>` downloads and installs it, for example:
++
+[source,shell]
+----
+hop driver list
+hop driver install oracle --accept-license
+----
++
+`--accept-license` is required for restricted (`LIC=X`) drivers. Use `--driver-version` to pick a specific version and `--repo` to download from an internal mirror.
+
+* *In a container*: set the `HOP_DRIVERS_DOWNLOAD` environment variable (and `HOP_DRIVERS_ACCEPT_LICENSE=true` for restricted drivers) on the Hop Docker image to install drivers automatically at start-up. See the Docker container documentation for details.
+
+Apache Hop never bundles, hosts or mirrors restricted drivers. They are downloaded from Maven Central (or the vendor) onto your own machine, at your explicit request, under the vendor's license.
+
+=== Adding a driver manually
+
+Some databases (typically older or proprietary ones) do not publish their JDBC driver to a public repository. For those, download the driver from the vendor - the documentation for each database type below points you to the download location - and copy the jar into the `lib/jdbc` folder or into a folder listed in `HOP_SHARED_JDBC_FOLDERS`.
+
+Set the `HOP_SHARED_JDBC_FOLDERS` environment variable to a folder that contains your additional JDBC drivers. Having them in a central folder helps you to easily upgrade or change your Apache Hop installation, without the need to add your JDBC drivers every time.
+This variable accepts a comma separated list to point to multiple directories; the default value when not set is `lib/jdbc`, e.g. `<PATH_TO_YOUR_HOP_INSTALLATION>/lib/jdbc,<PATH_TO_YOUR_JDBC_FOLDER>`. When you download a driver, Hop installs it into the first folder in this list that isn't `lib/jdbc`, so your downloaded drivers stay separate from the bundled ones and survive upgrades.
+
+To avoid conflicts, make sure you only have one driver for each database, and make sure you don't have multiple copies of your drivers, e.g. both in `HOP_SHARED_JDBC_FOLDERS` and the `hop/lib/jdbc` folder.
 
 == Generic connection
 

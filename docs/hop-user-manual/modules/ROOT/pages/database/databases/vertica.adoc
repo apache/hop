@@ -25,9 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://www.vertica.com/download/vertica/client-drivers/[Driver Link]
-|Version Included | None
+|Install | `hop driver install vertica --accept-license`
 |Hop Dependencies | None
 |Documentation | https://www.vertica.com/docs/9.2.x/HTML/Content/Authoring/ConnectingToVertica/ClientJDBC/JDBCConnectionProperties.htm[Documentation Link]
 |JDBC Url | jdbc:vertica://VerticaHost:portNumber/databaseName
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

@@ -35,6 +35,7 @@ services:
       - SSH_TUNNEL_PORT=22
       - SSH_TUNNEL_USER=hop
       - SSH_TUNNEL_PASSWORD=hop_ssh_password
+      - HOP_DRIVERS_DOWNLOAD=mysql
     volumes:
       - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
 

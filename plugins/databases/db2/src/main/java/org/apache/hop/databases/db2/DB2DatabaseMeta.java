@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -57,6 +58,19 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "com.ibm.db2.jcc.DB2Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.ibm.db2:jcc")
+        .defaultVersion("12.1.5.0")
+        .licenseCategory("X")
+        .licenseName("IBM International Program License Agreement")
+        .licenseUrl("https://www.ibm.com/support/pages/db2-jdbc-driver-versions-and-downloads")
+        .vendor("IBM")
+        .vendorUrl("https://www.ibm.com/support/pages/db2-jdbc-driver-versions-and-downloads")
+        .build();
   }
 
   @Override

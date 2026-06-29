@@ -27,29 +27,4 @@
     <artifactId>hop-databases-snowflake</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Databases Snowflake</name>
-
-    <properties>
-        <hop.jdbc.driver1>net.snowflake:snowflake-jdbc</hop.jdbc.driver1>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-libs-jdbc</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>net.snowflake</groupId>
-            <artifactId>snowflake-jdbc</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
 </project>

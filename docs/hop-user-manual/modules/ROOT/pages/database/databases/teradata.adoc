@@ -25,8 +25,8 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://downloads.teradata.com/download/connectivity/jdbc-driver[Driver Link]
+|Install | `hop driver install teradata --accept-license`
 |Hop Dependencies | None
 |Documentation | https://teradata-docs.s3.amazonaws.com/doc/connectivity/jdbc/reference/current/frameset.html[Documentation Link]
 |JDBC Url | jdbc:teradata://Hostname
-|Driver folder | <Hop Installation>/lib/jdbc
 |===

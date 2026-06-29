@@ -35,12 +35,11 @@ For details, please refer to https://duckdb.org/docs/api/java[DuckDB Java API do
 |===
 | Option | Info
 |Type | Relational
-|Driver | https://search.maven.org/artifact/org.duckdb/duckdb_jdbc/1.3.2.1/jar[Driver Link]
-|Version Included | 1.5.3.0
+|Driver | Not bundled because of its size - install on demand
+|Install | `hop driver install duckdb`
 |Hop Dependencies | None
 |Documentation | https://duckdb.org/docs/api/java.html
 |JDBC Url | jdbc:duckdb: (in memory) or jdbc:duckdb:<FILE_PATH>
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 

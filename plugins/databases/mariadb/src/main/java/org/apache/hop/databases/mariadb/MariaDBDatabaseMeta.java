@@ -21,6 +21,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
 import java.util.Set;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.util.Utils;
@@ -42,6 +43,20 @@ public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
   @Override
   public String getDriverClass() {
     return "org.mariadb.jdbc.Driver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("org.mariadb.jdbc:mariadb-java-client")
+        .defaultVersion("3.5.9")
+        .licenseCategory("X")
+        .licenseName("LGPL-2.1")
+        .licenseUrl(
+            "https://github.com/mariadb-corporation/mariadb-connector-j/blob/master/LICENSE")
+        .vendor("MariaDB")
+        .vendorUrl("https://mariadb.com/kb/en/about-mariadb-connector-j/")
+        .build();
   }
 
   @Override

@@ -25,6 +25,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -96,6 +97,19 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   @Override
   public String getDriverClass() {
     return "net.snowflake.client.jdbc.SnowflakeDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("net.snowflake:snowflake-jdbc")
+        .defaultVersion("4.3.1")
+        .licenseCategory("A")
+        .licenseName("Apache-2.0")
+        .licenseUrl("https://github.com/snowflakedb/snowflake-jdbc/blob/master/LICENSE.txt")
+        .vendor("Snowflake")
+        .vendorUrl("https://docs.snowflake.com/en/developer-guide/jdbc/jdbc")
+        .build();
   }
 
   @Override

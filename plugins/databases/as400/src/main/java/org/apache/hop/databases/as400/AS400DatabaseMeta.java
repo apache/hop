@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -41,6 +42,19 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "com.ibm.as400.access.AS400JDBCDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("net.sf.jt400:jt400")
+        .defaultVersion("21.0.6")
+        .licenseCategory("B")
+        .licenseName("IBM Public License 1.0")
+        .licenseUrl("https://github.com/IBM/JTOpen/blob/main/LICENSE.md")
+        .vendor("IBM JTOpen (jt400)")
+        .vendorUrl("https://github.com/IBM/JTOpen")
+        .build();
   }
 
   /**

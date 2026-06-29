@@ -451,6 +451,7 @@
                         </goals>
                         <configuration>
                             <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding}
+                                -DHOP_AUDIT_FOLDER=${project.build.directory}/audit
                                 ${maven-surefire-plugin.argLine} ${ui.test.argLine}</argLine>
                             <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
                             <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>

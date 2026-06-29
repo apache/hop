@@ -41,9 +41,7 @@ Check the https://docs.cloudera.com/documentation/other/connectors/impala-jdbc/l
 | Option | Info
 |Type | Relational
 |Driver | Use Cloudera Impala Drivers.  You can https://www.cloudera.com/downloads/connectors/impala/jdbc/2-6-35.html[Download] the latest versions from the Cloudera website.
-|Version Included | None
 |Hop Dependencies | Cloudera Impala Database Plugin
 |Documentation | https://docs.cloudera.com/documentation/other/connectors/impala-jdbc/latest.html[Documentation Link]
 |JDBC Url | jdbc:impala://hostname:port;principal=principalName
-|Driver folder | <Hop Installation>/lib/jdbc
 |===
