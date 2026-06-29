@@ -198,9 +198,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public void drawPipelineImage() throws HopException {
     // Make sure the canvas is scaled 100%
     gc.setTransform(0.0f, 0.0f, 1.0f);
+
     // First clear the image in the background color
     gc.setBackground(EColor.BACKGROUND);
     gc.fillRectangle(0, 0, area.x, area.y);
+
+    // Draw the grid if this option is enabled
+    if (gridSize > 1) {
+      drawGrid();
+    }
 
     // Draw the pipeline onto the image
     //
@@ -260,9 +266,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   private void drawPipeline() throws HopException {
-    if (gridSize > 1) {
-      drawGrid();
-    }
+
     drawOriginBoundary();
 
     try {

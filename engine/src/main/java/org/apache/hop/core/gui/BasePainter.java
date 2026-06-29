@@ -267,62 +267,59 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
    * Maximum grid points to draw; avoids severe slowdown on large/zoomed-out canvases (e.g.
    * Windows).
    */
-  private static final int MAX_GRID_POINTS = 50_000;
+  private static final int MAX_GRID_POINTS = 10_000;
 
   protected void drawGrid() {
     if (area == null || area.x <= 0 || area.y <= 0) {
       return;
     }
-    // Grid is drawn in the same coordinate system as drawOriginBoundary: the origin (0,0) of the
-    // pipeline is at (offset.x, offset.y) here. The hatched "outside workable" area is x < offset.x
-    // or y < offset.y. So we only draw grid where x >= offset.x and y >= offset.y.
+    // Grid is drawn at identity transform (screen pixels). offset is in graph units, so a graph
+    // point (gx, gy) maps to screen ((offset.x + gx) * mag, (offset.y + gy) * mag) -- the same
+    // mapping the painter uses for nodes, which are drawn at (offset + location) and scaled by mag.
+    // The pipeline origin (0,0) therefore sits at screen (offset.x * mag, offset.y * mag). We only
+    // draw grid points inside the visible area [0, area.x] x [0, area.y] and in the workable region
+    // (screen x >= origin and y >= origin).
     float mag = Math.max(0.1f, magnification);
-    int originX = (int) Math.round(offset.x);
-    int originY = (int) Math.round(offset.y);
-    int workableMinX = Math.max(0, originX);
-    int workableMinY = Math.max(0, originY);
-    // Visible extent in this coordinate system is (0,0) to (area.x/mag, area.y/mag); workable part
-    // is from (originX, originY) to that right/bottom edge.
-    int workableMaxX = (int) Math.ceil(area.x / mag);
-    int workableMaxY = (int) Math.ceil(area.y / mag);
-    if (workableMaxX <= workableMinX || workableMaxY <= workableMinY) {
+
+    // Pipeline origin (0,0) in screen pixels. offset is in graph units -> multiply by
+    // magnification.
+    double originScreenX = offset.x * mag;
+    double originScreenY = offset.y * mag;
+
+    // Visible screen bounds clamped to the workable area (no hatched region)
+    int screenMinX = Math.max(0, (int) Math.round(originScreenX));
+    int screenMinY = Math.max(0, (int) Math.round(originScreenY));
+    int screenMaxX = area.x;
+    int screenMaxY = area.y;
+    if (screenMaxX <= screenMinX || screenMaxY <= screenMinY) {
       return;
     }
 
-    int baseStep = (mag < 1.0f) ? Math.max(gridSize, (int) (gridSize / mag)) : gridSize;
-    int rangeX = workableMaxX - workableMinX;
-    int rangeY = workableMaxY - workableMinY;
-    long totalPoints = (long) (rangeX / baseStep + 1) * (rangeY / baseStep + 1);
-    int step = baseStep;
-    if (totalPoints > MAX_GRID_POINTS) {
-      int minStep =
-          Math.max(
-              gridSize,
-              (int) Math.ceil(Math.sqrt((double) rangeX * rangeY / (double) MAX_GRID_POINTS)));
-      step = Math.max(baseStep, minStep);
+    // Grid step in screen pixels: gridSize graph units * mag pixels/unit
+    // Use double precision throughout to avoid rounding errors on large canvases
+    double step = Math.max(1.0, gridSize * (double) mag);
+
+    // Visible range in screen pixels
+    int rangeX = screenMaxX - screenMinX;
+    int rangeY = screenMaxY - screenMinY;
+
+    // Adjust the step until we are within the limit
+    while ((rangeX / step + 1) * (rangeY / step + 1) > MAX_GRID_POINTS) {
+      step *= 2;
     }
-    int offsetX = (int) (offset.x % step);
-    int offsetY = (int) (offset.y % step);
-    if (offsetX < 0) {
-      offsetX += step;
-    }
-    if (offsetY < 0) {
-      offsetY += step;
-    }
-    // First grid position at or after workable visible origin (never in hatched area)
-    int startX =
-        Math.max(
-            workableMinX,
-            offsetX + step * (int) Math.ceil((double) (workableMinX - offsetX) / step));
-    int startY =
-        Math.max(
-            workableMinY,
-            offsetY + step * (int) Math.ceil((double) (workableMinY - offsetY) / step));
-    for (int x = startX; x < workableMaxX; x += step) {
-      for (int y = startY; y < workableMaxY; y += step) {
-        if (x >= 0 && y >= 0) {
-          gc.drawPoint(x, y);
-        }
+
+    // First grid position at or after the visible workable origin, aligned to the graph origin
+    // (grid lines sit at screen position origin + k*step, the same lattice nodes snap to).
+    double startX = originScreenX + Math.ceil((screenMinX - originScreenX) / step) * step;
+    double startY = originScreenY + Math.ceil((screenMinY - originScreenY) / step) * step;
+
+    gc.setForeground(EColor.BLACK);
+
+    // Use double-precision counters in the loop to avoid accumulated rounding errors
+    // when step is large or the canvas is wide (many iterations).
+    for (double x = startX; x < screenMaxX; x += step) {
+      for (double y = startY; y < screenMaxY; y += step) {
+        gc.drawPoint((int) x, (int) y);
       }
     }
   }
