@@ -81,7 +81,10 @@ public class Project extends ConfigFile implements IConfigFile {
   private String metadataBaseFolder;
   private String unitTestsBasePath;
   private String dataSetsCsvFolder;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private boolean enforcingExecutionInHome;
+
   private String parentProjectName;
   @JsonIgnore private MultiMetadataProvider metadataProvider;
   @JsonIgnore private List<Path> pipelinePaths;
