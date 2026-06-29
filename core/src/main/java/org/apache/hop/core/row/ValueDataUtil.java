@@ -344,7 +344,6 @@ public class ValueDataUtil {
 
         StringBuffer md5HashBuff = new StringBuffer(32);
         byte[] b = MessageDigest.getInstance(type).digest(buffer);
-        int len = b.length;
         for (byte value : b) {
           md5HashBuff.append(String.format("%02x", value));
         }
