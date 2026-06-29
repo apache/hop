@@ -37,7 +37,6 @@ import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.codec.net.URLCodec;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -335,25 +334,22 @@ public class ValueDataUtil {
     }
 
     String md5Hash = null;
-    FileObject file = null;
-    InputStream in = null;
-    try {
-      file = HopVfs.getFileObject(dataA.toString());
+    try (FileObject file = HopVfs.getFileObject(dataA.toString())) {
+      // verify file exists before opening the stream
       throwsErrorOnFileNotFound(file);
-      in = HopVfs.getInputStream(file);
-      int bytes = in.available();
-      byte[] buffer = new byte[bytes];
-      in.read(buffer);
+      try (InputStream in = HopVfs.getInputStream(file)) {
+        int bytes = in.available();
+        byte[] buffer = new byte[bytes];
+        in.read(buffer);
 
-      StringBuffer md5HashBuff = new StringBuffer(32);
-      byte[] b = MessageDigest.getInstance(type).digest(buffer);
-      int len = b.length;
-      for (byte value : b) {
-        md5HashBuff.append(String.format("%02x", value));
+        StringBuffer md5HashBuff = new StringBuffer(32);
+        byte[] b = MessageDigest.getInstance(type).digest(buffer);
+        for (byte value : b) {
+          md5HashBuff.append(String.format("%02x", value));
+        }
+
+        md5Hash = md5HashBuff.toString();
       }
-
-      md5Hash = md5HashBuff.toString();
-
     } catch (HopFileNotFoundException e) {
       if (failIfNoFile) {
         throw e;
@@ -361,9 +357,6 @@ public class ValueDataUtil {
       log.debug(e.getMessage());
     } catch (Exception e) {
       log.debug(e.getMessage());
-    } finally {
-      IOUtils.closeQuietly(file);
-      IOUtils.closeQuietly(in);
     }
     return md5Hash;
   }
@@ -382,22 +375,20 @@ public class ValueDataUtil {
       return checksum;
     }
 
-    FileObject file = null;
-    CheckedInputStream cis = null;
-    try {
-      file = HopVfs.getFileObject(dataA.toString());
+    try (FileObject file = HopVfs.getFileObject(dataA.toString())) {
       throwsErrorOnFileNotFound(file);
 
-      // Computer CRC32 checksum
-      cis = new CheckedInputStream(HopVfs.getInputStream(file), new CRC32());
-      byte[] buf = new byte[128];
-      int readSize = 0;
-      do {
-        readSize = cis.read(buf);
-      } while (readSize >= 0);
+      // Compute CRC32 checksum
+      try (CheckedInputStream cis =
+          new CheckedInputStream(HopVfs.getInputStream(file), new CRC32())) {
+        byte[] buf = new byte[128];
+        int readSize = 0;
+        do {
+          readSize = cis.read(buf);
+        } while (readSize >= 0);
 
-      checksum = cis.getChecksum().getValue();
-
+        checksum = cis.getChecksum().getValue();
+      }
     } catch (HopFileNotFoundException e) {
       if (failIfNoFile) {
         throw e;
@@ -405,9 +396,6 @@ public class ValueDataUtil {
       log.debug(e.getMessage());
     } catch (Exception e) {
       log.debug(e.getMessage());
-    } finally {
-      IOUtils.closeQuietly(file);
-      IOUtils.closeQuietly(cis);
     }
     return checksum;
   }
@@ -426,22 +414,19 @@ public class ValueDataUtil {
       return checksum;
     }
 
-    FileObject file = null;
-    CheckedInputStream cis = null;
-    try {
-      file = HopVfs.getFileObject(dataA.toString());
+    try (FileObject file = HopVfs.getFileObject(dataA.toString())) {
       throwsErrorOnFileNotFound(file);
 
-      // Computer Adler-32 checksum
-      cis = new CheckedInputStream(HopVfs.getInputStream(file), new Adler32());
-
-      byte[] buf = new byte[128];
-      int readSize = 0;
-      do {
-        readSize = cis.read(buf);
-      } while (readSize >= 0);
-      checksum = cis.getChecksum().getValue();
-
+      // Compute Adler-32 checksum
+      try (CheckedInputStream cis =
+          new CheckedInputStream(HopVfs.getInputStream(file), new Adler32())) {
+        byte[] buf = new byte[128];
+        int readSize = 0;
+        do {
+          readSize = cis.read(buf);
+        } while (readSize >= 0);
+        checksum = cis.getChecksum().getValue();
+      }
     } catch (HopFileNotFoundException e) {
       if (failIfNoFile) {
         throw e;
@@ -449,9 +434,6 @@ public class ValueDataUtil {
       log.debug(e.getMessage());
     } catch (Exception e) {
       log.debug(e.getMessage());
-    } finally {
-      IOUtils.closeQuietly(file);
-      IOUtils.closeQuietly(cis);
     }
     return checksum;
   }
@@ -552,12 +534,12 @@ public class ValueDataUtil {
     if (dataA == null && dataB == null) {
       return null;
     }
-    if (dataA == null && dataB != null) {
+    if (dataA == null) {
       Object value = metaA.convertData(metaB, dataB);
       metaA.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
       return value;
     }
-    if (dataA != null && dataB == null) {
+    if (dataB == null) {
       return dataA;
     }
 
@@ -578,16 +560,13 @@ public class ValueDataUtil {
     }
 
     byte[] content = null;
-    FileObject file = null;
-    InputStream is = null;
-
-    try {
-      file = HopVfs.getFileObject(dataA.toString());
+    try (FileObject file = HopVfs.getFileObject(dataA.toString())) {
       throwsErrorOnFileNotFound(file);
-      is = HopVfs.getInputStream(file);
-      int fileSize = (int) file.getContent().getSize();
-      content = new byte[fileSize];
-      is.read(content, 0, fileSize);
+      try (InputStream is = HopVfs.getInputStream(file)) {
+        int fileSize = (int) file.getContent().getSize();
+        content = new byte[fileSize];
+        is.read(content, 0, fileSize);
+      }
     } catch (HopFileNotFoundException e) {
       if (failIfNoFile) {
         throw e;
@@ -595,9 +574,6 @@ public class ValueDataUtil {
       log.debug(e.getMessage());
     } catch (Exception e) {
       throw new HopValueException(e);
-    } finally {
-      IOUtils.closeQuietly(file);
-      IOUtils.closeQuietly(is);
     }
     return content;
   }
@@ -1830,9 +1806,7 @@ public class ValueDataUtil {
     }
 
     String filename = dataA.toString();
-    FileObject file = null;
-    try {
-      file = HopVfs.getFileObject(filename);
+    try (FileObject file = HopVfs.getFileObject(filename)) {
       throwsErrorOnFileNotFound(file);
       return XmlCheck.isXmlFileWellFormed(file);
     } catch (HopFileNotFoundException e) {
@@ -1842,8 +1816,6 @@ public class ValueDataUtil {
       log.debug(e.getMessage());
     } catch (Exception e) {
       log.debug(e.getMessage());
-    } finally {
-      IOUtils.closeQuietly(file);
     }
     return false;
   }
@@ -1884,9 +1856,7 @@ public class ValueDataUtil {
     }
 
     String encoding = null;
-    FileObject file = null;
-    try {
-      file = HopVfs.getFileObject(metaA.getString(dataA));
+    try (FileObject file = HopVfs.getFileObject(metaA.getString(dataA))) {
       throwsErrorOnFileNotFound(file);
       encoding = CharsetToolkit.guessEncodingName(file);
     } catch (HopFileNotFoundException e) {
@@ -1896,8 +1866,6 @@ public class ValueDataUtil {
       log.debug(e.getMessage());
     } catch (Exception e) {
       throw new HopValueException(e);
-    } finally {
-      IOUtils.closeQuietly(file);
     }
     return encoding;
   }
