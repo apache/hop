@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0002-pipeline-get-configurations</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/01/14 17:20:35.075</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/01/14 17:20:35.075</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>files/${TYPE}.properties</from>
+      <to>get values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>get values</from>
+      <to>OUTPUT</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>OUTPUT</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>files/${TYPE}.properties</name>
+    <type>PropertyInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <encoding>UTF-8</encoding>
+    <fields>
+      <field>
+        <column>key</column>
+        <length>-1</length>
+        <name>Key</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <trim_type>none</trim_type>
+        <type>String</type>
+      </field>
+      <field>
+        <column>value</column>
+        <length>-1</length>
+        <name>Value</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <trim_type>none</trim_type>
+        <type>String</type>
+      </field>
+    </fields>
+    <file>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name>${PROJECT_HOME}/files/${TYPE}.properties</name>
+    </file>
+    <file_type>property</file_type>
+    <filefield>N</filefield>
+    <include>N</include>
+    <ini_section>N</ini_section>
+    <isaddresult>Y</isaddresult>
+    <limit>0</limit>
+    <resetrownumber>N</resetrownumber>
+    <resolvevaluevariable>N</resolvevaluevariable>
+    <rownum>N</rownum>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>get values</name>
+    <type>Denormaliser</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <field_name>Value</field_name>
+        <key_value>hostname</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>hostname</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>Value</field_name>
+        <key_value>port</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>port</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>Value</field_name>
+        <key_value>db</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>db</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>Value</field_name>
+        <key_value>username</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>username</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>Value</field_name>
+        <key_value>password</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>password</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <field_name>Value</field_name>
+        <key_value>variable</key_value>
+        <target_aggregation_type>-</target_aggregation_type>
+        <target_length>-1</target_length>
+        <target_name>variable</target_name>
+        <target_precision>-1</target_precision>
+        <target_type>String</target_type>
+      </field>
+    </fields>
+    <group>
+</group>
+    <key_field>Key</key_field>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

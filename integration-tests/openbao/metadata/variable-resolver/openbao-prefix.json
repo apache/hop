@@ -1,0 +1,17 @@
+{
+  "virtualPath": "",
+  "name": "openbao-prefix",
+  "description": "OpenBAO",
+  "variable-resolver": {
+    "OpenBao-Variable-Resolver": {
+      "vaultAddress": "http://openbao:8200",
+      "pemString": "",
+      "openTimeout": "",
+      "verifyingSsl": false,
+      "pemFilePath": "",
+      "readTimeout": "",
+      "pathPrefix": "secret/data/",
+      "vaultToken": "myroot"
+    }
+  }
+}

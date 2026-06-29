@@ -23,19 +23,19 @@ import org.apache.hop.core.variables.resolver.VariableResolverPlugin;
 
 @GuiPlugin
 @VariableResolverPlugin(
-    id = "Vault-Variable-Resolver",
-    name = "Hashicorp Vault Variable Resolver",
-    description = "Look up values of secrets in Hashicorp Vault",
-    documentationUrl = "/metadata-types/variable-resolver/hashicorp-vault-variable-resolver.html")
-public class VaultVariableResolver extends BaseVaultVariableResolver {
+    id = "OpenBao-Variable-Resolver",
+    name = "OpenBAO Variable Resolver",
+    description = "Look up values of secrets in OpenBAO",
+    documentationUrl = "/metadata-types/variable-resolver/openbao-variable-resolver.html")
+public class OpenBaoVariableResolver extends BaseVaultVariableResolver {
 
   @Override
   public String getPluginId() {
-    return "Vault-Variable-Resolver";
+    return "OpenBao-Variable-Resolver";
   }
 
   @Override
   public String getPluginName() {
-    return "Hashicorp Vault Variable Resolver";
+    return "OpenBAO Variable Resolver";
   }
 }
