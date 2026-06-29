@@ -795,4 +795,31 @@ class PipelineMetaTest {
     ModPartitioner copyModPart = (ModPartitioner) copyPartMeta.getPartitioner();
     assertEquals("field-name", copyModPart.getFieldName());
   }
+
+  @Test
+  void testIssue7338() throws Exception {
+    String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<pipeline>\n"
+            + "  <transform>\n"
+            + "    <type>RowGenerator</type>\n"
+            + "    <name>100</name>\n"
+            + "  </transform>\n"
+            + "  <transform_error_handling>\n"
+            + "    <error>\n"
+            + "      <source_transform>100</source_transform>\n"
+            + "      <target_transform>NonExistentTransform</target_transform>\n"
+            + "      <is_enabled>Y</is_enabled>\n"
+            + "    </error>\n"
+            + "  </transform_error_handling>\n"
+            + "</pipeline>";
+    Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
+    PipelineMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
+    assertNotNull(copy);
+    assertEquals(1, copy.getTransformErrorMetas().size());
+    assertNotNull(copy.getTransformErrorMetas().get(0).getSourceTransform());
+    assertEquals("100", copy.getTransformErrorMetas().get(0).getSourceTransform().getName());
+    assertNull(copy.getTransformErrorMetas().get(0).getTargetTransform());
+  }
 }
