@@ -114,6 +114,9 @@ public class TableView extends Composite {
   /** Default minimum height hint in pixels for all TableView instances. */
   public static final int HEIGHT_HINT_PX = 200;
 
+  /** Default maximum height hint in pixels for all TableView instances. */
+  public static final int HEIGHT_HINT_MAX_PX = 350;
+
   /**
    * Default minimum width hint in pixels for all TableView instances (matches typical shell width).
    */
@@ -641,8 +644,16 @@ public class TableView extends Composite {
   @Override
   public Point computeSize(int wHint, int hHint, boolean changed) {
     Point size = super.computeSize(wHint, hHint, changed);
-    if (hHint == SWT.DEFAULT && size.y < HEIGHT_HINT_PX) {
-      size.y = HEIGHT_HINT_PX;
+    double zoomFactor = PropsUi.getNativeZoomFactor();
+    int minHeight = (int) Math.round(HEIGHT_HINT_PX * zoomFactor);
+    int maxHeight = (int) Math.round(HEIGHT_HINT_MAX_PX * zoomFactor);
+
+    if (hHint == SWT.DEFAULT) {
+      if (size.y < minHeight) {
+        size.y = minHeight;
+      } else if (size.y > maxHeight) {
+        size.y = maxHeight;
+      }
     }
     return size;
   }
