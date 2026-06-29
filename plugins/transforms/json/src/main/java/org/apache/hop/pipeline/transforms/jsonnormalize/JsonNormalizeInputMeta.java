@@ -264,6 +264,7 @@ public class JsonNormalizeInputMeta
     this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
     this.fileInput = new BaseFileInput(m.fileInput);
     m.inputFields.forEach(f -> inputFields.add(new JsonInputField(f)));
+    syncFieldSourceFlags();
   }
 
   @Override
@@ -372,6 +373,21 @@ public class JsonNormalizeInputMeta
   @Override
   public void convertLegacyXml(Node node) {
     convertLegacyXml(getFileInput().getInputFiles(), node);
+
+    // sync field(acceptingFilenames, acceptingField)
+    syncFieldSourceFlags();
+  }
+
+  /**
+   * XML deserialization sets {@link #inFields} and {@link #valueField} directly on fields, not
+   * through {@link #setInFields(boolean)} / {@link #setFieldValue(String)}. Keep {@link
+   * BaseFileInput} in sync so runtime file reading uses the upstream field when configured.
+   */
+  private void syncFieldSourceFlags() {
+    fileInput.setAcceptingFilenames(inFields);
+    if (!Utils.isEmpty(valueField)) {
+      fileInput.setAcceptingField(valueField);
+    }
   }
 
   public String getRequiredFilesDesc(String tt) {

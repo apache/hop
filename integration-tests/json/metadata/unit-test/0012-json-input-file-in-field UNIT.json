@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "power",
+          "data_set_field": "power"
+        }
+      ],
+      "field_order": [
+        "name",
+        "power"
+      ],
+      "data_set_name": "golden-json-input-file-in-field",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0012-json-input-file-in-field UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0012-json-input-file-in-field.hpl"
+}
