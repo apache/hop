@@ -351,6 +351,58 @@ class ValueMetaBaseTest {
   }
 
   @Test
+  void testConvertDataFromStringTrimsWhitespacePerTrimType() throws HopValueException {
+    ValueMetaBase inMeta = new ValueMetaString();
+    ValueMetaBase outMeta = new ValueMetaString();
+    // Leading/trailing mix of space and tab around the actual content.
+    String input = " \tHELLO\t ";
+
+    // BOTH strips leading and trailing whitespace.
+    assertEquals(
+        "HELLO",
+        outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+
+    // LEFT strips only leading whitespace, trailing is preserved.
+    assertEquals(
+        "HELLO\t ",
+        outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_LEFT));
+
+    // RIGHT strips only trailing whitespace, leading is preserved.
+    assertEquals(
+        " \tHELLO",
+        outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_RIGHT));
+
+    // NONE leaves the value untouched.
+    assertEquals(
+        input, outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_NONE));
+  }
+
+  @Test
+  void testConvertDataFromStringTrimsAllWhitespaceNotJustSpaces() throws HopValueException {
+    ValueMetaBase inMeta = new ValueMetaString();
+    ValueMetaBase outMeta = new ValueMetaString();
+
+    // Regression guard: the previous implementation trimmed the ASCII space (0x20) only.
+    // Tabs, carriage returns and line feeds must now be trimmed as well, consistent with
+    // Const.onlySpaces() which is already used for empty-value detection in the same method.
+    assertEquals(
+        "value",
+        outMeta.convertDataFromString(
+            "\t\r\n value \n\r\t", inMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+  }
+
+  @Test
+  void testConvertDataFromStringTrimsBeforeNumericParsing() throws HopValueException {
+    ValueMetaBase inMeta = new ValueMetaString();
+    ValueMetaBase outMeta = new ValueMetaInteger();
+
+    // Surrounding whitespace (including tab/newline) is trimmed before the string is parsed.
+    assertEquals(
+        42L,
+        outMeta.convertDataFromString("\t42\n", inMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+  }
+
+  @Test
   void testConvertDataFromStringToDate() throws HopValueException {
     ValueMetaBase inValueMetaString = new ValueMetaString();
     ValueMetaBase outValueMetaDate = new ValueMetaDate();
