@@ -167,6 +167,26 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
     if (test == null) {
       throw new HopException("Unit test '" + testName + "' could not be found");
     }
+
+    variables.setVariable(
+        org.apache.hop.testing.util.DataSetConst.VAR_UNIT_TEST_NAME, test.getName());
+    try {
+      if ("GUI".equalsIgnoreCase(org.apache.hop.core.Const.getHopPlatformRuntime())) {
+        Class<?> hopGuiClass = Class.forName("org.apache.hop.ui.hopgui.HopGui");
+        Object hopGuiInstance = hopGuiClass.getMethod("getInstance").invoke(null);
+        if (hopGuiInstance != null) {
+          IVariables guiVariables =
+              (IVariables) hopGuiClass.getMethod("getVariables").invoke(hopGuiInstance);
+          if (guiVariables != null) {
+            guiVariables.setVariable(
+                org.apache.hop.testing.util.DataSetConst.VAR_UNIT_TEST_NAME, test.getName());
+          }
+        }
+      }
+    } catch (Throwable e) {
+      // Ignore
+    }
+
     return UnitTestUtil.loadTestPipeline(test, metadataProvider, variables);
   }
 

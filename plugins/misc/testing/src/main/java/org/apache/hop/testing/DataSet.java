@@ -141,6 +141,10 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
     IRowMeta rowMeta = new RowMeta();
     for (PipelineUnitTestFieldMapping fieldMapping : location.getFieldMappings()) {
       IValueMeta valueMeta = setRowMeta.searchValueMeta(fieldMapping.getDataSetFieldName());
+      if (valueMeta == null) {
+        valueMeta =
+            new org.apache.hop.core.row.value.ValueMetaString(fieldMapping.getDataSetFieldName());
+      }
       rowMeta.addValueMeta(valueMeta);
     }
     return rowMeta;

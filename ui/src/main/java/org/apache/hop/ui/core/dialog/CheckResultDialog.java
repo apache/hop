@@ -65,7 +65,6 @@ public class CheckResultDialog extends Dialog {
   private final PropsUi props;
 
   private Color red;
-  private Color green;
   private Color yellow;
 
   private boolean showSuccessfulResults = false;
@@ -84,7 +83,6 @@ public class CheckResultDialog extends Dialog {
     Display display = parent.getDisplay();
 
     red = display.getSystemColor(SWT.COLOR_RED);
-    green = display.getSystemColor(SWT.COLOR_GREEN);
     yellow = display.getSystemColor(SWT.COLOR_YELLOW);
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
@@ -219,22 +217,20 @@ public class CheckResultDialog extends Dialog {
         ti.setText(2, cr.getType() + " - " + cr.getTypeDesc());
         ti.setText(3, cr.getText());
 
-        Color col = ti.getBackground();
+        Color col = null;
         switch (cr.getType()) {
-          case ICheckResult.TYPE_RESULT_OK:
-            col = green;
-            break;
           case ICheckResult.TYPE_RESULT_ERROR:
             col = red;
             break;
           case ICheckResult.TYPE_RESULT_WARNING:
             col = yellow;
             break;
-          case ICheckResult.TYPE_RESULT_COMMENT:
           default:
             break;
         }
-        ti.setBackground(col);
+        if (col != null) {
+          ti.setBackground(col);
+        }
       }
     }
 

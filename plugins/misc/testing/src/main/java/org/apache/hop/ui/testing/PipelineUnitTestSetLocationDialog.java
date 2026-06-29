@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -34,6 +36,7 @@ import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.CheckResultDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -190,11 +193,15 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     wGetSortFields.setText(
         BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.GetSortFields.Button"));
     wGetSortFields.addListener(SWT.Selection, e -> getSortFields());
+    Button wValidate = new Button(shell, SWT.PUSH);
+    wValidate.setText(
+        BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.Validate.Button"));
+    wValidate.addListener(SWT.Selection, e -> validate());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wMapFields, wGetSortFields, wCancel}, margin, null);
+        shell, new Button[] {wOk, wMapFields, wGetSortFields, wValidate, wCancel}, margin, null);
 
     // the field mapping grid in between on the left
     //
@@ -426,6 +433,196 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
       String fieldname = item.getText(colnr++);
       loc.getFieldOrder().add(fieldname);
     }
+  }
+
+  protected void validate() {
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    String transformName = wTransformName.getText();
+    String datasetName = wDataset.getText();
+
+    if (StringUtils.isEmpty(datasetName)) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "PipelineUnitTestSetLocationDialog.Validate.Result.DatasetNotSelected"),
+              null));
+    }
+    if (StringUtils.isEmpty(transformName)) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "PipelineUnitTestSetLocationDialog.Validate.Result.TransformNotSelected"),
+              null));
+    }
+
+    DataSet dataSet = null;
+    if (StringUtils.isNotEmpty(datasetName)) {
+      try {
+        dataSet = findDataSet(datasetName);
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                "Dataset '" + datasetName + "' exists in metadata.",
+                null));
+      } catch (Exception e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "PipelineUnitTestSetLocationDialog.Validate.Result.DatasetNotExist",
+                    datasetName),
+                null));
+      }
+    }
+
+    // Check fields of the transform if selected
+    IRowMeta transformRowMeta = null;
+    if (StringUtils.isNotEmpty(transformName)) {
+      transformRowMeta = transformFieldsMap.get(transformName);
+      if (transformRowMeta == null) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                "Unable to find fields for transform " + transformName,
+                null));
+      }
+    }
+
+    IRowMeta setRowMeta = null;
+    if (dataSet != null) {
+      try {
+        setRowMeta = dataSet.getSetRowMeta();
+      } catch (Exception e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                "Error reading fields metadata for dataset '"
+                    + datasetName
+                    + "': "
+                    + e.getMessage(),
+                null));
+      }
+    }
+
+    // Verify field mappings
+    PipelineUnitTestSetLocation loc = new PipelineUnitTestSetLocation();
+    getInfo(loc);
+
+    if (loc.getFieldMappings().isEmpty()) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_WARNING,
+              BaseMessages.getString(
+                  PKG, "PipelineUnitTestSetLocationDialog.Validate.Result.FieldMappingEmpty"),
+              null));
+    } else {
+      for (PipelineUnitTestFieldMapping mapping : loc.getFieldMappings()) {
+        String tField = mapping.getTransformFieldName();
+        String dField = mapping.getDataSetFieldName();
+
+        if (transformRowMeta != null && StringUtils.isNotEmpty(tField)) {
+          if (transformRowMeta.indexOfValue(tField) < 0) {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG,
+                        "PipelineUnitTestSetLocationDialog.Validate.Result.TransformFieldNotExist",
+                        tField,
+                        transformName),
+                    null));
+          }
+        }
+        if (setRowMeta != null && StringUtils.isNotEmpty(dField)) {
+          if (setRowMeta.indexOfValue(dField) < 0) {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG,
+                        "PipelineUnitTestSetLocationDialog.Validate.Result.DatasetFieldNotExist",
+                        dField,
+                        datasetName),
+                    null));
+          }
+        }
+      }
+    }
+
+    // Verify sort field order mappings
+    if (setRowMeta != null) {
+      for (String sortField : loc.getFieldOrder()) {
+        if (StringUtils.isNotEmpty(sortField) && setRowMeta.indexOfValue(sortField) < 0) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG,
+                      "PipelineUnitTestSetLocationDialog.Validate.Result.SortFieldNotExist",
+                      sortField,
+                      datasetName),
+                  null));
+        }
+      }
+    }
+
+    // Verify CSV file exists and can read rows
+    if (dataSet != null) {
+      String filename = dataSet.getActualDataSetFilename(variables);
+      try {
+        org.apache.commons.vfs2.FileObject file =
+            org.apache.hop.core.vfs.HopVfs.getFileObject(filename);
+        if (!file.exists()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG,
+                      "PipelineUnitTestSetLocationDialog.Validate.Result.CsvNotExist",
+                      filename),
+                  null));
+        } else {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_OK, "CSV file '" + filename + "' exists.", null));
+          try {
+            List<Object[]> rows =
+                dataSet.getAllRows(variables, org.apache.hop.core.logging.LogChannel.UI);
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_OK,
+                    BaseMessages.getString(
+                        PKG,
+                        "PipelineUnitTestSetLocationDialog.Validate.Result.Success",
+                        String.valueOf(rows.size())),
+                    null));
+          } catch (Exception e) {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG,
+                        "PipelineUnitTestSetLocationDialog.Validate.Result.CsvReadError",
+                        e.getMessage()),
+                    null));
+          }
+        }
+      } catch (Exception e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                "Error resolving CSV file path: " + e.getMessage(),
+                null));
+      }
+    }
+
+    // Show CheckResultDialog
+    CheckResultDialog checkResultDialog = new CheckResultDialog(shell, remarks);
+    checkResultDialog.open();
   }
 
   public void ok() {
