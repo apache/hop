@@ -32,6 +32,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -64,6 +65,7 @@ import org.apache.hop.ui.core.dialog.DetailsDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -154,6 +156,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "MetadataPerspective-Toolbar";
 
+  /**
+   * Parent id under which plugins can contribute right-click context-menu items (via {@link
+   * org.apache.hop.core.gui.plugin.menu.GuiMenuElement}) for a selected metadata item. Contributed
+   * items are appended below the perspective's own items when a metadata item ({@link #FILE}) node
+   * is selected.
+   */
+  public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "MetadataPerspective-ContextMenu";
+
   public static final String TOOLBAR_ITEM_NEW_TYPE = "MetadataPerspective-Toolbar-09000-NewType";
   public static final String TOOLBAR_ITEM_NEW = "MetadataPerspective-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
@@ -200,6 +210,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   private StackLayout editorStackLayout;
   private MetadataOverview overview;
   private GuiToolbarWidgets toolBarWidgets;
+  private GuiMenuWidgets contextMenuWidgets;
   private Text searchText;
   private Label resultCountLabel;
   private String currentSearchFilter = "";
@@ -456,6 +467,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
               menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Help"));
               menuItem.setImage(GuiResource.getInstance().getImageHelp());
               menuItem.addListener(SWT.Selection, e -> onHelpMetadata());
+            }
+
+            // Let plugins contribute extra items for a selected metadata item.
+            if (FILE.equals(treeItem.getData(KEY_TYPE))) {
+              appendPluginContextMenuItems(menu);
             }
 
             tree.setMenu(menu);
@@ -884,6 +900,52 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
 
     return (MetadataEditor<?>) tabFolder.getSelection().getData();
+  }
+
+  /**
+   * The {@code @HopMetadata} type key and name of the currently selected metadata item, as a
+   * 2-element array {@code {key, name}}, or {@code null} when the selection is not a single
+   * metadata item. Intended for plugins contributing items under {@link
+   * #GUI_PLUGIN_CONTEXT_MENU_PARENT_ID}.
+   */
+  public String[] getSelectedMetadataKeyAndName() {
+    if (tree == null || tree.isDisposed() || tree.getSelectionCount() != 1) {
+      return null;
+    }
+    TreeItem treeItem = tree.getSelection()[0];
+    if (treeItem == null
+        || !FILE.equals(treeItem.getData(KEY_TYPE))
+        || treeItem.getParentItem() == null) {
+      return null;
+    }
+    Object key = treeItem.getParentItem().getData();
+    String name = treeItem.getText(0);
+    if (key == null || Utils.isEmpty(name)) {
+      return null;
+    }
+    return new String[] {key.toString(), name};
+  }
+
+  /**
+   * Append context-menu items contributed by plugins (annotated with {@link
+   * org.apache.hop.core.gui.plugin.menu.GuiMenuElement} under {@link
+   * #GUI_PLUGIN_CONTEXT_MENU_PARENT_ID}) to the given menu. The menu is rebuilt on every
+   * right-click, so the widgets are recreated each time. Does nothing when no plugin items are
+   * registered.
+   */
+  private void appendPluginContextMenuItems(Menu menu) {
+    if (GuiRegistry.getInstance()
+        .findChildGuiMenuItems(GUI_PLUGIN_CONTEXT_MENU_PARENT_ID, GUI_PLUGIN_CONTEXT_MENU_PARENT_ID)
+        .isEmpty()) {
+      return;
+    }
+    try {
+      contextMenuWidgets = new GuiMenuWidgets();
+      contextMenuWidgets.registerGuiPluginObject(this);
+      contextMenuWidgets.createMenuWidgets(GUI_PLUGIN_CONTEXT_MENU_PARENT_ID, getShell(), menu);
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error adding plugin context menu items to metadata perspective", e);
+    }
   }
 
   @Override
