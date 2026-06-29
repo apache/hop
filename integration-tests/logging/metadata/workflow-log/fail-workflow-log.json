@@ -1,0 +1,15 @@
+{
+  "name": "fail-workflow-log",
+  "enabled": true,
+  "loggingParentsOnly": false,
+  "pipelineFilename": "${PROJECT_HOME}/002-abort-logging.hpl",
+  "executingAtStart": true,
+  "executingPeriodically": false,
+  "intervalInSeconds": "30",
+  "executingAtEnd": true,
+  "logLevel": "BASIC",
+  "workflowToLog": [
+    "${PROJECT_HOME}/002-failing-workflow.hwf"
+  ],
+  "failParentOnLoggingFailure": true
+}

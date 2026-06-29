@@ -1,0 +1,17 @@
+{
+  "name": "fail-pipeline-log",
+  "enabled": true,
+  "loggingParentsOnly": false,
+  "pipelineFilename": "${PROJECT_HOME}/001-abort-logging.hpl",
+  "executingAtStart": true,
+  "executingPeriodically": false,
+  "intervalInSeconds": "30",
+  "executingAtEnd": true,
+  "logLevel": "BASIC",
+  "pipelinesToLog": [
+    {
+      "pipelineToLogFilename": "${PROJECT_HOME}/001-failing-pipeline.hpl"
+    }
+  ],
+  "failParentOnLoggingFailure": true
+}

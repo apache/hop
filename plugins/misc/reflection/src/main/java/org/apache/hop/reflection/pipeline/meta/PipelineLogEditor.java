@@ -63,6 +63,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
   private Text wName;
   private Button wEnabled;
   private Button wLoggingParentsOnly;
+  private Button wFailParentOnLoggingFailure;
   private TextVar wFilename;
   private Combo wLogLevel;
   private Button wAtStart;
@@ -156,6 +157,27 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     fdLoggingParentsOnly.top = new FormAttachment(wlLoggingParentsOnly, 0, SWT.CENTER);
     wLoggingParentsOnly.setLayoutData(fdLoggingParentsOnly);
     lastControl = wlLoggingParentsOnly;
+
+    // FailParentOnLoggingFailure?
+    //
+    Label wlFailParentOnLoggingFailure = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlFailParentOnLoggingFailure);
+    wlFailParentOnLoggingFailure.setText(
+        BaseMessages.getString(PKG, "PipelineLoggingEditor.FailParentOnLoggingFailure.Label"));
+    FormData fdlFailParentOnLoggingFailure = new FormData();
+    fdlFailParentOnLoggingFailure.left = new FormAttachment(0, 0);
+    fdlFailParentOnLoggingFailure.right = new FormAttachment(middle, 0);
+    fdlFailParentOnLoggingFailure.top = new FormAttachment(lastControl, 2 * margin);
+    wlFailParentOnLoggingFailure.setLayoutData(fdlFailParentOnLoggingFailure);
+    wFailParentOnLoggingFailure = new Button(parent, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wFailParentOnLoggingFailure);
+    FormData fdFailParentOnLoggingFailure = new FormData();
+    fdFailParentOnLoggingFailure.left = new FormAttachment(middle, margin);
+    fdFailParentOnLoggingFailure.right = new FormAttachment(100, 0);
+    fdFailParentOnLoggingFailure.top =
+        new FormAttachment(wlFailParentOnLoggingFailure, 0, SWT.CENTER);
+    wFailParentOnLoggingFailure.setLayoutData(fdFailParentOnLoggingFailure);
+    lastControl = wlFailParentOnLoggingFailure;
 
     Label wlFilename = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlFilename);
@@ -334,6 +356,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wName.addListener(SWT.Modify, modifyListener);
     wEnabled.addListener(SWT.Selection, modifyListener);
     wLoggingParentsOnly.addListener(SWT.Selection, modifyListener);
+    wFailParentOnLoggingFailure.addListener(SWT.Selection, modifyListener);
     wFilename.addListener(SWT.Modify, modifyListener);
     wLogLevel.addListener(SWT.Modify, modifyListener);
     wAtStart.addListener(SWT.Selection, modifyListener);
@@ -446,6 +469,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wName.setText(Const.NVL(pl.getName(), ""));
     wEnabled.setSelection(pl.isEnabled());
     wLoggingParentsOnly.setSelection(pl.isLoggingParentsOnly());
+    wFailParentOnLoggingFailure.setSelection(pl.isFailParentOnLoggingFailure());
     wFilename.setText(Const.NVL(pl.getPipelineFilename(), ""));
     wLogLevel.setText(pl.getLogLevel().getDescription());
     wAtStart.setSelection(pl.isExecutingAtStart());
@@ -467,6 +491,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     pl.setName(wName.getText());
     pl.setEnabled(wEnabled.getSelection());
     pl.setLoggingParentsOnly(wLoggingParentsOnly.getSelection());
+    pl.setFailParentOnLoggingFailure(wFailParentOnLoggingFailure.getSelection());
     pl.setPipelineFilename(wFilename.getText());
     pl.setLogLevel(LogLevel.lookupDescription(wLogLevel.getText()));
     pl.setExecutingAtStart(wAtStart.getSelection());

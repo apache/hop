@@ -96,30 +96,41 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
         return;
       }
     } catch (Exception e) {
-      workflow.stopExecution();
-      throw new HopException(
-          "Error handling Workflow Log metadata object '"
-              + workflowLog.getName()
-              + "' at the start of pipeline: "
-              + workflow,
-          e);
+      if (workflowLog.isFailParentOnLoggingFailure()) {
+        workflow.stopExecution();
+        throw new HopException(
+            "Error handling Workflow Log metadata object '"
+                + workflowLog.getName()
+                + "' at the start of workflow: "
+                + e.getMessage(),
+            e);
+      } else {
+        log.logError(
+            "Error handling Workflow Log metadata object '"
+                + workflowLog.getName()
+                + "' at the start of workflow: "
+                + e.getMessage(),
+            e);
+        return;
+      }
     }
 
     if (workflowLog.getWorkflowToLog().isEmpty()) {
-      logWorkflow(workflowLog, workflow, variables, loggingPipelineFilename);
+      logWorkflow(log, workflowLog, workflow, variables, loggingPipelineFilename);
     } else {
       for (String workflowToLog : workflowLog.getWorkflowToLog()) {
         String workflowUri = HopVfs.getFileObject(workflow.getFilename()).getPublicURIString();
         String workflowToLogUri =
             HopVfs.getFileObject(variables.resolve(workflowToLog)).getPublicURIString();
         if (workflowUri.equals(workflowToLogUri)) {
-          logWorkflow(workflowLog, workflow, variables, loggingPipelineFilename);
+          logWorkflow(log, workflowLog, workflow, variables, loggingPipelineFilename);
         }
       }
     }
   }
 
   private void logWorkflow(
+      ILogChannel log,
       WorkflowLog workflowLog,
       IWorkflowEngine<WorkflowMeta> workflow,
       IVariables variables,
@@ -135,9 +146,23 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       if (workflowLog.isExecutingAtEnd()) {
         workflow.addExecutionFinishedListener(
             engine -> {
-              executeLoggingPipeline(
-                  workflowLog, "end", loggingPipelineFilename, workflow, variables);
-              ExecutorUtil.cleanup(timer);
+              try {
+                executeLoggingPipeline(
+                    workflowLog, "end", loggingPipelineFilename, workflow, variables);
+              } catch (HopException e) {
+                if (workflowLog.isFailParentOnLoggingFailure()) {
+                  throw e;
+                } else {
+                  log.logError(
+                      "Error handling Workflow Log metadata object '"
+                          + workflowLog.getName()
+                          + "' at the end of workflow: "
+                          + e.getMessage(),
+                      e);
+                }
+              } finally {
+                ExecutorUtil.cleanup(timer);
+              }
             });
       }
 
@@ -153,11 +178,20 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
                     executeLoggingPipeline(
                         workflowLog, "interval", loggingPipelineFilename, workflow, variables);
                   } catch (Exception e) {
-                    throw new HopRuntimeException(
-                        "Unable to do interval logging for Workflow Log object '"
-                            + workflowLog.getName()
-                            + "'",
-                        e);
+                    if (workflowLog.isFailParentOnLoggingFailure()) {
+                      throw new HopRuntimeException(
+                          "Unable to do interval logging for Workflow Log object '"
+                              + workflowLog.getName()
+                              + "'",
+                          e);
+                    } else {
+                      log.logError(
+                          "Unable to do interval logging for Workflow Log object '"
+                              + workflowLog.getName()
+                              + "': "
+                              + e.getMessage(),
+                          e);
+                    }
                   }
                 }
               };
@@ -165,13 +199,22 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
         }
       }
     } catch (Exception e) {
-      workflow.stopExecution();
-      throw new HopException(
-          "Error handling Workflow Log metadata object '"
-              + workflowLog.getName()
-              + "' at the start of pipeline: "
-              + workflow,
-          e);
+      if (workflowLog.isFailParentOnLoggingFailure()) {
+        workflow.stopExecution();
+        throw new HopException(
+            "Error handling Workflow Log metadata object '"
+                + workflowLog.getName()
+                + "' at the start of workflow: "
+                + e.getMessage(),
+            e);
+      } else {
+        log.logError(
+            "Error handling Workflow Log metadata object '"
+                + workflowLog.getName()
+                + "' at the start of workflow: "
+                + e.getMessage(),
+            e);
+      }
     }
   }
 
@@ -211,5 +254,9 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
     //
     loggingPipeline.startThreads();
     loggingPipeline.waitUntilFinished();
+
+    if (loggingPipeline.getErrors() > 0) {
+      throw new HopException("Errors occurred during logging pipeline execution.");
+    }
   }
 }

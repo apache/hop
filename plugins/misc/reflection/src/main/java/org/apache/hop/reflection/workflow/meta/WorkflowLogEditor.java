@@ -63,6 +63,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
   private Text wName;
   private Button wEnabled;
   private Button wLoggingParentsOnly;
+  private Button wFailParentOnLoggingFailure;
   private TextVar wFilename;
   private Combo wLogLevel;
   private Button wAtStart;
@@ -156,6 +157,27 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     fdLoggingParentsOnly.top = new FormAttachment(wlLoggingParentsOnly, 0, SWT.CENTER);
     wLoggingParentsOnly.setLayoutData(fdLoggingParentsOnly);
     lastControl = wlLoggingParentsOnly;
+
+    // FailParentOnLoggingFailure?
+    //
+    Label wlFailParentOnLoggingFailure = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlFailParentOnLoggingFailure);
+    wlFailParentOnLoggingFailure.setText(
+        BaseMessages.getString(PKG, "WorkflowLoggingEditor.FailParentOnLoggingFailure.Label"));
+    FormData fdlFailParentOnLoggingFailure = new FormData();
+    fdlFailParentOnLoggingFailure.left = new FormAttachment(0, 0);
+    fdlFailParentOnLoggingFailure.right = new FormAttachment(middle, 0);
+    fdlFailParentOnLoggingFailure.top = new FormAttachment(lastControl, margin);
+    wlFailParentOnLoggingFailure.setLayoutData(fdlFailParentOnLoggingFailure);
+    wFailParentOnLoggingFailure = new Button(parent, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wFailParentOnLoggingFailure);
+    FormData fdFailParentOnLoggingFailure = new FormData();
+    fdFailParentOnLoggingFailure.left = new FormAttachment(middle, margin);
+    fdFailParentOnLoggingFailure.right = new FormAttachment(100, 0);
+    fdFailParentOnLoggingFailure.top =
+        new FormAttachment(wlFailParentOnLoggingFailure, 0, SWT.CENTER);
+    wFailParentOnLoggingFailure.setLayoutData(fdFailParentOnLoggingFailure);
+    lastControl = wlFailParentOnLoggingFailure;
 
     // The filename and some buttons to the right
     //
@@ -336,6 +358,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wName.addListener(SWT.Modify, modifyListener);
     wEnabled.addListener(SWT.Selection, modifyListener);
     wLoggingParentsOnly.addListener(SWT.Selection, modifyListener);
+    wFailParentOnLoggingFailure.addListener(SWT.Selection, modifyListener);
     wFilename.addListener(SWT.Modify, modifyListener);
     wLogLevel.addListener(SWT.Modify, modifyListener);
     wAtStart.addListener(SWT.Selection, modifyListener);
@@ -448,6 +471,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wName.setText(Const.NVL(wl.getName(), ""));
     wEnabled.setSelection(wl.isEnabled());
     wLoggingParentsOnly.setSelection(wl.isLoggingParentsOnly());
+    wFailParentOnLoggingFailure.setSelection(wl.isFailParentOnLoggingFailure());
     wFilename.setText(Const.NVL(wl.getPipelineFilename(), ""));
     wLogLevel.setText(wl.getLogLevel().getDescription());
     wAtStart.setSelection(wl.isExecutingAtStart());
@@ -469,6 +493,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     pl.setName(wName.getText());
     pl.setEnabled(wEnabled.getSelection());
     pl.setLoggingParentsOnly(wLoggingParentsOnly.getSelection());
+    pl.setFailParentOnLoggingFailure(wFailParentOnLoggingFailure.getSelection());
     pl.setPipelineFilename(wFilename.getText());
     pl.setLogLevel(LogLevel.lookupDescription(wLogLevel.getText()));
     pl.setExecutingAtStart(wAtStart.getSelection());
