@@ -45,7 +45,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -837,7 +837,7 @@ class TextFileOutputTest {
     String outputEncode = "Windows-1252";
     Object[] rows = {testString.getBytes(inputEncode)};
 
-    ValueMetaBase iValueMeta = new ValueMetaBase("test", IValueMeta.TYPE_STRING);
+    IValueMeta iValueMeta = ValueMetaFactory.createValueMeta("test", IValueMeta.TYPE_STRING);
     iValueMeta.setStringEncoding(inputEncode);
     iValueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     iValueMeta.setStorageMetadata(new ValueMetaString());

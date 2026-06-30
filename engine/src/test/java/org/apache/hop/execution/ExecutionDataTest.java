@@ -32,6 +32,7 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.core.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +42,7 @@ class ExecutionDataTest {
   void before() throws Exception {
     // Load data type plugins
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
   }
 
   @Test

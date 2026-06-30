@@ -29,11 +29,12 @@ import javax.xml.namespace.QName;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -376,31 +377,29 @@ public class WebServiceDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent event) {
-            if (inWsdlParamContainer == null) {
-              try {
-                loadWebService(wURL.getText());
-                loadOperation(wOperation.getText());
-              } catch (HopException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            try {
+              if (inWsdlParamContainer == null) {
+                loadWebServiceAndOperation();
               }
-            }
-            IRowMeta r = getInWebServiceFields();
-            if (r != null) {
-              BaseTransformDialog.getFieldsFromPrevious(
-                  r, fieldInTableView, 2, new int[] {2}, new int[] {}, -1, -1, null);
-            }
-            // Define type for new entries
-            if (inWsdlParamContainer != null) {
-              TableItem[] items = fieldInTableView.table.getItems();
-              for (TableItem item : items) {
-                String type = inWsdlParamContainer.getParamType(item.getText(2));
-                if (type != null) {
-                  item.setText(3, type);
-                } else {
-                  item.dispose();
+              IRowMeta r = getInWebServiceFields();
+              if (r != null) {
+                BaseTransformDialog.getFieldsFromPrevious(
+                    r, fieldInTableView, 2, new int[] {2}, new int[] {}, -1, -1, null);
+              }
+              // Define type for new entries
+              if (inWsdlParamContainer != null) {
+                TableItem[] items = fieldInTableView.table.getItems();
+                for (TableItem item : items) {
+                  String type = inWsdlParamContainer.getParamType(item.getText(2));
+                  if (type != null) {
+                    item.setText(3, type);
+                  } else {
+                    item.dispose();
+                  }
                 }
               }
+            } catch (Exception e) {
+              new ErrorDialog(shell, "Error", "Error getting Web Service fields", e);
             }
           }
         });
@@ -428,20 +427,24 @@ public class WebServiceDialog extends BaseTransformDialog {
     tabItemFieldIn.setControl(vCompositeTabField);
 
     if (inWsdlParamContainer != null) {
-      IRowMeta r = getInWebServiceFields();
-      for (int i = 0; i < r.size(); ++i) {
-        String wsName = r.getValueMeta(i).getName();
-        TableItem vTableItem = new TableItem(fieldInTableView.table, SWT.NONE);
-        vTableItem.setText(2, Const.NVL(wsName, ""));
-        vTableItem.setText(3, Const.NVL(inWsdlParamContainer.getParamType(wsName), ""));
+      try {
+        IRowMeta r = getInWebServiceFields();
+        for (int i = 0; i < r.size(); ++i) {
+          String wsName = r.getValueMeta(i).getName();
+          TableItem vTableItem = new TableItem(fieldInTableView.table, SWT.NONE);
+          vTableItem.setText(2, Const.NVL(wsName, ""));
+          vTableItem.setText(3, Const.NVL(inWsdlParamContainer.getParamType(wsName), ""));
 
-        if (oldTableView != null) {
-          TableItem[] oldItems = oldTableView.table.getItems();
-          String previousField = getField(oldItems, wsName);
-          if (previousField != null) {
-            vTableItem.setText(1, previousField);
+          if (oldTableView != null) {
+            TableItem[] oldItems = oldTableView.table.getItems();
+            String previousField = getField(oldItems, wsName);
+            if (previousField != null) {
+              vTableItem.setText(1, previousField);
+            }
           }
         }
+      } catch (Exception e) {
+        new ErrorDialog(shell, "Error", "Error getting Web Service fields", e);
       }
     }
     if (oldTableView != null) {
@@ -450,6 +453,15 @@ public class WebServiceDialog extends BaseTransformDialog {
     fieldInTableView.removeEmptyRows();
     fieldInTableView.setRowNums();
     fieldInTableView.optWidth(true);
+  }
+
+  private void loadWebServiceAndOperation() throws HopException {
+    try {
+      loadWebService(wURL.getText());
+      loadOperation(wOperation.getText());
+    } catch (HopException e) {
+      throw new HopException("Error loading web service and operation", e);
+    }
   }
 
   private String getField(TableItem[] items, String wsName) {
@@ -521,26 +533,24 @@ public class WebServiceDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent event) {
-            if (outWsdlParamContainer == null) {
-              try {
-                loadWebService(wURL.getText());
-                loadOperation(wOperation.getText());
-              } catch (HopException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            try {
+              if (outWsdlParamContainer == null) {
+                loadWebServiceAndOperation();
               }
-            }
-            IRowMeta r = getOutWebServiceFields();
-            if (r != null) {
-              BaseTransformDialog.getFieldsFromPrevious(
-                  r, fieldOutTableView, 2, new int[] {1, 2}, new int[] {}, -1, -1, null);
-            }
-            // Define type for new entries
-            if (outWsdlParamContainer != null) {
-              TableItem[] items = fieldOutTableView.table.getItems();
-              for (TableItem item : items) {
-                item.setText(3, outWsdlParamContainer.getParamType(item.getText(2)));
+              IRowMeta r = getOutWebServiceFields();
+              if (r != null) {
+                BaseTransformDialog.getFieldsFromPrevious(
+                    r, fieldOutTableView, 2, new int[] {1, 2}, new int[] {}, -1, -1, null);
               }
+              // Define type for new entries
+              if (outWsdlParamContainer != null) {
+                TableItem[] items = fieldOutTableView.table.getItems();
+                for (TableItem item : items) {
+                  item.setText(3, outWsdlParamContainer.getParamType(item.getText(2)));
+                }
+              }
+            } catch (Exception e) {
+              new ErrorDialog(shell, "Error", "Error getting web service fields", e);
             }
           }
         });
@@ -567,24 +577,28 @@ public class WebServiceDialog extends BaseTransformDialog {
     tabItemFieldOut.setControl(vCompositeTabFieldOut);
 
     if (fieldOutTableView.table.getItemCount() == 0 && outWsdlParamContainer != null) {
-      IRowMeta r = getOutWebServiceFields();
-      for (int i = 0; i < r.size(); ++i) {
-        String wsName = r.getValueMeta(i).getName();
-        String wsType = r.getValueMeta(i).getTypeDesc();
+      try {
+        IRowMeta r = getOutWebServiceFields();
+        for (int i = 0; i < r.size(); ++i) {
+          String wsName = r.getValueMeta(i).getName();
+          String wsType = r.getValueMeta(i).getTypeDesc();
 
-        TableItem vTableItem = new TableItem(fieldOutTableView.table, SWT.NONE);
-        vTableItem.setText(2, wsName);
-        vTableItem.setText(3, wsType);
-        if (oldTableView != null) {
-          String previousField = getField(oldTableView.table.getItems(), wsName);
-          if (previousField != null && !"".equals(previousField)) {
-            vTableItem.setText(1, previousField);
+          TableItem vTableItem = new TableItem(fieldOutTableView.table, SWT.NONE);
+          vTableItem.setText(2, wsName);
+          vTableItem.setText(3, wsType);
+          if (oldTableView != null) {
+            String previousField = getField(oldTableView.table.getItems(), wsName);
+            if (previousField != null && !"".equals(previousField)) {
+              vTableItem.setText(1, previousField);
+            } else {
+              vTableItem.setText(1, wsName);
+            }
           } else {
             vTableItem.setText(1, wsName);
           }
-        } else {
-          vTableItem.setText(1, wsName);
         }
+      } catch (Exception e) {
+        new ErrorDialog(shell, "Error", "Error getting web service fields", e);
       }
     }
     fieldOutTableView.removeEmptyRows();
@@ -592,7 +606,7 @@ public class WebServiceDialog extends BaseTransformDialog {
     fieldOutTableView.optWidth(true);
   }
 
-  private IRowMeta getInWebServiceFields() {
+  private IRowMeta getInWebServiceFields() throws HopPluginException {
     IRowMeta r = null;
     if (inWsdlParamContainer != null) {
       r = new RowMeta();
@@ -600,7 +614,7 @@ public class WebServiceDialog extends BaseTransformDialog {
       // If we have already saved fields mapping, we only show these mappings
       for (String param : params) {
         IValueMeta value =
-            new ValueMetaBase(
+            ValueMetaFactory.createValueMeta(
                 param, XsdType.xsdTypeToHopType(inWsdlParamContainer.getParamType(param)));
         r.addValueMeta(value);
       }
@@ -608,7 +622,7 @@ public class WebServiceDialog extends BaseTransformDialog {
     return r;
   }
 
-  private IRowMeta getOutWebServiceFields() {
+  private IRowMeta getOutWebServiceFields() throws HopPluginException {
     IRowMeta r = null;
     if (outWsdlParamContainer != null) {
       r = new RowMeta();
@@ -616,7 +630,7 @@ public class WebServiceDialog extends BaseTransformDialog {
       // If we have already saved fields mapping, we only show these mappings
       for (String outParam : outParams) {
         IValueMeta value =
-            new ValueMetaBase(
+            ValueMetaFactory.createValueMeta(
                 outParam, XsdType.xsdTypeToHopType(outWsdlParamContainer.getParamType(outParam)));
         r.addValueMeta(value);
       }

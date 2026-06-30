@@ -44,6 +44,7 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -67,6 +68,7 @@ class ExtensionPointIntegrationTest {
     }
 
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
   }
 
   @Test

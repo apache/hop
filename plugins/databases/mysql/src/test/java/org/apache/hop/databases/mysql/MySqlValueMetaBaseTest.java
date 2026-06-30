@@ -42,7 +42,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -101,7 +100,7 @@ class MySqlValueMetaBaseTest {
   void testGetValueFromSqlTypeBinaryMysql() throws Exception {
 
     final int binaryColumnIndex = 1;
-    ValueMetaBase valueMetaBase = new ValueMetaBase();
+    IValueMeta valueMetaBase = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NONE);
     DatabaseMeta dbMeta = spy(new DatabaseMeta());
     IDatabase iDatabase = new MySqlDatabaseMeta();
     dbMeta.setIDatabase(iDatabase);

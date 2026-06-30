@@ -49,6 +49,8 @@ class StringEvaluatorTest {
   @BeforeEach
   void setUp() throws HopException {
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
+
     evaluator = new StringEvaluator();
     Locale.setDefault(Locale.US);
   }
