@@ -31,12 +31,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -49,6 +55,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessageUtil;
+import org.apache.hop.i18n.LanguageChoice;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.IndexView;
@@ -60,9 +67,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
   protected final PluginRegistry registry;
 
-  private String id;
+  @Setter private String id;
 
-  private String name;
+  @Setter private String name;
 
   private final LogChannel log;
 
@@ -70,7 +77,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
   private final Class<T> pluginClass;
 
-  private List<String> extraLibraryFolders;
+  @Setter @Getter private List<String> extraLibraryFolders;
 
   public BasePluginType(Class<T> pluginClazz) {
     this.log = new LogChannel("Plugin type");
@@ -188,25 +195,11 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   }
 
   /**
-   * @param id the id to set
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  /**
    * @return the name
    */
   @Override
   public String getName() {
     return name;
-  }
-
-  /**
-   * @param name the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
   }
 
   protected static String getCodedTranslation(String codedString) {
@@ -295,6 +288,134 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     }
   }
 
+  /**
+   * Builds the English-locale search aliases for a plugin: its name, category and keywords resolved
+   * against the English (failover) locale, with anything that already matches in the active locale
+   * removed. The context dialog adds these to a transform/action's searchable keywords so a user
+   * can find it by its English term even when the UI runs in another language (issue #2633).
+   *
+   * @return the deduplicated English aliases, or an empty array when the UI is already English
+   */
+  protected String[] extractEnglishSearchKeywords(
+      T annotation,
+      String packageName,
+      Class<?> clazz,
+      String localizedName,
+      String localizedCategory,
+      String[] localizedKeywords) {
+
+    // When the UI is already English the localized strings are the English strings: nothing to add.
+    //
+    Locale defaultLocale = LanguageChoice.getInstance().getDefaultLocale();
+    if (defaultLocale == null
+        || GlobalMessageUtil.FAILOVER_LOCALE
+            .getLanguage()
+            .equalsIgnoreCase(defaultLocale.getLanguage())) {
+      return new String[0];
+    }
+
+    // The terms we already match on in the active locale, used to avoid redundant aliases.
+    //
+    Set<String> alreadyMatched = new LinkedHashSet<>();
+    addSearchTerm(alreadyMatched, localizedName);
+    addSearchTerm(alreadyMatched, localizedCategory);
+    if (localizedKeywords != null) {
+      for (String keyword : localizedKeywords) {
+        addSearchTerm(alreadyMatched, keyword);
+      }
+    }
+
+    // Resolve the same annotation values against English and keep only the genuinely new terms.
+    //
+    Set<String> aliases = new LinkedHashSet<>();
+    collectEnglishAlias(
+        aliases,
+        alreadyMatched,
+        getEnglishTranslation(extractName(annotation), packageName, clazz));
+    collectEnglishAlias(
+        aliases,
+        alreadyMatched,
+        getEnglishTranslation(extractCategory(annotation), packageName, clazz));
+    String[] englishKeywords =
+        getEnglishTranslations(extractKeywords(annotation), packageName, clazz);
+    if (englishKeywords != null) {
+      for (String keyword : englishKeywords) {
+        collectEnglishAlias(aliases, alreadyMatched, keyword);
+      }
+    }
+
+    return aliases.toArray(new String[0]);
+  }
+
+  private static void addSearchTerm(Set<String> terms, String term) {
+    if (StringUtils.isNotEmpty(term)) {
+      terms.add(term.toLowerCase());
+    }
+  }
+
+  private static void collectEnglishAlias(
+      Set<String> aliases, Set<String> alreadyMatched, String englishTerm) {
+    if (StringUtils.isNotEmpty(englishTerm)
+        && !alreadyMatched.contains(englishTerm.toLowerCase())) {
+      aliases.add(englishTerm);
+    }
+  }
+
+  /** Mirrors {@link #getTranslations} but resolves every entry against the English locale. */
+  protected static String[] getEnglishTranslations(
+      String[] strings, String packageName, Class<?> resourceClass) {
+    if (strings == null) {
+      return null;
+    }
+    String[] translations = new String[strings.length];
+    for (int i = 0; i < translations.length; i++) {
+      translations[i] = getEnglishTranslation(strings[i], packageName, resourceClass);
+    }
+    return translations;
+  }
+
+  /**
+   * Resolves an annotation value against the English (failover) locale, mirroring {@link
+   * #getTranslation} but without consulting the active locale. Returns {@code null} when an
+   * i18n-coded key cannot be resolved so the raw {@code i18n:...} code never leaks into the search
+   * keywords.
+   */
+  protected static String getEnglishTranslation(
+      String string, String packageName, Class<?> resourceClass) {
+    if (string == null) {
+      return null;
+    }
+
+    if (string.startsWith(Const.I18N_PREFIX)) {
+      String[] parts = string.split(":");
+      if (parts.length != 3) {
+        return string;
+      }
+      String i18nPackage = StringUtils.isEmpty(parts[1]) ? packageName : parts[1];
+      return lookupEnglishString(i18nPackage, parts[2], resourceClass);
+    }
+
+    if (Utils.isEmpty(packageName)) {
+      // Translations are not supported, simply keep the original text.
+      return string;
+    }
+    String english = lookupEnglishString(packageName, string, resourceClass);
+    return english != null ? english : string;
+  }
+
+  private static String lookupEnglishString(
+      String i18nPackage, String key, Class<?> resourceClass) {
+    try {
+      ResourceBundle bundle =
+          GlobalMessageUtil.getBundle(
+              GlobalMessageUtil.FAILOVER_LOCALE, i18nPackage + ".messages.messages", resourceClass);
+      return bundle.getString(key);
+    } catch (MissingResourceException e) {
+      // No English resource for this key: leave it to the caller to fall back.
+      return null;
+    }
+  }
+
   protected List<PluginClassFile> findAnnotatedClassFiles(String annotationClassName)
       throws HopPluginException {
     JarCache cache = JarCache.getInstance();
@@ -322,7 +443,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
                   new PluginClassFile(className, jarFile.toURI().toURL(), folder.toURI().toURL()));
 
             } catch (Exception e) {
-              System.out.println(
+              LogChannel.GENERAL.logError(
                   "Error searching annotation for " + pluginClass + " in " + jarFile);
             }
           }
@@ -395,7 +516,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
                   "jar", "JAR",
                 },
                 true);
-        jarFiles.stream().forEach(file -> files.add(file.getPath()));
+        jarFiles.forEach(file -> files.add(file.getPath()));
       }
     }
     return files;
@@ -421,7 +542,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
                     "jar", "JAR",
                   },
                   true);
-          jarFiles.stream().forEach(file -> files.add(file.getAbsolutePath()));
+          jarFiles.forEach(file -> files.add(file.getAbsolutePath()));
         }
       }
     }
@@ -752,6 +873,13 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     plugin.setSupportedEngines(supportedEngines);
     plugin.setExcludedEngines(excludedEngines);
 
+    // English-locale search aliases so the context dialog finds a transform/action by its original
+    // English name, category or keywords even when the UI runs in another language (issue #2633).
+    //
+    plugin.setEnglishKeywords(
+        extractEnglishSearchKeywords(
+            annotation, packageName, clazz, pluginName, category, keywords));
+
     ParentFirst parentFirstAnnotation = clazz.getAnnotation(ParentFirst.class);
     if (parentFirstAnnotation != null) {
       registry.addParentClassLoaderPatterns(plugin, parentFirstAnnotation.patterns());
@@ -766,22 +894,6 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
               + libraries.size()
               + " libaries in its private class path");
     }
-  }
-
-  /**
-   * Gets extraLibraryFolders
-   *
-   * @return value of extraLibraryFolders
-   */
-  public List<String> getExtraLibraryFolders() {
-    return extraLibraryFolders;
-  }
-
-  /**
-   * @param extraLibraryFolders The extraLibraryFolders to set
-   */
-  public void setExtraLibraryFolders(List<String> extraLibraryFolders) {
-    this.extraLibraryFolders = extraLibraryFolders;
   }
 
   /**
