@@ -48,6 +48,7 @@ import org.apache.hop.workflow.action.IAction;
     image = "snowflake-whm.svg",
     name = "Action.Name",
     description = "Action.Description",
+    keywords = "snowflake,warehouse,resume,suspend,manage",
     categoryDescription = "Category.Description",
     documentationUrl = "/workflow/actions/snowflake-whm.html")
 public class WarehouseManager extends ActionBase implements Cloneable, IAction {

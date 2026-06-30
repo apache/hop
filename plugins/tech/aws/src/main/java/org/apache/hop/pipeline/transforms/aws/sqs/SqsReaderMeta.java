@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::SQSReaderTransform.Name",
     description = "i18n::SQSReaderTransform.TooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    keywords = "",
+    keywords = "aws,sqs,queue,message,read",
     documentationUrl = "/pipeline/transforms/aws-sqs-reader.html")
 public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
 

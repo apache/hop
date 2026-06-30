@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::SNSNotify.Name",
     description = "i18n::SNSNotify.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    keywords = "",
+    keywords = "aws,sns,notification,publish,topic",
     documentationUrl = "/pipeline/transforms/aws-sns-notify.html")
 public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
 

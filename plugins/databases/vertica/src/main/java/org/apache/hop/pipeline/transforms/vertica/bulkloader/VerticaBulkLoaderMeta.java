@@ -49,6 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "vertica.svg",
     name = "i18n::BaseTransform.TypeLongDesc.VerticaBulkLoaderMessage",
     description = "i18n::BaseTransform.TypeTooltipDesc.VerticaBulkLoaderMessage",
+    keywords = "vertica,bulk,load,copy,database",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "pipeline/transforms/verticabulkloader.html",
     isIncludeJdbcDrivers = true,

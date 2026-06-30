@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "Script",
     description = "Executes scripts for JSR-223 Script Engines",
     categoryDescription = "Scripting",
-    keywords = "script,scripting,groovy,python,javascript,ecmascript,ruby",
+    keywords = "script,groovy,python,javascript,ruby",
     documentationUrl = "/pipeline/transforms/script.html")
 public class ScriptMeta extends BaseTransformMeta<Script, ScriptData> implements ITransformMeta {
   private static final Class<?> PKG = ScriptMeta.class;

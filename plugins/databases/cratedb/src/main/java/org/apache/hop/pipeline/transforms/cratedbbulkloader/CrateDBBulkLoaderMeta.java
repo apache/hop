@@ -53,6 +53,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "cratedbbulkloader.svg",
     name = "i18n::BaseTransform.TypeLongDesc.CrateDBBulkLoaderMessage",
     description = "i18n::BaseTransform.TypeTooltipDesc.CrateDBBulkLoaderMessage",
+    keywords = "cratedb,bulk,load,copy,database",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "/pipeline/transforms/cratedb-bulkloader.html",
     isIncludeJdbcDrivers = true,
