@@ -72,6 +72,8 @@ public class Aggregation implements Cloneable {
 
   public static final int TYPE_GROUP_CONCAT_DISTINCT = 22;
 
+  public static final int TYPE_GROUP_MOVING_AVERAGE = 23;
+
   public static final String[]
       typeGroupLabel = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */ {
     "-",
@@ -97,6 +99,7 @@ public class Aggregation implements Cloneable {
     "PERCENTILE_NEAREST_RANK",
     "CONCAT_STRING_CRLF",
     "CONCAT_DISTINCT",
+    "MOVING_AVG",
   };
 
   public static final String[] typeGroupLongDesc = {
@@ -122,7 +125,8 @@ public class Aggregation implements Cloneable {
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.STANDARD_DEVIATION_SAMPLE"),
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.PERCENTILE_NEAREST_RANK"),
     BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_STRING_CRLF"),
-    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_DISTINCT")
+    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.CONCAT_DISTINCT"),
+    BaseMessages.getString(PKG, "GroupByMeta.TypeGroupLongDesc.MOVING_AVERAGE")
   };
 
   @HopMetadataProperty(
@@ -150,6 +154,12 @@ public class Aggregation implements Cloneable {
       injectionKeyDescription = "GroupByMeta.Injection.AGG_VALUE")
   private String value;
 
+  @HopMetadataProperty(
+      key = "orderfield",
+      injectionKey = "AGG_ORDER_FIELD",
+      injectionKeyDescription = "GroupByMeta.Injection.AGG_ORDER_FIELD")
+  private String orderField;
+
   public Aggregation() {}
 
   public Aggregation(String field, String subject, String typeDesc, String value) {
@@ -160,10 +170,20 @@ public class Aggregation implements Cloneable {
     this.value = value;
   }
 
+  public Aggregation(
+      String field, String subject, String typeDesc, String value, String orderField) {
+    this(field, subject, typeDesc, value);
+    this.orderField = orderField;
+  }
+
   @Override
   public Aggregation clone() {
     return new Aggregation(
-        field, subject, getTypeDescLongFromCode(getTypeCodeFromLabel(typeLabel)), value);
+        field,
+        subject,
+        getTypeDescLongFromCode(getTypeCodeFromLabel(typeLabel)),
+        value,
+        orderField);
   }
 
   @Override
@@ -175,12 +195,13 @@ public class Aggregation implements Cloneable {
         && Objects.equals(field, that.field)
         && Objects.equals(subject, that.subject)
         && Objects.equals(typeLabel, that.typeLabel)
-        && Objects.equals(value, that.value);
+        && Objects.equals(value, that.value)
+        && Objects.equals(orderField, that.orderField);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(field, subject, typeLabel, type, value);
+    return Objects.hash(field, subject, typeLabel, type, value, orderField);
   }
 
   /**
@@ -243,6 +264,22 @@ public class Aggregation implements Cloneable {
    */
   public void setValue(String value) {
     this.value = value;
+  }
+
+  /**
+   * Gets orderField
+   *
+   * @return value of orderField
+   */
+  public String getOrderField() {
+    return orderField;
+  }
+
+  /**
+   * @param orderField The orderField to set
+   */
+  public void setOrderField(String orderField) {
+    this.orderField = orderField;
   }
 
   public int getType() {

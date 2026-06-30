@@ -55,6 +55,7 @@ public class GroupByDialog extends BaseTransformDialog {
 
   public static final String STRING_SORT_WARNING_PARAMETER = "GroupSortWarning";
   private static final int AGGREGATION_TABLE_TYPE_INDEX = 3;
+  private static final int AGGREGATION_TABLE_ORDER_FIELD_INDEX = 5;
 
   private TableView wGroup;
 
@@ -309,7 +310,7 @@ public class GroupByDialog extends BaseTransformDialog {
     fdlAgg.top = new FormAttachment(wGroup, margin);
     wlAgg.setLayoutData(fdlAgg);
 
-    int nrCols = 4;
+    int nrCols = 5;
     int nrRows = input.getAggregations().size();
 
     ciReturn = new ColumnInfo[nrCols];
@@ -336,6 +337,14 @@ public class GroupByDialog extends BaseTransformDialog {
             false);
     ciReturn[3].setToolTip(BaseMessages.getString(PKG, "GroupByDialog.ColumnInfo.Value.Tooltip"));
     ciReturn[3].setUsingVariables(true);
+    ciReturn[4] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "GroupByDialog.ColumnInfo.OrderField"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {""},
+            false);
+    ciReturn[4].setToolTip(
+        BaseMessages.getString(PKG, "GroupByDialog.ColumnInfo.OrderField.Tooltip"));
 
     wAgg =
         new TableView(
@@ -408,6 +417,7 @@ public class GroupByDialog extends BaseTransformDialog {
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[0].setComboValues(fieldNames);
     ciReturn[1].setComboValues(fieldNames);
+    ciReturn[4].setComboValues(fieldNames);
   }
 
   public void setFlags() {
@@ -457,6 +467,7 @@ public class GroupByDialog extends BaseTransformDialog {
       item.setText(2, Const.NVL(aggregation.getSubject(), ""));
       item.setText(3, Const.NVL(Aggregation.getTypeDescLongFromCode(aggregation.getType()), ""));
       item.setText(4, Const.NVL(aggregation.getValue(), ""));
+      item.setText(5, Const.NVL(aggregation.getOrderField(), ""));
     }
 
     wGroup.setRowNums();
@@ -502,7 +513,9 @@ public class GroupByDialog extends BaseTransformDialog {
       String aggSubject = item.getText(2);
       String aggTypeDesc = item.getText(3);
       String aggValue = item.getText(4);
-      Aggregation aggr = new Aggregation(aggField, aggSubject, aggTypeDesc, aggValue);
+      String aggOrderField = item.getText(5);
+      Aggregation aggr =
+          new Aggregation(aggField, aggSubject, aggTypeDesc, aggValue, aggOrderField);
       input.getAggregations().add(aggr);
     }
 
@@ -582,7 +595,8 @@ public class GroupByDialog extends BaseTransformDialog {
             .anyMatch(
                 pred ->
                     pred == Aggregation.TYPE_GROUP_CUMULATIVE_SUM
-                        || pred == Aggregation.TYPE_GROUP_CUMULATIVE_AVERAGE);
+                        || pred == Aggregation.TYPE_GROUP_CUMULATIVE_AVERAGE
+                        || pred == Aggregation.TYPE_GROUP_MOVING_AVERAGE);
 
     allRowsButton.setEnabled(!isCumulativeSelected);
 

@@ -100,7 +100,8 @@ class GroupByMetaTest {
             new Aggregation("field21", "subject21", getDesc("STD_DEV_SAMPLE"), "value21"),
             new Aggregation("field22", "subject22", getDesc("PERCENTILE_NEAREST_RANK"), "value22"),
             new Aggregation("field23", "subject23", getDesc("CONCAT_STRING_CRLF"), null),
-            new Aggregation("field24", "subject23", getDesc("CONCAT_DISTINCT"), "value24")));
+            new Aggregation("field24", "subject23", getDesc("CONCAT_DISTINCT"), "value24"),
+            new Aggregation("field25", "subject25", getDesc("MOVING_AVG"), "5", "order_field_25")));
     meta.setPassAllRows(true);
     meta.setAlwaysGivingBackOneRow(true);
     meta.setDirectory("directory");

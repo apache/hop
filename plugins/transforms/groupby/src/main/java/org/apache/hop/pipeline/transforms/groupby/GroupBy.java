@@ -122,6 +122,11 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
       data.cumulativeAvgSourceIndexes = new ArrayList<>();
       data.cumulativeAvgTargetIndexes = new ArrayList<>();
 
+      data.movingAvgSourceIndexes = new ArrayList<>();
+      data.movingAvgTargetIndexes = new ArrayList<>();
+      data.movingAvgWidths = new ArrayList<>();
+      data.movingAvgIndexes = new ArrayList<>();
+
       for (int i = 0; i < meta.getAggregations().size(); i++) {
         Aggregation aggregation = meta.getAggregations().get(i);
         if (aggregation.getType() == Aggregation.TYPE_GROUP_COUNT_ANY) {
@@ -152,12 +157,38 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           //
           data.cumulativeAvgTargetIndexes.add(data.inputRowMeta.size() + i);
         }
+        if (aggregation.getType() == Aggregation.TYPE_GROUP_MOVING_AVERAGE) {
+          data.movingAvgSourceIndexes.add(data.subjectnrs[i]);
+          data.movingAvgTargetIndexes.add(data.inputRowMeta.size() + i);
+          data.movingAvgIndexes.add(i);
+          int windowSize = 1;
+          if (!Utils.isEmpty(aggregation.getValue())) {
+            try {
+              windowSize = Math.max(1, Integer.parseInt(resolve(aggregation.getValue())));
+            } catch (NumberFormatException e) {
+              // default to 1
+            }
+          }
+          data.movingAvgWidths.add(windowSize);
+        }
       }
 
       data.previousSums = new Object[data.cumulativeSumTargetIndexes.size()];
 
       data.previousAvgSum = new Object[data.cumulativeAvgTargetIndexes.size()];
       data.previousAvgCount = new long[data.cumulativeAvgTargetIndexes.size()];
+
+      // Initialise per-aggregation sliding windows for MOVING_AVERAGE
+      //
+      @SuppressWarnings("unchecked")
+      java.util.ArrayDeque<Double>[] windows =
+          new java.util.ArrayDeque[meta.getAggregations().size()];
+      data.movingAvgWindows = windows;
+      for (int i = 0; i < meta.getAggregations().size(); i++) {
+        if (meta.getAggregations().get(i).getType() == Aggregation.TYPE_GROUP_MOVING_AVERAGE) {
+          data.movingAvgWindows[i] = new java.util.ArrayDeque<>();
+        }
+      }
 
       data.groupnrs = new int[meta.getGroupingFields().size()];
       for (int i = 0; i < meta.getGroupingFields().size(); i++) {
@@ -242,6 +273,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
           addCumulativeSums(row);
           addCumulativeAverages(row);
+          addMovingAverages(row);
 
           putRow(data.outputRowMeta, row);
           row = getRowFromBuffer();
@@ -291,6 +323,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
         addCumulativeSums(row);
         addCumulativeAverages(row);
+        addMovingAverages(row);
 
         putRow(data.outputRowMeta, row);
         row = getRowFromBuffer();
@@ -398,6 +431,37 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
       } else {
         row[targetIndex] =
             ValueDataUtil.divide(targetMeta, sum, data.valueMetaInteger, data.previousAvgCount[i]);
+      }
+    }
+  }
+
+  void addMovingAverages(Object[] row) throws HopValueException {
+    for (int i = 0; i < data.movingAvgSourceIndexes.size(); i++) {
+      int sourceIndex = data.movingAvgSourceIndexes.get(i);
+      int targetIndex = data.movingAvgTargetIndexes.get(i);
+      int windowSize = data.movingAvgWidths.get(i);
+      int aggIndex = data.movingAvgIndexes.get(i);
+
+      Object sourceValue = row[sourceIndex];
+      IValueMeta sourceMeta = data.inputRowMeta.getValueMeta(sourceIndex);
+
+      if (!sourceMeta.isNull(sourceValue)) {
+        java.util.ArrayDeque<Double> window = data.movingAvgWindows[aggIndex];
+        window.addLast(sourceMeta.getNumber(sourceValue));
+        while (window.size() > windowSize) {
+          window.pollFirst();
+        }
+        if (window.size() == windowSize) {
+          double sum = 0.0;
+          for (double val : window) {
+            sum += val;
+          }
+          row[targetIndex] = sum / windowSize;
+        } else {
+          row[targetIndex] = null;
+        }
+      } else {
+        row[targetIndex] = null;
       }
     }
   }
@@ -574,6 +638,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             SortedSet<Object> set = (SortedSet<Object>) value;
             set.add(subj);
           }
+          break;
+        case Aggregation.TYPE_GROUP_MOVING_AVERAGE:
+          break;
         default:
           break;
       }
@@ -654,6 +721,15 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
           vMeta = new ValueMetaString(fieldName);
           v = new TreeSet<>();
+          break;
+        case Aggregation.TYPE_GROUP_MOVING_AVERAGE:
+          vMeta = new ValueMetaNumber(fieldName);
+          // agg[i] is null until the first full window is seen; set by calcAggregate per row
+          v = null;
+          // Reset (clear) the sliding window for this aggregation within the new group
+          if (data.movingAvgWindows != null && data.movingAvgWindows[i] != null) {
+            data.movingAvgWindows[i].clear();
+          }
           break;
         default:
           // TODO raise an error here because we cannot continue successfully maybe the UI should
@@ -789,6 +865,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             Aggregation.TYPE_GROUP_CONCAT_STRING,
             Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
           ag = ((StringBuilder) ag).toString();
+          break;
+        case Aggregation.TYPE_GROUP_MOVING_AVERAGE:
+          // The result is already computed per-row in calcAggregate; pass through as-is.
           break;
         case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
           IValueMeta subjMeta = data.inputRowMeta.getValueMeta(data.subjectnrs[i]);
