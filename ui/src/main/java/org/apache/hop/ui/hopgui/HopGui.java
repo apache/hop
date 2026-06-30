@@ -122,8 +122,8 @@ import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspecti
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
-import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
+import org.apache.hop.ui.hopgui.search.SearchEverywhereDialog;
 import org.apache.hop.ui.hopgui.welcome.WelcomeDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -284,9 +284,9 @@ public class HopGui
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
-  private org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel terminalPanel;
+  private org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock terminalPanel;
 
-  public org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel getTerminalPanel() {
+  public org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock getTerminalPanel() {
     return terminalPanel;
   }
 
@@ -1280,10 +1280,7 @@ public class HopGui
   @GuiKeyboardShortcut(key = 'f', control = true)
   @GuiOsxKeyboardShortcut(key = 'f', command = true)
   public void menuEditFind() {
-    IHopPerspective perspective = perspectiveManager.findPerspective(HopSearchPerspective.class);
-    if (perspective != null) {
-      perspective.activate();
-    }
+    new SearchEverywhereDialog(getActiveShell(), this).open();
   }
 
   @GuiMenuElement(
@@ -1778,48 +1775,47 @@ public class HopGui
    * Add a main composite where the various perspectives can parent on to show stuff... Its area is
    * to just below the main toolbar and to the right of the perspectives toolbar.
    *
-   * <p>Wraps everything in a HopGuiTerminalPanel which provides the terminal panel at the bottom,
-   * with perspectives rendering in the top section.
+   * <p>Wraps everything in a {@link org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock} which hosts
+   * the perspectives in its top section and a tabbed dock (terminals and other tools such as the
+   * search results) in its bottom section. The integrated terminal is a gated capability: it is
+   * turned off on the web (no AWT/PTY there) and can be disabled in {@code
+   * disabledGuiElements.xml}.
    */
   private void addMainPerspectivesComposite() {
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      mainPerspectivesComposite = new Composite(mainHopGuiComposite, SWT.NONE);
-      FormData fdPerspectives = new FormData();
-      fdPerspectives.top = new FormAttachment(0, 0);
-      fdPerspectives.left = new FormAttachment(perspectivesSidebar, 0);
-      fdPerspectives.bottom = new FormAttachment(100, 0);
-      fdPerspectives.right = new FormAttachment(100, 0);
-      mainPerspectivesComposite.setLayoutData(fdPerspectives);
-      mainPerspectivesComposite.setLayout(new StackLayout());
-    } else {
-      terminalPanel =
-          new org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel(mainHopGuiComposite, this);
-      FormData fdTerminalPanel = new FormData();
-      fdTerminalPanel.top = new FormAttachment(0, 0);
-      fdTerminalPanel.left = new FormAttachment(perspectivesSidebar, 0);
-      fdTerminalPanel.bottom = new FormAttachment(100, 0);
-      fdTerminalPanel.right = new FormAttachment(100, 0);
-      terminalPanel.setLayoutData(fdTerminalPanel);
+    boolean terminalsEnabled =
+        !EnvironmentUtils.getInstance().isWeb()
+            && !org.apache.hop.core.gui.plugin.GuiRegistry.getDisabledGuiElements()
+                .contains(
+                    org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL);
 
-      // Register so Tools > Terminal menu items can invoke panel methods
-      String menuInstanceId = mainMenuWidgets.getInstanceId();
-      org.apache.hop.core.gui.plugin.GuiRegistry.getInstance()
-          .registerGuiPluginObject(
-              getId(),
-              org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel.class.getName(),
-              menuInstanceId,
-              terminalPanel);
-      terminalPanel.addDisposeListener(
-          e ->
-              org.apache.hop.core.gui.plugin.GuiRegistry.getInstance()
-                  .removeGuiPluginObject(
-                      getId(),
-                      org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel.class.getName(),
-                      menuInstanceId));
+    terminalPanel =
+        new org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock(
+            mainHopGuiComposite, this, terminalsEnabled);
+    FormData fdTerminalPanel = new FormData();
+    fdTerminalPanel.top = new FormAttachment(0, 0);
+    fdTerminalPanel.left = new FormAttachment(perspectivesSidebar, 0);
+    fdTerminalPanel.bottom = new FormAttachment(100, 0);
+    fdTerminalPanel.right = new FormAttachment(100, 0);
+    terminalPanel.setLayoutData(fdTerminalPanel);
 
-      mainPerspectivesComposite = terminalPanel.getPerspectiveComposite();
-      mainPerspectivesComposite.setLayout(new StackLayout());
-    }
+    // Register so Tools > Terminal menu items can invoke dock methods
+    String menuInstanceId = mainMenuWidgets.getInstanceId();
+    org.apache.hop.core.gui.plugin.GuiRegistry.getInstance()
+        .registerGuiPluginObject(
+            getId(),
+            org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock.class.getName(),
+            menuInstanceId,
+            terminalPanel);
+    terminalPanel.addDisposeListener(
+        e ->
+            org.apache.hop.core.gui.plugin.GuiRegistry.getInstance()
+                .removeGuiPluginObject(
+                    getId(),
+                    org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock.class.getName(),
+                    menuInstanceId));
+
+    mainPerspectivesComposite = terminalPanel.getPerspectiveComposite();
+    mainPerspectivesComposite.setLayout(new StackLayout());
   }
 
   public void setUndoMenu(IUndo undoInterface) {
@@ -1989,6 +1985,16 @@ public class HopGui
     } else {
       return shell;
     }
+  }
+
+  /**
+   * Gets the widgets of the main menu bar. Used by the global search popup to look up and fire menu
+   * commands.
+   *
+   * @return the main menu widgets
+   */
+  public GuiMenuWidgets getMainMenuWidgets() {
+    return mainMenuWidgets;
   }
 
   /**

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.terminal;
 
+import java.util.function.Function;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -44,27 +45,32 @@ import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 /**
- * Terminal panel for Hop GUI providing integrated command-line access.
- *
- * <p>The panel wraps the main perspectives composite in a SashForm, with perspectives in the top
- * section and the terminal panel in the bottom section. The terminal panel persists across
+ * Bottom dock for Hop GUI. It wraps the main perspectives composite in a vertical SashForm, with
+ * the perspectives in the top section and a tabbed dock in the bottom section that persists across
  * perspective switches.
+ *
+ * <p>The dock hosts two kinds of tabs in one {@link CTabFolder}: terminal tabs (the integrated
+ * command line, a gated capability - see {@link #terminalsEnabled}) and generic "tool" tabs opened
+ * through {@link #focusOrOpenToolTab} (e.g. the search results view). Terminal-specific behaviour
+ * (the "+" tab, font sizing, save/restore) only applies to terminal tabs.
  */
 @GuiPlugin(name = "Terminal panel", description = "Terminal panel")
-public class HopGuiTerminalPanel extends Composite implements TabClosable {
+public class HopGuiBottomDock extends Composite implements TabClosable {
 
-  private static final Class<?> PKG = HopGuiTerminalPanel.class;
+  private static final Class<?> PKG = HopGuiBottomDock.class;
 
   public static final String ID_MAIN_MENU_TOOLS_TERMINAL = "40010-menu-tools-terminal";
   public static final String ID_MAIN_MENU_TOOLS_NEW_TERMINAL = "40020-menu-tools-new-terminal";
@@ -81,6 +87,14 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   @Getter private int terminalHeightPercent = 35;
   private boolean isClearing = false;
   private int terminalCounter = 1;
+
+  /**
+   * Whether the terminal capability is available (turned off on web or via disabledGuiElements).
+   */
+  @Getter private boolean terminalsEnabled = true;
+
+  /** Counter used to give each non-singleton tool tab (e.g. a search result tab) a unique id. */
+  private int toolTabCounter = 1;
 
   /** Font size scale for all terminal tabs (100 = 100%). Persisted and applied to new tabs. */
   private int terminalFontSizePercent = 100;
@@ -100,15 +114,23 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   private static final String STATE_SHELL_PATH = "shellPath";
   private static final String STATE_WORKING_DIR = "workingDirectory";
 
+  /** Tab data keys marking a non-terminal "tool" tab (e.g. search results) and its content. */
+  private static final String DATA_TOOL_ID = "dockToolId";
+
+  private static final String DATA_TOOL_CONTENT = "dockToolContent";
+
   /**
-   * Constructor - Creates the terminal panel structure
+   * Constructor - Creates the bottom dock structure
    *
    * @param parent The parent composite (mainHopGuiComposite from HopGui)
    * @param hopGui The HopGui instance
+   * @param terminalsEnabled whether the integrated terminal capability is available (off on web or
+   *     when disabled via disabledGuiElements.xml)
    */
-  public HopGuiTerminalPanel(Composite parent, HopGui hopGui) {
+  public HopGuiBottomDock(Composite parent, HopGui hopGui, boolean terminalsEnabled) {
     super(parent, SWT.NONE);
     this.hopGui = hopGui;
+    this.terminalsEnabled = terminalsEnabled;
 
     createContents();
   }
@@ -169,12 +191,15 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
     createTerminalToolbar();
 
-    newTerminalTab = new CTabItem(terminalTabs, SWT.NONE);
-    newTerminalTab.setText("+");
-    newTerminalTab.setToolTipText(
-        BaseMessages.getString(PKG, "HopGuiTerminalPanel.NewTab.Tooltip"));
-    Composite newTerminalPlaceholder = new Composite(terminalTabs, SWT.NONE);
-    newTerminalTab.setControl(newTerminalPlaceholder);
+    // The "+" (new terminal) tab only exists when the terminal capability is available.
+    if (terminalsEnabled) {
+      newTerminalTab = new CTabItem(terminalTabs, SWT.NONE);
+      newTerminalTab.setText("+");
+      newTerminalTab.setToolTipText(
+          BaseMessages.getString(PKG, "HopGuiTerminalPanel.NewTab.Tooltip"));
+      Composite newTerminalPlaceholder = new Composite(terminalTabs, SWT.NONE);
+      newTerminalTab.setControl(newTerminalPlaceholder);
+    }
 
     new TabCloseHandler(this);
     new TabFolderReorder(terminalTabs);
@@ -185,7 +210,11 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         event -> {
           CTabItem item = terminalTabs.getSelection();
           // When only the "+" tab exists, getSelection() can be null; create a new terminal.
-          if (item == null && terminalTabs.getItemCount() == 1 && !isClearing && !isClosingTab[0]) {
+          if (terminalsEnabled
+              && item == null
+              && terminalTabs.getItemCount() == 1
+              && !isClearing
+              && !isClosingTab[0]) {
             createNewTerminal(null, null);
             return;
           }
@@ -196,7 +225,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
           if (item != null) {
             ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
-            if (widget != null && widget instanceof JediTerminalWidget) {
+            if (widget != null) {
               Composite composite = widget.getTerminalComposite();
               if (composite != null && !composite.isDisposed()) {
                 composite.forceFocus();
@@ -210,6 +239,9 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     terminalTabs.addListener(
         SWT.MouseDown,
         event -> {
+          if (!terminalsEnabled) {
+            return;
+          }
           CTabItem item = terminalTabs.getItem(new Point(event.x, event.y));
           if (item == newTerminalTab && !isClearing && !isClosingTab[0]) {
             createNewTerminal(null, null);
@@ -241,7 +273,8 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         SWT.MouseDoubleClick,
         event -> {
           CTabItem item = terminalTabs.getSelection();
-          if (item != null && item != newTerminalTab) {
+          // Only terminal tabs can be renamed (not the "+" tab or generic tool tabs).
+          if (item != null && item != newTerminalTab && item.getData("terminalWidget") != null) {
             renameTerminalTab(item);
           }
         });
@@ -305,13 +338,10 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
               if (terminalWidget == null) {
                 return;
               }
-
-              if (terminalWidget instanceof JediTerminalWidget) {
-                Composite composite = terminalWidget.getTerminalComposite();
-                if (composite != null && !composite.isDisposed()) {
-                  composite.setFocus();
-                  composite.forceFocus();
-                }
+              Composite composite = terminalWidget.getTerminalComposite();
+              if (composite != null && !composite.isDisposed()) {
+                composite.setFocus();
+                composite.forceFocus();
               }
             });
   }
@@ -355,24 +385,27 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     }
   }
 
-  /** Show the terminal panel */
-  public void showTerminal() {
+  /** Make the dock visible (without forcing a terminal to be created). */
+  public void showDock() {
     if (!terminalVisible) {
       verticalSash.setMaximizedControl(null);
       int perspectivePercent = 100 - terminalHeightPercent;
       verticalSash.setWeights(perspectivePercent, terminalHeightPercent);
       terminalVisible = true;
-
-      if (terminalTabs.getItemCount() <= 1) {
-        createNewTerminal(null, null);
-      }
-
       layout(true, true);
       hopGui.refreshSidebarToolbarButtonStates();
     }
   }
 
-  /** Hide the terminal panel */
+  /** Show the dock and make sure at least one terminal is present (the Ctrl+J behaviour). */
+  public void showTerminal() {
+    showDock();
+    if (terminalsEnabled && countTerminalTabs() == 0) {
+      createNewTerminal(null, null);
+    }
+  }
+
+  /** Hide the dock */
   public void hideTerminal() {
     if (terminalVisible) {
       terminalVisible = false;
@@ -380,6 +413,108 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       layout(true, true);
       hopGui.refreshSidebarToolbarButtonStates();
     }
+  }
+
+  /** Number of real terminal tabs currently open (excludes the "+" tab and any tool tabs). */
+  private int countTerminalTabs() {
+    int count = 0;
+    for (CTabItem item : terminalTabs.getItems()) {
+      if (item != newTerminalTab && item.getData("terminalWidget") != null) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  // --- Generic tool tabs (non-terminal dock content) ---------------------------------------------
+
+  /**
+   * Open a non-terminal "tool" tab in the dock, or focus it if a tab with the same {@code toolId}
+   * is already open. The dock is made visible. The content is created lazily by {@code
+   * contentFactory} with the tab's container as its parent.
+   *
+   * @param toolId a stable identifier used to find/refocus the tab
+   * @param title the tab title
+   * @param image the tab image (may be null)
+   * @param closable whether the user can close the tab
+   * @param contentFactory builds the tab content given its container
+   * @return the content control of the (new or existing) tab
+   */
+  public Control focusOrOpenToolTab(
+      String toolId,
+      String title,
+      Image image,
+      boolean closable,
+      Function<Composite, Control> contentFactory) {
+    CTabItem existing = findToolTab(toolId);
+    if (existing != null) {
+      showDock();
+      terminalTabs.setSelection(existing);
+      return (Control) existing.getData(DATA_TOOL_CONTENT);
+    }
+    return createToolTab(toolId, title, image, closable, contentFactory);
+  }
+
+  /**
+   * Always open a <em>new</em> tool tab (for tools that allow several instances, e.g. multiple
+   * search-result tabs). The dock is made visible and the new tab selected.
+   *
+   * @param title the tab title
+   * @param image the tab image (may be null)
+   * @param closable whether the user can close the tab
+   * @param contentFactory builds the tab content given its container
+   * @return the content control of the new tab
+   */
+  public Control openToolTab(
+      String title, Image image, boolean closable, Function<Composite, Control> contentFactory) {
+    return createToolTab("tool-" + (toolTabCounter++), title, image, closable, contentFactory);
+  }
+
+  private Control createToolTab(
+      String toolId,
+      String title,
+      Image image,
+      boolean closable,
+      Function<Composite, Control> contentFactory) {
+    CTabItem item = new CTabItem(terminalTabs, closable ? SWT.CLOSE : SWT.NONE);
+    item.setText(title);
+    if (image != null) {
+      item.setImage(image);
+    }
+    item.setData(DATA_TOOL_ID, toolId);
+
+    Composite container = new Composite(terminalTabs, SWT.NONE);
+    container.setLayout(new FormLayout());
+    item.setControl(container);
+
+    Control content = contentFactory.apply(container);
+    FormData fdContent = new FormData();
+    fdContent.left = new FormAttachment(0, 0);
+    fdContent.top = new FormAttachment(0, 0);
+    fdContent.right = new FormAttachment(100, 0);
+    fdContent.bottom = new FormAttachment(100, 0);
+    content.setLayoutData(fdContent);
+    item.setData(DATA_TOOL_CONTENT, content);
+
+    // Attach shortcuts
+    hopGui.replaceKeyboardShortcutListeners(container, HopGuiKeyHandler.getInstance());
+
+    showDock();
+    terminalTabs.setSelection(item);
+    return content;
+  }
+
+  /** Find an open tool tab by its tool id, or {@code null} when not open. */
+  public CTabItem findToolTab(String toolId) {
+    if (toolId == null) {
+      return null;
+    }
+    for (CTabItem item : terminalTabs.getItems()) {
+      if (toolId.equals(item.getData(DATA_TOOL_ID))) {
+        return item;
+      }
+    }
+    return null;
   }
 
   /** Toggle terminal panel visibility */
@@ -391,7 +526,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   @GuiKeyboardShortcut(control = true, key = 'j', global = true)
   @GuiOsxKeyboardShortcut(command = true, key = 'j', global = true)
   public void toggleTerminal() {
-    if (EnvironmentUtils.getInstance().isWeb()) {
+    if (EnvironmentUtils.getInstance().isWeb() || !terminalsEnabled) {
       return;
     }
     if (terminalVisible) {
@@ -410,7 +545,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   @GuiKeyboardShortcut(control = true, shift = true, key = 'j', global = true)
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'j', global = true)
   public void newTerminal() {
-    if (EnvironmentUtils.getInstance().isWeb()) {
+    if (EnvironmentUtils.getInstance().isWeb() || !terminalsEnabled) {
       return;
     }
     createNewTerminal(null, null);
@@ -499,28 +634,33 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       toolBar.setBackground(terminalTabs.getBackground());
     }
 
-    // Font size: increase
-    ToolItem increaseFontItem = new ToolItem(toolBar, SWT.PUSH);
-    increaseFontItem.setImage(GuiResource.getInstance().getImage("ui/images/zoom-in.svg", 16, 16));
-    increaseFontItem.setToolTipText(
-        BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.IncreaseFont"));
-    increaseFontItem.addListener(SWT.Selection, e -> increaseTerminalFontSize());
+    // Font sizing only applies to terminal tabs, so the controls are terminal-gated.
+    if (terminalsEnabled) {
+      // Font size: increase
+      ToolItem increaseFontItem = new ToolItem(toolBar, SWT.PUSH);
+      increaseFontItem.setImage(
+          GuiResource.getInstance().getImage("ui/images/zoom-in.svg", 16, 16));
+      increaseFontItem.setToolTipText(
+          BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.IncreaseFont"));
+      increaseFontItem.addListener(SWT.Selection, e -> increaseTerminalFontSize());
 
-    // Font size: decrease
-    ToolItem decreaseFontItem = new ToolItem(toolBar, SWT.PUSH);
-    decreaseFontItem.setImage(GuiResource.getInstance().getImage("ui/images/zoom-out.svg", 16, 16));
-    decreaseFontItem.setToolTipText(
-        BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.DecreaseFont"));
-    decreaseFontItem.addListener(SWT.Selection, e -> decreaseTerminalFontSize());
+      // Font size: decrease
+      ToolItem decreaseFontItem = new ToolItem(toolBar, SWT.PUSH);
+      decreaseFontItem.setImage(
+          GuiResource.getInstance().getImage("ui/images/zoom-out.svg", 16, 16));
+      decreaseFontItem.setToolTipText(
+          BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.DecreaseFont"));
+      decreaseFontItem.addListener(SWT.Selection, e -> decreaseTerminalFontSize());
 
-    // Font size: reset to 100%
-    ToolItem resetFontItem = new ToolItem(toolBar, SWT.PUSH);
-    resetFontItem.setImage(GuiResource.getInstance().getImage("ui/images/zoom-100.svg", 16, 16));
-    resetFontItem.setToolTipText(
-        BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.ResetFont"));
-    resetFontItem.addListener(SWT.Selection, e -> resetTerminalFontSize());
+      // Font size: reset to 100%
+      ToolItem resetFontItem = new ToolItem(toolBar, SWT.PUSH);
+      resetFontItem.setImage(GuiResource.getInstance().getImage("ui/images/zoom-100.svg", 16, 16));
+      resetFontItem.setToolTipText(
+          BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.ResetFont"));
+      resetFontItem.addListener(SWT.Selection, e -> resetTerminalFontSize());
 
-    new ToolItem(toolBar, SWT.SEPARATOR);
+      new ToolItem(toolBar, SWT.SEPARATOR);
+    }
 
     // Maximize/Minimize button
     final ToolItem maximizeItem = new ToolItem(toolBar, SWT.PUSH);
@@ -757,6 +897,9 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
   /** Restore terminals from previous session; respects saved panel visibility (minimized state). */
   public void restoreTerminals() {
+    if (!terminalsEnabled) {
+      return;
+    }
     try {
       String namespace = HopNamespace.getNamespace();
 

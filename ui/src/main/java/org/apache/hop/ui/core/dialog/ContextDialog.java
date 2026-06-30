@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.dialog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,7 @@ import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.i18n.BaseMessages;
@@ -1116,18 +1118,22 @@ public class ContextDialog extends Dialog {
       text = "";
     }
 
-    String[] filters = text.split(",");
-    for (int i = 0; i < filters.length; i++) {
-      filters[i] = Const.trim(filters[i]);
-    }
-
     filteredItems.clear();
-    for (Item item : items) {
-      GuiAction action = item.getAction();
-
-      if (StringUtils.isEmpty(text) || action.containsFilterStrings(filters)) {
-        filteredItems.add(item);
+    if (StringUtils.isEmpty(text)) {
+      filteredItems.addAll(items);
+    } else {
+      // Score every action with the shared matcher (fuzzy + multi-term), keep the matches and sort
+      // them best-first.
+      SearchMatcher matcher = new SearchMatcher(text, false, false, true);
+      Map<Item, Double> scores = new IdentityHashMap<>();
+      for (Item item : items) {
+        double score = item.getAction().matchScore(matcher);
+        if (score > 0.0) {
+          scores.put(item, score);
+          filteredItems.add(item);
+        }
       }
+      filteredItems.sort((a, b) -> Double.compare(scores.get(b), scores.get(a)));
     }
 
     if (filteredItems.isEmpty()) {

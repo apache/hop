@@ -17,12 +17,13 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class SearchQuery implements ISearchQuery {
   private String searchString;
   private boolean caseSensitive;
   private boolean regEx;
+
+  /** Lazily built matcher, shared by all search boxes. Rebuilt when the query changes. */
+  private SearchMatcher matcher;
 
   public SearchQuery() {}
 
@@ -32,27 +33,18 @@ public class SearchQuery implements ISearchQuery {
     this.regEx = regEx;
   }
 
+  private SearchMatcher matcher() {
+    if (matcher == null) {
+      // Content matching: normalized + multi-term substring (or regex). No fuzzy matching here -
+      // fuzzy is only meaningful for short names, not for long descriptions / settings values.
+      matcher = new SearchMatcher(searchString, caseSensitive, regEx, false);
+    }
+    return matcher;
+  }
+
   @Override
   public boolean matches(String string) {
-    if (StringUtils.isEmpty(searchString)) {
-      // match everything non-null
-      //
-      return StringUtils.isNotEmpty(string);
-    }
-
-    if (regEx) {
-      if (caseSensitive) {
-        return string.matches(searchString);
-      } else {
-        return string.toLowerCase().matches(searchString.toLowerCase());
-      }
-    } else {
-      if (caseSensitive) {
-        return string.contains(searchString);
-      } else {
-        return string.toLowerCase().contains(searchString.toLowerCase());
-      }
-    }
+    return matcher().matches(string);
   }
 
   /**
@@ -70,6 +62,7 @@ public class SearchQuery implements ISearchQuery {
    */
   public void setSearchString(String searchString) {
     this.searchString = searchString;
+    this.matcher = null;
   }
 
   /**
@@ -87,6 +80,7 @@ public class SearchQuery implements ISearchQuery {
    */
   public void setCaseSensitive(boolean caseSensitive) {
     this.caseSensitive = caseSensitive;
+    this.matcher = null;
   }
 
   /**
@@ -104,5 +98,6 @@ public class SearchQuery implements ISearchQuery {
    */
   public void setRegEx(boolean regEx) {
     this.regEx = regEx;
+    this.matcher = null;
   }
 }

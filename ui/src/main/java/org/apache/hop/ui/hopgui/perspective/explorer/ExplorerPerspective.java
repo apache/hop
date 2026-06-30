@@ -53,6 +53,7 @@ import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
@@ -113,6 +114,8 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandl
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
+import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
+import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -256,6 +259,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private Map<String, Image> typeImageMap;
   private Text searchText;
   private String filterText = "";
+  private SearchMatcher filterMatcher = new SearchMatcher("", false, false, true);
   private Map<String, Boolean> treeStateBeforeFilter = null;
 
   public ExplorerPerspective() {
@@ -534,7 +538,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           }
 
           // Only filter when we have more than 2 characters, otherwise show all
-          filterText = willFilter ? text.toLowerCase() : "";
+          filterText = willFilter ? text : "";
+          filterMatcher = new SearchMatcher(filterText, false, false, true);
           refresh();
 
           // Restore tree state after filtering ends
@@ -2783,6 +2788,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       searchText.setText("");
     } else {
       filterText = "";
+      filterMatcher = new SearchMatcher("", false, false, true);
     }
   }
 
@@ -2941,7 +2947,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           // Apply filter if search text is not empty
           if (!Utils.isEmpty(filterText)
-              && !childName.toLowerCase().contains(filterText)
+              && !filterMatcher.matches(childName)
               && !hasMatchingDescendant(child)) {
             continue;
           }
@@ -3145,7 +3151,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         }
 
         // Check if this child matches
-        if (childName.toLowerCase().contains(filterText)) {
+        if (filterMatcher.matches(childName)) {
           return true;
         }
 
@@ -3455,7 +3461,22 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   @Override
   public List<ISearchable> getSearchables() {
-    return new ArrayList<>();
+    // Surface the pipelines and workflows that are currently open in tabs so they show up - and can
+    // be prioritized - in the global search.
+    List<ISearchable> searchables = new ArrayList<>();
+    for (TabItemHandler item : items) {
+      IHopFileTypeHandler typeHandler = item.getTypeHandler();
+      if (typeHandler == null) {
+        continue;
+      }
+      Object subject = typeHandler.getSubject();
+      if (subject instanceof PipelineMeta pipelineMeta) {
+        searchables.add(new HopGuiPipelineSearchable("Open file", pipelineMeta));
+      } else if (subject instanceof WorkflowMeta workflowMeta) {
+        searchables.add(new HopGuiWorkflowSearchable("Open file", workflowMeta));
+      }
+    }
+    return searchables;
   }
 
   /** Update HOP GUI menu and toolbar... */

@@ -31,6 +31,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -107,6 +108,7 @@ public class ConfigurationPerspective implements IHopPerspective {
   private List<Object> tabInstances = new ArrayList<>(); // Store tab instances for refreshing
   private List<Control> highlightedControls = new ArrayList<>();
   private String currentSearchText = ""; // Track current search for re-applying highlights
+  private SearchMatcher searchMatcher = new SearchMatcher("", false, false, true);
   private Color highlightColor; // Custom neutral highlight color
   private Text searchBox;
   @Getter private static ConfigurationPerspective instance;
@@ -431,6 +433,7 @@ public class ConfigurationPerspective implements IHopPerspective {
     if (currentSearchText.length() < 3) {
       currentSearchText = "";
     }
+    searchMatcher = new SearchMatcher(currentSearchText, false, false, true);
 
     // Clear previous highlights
     clearHighlights();
@@ -453,8 +456,7 @@ public class ConfigurationPerspective implements IHopPerspective {
 
     // Search through all categories and their content
     for (TreeItem item : categoryTree.getItems()) {
-      String categoryName = item.getText().toLowerCase();
-      boolean categoryMatches = categoryName.contains(lowerSearch);
+      boolean categoryMatches = searchMatcher.matches(item.getText());
       boolean hasMatchingContent = false;
 
       // Check if category name matches
@@ -495,8 +497,7 @@ public class ConfigurationPerspective implements IHopPerspective {
       boolean hasMatchingPlugin = false;
       for (TreeItem childItem : item.getItems()) {
         String pluginName = childItem.getText();
-        String pluginNameLower = pluginName.toLowerCase();
-        boolean pluginMatches = pluginNameLower.contains(lowerSearch);
+        boolean pluginMatches = searchMatcher.matches(pluginName);
 
         // Also search within the plugin's content
         boolean pluginContentMatches = searchInPluginContent(pluginName, lowerSearch);
@@ -614,7 +615,7 @@ public class ConfigurationPerspective implements IHopPerspective {
         // Check labels
         if (control instanceof Label label) {
           String text = label.getText();
-          if (text != null && text.toLowerCase().contains(searchText)) {
+          if (text != null && searchMatcher.matches(text)) {
             matches.add(control);
             controlMatches = true;
           }
@@ -622,7 +623,7 @@ public class ConfigurationPerspective implements IHopPerspective {
         // Check text fields
         else if (control instanceof Text text) {
           String value = text.getText();
-          if (value != null && value.toLowerCase().contains(searchText)) {
+          if (value != null && searchMatcher.matches(value)) {
             matches.add(control);
             controlMatches = true;
           }
@@ -630,7 +631,7 @@ public class ConfigurationPerspective implements IHopPerspective {
         // Check buttons
         else if (control instanceof Button button) {
           String text = button.getText();
-          if (text != null && text.toLowerCase().contains(searchText)) {
+          if (text != null && searchMatcher.matches(text)) {
             matches.add(control);
             controlMatches = true;
           }
@@ -641,7 +642,7 @@ public class ConfigurationPerspective implements IHopPerspective {
           for (TableItem item : table.getItems()) {
             for (int i = 0; i < table.getColumnCount(); i++) {
               String cellText = item.getText(i);
-              if (cellText != null && cellText.toLowerCase().contains(searchText)) {
+              if (cellText != null && searchMatcher.matches(cellText)) {
                 matches.add(control);
                 controlMatches = true;
                 break;
@@ -659,7 +660,7 @@ public class ConfigurationPerspective implements IHopPerspective {
           for (TableItem item : table.getItems()) {
             for (int i = 0; i < table.getColumnCount(); i++) {
               String cellText = item.getText(i);
-              if (cellText != null && cellText.toLowerCase().contains(searchText)) {
+              if (cellText != null && searchMatcher.matches(cellText)) {
                 matches.add(control);
                 controlMatches = true;
                 break;
@@ -674,7 +675,7 @@ public class ConfigurationPerspective implements IHopPerspective {
         // Check tooltips
         if (!controlMatches) {
           String tooltip = control.getToolTipText();
-          if (tooltip != null && tooltip.toLowerCase().contains(searchText)) {
+          if (tooltip != null && searchMatcher.matches(tooltip)) {
             matches.add(control);
             controlMatches = true;
           }
@@ -745,8 +746,6 @@ public class ConfigurationPerspective implements IHopPerspective {
       return;
     }
 
-    String lowerSearch = currentSearchText.toLowerCase();
-
     // Search through all table items and highlight matching rows
     for (TableItem item : table.getItems()) {
       boolean rowMatches = false;
@@ -754,7 +753,7 @@ public class ConfigurationPerspective implements IHopPerspective {
       // Check all columns in the row
       for (int i = 0; i < table.getColumnCount(); i++) {
         String cellText = item.getText(i);
-        if (cellText != null && cellText.toLowerCase().contains(lowerSearch)) {
+        if (cellText != null && searchMatcher.matches(cellText)) {
           rowMatches = true;
           break;
         }

@@ -20,11 +20,8 @@ package org.apache.hop.core.gui.plugin.action;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.search.SearchMatcher;
 
 public class GuiAction {
   private String id;
@@ -118,58 +115,29 @@ public class GuiAction {
     this.classLoader = guiAction.getClassLoader();
   }
 
-  public boolean containsFilterStrings(String[] filters) {
-    for (String filter : filters) {
-      if (!containsFilterString(filter)) {
-        return false;
+  /**
+   * Score this action against a prepared matcher. Used to filter and rank actions (e.g. in the
+   * context dialog). Returns the best score across the action's name, tooltip, type, keywords and
+   * category; {@code 0} means no match.
+   *
+   * @param matcher the shared search matcher built from the user's filter text
+   * @return the best relevance score in {@code [0,1]}
+   */
+  public double matchScore(SearchMatcher matcher) {
+    // Weight the fields so a hit on the name ranks above a hit on a tooltip/type, which in turn
+    // ranks above a hit on a keyword or category. This keeps the most relevant actions (those whose
+    // name matches) at the top and stops loosely-related keyword/category hits from crowding in.
+    double best = matcher.score(name);
+    best = Math.max(best, 0.9 * matcher.score(tooltip));
+    if (type != null) {
+      best = Math.max(best, 0.9 * matcher.score(type.name()));
+    }
+    if (keywords != null) {
+      for (String keyword : keywords) {
+        best = Math.max(best, 0.8 * matcher.score(keyword));
       }
     }
-    return true;
-  }
-
-  public boolean containsFilterString(String filter) {
-    if (filter == null) {
-      return false;
-    }
-
-    filter = StringUtil.removeDiacriticalMarks(filter);
-
-    if (matchesString(name, filter)) {
-      return true;
-    }
-    if (matchesString(tooltip, filter)) {
-      return true;
-    }
-    if (type != null && matchesString(type.name(), filter)) {
-      return true;
-    }
-    for (String keyword : keywords) {
-      if (matchesString(keyword, filter)) {
-        return true;
-      }
-    }
-    if (matchesString(category, filter)) {
-      return true;
-    }
-    return false;
-  }
-
-  private boolean matchesString(String string, String filter) {
-    if (StringUtils.isEmpty(string)) {
-      return false;
-    }
-
-    string = StringUtil.removeDiacriticalMarks(string);
-
-    if (EnvUtil.getSystemProperty(Const.HOP_CONTEXT_DIALOG_STRICT_SEARCH, "N")
-        .equalsIgnoreCase("Y")) {
-      // Use strict matching of strings
-      return string.equalsIgnoreCase(filter);
-    } else {
-      // TODO: consider some fuzzy matching algorithm
-      // TODO: Do a Levenshtein distance on the filter string across all valid string indexes 0..
-      return string.toUpperCase().contains(filter.toUpperCase());
-    }
+    return Math.max(best, 0.7 * matcher.score(category));
   }
 
   @Override
