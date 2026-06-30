@@ -37,6 +37,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -237,6 +238,13 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
           value = resolve(value);
         }
 
+        java.util.List<IVariables> parents = new java.util.ArrayList<>();
+        IVariables parentEngine = getParentEngine(parentWorkflow);
+        while (parentEngine != null) {
+          parents.add(parentEngine);
+          parentEngine = getParentEngine(parentEngine);
+        }
+
         // OK, where do we set this value...
         switch (definition.getType()) {
           case JVM:
@@ -246,20 +254,22 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
               System.clearProperty(name);
             }
             setVariable(name, value);
-            IWorkflowEngine<WorkflowMeta> parentWorkflowTraverse = parentWorkflow;
-            while (parentWorkflowTraverse != null) {
-              parentWorkflowTraverse.setVariable(name, value);
-              parentWorkflowTraverse = parentWorkflowTraverse.getParentWorkflow();
+            if (parentWorkflow != null) {
+              parentWorkflow.setVariable(name, value);
+              for (IVariables p : parents) {
+                p.setVariable(name, value);
+              }
             }
             break;
 
           case ROOT_WORKFLOW:
             // set variable in this action
             setVariable(name, value);
-            IWorkflowEngine<WorkflowMeta> rootWorkflow = parentWorkflow;
-            while (rootWorkflow != null) {
-              rootWorkflow.setVariable(name, value);
-              rootWorkflow = rootWorkflow.getParentWorkflow();
+            if (parentWorkflow != null) {
+              parentWorkflow.setVariable(name, value);
+              for (IVariables p : parents) {
+                p.setVariable(name, value);
+              }
             }
             break;
 
@@ -294,9 +304,8 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
 
             if (parentWorkflow != null) {
               parentWorkflow.setVariable(name, value);
-              IWorkflowEngine<WorkflowMeta> gpWorkflow = parentWorkflow.getParentWorkflow();
-              if (gpWorkflow != null) {
-                gpWorkflow.setVariable(name, value);
+              if (!parents.isEmpty()) {
+                parents.get(0).setVariable(name, value);
               } else {
                 throw new HopWorkflowException(
                     BaseMessages.getString(
@@ -417,5 +426,22 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
    */
   public void setFileVariableType(VariableType scope) {
     this.fileVariableType = scope;
+  }
+
+  private IVariables getParentEngine(IVariables engine) {
+    if (engine instanceof IPipelineEngine) {
+      IPipelineEngine<?> pe = (IPipelineEngine<?>) engine;
+      if (pe.getParentPipeline() != null) {
+        return pe.getParentPipeline();
+      }
+      return pe.getParentWorkflow();
+    } else if (engine instanceof IWorkflowEngine) {
+      IWorkflowEngine<?> we = (IWorkflowEngine<?>) engine;
+      if (we.getParentPipeline() != null) {
+        return we.getParentPipeline();
+      }
+      return we.getParentWorkflow();
+    }
+    return null;
   }
 }

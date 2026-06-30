@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0064-set-variables</name>
+  <name>main-0018-set-variables</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -28,7 +28,7 @@ limitations under the License.
   <modified_user>-</modified_user>
   <modified_date>2022/12/29 16:50:35.688</modified_date>
   <parameters>
-    </parameters>
+  </parameters>
   <actions>
     <action>
       <name>Start</name>
@@ -49,11 +49,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0064-set-variables-init</name>
+      <name>Run Parent Pipeline</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0064-set-variables-init.hpl</filename>
+      <filename>${PROJECT_HOME}/0018-set-variables-pipeline.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -72,16 +72,16 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>368</xloc>
+      <xloc>384</xloc>
       <yloc>192</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>0064-set-variables-get-values</name>
+      <name>Verify Variable</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0064-set-variables-get-values.hpl</filename>
+      <filename>${PROJECT_HOME}/0018-set-variables-verify.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -100,63 +100,7 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <parallel>N</parallel>
-      <xloc>560</xloc>
-      <yloc>192</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0064-set-variables-parent-pipeline</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0064-set-variables-parent-pipeline.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>752</xloc>
-      <yloc>192</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0064-set-variables-verify-nested</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0064-set-variables-verify-nested.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>960</xloc>
+      <xloc>576</xloc>
       <yloc>192</yloc>
       <attributes_hac/>
     </action>
@@ -164,28 +108,13 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>0064-set-variables-init</to>
+      <to>Run Parent Pipeline</to>
       <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0064-set-variables-init</from>
-      <to>0064-set-variables-get-values</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>0064-set-variables-get-values</from>
-      <to>0064-set-variables-parent-pipeline</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>0064-set-variables-parent-pipeline</from>
-      <to>0064-set-variables-verify-nested</to>
+      <from>Run Parent Pipeline</from>
+      <to>Verify Variable</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

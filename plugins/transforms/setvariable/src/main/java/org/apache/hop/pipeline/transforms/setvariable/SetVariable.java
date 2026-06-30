@@ -29,7 +29,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /** Convert Values in a certain fields to other values */
@@ -137,8 +136,6 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
       }
     }
 
-    IWorkflowEngine<WorkflowMeta> parentWorkflow;
-
     // We always set the variable in this transform and in the parent pipeline...
     //
     setVariable(varname, value);
@@ -155,71 +152,61 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
       pipeline.setVariable(varname, value);
     }
 
-    // The pipeline object we have now is the pipeline being executed by a workflow.
-    // It has one or more parent workflows.
-    // Below we see where we need to this value as well...
+    // Now construct the list of parent engines starting from this top-level pipeline
     //
+    java.util.List<IVariables> parents = new java.util.ArrayList<>();
+    IVariables parent = getParentEngine(pipeline);
+    while (parent != null) {
+      parents.add(parent);
+      parent = getParentEngine(parent);
+    }
+
     switch (vars.get(i).getVariableType()) {
       case VariableItem.VARIABLE_TYPE_JVM:
         System.setProperty(varname, value);
-
-        parentWorkflow = pipeline.getParentWorkflow();
-        while (parentWorkflow != null) {
-          parentWorkflow.setVariable(varname, value);
-          parentWorkflow = parentWorkflow.getParentWorkflow();
+        for (IVariables p : parents) {
+          p.setVariable(varname, value);
         }
-
         break;
+
       case VariableItem.VARIABLE_TYPE_ROOT_WORKFLOW:
-        parentWorkflow = pipeline.getParentWorkflow();
-        while (parentWorkflow != null) {
-          parentWorkflow.setVariable(varname, value);
-          parentWorkflow = parentWorkflow.getParentWorkflow();
+        for (IVariables p : parents) {
+          p.setVariable(varname, value);
         }
         break;
 
       case VariableItem.VARIABLE_TYPE_GRAND_PARENT_WORKFLOW:
-        // Set the variable in the parent workflow
-        //
-        parentWorkflow = pipeline.getParentWorkflow();
-        if (parentWorkflow != null) {
-          parentWorkflow.setVariable(varname, value);
+        if (!parents.isEmpty()) {
+          parents.get(0).setVariable(varname, value);
         } else {
           if (isBasic()) {
             logBasic(
                 CONST_WARNING_CAN_T_SET_VARIABLE
                     + varname
-                    + "] on parent workflow: the parent workflow is not available");
+                    + "] on parent: the parent is not available");
           }
         }
-
-        // Set the variable on the grand-parent workflow
-        //
-        IVariables gpJob = pipeline.getParentWorkflow().getParentWorkflow();
-        if (gpJob != null) {
-          gpJob.setVariable(varname, value);
+        if (parents.size() > 1) {
+          parents.get(1).setVariable(varname, value);
         } else {
           if (isBasic()) {
             logBasic(
                 CONST_WARNING_CAN_T_SET_VARIABLE
                     + varname
-                    + "] on grand parent workflow: the grand parent workflow is not available");
+                    + "] on grand parent: the grand parent is not available");
           }
         }
         break;
 
       case VariableItem.VARIABLE_TYPE_PARENT_WORKFLOW:
-        // Set the variable in the parent workflow
-        //
-        parentWorkflow = pipeline.getParentWorkflow();
-        if (parentWorkflow != null) {
-          parentWorkflow.setVariable(varname, value);
+        if (!parents.isEmpty()) {
+          parents.get(0).setVariable(varname, value);
         } else {
           if (isBasic()) {
             logBasic(
                 CONST_WARNING_CAN_T_SET_VARIABLE
                     + varname
-                    + "] on parent workflow: the parent workflow is not available");
+                    + "] on parent: the parent is not available");
           }
         }
         break;
@@ -233,5 +220,22 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
           BaseMessages.getString(
               PKG, "SetVariable.Log.SetVariableToValue", vars.get(i).getVariableName(), value));
     }
+  }
+
+  private IVariables getParentEngine(IVariables engine) {
+    if (engine instanceof IPipelineEngine) {
+      IPipelineEngine<?> pe = (IPipelineEngine<?>) engine;
+      if (pe.getParentPipeline() != null) {
+        return pe.getParentPipeline();
+      }
+      return pe.getParentWorkflow();
+    } else if (engine instanceof IWorkflowEngine) {
+      IWorkflowEngine<?> we = (IWorkflowEngine<?>) engine;
+      if (we.getParentPipeline() != null) {
+        return we.getParentPipeline();
+      }
+      return we.getParentWorkflow();
+    }
+    return null;
   }
 }
