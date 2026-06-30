@@ -30,6 +30,8 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
+@Getter
+@Setter
 public class SingleThreadedPipelineExecutor {
 
   private List<TransformMetaDataCombi> transforms;
@@ -377,7 +379,12 @@ public class SingleThreadedPipelineExecutor {
           // Signal the transform that a batch of rows has passed for this iteration (sort rows and
           // all)
           //
-          combi.transform.batchComplete();
+          try {
+            combi.transform.batchComplete();
+          } catch (Exception e) {
+            combi.transform.setErrors(1);
+            throw e;
+          }
 
           if (transformDone) {
             nrDone++;
@@ -493,10 +500,6 @@ public class SingleThreadedPipelineExecutor {
       combi.transform.dispose();
       combi.transform.markStop();
     }
-  }
-
-  public Pipeline getPipeline() {
-    return pipeline;
   }
 
   /** Clear the error in the pipeline, clear all the rows from all the row sets... */

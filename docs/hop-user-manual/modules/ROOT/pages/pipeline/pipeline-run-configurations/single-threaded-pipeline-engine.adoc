@@ -1,0 +1,45 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[SingleThreadedPipelineEngine]]
+:imagesdir: ../assets/images
+:description: The single-threaded engine runs Hop pipelines locally in a single thread, executing transforms sequentially in topological order.
+
+= Single Threaded Pipeline Engine
+
+== Single Threaded
+
+The single-threaded pipeline engine runs your pipeline locally in a single-threaded fashion.
+Every transform is executed in topological order, and data is processed sequentially rather than in a parallel stream. 
+
+This execution mode is useful for debugging, testing, or processing batch data where concurrency overhead is undesirable, as well as executing pipelines embedded in other environments (such as mapping transforms in Kafka message processing).
+
+=== Options
+
+|===
+|Option|Description|Default
+
+|Sample type while running in the GUI
+|Here you can specify which rows you want to see when you click on the little grid icons on the transform icons during a pipeline execution.
+You can choose: `None`: do not show, `First` : show the first rows, `Last` : show the last rows or `Random`: a random selection of rows (reservoir sampling)
+|Last
+
+|Number of rows to sample in the GUI
+|The number of rows which will be collected
+|100
+
+|===
+

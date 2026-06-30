@@ -31,8 +31,8 @@ import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.IMeasuringLocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration.SampleType;
 import org.apache.hop.pipeline.transform.RowAdapter;
 
@@ -55,17 +55,15 @@ public final class PipelineRowSamplerHelper {
    */
   public static void addRowSamplersToPipeline(
       IPipelineEngine<PipelineMeta> pipeline, Map<String, RowBuffer> targetMap) {
-    if (pipeline == null || targetMap == null || !(pipeline instanceof LocalPipelineEngine)) {
+    if (pipeline == null || targetMap == null) {
       return;
     }
+
     if (pipeline.getPipelineRunConfiguration() == null
         || !(pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
-            instanceof LocalPipelineRunConfiguration)) {
+            instanceof IMeasuringLocalPipelineRunConfiguration lprConfig)) {
       return;
     }
-    LocalPipelineRunConfiguration lprConfig =
-        (LocalPipelineRunConfiguration)
-            pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
     if (StringUtils.isEmpty(lprConfig.getSampleTypeInGui())) {
       return;
     }
