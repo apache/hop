@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "google-sheets-output.svg",
     name = "i18n::GoogleSheetsOutput.transform.Name",
     description = "i18n::GoogleSheetsOutput.transform.Name",
+    keywords = "google,sheets,spreadsheet,gsheet,write",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/google-sheets-output.html")
 public class GoogleSheetsOutputMeta

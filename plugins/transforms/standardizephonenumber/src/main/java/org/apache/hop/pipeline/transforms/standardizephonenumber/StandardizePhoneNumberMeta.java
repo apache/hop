@@ -46,6 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "standardizephonenumber.svg",
     name = "i18n::StandardizePhoneNumber.Name",
     description = "i18n::StandardizePhoneNumber.Description",
+    keywords = "phone,number,standardize,libphonenumber,format",
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataQuality",
     documentationUrl = "/pipeline/transforms/standardizephonenumber.html")

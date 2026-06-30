@@ -49,6 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "redshiftbulkloader.svg",
     name = "i18n::BaseTransform.TypeLongDesc.RedshiftBulkLoaderMessage",
     description = "i18n::BaseTransform.TypeTooltipDesc.RedshiftBulkLoaderMessage",
+    keywords = "redshift,aws,bulk,load,copy",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "/pipeline/transforms/redshift-bulkloader.html",
     isIncludeJdbcDrivers = true,

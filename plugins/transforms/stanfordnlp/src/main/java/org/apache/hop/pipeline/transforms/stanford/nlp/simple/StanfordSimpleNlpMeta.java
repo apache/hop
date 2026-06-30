@@ -44,6 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "stanfordnlp.svg",
     name = "i18n::BaseTransform.TypeLongDesc.StanfordSimpleNlp",
     description = "i18n::BaseTransform.TypeTooltipDesc.StanfordSimpleNlp",
+    keywords = "nlp,stanford,language,sentiment,text",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/stanfordnlp.html")
 @Getter

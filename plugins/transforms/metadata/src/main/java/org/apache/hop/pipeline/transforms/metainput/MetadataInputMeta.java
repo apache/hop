@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     id = "MetadataInput",
     name = "i18n::MetadataInput.Transform.Name",
     description = "i18n::MetadataInput.Transform.Description",
+    keywords = "metadata,schema,introspect,catalog,describe",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     image = "metadata.svg",
     documentationUrl = "/pipeline/transforms/metadata-input.html")

@@ -45,6 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "html2text.svg",
     name = "i18n::BaseTransform.TypeLongDesc.Html2Text",
     description = "i18n::BaseTransform.TypeTooltipDesc.Html2Text",
+    keywords = "html,strip,plain,markup,convert",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/html2text.html")
 @Getter

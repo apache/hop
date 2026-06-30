@@ -53,6 +53,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "languagemodelchat.svg",
     name = "i18n::BaseTransform.TypeLongDesc.LanguageModelChat",
     description = "i18n::BaseTransform.TypeTooltipDesc.LanguageModelChat",
+    keywords = "llm,ai,chat,openai,gpt",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/languagemodelchat.html")
 @Getter

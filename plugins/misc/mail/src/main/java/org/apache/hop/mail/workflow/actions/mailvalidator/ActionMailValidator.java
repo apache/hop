@@ -41,6 +41,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     id = "MAIL_VALIDATOR",
     name = "i18n::ActionMailValidator.Name",
     description = "i18n::ActionMailValidator.Description",
+    keywords = "email,validate,verify,smtp,check",
     image = "MailValidator.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
     documentationUrl = "/workflow/actions/mailvalidator.html")

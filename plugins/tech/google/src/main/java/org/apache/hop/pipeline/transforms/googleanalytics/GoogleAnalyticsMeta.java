@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "google-analytics.svg",
     name = "i18n::BaseTransform.TypeLongDesc.GoogleAnalytics",
     description = "i18n::BaseTransform.TypeTooltipDesc.GoogleAnalytics",
+    keywords = "google,analytics,ga,metrics,report",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "pipeline/transforms/google-analytics.html")
 public class GoogleAnalyticsMeta extends BaseTransformMeta<GoogleAnalytics, GoogleAnalyticsData> {

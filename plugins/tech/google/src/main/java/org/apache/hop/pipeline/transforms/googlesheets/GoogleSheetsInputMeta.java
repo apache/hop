@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "google-sheets-input.svg",
     name = "i18n::GoogleSheetsInput.transform.Name",
     description = "i18n::GoogleSheetsInput.transform.Name",
+    keywords = "google,sheets,spreadsheet,gsheet,read",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/google-sheets-input.html")
 public class GoogleSheetsInputMeta
