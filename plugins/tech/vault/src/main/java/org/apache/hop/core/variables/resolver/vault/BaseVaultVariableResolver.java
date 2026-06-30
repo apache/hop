@@ -153,6 +153,7 @@ public abstract class BaseVaultVariableResolver implements IVariableResolver {
       final VaultConfig vaultConfig = new VaultConfig();
       vaultConfig.address(actualVaultAddress);
       vaultConfig.token(actualVaultToken);
+      vaultConfig.engineVersion(1);
 
       if (StringUtils.isNotEmpty(namespace)) {
         vaultConfig.nameSpace(variables.resolve(namespace));
