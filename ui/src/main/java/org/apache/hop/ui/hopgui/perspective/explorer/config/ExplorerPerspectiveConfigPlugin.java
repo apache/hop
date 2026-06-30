@@ -51,6 +51,7 @@ public class ExplorerPerspectiveConfigPlugin
   private static final String WIDGET_ID_FILE_EXPLORER_VISIBLE_BY_DEFAULT =
       "10200-file-explorer-visible-by-default";
   private static final String WIDGET_ID_OPEN_HELP_FILES = "10300-open-help-files";
+  private static final String WIDGET_ID_ACTIVE_FILE_SELECTION = "10400-active-file-selection";
 
   @GuiWidgetElement(
       id = WIDGET_ID_LAZY_LOADING_DEPTH,
@@ -98,6 +99,17 @@ public class ExplorerPerspectiveConfigPlugin
       description = "Open help files in Hop GUI tabs instead of external browser")
   private Boolean openingHelpFiles;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_ACTIVE_FILE_SELECTION,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ExplorerPerspectiveConfig.ActiveFileSelection.Label",
+      toolTip = "i18n::ExplorerPerspectiveConfig.ActiveFileSelection.Tooltip")
+  @CommandLine.Option(
+      names = {"-exafs", "--explorer-active-file-selection"},
+      description = "Automatically select the active tab file in the file explorer tree")
+  private Boolean activeFileSelection = true;
+
   /**
    * Gets instance
    *
@@ -112,6 +124,7 @@ public class ExplorerPerspectiveConfigPlugin
     Boolean visibleByDefault = config.getFileExplorerVisibleByDefault();
     instance.fileExplorerVisibleByDefault = visibleByDefault != null ? visibleByDefault : true;
     instance.openingHelpFiles = config.isOpeningHelpFiles();
+    instance.activeFileSelection = config.getActiveFileSelection();
 
     return instance;
   }
@@ -153,6 +166,13 @@ public class ExplorerPerspectiveConfigPlugin
         config.setOpeningHelpFiles(openingHelpFiles);
         log.logBasic(
             "Explorer perspective: open help files in tabs is set to '" + openingHelpFiles + "'");
+        changed = true;
+      }
+
+      if (activeFileSelection != null) {
+        config.setActiveFileSelection(activeFileSelection);
+        log.logDetailed(
+            "Explorer perspective: active file selection is set to '" + activeFileSelection + "'");
         changed = true;
       }
 
@@ -205,6 +225,11 @@ public class ExplorerPerspectiveConfigPlugin
           openingHelpFiles = ((Button) control).getSelection();
           ExplorerPerspectiveConfigSingleton.getConfig().setOpeningHelpFiles(openingHelpFiles);
           break;
+        case WIDGET_ID_ACTIVE_FILE_SELECTION:
+          activeFileSelection = ((Button) control).getSelection();
+          ExplorerPerspectiveConfigSingleton.getConfig()
+              .setActiveFileSelection(activeFileSelection);
+          break;
         default:
           break;
       }
@@ -248,5 +273,13 @@ public class ExplorerPerspectiveConfigPlugin
 
   public void setOpeningHelpFiles(Boolean openingHelpFiles) {
     this.openingHelpFiles = openingHelpFiles;
+  }
+
+  public Boolean getActiveFileSelection() {
+    return activeFileSelection != null ? activeFileSelection : true;
+  }
+
+  public void setActiveFileSelection(Boolean activeFileSelection) {
+    this.activeFileSelection = activeFileSelection;
   }
 }

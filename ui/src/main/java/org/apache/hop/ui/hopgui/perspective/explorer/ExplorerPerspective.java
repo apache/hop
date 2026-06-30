@@ -394,14 +394,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                         activeTabFolder = folder;
                         folder.setSelection(item);
                         folder.showItem(item);
-                        Object handler = item.getData();
-                        if (handler instanceof IHopFileTypeHandler) {
+                        if (item.getData() instanceof IHopFileTypeHandler handler) {
                           hopGui.handleFileCapabilities(
-                              ((IHopFileTypeHandler) handler).getFileType(),
-                              (IHopFileTypeHandler) handler,
-                              ((IHopFileTypeHandler) handler).hasChanged(),
-                              false,
-                              false);
+                              handler.getFileType(), handler, handler.hasChanged(), false, false);
+                          selectInTree(handler.getFilename());
                         }
                       }
                       break;
@@ -1752,6 +1748,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             notifyZoomHandlerForActiveTab();
             updateWebUrlForActiveTab();
           }
+          CTabItem selection = folder.getSelection();
+          if (selection != null) {
+            Object data = selection.getData();
+            if (data instanceof IHopFileTypeHandler handler) {
+              selectInTree(handler.getFilename());
+            }
+          }
         });
     folder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
@@ -2128,6 +2131,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (EnvironmentUtils.getInstance().isWeb()) {
         updateWebUrlForActiveTab();
       }
+      selectInTree(fileTypeHandler.getFilename());
       return;
     }
 
@@ -2187,6 +2191,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (EnvironmentUtils.getInstance().isWeb()) {
       updateWebUrlForActiveTab();
     }
+    selectInTree(fileTypeHandler.getFilename());
   }
 
   /**
@@ -2207,6 +2212,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (EnvironmentUtils.getInstance().isWeb()) {
         updateWebUrlForActiveTab();
       }
+      selectInTree(pipelineMeta.getFilename());
       return handler.getTypeHandler();
     }
 
@@ -2265,6 +2271,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (EnvironmentUtils.getInstance().isWeb()) {
       updateWebUrlForActiveTab();
     }
+    selectInTree(pipelineMeta.getFilename());
 
     return pipelineGraph;
   }
@@ -2287,6 +2294,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (EnvironmentUtils.getInstance().isWeb()) {
         updateWebUrlForActiveTab();
       }
+      selectInTree(workflowMeta.getFilename());
       return handler.getTypeHandler();
     }
 
@@ -2345,12 +2353,24 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (EnvironmentUtils.getInstance().isWeb()) {
       updateWebUrlForActiveTab();
     }
+    selectInTree(workflowMeta.getFilename());
 
     return workflowGraph;
   }
 
   /** Select the corresponding file in the left-hand tree */
   private void selectInTree(String filename) {
+    selectInTree(filename, true);
+  }
+
+  private void selectInTree(String filename, boolean automatic) {
+    if (automatic) {
+      Boolean activeFileSelection =
+          ExplorerPerspectiveConfigSingleton.getConfig().getActiveFileSelection();
+      if (activeFileSelection != null && !activeFileSelection) {
+        return;
+      }
+    }
 
     if (Utils.isEmpty(filename)) {
       return;
@@ -2365,15 +2385,47 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
+  private boolean isDescendant(String parentPath, String childPath) {
+    if (parentPath == null || childPath == null) {
+      return false;
+    }
+    try {
+      FileObject parentFile = HopVfs.getFileObject(parentPath);
+      FileObject childFile = HopVfs.getFileObject(childPath);
+      return parentFile.getName().isDescendent(childFile.getName());
+    } catch (Exception e) {
+      // Fallback
+      String parent = parentPath.replace('\\', '/');
+      String child = childPath.replace('\\', '/');
+      if (!parent.endsWith("/")) {
+        parent += "/";
+      }
+      return child.startsWith(parent);
+    }
+  }
+
   private boolean selectInTree(TreeItem item, String filename) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
     if (tif != null && tif.path.equals(filename)) {
       tree.setSelection(tif.treeItem);
+      tree.showItem(tif.treeItem);
       return true;
     }
-    for (TreeItem child : item.getItems()) {
-      if (selectInTree(child, filename)) {
-        return true;
+    if (tif != null && tif.folder && isDescendant(tif.path, filename)) {
+      if (!tif.loaded) {
+        BusyIndicator.showWhile(
+            hopGui.getDisplay(),
+            () -> {
+              refreshFolder(item, tif.path, tif.depth + 1);
+              tif.loaded = true;
+            });
+      }
+      item.setExpanded(true);
+      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
+      for (TreeItem child : item.getItems()) {
+        if (selectInTree(child, filename)) {
+          return true;
+        }
       }
     }
     return false;
@@ -2629,7 +2681,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   public void selectInTree() {
     CTabFolder active = getTargetTabFolder();
     if (active.getSelectionIndex() >= 0) {
-      this.selectInTree(getActiveFileTypeHandler().getFilename());
+      this.selectInTree(getActiveFileTypeHandler().getFilename(), false);
     }
   }
 
