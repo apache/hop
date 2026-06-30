@@ -103,6 +103,10 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
                       true,
                       click));
       createTransformAction.getKeywords().addAll(Arrays.asList(transformPlugin.getKeywords()));
+      // Also search on the English name/category/keywords for non-English locales (issue #2633)
+      createTransformAction
+          .getKeywords()
+          .addAll(Arrays.asList(transformPlugin.getEnglishKeywords()));
       createTransformAction.setCategory(transformPlugin.getCategory());
       createTransformAction.setCategoryOrder(
           "9999_" + transformPlugin.getCategory()); // sort alphabetically

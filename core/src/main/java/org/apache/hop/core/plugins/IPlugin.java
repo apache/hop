@@ -228,6 +228,27 @@ public interface IPlugin {
   }
 
   /**
+   * English-locale aliases for this plugin's name, category and keywords. These let the context
+   * dialog match a transform/action by its original English term even when the UI runs in another
+   * language (issue #2633). Empty when the UI is already English (the localized values are the
+   * English ones) or for external implementations that don't participate.
+   *
+   * <p>Default returns an empty array so existing external {@link IPlugin} implementations stay
+   * binary-compatible.
+   */
+  default String[] getEnglishKeywords() {
+    return new String[0];
+  }
+
+  /**
+   * Setter counterpart to {@link #getEnglishKeywords()}. Default no-op so external {@link IPlugin}
+   * implementers don't have to participate — concrete plugins ({@link Plugin}) override this.
+   */
+  default void setEnglishKeywords(String[] englishKeywords) {
+    // intentional no-op default
+  }
+
+  /**
    * A flag to indicate that the plugin needs libraries outside of the plugin folder
    *
    * @return true if there are extra libraries that need to be included outside the plugin folder

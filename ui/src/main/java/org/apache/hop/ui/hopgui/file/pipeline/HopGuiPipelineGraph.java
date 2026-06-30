@@ -3319,6 +3319,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                       context.getClick()));
       guiAction.getKeywords().addAll(Arrays.asList(plugin.getKeywords()));
       guiAction.getKeywords().add(plugin.getCategory());
+      // Also search on the English name/category/keywords for non-English locales (issue #2633)
+      guiAction.getKeywords().addAll(Arrays.asList(plugin.getEnglishKeywords()));
       guiAction.setCategory(plugin.getCategory());
       guiAction.setCategoryOrder(plugin.getCategory());
       try {

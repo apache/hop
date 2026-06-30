@@ -62,6 +62,7 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
 
   private String[] supportedEngines = new String[0];
   private String[] excludedEngines = new String[0];
+  private String[] englishKeywords = new String[0];
 
   public Plugin(
       String[] ids,
@@ -605,6 +606,24 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
   @Override
   public void setKeywords(String[] keywords) {
     this.keywords = keywords;
+  }
+
+  /**
+   * Gets the English-locale search aliases (name, category and keywords).
+   *
+   * @return value of englishKeywords
+   */
+  @Override
+  public String[] getEnglishKeywords() {
+    return englishKeywords;
+  }
+
+  /**
+   * @param englishKeywords The English-locale search aliases to set
+   */
+  @Override
+  public void setEnglishKeywords(String[] englishKeywords) {
+    this.englishKeywords = englishKeywords;
   }
 
   /**

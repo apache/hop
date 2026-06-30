@@ -102,6 +102,8 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
                       controlClicked,
                       click));
       createActionGuiAction.getKeywords().addAll(Arrays.asList(actionPlugin.getKeywords()));
+      // Also search on the English name/category/keywords for non-English locales (issue #2633)
+      createActionGuiAction.getKeywords().addAll(Arrays.asList(actionPlugin.getEnglishKeywords()));
       createActionGuiAction.setCategory(actionPlugin.getCategory());
       createActionGuiAction.setCategoryOrder(
           "9999_" + actionPlugin.getCategory()); // sort alphabetically
