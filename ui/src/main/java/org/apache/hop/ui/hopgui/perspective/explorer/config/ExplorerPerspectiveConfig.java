@@ -25,12 +25,14 @@ public class ExplorerPerspectiveConfig {
   private String fileLoadingMaxSize;
   private Boolean fileExplorerVisibleByDefault;
   private Boolean openingHelpFiles;
+  private Boolean activeFileSelection;
 
   public ExplorerPerspectiveConfig() {
     this.lazyLoadingDepth = "0";
     this.fileLoadingMaxSize = "16";
     this.fileExplorerVisibleByDefault = true;
     this.openingHelpFiles = false;
+    this.activeFileSelection = true;
   }
 
   public ExplorerPerspectiveConfig(ExplorerPerspectiveConfig config) {
@@ -39,6 +41,7 @@ public class ExplorerPerspectiveConfig {
     this.fileLoadingMaxSize = config.fileLoadingMaxSize;
     this.fileExplorerVisibleByDefault = config.fileExplorerVisibleByDefault;
     this.openingHelpFiles = config.openingHelpFiles;
+    this.activeFileSelection = config.activeFileSelection;
   }
 
   public String getLazyLoadingDepth() {
@@ -71,5 +74,13 @@ public class ExplorerPerspectiveConfig {
 
   public void setOpeningHelpFiles(Boolean openingHelpFiles) {
     this.openingHelpFiles = openingHelpFiles;
+  }
+
+  public Boolean getActiveFileSelection() {
+    return activeFileSelection != null ? activeFileSelection : true;
+  }
+
+  public void setActiveFileSelection(Boolean activeFileSelection) {
+    this.activeFileSelection = activeFileSelection;
   }
 }

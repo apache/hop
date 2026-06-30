@@ -2355,6 +2355,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** Select the corresponding file in the left-hand tree */
   private void selectInTree(String filename) {
+    selectInTree(filename, true);
+  }
+
+  private void selectInTree(String filename, boolean automatic) {
+    if (automatic) {
+      Boolean activeFileSelection =
+          ExplorerPerspectiveConfigSingleton.getConfig().getActiveFileSelection();
+      if (activeFileSelection != null && !activeFileSelection) {
+        return;
+      }
+    }
 
     if (Utils.isEmpty(filename)) {
       return;
@@ -2665,7 +2676,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   public void selectInTree() {
     CTabFolder active = getTargetTabFolder();
     if (active.getSelectionIndex() >= 0) {
-      this.selectInTree(getActiveFileTypeHandler().getFilename());
+      this.selectInTree(getActiveFileTypeHandler().getFilename(), false);
     }
   }
 
