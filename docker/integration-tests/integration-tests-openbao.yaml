@@ -30,7 +30,7 @@ services:
     ports:
       - "8200"
     environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - BAO_DEV_ROOT_TOKEN_ID=myroot
       - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
       - SKIP_SETCAP=true
       - VAULT_DISABLE_MLOCK=true
