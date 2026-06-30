@@ -124,41 +124,6 @@ limitations under the License.
         <item>5</item>
         <item>400.0</item>
       </line>
-      <line>
-        <item>d1</item>
-        <item>1</item>
-        <item>10</item>
-      </line>
-      <line>
-        <item>d1</item>
-        <item>2</item>
-        <item>20</item>
-      </line>
-      <line>
-        <item>d1</item>
-        <item>3</item>
-        <item>30</item>
-      </line>
-      <line>
-        <item>d1</item>
-        <item>4</item>
-        <item>40</item>
-      </line>
-      <line>
-        <item>d1</item>
-        <item>5</item>
-        <item>50</item>
-      </line>
-      <line>
-        <item>d1</item>
-        <item>6</item>
-        <item>60</item>
-      </line>
-      <line>
-        <item>d1</item>
-        <item>7</item>
-        <item>70</item>
-      </line>
     </data>
     <distribute>Y</distribute>
     <copies>1</copies>
