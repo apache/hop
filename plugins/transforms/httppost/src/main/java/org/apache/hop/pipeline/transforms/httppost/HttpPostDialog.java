@@ -116,6 +116,7 @@ public class HttpPostDialog extends BaseTransformDialog {
   private boolean gotPreviousFields = false;
 
   private ComboVar wEncoding;
+  private ComboVar wContentType;
   private Button wMultiPartUpload;
 
   private Button wPostAFile;
@@ -173,6 +174,7 @@ public class HttpPostDialog extends BaseTransformDialog {
     setupIgnoreSslLine(gSettings);
     setupUrlFieldNameLine(lsMod, gSettings);
     setupEncodingLine(lsMod, gSettings);
+    setupContentTypeLine(lsMod, gSettings);
     setupRequestEntityLine(lsMod, gSettings);
     setupMultiPartUpload(gSettings);
     setupPostFileLine(gSettings);
@@ -788,7 +790,7 @@ public class HttpPostDialog extends BaseTransformDialog {
     FormData fdlRequestEntity = new FormData();
     fdlRequestEntity.left = new FormAttachment(0, 0);
     fdlRequestEntity.right = new FormAttachment(middle, -margin);
-    fdlRequestEntity.top = new FormAttachment(wEncoding, margin);
+    fdlRequestEntity.top = new FormAttachment(wContentType, margin);
     wlRequestEntity.setLayoutData(fdlRequestEntity);
 
     wRequestEntity = new ComboVar(variables, gSettings, SWT.BORDER | SWT.READ_ONLY);
@@ -797,7 +799,7 @@ public class HttpPostDialog extends BaseTransformDialog {
     wRequestEntity.addModifyListener(lsMod);
     FormData fdRequestEntity = new FormData();
     fdRequestEntity.left = new FormAttachment(middle, 0);
-    fdRequestEntity.top = new FormAttachment(wEncoding, margin);
+    fdRequestEntity.top = new FormAttachment(wContentType, margin);
     fdRequestEntity.right = new FormAttachment(100, -margin);
     wRequestEntity.setLayoutData(fdRequestEntity);
     wRequestEntity.addFocusListener(
@@ -853,6 +855,37 @@ public class HttpPostDialog extends BaseTransformDialog {
             shell.setCursor(null);
             busy.dispose();
           }
+        });
+  }
+
+  private void setupContentTypeLine(ModifyListener lsMod, Group gSettings) {
+    int middle = props.getMiddlePct();
+    int margin = PropsUi.getMargin();
+    Label wlContentType = new Label(gSettings, SWT.RIGHT);
+    wlContentType.setText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ContentType.Label"));
+    wlContentType.setToolTipText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ContentType.Tooltip"));
+    PropsUi.setLook(wlContentType);
+    FormData fdlContentType = new FormData();
+    fdlContentType.left = new FormAttachment(0, 0);
+    fdlContentType.top = new FormAttachment(wEncoding, margin);
+    fdlContentType.right = new FormAttachment(middle, -margin);
+    wlContentType.setLayoutData(fdlContentType);
+    wContentType = new ComboVar(variables, gSettings, SWT.BORDER);
+    wContentType.setToolTipText(BaseMessages.getString(PKG, "HTTPPOSTDialog.ContentType.Tooltip"));
+    PropsUi.setLook(wContentType);
+    wContentType.addModifyListener(lsMod);
+    FormData fdContentType = new FormData();
+    fdContentType.left = new FormAttachment(middle, 0);
+    fdContentType.top = new FormAttachment(wEncoding, margin);
+    fdContentType.right = new FormAttachment(100, -margin);
+    wContentType.setLayoutData(fdContentType);
+    wContentType.setItems(
+        new String[] {
+          "text/xml",
+          "application/json",
+          "application/xml",
+          "text/plain",
+          "application/x-www-form-urlencoded"
         });
   }
 
@@ -1099,6 +1132,9 @@ public class HttpPostDialog extends BaseTransformDialog {
     if (input.getEncoding() != null) {
       wEncoding.setText(input.getEncoding());
     }
+    if (input.getContentType() != null) {
+      wContentType.setText(input.getContentType());
+    }
     wPostAFile.setSelection(input.isPostAFile());
     wMultiPartUpload.setSelection(input.isMultipartupload());
 
@@ -1187,6 +1223,7 @@ public class HttpPostDialog extends BaseTransformDialog {
     input.setResultFields(listHttpPostResultField);
 
     input.setEncoding(wEncoding.getText());
+    input.setContentType(wContentType.getText());
     input.setPostAFile(wPostAFile.getSelection());
     input.setMultipartupload(wMultiPartUpload.getSelection());
     input.setHttpLogin(wHttpLogin.getText());
