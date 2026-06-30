@@ -173,6 +173,15 @@ public class MessageBox extends Dialog {
 
     shell.addListener(SWT.Close, e -> cancel());
 
+    shell.addListener(
+        SWT.Traverse,
+        e -> {
+          if (e.detail == SWT.TRAVERSE_ESCAPE) {
+            e.doit = false;
+            cancel();
+          }
+        });
+
     BaseTransformDialog.setSize(shell);
 
     // If minimum size is set, use it directly instead of packing
