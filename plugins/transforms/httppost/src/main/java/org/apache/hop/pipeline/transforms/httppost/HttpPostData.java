@@ -27,6 +27,7 @@ public class HttpPostData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta inputRowMeta;
   public String realEncoding;
+  public String realContentType;
   public int[] header_parameters_nrs;
   public int[] body_parameters_nrs;
   public int[] query_parameters_nrs;

@@ -479,6 +479,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         }
       }
       data.realEncoding = resolve(meta.getEncoding());
+      data.realContentType = resolve(meta.getContentType());
     } // end if first
 
     try {
@@ -580,23 +581,16 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     // If content encoding is not explicitly specified
     // ISO-8859-1 is assumed by the POSTMethod
     if (!data.contentTypeHeaderOverwrite && !meta.isPostAFile()) {
+      // Use the configured content type, falling back to text/xml for backwards compatibility
+      // (e.g. pipelines created before the content type became configurable).
+      String contentType =
+          Utils.isEmpty(data.realContentType) ? CONTENT_TYPE_TEXT_XML : data.realContentType;
       // can be overwritten now
-      if (Utils.isEmpty(data.realEncoding)) {
-        post.setHeader(CONTENT_TYPE, CONTENT_TYPE_TEXT_XML);
-        if (isDebug()) {
-          logDebug(
-              BaseMessages.getString(PKG, PKG_HEADER_VALUE, CONTENT_TYPE, CONTENT_TYPE_TEXT_XML));
-        }
-      } else {
-        post.setHeader(CONTENT_TYPE, CONTENT_TYPE_TEXT_XML + "; " + data.realEncoding);
-        if (isDebug()) {
-          logDebug(
-              BaseMessages.getString(
-                  PKG,
-                  PKG_HEADER_VALUE,
-                  CONTENT_TYPE,
-                  CONTENT_TYPE_TEXT_XML + "; " + data.realEncoding));
-        }
+      String headerValue =
+          Utils.isEmpty(data.realEncoding) ? contentType : contentType + "; " + data.realEncoding;
+      post.setHeader(CONTENT_TYPE, headerValue);
+      if (isDebug()) {
+        logDebug(BaseMessages.getString(PKG, PKG_HEADER_VALUE, CONTENT_TYPE, headerValue));
       }
     }
   }

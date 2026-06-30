@@ -51,6 +51,7 @@ The General tab defines which RSS/Atom URLs you want to use, and optionally whic
 |Accept URL from field?|If checked, you must specify which field to retrieve the URL from.
 |URL field name|If the previous option is checked, this is where you specify the URL field.
 |Encoding|The encoding standard for the files being accessed.
+|Content type|The `Content-Type` header sent with the request body. Defaults to `text/xml` for backwards compatibility; set it to e.g. `application/json` when posting JSON. A `Content-Type` header parameter defined on the Fields tab takes precedence over this value.
 |Request entity field|The name of the field that will contain the POST request.
 When enabled, the Post a file option will retrieve the file named in this field, and post the contents of that file.
 |Post a file|If a file is defined in the Request entity field, its contents will be posted if this option is checked.

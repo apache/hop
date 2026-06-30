@@ -342,6 +342,20 @@ class HttpPostExecutionTest {
     assertTrue(lastRequestContentType.get().contains(Const.UTF_8));
   }
 
+  @Test
+  void callHttpPOSTUsesConfiguredContentType() throws Exception {
+    HttpPostMeta meta = bodyOnlyMeta();
+    HttpPostData data = minimalData(baseUrl() + "/echo");
+    data.realContentType = "application/json";
+
+    HttpPost http = newPost(meta, data);
+    http.callHttpPOST(new Object[0]);
+
+    assertNotNull(lastRequestContentType.get());
+    assertTrue(lastRequestContentType.get().contains("application/json"));
+    assertTrue(!lastRequestContentType.get().contains("text/xml"));
+  }
+
   // ---- reflection helpers ----
 
   private static Long getDataVolumeIn(HttpPost http) throws Exception {

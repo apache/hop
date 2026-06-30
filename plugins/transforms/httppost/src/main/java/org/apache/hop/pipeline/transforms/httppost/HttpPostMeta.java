@@ -61,6 +61,9 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   // the time to wait till a connection is closed (milliseconds)? -1 is no not close.
   public static final int DEFAULT_CLOSE_CONNECTIONS_TIME = -1;
 
+  // the default Content-Type header used for the request body (kept for backwards compatibility)
+  public static final String DEFAULT_CONTENT_TYPE = "text/xml";
+
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.socketTimeout")
   private String socketTimeout;
 
@@ -91,6 +94,9 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.encoding")
   private String encoding;
+
+  @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.contentType")
+  private String contentType;
 
   @HopMetadataProperty(key = "postafile", injectionKeyDescription = "HTTPPOST.Injection.postAFile")
   private boolean postAFile;
@@ -131,6 +137,7 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   @Override
   public void setDefault() {
     encoding = Const.UTF_8;
+    contentType = DEFAULT_CONTENT_TYPE;
     postAFile = false;
     multipartupload = false;
     lookupFields.add(new HttpPostLookupField());
