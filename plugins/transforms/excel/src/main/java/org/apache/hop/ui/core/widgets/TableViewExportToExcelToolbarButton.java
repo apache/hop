@@ -19,8 +19,10 @@
 package org.apache.hop.ui.core.widgets;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -31,7 +33,9 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -54,6 +58,8 @@ import org.eclipse.swt.widgets.TableItem;
 @GuiPlugin
 public class TableViewExportToExcelToolbarButton {
 
+  private static final Class<?> PKG = TableViewExportToExcelToolbarButton.class;
+
   private static final String ID_TOOLBAR_EXPORT_EXCEL = "tableview-toolbar-30000-export-to-excel";
 
   @GuiToolbarElement(
@@ -64,6 +70,48 @@ public class TableViewExportToExcelToolbarButton {
       image = "excelwriter.svg")
   public static void copyToNewGoogleDocsSpreadsheet(TableView tableView) {
     Shell shell = tableView.getShell();
+    ColumnInfo[] allColumns = tableView.getColumns();
+
+    // Build the list of column names for selection
+    //
+    String[] columnNames = new String[allColumns.length];
+    for (int i = 0; i < allColumns.length; i++) {
+      columnNames[i] = allColumns[i].getName();
+    }
+
+    // Show a multi-select dialog to let the user choose which columns to export
+    // By default all columns are selected
+    //
+    EnterSelectionDialog selectionDialog =
+        new EnterSelectionDialog(
+            shell,
+            columnNames,
+            BaseMessages.getString(PKG, "ExcelWidget.ExportColumnSelection.Title"),
+            BaseMessages.getString(PKG, "ExcelWidget.ExportColumnSelection.Message"));
+    selectionDialog.setMulti(true);
+    int[] allIndices = new int[columnNames.length];
+    for (int i = 0; i < allIndices.length; i++) {
+      allIndices[i] = i;
+    }
+    selectionDialog.setSelectedNrs(allIndices);
+
+    if (selectionDialog.open() == null) {
+      // User cancelled
+      return;
+    }
+
+    int[] selectedIndices = selectionDialog.getSelectionIndeces();
+    if (selectedIndices == null || selectedIndices.length == 0) {
+      return;
+    }
+
+    // Build a list of selected ColumnInfo entries for convenience
+    //
+    List<ColumnInfo> selectedColumns = new ArrayList<>();
+    for (int idx : selectedIndices) {
+      selectedColumns.add(allColumns[idx]);
+    }
+
     Cursor oldCursor = shell.getCursor();
     shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
@@ -77,7 +125,7 @@ public class TableViewExportToExcelToolbarButton {
       font.setBold(true);
       headerStyle.setFont(font);
 
-      // Write the header
+      // Write the header (# row number column + selected columns)
       //
       int rowNr = 0;
       Row row = sheet.createRow(rowNr++);
@@ -85,7 +133,7 @@ public class TableViewExportToExcelToolbarButton {
       Cell cell = row.createCell(colNr++);
       cell.setCellValue("#");
       cell.setCellStyle(headerStyle);
-      for (ColumnInfo columnInfo : tableView.getColumns()) {
+      for (ColumnInfo columnInfo : selectedColumns) {
         cell = row.createCell(colNr++);
         cell.setCellValue(columnInfo.getName());
         cell.setCellStyle(headerStyle);
@@ -101,17 +149,29 @@ public class TableViewExportToExcelToolbarButton {
       for (TableItem item : tableView.getNonEmptyItems()) {
         row = sheet.createRow(rowNr++);
         colNr = 0;
-        for (int i = 0; i < tableView.getColumns().length + 1; i++) {
-          CellStyle cellStyle = columnStyles.get(i);
+
+        // Write the row number column (#)
+        //
+        String rowNumString = item.getText(0);
+        cell = row.createCell(colNr++);
+        if (StringUtils.isNotEmpty(rowNumString) && !"<null>".equals(rowNumString)) {
+          IValueMeta rowNumMeta = new ValueMetaInteger("#");
+          rowNumMeta.setConversionMask("#");
+          cellValueMeta.setConversionMask(rowNumMeta.getConversionMask());
+          Object rowNumObj = rowNumMeta.convertData(cellValueMeta, rowNumString);
+          cell.setCellValue((double) ((Long) rowNumObj));
+        }
+
+        // Write only the selected columns
+        //
+        for (int selectedIdx : selectedIndices) {
+          // selectedIdx is 0-based into allColumns[]; TableItem column is selectedIdx + 1
+          //
+          int tableItemCol = selectedIdx + 1;
+          CellStyle cellStyle = columnStyles.get(tableItemCol);
           boolean storeStyle = false;
-          IValueMeta valueMeta;
-          if (i == 0) {
-            valueMeta = new ValueMetaInteger("#");
-            valueMeta.setConversionMask("#");
-          } else {
-            valueMeta = tableView.getColumns()[i - 1].getValueMeta();
-          }
-          String string = item.getText(i);
+          IValueMeta valueMeta = allColumns[selectedIdx].getValueMeta();
+          String string = item.getText(tableItemCol);
           cell = row.createCell(colNr++);
 
           if (StringUtils.isEmpty(string) || "<null>".equals(string)) {
@@ -152,16 +212,16 @@ public class TableViewExportToExcelToolbarButton {
             if (cellStyle != null) {
               cell.setCellStyle(cellStyle);
               if (storeStyle) {
-                columnStyles.put(i, cellStyle);
+                columnStyles.put(tableItemCol, cellStyle);
               }
             }
           }
         }
       }
 
-      // Now auto-size the columns
+      // Now auto-size the columns (# + selected columns)
       //
-      for (int column = 0; column < tableView.getColumns().length + 1; column++) {
+      for (int column = 0; column < selectedColumns.size() + 1; column++) {
         sheet.autoSizeColumn(column);
       }
 
