@@ -212,6 +212,9 @@ public class HopGuiWorkflowLogDelegate {
       String textToSet = OsHelper.isMac() ? Const.CR : "";
       workflowLogText.setText(textToSet);
     }
+    if (logBrowser != null) {
+      logBrowser.resetLogPosition();
+    }
   }
 
   @GuiToolbarElement(

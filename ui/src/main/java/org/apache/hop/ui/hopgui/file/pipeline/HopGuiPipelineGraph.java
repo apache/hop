@@ -5139,8 +5139,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
             initialized = true;
           } catch (HopException e) {
-            log.logError(
-                pipeline.getPipelineMeta().getName() + ": preparing pipeline execution failed", e);
+            pipeline
+                .getLogChannel()
+                .logError(
+                    pipeline.getPipelineMeta().getName() + ": preparing pipeline execution failed",
+                    e);
             checkErrorVisuals();
           }
 
@@ -5184,7 +5187,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                               pipeline.startThreads();
                               pipeline.waitUntilFinished();
                             } catch (Exception e) {
-                              log.logError("Error starting transform threads", e);
+                              pipeline
+                                  .getLogChannel()
+                                  .logError("Error starting transform threads", e);
                               checkErrorVisuals();
                               stopRedrawTimer();
                             }
@@ -5195,7 +5200,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       updateGui();
     } catch (Exception e) {
-      log.logError("Error starting transform threads", e);
+      if (pipeline != null) {
+        pipeline.getLogChannel().logError("Error starting transform threads", e);
+      } else {
+        log.logError("Error starting transform threads", e);
+      }
       checkErrorVisuals();
       stopRedrawTimer();
     }
