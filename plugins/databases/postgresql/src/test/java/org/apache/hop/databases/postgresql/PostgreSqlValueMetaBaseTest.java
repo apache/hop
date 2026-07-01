@@ -158,7 +158,8 @@ class PostgreSqlValueMetaBaseTest {
 
     String data = StringUtils.repeat("*", 2048);
 
-    ValueMetaBase valueMetaString = new ValueMetaBase(LOG_FIELD, IValueMeta.TYPE_STRING, 2048, 0);
+    IValueMeta valueMetaString =
+        ValueMetaFactory.createValueMeta(LOG_FIELD, IValueMeta.TYPE_STRING, 2048, 0);
     valueMetaString.setPreparedStatementValue(databaseMetaSpy, preparedStatementMock, 0, data);
 
     verify(preparedStatementMock, never()).setString(0, data);
@@ -171,9 +172,9 @@ class PostgreSqlValueMetaBaseTest {
         events.get(0).getMessage().toString());
   }
 
-  private void initValueMeta(BaseDatabaseMeta dbMeta, int length, Object data)
-      throws HopDatabaseException {
-    ValueMetaBase valueMetaString = new ValueMetaBase(LOG_FIELD, IValueMeta.TYPE_STRING, length, 0);
+  private void initValueMeta(BaseDatabaseMeta dbMeta, int length, Object data) throws HopException {
+    IValueMeta valueMetaString =
+        ValueMetaFactory.createValueMeta(LOG_FIELD, IValueMeta.TYPE_STRING, length, 0);
     databaseMetaSpy.setIDatabase(dbMeta);
     valueMetaString.setPreparedStatementValue(databaseMetaSpy, preparedStatementMock, 0, data);
   }

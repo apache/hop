@@ -38,7 +38,7 @@ import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -76,7 +76,7 @@ class GreenplumValueMetaBaseTest {
   private PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
-  private ValueMetaBase valueMetaBase;
+  private IValueMeta valueMetaBase;
   private IVariables variables;
 
   @BeforeAll
@@ -89,12 +89,12 @@ class GreenplumValueMetaBaseTest {
   }
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws HopException {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
     dbMeta = spy(DatabaseMeta.class);
     dbMeta.setIDatabase(spy(GreenplumDatabaseMeta.class));
-    valueMetaBase = new ValueMetaBase();
+    valueMetaBase = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NONE);
     resultSet = mock(ResultSet.class);
     variables = spy(new Variables());
   }

@@ -153,7 +153,7 @@ class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     final int expectedBinarylength = 1;
     final int expectedVarBinarylength = 80;
 
-    ValueMetaBase obj = new ValueMetaBase();
+    IValueMeta obj = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NONE);
     DatabaseMeta dbMeta = spy(new DatabaseMeta());
     IDatabase iDatabase = new Vertica5DatabaseMeta();
     dbMeta.setIDatabase(iDatabase);

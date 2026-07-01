@@ -44,6 +44,7 @@ import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.SingleRowRowSet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.NonAccessibleFileObject;
 import org.apache.hop.core.logging.ILogChannel;
@@ -52,9 +53,10 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -75,7 +77,8 @@ class BaseTransformTest {
   @Mock private IRowHandler rowHandler;
 
   @BeforeEach
-  void setup() {
+  void setup() throws HopException {
+    TestUtil.registerTestPluginTypes();
     mockHelper =
         new TransformMockHelper<>("BASE TRANSFORM", ITransformMeta.class, ITransformData.class);
 
@@ -386,7 +389,7 @@ class BaseTransformTest {
   }
 
   @Test
-  void notEmptyFieldName() throws HopTransformException {
+  void notEmptyFieldName() throws HopException {
     BaseTransform<ITransformMeta, ITransformData> baseTransform =
         new BaseTransform<>(
             mockHelper.transformMeta,
@@ -400,13 +403,13 @@ class BaseTransformTest {
     baseTransform.setRowHandler(rowHandler);
 
     IRowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new ValueMetaBase("name", IValueMeta.TYPE_INTEGER));
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("name", IValueMeta.TYPE_INTEGER));
 
     baseTransform.putRow(rowMeta, new Object[] {0});
   }
 
   @Test
-  void nullFieldName() {
+  void nullFieldName() throws HopPluginException {
     BaseTransform<ITransformMeta, ITransformData> baseTransform =
         new BaseTransform<>(
             mockHelper.transformMeta,
@@ -421,14 +424,14 @@ class BaseTransformTest {
     baseTransform.setAllowEmptyFieldNamesAndTypes(false);
 
     IRowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new ValueMetaBase(null, IValueMeta.TYPE_INTEGER));
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta(null, IValueMeta.TYPE_INTEGER));
 
     assertThrows(
         HopTransformException.class, () -> baseTransform.putRow(rowMeta, new Object[] {0}));
   }
 
   @Test
-  void emptyFieldName() {
+  void emptyFieldName() throws HopPluginException {
     BaseTransform<ITransformMeta, ITransformData> baseTransform =
         new BaseTransform<>(
             mockHelper.transformMeta,
@@ -441,14 +444,14 @@ class BaseTransformTest {
     baseTransform.setAllowEmptyFieldNamesAndTypes(false);
 
     IRowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new ValueMetaBase("", IValueMeta.TYPE_INTEGER));
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("", IValueMeta.TYPE_INTEGER));
 
     assertThrows(
         HopTransformException.class, () -> baseTransform.putRow(rowMeta, new Object[] {0}));
   }
 
   @Test
-  void blankFieldName() {
+  void blankFieldName() throws HopPluginException {
     BaseTransform<ITransformMeta, ITransformData> baseTransform =
         new BaseTransform<>(
             mockHelper.transformMeta,
@@ -461,7 +464,7 @@ class BaseTransformTest {
     baseTransform.setAllowEmptyFieldNamesAndTypes(false);
 
     IRowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new ValueMetaBase("  ", IValueMeta.TYPE_INTEGER));
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("  ", IValueMeta.TYPE_INTEGER));
 
     assertThrows(
         HopTransformException.class, () -> baseTransform.putRow(rowMeta, new Object[] {0}));

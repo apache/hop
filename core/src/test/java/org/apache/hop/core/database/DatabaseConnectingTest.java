@@ -38,6 +38,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
@@ -55,6 +56,9 @@ class DatabaseConnectingTest {
   @BeforeAll
   static void setUp() throws Exception {
     HopClientEnvironment.init();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginClass(
+        NoneDatabaseMeta.class.getName(), DatabasePluginType.class, DatabaseMetaPlugin.class);
   }
 
   @AfterEach

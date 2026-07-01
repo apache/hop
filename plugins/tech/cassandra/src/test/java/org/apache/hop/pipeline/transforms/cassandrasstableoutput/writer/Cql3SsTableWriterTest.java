@@ -35,9 +35,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.cassandra.io.sstable.CQLSSTableWriter;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
@@ -101,12 +103,12 @@ class Cql3SsTableWriterTest {
     writer.init();
   }
 
-  private Cql3SSTableWriter getCql3SSTableWriter() {
+  private Cql3SSTableWriter getCql3SSTableWriter() throws HopPluginException {
     Cql3SSTableWriter writer = new CQL3SSTableWriterStub();
     writer.setPrimaryKey(KEY_FIELD);
     IRowMeta rmi = mock(IRowMeta.class);
-    IValueMeta one = new ValueMetaBase(KEY_FIELD, ValueMetaBase.TYPE_INTEGER);
-    IValueMeta two = new ValueMetaBase(COLUMN, ValueMetaBase.TYPE_STRING);
+    IValueMeta one = ValueMetaFactory.createValueMeta(KEY_FIELD, ValueMetaBase.TYPE_INTEGER);
+    IValueMeta two = ValueMetaFactory.createValueMeta(COLUMN, ValueMetaBase.TYPE_STRING);
     List<IValueMeta> valueMetaList = new ArrayList<>();
     valueMetaList.add(one);
     valueMetaList.add(two);

@@ -57,6 +57,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
@@ -96,6 +97,7 @@ class DatabaseTest {
   @BeforeAll
   static void setUpClass() throws Exception {
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
   }
 
   @BeforeEach

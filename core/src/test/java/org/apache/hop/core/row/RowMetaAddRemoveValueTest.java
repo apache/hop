@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,7 @@ class RowMetaAddRemoveValueTest {
   @BeforeAll
   static void setUpClass() throws Exception {
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
   }
 
   @Test

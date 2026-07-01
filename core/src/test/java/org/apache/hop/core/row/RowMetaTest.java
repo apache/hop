@@ -38,12 +38,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -66,6 +67,8 @@ class RowMetaTest {
   @BeforeAll
   static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    TestUtil.registerTestPluginTypes();
   }
 
   @BeforeEach
@@ -172,8 +175,8 @@ class RowMetaTest {
   }
 
   @Test
-  void testAddValueMetaNullName() {
-    IValueMeta vmi = new ValueMetaBase();
+  void testAddValueMetaNullName() throws HopPluginException {
+    IValueMeta vmi = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NONE);
     rowMeta.addValueMeta(vmi);
     assertTrue(rowMeta.getValueMetaList().contains(vmi));
   }
@@ -216,8 +219,8 @@ class RowMetaTest {
   }
 
   @Test
-  void testSetValueMetaNullName() {
-    IValueMeta vmi = new ValueMetaBase();
+  void testSetValueMetaNullName() throws HopPluginException {
+    IValueMeta vmi = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NONE);
     rowMeta.setValueMeta(1, vmi);
     assertEquals(1, rowMeta.getValueMetaList().indexOf(vmi));
     assertEquals(3, rowMeta.size(), "There is still 3 elements:");

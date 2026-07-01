@@ -33,6 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -47,6 +48,7 @@ class ValueMetaAndDataTests {
   @BeforeAll
   static void beforeClassSetUp() throws HopException {
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
   }
 
   @Test
