@@ -6,13 +6,14 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.pipeline.transforms.types;
@@ -42,7 +43,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     description = "MarkDown file handling in the explorer perspective",
     image = "markdown.svg")
 public class MarkDownExplorerFileType
-    extends BaseTextExplorerFileType<TextExplorerFileTypeHandler> {
+    extends BaseTextExplorerFileType<MarkDownExplorerFileTypeHandler> {
   public static final Class<?> PKG = MarkDownExplorerFileType.class;
 
   public static final String ACTION_ID_NEW_MARKDOWN = "NewMarkdown";
@@ -64,17 +65,17 @@ public class MarkDownExplorerFileType
   }
 
   @Override
-  public TextExplorerFileTypeHandler createFileTypeHandler(
+  public MarkDownExplorerFileTypeHandler createFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file) {
-    return new TextExplorerFileTypeHandler(hopGui, perspective, file);
+    return new MarkDownExplorerFileTypeHandler(hopGui, perspective, file);
   }
 
   @Override
   public IHopFileTypeHandler newFile(HopGui hopGui, IVariables variables) throws HopException {
     ExplorerFile explorerFile = new ExplorerFile("New markdown", null, this);
     ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
-    TextExplorerFileTypeHandler fileHandler =
-        new TextExplorerFileTypeHandler(hopGui, explorerPerspective, explorerFile);
+    MarkDownExplorerFileTypeHandler fileHandler =
+        new MarkDownExplorerFileTypeHandler(hopGui, explorerPerspective, explorerFile);
 
     explorerPerspective.addFile(fileHandler);
     explorerPerspective.activate();
