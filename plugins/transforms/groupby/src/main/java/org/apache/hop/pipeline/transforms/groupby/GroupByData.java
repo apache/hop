@@ -22,6 +22,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -80,6 +81,11 @@ public class GroupByData extends BaseTransformData implements ITransformData {
   public List<Integer> cumulativeAvgSourceIndexes;
   public List<Integer> cumulativeAvgTargetIndexes;
 
+  public List<Integer> movingAvgSourceIndexes;
+  public List<Integer> movingAvgTargetIndexes;
+  public List<Integer> movingAvgWidths;
+  public List<Integer> movingAvgIndexes;
+
   public Object[] previousSums;
 
   public Object[] previousAvgSum;
@@ -92,6 +98,14 @@ public class GroupByData extends BaseTransformData implements ITransformData {
   public double[] mean;
 
   public boolean newBatch;
+
+  /**
+   * Sliding window buffers for MOVING_AVERAGE aggregations. One ArrayDeque per aggregation index;
+   * null for aggregations that are not MOVING_AVERAGE. Each deque holds the last N non-null numeric
+   * values of the subject field.
+   */
+  @SuppressWarnings("java:S1104")
+  public ArrayDeque<Double>[] movingAvgWindows;
 
   public GroupByData() {
     super();

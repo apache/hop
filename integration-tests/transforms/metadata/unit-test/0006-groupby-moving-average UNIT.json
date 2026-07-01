@@ -1,0 +1,41 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "customer_id",
+          "data_set_field": "customer_id"
+        },
+        {
+          "transform_field": "timestamp",
+          "data_set_field": "timestamp"
+        },
+        {
+          "transform_field": "amount",
+          "data_set_field": "amount"
+        },
+        {
+          "transform_field": "moving_avg",
+          "data_set_field": "moving_avg"
+        }
+      ],
+      "field_order": [
+        "customer_id",
+        "timestamp"
+      ],
+      "transform_name": "Validate",
+      "data_set_name": "golden-groupby-moving-average"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-groupby-moving-average UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0006-groupby-moving-average.hpl",
+  "test_type": "UNIT_TEST"
+}

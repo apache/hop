@@ -274,6 +274,7 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
           case Aggregation.TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
           case Aggregation.TYPE_GROUP_PERCENTILE:
           case Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
+          case Aggregation.TYPE_GROUP_MOVING_AVERAGE:
             valueType = IValueMeta.TYPE_NUMBER;
             break;
           case Aggregation.TYPE_GROUP_CONCAT_STRING:
