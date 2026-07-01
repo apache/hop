@@ -23,6 +23,8 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -60,6 +62,8 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.MySQLStreamResults")
   private boolean resultStreaming;
 
+  @Getter
+  @Setter
   @GuiWidgetElement(
       id = "mySqlDriverClass",
       order = "20",
