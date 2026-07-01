@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.Test;
