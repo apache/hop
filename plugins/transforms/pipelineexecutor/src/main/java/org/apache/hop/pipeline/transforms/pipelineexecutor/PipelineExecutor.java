@@ -295,7 +295,10 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     String runConfigurationName = resolve(meta.getRunConfigurationName());
     IPipelineEngine<PipelineMeta> executorPipeline =
         PipelineEngineFactory.createPipelineEngine(
-            this, runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta());
+            getPipeline(),
+            runConfigurationName,
+            metadataProvider,
+            getData().getExecutorPipelineMeta());
     executorPipeline.setParentPipeline(getPipeline());
     executorPipeline.setParent(this);
     executorPipeline.setLogLevel(getLogLevel());

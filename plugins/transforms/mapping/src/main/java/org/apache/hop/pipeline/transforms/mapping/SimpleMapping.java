@@ -158,7 +158,10 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       simpleMappingData.mappingPipeline =
           (LocalPipelineEngine)
               PipelineEngineFactory.createPipelineEngine(
-                  this, runConfigName, metadataProvider, simpleMappingData.mappingPipelineMeta);
+                  getPipeline(),
+                  runConfigName,
+                  metadataProvider,
+                  simpleMappingData.mappingPipelineMeta);
     }
 
     // Copy the parameters over...

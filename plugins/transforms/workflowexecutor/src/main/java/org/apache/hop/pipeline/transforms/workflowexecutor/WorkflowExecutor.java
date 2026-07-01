@@ -197,7 +197,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     data.executorWorkflow = createWorkflow(data.executorWorkflowMeta, this);
 
-    data.executorWorkflow.initializeFrom(this);
+    data.executorWorkflow.initializeFrom(getPipeline());
     data.executorWorkflow.setParentPipeline(getPipeline());
     data.executorWorkflow.setLogLevel(getLogLevel());
     data.executorWorkflow.setInternalHopVariables();
@@ -353,7 +353,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       WorkflowMeta workflowMeta, ILoggingObject parentLogging) throws HopException {
 
     return WorkflowEngineFactory.createWorkflowEngine(
-        this,
+        getPipeline(),
         resolve(meta.getRunConfigurationName()),
         metadataProvider,
         workflowMeta,

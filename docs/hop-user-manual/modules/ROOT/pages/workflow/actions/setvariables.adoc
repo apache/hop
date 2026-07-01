@@ -37,12 +37,17 @@ The `Set variables` action sets variables at various scopes.
 |Variable scope a|
 * Valid in the Java Virtual machine
 * Valid in the current workflow
-* Valid in the parent workflow
-* Valid in the root workflow
+* Valid in the parent
+* Valid in the root
 2+|Settings
 |Variable substitution|Whether or not to substitute variables. Leave unchecked only if you actually want to set a literal value like `{openvar}MyVariable{closevar}` in the Value column.
 |Variables|A list of variables to set to a certain value at a certain scope.
 |===
+
+[NOTE]
+====
+Variables set using the "Set variables" action are automatically propagated across nested/mixed execution hierarchies (e.g., Workflow -> Pipeline -> Workflow) by dynamically crawling the parent execution engines.
+====
 
 == Working with Properties Files
 

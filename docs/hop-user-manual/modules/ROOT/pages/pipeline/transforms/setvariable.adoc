@@ -65,9 +65,14 @@ Otherwise no formatting is done.
 |Variable scope type a|Define the scope of the variable, possible options are:
 
 * Valid in the Java Virtual Machine: the complete virtual machine will know about this variable.
-* Valid in the parent workflow: the variable is only valid in the parent workflow.
-* Valid in the grand-parent workflow: the variable is valid in the grand-parent workflow and all the child workflows and pipelines.
-* Valid in the root workflow: the variable is valid in the root workflow and all the child workflows and pipelines.
+* Valid in the parent: the variable is valid in the parent workflow or pipeline.
+* Valid in the grand-parent: the variable is valid in the grand-parent workflow or pipeline and all child workflows and pipelines.
+* Valid in the root: the variable is valid in the root workflow or pipeline and all child workflows and pipelines.
 
 |Default value|Value that will be set for empty rows
 |===
+
+[NOTE]
+====
+Variables set using the "Set Variables" transform are automatically propagated across nested/mixed execution hierarchies (e.g., Workflow -> Pipeline -> Workflow) by dynamically crawling the parent execution engines.
+====
