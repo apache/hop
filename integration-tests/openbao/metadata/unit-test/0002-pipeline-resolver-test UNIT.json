@@ -1,0 +1,68 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "hostname",
+          "data_set_field": "hostname"
+        },
+        {
+          "transform_field": "port",
+          "data_set_field": "port"
+        },
+        {
+          "transform_field": "db",
+          "data_set_field": "db"
+        },
+        {
+          "transform_field": "username",
+          "data_set_field": "username"
+        },
+        {
+          "transform_field": "password",
+          "data_set_field": "password"
+        },
+        {
+          "transform_field": "variable",
+          "data_set_field": "variable"
+        },
+        {
+          "transform_field": "hostname_str",
+          "data_set_field": "hostname_str"
+        },
+        {
+          "transform_field": "json_str",
+          "data_set_field": "json"
+        },
+        {
+          "transform_field": "hostname_2",
+          "data_set_field": "hostname_2"
+        }
+      ],
+      "field_order": [
+        "hostname",
+        "port",
+        "db",
+        "username",
+        "password",
+        "variable",
+        "hostname_str",
+        "json",
+        "hostname_2"
+      ],
+      "data_set_name": "0002-golden-pipeline-resolver",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-pipeline-resolver-test UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0002-pipeline-resolver-test.hpl"
+}

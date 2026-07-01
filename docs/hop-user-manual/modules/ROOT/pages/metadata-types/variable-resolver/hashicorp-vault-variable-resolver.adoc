@@ -27,6 +27,7 @@ Here are the options to use:
 
 * Vault address: The base address and port of the Vault server (for example: https://vault-server:8200)
 * Vault token: The token to use to authenticate
+* Namespace: The Vault namespace to use (optional, primarily used in enterprise/multi-tenant setups)
 * Path prefix: an optional path prefix which gets added before the key paths in the resolver expressions.  For example, if you put `kv-other/data` in here, expression
 
 [source]

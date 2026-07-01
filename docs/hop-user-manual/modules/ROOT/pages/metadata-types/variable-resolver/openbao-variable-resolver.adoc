@@ -1,0 +1,66 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+////
+[[OpenBaoVariableResolver]]
+:imagesdir: ../assets/images
+:openvar: #{
+:closevar: }
+:description: This describes the usage of a variable resolver to retrieve secrets from an OpenBAO vault
+
+== Functionality
+
+This variable resolver can retrieve secrets from an https://openbao.org/[OpenBAO] instance.
+Here are the options to use:
+
+* OpenBAO address: The base address and port of the OpenBAO server (for example: https://openbao-server:8200)
+* OpenBAO token: The token to use to authenticate
+* Namespace: The namespace to use (optional, primarily used in enterprise/multi-tenant setups)
+* Path prefix: an optional path prefix which gets added before the key paths in the resolver expressions.  For example, if you put `kv-other/data` in here, expression
+
+[source]
+----
+#{openbao:db:password}
+----
+
+will resolve internally to:
+
+[source]
+----
+#{openbao:kv-other/data/db:password}
+----
+
+
+* Validate HTTPS connections?: It's recommended to enable connection validation in production. This secures the connection with the X.509 certificate specified in one of either next option.
+* PEM file path: The name of the file (VFS) containing the X.509 certificate string
+* PEM string: The X.509 string itself in case you're not using a file
+* Open connection timeout: The connection timeout when getting a http(s) connection in milliseconds.
+* Read connection timeout: The timeout in milliseconds when reading.
+
+The variable expression you can resolve with this plugin type is (as always) in the following format:
+
+`{openvar}name:path-key:value-key{closevar}`
+
+* name: the name of the variable resolver metadata element to use
+* path-key: the path to the secret in OpenBAO.
+* value-key: the key of the value to retrieve.
+
+In case we don't specify a `value-key`, you will give back the complete JSON string of the secret.
+
+== Example
+
+We can define a connection called `openbao` and retrieve values with expressions:
+
+* `{openvar}openbao:hop/data/some-db:hostname{closevar}` : localhost
+* `{openvar}openbao:hop/data/some-db:username{closevar}` : john
+* `{openvar}openbao:hop/data/some-db{closevar}` : `{"db":"test","hostname":"localhost","password":"some-password","port":"3306","username":"john"}`
