@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -62,10 +61,6 @@ public class InjectDataSetIntoTransformExtensionPoint
       ILogChannel log, IVariables variables, final IPipelineEngine<PipelineMeta> pipeline)
       throws HopException {
 
-    if (!(pipeline instanceof LocalPipelineEngine)) {
-      throw new HopPluginException("Unit tests can only run using a local pipeline engine type");
-    }
-
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
     boolean dataSetEnabled =
         "Y".equalsIgnoreCase(pipeline.getVariable(DataSetConst.VAR_RUN_UNIT_TEST));
@@ -73,6 +68,11 @@ public class InjectDataSetIntoTransformExtensionPoint
       log.logDetailed("Data Set enabled? " + dataSetEnabled);
     }
     if (!dataSetEnabled) {
+      return;
+    }
+
+    if (!(pipeline instanceof LocalPipelineEngine)) {
+      log.logBasic("Unit tests can only run using a local pipeline engine type");
       return;
     }
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.engines.localsingle;
+package org.apache.hop.pipeline.engines.singlethreaded;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -28,28 +28,29 @@ import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
+import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 
-// @PipelineEnginePlugin(
-//  id = "LocalSingle",
-//  name = "Hop local single threaded pipeline engine",
-//  description = "Executes your pipeline locally in a single-threaded fashion"
-// )
-public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
+@PipelineEnginePlugin(
+    id = "LocalSingle",
+    name = "Hop local single threaded pipeline engine",
+    description = "Executes your pipeline locally in a single-threaded fashion")
+public class SingleThreadedPipelineEngine extends Pipeline
+    implements IPipelineEngine<PipelineMeta> {
 
-  public LocalSinglePipelineEngine() {
+  public SingleThreadedPipelineEngine() {
     super();
   }
 
-  public LocalSinglePipelineEngine(PipelineMeta pipelineMeta) {
+  public SingleThreadedPipelineEngine(PipelineMeta pipelineMeta) {
     super(pipelineMeta);
   }
 
-  public LocalSinglePipelineEngine(
+  public SingleThreadedPipelineEngine(
       PipelineMeta pipelineMeta, IVariables variables, ILoggingObject parent) {
     super(pipelineMeta, variables, parent);
   }
 
-  public <Parent extends IVariables & INamedParameters> LocalSinglePipelineEngine(
+  public <Parent extends IVariables & INamedParameters> SingleThreadedPipelineEngine(
       Parent parent, String name, String filename, IHopMetadataProvider metadataProvider)
       throws HopException {
     super(parent, name, filename, metadataProvider);
@@ -57,14 +58,9 @@ public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngi
 
   @Override
   public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
-    return new LocalSinglePipelineRunConfiguration();
+    return new SingleThreadedPipelineRunConfiguration();
   }
 
-  /**
-   * Should support everything
-   *
-   * @return
-   */
   @Override
   public PipelineEngineCapabilities getEngineCapabilities() {
     return new PipelineEngineCapabilities(true, true, true, true);
@@ -87,19 +83,19 @@ public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngi
           "Error initializing single threaded pipeline execution. See the log for more details.");
     }
 
-    // Iterate until done.
+    // One iteration will execute each transform once.
     //
-    while (executor.oneIteration() && !isStopped())
-      ;
+    try {
+      executor.oneIteration();
+    } finally {
+      // All data should now be processed.
+      //
+      executor.dispose();
+    }
   }
 
   @Override
   public String getStatusDescription() {
     return super.getStatus();
-  }
-
-  @Override
-  public void pipelineCompleted() throws HopException {
-    // Do nothing
   }
 }

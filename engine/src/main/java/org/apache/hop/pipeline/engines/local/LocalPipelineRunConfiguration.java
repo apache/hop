@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.engines.local;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -32,8 +34,11 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 
 @GuiPlugin(description = "Local pipeline run configuration widgets")
+@Getter
+@Setter
 public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
-    implements IPipelineEngineRunConfiguration {
+    implements IPipelineEngineRunConfiguration,
+        org.apache.hop.pipeline.engines.IMeasuringLocalPipelineRunConfiguration {
 
   @GuiWidgetElement(
       id = "rowSetSize",
@@ -187,165 +192,5 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
       list.add(type.name());
     }
     return list;
-  }
-
-  /**
-   * Gets rowSetSize
-   *
-   * @return value of rowSetSize
-   */
-  public String getRowSetSize() {
-    return rowSetSize;
-  }
-
-  /**
-   * @param rowSetSize The rowSetSize to set
-   */
-  public void setRowSetSize(String rowSetSize) {
-    this.rowSetSize = rowSetSize;
-  }
-
-  /**
-   * Gets safeModeEnabled
-   *
-   * @return value of safeModeEnabled
-   */
-  public boolean isSafeModeEnabled() {
-    return safeModeEnabled;
-  }
-
-  /**
-   * @param safeModeEnabled The safeModeEnabled to set
-   */
-  public void setSafeModeEnabled(boolean safeModeEnabled) {
-    this.safeModeEnabled = safeModeEnabled;
-  }
-
-  /**
-   * Gets gatheringMetrics
-   *
-   * @return value of gatheringMetrics
-   */
-  public boolean isGatheringMetrics() {
-    return gatheringMetrics;
-  }
-
-  /**
-   * @param gatheringMetrics The gatheringMetrics to set
-   */
-  public void setGatheringMetrics(boolean gatheringMetrics) {
-    this.gatheringMetrics = gatheringMetrics;
-  }
-
-  /**
-   * Gets sortingTransformsTopologically
-   *
-   * @return value of sortingTransformsTopologically
-   */
-  public boolean isSortingTransformsTopologically() {
-    return sortingTransformsTopologically;
-  }
-
-  /**
-   * @param sortingTransformsTopologically The sortingTransformsTopologically to set
-   */
-  public void setSortingTransformsTopologically(boolean sortingTransformsTopologically) {
-    this.sortingTransformsTopologically = sortingTransformsTopologically;
-  }
-
-  /**
-   * Gets feedbackShown
-   *
-   * @return value of feedbackShown
-   */
-  public boolean isFeedbackShown() {
-    return feedbackShown;
-  }
-
-  /**
-   * @param feedbackShown The feedbackShown to set
-   */
-  public void setFeedbackShown(boolean feedbackShown) {
-    this.feedbackShown = feedbackShown;
-  }
-
-  /**
-   * Gets feedbackSize
-   *
-   * @return value of feedbackSize
-   */
-  public String getFeedbackSize() {
-    return feedbackSize;
-  }
-
-  /**
-   * @param feedbackSize The feedbackSize to set
-   */
-  public void setFeedbackSize(String feedbackSize) {
-    this.feedbackSize = feedbackSize;
-  }
-
-  /**
-   * Gets waitTime
-   *
-   * @return value of the waitTime
-   */
-  public String getWaitTime() {
-    return waitTime;
-  }
-
-  /**
-   * @param waitTime The waitTime for buffer check
-   */
-  public void setWaitTime(String waitTime) {
-    this.waitTime = waitTime;
-  }
-
-  /**
-   * Gets sampleTypeInGui
-   *
-   * @return value of sampleTypeInGui
-   */
-  public String getSampleTypeInGui() {
-    return sampleTypeInGui;
-  }
-
-  /**
-   * @param sampleTypeInGui The sampleTypeInGui to set
-   */
-  public void setSampleTypeInGui(String sampleTypeInGui) {
-    this.sampleTypeInGui = sampleTypeInGui;
-  }
-
-  /**
-   * Gets sampleSize
-   *
-   * @return value of sampleSize
-   */
-  public String getSampleSize() {
-    return sampleSize;
-  }
-
-  /**
-   * @param sampleSize The sampleSize to set
-   */
-  public void setSampleSize(String sampleSize) {
-    this.sampleSize = sampleSize;
-  }
-
-  /**
-   * Gets transactional
-   *
-   * @return value of transactional
-   */
-  public boolean isTransactional() {
-    return transactional;
-  }
-
-  /**
-   * @param transactional The transactional to set
-   */
-  public void setTransactional(boolean transactional) {
-    this.transactional = transactional;
   }
 }

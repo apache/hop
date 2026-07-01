@@ -122,7 +122,13 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
   }
 
   public void prepareMappingExecution() throws HopException {
-    if (data.isBeamContext()) {
+    boolean singleThreaded =
+        data.isBeamContext()
+            || (getPipeline() != null
+                && getPipeline().getPipelineMeta() != null
+                && getPipeline().getPipelineMeta().getPipelineType()
+                    == PipelineMeta.PipelineType.SingleThreaded);
+    if (singleThreaded) {
       data.mappingPipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     }
     SimpleMappingData simpleMappingData = getData();
@@ -283,7 +289,13 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
           // We don't want to process one-row batches in a parallel engine where we need to wait for
           // the threads to finish.
           //
-          if (data.isBeamContext()) {
+          boolean singleThreaded =
+              data.isBeamContext()
+                  || (getPipeline() != null
+                      && getPipeline().getPipelineMeta() != null
+                      && getPipeline().getPipelineMeta().getPipelineType()
+                          == PipelineMeta.PipelineType.SingleThreaded);
+          if (singleThreaded) {
             data.executor = new SingleThreadedPipelineExecutor(data.mappingPipeline);
           }
 
@@ -303,7 +315,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
   @Override
   public void dispose() {
-    if (data.isBeamContext()) {
+    if (data.executor != null) {
       try {
         data.executor.dispose();
       } catch (Exception e) {
@@ -329,7 +341,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
   @Override
   public void batchComplete() throws HopException {
-    if (data.isBeamContext()) {
+    if (data.executor != null) {
       // Execute all transforms single-threaded, one after the other.
       // This way input rows can end up in the mapping output transform.
       //

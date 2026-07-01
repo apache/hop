@@ -58,6 +58,7 @@ The available engine types are:
 * *xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]*: this configuration runs pipelines on Apache Spark over Apache Beam
 * *xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Hop local pipeline engine]*: this configuration runs pipelines locally in the native Hop engine
 * *xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Hop remote pipeline engine]*: this configuration runs pipelines in the native Hop engine on a remote machine
+* *xref:pipeline/pipeline-run-configurations/single-threaded-pipeline-engine.adoc[Hop local single threaded pipeline engine]*: this configuration runs pipelines locally in a single-threaded fashion
 |===
 
 TIP: Check the link:https://beam.apache.org/documentation/runners/capability-matrix/[Beam Capability Matrix] to help you decide which Beam engine works best for your pipeline.
