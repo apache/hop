@@ -223,12 +223,24 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
   private static final String TREE_WIDTH_AUDIT_TYPE = "explorer-perspective-tree-width";
   private static final String EXPLORER_AUDIT_TYPE = "explorer-perspective-state";
+
+  /** State key under {@link #EXPLORER_AUDIT_TYPE} holding the serialized editor layout tree. */
+  private static final String STATE_EDITOR_LAYOUT_KEY = "editor-layout";
+
+  private static final String STATE_EDITOR_LAYOUT_ROOT = "root";
+
+  // Serialized layout-node fields (kept short: the blob is written per shutdown).
+  private static final String LAYOUT_TYPE = "t";
+  private static final String LAYOUT_TYPE_SPLIT = "split";
+  private static final String LAYOUT_TYPE_LEAF = "leaf";
+  private static final String LAYOUT_ORIENTATION = "o";
+  private static final String LAYOUT_ORIENTATION_VERTICAL = "V";
+  private static final String LAYOUT_ORIENTATION_HORIZONTAL = "H";
+  private static final String LAYOUT_WEIGHTS = "w";
+  private static final String LAYOUT_CHILDREN = "c";
+  private static final String LAYOUT_LEAF_ID = "id";
   private static final String STATE_PANEL_VISIBLE_KEY = "panel-visible";
   private static final String STATE_PANEL_VISIBLE_PROP = "visible";
-  private static final String STATE_EDITOR_SPLIT_KEY = "editor-split";
-  private static final String STATE_EDITOR_SPLIT_PROP = "split";
-  private static final String STATE_EDITOR_SASH_WEIGHTS_KEY = "editor-sash-weights";
-  private static final String STATE_EDITOR_SASH_WEIGHTS_PROP = "weights";
   private static final String KEY_TAB_FOLDER = "hop-explorer-tabFolder";
 
   private static ExplorerPerspective instance;
@@ -242,11 +254,30 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private SashForm sash;
   @Getter private Tree tree;
   private TreeEditor treeEditor;
-  private CTabFolder tabFolder;
-  private CTabFolder tabFolder2;
-  private SashForm editorSash;
+
+  /**
+   * Root of the recursive editor layout tree. A leaf is a {@link CTabFolder}; an internal node is a
+   * {@link SashForm} whose (non-{@link org.eclipse.swt.widgets.Sash}) children are themselves
+   * leaves or nested SashForms. When there is a single pane, {@code editorRoot} is that one
+   * CTabFolder.
+   */
+  private Control editorRoot;
+
+  /**
+   * Leaf tab folders that live in their own floating windows (detached editor tabs). They are not
+   * part of {@link #editorRoot} but do participate in {@link #getTabFolders()} so that active-file
+   * tracking, save/close and drag-and-drop work across windows.
+   */
+  private final List<CTabFolder> detachedFolders = new ArrayList<>();
+
+  /**
+   * Maps a persisted leaf id ("L0", "L1", ... in tree pre-order) to the docked tab folder rebuilt
+   * for it during {@link #applyRestoredEditorSplitState()}. Used by audit restore to route each
+   * reopened file into the pane it was saved in. Rebuilt on every restore.
+   */
+  private final Map<String, CTabFolder> folderByLeafId = new HashMap<>();
+
   private CTabFolder activeTabFolder;
-  private boolean editorSplit;
   private Composite tabFolderWrapper;
   private Control toolBar;
   @Getter private GuiMenuWidgets menuWidgets;
@@ -397,7 +428,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               Control c = focusControl;
               while (c != null) {
                 Object data = c.getData(KEY_TAB_FOLDER);
-                if (data == tabFolder || data == tabFolder2) {
+                if (data instanceof CTabFolder && isEditorTabFolder((Control) data)) {
                   CTabFolder folder = (CTabFolder) data;
                   for (CTabItem item : folder.getItems()) {
                     if (item.getControl() == c) {
@@ -1772,14 +1803,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     tabFolderWrapper.setLayoutData(new FormDataBuilder().fullSize().result());
     PropsUi.setLook(tabFolderWrapper);
 
-    editorSash = new SashForm(tabFolderWrapper, SWT.HORIZONTAL);
-    editorSash.setLayoutData(new FormDataBuilder().fullSize().result());
-
-    tabFolder = createSingleTabFolder(editorSash, true);
-    tabFolder2 = createSingleTabFolder(editorSash, false);
-
-    activeTabFolder = tabFolder;
-    editorSash.setMaximizedControl(tabFolder);
+    CTabFolder rootTabFolder = createSingleTabFolder(tabFolderWrapper, true);
+    editorRoot = rootTabFolder;
+    activeTabFolder = rootTabFolder;
   }
 
   private CTabFolder createSingleTabFolder(Composite parent, boolean primary) {
@@ -1851,17 +1877,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           splitMenuTargetTab = folder.getItem(new Point(pt.x, pt.y));
         });
 
+    MenuItem miDetach = new MenuItem(menu, SWT.NONE);
+    miDetach.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToNewWindow"));
+
     menu.addListener(
         SWT.Show,
         e -> {
-          if (!editorSplit || folder == tabFolder) {
-            miSplitMove.setText(
-                BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
-          } else {
-            miSplitMove.setText(
-                BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToLeft"));
-          }
-          miSplitMove.setEnabled(splitMenuTargetTab != null);
+          miSplitMove.setText(
+              BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+          // Splitting only makes sense if the folder keeps at least one tab behind.
+          miSplitMove.setEnabled(splitMenuTargetTab != null && folder.getItemCount() > 1);
+          miDetach.setEnabled(splitMenuTargetTab != null);
         });
 
     miSplitMove.addListener(
@@ -1872,11 +1898,23 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           }
         });
 
+    miDetach.addListener(
+        SWT.Selection,
+        e -> {
+          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+            detachTabToWindow(splitMenuTargetTab);
+          }
+        });
+
     return folder;
   }
 
   private CTabFolder getTargetTabFolder() {
-    return activeTabFolder != null ? activeTabFolder : tabFolder;
+    if (activeTabFolder != null && !activeTabFolder.isDisposed()) {
+      return activeTabFolder;
+    }
+    List<CTabFolder> folders = getTabFolders();
+    return folders.isEmpty() ? null : folders.get(0);
   }
 
   @Override
@@ -2074,10 +2112,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     tabItem.dispose();
     if (!hopGui.fileDelegate.isClosing()) {
-      if (editorSplit && (tabFolder.getItemCount() == 0 || tabFolder2.getItemCount() == 0)) {
-        unsplitEditor();
-      }
-      if (tabFolder.getItemCount() == 0 && tabFolder2.getItemCount() == 0) {
+      collapseEmptyFolders();
+      if (isEditorEmpty()) {
         HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
       }
       updateGui();
@@ -2100,11 +2136,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     if (!hopGui.fileDelegate.isClosing()) {
 
-      if (editorSplit && (tabFolder.getItemCount() == 0 || tabFolder2.getItemCount() == 0)) {
-        unsplitEditor();
-      }
+      collapseEmptyFolders();
 
-      if (tabFolder.getItemCount() == 0 && tabFolder2.getItemCount() == 0) {
+      if (isEditorEmpty()) {
         HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
       }
 
@@ -2118,28 +2152,21 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /**
-   * Returns tab item handlers in pane order: left pane (tabFolder) first by tab index, then right
-   * pane (tabFolder2) by tab index. Used when persisting open files so restore order matches split
+   * Returns tab item handlers in pane order: leaf folders left-to-right / top-to-bottom, each by
+   * tab index. Used when persisting open files so restore order roughly matches the on-screen
    * layout.
    */
   public List<TabItemHandler> getTabItemHandlersInPaneOrder() {
     List<TabItemHandler> ordered = new ArrayList<>();
-    if (tabFolder == null || tabFolder2 == null) {
-      return getItems();
-    }
-    for (CTabItem item : tabFolder.getItems()) {
-      TabItemHandler h = findHandlerByTabItem(item);
-      if (h != null) {
-        ordered.add(h);
+    for (CTabFolder folder : getTabFolders()) {
+      for (CTabItem item : folder.getItems()) {
+        TabItemHandler h = findHandlerByTabItem(item);
+        if (h != null) {
+          ordered.add(h);
+        }
       }
     }
-    for (CTabItem item : tabFolder2.getItems()) {
-      TabItemHandler h = findHandlerByTabItem(item);
-      if (h != null) {
-        ordered.add(h);
-      }
-    }
-    return ordered;
+    return ordered.isEmpty() ? getItems() : ordered;
   }
 
   private TabItemHandler findHandlerByTabItem(CTabItem tabItem) {
@@ -2151,17 +2178,30 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return null;
   }
 
-  /** Pane index for persistence: 0 = left (tabFolder), 1 = right (tabFolder2). */
-  public int getPaneIndexForTab(CTabItem tabItem) {
+  /**
+   * The persisted leaf id ("L0", "L1", ... in docked-tree pre-order) of the pane holding {@code
+   * tabItem}, or {@code null} for tabs living in a detached floating window (those re-dock into the
+   * default pane on restart). Matches the ids produced by {@link #serializeEditorLayout()}.
+   */
+  public String getLeafIdForTab(CTabItem tabItem) {
     if (tabItem == null || tabItem.isDisposed()) {
-      return 0;
+      return null;
     }
-    return tabItem.getParent() == tabFolder2 ? 1 : 0;
+    int index = getDockedTabFolders().indexOf(tabItem.getParent());
+    return index >= 0 ? "L" + index : null;
   }
 
-  /** The right-hand tab folder when split; used by audit restore to target the correct pane. */
-  public CTabFolder getRightTabFolder() {
-    return tabFolder2;
+  /**
+   * The docked tab folder rebuilt for a persisted leaf id during layout restore, or {@code null}
+   * when the id is unknown (e.g. legacy int pane values, or a detached-window id) so restore falls
+   * back to the default pane.
+   */
+  public CTabFolder getTabFolderForLeafId(String leafId) {
+    if (leafId == null) {
+      return null;
+    }
+    CTabFolder folder = folderByLeafId.get(leafId);
+    return (folder != null && !folder.isDisposed()) ? folder : null;
   }
 
   public void addFile(IExplorerFileTypeHandler fileTypeHandler) {
@@ -2538,8 +2578,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     int idx = active.getSelectionIndex();
     if (idx < 0 || idx >= active.getItemCount()) {
-      CTabFolder other = (active == tabFolder) ? tabFolder2 : tabFolder;
-      if (other != null && !other.isDisposed()) {
+      // The active pane has no selection: fall back to any other pane that does.
+      for (CTabFolder other : getTabFolders()) {
+        if (other == active || other.isDisposed()) {
+          continue;
+        }
         int otherIdx = other.getSelectionIndex();
         if (otherIdx >= 0 && otherIdx < other.getItemCount()) {
           return (IHopFileTypeHandler) other.getSelection().getData();
@@ -2609,8 +2652,208 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return null;
   }
 
+  /**
+   * All leaf tab folders that hold editor tabs: the docked layout tree first (left-to-right /
+   * top-to-bottom), then any detached floating windows.
+   */
   private List<CTabFolder> getTabFolders() {
-    return List.of(tabFolder, tabFolder2);
+    List<CTabFolder> result = new ArrayList<>();
+    collectTabFolders(editorRoot, result);
+    for (CTabFolder folder : detachedFolders) {
+      if (folder != null && !folder.isDisposed()) {
+        result.add(folder);
+      }
+    }
+    return result;
+  }
+
+  /** Leaf folders in the docked layout tree only (excludes detached windows). */
+  private List<CTabFolder> getDockedTabFolders() {
+    List<CTabFolder> result = new ArrayList<>();
+    collectTabFolders(editorRoot, result);
+    return result;
+  }
+
+  private boolean isDockedTabFolder(CTabFolder folder) {
+    return getDockedTabFolders().contains(folder);
+  }
+
+  private void collectTabFolders(Control node, List<CTabFolder> out) {
+    if (node == null || node.isDisposed()) {
+      return;
+    }
+    if (node instanceof CTabFolder folder) {
+      out.add(folder);
+    } else if (node instanceof SashForm sashForm) {
+      for (Control child : sashForm.getChildren()) {
+        // SashForm children include the draggable Sash dividers; only recurse into real nodes.
+        if (child instanceof CTabFolder || child instanceof SashForm) {
+          collectTabFolders(child, out);
+        }
+      }
+    }
+  }
+
+  /** The node children (leaves / nested sashes) of a SashForm, excluding its Sash dividers. */
+  private List<Control> nodeChildren(SashForm sashForm) {
+    List<Control> result = new ArrayList<>();
+    for (Control child : sashForm.getChildren()) {
+      if (child instanceof CTabFolder || child instanceof SashForm) {
+        result.add(child);
+      }
+    }
+    return result;
+  }
+
+  private boolean isEditorTabFolder(Control control) {
+    return control instanceof CTabFolder folder && getTabFolders().contains(folder);
+  }
+
+  /** True when every editor pane is empty (no open files anywhere in the tree). */
+  private boolean isEditorEmpty() {
+    for (CTabFolder folder : getTabFolders()) {
+      if (folder.getItemCount() > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Split {@code folder} along {@code orientation}, adding a new empty sibling leaf and returning
+   * it. The existing folder is wrapped in a new {@link SashForm} that takes its place in the tree.
+   *
+   * @param folder the leaf to split
+   * @param orientation {@link SWT#HORIZONTAL} (side-by-side) or {@link SWT#VERTICAL} (stacked)
+   * @param after when true the new leaf is placed after (right/below) the existing folder
+   * @return the newly created empty leaf folder
+   */
+  private CTabFolder splitFolder(CTabFolder folder, int orientation, boolean after) {
+    Composite parent = folder.getParent();
+
+    // Remember the folder's position among its parent's node children (for a SashForm parent).
+    int indexInParent = -1;
+    int[] parentWeights = null;
+    if (parent instanceof SashForm parentSash) {
+      indexInParent = nodeChildren(parentSash).indexOf(folder);
+      parentWeights = parentSash.getWeights();
+    }
+
+    SashForm newSash = new SashForm(parent, orientation);
+    newSash.setLayoutData(new FormDataBuilder().fullSize().result());
+    PropsUi.setLook(newSash);
+
+    // Move the existing folder under the new sash, then add the new sibling.
+    folder.setParent(newSash);
+    CTabFolder newFolder = createSingleTabFolder(newSash, true);
+    if (!after) {
+      newFolder.moveAbove(folder);
+    }
+    newSash.setWeights(50, 50);
+
+    if (parent instanceof SashForm parentSash) {
+      // Keep the new sash where the old folder was, and restore the parent's weights.
+      if (indexInParent >= 0) {
+        Control[] order = nodeChildren(parentSash).toArray(new Control[0]);
+        // nodeChildren returns children in z-order; ensure newSash sits at indexInParent.
+        if (indexInParent < order.length - 1) {
+          newSash.moveAbove(order[indexInParent]);
+        }
+      }
+      if (parentWeights != null && parentWeights.length == nodeChildren(parentSash).size()) {
+        parentSash.setWeights(parentWeights);
+      }
+    } else {
+      editorRoot = newSash;
+    }
+
+    parent.layout(true, true);
+    return newFolder;
+  }
+
+  /**
+   * Remove {@code folder} if it is empty and not the last remaining pane, collapsing its parent
+   * SashForm when only one node child would be left.
+   */
+  private void collapseFolder(CTabFolder folder) {
+    if (folder == null || folder.isDisposed() || folder.getItemCount() > 0) {
+      return;
+    }
+    Composite parent = folder.getParent();
+    if (!(parent instanceof SashForm sashForm)) {
+      // The single root pane: keep it even when empty.
+      return;
+    }
+    Composite grandParent = sashForm.getParent();
+
+    folder.dispose();
+
+    List<Control> remaining = nodeChildren(sashForm);
+    if (remaining.size() == 1) {
+      Control survivor = remaining.get(0);
+
+      int indexInGrand = -1;
+      int[] grandWeights = null;
+      if (grandParent instanceof SashForm grandSash) {
+        indexInGrand = nodeChildren(grandSash).indexOf(sashForm);
+        grandWeights = grandSash.getWeights();
+      }
+
+      survivor.setParent(grandParent);
+      sashForm.dispose();
+
+      if (grandParent instanceof SashForm grandSash) {
+        if (indexInGrand >= 0) {
+          Control[] order = nodeChildren(grandSash).toArray(new Control[0]);
+          if (indexInGrand < order.length - 1) {
+            survivor.moveAbove(order[indexInGrand]);
+          }
+        }
+        if (grandWeights != null && grandWeights.length == nodeChildren(grandSash).size()) {
+          grandSash.setWeights(grandWeights);
+        }
+      } else {
+        // Moving back under the FormLayout wrapper: the survivor still carries the SashForm's
+        // SashFormData, which FormLayout rejects with a ClassCastException on its next layout pass.
+        // Give it FormData that fills the wrapper (mirrors createTabFolder's root folder).
+        survivor.setLayoutData(new FormDataBuilder().fullSize().result());
+        editorRoot = survivor;
+      }
+      grandParent.layout(true, true);
+    } else {
+      sashForm.layout(true, true);
+    }
+
+    if (activeTabFolder == folder || activeTabFolder == null || activeTabFolder.isDisposed()) {
+      List<CTabFolder> leaves = getTabFolders();
+      activeTabFolder = leaves.isEmpty() ? null : leaves.get(0);
+    }
+  }
+
+  /** Reclaim every empty leaf: collapse docked panes, close empty detached windows. */
+  private void collapseEmptyFolders() {
+    for (CTabFolder folder : getTabFolders()) {
+      if (folder.getItemCount() == 0) {
+        reclaimFolder(folder);
+      }
+    }
+  }
+
+  /**
+   * Reclaim a folder that a tab just left: a docked pane collapses back into its sash, an emptied
+   * detached window closes.
+   */
+  private void reclaimFolder(CTabFolder folder) {
+    if (folder == null || folder.isDisposed()) {
+      return;
+    }
+    if (detachedFolders.contains(folder)) {
+      if (folder.getItemCount() == 0) {
+        closeDetachedWindow(folder);
+      }
+    } else {
+      collapseFolder(folder);
+    }
   }
 
   @GuiMenuElement(
@@ -4020,36 +4263,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
-  /** Split the editor to show two files side by side. If already split, this is a no-op. */
-  public void splitEditor() {
-    if (editorSplit) {
-      return;
-    }
-    editorSplit = true;
-    editorSash.setMaximizedControl(null);
-    editorSash.setWeights(50, 50);
-    editorSash.layout(true);
-  }
-
-  /**
-   * Unsplit the editor back to a single pane, moving all tabs from the second pane to the first.
-   */
-  public void unsplitEditor() {
-    if (!editorSplit) {
-      return;
-    }
-
-    CTabItem[] itemsToMove = tabFolder2.getItems();
-    for (CTabItem srcItem : itemsToMove) {
-      moveTabToFolder(srcItem, tabFolder);
-    }
-
-    editorSplit = false;
-    activeTabFolder = tabFolder;
-    editorSash.setMaximizedControl(tabFolder);
-    editorSash.layout(true);
-  }
-
   private void moveTabToFolder(CTabItem srcItem, CTabFolder dstFolder) {
     String text = srcItem.getText();
     Image image = srcItem.getImage();
@@ -4087,25 +4300,19 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
-  /** Move a tab to the other split pane. If not currently split, creates the split first. */
+  /** Split the tab's folder to the right and move the tab into the new pane. */
   private void splitOrMoveTab(CTabItem tab) {
     CTabFolder sourceFolder = tab.getParent();
-    CTabFolder targetFolder;
 
-    if (!editorSplit) {
-      splitEditor();
-      targetFolder = tabFolder2;
-    } else {
-      targetFolder = (sourceFolder == tabFolder) ? tabFolder2 : tabFolder;
-    }
+    CTabFolder targetFolder = splitFolder(sourceFolder, SWT.HORIZONTAL, true);
 
     moveTabToFolder(tab, targetFolder);
     targetFolder.setSelection(targetFolder.getItemCount() - 1);
     activeTabFolder = targetFolder;
 
-    if (editorSplit && sourceFolder.getItemCount() == 0) {
-      unsplitEditor();
-    }
+    // If the source pane emptied out (shouldn't normally happen, the menu requires >1 tab),
+    // collapse.
+    collapseFolder(sourceFolder);
 
     // Match what addPipeline/addWorkflow do after setSelection: give focus to the moved tab's
     // control and refresh the GUI so toolbar/menu state is up to date.
@@ -4119,16 +4326,151 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Override
   public void onTabMovedBetweenFolders(CTabFolder sourceFolder, CTabFolder targetFolder) {
     activeTabFolder = targetFolder;
-    if (editorSplit && sourceFolder.getItemCount() == 0) {
-      unsplitEditor();
-    }
+    reclaimFolder(sourceFolder);
   }
 
   @Override
   public void setDropTargetFolder(CTabFolder folder) {
-    if (folder == tabFolder || folder == tabFolder2) {
+    if (isEditorTabFolder(folder)) {
       activeTabFolder = folder;
     }
+  }
+
+  @Override
+  public CTabFolder resolveDropFolderForZone(CTabFolder targetFolder, int zone) {
+    // Only the docked layout tree supports splitting; detached windows stay single-pane in v1.
+    if (targetFolder == null || targetFolder.isDisposed() || !isDockedTabFolder(targetFolder)) {
+      return targetFolder;
+    }
+    return switch (zone) {
+      case DROP_ZONE_WEST -> splitFolder(targetFolder, SWT.HORIZONTAL, false);
+      case DROP_ZONE_EAST -> splitFolder(targetFolder, SWT.HORIZONTAL, true);
+      case DROP_ZONE_NORTH -> splitFolder(targetFolder, SWT.VERTICAL, false);
+      case DROP_ZONE_SOUTH -> splitFolder(targetFolder, SWT.VERTICAL, true);
+      default -> targetFolder;
+    };
+  }
+
+  /**
+   * Detach a tab into its own floating window. The tab's content is reparented (state preserved)
+   * into a single-pane folder hosted by a new {@link Shell}. Closing the window re-docks its tabs;
+   * emptying it closes the window. Tabs can also be dragged back and forth between windows.
+   */
+  private void detachTabToWindow(CTabItem tab) {
+    if (tab == null || tab.isDisposed()) {
+      return;
+    }
+    CTabFolder sourceFolder = tab.getParent();
+
+    Shell shell = new Shell(hopGui.getShell(), SWT.SHELL_TRIM);
+    shell.setText(Const.NVL(tab.getText(), ""));
+    shell.setImage(tab.getImage());
+    shell.setLayout(new FormLayout());
+
+    CTabFolder detached = createDetachedTabFolder(shell);
+    detachedFolders.add(detached);
+    shell.addDisposeListener(e -> detachedFolders.remove(detached));
+
+    moveTabToFolder(tab, detached);
+    detached.setSelection(detached.getItemCount() - 1);
+    activeTabFolder = detached;
+
+    // Collapse the docked source pane if the detach emptied it.
+    reclaimFolder(sourceFolder);
+
+    // The window's close box re-docks its tabs rather than discarding them.
+    shell.addListener(
+        SWT.Close,
+        e -> {
+          e.doit = false;
+          redockWindow(detached);
+        });
+
+    shell.setSize(900, 650);
+    shell.setLocation(
+        hopGui.getShell().getLocation().x + 60, hopGui.getShell().getLocation().y + 60);
+    shell.open();
+
+    CTabItem sel = detached.getSelection();
+    if (sel != null && sel.getControl() != null && !sel.getControl().isDisposed()) {
+      sel.getControl().setFocus();
+    }
+    updateGui();
+  }
+
+  /** Move every tab from a detached window back into the docked editor, then close the window. */
+  private void redockWindow(CTabFolder detached) {
+    if (detached == null || detached.isDisposed()) {
+      return;
+    }
+    List<CTabFolder> docked = getDockedTabFolders();
+    CTabFolder target = docked.isEmpty() ? null : docked.get(0);
+    if (target != null) {
+      for (CTabItem item : detached.getItems()) {
+        moveTabToFolder(item, target);
+      }
+      activeTabFolder = target;
+    }
+    detachedFolders.remove(detached);
+    Shell shell = detached.getShell();
+    if (!shell.isDisposed()) {
+      shell.dispose();
+    }
+    updateGui();
+  }
+
+  /** Close an emptied detached window (its last tab was closed or dragged out). */
+  private void closeDetachedWindow(CTabFolder folder) {
+    detachedFolders.remove(folder);
+    if (activeTabFolder == folder) {
+      List<CTabFolder> docked = getDockedTabFolders();
+      activeTabFolder = docked.isEmpty() ? null : docked.get(0);
+    }
+    Shell shell = folder.getShell();
+    if (shell != null && !shell.isDisposed()) {
+      // We may be inside the tab-close / drop event that emptied the folder; disposing the owning
+      // Shell synchronously mid-event is unsafe, so defer it to the next event-loop tick.
+      shell
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                if (!shell.isDisposed()) {
+                  shell.dispose();
+                }
+              });
+    }
+  }
+
+  /**
+   * Build a single-pane tab folder for a detached window: close + focus + drag, but no splitting.
+   */
+  private CTabFolder createDetachedTabFolder(Composite parent) {
+    CTabFolder folder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
+    folder.setLayoutData(new FormDataBuilder().fullSize().result());
+    PropsUi.setLook(folder, Props.WIDGET_STYLE_TAB);
+
+    folder.addListener(
+        SWT.Selection,
+        e -> {
+          activeTabFolder = folder;
+          updateGui();
+          CTabItem selection = folder.getSelection();
+          if (selection != null && selection.getData() instanceof IHopFileTypeHandler handler) {
+            selectInTree(handler.getFilename());
+          }
+        });
+    folder.addListener(SWT.FocusIn, e -> activeTabFolder = folder);
+    folder.addCTabFolder2Listener(
+        new CTabFolder2Adapter() {
+          @Override
+          public void close(CTabFolderEvent event) {
+            closeTab(event, (CTabItem) event.item);
+          }
+        });
+
+    new TabCloseHandler(this, folder);
+    new TabItemReorder(this, folder);
+    return folder;
   }
 
   /**
@@ -4154,18 +4496,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           new AuditState(
               STATE_PANEL_VISIBLE_KEY,
               Map.of(STATE_PANEL_VISIBLE_PROP, Boolean.valueOf(fileExplorerPanelVisible))));
-      stateMap.add(
-          new AuditState(
-              STATE_EDITOR_SPLIT_KEY,
-              Map.of(STATE_EDITOR_SPLIT_PROP, Boolean.valueOf(editorSplit))));
-      if (editorSash != null && !editorSash.isDisposed()) {
-        int[] weights = editorSash.getWeights();
-        if (weights != null && weights.length >= 2) {
-          stateMap.add(
-              new AuditState(
-                  STATE_EDITOR_SASH_WEIGHTS_KEY,
-                  Map.of(STATE_EDITOR_SASH_WEIGHTS_PROP, weights[0] + "," + weights[1])));
-        }
+      // Persist the recursive editor layout tree (splits + sash weights) so it survives a restart.
+      // Detached floating windows are not serialized: their tabs re-dock into the default pane.
+      Map<String, Object> layout = serializeEditorLayout();
+      if (layout != null) {
+        stateMap.add(
+            new AuditState(STATE_EDITOR_LAYOUT_KEY, Map.of(STATE_EDITOR_LAYOUT_ROOT, layout)));
       }
       AuditManager.getActive()
           .saveAuditStateMap(HopNamespace.getNamespace(), EXPLORER_AUDIT_TYPE, stateMap);
@@ -4201,51 +4537,178 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /**
-   * Load and apply saved editor split state (split on/off and sash weights). Called on startup
-   * before opening files so that tabs open in the correct pane, and from applyRestoredState when
-   * project changes.
+   * Rebuild the docked editor layout tree (splits + sash weights) from saved audit state and
+   * populate {@link #folderByLeafId} so reopened files can be routed to their saved pane. Called
+   * before files are reopened (see {@code HopGuiAuditDelegate.openLastFiles}). Only rebuilds when
+   * the editor is empty, so it never restructures over live tabs (e.g. a mid-session project
+   * switch), and falls back to the single default pane when there is no saved layout.
    */
   public void applyRestoredEditorSplitState() {
-    if (editorSash == null || editorSash.isDisposed()) {
+    if (tabFolderWrapper == null || tabFolderWrapper.isDisposed()) {
       return;
     }
+    if (!isEditorEmpty()) {
+      return;
+    }
+
+    folderByLeafId.clear();
+    Map<String, Object> layout = loadEditorLayout();
+
+    // No saved layout, or a single-pane layout: keep/reuse the default root folder.
+    if (layout == null || LAYOUT_TYPE_LEAF.equals(layout.get(LAYOUT_TYPE))) {
+      if (!(editorRoot instanceof CTabFolder) || editorRoot.isDisposed()) {
+        resetEditorToSinglePane();
+      }
+      folderByLeafId.put("L0", (CTabFolder) editorRoot);
+      return;
+    }
+
+    // Multi-pane layout: dispose the current (empty) tree and rebuild from the saved blob.
+    for (Control child : tabFolderWrapper.getChildren()) {
+      child.dispose();
+    }
+    int[] leafCounter = {0};
+    Control root = buildLayoutNode(layout, tabFolderWrapper, leafCounter);
+    root.setLayoutData(new FormDataBuilder().fullSize().result());
+    editorRoot = root;
+    List<CTabFolder> leaves = getDockedTabFolders();
+    activeTabFolder = leaves.isEmpty() ? null : leaves.get(0);
+    tabFolderWrapper.layout(true, true);
+  }
+
+  /**
+   * After files have been reopened into their restored panes, drop any leaf that ended up empty
+   * (its file failed to open) so no ghost panes remain.
+   */
+  public void finishEditorLayoutRestore() {
+    if (tabFolderWrapper == null || tabFolderWrapper.isDisposed()) {
+      return;
+    }
+    collapseEmptyFolders();
+  }
+
+  /** Dispose the current editor tree and replace it with a single empty primary tab folder. */
+  private void resetEditorToSinglePane() {
+    for (Control child : tabFolderWrapper.getChildren()) {
+      child.dispose();
+    }
+    CTabFolder root = createSingleTabFolder(tabFolderWrapper, true);
+    editorRoot = root;
+    activeTabFolder = root;
+    tabFolderWrapper.layout(true, true);
+  }
+
+  /** Load the saved editor layout tree, or {@code null} when none is stored. */
+  private Map<String, Object> loadEditorLayout() {
     try {
       AuditStateMap stateMap =
           AuditManager.getActive()
               .loadAuditStateMap(HopNamespace.getNamespace(), EXPLORER_AUDIT_TYPE);
-      AuditState splitState = stateMap.get(STATE_EDITOR_SPLIT_KEY);
-      if (splitState != null) {
-        Object split = splitState.getStateMap().get(STATE_EDITOR_SPLIT_PROP);
-        boolean wasSplit = split instanceof Boolean && (Boolean) split;
-        if (wasSplit) {
-          editorSplit = true;
-          editorSash.setMaximizedControl(null);
-          AuditState weightsState = stateMap.get(STATE_EDITOR_SASH_WEIGHTS_KEY);
-          if (weightsState != null) {
-            Object weightsObj = weightsState.getStateMap().get(STATE_EDITOR_SASH_WEIGHTS_PROP);
-            if (weightsObj != null) {
-              String[] parts = weightsObj.toString().split(",");
-              if (parts.length >= 2) {
-                try {
-                  int w0 = Integer.parseInt(parts[0].trim());
-                  int w1 = Integer.parseInt(parts[1].trim());
-                  editorSash.setWeights(w0, w1);
-                } catch (NumberFormatException ignored) {
-                  editorSash.setWeights(50, 50);
-                }
-              }
-            } else {
-              editorSash.setWeights(50, 50);
-            }
-          } else {
-            editorSash.setWeights(50, 50);
-          }
-          editorSash.layout(true);
-        }
+      AuditState state = stateMap.get(STATE_EDITOR_LAYOUT_KEY);
+      if (state != null
+          && state.getStateMap().get(STATE_EDITOR_LAYOUT_ROOT) instanceof Map<?, ?> m) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = (Map<String, Object>) m;
+        return root;
       }
     } catch (Exception e) {
-      hopGui.getLog().logError("Error restoring explorer editor split state", e);
+      hopGui.getLog().logError("Error loading explorer editor layout", e);
     }
+    return null;
+  }
+
+  /**
+   * Serialize the docked editor layout tree into nested maps/lists (Jackson-friendly for audit
+   * storage). Leaves are numbered "L0", "L1", ... in the same pre-order used by {@link
+   * #getLeafIdForTab(CTabItem)} and {@link #getDockedTabFolders()}. Returns {@code null} when there
+   * is nothing worth persisting (no editor tree yet).
+   */
+  private Map<String, Object> serializeEditorLayout() {
+    if (editorRoot == null || editorRoot.isDisposed()) {
+      return null;
+    }
+    return serializeLayoutNode(editorRoot, new int[] {0});
+  }
+
+  private Map<String, Object> serializeLayoutNode(Control node, int[] leafCounter) {
+    Map<String, Object> map = new LinkedHashMap<>();
+    if (node instanceof SashForm sashForm) {
+      map.put(LAYOUT_TYPE, LAYOUT_TYPE_SPLIT);
+      map.put(
+          LAYOUT_ORIENTATION,
+          sashForm.getOrientation() == SWT.VERTICAL
+              ? LAYOUT_ORIENTATION_VERTICAL
+              : LAYOUT_ORIENTATION_HORIZONTAL);
+      List<Map<String, Object>> children = new ArrayList<>();
+      for (Control child : nodeChildren(sashForm)) {
+        children.add(serializeLayoutNode(child, leafCounter));
+      }
+      map.put(LAYOUT_CHILDREN, children);
+      List<Integer> weights = new ArrayList<>();
+      for (int weight : sashForm.getWeights()) {
+        weights.add(weight);
+      }
+      map.put(LAYOUT_WEIGHTS, weights);
+    } else {
+      map.put(LAYOUT_TYPE, LAYOUT_TYPE_LEAF);
+      map.put(LAYOUT_LEAF_ID, "L" + leafCounter[0]++);
+    }
+    return map;
+  }
+
+  /**
+   * Rebuild a layout node (and its subtree) from the serialized form, registering each leaf in
+   * {@link #folderByLeafId}. Leaves are numbered in the same pre-order as serialization.
+   */
+  private Control buildLayoutNode(Map<String, Object> node, Composite parent, int[] leafCounter) {
+    if (LAYOUT_TYPE_SPLIT.equals(node.get(LAYOUT_TYPE))) {
+      int orientation =
+          LAYOUT_ORIENTATION_VERTICAL.equals(node.get(LAYOUT_ORIENTATION))
+              ? SWT.VERTICAL
+              : SWT.HORIZONTAL;
+      SashForm sashForm = new SashForm(parent, orientation);
+      sashForm.setLayoutData(new FormDataBuilder().fullSize().result());
+      PropsUi.setLook(sashForm);
+
+      Object childrenObj = node.get(LAYOUT_CHILDREN);
+      int childCount = 0;
+      if (childrenObj instanceof List<?> children) {
+        for (Object childObj : children) {
+          if (childObj instanceof Map<?, ?> childMap) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> child = (Map<String, Object>) childMap;
+            buildLayoutNode(child, sashForm, leafCounter);
+            childCount++;
+          }
+        }
+      }
+
+      if (node.get(LAYOUT_WEIGHTS) instanceof List<?> weightList
+          && weightList.size() == childCount
+          && childCount > 0) {
+        int[] weights = new int[childCount];
+        boolean valid = true;
+        for (int i = 0; i < childCount; i++) {
+          if (weightList.get(i) instanceof Number number) {
+            weights[i] = number.intValue();
+          } else {
+            valid = false;
+            break;
+          }
+        }
+        if (valid) {
+          sashForm.setWeights(weights);
+        }
+      }
+      return sashForm;
+    }
+
+    // Leaf: the first leaf (L0) carries the primary maximize toolbar, mirroring createTabFolder.
+    boolean primary = leafCounter[0] == 0;
+    CTabFolder folder = createSingleTabFolder(parent, primary);
+    folderByLeafId.put("L" + leafCounter[0], folder);
+    leafCounter[0]++;
+    return folder;
   }
 
   /**
@@ -4268,6 +4731,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
     }
     applyRestoredEditorSplitState();
+    // Collapse any panes left empty (e.g. when reopening last files is disabled), so a saved
+    // multi-pane layout doesn't leave ghost empty panes behind.
+    finishEditorLayoutRestore();
   }
 
   public static class DetermineRootFolderExtension {

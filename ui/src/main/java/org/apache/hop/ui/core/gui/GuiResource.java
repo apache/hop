@@ -220,6 +220,8 @@ public class GuiResource {
   @Getter private Image imageLocation;
   @Getter private Image imageMaximizePanel;
   @Getter private Image imageMinimizePanel;
+  @Getter private Image imageDetachPanel;
+  @Getter private Image imageDockPanel;
   @Getter private Image imageNavigateBack;
   @Getter private Image imageNavigateForward;
   @Getter private Image imageNavigateUp;
@@ -760,6 +762,9 @@ public class GuiResource {
         loadAsResource(display, "ui/images/maximize-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageMinimizePanel =
         loadAsResource(display, "ui/images/minimize-panel.svg", ConstUi.SMALL_ICON_SIZE);
+    imageDetachPanel =
+        loadAsResource(display, "ui/images/detach-panel.svg", ConstUi.SMALL_ICON_SIZE);
+    imageDockPanel = loadAsResource(display, "ui/images/dock-panel.svg", ConstUi.SMALL_ICON_SIZE);
     imageNew = loadAsResource(display, "ui/images/new.svg", ConstUi.SMALL_ICON_SIZE);
     imageNote = loadAsResource(display, "ui/images/note.svg", ConstUi.SMALL_ICON_SIZE);
     imagePlugin = loadAsResource(display, "ui/images/plugin.svg", ConstUi.SMALL_ICON_SIZE);
