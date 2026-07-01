@@ -64,6 +64,8 @@ public class HopGuiLogBrowser {
   private List<String> childIds = new ArrayList<>();
   private Date lastLogRegistryChange;
   private AtomicBoolean paused;
+  private final AtomicInteger lastLogId = new AtomicInteger(-1);
+  private final AtomicBoolean busy = new AtomicBoolean(false);
 
   public HopGuiLogBrowser(final TextComposite text, final ILogParentProvided logProvider) {
     this.text = text;
@@ -75,8 +77,6 @@ public class HopGuiLogBrowser {
 
     // Create a new buffer appender to the log and capture that directly...
     //
-    final AtomicInteger lastLogId = new AtomicInteger(-1);
-    final AtomicBoolean busy = new AtomicBoolean(false);
     final FixedWidthLogLayout logLayout = new FixedWidthLogLayout(true);
 
     // Refresh the log every second or so
@@ -95,7 +95,11 @@ public class HopGuiLogBrowser {
                     () -> {
                       IHasLogChannel provider = logProvider.getLogChannelProvider();
 
-                      if (provider != null && !text.isDisposed() && !busy.get() && !paused.get()) {
+                      if (provider != null
+                          && !text.isDisposed()
+                          && text.isVisible()
+                          && !busy.get()
+                          && !paused.get()) {
                         busy.set(true);
 
                         ILogChannel logChannel = provider.getLogChannel();
@@ -120,9 +124,11 @@ public class HopGuiLogBrowser {
                           //
                           int lastNr = HopLogStore.getLastBufferLineNr();
                           if (lastNr > lastLogId.get()) {
+                            // Only show logs for this pipeline/workflow and its children, not the
+                            // shared Hop GUI log channel (which would mix logs from other tabs).
                             List<HopLoggingEvent> logLines =
                                 HopLogStore.getLogBufferFromTo(
-                                    childIds, true, lastLogId.get(), lastNr);
+                                    childIds, false, lastLogId.get(), lastNr);
 
                             // The maximum size of the log buffer
                             //
@@ -282,5 +288,10 @@ public class HopGuiLogBrowser {
   public void resetLogChannels() {
     childIds = new ArrayList<>();
     lastLogRegistryChange = null;
+  }
+
+  /** Skip log lines already in the central buffer (e.g. after the user clears the log view). */
+  public void resetLogPosition() {
+    lastLogId.set(HopLogStore.getLastBufferLineNr());
   }
 }

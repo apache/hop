@@ -221,6 +221,9 @@ public class HopGuiPipelineLogDelegate {
       String textToSet = OsHelper.isMac() ? Const.CR : "";
       pipelineLogText.setText(textToSet);
     }
+    if (logBrowser != null) {
+      logBrowser.resetLogPosition();
+    }
     Map<String, String> transformLogMap = pipelineGraph.getTransformLogMap();
     if (transformLogMap != null) {
       transformLogMap.clear();
