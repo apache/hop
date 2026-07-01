@@ -107,15 +107,9 @@ public class VariableResolverPipeline implements IVariableResolver {
   }
 
   @Override
-  public void setPluginId() {}
-
-  @Override
   public String getPluginId() {
     return "Variable-Resolver-Pipeline";
   }
-
-  @Override
-  public void setPluginName(String pluginName) {}
 
   @Override
   public String getPluginName() {

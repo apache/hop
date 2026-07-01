@@ -208,18 +208,8 @@ public class AzureKeyVaultVariableResolver implements IVariableResolver {
   }
 
   @Override
-  public void setPluginId() {
-    /* Not needed */
-  }
-
-  @Override
   public String getPluginId() {
     return "AzureKeyVault";
-  }
-
-  @Override
-  public void setPluginName(String pluginName) {
-    /* Not needed */
   }
 
   @Override
