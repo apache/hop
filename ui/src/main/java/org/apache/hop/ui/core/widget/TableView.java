@@ -83,6 +83,7 @@ import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -92,10 +93,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -181,6 +184,13 @@ public class TableView extends Composite {
   @Getter private TableItem activeTableItem;
   @Getter private int activeTableColumn;
   private int activeTableRow;
+
+  /** When the inline editor was last opened (ms), used to catch a double-click's second click. */
+  private long inlineEditorOpenedAt;
+
+  /** The currently open multi-line pop-out editor, if any (guards against stacking two). */
+  private Shell multilineShell;
+
   private final KeyListener lsKeyText;
   private final KeyListener lsKeyCombo;
   private final FocusListener lsFocusText;
@@ -517,6 +527,21 @@ public class TableView extends Composite {
     fdTable.bottom = new FormAttachment(100, 0);
     table.setLayoutData(fdTable);
 
+    // Hop Web: RWT can't render line breaks in a table cell and can't owner-draw over it (both of
+    // which we use on the desktop). Add a footnote pointing users to the editor for the full value.
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      Label webNewlineHint = new Label(this, SWT.LEFT);
+      PropsUi.setLook(webNewlineHint);
+      webNewlineHint.setText(BaseMessages.getString(PKG, "TableView.WebNewlineHint.Label"));
+      FormData fdHint = new FormData();
+      fdHint.left = new FormAttachment(0, 0);
+      fdHint.right = new FormAttachment(100, 0);
+      fdHint.bottom = new FormAttachment(100, 0);
+      webNewlineHint.setLayoutData(fdHint);
+      // The table now stops just above the footnote.
+      fdTable.bottom = new FormAttachment(webNewlineHint, -PropsUi.getMargin());
+    }
+
     tableColumn = new TableColumn[columns.length + 1];
     tableColumn[0] = new TableColumn(table, SWT.RIGHT);
     tableColumn[0].setResizable(true);
@@ -597,6 +622,18 @@ public class TableView extends Composite {
 
     // Table listens to the mouse:
     table.addMouseListener(createTableMouseListener());
+
+    // Double-click a text cell to edit its value in a floating multi-line editor.
+    table.addListener(SWT.MouseDoubleClick, e -> onCellDoubleClick());
+
+    // Desktop only: draw long / multi-line text cells shortened & single-lined, while getText()
+    // keeps returning the full value. RWT does not deliver the custom item-draw events, so in
+    // hop-web these are inert and the cell falls back to RWT's native rendering (which collapses
+    // line breaks); the value itself stays intact and is shown in full by the multi-line editor.
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      table.addListener(SWT.EraseItem, this::eraseCell);
+      table.addListener(SWT.PaintItem, this::paintCell);
+    }
 
     // Add support for sorted columns!
     //
@@ -1902,6 +1939,271 @@ public class TableView extends Composite {
     }
   }
 
+  /**
+   * Double-clicking an editable text cell opens a lightweight, non-modal multi-line editor anchored
+   * to the cell (the same floating-shell idea as the Ctrl+Space variable helper). Handy for long
+   * values, SQL, JSON and multi-line content. Combo/button/read-only cells keep their own
+   * behaviour.
+   */
+  private void onCellDoubleClick() {
+    if (readonly || !table.isEnabled() || !isEnabled() || columns.length == 0) {
+      return;
+    }
+    if (activeTableItem == null || activeTableItem.isDisposed()) {
+      return;
+    }
+    int rowNr = activeTableRow;
+    int colNr = activeTableColumn;
+    if (colNr < 1 || colNr - 1 >= columns.length || rowNr < 0 || rowNr >= table.getItemCount()) {
+      return;
+    }
+    ColumnInfo colinfo = columns[colNr - 1];
+    if (colinfo == null
+        || (colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT
+            && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
+        || colinfo.isReadOnly()) {
+      return;
+    }
+    if (colinfo.getDisabledListener() != null
+        && colinfo.getDisabledListener().isFieldDisabled(rowNr)) {
+      return;
+    }
+    editMultiline(activeTableItem, rowNr, colNr, colinfo);
+  }
+
+  private void editMultiline(TableItem row, int rowNr, int colNr, ColumnInfo colinfo) {
+    // A pop-out is already open (e.g. both a double-click and its second-click fallback fired) —
+    // don't stack a second one.
+    if (multilineShell != null && !multilineShell.isDisposed()) {
+      multilineShell.setFocus();
+      return;
+    }
+    // If an inline editor is already open on this cell, carry over its current (possibly edited)
+    // text; otherwise start from the stored cell value. Read it before disposing the inline editor.
+    String seed;
+    if (text != null && !text.isDisposed()) {
+      seed = getTextWidgetValue(colNr);
+      text.dispose();
+    } else {
+      seed = row.getText(colNr);
+    }
+
+    setPosition(rowNr, colNr);
+    table.setSelection(new TableItem[] {row});
+
+    beforeEdit = getItemText(row);
+    // An edit is already in progress when the carried-over text differs from the stored value.
+    fieldChanged = !seed.equals(row.getText(colNr));
+
+    Rectangle cellBounds = row.getBounds(colNr);
+    Point location = table.toDisplay(cellBounds.x, cellBounds.y);
+
+    final Shell popup = new Shell(getShell(), SWT.NONE);
+    multilineShell = popup;
+    popup.addListener(
+        SWT.Dispose,
+        e -> {
+          if (multilineShell == popup) {
+            multilineShell = null;
+          }
+        });
+    popup.setLayout(new FillLayout());
+
+    final Text multi = new Text(popup, SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER);
+    PropsUi.setLook(multi);
+    // Seed with the platform delimiter so line breaks render (Windows needs \r\n).
+    multi.setText(toPlatformLineBreaks(seed));
+
+    // Track changes for undo + modified notifications, exactly like the inline editors do.
+    multi.addModifyListener(lsUndo);
+    if (lsMod != null) {
+      multi.addModifyListener(lsMod);
+    }
+    if (colinfo.isUsingVariables()) {
+      multi.addKeyListener(new ControlSpaceKeyAdapter(variables, multi));
+    }
+
+    popup.setSize(Math.max(cellBounds.width, 400), 200);
+    popup.setLocation(location.x, location.y);
+
+    final boolean[] closed = {false};
+    Runnable commit =
+        () -> {
+          if (closed[0] || multi.isDisposed() || row.isDisposed()) {
+            return;
+          }
+          closed[0] = true;
+          // Store platform-independent \n line breaks (matches how XML round-trips the value).
+          String newValue = toUnixLineBreaks(multi.getText());
+          popup.dispose();
+          if (!table.isDisposed()) {
+            table.setFocus();
+          }
+          if (!newValue.equals(row.getText(colNr))) {
+            row.setText(colNr, newValue);
+          }
+          String[] afterEdit = getItemText(row);
+          checkChanged(new String[][] {beforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
+          fireContentChangedListener(rowNr, colNr, newValue);
+        };
+    Runnable cancel =
+        () -> {
+          if (closed[0]) {
+            return;
+          }
+          closed[0] = true;
+          fieldChanged = false;
+          popup.dispose();
+          if (!table.isDisposed()) {
+            table.setFocus();
+          }
+        };
+
+    // Commit when focus leaves the box; Ctrl+Enter also commits; Escape cancels.
+    multi.addListener(SWT.FocusOut, e -> commit.run());
+    multi.addListener(
+        SWT.KeyDown,
+        e -> {
+          if (e.keyCode == SWT.ESC) {
+            cancel.run();
+          } else if ((e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
+              && (e.stateMask & SWT.MOD1) != 0) {
+            commit.run();
+          }
+        });
+
+    popup.open();
+    // Grab focus after the double-click settles so a trailing focus event can't self-close it.
+    getDisplay()
+        .asyncExec(
+            () -> {
+              if (!multi.isDisposed()) {
+                multi.setFocus();
+                multi.setSelection(multi.getText().length());
+              }
+            });
+  }
+
+  /**
+   * Format a cell value for display in a grid: keep it single-line and short so the native table
+   * stays fast. Honors the Look &amp; Feel settings {@link PropsUi#getMaxPreviewCellLength()} and
+   * {@link PropsUi#isShowPreviewLineBreaksAsSymbols()}. Returns null for a null value.
+   */
+  public static String formatCellValueForDisplay(String value) {
+    if (value == null) {
+      return null;
+    }
+    PropsUi props = PropsUi.getInstance();
+    int maxLength = props.getMaxPreviewCellLength();
+    boolean lineBreaksAsSymbols = props.isShowPreviewLineBreaksAsSymbols();
+
+    String display = value;
+    boolean truncated = false;
+
+    // Cap the length first so we never scan a huge value further than needed.
+    if (maxLength > 0 && display.length() > maxLength) {
+      display = display.substring(0, maxLength);
+      truncated = true;
+    }
+    // Unless line breaks are shown as symbols, cut at the first break to stay on one line.
+    if (!lineBreaksAsSymbols) {
+      int breakIndex = indexOfLineBreak(display);
+      if (breakIndex >= 0) {
+        display = display.substring(0, breakIndex);
+        truncated = true;
+      }
+    }
+    if (truncated) {
+      display = display + " …";
+    }
+    // Render remaining line breaks / tabs as single-line symbols when the option is enabled.
+    if (lineBreaksAsSymbols
+        && (display.indexOf('\n') >= 0
+            || display.indexOf('\r') >= 0
+            || display.indexOf('\t') >= 0)) {
+      display =
+          display
+              .replace("\r\n", " ↵ ")
+              .replace("\n", " ↵ ")
+              .replace("\r", " ↵ ")
+              .replace("\t", " → ");
+    }
+    return display;
+  }
+
+  /** Index of the first line-break character (CR or LF), or -1 if there is none. */
+  private static int indexOfLineBreak(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == '\n' || c == '\r') {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /** Normalize any line breaks to a single '\n' — platform-independent, and how XML round-trips. */
+  private static String toUnixLineBreaks(String s) {
+    return s == null ? null : s.replace("\r\n", "\n").replace('\r', '\n');
+  }
+
+  /**
+   * Convert line breaks to the platform delimiter so a multi-line {@link Text} actually renders
+   * them. On Windows a multi-line Text needs "\r\n"; a lone "\n" shows as a control-char box.
+   */
+  private static String toPlatformLineBreaks(String s) {
+    if (s == null) {
+      return null;
+    }
+    String unix = toUnixLineBreaks(s);
+    return "\n".equals(Text.DELIMITER) ? unix : unix.replace("\n", Text.DELIMITER);
+  }
+
+  /**
+   * The shortened display string for a text cell whose stored value is longer / multi-line, or null
+   * when the cell should be drawn natively (non-text column, or nothing to shorten). Used by the
+   * desktop owner-draw so {@link TableItem#getText(int)} keeps returning the full, saved value.
+   */
+  private String customCellText(TableItem item, int columnIndex) {
+    if (item == null || columnIndex < 1 || columnIndex - 1 >= columns.length) {
+      return null;
+    }
+    ColumnInfo colinfo = columns[columnIndex - 1];
+    if (colinfo == null
+        || (colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT
+            && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)) {
+      return null;
+    }
+    String full = item.getText(columnIndex);
+    String display = formatCellValueForDisplay(full);
+    return display != null && !display.equals(full) ? display : null;
+  }
+
+  private void eraseCell(Event event) {
+    // Suppress native text drawing for cells we redraw ourselves; keep background & selection.
+    if (customCellText((TableItem) event.item, event.index) != null) {
+      event.detail &= ~SWT.FOREGROUND;
+    }
+  }
+
+  private void paintCell(Event event) {
+    String display = customCellText((TableItem) event.item, event.index);
+    if (display == null) {
+      return;
+    }
+    TableItem item = (TableItem) event.item;
+    Color foreground;
+    if ((event.detail & SWT.SELECTED) != 0) {
+      foreground = getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT);
+    } else {
+      foreground = item.getForeground(event.index);
+    }
+    event.gc.setForeground(foreground);
+    Point size = event.gc.textExtent(display);
+    int yOffset = Math.max(0, (event.height - size.y) / 2);
+    event.gc.drawText(display, event.x + 2, event.y + yOffset, SWT.DRAW_TRANSPARENT);
+  }
+
   private void checkChanged(String[][] before, String[][] after, int[] index) {
     // Did we change anything: if so, add undo information
     if (fieldChanged) {
@@ -2595,6 +2897,15 @@ public class TableView extends Composite {
       return;
     }
 
+    // A single-line editor can't represent a multi-line value (control-char boxes on Windows), so
+    // edit values that contain a line break in the multi-line pop-out editor instead.
+    if ((colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT
+            || colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
+        && indexOfLineBreak(row.getText(colNr)) >= 0) {
+      editMultiline(row, rowNr, colNr, colinfo);
+      return;
+    }
+
     String content = row.getText(colNr) + (extra != 0 ? "" + extra : "");
     String tooltip = columns[colNr - 1].getToolTip();
 
@@ -2687,6 +2998,35 @@ public class TableView extends Composite {
       }
     }
     PropsUi.setLook(text);
+
+    // Double-clicking inside the inline editor expands it into the multi-line editor. The inline
+    // editor is created on the first click, so on some platforms (Windows) the second click of a
+    // double-click lands on this fresh editor as a single click and neither the table nor the
+    // editor sees a full double-click. So also treat a click arriving within the OS double-click
+    // time of the editor opening as that second click. Deferred so this handler finishes before the
+    // inline editor it belongs to is disposed.
+    if (!passwordField) {
+      Control innerText = (text instanceof TextVar tv) ? tv.getTextWidget() : text;
+      Runnable expand =
+          () ->
+              getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!isDisposed()) {
+                          editMultiline(row, rowNr, colNr, colinfo);
+                        }
+                      });
+      innerText.addListener(SWT.MouseDoubleClick, e -> expand.run());
+      innerText.addListener(
+          SWT.MouseDown,
+          e -> {
+            if (System.currentTimeMillis() - inlineEditorOpenedAt
+                <= getDisplay().getDoubleClickTime()) {
+              expand.run();
+            }
+          });
+    }
+    inlineEditorOpenedAt = System.currentTimeMillis();
 
     int width = tableColumn[colNr].getWidth();
     int height = 30;
