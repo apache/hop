@@ -104,6 +104,8 @@ public class ConfigGuiOptionsTab {
   private Button wMetricsOnTransforms;
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
+  private Text wMaxPreviewCellLength;
+  private Button wShowPreviewLineBreaks;
   private Button wMetricsPanelShowUnits;
   private Button wMetricsPanelShowInput;
   private Button wMetricsPanelShowRead;
@@ -206,6 +208,12 @@ public class ConfigGuiOptionsTab {
       wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
+      if (wMaxPreviewCellLength != null && !wMaxPreviewCellLength.isDisposed()) {
+        wMaxPreviewCellLength.setText(Integer.toString(props.getMaxPreviewCellLength()));
+      }
+      if (wShowPreviewLineBreaks != null && !wShowPreviewLineBreaks.isDisposed()) {
+        wShowPreviewLineBreaks.setSelection(props.isShowPreviewLineBreaksAsSymbols());
+      }
       if (wMetricsPanelShowUnits != null && !wMetricsPanelShowUnits.isDisposed()) {
         wMetricsPanelShowUnits.setSelection(props.isMetricsPanelShowUnits());
         wMetricsPanelShowInput.setSelection(props.isMetricsPanelShowInput());
@@ -317,7 +325,7 @@ public class ConfigGuiOptionsTab {
     noteFont = new Font(shell.getDisplay(), noteFontData);
 
     // Track the last control for vertical positioning
-    org.eclipse.swt.widgets.Control lastControl = null;
+    Control lastControl = null;
 
     // Expand all / Collapse all buttons for the sections below
     Composite wExpandButtons = new Composite(wLookComp, SWT.NONE);
@@ -348,7 +356,7 @@ public class ConfigGuiOptionsTab {
     lastControl = wExpandButtons;
 
     // Preferred language - at the top
-    org.eclipse.swt.widgets.Control[] defaultLocaleControls =
+    Control[] defaultLocaleControls =
         createComboField(
             wLookComp,
             "EnterOptionsDialog.DefaultLocale.Label",
@@ -427,10 +435,10 @@ public class ConfigGuiOptionsTab {
     appearanceContent.setLayout(appearanceLayout);
 
     // Appearance controls inside the expandable content
-    org.eclipse.swt.widgets.Control lastAppearanceControl = null;
+    Control lastAppearanceControl = null;
 
     // Global zoom (at the top)
-    org.eclipse.swt.widgets.Control[] globalZoomControls =
+    Control[] globalZoomControls =
         createComboField(
             appearanceContent,
             "EnterOptionsDialog.GlobalZoom.Label",
@@ -444,7 +452,7 @@ public class ConfigGuiOptionsTab {
     lastAppearanceControl = wGlobalZoom;
 
     // Icon size
-    org.eclipse.swt.widgets.Control[] iconSizeControls =
+    Control[] iconSizeControls =
         createTextField(
             appearanceContent,
             "EnterOptionsDialog.IconSize.Label",
@@ -467,7 +475,7 @@ public class ConfigGuiOptionsTab {
     lastAppearanceControl = wIconSize;
 
     // Line width
-    org.eclipse.swt.widgets.Control[] lineWidthControls =
+    Control[] lineWidthControls =
         createTextField(
             appearanceContent,
             "EnterOptionsDialog.LineWidth.Label",
@@ -490,7 +498,7 @@ public class ConfigGuiOptionsTab {
     lastAppearanceControl = wLineWidth;
 
     // Dialog middle percentage
-    org.eclipse.swt.widgets.Control[] middlePctControls =
+    Control[] middlePctControls =
         createTextField(
             appearanceContent,
             "EnterOptionsDialog.DialogMiddlePercentage.Label",
@@ -564,10 +572,10 @@ public class ConfigGuiOptionsTab {
     fontsContent.setLayout(fontsLayout);
 
     // Fonts inside the expandable content
-    org.eclipse.swt.widgets.Control lastFontControl = null;
+    Control lastFontControl = null;
 
     // Default font
-    org.eclipse.swt.widgets.Control[] defaultFontControls =
+    Control[] defaultFontControls =
         createFontPicker(
             fontsContent, "EnterOptionsDialog.DefaultFont.Label", shell, lastFontControl, margin);
     wDefaultCanvas = (Canvas) defaultFontControls[0];
@@ -580,7 +588,7 @@ public class ConfigGuiOptionsTab {
     lastFontControl = wDefaultCanvas;
 
     // Fixed width font
-    org.eclipse.swt.widgets.Control[] fixedFontControls =
+    Control[] fixedFontControls =
         createFontPicker(
             fontsContent,
             "EnterOptionsDialog.FixedWidthFont.Label",
@@ -597,7 +605,7 @@ public class ConfigGuiOptionsTab {
     lastFontControl = wFixedCanvas;
 
     // Graph font
-    org.eclipse.swt.widgets.Control[] graphFontControls =
+    Control[] graphFontControls =
         createFontPicker(
             fontsContent, "EnterOptionsDialog.GraphFont.Label", shell, lastFontControl, margin);
     wGraphCanvas = (Canvas) graphFontControls[0];
@@ -610,7 +618,7 @@ public class ConfigGuiOptionsTab {
     lastFontControl = wGraphCanvas;
 
     // Note font
-    org.eclipse.swt.widgets.Control[] noteFontControls =
+    Control[] noteFontControls =
         createFontPicker(
             fontsContent, "EnterOptionsDialog.NoteFont.Label", shell, lastFontControl, margin);
     wNoteCanvas = (Canvas) noteFontControls[0];
@@ -673,7 +681,7 @@ public class ConfigGuiOptionsTab {
     canvasContent.setLayout(canvasLayout);
 
     // Show canvas grid checkbox inside the expandable content
-    org.eclipse.swt.widgets.Control lastCanvasControl = null;
+    Control lastCanvasControl = null;
     wShowCanvasGrid =
         createCheckbox(
             canvasContent,
@@ -685,7 +693,7 @@ public class ConfigGuiOptionsTab {
     lastCanvasControl = wShowCanvasGrid;
 
     // Grid size - placed under Show canvas grid checkbox
-    org.eclipse.swt.widgets.Control[] gridSizeControls =
+    Control[] gridSizeControls =
         createTextField(
             canvasContent,
             "EnterOptionsDialog.GridSize.Label",
@@ -825,7 +833,7 @@ public class ConfigGuiOptionsTab {
     autoLayoutLayout.marginHeight = PropsUi.getFormMargin();
     autoLayoutContent.setLayout(autoLayoutLayout);
 
-    org.eclipse.swt.widgets.Control lastAutoLayoutControl = null;
+    Control lastAutoLayoutControl = null;
 
     // Direction
     String[] directionLabels = {
@@ -834,7 +842,7 @@ public class ConfigGuiOptionsTab {
       BaseMessages.getString(PKG, "EnterOptionsDialog.AutoLayout.Direction.TopBottom"),
       BaseMessages.getString(PKG, "EnterOptionsDialog.AutoLayout.Direction.BottomTop")
     };
-    org.eclipse.swt.widgets.Control[] directionControls =
+    Control[] directionControls =
         createComboField(
             autoLayoutContent,
             "EnterOptionsDialog.AutoLayout.Direction.Label",
@@ -849,7 +857,7 @@ public class ConfigGuiOptionsTab {
     lastAutoLayoutControl = wAutoLayoutDirection;
 
     // Layer spacing
-    org.eclipse.swt.widgets.Control[] layerSpacingControls =
+    Control[] layerSpacingControls =
         createTextField(
             autoLayoutContent,
             "EnterOptionsDialog.AutoLayout.LayerSpacing.Label",
@@ -864,7 +872,7 @@ public class ConfigGuiOptionsTab {
     lastAutoLayoutControl = wAutoLayoutLayerSpacing;
 
     // Node spacing
-    org.eclipse.swt.widgets.Control[] nodeSpacingControls =
+    Control[] nodeSpacingControls =
         createTextField(
             autoLayoutContent,
             "EnterOptionsDialog.AutoLayout.NodeSpacing.Label",
@@ -879,7 +887,7 @@ public class ConfigGuiOptionsTab {
     lastAutoLayoutControl = wAutoLayoutNodeSpacing;
 
     // Crossing-reduction iterations
-    org.eclipse.swt.widgets.Control[] iterationsControls =
+    Control[] iterationsControls =
         createTextField(
             autoLayoutContent,
             "EnterOptionsDialog.AutoLayout.CrossingIterations.Label",
@@ -953,13 +961,39 @@ public class ConfigGuiOptionsTab {
     tablesContent.setLayout(tablesLayout);
 
     // Show toolbar checkbox inside the expandable content
-    org.eclipse.swt.widgets.Control lastTablesControl = null;
+    Control lastTablesControl = null;
     wShowTableViewToolbar =
         createCheckbox(
             tablesContent,
             "EnterOptionsDialog.ShowTableViewToolbar.Label",
             "EnterOptionsDialog.ShowTableViewToolbar.ToolTip",
             props.isShowTableViewToolbar(),
+            lastTablesControl,
+            margin);
+    lastTablesControl = wShowTableViewToolbar;
+
+    // Maximum number of characters shown in a preview grid cell before it is truncated.
+    Control[] maxPreviewCellLengthControls =
+        createTextField(
+            tablesContent,
+            "EnterOptionsDialog.MaxPreviewCellLength.Label",
+            "EnterOptionsDialog.MaxPreviewCellLength.ToolTip",
+            Integer.toString(props.getMaxPreviewCellLength()),
+            lastTablesControl,
+            margin);
+    wMaxPreviewCellLength = (Text) maxPreviewCellLengthControls[1];
+    wMaxPreviewCellLength.setMessage(
+        BaseMessages.getString(PKG, ENTER_OPTIONS_DIALOG_ENTER_NUMBER_HINT));
+    wMaxPreviewCellLength.addListener(SWT.Verify, this::verifyNumber);
+    lastTablesControl = wMaxPreviewCellLength;
+
+    // Show line breaks / tabs as symbols in preview cells (default off: cut at the first break).
+    wShowPreviewLineBreaks =
+        createCheckbox(
+            tablesContent,
+            "EnterOptionsDialog.ShowPreviewLineBreaks.Label",
+            "EnterOptionsDialog.ShowPreviewLineBreaks.ToolTip",
+            props.isShowPreviewLineBreaksAsSymbols(),
             lastTablesControl,
             margin);
 
@@ -1395,6 +1429,9 @@ public class ConfigGuiOptionsTab {
     props.setDarkMode(darkMode);
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
+    props.setMaxPreviewCellLength(
+        Const.toInt(wMaxPreviewCellLength.getText(), props.getMaxPreviewCellLength()));
+    props.setShowPreviewLineBreaksAsSymbols(wShowPreviewLineBreaks.getSelection());
     props.setMetricsPanelShowUnits(wMetricsPanelShowUnits.getSelection());
     props.setMetricsPanelShowInput(wMetricsPanelShowInput.getSelection());
     props.setMetricsPanelShowRead(wMetricsPanelShowRead.getSelection());
@@ -1509,12 +1546,12 @@ public class ConfigGuiOptionsTab {
     }
   }
 
-  private org.eclipse.swt.widgets.Control[] createTextField(
+  private Control[] createTextField(
       Composite parent,
       String labelKey,
       String tooltipKey,
       String initialValue,
-      org.eclipse.swt.widgets.Control lastControl,
+      Control lastControl,
       int margin) {
     // Label above
     Label label = new Label(parent, SWT.LEFT);
@@ -1546,7 +1583,7 @@ public class ConfigGuiOptionsTab {
     fdText.top = new FormAttachment(label, margin / 2);
     text.setLayoutData(fdText);
 
-    return new org.eclipse.swt.widgets.Control[] {label, text};
+    return new Control[] {label, text};
   }
 
   /**
@@ -1560,12 +1597,12 @@ public class ConfigGuiOptionsTab {
    * @param margin The margin to use
    * @return An array containing [Label, Combo] controls
    */
-  private org.eclipse.swt.widgets.Control[] createComboField(
+  private Control[] createComboField(
       Composite parent,
       String labelKey,
       String tooltipKey,
       String[] items,
-      org.eclipse.swt.widgets.Control lastControl,
+      Control lastControl,
       int margin) {
     // Label above
     Label label = new Label(parent, SWT.LEFT);
@@ -1597,7 +1634,7 @@ public class ConfigGuiOptionsTab {
     fdCombo.top = new FormAttachment(label, margin / 2);
     combo.setLayoutData(fdCombo);
 
-    return new org.eclipse.swt.widgets.Control[] {label, combo};
+    return new Control[] {label, combo};
   }
 
   /**
@@ -1616,7 +1653,7 @@ public class ConfigGuiOptionsTab {
       String labelKey,
       String tooltipKey,
       boolean selected,
-      org.eclipse.swt.widgets.Control lastControl,
+      Control lastControl,
       int margin) {
     Button checkbox = new Button(parent, SWT.CHECK);
     PropsUi.setLook(checkbox);
@@ -1650,12 +1687,8 @@ public class ConfigGuiOptionsTab {
    * @param margin The margin to use
    * @return An array containing [Canvas, EditButton, ResetButton] controls
    */
-  private org.eclipse.swt.widgets.Control[] createFontPicker(
-      Composite parent,
-      String labelKey,
-      Shell shell,
-      org.eclipse.swt.widgets.Control lastControl,
-      int margin) {
+  private Control[] createFontPicker(
+      Composite parent, String labelKey, Shell shell, Control lastControl, int margin) {
     int h = (int) (40 * PropsUi.getInstance().getZoomFactor());
 
     // Label above
@@ -1701,6 +1734,6 @@ public class ConfigGuiOptionsTab {
     fdCanvas.height = h;
     canvas.setLayoutData(fdCanvas);
 
-    return new org.eclipse.swt.widgets.Control[] {canvas, editButton, resetButton};
+    return new Control[] {canvas, editButton, resetButton};
   }
 }

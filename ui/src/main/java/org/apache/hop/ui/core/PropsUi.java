@@ -95,6 +95,13 @@ public class PropsUi extends Props {
   private static final String USE_ADVANCED_TERMINAL = "UseAdvancedTerminal";
   private static final String RESET_DIALOG_POSITIONS_ON_RESTART = "ResetDialogPositionsOnRestart";
 
+  /** Max characters shown in a preview grid cell before truncation (0 = no truncation). */
+  private static final String PREVIEW_MAX_CELL_LENGTH = "Preview.MaxCellLength";
+
+  /** Render line breaks / tabs as symbols in preview grid cells instead of cutting at the break. */
+  private static final String PREVIEW_SHOW_LINE_BREAKS_AS_SYMBOLS =
+      "Preview.ShowLineBreaksAsSymbols";
+
   // Metrics panel (pipeline execution grid) – "Show" options
   private static final String METRICS_PANEL_SHOW_UNITS = "MetricsPanel.ShowUnits";
   private static final String METRICS_PANEL_SHOW_INPUT = "MetricsPanel.ShowInput";
@@ -603,6 +610,31 @@ public class PropsUi extends Props {
 
   public void setShowTableViewToolbar(boolean show) {
     setProperty(STRING_SHOW_TABLE_VIEW_TOOLBAR, show ? YES : NO);
+  }
+
+  /**
+   * Maximum number of characters shown in a preview grid cell before it is truncated (double-click
+   * the cell to see the full value). 0 disables truncation. Default 50.
+   */
+  public int getMaxPreviewCellLength() {
+    return Const.toInt(getProperty(PREVIEW_MAX_CELL_LENGTH), 50);
+  }
+
+  public void setMaxPreviewCellLength(int length) {
+    setProperty(PREVIEW_MAX_CELL_LENGTH, Integer.toString(length));
+  }
+
+  /**
+   * Whether line breaks and tabs in preview grid cells are shown as single-line symbols (↵ / →).
+   * When false (default), a value with line breaks is instead cut at the first break and marked
+   * with an ellipsis.
+   */
+  public boolean isShowPreviewLineBreaksAsSymbols() {
+    return YES.equalsIgnoreCase(getProperty(PREVIEW_SHOW_LINE_BREAKS_AS_SYMBOLS, NO));
+  }
+
+  public void setShowPreviewLineBreaksAsSymbols(boolean show) {
+    setProperty(PREVIEW_SHOW_LINE_BREAKS_AS_SYMBOLS, show ? YES : NO);
   }
 
   /** Show units in grid cells (default false). */

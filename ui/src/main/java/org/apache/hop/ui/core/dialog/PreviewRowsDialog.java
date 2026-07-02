@@ -43,7 +43,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -52,6 +54,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 /** Displays an ArrayList of rows in a TableView. */
 public class PreviewRowsDialog {
@@ -69,6 +72,9 @@ public class PreviewRowsDialog {
   private TableView wFields;
 
   private Shell shell;
+
+  /** Lightweight floating box showing the full value of an overflowing cell (Ctrl+Space style). */
+  private Shell valueOverlay;
 
   private final List<Object[]> buffer;
 
@@ -289,12 +295,24 @@ public class PreviewRowsDialog {
       columns[i].setToolTip(valueMeta.toStringMeta());
       columns[i].setValueMeta(valueMeta);
       columns[i].setImage(GuiResource.getInstance().getImage(valueMeta));
+      // A preview is a viewer: don't open an inline editor on click. This also frees double-click
+      // to pop up the full, untruncated value of a cell.
+      columns[i].setReadOnly(true);
     }
 
     wFields =
         new TableView(
             variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columns, 0, null, props);
     wFields.setShowingBlueNullValues(true);
+    // Rows are kept in load order so a cell's visual position maps straight back to the buffer that
+    // holds its full value. Sorting would reorder items (and sort by the truncated display text),
+    // breaking that mapping, so it is disabled here.
+    wFields.setSortable(false);
+
+    // Cells only show a truncated, single-lined value for performance. Double-click a cell to see
+    // its full, original content (handy for long strings, JSON and multi-line values).
+    wFields.table.addListener(
+        SWT.MouseDoubleClick, event -> showFullCellValue(new Point(event.x, event.y)));
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
@@ -397,7 +415,7 @@ public class PreviewRowsDialog {
       }
 
       if (show != null) {
-        item.setText(c + 1, show);
+        item.setText(c + 1, TableView.formatCellValueForDisplay(show));
         item.setForeground(c + 1, GuiResource.getInstance().getColorBlack());
       } else {
         // Set null value
@@ -407,6 +425,126 @@ public class PreviewRowsDialog {
     }
 
     return nrErrors;
+  }
+
+  /**
+   * When a cell whose value overflows the grid display is double-clicked, expand it in a
+   * lightweight inline multi-line box anchored to the cell. Does nothing for cells that aren't data
+   * cells or whose value already fits.
+   */
+  private void showFullCellValue(Point point) {
+    if (wFields == null || wFields.isDisposed() || buffer == null || rowMeta == null) {
+      return;
+    }
+    TableItem item = wFields.table.getItem(point);
+    if (item == null) {
+      return;
+    }
+    int rowIndex = wFields.table.indexOf(item);
+
+    // Column 0 is the row-number column; data columns start at 1. Find the one under the pointer.
+    int columnIndex = -1;
+    Rectangle cellBounds = null;
+    for (int i = 1; i < wFields.table.getColumnCount(); i++) {
+      Rectangle b = item.getBounds(i);
+      if (b.contains(point)) {
+        columnIndex = i;
+        cellBounds = b;
+        break;
+      }
+    }
+    if (columnIndex < 1 || cellBounds == null) {
+      return;
+    }
+    int column = columnIndex - 1;
+    if (rowIndex < 0 || rowIndex >= buffer.size() || column >= rowMeta.size()) {
+      return;
+    }
+
+    String full = getFullCellString(rowIndex, column);
+    if (full == null) {
+      return;
+    }
+    // Only expand cells whose value actually overflows what the grid shows.
+    int maxLength = PropsUi.getInstance().getMaxPreviewCellLength();
+    boolean overflow =
+        (maxLength > 0 && full.length() > maxLength)
+            || full.indexOf('\n') >= 0
+            || full.indexOf('\r') >= 0
+            || full.indexOf('\t') >= 0;
+    if (overflow) {
+      showValueOverlay(cellBounds, full);
+    }
+  }
+
+  /**
+   * Show the full cell value in a lightweight, non-modal multi-line text box anchored to the cell —
+   * the same floating-shell idea as the Ctrl+Space variable helper. Dismisses on Escape or when it
+   * loses focus.
+   */
+  private void showValueOverlay(Rectangle cellBounds, String value) {
+    if (valueOverlay != null && !valueOverlay.isDisposed()) {
+      valueOverlay.dispose();
+    }
+
+    Point location = wFields.table.toDisplay(cellBounds.x, cellBounds.y);
+
+    final Shell overlay = new Shell(shell, SWT.NONE);
+    overlay.setLayout(new FillLayout());
+
+    final Text text =
+        new Text(overlay, SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY | SWT.BORDER);
+    PropsUi.setLook(text);
+    text.setText(value);
+
+    overlay.setSize(Math.max(cellBounds.width, 400), 200);
+    overlay.setLocation(location.x, location.y);
+
+    // Dismiss on Escape or when focus leaves the box (mirrors the variable helper).
+    text.addListener(SWT.FocusOut, e -> overlay.dispose());
+    text.addListener(
+        SWT.KeyDown,
+        e -> {
+          if (e.keyCode == SWT.ESC) {
+            overlay.dispose();
+          }
+        });
+
+    overlay.open();
+    valueOverlay = overlay;
+
+    // Grab focus after the current (double-click) event settles, so a trailing table focus event
+    // can't immediately close the box.
+    overlay
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              if (!text.isDisposed()) {
+                text.setFocus();
+                text.setSelection(0, 0);
+              }
+            });
+  }
+
+  /** Convert the raw buffer value at (rowIndex, column) to its full string form, no truncation. */
+  private String getFullCellString(int rowIndex, int column) {
+    Object[] row = buffer.get(rowIndex);
+    IValueMeta valueMeta = rowMeta.getValueMeta(column);
+    try {
+      if (valueMeta.isBinary()) {
+        byte[] bytes = valueMeta.getBinary(row[column]);
+        if (bytes == null) {
+          return null;
+        }
+        return PREVIEW_AVOID_BINARY_IN_HEX
+            ? valueMeta.getString(bytes)
+            : Hex.encodeHexString(bytes);
+      }
+      return valueMeta.getString(row[column]);
+    } catch (HopValueException e) {
+      log.logError(Const.getStackTracker(e));
+      return null;
+    }
   }
 
   private void close() {
