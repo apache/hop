@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -75,6 +76,21 @@ public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
     return "com.intersystems.jdbc.IRISDriver";
+  }
+
+  @Override
+  public DriverDownload getDriverDownload() {
+    return DriverDownload.builder()
+        .mavenCoordinate("com.intersystems:intersystems-jdbc")
+        .defaultVersion("3.11.0")
+        .licenseCategory("X")
+        .licenseName("InterSystems IRIS JDBC Driver License")
+        .licenseUrl(
+            "https://www.intersystems.com/support-learning/support/browse-support/license-agreements/")
+        .vendor("InterSystems")
+        .vendorUrl("https://www.intersystems.com/")
+        .notes("JDBC driver for InterSystems Iris database")
+        .build();
   }
 
   @Override
