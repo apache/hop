@@ -397,7 +397,7 @@ public class JsonInputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
                 BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               },
               true),
         };
@@ -1244,7 +1244,7 @@ public class JsonInputDialog extends BaseTransformDialog {
       String rep =
           field.isRepeated()
               ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
-              : BaseMessages.getString(PKG, "System.Combo.No");
+              : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
 
       item.setText(1, Const.NVL(name, ""));
       item.setText(2, Const.NVL(xpath, ""));
