@@ -77,7 +77,12 @@ import org.eclipse.swt.widgets.Text;
 
 public class JsonNormalizeInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JsonNormalizeInputMeta.class;
+  public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
   public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
+    BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+  };
 
   private CTabFolder wTabFolder;
 
@@ -412,7 +417,7 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
                 BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
               },
               true),
         };
@@ -1365,7 +1370,7 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
       String rep =
           field.isRepeated()
               ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
-              : BaseMessages.getString(PKG, "System.Combo.No");
+              : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
 
       item.setText(1, Const.NVL(name, ""));
       item.setText(2, Const.NVL(xpath, ""));
@@ -1440,8 +1445,8 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
       inputFile.setFileName(item.getText(1));
       inputFile.setFileMask(item.getText(2));
       inputFile.setExcludeFileMask(item.getText(3));
-      inputFile.setFileRequired(CONST_SYSTEM_COMBO_YES.equalsIgnoreCase(item.getText(4)));
-      inputFile.setIncludeSubFolders(CONST_SYSTEM_COMBO_YES.equalsIgnoreCase(item.getText(5)));
+      inputFile.setFileRequired(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(4)));
+      inputFile.setIncludeSubFolders(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(5)));
       in.getFileInput().getInputFiles().add(inputFile);
     }
 
@@ -1459,7 +1464,7 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
       field.setDecimalSymbol(item.getText(8));
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(10)));
-      field.setRepeated(CONST_SYSTEM_COMBO_YES.equalsIgnoreCase(item.getText(11)));
+      field.setRepeated(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(11)));
 
       in.getInputFields().add(field);
     }
