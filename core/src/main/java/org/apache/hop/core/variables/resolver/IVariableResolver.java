@@ -37,11 +37,13 @@ public interface IVariableResolver {
    */
   String resolve(String secretPath, IVariables variables) throws HopException;
 
-  void setPluginId();
+  @Deprecated(since = "2.19")
+  default void setPluginId() {}
 
   String getPluginId();
 
-  void setPluginName(String pluginName);
+  @Deprecated(since = "2.19")
+  default void setPluginName(String pluginName) {}
 
   String getPluginName();
 }

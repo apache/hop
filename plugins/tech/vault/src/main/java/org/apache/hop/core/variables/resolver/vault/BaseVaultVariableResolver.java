@@ -233,22 +233,12 @@ public abstract class BaseVaultVariableResolver implements IVariableResolver {
   }
 
   @Override
-  public void setPluginId() {
-    // Nothing to set
-  }
-
-  @Override
   public void init() {
     // Not used today
   }
 
   @Override
   public abstract String getPluginId();
-
-  @Override
-  public void setPluginName(String pluginName) {
-    // Nothing to set
-  }
 
   @Override
   public abstract String getPluginName();

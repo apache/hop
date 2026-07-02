@@ -122,18 +122,8 @@ public class GooleSecretManagerVariableResolver implements IVariableResolver {
   }
 
   @Override
-  public void setPluginId() {
-    // Nothing to set
-  }
-
-  @Override
   public String getPluginId() {
     return "Variable-Resolver-GoogleSecretManager";
-  }
-
-  @Override
-  public void setPluginName(String pluginName) {
-    // Nothing to set
   }
 
   @Override
