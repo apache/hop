@@ -128,4 +128,13 @@ public interface IAuditManager {
    * @throws HopException
    */
   void clearEvents() throws HopException;
+
+  /**
+   * Clear all stored states for a given group and type.
+   *
+   * @param group The group (namespace, environment)
+   * @param type The type (shell, perspective, ...)
+   * @throws HopException
+   */
+  void clearStates(String group, String type) throws HopException;
 }

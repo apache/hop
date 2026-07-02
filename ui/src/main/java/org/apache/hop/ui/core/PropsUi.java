@@ -30,7 +30,6 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
-import org.apache.hop.history.AuditStateMap;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
@@ -93,6 +92,7 @@ public class PropsUi extends Props {
   private static final String METRICS_ABOVE_SELECTED_TRANSFORMS = "MetricsAboveSelectedTransforms";
   private static final String ENABLE_INFINITE_CANVAS_MOVE = "EnableInfiniteCanvasMove";
   private static final String USE_ADVANCED_TERMINAL = "UseAdvancedTerminal";
+  private static final String REMEMBER_DIALOG_POSITIONS = "RememberDialogPositions";
   private static final String RESET_DIALOG_POSITIONS_ON_RESTART = "ResetDialogPositionsOnRestart";
 
   /** Max characters shown in a preview grid cell before truncation (0 = no truncation). */
@@ -413,6 +413,9 @@ public class PropsUi extends Props {
   }
 
   public void setScreen(WindowProperty windowProperty) {
+    if (!getRememberDialogPositions()) {
+      return;
+    }
     AuditManager.storeState(
         LogChannel.UI,
         HopGui.DEFAULT_HOP_GUI_NAMESPACE,
@@ -422,7 +425,7 @@ public class PropsUi extends Props {
   }
 
   public WindowProperty getScreen(String windowName) {
-    if (windowName == null) {
+    if (windowName == null || !getRememberDialogPositions()) {
       return null;
     }
     AuditState auditState =
@@ -442,6 +445,9 @@ public class PropsUi extends Props {
    * @param windowProperty the window property containing position/size information
    */
   public void setSessionScreen(WindowProperty windowProperty) {
+    if (!getRememberDialogPositions()) {
+      return;
+    }
     if (windowProperty != null && windowProperty.getName() != null) {
       sessionWindowProperties.put(windowProperty.getName(), windowProperty);
     }
@@ -455,7 +461,7 @@ public class PropsUi extends Props {
    * @return the stored WindowProperty, or null if not found in session storage
    */
   public WindowProperty getSessionScreen(String windowName) {
-    if (windowName == null) {
+    if (windowName == null || !getRememberDialogPositions()) {
       return null;
     }
     return sessionWindowProperties.get(windowName);
@@ -470,35 +476,44 @@ public class PropsUi extends Props {
   }
 
   /**
-   * Clears all persisted window positions from storage (except the main window). This removes saved
-   * dialog positions from the audit state, forcing dialogs to center on their next opening.
+   * Clears all persisted window positions from storage. This removes saved dialog positions from
+   * the audit state, forcing dialogs to center on their next opening.
    */
   public void clearPersistedDialogScreens() {
     try {
-      // Load all stored shell states
-      AuditStateMap shellStates =
-          AuditManager.getActive().loadAuditStateMap(HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells");
-
-      if (shellStates != null && shellStates.getNameStateMap() != null) {
-        // Create a new map with only the main window state
-        AuditStateMap filteredStates = new AuditStateMap();
-        Map<String, AuditState> stateMap = shellStates.getNameStateMap();
-
-        for (Map.Entry<String, AuditState> entry : stateMap.entrySet()) {
-          String windowName = entry.getKey();
-          // Keep the main window position (identified by "Hop" in the name)
-          if (windowName != null && (windowName.equals("Hop") || windowName.contains("Hop"))) {
-            filteredStates.getNameStateMap().put(windowName, entry.getValue());
-          }
-        }
-
-        // Save the filtered map (only main window)
-        AuditManager.getActive()
-            .saveAuditStateMap(HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells", filteredStates);
-      }
+      AuditManager.clearStates(HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells");
     } catch (Exception e) {
       LogChannel.UI.logError("Error clearing persisted dialog positions", e);
     }
+  }
+
+  /**
+   * Clears persisted dialog positions on application startup when dialog positions are not
+   * persisted to disk. Must be called before the main shell is sized.
+   */
+  public void clearPersistedDialogPositionsOnStartupIfConfigured() {
+    if (!getResetDialogPositionsOnRestart()) {
+      return;
+    }
+    clearPersistedDialogScreens();
+  }
+
+  /**
+   * Gets whether dialog positions should be remembered at all.
+   *
+   * @return true if dialog positions should be remembered, false otherwise
+   */
+  public boolean getRememberDialogPositions() {
+    return YES.equalsIgnoreCase(getProperty(REMEMBER_DIALOG_POSITIONS, YES));
+  }
+
+  /**
+   * Sets whether dialog positions should be remembered at all.
+   *
+   * @param remember true to remember dialog positions, false to always use defaults
+   */
+  public void setRememberDialogPositions(boolean remember) {
+    setProperty(REMEMBER_DIALOG_POSITIONS, remember ? YES : NO);
   }
 
   /**
@@ -509,7 +524,7 @@ public class PropsUi extends Props {
    * @return true if dialog positions should reset on restart, false otherwise
    */
   public boolean getResetDialogPositionsOnRestart() {
-    return YES.equalsIgnoreCase(getProperty(RESET_DIALOG_POSITIONS_ON_RESTART, YES));
+    return YES.equalsIgnoreCase(getProperty(RESET_DIALOG_POSITIONS_ON_RESTART, NO));
   }
 
   /**

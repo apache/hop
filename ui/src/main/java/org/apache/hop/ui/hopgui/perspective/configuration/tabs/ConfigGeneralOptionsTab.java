@@ -68,6 +68,7 @@ public class ConfigGeneralOptionsTab {
   private Button wbUseGlobalFileBookmarks;
   private Button wSortFieldByName;
   private Text wMaxExecutionLoggingTextSize;
+  private Button wRememberDialogPositions;
   private Button wResetDialogPositions;
 
   private boolean isReloading = false; // Flag to prevent saving during reload
@@ -108,9 +109,13 @@ public class ConfigGeneralOptionsTab {
       wMaxExecutionLoggingTextSize.setText(
           Integer.toString(props.getMaxExecutionLoggingTextSize()));
 
-      // Only reload if widget is initialized
+      // Only reload if widgets are initialized
+      if (wRememberDialogPositions != null && !wRememberDialogPositions.isDisposed()) {
+        wRememberDialogPositions.setSelection(props.getRememberDialogPositions());
+      }
       if (wResetDialogPositions != null && !wResetDialogPositions.isDisposed()) {
         wResetDialogPositions.setSelection(props.getResetDialogPositionsOnRestart());
+        wResetDialogPositions.setEnabled(props.getRememberDialogPositions());
       }
     } finally {
       // Always reset the flag
@@ -443,8 +448,28 @@ public class ConfigGeneralOptionsTab {
     dialogPosLayout.marginHeight = PropsUi.getFormMargin();
     dialogPosContent.setLayout(dialogPosLayout);
 
-    // Reset dialog positions checkbox
+    // Dialog position checkboxes
     Control lastDialogPosControl = null;
+    wRememberDialogPositions =
+        createCheckbox(
+            dialogPosContent,
+            "EnterOptionsDialog.RememberDialogPositions.Label",
+            "EnterOptionsDialog.RememberDialogPositions.Tooltip",
+            props.getRememberDialogPositions(),
+            lastDialogPosControl,
+            margin);
+    lastDialogPosControl = wRememberDialogPositions;
+    wRememberDialogPositions.addListener(
+        SWT.Selection,
+        e -> {
+          boolean remember = wRememberDialogPositions.getSelection();
+          wResetDialogPositions.setEnabled(remember);
+          if (!remember) {
+            props.clearSessionScreens();
+            props.clearPersistedDialogScreens();
+          }
+        });
+
     wResetDialogPositions =
         createCheckbox(
             dialogPosContent,
@@ -453,6 +478,7 @@ public class ConfigGeneralOptionsTab {
             props.getResetDialogPositionsOnRestart(),
             lastDialogPosControl,
             margin);
+    wResetDialogPositions.setEnabled(props.getRememberDialogPositions());
     lastDialogPosControl = wResetDialogPositions;
 
     // Clear dialog positions button
@@ -717,7 +743,10 @@ public class ConfigGeneralOptionsTab {
             wMaxExecutionLoggingTextSize.getText(),
             PropsUi.DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE));
 
-    // Only save if widget is initialized (it's created after other widgets)
+    // Only save if widgets are initialized (they are created after other widgets)
+    if (wRememberDialogPositions != null && !wRememberDialogPositions.isDisposed()) {
+      props.setRememberDialogPositions(wRememberDialogPositions.getSelection());
+    }
     if (wResetDialogPositions != null && !wResetDialogPositions.isDisposed()) {
       props.setResetDialogPositionsOnRestart(wResetDialogPositions.getSelection());
     }

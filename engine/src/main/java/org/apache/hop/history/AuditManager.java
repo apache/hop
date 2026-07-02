@@ -151,4 +151,15 @@ public class AuditManager {
   public static final void clearEvents() throws HopException {
     getActive().clearEvents();
   }
+
+  /**
+   * Convenience method for clearing stored states for a given group and type.
+   *
+   * @param group The group (namespace, environment)
+   * @param type The type (shell, perspective, ...)
+   * @throws HopException
+   */
+  public static final void clearStates(String group, String type) throws HopException {
+    getActive().clearStates(group, type);
+  }
 }
