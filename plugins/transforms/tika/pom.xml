@@ -29,7 +29,7 @@
     <name>Hop Plugins Transforms Tika</name>
 
     <properties>
-        <tika.version>3.3.0</tika.version>
+        <tika.version>3.3.1</tika.version>
     </properties>
 
     <dependencyManagement>
