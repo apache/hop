@@ -40,6 +40,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>${commonmark.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

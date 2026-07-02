@@ -104,6 +104,7 @@
         <azure-sdk-bom.version>1.2.26</azure-sdk-bom.version>
         <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
         <byte-buddy.version>1.18.7</byte-buddy.version>
+        <commonmark.version>0.29.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.8.1</cyclonedx-maven-plugin.version>
         <grpc.version>1.80.0</grpc.version>
         <hadoop.version>3.4.2</hadoop.version>
