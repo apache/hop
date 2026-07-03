@@ -21,17 +21,26 @@
 
     <parent>
         <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins</artifactId>
+        <artifactId>hop-plugins-engines</artifactId>
         <version>2.19.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-plugins-engines</artifactId>
-    <packaging>pom</packaging>
-    <name>Hop Plugins Engines</name>
+    <artifactId>hop-engines-single-threaded</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Plugins Engines Single Threaded</name>
 
-    <modules>
-        <module>beam</module>
-        <module>single-threaded</module>
-    </modules>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>
