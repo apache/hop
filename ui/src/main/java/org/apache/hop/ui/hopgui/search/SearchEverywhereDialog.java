@@ -29,7 +29,6 @@ import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
@@ -135,7 +134,7 @@ public class SearchEverywhereDialog {
     // --- Search bar: text field + case / regex toggles ---
     Composite searchBar = new Composite(shell, SWT.NONE);
     PropsUi.setLook(searchBar);
-    GridLayout gridLayout =  new GridLayout(3, false);
+    GridLayout gridLayout = new GridLayout(3, false);
     gridLayout.marginWidth = 0;
     gridLayout.horizontalSpacing = margin;
     searchBar.setLayout(gridLayout);
@@ -176,7 +175,8 @@ public class SearchEverywhereDialog {
     wShowAll.addListener(SWT.Selection, e -> openShowAll());
 
     // --- The grouped result tree (two user-resizable columns + horizontal scroll) ---
-    wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER| SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
+    wTree =
+        new Tree(shell, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wTree);
     wTree.setHeaderVisible(true);
     nameColumn = new TreeColumn(wTree, SWT.LEFT);
@@ -191,7 +191,7 @@ public class SearchEverywhereDialog {
     fdTree.right = new FormAttachment(100, 0);
     fdTree.bottom = new FormAttachment(wShowAll, -margin);
     wTree.setLayoutData(fdTree);
-    
+
     // The Location column always fills the remaining width (also when the window or the Name column
     // is resized).
     wTree.addListener(SWT.Resize, e -> fillLocationColumn());
