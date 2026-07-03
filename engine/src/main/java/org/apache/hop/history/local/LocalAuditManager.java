@@ -357,4 +357,19 @@ public class LocalAuditManager implements IAuditManager {
       throw new HopException(e);
     }
   }
+
+  @Override
+  public void clearStates(String group, String type) throws HopException {
+    if (StringUtils.isEmpty(group)) {
+      throw new HopException("An audit state clear needs a group");
+    }
+    if (StringUtils.isEmpty(type)) {
+      throw new HopException("An audit state clear needs a type");
+    }
+    String filename = calculateStateFilename(group, type);
+    File file = new File(filename);
+    if (file.exists() && !file.delete()) {
+      throw new HopException("Unable to delete state file '" + filename + "'");
+    }
+  }
 }

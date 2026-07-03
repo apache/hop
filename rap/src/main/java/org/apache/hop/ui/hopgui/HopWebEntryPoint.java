@@ -152,7 +152,9 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
 
     HopGui.getInstance().setCommandLineArguments(args);
     HopGui.getInstance().setShell(parent.getShell());
-    HopGui.getInstance().setProps(PropsUi.getInstance());
+    PropsUi props = PropsUi.getInstance();
+    HopGui.getInstance().setProps(props);
+    props.clearPersistedDialogPositionsOnStartupIfConfigured();
 
     // When user changes theme in Configuration → GUI options, redirect so the new theme takes
     // effect. Boolean null = "follow system" (run system redirect, don't use dark flag).

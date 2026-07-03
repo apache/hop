@@ -409,7 +409,9 @@ public class HopGui
 
       HopGui hopGui = HopGui.getInstance();
       hopGui.getCommandLineArguments().addAll(Arrays.asList(arguments));
-      hopGui.setProps(PropsUi.getInstance());
+      PropsUi props = PropsUi.getInstance();
+      hopGui.setProps(props);
+      props.clearPersistedDialogPositionsOnStartupIfConfigured();
 
       // Add and load the Hop GUI Plugins...
       // - Load perspectives

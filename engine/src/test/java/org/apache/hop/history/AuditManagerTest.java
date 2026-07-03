@@ -18,6 +18,7 @@ package org.apache.hop.history;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,7 +27,9 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.local.LocalAuditManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -157,5 +160,24 @@ class AuditManagerTest {
         0,
         AuditManager.findEvents(group, "type1", null, 10, false).size(),
         "Problem in clearing events");
+  }
+
+  @Test
+  void testClearStates() throws HopException {
+    String group = "hop-gui";
+    String type = "shells";
+    Map<String, Object> stateProperties = new HashMap<>();
+    stateProperties.put("x", 100);
+    stateProperties.put("y", 200);
+    AuditManager.storeState(
+        org.apache.hop.core.logging.LogChannel.GENERAL, group, type, "TestDialog", stateProperties);
+
+    AuditStateMap stateMap = AuditManager.getActive().loadAuditStateMap(group, type);
+    assertEquals(1, stateMap.getNameStateMap().size(), "State should be stored");
+
+    AuditManager.clearStates(group, type);
+
+    stateMap = AuditManager.getActive().loadAuditStateMap(group, type);
+    assertTrue(stateMap.getNameStateMap().isEmpty(), "State should be cleared");
   }
 }

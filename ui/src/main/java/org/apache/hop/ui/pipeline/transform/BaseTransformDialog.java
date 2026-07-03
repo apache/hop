@@ -417,13 +417,8 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   public void dispose() {
     WindowProperty winprop = new WindowProperty(shell);
 
-    // Always save to session storage for immediate reopening during current session
     props.setSessionScreen(winprop);
-
-    // If user wants to persist dialog positions across restarts, also save to persistent storage
-    if (!props.getResetDialogPositionsOnRestart()) {
-      props.setScreen(winprop);
-    }
+    props.setScreen(winprop);
 
     shell.dispose();
   }
@@ -836,17 +831,6 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   }
 
   /**
-   * Checks if a window name represents the main Hop GUI window.
-   *
-   * @param windowName the window title to check
-   * @return true if this is the main window, false otherwise
-   */
-  private static boolean isMainWindow(String windowName) {
-    // The main window is identified by the "Hop" title or the localized application name
-    return windowName != null && (windowName.equals("Hop") || windowName.contains("Hop"));
-  }
-
-  /**
    * Sets the size of this dialog with respect to the given parameters.
    *
    * @param shell the shell
@@ -857,16 +841,9 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   public static void setSize(Shell shell, int minWidth, int minHeight, boolean packIt) {
     PropsUi props = PropsUi.getInstance();
 
-    // Check session-only storage first (for dialogs during current session)
     WindowProperty winprop = props.getSessionScreen(shell.getText());
-
-    // If not in session storage, check persistent storage if user wants to persist positions
-    // (or if it's the main window - main window should always restore from persistent storage)
     if (winprop == null) {
-      // Only check persistent storage if reset setting is disabled, OR for main window
-      if (!props.getResetDialogPositionsOnRestart() || isMainWindow(shell.getText())) {
-        winprop = props.getScreen(shell.getText());
-      }
+      winprop = props.getScreen(shell.getText());
     }
 
     if (winprop != null) {
