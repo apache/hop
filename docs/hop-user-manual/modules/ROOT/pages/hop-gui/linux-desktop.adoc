@@ -1,0 +1,59 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[LinuxDesktop]]
+:description: Linux desktop configuration for Hop Gui, including accessibility, input methods, and Wayland session workarounds.
+
+= Linux Desktop Configuration
+
+Hop Gui runs on Linux using SWT and GTK.
+A few desktop-session settings are applied automatically when you start Hop through `hop-gui.sh` or the `hop` launcher script.
+
+== Keyboard input stall at startup or shutdown
+
+On Linux, especially Ubuntu and GNOME on X11, Hop Gui can temporarily stop accepting keyboard input while the application starts up or shuts down.
+This is most noticeable on systems with many SWT-based plugins loaded.
+
+To prevent that stall, Hop applies a workaround automatically in `hop-gui.sh` and the `hop` launcher.
+The scripts set the following environment variables unless you override them:
+
+* `NO_AT_BRIDGE=1` — bypasses the AT-SPI accessibility bridge
+* `GTK_IM_MODULE=xim` — switches the GTK input method module away from IBus
+* `IBUS_DISABLE=1` — disables IBus
+
+This behavior was introduced for https://github.com/apache/hop/issues/7421[issue #7421].
+
+== Restoring accessibility and IME support
+
+If you use a screen reader, other assistive technology, or an IBus-based input method editor (for example for CJK languages), set `HOP_KEEP_A11Y` before starting Hop Gui:
+
+[source,bash]
+----
+export HOP_KEEP_A11Y=1
+./hop-gui.sh
+----
+
+When `HOP_KEEP_A11Y` is set to any non-empty value, Hop leaves your existing accessibility and input-method environment unchanged.
+
+TIP: To make this permanent, add `export HOP_KEEP_A11Y=1` to your shell profile (for example `~/.bashrc` or `~/.profile`) or define the variable in your desktop session environment.
+
+== Wayland sessions
+
+When Hop detects a Wayland session (`XDG_SESSION_TYPE=wayland`), it sets `GDK_BACKEND=x11` so SWT uses the X11 backend.
+This workaround addresses rendering and input issues with Hop Gui on Wayland.
+See https://github.com/apache/hop/issues/4252[issue #4252] for background.
+
+This setting is independent of `HOP_KEEP_A11Y` and applies regardless of whether you enable full accessibility support.

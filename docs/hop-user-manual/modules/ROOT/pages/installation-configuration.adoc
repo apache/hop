@@ -171,6 +171,8 @@ include::snippets/variables/hop-java-home.adoc[]
 
 include::snippets/variables/hop-options.adoc[]
 
+include::snippets/variables/hop-keep-a11y.adoc[]
+
 === JDBC Drivers, Jars, Libraries, and other plugin dependencies
 
 Hop comes with built-in support for tens of databases and a large number of other technologies.

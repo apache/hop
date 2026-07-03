@@ -329,6 +329,8 @@ include::snippets/variables/hop-plugin-base-folders.adoc[]
 
 include::snippets/variables/hop-shared-jdbc-folder.adoc[]
 
+include::snippets/variables/hop-keep-a11y.adoc[]
+
 Additionally, the following environment variables can help you to add even more fine-grained configuration for your Apache Hop installation:
 
 [%header, width="90%", cols="3,1,5"]

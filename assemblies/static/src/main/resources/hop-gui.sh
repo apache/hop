@@ -73,6 +73,16 @@ os_arch="$(${_HOP_JAVA} -XshowSettings:properties -version 2>&1 | grep "os.arch"
 arch_path="$(echo "$os_arch" | sed 's/aarch/arm/g' | sed 's/amd/x86_/g')"
 case $(uname -s) in
 Linux)
+  # Workaround for temporary keyboard input stall on Hop GUI startup/shutdown
+  # (common on Ubuntu/GNOME/X11 with heavy SWT plugins).
+  # Bypasses AT-SPI accessibility bridge and IBus which can block the X11 event loop.
+  # Users who need full accessibility/IME can override by setting HOP_KEEP_A11Y=1
+  if [ -z "$HOP_KEEP_A11Y" ]; then
+    export NO_AT_BRIDGE=1
+    export GTK_IM_MODULE=xim
+    export IBUS_DISABLE=1
+  fi
+
   # Workaround for https://github.com/apache/hop/issues/4252
   # Related to https://github.com/eclipse-platform/eclipse.platform.swt/issues/639
   # And to some extent also https://github.com/eclipse-platform/eclipse.platform.swt/issues/790
