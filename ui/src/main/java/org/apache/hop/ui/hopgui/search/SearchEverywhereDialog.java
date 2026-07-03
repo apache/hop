@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
 /**
- * IntelliJ-style "Search Everywhere" popup. It runs the same searchable-analyser pipeline as the
+ * IntelliJ-style "Search Everywhere" popup. It runs the same searchable-analyzer pipeline as the
  * {@link HopGuiSearchResultsPanel} (across all available locations) plus the global GUI commands,
  * and renders the results as a single grouped, keyboard-navigable list. Selecting a result opens it
  * through its regular {@link org.apache.hop.core.search.ISearchableCallback}. "Show all" hands the
@@ -122,7 +122,7 @@ public class SearchEverywhereDialog {
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
     shell.setText(BaseMessages.getString(PKG, "SearchEverywhereDialog.Shell.Title"));
-    shell.setImage(GuiResource.getInstance().getImageHop());
+    shell.setImage(GuiResource.getInstance().getImageSearch());
     PropsUi.setLook(shell);
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getMargin();
@@ -134,7 +134,10 @@ public class SearchEverywhereDialog {
     // --- Search bar: text field + case / regex toggles ---
     Composite searchBar = new Composite(shell, SWT.NONE);
     PropsUi.setLook(searchBar);
-    searchBar.setLayout(new GridLayout(3, false));
+    GridLayout gridLayout = new GridLayout(3, false);
+    gridLayout.marginWidth = 0;
+    gridLayout.horizontalSpacing = margin;
+    searchBar.setLayout(gridLayout);
     FormData fdSearchBar = new FormData();
     fdSearchBar.top = new FormAttachment(0, 0);
     fdSearchBar.left = new FormAttachment(0, 0);
@@ -172,7 +175,8 @@ public class SearchEverywhereDialog {
     wShowAll.addListener(SWT.Selection, e -> openShowAll());
 
     // --- The grouped result tree (two user-resizable columns + horizontal scroll) ---
-    wTree = new Tree(shell, SWT.SINGLE | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
+    wTree =
+        new Tree(shell, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wTree);
     wTree.setHeaderVisible(true);
     nameColumn = new TreeColumn(wTree, SWT.LEFT);

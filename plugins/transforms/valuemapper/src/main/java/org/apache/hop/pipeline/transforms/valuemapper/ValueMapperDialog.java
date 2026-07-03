@@ -173,12 +173,10 @@ public class ValueMapperDialog extends BaseTransformDialog {
     fdNonMatchDefault.right = new FormAttachment(100, 0);
     wNonMatchDefault.setLayoutData(fdNonMatchDefault);
 
-    // Type of value
-    /*
-     * Type of Value: String, Number, Date, Boolean, Integer
-     */
+    // Type of Value: String, Number, Date, Boolean, Integer
     Label wlValueType = new Label(shell, SWT.RIGHT);
     wlValueType.setText(BaseMessages.getString(PKG, "ValueMapperDialog.TargetType.Label"));
+    PropsUi.setLook(wlValueType);
     FormData fdlValueType = new FormData();
     fdlValueType.left = new FormAttachment(0, 0);
     fdlValueType.right = new FormAttachment(middle, -margin);
