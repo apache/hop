@@ -749,7 +749,7 @@ public class GitCommitPerspective implements IHopPerspective {
 
       if (push) {
         try {
-          git.push();
+          uiGit.push();
         } catch (Exception e) {
           new ErrorDialog(
               HopGui.getInstance().getShell(),
