@@ -95,121 +95,133 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
     if (first) {
       first = false;
+      try {
+        data.schemaTable =
+            data.databaseMeta.getQuotedSchemaTableCombination(
+                this, data.realSchemaName, data.realTableName);
 
-      data.schemaTable =
-          data.databaseMeta.getQuotedSchemaTableCombination(
-              this, data.realSchemaName, data.realTableName);
+        data.inputRowMeta = getInputRowMeta().clone();
+        data.outputRowMeta = getInputRowMeta().clone();
+        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      data.inputRowMeta = getInputRowMeta().clone();
-      data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+        DLFields f = meta.getFields();
 
-      // Get the fields that need conversion to normal storage...
-      // Modify the storage type of the input data...
-      //
-      data.lazyList = new ArrayList<>();
-      for (int i = 0; i < data.inputRowMeta.size(); i++) {
-        IValueMeta valueMeta = data.inputRowMeta.getValueMeta(i);
-        if (valueMeta.isStorageBinaryString()) {
-          data.lazyList.add(i);
-          valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+        validateFieldsAndMetadata(f);
+
+        // Get the fields that need conversion to normal storage...
+        // Modify the storage type of the input data...
+        //
+        data.lazyList = new ArrayList<>();
+        for (int i = 0; i < data.inputRowMeta.size(); i++) {
+          IValueMeta valueMeta = data.inputRowMeta.getValueMeta(i);
+          if (valueMeta.isStorageBinaryString()) {
+            data.lazyList.add(i);
+            valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+          }
         }
-      }
 
-      // The start date value column (if applicable)
-      //
-      data.startDateFieldIndex = -1;
-      if (data.startDateAlternative == COLUMN_VALUE) {
-        data.startDateFieldIndex = data.inputRowMeta.indexOfValue(meta.getStartDateFieldName());
-        if (data.startDateFieldIndex < 0) {
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG,
-                  "DimensionLookup.Exception.StartDateValueColumnNotFound",
-                  meta.getStartDateFieldName()));
-        }
-      }
-      DLFields f = meta.getFields();
-
-      // Lookup values
-      data.keynrs = new int[f.getKeys().size()];
-      for (int i = 0; i < data.keynrs.length; i++) {
-        DLKey key = f.getKeys().get(i);
-
-        data.keynrs[i] = data.inputRowMeta.indexOfValue(key.getName());
-        if (data.keynrs[i] < 0) { // couldn't find field!
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, key.getName()));
-        }
-      }
-
-      // Return values
-      data.fieldnrs = new int[f.getFields().size()];
-      for (int i = 0; i < data.fieldnrs.length; i++) {
-        DLField field = f.getFields().get(i);
-        if (isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
-          data.fieldnrs[i] = data.outputRowMeta.indexOfValue(field.getName());
-          if (data.fieldnrs[i] < 0) {
+        // The start date value column (if applicable)
+        //
+        data.startDateFieldIndex = -1;
+        if (data.startDateAlternative == COLUMN_VALUE) {
+          data.startDateFieldIndex = data.inputRowMeta.indexOfValue(meta.getStartDateFieldName());
+          if (data.startDateFieldIndex < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, field.getName()));
+                    PKG,
+                    "DimensionLookup.Exception.StartDateValueColumnNotFound",
+                    meta.getStartDateFieldName()));
           }
+        }
+
+        // Lookup values
+        data.keynrs = new int[f.getKeys().size()];
+        for (int i = 0; i < data.keynrs.length; i++) {
+          DLKey key = f.getKeys().get(i);
+
+          data.keynrs[i] = data.inputRowMeta.indexOfValue(key.getName());
+          if (data.keynrs[i] < 0) { // couldn't find field!
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, key.getName()));
+          }
+        }
+
+        // Return values
+        data.fieldnrs = new int[f.getFields().size()];
+        for (int i = 0; i < data.fieldnrs.length; i++) {
+          DLField field = f.getFields().get(i);
+          if (isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
+            data.fieldnrs[i] = data.outputRowMeta.indexOfValue(field.getName());
+            if (data.fieldnrs[i] < 0) {
+              throw new HopTransformException(
+                  BaseMessages.getString(
+                      PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, field.getName()));
+            }
+          } else {
+            data.fieldnrs[i] = -1;
+          }
+        }
+
+        if (!meta.isUpdate() && meta.isPreloadingCache()) {
+          preloadCache();
         } else {
-          data.fieldnrs[i] = -1;
-        }
-      }
-
-      if (!meta.isUpdate() && meta.isPreloadingCache()) {
-        preloadCache();
-      } else {
-        // Caching...
-        //
-        if (data.cacheKeyRowMeta == null) {
-          // KEY : the natural key(s)
+          // Caching...
           //
-          data.cacheKeyRowMeta = new RowMeta();
-          for (int i = 0; i < data.keynrs.length; i++) {
-            IValueMeta key = data.inputRowMeta.getValueMeta(data.keynrs[i]);
-            data.cacheKeyRowMeta.addValueMeta(key.clone());
+          if (data.cacheKeyRowMeta == null) {
+            // KEY : the natural key(s)
+            //
+            data.cacheKeyRowMeta = new RowMeta();
+            for (int i = 0; i < data.keynrs.length; i++) {
+              IValueMeta key = data.inputRowMeta.getValueMeta(data.keynrs[i]);
+              data.cacheKeyRowMeta.addValueMeta(key.clone());
+            }
+
+            data.cache =
+                new ByteArrayHashMap(
+                    meta.getCacheSize() > 0 ? meta.getCacheSize() : 5000, data.cacheKeyRowMeta);
           }
-
-          data.cache =
-              new ByteArrayHashMap(
-                  meta.getCacheSize() > 0 ? meta.getCacheSize() : 5000, data.cacheKeyRowMeta);
         }
+
+        if (StringUtils.isNotEmpty(f.getDate().getName())) {
+          data.datefieldnr = data.inputRowMeta.indexOfValue(f.getDate().getName());
+        } else {
+          data.datefieldnr = -1;
+        }
+
+        // Initialize the start date value in case we don't have one in the input rows
+        //
+        data.valueDateNow = determineDimensionUpdatedDate(r);
+
+        if (meta.getFields().getReturns().getCreationMethod() == TechnicalKeyCreationMethod.FIELD) {
+          String tkSourceField = resolve(meta.getTkSourceField());
+          data.tkFieldIndex = getInputRowMeta().indexOfValue(tkSourceField);
+        }
+
+        data.tkFieldType =
+            meta.buildTkValueMeta(
+                getInputRowMeta(), meta.getFields().getReturns().getKeyField(), this);
+
+        data.notFoundTk =
+            determineNotFoundTk(
+                data.tkFieldType,
+                meta.getFields().getReturns().getCreationMethod(),
+                data.databaseMeta);
+
+        if (getCopy() == 0) {
+          checkDimZero();
+        }
+
+        setDimLookup(data.outputRowMeta);
+      } catch (HopException e) {
+        logError(
+            BaseMessages.getString(
+                PKG, "DimensionLookup.Log.TransformCanNotContinueForErrors", e.getMessage()));
+        setErrors(1);
+        stopAll();
+        setOutputDone();
+        return false;
       }
-
-      if (StringUtils.isNotEmpty(f.getDate().getName())) {
-        data.datefieldnr = data.inputRowMeta.indexOfValue(f.getDate().getName());
-      } else {
-        data.datefieldnr = -1;
-      }
-
-      // Initialize the start date value in case we don't have one in the input rows
-      //
-      data.valueDateNow = determineDimensionUpdatedDate(r);
-
-      if (meta.getFields().getReturns().getCreationMethod() == TechnicalKeyCreationMethod.FIELD) {
-        String tkSourceField = resolve(meta.getTkSourceField());
-        data.tkFieldIndex = getInputRowMeta().indexOfValue(tkSourceField);
-      }
-
-      data.tkFieldType =
-          meta.buildTkValueMeta(
-              getInputRowMeta(), meta.getFields().getReturns().getKeyField(), this);
-
-      data.notFoundTk =
-          determineNotFoundTk(
-              data.tkFieldType,
-              meta.getFields().getReturns().getCreationMethod(),
-              data.databaseMeta);
-
-      if (getCopy() == 0) {
-        checkDimZero();
-      }
-
-      setDimLookup(data.outputRowMeta);
     }
 
     // convert row to normal storage...
@@ -236,7 +248,9 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         logError(
             BaseMessages.getString(
                 PKG, "DimensionLookup.Log.TransformCanNotContinueForErrors", e.getMessage()));
-        logError(Const.getStackTracker(e));
+        if (!(e instanceof HopTransformException)) {
+          logError(Const.getStackTracker(e));
+        }
         setErrors(1);
         stopAll();
         setOutputDone(); // signal end to receiver(s)
@@ -373,9 +387,33 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         DLKey key = f.getKeys().get(i);
         // The field in the table:
         data.preloadKeyIndexes[i] = rowMeta.indexOfValue(key.getLookup());
+        if (data.preloadKeyIndexes[i] < 0) {
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG,
+                  "DimensionLookup.Exception.LookupKeyFieldNotFound",
+                  key.getLookup(),
+                  data.schemaTable));
+        }
       }
       data.preloadFromDateIndex = rowMeta.indexOfValue(f.getDate().getFrom());
+      if (data.preloadFromDateIndex < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "DimensionLookup.Exception.StartDateFromFieldNotFound",
+                f.getDate().getFrom(),
+                data.schemaTable));
+      }
       data.preloadToDateIndex = rowMeta.indexOfValue(f.getDate().getTo());
+      if (data.preloadToDateIndex < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "DimensionLookup.Exception.StartDateToFieldNotFound",
+                f.getDate().getTo(),
+                data.schemaTable));
+      }
 
       data.preloadCache =
           new DimensionCache(
@@ -1895,6 +1933,160 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         throw new HopDatabaseException(
             "Error inserting 'unknown' row in dimension [" + data.schemaTable + "] : " + insertSql,
             e);
+      }
+    }
+  }
+
+  private void validateFieldsAndMetadata(DLFields f) throws HopException {
+    // 1. Retrieve target database table fields
+    IRowMeta tableFields;
+    try {
+      tableFields = data.db.getTableFieldsMeta(data.realSchemaName, data.realTableName);
+    } catch (Exception e) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "DimensionLookup.Exception.UnableToReadTableMetadata", data.schemaTable),
+          e);
+    }
+    if (tableFields == null) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "DimensionLookup.Exception.UnableToReadTableMetadata", data.schemaTable));
+    }
+
+    // 2. Validate core database columns exist
+    String tkField = f.getReturns().getKeyField();
+    if (StringUtils.isNotEmpty(tkField)) {
+      if (tableFields.indexOfValue(tkField) < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "DimensionLookup.Exception.TechnicalKeyFieldNotFound",
+                tkField,
+                data.schemaTable));
+      }
+    } else {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "DimensionLookupMeta.Error.NoTechnicalKeySpecified"));
+    }
+
+    String versionField = f.getReturns().getVersionField();
+    if (StringUtils.isNotEmpty(versionField)) {
+      if (tableFields.indexOfValue(versionField) < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "DimensionLookup.Exception.VersionFieldNotFound",
+                versionField,
+                data.schemaTable));
+      }
+    } else {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.VersionKeyRequired"));
+    }
+
+    String fromField = f.getDate().getFrom();
+    if (StringUtils.isNotEmpty(fromField)) {
+      if (tableFields.indexOfValue(fromField) < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "DimensionLookup.Exception.StartDateFromFieldNotFound",
+                fromField,
+                data.schemaTable));
+      }
+    } else {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.StartKeyRequired"));
+    }
+
+    String toField = f.getDate().getTo();
+    if (StringUtils.isNotEmpty(toField)) {
+      if (tableFields.indexOfValue(toField) < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "DimensionLookup.Exception.StartDateToFieldNotFound",
+                toField,
+                data.schemaTable));
+      }
+    } else {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.EndKeyRequired"));
+    }
+
+    // 3. Validate key lookup columns in database table
+    for (DLKey key : f.getKeys()) {
+      String keyLookup = key.getLookup();
+      if (StringUtils.isNotEmpty(keyLookup)) {
+        if (tableFields.indexOfValue(keyLookup) < 0) {
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG,
+                  "DimensionLookup.Exception.LookupKeyFieldNotFound",
+                  keyLookup,
+                  data.schemaTable));
+        }
+      }
+    }
+
+    // 4. Validate output/update lookup columns in database table
+    for (DLField field : f.getFields()) {
+      if (isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
+        String fieldLookup = field.getLookup();
+        if (StringUtils.isNotEmpty(fieldLookup)) {
+          if (tableFields.indexOfValue(fieldLookup) < 0) {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG,
+                    "DimensionLookup.Exception.LookupOrUpdateFieldNotFound",
+                    fieldLookup,
+                    data.schemaTable));
+          }
+        }
+      }
+    }
+
+    // 5. Validate input stream fields
+    // Date Field
+    String dateName = f.getDate().getName();
+    if (StringUtils.isNotEmpty(dateName)) {
+      if (data.inputRowMeta.indexOfValue(dateName) < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "DimensionLookup.Exception.DateFieldNameNotFound", dateName));
+      }
+    }
+
+    // Technical Key Source Field
+    if (f.getReturns().getCreationMethod() == TechnicalKeyCreationMethod.FIELD) {
+      String tkSourceField = resolve(meta.getTkSourceField());
+      if (StringUtils.isEmpty(tkSourceField) || data.inputRowMeta.indexOfValue(tkSourceField) < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "DimensionLookup.Exception.TkSourceFieldNotFound", tkSourceField));
+      }
+    }
+
+    // Keys in stream
+    for (DLKey key : f.getKeys()) {
+      if (data.inputRowMeta.indexOfValue(key.getName()) < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, CONST_DIMENSION_LOOKUP_EXCEPTION_KEY_FIELD_NOT_FOUND, key.getName()));
+      }
+    }
+
+    // Update source fields in stream (only if update is true)
+    if (meta.isUpdate()) {
+      for (DLField field : f.getFields()) {
+        if (isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
+          if (data.outputRowMeta.indexOfValue(field.getName()) < 0) {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, "DimensionLookup.Exception.UpdateSourceFieldNotFound", field.getName()));
+          }
+        }
       }
     }
   }

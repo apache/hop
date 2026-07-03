@@ -311,6 +311,13 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     try {
       // Get the rows from the table...
       IRowMeta extraFields = getTableFields(variables);
+      if (extraFields == null) {
+        String message =
+            BaseMessages.getString(
+                PKG, "DimensionLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField");
+        logError(message);
+        throw new HopTransformException(message);
+      }
 
       for (DLField field : fields.fields) {
         IValueMeta lookupValueMeta = extraFields.searchValueMeta(field.getLookup());
