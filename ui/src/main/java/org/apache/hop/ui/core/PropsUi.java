@@ -509,7 +509,7 @@ public class PropsUi extends Props {
    * @return true if dialog positions should reset on restart, false otherwise
    */
   public boolean getResetDialogPositionsOnRestart() {
-    return YES.equalsIgnoreCase(getProperty(RESET_DIALOG_POSITIONS_ON_RESTART, YES));
+    return YES.equalsIgnoreCase(getProperty(RESET_DIALOG_POSITIONS_ON_RESTART, NO));
   }
 
   /**
