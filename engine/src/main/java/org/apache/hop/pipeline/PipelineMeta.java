@@ -1325,10 +1325,30 @@ public class PipelineMeta extends AbstractMeta
     IRowMeta before = row.clone();
     IRowMeta[] clonedInfo = cloneRowMetaInterfaces(infoRowMeta);
     if (!isSomethingDifferentInRow(before, row)) {
-      iTransformMeta.getFields(
-          this, before, name, clonedInfo, nextTransform, variables, metadataProvider);
-      // pass the clone object to prevent from spoiling data by other transforms
-      row = before;
+      GetFieldsExtension extension =
+          new GetFieldsExtension(
+              this,
+              transformMeta,
+              before,
+              name,
+              clonedInfo,
+              nextTransform,
+              variables,
+              metadataProvider);
+      try {
+        ExtensionPointHandler.callExtensionPoint(
+            LogChannel.GENERAL, variables, HopExtensionPoint.GetFieldsExtension.id, extension);
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError("Error calling extension point 'GetFieldsExtension'", e);
+      }
+      if (extension.isHandled()) {
+        row = before;
+      } else {
+        iTransformMeta.getFields(
+            this, before, name, clonedInfo, nextTransform, variables, metadataProvider);
+        // pass the clone object to prevent from spoiling data by other transforms
+        row = before;
+      }
     }
 
     return row;
@@ -3527,6 +3547,110 @@ public class PipelineMeta extends AbstractMeta
       if (transformMeta != null) {
         transformMeta.setTransformErrorMeta(errorMeta);
       }
+    }
+  }
+
+  public static class GetFieldsExtension {
+    private PipelineMeta pipelineMeta;
+    private TransformMeta transformMeta;
+    private IRowMeta row;
+    private String name;
+    private IRowMeta[] info;
+    private TransformMeta nextTransform;
+    private IVariables variables;
+    private IHopMetadataProvider metadataProvider;
+    private boolean handled;
+
+    public GetFieldsExtension(
+        PipelineMeta pipelineMeta,
+        TransformMeta transformMeta,
+        IRowMeta row,
+        String name,
+        IRowMeta[] info,
+        TransformMeta nextTransform,
+        IVariables variables,
+        IHopMetadataProvider metadataProvider) {
+      this.pipelineMeta = pipelineMeta;
+      this.transformMeta = transformMeta;
+      this.row = row;
+      this.name = name;
+      this.info = info;
+      this.nextTransform = nextTransform;
+      this.variables = variables;
+      this.metadataProvider = metadataProvider;
+      this.handled = false;
+    }
+
+    public PipelineMeta getPipelineMeta() {
+      return pipelineMeta;
+    }
+
+    public void setPipelineMeta(PipelineMeta pipelineMeta) {
+      this.pipelineMeta = pipelineMeta;
+    }
+
+    public TransformMeta getTransformMeta() {
+      return transformMeta;
+    }
+
+    public void setTransformMeta(TransformMeta transformMeta) {
+      this.transformMeta = transformMeta;
+    }
+
+    public IRowMeta getRow() {
+      return row;
+    }
+
+    public void setRow(IRowMeta row) {
+      this.row = row;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public IRowMeta[] getInfo() {
+      return info;
+    }
+
+    public void setInfo(IRowMeta[] info) {
+      this.info = info;
+    }
+
+    public TransformMeta getNextTransform() {
+      return nextTransform;
+    }
+
+    public void setNextTransform(TransformMeta nextTransform) {
+      this.nextTransform = nextTransform;
+    }
+
+    public IVariables getVariables() {
+      return variables;
+    }
+
+    public void setVariables(IVariables variables) {
+      this.variables = variables;
+    }
+
+    public IHopMetadataProvider getMetadataProvider() {
+      return metadataProvider;
+    }
+
+    public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+      this.metadataProvider = metadataProvider;
+    }
+
+    public boolean isHandled() {
+      return handled;
+    }
+
+    public void setHandled(boolean handled) {
+      this.handled = handled;
     }
   }
 }

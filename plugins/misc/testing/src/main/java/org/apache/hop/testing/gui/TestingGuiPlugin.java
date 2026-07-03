@@ -237,7 +237,7 @@ public class TestingGuiPlugin {
     IRowMeta transformFields;
     try {
       transformFields = pipelineMeta.getTransformFields(variables, transformMeta);
-    } catch (HopTransformException e) {
+    } catch (Exception e) {
       // Driver or input problems...
       //
       transformFields = new RowMeta();
