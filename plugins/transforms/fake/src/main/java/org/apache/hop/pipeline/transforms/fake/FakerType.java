@@ -16,119 +16,114 @@
  */
 package org.apache.hop.pipeline.transforms.fake;
 
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * Legacy compatibility table for the Fake transform.
+ *
+ * <p>Historically a {@link FakeField}'s {@code type} stored one of these enum constant names and
+ * {@code topic} stored the provider method. Since the move to DataFaker, new fields store the
+ * DataFaker accessor method directly (e.g. {@code name}, {@code phoneNumber}). This enum only
+ * survives so that pipelines saved with the old constant names ({@code Name}, {@code PhoneNumber},
+ * {@code DateAndTime}, ...) keep resolving. See {@link #resolveAccessorMethod(String)}.
+ */
 @SuppressWarnings("java:S115")
 public enum FakerType {
-  Ancient(com.github.javafaker.Ancient.class, "ancient", "Ancient"),
-  App(com.github.javafaker.App.class, "app", "App"),
-  Artist(com.github.javafaker.Artist.class, "artist", "Artist"),
-  Avatar(com.github.javafaker.Avatar.class, "avatar", "Avatar"),
-  Aviation(com.github.javafaker.Aviation.class, "aviation", "Aviation"),
-  Lorem(com.github.javafaker.Lorem.class, "lorem", "Lorem"),
-  Music(com.github.javafaker.Music.class, "music", "Music"),
-  Name(com.github.javafaker.Name.class, "name", "Name"),
-  Number(com.github.javafaker.Number.class, "number", "Number"),
-  Internet(com.github.javafaker.Internet.class, "internet", "Internet"),
-  PhoneNumber(com.github.javafaker.PhoneNumber.class, "phoneNumber", "Phone number"),
-  Pokemon(com.github.javafaker.Pokemon.class, "pokemon", "Pokemon"),
-  Address(com.github.javafaker.Address.class, "address", "Address"),
-  Book(com.github.javafaker.Book.class, "book", "Book"),
-  Business(com.github.javafaker.Business.class, "business", "Business"),
-  ChuckNorris(com.github.javafaker.ChuckNorris.class, "chuckNorris", "Chuck Norris"),
-  Color(com.github.javafaker.Color.class, "color", "Color"),
-  IdNumber(com.github.javafaker.IdNumber.class, "idNumber", "Id/Number"),
-  Hacker(com.github.javafaker.Hacker.class, "hacker", "Hacker"),
-  Company(com.github.javafaker.Company.class, "company", "Company"),
-  Crypto(com.github.javafaker.Crypto.class, "crypto", "Crypto"),
-  Elder(com.github.javafaker.ElderScrolls.class, "elderScrolls", "Elder"),
-  Commerce(com.github.javafaker.Commerce.class, "commerce", "Commerce"),
-  Currency(com.github.javafaker.Currency.class, "currency", "Currency"),
-  Options(com.github.javafaker.Options.class, "options", "Options"),
-  Code(com.github.javafaker.Code.class, "code", "Code"),
-  File(com.github.javafaker.File.class, "file", "File"),
-  Finance(com.github.javafaker.Finance.class, "finance", "Finance"),
-  Food(com.github.javafaker.Food.class, "food", "Food"),
-  GameOfThrones(com.github.javafaker.GameOfThrones.class, "gameOfThrones", "Game of Thrones"),
-  DateAndTime(com.github.javafaker.DateAndTime.class, "date", "Date and Time"),
-  Demographic(com.github.javafaker.Demographic.class, "demographic", "Demographic"),
-  Dog(com.github.javafaker.Dog.class, "dog", "Dog"),
-  Educator(com.github.javafaker.Educator.class, "educator", "Educator"),
-  Shakespeare(com.github.javafaker.Shakespeare.class, "shakespeare", "Shakespeare"),
-  SlackEmoji(com.github.javafaker.SlackEmoji.class, "slackEmoji", "Slack emoji"),
-  Space(com.github.javafaker.Space.class, "space", "Space"),
-  Superhero(com.github.javafaker.Superhero.class, "superhero", "Superhero"),
-  Team(com.github.javafaker.Team.class, "team", "Team"),
-  Bool(com.github.javafaker.Bool.class, "bool", "Bool"),
-  Beer(com.github.javafaker.Beer.class, "beer", "Beer"),
-  University(com.github.javafaker.University.class, "university", "University"),
-  Cat(com.github.javafaker.Cat.class, "cat", "Cat"),
-  Stock(com.github.javafaker.Stock.class, "stock", "Stock"),
-  LordOfTheRings(com.github.javafaker.LordOfTheRings.class, "lordOfTheRings", "Lord of the rings"),
-  Zelda(com.github.javafaker.Zelda.class, "zelda", "Zelda"),
-  HarryPotter(com.github.javafaker.HarryPotter.class, "harryPotter", "Harry Potter"),
-  RockBand(com.github.javafaker.RockBand.class, "rockBand", "Rock Band"),
-  Esports(com.github.javafaker.Esports.class, "esports", "e-Sports"),
-  Friends(com.github.javafaker.Friends.class, "friends", "Friends"),
-  Hipster(com.github.javafaker.Hipster.class, "hipster", "Hipster"),
-  Job(com.github.javafaker.Job.class, "job", "Job"),
-  TwinPeaks(com.github.javafaker.TwinPeaks.class, "twinPeaks", "Twin Peaks"),
-  RickAndMorty(com.github.javafaker.RickAndMorty.class, "rickAndMorty", "Rick and Morty"),
-  Yoda(com.github.javafaker.Yoda.class, "yoda", "Yoda"),
-  Matz(com.github.javafaker.Matz.class, "matz", "Matz"),
-  Witcher(com.github.javafaker.Witcher.class, "witcher", "Witcher"),
-  DragonBall(com.github.javafaker.DragonBall.class, "dragonBall", "Dragon Ball"),
-  FunnyName(com.github.javafaker.FunnyName.class, "funnyName", "Funny name"),
-  HitchhikersGuideToTheGalaxy(
-      com.github.javafaker.HitchhikersGuideToTheGalaxy.class,
-      "hitchhikersGuideToTheGalaxy",
-      "Hitchhikers guide to the galaxy"),
-  Hobbit(com.github.javafaker.Hobbit.class, "hobbit", "Hobbit"),
-  HowIMetYourMother(
-      com.github.javafaker.HowIMetYourMother.class, "howIMetYourMother", "How I met your mother"),
-  LeagueOfLegends(
-      com.github.javafaker.LeagueOfLegends.class, "leagueOfLegends", "League of Legends"),
-  Overwatch(com.github.javafaker.Overwatch.class, "overwatch", "Overwatch"),
-  Robin(com.github.javafaker.Robin.class, "robin", "Robin"),
-  StarTrek(com.github.javafaker.StarTrek.class, "starTrek", "Star Trek"),
-  Weather(com.github.javafaker.Weather.class, "weather", "Weather"),
-  Lebowski(com.github.javafaker.Lebowski.class, "lebowski", "The Big Lebowski"),
-  Medical(com.github.javafaker.Medical.class, "medical", "Medical"),
-  Country(com.github.javafaker.Country.class, "country", "Country"),
-  Animal(com.github.javafaker.Animal.class, "animal", "Animal"),
-  BackToTheFuture(
-      com.github.javafaker.BackToTheFuture.class, "backToTheFuture", "Back to the future"),
-  PrincessBride(com.github.javafaker.PrincessBride.class, "princessBride", "Princess bride"),
-  Buffy(com.github.javafaker.Buffy.class, "buffy", "Buffy"),
-  Relationships(com.github.javafaker.Relationships.class, "relationships", "Relationships"),
-  Nation(com.github.javafaker.Nation.class, "nation", "Nation"),
-  Dune(com.github.javafaker.Dune.class, "dune", "Dune"),
-  AquaTeenHungerForce(
-      com.github.javafaker.AquaTeenHungerForce.class,
-      "aquaTeenHungerForce",
-      "Aqua teen hunger force"),
-  ProgrammingLanguage(
-      com.github.javafaker.ProgrammingLanguage.class,
-      "programmingLanguage",
-      "Programming language");
+  Ancient("ancient"),
+  App("app"),
+  Artist("artist"),
+  Avatar("avatar"),
+  Aviation("aviation"),
+  Lorem("lorem"),
+  Music("music"),
+  Name("name"),
+  Number("number"),
+  Internet("internet"),
+  PhoneNumber("phoneNumber"),
+  Pokemon("pokemon"),
+  Address("address"),
+  Book("book"),
+  Business("business"),
+  ChuckNorris("chuckNorris"),
+  Color("color"),
+  IdNumber("idNumber"),
+  Hacker("hacker"),
+  Company("company"),
+  Crypto("crypto"),
+  Elder("elderScrolls"),
+  Commerce("commerce"),
+  Currency("currency"),
+  Options("options"),
+  Code("code"),
+  File("file"),
+  Finance("finance"),
+  Food("food"),
+  GameOfThrones("gameOfThrones"),
+  DateAndTime("date"),
+  Demographic("demographic"),
+  Dog("dog"),
+  Educator("educator"),
+  Shakespeare("shakespeare"),
+  SlackEmoji("slackEmoji"),
+  Space("space"),
+  Superhero("superhero"),
+  Team("team"),
+  Bool("bool"),
+  Beer("beer"),
+  University("university"),
+  Cat("cat"),
+  Stock("stock"),
+  LordOfTheRings("lordOfTheRings"),
+  Zelda("zelda"),
+  HarryPotter("harryPotter"),
+  RockBand("rockBand"),
+  Esports("esports"),
+  Friends("friends"),
+  Hipster("hipster"),
+  Job("job"),
+  TwinPeaks("twinPeaks"),
+  RickAndMorty("rickAndMorty"),
+  Yoda("yoda"),
+  Matz("matz"),
+  Witcher("witcher"),
+  DragonBall("dragonBall"),
+  FunnyName("funnyName"),
+  HitchhikersGuideToTheGalaxy("hitchhikersGuideToTheGalaxy"),
+  Hobbit("hobbit"),
+  HowIMetYourMother("howIMetYourMother"),
+  LeagueOfLegends("leagueOfLegends"),
+  Overwatch("overwatch"),
+  Robin("robin"),
+  StarTrek("starTrek"),
+  Weather("weather"),
+  Lebowski("lebowski"),
+  Medical("medical"),
+  Country("country"),
+  Animal("animal"),
+  BackToTheFuture("backToTheFuture"),
+  PrincessBride("princessBride"),
+  Buffy("buffy"),
+  Relationships("relationships"),
+  Nation("nation"),
+  Dune("dune"),
+  AquaTeenHungerForce("aquaTeenHungerForce"),
+  ProgrammingLanguage("programmingLanguage");
 
-  private Class<?> fakerClass;
-  private String fakerMethod;
-  private String description;
+  private final String fakerMethod;
 
-  FakerType(Class<?> fakerClass, String fakerMethod, String description) {
-    this.fakerClass = fakerClass;
+  FakerType(String fakerMethod) {
     this.fakerMethod = fakerMethod;
-    this.description = description;
   }
 
-  public static final String[] getTypeNames() {
-    String[] names = new String[values().length];
-    for (int i = 0; i < names.length; i++) {
-      names[i] = values()[i].name();
+  public String getFakerMethod() {
+    return fakerMethod;
+  }
+
+  /** Look up a legacy type by its (case-insensitive) enum constant name. */
+  public static FakerType getTypeUsingName(String name) {
+    if (StringUtils.isEmpty(name)) {
+      return null;
     }
-    return names;
-  }
-
-  public static final FakerType getTypeUsingName(String name) {
     for (FakerType fakerType : values()) {
       if (fakerType.name().equalsIgnoreCase(name)) {
         return fakerType;
@@ -137,68 +132,17 @@ public enum FakerType {
     return null;
   }
 
-  public static final String[] getTypeDescriptions() {
-    String[] descriptions = new String[values().length];
-    for (int i = 0; i < descriptions.length; i++) {
-      descriptions[i] = values()[i].getDescription();
-    }
-    return descriptions;
-  }
-
-  public static final FakerType getTypeUsingDescription(String description) {
-    for (FakerType fakerType : values()) {
-      if (fakerType.getDescription().equalsIgnoreCase(description)) {
-        return fakerType;
-      }
-    }
-    return null;
-  }
-
   /**
-   * Gets fakerClass
+   * Translate a stored {@link FakeField#getType()} value into a DataFaker accessor method name.
    *
-   * @return value of fakerClass
-   */
-  public Class<?> getFakerClass() {
-    return fakerClass;
-  }
-
-  /**
-   * @param fakerClass The fakerClass to set
-   */
-  public void setFakerClass(Class<?> fakerClass) {
-    this.fakerClass = fakerClass;
-  }
-
-  /**
-   * Gets fakerMethod
+   * <p>Pipelines created before the DataFaker migration stored the enum constant name (e.g. {@code
+   * DateAndTime}); newer ones store the accessor directly (e.g. {@code date}). Both resolve here.
    *
-   * @return value of fakerMethod
+   * @param storedType the {@code type} value persisted in the pipeline metadata
+   * @return the DataFaker {@code Faker} accessor method to invoke
    */
-  public String getFakerMethod() {
-    return fakerMethod;
-  }
-
-  /**
-   * @param fakerMethod The fakerMethod to set
-   */
-  public void setFakerMethod(String fakerMethod) {
-    this.fakerMethod = fakerMethod;
-  }
-
-  /**
-   * Gets description
-   *
-   * @return value of description
-   */
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * @param description The description to set
-   */
-  public void setDescription(String description) {
-    this.description = description;
+  public static String resolveAccessorMethod(String storedType) {
+    FakerType legacy = getTypeUsingName(storedType);
+    return legacy != null ? legacy.fakerMethod : storedType;
   }
 }

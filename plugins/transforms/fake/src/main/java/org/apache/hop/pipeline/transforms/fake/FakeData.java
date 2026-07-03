@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
-import com.github.javafaker.Faker;
-import java.lang.reflect.Method;
 import java.util.List;
+import net.datafaker.Faker;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -29,8 +28,8 @@ public class FakeData extends BaseTransformData implements ITransformData {
   public Faker faker;
   public IRowMeta outputRowMeta;
 
-  public List<Object> fakerTypes;
-  public List<Method> fakerMethods;
+  /** One resolved, ready-to-invoke generator per valid output field, in field order. */
+  public List<FakerCatalog.BoundGenerator> boundGenerators;
 
   public FakeData() {
     super();
