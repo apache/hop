@@ -216,7 +216,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       } catch (HopException e) {
         logError(
             BaseMessages.getString(
-                PKG, "DimensionLookup.Log.TransformCanNotContinueForErrors", e.getMessage()));
+                PKG, "DimensionLookup.Log.TransformCanNotContinueForErrors", e.getMessage()),
+            e);
         setErrors(1);
         stopAll();
         setOutputDone();
@@ -415,10 +416,27 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
                 data.schemaTable));
       }
 
+      if (meta.isIgnoreZeroLengthValidity()) {
+        int originalSize = rows.size();
+        rows =
+            DimensionCache.excludeZeroLengthValidityRows(
+                rowMeta, rows, data.preloadFromDateIndex, data.preloadToDateIndex);
+        int skipped = originalSize - rows.size();
+        if (skipped > 0 && isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "DimensionLookup.Log.SkippedZeroLengthValidityRows", skipped));
+        }
+        if (rows.isEmpty()) {
+          logBasic(BaseMessages.getString(PKG, "DimensionLookup.Log.EmptyPreloadCacheAfterFilter"));
+        }
+      }
+
       data.preloadCache =
           new DimensionCache(
               rowMeta, data.preloadKeyIndexes, data.preloadFromDateIndex, data.preloadToDateIndex);
       data.preloadCache.setRowCache(rows);
+      data.preloadCache.validateRowsForSort(data.schemaTable);
 
       if (isDetailed()) {
         logDetailed("Sorting the cache rows...");
@@ -446,6 +464,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       }
 
       // This is all for now...
+    } catch (HopTransformException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("Error encountered during cache pre-load", e);
     }
@@ -503,9 +523,13 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         lookupRow[to] = toData;
       }
 
-      // Also set the lookup date on the "end of date range" (toDate) position
+      // Also set the lookup date for the date-range comparison in the cache
       //
-      lookupRow[data.preloadFromDateIndex] = valueDate;
+      IValueMeta preloadFromDateMeta =
+          data.preloadCache.getRowMeta().getValueMeta(data.preloadFromDateIndex);
+      IValueMeta valueDateMeta = new ValueMetaDate("lookupDate");
+      lookupRow[data.preloadFromDateIndex] =
+          preloadFromDateMeta.convertData(valueDateMeta, valueDate);
 
       // Look up the row in the pre-load cache...
       //
@@ -1981,8 +2005,10 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
                 data.schemaTable));
       }
     } else {
-      throw new HopTransformException(
-          BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.VersionKeyRequired"));
+      if (meta.isUpdate()) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.VersionKeyRequired"));
+      }
     }
 
     String fromField = f.getDate().getFrom();

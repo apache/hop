@@ -17,14 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * This class will act as a special purpose dimension Cache. The idea here is to not only cache the
@@ -35,6 +39,9 @@ import org.apache.hop.core.row.IValueMeta;
  * conversion errors as possible, we'll use the same row as we get from the database.
  */
 public class DimensionCache implements Comparator<Object[]> {
+  private static final Class<?> PKG = DimensionLookupMeta.class;
+  private static final int MAX_VALIDATION_ERRORS = 3;
+
   private IRowMeta rowMeta;
   private List<Object[]> rowCache;
   private int[] keyIndexes;
@@ -54,6 +61,43 @@ public class DimensionCache implements Comparator<Object[]> {
     this.keyIndexes = keyIndexes;
     this.fromDateIndex = fromDateIndex;
     this.toDateIndex = toDateIndex;
+  }
+
+  /**
+   * Returns true when both dates are non-null and equal, representing a zero-length [from, to)
+   * validity interval.
+   */
+  static boolean isZeroLengthValidity(Date fromDate, Date toDate) {
+    return fromDate != null
+        && toDate != null
+        && !fromDate.before(toDate)
+        && !toDate.before(fromDate);
+  }
+
+  /**
+   * Returns a new list that excludes rows with zero-length validity intervals.
+   *
+   * @param rowMeta the row layout of the cache rows
+   * @param rows the rows loaded from the dimension table
+   * @param fromDateIndex the index of the date-from field
+   * @param toDateIndex the index of the date-to field
+   * @return the filtered rows
+   */
+  public static List<Object[]> excludeZeroLengthValidityRows(
+      IRowMeta rowMeta, List<Object[]> rows, int fromDateIndex, int toDateIndex) {
+    List<Object[]> filteredRows = new ArrayList<>(rows.size());
+    for (Object[] row : rows) {
+      try {
+        Date fromDate = rowMeta.getValueMeta(fromDateIndex).getDate(row[fromDateIndex]);
+        Date toDate = rowMeta.getValueMeta(toDateIndex).getDate(row[toDateIndex]);
+        if (!isZeroLengthValidity(fromDate, toDate)) {
+          filteredRows.add(row);
+        }
+      } catch (Exception e) {
+        throw new HopRuntimeException(e);
+      }
+    }
+    return filteredRows;
   }
 
   /**
@@ -174,8 +218,172 @@ public class DimensionCache implements Comparator<Object[]> {
     }
   }
 
+  /**
+   * Validate dimension rows before sorting the cache. Overlapping or invalid date ranges for the
+   * same natural key cause the lookup comparator to violate its contract during {@link
+   * #sortRows()}.
+   *
+   * @param schemaTable the quoted schema/table combination for error reporting
+   * @throws HopTransformException when the cache data cannot be sorted safely
+   */
+  public void validateRowsForSort(String schemaTable) throws HopTransformException {
+    try {
+      if (rowCache == null || rowCache.isEmpty()) {
+        return;
+      }
+
+      List<String> errors = new ArrayList<>();
+
+      for (Object[] row : rowCache) {
+        if (errors.size() >= MAX_VALIDATION_ERRORS) {
+          break;
+        }
+        Date fromDate = getDateFromRow(row, fromDateIndex);
+        Date toDate = getDateFromRow(row, toDateIndex);
+        if (isZeroLengthValidity(fromDate, toDate)
+            || (fromDate != null && toDate != null && fromDate.after(toDate))) {
+          errors.add(
+              BaseMessages.getString(
+                  PKG,
+                  "DimensionLookup.Exception.CacheInvalidDateRange",
+                  formatNaturalKey(row),
+                  formatDateRange(fromDate, toDate)));
+        }
+      }
+
+      List<Object[]> sorted = new ArrayList<>(rowCache);
+      sorted.sort(
+          (o1, o2) -> {
+            int cmp = compareNaturalKeys(o1, o2);
+            if (cmp != 0) {
+              return cmp;
+            }
+            return compareFromDates(o1, o2);
+          });
+
+      for (int i = 1; i < sorted.size() && errors.size() < MAX_VALIDATION_ERRORS; i++) {
+        Object[] previousRow = sorted.get(i - 1);
+        Object[] currentRow = sorted.get(i);
+        if (compareNaturalKeys(previousRow, currentRow) != 0) {
+          continue;
+        }
+
+        Date previousFrom = getDateFromRow(previousRow, fromDateIndex);
+        Date previousTo = getDateFromRow(previousRow, toDateIndex);
+        Date currentFrom = getDateFromRow(currentRow, fromDateIndex);
+        Date currentTo = getDateFromRow(currentRow, toDateIndex);
+        if (rangesOverlap(previousFrom, previousTo, currentFrom, currentTo)) {
+          errors.add(
+              BaseMessages.getString(
+                  PKG,
+                  "DimensionLookup.Exception.CacheOverlappingDateRanges",
+                  formatNaturalKey(previousRow),
+                  formatDateRange(previousFrom, previousTo),
+                  formatDateRange(currentFrom, currentTo)));
+        }
+      }
+
+      if (!errors.isEmpty()) {
+        StringBuilder message = new StringBuilder();
+        message.append(
+            BaseMessages.getString(
+                PKG, "DimensionLookup.Exception.CacheSortValidationFailed", schemaTable));
+        for (String error : errors) {
+          message.append(Const.CR).append(error);
+        }
+        if (errors.size() >= MAX_VALIDATION_ERRORS) {
+          message.append(Const.CR).append("...");
+        }
+        throw new HopTransformException(message.toString());
+      }
+    } catch (HopTransformException e) {
+      throw e;
+    } catch (HopRuntimeException e) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "DimensionLookup.Exception.CacheSortValidationFailed", schemaTable),
+          e);
+    }
+  }
+
   public void sortRows() {
     Collections.sort(rowCache, this);
+  }
+
+  private int compareNaturalKeys(Object[] row1, Object[] row2) {
+    try {
+      return rowMeta.compare(row1, row2, keyIndexes);
+    } catch (Exception e) {
+      throw new HopRuntimeException(e);
+    }
+  }
+
+  private Date getDateFromRow(Object[] row, int dateIndex) {
+    try {
+      return rowMeta.getValueMeta(dateIndex).getDate(row[dateIndex]);
+    } catch (Exception e) {
+      throw new HopRuntimeException(e);
+    }
+  }
+
+  private int compareFromDates(Object[] row1, Object[] row2) {
+    Date from1 = getDateFromRow(row1, fromDateIndex);
+    Date from2 = getDateFromRow(row2, fromDateIndex);
+    if (from1 == null && from2 == null) {
+      return 0;
+    }
+    if (from1 == null) {
+      return -1;
+    }
+    if (from2 == null) {
+      return 1;
+    }
+    return from1.compareTo(from2);
+  }
+
+  /**
+   * Returns true when the half-open intervals [from1, to1) and [from2, to2) overlap. A null from
+   * date means -infinity and a null to date means +infinity.
+   */
+  private boolean rangesOverlap(Date from1, Date to1, Date from2, Date to2) {
+    boolean from1BeforeTo2 = (to2 == null) || (from1 == null) || from1.before(to2);
+    boolean from2BeforeTo1 = (to1 == null) || (from2 == null) || from2.before(to1);
+    return from1BeforeTo2 && from2BeforeTo1;
+  }
+
+  private String formatNaturalKey(Object[] row) {
+    try {
+      if (keyIndexes == null || keyIndexes.length == 0) {
+        return "(no natural key)";
+      }
+
+      StringBuilder naturalKey = new StringBuilder();
+      for (int i = 0; i < keyIndexes.length; i++) {
+        if (i > 0) {
+          naturalKey.append(", ");
+        }
+        naturalKey.append(rowMeta.getString(row, keyIndexes[i]));
+      }
+      return naturalKey.toString();
+    } catch (Exception e) {
+      throw new HopRuntimeException(e);
+    }
+  }
+
+  private String formatDateRange(Date fromDate, Date toDate) {
+    try {
+      String fromDateText = "-infinity";
+      String toDateText = "+infinity";
+      if (fromDate != null) {
+        fromDateText = rowMeta.getValueMeta(fromDateIndex).getString(fromDate);
+      }
+      if (toDate != null) {
+        toDateText = rowMeta.getValueMeta(toDateIndex).getString(toDate);
+      }
+      return "[" + fromDateText + ", " + toDateText + ")";
+    } catch (Exception e) {
+      throw new HopRuntimeException(e);
+    }
   }
 
   /**

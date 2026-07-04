@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "key",
+          "data_set_field": "key"
+        },
+        {
+          "transform_field": "dimension_id",
+          "data_set_field": "dimension_id"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "key",
+        "dimension_id",
+        "value"
+      ],
+      "data_set_name": "golden-dimension-lookup-no-version",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0012-dimension-lookup-no-version UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0012-dimension-lookup-no-version.hpl",
+  "test_type": "UNIT_TEST"
+}
