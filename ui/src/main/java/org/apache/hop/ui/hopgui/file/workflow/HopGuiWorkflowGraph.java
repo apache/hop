@@ -53,6 +53,8 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.CanvasSvgRenderResult;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
@@ -113,6 +115,7 @@ import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
+import org.apache.hop.ui.hopgui.CanvasSvgFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
@@ -157,6 +160,7 @@ import org.apache.hop.workflow.WorkflowMetaLayout;
 import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.canvas.WorkflowCanvasSvgRenderer;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
@@ -453,6 +457,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // For web/RAP, create a zoom handler to sync mouse wheel zoom back to server
     if (EnvironmentUtils.getInstance().isWeb()) {
       canvasZoomHandler = CanvasZoomHelper.createZoomHandler(this, canvas, this);
+      CanvasSvgFacade.registerCanvas(canvas, this);
+      CanvasSvgFacade.ensureInteractionHandler(this, canvas);
     }
 
     FormData fdCanvas = new FormData();
@@ -527,8 +533,33 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   @Override
   public void dispose() {
+    if (EnvironmentUtils.getInstance().isWeb() && canvas != null && !canvas.isDisposed()) {
+      CanvasSvgFacade.unregisterCanvas(canvas);
+    }
     disposeExtraView();
     super.dispose();
+  }
+
+  /** Replaces click regions after a server-side SVG render (Hop Web). */
+  public void replaceAreaOwners(List<AreaOwner> owners) {
+    areaOwners.clear();
+    if (owners != null) {
+      areaOwners.addAll(owners);
+    }
+  }
+
+  /** Handles hover events from the Hop Web SVG canvas overlay. */
+  public void handleWebCanvasHover(int graphX, int graphY, int screenX, int screenY) {
+    setToolTip(graphX, graphY, screenX, screenY);
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    AreaOwner areaOwner = getVisibleAreaOwner(graphX, graphY);
+    boolean interactionInProgress =
+        startHopAction != null || selectionRegion != null || dragSelection;
+    if (applyMouseOverNameHover(areaOwner, interactionInProgress)) {
+      redraw();
+    }
   }
 
   protected void hideToolTips() {
@@ -1365,37 +1396,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
     Resize resizeOver = null;
 
-    // Mouse over an area only if no other operation is in progress
+    boolean interactionInProgress =
+        startHopAction != null || selectionRegion != null || dragSelection;
     if (areaOwner != null
-        && this.startHopAction == null
-        && this.selectionRegion == null
-        && !dragSelection) {
-      // Mouse over the name of the action
-      //
-      if (areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
-        if (!PropsUi.getInstance().useDoubleClick()) {
-          if (mouseOverName == null) {
-            doRedraw = true;
-          }
-          mouseOverName = (String) areaOwner.getOwner();
-        }
-      }
-      // Mouse over note
-      else if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
-        // Check if the mouse is over the border to activate a resize cursor
-        resizeOver = this.getResize(areaOwner.getArea(), real);
-
-        // Remove over name (note behind an action)
-        if (mouseOverName != null) {
-          mouseOverName = null;
-          doRedraw = true;
-        }
-      }
-    } else {
-      if (mouseOverName != null) {
-        mouseOverName = null;
-        doRedraw = true;
-      }
+        && !interactionInProgress
+        && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+      resizeOver = getResize(areaOwner.getArea(), real);
+    }
+    if (applyMouseOverNameHover(areaOwner, interactionInProgress)) {
+      doRedraw = true;
     }
 
     //
@@ -3326,6 +3335,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      try {
+        drawWorkflowImageWeb(area.x, area.y);
+      } catch (HopException ex) {
+        new ErrorDialog(
+            hopGui.getActiveShell(),
+            BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Header"),
+            BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Message"),
+            ex);
+      }
+      e.gc.setBackground(GuiResource.getInstance().getColorBackground());
+      e.gc.fillRectangle(0, 0, area.x, area.y);
+      return;
+    }
+
     // Do double buffering to prevent flickering on Windows
     //
     boolean needsDoubleBuffering =
@@ -3357,6 +3381,61 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Message"),
           ex);
     }
+  }
+
+  private void drawWorkflowImageWeb(int width, int height) throws HopException {
+    areaOwners.clear();
+    WorkflowCanvasSvgRenderer.Context context = buildWorkflowSvgContext(width, height);
+    CanvasSvgRenderResult result =
+        CanvasSvgFacade.renderWorkflow(canvas, context, magnification, offset);
+    if (result != null) {
+      areaOwners.addAll(result.getAreaOwners());
+      viewPort = result.getViewPort();
+      graphPort = result.getGraphPort();
+    }
+    canvas.setData("viewPort", viewPort);
+    canvas.setData("graphPort", graphPort);
+    CanvasFacade.setData(canvas, magnification, offset, workflowMeta);
+  }
+
+  private WorkflowCanvasSvgRenderer.Context buildWorkflowSvgContext(int width, int height) {
+    PropsUi propsUi = PropsUi.getInstance();
+    maximum = workflowMeta.getMaximum();
+    int gridSize = propsUi.isShowCanvasGridEnabled() ? propsUi.getCanvasGridSize() : 1;
+
+    WorkflowCanvasSvgRenderer.Context context = new WorkflowCanvasSvgRenderer.Context();
+    context.variables = variables;
+    context.workflowMeta = workflowMeta;
+    context.canvasSize = new Point(width, height);
+    context.offset = new DPoint(offset.x, offset.y);
+    context.candidate = hopCandidate;
+    context.selectionRegion = selectionRegion;
+    context.iconSize = propsUi.getIconSize();
+    context.lineWidth = propsUi.getLineWidth();
+    context.gridSize = gridSize;
+    context.noteFontName = propsUi.getNoteFont().getName();
+    context.noteFontHeight = propsUi.getNoteFont().getHeight();
+    context.zoomFactor = propsUi.getZoomFactor();
+    context.drawingBorderAroundName = propsUi.isBorderDrawnAroundCanvasNames();
+    context.mouseOverName = mouseOverName;
+    context.magnification = (float) (magnification * PropsUi.getNativeZoomFactor());
+    context.screenMagnification = magnification;
+    context.startHopAction = startHopAction;
+    context.endHopLocation = endHopLocation;
+    context.endHopAction = endHopAction;
+    context.forbiddenAction = forbiddenAction;
+    context.workflow = workflow;
+    context.maximum = maximum;
+    context.showingNavigationView = !propsUi.isHideViewportEnabled();
+    context.showOriginBoundary = propsUi.isInfiniteCanvasMoveEnabled();
+    context.emptyWorkflowImagePath = BasePropertyHandler.getProperty("WorkflowCanvas_image");
+    context.emptyWorkflowImageClassLoader = getClass().getClassLoader();
+    context.emptyWorkflowMessage =
+        BaseMessages.getString(PKG, "HopGuiWorkflowGraph.NewWorkflowBackgroundMessage");
+    context.darkMode = propsUi.isDarkMode();
+    context.contrastingColorStrings =
+        propsUi.isDarkMode() ? propsUi.getContrastingColorStrings() : null;
+    return context;
   }
 
   public void drawWorkflowImage(GC swtGc, int width, int height, float magnificationFactor)
@@ -3447,6 +3526,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
+    canvas.setData("viewPort", viewPort);
+    canvas.setData("graphPort", graphPort);
     CanvasFacade.setData(canvas, magnification, offset, workflowMeta);
   }
 

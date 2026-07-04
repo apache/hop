@@ -42,12 +42,32 @@ public abstract class DragViewZoomBase extends Composite {
   protected boolean viewPortNavigation;
   protected Point viewPortStart;
 
+  public Canvas getCanvas() {
+    return canvas;
+  }
+
   public DragViewZoomBase(Composite parent, int style) {
     super(parent, style);
   }
 
   @Override
   public abstract void redraw();
+
+  @Override
+  public boolean setFocus() {
+    if (canvas == null || canvas.isDisposed()) {
+      return false;
+    }
+    return canvas.setFocus();
+  }
+
+  @Override
+  public boolean forceFocus() {
+    if (canvas == null || canvas.isDisposed()) {
+      return false;
+    }
+    return canvas.forceFocus();
+  }
 
   /**
    * Convert canvas/screen coordinates to graph coordinates. Must match the drawing transform:

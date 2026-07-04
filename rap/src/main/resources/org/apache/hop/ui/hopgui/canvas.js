@@ -745,15 +745,12 @@ function drawNotes(notes, gc, mode, dx, dy) {
 }
 
 function fx(x) {
-    // Don't clamp negative values - allow drawing outside visible area
-    const result = (x + offsetX) * magnification + offsetX;
-    return result;
+    // screen = (graph + offset) * magnification  (matches Java real2screen + scale)
+    return (x + offsetX) * magnification;
 }
 
 function fy(y) {
-    // Don't clamp negative values - allow drawing outside visible area
-    const result = (y + offsetY) * magnification + offsetY;
-    return result;
+    return (y + offsetY) * magnification;
 }
 
 function snapToGrid(x) {

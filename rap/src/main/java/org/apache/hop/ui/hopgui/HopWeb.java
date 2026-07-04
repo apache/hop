@@ -47,6 +47,7 @@ import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
+import org.apache.hop.ui.hopgui.canvas.CanvasRenderServiceHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -145,9 +146,13 @@ public class HopWeb implements ApplicationConfiguration {
             return new ByteArrayInputStream(outputStream.toByteArray());
           }
         });
+    application.addServiceHandler(
+        CanvasRenderServiceHandler.SERVICE_ID, new CanvasRenderServiceHandler());
+
     Stream.of(
             "org/apache/hop/ui/hopgui/clipboard.js",
             "org/apache/hop/ui/hopgui/canvas-zoom.js",
+            "org/apache/hop/ui/hopgui/canvas-svg.js",
             "org/apache/hop/ui/hopgui/monaco-editor.js",
             "org/apache/hop/ui/hopgui/mac-command-keys.js")
         .forEach(

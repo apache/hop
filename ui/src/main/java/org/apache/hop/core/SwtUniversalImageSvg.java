@@ -20,30 +20,19 @@ package org.apache.hop.core;
 import java.awt.Graphics2D;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.DocumentLoader;
 import org.apache.batik.bridge.GVTBuilder;
 import org.apache.batik.bridge.UserAgentAdapter;
-import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry;
 import org.apache.batik.ext.awt.image.spi.ImageTagRegistry;
 import org.apache.batik.gvt.GraphicsNode;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.svg.SvgDarkModeContrast;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
-import org.w3c.dom.svg.SVGSVGElement;
 
 public class SwtUniversalImageSvg extends SwtUniversalImage {
   private final GraphicsNode svgGraphicsNode;
@@ -64,30 +53,9 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
     GVTBuilder builder = new GVTBuilder();
 
     if (!keepOriginal && PropsUi.getInstance().isDarkMode()) {
-      DOMImplementation domImplementation = SVGDOMImplementation.getDOMImplementation();
       SVGDocument clonedDocument =
-          (SVGDocument) DOMUtilities.deepCloneDocument(svg.getDocument(), domImplementation);
-      SVGSVGElement root = clonedDocument.getRootElement();
-
-      Map<String, String> colorsMap = PropsUi.getInstance().getContrastingColorStrings();
-      List<String> tags =
-          Arrays.asList(
-              "path",
-              "fill",
-              "bordercolor",
-              "fillcolor",
-              "style",
-              "text",
-              "polygon",
-              "rect",
-              "circle",
-              "ellipse",
-              "stop",
-              "tspan",
-              "polyline",
-              "mask");
-
-      contrastColors(root, tags, colorsMap);
+          SvgDarkModeContrast.cloneWithContrast(
+              (SVGDocument) svg.getDocument(), PropsUi.getInstance().getContrastingColorStrings());
 
       BridgeContext ctx = new BridgeContext(userAgentAdapter);
       ctx.setDynamic(true);
@@ -100,42 +68,6 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
       BridgeContext ctx = new BridgeContext(userAgentAdapter, documentLoader);
       svgGraphicsNode = builder.build(ctx, svg.getDocument());
       svgGraphicsSize = ctx.getDocumentSize();
-    }
-  }
-
-  private void contrastColors(
-      SVGSVGElement root, List<String> tags, Map<String, String> colorsMap) {
-    for (String tag : tags) {
-
-      NodeList nodeList = root.getElementsByTagName(tag);
-
-      for (int i = 0; i < nodeList.getLength(); i++) {
-        Node node = nodeList.item(i);
-        NamedNodeMap namedNodeMap = node.getAttributes();
-        for (int x = 0; x < namedNodeMap.getLength(); x++) {
-          Node namedNode = namedNodeMap.item(x);
-          String value = namedNode.getNodeValue();
-
-          if (StringUtils.isNotEmpty(value)) {
-            String changedValue = value.toLowerCase();
-
-            Map<String, String> detectedColors = new HashMap<>();
-            for (String oldColor : colorsMap.keySet()) {
-              if (changedValue.contains(oldColor)) {
-                String newColor = colorsMap.get(oldColor);
-                detectedColors.put(oldColor, newColor);
-              }
-            }
-            if (!detectedColors.isEmpty()) {
-              for (String oldColor : detectedColors.keySet()) {
-                String newColor = detectedColors.get(oldColor);
-                changedValue = changedValue.replace(oldColor, newColor);
-              }
-              namedNode.setNodeValue(changedValue);
-            }
-          }
-        }
-      }
     }
   }
 

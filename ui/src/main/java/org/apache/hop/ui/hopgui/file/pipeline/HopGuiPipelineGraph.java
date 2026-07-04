@@ -57,6 +57,8 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
+import org.apache.hop.core.gui.CanvasSvgRenderResult;
+import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
@@ -110,6 +112,7 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMetaLayout;
 import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.canvas.PipelineCanvasSvgRenderer;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
@@ -149,6 +152,7 @@ import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
+import org.apache.hop.ui.hopgui.CanvasSvgFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
@@ -504,8 +508,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     mainComposite.setLayout(new FormLayout());
     FormData fdMainComposite = new FormData();
     fdMainComposite.left = new FormAttachment(0, 0);
-    fdMainComposite.top =
-        new FormAttachment(0, toolBar.getBounds().height); // Position below toolbar
+    fdMainComposite.top = new FormAttachment(toolBar, 0);
     fdMainComposite.right = new FormAttachment(100, 0);
     fdMainComposite.bottom = new FormAttachment(100, 0);
     mainComposite.setLayoutData(fdMainComposite);
@@ -540,6 +543,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // For web/RAP, create a zoom handler to sync mouse wheel zoom back to server
     if (EnvironmentUtils.getInstance().isWeb()) {
       canvasZoomHandler = CanvasZoomHelper.createZoomHandler(this, canvas, this);
+      CanvasSvgFacade.registerCanvas(canvas, this);
+      CanvasSvgFacade.ensureInteractionHandler(this, canvas);
     }
 
     FormData fdCanvas = new FormData();
@@ -618,8 +623,33 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void dispose() {
+    if (EnvironmentUtils.getInstance().isWeb() && canvas != null && !canvas.isDisposed()) {
+      CanvasSvgFacade.unregisterCanvas(canvas);
+    }
     disposeExtraView();
     super.dispose();
+  }
+
+  /** Replaces click regions after a server-side SVG render (Hop Web). */
+  public void replaceAreaOwners(List<AreaOwner> owners) {
+    areaOwners.clear();
+    if (owners != null) {
+      areaOwners.addAll(owners);
+    }
+  }
+
+  /** Handles hover events from the Hop Web SVG canvas overlay. */
+  public void handleWebCanvasHover(int graphX, int graphY, int screenX, int screenY) {
+    setToolTip(graphX, graphY, screenX, screenY);
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    AreaOwner areaOwner = getVisibleAreaOwner(graphX, graphY);
+    boolean interactionInProgress =
+        startHopTransform != null || selectionRegion != null || dragSelection;
+    if (applyMouseOverNameHover(areaOwner, interactionInProgress)) {
+      redraw();
+    }
   }
 
   @Override
@@ -1650,38 +1680,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling PipelineGraphMouseMoved extension point", ex);
     }
 
-    // Mouse over an area only if no other operation is in progress
+    boolean interactionInProgress =
+        startHopTransform != null || selectionRegion != null || dragSelection;
     if (areaOwner != null
-        && this.startHopTransform == null
-        && this.selectionRegion == null
-        && !dragSelection) {
-      // Mouse over the name of the transform
-      //
-      if (areaOwner.getAreaType() == AreaType.TRANSFORM_NAME) {
-        if (!PropsUi.getInstance().useDoubleClick()) {
-          if (mouseOverName == null) {
-            doRedraw = true;
-          }
-          mouseOverName = (String) areaOwner.getOwner();
-        }
-      }
-
-      // Mouse over a note
-      else if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
-        // Check if the mouse hovers over the border to resize
-        resizeOver = this.getResize(areaOwner.getArea(), real);
-
-        // Remove over name (note behind a transform)
-        if (mouseOverName != null) {
-          mouseOverName = null;
-          doRedraw = true;
-        }
-      }
-    } else {
-      if (mouseOverName != null) {
-        mouseOverName = null;
-        doRedraw = true;
-      }
+        && !interactionInProgress
+        && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+      resizeOver = getResize(areaOwner.getArea(), real);
+    }
+    if (applyMouseOverNameHover(areaOwner, interactionInProgress)) {
+      doRedraw = true;
     }
 
     //
@@ -3948,6 +3955,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      drawPipelineImageWeb(area.x, area.y);
+      e.gc.setBackground(GuiResource.getInstance().getColorBackground());
+      e.gc.fillRectangle(0, 0, area.x, area.y);
+      return;
+    }
+
     // Do double buffering to prevent flickering on Windows
     //
     boolean needsDoubleBuffering =
@@ -3970,6 +3984,68 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       swtGc.dispose();
       image.dispose();
     }
+  }
+
+  private void drawPipelineImageWeb(int width, int height) {
+    areaOwners.clear();
+    PipelineCanvasSvgRenderer.Context context = buildPipelineSvgContext(width, height);
+    CanvasSvgRenderResult result =
+        CanvasSvgFacade.renderPipeline(canvas, context, magnification, offset);
+    if (result != null) {
+      areaOwners.addAll(result.getAreaOwners());
+      viewPort = result.getViewPort();
+      graphPort = result.getGraphPort();
+    }
+    canvas.setData("viewPort", viewPort);
+    canvas.setData("graphPort", graphPort);
+    CanvasFacade.setData(canvas, magnification, offset, pipelineMeta);
+  }
+
+  private PipelineCanvasSvgRenderer.Context buildPipelineSvgContext(int width, int height) {
+    PropsUi propsUi = PropsUi.getInstance();
+    maximum = pipelineMeta.getMaximum();
+    int gridSize = propsUi.isShowCanvasGridEnabled() ? propsUi.getCanvasGridSize() : 1;
+
+    PipelineCanvasSvgRenderer.Context context = new PipelineCanvasSvgRenderer.Context();
+    context.variables = variables;
+    context.pipelineMeta = pipelineMeta;
+    context.canvasSize = new Point(width, height);
+    context.offset = new DPoint(offset.x, offset.y);
+    context.candidate = candidate;
+    context.selectionRegion = selectionRegion;
+    context.iconSize = propsUi.getIconSize();
+    context.lineWidth = propsUi.getLineWidth();
+    context.gridSize = gridSize;
+    context.noteFontName = propsUi.getNoteFont().getName();
+    context.noteFontHeight = propsUi.getNoteFont().getHeight();
+    context.pipeline = pipeline;
+    context.slowTransformIndicatorEnabled = propsUi.isIndicateSlowPipelineTransformsEnabled();
+    context.zoomFactor = propsUi.getZoomFactor();
+    context.outputRowsMap = outputRowsMap;
+    context.drawingBorderAroundName = propsUi.isBorderDrawnAroundCanvasNames();
+    context.mouseOverName = mouseOverName;
+    context.stateMap = stateMap;
+    context.magnification = (float) (magnification * PropsUi.getNativeZoomFactor());
+    context.screenMagnification = magnification;
+    context.transformLogMap = transformLogMap;
+    context.startHopTransform = startHopTransform;
+    context.endHopLocation = endHopLocation;
+    context.forbiddenTransform = forbiddenTransform;
+    context.endHopTransform = endHopTransform;
+    context.candidateHopType = candidateHopType;
+    context.startErrorHopTransform = startErrorHopTransform;
+    context.maximum = maximum;
+    context.showingNavigationView = !propsUi.isHideViewportEnabled();
+    context.showOriginBoundary = propsUi.isInfiniteCanvasMoveEnabled();
+    context.showingSelectedTransformMetrics = propsUi.isShowingMetricsAboveRunningTransforms();
+    context.emptyPipelineImagePath = BasePropertyHandler.getProperty("PipelineCanvas_image");
+    context.emptyPipelineImageClassLoader = getClass().getClassLoader();
+    context.emptyPipelineMessage =
+        BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage");
+    context.darkMode = propsUi.isDarkMode();
+    context.contrastingColorStrings =
+        propsUi.isDarkMode() ? propsUi.getContrastingColorStrings() : null;
+    return context;
   }
 
   public void drawPipelineImage(GC swtGc, int width, int height) {
@@ -4051,6 +4127,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
+    canvas.setData("viewPort", viewPort);
+    canvas.setData("graphPort", graphPort);
     CanvasFacade.setData(canvas, magnification, offset, pipelineMeta);
   }
 
@@ -5759,11 +5837,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
               HopGuiPipelineGraph.super.redraw();
             });
-  }
-
-  @Override
-  public boolean forceFocus() {
-    return canvas.forceFocus();
   }
 
   @GuiKeyboardShortcut(control = true, key = 'a')

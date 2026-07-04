@@ -19,9 +19,12 @@ package org.apache.hop.ui.hopgui.file.shared;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
@@ -101,11 +104,6 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     }
 
     canvas.redraw();
-  }
-
-  @Override
-  public boolean forceFocus() {
-    return canvas.forceFocus();
   }
 
   /**
@@ -498,6 +496,29 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
    */
   public void setMouseOverName(String mouseOverName) {
     this.mouseOverName = mouseOverName;
+  }
+
+  /**
+   * Updates {@link #mouseOverName} for transform/action name hover feedback.
+   *
+   * @return true when the hovered name changed and the canvas should redraw
+   */
+  protected boolean applyMouseOverNameHover(AreaOwner areaOwner, boolean interactionInProgress) {
+    if (PropsUi.getInstance().useDoubleClick()) {
+      return false;
+    }
+    String nextName = null;
+    if (!interactionInProgress && areaOwner != null) {
+      AreaType areaType = areaOwner.getAreaType();
+      if (areaType == AreaType.TRANSFORM_NAME || areaType == AreaType.ACTION_NAME) {
+        nextName = (String) areaOwner.getOwner();
+      }
+    }
+    if (!Objects.equals(mouseOverName, nextName)) {
+      mouseOverName = nextName;
+      return true;
+    }
+    return false;
   }
 
   /** Resize direction */

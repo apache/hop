@@ -72,6 +72,9 @@ public class CanvasFacadeImpl extends CanvasFacade {
       jsonProps.add("panBoundaries", jsonPanBoundaries);
     }
 
+    addRectangle(jsonProps, "viewPort", (Rectangle) canvas.getData("viewPort"));
+    addRectangle(jsonProps, "graphPort", (Rectangle) canvas.getData("graphPort"));
+
     canvas.setData("props", jsonProps);
 
     JsonArray jsonNotes = new JsonArray();
@@ -149,5 +152,17 @@ public class CanvasFacadeImpl extends CanvasFacade {
       }
     }
     canvas.setData("hops", jsonHops);
+  }
+
+  private static void addRectangle(JsonObject parent, String key, Rectangle rect) {
+    if (rect == null) {
+      return;
+    }
+    JsonObject jsonRect = new JsonObject();
+    jsonRect.add("x", rect.x);
+    jsonRect.add("y", rect.y);
+    jsonRect.add("width", rect.width);
+    jsonRect.add("height", rect.height);
+    parent.add(key, jsonRect);
   }
 }

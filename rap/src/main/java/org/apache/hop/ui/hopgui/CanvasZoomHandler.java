@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.remote.AbstractOperationHandler;
@@ -30,12 +31,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Widget;
 
 public class CanvasZoomHandler extends Widget {
-
-  // Singleton: ONE remote object per UI session, reused for all canvases
-  private static RemoteObject globalRemoteObject;
-  private static IZoomable currentZoomable;
-  private static Canvas currentCanvas;
-  private static final Object sessionLock = new Object();
 
   private final IZoomable zoomable;
   private final Canvas canvas;
@@ -53,78 +48,51 @@ public class CanvasZoomHandler extends Widget {
   }
 
   public void notifyCanvasReady() {
-    if (isDisposed()) {
+    if (isDisposed() || canvas == null || canvas.isDisposed()) {
       return;
     }
 
-    synchronized (sessionLock) {
-      // Update the current canvas and zoomable
-      currentCanvas = this.canvas;
-      currentZoomable = this.zoomable;
+    CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
+    registry.setActiveCanvas(canvas);
+    registry.setActiveZoomable(zoomable);
 
-      // Create remote object only once per session
-      if (globalRemoteObject == null) {
-        createGlobalRemoteObject();
-      } else {
-        updateCanvas();
-      }
+    RemoteObject remoteObject = registry.getZoomRemote();
+    if (remoteObject == null) {
+      createRemoteObject(registry);
+    } else {
+      updateCanvas(remoteObject);
     }
   }
 
-  private void createGlobalRemoteObject() {
+  private void createRemoteObject(CanvasGraphRegistry registry) {
     try {
       Connection connection = RWT.getUISession().getConnection();
+      Canvas currentCanvas = registry.getActiveCanvas();
 
-      // Create ONE remote object for the entire session
-      globalRemoteObject = connection.createRemoteObject("hop.CanvasZoom");
-      globalRemoteObject.set("self", globalRemoteObject.getId());
+      RemoteObject remoteObject = connection.createRemoteObject("hop.CanvasZoom");
+      remoteObject.set("self", remoteObject.getId());
+      remoteObject.set("canvas", WidgetUtil.getId(currentCanvas));
 
-      String canvasId = org.eclipse.rap.rwt.widgets.WidgetUtil.getId(currentCanvas);
-      globalRemoteObject.set("canvas", canvasId);
-
-      globalRemoteObject.setHandler(
+      remoteObject.setHandler(
           new AbstractOperationHandler() {
             @Override
             public void handleNotify(String event, JsonObject properties) {
               if ("zoom".equals(event)) {
-                synchronized (sessionLock) {
-                  // Use the current canvas and zoomable (may have changed since creation)
-                  if (currentCanvas == null || currentZoomable == null) {
-                    return;
-                  }
-
-                  int count = properties.get("count").asInt();
-                  int x = properties.get("x").asInt();
-                  int y = properties.get("y").asInt();
-
-                  // Create a mouse event with Event object
-                  org.eclipse.swt.widgets.Event swtEvent = new org.eclipse.swt.widgets.Event();
-                  swtEvent.widget = currentCanvas;
-                  swtEvent.x = x;
-                  swtEvent.y = y;
-                  swtEvent.count = count;
-                  MouseEvent mouseEvent = new MouseEvent(swtEvent);
-
-                  // Call the appropriate zoom method on the current zoomable
-                  if (count > 0) {
-                    currentZoomable.zoomIn(mouseEvent);
-                  } else {
-                    currentZoomable.zoomOut(mouseEvent);
-                  }
-                }
+                handleZoom(registry, properties);
               }
             }
           });
 
-      globalRemoteObject.listen("zoom", true);
+      remoteObject.listen("zoom", true);
+      registry.setZoomRemote(remoteObject);
 
-      // Signal the client to attach the wheel listener
       getDisplay()
           .timerExec(
               50,
               () -> {
-                if (globalRemoteObject != null) {
-                  globalRemoteObject.call("attachListener", null);
+                RemoteObject ro = registry.getZoomRemote();
+                if (ro != null) {
+                  ro.call("attachListener", null);
                 }
               });
 
@@ -133,27 +101,46 @@ public class CanvasZoomHandler extends Widget {
     }
   }
 
-  private void updateCanvas() {
-    // Update which canvas the remote object is attached to
-    String canvasId = WidgetUtil.getId(currentCanvas);
+  private static void handleZoom(CanvasGraphRegistry registry, JsonObject properties) {
+    Canvas currentCanvas = registry.getActiveCanvas();
+    Object zoomable = registry.getActiveZoomable();
+    if (currentCanvas == null || zoomable == null) {
+      return;
+    }
+    if (!(zoomable instanceof IZoomable activeZoomable)) {
+      return;
+    }
 
-    // Update the canvas property - this will trigger property change on client
-    globalRemoteObject.set("canvas", canvasId);
+    int count = properties.get("count").asInt();
+    int x = properties.get("x").asInt();
+    int y = properties.get("y").asInt();
 
-    // Then call attachListener to reattach to the new canvas
-    globalRemoteObject.call("attachListener", null);
+    org.eclipse.swt.widgets.Event swtEvent = new org.eclipse.swt.widgets.Event();
+    swtEvent.widget = currentCanvas;
+    swtEvent.x = x;
+    swtEvent.y = y;
+    swtEvent.count = count;
+    MouseEvent mouseEvent = new MouseEvent(swtEvent);
+
+    if (count > 0) {
+      activeZoomable.zoomIn(mouseEvent);
+    } else {
+      activeZoomable.zoomOut(mouseEvent);
+    }
+  }
+
+  private void updateCanvas(RemoteObject remoteObject) {
+    remoteObject.set("canvas", WidgetUtil.getId(canvas));
+    remoteObject.call("attachListener", null);
   }
 
   @Override
   public void dispose() {
-    synchronized (sessionLock) {
-      // If this handler was the current one, clear the current references
-      if (currentCanvas == this.canvas) {
-        currentCanvas = null;
-        currentZoomable = null;
-      }
+    CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
+    if (registry.getActiveCanvas() == this.canvas) {
+      registry.setActiveCanvas(null);
+      registry.setActiveZoomable(null);
     }
-    // Note: Don't destroy globalRemoteObject - it's shared across all canvases in the session
     super.dispose();
   }
 }

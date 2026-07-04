@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -32,6 +33,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -116,6 +118,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // Load canvas zoom handler and Monaco editor client script
     String jsLocation = resourceManager.getLocation("js/canvas-zoom.js");
     jsLoader.require(jsLocation);
+    jsLoader.require(resourceManager.getLocation("js/canvas-svg.js"));
     jsLoader.require(resourceManager.getLocation("js/monaco-editor.js"));
     // Map Mac Command key to Ctrl so RAP ACTIVE_KEYS (CTRL+S etc.) match when user presses Cmd+S
     String macKeysLocation = resourceManager.getLocation("js/mac-command-keys.js");
@@ -138,6 +141,13 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     WidgetUtil.registerDataKeys("notes");
     WidgetUtil.registerDataKeys("startHopNode");
     WidgetUtil.registerDataKeys("resizeDirection");
+    WidgetUtil.registerDataKeys("sessionUuid");
+    WidgetUtil.registerDataKeys("canvasId");
+    WidgetUtil.registerDataKeys("renderRevision");
+    WidgetUtil.registerDataKeys("areas");
+
+    String sessionUuid = UUID.randomUUID().toString();
+    RWT.getUISession().setAttribute(CanvasGraphRegistry.SESSION_UUID_ATTR, sessionUuid);
 
     //  The following options are session specific.
     //

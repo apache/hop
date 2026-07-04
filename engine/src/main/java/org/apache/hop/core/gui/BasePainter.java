@@ -135,6 +135,11 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
     this.mouseOverName = mouseOverName;
   }
 
+  /** Hop Web renders pipeline/workflow graphs with {@link SvgGc}; desktop uses SWT. */
+  protected boolean isWebCanvasRendering() {
+    return gc instanceof SvgGc;
+  }
+
   public static EImage getStreamIconImage(StreamIcon streamIcon, boolean enabled) {
     return switch (streamIcon) {
       case TRUE -> (enabled) ? EImage.TRUE : EImage.TRUE_DISABLED;
