@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -193,22 +194,21 @@ public class HopGuiPipelineTransformDelegate {
         return null;
       }
 
-      // Before we do anything, let's store the situation the way it
-      // was...
-      //
-      TransformMeta before = (TransformMeta) transformMeta.clone();
       dialog = getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
+      TransformMeta before = null;
       if (dialog != null) {
         dialogs.put(name, dialog);
 
         dialog.setMetadataProvider(hopGui.getMetadataProvider());
         transformMeta.getTransform().convertIOMetaToTransformNames();
+        // Snapshot after IO-meta normalization so OK-without-edits is not treated as a change.
+        before = (TransformMeta) transformMeta.clone();
         transformName = dialog.open();
 
         dialogs.remove(name);
       }
 
-      if (!Utils.isEmpty(transformName)) {
+      if (!Utils.isEmpty(transformName) && before != null) {
         // Force the recreation of the transform IO metadata object. (cached by default)
         //
         transformMeta.getTransform().resetTransformIoMeta();
@@ -226,11 +226,6 @@ public class HopGuiPipelineTransformDelegate {
         // Re-search the metadata
         //
         transformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
-
-        // Mark the TransformMeta wrapper as changed since the dialog was closed with OK
-        // This ensures that changes are properly tracked regardless of inner metadata object
-        // identity
-        transformMeta.setChanged();
 
         //
         // See if the new name the user enter, doesn't collide with
@@ -261,17 +256,17 @@ public class HopGuiPipelineTransformDelegate {
         pipelineMeta.notifyAllListeners(transformMeta, newTransformMeta);
         transformMeta.setName(transformName);
 
-        //
-        // OK, so the transform has changed...
-        // Backup the situation for undo/redo
-        //
         TransformMeta after = (TransformMeta) transformMeta.clone();
-
-        hopGui.undoDelegate.addUndoChange(
-            pipelineMeta,
-            new TransformMeta[] {before},
-            new TransformMeta[] {after},
-            new int[] {pipelineMeta.indexOfTransform(transformMeta)});
+        if (hasTransformMetaChanged(before, after)) {
+          transformMeta.setChanged();
+          hopGui.undoDelegate.addUndoChange(
+              pipelineMeta,
+              new TransformMeta[] {before},
+              new TransformMeta[] {after},
+              new int[] {pipelineMeta.indexOfTransform(transformMeta)});
+        } else {
+          transformMeta.setChanged(before.hasChanged());
+        }
       }
       pipelineGraph.updateGui();
 
@@ -603,16 +598,23 @@ public class HopGuiPipelineTransformDelegate {
                 return dialog.open();
               });
         }
-        transformMeta.setChanged();
-        hopGui.undoDelegate.addUndoChange(
-            partitionSettings.getPipelineMeta(),
-            new TransformMeta[] {partitionSettings.getBefore()},
-            new TransformMeta[] {partitionSettings.getAfter()},
-            new int[] {
-              partitionSettings
-                  .getPipelineMeta()
-                  .indexOfTransform(partitionSettings.getTransformMeta())
-            });
+
+        TransformMeta partitionBefore = partitionSettings.getBefore();
+        TransformMeta partitionAfter = partitionSettings.getAfter();
+        if (hasTransformMetaChanged(partitionBefore, partitionAfter)) {
+          transformMeta.setChanged();
+          hopGui.undoDelegate.addUndoChange(
+              partitionSettings.getPipelineMeta(),
+              new TransformMeta[] {partitionBefore},
+              new TransformMeta[] {partitionAfter},
+              new int[] {
+                partitionSettings
+                    .getPipelineMeta()
+                    .indexOfTransform(partitionSettings.getTransformMeta())
+              });
+        } else {
+          transformMeta.setChanged(partitionBefore.hasChanged());
+        }
         pipelineGraph.redraw();
       }
     } catch (Exception e) {
@@ -677,6 +679,7 @@ public class HopGuiPipelineTransformDelegate {
       List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms(transformMeta, true);
 
       // now edit this transformErrorMeta object:
+      TransformMeta before = (TransformMeta) transformMeta.clone();
       TransformErrorMetaDialog dialog =
           new TransformErrorMetaDialog(
               hopGui.getActiveShell(),
@@ -686,10 +689,37 @@ public class HopGuiPipelineTransformDelegate {
               targetTransforms);
       if (dialog.open()) {
         transformMeta.setTransformErrorMeta(transformErrorMeta);
-        transformMeta.setChanged();
+        TransformMeta after = (TransformMeta) transformMeta.clone();
+        if (hasTransformMetaChanged(before, after)) {
+          transformMeta.setChanged();
+        } else {
+          transformMeta.setChanged(before.hasChanged());
+        }
         pipelineGraph.redraw();
       }
     }
+  }
+
+  /**
+   * Returns {@code true} if two transform snapshots differ in persisted configuration (transform
+   * body, partitioning, GUI placement, and error handling).
+   */
+  private static boolean hasTransformMetaChanged(TransformMeta before, TransformMeta after) {
+    try {
+      if (!before.getXml().equals(after.getXml())) {
+        return true;
+      }
+
+      return !getErrorMetaXml(before).equals(getErrorMetaXml(after));
+    } catch (HopException e) {
+      // If comparison fails, treat as changed to avoid losing edits.
+      return true;
+    }
+  }
+
+  private static String getErrorMetaXml(TransformMeta transformMeta) throws HopException {
+    TransformErrorMeta errorMeta = transformMeta.getTransformErrorMeta();
+    return errorMeta == null ? Const.EMPTY_STRING : errorMeta.getXml();
   }
 
   public void delTransforms(PipelineMeta pipelineMeta, List<TransformMeta> transforms) {
