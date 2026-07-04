@@ -183,6 +183,12 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   private boolean preloadingCache;
 
   @HopMetadataProperty(
+      key = "ignore_zero_length_validity",
+      injectionKey = "IGNORE_ZERO_LENGTH_VALIDITY",
+      injectionKeyDescription = "DimensionLookup.Injection.IGNORE_ZERO_LENGTH_VALIDITY")
+  private boolean ignoreZeroLengthValidity;
+
+  @HopMetadataProperty(
       key = "unknown_row_check_disabled",
       injectionKey = "UNKNOWN_ROW_CHECK_DISABLED",
       injectionKeyDescription = "DimensionLookup.Injection.UNKNOWN_ROW_CHECK_DISABLED")
@@ -223,6 +229,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     this.startDateAlternative = m.startDateAlternative;
     this.startDateFieldName = m.startDateFieldName;
     this.preloadingCache = m.preloadingCache;
+    this.ignoreZeroLengthValidity = m.ignoreZeroLengthValidity;
     this.unknownRowCheckDisabled = m.unknownRowCheckDisabled;
   }
 
@@ -249,6 +256,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
     cacheSize = 5000;
     preloadingCache = false;
+    ignoreZeroLengthValidity = false;
     unknownRowCheckDisabled = false;
   }
 
@@ -667,11 +675,13 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
                 transformMeta));
       }
     } else {
-      remarks.add(
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.VersionKeyRequired"),
-              transformMeta));
+      if (isUpdate()) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.VersionKeyRequired"),
+                transformMeta));
+      }
     }
 
     TechnicalKeyCreationMethod method = fields.returns.creationMethod;

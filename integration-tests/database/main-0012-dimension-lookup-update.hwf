@@ -173,6 +173,58 @@ limitations under the License.
       <yloc>368</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>0012-6-dimension-lookup-no-version-field.hwf</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-6-dimension-lookup-no-version-field.hwf</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Nothing</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>448</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0012-dimension-lookup-zero-length-validity.hwf</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-dimension-lookup-zero-length-validity.hwf</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Nothing</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>528</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -206,6 +258,20 @@ limitations under the License.
     <hop>
       <from>0012-4-dimension-lookup-tk-field.hwf</from>
       <to>0012-5-dimension-lookup-tk-uuid.hwf</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0012-5-dimension-lookup-tk-uuid.hwf</from>
+      <to>0012-6-dimension-lookup-no-version-field.hwf</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0012-6-dimension-lookup-no-version-field.hwf</from>
+      <to>0012-dimension-lookup-zero-length-validity.hwf</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
