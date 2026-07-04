@@ -167,9 +167,9 @@ HOP_COMMAND_PARAMETERS="${HOP_COMMAND_PARAMETERS:-}"
 # The common execution options for short and long lived containers
 # The default log level is Basic
 #
-HOP_EXEC_OPTIONS=""
+ HOP_EXEC_OPTIONS=()
 if [ -z "${HOP_COMMAND}" ]; then
-  HOP_EXEC_OPTIONS="--level=${HOP_LOG_LEVEL}"
+  HOP_EXEC_OPTIONS+=("--level=${HOP_LOG_LEVEL}")
 fi
 
 # For backward compatibility we'll still understand the HOP_PROJECT_DIRECTORY variable
@@ -186,7 +186,7 @@ fi
 #
 if [ -n "${HOP_SYSTEM_PROPERTIES}" ]; then
   log "Setting system properties at runtime: ${HOP_SYSTEM_PROPERTIES}"
-  HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --system-properties=${HOP_SYSTEM_PROPERTIES}"
+  HOP_EXEC_OPTIONS+=("--system-properties=${HOP_SYSTEM_PROPERTIES}")
 fi
 
 # If a project folder is defined we assume that we want to create it in the container
@@ -223,7 +223,7 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
       --project-keep-config-file
   fi
 
-  HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --project=${HOP_PROJECT_NAME}"
+  HOP_EXEC_OPTIONS+=("--project=${HOP_PROJECT_NAME}")
 
   # If we have environment files specified we want to create an environment as well:
   #
@@ -248,7 +248,7 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
         --environment-config-files="${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}"
     fi
 
-    HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --environment=${HOP_ENVIRONMENT_NAME}"
+    HOP_EXEC_OPTIONS+=("--environment=${HOP_ENVIRONMENT_NAME}")
   else
     log "Not creating an environment in the container"
   fi
@@ -272,7 +272,7 @@ if [ -z "${HOP_FILE_PATH}" ] && [ -z "${HOP_COMMAND}" ]; then
   write_server_config
   log "Starting a hop-server on port "${HOP_SERVER_PORT}
   "${DEPLOYMENT_PATH}"/hop-server.sh \
-    "${HOP_EXEC_OPTIONS}" \
+    "${HOP_EXEC_OPTIONS[@]}" \
     /tmp/hop-server.xml \
     2>&1 | tee ${HOP_LOG_PATH}
 
@@ -289,23 +289,23 @@ else
   #
   if [ -n "${HOP_RUN_METADATA_EXPORT}" ]; then
     log "Using a JSON metadata export file: ${HOP_RUN_METADATA_EXPORT}"
-    HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --metadata-export=${HOP_RUN_METADATA_EXPORT}"
+    HOP_EXEC_OPTIONS+=("--metadata-export=${HOP_RUN_METADATA_EXPORT}")
   fi
 
   # Support for start action parameter
   if [ -n "${HOP_START_ACTION}" ]; then
     log "Using start action: ${HOP_START_ACTION}"
-    HOP_EXEC_OPTIONS="${HOP_EXEC_OPTIONS} --startaction=${HOP_START_ACTION}"
+    HOP_EXEC_OPTIONS+=("--startaction=${HOP_START_ACTION}")
   fi
 
   # Optionally execute a hop command instead of hop-run.sh
   #
   if [ -n "${HOP_COMMAND}" ]; then
-    log "Executing command: ${DEPLOYMENT_PATH}/hop ${HOP_COMMAND} ${HOP_EXEC_OPTIONS} ${HOP_COMMAND_PARAMETERS}"
+    log "Executing command: ${DEPLOYMENT_PATH}/hop ${HOP_COMMAND} ${HOP_EXEC_OPTIONS[*]} ${HOP_COMMAND_PARAMETERS}"
 
     "${DEPLOYMENT_PATH}"/hop \
       ${HOP_COMMAND} \
-      ${HOP_EXEC_OPTIONS} \
+      "${HOP_EXEC_OPTIONS[@]}" \
       ${HOP_COMMAND_PARAMETERS} \
       2>&1 | tee "${HOP_LOG_PATH}"
     exitWithCode "${PIPESTATUS[0]}"
@@ -315,7 +315,7 @@ else
       --file="${HOP_FILE_PATH}" \
       --runconfig="${HOP_RUN_CONFIG}" \
       --parameters="${HOP_RUN_PARAMETERS}" \
-      ${HOP_EXEC_OPTIONS} \
+      "${HOP_EXEC_OPTIONS[@]}" \
       2>&1 | tee "${HOP_LOG_PATH}"
     exitWithCode "${PIPESTATUS[0]}"
   fi
