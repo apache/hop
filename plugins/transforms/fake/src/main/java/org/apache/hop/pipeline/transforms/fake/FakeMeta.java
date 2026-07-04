@@ -17,17 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -86,34 +82,24 @@ public class FakeMeta extends BaseTransformMeta<Fake, FakeData> {
 
     for (FakeField field : fields) {
       if (field.isValid()) {
-
         try {
-          FakerType type = FakerType.valueOf(field.getType());
-          Method method = type.getFakerClass().getMethod(field.getTopic());
-          Class<?> returnType = method.getReturnType();
-
-          IValueMeta valueMeta = null;
-          if (returnType.isAssignableFrom(String.class)) {
-            valueMeta = new ValueMetaString(field.getName());
-          } else if (returnType.isAssignableFrom(long.class)) {
-            valueMeta = new ValueMetaInteger(field.getName());
-          } else if (returnType.isAssignableFrom(Date.class)) {
-            valueMeta = new ValueMetaDate(field.getName());
+          int valueMetaType = FakerCatalog.resolveValueMetaType(field);
+          if (valueMetaType < 0) {
+            logError(
+                "Unsupported return type for fake data field '"
+                    + field.getName()
+                    + "' ("
+                    + field.getType()
+                    + "."
+                    + field.getTopic()
+                    + ")");
+            continue;
           }
-
-          if (valueMeta != null) {
-            valueMeta.setOrigin(name);
-            rowMeta.addValueMeta(valueMeta);
-          } else {
-            logError("Error unsupported faker return type");
-          }
-        } catch (NoSuchMethodException e) {
-          logError(
-              "Error getting faker object or method for type "
-                  + field.getType()
-                  + " and topic "
-                  + field.getTopic(),
-              e);
+          IValueMeta valueMeta = FakerCatalog.createValueMeta(field.getName(), valueMetaType);
+          valueMeta.setOrigin(name);
+          rowMeta.addValueMeta(valueMeta);
+        } catch (HopException e) {
+          logError("Error resolving fake data generator for field '" + field.getName() + "'", e);
         }
       }
     }

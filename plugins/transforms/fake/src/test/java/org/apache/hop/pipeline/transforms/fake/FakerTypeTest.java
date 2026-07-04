@@ -17,22 +17,67 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.javafaker.Faker;
+import java.util.ArrayList;
+import java.util.List;
+import net.datafaker.Faker;
 import org.junit.jupiter.api.Test;
 
 class FakerTypeTest {
 
+  /**
+   * Every legacy {@code FakerType} constant must still resolve to a DataFaker accessor, so that
+   * pipelines created before the DataFaker migration keep working. {@code Crypto} is the single
+   * provider DataFaker dropped and is expected to be unavailable.
+   */
   @Test
-  void testFakerTypeMethodMapping() throws Exception {
-    Faker faker = new Faker();
+  void legacyTypesResolveToDataFakerAccessors() {
+    List<String> unresolved = new ArrayList<>();
     for (FakerType type : FakerType.values()) {
+      if (type == FakerType.Crypto) {
+        continue;
+      }
+      String accessor = FakerType.resolveAccessorMethod(type.name());
       try {
-        faker.getClass().getMethod(type.getFakerMethod());
-      } catch (NoSuchMethodException | SecurityException e) {
-        fail(String.format("%s method was not found in Faker", type.getFakerMethod()));
+        Faker.class.getMethod(accessor);
+      } catch (NoSuchMethodException e) {
+        unresolved.add(type.name() + " -> " + accessor);
       }
     }
+    assertTrue(unresolved.isEmpty(), "Legacy faker types no longer resolve: " + unresolved);
+  }
+
+  @Test
+  void newAccessorNamesPassThroughUnchanged() {
+    // Fields saved by the new dialog store the accessor directly; resolution must be idempotent.
+    assertEquals("phoneNumber", FakerType.resolveAccessorMethod("phoneNumber"));
+    assertEquals("numberBetween", FakerType.resolveAccessorMethod("numberBetween"));
+  }
+
+  @Test
+  void getTypeUsingNameMatchesCaseInsensitivelyAndToleratesMisses() {
+    assertSame(FakerType.PhoneNumber, FakerType.getTypeUsingName("PhoneNumber"));
+    assertSame(FakerType.PhoneNumber, FakerType.getTypeUsingName("phonenumber"));
+    assertSame(FakerType.Name, FakerType.getTypeUsingName("NAME"));
+    assertNull(FakerType.getTypeUsingName("NoSuchType"));
+    assertNull(FakerType.getTypeUsingName(null));
+    assertNull(FakerType.getTypeUsingName(""));
+  }
+
+  @Test
+  void getFakerMethodReturnsTheDataFakerAccessor() {
+    assertEquals("phoneNumber", FakerType.PhoneNumber.getFakerMethod());
+    assertEquals("date", FakerType.DateAndTime.getFakerMethod());
+    assertEquals("elderScrolls", FakerType.Elder.getFakerMethod());
+  }
+
+  @Test
+  void resolveAccessorMethodFallsBackToTheStoredValueForUnknownTypes() {
+    // A value that is neither a legacy enum name nor blank is returned untouched.
+    assertEquals("somethingBrandNew", FakerType.resolveAccessorMethod("somethingBrandNew"));
   }
 }
