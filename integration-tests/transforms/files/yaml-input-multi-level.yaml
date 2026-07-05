@@ -1,0 +1,15 @@
+tables:
+  - tableName: t_user
+    dataPagination: 100
+    queryDataset: |
+      SELECT * FROM crm.t_user
+
+  - tableName: t_customer
+    dataPagination: 20
+    queryDataset: |
+      SELECT * FROM crm.t_customer
+
+  - tableName: t_order
+    dataPagination: 30
+    queryDataset: |
+      SELECT * FROM crm.t_order

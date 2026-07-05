@@ -81,6 +81,7 @@ class YamlInputTests {
   @Test
   void testInit_shouldBuildRowMeta() {
     YamlInputField field = new YamlInputField();
+    field.setName("user_name");
     field.setPath("user.name");
     field.setType(IValueMeta.TYPE_STRING);
     field.setTrimType(YamlInputField.TYPE_TRIM_BOTH);
@@ -98,6 +99,8 @@ class YamlInputTests {
 
     assertNotNull(input.getData().rowMeta);
     assertEquals(1, input.getData().nrInputFields);
+    assertEquals("user_name", input.getData().rowMeta.getValueMeta(0).getName());
+    assertEquals("$.user.name", input.getData().fieldPaths[0]);
   }
 
   @Test
