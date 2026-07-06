@@ -80,7 +80,7 @@ public class FileTree extends Composite {
         SWT.Selection, event -> findDependencies.set(btnFindDependencies.getSelection()));
     btnFindDependencies.setLayoutData(new FormDataBuilder().left().fullWidth().bottom().result());
 
-    tree = new Tree(this, SWT.CHECK | SWT.MULTI | SWT.BORDER);
+    tree = new HopTree(this, SWT.CHECK | SWT.MULTI | SWT.BORDER);
     PropsUi.setLook(tree);
     tree.setLayoutData(
         new FormDataBuilder()

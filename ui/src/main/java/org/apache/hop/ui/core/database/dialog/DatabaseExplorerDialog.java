@@ -50,6 +50,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -249,7 +250,7 @@ public class DatabaseExplorerDialog extends Dialog {
     refreshButtons(null);
 
     // Tree
-    wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER /*| (multiple?SWT.CHECK:SWT.NONE)*/);
+    wTree = new HopTree(shell, SWT.SINGLE | SWT.BORDER /*| (multiple?SWT.CHECK:SWT.NONE)*/);
     PropsUi.setLook(wTree);
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0); // To the right of the label

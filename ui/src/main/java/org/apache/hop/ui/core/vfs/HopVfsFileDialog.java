@@ -61,6 +61,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -500,7 +501,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     SashForm browseSash = new SashForm(browserComposite, SWT.VERTICAL);
 
-    wBrowser = new Tree(browseSash, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    wBrowser = new HopTree(browseSash, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.setLook(wBrowser);
     wBrowser.setHeaderVisible(true);
     wBrowser.setLinesVisible(false); // TODO needed?

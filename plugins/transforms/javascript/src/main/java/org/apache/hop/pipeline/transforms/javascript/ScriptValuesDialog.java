@@ -50,6 +50,7 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
@@ -248,7 +249,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     wlScriptFunctions.setLayoutData(fdlScriptFunctions);
 
     // Tree View Test
-    wTree = new Tree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    wTree = new HopTree(wTop, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.setLook(wTree);
     FormData fdlTree = new FormData();
     fdlTree.left = new FormAttachment(0, 0);
