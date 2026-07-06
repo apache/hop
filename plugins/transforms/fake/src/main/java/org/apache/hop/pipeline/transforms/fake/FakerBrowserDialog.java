@@ -30,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.fake.FakerCatalog.Generator;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -290,7 +291,7 @@ public class FakerBrowserDialog extends Dialog {
     gParams.setLayoutData(fdParams);
 
     // Generator tree: categories expand to their functions.
-    wTree = new Tree(shell, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
+    wTree = new HopTree(shell, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
     PropsUi.setLook(wTree);
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0);

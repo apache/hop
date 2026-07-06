@@ -25,6 +25,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.HopTree;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.SashForm;
@@ -235,7 +236,7 @@ public class XmlTreeDesigner extends Composite {
     addToolItem(tb, "ToggleLoop", e -> toggleSelectedFlag(true, false));
     addToolItem(tb, "ToggleGroupBy", e -> toggleSelectedFlag(false, true));
 
-    wTree = new Tree(top, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
+    wTree = new HopTree(top, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wTree);
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0);
