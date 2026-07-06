@@ -172,7 +172,7 @@ public class TikaDialog extends BaseTransformDialog {
     wlFilenameInField.setText(BaseMessages.getString(PKG, "TikaDialog.FilenameInField.Label"));
     PropsUi.setLook(wlFilenameInField);
     FormData fdlFilenameInField = new FormData();
-    fdlFilenameInField.left = new FormAttachment(0, -margin);
+    fdlFilenameInField.left = new FormAttachment(0, 0);
     fdlFilenameInField.top = new FormAttachment(0, margin);
     fdlFilenameInField.right = new FormAttachment(middle, -margin);
     wlFilenameInField.setLayoutData(fdlFilenameInField);
@@ -182,7 +182,7 @@ public class TikaDialog extends BaseTransformDialog {
     wFilenameInField.setToolTipText(
         BaseMessages.getString(PKG, "TikaDialog.FilenameInField.Tooltip"));
     FormData fdFileNameInField = new FormData();
-    fdFileNameInField.left = new FormAttachment(middle, -margin);
+    fdFileNameInField.left = new FormAttachment(middle, 0);
     fdFileNameInField.top = new FormAttachment(wlFilenameInField, 0, SWT.CENTER);
     wFilenameInField.setLayoutData(fdFileNameInField);
     wFilenameInField.addListener(
@@ -206,7 +206,7 @@ public class TikaDialog extends BaseTransformDialog {
     wFilenameField.setEditable(true);
     PropsUi.setLook(wFilenameField);
     FormData fdFilenameField = new FormData();
-    fdFilenameField.left = new FormAttachment(middle, -margin);
+    fdFilenameField.left = new FormAttachment(middle, 0);
     fdFilenameField.top = new FormAttachment(wlFilenameField, 0, SWT.CENTER);
     fdFilenameField.right = new FormAttachment(100, -margin);
     wFilenameField.setLayoutData(fdFilenameField);
