@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -37,6 +38,10 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileTypeHandler;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.commonmark.Extension;
+import org.commonmark.ext.footnotes.FootnotesExtension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.ext.task.list.items.TaskListItemsExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -55,6 +60,10 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
   public static final String TOOLBAR_PARENT_ID = "MarkDownExplorerFileTypeHandler-Toolbar";
   public static final String TOOLBAR_ITEM_PREVIEW =
       "MarkDownExplorerFileTypeHandler-ToolBar-Preview";
+
+  private static final List<Extension> MARKDOWN_EXTENSIONS =
+      List.of(
+          TablesExtension.create(), TaskListItemsExtension.create(), FootnotesExtension.create());
 
   public MarkDownExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
@@ -125,8 +134,8 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       String markdown = editorWidget.getText();
 
       // Parse markdown to HTML body content
-      Parser parser = Parser.builder().build();
-      HtmlRenderer renderer = HtmlRenderer.builder().build();
+      Parser parser = Parser.builder().extensions(MARKDOWN_EXTENSIONS).build();
+      HtmlRenderer renderer = HtmlRenderer.builder().extensions(MARKDOWN_EXTENSIONS).build();
       Node document = parser.parse(markdown);
       String htmlContent = renderer.render(document);
 
@@ -186,6 +195,22 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       html.append("  border-left-width: 4px;\n");
       html.append("  border-left-style: solid;\n");
       html.append("}\n");
+      html.append("table {\n");
+      html.append("  width: 100%;\n");
+      html.append("  margin: 1.5em 0;\n");
+      html.append("  border-collapse: collapse;\n");
+      html.append("  border-radius: 6px;\n");
+      html.append("  overflow: hidden;\n");
+      html.append("  font-size: 0.95em;\n");
+      html.append("}\n");
+      html.append("th, td {\n");
+      html.append("  padding: 0.6em 0.85em;\n");
+      html.append("  border: 1px solid;\n");
+      html.append("  text-align: left;\n");
+      html.append("}\n");
+      html.append("th {\n");
+      html.append("  font-weight: 600;\n");
+      html.append("}\n");
 
       if (PropsUi.getInstance().isDarkMode()) {
         html.append("body {\n");
@@ -211,6 +236,19 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
         html.append("  color: #94a3b8;\n");
         html.append("  background-color: #0f172a;\n");
         html.append("}\n");
+        html.append("table {\n");
+        html.append("  background-color: #0f172a;\n");
+        html.append("}\n");
+        html.append("th, td {\n");
+        html.append("  border-color: #334155;\n");
+        html.append("}\n");
+        html.append("th {\n");
+        html.append("  background-color: #1e293b;\n");
+        html.append("  color: #f8fafc;\n");
+        html.append("}\n");
+        html.append("tbody tr:nth-child(even) {\n");
+        html.append("  background-color: #111827;\n");
+        html.append("}\n");
       } else {
         html.append("body {\n");
         html.append("  background-color: #f8fafc;\n");
@@ -233,6 +271,19 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
         html.append("blockquote {\n");
         html.append("  border-left-color: #cbd5e1;\n");
         html.append("  color: #64748b;\n");
+        html.append("  background-color: #f8fafc;\n");
+        html.append("}\n");
+        html.append("table {\n");
+        html.append("  background-color: #ffffff;\n");
+        html.append("}\n");
+        html.append("th, td {\n");
+        html.append("  border-color: #e2e8f0;\n");
+        html.append("}\n");
+        html.append("th {\n");
+        html.append("  background-color: #f1f5f9;\n");
+        html.append("  color: #0f172a;\n");
+        html.append("}\n");
+        html.append("tbody tr:nth-child(even) {\n");
         html.append("  background-color: #f8fafc;\n");
         html.append("}\n");
       }
