@@ -112,7 +112,8 @@ public class PreviewTableSettingsDialog extends Dialog {
     previewExecutionVariables = null;
     int initialQueryTimeoutSeconds = defaultTimeoutFieldSeconds(hopVariables);
 
-    shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET);
+    shell =
+        new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL | SWT.SHEET);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.setText(BaseMessages.getString(PKG, "PreviewTableSettingsDialog.Title"));
