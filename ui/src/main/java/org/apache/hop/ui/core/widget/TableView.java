@@ -1998,7 +1998,9 @@ public class TableView extends Composite {
     Rectangle cellBounds = row.getBounds(colNr);
     Point location = table.toDisplay(cellBounds.x, cellBounds.y);
 
-    final Shell popup = new Shell(getShell(), SWT.NONE);
+    // Resizable (but title-less) floating shell so the user can drag its edges to make a long value
+    // bigger, matching the read-only value viewer.
+    final Shell popup = new Shell(getShell(), SWT.RESIZE);
     multilineShell = popup;
     popup.addListener(
         SWT.Dispose,
@@ -2059,8 +2061,9 @@ public class TableView extends Composite {
           }
         };
 
-    // Commit when focus leaves the box; Ctrl+Enter also commits; Escape cancels.
-    multi.addListener(SWT.FocusOut, e -> commit.run());
+    // Ctrl+Enter commits; Escape cancels. (Clicking away commits too — armed below via shell
+    // deactivation rather than a text focus-out, so grabbing a resize edge doesn't
+    // commit-and-close.)
     multi.addListener(
         SWT.KeyDown,
         e -> {
@@ -2073,14 +2076,19 @@ public class TableView extends Composite {
         });
 
     popup.open();
-    // Grab focus after the double-click settles so a trailing focus event can't self-close it.
+    // Grab focus after the double-click settles so a trailing focus event can't self-close it. Only
+    // once focus is settled inside the box do we arm click-away commit, so an early stray event or
+    // a
+    // resize-edge grab (which keeps the shell active) doesn't commit-and-close it.
     getDisplay()
         .asyncExec(
             () -> {
-              if (!multi.isDisposed()) {
-                multi.setFocus();
-                multi.setSelection(multi.getText().length());
+              if (multi.isDisposed()) {
+                return;
               }
+              multi.setFocus();
+              multi.setSelection(multi.getText().length());
+              popup.addListener(SWT.Deactivate, e -> commit.run());
             });
   }
 
