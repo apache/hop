@@ -417,7 +417,7 @@ public class ConfigGuiOptionsTab {
     }
 
     // General appearance section - using ExpandBar
-    ExpandBar appearanceExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    ExpandBar appearanceExpandBar = new ExpandBar(wLookComp, SWT.NONE);
     PropsUi.setLook(appearanceExpandBar);
 
     FormData fdAppearanceExpandBar = new FormData();
@@ -554,7 +554,7 @@ public class ConfigGuiOptionsTab {
     lastControl = appearanceExpandBar;
 
     // Fonts section - using ExpandBar
-    ExpandBar fontsExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    ExpandBar fontsExpandBar = new ExpandBar(wLookComp, SWT.NONE);
     PropsUi.setLook(fontsExpandBar);
 
     FormData fdFontsExpandBar = new FormData();
@@ -663,7 +663,7 @@ public class ConfigGuiOptionsTab {
     lastControl = fontsExpandBar;
 
     // Pipeline & Workflow canvas section - using ExpandBar
-    ExpandBar canvasExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    ExpandBar canvasExpandBar = new ExpandBar(wLookComp, SWT.NONE);
     PropsUi.setLook(canvasExpandBar);
 
     FormData fdCanvasExpandBar = new FormData();
@@ -817,7 +817,7 @@ public class ConfigGuiOptionsTab {
     lastControl = canvasExpandBar;
 
     // Auto-layout section - using ExpandBar
-    ExpandBar autoLayoutExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    ExpandBar autoLayoutExpandBar = new ExpandBar(wLookComp, SWT.NONE);
     PropsUi.setLook(autoLayoutExpandBar);
 
     FormData fdAutoLayoutExpandBar = new FormData();
@@ -943,7 +943,7 @@ public class ConfigGuiOptionsTab {
     lastControl = autoLayoutExpandBar;
 
     // Tables & grids section - using ExpandBar
-    ExpandBar tablesExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    ExpandBar tablesExpandBar = new ExpandBar(wLookComp, SWT.NONE);
     PropsUi.setLook(tablesExpandBar);
 
     FormData fdTablesExpandBar = new FormData();
@@ -1031,7 +1031,7 @@ public class ConfigGuiOptionsTab {
     lastControl = tablesExpandBar;
 
     // Metrics panel section - using ExpandBar
-    ExpandBar metricsPanelExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    ExpandBar metricsPanelExpandBar = new ExpandBar(wLookComp, SWT.NONE);
     PropsUi.setLook(metricsPanelExpandBar);
 
     FormData fdMetricsPanelExpandBar = new FormData();
