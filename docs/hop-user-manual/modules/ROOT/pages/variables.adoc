@@ -250,6 +250,14 @@ Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the 
 See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
 |HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|N|Set this variable to Y to allow your pipeline to pass 'null' fields and/or empty types.
 |HOP_BATCHING_ROWSET|N|Set this variable to 'Y' if you want to test a more efficient batching row set.
+|HOP_DATABASE_CONNECTION_TIMEOUT|30|Default login/connection timeout in **seconds** applied when opening a JDBC database connection (maps to `DriverManager.setLoginTimeout`).
+Defaults to `30`; set to `0` to impose no timeout (a stalled connect can then block indefinitely).
+The setting is advisory: some JDBC drivers ignore it in favor of their own connection options.
+|HOP_DATABASE_SOCKET_TIMEOUT|0|Default network/socket timeout in **seconds** applied to a JDBC database connection after it is opened (maps to `Connection.setNetworkTimeout`).
+`0` (default) means no timeout is imposed.
+WARNING: when set, this applies to *every* request on the connection, so any single query, read or bulk operation that runs longer than the timeout is aborted and the connection is closed. Use a value large enough for your longest-running SQL.
+This bounds reads on an already-established connection; the initial handshake read still relies on the driver's own socket-timeout connection option.
+Drivers that do not support the operation are ignored.
 |HOP_DEFAULT_BIGNUMBER_FORMAT||The name of the variable containing an alternative default bignumber format
 |HOP_DEFAULT_BUFFER_POLLING_WAITTIME|20|This is the default polling frequency for the transforms input buffer (in ms)
 |HOP_DEFAULT_DATE_FORMAT||The name of the variable containing an alternative default date format
