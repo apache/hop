@@ -112,6 +112,26 @@ jdbc:sqlserver://localhost:1433;" +
 |trustServerCertificate|true
 |===
 
+== Connection and socket timeouts
+
+If a database host becomes unreachable at the wrong moment (for example a half-open TCP connection that is never answered), a transform can block indefinitely while it waits for the driver. This makes a pipeline appear to "hang" during initialization, even though the databases themselves are healthy.
+
+Two variables set a default timeout for *every* JDBC connection Hop opens:
+
+[%header, width="90%", cols="2,1,4"]
+|===
+|Variable|Default|Description
+|`HOP_DATABASE_CONNECTION_TIMEOUT`|`30`|Login/connection timeout in **seconds** applied while establishing a connection (maps to `DriverManager.setLoginTimeout`). Set to `0` to leave the connect unbounded. The setting is advisory - some drivers ignore it in favor of their own connection options.
+|`HOP_DATABASE_SOCKET_TIMEOUT`|`0`|Network/socket timeout in **seconds** applied to a connection once it is open (maps to `Connection.setNetworkTimeout`). `0` (default) leaves reads unbounded. Unsupported drivers are ignored.
+|===
+
+[WARNING]
+====
+`HOP_DATABASE_SOCKET_TIMEOUT` is disabled by default (`0`) on purpose: when set, it applies to *every* request on the connection, not just the initial read. Any single query, read or bulk operation that runs longer than the timeout is aborted and its connection is closed. If your pipelines contain long-running SQL (heavy aggregations, large bulk loads, slow reports), only enable it with a value large enough to cover them.
+====
+
+These are global defaults applied to all connections. For finer control - or to bound the *initial* handshake read, which happens inside the driver before Hop can apply the socket timeout - set the driver's own timeout options in the connection's `Options` tab (see the Options table above). For example:
+
 == Hard-coded JDBC to Hop data type mappings
 
 Below are the mappings applied by Hop when converting from database column types to Hop data types when `HOP_DB_DDL_COMPATIBLE` is `false` (the default).
