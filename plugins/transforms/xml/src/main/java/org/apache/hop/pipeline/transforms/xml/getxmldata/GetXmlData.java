@@ -443,152 +443,178 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
 
   private boolean ReadNextString() {
 
-    try {
-      // Grab another row ...
-      data.readrow = getRow();
+    // Loop so that, when error handling is enabled, we can skip an offending input row and
+    // immediately continue with the next one without recursing.
+    while (true) {
+      try {
+        // Grab another row ...
+        data.readrow = getRow();
 
-      if (data.readrow == null) {
-        // finished processing!
+        if (data.readrow == null) {
+          // finished processing!
 
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "GetXMLData.Log.FinishedProcessing"));
-        }
-        return false;
-      }
-
-      if (first) {
-        first = false;
-
-        data.nrReadRow = getInputRowMeta().size();
-        data.inputRowMeta = getInputRowMeta();
-        data.outputRowMeta = data.inputRowMeta.clone();
-        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-        // Get total previous fields
-        data.totalpreviousfields = data.inputRowMeta.size();
-
-        // Create convert meta-data objects that will contain Date & Number formatters
-        data.convertRowMeta = new RowMeta();
-        for (IValueMeta valueMeta : data.convertRowMeta.getValueMetaList()) {
-          data.convertRowMeta.addValueMeta(
-              ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING));
+          if (isDetailed()) {
+            logDetailed(BaseMessages.getString(PKG, "GetXMLData.Log.FinishedProcessing"));
+          }
+          return false;
         }
 
-        // For String to <type> conversions, we allocate a conversion meta data row as well...
-        //
-        data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+        if (first) {
+          first = false;
 
-        // Check is XML field is provided
-        if (Utils.isEmpty(meta.getXmlField())) {
-          logError(BaseMessages.getString(PKG, "GetXMLData.Log.NoField"));
-          throw new HopException(BaseMessages.getString(PKG, "GetXMLData.Log.NoField"));
-        }
+          data.nrReadRow = getInputRowMeta().size();
+          data.inputRowMeta = getInputRowMeta();
+          data.outputRowMeta = data.inputRowMeta.clone();
+          meta.getFields(
+              data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-        // cache the position of the field
-        if (data.indexOfXmlField < 0) {
-          data.indexOfXmlField = getInputRowMeta().indexOfValue(meta.getXmlField());
+          // Get total previous fields
+          data.totalpreviousfields = data.inputRowMeta.size();
+
+          // Create convert meta-data objects that will contain Date & Number formatters
+          data.convertRowMeta = new RowMeta();
+          for (IValueMeta valueMeta : data.convertRowMeta.getValueMetaList()) {
+            data.convertRowMeta.addValueMeta(
+                ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING));
+          }
+
+          // For String to <type> conversions, we allocate a conversion meta data row as well...
+          //
+          data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+
+          // Check is XML field is provided
+          if (Utils.isEmpty(meta.getXmlField())) {
+            logError(BaseMessages.getString(PKG, "GetXMLData.Log.NoField"));
+            throw new HopException(BaseMessages.getString(PKG, "GetXMLData.Log.NoField"));
+          }
+
+          // cache the position of the field
           if (data.indexOfXmlField < 0) {
-            // The field is unreachable !
-            logError(
-                BaseMessages.getString(
-                    PKG, "GetXMLData.Log.ErrorFindingField", meta.getXmlField()));
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "GetXMLData.Exception.CouldnotFindField", meta.getXmlField()));
+            data.indexOfXmlField = getInputRowMeta().indexOfValue(meta.getXmlField());
+            if (data.indexOfXmlField < 0) {
+              // The field is unreachable !
+              logError(
+                  BaseMessages.getString(
+                      PKG, "GetXMLData.Log.ErrorFindingField", meta.getXmlField()));
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "GetXMLData.Exception.CouldnotFindField", meta.getXmlField()));
+            }
           }
         }
-      }
 
-      if (meta.isInFields()) {
-        // get XML field value
-        String fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfXmlField);
+        if (meta.isInFields()) {
+          // get XML field value
+          String fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfXmlField);
 
-        if (isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(
-                  PKG, "GetXMLData.Log.XMLStream", meta.getXmlField(), fieldvalue));
-        }
-
-        if (meta.isAFile()) {
-          FileObject file = null;
-          try {
-            // XML source is a file.
-            file = HopVfs.getFileObject(resolve(fieldvalue), variables);
-
-            if (meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0) {
-              logBasic(
-                  BaseMessages.getString(
-                      PKG, "GetXMLData.Error.FileSizeZero", "" + file.getName()));
-              return ReadNextString();
-            }
-
-            // Open the XML document
-            if (!setDocument(null, file, false, false)) {
-              throw new HopException(
-                  BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT));
-            }
-
-            if (!applyXPath()) {
-              throw new HopException(
-                  BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
-            }
-
-            addFileToResultFilesname(file);
-
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES,
-                      "" + data.nodesize,
-                      file.getName().getBaseName()));
-            }
-
-          } catch (Exception e) {
-            throw new HopException(e);
-          } finally {
-            try {
-              if (file != null) {
-                file.close();
-              }
-            } catch (Exception e) {
-              // Ignore close errors
-            }
-          }
-        } else {
-          boolean url = false;
-          boolean xmltring = true;
-          if (meta.isReadUrl()) {
-            url = true;
-            xmltring = false;
-          }
-
-          // Open the XML document
-          if (!setDocument(fieldvalue, null, xmltring, url)) {
-            throw new HopException(
-                BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT));
-          }
-
-          // Apply XPath and set node list
-          if (!applyXPath()) {
-            throw new HopException(
-                BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
-          }
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
-                    PKG, CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES, "" + data.nodesize));
+                    PKG, "GetXMLData.Log.XMLStream", meta.getXmlField(), fieldvalue));
+          }
+
+          try {
+            if (meta.isAFile()) {
+              FileObject file = null;
+              try {
+                // XML source is a file.
+                file = HopVfs.getFileObject(resolve(fieldvalue), variables);
+
+                if (meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0) {
+                  logBasic(
+                      BaseMessages.getString(
+                          PKG, "GetXMLData.Error.FileSizeZero", "" + file.getName()));
+                  continue;
+                }
+
+                // Open the XML document
+                if (!setDocument(null, file, false, false)) {
+                  throw new HopException(
+                      BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT));
+                }
+
+                if (!applyXPath()) {
+                  throw new HopException(
+                      BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
+                }
+
+                addFileToResultFilesname(file);
+
+                if (isDetailed()) {
+                  logDetailed(
+                      BaseMessages.getString(
+                          PKG,
+                          CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES,
+                          "" + data.nodesize,
+                          file.getName().getBaseName()));
+                }
+
+              } catch (Exception e) {
+                throw new HopException(e);
+              } finally {
+                try {
+                  if (file != null) {
+                    file.close();
+                  }
+                } catch (Exception e) {
+                  // Ignore close errors
+                }
+              }
+            } else {
+              boolean url = false;
+              boolean xmltring = true;
+              if (meta.isReadUrl()) {
+                url = true;
+                xmltring = false;
+              }
+
+              // Open the XML document
+              if (!setDocument(fieldvalue, null, xmltring, url)) {
+                throw new HopException(
+                    BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_CREATE_DOCUMENT));
+              }
+
+              // Apply XPath and set node list
+              if (!applyXPath()) {
+                throw new HopException(
+                    BaseMessages.getString(PKG, CONST_GET_XMLDATA_LOG_UNABLE_APPLY_XPATH));
+              }
+              if (isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(
+                        PKG, CONST_GET_XMLDATA_LOG_LOOP_FILE_OCCURENCES, "" + data.nodesize));
+              }
+            }
+          } catch (HopException e) {
+            // A problem while reading or parsing the XML coming from the input field is a
+            // per-row data error (e.g. the field is null or the content is not valid XML).
+            // When error handling is enabled, divert the offending input row to the error
+            // stream and continue with the next one instead of aborting the whole transform.
+            if (getTransformMeta().isDoingErrorHandling()) {
+              // Keep the same row structure processPutRow() uses so both error paths align.
+              Object[] errorRowData =
+                  RowDataUtil.createResizedCopy(data.readrow, data.outputRowMeta.size());
+              putError(
+                  data.outputRowMeta,
+                  errorRowData,
+                  1,
+                  e.toString(),
+                  meta.getXmlField(),
+                  "GetXMLData002");
+              continue;
+            }
+            throw e;
           }
         }
+        return true;
+      } catch (Exception e) {
+        logError(BaseMessages.getString(PKG, "GetXMLData.Log.UnexpectedError", e.toString()));
+        stopAll();
+        logError(Const.getStackTracker(e));
+        setErrors(1);
+        return false;
       }
-    } catch (Exception e) {
-      logError(BaseMessages.getString(PKG, "GetXMLData.Log.UnexpectedError", e.toString()));
-      stopAll();
-      logError(Const.getStackTracker(e));
-      setErrors(1);
-      return false;
     }
-    return true;
   }
 
   private void addFileToResultFilesname(FileObject file) {
