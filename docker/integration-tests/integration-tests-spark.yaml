@@ -18,7 +18,7 @@
 services:
   integration_test_spark:
     extends:
-      file: integration-tests-base.yaml
+      file: integration-tests-beam-base.yaml
       service: integration_test
     depends_on:
       - spark

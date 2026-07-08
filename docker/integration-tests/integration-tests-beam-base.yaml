@@ -15,35 +15,18 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# Same as integration-tests-base.yaml, but backed by hop-beam-image, which adds the Hop fat jar
+# at /tmp/hop-fatjar.jar. Only the Beam-based projects (spark, flink, gcp) extend this service.
+# hop-beam-image is FROM hop-base-image, so the base image must be built first (run-tests-docker.sh
+# builds the base image up-front and this beam image on demand when a Beam project runs).
 services:
-  integration_test_flink:
-    extends:
-      file: integration-tests-beam-base.yaml
-      service: integration_test
-    depends_on:
-      - taskmanager
-    links:
-      - jobmanager
-      - taskmanager
-
-  jobmanager:
-    image: flink:1.18.1-java17
-    ports:
-      - "8081"
-    command: jobmanager
+  integration_test:
+    image: hop-beam-image
+    build:
+      context: ../../.
+      dockerfile: docker/integration-tests/unit-tests-beam.Dockerfile
+    volumes:
+      - ../../integration-tests/:/files
     environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager        
-
-  taskmanager:
-    image: flink:1.18.1-java17
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    scale: 1
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 2        
+      - FLASK_ENV=docker
+    command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

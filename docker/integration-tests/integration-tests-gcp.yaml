@@ -15,35 +15,12 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# The gcp project runs pipelines on Google Dataflow, which needs the Hop fat jar. It therefore uses
+# hop-beam-image (via integration-tests-beam-base.yaml) instead of the plain base image. Without
+# this file the runner would fall back to the fat-jar-less base image. The gcp project is currently
+# disabled (integration-tests/gcp/disabled.txt) as it requires live Google Cloud credentials.
 services:
-  integration_test_flink:
+  integration_test_gcp:
     extends:
       file: integration-tests-beam-base.yaml
       service: integration_test
-    depends_on:
-      - taskmanager
-    links:
-      - jobmanager
-      - taskmanager
-
-  jobmanager:
-    image: flink:1.18.1-java17
-    ports:
-      - "8081"
-    command: jobmanager
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager        
-
-  taskmanager:
-    image: flink:1.18.1-java17
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    scale: 1
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 2        
