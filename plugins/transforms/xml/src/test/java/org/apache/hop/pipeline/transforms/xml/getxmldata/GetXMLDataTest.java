@@ -41,6 +41,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
@@ -452,5 +453,120 @@ class GetXMLDataTest {
     getXmlData.init();
     assertEquals("${xml_path}", gxdm.getInputFields().get(0).getXPath());
     assertEquals("data/owner", gxdm.getInputFields().get(0).getResolvedXPath());
+  }
+
+  /** Build the five string fields used by the "in fields" test pipelines. */
+  private GetXmlDataField[] createXmlDataFields() {
+    String[] names = {"objectid", "sapident", "quantity", "merkmalname", "merkmalswert"};
+    String[] xpaths = {"ObjectID", "SAPIDENT", "Quantity", "Merkmalname", "Merkmalswert"};
+
+    GetXmlDataField[] fields = new GetXmlDataField[names.length];
+    for (int idx = 0; idx < fields.length; idx++) {
+      GetXmlDataField field = new GetXmlDataField();
+      field.setName(names[idx]);
+      field.setXPath(xpaths[idx]);
+      field.setElementType(GetXmlDataField.getElementTypeCode(GetXmlDataField.ELEMENT_TYPE_NODE));
+      field.setType(ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_STRING));
+      field.setFormat("");
+      field.setLength(-1);
+      field.setPrecision(-1);
+      field.setCurrencySymbol("");
+      field.setDecimalSymbol("");
+      field.setGroupSymbol("");
+      field.setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
+      fields[idx] = field;
+    }
+    return fields;
+  }
+
+  /**
+   * With error handling enabled and XML coming from an input field, a row whose XML field is null
+   * (or otherwise unparseable) must be diverted to the error stream while the transform keeps
+   * processing the remaining rows, instead of aborting the whole transform. Regression test for the
+   * "transform still stops when it should continue" bug.
+   */
+  @Test
+  void testErrorHandlingContinuesOnBadXml() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("getxmldata-errorhandling");
+
+    PluginRegistry registry = PluginRegistry.getInstance();
+
+    // Injector
+    String injectorTransformName = "injector transform";
+    InjectorMeta im = new InjectorMeta();
+    String injectorPid = registry.getPluginId(TransformPluginType.class, im);
+    TransformMeta injectorTransform = new TransformMeta(injectorPid, injectorTransformName, im);
+    pipelineMeta.addTransform(injectorTransform);
+
+    // Get XML Data, reading the XML from the incoming "field1"
+    String getXMLDataName = "get xml data transform";
+    GetXmlDataMeta gxdm = new GetXmlDataMeta();
+    gxdm.setEncoding(Const.UTF_8);
+    gxdm.setAFile(false);
+    gxdm.setInFields(true);
+    gxdm.setLoopXPath("Level1/Level2/Props");
+    gxdm.setXmlField("field1");
+    gxdm.setInputFields(java.util.Arrays.asList(createXmlDataFields()));
+    String getXMLDataPid = registry.getPluginId(TransformPluginType.class, gxdm);
+    TransformMeta getXMLDataTransform = new TransformMeta(getXMLDataPid, getXMLDataName, gxdm);
+    pipelineMeta.addTransform(getXMLDataTransform);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(injectorTransform, getXMLDataTransform));
+
+    // Main output
+    String dummyMainName = "dummy main";
+    DummyMeta dmMain = new DummyMeta();
+    String dummyMainPid = registry.getPluginId(TransformPluginType.class, dmMain);
+    TransformMeta dummyMain = new TransformMeta(dummyMainPid, dummyMainName, dmMain);
+    pipelineMeta.addTransform(dummyMain);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(getXMLDataTransform, dummyMain));
+
+    // Error output
+    String dummyErrorName = "dummy error";
+    DummyMeta dmError = new DummyMeta();
+    String dummyErrorPid = registry.getPluginId(TransformPluginType.class, dmError);
+    TransformMeta dummyError = new TransformMeta(dummyErrorPid, dummyErrorName, dmError);
+    pipelineMeta.addTransform(dummyError);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(getXMLDataTransform, dummyError));
+
+    // Enable error handling on Get XML Data, routing error rows to the error dummy
+    TransformErrorMeta errorMeta = new TransformErrorMeta(getXMLDataTransform, dummyError);
+    errorMeta.setEnabled(true);
+    getXMLDataTransform.setTransformErrorMeta(errorMeta);
+
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.prepareExecution();
+
+    // Capture the error rows emitted by the Get XML Data transform itself...
+    RowTransformCollector errorCollector = new RowTransformCollector();
+    pipeline.getTransform(getXMLDataName, 0).addRowListener(errorCollector);
+    // ...and the good rows arriving at the main output.
+    RowTransformCollector mainCollector = new RowTransformCollector();
+    pipeline.getTransform(dummyMainName, 0).addRowListener(mainCollector);
+
+    RowProducer rp = pipeline.addRowProducer(injectorTransformName, 0);
+    pipeline.startThreads();
+
+    // A good row, a row whose XML field is null (the bug trigger), then another good row.
+    IRowMeta rm = createRowMetaInterface();
+    rp.putRow(rm, new Object[] {getXML1()});
+    rp.putRow(rm, new Object[] {null});
+    rp.putRow(rm, new Object[] {getXML2()});
+    rp.finished();
+
+    pipeline.waitUntilFinished();
+
+    // The transform must keep going: no errors reported, so the pipeline did not abort.
+    assertEquals(0, pipeline.getResult().getNrErrors(), "transform should not report errors");
+
+    // Both good rows still produce their output (2 from XML1 + 1 from XML2).
+    assertEquals(3, mainCollector.getRowsWritten().size(), "good rows still flow through");
+
+    // The single bad row is diverted to error handling and carries the original (null) field.
+    assertEquals(1, errorCollector.getRowsError().size(), "bad row goes to error handling");
+    assertEquals(
+        null,
+        errorCollector.getRowsError().getFirst().getData()[0],
+        "error row keeps the offending input value");
   }
 }
