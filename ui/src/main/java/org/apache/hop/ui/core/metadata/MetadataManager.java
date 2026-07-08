@@ -498,7 +498,9 @@ public class MetadataManager<T extends IHopMetadata> {
               "MetadataManager.New.Label",
               TranslateUtil.translate(this.getManagedName(), managedClass)));
 
-      MetadataPerspective.getInstance().addEditor(editor);
+      MetadataPerspective perspective = MetadataPerspective.getInstance();
+      perspective.activate();
+      perspective.addEditor(editor);
 
       return element;
     } catch (Exception e) {

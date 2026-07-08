@@ -1040,6 +1040,18 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   /**
+   * Appends one "new" item per metadata type to {@code menu}, grouped by category (in the
+   * configured order, with a separator between groups) exactly like this perspective's global "new"
+   * button. Used by the global HopGui "New" drop-down so both menus stay in sync. Returns the
+   * number of items that were added.
+   */
+  public int addNewMetadataTypeMenuItems(Menu menu) {
+    int before = menu.getItemCount();
+    addNewTypeMenuItems(menu, null);
+    return menu.getItemCount() - before;
+  }
+
+  /**
    * Toggle button controlling whether metadata types and categories with no items are shown in the
    * tree. The icon swaps to reflect the action a click will perform.
    */
