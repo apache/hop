@@ -39,6 +39,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.FileLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
@@ -654,5 +655,32 @@ public class ActionShell extends ActionBase {
               remarks,
               AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
     }
+  }
+
+  @Override
+  public String[] getReferencedObjectDescriptions() {
+    if (insertScript) {
+      return null;
+    }
+    return new String[] {
+      BaseMessages.getString(PKG, "ActionShell.ReferencedObject.Description"),
+    };
+  }
+
+  @Override
+  public boolean[] isReferencedObjectEnabled() {
+    if (insertScript) {
+      return null;
+    }
+    return new boolean[] {!Utils.isEmpty(filename)};
+  }
+
+  @Override
+  public IHasFilename loadReferencedObject(
+      int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    if (index != 0 || insertScript || Utils.isEmpty(filename)) {
+      throw new HopException(BaseMessages.getString(PKG, "ActionShell.NoScriptFileSpecified"));
+    }
+    return () -> filename;
   }
 }

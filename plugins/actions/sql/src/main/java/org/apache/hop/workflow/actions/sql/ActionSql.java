@@ -33,6 +33,8 @@ import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -247,5 +249,32 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
             "SQL",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+  }
+
+  @Override
+  public String[] getReferencedObjectDescriptions() {
+    if (!sqlFromFile) {
+      return null;
+    }
+    return new String[] {
+      BaseMessages.getString(PKG, "ActionSQL.ReferencedObject.Description"),
+    };
+  }
+
+  @Override
+  public boolean[] isReferencedObjectEnabled() {
+    if (!sqlFromFile) {
+      return null;
+    }
+    return new boolean[] {!Utils.isEmpty(sqlFilename)};
+  }
+
+  @Override
+  public IHasFilename loadReferencedObject(
+      int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    if (index != 0 || !sqlFromFile || Utils.isEmpty(sqlFilename)) {
+      throw new HopException(BaseMessages.getString(PKG, "ActionSQL.NoSQLFileSpecified"));
+    }
+    return () -> sqlFilename;
   }
 }
