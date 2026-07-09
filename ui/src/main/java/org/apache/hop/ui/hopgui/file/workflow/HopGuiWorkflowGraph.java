@@ -417,6 +417,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     FormData toolbarFd = new FormData();
     toolbarFd.left = new FormAttachment(0, 0);
+    toolbarFd.top = new FormAttachment(0, 0);
     toolbarFd.right = new FormAttachment(100, 0);
     toolBar.setLayoutData(toolbarFd);
 
@@ -1931,6 +1932,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       layoutData.right = new FormAttachment(100, 0);
       toolBar.setLayoutData(layoutData);
       toolBar.pack();
+      // Let the toolbar grow its height when its items wrap to a second row so they don't overlap
+      // the canvas below it.
+      toolBarContainer.enableWrapAutoHeight();
       PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
       // enable / disable the icons in the toolbar too.
