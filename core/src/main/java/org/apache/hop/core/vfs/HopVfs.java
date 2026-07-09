@@ -665,6 +665,39 @@ public class HopVfs {
   }
 
   /**
+   * Check if a filename is an absolute path and therefore should not have a base/relative folder
+   * prepended. This recognises:
+   *
+   * <ul>
+   *   <li>VFS URIs with a scheme, e.g. {@code file:///...}, {@code s3://...}, {@code hdfs://...}
+   *   <li>POSIX absolute paths ({@code /...})
+   *   <li>Windows UNC paths ({@code \\host\share})
+   *   <li>Windows drive-letter paths ({@code C:\...} / {@code C:/...})
+   * </ul>
+   *
+   * @param filename the (unresolved) filename to check
+   * @return true if the filename is an absolute path
+   */
+  public static boolean isAbsolutePath(String filename) {
+    if (filename == null || filename.isEmpty()) {
+      return false;
+    }
+    // A VFS URI with a scheme, e.g. file:///, s3://, hdfs://, ...
+    if (filename.contains("://")) {
+      return true;
+    }
+    // POSIX absolute path or Windows UNC path (\\host\share)
+    if (filename.startsWith("/") || filename.startsWith("\\")) {
+      return true;
+    }
+    // Windows drive-letter absolute path: C:\... or C:/...
+    return filename.length() >= 3
+        && Character.isLetter(filename.charAt(0))
+        && filename.charAt(1) == ':'
+        && (filename.charAt(2) == '/' || filename.charAt(2) == '\\');
+  }
+
+  /**
    * Find files with a specific extension in the specified folder and optionally
    *
    * @param folder The folder to search in
