@@ -378,15 +378,15 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
 
     String testPathDir = BaseDialog.presentFileDialog(this.getShell(), null, null, true);
 
-    // Set the name to the base folder if the name is empty
+    // Update the base path with the selected folder
     //
     try {
-      if (testPathDir != null && StringUtils.isEmpty(wPipelineFilename.getText())) {
+      if (testPathDir != null) {
         wBasePath.setText(Const.NVL(testPathDir, ""));
       }
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting testPathDir", e);
-      // Don't change the name
+      // Don't change the base path
     }
   }
 

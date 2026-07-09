@@ -45,6 +45,31 @@ class HopVfsTest {
   }
 
   @Test
+  void testIsAbsolutePathRecognisesAbsoluteForms() {
+    // POSIX
+    assertTrue(HopVfs.isAbsolutePath("/home/me/project/test.hpl"));
+    // Windows drive letter, both separators
+    assertTrue(HopVfs.isAbsolutePath("C:/Users/me/test.hpl"));
+    assertTrue(HopVfs.isAbsolutePath("C:\\Users\\me\\test.hpl"));
+    // Windows UNC path
+    assertTrue(HopVfs.isAbsolutePath("\\\\host\\share\\test.hpl"));
+    // VFS URIs with a scheme
+    assertTrue(HopVfs.isAbsolutePath("file:///home/me/test.hpl"));
+    assertTrue(HopVfs.isAbsolutePath("s3://bucket/test.hpl"));
+  }
+
+  @Test
+  void testIsAbsolutePathRejectsRelativeForms() {
+    assertFalse(HopVfs.isAbsolutePath(null));
+    assertFalse(HopVfs.isAbsolutePath(""));
+    assertFalse(HopVfs.isAbsolutePath("./test.hpl"));
+    assertFalse(HopVfs.isAbsolutePath("test.hpl"));
+    assertFalse(HopVfs.isAbsolutePath("sub/test.hpl"));
+    // Windows drive-relative (no separator after the colon) is NOT an absolute path
+    assertFalse(HopVfs.isAbsolutePath("C:test.hpl"));
+  }
+
+  @Test
   void testCheckForSchemeSuccess() {
     String[] schemes = {"hdfs"};
     String vfsFilename = "hdfs://company.com:8020/tmp/acltest/";
