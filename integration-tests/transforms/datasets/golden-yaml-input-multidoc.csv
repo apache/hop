@@ -1,0 +1,4 @@
+name,type,distributed
+Spark,engine,Y
+Flink,engine,Y
+Janino,compiler,N

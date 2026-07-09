@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "distributed",
+          "data_set_field": "distributed"
+        }
+      ],
+      "field_order": [
+        "name",
+        "type",
+        "distributed"
+      ],
+      "data_set_name": "golden-yaml-input-multidoc",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0088-yaml-input-multidoc-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0088-yaml-input-multidoc.hpl"
+}

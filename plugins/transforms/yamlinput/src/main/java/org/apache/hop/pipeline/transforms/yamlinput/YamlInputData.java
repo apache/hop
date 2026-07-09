@@ -22,6 +22,7 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 
+/** yaml input data */
 @SuppressWarnings("java:S1104")
 public class YamlInputData extends BaseTransformData {
   public IRowMeta outputRowMeta;
@@ -44,6 +45,9 @@ public class YamlInputData extends BaseTransformData {
   public YamlReader yaml;
 
   public IRowMeta rowMeta;
+
+  /** yaml field path[] */
+  public String[] fieldPaths;
 
   public YamlInputData() {
     super();

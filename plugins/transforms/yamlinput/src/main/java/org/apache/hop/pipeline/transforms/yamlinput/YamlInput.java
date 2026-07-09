@@ -132,12 +132,12 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
                 PKG, "YamlInput.Log.YAMLStream", meta.getYamlField(), fieldValue));
       }
 
+      data.yaml = new YamlReader();
+      data.yaml.setFieldPaths(data.fieldPaths);
+
+      // source is a file.
       if (meta.isSourceFile()) {
-
-        // source is a file.
-
         FileObject yamlFile = HopVfs.getFileObject(fieldValue, variables);
-        data.yaml = new YamlReader();
         data.yaml.loadFile(yamlFile);
         dataVolumeIn =
             (dataVolumeIn != null ? dataVolumeIn : 0L) + data.yaml.getBytesReadFromFile();
@@ -145,7 +145,6 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
         addFileToResultFilesName(data.yaml.getFile());
       } else {
-        data.yaml = new YamlReader();
         data.yaml.loadString(fieldValue);
       }
     } catch (Exception e) {
@@ -235,6 +234,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
         // We have a file
         // define a YAML reader and load file
         data.yaml = new YamlReader();
+        data.yaml.setFieldPaths(data.fieldPaths);
         data.yaml.loadFile(data.file);
         dataVolumeIn =
             (dataVolumeIn != null ? dataVolumeIn : 0L) + data.yaml.getBytesReadFromFile();
@@ -416,14 +416,17 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
     if (super.init()) {
       data.rowIndex = 1L;
       data.nrInputFields = meta.getInputFields().size();
+      data.fieldPaths = new String[data.nrInputFields];
 
       data.rowMeta = new RowMeta();
       for (int i = 0; i < data.nrInputFields; i++) {
         YamlInputField field = meta.getInputFields().get(i);
-        String path = resolve(field.getPath());
+        String fieldName = resolve(field.getName());
+        // resolve config yaml field path(.eg: $.table.name)
+        data.fieldPaths[i] = YamlPathResolver.resolvePath(this, field.getPath());
 
         try {
-          IValueMeta valueMeta = ValueMetaFactory.createValueMeta(path, field.getType());
+          IValueMeta valueMeta = ValueMetaFactory.createValueMeta(fieldName, field.getType());
           valueMeta.setTrimType(field.getTrimType());
           data.rowMeta.addValueMeta(valueMeta);
         } catch (Exception e) {

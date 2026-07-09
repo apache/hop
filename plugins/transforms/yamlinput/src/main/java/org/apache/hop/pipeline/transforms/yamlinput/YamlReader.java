@@ -17,14 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.ReadContext;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -47,6 +55,10 @@ import org.yaml.snakeyaml.Yaml;
 public class YamlReader {
   private static final String DEFAULT_LIST_VALUE_NAME = "Value";
 
+  private static final Configuration JSON_PATH_CONFIG =
+      Configuration.defaultConfiguration()
+          .addOptions(Option.SUPPRESS_EXCEPTIONS, Option.DEFAULT_PATH_LEAF_TO_NULL);
+
   private String string;
   @Getter private FileObject file;
 
@@ -66,6 +78,14 @@ public class YamlReader {
   private boolean useMap;
   @Getter private Yaml yaml;
 
+  /** yaml field path */
+  private String[] fieldPaths;
+
+  private JsonPath[] compiledPaths;
+  private String[] discoveredFieldPaths;
+
+  private final Deque<Object[]> pendingRows = new ArrayDeque<>();
+
   /** Bytes read from the last loaded file (for data volume tracking). */
   @Getter private long bytesReadFromFile;
 
@@ -76,6 +96,26 @@ public class YamlReader {
     this.useMap = true;
     this.dataList = null;
     this.yaml = new Yaml();
+  }
+
+  /**
+   * Sets the YAML field paths to be extracted and pre-compiles them into {@link JsonPath} instances
+   * for better runtime performance.
+   *
+   * @param paths the array of field paths to extract; {@code null} clears all configured paths
+   */
+  public void setFieldPaths(String[] paths) {
+    if (paths == null) {
+      this.fieldPaths = null;
+      this.compiledPaths = null;
+      return;
+    }
+
+    this.fieldPaths = paths.clone();
+    this.compiledPaths = new JsonPath[paths.length];
+    for (int i = 0; i < paths.length; i++) {
+      this.compiledPaths[i] = JsonPath.compile(YamlPathResolver.normalize(paths[i]));
+    }
   }
 
   public void loadFile(FileObject file) throws Exception {
@@ -107,6 +147,14 @@ public class YamlReader {
 
   /** get row */
   public Object[] getRow(IRowMeta rowMeta) {
+    if (!pendingRows.isEmpty()) {
+      Object[] row = pendingRows.poll();
+      if (pendingRows.isEmpty()) {
+        finishDocument();
+      }
+      return row;
+    }
+
     if (document == null) {
       getNextDocument();
     }
@@ -122,19 +170,41 @@ public class YamlReader {
     return row;
   }
 
+  /**
+   * Ensures that the configured field paths have been compiled into {@link JsonPath} instances.
+   *
+   * @param rowMeta the row metadata used to determine field paths when they have not been
+   *     explicitly configured
+   */
+  private void ensurePathsCompiled(IRowMeta rowMeta) {
+    if (compiledPaths != null && compiledPaths.length == rowMeta.size()) {
+      return;
+    }
+
+    String[] paths = new String[rowMeta.size()];
+    if (discoveredFieldPaths != null && discoveredFieldPaths.length == rowMeta.size()) {
+      System.arraycopy(discoveredFieldPaths, 0, paths, 0, paths.length);
+    } else {
+      for (int i = 0; i < rowMeta.size(); i++) {
+        paths[i] = rowMeta.getValueMeta(i).getName();
+      }
+    }
+    setFieldPaths(paths);
+  }
+
   private Object[] fetchRow(IRowMeta rowMeta) {
+    ensurePathsCompiled(rowMeta);
+
     if (isMapUsed()) {
-      return processMapRow(rowMeta, (Map<?, ?>) document);
+      return processMapRow(rowMeta, document, false);
     }
 
     return processListRow(rowMeta);
   }
 
   private Object[] handleCurrentListValue(IRowMeta rowMeta) {
-    List<?> list = (List<?>) document;
-
-    if (list.size() == 1 && list.getFirst() instanceof Map<?, ?> map) {
-      return processMapRow(rowMeta, map);
+    if (dataList instanceof Map<?, ?>) {
+      return processMapRow(rowMeta, dataList, true);
     }
 
     IValueMeta valueMeta = rowMeta.getValueMeta(0);
@@ -151,20 +221,92 @@ public class YamlReader {
     return row;
   }
 
-  private Object[] processMapRow(IRowMeta rowMeta, Map<?, ?> map) {
-    Object[] row = new Object[rowMeta.size()];
-
-    for (int i = 0; i < rowMeta.size(); i++) {
-      IValueMeta valueMeta = rowMeta.getValueMeta(i);
-
-      Object value =
-          Utils.isEmpty(valueMeta.getName()) ? document.toString() : map.get(valueMeta.getName());
-
-      row[i] = getValue(value, valueMeta);
+  private Object[] processMapRow(IRowMeta rowMeta, Object root, boolean listElement) {
+    if (pendingRows.isEmpty()) {
+      prepareRowsFromPaths(rowMeta, root, listElement);
     }
 
-    finishDocument();
-    return row;
+    Object[] row = pendingRows.poll();
+    if (pendingRows.isEmpty()) {
+      finishDocument();
+    }
+    return row == null ? new Object[0] : row;
+  }
+
+  private void prepareRowsFromPaths(IRowMeta rowMeta, Object root, boolean listElement) {
+    List<List<Object>> columnValues = new ArrayList<>(compiledPaths.length);
+    int rowCount = 1;
+
+    for (int pathIndex = 0; pathIndex < compiledPaths.length; pathIndex++) {
+      JsonPath path = pathForRoot(compiledPaths[pathIndex], fieldPaths[pathIndex], listElement);
+      List<Object> values = readPathAsList(root, path);
+      if (values.size() > rowCount) {
+        rowCount = values.size();
+      }
+      columnValues.add(values);
+    }
+
+    for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+      Object[] row = new Object[rowMeta.size()];
+      for (int col = 0; col < rowMeta.size(); col++) {
+        List<Object> values = columnValues.get(col);
+        Object raw = pickValue(values, rowIndex, rowCount);
+        row[col] = getValue(raw, rowMeta.getValueMeta(col));
+      }
+      pendingRows.add(row);
+    }
+  }
+
+  private static JsonPath pathForRoot(
+      JsonPath compiledPath, String originalPath, boolean listElement) {
+    if (!listElement || originalPath == null || !originalPath.contains("[*]")) {
+      return compiledPath;
+    }
+
+    String adapted = originalPath.replaceFirst("\\$\\[\\*]", "\\$");
+    return JsonPath.compile(YamlPathResolver.normalize(adapted));
+  }
+
+  private static Object pickValue(List<Object> values, int rowIndex, int rowCount) {
+    if (values == null || values.isEmpty()) {
+      return null;
+    }
+
+    if (values.size() == 1 && rowCount > 1) {
+      return values.getFirst();
+    }
+    if (rowIndex < values.size()) {
+      return values.get(rowIndex);
+    }
+    return null;
+  }
+
+  private List<Object> readPathAsList(Object root, JsonPath path) {
+    if (root == null) {
+      return List.of((Object) null);
+    }
+
+    try {
+      ReadContext context = JsonPath.using(JSON_PATH_CONFIG).parse(root);
+      Object result = context.read(path);
+      return toValueList(result);
+    } catch (Exception e) {
+      return List.of((Object) null);
+    }
+  }
+
+  private static List<Object> toValueList(Object result) {
+    if (result == null) {
+      return List.of((Object) null);
+    }
+
+    if (result instanceof List<?> list) {
+      if (list.isEmpty()) {
+        return List.of((Object) null);
+      }
+      return new ArrayList<>(list);
+    }
+    return List.of(result);
   }
 
   private Object[] advanceListIterator() {
@@ -178,6 +320,7 @@ public class YamlReader {
   }
 
   private void getNextDocument() {
+    pendingRows.clear();
     // See if we have another document
     if (this.documentIt.hasNext()) {
       // We have another document
@@ -237,6 +380,7 @@ public class YamlReader {
 
   private void finishDocument() {
     this.document = null;
+    pendingRows.clear();
   }
 
   private boolean isFinishedDocument() {
@@ -345,39 +489,80 @@ public class YamlReader {
   /** get fields. */
   public RowMeta getFields() {
     RowMeta rowMeta = new RowMeta();
+    List<String> paths = getDiscoveredPaths();
+    discoveredFieldPaths = paths.toArray(new String[0]);
 
-    for (Object data : documents) {
-      if (data instanceof Map<?, ?> map) {
-        appendFromMap(rowMeta, map);
-      } else if (data instanceof List<?> list) {
-        appendFromList(rowMeta, list);
+    for (String path : paths) {
+      Object sample = null;
+      for (Object data : documents) {
+        sample = readSampleValue(data, path);
+        if (sample != null) {
+          break;
+        }
       }
+      addField(rowMeta, path, sample);
     }
 
     return rowMeta;
   }
 
-  private void appendFromList(RowMeta rowMeta, List<?> list) {
-    if (list.isEmpty()) {
-      return;
+  /** Returns JsonPath expressions discovered in the loaded YAML documents. */
+  public List<String> getDiscoveredPaths() {
+    Set<String> paths = new LinkedHashSet<>();
+    for (Object data : documents) {
+      collectPaths(data, YamlPathResolver.DOLLAR, paths);
     }
+    return new ArrayList<>(paths);
+  }
 
-    Object first = list.getFirst();
-    if (list.size() == 1 && first instanceof Map<?, ?> map) {
-      appendFromMap(rowMeta, map);
-    } else {
-      addField(rowMeta, DEFAULT_LIST_VALUE_NAME, first);
+  private Object readSampleValue(Object root, String path) {
+    if (root == null) {
+      return null;
+    }
+    List<Object> values = readPathAsList(root, JsonPath.compile(path));
+    return values.isEmpty() ? null : values.getFirst();
+  }
+
+  private void collectPaths(Object node, String prefix, Set<String> paths) {
+    if (node instanceof Map<?, ?> map) {
+      for (Map.Entry<?, ?> entry : map.entrySet()) {
+        String key = String.valueOf(entry.getKey());
+        String segment = formatPathSegment(key);
+        String childPath =
+            YamlPathResolver.DOLLAR.equals(prefix)
+                ? prefix + "." + segment
+                : prefix + "." + segment;
+        Object value = entry.getValue();
+        if (value instanceof Map || value instanceof List) {
+          collectPaths(value, childPath, paths);
+        } else {
+          paths.add(childPath);
+        }
+      }
+    } else if (node instanceof List<?> list) {
+      if (!list.isEmpty()) {
+        Object first = list.getFirst();
+        if (first instanceof Map || first instanceof List) {
+          collectPaths(first, prefix + "[*]", paths);
+        } else {
+          paths.add(prefix + "[*]");
+        }
+      }
+    } else if (YamlPathResolver.DOLLAR.equals(prefix)) {
+      paths.add(YamlPathResolver.DOLLAR);
     }
   }
 
-  private void appendFromMap(RowMeta rowMeta, Map<?, ?> map) {
-    for (Map.Entry<?, ?> entry : map.entrySet()) {
-      addField(rowMeta, entry.getKey(), entry.getValue());
+  private static String formatPathSegment(String key) {
+    if (key.contains(".") || key.contains(" ") || key.contains("[")) {
+      return "['" + key.replace("'", "\\'") + "']";
     }
+
+    return key;
   }
 
-  private void addField(RowMeta rowMeta, Object key, Object value) {
-    String fieldName = String.valueOf(key);
+  private void addField(RowMeta rowMeta, String path, Object value) {
+    String fieldName = fieldNameFromPath(path);
 
     IValueMeta valueMeta;
     try {
@@ -387,5 +572,34 @@ public class YamlReader {
     }
 
     rowMeta.addValueMeta(valueMeta);
+  }
+
+  static String fieldNameFromPath(String path) {
+    if (Utils.isEmpty(path) || YamlPathResolver.DOLLAR.equals(path)) {
+      return path;
+    }
+    if ("$[*]".equals(path)) {
+      return DEFAULT_LIST_VALUE_NAME;
+    }
+
+    int bracket = path.lastIndexOf("['");
+    if (bracket >= 0) {
+      int quoteEnd = path.indexOf("']", bracket);
+      if (quoteEnd > bracket) {
+        return path.substring(bracket + 2, quoteEnd).replace("\\'", "'");
+      }
+    }
+
+    int dot = path.lastIndexOf('.');
+    if (dot >= 0 && dot < path.length() - 1) {
+      String leaf = path.substring(dot + 1);
+      int open = leaf.indexOf('[');
+      return open >= 0 ? leaf.substring(0, open) : leaf;
+    }
+
+    if (path.startsWith(YamlPathResolver.DOLLAR)) {
+      return path.substring(1);
+    }
+    return path;
   }
 }
