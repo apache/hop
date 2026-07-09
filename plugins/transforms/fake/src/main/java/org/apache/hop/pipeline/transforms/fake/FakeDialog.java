@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import net.datafaker.Faker;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -35,6 +35,8 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -46,8 +48,13 @@ import org.eclipse.swt.widgets.TableItem;
 public class FakeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FakeDialog.class;
 
-  private TableView wFields;
+  /** Table column holding the output field name. */
+  private static final int COL_NAME = 1;
 
+  /** Table column holding the encoded generator (see {@link #encode}/{@link #decode}). */
+  private static final int COL_GENERATOR = 2;
+
+  private TableView wFields;
   private ComboVar wLocale;
 
   private final FakeMeta input;
@@ -80,7 +87,6 @@ public class FakeDialog extends BaseTransformDialog {
     wlLocale.setLayoutData(fdlLocale);
     wLocale = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLocale.setItems(FakeMeta.getFakerLocales());
-    wLocale.setText(transformName);
     PropsUi.setLook(wLocale);
     wLocale.addModifyListener(lsMod);
     FormData fdLocale = new FormData();
@@ -96,16 +102,14 @@ public class FakeDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "FakeDialog.Type.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[0]),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FakeDialog.Topic.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[0]),
+              BaseMessages.getString(PKG, "FakeDialog.Generator.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+              false),
         };
-    columns[1].setComboValuesSelectionListener(this::getComboValues);
-    columns[2].setComboValuesSelectionListener(this::getComboValues);
+    columns[1].setToolTip(BaseMessages.getString(PKG, "FakeDialog.Generator.Tooltip"));
+    // A TEXT_BUTTON column only renders its "..." button when the column uses variables.
+    columns[1].setUsingVariables(true);
+    columns[1].setTextVarButtonSelectionListener(getGeneratorBrowseAdapter());
 
     wFields =
         new TableView(
@@ -141,54 +145,72 @@ public class FakeDialog extends BaseTransformDialog {
     return transformName;
   }
 
-  private String[] getComboValues(TableItem tableItem, int rowNr, int colNr) {
-    if (colNr == 2) {
-      return FakerType.getTypeDescriptions();
-    }
-    if (colNr == 3) {
-      String typeDescription = tableItem.getText(2);
-      FakerType fakerType = FakerType.getTypeUsingDescription(typeDescription);
-      if (fakerType != null) {
-        return getMethodNames(fakerType);
-      }
-    }
-    return new String[] {};
-  }
+  /** Opens the searchable generator browser for the row whose '...' button was clicked. */
+  private SelectionAdapter getGeneratorBrowseAdapter() {
+    return new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        TableItem item = wFields.getActiveTableItem();
+        if (item == null) {
+          return;
+        }
+        int column = wFields.getActiveTableColumn();
 
-  public String[] getMethodNames(FakerType fakerType) {
-    try {
-      Method[] methods = fakerType.getFakerClass().getDeclaredMethods();
-      ArrayList<String> tempNames = new ArrayList<>();
-      for (Method method : methods) {
-        // Ignore methods needing parameters for now
-        // or that doesn't return type (String, long or Date)
-        if (method.getParameterCount() == 0
-            && Modifier.isPublic(method.getModifiers())
-            && (method.getReturnType().isAssignableFrom(String.class)
-                || method.getReturnType().isAssignableFrom(long.class)
-                || method.getReturnType().isAssignableFrom(Date.class))) {
-          tempNames.add(method.getName());
+        FakeField current = decode(item.getText(column));
+        current.setName(item.getText(COL_NAME));
+
+        Faker faker = FakerCatalog.createFaker(variables.resolve(wLocale.getText()));
+        FakerBrowserDialog browser =
+            new FakerBrowserDialog(
+                shell, variables, faker, current, FakeDialog.this::appendFieldRow);
+        FakeField picked = browser.open();
+        if (picked != null) {
+          item.setText(column, encode(picked));
+          String name = picked.getName();
+          item.setText(COL_NAME, Utils.isEmpty(name) ? Const.NVL(picked.getTopic(), "") : name);
+          input.setChanged();
         }
       }
-      String[] names = new String[tempNames.size()];
-      tempNames.toArray(names);
-      return names;
-    } catch (Exception e) {
-      return new String[] {};
+    };
+  }
+
+  /**
+   * Appends a new field row to the grid. Invoked by the generator browser's "Add field" button so
+   * several fields can be added in one visit to the browser.
+   */
+  void appendFieldRow(FakeField field) {
+    String name =
+        Utils.isEmpty(field.getName()) ? Const.NVL(field.getTopic(), "field") : field.getName();
+    wFields.add(uniqueFieldName(name), encode(field));
+    wFields.setRowNums();
+    wFields.optWidth(true);
+    input.setChanged();
+  }
+
+  /** Make a field name unique within the grid by appending {@code _2}, {@code _3}, ... */
+  private String uniqueFieldName(String base) {
+    Set<String> existing = new HashSet<>();
+    for (TableItem item : wFields.table.getItems()) {
+      existing.add(item.getText(COL_NAME));
     }
+    if (!existing.contains(base)) {
+      return base;
+    }
+    int suffix = 2;
+    while (existing.contains(base + "_" + suffix)) {
+      suffix++;
+    }
+    return base + "_" + suffix;
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wLocale.setText(Const.NVL(input.getLocale(), ""));
     for (int row = 0; row < input.getFields().size(); row++) {
-      FakeField fakeField = input.getFields().get(row);
+      FakeField field = input.getFields().get(row);
       TableItem item = wFields.table.getItem(row);
-      int col = 1;
-      item.setText(col++, Const.NVL(fakeField.getName(), ""));
-      item.setText(
-          col++, Const.NVL(FakerType.getTypeUsingName(fakeField.getType()).getDescription(), ""));
-      item.setText(col, Const.NVL(fakeField.getTopic(), ""));
+      item.setText(COL_NAME, Const.NVL(field.getName(), ""));
+      item.setText(COL_GENERATOR, encode(field));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -206,7 +228,7 @@ public class FakeDialog extends BaseTransformDialog {
       return;
     }
 
-    transformName = wTransformName.getText(); // return value
+    transformName = wTransformName.getText();
 
     getInfo(input);
 
@@ -216,20 +238,72 @@ public class FakeDialog extends BaseTransformDialog {
   private void getInfo(FakeMeta meta) {
     meta.setLocale(wLocale.getText());
     meta.getFields().clear();
-    List<TableItem> nonEmptyItems = wFields.getNonEmptyItems();
-    for (TableItem tableItem : nonEmptyItems) {
-      int col = 1;
-      String name = tableItem.getText(col++);
-      String typeDesc = tableItem.getText(col++);
-      String topic = tableItem.getText(col);
-
-      FakerType fakerType = FakerType.getTypeUsingDescription(typeDesc);
-      if (fakerType == null) {
-        fakerType = FakerType.getTypeUsingName(typeDesc);
-      }
-      if (fakerType != null) {
-        meta.getFields().add(new FakeField(name, fakerType.name(), topic));
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      FakeField field = decode(item.getText(COL_GENERATOR));
+      field.setName(item.getText(COL_NAME));
+      if (field.isValid()) {
+        meta.getFields().add(field);
       }
     }
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Encoding of a generator (type, topic and arguments) into the single editable grid cell.
+  // Format: accessor.topic(argType=argValue, argType=argValue)
+  // -----------------------------------------------------------------------------------------------
+
+  static String encode(FakeField field) {
+    if (Utils.isEmpty(field.getType()) || Utils.isEmpty(field.getTopic())) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(field.getType()).append('.').append(field.getTopic()).append('(');
+    boolean first = true;
+    for (FakeArgument argument : field.getArguments()) {
+      if (!first) {
+        sb.append(", ");
+      }
+      first = false;
+      sb.append(Const.NVL(argument.getType(), ""))
+          .append('=')
+          .append(Const.NVL(argument.getValue(), ""));
+    }
+    return sb.append(')').toString();
+  }
+
+  static FakeField decode(String text) {
+    FakeField field = new FakeField();
+    if (Utils.isEmpty(text)) {
+      return field;
+    }
+    String head = text.trim();
+    String argumentBlock = "";
+    int open = head.indexOf('(');
+    if (open >= 0) {
+      int close = head.lastIndexOf(')');
+      argumentBlock = head.substring(open + 1, close > open ? close : head.length()).trim();
+      head = head.substring(0, open).trim();
+    }
+    int dot = head.indexOf('.');
+    if (dot >= 0) {
+      field.setType(head.substring(0, dot).trim());
+      field.setTopic(head.substring(dot + 1).trim());
+    } else {
+      field.setType(head);
+    }
+
+    List<FakeArgument> arguments = new ArrayList<>();
+    if (!argumentBlock.isEmpty()) {
+      for (String part : argumentBlock.split(",")) {
+        int equals = part.indexOf('=');
+        if (equals >= 0) {
+          arguments.add(
+              new FakeArgument(
+                  part.substring(0, equals).trim(), part.substring(equals + 1).trim()));
+        }
+      }
+    }
+    field.setArguments(arguments);
+    return field;
   }
 }

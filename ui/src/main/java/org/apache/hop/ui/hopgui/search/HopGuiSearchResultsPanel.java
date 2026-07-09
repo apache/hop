@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.search;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
@@ -106,6 +107,12 @@ public class HopGuiSearchResultsPanel extends Composite {
   private Map<Class<ISearchableAnalyser>, ISearchableAnalyser> cachedAnalysers;
 
   private final Runnable searchRunnable = () -> search(new Event());
+
+  /**
+   * When true, programmatic changes to the search field (e.g. showing a reference label) must not
+   * trigger the debounced text search that would otherwise clobber injected results.
+   */
+  private boolean suppressAutoSearch;
 
   public HopGuiSearchResultsPanel(Composite parent, HopGui hopGui) {
     super(parent, SWT.NONE);
@@ -310,7 +317,7 @@ public class HopGuiSearchResultsPanel extends Composite {
   }
 
   private void scheduleSearch() {
-    if (isDisposed()) {
+    if (isDisposed() || suppressAutoSearch) {
       return;
     }
     getDisplay().timerExec(-1, searchRunnable);
@@ -451,18 +458,46 @@ public class HopGuiSearchResultsPanel extends Composite {
       hopGui.getLog().logError("Error while searching", e);
       results = new ArrayList<>();
     }
-    populateTree(results);
+    populateTree(results, cachedEnumeration.getSourceByKey());
+  }
+
+  /**
+   * Show a pre-computed set of results (e.g. "find references") without running a text search. The
+   * search field is set to {@code targetLabel} for context only; typing a new query afterwards
+   * turns this back into a normal search tab.
+   *
+   * @param targetLabel a label describing what the results relate to (shown in the search field)
+   * @param results the results to display; all are grouped under the Project section
+   */
+  public void showReferenceResults(String targetLabel, List<ISearchResult> results) {
+    if (wTree == null || wTree.isDisposed()) {
+      return;
+    }
+    suppressAutoSearch = true;
+    try {
+      if (wSearchString != null && !wSearchString.isDisposed()) {
+        wSearchString.setText(Const.NVL(targetLabel, ""));
+      }
+    } finally {
+      suppressAutoSearch = false;
+    }
+    wTree.removeAll();
+    clearDetails();
+    wbOpen.setEnabled(false);
+    // Reference results have no enumeration behind them: an empty source map puts them all under
+    // the Project section.
+    populateTree(results, Collections.emptyMap());
   }
 
   /**
    * Render the two-tier tree: section (Open/Project) -> type -> object -> the matches inside it.
    */
-  private void populateTree(List<ISearchResult> results) {
+  private void populateTree(List<ISearchResult> results, Map<String, Integer> sourceByKey) {
     String searchTerm = wRegEx.getSelection() ? null : wSearchString.getText();
 
     TreeItem firstLeaf = null;
     for (HopGuiSearchHelper.SearchSection section :
-        HopGuiSearchHelper.groupResults(results, cachedEnumeration.getSourceByKey())) {
+        HopGuiSearchHelper.groupResults(results, sourceByKey)) {
       TreeItem sectionItem = new TreeItem(wTree, SWT.NONE);
       sectionItem.setText(
           0, sectionLabel(section.getKey()) + "  (" + section.getObjectCount() + ")");

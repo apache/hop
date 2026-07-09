@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>0088-yaml-input</name>
+  <name>main-0088-yaml-input</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -57,6 +57,15 @@ limitations under the License.
       <test_names>
         <test_name>
           <name>0088-yaml-input-validate UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0088-yaml-input-list-validate UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0088-yaml-input-multidoc-validate UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0088-yaml-input-field-validate UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>

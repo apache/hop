@@ -249,7 +249,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
 
     // If the filename is an absolute path, just return that.
     //
-    if (pipelineFilename.startsWith("/") || pipelineFilename.startsWith("file:///")) {
+    if (HopVfs.isAbsolutePath(pipelineFilename)) {
       return variables.resolve(pipelineFilename); // to make sure
     }
 

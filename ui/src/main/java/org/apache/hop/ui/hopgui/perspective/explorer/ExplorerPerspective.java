@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.Selectors;
@@ -52,6 +53,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.svg.SvgCache;
@@ -72,6 +74,7 @@ import org.apache.hop.metadata.refactor.MetadataReferenceFinder;
 import org.apache.hop.metadata.refactor.MetadataReferenceResult;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
@@ -117,6 +120,7 @@ import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
 import org.apache.hop.ui.hopgui.shared.CanvasSvgHelper;
+import org.apache.hop.ui.hopgui.search.ReferenceSearchResults;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -212,6 +216,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-ContextMenu-10400-CopyName";
   public static final String CONTEXT_MENU_COPY_PATH =
       "ExplorerPerspective-ContextMenu-10401-CopyPath";
+  public static final String CONTEXT_MENU_FIND_REFERENCES =
+      "ExplorerPerspective-ContextMenu-10402-FindReferences";
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
   private static final String TREE_WIDTH_AUDIT_TYPE = "explorer-perspective-tree-width";
@@ -262,6 +268,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private String filterText = "";
   private SearchMatcher filterMatcher = new SearchMatcher("", false, false, true);
   private Map<String, Boolean> treeStateBeforeFilter = null;
+
+  /** Last folder the user selected in the tree; used for scoped refresh. */
+  private String lastSelectedFolderPath;
 
   public ExplorerPerspective() {
     instance = this;
@@ -490,8 +499,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           e);
     }
 
-    if (!StringUtils.equals(oldRootFolder, rootFolder)
-        || !StringUtils.equals(oldRootName, rootName)) {
+    if (!Strings.CS.equals(oldRootFolder, rootFolder)
+        || !Strings.CS.equals(oldRootName, rootName)) {
+      // Project or root folder changed — drop any folder path from the previous tree.
+      lastSelectedFolderPath = null;
+      TreeMemory.getInstance().clearTree(FILE_EXPLORER_TREE);
       // call the root changed listeners...
       //
       for (IExplorerRootChangedListener listener : rootChangedListeners) {
@@ -625,6 +637,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           }
 
           menuWidgets.findMenuItem(CONTEXT_MENU_RENAME).setEnabled(selection.length == 1);
+
+          // Finding references is only meaningful for a single pipeline or workflow file.
+          //
+          MenuItem findReferencesItem = menuWidgets.findMenuItem(CONTEXT_MENU_FIND_REFERENCES);
+          if (findReferencesItem != null) {
+            findReferencesItem.setEnabled(
+                selection.length == 1
+                    && tif != null
+                    && !tif.folder
+                    && isPipelineOrWorkflowFile(tif.path));
+          }
 
           // Show the menu
           //
@@ -964,13 +987,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           // User confirmed via the reference dialog — proceed directly to deletion.
           List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
           fileObject.deleteAll();
-          treeItem.dispose();
-          for (String filename : filenames) {
-            TabItemHandler handler = findTabItemHandler(filename);
-            if (handler != null) {
-              removeTabItem(handler);
-            }
-          }
+          removeTreeItemAfterDelete(treeItem, filenames);
           return;
         }
       } else {
@@ -990,13 +1007,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           // User confirmed — proceed directly to deletion.
           List<String> allFilenames = getRecursiveFilenames(fileObject, new ArrayList<>());
           fileObject.deleteAll();
-          treeItem.dispose();
-          for (String filename : allFilenames) {
-            TabItemHandler handler = findTabItemHandler(filename);
-            if (handler != null) {
-              removeTabItem(handler);
-            }
-          }
+          removeTreeItemAfterDelete(treeItem, allFilenames);
           return;
         }
       }
@@ -1018,13 +1029,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if ((box.open() & SWT.YES) != 0) {
         List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
         if (fileObject.deleteAll() > 0) {
-          treeItem.dispose();
-          for (String filename : filenames) {
-            TabItemHandler handler = findTabItemHandler(filename);
-            if (handler != null) {
-              removeTabItem(handler);
-            }
-          }
+          removeTreeItemAfterDelete(treeItem, filenames);
         }
       }
     } catch (Exception e) {
@@ -2828,6 +2833,84 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     GuiResource.getInstance().toClipboard(folder.path);
   }
 
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_FIND_REFERENCES,
+      label = "i18n::ExplorerPerspective.Menu.FindReferences",
+      image = "ui/images/search.svg",
+      separator = true)
+  public void findReferences() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length != 1) {
+      return;
+    }
+    TreeItemFolder tif = (TreeItemFolder) selection[0].getData();
+    if (tif == null || tif.folder || !isPipelineOrWorkflowFile(tif.path)) {
+      return;
+    }
+    findReferences(tif.path, tif.name);
+  }
+
+  /**
+   * Best-effort static scan (same engine as rename) for pipelines/workflows and metadata objects
+   * that reference the given file. Results are shown in the shared search-results UI, in a
+   * bottom-dock tab, so each one can be opened by double-clicking it.
+   */
+  private void findReferences(String path, String name) {
+    String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
+    if (Utils.isEmpty(projectHome) || Const.VAR_PROJECT_HOME.equals(projectHome)) {
+      // Without an active project there is nothing to scan.
+      showNoReferencesFound(name);
+      return;
+    }
+    List<String> searchRoots = java.util.Collections.singletonList(projectHome);
+    try {
+      MetadataReferenceFinder finder = new MetadataReferenceFinder(hopGui.getMetadataProvider());
+      List<MetadataReferenceResult> fileReferences =
+          finder.findFileReferences(searchRoots, path, hopGui.getVariables());
+      List<MetadataObjectReference> metadataReferences =
+          finder.findFilePathReferencesInMetadata(path, hopGui.getVariables());
+
+      List<ISearchResult> results =
+          ReferenceSearchResults.build(hopGui, fileReferences, metadataReferences);
+      if (results.isEmpty()) {
+        showNoReferencesFound(name);
+        return;
+      }
+      ReferenceSearchResults.showInBottomDock(
+          hopGui,
+          BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.Tab.Title", name),
+          name,
+          results);
+    } catch (HopException e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.Error.Title"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.Error.Message", name),
+          e);
+    }
+  }
+
+  private void showNoReferencesFound(String name) {
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+    box.setText(
+        BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.NoReferences.Title"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG, "ExplorerPerspective.FindReferences.NoReferences.Message", name));
+    box.open();
+  }
+
+  /** True when the path is a pipeline (.hpl) or workflow (.hwf) file. */
+  private static boolean isPipelineOrWorkflowFile(String path) {
+    if (path == null) {
+      return false;
+    }
+    String lower = path.toLowerCase(java.util.Locale.ROOT);
+    return lower.endsWith(".hpl") || lower.endsWith(".hwf");
+  }
+
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
@@ -2838,14 +2921,220 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Override
   public void clearSearchFilters() {
     if (searchText != null && !searchText.isDisposed()) {
-      searchText.setText("");
+      if (Utils.isEmpty(searchText.getText())) {
+        refresh();
+      } else {
+        searchText.setText("");
+      }
     } else {
       filterText = "";
       filterMatcher = new SearchMatcher("", false, false, true);
+      refresh();
     }
   }
 
   public void refresh() {
+    determineRootFolderName(hopGui);
+    if (Utils.isEmpty(filterText)
+        && !Utils.isEmpty(lastSelectedFolderPath)
+        && isUnderCurrentRoot(lastSelectedFolderPath)) {
+      refreshSelectedFolder();
+      return;
+    }
+    refreshEntireTree();
+  }
+
+  /** True when {@code path} is the explorer root or a folder inside it. */
+  private boolean isUnderCurrentRoot(String path) {
+    if (Utils.isEmpty(path) || Utils.isEmpty(rootFolder)) {
+      return false;
+    }
+    if (path.equals(rootFolder)) {
+      return true;
+    }
+    return isDescendant(rootFolder, path);
+  }
+
+  /** Refresh only the last selected folder, keeping the rest of the tree intact. */
+  private void refreshSelectedFolder() {
+    String folderPath = lastSelectedFolderPath;
+    if (Utils.isEmpty(folderPath)
+        || !isUnderCurrentRoot(folderPath)
+        || !isAccessibleFolder(folderPath)) {
+      fallbackRefreshFromParent(folderPath);
+      return;
+    }
+
+    try {
+      determineRootFolderName(hopGui);
+
+      for (IExplorerRefreshListener listener : refreshListeners) {
+        listener.beforeRefresh();
+      }
+
+      TreeItem folderItem = locateTreeItem(folderPath);
+      if (folderItem == null || folderItem.isDisposed()) {
+        fallbackRefreshFromParent(folderPath);
+        return;
+      }
+
+      TreeItemFolder tif = (TreeItemFolder) folderItem.getData();
+      if (tif == null || !tif.folder) {
+        fallbackRefreshFromParent(folderPath);
+        return;
+      }
+
+      tree.setRedraw(false);
+      try {
+        refreshTreeItemInPlace(folderItem);
+        tree.setSelection(folderItem);
+        tree.showItem(folderItem);
+      } finally {
+        tree.setRedraw(true);
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"),
+          e);
+    }
+    updateSelection();
+  }
+
+  /**
+   * When the remembered folder no longer exists, remove any stale tree node and refresh its parent
+   * instead of rebuilding the whole tree.
+   */
+  private void fallbackRefreshFromParent(String folderPath) {
+    removeStaleTreeItem(folderPath);
+    lastSelectedFolderPath = getParentFolderPath(folderPath);
+
+    if (!Utils.isEmpty(lastSelectedFolderPath)
+        && isUnderCurrentRoot(lastSelectedFolderPath)
+        && isAccessibleFolder(lastSelectedFolderPath)) {
+      refreshSelectedFolder();
+    } else {
+      lastSelectedFolderPath = null;
+      refreshEntireTree();
+    }
+  }
+
+  private void refreshTreeItemInPlace(TreeItem folderItem) {
+    TreeItemFolder tif = (TreeItemFolder) folderItem.getData();
+    if (tif == null || !tif.folder) {
+      return;
+    }
+
+    int childDepth = tif.path.equals(rootFolder) ? 0 : tif.depth + 1;
+    refreshFolder(folderItem, tif.path, childDepth);
+    tif.loaded = true;
+    restoreTreeItemExpandedFromMemory(folderItem);
+  }
+
+  /**
+   * Removes the deleted tree item, refreshes its parent, closes related tabs, and updates the tree
+   * selection.
+   *
+   * @param treeItem the deleted tree item
+   * @param filenames the file paths associated with the deleted item
+   */
+  private void removeTreeItemAfterDelete(TreeItem treeItem, List<String> filenames) {
+    updateLastSelectedFolderAfterDelete(treeItem);
+    TreeItem parentItem = treeItem.getParentItem();
+    treeItem.dispose();
+    for (String filename : filenames) {
+      TabItemHandler handler = findTabItemHandler(filename);
+      if (handler != null) {
+        removeTabItem(handler);
+      }
+    }
+    if (parentItem != null && !parentItem.isDisposed()) {
+      refreshTreeItemInPlace(parentItem);
+      tree.setSelection(parentItem);
+      tree.showItem(parentItem);
+    }
+    updateSelection();
+  }
+
+  /**
+   * Updates the last selected folder path after a tree item is deleted.
+   *
+   * @param treeItem treeItem the deleted tree item
+   */
+  private void updateLastSelectedFolderAfterDelete(TreeItem treeItem) {
+    TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
+    if (tif == null || !tif.path.equals(lastSelectedFolderPath)) {
+      return;
+    }
+
+    TreeItem parentItem = treeItem.getParentItem();
+    if (parentItem != null) {
+      TreeItemFolder parentTif = (TreeItemFolder) parentItem.getData();
+      if (parentTif != null) {
+        lastSelectedFolderPath = parentTif.path;
+        return;
+      }
+    }
+    lastSelectedFolderPath = null;
+  }
+
+  /**
+   * Removes the tree item associated with the specified path if it exists.
+   *
+   * @param path path the path of the tree item to remove
+   */
+  private void removeStaleTreeItem(String path) {
+    if (Utils.isEmpty(path)) {
+      return;
+    }
+
+    TreeItem stale = findTreeItem(path);
+    if (stale != null && !stale.isDisposed()) {
+      stale.dispose();
+    }
+  }
+
+  private boolean isAccessibleFolder(String path) {
+    if (Utils.isEmpty(path)) {
+      return false;
+    }
+
+    try {
+      FileObject fileObject = HopVfs.getFileObject(path);
+      return fileObject.exists() && fileObject.isFolder();
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  private String getParentFolderPath(String path) {
+    if (Utils.isEmpty(path) || path.equals(rootFolder)) {
+      return null;
+    }
+
+    try {
+      FileObject fileObject = HopVfs.getFileObject(path);
+      if (fileObject.exists()) {
+        FileObject parent = fileObject.getParent();
+        if (parent == null) {
+          return null;
+        }
+        return HopVfs.getFilename(parent);
+      }
+    } catch (Exception ignored) {
+      // Derive parent from the path string when the folder was already deleted.
+    }
+
+    String normalized = path.replace('\\', '/');
+    int lastSlash = normalized.lastIndexOf('/');
+    if (lastSlash <= 0) {
+      return rootFolder;
+    }
+    return normalized.substring(0, lastSlash);
+  }
+
+  private void refreshEntireTree() {
     try {
       determineRootFolderName(hopGui);
 
@@ -2880,7 +3169,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         // The TreeMemory will be applied either by restoreTreeState() or setExpandedFromMemory()
         if (treeStateBeforeFilter == null) {
           // Only restore from memory if we're not about to restore from saved state
-          TreeMemory.setExpandedFromMemory(tree, FILE_EXPLORER_TREE);
+          rootItem.setExpanded(true);
+          restoreTreeItemExpandedFromMemory(rootItem);
         }
       }
 
@@ -3063,7 +3353,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               //
               new TreeItem(childItem, SWT.NONE);
               childItem.setExpanded(false);
-              TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, false);
             }
           }
         }
@@ -3127,6 +3416,35 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         tree.setRedraw(true);
         treeStateBeforeFilter = null; // Clear the saved state
       }
+    }
+  }
+
+  /**
+   * Restore expand/collapse state for a subtree from {@link TreeMemory}, loading lazy folders when
+   * needed.
+   */
+  private void restoreTreeItemExpandedFromMemory(TreeItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+
+    TreeItemFolder tif = (TreeItemFolder) item.getData();
+    if (tif != null) {
+      boolean expanded =
+          TreeMemory.getInstance().isExpanded(FILE_EXPLORER_TREE, ConstUi.getTreeStrings(item));
+      if (expanded && !tif.loaded && item.getItemCount() == 1) {
+        TreeItem firstChild = item.getItem(0);
+        if (firstChild.getData() == null) {
+          int childDepth = tif.path.equals(rootFolder) ? 0 : tif.depth + 1;
+          refreshFolder(item, tif.path, childDepth);
+          tif.loaded = true;
+        }
+      }
+      item.setExpanded(expanded);
+    }
+
+    for (TreeItem child : item.getItems()) {
+      restoreTreeItemExpandedFromMemory(child);
     }
   }
 
@@ -3390,6 +3708,47 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return null;
   }
 
+  /** Locate a tree item by path, loading and expanding ancestor folders as needed. */
+  private TreeItem locateTreeItem(String path) {
+    if (Utils.isEmpty(path)) {
+      return null;
+    }
+    for (TreeItem item : tree.getItems()) {
+      TreeItem found = locateTreeItem(item, path);
+      if (found != null) {
+        return found;
+      }
+    }
+    return null;
+  }
+
+  private TreeItem locateTreeItem(TreeItem item, String path) {
+    TreeItemFolder tif = (TreeItemFolder) item.getData();
+    if (tif != null && tif.path.equals(path)) {
+      return item;
+    }
+
+    if (tif != null && tif.folder && isDescendant(tif.path, path)) {
+      if (!tif.loaded) {
+        BusyIndicator.showWhile(
+            hopGui.getDisplay(),
+            () -> {
+              refreshFolder(item, tif.path, tif.depth + 1);
+              tif.loaded = true;
+            });
+      }
+      item.setExpanded(true);
+      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
+      for (TreeItem child : item.getItems()) {
+        TreeItem found = locateTreeItem(child, path);
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
   private TreeItem findTreeItem(TreeItem item, String filename) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
     if (tif != null && tif.path.equals(filename)) {
@@ -3414,6 +3773,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (tif == null) {
         return;
       }
+
+      // update lastSelectedFolderPath
+      recordSelectedFolderPath(tif, selectedItem);
     }
 
     boolean isFolderSelected = tif != null && tif.fileType instanceof FolderFileType;
@@ -3433,6 +3795,31 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     for (IExplorerSelectionListener listener : selectionListeners) {
       listener.fileSelected();
+    }
+  }
+
+  /**
+   * Records the path of the currently selected folder.
+   *
+   * <p>If the selected item is a folder, its path is recorded directly. Otherwise, the path of its
+   * parent folder is recorded.
+   *
+   * @param tif the data associated with the selected tree item
+   * @param selectedItem the currently selected tree item
+   */
+  private void recordSelectedFolderPath(TreeItemFolder tif, TreeItem selectedItem) {
+    // current selected folder.
+    if (tif.folder) {
+      lastSelectedFolderPath = tif.path;
+      return;
+    }
+
+    TreeItem parent = selectedItem.getParentItem();
+    if (parent != null) {
+      TreeItemFolder parentTif = (TreeItemFolder) parent.getData();
+      if (parentTif != null && parentTif.folder) {
+        lastSelectedFolderPath = parentTif.path;
+      }
     }
   }
 

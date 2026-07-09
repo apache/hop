@@ -828,9 +828,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_TO_EDITOR,
       toolTip = "i18n::PipelineExecutionViewer.ToolbarElement.NavigateToEditor.Tooltip",
-      image = "ui/images/data_orch.svg")
-  @GuiKeyboardShortcut(key = SWT.F5)
-  @GuiOsxKeyboardShortcut(key = SWT.F5)
+      image = "ui/images/edit.svg")
+  @GuiKeyboardShortcut(key = SWT.F3)
+  @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void navigateToEditor() {
     try {
       // First try to see if this pipeline is running in Hop GUI...

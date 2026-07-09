@@ -310,7 +310,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       MultivaluedMap<String, Object> headerMap = new MultivaluedHashMap<>();
-      addApiKeyHeaderIfAbsent(headerMap);
 
       boolean acceptHeaderProvided = false;
       String contentType = null;
@@ -337,8 +336,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       /* Jersey Invocation.Builder.headers(MultivaluedMap) replaces all headers — so Bearer / API-key
-       * set inside RestConnection.getInvocationBuilder(...) would be stripped. Merge connection auth
-       * into outbound headers unless the caller already supplied Authorization. */
+       * set inside RestConnection.getInvocationBuilder(...) would be stripped. This is the single
+       * place that merges connection auth into the outbound headers: it decrypts the credential
+       * (so an "Encrypted ..." API key / token is sent in clear) and skips when the row already
+       * supplied Authorization or the configured API-key header (rows win). */
       if (!StringUtils.isEmpty(meta.getConnectionName()) && connection != null) {
         connection.applyBearerAndApiKeyHeaders(invocationBuilder, headerMap);
       }
@@ -1334,39 +1335,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       return s.isEmpty() ? "(empty)" : s;
     }
     return s.substring(0, maxChars) + "...";
-  }
-
-  /**
-   * set the Authentication/Authorization header from the connection first, if available. this
-   * transform's headers will override this value if available.
-   *
-   * @param headers the mutable map containing HTTP headers that will be sent with the request
-   */
-  private void addApiKeyHeaderIfAbsent(MultivaluedMap<String, Object> headers) {
-    if (connection == null) {
-      return;
-    }
-
-    if (!"API Key".equalsIgnoreCase(connection.getAuthType())) {
-      return;
-    }
-
-    String headerName = resolve(connection.getAuthorizationHeaderName());
-    String headerValue = resolve(connection.getAuthorizationHeaderValue());
-    String prefix = resolve(connection.getAuthorizationPrefix());
-
-    if (Utils.isEmpty(headerName) || Utils.isEmpty(headerValue)) {
-      return;
-    }
-
-    if (!Utils.isEmpty(prefix)) {
-      headerValue = prefix + " " + headerValue;
-    }
-
-    // Only add header if not already present
-    if (!headers.containsKey(headerName)) {
-      headers.putSingle(headerName, headerValue);
-    }
   }
 
   private void setConfig() throws HopException {

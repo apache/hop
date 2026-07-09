@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0105-fake-data-generate</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Generates fake data and asserts structural invariants: the parameterized number generator stays in range and no configured generator (including the legacy Crypto.md5 alias) produces a null value. Any violating row is routed to Abort, failing the pipeline.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2020/12/16 12:25:44.129</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2020/12/16 12:25:44.129</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>100 rows</from>
+      <to>generate</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>generate</from>
+      <to>invalid?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>invalid?</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>invalid?</from>
+      <to>ok</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>100 rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+    </fields>
+    <limit>100</limit>
+    <never_ending>N</never_ending>
+    <interval_in_ms>5000</interval_in_ms>
+    <row_time_field>now</row_time_field>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>generate</name>
+    <type>Fake</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <locale>en-US</locale>
+    <fields>
+      <field>
+        <name>first_name</name>
+        <type>name</type>
+        <topic>firstName</topic>
+        <arguments/>
+      </field>
+      <field>
+        <name>age</name>
+        <type>number</type>
+        <topic>numberBetween</topic>
+        <arguments>
+          <argument>
+            <type>int</type>
+            <value>18</value>
+          </argument>
+          <argument>
+            <type>int</type>
+            <value>65</value>
+          </argument>
+        </arguments>
+      </field>
+      <field>
+        <name>md5</name>
+        <type>Crypto</type>
+        <topic>md5</topic>
+        <arguments/>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>invalid?</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Abort</send_true_to>
+    <send_false_to>ok</send_false_to>
+    <compare>
+      <condition>
+        <conditions>
+          <condition>
+            <conditions>
+</conditions>
+            <function>&lt;</function>
+            <leftvalue>age</leftvalue>
+            <negated>N</negated>
+            <operator>-</operator>
+            <value>
+              <isnull>N</isnull>
+              <length>-1</length>
+              <name>constant</name>
+              <precision>0</precision>
+              <text>18</text>
+              <type>Integer</type>
+            </value>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>&gt;=</function>
+            <leftvalue>age</leftvalue>
+            <negated>N</negated>
+            <operator>OR</operator>
+            <value>
+              <isnull>N</isnull>
+              <length>-1</length>
+              <name>constant</name>
+              <precision>0</precision>
+              <text>65</text>
+              <type>Integer</type>
+            </value>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>IS NULL</function>
+            <leftvalue>first_name</leftvalue>
+            <negated>N</negated>
+            <operator>OR</operator>
+            <rightvalue/>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>IS NULL</function>
+            <leftvalue>md5</leftvalue>
+            <negated>N</negated>
+            <operator>OR</operator>
+            <rightvalue/>
+          </condition>
+        </conditions>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>0</length>
+          <precision>0</precision>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <row_threshold>0</row_threshold>
+    <message>Fake generated an out-of-range age or a null value for first_name/md5</message>
+    <always_log_rows>Y</always_log_rows>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <attributes/>
+    <GUI>
+      <xloc>592</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ok</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>592</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

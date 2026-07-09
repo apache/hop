@@ -177,6 +177,36 @@ public class Const {
   public static final String HOP_SHARED_JDBC_FOLDERS = "HOP_SHARED_JDBC_FOLDERS";
 
   /**
+   * Default login/connection timeout (in seconds) applied when opening a JDBC database connection.
+   * Maps to {@link java.sql.DriverManager#setLoginTimeout(int)} and bounds how long Hop waits while
+   * establishing a connection. Defaults to 30 seconds; set to 0 to impose no timeout (a stalled
+   * connect can then block indefinitely). Note the setting is advisory: individual JDBC drivers may
+   * ignore it. It can still be overridden per connection via driver-specific connection options.
+   */
+  @Variable(
+      value = "30",
+      description =
+          "Default login/connection timeout in seconds when opening a JDBC database connection (DriverManager.setLoginTimeout). Defaults to 30; set to 0 to impose no timeout. Advisory: some JDBC drivers ignore it.")
+  public static final String HOP_DATABASE_CONNECTION_TIMEOUT = "HOP_DATABASE_CONNECTION_TIMEOUT";
+
+  /**
+   * Default network/socket timeout (in seconds) applied to a JDBC database connection after it has
+   * been opened. Maps to {@link
+   * java.sql.Connection#setNetworkTimeout(java.util.concurrent.Executor, int)} and bounds how long
+   * a driver waits for a database request to complete. A value of 0 (default) means no timeout is
+   * imposed. WARNING: when set, this applies to every request on the connection, so any single
+   * query, read or bulk operation that runs longer than the timeout is aborted and the connection
+   * is closed - use a value large enough for your longest-running SQL. Drivers that do not support
+   * the operation are ignored (logged at detailed level). This guards reads on an established
+   * connection; the initial handshake read still relies on the driver's own socket-timeout option.
+   */
+  @Variable(
+      value = "0",
+      description =
+          "Default network/socket timeout in seconds applied to a JDBC connection after it is opened (Connection.setNetworkTimeout). 0 (default) means no timeout is imposed. WARNING: when set, any single query/read running longer than this is aborted - use a value large enough for your longest-running SQL. Unsupported drivers are ignored.")
+  public static final String HOP_DATABASE_SOCKET_TIMEOUT = "HOP_DATABASE_SOCKET_TIMEOUT";
+
+  /**
    * Per-run override for the engine-compatibility gate in {@code Pipeline.prepareExecution} /
    * {@code Workflow.startExecution}. Set to 'Y' to run a pipeline or workflow that contains
    * transforms or actions the selected engine has marked UNSUPPORTED. CLI sets it from {@code

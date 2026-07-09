@@ -30,8 +30,7 @@
     <name>Hop Plugins Transforms Fake</name>
 
     <properties>
-        <automaton.version>1.11-8</automaton.version>
-        <javafaker.version>1.0.2</javafaker.version>
+        <datafaker.version>2.5.4</datafaker.version>
     </properties>
 
     <dependencyManagement>
@@ -48,24 +47,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.javafaker</groupId>
-            <artifactId>javafaker</artifactId>
-            <version>${javafaker.version}</version>
+            <groupId>net.datafaker</groupId>
+            <artifactId>datafaker</artifactId>
+            <version>${datafaker.version}</version>
             <exclusions>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
+                <!-- snakeyaml is provided by the Hop runtime (see below) -->
                 <exclusion>
                     <groupId>org.yaml</groupId>
-                    <artifactId>*</artifactId>
+                    <artifactId>snakeyaml</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>dk.brics.automaton</groupId>
-            <artifactId>automaton</artifactId>
-            <version>${automaton.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>

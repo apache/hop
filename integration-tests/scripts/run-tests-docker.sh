@@ -87,6 +87,11 @@ unzip -o -q "${CURRENT_DIR}/../../assemblies/client/target/*.zip" -d ${CURRENT_D
 # Build base image only once
 docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
 
+# The Hop fat jar (needed only by the Beam runners: spark/flink/gcp) is expensive to build, so it
+# lives in a separate image (hop-beam-image) that we build lazily and only once, the first time a
+# project that actually references the fat jar is about to run.
+BEAM_IMAGE_BUILT="false"
+
 # Loop over project folders
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
@@ -100,6 +105,15 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       echo "Project name: ${PROJECT_NAME}"
       echo "project path: $d"
       echo "docker compose path: ${DOCKER_FILES_DIR}"
+
+      # If this project references the Hop fat jar (Beam runners), make sure hop-beam-image exists.
+      # Built once per run, and only when such a project is actually enabled.
+      if [ "${BEAM_IMAGE_BUILT}" != "true" ] && grep -rqs "hop-fatjar.jar" "$d" 2>/dev/null; then
+        echo "Project ${PROJECT_NAME} needs the Hop fat jar; building hop-beam-image (once)."
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build
+        EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml")
+        BEAM_IMAGE_BUILT="true"
+      fi
 
       # Check if specific compose exists
 

@@ -361,11 +361,11 @@ public class TextFileLineUtil {
   }
 
   private static int matchChar(String pattern, int c, int index) {
-    return !pattern.isEmpty() && c == pattern.charAt(index) ? index + 1 : 0;
+    return pattern != null && !pattern.isEmpty() && c == pattern.charAt(index) ? index + 1 : 0;
   }
 
   private static boolean isFullMatch(String pattern, int index) {
-    return !pattern.isEmpty() && index == pattern.length();
+    return pattern != null && !pattern.isEmpty() && index == pattern.length();
   }
 
   private static void handleBreaksInEnclosure(EnclosureData ed, int c) {

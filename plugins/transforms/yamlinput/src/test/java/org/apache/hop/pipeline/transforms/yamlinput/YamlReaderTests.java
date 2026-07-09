@@ -25,11 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.FileWriter;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -156,7 +159,7 @@ class YamlReaderTests {
   }
 
   @Test
-  void testNestedMapToString() {
+  void testNestedMapToString() throws HopPluginException {
     String yaml = """
 				person:
 				  name: Tom
@@ -165,12 +168,153 @@ class YamlReaderTests {
 
     reader.loadString(yaml);
 
-    RowMeta rowMeta = reader.getFields();
+    RowMeta rowMeta = new RowMeta();
+    reader.setFieldPaths(new String[] {"person"});
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("person", IValueMeta.TYPE_STRING));
+
     Object[] row = reader.getRow(rowMeta);
 
     assertNotNull(row[0]);
     assertTrue(row[0].toString().contains("name"));
     assertTrue(row[0].toString().contains("age"));
+  }
+
+  @Test
+  void testJsonPath_nestedObjectFields() throws Exception {
+    String yaml = """
+				table:
+				  name: t_user
+				  startId: 1000
+				""";
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"table_name", "start_id"},
+            new String[] {"$.table.name", "$.table.startId"},
+            new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_INTEGER});
+
+    Object[] row = reader.getRow(rowMeta);
+
+    assertEquals("t_user", row[0]);
+    assertEquals(1000L, row[1]);
+  }
+
+  @Test
+  void testJsonPath_legacyFlatKeyBackwardCompatible() throws Exception {
+    String yaml = """
+				key1: alpha
+				key2: 42
+				""";
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"field1", "field2"},
+            new String[] {"key1", "key2"},
+            new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_INTEGER});
+
+    Object[] row = reader.getRow(rowMeta);
+
+    assertEquals("alpha", row[0]);
+    assertEquals(42L, row[1]);
+  }
+
+  @Test
+  void testJsonPath_arrayIndex() throws Exception {
+    String yaml = """
+				tables:
+				  - name: t_user
+				  - name: t_order
+				""";
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"first_table", "second_table"},
+            new String[] {"$.tables[0].name", "$.tables[1].name"},
+            new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING});
+
+    Object[] row = reader.getRow(rowMeta);
+
+    assertEquals("t_user", row[0]);
+    assertEquals("t_order", row[1]);
+  }
+
+  @Test
+  void testJsonPath_wildcardProducesMultipleRows() throws Exception {
+    String yaml = """
+				tables:
+				  - name: t_user
+				  - name: t_order
+				""";
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta =
+        buildRowMeta(
+            new String[] {"name"},
+            new String[] {"$.tables[*].name"},
+            new int[] {IValueMeta.TYPE_STRING});
+
+    Object[] row1 = reader.getRow(rowMeta);
+    Object[] row2 = reader.getRow(rowMeta);
+
+    assertEquals("t_user", row1[0]);
+    assertEquals("t_order", row2[0]);
+  }
+
+  @Test
+  void testGetFieldsAndGetRow_listOfMap() {
+    String yaml = """
+				- name: Alice
+				  age: 25
+				""";
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta = reader.getFields();
+    assertEquals(List.of("$[*].name", "$[*].age"), reader.getDiscoveredPaths());
+
+    Object[] row = reader.getRow(rowMeta);
+
+    assertEquals("Alice", row[0]);
+    assertEquals(25L, row[1]);
+  }
+
+  @Test
+  void testGetDiscoveredPaths_nestedStructure() {
+    String yaml = """
+				table:
+				  name: t_user
+				  startId: 1000
+				""";
+
+    reader.loadString(yaml);
+
+    assertEquals(List.of("$.table.name", "$.table.startId"), reader.getDiscoveredPaths());
+  }
+
+  @Test
+  void testFieldNameFromPath() {
+    assertEquals("name", YamlReader.fieldNameFromPath("$.table.name"));
+    assertEquals("name", YamlReader.fieldNameFromPath("$.tables[0].name"));
+    assertEquals("name", YamlReader.fieldNameFromPath("$.tables[*].name"));
+    assertEquals("name", YamlReader.fieldNameFromPath("$[*].name"));
+    assertEquals("Value", YamlReader.fieldNameFromPath("$[*]"));
+    assertEquals("my field", YamlReader.fieldNameFromPath("$['my field'].value"));
+  }
+
+  private RowMeta buildRowMeta(String[] names, String[] paths, int[] types) throws Exception {
+    reader.setFieldPaths(paths);
+    RowMeta rowMeta = new RowMeta();
+    for (int i = 0; i < names.length; i++) {
+      rowMeta.addValueMeta(ValueMetaFactory.createValueMeta(names[i], types[i]));
+    }
+    return rowMeta;
   }
 
   @Test
@@ -187,15 +331,15 @@ class YamlReaderTests {
   void testGetFields_TypeInference() {
     String yaml =
         """
-				- intField: 1
-				  longField: 2
-				  doubleField: 1.5
-				  boolField: true
-				  bigIntField: 99999999999999999999
-				  bigDecField: 9999999999999999999999999.55
-				  byteField: 1
-				  dateField: 2026-03-04T12:03:01
-				""";
+						- intField: 1
+						  longField: 2
+						  doubleField: 1.5
+						  boolField: true
+						  bigIntField: 99999999999999999999
+						  bigDecField: 9999999999999999999999999.55
+						  byteField: 1
+						  dateField: 2026-03-04T12:03:01
+						""";
 
     reader.loadString(yaml);
 

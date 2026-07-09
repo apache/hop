@@ -17,11 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
-import com.github.javafaker.Faker;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Locale;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
@@ -30,8 +26,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class Fake extends BaseTransform<FakeMeta, FakeData> {
-
-  private static final Class<?> PKG = FakeMeta.class;
 
   public Fake(
       TransformMeta transformMeta,
@@ -45,31 +39,18 @@ public class Fake extends BaseTransform<FakeMeta, FakeData> {
 
   @Override
   public boolean init() {
+    data.faker = FakerCatalog.createFaker(resolve(meta.getLocale()));
+    data.boundGenerators = new ArrayList<>();
 
-    if (StringUtils.isNotEmpty(meta.getLocale())) {
-      data.faker = new Faker(new Locale(resolve(meta.getLocale())));
-    } else {
-      data.faker = new Faker();
-    }
-
-    data.fakerTypes = new ArrayList<>();
-    data.fakerMethods = new ArrayList<>();
+    // Resolve every configured field once: look up the provider method, pick the right overload
+    // for its arguments and convert the (variable-resolved) argument values to typed objects.
+    //
     for (FakeField field : meta.getFields()) {
       if (field.isValid()) {
         try {
-          FakerType type = FakerType.valueOf(field.getType());
-          Method fakerMethod = data.faker.getClass().getMethod(type.getFakerMethod());
-          Object fakerType = fakerMethod.invoke(data.faker);
-          data.fakerTypes.add(fakerType);
-          Method topicMethod = fakerType.getClass().getMethod(field.getTopic());
-          data.fakerMethods.add(topicMethod);
-        } catch (Exception e) {
-          logError(
-              "Error getting faker object or method for type "
-                  + field.getType()
-                  + " and topic "
-                  + field.getTopic(),
-              e);
+          data.boundGenerators.add(FakerCatalog.bind(data.faker, field, this));
+        } catch (HopException e) {
+          logError("Error preparing fake data generator for field '" + field.getName() + "'", e);
           return false;
         }
       }
@@ -90,7 +71,6 @@ public class Fake extends BaseTransform<FakeMeta, FakeData> {
 
     if (first) {
       // The output meta is the original input meta + the additional fake data fields.
-
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
@@ -99,25 +79,8 @@ public class Fake extends BaseTransform<FakeMeta, FakeData> {
 
     Object[] outputRowData = RowDataUtil.resizeArray(row, data.outputRowMeta.size());
     int rowIndex = getInputRowMeta().size();
-    int index = 0;
-    for (FakeField field : meta.getFields()) {
-      if (field.isValid()) {
-        Object fakerType = data.fakerTypes.get(index);
-        Method fakerMethod = data.fakerMethods.get(index);
-        index++;
-        try {
-          outputRowData[rowIndex++] = fakerMethod.invoke(fakerType);
-        } catch (Exception e) {
-          throw new HopException(
-              "Error getting faker value for field "
-                  + field.getName()
-                  + ", type "
-                  + field.getType()
-                  + " and topic "
-                  + field.getTopic(),
-              e);
-        }
-      }
+    for (FakerCatalog.BoundGenerator generator : data.boundGenerators) {
+      outputRowData[rowIndex++] = generator.produce();
     }
 
     putRow(data.outputRowMeta, outputRowData);

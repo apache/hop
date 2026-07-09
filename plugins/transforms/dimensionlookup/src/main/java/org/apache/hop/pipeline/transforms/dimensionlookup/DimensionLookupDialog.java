@@ -104,6 +104,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private Label wlPreloadCache;
   private Button wPreloadCache;
 
+  private Label wlIgnoreZeroLengthValidity;
+  private Button wIgnoreZeroLengthValidity;
+
   private Label wlCacheSize;
   private Text wCacheSize;
 
@@ -399,6 +402,26 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdPreloadCache.right = new FormAttachment(100, 0);
     wPreloadCache.setLayoutData(fdPreloadCache);
 
+    wlIgnoreZeroLengthValidity = new Label(wPhysicalComp, SWT.RIGHT);
+    wlIgnoreZeroLengthValidity.setText(
+        BaseMessages.getString(PKG, "DimensionLookupDialog.IgnoreZeroLengthValidity.Label"));
+    PropsUi.setLook(wlIgnoreZeroLengthValidity);
+    FormData fdlIgnoreZeroLengthValidity = new FormData();
+    fdlIgnoreZeroLengthValidity.left = new FormAttachment(0, 0);
+    fdlIgnoreZeroLengthValidity.right = new FormAttachment(middle, -margin);
+    fdlIgnoreZeroLengthValidity.top = new FormAttachment(wPreloadCache, margin);
+    wlIgnoreZeroLengthValidity.setLayoutData(fdlIgnoreZeroLengthValidity);
+    wIgnoreZeroLengthValidity = new Button(wPhysicalComp, SWT.CHECK);
+    PropsUi.setLook(wIgnoreZeroLengthValidity);
+    wIgnoreZeroLengthValidity.setToolTipText(
+        BaseMessages.getString(PKG, "DimensionLookupDialog.IgnoreZeroLengthValidity.Tooltip"));
+    wIgnoreZeroLengthValidity.addListener(SWT.Selection, e -> setFlags());
+    FormData fdIgnoreZeroLengthValidity = new FormData();
+    fdIgnoreZeroLengthValidity.left = new FormAttachment(middle, 0);
+    fdIgnoreZeroLengthValidity.top = new FormAttachment(wlIgnoreZeroLengthValidity, 0, SWT.CENTER);
+    fdIgnoreZeroLengthValidity.right = new FormAttachment(100, 0);
+    wIgnoreZeroLengthValidity.setLayoutData(fdIgnoreZeroLengthValidity);
+
     // Cache size ...
     wlCacheSize = new Label(wPhysicalComp, SWT.RIGHT);
     wlCacheSize.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.CacheSize.Label"));
@@ -406,13 +429,13 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     FormData fdlCacheSize = new FormData();
     fdlCacheSize.left = new FormAttachment(0, 0);
     fdlCacheSize.right = new FormAttachment(middle, -margin);
-    fdlCacheSize.top = new FormAttachment(wPreloadCache, margin);
+    fdlCacheSize.top = new FormAttachment(wIgnoreZeroLengthValidity, margin);
     wlCacheSize.setLayoutData(fdlCacheSize);
     wCacheSize = new Text(wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCacheSize);
     FormData fdCacheSize = new FormData();
     fdCacheSize.left = new FormAttachment(middle, 0);
-    fdCacheSize.top = new FormAttachment(wPreloadCache, margin);
+    fdCacheSize.top = new FormAttachment(wlCacheSize, 0, SWT.CENTER);
     fdCacheSize.right = new FormAttachment(100, 0);
     wCacheSize.setLayoutData(fdCacheSize);
 
@@ -1174,6 +1197,10 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wlPreloadCache.setEnabled(wUseCache.getSelection() && !wUpdate.getSelection());
     wPreloadCache.setEnabled(wUseCache.getSelection() && !wUpdate.getSelection());
 
+    boolean preloadCacheEnabled = wUseCache.getSelection() && !wUpdate.getSelection();
+    wlIgnoreZeroLengthValidity.setEnabled(preloadCacheEnabled && wPreloadCache.getSelection());
+    wIgnoreZeroLengthValidity.setEnabled(preloadCacheEnabled && wPreloadCache.getSelection());
+
     wlCacheSize.setEnabled(wUseCache.getSelection() && !wPreloadCache.getSelection());
     wCacheSize.setEnabled(wUseCache.getSelection() && !wPreloadCache.getSelection());
 
@@ -1271,6 +1298,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     wUseCache.setSelection(input.getCacheSize() >= 0);
     wPreloadCache.setSelection(input.isPreloadingCache());
+    wIgnoreZeroLengthValidity.setSelection(input.isIgnoreZeroLengthValidity());
     wCacheSize.setText("" + input.getCacheSize());
 
     wMinYear.setText("" + input.getMinYear());
@@ -1394,6 +1422,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
       in.setCacheSize(-1);
     }
     in.setPreloadingCache(wPreloadCache.getSelection());
+    in.setIgnoreZeroLengthValidity(wIgnoreZeroLengthValidity.getSelection());
     if (wPreloadCache.getSelection()) {
       in.setCacheSize(0);
     }

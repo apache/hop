@@ -124,6 +124,11 @@ public class TreeMemory {
     map.clear();
   }
 
+  /** Remove all remembered expand/collapse state for one tree. */
+  public void clearTree(String treeName) {
+    map.entrySet().removeIf(entry -> entry.getKey().treeName.equals(treeName));
+  }
+
   /**
    * This method creates, adds and returns a tree listener that will keep track of the
    * expanded/collapsed state of the TreeItems. This state will then be stored in the TreeMemory

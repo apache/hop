@@ -18,11 +18,16 @@
 package org.apache.hop.ui.testing;
 
 import java.awt.GraphicsEnvironment;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.history.AuditManager;
+import org.apache.hop.history.local.LocalAuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
@@ -56,11 +61,25 @@ public abstract class SwtBotTestBase {
         "No display available (headless); skipping SWTBot UI tests. Run on a desktop or under Xvfb.");
     // Registers the transform/plugin metadata (e.g. the Abort transform) the dialogs look up.
     HopEnvironment.init();
+    keepAuditStateOutOfSourceTree();
     ensureDisplay();
     // Warm up the Hop look-and-feel (fonts, zoom factor) against this display.
     PropsUi.getInstance();
     GuiResource.getInstance();
     primeEventLoop();
+  }
+
+  /**
+   * Redirect the local audit manager - which persists window geometry to {@code
+   * <root>/hop-gui/shells-state.json} whenever a dialog closes - to a throwaway temp folder, so the
+   * UI tests never write shell state into the checked-out source tree. This is enforced by the
+   * harness itself rather than relying on the build's {@code HOP_AUDIT_FOLDER}, so it also holds
+   * for IDE runs that don't apply the Maven argLine.
+   */
+  private static void keepAuditStateOutOfSourceTree() throws IOException {
+    Path auditFolder = Files.createTempDirectory("hop-swtbot-audit");
+    auditFolder.toFile().deleteOnExit();
+    AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager(auditFolder.toString()));
   }
 
   protected static synchronized void ensureDisplay() {

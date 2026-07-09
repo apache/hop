@@ -20,8 +20,13 @@ package org.apache.hop.ui.hopgui;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.IToolbarWidgetRegistrar;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 /** Desktop (RCP) toolbar container: wraps an SWT ToolBar. */
 public class ToolBarToolbarContainer implements IToolbarContainer {
@@ -40,5 +45,35 @@ public class ToolBarToolbarContainer implements IToolbarContainer {
   @Override
   public void addItem(GuiToolbarItem item, IToolbarWidgetRegistrar registrar) {
     registrar.addItem(item, toolBar);
+  }
+
+  @Override
+  public void enableWrapAutoHeight() {
+    // A SWT.WRAP toolbar wraps its items to extra rows when it is too narrow, but it does not
+    // grow its own allocated height to match. On every resize we measure the real extent of the
+    // (wrapped) items and feed it back into the FormData height so the layout gives the toolbar
+    // enough room and pushes the content below it down.
+    toolBar.addListener(SWT.Resize, event -> adjustWrappedHeight());
+  }
+
+  private void adjustWrappedHeight() {
+    if (toolBar.isDisposed() || !(toolBar.getLayoutData() instanceof FormData formData)) {
+      return;
+    }
+    int contentHeight = 0;
+    for (ToolItem item : toolBar.getItems()) {
+      Rectangle bounds = item.getBounds();
+      contentHeight = Math.max(contentHeight, bounds.y + bounds.height);
+    }
+    // Nothing to measure yet, or the height already matches: avoid a redundant re-layout (which
+    // would otherwise loop, since re-laying out fires another Resize event).
+    if (contentHeight <= 0 || formData.height == contentHeight) {
+      return;
+    }
+    formData.height = contentHeight;
+    Composite parent = toolBar.getParent();
+    if (parent != null && !parent.isDisposed()) {
+      parent.layout(true);
+    }
   }
 }

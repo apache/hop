@@ -144,7 +144,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   private org.eclipse.swt.widgets.List dataList;
   private TableView dataView;
 
-  private Map<String, List<ExecutionData>> actionExecutions;
+  private final Map<String, List<ExecutionData>> actionExecutions;
 
   public WorkflowExecutionViewer(
       Composite parent,
@@ -649,7 +649,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
           if (!Utils.isEmpty(executionDataList)) {
             // Just consider the first
             //
-            ExecutionData executionData = executionDataList.get(0);
+            ExecutionData executionData = executionDataList.getFirst();
 
             RowBuffer rowBuffer = executionData.getDataSets().get(ExecutionDataBuilder.KEY_RESULT);
             if (rowBuffer != null) {
@@ -737,7 +737,9 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_TO_EDITOR,
       toolTip = "i18n::WorkflowExecutionViewer.ToolbarElement.NavigateToEditor.Tooltip",
-      image = "ui/images/data_orch.svg")
+      image = "ui/images/edit.svg")
+  @GuiKeyboardShortcut(key = SWT.F3)
+  @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void navigateToEditor() {
     try {
       // First try to see if this workflow is running in Hop GUI...
@@ -884,7 +886,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       // Get any execution data for the selected action
       //
-      selectedExecutionData = executionDataList.get(0);
+      selectedExecutionData = executionDataList.getFirst();
 
       Map<String, ExecutionDataSetMeta> setMetaData = selectedExecutionData.getSetMetaData();
       List<String> items = new ArrayList<>();
@@ -960,7 +962,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       Execution child;
 
       if (childExecutions.size() == 1) {
-        child = childExecutions.get(0);
+        child = childExecutions.getFirst();
       } else {
         // Select the execution...
         //

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -993,13 +994,14 @@ public class YamlInputDialog extends BaseTransformDialog {
         yaml = new YamlReader();
         yaml.loadFile(inputList.getFile(0));
         RowMeta row = yaml.getFields();
+        List<String> paths = yaml.getDiscoveredPaths();
 
-        for (int i = 0; i < row.size(); i++) {
+        for (int i = 0; i < paths.size(); i++) {
           IValueMeta value = row.getValueMeta(i);
 
           TableItem item = new TableItem(wFields.table, SWT.NONE);
           item.setText(1, value.getName());
-          item.setText(2, value.getName());
+          item.setText(2, paths.get(i));
           item.setText(3, value.getTypeDesc());
         }
         wFields.removeEmptyRows();

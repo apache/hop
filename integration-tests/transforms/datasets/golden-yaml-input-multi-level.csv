@@ -1,0 +1,6 @@
+tableName,dataPagination,queryDataset
+t_user,100,"SELECT * FROM crm.t_user
+"
+t_customer,20,"SELECT * FROM crm.t_customer
+"
+t_order,30,SELECT * FROM crm.t_order

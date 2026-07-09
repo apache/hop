@@ -430,6 +430,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         PluginRegistry.getInstance()
             .getPlugin(DatabasePluginType.class, databaseMeta.getIDatabase());
 
+    if (log.isDetailed()) {
+      log.logDetailed("Loading JDBC driver class '" + classname + "'");
+    }
+
     try {
       synchronized (DriverManager.class) {
         ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader(plugin);
@@ -495,6 +499,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
       Properties properties = databaseMeta.getConnectionProperties(this);
 
+      int connectionTimeout = applyLoginTimeout();
+
+      if (log.isDetailed()) {
+        log.logDetailed(
+            "Opening JDBC connection..."
+                + (connectionTimeout > 0 ? " (login timeout " + connectionTimeout + "s)" : ""));
+      }
+
       if (databaseMeta.supportsOptionsInURL()) {
         if (!Utils.isEmpty(username) || !Utils.isEmpty(password)) {
           // Allow for empty username with given password, in this case username must be given with
@@ -525,9 +537,62 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         connection = DriverManager.getConnection(url, properties);
       }
+
+      if (log.isDetailed()) {
+        log.logDetailed("JDBC connection opened successfully");
+      }
+
+      applyNetworkTimeout();
     } catch (Exception e) {
       throw new HopDatabaseException(
           "Error connecting to database: (using class " + classname + ")", e);
+    }
+  }
+
+  /**
+   * Apply the default login/connection timeout ({@link Const#HOP_DATABASE_CONNECTION_TIMEOUT}, in
+   * seconds) via {@link DriverManager#setLoginTimeout(int)}. This is a JVM-wide setting that bounds
+   * how long the driver waits while establishing a connection; the default is 30 seconds and a
+   * value of 0 leaves the current default in place. The setting is advisory - some JDBC drivers
+   * ignore it in favor of their own connection options.
+   *
+   * @return the resolved connection timeout in seconds
+   */
+  int applyLoginTimeout() {
+    int connectionTimeout = Const.toInt(getVariable(Const.HOP_DATABASE_CONNECTION_TIMEOUT), 30);
+    if (connectionTimeout > 0) {
+      DriverManager.setLoginTimeout(connectionTimeout);
+    }
+    return connectionTimeout;
+  }
+
+  /**
+   * Apply the default network/socket timeout ({@link Const#HOP_DATABASE_SOCKET_TIMEOUT}, in
+   * seconds) to the freshly opened connection via {@link
+   * Connection#setNetworkTimeout(java.util.concurrent.Executor, int)}. This bounds reads on an
+   * already-established connection. A value of 0 (default) leaves it unbounded. Drivers that do not
+   * support the operation are ignored - an optional timeout must never fail the connection.
+   */
+  void applyNetworkTimeout() {
+    int socketTimeout = Const.toInt(getVariable(Const.HOP_DATABASE_SOCKET_TIMEOUT), 0);
+    if (socketTimeout <= 0 || connection == null) {
+      return;
+    }
+    try {
+      // Execute the driver's timeout callback inline; no extra thread pool to leak.
+      connection.setNetworkTimeout(command -> command.run(), socketTimeout * 1000);
+      if (log.isDetailed()) {
+        log.logDetailed(
+            "Applied network/socket timeout of " + socketTimeout + "s to the connection");
+      }
+    } catch (Exception e) {
+      if (log.isDetailed()) {
+        log.logDetailed(
+            "Unable to apply network/socket timeout ("
+                + socketTimeout
+                + "s); driver may not support it: "
+                + e.getMessage());
+      }
     }
   }
 

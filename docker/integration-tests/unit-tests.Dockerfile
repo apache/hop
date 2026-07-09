@@ -82,9 +82,7 @@ COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./docker/integration-tests/resourc
 
 # Unzip and install in correct location
 RUN chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
-  && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh \
-  && cd ${DEPLOYMENT_PATH}/hop \
-  && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar
+  && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh
 
 # make volume available so that hop pipeline and workflow files can be provided easily
 VOLUME ["/files"]

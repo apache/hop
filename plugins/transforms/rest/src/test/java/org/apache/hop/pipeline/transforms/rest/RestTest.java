@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 
 import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -34,6 +35,12 @@ import jakarta.ws.rs.core.Response;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -49,8 +56,14 @@ class RestTest {
   private MockedStatic<Client> mockedClient;
 
   @BeforeEach
-  void setUpStaticMocks() {
+  void setUpStaticMocks() throws Exception {
     mockedClient = mockStatic(Client.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            HopTwoWayPasswordEncoder.class.getName(),
+            TwoWayPasswordEncoderPluginType.class,
+            TwoWayPasswordEncoderPlugin.class);
+    Encr.init("Hop");
   }
 
   @AfterEach
@@ -164,25 +177,56 @@ class RestTest {
   }
 
   @Test
-  void testAddApiKeyHeaderIfAbsentAddsPrefixedHeaderWithoutOverriding() throws Exception {
-    Rest rest = newRest();
-    RestConnection connection = mock(RestConnection.class);
-    doReturn("API Key").when(connection).getAuthType();
-    doReturn("Authorization").when(connection).getAuthorizationHeaderName();
-    doReturn("secret").when(connection).getAuthorizationHeaderValue();
-    doReturn("Bearer").when(connection).getAuthorizationPrefix();
+  void testConnectionApiKeyHeaderIsDecryptedAndRowWins() {
+    // Regression for #6697: an "Encrypted ..." API key configured on the REST connection must be
+    // decrypted before it is sent (it used to be forwarded verbatim from the transform, giving a
+    // 401), while a header already supplied on the incoming row must still win over connection
+    // auth.
+    String encryptedValue = Encr.encryptPasswordIfNotUsingVariables("my_super_secret");
+    assertTrue(encryptedValue.startsWith(Encr.PASSWORD_ENCRYPTED_PREFIX));
 
-    Field connectionField = Rest.class.getDeclaredField("connection");
-    connectionField.setAccessible(true);
-    connectionField.set(rest, connection);
+    RestConnection connection = new RestConnection(new Variables());
+    connection.setAuthType(RestConnection.API_KEY);
+    connection.setAuthorizationHeaderName("X-API-Key");
+    connection.setAuthorizationPrefix("Token");
+    connection.setAuthorizationHeaderValue(encryptedValue);
 
+    Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+
+    // Fresh row: the connection contributes the decrypted, prefixed value.
     MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    invokePrivate(rest, "addApiKeyHeaderIfAbsent", headers);
-    assertEquals("Bearer secret", headers.getFirst("Authorization"));
+    connection.applyBearerAndApiKeyHeaders(invocationBuilder, headers);
+    assertEquals("Token my_super_secret", headers.getFirst("X-API-Key"));
 
-    headers.putSingle("Authorization", "existing");
-    invokePrivate(rest, "addApiKeyHeaderIfAbsent", headers);
-    assertEquals("existing", headers.getFirst("Authorization"));
+    // Row already supplied the header (case-insensitively): connection auth is skipped, row wins
+    // and no second (differently-cased) copy is appended.
+    MultivaluedMap<String, Object> rowHeaders = new MultivaluedHashMap<>();
+    rowHeaders.putSingle("x-api-key", "row_value");
+    connection.applyBearerAndApiKeyHeaders(invocationBuilder, rowHeaders);
+    assertEquals(1, rowHeaders.get("x-api-key").size());
+    assertEquals("row_value", rowHeaders.getFirst("x-api-key"));
+    assertNull(rowHeaders.getFirst("X-API-Key"));
+  }
+
+  @Test
+  void testConnectionApiKeyHeaderIsNotDuplicated() {
+    // Regression for #6697: the connection's API-key header must be emitted exactly once — the
+    // original bug sent it doubled (e.g. "my_super_secret,my_super_secret" -> HTTP 401). The test
+    // button, RestConnection.getInvocationBuilder(...) and the transform all funnel auth through
+    // this same merge, so re-applying it must stay idempotent instead of appending a second value.
+    RestConnection connection = new RestConnection(new Variables());
+    connection.setAuthType(RestConnection.API_KEY);
+    connection.setAuthorizationHeaderName("X-API-Key");
+    connection.setAuthorizationHeaderValue("my_super_secret");
+
+    Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+
+    connection.applyBearerAndApiKeyHeaders(invocationBuilder, headers);
+    connection.applyBearerAndApiKeyHeaders(invocationBuilder, headers);
+
+    assertEquals(1, headers.get("X-API-Key").size());
+    assertEquals("my_super_secret", headers.getFirst("X-API-Key"));
   }
 
   private Rest newRest() {
@@ -210,8 +254,6 @@ class RestTest {
                   .getDeclaredMethod(methodName, String.class, java.nio.charset.Charset.class);
           case "trackResponseBytes" ->
               target.getClass().getDeclaredMethod(methodName, Response.class, String.class);
-          case "addApiKeyHeaderIfAbsent" ->
-              target.getClass().getDeclaredMethod(methodName, MultivaluedMap.class);
           default -> throw new NoSuchMethodException(methodName);
         };
     method.setAccessible(true);
