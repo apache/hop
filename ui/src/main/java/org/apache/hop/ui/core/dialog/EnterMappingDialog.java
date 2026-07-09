@@ -119,7 +119,7 @@ public class EnterMappingDialog extends Dialog {
    * @param source the source values
    * @param target the target values
    * @param mappings the already selected mappings (ArrayList containing <code>SourceToTargetMapping
-   *     </code>s)
+   *                 </code>s)
    */
   public EnterMappingDialog(
       Shell parent,
@@ -346,45 +346,52 @@ public class EnterMappingDialog extends Dialog {
 
     // Sort Longest to Shortest string - makes matching better
     Arrays.sort(sortedSourceList, (s1, s2) -> s2.length() - s1.length());
-    // Look for matches using longest field name to shortest
+    // Look for matches using the longest field name to shortest
     ArrayList<GuessPair> pList = new ArrayList<>();
-    for (int i = 0; i < sourceList.length; i++) {
-      int idx = Const.indexOfString(sortedSourceList[i], wSource.getItems());
-      if (idx >= 0) {
-        pList.add(findTargetPair(idx));
+    for (String sourceField : sortedSourceList) {
+      if (Const.indexOfString(sourceField, wSource.getItems()) >= 0) {
+        int srcIndex = Const.indexOfString(sourceField, sourceList);
+        if (srcIndex >= 0 && !isSourceMapped(srcIndex)) {
+          pList.add(findTargetPair(sourceField));
+        }
       }
     }
     // Now add them in order or source field list
-    Collections.sort(pList, (s1, s2) -> s1.getSrcIndex() - s2.getSrcIndex());
+    pList.sort(Comparator.comparingInt(GuessPair::getSrcIndex));
     for (GuessPair p : pList) {
-      if (p.getFound()) {
-        SourceToTargetMapping mapping =
-            new SourceToTargetMapping(p.getSrcIndex(), p.getTargetIndex());
-        mappings.add(mapping);
+      if (p.getFound() && mappingNotExists(p.getSrcIndex(), p.getTargetIndex())) {
+        mappings.add(new SourceToTargetMapping(p.getSrcIndex(), p.getTargetIndex()));
       }
     }
     refreshMappings();
   }
 
   private void findTarget() {
-    int sourceIndex = wSource.getSelectionIndex();
-    GuessPair p = findTargetPair(sourceIndex);
+    int sourceUiIndex = wSource.getSelectionIndex();
+    if (sourceUiIndex < 0) {
+      return;
+    }
+    GuessPair p = findTargetPair(wSource.getItem(sourceUiIndex));
     if (p.getFound()) {
-      wTarget.setSelection(p.getTargetIndex());
+      int targetUiIndex = Const.indexOfString(targetList[p.getTargetIndex()], wTarget.getItems());
+      if (targetUiIndex >= 0) {
+        wTarget.setSelection(targetUiIndex);
+      }
     }
   }
 
-  private GuessPair findTargetPair(int sourceIndex) {
+  private GuessPair findTargetPair(String sourceFieldName) {
     // Guess, user selects an entry in the list on the left.
     // Find a comparable entry in the target list...
-    GuessPair result = new GuessPair(sourceIndex);
+    int srcListIndex = Const.indexOfString(sourceFieldName, sourceList);
+    GuessPair result = new GuessPair(srcListIndex);
 
-    if (sourceIndex < 0) {
+    if (srcListIndex < 0) {
       return result; // Not Found
     }
 
     // Skip everything after the bracket...
-    String sourceString = wSource.getItem(sourceIndex).toUpperCase();
+    String sourceString = sourceFieldName.toUpperCase();
     String sourceValue = sourceString.toLowerCase();
     if (StringUtils.isNotEmpty(sourceSeparator)) {
       int index = sourceValue.indexOf(sourceSeparator);
@@ -427,11 +434,47 @@ public class EnterMappingDialog extends Dialog {
     }
 
     if (minTarget >= 0) {
-      result.setTargetIndex(minTarget);
-      result._found = true; // always make a guess
+      int tgtListIndex = Const.indexOfString(wTarget.getItem(minTarget), targetList);
+      if (tgtListIndex >= 0) {
+        result.setTargetIndex(tgtListIndex);
+      }
     }
 
     return result;
+  }
+
+  /**
+   * Determines whether the specified source position has already been mapped to any target
+   * position.
+   *
+   * @param srcIndex the index of the source position
+   * @return {@code true} if a mapping exists for the specified source position; {@code false}
+   *     otherwise
+   */
+  private boolean isSourceMapped(int srcIndex) {
+    for (SourceToTargetMapping mapping : mappings) {
+      if (mapping.getSourcePosition() == srcIndex) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Determines whether a mapping between the specified source and target positions does not exist.
+   *
+   * @param srcIndex the source position index
+   * @param tgtIndex the target position index
+   * @return {@code true} if no mapping exists between the specified source and target positions;
+   *     {@code false} otherwise
+   */
+  private boolean mappingNotExists(int srcIndex, int tgtIndex) {
+    for (SourceToTargetMapping mapping : mappings) {
+      if (mapping.getSourcePosition() == srcIndex && mapping.getTargetPosition() == tgtIndex) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private boolean findSource() {
@@ -468,11 +511,8 @@ public class EnterMappingDialog extends Dialog {
       int srcIndex = Const.indexOfString(sourceString, sourceList);
       int tgtIndex = Const.indexOfString(targetString, targetList);
 
-      if (srcIndex >= 0 && tgtIndex >= 0) {
-        // New mapping: add it to the list...
-        SourceToTargetMapping mapping = new SourceToTargetMapping(srcIndex, tgtIndex);
-        mappings.add(mapping);
-
+      if (srcIndex >= 0 && tgtIndex >= 0 && mappingNotExists(srcIndex, tgtIndex)) {
+        mappings.add(new SourceToTargetMapping(srcIndex, tgtIndex));
         refreshMappings();
       }
     }
