@@ -732,6 +732,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 new int[] {workflowMeta.indexOfWorkflowHop(hop)});
             updateGui();
           }
+          // Clicking the icon only changes the hop type, it should not open the context dialog.
+          //
+          avoidContextDialog = true;
+          currentAction = null;
+          actionDragStartScreen = null;
           done = true;
           break;
         case NOTE:
