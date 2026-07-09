@@ -75,7 +75,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
         response.setContentType("application/json");
         response.setCharacterEncoding(Const.UTF_8);
       } else {
-        beginHtml(response, out);
+        beginHtml(request, response, out);
       }
 
       WebResult result = generateBody(request, response, useXML, variables);
@@ -108,7 +108,8 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     }
   }
 
-  protected void beginHtml(HttpServletResponse response, PrintWriter out) {
+  protected void beginHtml(
+      HttpServletRequest request, HttpServletResponse response, PrintWriter out) {
     response.setContentType("text/html;charset=UTF-8");
     out.println("<HTML>");
     out.println("<HEAD>");
@@ -116,7 +117,10 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     out.println(Encode.forHtml(getTitle()));
     out.println("</TITLE>");
     out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-    out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
+    out.println(
+        "<link rel=\"icon\" type=\"image/svg+xml\" href=\""
+            + getStaticPath(request, getContextPath())
+            + "/images/favicon.svg\">");
     out.println("</HEAD>");
     out.println("<BODY>");
   }

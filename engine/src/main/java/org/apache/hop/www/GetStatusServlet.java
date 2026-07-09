@@ -96,12 +96,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       logDebug(BaseMessages.getString(PKG, "GetStatusServlet.StatusRequested"));
     }
     response.setStatus(HttpServletResponse.SC_OK);
-    String root =
-        request.getRequestURI() == null
-            ? StatusServletUtils.HOP_ROOT
-            : request.getRequestURI().substring(0, request.getRequestURI().indexOf(CONTEXT_PATH));
-    String prefix =
-        isJettyMode() ? StatusServletUtils.STATIC_PATH : root + StatusServletUtils.RESOURCES_PATH;
+    String prefix = getStaticPath(request, CONTEXT_PATH);
     boolean useXml = "Y".equalsIgnoreCase(request.getParameter("xml"));
     boolean useJson = "Y".equalsIgnoreCase(request.getParameter("json"));
     boolean useLightTheme = "Y".equalsIgnoreCase(request.getParameter("useLightTheme"));
@@ -172,27 +167,15 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
               + BaseMessages.getString(PKG, "GetStatusServlet.HopServerStatus")
               + "</TITLE>");
       out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-      out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
+      out.println(
+          "<link rel=\"icon\" type=\"image/svg+xml\" href=\"" + prefix + "/images/favicon.svg\">");
 
       int tableBorder = 1;
       if (!useLightTheme) {
-        if (isJettyMode()) {
-          out.println(
-              "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/hop-server.css\" />");
-        } else {
-          out.println("<style>");
-          out.println(
-              ".hop-table td, tr.cellTableRow, td.gwt-MenuItem, .toolbar-button:not(.toolbar-button-disabled) {");
-          out.println("  cursor: pointer;");
-          out.println(CONST_CLOSE_BRACKET);
-          out.println(".toolbar-button-disabled {");
-          out.println("  opacity: 0.4;");
-          out.println(CONST_CLOSE_BRACKET);
-          out.println("div#messageDialogBody:first-letter {");
-          out.println("  text-transform: capitalize;");
-          out.println(CONST_CLOSE_BRACKET);
-          out.println("</style>");
-        }
+        out.println(
+            "<link rel=\"stylesheet\" type=\"text/css\" href=\""
+                + prefix
+                + "/css/hop-server.css\" />");
         tableBorder = 0;
       }
 

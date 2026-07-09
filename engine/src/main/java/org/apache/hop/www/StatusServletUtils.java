@@ -19,7 +19,5 @@ package org.apache.hop.www;
 
 public class StatusServletUtils {
 
-  public static final String RESOURCES_PATH = "/content/common-ui/resources/themes";
   public static final String STATIC_PATH = "/static";
-  public static final String HOP_ROOT = "/hop";
 }

@@ -60,6 +60,29 @@ public class BaseHttpServlet extends HttpServlet {
     return contextPath.substring(contextPath.lastIndexOf("/") + 1);
   }
 
+  /**
+   * Returns the location under which the bundled static assets (icons, css) are served, made
+   * relative to the deployment root. The servlet's own {@code contextPath} is stripped off the
+   * request URI, so the result is root-based for a root deployment and carries the servlet
+   * container context path / reverse-proxy prefix otherwise.
+   *
+   * <p>The assets ship at {@link StatusServletUtils#STATIC_PATH} in both the standalone hop-server
+   * (served on the root Jetty context) and the Hop Web war (unpacked to the war root), so this
+   * resolves correctly in every deployment - including behind a reverse proxy - without a
+   * Jetty-vs-servlet-container branch.
+   */
+  protected String getStaticPath(HttpServletRequest request, String contextPath) {
+    String requestUri = request.getRequestURI();
+    String root = "";
+    if (requestUri != null) {
+      int index = requestUri.indexOf(contextPath);
+      if (index > 0) {
+        root = requestUri.substring(0, index);
+      }
+    }
+    return root + StatusServletUtils.STATIC_PATH;
+  }
+
   public BaseHttpServlet() {}
 
   public BaseHttpServlet(PipelineMap pipelineMap) {
