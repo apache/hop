@@ -39,6 +39,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
@@ -92,6 +93,7 @@ import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemReorder;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.search.ReferenceSearchResults;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
@@ -447,6 +449,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Duplicate"));
                 menuItem.setImage(GuiResource.getInstance().getImageDuplicate());
                 menuItem.addListener(SWT.Selection, e -> duplicateMetadata());
+
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(
+                    BaseMessages.getString(PKG, "MetadataPerspective.Menu.FindReferences"));
+                menuItem.setImage(
+                    GuiResource.getInstance().getImage("ui/images/search.svg", 16, 16));
+                menuItem.addListener(SWT.Selection, e -> onFindReferences());
 
                 new MenuItem(menu, SWT.SEPARATOR);
 
@@ -924,6 +933,65 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       return null;
     }
     return new String[] {key.toString(), name};
+  }
+
+  /** Context-menu handler: find where the selected metadata item is referenced. */
+  private void onFindReferences() {
+    String[] keyAndName = getSelectedMetadataKeyAndName();
+    if (keyAndName == null) {
+      return;
+    }
+    findReferences(keyAndName[0], keyAndName[1]);
+  }
+
+  /**
+   * Best-effort static scan (same engine as rename) for pipelines/workflows and metadata objects
+   * that reference the given metadata element by name. Results are shown in the shared
+   * search-results UI, in a bottom-dock tab, so each one can be opened by double-clicking it.
+   */
+  private void findReferences(String metadataKey, String name) {
+    String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
+    if (Utils.isEmpty(projectHome) || Const.VAR_PROJECT_HOME.equals(projectHome)) {
+      // Without an active project there is nothing to scan.
+      showNoReferencesFound(name);
+      return;
+    }
+    List<String> searchRoots = java.util.Collections.singletonList(projectHome);
+    try {
+      MetadataReferenceFinder finder = new MetadataReferenceFinder(hopGui.getMetadataProvider());
+      List<MetadataReferenceResult> fileReferences =
+          finder.findReferences(metadataKey, name, searchRoots);
+      List<MetadataObjectReference> metadataReferences =
+          finder.findReferencesInMetadata(metadataKey, name);
+
+      List<ISearchResult> results =
+          ReferenceSearchResults.build(hopGui, fileReferences, metadataReferences);
+      if (results.isEmpty()) {
+        showNoReferencesFound(name);
+        return;
+      }
+      ReferenceSearchResults.showInBottomDock(
+          hopGui,
+          BaseMessages.getString(PKG, "MetadataPerspective.FindReferences.Tab.Title", name),
+          name,
+          results);
+    } catch (HopException e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "MetadataPerspective.FindReferences.Error.Title"),
+          BaseMessages.getString(PKG, "MetadataPerspective.FindReferences.Error.Message", name),
+          e);
+    }
+  }
+
+  private void showNoReferencesFound(String name) {
+    MessageBox box = new MessageBox(getShell(), SWT.ICON_INFORMATION | SWT.OK);
+    box.setText(
+        BaseMessages.getString(PKG, "MetadataPerspective.FindReferences.NoReferences.Title"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG, "MetadataPerspective.FindReferences.NoReferences.Message", name));
+    box.open();
   }
 
   /**
