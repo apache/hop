@@ -504,8 +504,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     mainComposite.setLayout(new FormLayout());
     FormData fdMainComposite = new FormData();
     fdMainComposite.left = new FormAttachment(0, 0);
-    fdMainComposite.top =
-        new FormAttachment(0, toolBar.getBounds().height); // Position below toolbar
+    // Position below the toolbar, following its control so it moves down when the toolbar wraps to
+    // a second row rather than using a height captured once at construction time.
+    fdMainComposite.top = new FormAttachment(toolBar, 0);
     fdMainComposite.right = new FormAttachment(100, 0);
     fdMainComposite.bottom = new FormAttachment(100, 0);
     mainComposite.setLayoutData(fdMainComposite);
@@ -2425,6 +2426,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       layoutData.right = new FormAttachment(100, 0);
       toolBar.setLayoutData(layoutData);
       toolBar.pack();
+      // Let the toolbar grow its height when its items wrap to a second row so they don't overlap
+      // the canvas below it.
+      toolBarContainer.enableWrapAutoHeight();
       PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
       // enable / disable the icons in the toolbar too.
