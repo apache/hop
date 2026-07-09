@@ -367,6 +367,49 @@ class StaxPoiSheetTest {
     assertEquals(KCellType.STRING_FORMULA, rowCells[1].getType());
   }
 
+  // An inline string cell whose text is empty (e.g. <is><t></t></is>) must be read as an empty
+  // value in its own column, and must NOT swallow the content of the following cell. This is what
+  // the streaming Excel writer produces for empty string fields; a broken reader shifted every
+  // column after the empty one to the left.
+  private static final String SHEET_INLINE_EMPTY_CELL =
+      String.format(
+          BP_SHEET,
+          "<dimension ref=\"A1:D2\"/>"
+              + "<sheetData>"
+              + "<row r=\"1\">"
+              + "<c r=\"A1\" t=\"inlineStr\"><is><t>colA</t></is></c>"
+              + "<c r=\"B1\" t=\"inlineStr\"><is><t>colB</t></is></c>"
+              + "<c r=\"C1\" t=\"inlineStr\"><is><t>colC</t></is></c>"
+              + "<c r=\"D1\" t=\"inlineStr\"><is><t>colD</t></is></c>"
+              + "</row>"
+              + "<row r=\"2\">"
+              + "<c r=\"A2\" t=\"inlineStr\"><is><t>valA</t></is></c>"
+              + "<c r=\"B2\" t=\"inlineStr\"><is><t></t></is></c>"
+              + "<c r=\"C2\" t=\"inlineStr\"><is><t>valC</t></is></c>"
+              + "<c r=\"D2\" t=\"inlineStr\"><is><t>valD</t></is></c>"
+              + "</row>"
+              + "</sheetData>");
+
+  @Test
+  void testInlineStringEmptyCellDoesNotShiftColumns() throws Exception {
+    final String sheetId = "1";
+    final String sheetName = "Sheet 1";
+    XSSFReader reader =
+        mockXSSFReader(
+            sheetId,
+            SHEET_INLINE_EMPTY_CELL,
+            mock(SharedStringsTable.class),
+            mock(StylesTable.class));
+    StaxPoiSheet spSheet = new StaxPoiSheet(reader, sheetName, sheetId);
+
+    IKCell[] row = spSheet.getRow(1);
+    // The empty cell (colB) must keep its column; colC/colD must not shift left.
+    assertEquals("valA", row[0].getValue());
+    assertEquals("", row[1].getValue(), "empty inline string cell must be an empty value in colB");
+    assertEquals("valC", row[2].getValue(), "colC must not be shifted into colB");
+    assertEquals("valD", row[3].getValue());
+  }
+
   // The row and column bounds of all cells in the worksheet are specified in ref attribute of
   // Dimension tag in sheet
   // xml

@@ -132,14 +132,20 @@ public class StaxPoiSheet implements IKSheet {
                   event = sheetReader.next();
                   if (event == XMLStreamConstants.START_ELEMENT
                       && sheetReader.getLocalName().equals("is")) {
+                    String content = "";
                     while (sheetReader.hasNext()) {
                       event = sheetReader.next();
                       if (event == XMLStreamConstants.CHARACTERS) {
-                        String content = new XSSFRichTextString(sheetReader.getText()).toString();
-                        headerRow.add(content);
+                        content = new XSSFRichTextString(sheetReader.getText()).toString();
+                        break;
+                      }
+                      if (event == XMLStreamConstants.END_ELEMENT
+                          && sheetReader.getLocalName().equals("is")) {
+                        // empty inline string: stop before consuming the next cell
                         break;
                       }
                     }
+                    headerRow.add(content);
                     break;
                   }
                 }
@@ -245,10 +251,15 @@ public class StaxPoiSheet implements IKSheet {
           }
         }
         if (event == XMLStreamConstants.START_ELEMENT && sheetReader.getLocalName().equals("is")) {
+          content = "";
           while (sheetReader.hasNext()) {
             event = sheetReader.next();
             if (event == XMLStreamConstants.CHARACTERS) {
               content = new XSSFRichTextString(sheetReader.getText()).toString();
+              break;
+            }
+            if (event == XMLStreamConstants.END_ELEMENT
+                && sheetReader.getLocalName().equals("is")) {
               break;
             }
           }
