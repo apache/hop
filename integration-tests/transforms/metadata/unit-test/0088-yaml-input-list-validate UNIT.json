@@ -1,0 +1,28 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "engine",
+          "data_set_field": "engine"
+        }
+      ],
+      "field_order": [
+        "engine"
+      ],
+      "data_set_name": "golden-yaml-input-list",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0088-yaml-input-list-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0088-yaml-input-list.hpl"
+}
