@@ -53,6 +53,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.svg.SvgCache;
@@ -118,6 +119,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
+import org.apache.hop.ui.hopgui.search.ReferenceSearchResults;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -213,6 +215,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-ContextMenu-10400-CopyName";
   public static final String CONTEXT_MENU_COPY_PATH =
       "ExplorerPerspective-ContextMenu-10401-CopyPath";
+  public static final String CONTEXT_MENU_FIND_REFERENCES =
+      "ExplorerPerspective-ContextMenu-10402-FindReferences";
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
   private static final String TREE_WIDTH_AUDIT_TYPE = "explorer-perspective-tree-width";
@@ -632,6 +636,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           }
 
           menuWidgets.findMenuItem(CONTEXT_MENU_RENAME).setEnabled(selection.length == 1);
+
+          // Finding references is only meaningful for a single pipeline or workflow file.
+          //
+          MenuItem findReferencesItem = menuWidgets.findMenuItem(CONTEXT_MENU_FIND_REFERENCES);
+          if (findReferencesItem != null) {
+            findReferencesItem.setEnabled(
+                selection.length == 1
+                    && tif != null
+                    && !tif.folder
+                    && isPipelineOrWorkflowFile(tif.path));
+          }
 
           // Show the menu
           //
@@ -2815,6 +2830,84 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     TreeItemFolder folder = (TreeItemFolder) selection[0].getData();
     GuiResource.getInstance().toClipboard(folder.path);
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_FIND_REFERENCES,
+      label = "i18n::ExplorerPerspective.Menu.FindReferences",
+      image = "ui/images/search.svg",
+      separator = true)
+  public void findReferences() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length != 1) {
+      return;
+    }
+    TreeItemFolder tif = (TreeItemFolder) selection[0].getData();
+    if (tif == null || tif.folder || !isPipelineOrWorkflowFile(tif.path)) {
+      return;
+    }
+    findReferences(tif.path, tif.name);
+  }
+
+  /**
+   * Best-effort static scan (same engine as rename) for pipelines/workflows and metadata objects
+   * that reference the given file. Results are shown in the shared search-results UI, in a
+   * bottom-dock tab, so each one can be opened by double-clicking it.
+   */
+  private void findReferences(String path, String name) {
+    String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
+    if (Utils.isEmpty(projectHome) || Const.VAR_PROJECT_HOME.equals(projectHome)) {
+      // Without an active project there is nothing to scan.
+      showNoReferencesFound(name);
+      return;
+    }
+    List<String> searchRoots = java.util.Collections.singletonList(projectHome);
+    try {
+      MetadataReferenceFinder finder = new MetadataReferenceFinder(hopGui.getMetadataProvider());
+      List<MetadataReferenceResult> fileReferences =
+          finder.findFileReferences(searchRoots, path, hopGui.getVariables());
+      List<MetadataObjectReference> metadataReferences =
+          finder.findFilePathReferencesInMetadata(path, hopGui.getVariables());
+
+      List<ISearchResult> results =
+          ReferenceSearchResults.build(hopGui, fileReferences, metadataReferences);
+      if (results.isEmpty()) {
+        showNoReferencesFound(name);
+        return;
+      }
+      ReferenceSearchResults.showInBottomDock(
+          hopGui,
+          BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.Tab.Title", name),
+          name,
+          results);
+    } catch (HopException e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.Error.Title"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.Error.Message", name),
+          e);
+    }
+  }
+
+  private void showNoReferencesFound(String name) {
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+    box.setText(
+        BaseMessages.getString(PKG, "ExplorerPerspective.FindReferences.NoReferences.Title"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG, "ExplorerPerspective.FindReferences.NoReferences.Message", name));
+    box.open();
+  }
+
+  /** True when the path is a pipeline (.hpl) or workflow (.hwf) file. */
+  private static boolean isPipelineOrWorkflowFile(String path) {
+    if (path == null) {
+      return false;
+    }
+    String lower = path.toLowerCase(java.util.Locale.ROOT);
+    return lower.endsWith(".hpl") || lower.endsWith(".hwf");
   }
 
   @GuiToolbarElement(
