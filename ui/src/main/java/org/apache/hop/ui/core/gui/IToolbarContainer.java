@@ -35,15 +35,4 @@ public interface IToolbarContainer {
    * the appropriate widgets and registers them via the registrar.
    */
   void addItem(GuiToolbarItem item, IToolbarWidgetRegistrar registrar);
-
-  /**
-   * Desktop only: make the toolbar report its true (possibly wrapped, multi-row) height to its
-   * parent layout. When items wrap to a second line the toolbar then grows and the content below it
-   * is pushed down, instead of the extra rows overlapping the canvas or being hidden. This requires
-   * the toolbar control to use a {@link org.eclipse.swt.layout.FormData} layout. No-op for the web
-   * (RAP) container, whose RowLayout already self-sizes when it wraps.
-   */
-  default void enableWrapAutoHeight() {
-    // No-op by default; only the desktop SWT ToolBar needs explicit wrap-aware height handling.
-  }
 }
