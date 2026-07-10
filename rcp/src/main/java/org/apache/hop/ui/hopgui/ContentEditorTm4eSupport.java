@@ -52,13 +52,15 @@ final class ContentEditorTm4eSupport {
   private static final String SCOPE_JSON = "source.json";
   private static final String SCOPE_XML = "text.xml";
   private static final String SCOPE_SQL = "source.sql";
+  private static final String SCOPE_PYTHON = "source.python";
 
   /** Maps TM4E scope names to grammar resource filenames (classpath-relative to grammars/). */
   private static final Map<String, String> GRAMMAR_FILES =
       Map.of(
           SCOPE_JSON, "json.json",
           SCOPE_XML, "xml.json",
-          SCOPE_SQL, "sql.json");
+          SCOPE_SQL, "sql.json",
+          SCOPE_PYTHON, "python.json");
 
   // Same palette as before (light/dark) for consistency
   private static final RGB L_COMMENT = new RGB(128, 128, 128);
@@ -107,6 +109,9 @@ final class ContentEditorTm4eSupport {
         return SCOPE_XML;
       case "sql":
         return SCOPE_SQL;
+      case "python":
+      case "py":
+        return SCOPE_PYTHON;
       default:
         return null;
     }
