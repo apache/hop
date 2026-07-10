@@ -44,8 +44,8 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.SQLStyledTextComp;
@@ -420,12 +420,12 @@ public class SqlEditor {
             .getDisplay()
             .syncExec(
                 () ->
-                    new PreviewRowsDialog(
+                    new ShowRowsDialog(
                             shell,
                             variables,
-                            SWT.NONE,
                             BaseMessages.getString(
                                 PKG, "SQLEditor.ResultRows.Title", Integer.toString(statNr)),
+                            BaseMessages.getString(PKG, "SQLEditor.ResultRows.Message"),
                             rowMeta,
                             rows)
                         .open());

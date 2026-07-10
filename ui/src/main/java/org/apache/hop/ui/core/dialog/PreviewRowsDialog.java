@@ -57,7 +57,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-/** Displays an ArrayList of rows in a TableView. */
+/**
+ * Displays rows for transform preview: streaming updates, optional logging text, and actions such
+ * as "get more rows" or stop. For a static set of rows with a custom title and message (no preview
+ * actions), prefer {@link ShowRowsDialog}.
+ */
 public class PreviewRowsDialog {
   private static final Class<?> PKG = PreviewRowsDialog.class;
 
