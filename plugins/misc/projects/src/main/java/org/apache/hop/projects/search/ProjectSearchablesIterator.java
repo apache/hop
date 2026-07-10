@@ -19,8 +19,11 @@ package org.apache.hop.projects.search;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
@@ -33,16 +36,14 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.search.HopGuiDescribedVariableSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiMetadataSearchable;
-import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
-import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
-import org.apache.hop.workflow.WorkflowMeta;
 
 // TODO: implement lazy loading of the searchables.
 //
@@ -68,32 +69,61 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
         configurationFiles.addAll(environments.get(0).getConfigurationFiles());
       }
 
-      // Find all the pipelines and workflows in the project homefolder...
+      // Discover files via registered hop file types that opt into search.
       //
-      FileObject homeFolderFile = HopVfs.getFileObject(projectConfig.getProjectHome());
-      Collection<FileObject> pipelineFiles = HopVfs.findFiles(homeFolderFile, "hpl", true);
-      for (FileObject pipelineFile : pipelineFiles) {
-        String pipelineFilePath = pipelineFile.getName().getURI();
-        try {
-          PipelineMeta pipelineMeta =
-              new PipelineMeta(pipelineFilePath, metadataProvider, variables);
-          searchables.add(new HopGuiPipelineSearchable("Project pipeline file", pipelineMeta));
-        } catch (Exception e) {
-          // There was an error loading the XML file...
-          LogChannel.GENERAL.logError("Error loading pipeline metadata: " + pipelineFilePath, e);
+      HopFileTypeRegistry fileTypeRegistry = HopFileTypeRegistry.getInstance();
+      fileTypeRegistry.ensureLoaded();
+
+      Set<String> searchableExtensions = new HashSet<>();
+      boolean hasSearchableTypes = false;
+      for (IHopFileType fileType : fileTypeRegistry.getFileTypes()) {
+        if (!fileType.hasCapability(IHopFileType.CAPABILITY_SEARCH)) {
+          continue;
+        }
+        hasSearchableTypes = true;
+        for (String filterExtension : fileType.getFilterExtensions()) {
+          if (filterExtension == null || filterExtension.isEmpty()) {
+            continue;
+          }
+          // filter extensions look like "*.hpl" or "*.sql;*.SQL"
+          for (String part : filterExtension.split(";")) {
+            String ext = part.trim();
+            if (ext.startsWith("*.")) {
+              ext = ext.substring(2);
+            } else if (ext.startsWith(".")) {
+              ext = ext.substring(1);
+            }
+            if (!ext.isEmpty() && !"*".equals(ext)) {
+              searchableExtensions.add(ext.toLowerCase(Locale.ROOT));
+            }
+          }
         }
       }
 
-      Collection<FileObject> workflowFiles = HopVfs.findFiles(homeFolderFile, "hwf", true);
-      for (FileObject workflowFile : workflowFiles) {
-        String workflowFilePath = workflowFile.getName().getURI();
-        try {
-          WorkflowMeta workflowMeta =
-              new WorkflowMeta(variables, workflowFilePath, metadataProvider);
-          searchables.add(new HopGuiWorkflowSearchable("Project workflow file", workflowMeta));
-        } catch (Exception e) {
-          // There was an error loading the XML file...
-          LogChannel.GENERAL.logError("Error loading workflow metadata: " + workflowFilePath, e);
+      FileObject homeFolderFile = HopVfs.getFileObject(projectConfig.getProjectHome());
+      if (hasSearchableTypes) {
+        Collection<FileObject> projectFiles = HopVfs.findFiles(homeFolderFile, null, true);
+        for (FileObject projectFile : projectFiles) {
+          String extension = projectFile.getName().getExtension();
+          if (extension == null
+              || extension.isEmpty()
+              || !searchableExtensions.contains(extension.toLowerCase(Locale.ROOT))) {
+            continue;
+          }
+          String filePath = projectFile.getName().getURI();
+          try {
+            IHopFileType fileType = fileTypeRegistry.findHopFileType(filePath);
+            if (fileType == null || !fileType.hasCapability(IHopFileType.CAPABILITY_SEARCH)) {
+              continue;
+            }
+            ISearchable searchable =
+                fileType.createSearchable(filePath, "Project file", variables, metadataProvider);
+            if (searchable != null) {
+              searchables.add(searchable);
+            }
+          } catch (Exception e) {
+            LogChannel.GENERAL.logError("Error loading searchable file: " + filePath, e);
+          }
         }
       }
 

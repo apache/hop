@@ -51,6 +51,7 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.listeners.IContentChangedListener;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
@@ -3901,19 +3902,31 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   @Override
   public List<ISearchable> getSearchables() {
-    // Surface the pipelines and workflows that are currently open in tabs so they show up - and can
-    // be prioritized - in the global search.
+    // Surface open tabs so they show up - and can be prioritized - in the global search.
+    // Pipelines/workflows use the in-memory subject (includes unsaved edits). Other file types
+    // that opt in via CAPABILITY_SEARCH are loaded through IHopFileTypeHandler.createSearchable.
     List<ISearchable> searchables = new ArrayList<>();
     for (TabItemHandler item : items) {
       IHopFileTypeHandler typeHandler = item.getTypeHandler();
       if (typeHandler == null) {
         continue;
       }
-      Object subject = typeHandler.getSubject();
-      if (subject instanceof PipelineMeta pipelineMeta) {
-        searchables.add(new HopGuiPipelineSearchable("Open file", pipelineMeta));
-      } else if (subject instanceof WorkflowMeta workflowMeta) {
-        searchables.add(new HopGuiWorkflowSearchable("Open file", workflowMeta));
+      try {
+        Object subject = typeHandler.getSubject();
+        if (subject instanceof PipelineMeta pipelineMeta) {
+          searchables.add(new HopGuiPipelineSearchable("Open file", pipelineMeta));
+        } else if (subject instanceof WorkflowMeta workflowMeta) {
+          searchables.add(new HopGuiWorkflowSearchable("Open file", workflowMeta));
+        } else {
+          ISearchable searchable =
+              typeHandler.createSearchable("Open file", hopGui.getMetadataProvider());
+          if (searchable != null) {
+            searchables.add(searchable);
+          }
+        }
+      } catch (Exception e) {
+        LogChannel.UI.logError(
+            "Error creating searchable for open file: " + typeHandler.getFilename(), e);
       }
     }
     return searchables;

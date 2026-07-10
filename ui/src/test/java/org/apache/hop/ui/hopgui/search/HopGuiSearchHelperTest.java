@@ -60,6 +60,16 @@ class HopGuiSearchHelperTest {
     return searchable;
   }
 
+  /** A text-file searchable (searchable object is TextFileContent so it can be "open"). */
+  private static ISearchable textFile(String name, String filename) {
+    ISearchable searchable = mock(ISearchable.class);
+    when(searchable.getName()).thenReturn(name);
+    when(searchable.getType()).thenReturn("SQL File");
+    when(searchable.getFilename()).thenReturn(filename);
+    when(searchable.getSearchableObject()).thenReturn(new TextFileContent(filename, "select 1"));
+    return searchable;
+  }
+
   private static ISearchResult nameMatch(ISearchable searchable) {
     return new SearchResult(searchable, searchable.getName(), "name", null, searchable.getName());
   }
@@ -105,6 +115,27 @@ class HopGuiSearchHelperTest {
 
     assertEquals(HopGuiSearchHelper.SECTION_PROJECT, sections.get(0).getKey());
     assertFalse(HopGuiSearchHelper.isOpenObject(meta, source(meta, 0)));
+  }
+
+  @Test
+  void openTextFileGoesToOpenSection() {
+    ISearchable open = textFile("query.sql", "/p/query.sql");
+    List<SearchSection> sections =
+        HopGuiSearchHelper.groupResults(List.of(nameMatch(open)), source(open, 0));
+
+    assertEquals(1, sections.size());
+    assertEquals(HopGuiSearchHelper.SECTION_OPEN, sections.get(0).getKey());
+    assertTrue(HopGuiSearchHelper.isOpenObject(open, source(open, 0)));
+  }
+
+  @Test
+  void projectTextFileGoesToProjectSection() {
+    ISearchable onDisk = textFile("query.sql", "/p/query.sql");
+    List<SearchSection> sections =
+        HopGuiSearchHelper.groupResults(List.of(nameMatch(onDisk)), source(onDisk, 1));
+
+    assertEquals(HopGuiSearchHelper.SECTION_PROJECT, sections.get(0).getKey());
+    assertFalse(HopGuiSearchHelper.isOpenObject(onDisk, source(onDisk, 1)));
   }
 
   @Test

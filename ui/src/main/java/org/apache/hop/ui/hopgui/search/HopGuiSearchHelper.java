@@ -268,16 +268,19 @@ public final class HopGuiSearchHelper {
   }
 
   /**
-   * Whether a searchable is an object that is currently <em>open</em> in a Hop GUI tab. Only files
-   * (pipelines and workflows) can be open; metadata items and variables are always project-wide.
+   * Whether a searchable is an object that is currently <em>open</em> in a Hop GUI tab. Openable
+   * file objects (pipelines, workflows, text files) can be open; metadata and variables are always
+   * project-wide even when the GUI location also reports them.
    *
    * @param searchable the searchable to classify
    * @param sourceByKey the source-location map from {@link #enumerateAll}
-   * @return true if this is an open pipeline/workflow tab
+   * @return true if this is an open file tab
    */
   public static boolean isOpenObject(ISearchable searchable, Map<String, Integer> sourceByKey) {
     Object object = searchable.getSearchableObject();
-    if (object instanceof PipelineMeta || object instanceof WorkflowMeta) {
+    if (object instanceof PipelineMeta
+        || object instanceof WorkflowMeta
+        || object instanceof TextFileContent) {
       Integer source = sourceByKey.get(searchableKey(searchable));
       return source != null && source == 0;
     }
