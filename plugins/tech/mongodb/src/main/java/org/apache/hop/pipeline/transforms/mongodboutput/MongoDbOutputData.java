@@ -815,7 +815,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         {
           String val = hopType.getString(hopValue);
           if (hopValueIsJSON) {
-            valueToSet = Document.parse(val);
+            valueToSet = Document.parse("{\"value\":" + val + "}").get("value");
           } else {
             valueToSet = val;
           }
