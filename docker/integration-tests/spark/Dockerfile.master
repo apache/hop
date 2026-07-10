@@ -45,7 +45,8 @@ RUN apt-get update \
       && apt-get install -y --no-install-recommends curl bash procps \
       && rm -rf /var/lib/apt/lists/* \
       && chmod +x /wait-for-step.sh /execute-step.sh /finish-step.sh /master.sh \
-      && curl -fsSL "${BASE_URL}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" \
+      && curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors \
+           "${BASE_URL}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" \
            -o /tmp/spark.tgz \
       && tar -xzf /tmp/spark.tgz -C / \
       && mv /spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} /spark \
