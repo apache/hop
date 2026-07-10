@@ -64,6 +64,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
   private CCombo wCompare;
   private Text wFlagField;
   private Text wDiffField;
+  private Button wAlignInputLayouts;
 
   private TableView wKeys;
   private TableView wValues;
@@ -201,6 +202,26 @@ public class MergeRowsDialog extends BaseTransformDialog {
     fdDiffField.left = new FormAttachment(middle, 0);
     fdDiffField.right = new FormAttachment(100, 0);
     wDiffField.setLayoutData(fdDiffField);
+
+    Label wlAlign = new Label(wSourcesComp, SWT.RIGHT);
+    wlAlign.setText(BaseMessages.getString(PKG, "MergeRowsDialog.AlignInputLayouts.Label"));
+    PropsUi.setLook(wlAlign);
+    FormData fdlAlign = new FormData();
+    fdlAlign.left = new FormAttachment(0, 0);
+    fdlAlign.right = new FormAttachment(middle, -margin);
+    fdlAlign.top = new FormAttachment(wDiffField, margin);
+    wlAlign.setLayoutData(fdlAlign);
+    wAlignInputLayouts = new Button(wSourcesComp, SWT.CHECK);
+    PropsUi.setLook(wAlignInputLayouts);
+    wAlignInputLayouts.setText(
+        BaseMessages.getString(PKG, "MergeRowsDialog.AlignInputLayouts.Text"));
+    wAlignInputLayouts.setSelection(true);
+    wAlignInputLayouts.addListener(SWT.Selection, e -> input.setChanged());
+    FormData fdAlign = new FormData();
+    fdAlign.top = new FormAttachment(wlAlign, 0, SWT.CENTER);
+    fdAlign.left = new FormAttachment(middle, 0);
+    fdAlign.right = new FormAttachment(100, 0);
+    wAlignInputLayouts.setLayoutData(fdAlign);
 
     FormData fdSourcesComp = new FormData();
     fdSourcesComp.left = new FormAttachment(0, 0);
@@ -447,6 +468,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wCompare.setText(Const.NVL(infoStreams.get(1).getTransformName(), ""));
     wFlagField.setText(Const.NVL(input.getFlagField(), ""));
     wDiffField.setText(Const.NVL(input.getDiffJsonField(), ""));
+    wAlignInputLayouts.setSelection(input.isAlignInputLayouts());
 
     for (int i = 0; i < input.getKeyFields().size(); i++) {
       TableItem item = new TableItem(wKeys.table, SWT.NONE);
@@ -512,6 +534,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     infoStreams.get(1).setTransformMeta(pipelineMeta.findTransform(wCompare.getText()));
     meta.setFlagField(wFlagField.getText());
     meta.setDiffJsonField(wDiffField.getText());
+    meta.setAlignInputLayouts(wAlignInputLayouts.getSelection());
 
     meta.getKeyFields().clear();
     for (TableItem item : wKeys.getNonEmptyItems()) {

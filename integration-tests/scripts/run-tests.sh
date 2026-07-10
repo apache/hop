@@ -104,8 +104,59 @@ if [ -z "${PROJECT_NAME}" ]; then
   PROJECT_NAME="*"
 fi
 
+# Optional filter for main*.hwf workflows (substring or glob against basename).
+# Comma-separated list is supported. Examples:
+#   TEST_FILTER=0077-merge-rows
+#   TEST_FILTER='*0077*','*0078*'
+#   TEST_FILTER=main-0077-merge-rows.hwf
+if [ -z "${TEST_FILTER}" ]; then
+  TEST_FILTER=""
+fi
+
 #set global variables
 SPACER="==========================================="
+
+# Return 0 if the workflow file should run under the current TEST_FILTER.
+should_run_workflow() {
+  local file="$1"
+  local base
+  base=$(basename "$file")
+
+  if [ -z "${TEST_FILTER}" ]; then
+    return 0
+  fi
+
+  local old_ifs=$IFS
+  IFS=','
+  local pattern
+  # shellcheck disable=SC2086
+  for pattern in ${TEST_FILTER}; do
+    # trim whitespace
+    pattern="${pattern#"${pattern%%[![:space:]]*}"}"
+    pattern="${pattern%"${pattern##*[![:space:]]}"}"
+    [ -z "${pattern}" ] && continue
+
+    # No glob meta-characters: treat as basename substring
+    if [[ "${pattern}" != *[\*\?[]* ]]; then
+      case "${base}" in
+      *"${pattern}"*)
+        IFS=$old_ifs
+        return 0
+        ;;
+      esac
+    else
+      # Glob match against basename
+      case "${base}" in
+      ${pattern})
+        IFS=$old_ifs
+        return 0
+        ;;
+      esac
+    fi
+  done
+  IFS=$old_ifs
+  return 1
+}
 
 # Set up a temporary folder
 export TMP_FOLDER=/tmp/hop-it-$$
@@ -161,7 +212,15 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       #
       # TODO: add hpl support when result is returned correctly
       #
+      if [ -n "${TEST_FILTER}" ]; then
+        echo "TEST_FILTER is set: ${TEST_FILTER}"
+      fi
+
       find $d -name 'main*.hwf' | sort | while read f; do
+
+        if ! should_run_workflow "$f"; then
+          continue
+        fi
 
         #cleanup temp files
         rm -f /tmp/test_output

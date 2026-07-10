@@ -29,13 +29,18 @@ public class MergeRowsData extends BaseTransformData implements ITransformData {
 
   public Object[] one;
   public Object[] two;
+  public Object[] oneOriginal;
+  public Object[] twoOriginal;
   public int[] keyNrs;
   public int[] valueNrs;
 
   public IRowSet oneRowSet;
-  public IRowMeta oneRowMeta;
   public IRowSet twoRowSet;
+  public IRowMeta referenceRowMeta;
+  public IRowMeta compareRowMeta;
+  public IRowMeta oneRowMeta;
   public IRowMeta twoRowMeta;
+  public MergeRowsAlignment.SchemaMapping schemaMapping;
 
   public List<Integer> passThroughIndexes;
   public Object[] oneCopy;

@@ -1,0 +1,5 @@
+id,name,status,region,flagfield
+1,,active,US,identical
+2,,retired,EU,changed
+3,Carol,inactive,,deleted
+4,,pending,APAC,new

@@ -29,6 +29,7 @@ for ARGUMENT in "$@"; do
 
   case "$KEY" in
   PROJECT_NAME) PROJECT_NAME=${VALUE} ;;
+  TEST_FILTER) TEST_FILTER=${VALUE} ;;
   JENKINS_USER) JENKINS_USER=${VALUE} ;;
   JENKINS_UID) JENKINS_UID=${VALUE} ;;
   JENKINS_GROUP) JENKINS_GROUP=${VALUE} ;;
@@ -42,6 +43,14 @@ done
 
 if [ -z "${PROJECT_NAME}" ]; then
   PROJECT_NAME="*"
+fi
+
+# Optional filter for main*.hwf basenames (substring or glob, comma-separated).
+# Passed into the test container as TEST_FILTER. Examples:
+#   TEST_FILTER=0077-merge-rows
+#   TEST_FILTER='*0077*'
+if [ -z "${TEST_FILTER}" ]; then
+  TEST_FILTER=""
 fi
 
 if [ -z "${JENKINS_USER}" ]; then
@@ -117,13 +126,17 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
       # Check if specific compose exists
 
+      if [ -n "${TEST_FILTER}" ]; then
+        echo "TEST_FILTER: ${TEST_FILTER}"
+      fi
+
       if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
         echo "Project compose exists."
         EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
-        PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
+        PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
       else
         echo "Project compose does not exists."
-        PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
+        PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
       fi
     fi
   fi

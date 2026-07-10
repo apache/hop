@@ -52,5 +52,29 @@ class MergeRowsMetaTest {
     assertEquals(2, meta.getValueFields().size());
     assertEquals("name", meta.getValueFields().get(0));
     assertEquals("score", meta.getValueFields().get(1));
+    // Missing align_input_layouts in XML uses defaultBoolean=true
+    assertEquals(true, meta.isAlignInputLayouts());
+  }
+
+  @Test
+  void testDefaultAlignInputLayoutsEnabled() {
+    MergeRowsMeta meta = new MergeRowsMeta();
+    meta.setDefault();
+    assertEquals(true, meta.isAlignInputLayouts());
+  }
+
+  @Test
+  void testCloneCopiesDiffAndAlign() {
+    MergeRowsMeta meta = new MergeRowsMeta();
+    meta.setFlagField("flag");
+    meta.setDiffJsonField("difference");
+    meta.setAlignInputLayouts(false);
+    meta.getKeyFields().add("id");
+
+    MergeRowsMeta copy = meta.clone();
+    assertEquals("flag", copy.getFlagField());
+    assertEquals("difference", copy.getDiffJsonField());
+    assertEquals(false, copy.isAlignInputLayouts());
+    assertEquals(1, copy.getKeyFields().size());
   }
 }
