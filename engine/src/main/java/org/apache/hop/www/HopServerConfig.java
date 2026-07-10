@@ -204,12 +204,10 @@ public class HopServerConfig implements IXml {
     }
   }
 
-  public HopServerConfig(String hostname, int port, int shutdownPort, boolean joining) {
+  public HopServerConfig(String hostname, int port, boolean joining) {
     this();
     this.joining = joining;
-    this.hopServer =
-        new HopServerMeta(
-            hostname + ":" + port, hostname, "" + port, "" + shutdownPort, null, null);
+    this.hopServer = new HopServerMeta(hostname + ":" + port, hostname, "" + port, null, null);
   }
 
   /**

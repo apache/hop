@@ -17,14 +17,6 @@
 
 package org.apache.hop.www;
 
-import com.google.common.annotations.VisibleForTesting;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
-import java.io.OutputStream;
-import java.io.Serial;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +58,6 @@ import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.server.HopServerMeta;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import picocli.CommandLine;
@@ -88,7 +78,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
   private static final String CONST_SPACE = "        ";
   private static final String CONST_USAGE_EXAMPLE = "HopServer.Usage.Example";
 
-  @Parameters(description = "One XML configuration file or a hostname and port", arity = "0..3")
+  @Parameters(description = "One XML configuration file or a hostname and port", arity = "0..2")
   private List<String> parameters;
 
   @picocli.CommandLine.Option(
@@ -156,12 +146,19 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
   private Boolean joinOverride;
   private String realFilename;
 
+  /**
+   * When the server exits normally (its run loop returns) this stays true and the VM shutdown hook
+   * is removed. When the VM shutdown hook itself triggers the shutdown it is set to false so the
+   * hook is not removed while the shutdown sequence is already running.
+   */
+  private boolean jvmExit = true;
+
   public HopServer() {
     this.config = new HopServerConfig();
     this.joinOverride = null;
 
     HopServerMeta defaultServer =
-        new HopServerMeta("local8080", "localhost", "8080", "8079", "cluster", "cluster");
+        new HopServerMeta("local8080", "localhost", "8080", "cluster", "cluster");
     this.config.setHopServer(defaultServer);
     this.config.setJoining(true);
   }
@@ -196,13 +193,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     HopServerMeta hopServer = config.getHopServer();
 
     String hostname = hopServer.getHostname();
-    int port = WebServer.CONST_PORT;
-    int shutdownPort = WebServer.SHUTDOWN_PORT;
+    int port = WebServer.DEFAULT_PORT;
     if (!Utils.isEmpty(hopServer.getPort())) {
       port = parsePort(hopServer);
-    }
-    if (!Utils.isEmpty(hopServer.getShutdownPort())) {
-      shutdownPort = parseShutdownPort(hopServer);
     }
 
     if (allOK) {
@@ -216,21 +209,87 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
         shouldJoin = joinOverride;
       }
 
-      this.webServer =
-          new WebServer(
-              log,
-              pipelineMap,
-              workflowMap,
-              hostname,
-              port,
-              shutdownPort,
-              shouldJoin,
-              config.getPasswordFile(),
-              hopServer.getSslConfig());
-    }
+      Thread shutdownHook = new ShutdownHook();
+      try {
+        // Register a virtual-machine shutdown hook to stop the Hop server gracefully.
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
 
-    ExtensionPointHandler.callExtensionPoint(
-        log, variables, HopExtensionPoint.HopServerShutdown.id, this);
+        this.webServer =
+            new WebServer(
+                log,
+                pipelineMap,
+                workflowMap,
+                hostname,
+                port,
+                config.getPasswordFile(),
+                hopServer.getSslConfig());
+
+        // Start the web server
+        webServer.start();
+
+        HopServerSingleton.setHopServer(this);
+
+        // Right after the Hop server has started and is fully functional
+        try {
+          ExtensionPointHandler.callExtensionPoint(
+              log, variables, HopExtensionPoint.HopServerStartup.id, this);
+        } catch (Exception e) {
+          // Log error but continue regular operations to make sure HopServer continues to run
+          // properly.
+          log.logError("Error calling extension point HopServerStartup", e);
+        }
+
+        if (shouldJoin) {
+          webServer.join();
+          webServer = null;
+        }
+
+        HopServerSingleton.setHopServer(null);
+
+        // Right after the Hop server shutdown
+        try {
+          ExtensionPointHandler.callExtensionPoint(
+              log, variables, HopExtensionPoint.HopServerTerminate.id, this);
+        } catch (Exception e) {
+          // Log error but continue regular operations to make sure HopServer continues to run
+          // properly.
+          log.logError("Error calling extension point HopServerTerminate", e);
+        }
+      } finally {
+        // Shutdown hooks cannot be removed once the shutdown sequence is started.
+        if (jvmExit) {
+          Runtime.getRuntime().removeShutdownHook(shutdownHook);
+        }
+      }
+    }
+  }
+
+  /** Gracefully shut down the running Hop web server. */
+  public void shutdown() {
+    if (webServer != null) {
+      // Right before the Hop server will shut down
+      try {
+        ExtensionPointHandler.callExtensionPoint(
+            log, variables, HopExtensionPoint.HopServerShutdown.id, this);
+      } catch (Exception e) {
+        // Log error but continue regular operations to make sure HopServer can be shut down
+        // properly.
+        log.logError("Error calling extension point HopServerShutdown", e);
+      }
+
+      webServer.stop();
+    }
+  }
+
+  /** Virtual-machine shutdown hook that stops the Hop server gracefully (e.g. on Ctrl-C). */
+  private class ShutdownHook extends Thread {
+    @Override
+    public void run() {
+      log.logDetailed("Shutting down the Hop server...");
+      // We are already in the JVM shutdown sequence, so the hook must not be removed again.
+      jvmExit = false;
+      shutdown();
+    }
   }
 
   private int parsePort(HopServerMeta hopServer) {
@@ -240,19 +299,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
       log.logError(
           BaseMessages.getString(
               PKG, "HopServer.Error.CanNotPartPort", hopServer.getHostname(), hopServer.getPort()),
-          e);
-      allOK = false;
-    }
-    return -1;
-  }
-
-  private int parseShutdownPort(HopServerMeta hopServer) {
-    try {
-      return Integer.parseInt(hopServer.getShutdownPort());
-    } catch (Exception e) {
-      log.logError(
-          BaseMessages.getString(
-              PKG, "HopServer.Error.CanNotPartShutdownPort", hopServer.getShutdownPort()),
           e);
       allOK = false;
     }
@@ -296,18 +342,13 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
         setupByFileName();
       }
 
-      if ((CollectionUtils.size(parameters) == 2 || (CollectionUtils.size(parameters) == 3))
+      if (CollectionUtils.size(parameters) == 2
           && StringUtils.isNotEmpty(parameters.get(0))
           && StringUtils.isNotEmpty(parameters.get(1))) {
         String hostname = parameters.get(0);
         String port = parameters.get(1);
 
-        String shutdownPort =
-            CollectionUtils.size(parameters) == 3
-                ? parameters.get(2)
-                : Integer.toString(WebServer.SHUTDOWN_PORT);
-
-        setupByHostNameAndPort(hostname, port, shutdownPort);
+        setupByHostNameAndPort(hostname, port);
       }
 
       // Pass the variables and metadata provider
@@ -339,9 +380,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     }
   }
 
-  private void setupByHostNameAndPort(String hostname, String port, String shutdownPort) {
-    HopServerMeta hopServer =
-        new HopServerMeta(hostname + ":" + port, hostname, port, shutdownPort, null, null);
+  private void setupByHostNameAndPort(String hostname, String port) {
+    HopServerMeta hopServer = new HopServerMeta(hostname + ":" + port, hostname, port, null, null);
 
     config = new HopServerConfig();
     config.setHopServer(hopServer);
@@ -370,8 +410,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     }
     String hostname = variables.resolve(hopServer.getHostname());
     String port = variables.resolve(hopServer.getPort());
-    String shutDownPort = variables.resolve(hopServer.getShutdownPort());
-    parameters = List.of(Const.NVL(hostname, ""), Const.NVL(port, ""), Const.NVL(shutDownPort, ""));
+    parameters = List.of(Const.NVL(hostname, ""), Const.NVL(port, ""));
   }
 
   private boolean handleQueryOptions() {
@@ -392,7 +431,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
 
       if (generalStatus) {
         queried = true;
-        HopServerStatus status = config.getHopServer().getStatus(variables);
+        HopServerStatus status =
+            new RemoteHopServer(config.getHopServer()).requestServerStatus(variables);
         // List the pipelines...
         //
         System.out.println("Pipelines: " + status.getPipelineStatusList().size() + CONST_FOUND);
@@ -413,7 +453,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
               "Please specify the ID of the pipeline execution to see its status.");
         }
         HopServerPipelineStatus pipelineStatus =
-            config.getHopServer().getPipelineStatus(variables, pipelineName, id, 0);
+            new RemoteHopServer(config.getHopServer())
+                .requestPipelineStatus(variables, pipelineName, id, 0);
         printPipelineStatus(pipelineStatus, true);
       } else if (StringUtils.isNotEmpty(workflowName)) {
         queried = true;
@@ -422,7 +463,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
               "Please specify the ID of the workflow execution to see its status.");
         }
         HopServerWorkflowStatus workflowStatus =
-            config.getHopServer().getWorkflowStatus(variables, workflowName, id, 0);
+            new RemoteHopServer(config.getHopServer())
+                .requestWorkflowStatus(variables, workflowName, id, 0);
         printWorkflowStatus(workflowStatus, true);
       }
 
@@ -634,79 +676,5 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     System.err.println(
         BaseMessages.getString(PKG, CONST_USAGE_EXAMPLE)
             + ": hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml");
-    System.err.println(
-        BaseMessages.getString(PKG, CONST_USAGE_EXAMPLE)
-            + ": hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password cluster");
-  }
-
-  private static void shutdown(
-      String hostname, String port, String shutdownPort, String username, String password) {
-    try {
-      callStopHopServerRestService(hostname, port, shutdownPort, username, password);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Checks that HopServer is running and if so, shuts down the HopServer server
-   *
-   * @param hostname
-   * @param port
-   * @param username
-   * @param password
-   * @throws HopServerCommandException
-   */
-  @VisibleForTesting
-  static void callStopHopServerRestService(
-      String hostname, String port, String shutdownPort, String username, String password)
-      throws HopServerCommandException {
-    // get information about the remote connection
-    try {
-      HopClientEnvironment.init();
-
-      HttpAuthenticationFeature authFeature =
-          HttpAuthenticationFeature.basicBuilder()
-              .credentials(username, Encr.decryptPasswordOptionallyEncrypted(password))
-              .build();
-
-      ClientConfig clientConfig = new ClientConfig();
-      Client client = ClientBuilder.newClient(clientConfig);
-      client.register(authFeature);
-
-      // check if the user can access the hop server. Don't really need this call but may want to
-      // check it's output at
-      // some point
-      String contextURL = "http://" + hostname + ":" + port + "/hop";
-      WebTarget target = client.target(contextURL + "/status/?xml=Y");
-      String response = target.request().get(String.class);
-      if (response == null || !response.contains("<serverstatus>")) {
-        throw new HopServerCommandException(
-            BaseMessages.getString(PKG, "HopServer.Error.NoServerFound", hostname, port));
-      }
-
-      Socket s = new Socket(InetAddress.getByName(hostname), Integer.parseInt(shutdownPort));
-      OutputStream out = s.getOutputStream();
-      out.write(("\r\n").getBytes());
-      out.flush();
-      s.close();
-
-    } catch (Exception e) {
-      throw new HopServerCommandException(
-          BaseMessages.getString(PKG, "HopServer.Error.NoServerFound", hostname, port), e);
-    }
-  }
-
-  /** Exception generated when command line fails */
-  public static class HopServerCommandException extends Exception {
-    @Serial private static final long serialVersionUID = 1L;
-
-    public HopServerCommandException(final String message) {
-      super(message);
-    }
-
-    public HopServerCommandException(final String message, final Throwable cause) {
-      super(message, cause);
-    }
   }
 }

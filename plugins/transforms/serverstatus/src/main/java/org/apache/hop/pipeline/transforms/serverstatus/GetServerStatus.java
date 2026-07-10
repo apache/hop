@@ -28,6 +28,7 @@ import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.HopServerStatus;
 import org.apache.hop.www.HopServerWorkflowStatus;
+import org.apache.hop.www.RemoteHopServer;
 
 public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServerStatusData> {
   public GetServerStatus(
@@ -63,10 +64,11 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
     }
 
     String serverName = getInputRowMeta().getString(row, data.serverFieldIndex);
-    HopServerMeta hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(serverName);
-    if (hopServer == null) {
+    HopServerMeta serverMeta = metadataProvider.getSerializer(HopServerMeta.class).load(serverName);
+    if (serverMeta == null) {
       throw new HopException("Hop server '" + serverName + "' couldn't be found");
     }
+    RemoteHopServer server = new RemoteHopServer(serverMeta);
 
     String errorMessage;
     String statusDescription = null;
@@ -87,7 +89,7 @@ public class GetServerStatus extends BaseTransform<GetServerStatusMeta, GetServe
 
     try {
       errorMessage = null;
-      HopServerStatus status = hopServer.getStatus(this);
+      HopServerStatus status = server.requestServerStatus(this);
       statusDescription = status.getStatusDescription();
       serverLoad = status.getLoadAvg();
       memoryFree = status.getMemoryFree();
