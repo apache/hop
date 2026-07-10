@@ -112,6 +112,16 @@ Darwin)
 esac
 CLASSPATH="lib/core/*:lib/beam/*:lib/swt/$os_path/$arch_path/*"
 
+
+
+
+# Spark client pack: default lib/spark-client, or a versioned pack under lib/spark-clients/
+# (must not load more than one pack — matches fat-jar --spark-client-version).
+if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ]; then
+  CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
+else
+  CLASSPATH="${CLASSPATH}:lib/spark-client/*"
+fi
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.ui.hopgui.HopGui "$@"
 EXITCODE=$?
 

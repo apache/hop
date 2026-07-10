@@ -78,6 +78,8 @@ Linux)
   if [ "${XDG_SESSION_TYPE}" = "wayland" ]; then
     export GDK_BACKEND=x11
   fi
+
+
   if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
     CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/arm64/*"
   else
@@ -99,6 +101,14 @@ if [ "${JAAS_LOGIN_MODULE_CONFIG}" != "" ] && [ "${JAAS_LOGIN_MODULE_NAME}" != "
   HOP_OPTIONS="${HOP_OPTIONS} -Dloginmodulename=${JAAS_LOGIN_MODULE_NAME}"
 fi
 
+
+# Spark client pack: default lib/spark-client, or a versioned pack under lib/spark-clients/
+# (must not load more than one pack — matches fat-jar --spark-client-version).
+if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ]; then
+  CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
+else
+  CLASSPATH="${CLASSPATH}:lib/spark-client/*"
+fi
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.www.HopServer "$@"
 EXITCODE=$?
 

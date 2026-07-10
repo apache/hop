@@ -40,6 +40,8 @@ services:
     environment:
       - FLASK_ENV=docker
       - SPARK_LOCAL_IP=0.0.0.0
+      # Match driver Spark client pack to cluster (and to fat jar); empty = default pack
+      - HOP_SPARK_CLIENT_VERSION=${HOP_SPARK_CLIENT_VERSION:-}
       # spark.ui.enabled=false: Hop ships jakarta servlet APIs that clash with Spark's
       # javax-based UI stack (jersey ServletContainer). UI is not needed for IT smoke.
       - HOP_OPTIONS=-Dspark.ui.enabled=false -Dspark.driver.host=hop-spark-test -Dspark.driver.bindAddress=0.0.0.0

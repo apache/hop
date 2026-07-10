@@ -28,9 +28,36 @@ The Apache Spark Runner can be used to execute Beam pipelines using Apache Spark
 
 IMPORTANT: Hop itself always runs on *Java 21* (driver and fat-jar bytecode). Spark standalone clusters used with Hop must also provide a Java 21 runtime so workers can execute Hop transforms.
 
-*Measured support (Hop 2.19 / Beam 2.74, client submit):* *Spark 3.5.x* (validated 3.5.7). Hop ships Spark client libraries at the beam engine `spark.version` (currently 3.5.7); the cluster minor must match for `spark://master` client mode. Spark 3.2–3.4 failed the integration matrix on Java 21 and/or client/cluster version skew — see `integration-tests/spark/MATRIX-REPORT.md` and re-run with `integration-tests/scripts/run-spark-matrix.sh`.
+*Measured support (Hop 2.19 / Beam 2.74, client submit):* *Spark 3.5.x* (validated 3.5.7 with the default client pack). For `spark://master` client mode, the **Spark client libraries on the Hop driver and in the fat jar must match the cluster minor**.
 
-Beam's upstream documentation may still pin the Spark runner to an older line (historically 3.2.x). Prefer the xref:pipeline/beam/getting-started-with-beam.adoc#supportedversions[supported versions table] and the matrix report over assumptions.
+=== Matching Spark client libraries to a cluster
+
+Hop installs a default Spark client pack under `lib/spark-client/` (from the beam engine `spark.version`, currently 3.5.7). Additional packs can live under `lib/spark-clients/<version>/`.
+
+.Materialise a pack for cluster version 3.4.4
+[source,bash]
+----
+./tools/spark-client-pack/materialize-pack.sh 3.4.4 /path/to/hop
+----
+
+.Build a fat jar that embeds that pack
+[source,bash]
+----
+export HOP_SPARK_CLIENT_VERSION=3.4.4
+./hop-conf.sh --generate-fat-jar=/path/to/hop-spark-3.4.4.jar \
+  --spark-client-version=3.4.4
+----
+
+.Run pipelines with the same pack on the driver
+[source,bash]
+----
+export HOP_SPARK_CLIENT_VERSION=3.4.4
+./hop-run.sh -r spark -f your-pipeline.hpl
+----
+
+Point the pipeline run configuration *Fat jar* field at the version-matched jar. Integration tests: `integration-tests/scripts/run-spark-matched-matrix.sh` (client pack V + cluster V). Fixed-client-vs-varying-cluster results: `integration-tests/spark/MATRIX-REPORT.md`.
+
+Beam's upstream documentation may still pin the Spark runner to an older line (historically 3.2.x). Prefer the xref:pipeline/beam/getting-started-with-beam.adoc#supportedversions[supported versions table] and the matrix reports over assumptions.
 
 The Spark Runner executes Beam pipelines on top of Apache Spark, providing:
 

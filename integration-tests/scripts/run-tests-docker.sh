@@ -39,6 +39,7 @@ for ARGUMENT in "$@"; do
   SPARK_VERSION) SPARK_VERSION=${VALUE} ;;
   HADOOP_VERSION) HADOOP_VERSION=${VALUE} ;;
   SPARK_BASE_URL) SPARK_BASE_URL=${VALUE} ;;
+  HOP_SPARK_CLIENT_VERSION) HOP_SPARK_CLIENT_VERSION=${VALUE} ;;
   *) ;;
   esac
 
@@ -54,7 +55,9 @@ fi
 if [ -z "${SPARK_BASE_URL}" ]; then
   SPARK_BASE_URL="https://archive.apache.org/dist/spark"
 fi
+# Optional: match driver + fat-jar Spark client pack to a cluster minor (see tools/spark-client-pack)
 export SPARK_VERSION HADOOP_VERSION SPARK_BASE_URL
+export HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION:-}"
 
 if [ -z "${PROJECT_NAME}" ]; then
   PROJECT_NAME="*"
@@ -146,7 +149,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       # Built once per run, and only when such a project is actually enabled.
       if [ "${BEAM_IMAGE_BUILT}" != "true" ] && grep -rqs "hop-fatjar.jar" "$d" 2>/dev/null; then
         echo "Project ${PROJECT_NAME} needs the Hop fat jar; building hop-beam-image (once)."
-        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build
+        if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+          echo "Spark client pack for fat jar: ${HOP_SPARK_CLIENT_VERSION}"
+        fi
+        HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}" \
+          docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build \
+            --build-arg HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}"
         EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml")
         BEAM_IMAGE_BUILT="true"
       fi

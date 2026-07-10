@@ -27,6 +27,13 @@ if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 set LIBSPATH=lib\core;lib\beam
 set CLASSPATH=lib\core\*;lib\beam\*;lib\swt\win64\*
 
+REM Spark client pack: default lib\spark-client, or versioned lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%
+if defined HOP_SPARK_CLIENT_VERSION (
+  set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
+) else (
+  set CLASSPATH=%CLASSPATH%;lib\spark-client\*
+)
+
 set _temphelp=0
 if [%1]==[help] set _temphelp=1
 if [%1]==[Help] set _temphelp=1
