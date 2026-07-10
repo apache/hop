@@ -64,6 +64,9 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
+    if (refuseIfShuttingDown(response)) {
+      return;
+    }
 
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "StartWorkflowServlet.Log.StartWorkflowRequested"));

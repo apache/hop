@@ -62,6 +62,9 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
+    if (refuseIfShuttingDown(response)) {
+      return;
+    }
 
     if (log.isDebug()) {
       logDebug(

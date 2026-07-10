@@ -66,6 +66,9 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
     if (isJettyMode() && !request.getRequestURI().startsWith(CONTEXT_PATH)) {
       return;
     }
+    if (refuseIfShuttingDown(response)) {
+      return;
+    }
 
     if (log.isDebug()) {
       logDebug("Addition of workflow requested");

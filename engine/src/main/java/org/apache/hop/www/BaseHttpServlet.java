@@ -225,6 +225,27 @@ public class BaseHttpServlet extends HttpServlet {
   }
 
   /**
+   * Refuse a request with HTTP 503 (Service Unavailable) while the server is performing a graceful
+   * shutdown. Servlets that accept new work (register/add/start/execute pipelines and workflows)
+   * should call this at the top of their handler and return immediately when it returns true.
+   * Status and reporting servlets do not call it and keep working during shutdown.
+   *
+   * @return true when the server is shutting down and an error response has been sent; the caller
+   *     must return immediately without performing any work.
+   */
+  protected boolean refuseIfShuttingDown(HttpServletResponse response) {
+    if (!HopServerSingleton.isServerShuttingDown()) {
+      return false;
+    }
+    logBasic("Refused a request: the Hop server is shutting down.");
+    sendSafeError(
+        response,
+        HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+        "The Hop server is shutting down and is not accepting new work.");
+    return true;
+  }
+
+  /**
    * Log server-side and return a {@link WebResult} error to the client in the requested XML or JSON
    * shape. Use {@code writer} when the response writer is already acquired for this request;
    * otherwise pass {@code null} and the output stream is used.

@@ -55,6 +55,13 @@ public class HopServerSingleton {
   private PipelineMap pipelineMap;
   private WorkflowMap workflowMap;
 
+  /**
+   * Set to true once a graceful shutdown has been initiated. While the server is shutting down it
+   * refuses new work (adding/running pipelines, workflows, ...) but keeps serving status requests.
+   * It is static because there is a single Hop server per JVM.
+   */
+  private static final AtomicBoolean shuttingDown = new AtomicBoolean(false);
+
   private HopServerSingleton(HopServerConfig config) throws HopException {
     HopEnvironment.init();
     HopLogStore.init();
@@ -237,6 +244,18 @@ public class HopServerSingleton {
     } catch (HopException ke) {
       throw new HopRuntimeException(ke);
     }
+  }
+
+  /**
+   * @return true when a graceful shutdown of the server has been initiated. Safe to call from
+   *     servlets at any time.
+   */
+  public static boolean isServerShuttingDown() {
+    return shuttingDown.get();
+  }
+
+  public static void setServerShuttingDown(boolean value) {
+    shuttingDown.set(value);
   }
 
   public PipelineMap getPipelineMap() {

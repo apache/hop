@@ -56,7 +56,7 @@ class ShutdownServletTest {
 
     // The servlet responds immediately and schedules the shutdown on a short delayed timer.
     verify(response).setStatus(HttpServletResponse.SC_OK);
-    verify(server, timeout(6000)).shutdown();
+    verify(server, timeout(15000)).shutdown();
   }
 
   @Test

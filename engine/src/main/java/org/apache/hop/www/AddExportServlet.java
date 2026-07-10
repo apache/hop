@@ -83,6 +83,9 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
     if (isJettyMode() && !request.getRequestURI().startsWith(CONTEXT_PATH)) {
       return;
     }
+    if (refuseIfShuttingDown(response)) {
+      return;
+    }
 
     if (log.isDebug()) {
       logDebug("Addition of export requested");
