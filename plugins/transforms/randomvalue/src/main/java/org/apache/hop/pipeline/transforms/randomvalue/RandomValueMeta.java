@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.randomvalue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -167,7 +168,10 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
     }
 
     public static String[] getDescriptions() {
-      return IEnumHasCodeAndDescription.getDescriptions(RandomType.class);
+      return Arrays.stream(RandomType.values())
+          .filter(t -> t != RandomType.NONE)
+          .map(RandomType::getDescription)
+          .toArray(String[]::new);
     }
 
     public static RandomType lookupDescription(String description) {
