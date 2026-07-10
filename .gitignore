@@ -66,3 +66,11 @@ rap/src/main/resources/org/apache/hop/ui/hopgui/monaco/monaco-files.list
 
 # Screenshots captured by SWTbot
 screenshots/
+<<<<<<< Updated upstream
+
+# Docker script leaving audit data
+docker/local-data/
+
+=======
+/docker/local-data/
+>>>>>>> Stashed changes

@@ -905,13 +905,17 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             name));
 
     gc.setForeground(EColor.BLACK);
-    gc.setFont(EFont.GRAPH);
+    boolean nameHovered = name.equals(mouseOverName);
+    if (nameHovered && isWebCanvasRendering()) {
+      gc.setFont(EFont.GRAPH_BOLD);
+    } else {
+      gc.setFont(EFont.GRAPH);
+    }
     gc.drawText(name, namePosition.x, namePosition.y + 2, true);
     boolean partitioned = false;
 
-    // See if we need to draw a line under the name to make the name look like a hyperlink.
-    //
-    if (name.equals(mouseOverName)) {
+    // Desktop: underline on hover. Hop Web: bold (see drawText above).
+    if (nameHovered && !isWebCanvasRendering()) {
       gc.setLineWidth(lineWidth);
       gc.drawLine(
           namePosition.x,

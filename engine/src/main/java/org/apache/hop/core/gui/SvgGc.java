@@ -40,6 +40,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
+import org.apache.hop.core.svg.SvgDarkModeContrast;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -53,6 +54,7 @@ public class SvgGc implements IGc {
 
   private static SvgFile imageLocked;
   private static SvgFile imageFailure;
+  private static SvgFile imageSuccess;
   private static SvgFile imageEdit;
   private static SvgFile imageContextMenu;
   private static SvgFile imageTrue;
@@ -107,6 +109,7 @@ public class SvgGc implements IGc {
   protected Color hopTrue;
   protected Color hopFalse;
   protected Color deprecated;
+  protected Color white;
 
   private final HopSvgGraphics2D gc;
 
@@ -121,6 +124,8 @@ public class SvgGc implements IGc {
   private int alpha;
 
   private Font fontGraph;
+
+  private Font fontGraphBold;
 
   private Font fontNote;
 
@@ -137,7 +142,31 @@ public class SvgGc implements IGc {
 
   private final AffineTransform originalTransform;
 
+  private final boolean darkMode;
+
+  private final Map<String, String> contrastingColorStrings;
+
+  private final Map<String, SVGDocument> darkModeSvgCache = new HashMap<>();
+
   public SvgGc(HopSvgGraphics2D gc, Point area, int iconSize, int xOffset, int yOffset)
+      throws HopException {
+    this(gc, area, iconSize, xOffset, yOffset, false, null);
+  }
+
+  public SvgGc(
+      HopSvgGraphics2D gc, Point area, int iconSize, int xOffset, int yOffset, boolean darkMode)
+      throws HopException {
+    this(gc, area, iconSize, xOffset, yOffset, darkMode, null);
+  }
+
+  public SvgGc(
+      HopSvgGraphics2D gc,
+      Point area,
+      int iconSize,
+      int xOffset,
+      int yOffset,
+      boolean darkMode,
+      Map<String, String> contrastingColorStrings)
       throws HopException {
     this.gc = gc;
     this.transformImages = getTransformImageFilenames();
@@ -147,11 +176,13 @@ public class SvgGc implements IGc {
     this.area = area;
     this.xOffset = xOffset;
     this.yOffset = yOffset;
+    this.darkMode = darkMode;
+    this.contrastingColorStrings = contrastingColorStrings;
     this.originalTransform = this.gc.getTransform();
 
     gc.setSVGCanvasSize(new Dimension(area.x, area.y));
 
-    init();
+    init(darkMode);
   }
 
   private Map<String, SvgFile> getTransformImageFilenames() throws HopPluginException {
@@ -177,32 +208,35 @@ public class SvgGc implements IGc {
     return map;
   }
 
-  private void init() {
+  private void init(boolean darkMode) {
     this.lineStyle = ELineStyle.SOLID;
     this.lineWidth = 1;
     this.alpha = 255;
 
-    this.background = new Color(255, 255, 255);
-    this.black = new Color(0, 0, 0);
-    this.red = new Color(255, 0, 0);
-    this.yellow = new Color(255, 255, 0);
-    this.green = new Color(0, 255, 0);
-    this.blue = new Color(0, 0, 255);
-    this.magenta = new Color(255, 0, 255);
-    this.purpule = new Color(128, 0, 128);
-    this.indigo = new Color(75, 0, 130);
-    this.gray = new Color(215, 215, 215);
-    this.lightGray = new Color(225, 225, 225);
-    this.darkGray = new Color(100, 100, 100);
-    this.lightBlue = new Color(135, 206, 250); // light sky blue
-    this.crystal = new Color(61, 99, 128);
-    this.hopDefault = new Color(61, 99, 128);
-    this.hopTrue = new Color(12, 178, 15);
-    this.hopFalse = new Color(255, 165, 0);
-    this.deprecated = new Color(246, 196, 56);
+    CanvasColorPalette palette = CanvasColorPalette.forDarkMode(darkMode);
+    this.background = palette.getBackground();
+    this.black = palette.getBlack();
+    this.white = palette.getWhite();
+    this.red = palette.getRed();
+    this.yellow = palette.getYellow();
+    this.green = palette.getGreen();
+    this.blue = palette.getBlue();
+    this.magenta = palette.getMagenta();
+    this.purpule = palette.getPurple();
+    this.indigo = palette.getIndigo();
+    this.gray = palette.getGray();
+    this.lightGray = palette.getLightGray();
+    this.darkGray = palette.getDarkGray();
+    this.lightBlue = palette.getLightBlue();
+    this.crystal = palette.getCrystal();
+    this.hopDefault = palette.getHopDefault();
+    this.hopTrue = palette.getHopTrue();
+    this.hopFalse = palette.getHopFalse();
+    this.deprecated = palette.getDeprecated();
 
     imageLocked = new SvgFile("ui/images/lock.svg", this.getClass().getClassLoader());
     imageFailure = new SvgFile("ui/images/failure.svg", this.getClass().getClassLoader());
+    imageSuccess = new SvgFile("ui/images/success.svg", this.getClass().getClassLoader());
     imageEdit = new SvgFile("ui/images/edit.svg", this.getClass().getClassLoader());
     imageContextMenu =
         new SvgFile("ui/images/settings.svg", this.getClass().getClassLoader()); // Used ?
@@ -242,6 +276,7 @@ public class SvgGc implements IGc {
     imageInject = new SvgFile("ui/images/inject.svg", this.getClass().getClassLoader());
     imageMissing = new SvgFile("ui/images/missing.svg", this.getClass().getClassLoader());
     imageDeprecated = new SvgFile("ui/images/deprecated.svg", this.getClass().getClassLoader());
+    imageData = new SvgFile("ui/images/data.svg", this.getClass().getClassLoader());
 
     // Hop arrow
     //
@@ -256,6 +291,7 @@ public class SvgGc implements IGc {
         new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader());
 
     fontGraph = new Font(CONST_FREESANS, Font.PLAIN, 10);
+    fontGraphBold = new Font(CONST_FREESANS, Font.BOLD, 10);
     fontNote = new Font(CONST_FREESANS, Font.PLAIN, 10);
     fontSmall = new Font(CONST_FREESANS, Font.PLAIN, 8);
     fontTiny = new Font(CONST_FREESANS, Font.PLAIN, 6);
@@ -394,6 +430,7 @@ public class SvgGc implements IGc {
     return switch (color) {
       case BACKGROUND -> background;
       case BLACK -> black;
+      case WHITE -> white;
       case RED -> red;
       case YELLOW -> yellow;
       case GREEN -> green;
@@ -419,6 +456,9 @@ public class SvgGc implements IGc {
     switch (font) {
       case GRAPH:
         gc.setFont(fontGraph);
+        break;
+      case GRAPH_BOLD:
+        gc.setFont(fontGraphBold);
         break;
       case NOTE:
         gc.setFont(fontNote);
@@ -478,9 +518,8 @@ public class SvgGc implements IGc {
 
   @Override
   public void setTransform(float translationX, float translationY, float magnification) {
-    // always use original GC's transform.
+    // Match SwtGc: offset is applied via BasePainter#real2screen, not the graphics transform.
     AffineTransform transform = (AffineTransform) originalTransform.clone();
-    transform.translate(translationX, translationY);
     transform.scale(magnification, magnification);
     gc.setTransform(transform);
   }
@@ -576,6 +615,7 @@ public class SvgGc implements IGc {
     return switch (image) {
       case LOCK -> imageLocked;
       case FAILURE -> imageFailure;
+      case SUCCESS -> imageSuccess;
       case EDIT -> imageEdit;
       case TRUE -> imageTrue;
       case TRUE_DISABLED -> imageTrueDisabled;
@@ -614,6 +654,9 @@ public class SvgGc implements IGc {
   @Override
   public void drawImage(EImage image, int x, int y, float magnification) throws HopException {
     SvgFile svgFile = getNativeImage(image);
+    if (svgFile == null) {
+      return;
+    }
     drawImage(svgFile, x + xOffset, y + yOffset, miniIconSize, miniIconSize, magnification, 0);
   }
 
@@ -621,6 +664,9 @@ public class SvgGc implements IGc {
   public void drawImage(EImage image, int x, int y, float magnification, double angle)
       throws HopException {
     SvgFile svgFile = getNativeImage(image);
+    if (svgFile == null) {
+      return;
+    }
     drawImage(
         svgFile,
         x + xOffset - miniIconSize / 2,
@@ -646,7 +692,7 @@ public class SvgGc implements IGc {
     }
 
     if (svgFile != null) { // Draw the icon!
-      drawImage(svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0);
+      drawImage(svgFile, x + xOffset, y + yOffset, iconSize, iconSize, magnification, 0);
     }
   }
 
@@ -665,7 +711,7 @@ public class SvgGc implements IGc {
     }
 
     if (svgFile != null) { // Draw the icon!
-      drawImage(svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0);
+      drawImage(svgFile, x + xOffset, y + yOffset, iconSize, iconSize, magnification, 0);
     }
   }
 
@@ -680,6 +726,10 @@ public class SvgGc implements IGc {
       double angle)
       throws HopException {
 
+    if (svgFile == null) {
+      return;
+    }
+
     // Load the SVG XML document
     // Simply embed the SVG into the parent document (HopSvgGraphics2D)
     // This doesn't actually render anything, it delays that until the rendering of the whole
@@ -689,14 +739,14 @@ public class SvgGc implements IGc {
       // Let's not hammer the file system all the time, keep the SVGDocument in memory
       //
       SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
-      SVGDocument svgDocument = cacheEntry.getSvgDocument();
+      SVGDocument svgDocument = resolveSvgDocument(svgFile, cacheEntry);
 
-      // How much more do we need to scale the image.
-      // If the width of the icon is 500px and we desire 50px then we need to scale to 10% times the
-      // magnification
+      // Scale to the desired logical size in the current graphics transform.
+      // Magnification is already applied via setTransform() (same as SwtGc, which renders at
+      // desiredWidth x desiredHeight in transform space after pre-scaling the bitmap for quality).
       //
-      float xScaleFactor = magnification * desiredWidth / cacheEntry.getWidth();
-      float yScaleFactor = magnification * desiredHeight / cacheEntry.getHeight();
+      float xScaleFactor = desiredWidth / cacheEntry.getWidth();
+      float yScaleFactor = desiredHeight / cacheEntry.getHeight();
 
       // We want to scale evenly so what's the lowest magnification?
       //
@@ -716,6 +766,21 @@ public class SvgGc implements IGc {
     } catch (Exception e) {
       throw new HopException("Unable to load SVG file '" + svgFile.getFilename() + "'", e);
     }
+  }
+
+  private SVGDocument resolveSvgDocument(SvgFile svgFile, SvgCacheEntry cacheEntry) {
+    if (!darkMode || contrastingColorStrings == null || contrastingColorStrings.isEmpty()) {
+      return cacheEntry.getSvgDocument();
+    }
+    String cacheKey = svgFile.getFilename();
+    SVGDocument cached = darkModeSvgCache.get(cacheKey);
+    if (cached != null) {
+      return cached;
+    }
+    SVGDocument contrasted =
+        SvgDarkModeContrast.cloneWithContrast(cacheEntry.getSvgDocument(), contrastingColorStrings);
+    darkModeSvgCache.put(cacheKey, contrasted);
+    return contrasted;
   }
 
   private void copyChildren(Document domFactory, Node target, Node svgImage) {

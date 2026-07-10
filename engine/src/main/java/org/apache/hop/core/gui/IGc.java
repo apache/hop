@@ -49,6 +49,7 @@ public interface IGc {
   enum EFont {
     NOTE,
     GRAPH,
+    GRAPH_BOLD,
     SMALL,
     TINY,
   }

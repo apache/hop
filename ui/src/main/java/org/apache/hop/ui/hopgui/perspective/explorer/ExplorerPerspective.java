@@ -120,6 +120,7 @@ import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
 import org.apache.hop.ui.hopgui.search.ReferenceSearchResults;
+import org.apache.hop.ui.hopgui.shared.CanvasSvgHelper;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -3940,11 +3941,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (zoomHandler != null) {
         CanvasZoomHelper.notifyCanvasReady(zoomHandler);
       }
+      CanvasSvgHelper.notifyCanvasReady(pipelineGraph.getCanvas());
     } else if (activeHandler instanceof HopGuiWorkflowGraph workflowGraph) {
       Object zoomHandler = workflowGraph.getCanvasZoomHandler();
       if (zoomHandler != null) {
         CanvasZoomHelper.notifyCanvasReady(zoomHandler);
       }
+      CanvasSvgHelper.notifyCanvasReady(workflowGraph.getCanvas());
     }
   }
 
