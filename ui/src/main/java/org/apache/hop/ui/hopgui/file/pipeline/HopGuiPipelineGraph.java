@@ -508,7 +508,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     mainComposite.setLayout(new FormLayout());
     FormData fdMainComposite = new FormData();
     fdMainComposite.left = new FormAttachment(0, 0);
-    
+
     // Position below the toolbar, following its control so it moves down when the toolbar wraps to
     // a second row rather than using a height captured once at construction time.
     fdMainComposite.top = new FormAttachment(toolBar, 0);
