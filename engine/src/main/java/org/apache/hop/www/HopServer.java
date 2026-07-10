@@ -56,8 +56,12 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.server.HopServerMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import picocli.CommandLine;
@@ -134,6 +138,15 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
       names = {"-a", "--auth"},
       description = "Does the Hop web server have authentication enabled")
   private Boolean enableAuth;
+
+  @CommandLine.Option(
+      names = {"-swt", "--shutdown-timeout"},
+      description =
+          "The maximum number of seconds to wait for running pipelines and workflows to finish "
+              + "when the server shuts down. 0 (the default) shuts down immediately without "
+              + "waiting. Can also be set with the HOP_SERVER_SHUTDOWN_TIMEOUT environment variable.",
+      defaultValue = "${env:HOP_SERVER_SHUTDOWN_TIMEOUT:-0}")
+  private long shutdownTimeout;
 
   private WebServer webServer;
   private HopServerConfig config;
@@ -267,6 +280,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
   /** Gracefully shut down the running Hop web server. */
   public void shutdown() {
     if (webServer != null) {
+      // From now on the server refuses new work (adding/running pipelines, workflows, ...) but
+      // keeps serving status requests.
+      HopServerSingleton.setServerShuttingDown(true);
+
       // Right before the Hop server will shut down
       try {
         ExtensionPointHandler.callExtensionPoint(
@@ -277,8 +294,78 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
         log.logError("Error calling extension point HopServerShutdown", e);
       }
 
+      // Wait for running pipelines and workflows to finish, up to the configured timeout.
+      awaitRunningExecutions();
+
       webServer.stop();
     }
+  }
+
+  /**
+   * Wait until all running pipelines and workflows on this server have finished, or until the
+   * configured shutdown timeout (in seconds) has elapsed. A timeout of 0 (the default) shuts down
+   * immediately without waiting.
+   */
+  private void awaitRunningExecutions() {
+    if (shutdownTimeout <= 0) {
+      log.logBasic(
+          "Shutdown timeout is 0; stopping the server immediately without waiting for running "
+              + "pipelines and workflows to finish. Set --shutdown-timeout (or "
+              + "HOP_SERVER_SHUTDOWN_TIMEOUT) to a number of seconds to wait for them.");
+      return;
+    }
+
+    HopServerSingleton singleton = HopServerSingleton.getInstance();
+    PipelineMap pipelineMap = singleton.getPipelineMap();
+    WorkflowMap workflowMap = singleton.getWorkflowMap();
+
+    long deadline = System.currentTimeMillis() + shutdownTimeout * 1000L;
+    log.logBasic(
+        "Waiting up to "
+            + shutdownTimeout
+            + " seconds for running pipelines and workflows to finish before shutting down.");
+
+    int running;
+    while ((running = countRunningExecutions(pipelineMap, workflowMap)) > 0
+        && System.currentTimeMillis() < deadline) {
+      log.logBasic(running + " pipeline(s)/workflow(s) still running, waiting for completion...");
+      try {
+        Thread.sleep(5000L);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        break;
+      }
+    }
+
+    running = countRunningExecutions(pipelineMap, workflowMap);
+    if (running > 0) {
+      log.logBasic(
+          "Shutdown wait time elapsed while "
+              + running
+              + " pipeline(s)/workflow(s) are still running; stopping the server now.");
+    } else {
+      log.logBasic("All pipelines and workflows have finished; stopping the server.");
+    }
+  }
+
+  /**
+   * @return the number of pipelines and workflows that are currently running on this server
+   */
+  private int countRunningExecutions(PipelineMap pipelineMap, WorkflowMap workflowMap) {
+    int running = 0;
+    for (HopServerObjectEntry entry : pipelineMap.getPipelineObjects()) {
+      IPipelineEngine<PipelineMeta> pipeline = pipelineMap.getPipeline(entry);
+      if (pipeline != null && !pipeline.isFinished() && !pipeline.isStopped()) {
+        running++;
+      }
+    }
+    for (HopServerObjectEntry entry : workflowMap.getWorkflowObjects()) {
+      IWorkflowEngine<WorkflowMeta> workflow = workflowMap.getWorkflow(entry);
+      if (workflow != null && !workflow.isFinished() && !workflow.isStopped()) {
+        running++;
+      }
+    }
+    return running;
   }
 
   /** Virtual-machine shutdown hook that stops the Hop server gracefully (e.g. on Ctrl-C). */

@@ -138,6 +138,11 @@ This is provided for by the 'projects' plugin.
 |
 |Specify the ID of the pipeline or workflow to query
 
+|-swt
+|--shutdown-timeout
+|Default: 0 +
+The maximum number of seconds to wait for running pipelines and workflows to finish when the server shuts down (0 shuts down immediately). Can also be set with the `HOP_SERVER_SHUTDOWN_TIMEOUT` environment variable.
+
 |===
 
 =====
@@ -456,6 +461,35 @@ Linux, macOS::
 --
 [source,shell]
  curl -u cluster:cluster http://127.0.0.1:8080/shutdown
+--
+====
+
+==== Graceful shutdown
+
+Whichever way a shutdown is triggered (`CTRL-C`, `SIGTERM` or the `/shutdown` servlet), Hop Server shuts down gracefully:
+
+* it immediately stops accepting new work: requests that add or start pipelines, workflows or packages are refused with an HTTP `503 Service Unavailable`, while status requests keep working,
+* the server status reports `Shutting down` (the status XML/JSON contains `shutting_down=Y`), which is useful as a Kubernetes readiness signal,
+* it waits for the running pipelines and workflows to finish before the process exits.
+
+By default the server waits `0` seconds, i.e. it shuts down immediately.
+Use the `--shutdown-timeout` option (or the `HOP_SERVER_SHUTDOWN_TIMEOUT` environment variable) to allow running executions to finish within a maximum number of seconds.
+When the timeout elapses while executions are still running, the server shuts down anyway.
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+hop-server.bat 127.0.0.1 8080 --shutdown-timeout 120
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+ ./hop-server.sh 127.0.0.1 8080 --shutdown-timeout 120
 --
 ====
 

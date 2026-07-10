@@ -48,6 +48,11 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
       return;
     }
 
+    // Register/add servlets accept new work, so refuse them while the server is shutting down.
+    if (refuseIfShuttingDown(response)) {
+      return;
+    }
+
     if (log.isDebug()) {
       logDebug(messages.getString("Log.Execute"));
     }

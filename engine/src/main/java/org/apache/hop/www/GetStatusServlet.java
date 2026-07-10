@@ -113,8 +113,10 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
     if (useXml || useJson) {
       try {
+        boolean shuttingDown = HopServerSingleton.isServerShuttingDown();
         HopServerStatus serverStatus = new HopServerStatus();
-        serverStatus.setStatusDescription("Online");
+        serverStatus.setStatusDescription(shuttingDown ? "Shutting down" : "Online");
+        serverStatus.setShuttingDown(shuttingDown);
 
         getSystemInfo(serverStatus);
 

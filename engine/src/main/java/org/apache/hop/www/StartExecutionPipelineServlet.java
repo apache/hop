@@ -56,6 +56,9 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
+    if (refuseIfShuttingDown(response)) {
+      return;
+    }
 
     if (log.isDebug()) {
       logDebug("Start execution of pipeline requested");

@@ -18,6 +18,7 @@
 package org.apache.hop.www;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -51,5 +52,19 @@ class HopServerStatusTest {
     assertTrue(xml.contains("Up"));
     assertTrue(xml.contains("pipeline_status_list"));
     assertTrue(xml.contains("workflow_status_list"));
+  }
+
+  @Test
+  void shuttingDownRoundTripsThroughXml() throws HopException {
+    HopServerStatus status = new HopServerStatus("Shutting down");
+    status.setShuttingDown(true);
+
+    HopServerStatus parsed = HopServerStatus.fromXml(status.getXml());
+    assertTrue(parsed.isShuttingDown());
+    assertEquals("Shutting down", parsed.getStatusDescription());
+
+    // Default is false and it round-trips as false as well.
+    HopServerStatus online = HopServerStatus.fromXml(new HopServerStatus("Online").getXml());
+    assertFalse(online.isShuttingDown());
   }
 }

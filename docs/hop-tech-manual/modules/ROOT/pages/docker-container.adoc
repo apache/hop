@@ -188,6 +188,10 @@ Below are the variables you can use for a **long-lived** container, running Hop 
 | `8080`
 | The port the server will listen to.
 
+|```HOP_SERVER_SHUTDOWN_TIMEOUT```
+| `0`
+| The maximum number of seconds to wait for running pipelines and workflows to finish when the server shuts down (for example on a `SIGTERM` from the container runtime). `0` shuts down immediately.
+
 |```HOP_SERVER_AUTH```
 | `true`
 | Disable/Enable the authentication used for hop server
