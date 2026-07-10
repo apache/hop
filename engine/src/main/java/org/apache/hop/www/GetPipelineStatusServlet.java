@@ -89,12 +89,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
 
     String pipelineName = request.getParameter("name");
     String id = request.getParameter("id");
-    String root =
-        request.getRequestURI() == null
-            ? "/hop"
-            : request.getRequestURI().substring(0, request.getRequestURI().indexOf(CONTEXT_PATH));
-    String prefix =
-        isJettyMode() ? StatusServletUtils.STATIC_PATH : root + StatusServletUtils.RESOURCES_PATH;
+    String prefix = getStaticPath(request, CONTEXT_PATH);
     boolean useXml = "Y".equalsIgnoreCase(request.getParameter("xml"));
     boolean useJson = "Y".equalsIgnoreCase(request.getParameter("json"));
     int startLineNr = Const.toInt(request.getParameter("from"), 0);
@@ -225,12 +220,14 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
         }
         out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
         out.println(
-            "<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
+            "<link rel=\"icon\" type=\"image/svg+xml\" href=\""
+                + prefix
+                + "/images/favicon.svg\">");
 
-        if (isJettyMode()) {
-          out.println(
-              "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/hop-server.css\" />");
-        }
+        out.println(
+            "<link rel=\"stylesheet\" type=\"text/css\" href=\""
+                + prefix
+                + "/css/hop-server.css\" />");
 
         out.println("</HEAD>");
         out.println("<BODY style=\"overflow: auto;\">");

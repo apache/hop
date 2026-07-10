@@ -18,6 +18,7 @@
 package org.apache.hop.www;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -90,5 +91,31 @@ class GetStatusServletTest {
 
     getStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(out.toString().contains(ServletTestUtils.BAD_STRING_TO_TEST));
+  }
+
+  @Test
+  void testStatusServletServesStaticAssetsInWebMode() throws ServletException, IOException {
+    HopLogStore.init();
+    // The default constructor leaves jettyMode = false, i.e. the Hop Web (servlet container) mode.
+    GetStatusServlet servlet = new GetStatusServlet();
+    servlet.setPipelineMap(mockPipelineMap);
+    servlet.setWorkflowMap(mock(WorkflowMap.class));
+
+    HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
+    StringWriter out = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(out);
+
+    when(mockHttpServletRequest.getRequestURI()).thenReturn(GetStatusServlet.CONTEXT_PATH);
+    when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
+
+    servlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
+
+    String html = out.toString();
+    // Regression for #7115: the legacy Pentaho asset path is not served by Hop Web and must be
+    // gone; toolbar icons and the favicon must resolve under the served "/static" location.
+    assertFalse(html.contains("/content/common-ui"));
+    assertTrue(html.contains("/static/images/run.svg"));
+    assertTrue(html.contains("/static/images/favicon.svg"));
   }
 }

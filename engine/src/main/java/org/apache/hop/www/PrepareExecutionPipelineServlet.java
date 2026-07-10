@@ -104,7 +104,10 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
               + URLEncoder.encode(pipelineName, UTF_8)
               + CONST_CLOSE_TAG);
       out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-      out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
+      out.println(
+          "<link rel=\"icon\" type=\"image/svg+xml\" href=\""
+              + getStaticPath(request, CONTEXT_PATH)
+              + "/images/favicon.svg\">");
       out.println("</HEAD>");
       out.println("<BODY>");
     }

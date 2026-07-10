@@ -25,8 +25,6 @@ class StatusServletUtilsTest {
 
   @Test
   void constantsAreStable() {
-    assertEquals("/content/common-ui/resources/themes", StatusServletUtils.RESOURCES_PATH);
     assertEquals("/static", StatusServletUtils.STATIC_PATH);
-    assertEquals("/hop", StatusServletUtils.HOP_ROOT);
   }
 }
