@@ -14,36 +14,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM alpine:3.10
 
-ENV ENABLE_INIT_DAEMON false
-ENV INIT_DAEMON_BASE_URI http://identifier/init-daemon
-ENV INIT_DAEMON_STEP spark_master_init
+# Spark standalone master for Hop Beam integration tests.
+# SPARK_VERSION is parameterized so the same image definition can matrix-test Spark 3.x lines.
+# Java 21 matches Hop's target bytecode (workers execute Hop transforms from the fat jar).
+FROM eclipse-temurin:21-jre-jammy
 
-ENV BASE_URL=https://dlcdn.apache.org/spark/
-ENV SPARK_VERSION=3.4.1
-ENV HADOOP_VERSION=3
-ENV SPARK_MASTER_PORT 7077
-ENV SPARK_MASTER_WEBUI_PORT 8080
-ENV SPARK_MASTER_LOG /spark/logs
+ARG SPARK_VERSION=3.5.7
+ARG HADOOP_VERSION=3
+# archive.apache.org keeps historical releases needed for the multi-version matrix
+ARG BASE_URL=https://archive.apache.org/dist/spark
+
+ENV ENABLE_INIT_DAEMON=false
+ENV INIT_DAEMON_BASE_URI=http://identifier/init-daemon
+ENV INIT_DAEMON_STEP=spark_master_init
+ENV SPARK_VERSION=${SPARK_VERSION}
+ENV HADOOP_VERSION=${HADOOP_VERSION}
+ENV SPARK_HOME=/spark
+ENV SPARK_MASTER_PORT=7077
+ENV SPARK_MASTER_WEBUI_PORT=8080
+ENV SPARK_MASTER_LOG=/spark/logs
+ENV PATH="${SPARK_HOME}/bin:${PATH}"
 
 COPY ./scripts/wait-for-step.sh /
 COPY ./scripts/execute-step.sh /
 COPY ./scripts/finish-step.sh /
 COPY ./scripts/master.sh /
 
-RUN apk add --no-cache curl bash openjdk11-jre nss libc6-compat coreutils procps \
-      && ln -s /lib64/ld-linux-x86-64.so.2 /lib/ld-linux-x86-64.so.2 \
-      && chmod +x *.sh \
-      && wget ${BASE_URL}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
-      && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
-      && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark \
-      && rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
-      && cd /
-
-#Give permission to execute scripts
-RUN chmod +x /wait-for-step.sh && chmod +x /execute-step.sh && chmod +x /finish-step.sh && chmod +x /master.sh
+RUN apt-get update \
+      && apt-get install -y --no-install-recommends curl bash procps \
+      && rm -rf /var/lib/apt/lists/* \
+      && chmod +x /wait-for-step.sh /execute-step.sh /finish-step.sh /master.sh \
+      && curl -fsSL "${BASE_URL}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" \
+           -o /tmp/spark.tgz \
+      && tar -xzf /tmp/spark.tgz -C / \
+      && mv /spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} /spark \
+      && rm /tmp/spark.tgz
 
 EXPOSE 8080 7077 6066
+
+HEALTHCHECK --interval=5s --timeout=5s --start-period=30s --retries=24 \
+  CMD curl -fsS "http://127.0.0.1:8080/" >/dev/null || exit 1
 
 CMD ["/bin/bash", "/master.sh"]
