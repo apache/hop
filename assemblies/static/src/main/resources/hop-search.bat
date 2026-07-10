@@ -22,14 +22,15 @@ REM switch to script directory
 cd /D %~dp0
 
 set LIBSPATH=lib\core;lib\beam
-set CLASSPATH=lib\core\*;lib\beam\*;lib\swt\win64\*
+set CLASSPATH=lib\core\*;lib\beam\*;lib\spark-client\*;lib\swt\win64\*
 
-REM Spark client pack: default lib\spark-client, or versioned lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%
-if defined HOP_SPARK_CLIENT_VERSION (
+REM Optional versioned Spark client pack
+if defined HOP_SPARK_CLIENT_VERSION if exist "lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\" (
   set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
-) else (
-  set CLASSPATH=%CLASSPATH%;lib\spark-client\*
 )
+
+
+
 
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java

@@ -26,14 +26,15 @@ REM Option to change the character set of the Windows Shell to show foreign char
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
 set LIBSPATH=lib\core;lib\beam
-set CLASSPATH=lib\core\*;lib\beam\*;lib\swt\win64\*
+set CLASSPATH=lib\core\*;lib\beam\*;lib\spark-client\*;lib\swt\win64\*
 
-REM Spark client pack: default lib\spark-client, or versioned lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%
-if defined HOP_SPARK_CLIENT_VERSION (
+REM Optional versioned Spark client pack
+if defined HOP_SPARK_CLIENT_VERSION if exist "lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\" (
   set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
-) else (
-  set CLASSPATH=%CLASSPATH%;lib\spark-client\*
 )
+
+
+
 
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java

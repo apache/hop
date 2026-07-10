@@ -43,8 +43,9 @@ DOCKER_FILES_DIR="$(cd "${CURRENT_DIR}/../../docker/integration-tests" >/dev/nul
 HOP_HOME="${REPO_ROOT}/assemblies/client/target/hop"
 
 if [ -z "${SPARK_VERSIONS:-}" ]; then
-  # Versions worth measuring as matched pairs (Java 21 may still block older lines)
-  SPARK_VERSIONS="3.5.7 3.4.4 3.3.4"
+  # Default: validated 3.5.x pin. Pre-3.5 fails on Java 21 (SPARK-42369) even when matched.
+  # Override to re-document the ceiling: SPARK_VERSIONS="3.5.7 3.4.4"
+  SPARK_VERSIONS="3.5.7"
 fi
 
 FORWARD_ARGS=("$@")
@@ -144,27 +145,16 @@ for SPARK_VERSION in ${SPARK_VERSIONS}; do
   rm -f "${REPORT_DIR}/surefile_spark.xml"
   rm -f "${REPORT_DIR}/failed_tests" "${REPORT_DIR}/passed_tests"
 
-  # Invalidate beam image so fat jar is regenerated for this pack
-  docker rmi hop-beam-image 2>/dev/null || true
-  # Rebuild base so spark-clients pack is inside the image
-  docker compose -f "${DOCKER_FILES_DIR}/integration-tests-base.yaml" build \
-    --build-arg JENKINS_USER="${JENKINS_USER:-jenkins}" \
-    --build-arg JENKINS_UID="${JENKINS_UID:-1001}" \
-    --build-arg JENKINS_GROUP="${JENKINS_GROUP:-jenkins}" \
-    --build-arg JENKINS_GID="${JENKINS_GID:-1001}" \
-    --build-arg GCP_KEY_FILE="${GCP_KEY_FILE:-./docker/integration-tests/resource/dummyfile}" \
-    2>&1 | tail -20
-
-  docker compose -f "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml" build \
-    --build-arg HOP_SPARK_CLIENT_VERSION="${SPARK_VERSION}" \
-    2>&1 | tail -30
-
+  # run-tests-docker.sh will: unzip client zip, re-materialise pack, copy pack → lib/spark-client,
+  # invalidate/rebuild hop-base + hop-beam images, then run smoke. Do not pre-build images here
+  # (a pre-build is wiped by unzip inside run-tests-docker).
   set +e
   timeout --signal=TERM --kill-after=60 "${VERSION_TIMEOUT_SEC}" \
     bash "${RUN_TESTS}" \
       PROJECT_NAME=spark \
       SPARK_VERSION="${SPARK_VERSION}" \
       HADOOP_VERSION="${HADOOP_VERSION}" \
+      HOP_SPARK_CLIENT_VERSION="${SPARK_VERSION}" \
       KEEP_IMAGES="${KEEP_IMAGES:-true}" \
       "${FORWARD_ARGS[@]}"
   RC=$?

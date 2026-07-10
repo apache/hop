@@ -81,28 +81,27 @@ Linux)
 
 
   if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
-    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/arm64/*"
+    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/linux/arm64/*"
   else
-    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/linux/$(uname -m)/*"
+    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/linux/$(uname -m)/*"
   fi
   ;;
 Darwin)
   if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
-    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/arm64/*"
+    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/osx/arm64/*"
   else
-    CLASSPATH="lib/core/*:lib/beam/*:lib/swt/osx/x86_64/*"
+    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/osx/x86_64/*"
   fi
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
 esac
 
 
-# Spark client pack: default lib/spark-client, or a versioned pack under lib/spark-clients/
-# (must not load more than one pack — matches fat-jar --spark-client-version).
-if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ]; then
+
+# Optional versioned Spark client pack replaces default lib/spark-client on the classpath.
+if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}" ]; then
+  CLASSPATH=$(echo "${CLASSPATH}" | sed 's|lib/spark-client/\*||g')
   CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
-else
-  CLASSPATH="${CLASSPATH}:lib/spark-client/*"
 fi
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.config.HopConfig "$@"
 EXITCODE=$?

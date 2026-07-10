@@ -1,6 +1,6 @@
 # Hop Beam Spark *matched* client/cluster matrix
 
-Generated: pending first full matched run
+Generated: 2026-07-10 (issue #7476)
 
 - Hop: `2.19.0-SNAPSHOT` · Beam: `2.74.0`
 - Each cell: **Spark client pack V** = **cluster V** (Java 21 driver + cluster)
@@ -10,22 +10,24 @@ Generated: pending first full matched run
 
 | Client pack | Cluster | Result | Notes |
 | --- | --- | --- | --- |
-| 3.5.7 | 3.5.7 | **PASS** | Default pack; measured in `MATRIX-REPORT.md` |
-| 3.4.4 | 3.4.4 | *not run yet* | Pack + fat jar verified (`version=3.4.4` in fat jar); cluster IT pending |
-| 3.3.4 | 3.3.4 | *not run yet* | — |
+| 3.5.7 | 3.5.7 | **PASS** | Pack activated as `lib/spark-client`; smoke finished |
+| 3.4.4 | 3.4.4 | **FAIL** | `NoSuchMethodException: java.nio.DirectByteBuffer.<init>(long,int)` — [SPARK-42369](https://issues.apache.org/jira/browse/SPARK-42369) fixed only from **Spark 3.5.0** |
+
+## Interpretation
+
+Matching the client pack to the cluster **eliminates RPC serialVersionUID skew**, but **cannot** make Spark 3.4 run on **Java 21**. Hop requires Java 21 for driver and workers (fat-jar bytecode), so **Spark ≥ 3.5.0 is the platform floor**.
+
+Versioned packs remain valuable for:
+
+- Aligning Hop’s client jars with a **3.5.x** cluster patch level
+- Future matrix cells within 3.5.x (e.g. 3.5.3 vs 3.5.7)
+
+They are **not** a path back to Spark 3.4 / 3.3 / 3.2 while Hop stays on Java 21.
 
 ## How to run
 
 ```bash
-# Build client, then:
 ./integration-tests/scripts/run-spark-matched-matrix.sh KEEP_IMAGES=true
-
-# Or a single matched pair:
-./tools/spark-client-pack/materialize-pack.sh 3.4.4 assemblies/client/target/hop
-export HOP_SPARK_CLIENT_VERSION=3.4.4 SPARK_VERSION=3.4.4
-# rebuild hop-base + hop-beam images, then:
-./integration-tests/scripts/run-tests-docker.sh PROJECT_NAME=spark \
-  SPARK_VERSION=3.4.4 HOP_SPARK_CLIENT_VERSION=3.4.4 KEEP_IMAGES=true
 ```
 
 ## Tooling

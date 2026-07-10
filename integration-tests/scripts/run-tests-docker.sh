@@ -123,7 +123,48 @@ else
   echo "Skipping client unzip (CLIENT_UNZIP=${CLIENT_UNZIP}, using existing ${HOP_DIR})"
 fi
 
-# Build base image only once
+# Versioned Spark client packs are not in the client zip. Re-materialise after unzip so
+# HOP_SPARK_CLIENT_VERSION=… finds lib/spark-clients/<ver>/ (includes spark-streaming, etc.).
+# Also copy the selected pack into lib/spark-client/ so the default driver classpath always
+# has spark-core + spark-streaming even if hop-run only loads lib/spark-client/*.
+HOP_HOME_FOR_PACK="${CURRENT_DIR}/../../assemblies/client/target/hop"
+if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+  MATERIALIZE_SCRIPT="${CURRENT_DIR}/../../tools/spark-client-pack/materialize-pack.sh"
+  if [ -f "${MATERIALIZE_SCRIPT}" ]; then
+    echo "Materialising Spark client pack ${HOP_SPARK_CLIENT_VERSION} into ${HOP_HOME_FOR_PACK}"
+    bash "${MATERIALIZE_SCRIPT}" "${HOP_SPARK_CLIENT_VERSION}" "${HOP_HOME_FOR_PACK}"
+    PACK_DIR="${HOP_HOME_FOR_PACK}/lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}"
+    if [ -d "${PACK_DIR}" ] && [ -f "${PACK_DIR}/spark-core_2.12-${HOP_SPARK_CLIENT_VERSION}.jar" ]; then
+      echo "Activating pack ${HOP_SPARK_CLIENT_VERSION} as lib/spark-client (driver classpath)"
+      rm -rf "${HOP_HOME_FOR_PACK}/lib/spark-client"
+      mkdir -p "${HOP_HOME_FOR_PACK}/lib/spark-client"
+      cp -a "${PACK_DIR}/." "${HOP_HOME_FOR_PACK}/lib/spark-client/"
+      # Prove critical jars are present for the driver
+      ls -1 "${HOP_HOME_FOR_PACK}/lib/spark-client"/spark-core*.jar \
+            "${HOP_HOME_FOR_PACK}/lib/spark-client"/spark-streaming*.jar
+    else
+      echo "ERROR: Spark client pack incomplete at ${PACK_DIR}" >&2
+      ls -la "${PACK_DIR}" 2>/dev/null || true
+      exit 1
+    fi
+  else
+    echo "WARNING: ${MATERIALIZE_SCRIPT} not found; pack ${HOP_SPARK_CLIENT_VERSION} may be missing"
+  fi
+fi
+
+# Bust docker cache for the hop COPY layer when packs change
+if [ -d "${HOP_HOME_FOR_PACK}" ]; then
+  date -u +%Y-%m-%dT%H:%M:%SZ > "${HOP_HOME_FOR_PACK}/.spark-client-pack-stamp"
+fi
+
+# Drop stale base/beam images when using a versioned Spark pack so COPY hop picks up jars
+if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+  echo "Invalidating hop-base-image / hop-beam-image for Spark client pack ${HOP_SPARK_CLIENT_VERSION}"
+  docker rmi hop-beam-image 2>/dev/null || true
+  docker rmi hop-base-image 2>/dev/null || true
+fi
+
+# Build base image only once (must run AFTER pack materialise so jars are in the image)
 docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
 
 # The Hop fat jar (needed only by the Beam runners: spark/flink/gcp) is expensive to build, so it
