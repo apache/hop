@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="42px" height="42px" viewBox="0 0 42 42" enable-background="new 0 0 42 42">
+  <!-- Two source schemas (different column layouts) -->
+  <path fill="#0E3A5A" d="M18.5,3.5H2.5v12h16V3.5z M16.5,13.5h-3v-8h3V13.5z M12.5,13.5h-3v-8h3V13.5z M8.5,13.5h-4v-8h4V13.5z"/>
+  <rect x="4.5" y="5.5" fill="#C9E8FB" width="4" height="8"/>
+  <rect x="9.5" y="5.5" fill="#C9E8FB" width="3" height="8"/>
+  <path fill="#0E3A5A" d="M18.5,26.5H2.5v12h16V26.5z M16.5,36.5h-4v-8h4V36.5z M11.5,36.5h-3v-8h3V36.5z M7.5,36.5h-3v-8h3V36.5z"/>
+  <rect x="4.5" y="28.5" fill="#C9E8FB" width="3" height="8"/>
+  <rect x="8.5" y="28.5" fill="#C9E8FB" width="3" height="8"/>
+  <rect x="12.5" y="28.5" fill="#C9E8FB" width="4" height="8"/>
+  <!-- Merge funnel into sparse sorted output -->
+  <path fill="#0E3A5A" d="M20,9.5h6.5v-3h8v3H39v7.5h-4.5v3H25.5v-3H20V9.5z"/>
+  <rect x="22" y="11.5" fill="#FF9C04" width="5" height="1.5"/>
+  <rect x="22" y="13.7" fill="#FF9C04" width="3.5" height="1.5"/>
+  <path fill="#5CC0C4" d="M20,32.5h6.5v3h8v-3H39v-7.5h-4.5v-3H25.5v3H20V32.5z"/>
+  <!-- Output sparse row bar -->
+  <path fill="#0E3A5A" d="M39.5,18.5h-14v5h14V18.5z"/>
+  <rect x="26.5" y="19.7" fill="#FFFFFF" width="3" height="2.6"/>
+  <rect x="30.5" y="19.7" fill="#FF9C04" width="3" height="2.6"/>
+  <rect x="34.5" y="19.7" fill="#C9E8FB" width="3.5" height="2.6"/>
+</svg>

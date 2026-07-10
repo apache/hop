@@ -1455,6 +1455,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-sortedschemamerge</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-splitfieldtorows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>

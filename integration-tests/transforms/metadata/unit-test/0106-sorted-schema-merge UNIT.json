@@ -1,0 +1,53 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Validate Sorted Schema Merge produces a globally sorted sparse union of four Data Grid streams",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "attr_a",
+          "data_set_field": "attr_a"
+        },
+        {
+          "transform_field": "attr_b",
+          "data_set_field": "attr_b"
+        },
+        {
+          "transform_field": "attr_c",
+          "data_set_field": "attr_c"
+        },
+        {
+          "transform_field": "attr_d",
+          "data_set_field": "attr_d"
+        },
+        {
+          "transform_field": "flag",
+          "data_set_field": "flag"
+        },
+        {
+          "transform_field": "src",
+          "data_set_field": "src"
+        }
+      ],
+      "field_order": [
+        "id",
+        "src"
+      ],
+      "data_set_name": "golden-sorted-schema-merge",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0106-sorted-schema-merge UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0106-sorted-schema-merge.hpl"
+}

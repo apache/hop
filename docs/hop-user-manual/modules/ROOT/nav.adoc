@@ -251,6 +251,7 @@ under the License.
 *** xref:pipeline/transforms/snowflakebulkloader.adoc[Snowflake Bulk Loader]
 *** xref:pipeline/transforms/sort.adoc[Sort Rows]
 *** xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge]
+*** xref:pipeline/transforms/sortedschemamerge.adoc[Sorted Schema Merge]
 *** xref:pipeline/transforms/splitfields.adoc[Split Fields]
 *** xref:pipeline/transforms/splitfieldtorows.adoc[Split fields to rows]
 *** xref:pipeline/transforms/splunkinput.adoc[Splunk Input]
