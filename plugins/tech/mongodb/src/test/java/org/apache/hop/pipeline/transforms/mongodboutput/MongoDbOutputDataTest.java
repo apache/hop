@@ -46,6 +46,7 @@ import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoIndex;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -255,6 +256,30 @@ class MongoDbOutputDataTest {
     // Compare the contents rather than toString() representation
     Document expected = Document.parse(query);
     assertThat(result.get("foo"), equalTo(expected.get("foo")));
+  }
+
+  @Test
+  void testGetQueryObjectWithIncomingObjectIdJson() throws HopException {
+    // Regression for #7183: extended JSON ObjectId as match field with json_field=Y
+    MongoDbOutputMeta.MongoField field = new MongoDbOutputMeta.MongoField();
+    field.inputJson = true;
+    field.updateMatchField = true;
+    field.mongoDocPath = "_id";
+    field.environUpdateMongoDocPath = "_id";
+    when(rowMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
+    when(valueMeta.getType()).thenReturn(IValueMeta.TYPE_STRING);
+    when(valueMeta.getString(any(Object.class)))
+        .thenReturn("{\"$oid\":\"6a15efdd0a93aa5ed3b4b947\"}");
+
+    Document result =
+        MongoDbOutputData.getQueryObject(
+            Collections.singletonList(field),
+            rowMeta,
+            new Object[] {"object id"},
+            variables,
+            MongoDbOutputData.MongoTopLevel.RECORD);
+
+    assertThat(result.get("_id"), equalTo(new ObjectId("6a15efdd0a93aa5ed3b4b947")));
   }
 
   @Test
