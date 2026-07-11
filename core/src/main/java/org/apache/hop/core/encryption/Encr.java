@@ -24,11 +24,17 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.eclipse.jetty.util.security.Password;
 
 /**
  * This class handles basic encryption of passwords in Hop. Note that it's not really encryption,
  * it's more obfuscation. Passwords are <b>difficult</b> to read, not impossible.
+ *
+ * <p>The active encoder is process-global. Call {@link #init(String, IVariables)} or {@link
+ * #initFromVariables(IVariables)} to re-bind it (for example when enabling a project or running a
+ * Set password encoder action).
  */
 public class Encr {
 
@@ -38,24 +44,72 @@ public class Encr {
     // Do nothing
   }
 
+  /**
+   * Initialize the global two-way password encoder from the given plugin ID using the default
+   * variable space.
+   *
+   * @param encoderPluginId plugin ID (for example {@code Hop} or {@code AES2})
+   * @throws HopException when the encoder cannot be loaded or initialized
+   */
   public static void init(String encoderPluginId) throws HopException {
+    init(encoderPluginId, Variables.getADefaultVariableSpace());
+  }
+
+  /**
+   * Initialize the global two-way password encoder from the given plugin ID and variable space.
+   * Thread-safe: only one re-init runs at a time.
+   *
+   * @param encoderPluginId plugin ID (for example {@code Hop} or {@code AES2})
+   * @param variables variables used to resolve key material and related options
+   * @throws HopException when the encoder cannot be loaded or initialized
+   */
+  public static synchronized void init(String encoderPluginId, IVariables variables)
+      throws HopException {
     if (Utils.isEmpty(encoderPluginId)) {
       throw new HopException(
           "Unable to initialize the two way password encoder: No encoder plugin type specified.");
     }
+    if (variables == null) {
+      variables = Variables.getADefaultVariableSpace();
+    }
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin =
         registry.findPluginWithId(TwoWayPasswordEncoderPluginType.class, encoderPluginId);
+    ITwoWayPasswordEncoder newEncoder;
     if (plugin == null) {
       LogChannel.GENERAL.logError("Unable to find plugin with ID '" + encoderPluginId + "'");
-      encoder = new HopTwoWayPasswordEncoder();
+      newEncoder = new HopTwoWayPasswordEncoder();
     } else {
-      encoder = (ITwoWayPasswordEncoder) registry.loadClass(plugin);
+      newEncoder = (ITwoWayPasswordEncoder) registry.loadClass(plugin);
     }
 
-    // Load encoder specific options...
+    // Load encoder specific options from the provided variable space...
     //
-    encoder.init();
+    newEncoder.init(variables);
+    encoder = newEncoder;
+    LogChannel.GENERAL.logBasic(
+        "Two-way password encoder initialized with plugin ID '" + encoderPluginId + "'");
+  }
+
+  /**
+   * Resolve the password encoder plugin ID from variables (then system properties, then {@code
+   * Hop}) and re-initialize the global encoder.
+   *
+   * @param variables project/environment or workflow variables
+   * @throws HopException when initialization fails
+   */
+  public static synchronized void initFromVariables(IVariables variables) throws HopException {
+    if (variables == null) {
+      variables = Variables.getADefaultVariableSpace();
+    }
+    String pluginId = variables.getVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN);
+    if (Utils.isEmpty(pluginId)) {
+      pluginId = System.getProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN);
+    }
+    if (Utils.isEmpty(pluginId)) {
+      pluginId = "Hop";
+    }
+    init(pluginId, variables);
   }
 
   public static final String encryptPassword(String password) {

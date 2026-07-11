@@ -164,8 +164,11 @@ where strict outbound TLS verification is required (see §9).
   states it is *"not really encryption … obfuscation."* Anyone with the file
   recovers the plaintext. Real confidentiality is **opt-in**: set
   `HOP_PASSWORD_ENCODER_PLUGIN=AES2` with an operator-held `HOP_AES_ENCODER_KEY`
-  (AES-GCM), and/or keep secrets out of metadata via a variable resolver
-  (HashiCorp Vault, Azure Key Vault, Google Secret Manager). See §9, §10, §11a.
+  or `HOP_AES_ENCODER_KEY_FILE` (AES-GCM), and/or keep secrets out of metadata
+  via a variable resolver (HashiCorp Vault, Azure Key Vault, Google Secret
+  Manager). Encoder plugin and key can be re-bound per project/environment on
+  enable (and via the Set password encoder action); the active encoder remains
+  process-global. See §9, §10, §11a.
 - **Credential leakage in logs.** No plaintext password is logged by default,
   and decrypted DB passwords travel in a JDBC `Properties` object, not the URL.
   However, resolved JDBC/REST/HTTP URLs are logged at debug/detailed level
@@ -229,7 +232,8 @@ where strict outbound TLS verification is required (see §9).
   it has none of its own. Be aware the Docker image binds `0.0.0.0:8080` with
   the default credential.
 - **Protect credentials at rest:** enable the AES2 encoder
-  (`HOP_PASSWORD_ENCODER_PLUGIN=AES2` + `HOP_AES_ENCODER_KEY`) and/or a secrets
+  (`HOP_PASSWORD_ENCODER_PLUGIN=AES2` + `HOP_AES_ENCODER_KEY` or
+  `HOP_AES_ENCODER_KEY_FILE`) and/or a secrets
   resolver (Vault / Azure Key Vault / Google Secret Manager); never commit
   default-obfuscated credentials to VCS; avoid embedding credentials in URLs.
 - **Manage connection credentials**; don't source connection config or

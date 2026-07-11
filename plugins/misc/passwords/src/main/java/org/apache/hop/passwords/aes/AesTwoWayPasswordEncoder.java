@@ -32,12 +32,13 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 
 /**
  * @deprecated We expect a few variables to be set for this plugin to be picked up: 1.
  *     HOP_PASSWORD_ENCODER_PLUGIN set to the ID of this plugin:"AES" 2. HOP_AES_ENCODER_KEY set to
- *     the key of your choice.
+ *     the key of your choice, or HOP_AES_ENCODER_KEY_FILE pointing at a key file.
  */
 @TwoWayPasswordEncoderPlugin(
     id = "AES",
@@ -56,16 +57,13 @@ public class AesTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
 
   @Override
   public void init() throws HopException {
+    init(Variables.getADefaultVariableSpace());
+  }
 
+  @Override
+  public void init(IVariables variables) throws HopException {
     try {
-      String aesKey = System.getProperty(VARIABLE_HOP_AES_ENCODER_KEY, null);
-      if (StringUtils.isEmpty(aesKey)) {
-        noKeySpecified();
-      }
-      String realAesKey = Variables.getADefaultVariableSpace().resolve(aesKey);
-      if (StringUtils.isEmpty(realAesKey)) {
-        noKeySpecified();
-      }
+      String realAesKey = AesEncoderKeyUtil.resolveKey(variables);
       byte[] key = realAesKey.getBytes(StandardCharsets.UTF_8);
       MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
       byte[] digestKey = messageDigest.digest(key);
@@ -79,16 +77,11 @@ public class AesTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
 
       decryptCipher = Cipher.getInstance(AES_ALGORITHM);
       decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("Error initializing AES password encoder plugin", e);
     }
-  }
-
-  private void noKeySpecified() throws HopException {
-    throw new HopException(
-        "Please specify a key to encrypt/decrypt with by setting variable "
-            + VARIABLE_HOP_AES_ENCODER_KEY
-            + " in the system properties");
   }
 
   @Override

@@ -219,6 +219,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-action-setpasswordencoder</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-setvariables</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

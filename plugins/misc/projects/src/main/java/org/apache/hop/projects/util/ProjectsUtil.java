@@ -25,6 +25,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.ILogChannel;
@@ -93,6 +94,17 @@ public class ProjectsUtil {
     // We'll use those to change the loaded variables in HopGui
     //
     project.modifyVariables(variables, projectConfig, configurationFiles, environmentName);
+
+    // Re-bind the process-global two-way password encoder from project/environment variables
+    // (HOP_PASSWORD_ENCODER_PLUGIN, HOP_AES_ENCODER_KEY / HOP_AES_ENCODER_KEY_FILE). This resets
+    // AES keys between projects and allows falling back to Hop obfuscation when unset.
+    //
+    try {
+      Encr.initFromVariables(variables);
+    } catch (HopException e) {
+      throw new HopException(
+          "Error initializing the two-way password encoder for project '" + projectName + "'", e);
+    }
 
     // Change the metadata provider in the GUI
     //

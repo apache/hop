@@ -62,6 +62,7 @@
         <module>pipeline</module>
         <module>repeat</module>
         <module>sendnagiospassivecheck</module>
+        <module>setpasswordencoder</module>
         <module>setvariables</module>
         <module>shell</module>
         <module>simpleeval</module>
