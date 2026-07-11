@@ -93,6 +93,7 @@ class SqlScriptParserTest {
         "SELECT  col1 FROM  account",
         sqlScriptParser.removeComments(
             "SELECT /* \"my_column'\" */ col1 FROM /* 'my_table' */ account"));
+    assertEquals("SELECT 1", sqlScriptParser.removeComments("SELECT/* comment */1"));
     assertEquals(
         "SELECT '/' as col1, '*/*' as regex ",
         sqlScriptParser.removeComments("SELECT '/' as col1, '*/*' as regex "));
