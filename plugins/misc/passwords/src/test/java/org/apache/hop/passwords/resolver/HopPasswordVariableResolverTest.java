@@ -48,7 +48,7 @@ class HopPasswordVariableResolverTest {
   void setUp() throws Exception {
     // Re-bind the default Hop encoder so this class is not polluted by AES encoder tests that
     // share the JVM (surefire reuseForks).
-    System.setProperty(org.apache.hop.core.Const.HOP_PASSWORD_ENCODER_PLUGIN, "Hop");
+    System.setProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN, "Hop");
     Encr.init("Hop");
     resolver = new HopPasswordVariableResolver();
     variables = new Variables();
