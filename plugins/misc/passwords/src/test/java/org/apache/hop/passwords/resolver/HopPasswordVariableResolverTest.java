@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -39,13 +40,16 @@ class HopPasswordVariableResolverTest {
   private Variables variables;
 
   @BeforeAll
-  static void initEncr() throws Exception {
+  static void initEnvironment() throws Exception {
     HopClientEnvironment.init();
-    Encr.init("Hop");
   }
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
+    // Re-bind the default Hop encoder so this class is not polluted by AES encoder tests that
+    // share the JVM (surefire reuseForks).
+    System.setProperty(org.apache.hop.core.Const.HOP_PASSWORD_ENCODER_PLUGIN, "Hop");
+    Encr.init("Hop");
     resolver = new HopPasswordVariableResolver();
     variables = new Variables();
     variables.initializeFrom(null);
