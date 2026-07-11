@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -38,6 +39,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ValueMapperMetaTest {
 
@@ -179,6 +183,24 @@ class ValueMapperMetaTest {
     assertEquals("y", clone.getValues().get(0).getTarget());
   }
 
+  @MethodSource("cloneTargetTypeCases")
+  @ParameterizedTest(name = "sourceType={0} -> expectedType={1}")
+  void cloneCopiesTargetType(String sourceType, String expectedType) {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setTargetType(sourceType);
+
+    ValueMapperMeta clone = (ValueMapperMeta) meta.clone();
+
+    assertEquals(expectedType, clone.getTargetType());
+  }
+
+  static Stream<Arguments> cloneTargetTypeCases() {
+    return Stream.of(
+        Arguments.of("Integer", "Integer"),
+        Arguments.of(null, "String"),
+        Arguments.of("", "String"));
+  }
+
   @Test
   void checkAddsWarningWhenNoPreviousFields() {
     ValueMapperMeta meta = new ValueMapperMeta();
@@ -216,7 +238,7 @@ class ValueMapperMetaTest {
   }
 
   @Test
-  void getFieldsAddsIntegerTypedTargetColumnWhenSpecified() throws Exception {
+  void getFieldsAddsIntegerTypedTargetColumnWhenSpecified() {
     ValueMapperMeta meta = new ValueMapperMeta();
     meta.setFieldToUse("id");
     meta.setTargetField("amt");
@@ -230,7 +252,7 @@ class ValueMapperMetaTest {
   }
 
   @Test
-  void getFieldsUnknownTargetTypeFallsBackToStringForNewColumn() throws Exception {
+  void getFieldsUnknownTargetTypeFallsBackToStringForNewColumn() {
     ValueMapperMeta meta = new ValueMapperMeta();
     meta.setFieldToUse("id");
     meta.setTargetField("out");
@@ -244,7 +266,7 @@ class ValueMapperMetaTest {
   }
 
   @Test
-  void inPlaceWithExplicitTargetTypeDoesNotCoerceColumnInGetFields() throws Exception {
+  void inPlaceWithExplicitTargetTypeDoesNotCoerceColumnInGetFields() {
     ValueMapperMeta meta = new ValueMapperMeta();
     meta.setFieldToUse("code");
     meta.setTargetField("");

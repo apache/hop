@@ -136,7 +136,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     this.targetField = meta.targetField;
     this.nonMatchDefault = meta.nonMatchDefault;
     this.keepOriginalValueOnNonMatch = meta.getKeepOriginalValueOnNonMatch();
-    if (meta.targetType != null && meta.targetType.isEmpty()) {
+    if (meta.targetType != null && !meta.targetType.isEmpty()) {
       this.targetType = meta.targetType;
     } else {
       this.targetType = "String";
