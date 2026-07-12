@@ -19,21 +19,25 @@
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -69,6 +73,15 @@ public class ConfigGuiOptionsTab {
   private static final Class<?> PKG = BaseDialog.class;
   public static final String ENTER_OPTIONS_DIALOG_ENTER_NUMBER_HINT =
       "EnterOptionsDialog.EnterNumber.Hint";
+
+  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ConfigGuiOptionsTab-Toolbar";
+  public static final String TOOLBAR_ITEM_EXPAND_ALL =
+      "ConfigGuiOptionsTab-Toolbar-10010-ExpandAll";
+  public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
+      "ConfigGuiOptionsTab-Toolbar-10020-CollapseAll";
+
+  private Composite lookComp;
+  private ScrolledComposite lookScrolledComposite;
 
   private FontData defaultFontData;
   private Font defaultFont;
@@ -327,53 +340,22 @@ public class ConfigGuiOptionsTab {
     // Track the last control for vertical positioning
     Control lastControl = null;
 
-    // Expand all / Collapse all buttons for the sections below
-    Composite wExpandButtons = new Composite(wLookComp, SWT.NONE);
-    PropsUi.setLook(wExpandButtons);
-    FormLayout expandButtonsLayout = new FormLayout();
-    expandButtonsLayout.marginWidth = 0;
-    expandButtonsLayout.marginHeight = 0;
-    wExpandButtons.setLayout(expandButtonsLayout);
-
-    int buttonSize = (int) (34 * PropsUi.getNativeZoomFactor());
-    FormData fdExpandButtons = new FormData();
-    fdExpandButtons.left = new FormAttachment(0, 0);
-    fdExpandButtons.top = new FormAttachment(0, margin);
-    fdExpandButtons.height = buttonSize;
-    wExpandButtons.setLayoutData(fdExpandButtons);
-
-    Button wExpandAll = new Button(wExpandButtons, SWT.PUSH);
-    PropsUi.setLook(wExpandAll);
-    wExpandAll.setImage(
-        GuiResource.getInstance()
-            .getImage(
-                "ui/images/expand-all.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    wExpandAll.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.ExpandAll.Tooltip"));
-    wExpandAll.addListener(SWT.Selection, e -> setAllSectionsExpanded(wLookComp, sLookComp, true));
-    FormData fdExpandAll = new FormData();
-    fdExpandAll.width = buttonSize;
-    fdExpandAll.height = buttonSize;
-    fdExpandAll.left = new FormAttachment(0, 0);
-    fdExpandAll.top = new FormAttachment(0, 0);
-    wExpandAll.setLayoutData(fdExpandAll);
-
-    Button wCollapseAll = new Button(wExpandButtons, SWT.PUSH);
-    PropsUi.setLook(wCollapseAll);
-    wCollapseAll.setImage(
-        GuiResource.getInstance()
-            .getImage(
-                "ui/images/collapse-all.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    wCollapseAll.setToolTipText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.CollapseAll.Tooltip"));
-    wCollapseAll.addListener(
-        SWT.Selection, e -> setAllSectionsExpanded(wLookComp, sLookComp, false));
-    FormData fdCollapseAll = new FormData();
-    fdCollapseAll.width = buttonSize;
-    fdCollapseAll.height = buttonSize;
-    fdCollapseAll.left = new FormAttachment(wExpandAll, margin);
-    fdCollapseAll.top = new FormAttachment(0, 0);
-    wCollapseAll.setLayoutData(fdCollapseAll);
-    lastControl = wExpandButtons;
+    // Expand all / Collapse all toolbar for the sections below
+    IToolbarContainer expandToolbarContainer =
+        ToolbarFacade.createToolbarContainer(wLookComp, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    Control expandToolbar = expandToolbarContainer.getControl();
+    GuiToolbarWidgets expandToolbarWidgets = new GuiToolbarWidgets();
+    expandToolbarWidgets.registerGuiPluginObject(this);
+    expandToolbarWidgets.createToolbarWidgets(expandToolbarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    FormData fdExpandToolbar = new FormData();
+    fdExpandToolbar.left = new FormAttachment(0, 0);
+    fdExpandToolbar.top = new FormAttachment(0, margin);
+    expandToolbar.setLayoutData(fdExpandToolbar);
+    expandToolbar.pack();
+    PropsUi.setLook(expandToolbar, Props.WIDGET_STYLE_TOOLBAR);
+    lookComp = wLookComp;
+    lookScrolledComposite = sLookComp;
+    lastControl = expandToolbar;
 
     // Preferred language - at the top
     Control[] defaultLocaleControls =
@@ -1555,6 +1537,36 @@ public class ConfigGuiOptionsTab {
     }
     lookComp.layout();
     scrolled.setMinHeight(lookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EXPAND_ALL,
+      toolTip = "i18n:org.apache.hop.ui.core.dialog:EnterOptionsDialog.ExpandAll.Tooltip",
+      image = "ui/images/expand-all.svg")
+  public void expandAllSections() {
+    if (lookComp == null
+        || lookComp.isDisposed()
+        || lookScrolledComposite == null
+        || lookScrolledComposite.isDisposed()) {
+      return;
+    }
+    setAllSectionsExpanded(lookComp, lookScrolledComposite, true);
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_COLLAPSE_ALL,
+      toolTip = "i18n:org.apache.hop.ui.core.dialog:EnterOptionsDialog.CollapseAll.Tooltip",
+      image = "ui/images/collapse-all.svg")
+  public void collapseAllSections() {
+    if (lookComp == null
+        || lookComp.isDisposed()
+        || lookScrolledComposite == null
+        || lookScrolledComposite.isDisposed()) {
+      return;
+    }
+    setAllSectionsExpanded(lookComp, lookScrolledComposite, false);
   }
 
   /** Reject any change that would make the text field contain something other than digits. */
