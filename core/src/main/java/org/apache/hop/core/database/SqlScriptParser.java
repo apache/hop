@@ -198,6 +198,12 @@ public class SqlScriptParser {
           if (ch == '*' && nextCh == '/') {
             mode = MODE.SQL;
             i = i + 1;
+            if (!result.isEmpty()
+                && i + 1 < script.length()
+                && isSqlWordCharacter(result.charAt(result.length() - 1))
+                && isSqlWordCharacter(script.charAt(i + 1))) {
+              result.append(' ');
+            }
           }
           ch = 0;
           break;
@@ -242,5 +248,9 @@ public class SqlScriptParser {
     }
 
     return result.toString();
+  }
+
+  private static boolean isSqlWordCharacter(char ch) {
+    return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
   }
 }

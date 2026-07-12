@@ -555,6 +555,10 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>table-compare.hpl</item>
         <item>requires connection</item>
       </line>
+      <line>
+        <item>rest-client-slack-conversations-loop.hpl</item>
+        <item>requires SLACK_BOT_TOKEN with channels:read or conversations:read</item>
+      </line>
     </data>
     <distribute>Y</distribute>
     <copies>1</copies>

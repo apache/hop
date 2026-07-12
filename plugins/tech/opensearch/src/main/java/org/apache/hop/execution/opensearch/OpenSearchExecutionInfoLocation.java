@@ -430,11 +430,12 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       body = body.replace("__FROM_CLAUSE__", "FROM " + actualIndexName);
 
       String whereClause = "";
-      if (selector != null && selector.startDateFilter() != LastPeriod.NONE) {
+      LastPeriod dateFilter = selector != null ? selector.startDateFilter() : null;
+      if (dateFilter != null && dateFilter != LastPeriod.NONE) {
         // OpenSearch uses UTC and the GUI runs in local time.
         //
         ZonedDateTime localStartDate =
-            selector.startDateFilter().calculateStartDate().atZone(ZoneId.systemDefault());
+            dateFilter.calculateStartDate().atZone(ZoneId.systemDefault());
         Date localStart = new Date(localStartDate.toInstant().toEpochMilli());
 
         SimpleDateFormat whereFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

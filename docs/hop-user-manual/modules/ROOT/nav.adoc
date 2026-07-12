@@ -356,6 +356,7 @@ under the License.
 *** xref:workflow/actions/runpipelinetests.adoc[Run pipeline unit tests]
 *** xref:workflow/actions/sendnagiospassivecheck.adoc[Send Nagios passive check]
 *** xref:workflow/actions/snmptrap.adoc[Send SNMP trap]
+*** xref:workflow/actions/setpasswordencoder.adoc[Set password encoder]
 *** xref:workflow/actions/setvariables.adoc[Set variables]
 *** xref:workflow/actions/shell.adoc[Shell]
 *** xref:workflow/actions/simpleeval.adoc[Simple evaluation]

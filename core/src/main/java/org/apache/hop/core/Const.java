@@ -725,6 +725,26 @@ public class Const {
   public static final String HOP_PASSWORD_ENCODER_PLUGIN = "HOP_PASSWORD_ENCODER_PLUGIN";
 
   /**
+   * Key string used by the AES / AES2 two-way password encoders. Prefer supplying this via
+   * environment or project variables rather than embedding it in metadata.
+   */
+  @Variable(
+      value = "",
+      description =
+          "Key used by the AES/AES2 password encoder plugins. Can also be set as a system property.")
+  public static final String HOP_AES_ENCODER_KEY = "HOP_AES_ENCODER_KEY";
+
+  /**
+   * Path to a file whose contents are the AES / AES2 encoder key (for example a Kubernetes secret
+   * mount). Used when {@link #HOP_AES_ENCODER_KEY} is empty.
+   */
+  @Variable(
+      value = "",
+      description =
+          "Path to a file containing the AES/AES2 password encoder key. Used when HOP_AES_ENCODER_KEY is empty.")
+  public static final String HOP_AES_ENCODER_KEY_FILE = "HOP_AES_ENCODER_KEY_FILE";
+
+  /**
    * The name of the Hop encryption seed environment variable for the HopTwoWayPasswordEncoder class
    */
   public static final String HOP_TWO_WAY_PASSWORD_ENCODER_SEED =

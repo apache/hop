@@ -18,112 +18,96 @@
 package org.apache.hop.vfs.minio.util;
 
 import io.minio.PutObjectArgs;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.OutputStream;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.vfs.minio.MinioFileSystem;
 
-/** Custom OutputStream that enables an output stream onto Minio */
+/**
+ * OutputStream that buffers content and uploads it to MinIO on {@link #close()}.
+ *
+ * <p>Previously this used a {@link java.io.PipedOutputStream} with the MinIO SDK's unknown-size
+ * ({@code objectSize = -1}) multipart path. That combination races with VFS/Text File Output
+ * close/flush chains and produced empty objects ({@code Pipe closed} on write). Buffering and
+ * uploading with a known content length matches the reliable path used for folder markers.
+ *
+ * <p>Close is idempotent and post-close flush is a no-op so nested VFS/Text File Output close
+ * chains (which flush after closing the inner stream) do not fail the pipeline.
+ */
 @Getter
 @Setter
-public class MinioPipedOutputStream extends PipedOutputStream {
+public class MinioPipedOutputStream extends OutputStream {
 
-  private boolean initialized = false;
-  private boolean blockedUntilDone = true;
-  private final PipedInputStream pipedInputStream;
-  private final MinioAsyncTransferRunner asyncTransferRunner;
+  private final ByteArrayOutputStream buffer = new ByteArrayOutputStream(64 * 1024);
   private final MinioFileSystem fileSystem;
-
-  // Daemon-threaded so a wedged putObject (black-holed socket) can never pin the JVM, and the
-  // uploader is referenced so close() can join() it interruptibly instead of polling forever.
-  private Thread transferThread;
-  private volatile Exception transferError;
-
   private final String bucketName;
   private final String key;
 
-  public MinioPipedOutputStream(MinioFileSystem fileSystem, String bucketName, String key)
-      throws IOException {
-    this.pipedInputStream = new PipedInputStream(100000);
-    try {
-      this.pipedInputStream.connect(this);
-    } catch (IOException e) {
-      throw new IOException("A MinIO piped output stream could not connect to the input stream", e);
-    }
+  private boolean closed;
+  private boolean blockedUntilDone = true;
 
-    this.asyncTransferRunner = new MinioAsyncTransferRunner();
+  public MinioPipedOutputStream(MinioFileSystem fileSystem, String bucketName, String key) {
+    this.fileSystem = fileSystem;
     this.bucketName = bucketName;
     this.key = key;
-    this.fileSystem = fileSystem;
-  }
-
-  private void initializeWrite() {
-    if (!initialized) {
-      initialized = true;
-      transferThread = new Thread(asyncTransferRunner, "minio-upload-" + bucketName + "-" + key);
-      transferThread.setDaemon(true);
-      transferThread.start();
-    }
   }
 
   @Override
   public void write(int b) throws IOException {
-    initializeWrite();
-    super.write(b);
+    // Outer VFS/Text File Output close chains may flush after the first close. Accept late bytes
+    // and re-open so a subsequent close() can upload the complete content.
+    if (closed) {
+      closed = false;
+    }
+    buffer.write(b);
   }
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
-    initializeWrite();
-    super.write(b, off, len);
+    if (len == 0) {
+      return;
+    }
+    if (closed) {
+      closed = false;
+    }
+    buffer.write(b, off, len);
   }
 
   @Override
-  public synchronized void flush() {
-    // no flush
+  public void flush() {
+    // Data is held in memory until close(); nothing to flush to the network.
+    // No-op when closed so VFS MonitorOutputStream / FilterOutputStream double-close is safe.
   }
 
   @Override
   public void close() throws IOException {
-    // Start upload even when no bytes were written (0-byte file), so PutObject is still executed
-    initializeWrite();
-    super.close();
-    if (initialized && isBlockedUntilDone()) {
-      try {
-        // join() is interruptible: a pipeline stop interrupts the transform thread and now
-        // breaks out of here instead of looping forever on a stalled upload.
-        transferThread.join();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        transferThread.interrupt();
-        throw new InterruptedIOException(
-            "Interrupted while finishing the MinIO upload for " + bucketName + "/" + key);
-      }
-      if (transferError != null) {
-        throw new IOException("MinIO upload failed for " + bucketName + "/" + key, transferError);
-      }
+    if (closed) {
+      return;
+    }
+    closed = true;
+
+    byte[] data = buffer.toByteArray();
+    try {
+      PutObjectArgs args =
+          PutObjectArgs.builder()
+              .contentType("application/octet-stream")
+              .bucket(bucketName)
+              .object(key)
+              .stream(new ByteArrayInputStream(data), data.length, -1)
+              .build();
+      fileSystem.getClient().putObject(args);
+      fileSystem.invalidateListCacheForParentOf(bucketName, key);
+    } catch (Exception e) {
+      throw new IOException("MinIO upload failed for " + bucketName + "/" + key, e);
+    } finally {
+      buffer.reset();
     }
   }
 
-  class MinioAsyncTransferRunner implements Runnable {
-    @Override
-    public void run() {
-      try {
-        PutObjectArgs args =
-            PutObjectArgs.builder()
-                .contentType("application/octet-stream")
-                .bucket(bucketName)
-                .object(key)
-                .stream(pipedInputStream, -1, fileSystem.getPartSize())
-                .build();
-        fileSystem.getClient().putObject(args);
-      } catch (Exception e) {
-        // Recorded and re-thrown from close() so the failure is surfaced instead of swallowed.
-        transferError = e;
-      }
-    }
+  public boolean isClosed() {
+    return closed;
   }
 }
