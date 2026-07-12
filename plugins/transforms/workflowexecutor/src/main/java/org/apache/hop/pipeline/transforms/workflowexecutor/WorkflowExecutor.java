@@ -220,10 +220,18 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     Result result = data.executorWorkflow.startExecution();
 
     // First the natural output...
+    // Execution-result rows keep the first input row fields (e.g. filename) and append metrics.
     //
     if (meta.getExecutionResultTargetTransformMeta() != null) {
       Object[] outputRow = RowDataUtil.allocateRowData(data.executionResultsOutputRowMeta.size());
       int idx = 0;
+
+      // Copy fields from the first buffered input row
+      Object[] inputData = data.groupBuffer.get(0).getData();
+      int nrInputFields = data.inputRowMeta.size();
+      for (int i = 0; i < nrInputFields; i++) {
+        outputRow[idx++] = inputData[i];
+      }
 
       if (!Utils.isEmpty(meta.getExecutionTimeField())) {
         outputRow[idx++] = System.currentTimeMillis() - data.groupTimeStart;
