@@ -20,6 +20,7 @@ package org.apache.hop.core.encryption;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -77,7 +78,9 @@ public class Encr {
         registry.findPluginWithId(TwoWayPasswordEncoderPluginType.class, encoderPluginId);
     ITwoWayPasswordEncoder newEncoder;
     if (plugin == null) {
-      LogChannel.GENERAL.logError("Unable to find plugin with ID '" + encoderPluginId + "'");
+      // Do not require HopLogStore: many unit tests call Encr.init without full environment init.
+      logSafely(
+          true, "Unable to find two-way password encoder plugin with ID '" + encoderPluginId + "'");
       newEncoder = new HopTwoWayPasswordEncoder();
     } else {
       newEncoder = (ITwoWayPasswordEncoder) registry.loadClass(plugin);
@@ -87,8 +90,24 @@ public class Encr {
     //
     newEncoder.init(variables);
     encoder = newEncoder;
-    LogChannel.GENERAL.logBasic(
-        "Two-way password encoder initialized with plugin ID '" + encoderPluginId + "'");
+    // Intentionally no success log here: callers with a live log channel (project enable, Set
+    // password encoder action) report the active plugin ID. Logging from Encr itself would break
+    // unit tests that initialize the encoder before HopLogStore is ready.
+  }
+
+  /**
+   * Log only when the central log store is available. Avoids {@code Central Log Store is not
+   * initialized} crashes during lightweight unit-test bootstrap.
+   */
+  private static void logSafely(boolean error, String message) {
+    if (!HopLogStore.isInitialized()) {
+      return;
+    }
+    if (error) {
+      LogChannel.GENERAL.logError(message);
+    } else {
+      LogChannel.GENERAL.logBasic(message);
+    }
   }
 
   /**

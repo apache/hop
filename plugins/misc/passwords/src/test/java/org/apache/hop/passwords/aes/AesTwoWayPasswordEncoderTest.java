@@ -38,12 +38,15 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AesTwoWayPasswordEncoderTest {
 
   private ITwoWayPasswordEncoder encoder;
+
+  private static final String TEST_AES_KEY = "<TheKeyForTheseTestsHere!!>";
 
   private static final String[] TEST_PASSWORDS = {
     "MySillyButGoodPassword!", "", null, "abcd", "${DB_PASSWORD}"
@@ -52,13 +55,21 @@ class AesTwoWayPasswordEncoderTest {
   @BeforeEach
   void setup() throws Exception {
     System.setProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN, "AES");
-    System.setProperty(
-        AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, "<TheKeyForTheseTestsHere!!>");
+    System.setProperty(AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, TEST_AES_KEY);
     System.clearProperty(Const.HOP_AES_ENCODER_KEY_FILE);
     HopEnvironment.init();
     // HopEnvironment.init() only runs once; re-bind the encoder for each test.
     Encr.init("AES");
     encoder = Encr.getEncoder();
+  }
+
+  @AfterEach
+  void tearDown() throws Exception {
+    // Restore a default Hop encoder so other tests in the same Surefire fork are not polluted.
+    System.setProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN, "Hop");
+    System.clearProperty(Const.HOP_AES_ENCODER_KEY);
+    System.clearProperty(Const.HOP_AES_ENCODER_KEY_FILE);
+    Encr.init("Hop");
   }
 
   @Test
@@ -191,9 +202,6 @@ class AesTwoWayPasswordEncoderTest {
       assertEquals(password, Encr.decryptPasswordOptionallyEncrypted(encoded));
     } finally {
       Files.deleteIfExists(keyFile);
-      // Restore setup() system property for other tests if order varies
-      System.setProperty(
-          AesTwoWayPasswordEncoder.VARIABLE_HOP_AES_ENCODER_KEY, "<TheKeyForTheseTestsHere!!>");
     }
   }
 

@@ -101,6 +101,18 @@ public class ProjectsUtil {
     //
     try {
       Encr.initFromVariables(variables);
+      String encoderPluginId =
+          Const.NVL(
+              variables.getVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN),
+              Const.NVL(System.getProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop"));
+      if (log.isBasic()) {
+        log.logBasic(
+            "Two-way password encoder initialized with plugin ID '"
+                + encoderPluginId
+                + "' for project '"
+                + projectName
+                + "'");
+      }
     } catch (HopException e) {
       throw new HopException(
           "Error initializing the two-way password encoder for project '" + projectName + "'", e);
