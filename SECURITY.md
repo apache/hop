@@ -40,9 +40,12 @@ it is not a sandbox. Operators exposing Hop on a network should, at minimum:
 - **Enable TLS** for the Hop Server and sensitive backends (off by default), and
   set `javax.net.ssl.keyStore` so outbound TLS verification is not relaxed.
 - **Protect credentials at rest** with the AES2 password encoder
-  (`HOP_PASSWORD_ENCODER_PLUGIN=AES2` + `HOP_AES_ENCODER_KEY`) or a secrets
-  resolver (Vault / Azure Key Vault / Google Secret Manager); the default
-  metadata password protection is reversible obfuscation, not encryption.
+  (`HOP_PASSWORD_ENCODER_PLUGIN=AES2` + `HOP_AES_ENCODER_KEY` or
+  `HOP_AES_ENCODER_KEY_FILE`) or a secrets resolver (Vault / Azure Key Vault /
+  Google Secret Manager); the default metadata password protection is reversible
+  obfuscation, not encryption. Encoder settings can be supplied per project or
+  environment (re-initialized on project enable) or via the Set password encoder
+  workflow action.
 - **Only run pipelines/workflows from trusted authors**, and parameterize any
   variable that may carry untrusted data.
 

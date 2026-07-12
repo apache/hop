@@ -18,6 +18,7 @@
 package org.apache.hop.core.encryption;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 
 public interface ITwoWayPasswordEncoder {
 
@@ -28,6 +29,17 @@ public interface ITwoWayPasswordEncoder {
    * @throws HopException
    */
   void init() throws HopException;
+
+  /**
+   * Initialize the password encoder using the given variable space (for example project or
+   * environment variables). Default implementation delegates to {@link #init()}.
+   *
+   * @param variables variables to resolve key material and related options from
+   * @throws HopException when initialization fails
+   */
+  default void init(IVariables variables) throws HopException {
+    init();
+  }
 
   /**
    * Encode the raw password, include a prefix indicating the type of encryption used.
