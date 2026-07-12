@@ -43,6 +43,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -161,6 +162,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private Tree wBrowser;
   private TreeEditor wBrowserEditor;
 
+  /** search file/folder */
+  private String filterText = "";
+
+  private SearchMatcher filterMatcher = new SearchMatcher("", false, false, true);
+
   @Setter @Getter private boolean showingHiddenFiles;
 
   private Shell shell;
@@ -275,6 +281,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   @Override
   public String open() {
+
     shell =
         new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
     PropsUi.setLook(shell);
@@ -482,15 +489,45 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdTreeComposite.bottom = new FormAttachment(100, 0);
     browserComposite.setLayoutData(fdTreeComposite);
 
-    // A toolbar above the browser, below the filename
+    // Toolbar row: action buttons on the left, file search on the right
+    Composite browserToolBarRow = new Composite(browserComposite, SWT.NONE);
+    PropsUi.setLook(browserToolBarRow);
+    FormLayout toolBarRowLayout = new FormLayout();
+    toolBarRowLayout.marginWidth = 0;
+    toolBarRowLayout.marginHeight = 0;
+    browserToolBarRow.setLayout(toolBarRowLayout);
+
+    FormData fdBrowserToolBarRow = new FormData();
+    fdBrowserToolBarRow.left = new FormAttachment(0, 0);
+    fdBrowserToolBarRow.top = new FormAttachment(0, 0);
+    fdBrowserToolBarRow.right = new FormAttachment(100, 0);
+    browserToolBarRow.setLayoutData(fdBrowserToolBarRow);
+
+    Text wSearchText = new Text(browserToolBarRow, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
+    wSearchText.setMessage(BaseMessages.getString(PKG, "HopVfsFileDialog.Search.Placeholder"));
+    PropsUi.setLook(wSearchText, Props.WIDGET_STYLE_TOOLBAR);
+    FormData fdSearchText = new FormData();
+    fdSearchText.right = new FormAttachment(100, 0);
+    fdSearchText.top = new FormAttachment(0, 0);
+    fdSearchText.width = (int) (260 * props.getZoomFactor());
+    wSearchText.setLayoutData(fdSearchText);
+    wSearchText.addListener(
+        SWT.Modify,
+        e -> {
+          String searchContent = wSearchText.getText();
+          filterText = searchContent != null ? searchContent.trim() : "";
+          filterMatcher = new SearchMatcher(filterText, false, false, true);
+          refreshBrowser();
+        });
+
     IToolbarContainer browserToolBarContainer =
         ToolbarFacade.createToolbarContainer(
-            browserComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+            browserToolBarRow, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     Control browserToolBar = browserToolBarContainer.getControl();
     FormData fdBrowserToolBar = new FormData();
     fdBrowserToolBar.left = new FormAttachment(0, 0);
     fdBrowserToolBar.top = new FormAttachment(0, 0);
-    fdBrowserToolBar.right = new FormAttachment(100, 0);
+    fdBrowserToolBar.right = new FormAttachment(wSearchText, -PropsUi.getMargin());
     browserToolBar.setLayoutData(fdBrowserToolBar);
     PropsUi.setLook(browserToolBar, Props.WIDGET_STYLE_TOOLBAR);
 
@@ -504,7 +541,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     wBrowser = new HopTree(browseSash, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.setLook(wBrowser);
     wBrowser.setHeaderVisible(true);
-    wBrowser.setLinesVisible(false); // TODO needed?
+    wBrowser.setLinesVisible(false);
 
     TreeColumn folderColumn = new TreeColumn(wBrowser, SWT.LEFT);
     folderColumn.setText(BaseMessages.getString(PKG, "HopVfsFileDialog.Folder.Name.Label"));
@@ -560,13 +597,13 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     FormData fdBrowseSash = new FormData();
     fdBrowseSash.left = new FormAttachment(0, 0);
     fdBrowseSash.right = new FormAttachment(100, 0);
-    fdBrowseSash.top = new FormAttachment(browserToolBar, 0);
+    fdBrowseSash.top = new FormAttachment(browserToolBarRow, 0);
     fdBrowseSash.bottom = new FormAttachment(100, 0);
 
     browseSash.setLayoutData(fdBrowseSash);
-    browseSash.setWeights(new int[] {90, 10});
+    browseSash.setWeights(90, 10);
 
-    sashForm.setWeights(new int[] {15, 85});
+    sashForm.setWeights(15, 85);
 
     getData();
 
@@ -992,6 +1029,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         if (!showingHiddenFiles && baseFilename.startsWith(".")) {
           continue;
         }
+        if (shouldFilterOut(baseFilename)) {
+          continue;
+        }
         TreeItem childFolderItem = new TreeItem(folderItem, SWT.NONE);
         childFolderItem.setImage(folderImage);
         childFolderItem.setText(child.getName().getBaseName());
@@ -1003,6 +1043,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         if (child.isFile()) {
           String baseFilename = child.getName().getBaseName();
           if (!showingHiddenFiles && baseFilename.startsWith(".")) {
+            continue;
+          }
+          if (shouldFilterOut(baseFilename)) {
             continue;
           }
 
@@ -1043,6 +1086,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         }
       }
     }
+  }
+
+  /** Case-insensitive filename filter for the current folder listing. */
+  private boolean shouldFilterOut(String name) {
+    return !Utils.isEmpty(filterText) && !filterMatcher.matches(name);
   }
 
   private Image getFileImage(FileObject file) {
