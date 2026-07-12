@@ -28,6 +28,7 @@ import org.apache.hop.history.AuditState;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -49,7 +50,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
@@ -330,29 +330,49 @@ public class ConfigGuiOptionsTab {
     // Expand all / Collapse all buttons for the sections below
     Composite wExpandButtons = new Composite(wLookComp, SWT.NONE);
     PropsUi.setLook(wExpandButtons);
-    wExpandButtons.setLayout(new RowLayout(SWT.HORIZONTAL));
+    FormLayout expandButtonsLayout = new FormLayout();
+    expandButtonsLayout.marginWidth = 0;
+    expandButtonsLayout.marginHeight = 0;
+    wExpandButtons.setLayout(expandButtonsLayout);
+
+    int buttonSize = (int) (34 * PropsUi.getNativeZoomFactor());
     FormData fdExpandButtons = new FormData();
     fdExpandButtons.left = new FormAttachment(0, 0);
     fdExpandButtons.top = new FormAttachment(0, margin);
+    fdExpandButtons.height = buttonSize;
     wExpandButtons.setLayoutData(fdExpandButtons);
-
-    int iconSize = (int) (PropsUi.getInstance().getZoomFactor() * 24);
 
     Button wExpandAll = new Button(wExpandButtons, SWT.PUSH);
     PropsUi.setLook(wExpandAll);
     wExpandAll.setImage(
-        GuiResource.getInstance().getImage("ui/images/expand-all.svg", iconSize, iconSize));
+        GuiResource.getInstance()
+            .getImage(
+                "ui/images/expand-all.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     wExpandAll.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.ExpandAll.Tooltip"));
     wExpandAll.addListener(SWT.Selection, e -> setAllSectionsExpanded(wLookComp, sLookComp, true));
+    FormData fdExpandAll = new FormData();
+    fdExpandAll.width = buttonSize;
+    fdExpandAll.height = buttonSize;
+    fdExpandAll.left = new FormAttachment(0, 0);
+    fdExpandAll.top = new FormAttachment(0, 0);
+    wExpandAll.setLayoutData(fdExpandAll);
 
     Button wCollapseAll = new Button(wExpandButtons, SWT.PUSH);
     PropsUi.setLook(wCollapseAll);
     wCollapseAll.setImage(
-        GuiResource.getInstance().getImage("ui/images/collapse-all.svg", iconSize, iconSize));
+        GuiResource.getInstance()
+            .getImage(
+                "ui/images/collapse-all.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     wCollapseAll.setToolTipText(
         BaseMessages.getString(PKG, "EnterOptionsDialog.CollapseAll.Tooltip"));
     wCollapseAll.addListener(
         SWT.Selection, e -> setAllSectionsExpanded(wLookComp, sLookComp, false));
+    FormData fdCollapseAll = new FormData();
+    fdCollapseAll.width = buttonSize;
+    fdCollapseAll.height = buttonSize;
+    fdCollapseAll.left = new FormAttachment(wExpandAll, margin);
+    fdCollapseAll.top = new FormAttachment(0, 0);
+    wCollapseAll.setLayoutData(fdCollapseAll);
     lastControl = wExpandButtons;
 
     // Preferred language - at the top
