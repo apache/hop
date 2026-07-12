@@ -815,6 +815,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         {
           String val = hopType.getString(hopValue);
           if (hopValueIsJSON) {
+            // Wrap so BSON 5.x can decode extended JSON scalars (e.g. {"$oid":"..."})
+            // that are not top-level documents. See https://github.com/apache/hop/issues/7183
             valueToSet = Document.parse("{\"value\":" + val + "}").get("value");
           } else {
             valueToSet = val;

@@ -260,6 +260,7 @@ class MongoDbOutputDataTest {
 
   @Test
   void testGetQueryObjectWithIncomingObjectIdJson() throws HopException {
+    // Regression for #7183: extended JSON ObjectId as match field with json_field=Y
     MongoDbOutputMeta.MongoField field = new MongoDbOutputMeta.MongoField();
     field.inputJson = true;
     field.updateMatchField = true;
