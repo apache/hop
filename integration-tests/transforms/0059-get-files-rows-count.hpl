@@ -65,8 +65,29 @@ limitations under the License.
     <filename_Field/>
     <smartCount>Y</smartCount>
     <file>
-      <name>${PROJECT_HOME}/files/</name>
-      <filemask>.*\.txt$</filemask>
+      <name>${PROJECT_HOME}/files/customers-100.txt</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <file>
+      <name>${PROJECT_HOME}/files/sample-file1.txt</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <file>
+      <name>${PROJECT_HOME}/files/sample-file2.txt</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <file>
+      <name>${PROJECT_HOME}/files/sample-file3.txt</name>
+      <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>

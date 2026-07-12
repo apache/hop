@@ -149,6 +149,7 @@
         <module>streamschemamerge</module>
         <module>stringcut</module>
         <module>stringoperations</module>
+        <module>surefirereport</module>
         <module>switchcase</module>
         <module>synchronizeaftermerge</module>
         <module>systemdata</module>

@@ -286,9 +286,8 @@ public class WorkflowExecutorMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    row.clear();
-
     if (nextTransform != null && nextTransform.equals(resultRowsTargetTransformMeta)) {
+      row.clear();
       for (WorkflowExecutorResultRows workflowExecutorResultRows : resultRowsField) {
         IValueMeta value;
         try {
@@ -303,71 +302,96 @@ public class WorkflowExecutorMeta
           value.setLength(
               workflowExecutorResultRows.getLength(), workflowExecutorResultRows.getPrecision());
         }
+        value.setOrigin(origin);
         row.addValueMeta(value);
       }
     } else if (nextTransform != null && nextTransform.equals(resultFilesTargetTransformMeta)) {
+      row.clear();
       if (!Utils.isEmpty(resultFilesFileNameField)) {
         IValueMeta value = new ValueMetaString("filename", 255, 0);
+        value.setOrigin(origin);
         row.addValueMeta(value);
       }
     } else if (nextTransform != null && nextTransform.equals(executionResultTargetTransformMeta)) {
-      if (!Utils.isEmpty(executionTimeField)) {
-        IValueMeta value = new ValueMetaInteger(executionTimeField, 15, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionResultField)) {
-        IValueMeta value = new ValueMetaBoolean(executionResultField);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionNrErrorsField)) {
-        IValueMeta value = new ValueMetaInteger(executionNrErrorsField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLinesReadField)) {
-        IValueMeta value = new ValueMetaInteger(executionLinesReadField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLinesWrittenField)) {
-        IValueMeta value = new ValueMetaInteger(executionLinesWrittenField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLinesInputField)) {
-        IValueMeta value = new ValueMetaInteger(executionLinesInputField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLinesOutputField)) {
-        IValueMeta value = new ValueMetaInteger(executionLinesOutputField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLinesRejectedField)) {
-        IValueMeta value = new ValueMetaInteger(executionLinesRejectedField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLinesUpdatedField)) {
-        IValueMeta value = new ValueMetaInteger(executionLinesUpdatedField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLinesDeletedField)) {
-        IValueMeta value = new ValueMetaInteger(executionLinesDeletedField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionFilesRetrievedField)) {
-        IValueMeta value = new ValueMetaInteger(executionFilesRetrievedField, 9, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionExitStatusField)) {
-        IValueMeta value = new ValueMetaInteger(executionExitStatusField, 3, 0);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLogTextField)) {
-        IValueMeta value = new ValueMetaString(executionLogTextField);
-        value.setLargeTextField(true);
-        row.addValueMeta(value);
-      }
-      if (!Utils.isEmpty(executionLogChannelIdField)) {
-        IValueMeta value = new ValueMetaString(executionLogChannelIdField, 50, 0);
-        row.addValueMeta(value);
-      }
+      // Keep the incoming fields (e.g. filename from Get File Names) and append execution metrics.
+      addExecutionResultFields(row, origin);
+    } else {
+      row.clear();
+    }
+  }
+
+  /** Append execution-result value metas to the given row meta (does not clear existing fields). */
+  void addExecutionResultFields(IRowMeta row, String origin) {
+    if (!Utils.isEmpty(executionTimeField)) {
+      IValueMeta value = new ValueMetaInteger(executionTimeField, 15, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionResultField)) {
+      IValueMeta value = new ValueMetaBoolean(executionResultField);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionNrErrorsField)) {
+      IValueMeta value = new ValueMetaInteger(executionNrErrorsField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLinesReadField)) {
+      IValueMeta value = new ValueMetaInteger(executionLinesReadField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLinesWrittenField)) {
+      IValueMeta value = new ValueMetaInteger(executionLinesWrittenField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLinesInputField)) {
+      IValueMeta value = new ValueMetaInteger(executionLinesInputField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLinesOutputField)) {
+      IValueMeta value = new ValueMetaInteger(executionLinesOutputField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLinesRejectedField)) {
+      IValueMeta value = new ValueMetaInteger(executionLinesRejectedField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLinesUpdatedField)) {
+      IValueMeta value = new ValueMetaInteger(executionLinesUpdatedField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLinesDeletedField)) {
+      IValueMeta value = new ValueMetaInteger(executionLinesDeletedField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionFilesRetrievedField)) {
+      IValueMeta value = new ValueMetaInteger(executionFilesRetrievedField, 9, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionExitStatusField)) {
+      IValueMeta value = new ValueMetaInteger(executionExitStatusField, 3, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLogTextField)) {
+      IValueMeta value = new ValueMetaString(executionLogTextField);
+      value.setLargeTextField(true);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
+    }
+    if (!Utils.isEmpty(executionLogChannelIdField)) {
+      IValueMeta value = new ValueMetaString(executionLogChannelIdField, 50, 0);
+      value.setOrigin(origin);
+      row.addValueMeta(value);
     }
   }
 

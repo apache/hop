@@ -31,6 +31,13 @@ if [ -z "${SUREFIRE_REPORT}" ]; then
   SUREFIRE_REPORT="true"
 fi
 
+# When false/unset (default), run all main-*.hwf tests in a single hop-run JVM via
+# run-project-tests.hpl. Set HOP_IT_PER_TEST_JVM=true to restore the classic isolation model
+# (one hop-run process per main workflow).
+if [ -z "${HOP_IT_PER_TEST_JVM}" ]; then
+  HOP_IT_PER_TEST_JVM="false"
+fi
+
 # Install any JDBC drivers required by this test set, using the Hop driver-download CLI.
 # Driven by HOP_DRIVERS_DOWNLOAD (comma separated driver ids, each optionally with a version, e.g.
 # "vertica,mysql:9.2.0"), set per test in the integration-tests-*.yaml compose files. Restricted
@@ -127,6 +134,25 @@ mkdir -p "${HOP_AUDIT_FOLDER}"
 # Store current HOP_CONFIG_FOLDER
 TMP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}"
 
+SUREFIRE_DIR="$(cd "${CURRENT_DIR}/../surefire-reports" && pwd)"
+RUNNER_PIPELINE="${CURRENT_DIR}/run-project-tests.hpl"
+
+# Shared hop-run parameters for both single-JVM and per-test modes
+HOP_RUN_COMMON_ARGS=(
+  -r "local"
+  -e "dev"
+  -p "POSTGRES_HOST=${POSTGRES_HOST}"
+  -p "POSTGRES_DATABASE=${POSTGRES_DATABASE}"
+  -p "POSTGRES_PORT=${POSTGRES_PORT}"
+  -p "POSTGRES_USER=${POSTGRES_USER}"
+  -p "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+  -p "SSH_TUNNEL_HOST=${SSH_TUNNEL_HOST}"
+  -p "SSH_TUNNEL_PORT=${SSH_TUNNEL_PORT}"
+  -p "SSH_TUNNEL_USER=${SSH_TUNNEL_USER}"
+  -p "SSH_TUNNEL_PASSWORD=${SSH_TUNNEL_PASSWORD}"
+  -p "BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS}"
+)
+
 #Loop over project folders
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   #cleanup project testcases
@@ -145,117 +171,158 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       skipped_counter=0
       failures_counter=0
 
-      PROJECT_NAME=$(basename $d)
+      PROJECT_NAME=$(basename "$d")
 
       echo ${SPACER}
       echo "Starting Tests in project: ${PROJECT_NAME}"
       echo ${SPACER}
 
-      # Increment timer and set test start time
-      test_counter=$((test_counter + 1))
-
       # Create New Project
       export HOP_CONFIG_FOLDER="$d"
 
-      # Find main hwf files in the test sub-folder
-      #
-      # TODO: add hpl support when result is returned correctly
-      #
-      find $d -name 'main*.hwf' | sort | while read f; do
+      # Prefer single-JVM suite runner when available (unless isolation mode is requested)
+      if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -f "${RUNNER_PIPELINE}" ]; then
 
-        #cleanup temp files
-        rm -f /tmp/test_output
-        rm -f /tmp/test_output_err
-
-        #set file and test name
-        hop_file="$(realpath $f)"
-        test_name=$(basename $f)
-        test_name=${test_name//'main_'/}
-        test_name=${test_name//'main-'/}
-        test_name=${test_name//'.hwf'/}
-
-        #Starting Test
         echo ${SPACER}
-        echo "Starting Test: $test_name"
+        echo "Running project tests in single JVM via run-project-tests.hpl"
         echo ${SPACER}
 
-        #Start time test
         start_time_test=$SECONDS
 
-        #Run Test
         $HOP_LOCATION/hop-run.sh \
-          -r "local" \
-          -e "dev" \
-          -p POSTGRES_HOST=${POSTGRES_HOST} \
-          -p POSTGRES_DATABASE=${POSTGRES_DATABASE} \
-          -p POSTGRES_PORT=${POSTGRES_PORT} \
-          -p POSTGRES_USER=${POSTGRES_USER} \
-          -p POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-          -p SSH_TUNNEL_HOST=${SSH_TUNNEL_HOST} \
-          -p SSH_TUNNEL_PORT=${SSH_TUNNEL_PORT} \
-          -p SSH_TUNNEL_USER=${SSH_TUNNEL_USER} \
-          -p SSH_TUNNEL_PASSWORD=${SSH_TUNNEL_PASSWORD} \
-          -p BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS} \
-          -f $hop_file > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+          "${HOP_RUN_COMMON_ARGS[@]}" \
+          -p "PROJECT_NAME=${PROJECT_NAME}" \
+          -p "IT_SUREFIRE_DIR=${SUREFIRE_DIR}" \
+          -f "${RUNNER_PIPELINE}" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
 
-        #Capture exit code
         exit_code=${PIPESTATUS[0]}
-
-        #Test time duration
         test_duration=$((SECONDS - start_time_test))
+        total_duration=$((SECONDS - start_time))
 
         if (($exit_code >= 1)); then
-          errors_counter=$((errors_counter + 1))
-          failures_counter=$((failures_counter + 1))
-          #Write single line to overview file
-          echo $test_name >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
-          #Create surefire xml failure
-          echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
-          echo "<failure type=\"$test_name\"></failure>" >>${TMP_TESTCASES}
-          echo "<system-out>" >>${TMP_TESTCASES}
-          echo "<![CDATA[" >>${TMP_TESTCASES}
-          cat /tmp/test_output >>${TMP_TESTCASES}
-          echo "]]>" >>${TMP_TESTCASES}
-          echo "</system-out>" >>${TMP_TESTCASES}
-          echo "<system-err>" >>${TMP_TESTCASES}
-          echo "<![CDATA[" >>${TMP_TESTCASES}
-          cat /tmp/test_output_err >>${TMP_TESTCASES}
-          echo "]]>" >>${TMP_TESTCASES}
-          echo "</system-err>" >>${TMP_TESTCASES}
-          echo "</testcase>" >>${TMP_TESTCASES}
-
+          errors_counter=1
+          failures_counter=1
+          echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
         else
-          #Write single line to overview file
-          echo $test_name >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
-          #Create surefire xml success
-          echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
-          echo "<system-out>" >>${TMP_TESTCASES}
-          echo "<![CDATA[" >>${TMP_TESTCASES}
-          cat /tmp/test_output >>${TMP_TESTCASES}
-          echo "]]>" >>${TMP_TESTCASES}
-          echo "</system-out>" >>${TMP_TESTCASES}
-          echo "</testcase>" >>${TMP_TESTCASES}
+          echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
         fi
 
-        #Print results to console
         echo ${SPACER}
-        echo "Test Result"
+        echo "Project suite result"
         echo ${SPACER}
-        echo "Test duration: $test_duration"
-        echo "Test Exit Code: $exit_code"
+        echo "Duration: $test_duration"
+        echo "Exit Code: $exit_code"
 
-      done
+        # Surefire XML is written by the Surefire Report Output transform.
+        # If the transform never ran (startup failure), write a minimal failure suite.
+        if [ "${SUREFIRE_REPORT}" = "true" ]; then
+          if [ ! -f "${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml" ]; then
+            echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            echo "<testcase name=\"suite_startup\" time=\"$test_duration\"><failure type=\"suite_startup\"></failure><system-out><![CDATA[" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            cat /tmp/test_output >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            echo "]]></system-out><system-err><![CDATA[" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            cat /tmp/test_output_err >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+            echo "]]></system-err></testcase></testsuite>" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+          fi
+        fi
 
-      total_duration=$((SECONDS - start_time))
+      else
 
-      #create final report
-      if [ "${SUREFIRE_REPORT}" = "true" ]; then
+        # Classic path: one hop-run JVM per main-*.hwf
+        #
+        find "$d" -name 'main*.hwf' | sort | while read -r f; do
 
-        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-        echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"$test_counter\" errors=\"$errors_counter\" skipped=\"$skipped_counter\" failures=\"$failures_counter\">" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-        cat ${TMP_TESTCASES} >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-        echo "</testsuite>" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+          #cleanup temp files
+          rm -f /tmp/test_output
+          rm -f /tmp/test_output_err
 
+          #set file and test name
+          hop_file="$(realpath "$f")"
+          test_name=$(basename "$f")
+          test_name=${test_name//'main_'/}
+          test_name=${test_name//'main-'/}
+          test_name=${test_name//'.hwf'/}
+
+          #Starting Test
+          echo ${SPACER}
+          echo "Starting Test: $test_name"
+          echo ${SPACER}
+
+          #Start time test
+          start_time_test=$SECONDS
+
+          #Run Test
+          $HOP_LOCATION/hop-run.sh \
+            "${HOP_RUN_COMMON_ARGS[@]}" \
+            -f "$hop_file" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+
+          #Capture exit code
+          exit_code=${PIPESTATUS[0]}
+
+          #Test time duration
+          test_duration=$((SECONDS - start_time_test))
+
+          if (($exit_code >= 1)); then
+            #Write single line to overview file
+            echo "$test_name" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
+            #Create surefire xml failure
+            echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
+            echo "<failure type=\"$test_name\"></failure>" >>${TMP_TESTCASES}
+            echo "<system-out>" >>${TMP_TESTCASES}
+            echo "<![CDATA[" >>${TMP_TESTCASES}
+            cat /tmp/test_output >>${TMP_TESTCASES}
+            echo "]]>" >>${TMP_TESTCASES}
+            echo "</system-out>" >>${TMP_TESTCASES}
+            echo "<system-err>" >>${TMP_TESTCASES}
+            echo "<![CDATA[" >>${TMP_TESTCASES}
+            cat /tmp/test_output_err >>${TMP_TESTCASES}
+            echo "]]>" >>${TMP_TESTCASES}
+            echo "</system-err>" >>${TMP_TESTCASES}
+            echo "</testcase>" >>${TMP_TESTCASES}
+
+          else
+            #Write single line to overview file
+            echo "$test_name" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
+            #Create surefire xml success
+            echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >>${TMP_TESTCASES}
+            echo "<system-out>" >>${TMP_TESTCASES}
+            echo "<![CDATA[" >>${TMP_TESTCASES}
+            cat /tmp/test_output >>${TMP_TESTCASES}
+            echo "]]>" >>${TMP_TESTCASES}
+            echo "</system-out>" >>${TMP_TESTCASES}
+            echo "</testcase>" >>${TMP_TESTCASES}
+          fi
+
+          #Print results to console
+          echo ${SPACER}
+          echo "Test Result"
+          echo ${SPACER}
+          echo "Test duration: $test_duration"
+          echo "Test Exit Code: $exit_code"
+
+        done
+
+        total_duration=$((SECONDS - start_time))
+
+        #create final report
+        if [ "${SUREFIRE_REPORT}" = "true" ]; then
+
+          # Count testcases written (subshell-safe)
+          if [ -f "${TMP_TESTCASES}" ]; then
+            test_counter=$(grep -c '<testcase ' "${TMP_TESTCASES}" || true)
+            failures_counter=$(grep -c '<failure ' "${TMP_TESTCASES}" || true)
+            errors_counter=${failures_counter}
+          fi
+
+          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+          echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"$total_duration\" tests=\"$test_counter\" errors=\"$errors_counter\" skipped=\"$skipped_counter\" failures=\"$failures_counter\">" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+          if [ -f "${TMP_TESTCASES}" ]; then
+            cat ${TMP_TESTCASES} >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+          fi
+          echo "</testsuite>" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+
+        fi
       fi
     fi
   fi
