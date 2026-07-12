@@ -23,7 +23,8 @@ Installation Instruction:
     - Have a recent Java 17 Runtime
     
 Windows:
-    - To start the GUI run hop-gui.bat
+    - To start the GUI run hop-gui.bat (keeps a console window open for log output)
+    - To start the GUI without a console window run hop-gui-nolog.bat
 
 OS X / Linux:
     - To start the GUI run hop-gui.sh
