@@ -35,6 +35,7 @@ for ARGUMENT in "$@"; do
   JENKINS_GID) JENKINS_GID=${VALUE} ;;
   GCP_KEY_FILE) GCP_KEY_FILE=${VALUE} ;;
   KEEP_IMAGES) KEEP_IMAGES=${VALUE} ;;
+  CLIENT_UNZIP) CLIENT_UNZIP=${VALUE} ;;
   *) ;;
   esac
 
@@ -76,13 +77,31 @@ if [ -z "${KEEP_IMAGES}" ]; then
   KEEP_IMAGES="false"
 fi
 
+# Unzip the client zip into assemblies/client/target/hop by default. Set CLIENT_UNZIP=false to
+# skip when target/hop already exists (e.g. after patching a single plugin jar).
+if [ -z "${CLIENT_UNZIP}" ]; then
+  CLIENT_UNZIP="true"
+fi
+
 # Cleanup surefire reports
 rm -rf "${CURRENT_DIR}"/../surefire-reports
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 chmod 777 "${CURRENT_DIR}"/../surefire-reports/
 
-# Unzip Hop
-unzip -o -q "${CURRENT_DIR}/../../assemblies/client/target/*.zip" -d ${CURRENT_DIR}/../../assemblies/client/target/
+HOP_CLIENT_TARGET_DIR="${CURRENT_DIR}/../../assemblies/client/target"
+HOP_DIR="${HOP_CLIENT_TARGET_DIR}/hop"
+
+# Unzip Hop client unless skipped and a usable hop folder is already present
+if [ "${CLIENT_UNZIP}" = "true" ] || [ ! -d "${HOP_DIR}" ]; then
+  if [ "${CLIENT_UNZIP}" != "true" ] && [ ! -d "${HOP_DIR}" ]; then
+    echo "CLIENT_UNZIP=${CLIENT_UNZIP} but ${HOP_DIR} does not exist; unzipping client zip"
+  else
+    echo "Unzipping Hop client into ${HOP_CLIENT_TARGET_DIR} (CLIENT_UNZIP=${CLIENT_UNZIP})"
+  fi
+  unzip -o -q "${HOP_CLIENT_TARGET_DIR}"/*.zip -d "${HOP_CLIENT_TARGET_DIR}/"
+else
+  echo "Skipping client unzip (CLIENT_UNZIP=${CLIENT_UNZIP}, using existing ${HOP_DIR})"
+fi
 
 # Build base image only once
 docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}

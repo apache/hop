@@ -370,12 +370,20 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
   @Override
   public void createFile() throws FileSystemException {
     try {
-      OutputStream os = doGetOutputStream(false);
-
-      // Open and close it to create an empty file.
-      os.close();
+      // Create an empty object directly. Do not go through doGetOutputStream(): HopVfs always
+      // calls createFile() then getOutputStream(), and reusing a stream that createFile already
+      // closed left empty objects and "already closed" errors on the real write path.
+      PutObjectArgs args =
+          PutObjectArgs.builder()
+              .bucket(bucketName)
+              .object(key)
+              .contentType("application/octet-stream")
+              .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
+              .build();
+      fileSystem.getClient().putObject(args);
+      fileSystem.invalidateListCacheForParentOf(bucketName, key);
+      // Force re-attach so subsequent size/type reads are not stuck on IMAGINARY.
       closeMinio();
-      // Update the metadata
       doAttach();
     } catch (Exception e) {
       throw new FileSystemException("error creating file", e);
@@ -384,11 +392,8 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   public OutputStream doGetOutputStream(boolean bAppend) throws Exception {
-    if (outputStream != null) {
-      // createFile() already built the output stream.
-      return outputStream;
-    }
-
+    // Always hand out a fresh stream. Do not close any previous stream here: HopVfs may still be
+    // wrapping it, and closing early left empty objects after createFile()+getOutputStream().
     outputStream = new MinioPipedOutputStream(fileSystem, bucketName, key);
     return outputStream;
   }

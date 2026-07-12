@@ -17,76 +17,72 @@
 
 package org.apache.hop.vfs.minio.util;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.io.InputStream;
 import org.apache.hop.vfs.minio.MinioFileSystem;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 /**
- * Regression guard for the MinIO VFS write-path forever-hang — same fix shape as {@code
- * S3CommonPipedOutputStream}: {@link MinioPipedOutputStream#close()} now joins the uploader thread
- * interruptibly and surfaces upload failures instead of polling forever and swallowing them.
+ * Regression guard for MinIO VFS writes: content must be uploaded with a known length (no
+ * pipe+unknown-size races) and upload failures must surface from {@code close()}.
  */
 class MinioPipedOutputStreamTest {
 
   @Test
-  void closeIsInterruptibleWhenPutObjectStalls() throws Exception {
-    CountDownLatch putEntered = new CountDownLatch(1);
-    CountDownLatch release = new CountDownLatch(1); // models a stalled MinIO endpoint
-
+  void closeUploadsBufferedContentWithKnownLength() throws Exception {
     MinioClient client = mock(MinioClient.class);
-    when(client.putObject(any(PutObjectArgs.class)))
-        .thenAnswer(
-            inv -> {
-              putEntered.countDown();
-              release.await();
-              return null;
-            });
+    when(client.putObject(any(PutObjectArgs.class))).thenReturn(null);
 
     MinioFileSystem fileSystem = mock(MinioFileSystem.class);
     when(fileSystem.getClient()).thenReturn(client);
-    when(fileSystem.getPartSize()).thenReturn(5L * 1024 * 1024);
 
-    MinioPipedOutputStream out = new MinioPipedOutputStream(fileSystem, "test-bucket", "test-key");
+    MinioPipedOutputStream out =
+        new MinioPipedOutputStream(fileSystem, "test-bucket", "path/file.txt");
+    byte[] payload = "hello-minio".getBytes();
+    out.write(payload);
+    out.close();
 
-    Thread closer =
-        new Thread(
-            () -> {
-              try {
-                out.close();
-              } catch (Exception ignored) {
-                // InterruptedIOException expected once we interrupt
-              }
-            },
-            "minio-piped-closer");
-    closer.setDaemon(true);
-    closer.start();
+    ArgumentCaptor<PutObjectArgs> argsCaptor = ArgumentCaptor.forClass(PutObjectArgs.class);
+    verify(client).putObject(argsCaptor.capture());
+    PutObjectArgs args = argsCaptor.getValue();
+    assertEquals("test-bucket", args.bucket());
+    assertEquals("path/file.txt", args.object());
+    assertEquals(payload.length, args.objectSize());
 
-    try {
-      assertTrue(putEntered.await(5, TimeUnit.SECONDS), "background putObject should have started");
-
-      closer.join(1500);
-      assertTrue(closer.isAlive(), "close() should still be waiting for the in-progress upload");
-
-      closer.interrupt();
-      closer.join(3000);
-      assertFalse(
-          closer.isAlive(),
-          "close() did not respond to interruption — the uninterruptible forever-hang has been "
-              + "reintroduced");
-    } finally {
-      release.countDown();
+    try (InputStream stream = args.stream()) {
+      assertArrayEquals(payload, stream.readAllBytes());
     }
+
+    verify(fileSystem).invalidateListCacheForParentOf(eq("test-bucket"), eq("path/file.txt"));
+  }
+
+  @Test
+  void closeWithNoWritesUploadsEmptyObject() throws Exception {
+    MinioClient client = mock(MinioClient.class);
+    when(client.putObject(any(PutObjectArgs.class))).thenReturn(null);
+
+    MinioFileSystem fileSystem = mock(MinioFileSystem.class);
+    when(fileSystem.getClient()).thenReturn(client);
+
+    MinioPipedOutputStream out = new MinioPipedOutputStream(fileSystem, "bucket", "empty.txt");
+    out.close();
+
+    ArgumentCaptor<PutObjectArgs> argsCaptor = ArgumentCaptor.forClass(PutObjectArgs.class);
+    verify(client).putObject(argsCaptor.capture());
+    assertEquals(0L, argsCaptor.getValue().objectSize());
   }
 
   @Test
@@ -97,7 +93,6 @@ class MinioPipedOutputStreamTest {
 
     MinioFileSystem fileSystem = mock(MinioFileSystem.class);
     when(fileSystem.getClient()).thenReturn(client);
-    when(fileSystem.getPartSize()).thenReturn(5L * 1024 * 1024);
 
     MinioPipedOutputStream out = new MinioPipedOutputStream(fileSystem, "test-bucket", "test-key");
     out.write(new byte[] {1, 2, 3});
@@ -106,5 +101,69 @@ class MinioPipedOutputStreamTest {
         IOException.class,
         out::close,
         "a failed MinIO upload must be reported from close(), not silently swallowed");
+  }
+
+  @Test
+  void writeAfterCloseIsAcceptedAndUploadedOnNextClose() throws Exception {
+    // Nested VFS/Text File Output close chains may flush after the first close; late bytes must
+    // still be uploaded on a subsequent close().
+    MinioClient client = mock(MinioClient.class);
+    when(client.putObject(any(PutObjectArgs.class))).thenReturn(null);
+
+    MinioFileSystem fileSystem = mock(MinioFileSystem.class);
+    when(fileSystem.getClient()).thenReturn(client);
+
+    MinioPipedOutputStream out = new MinioPipedOutputStream(fileSystem, "test-bucket", "key");
+    out.close(); // first close uploads empty
+
+    out.write(new byte[] {1, 2, 3});
+    out.close(); // second close uploads the late bytes
+
+    // first empty + second with content
+    verify(client, org.mockito.Mockito.times(2)).putObject(any(PutObjectArgs.class));
+  }
+
+  @Test
+  void closeIsIdempotent() throws Exception {
+    MinioClient client = mock(MinioClient.class);
+    when(client.putObject(any(PutObjectArgs.class))).thenReturn(null);
+
+    MinioFileSystem fileSystem = mock(MinioFileSystem.class);
+    when(fileSystem.getClient()).thenReturn(client);
+
+    MinioPipedOutputStream out = new MinioPipedOutputStream(fileSystem, "test-bucket", "key");
+    out.write(new byte[] {9});
+    out.close();
+    out.close(); // second close must not re-upload or throw
+
+    verify(client).putObject(any(PutObjectArgs.class));
+  }
+
+  @Test
+  void largeWriteIsFullyUploaded() throws Exception {
+    MinioClient client = mock(MinioClient.class);
+    when(client.putObject(any(PutObjectArgs.class))).thenReturn(null);
+
+    MinioFileSystem fileSystem = mock(MinioFileSystem.class);
+    when(fileSystem.getClient()).thenReturn(client);
+
+    byte[] payload = new byte[256 * 1024];
+    for (int i = 0; i < payload.length; i++) {
+      payload[i] = (byte) (i % 251);
+    }
+
+    MinioPipedOutputStream out = new MinioPipedOutputStream(fileSystem, "test-bucket", "large.bin");
+    out.write(payload);
+    out.close();
+
+    ArgumentCaptor<PutObjectArgs> argsCaptor = ArgumentCaptor.forClass(PutObjectArgs.class);
+    verify(client).putObject(argsCaptor.capture());
+    assertEquals(payload.length, argsCaptor.getValue().objectSize());
+
+    try (InputStream stream = argsCaptor.getValue().stream();
+        ByteArrayOutputStream readBack = new ByteArrayOutputStream()) {
+      stream.transferTo(readBack);
+      assertArrayEquals(payload, readBack.toByteArray());
+    }
   }
 }
