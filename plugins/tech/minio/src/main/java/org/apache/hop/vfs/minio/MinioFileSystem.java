@@ -140,21 +140,21 @@ public class MinioFileSystem extends AbstractFileSystem {
     this.listCacheTtlMs = listCacheTtlMs;
   }
 
-  void putListCache(
+  public void putListCache(
       String bucket, String prefix, java.util.Map<String, MinioListCache.ChildInfo> entries) {
     getListCache().put(bucket, prefix, entries);
   }
 
-  MinioListCache.ChildInfo getFromListCache(
+  public MinioListCache.ChildInfo getFromListCache(
       String bucket, String parentPrefix, String childFullKey) {
     return getListCache().get(bucket, parentPrefix, childFullKey);
   }
 
-  void invalidateListCache(String bucket, String prefix) {
+  public void invalidateListCache(String bucket, String prefix) {
     getListCache().invalidate(bucket, prefix);
   }
 
-  void invalidateListCacheForParentOf(String bucket, String key) {
+  public void invalidateListCacheForParentOf(String bucket, String key) {
     getListCache().invalidateParentOf(bucket, key);
   }
 }

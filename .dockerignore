@@ -1,36 +1,62 @@
-# Ignore everything
+# Ignore everything by default, then re-include only what Dockerfiles need.
+# With a leading "*", every parent path of a re-included file must also be re-included,
+# and directory contents need an explicit "/**" rule or they stay ignored.
 *
 
-# Allow files and directories needed for OLD Dockerfiles (pre-built artifacts)
-!/assemblies/client/target/hop-*
-!/assemblies/client/target/hop
-!/integration-tests/scripts
-!/integration-tests/ssh/keys
-!/assemblies/web/target
-!/assemblies/plugins/target
-!/docker
-!/rest
+# ---- Pre-built Hop client used by unit-tests.Dockerfile ----
+!assemblies/
+!assemblies/client/
+!assemblies/client/target/
+!assemblies/client/target/hop/
+!assemblies/client/target/hop/**
+!assemblies/client/target/hop-*
+
+# ---- Integration-test resources ----
+!integration-tests/
+!integration-tests/scripts/
+!integration-tests/scripts/**
+!integration-tests/ssh/
+!integration-tests/ssh/keys/
+!integration-tests/ssh/keys/**
+
+# ---- Other assembly artefacts ----
+!assemblies/web/
+!assemblies/web/target/
+!assemblies/web/target/**
+!assemblies/plugins/
+!assemblies/plugins/target/
+!assemblies/plugins/target/**
+
+# ---- Docker build context ----
+!docker/
+!docker/**
+
+# ---- REST / misc ----
+!rest/
+!rest/**
 !google-key-apache-hop-it.json
 
-# Allow source files needed for NEW unified Dockerfile (maven build in Docker)
+# ---- Source tree for unified Dockerfile (maven build inside Docker) ----
 !pom.xml
-!/*/pom.xml
-!/*/*/pom.xml
-!/*/*/*/pom.xml
-!/src
-!/*/src
-!/*/*/src
-!/*/*/*/src
-!/core
-!/engine
-!/engine-beam
-!/plugins
-!/assemblies
-!/ui
-!/rap
-!/rcp
-!/lib
-!/lib-jdbc
-!/.mvn
 !mvnw
 !mvnw.cmd
+!.mvn/
+!.mvn/**
+!core/
+!core/**
+!engine/
+!engine/**
+!engine-beam/
+!engine-beam/**
+!plugins/
+!plugins/**
+!ui/
+!ui/**
+!rap/
+!rap/**
+!rcp/
+!rcp/**
+!lib/
+!lib/**
+!lib-jdbc/
+!lib-jdbc/**

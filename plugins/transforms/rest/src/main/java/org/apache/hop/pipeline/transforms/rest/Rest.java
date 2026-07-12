@@ -865,7 +865,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if ("[]".equals(bodyTrim)) {
       return true;
     }
-    if (!RestMeta.APPLICATION_TYPE_JSON.equals(NVL(resolve(meta.getApplicationType()), ""))) {
+    // Response may be JSON even when the request Content-Type is form-urlencoded (e.g. Slack).
+    if (!shouldParseResponseAsJson(
+        NVL(resolve(meta.getApplicationType()), ""), resolvedSplitPath)) {
       return false;
     }
     try {
@@ -884,6 +886,19 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     } catch (Exception ignored) {
       return false;
     }
+  }
+
+  /**
+   * Whether a response body should be parsed as JSON for pagination/split. Application type is the
+   * <em>request</em> Content-Type; APIs such as Slack POST form bodies and still return JSON.
+   * JsonPath expressions (starting with {@code $}) imply a JSON response regardless of request
+   * type.
+   */
+  static boolean shouldParseResponseAsJson(String applicationType, String pathOrExpression) {
+    if (RestMeta.APPLICATION_TYPE_JSON.equals(NVL(applicationType, ""))) {
+      return true;
+    }
+    return pathOrExpression != null && pathOrExpression.trim().startsWith("$");
   }
 
   private int emitPagedResultRows(
@@ -916,7 +931,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
     List<String> out = new ArrayList<>();
     try {
-      if (RestMeta.APPLICATION_TYPE_JSON.equals(appType)) {
+      // Prefer JsonPath when the expression is JsonPath or the request type is JSON. Request
+      // Content-Type (e.g. FORM URLENCODED) does not dictate the response payload format.
+      if (shouldParseResponseAsJson(appType, jsonOrXPathExpr)) {
         Object raw =
             JsonPath.using(JSON_PATH_CONFIGURATION).parse(NVL(body, "{}")).read(jsonOrXPathExpr);
         appendStructuredJsonPieces(out, raw);
@@ -960,7 +977,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       throw new HopException(
-          "REST resultSplitPath requires application type XML or JSON, got '" + appType + "'.");
+          "REST resultSplitPath requires a JsonPath (starting with $) or XML application type, got '"
+              + appType
+              + "'.");
 
     } catch (HopException he) {
       throw he;
@@ -1006,14 +1025,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
     String appType = NVL(resolve(meta.getApplicationType()), "");
     try {
-      if (RestMeta.APPLICATION_TYPE_JSON.equals(appType)) {
-        if (Utils.isEmpty(conn.getCursorJsonPath())) {
-          return java.util.Optional.empty();
-        }
+      String cursorJsonPath = conn.getCursorJsonPath();
+      if (shouldParseResponseAsJson(appType, resolve(cursorJsonPath))
+          && !Utils.isEmpty(cursorJsonPath)) {
         Object raw =
             JsonPath.using(JSON_PATH_CONFIGURATION)
                 .parse(NVL(body, "{}"))
-                .read(resolve(conn.getCursorJsonPath()));
+                .read(resolve(cursorJsonPath));
         if (raw == null) {
           return java.util.Optional.empty();
         }
@@ -1052,14 +1070,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
     String appType = NVL(resolve(meta.getApplicationType()), "");
     try {
-      if (RestMeta.APPLICATION_TYPE_JSON.equals(appType)) {
-        if (Utils.isEmpty(conn.getNextPageUrlJsonPath())) {
-          return java.util.Optional.empty();
-        }
+      String nextPageUrlJsonPath = conn.getNextPageUrlJsonPath();
+      if (shouldParseResponseAsJson(appType, resolve(nextPageUrlJsonPath))
+          && !Utils.isEmpty(nextPageUrlJsonPath)) {
         Object raw =
             JsonPath.using(JSON_PATH_CONFIGURATION)
                 .parse(NVL(body, "{}"))
-                .read(resolveSplitPathOrPagingExpression(conn.getNextPageUrlJsonPath()));
+                .read(resolveSplitPathOrPagingExpression(nextPageUrlJsonPath));
         return normalizeNextPageUrl(raw);
       }
 

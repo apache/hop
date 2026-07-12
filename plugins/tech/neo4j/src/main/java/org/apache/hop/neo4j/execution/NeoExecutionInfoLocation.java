@@ -710,9 +710,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         }
         builder.withExtraClause("n." + EP_EXECUTION_TYPE + " IN [ 'Workflow', 'Pipeline' ]");
       }
-      if (selector.startDateFilter() != LastPeriod.NONE) {
+      LastPeriod dateFilter = selector.startDateFilter();
+      if (dateFilter != null && dateFilter != LastPeriod.NONE) {
         builder.withExtraClause(" AND n." + EP_EXECUTION_START_DATE + " >= $fromStartDate ");
-        builder.parameters().put("fromStartDate", selector.startDateFilter().calculateStartDate());
+        builder.parameters().put("fromStartDate", dateFilter.calculateStartDate());
       }
     }
 
