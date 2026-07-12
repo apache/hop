@@ -520,7 +520,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
     //
     if (systemProperties != null) {
       for (String parameter : systemProperties) {
-        String[] split = parameter.split("=");
+        String[] split = parameter.split("=", 2);
         String key = split.length > 0 ? split[0] : null;
         String value = split.length > 1 ? split[1] : null;
         if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
