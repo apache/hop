@@ -115,13 +115,18 @@ public class DataProbeGuiPlugin {
 
         // See if it's open in the metadata perspective...
         //
+        // The perspective is absent when it is switched off in disabledGuiElements.xml, and then
+        // nothing is open in it.
+        //
         MetadataPerspective perspective =
             (MetadataPerspective)
                 hopGui.getPerspectiveManager().findPerspective(MetadataPerspective.class);
         String key = PipelineProbe.class.getAnnotation(HopMetadata.class).key();
         PipelineProbeEditor editor =
-            (PipelineProbeEditor) perspective.findEditor(key, pipelineProbe.getName());
-        if (editor != null) {
+            perspective == null
+                ? null
+                : (PipelineProbeEditor) perspective.findEditor(key, pipelineProbe.getName());
+        if (perspective != null && editor != null) {
           // We're going to change the current metadata and flag it as changed...
           //
           pipelineProbe = new PipelineProbe();

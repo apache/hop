@@ -286,6 +286,12 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       image = "ui/images/metadata.svg")
   public void viewInPerspective() {
     MetadataPerspective perspective = HopGui.getMetadataPerspective();
+    if (perspective == null) {
+      // The metadata perspective is switched off in disabledGuiElements.xml: there is nowhere to
+      // view the element.
+      //
+      return;
+    }
     perspective.activate();
     String elementName = variables.resolve(wCombo.getText());
     if (StringUtils.isEmpty(elementName)) {

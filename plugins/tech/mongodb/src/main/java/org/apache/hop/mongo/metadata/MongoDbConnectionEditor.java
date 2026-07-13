@@ -153,6 +153,12 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
 
   public void getDbNames() {
     ComboVar wDbName = (ComboVar) widgets.getWidgetsMap().get(MongoDbConnection.WIDGET_ID_DB_NAME);
+    if (wDbName == null) {
+      // The database name combo can be switched off in disabledGuiElements.xml, in which case there
+      // is nothing to fill in.
+      //
+      return;
+    }
     IVariables variables = manager.getVariables();
     ILogChannel log = LogChannel.UI;
 

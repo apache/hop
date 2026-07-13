@@ -19,7 +19,7 @@ package org.apache.hop.ui.hopgui.perspective;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -43,7 +43,11 @@ public class HopPerspectiveManager {
 
   public HopPerspectiveManager(HopGui hopGui) {
     this.hopGui = hopGui;
-    this.perspectivesMap = new HashMap<>();
+    // Insertion ordered: HopGui adds the perspectives sorted by plugin id, which is the order they
+    // appear in the sidebar. getPerspectives() then hands them out in that same order, so falling
+    // back to "the first perspective" is predictable.
+    //
+    this.perspectivesMap = new LinkedHashMap<>();
     this.listeners = new ConcurrentLinkedQueue<>();
   }
 

@@ -571,7 +571,10 @@ public class HopGui
 
     // Activate the default perspective
     //
-    getExplorerPerspective().activate();
+    IHopPerspective defaultPerspective = getDefaultPerspective();
+    if (defaultPerspective != null) {
+      defaultPerspective.activate();
+    }
 
     // See if we need to show the Welcome dialog
     //
@@ -2026,7 +2029,12 @@ public class HopGui
   public void setActivePerspective(IHopPerspective perspective) {
 
     if (perspective == null) {
-      perspective = getExplorerPerspective();
+      perspective = getDefaultPerspective();
+    }
+    if (perspective == null) {
+      // Every single perspective is disabled: there is nothing to put on top.
+      //
+      return;
     }
 
     activePerspective = perspective;
@@ -2404,6 +2412,21 @@ public class HopGui
 
   public static ExplorerPerspective getExplorerPerspective() {
     return HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
+  }
+
+  /**
+   * The perspective to show when no other one is selected. That is normally the explorer
+   * perspective, but it can be switched off with an exclusion in disabledGuiElements.xml, in which
+   * case we settle for the first perspective that did get loaded.
+   *
+   * @return The default perspective, or null if every perspective is disabled.
+   */
+  public IHopPerspective getDefaultPerspective() {
+    ExplorerPerspective explorerPerspective = getExplorerPerspective();
+    if (explorerPerspective != null) {
+      return explorerPerspective;
+    }
+    return perspectiveManager.getPerspectives().stream().findFirst().orElse(null);
   }
 
   public static ConfigurationPerspective getConfigurationPerspective() {

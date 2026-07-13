@@ -68,9 +68,13 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
       String realConfigFilename = HopGui.getInstance().getVariables().resolve(configFilename);
 
       if (realConfigFilename == null) {
+        // The perspective is absent when it is switched off in disabledGuiElements.xml.
+        //
         ConfigurationPerspective perspective = HopGui.getConfigurationPerspective();
-        perspective.activate();
-        perspective.showSystemVariablesTab();
+        if (perspective != null) {
+          perspective.activate();
+          perspective.showSystemVariablesTab();
+        }
       } else {
         if (new File(realConfigFilename).exists()) {
           DescribedVariablesConfigFile configFile =

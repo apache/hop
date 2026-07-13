@@ -73,6 +73,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
@@ -136,7 +137,26 @@ public class GitCommitPerspective implements IHopPerspective {
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'o', global = true)
   @Override
   public void activate() {
+    if (hopGui == null) {
+      // The perspective is switched off in disabledGuiElements.xml: it was never initialized, so
+      // there is nothing to switch to. The git toolbar and menu items that lead here live on the
+      // explorer perspective and are still there.
+      //
+      return;
+    }
     hopGui.setActivePerspective(this);
+  }
+
+  /**
+   * Enable or disable a context menu item. Every menu item can be switched off with an exclusion
+   * for its id in disabledGuiElements.xml, in which case it was never created and there is nothing
+   * here to enable.
+   */
+  private static void setMenuItemEnabled(GuiMenuWidgets menuWidgets, String id, boolean enabled) {
+    MenuItem menuItem = menuWidgets.findMenuItem(id);
+    if (menuItem != null) {
+      menuItem.setEnabled(enabled);
+    }
   }
 
   @Override
@@ -148,7 +168,7 @@ public class GitCommitPerspective implements IHopPerspective {
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(this);
+    return hopGui != null && hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -232,28 +252,16 @@ public class GitCommitPerspective implements IHopPerspective {
         event -> {
           List<UIFile> selectedFiles = this.getSelectedFiles();
 
-          menuWidgets
-              .findMenuItem(CONTEXT_MENU_ADD)
-              .setEnabled(!getSelectedUntrackedFiles().isEmpty());
-          menuWidgets
-              .findMenuItem(CONTEXT_MENU_ADD_TO_GIT_IGNORE)
-              .setEnabled(!selectedFiles.isEmpty());
-          menuWidgets
-              .findMenuItem(CONTEXT_MENU_SHOW_TEXT_DIFF)
-              // .setEnabled(selectedFiles.stream().anyMatch(file -> file.getChangeType() ==
-              // DiffEntry.ChangeType.MODIFY));
-              .setEnabled(!selectedFiles.isEmpty());
-          menuWidgets
-              .findMenuItem(CONTEXT_MENU_SHOW_GRAPH_DIFF)
-              // .setEnabled(selectedFiles.stream().anyMatch(file -> file.getChangeType() ==
-              // DiffEntry.ChangeType.MODIFY));
-              .setEnabled(
-                  selectedFiles.stream()
-                      .anyMatch(file -> FileTypeUtils.isHopFileType(file.getName())));
-          menuWidgets
-              .findMenuItem(CONTEXT_MENU_RESTORE)
-              .setEnabled(!getSelectedStagedFiles().isEmpty());
-          menuWidgets.findMenuItem(CONTEXT_MENU_DELETE).setEnabled(!selectedFiles.isEmpty());
+          setMenuItemEnabled(menuWidgets, CONTEXT_MENU_ADD, !getSelectedUntrackedFiles().isEmpty());
+          setMenuItemEnabled(menuWidgets, CONTEXT_MENU_ADD_TO_GIT_IGNORE, !selectedFiles.isEmpty());
+          setMenuItemEnabled(menuWidgets, CONTEXT_MENU_SHOW_TEXT_DIFF, !selectedFiles.isEmpty());
+          setMenuItemEnabled(
+              menuWidgets,
+              CONTEXT_MENU_SHOW_GRAPH_DIFF,
+              selectedFiles.stream().anyMatch(file -> FileTypeUtils.isHopFileType(file.getName())));
+          setMenuItemEnabled(
+              menuWidgets, CONTEXT_MENU_RESTORE, !getSelectedStagedFiles().isEmpty());
+          setMenuItemEnabled(menuWidgets, CONTEXT_MENU_DELETE, !selectedFiles.isEmpty());
 
           // Show the menu
           menu.setVisible(true);

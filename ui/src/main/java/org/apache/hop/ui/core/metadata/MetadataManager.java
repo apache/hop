@@ -187,10 +187,11 @@ public class MetadataManager<T extends IHopMetadata> {
       MetadataEditor<T> editor = this.createEditor(element);
       editor.setTitle(element.getName());
 
-      // Open this element in the metadata perspective if that one is active.
+      // Open this element in the metadata perspective if that one is active. The perspective is
+      // absent when it is switched off in disabledGuiElements.xml, and we fall back to the dialog.
       //
       MetadataPerspective perspective = HopGui.getMetadataPerspective();
-      if (perspective.isActive()) {
+      if (perspective != null && perspective.isActive()) {
         perspective.addEditor(editor);
         return false;
       } else {
@@ -498,7 +499,20 @@ public class MetadataManager<T extends IHopMetadata> {
               "MetadataManager.New.Label",
               TranslateUtil.translate(this.getManagedName(), managedClass)));
 
-      MetadataPerspective perspective = MetadataPerspective.getInstance();
+      // The metadata perspective is absent when it is switched off in disabledGuiElements.xml.
+      // There is no editor tab to open then, so we edit the new element in a dialog instead.
+      //
+      MetadataPerspective perspective = HopGui.getMetadataPerspective();
+      if (perspective == null) {
+        MetadataEditorDialog dialog = new MetadataEditorDialog(hopGui.getActiveShell(), editor);
+        if (dialog.open() == null) {
+          return null;
+        }
+        ExtensionPointHandler.callExtensionPoint(
+            hopGui.getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectCreated.id, element);
+        return element;
+      }
+
       perspective.activate();
       perspective.addEditor(editor);
 

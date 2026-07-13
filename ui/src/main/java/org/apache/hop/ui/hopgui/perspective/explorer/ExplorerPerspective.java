@@ -316,7 +316,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(this);
+    return hopGui != null && hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -634,10 +634,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           }
           MenuItem openInExplorerItem = menuWidgets.findMenuItem(CONTEXT_MENU_OPEN_IN_EXPLORER);
           if (openInExplorerItem != null) {
-            openInExplorerItem.setEnabled(HopVfs.isLocalFileSystem(tif.path));
+            openInExplorerItem.setEnabled(tif != null && HopVfs.isLocalFileSystem(tif.path));
           }
 
-          menuWidgets.findMenuItem(CONTEXT_MENU_RENAME).setEnabled(selection.length == 1);
+          MenuItem renameItem = menuWidgets.findMenuItem(CONTEXT_MENU_RENAME);
+          if (renameItem != null) {
+            renameItem.setEnabled(selection.length == 1);
+          }
 
           // Finding references is only meaningful for a single pipeline or workflow file.
           //
@@ -4117,6 +4120,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** Save the file explorer panel visibility state so it persists across restarts. */
   public void saveExplorerStateOnShutdown() {
+    // When the perspective is disabled it was never initialized, so saving would only overwrite
+    // the state on disk with the field defaults.
+    //
+    if (hopGui == null) {
+      return;
+    }
     try {
       AuditStateMap stateMap = new AuditStateMap();
       stateMap.add(
