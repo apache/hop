@@ -24,9 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class JaninoCheckerUtilTest {
 
   @BeforeAll
@@ -37,15 +40,14 @@ class JaninoCheckerUtilTest {
   // ------------------------------------------------------------------ constructor
 
   @Test
-  void constructor_noExclusionsFile_doesNotThrow() {
-    // The codeExclusions.xml file will not be found in test env → logged, no throw
+  void constructor_loadsDefaultExclusionsWithoutError() {
     assertDoesNotThrow(JaninoCheckerUtil::new);
   }
 
   @Test
-  void constructor_whenFileNotFound_matchesListIsEmpty() {
+  void constructor_loadsFromClasspathWhenNoExternalFile_matchesListIsEmptyByDefault() {
     JaninoCheckerUtil util = new JaninoCheckerUtil();
-    // No exclusions file in test classpath → empty matches
+    // Default bundled codeExclusions.xml has an empty <exclusions> list
     assertTrue(util.matches.isEmpty());
   }
 
