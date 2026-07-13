@@ -29,8 +29,10 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
@@ -38,6 +40,12 @@ import org.w3c.dom.Node;
 
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class ConditionTest {
+
+  @BeforeAll
+  static void setUpClass() throws Exception {
+    HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
+  }
 
   @Test
   void testNegatedTrueFuncEvaluatesAsFalse() throws Exception {

@@ -284,27 +284,27 @@ public class ValueMetaBase implements IValueMeta {
 
   // endregion
 
-  public ValueMetaBase() {
+  protected ValueMetaBase() {
     this(null, IValueMeta.TYPE_NONE, -1, -1);
   }
 
-  public ValueMetaBase(String name) {
+  protected ValueMetaBase(String name) {
     this(name, IValueMeta.TYPE_NONE, -1, -1);
   }
 
-  public ValueMetaBase(String name, int type) {
+  protected ValueMetaBase(String name, int type) {
     this(name, type, -1, -1);
   }
 
-  public ValueMetaBase(String name, int type, Comparator<Object> comparator) {
+  protected ValueMetaBase(String name, int type, Comparator<Object> comparator) {
     this(name, type, -1, -1, comparator);
   }
 
-  public ValueMetaBase(String name, int type, int length, int precision) {
+  protected ValueMetaBase(String name, int type, int length, int precision) {
     this(name, type, length, precision, null);
   }
 
-  public ValueMetaBase(
+  protected ValueMetaBase(
       String name, int type, int length, int precision, Comparator<Object> comparator) {
     this.name = name;
     this.type = type;
@@ -336,17 +336,21 @@ public class ValueMetaBase implements IValueMeta {
     setDefaultConversionMask();
   }
 
-  public ValueMetaBase(Node node) throws HopException {
+  protected ValueMetaBase(Node node) throws HopException {
     this();
+    this.type = getType(XmlHandler.getTagValue(node, "type"));
+    loadBaseValueMetaFromXml(this, node);
+  }
 
-    type = getType(XmlHandler.getTagValue(node, "type"));
-    storageType = getStorageType(XmlHandler.getTagValue(node, "storagetype"));
+  public static void loadBaseValueMetaFromXml(IValueMeta valueMeta, Node node) throws HopException {
+    int storageType = getStorageType(XmlHandler.getTagValue(node, "storagetype"));
+    valueMeta.setStorageType(storageType);
 
     switch (storageType) {
       case STORAGE_TYPE_INDEXED:
         Node indexNode = XmlHandler.getSubNode(node, CONST_INDEX);
         int nrIndexes = XmlHandler.countNodes(indexNode, CONST_VALUE);
-        index = new Object[nrIndexes];
+        Object[] index = new Object[nrIndexes];
 
         for (int i = 0; i < index.length; i++) {
           Node valueNode = XmlHandler.getSubNodeByNr(indexNode, CONST_VALUE, i);
@@ -354,7 +358,7 @@ public class ValueMetaBase implements IValueMeta {
           if (Utils.isEmpty(valueString)) {
             index[i] = null;
           } else {
-            switch (type) {
+            switch (valueMeta.getType()) {
               case TYPE_STRING:
                 index[i] = valueString;
                 break;
@@ -378,9 +382,9 @@ public class ValueMetaBase implements IValueMeta {
                 break;
               default:
                 throw new HopException(
-                    this
+                    valueMeta
                         + " : Unable to de-serialize index storage type from XML for data type "
-                        + getType());
+                        + valueMeta.getTypeDesc());
             }
           }
         }
@@ -392,7 +396,10 @@ public class ValueMetaBase implements IValueMeta {
         Node storageMetaNode = XmlHandler.getSubNode(node, CONST_STORAGE_META);
         Node storageValueMetaNode = XmlHandler.getSubNode(storageMetaNode, XML_META_TAG);
         if (storageValueMetaNode != null) {
-          storageMetadata = new ValueMetaBase(storageValueMetaNode);
+          int storageValueType = getType(XmlHandler.getTagValue(storageValueMetaNode, "type"));
+          IValueMeta storageValueMeta = ValueMetaFactory.createValueMeta(storageValueType);
+          loadBaseValueMetaFromXml(storageValueMeta, storageValueMetaNode);
+          valueMeta.setStorageMetadata(storageValueMeta);
         }
         break;
 
@@ -400,36 +407,42 @@ public class ValueMetaBase implements IValueMeta {
         break;
     }
 
-    name = XmlHandler.getTagValue(node, "name");
-    length = Integer.parseInt(XmlHandler.getTagValue(node, CONST_LENGTH));
-    precision = Integer.parseInt(XmlHandler.getTagValue(node, CONST_PRECISION));
-    origin = XmlHandler.getTagValue(node, "origin");
-    comments = XmlHandler.getTagValue(node, "comments");
-    conversionMask = XmlHandler.getTagValue(node, "conversion_Mask");
-    decimalSymbol = XmlHandler.getTagValue(node, "decimal_symbol");
-    groupingSymbol = XmlHandler.getTagValue(node, "grouping_symbol");
-    currencySymbol = XmlHandler.getTagValue(node, "currency_symbol");
-    trimType = getTrimTypeByCode(XmlHandler.getTagValue(node, "trim_type"));
-    caseInsensitive = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "case_insensitive"));
-    collatorDisabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "collator_disabled"));
+    valueMeta.setName(XmlHandler.getTagValue(node, "name"));
+    valueMeta.setLength(Integer.parseInt(XmlHandler.getTagValue(node, CONST_LENGTH)));
+    valueMeta.setPrecision(Integer.parseInt(XmlHandler.getTagValue(node, CONST_PRECISION)));
+    valueMeta.setOrigin(XmlHandler.getTagValue(node, "origin"));
+    valueMeta.setComments(XmlHandler.getTagValue(node, "comments"));
+    valueMeta.setConversionMask(XmlHandler.getTagValue(node, "conversion_Mask"));
+    valueMeta.setDecimalSymbol(XmlHandler.getTagValue(node, "decimal_symbol"));
+    valueMeta.setGroupingSymbol(XmlHandler.getTagValue(node, "grouping_symbol"));
+    valueMeta.setCurrencySymbol(XmlHandler.getTagValue(node, "currency_symbol"));
+    valueMeta.setTrimType(getTrimTypeByCode(XmlHandler.getTagValue(node, "trim_type")));
+    valueMeta.setCaseInsensitive(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "case_insensitive")));
+    valueMeta.setCollatorDisabled(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "collator_disabled")));
     if (XmlHandler.getTagValue(node, CONST_COLLATOR_STRENGTH) != null) {
-      collatorStrength = Integer.parseInt(XmlHandler.getTagValue(node, CONST_COLLATOR_STRENGTH));
+      valueMeta.setCollatorStrength(
+          Integer.parseInt(XmlHandler.getTagValue(node, CONST_COLLATOR_STRENGTH)));
     }
-    sortedDescending = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "sort_descending"));
-    outputPaddingEnabled = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "output_padding"));
-    dateFormatLenient = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "date_format_lenient"));
+    valueMeta.setSortedDescending(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "sort_descending")));
+    valueMeta.setOutputPaddingEnabled(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "output_padding")));
+    valueMeta.setDateFormatLenient(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "date_format_lenient")));
     String dateFormatLocaleString = XmlHandler.getTagValue(node, "date_format_locale");
     if (!Utils.isEmpty(dateFormatLocaleString)) {
-      dateFormatLocale = EnvUtil.createLocale(dateFormatLocaleString);
+      valueMeta.setDateFormatLocale(EnvUtil.createLocale(dateFormatLocaleString));
     }
     String dateTimeZoneString = XmlHandler.getTagValue(node, "date_format_timezone");
     if (!Utils.isEmpty(dateTimeZoneString)) {
-      dateFormatTimeZone = EnvUtil.createTimeZone(dateTimeZoneString);
+      valueMeta.setDateFormatTimeZone(EnvUtil.createTimeZone(dateTimeZoneString));
     } else {
-      dateFormatTimeZone = TimeZone.getDefault();
+      valueMeta.setDateFormatTimeZone(TimeZone.getDefault());
     }
-    lenientStringToNumber =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "lenient_string_to_number"));
+    valueMeta.setLenientStringToNumber(
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "lenient_string_to_number")));
   }
 
   /**
@@ -442,7 +455,7 @@ public class ValueMetaBase implements IValueMeta {
    *     loadMetaData() method.
    */
   @Deprecated(since = "2.0")
-  public ValueMetaBase(DataInputStream inputStream) throws HopFileException {
+  protected ValueMetaBase(DataInputStream inputStream) throws HopFileException {
     this();
     try {
       type = inputStream.readInt();

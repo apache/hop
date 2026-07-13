@@ -34,7 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -358,7 +358,7 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     RowMeta row = new RowMeta();
     for (XmlField field : outputFields) {
       row.addValueMeta(
-          new ValueMetaBase(
+          ValueMetaFactory.createValueMeta(
               field.getFieldName(), field.getType(), field.getLength(), field.getPrecision()));
     }
     return row;

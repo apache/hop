@@ -37,6 +37,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,7 @@ class ValueMetaFactoryTest {
   @BeforeAll
   static void beforeClassSetUp() throws HopException {
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
   }
 
   @Test

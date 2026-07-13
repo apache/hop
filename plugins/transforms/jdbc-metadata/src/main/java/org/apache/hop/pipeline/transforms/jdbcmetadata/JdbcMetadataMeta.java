@@ -28,8 +28,8 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
@@ -626,12 +626,19 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
         if (!fieldName.equals(outputField.getName())) {
           continue;
         }
-        field =
-            new ValueMetaBase(
-                outputField.getRename() == null ? fieldName : outputField.getRename(),
-                field.getType());
-        field.setOrigin(origin);
-        rowMeta.addValueMeta(field);
+        String newFieldName = outputField.getRename() == null ? fieldName : outputField.getRename();
+        try {
+          field = ValueMetaFactory.createValueMeta(newFieldName, field.getType());
+          field.setOrigin(origin);
+          rowMeta.addValueMeta(field);
+        } catch (Exception e) {
+          throw new HopTransformException(
+              "Error creating a value metadata called "
+                  + newFieldName
+                  + " of type "
+                  + field.getType(),
+              e);
+        }
         break;
       }
     }

@@ -1294,8 +1294,14 @@ public class RowMeta implements IRowMeta {
 
     int nrValues = XmlHandler.countNodes(node, ValueMetaBase.XML_META_TAG);
     for (int i = 0; i < nrValues; i++) {
-      IValueMeta valueMetaSource =
-          new ValueMetaBase(XmlHandler.getSubNodeByNr(node, ValueMetaBase.XML_META_TAG, i));
+      Node valueMetaNode = XmlHandler.getSubNodeByNr(node, ValueMetaBase.XML_META_TAG, i);
+
+      // Load the base value metadata from XML
+      int valueType = ValueMetaBase.getType(XmlHandler.getTagValue(valueMetaNode, "type"));
+      IValueMeta valueMetaSource = ValueMetaFactory.createValueMeta(valueType);
+      ValueMetaBase.loadBaseValueMetaFromXml(valueMetaSource, valueMetaNode);
+
+      // Clone the metadata
       IValueMeta valueMeta =
           ValueMetaFactory.createValueMeta(
               valueMetaSource.getName(),

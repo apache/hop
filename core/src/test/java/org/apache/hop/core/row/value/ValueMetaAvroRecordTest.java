@@ -33,6 +33,7 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.util.TestUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.jupiter.api.BeforeAll;
@@ -95,6 +96,7 @@ class ValueMetaAvroRecordTest {
   @BeforeAll
   static void before() throws Exception {
     HopClientEnvironment.init();
+    TestUtil.registerTestPluginTypes();
   }
 
   @Test
