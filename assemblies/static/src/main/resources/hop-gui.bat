@@ -34,6 +34,9 @@ if %_temphelp%==1 (GOTO Help) ELSE (GOTO NormalStart)
 
 :Help
 echo ===[Hop Help - hop-gui.bat]===============================================
+echo Starts Hop GUI and keeps this console window open so you can see log output.
+echo To start without a console window, use hop-gui-nolog.bat instead.
+echo.
 echo Normally, no parameters are required to start Hop.  There is a debug mode
 echo that you can start by passing in DEBUG as the first parameter after hop-gui.bat
 echo.
@@ -109,3 +112,6 @@ echo ===[Starting Hop]=========================================================
 
 %_HOP_JAVA% -classpath %CLASSPATH% -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
 if ERRORLEVEL 1 (pause)
+
+:End
+endlocal
