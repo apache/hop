@@ -137,8 +137,19 @@ public class NamedParameters implements INamedParameters {
   public void activateParameters(IVariables variables) {
     for (NamedParameter param : params.values()) {
       if (StringUtils.isNotEmpty(param.key)) {
-        variables.setVariable(
-            param.getKey(), Const.NVL(param.getValue(), Const.NVL(param.getDefaultValue(), "")));
+        String value = param.getValue();
+        if (StringUtils.isEmpty(value)) {
+          // Prefer an already-set variable (environment / parent) over the parameter default.
+          // Nested workflows and pipelines used to clobber env values such as HOSTNAME or
+          // BOOTSTRAP_SERVERS when activateParameters applied empty defaults.
+          String existing = variables != null ? variables.getVariable(param.getKey()) : null;
+          if (StringUtils.isNotEmpty(existing)) {
+            value = existing;
+          } else {
+            value = Const.NVL(param.getDefaultValue(), "");
+          }
+        }
+        variables.setVariable(param.getKey(), value);
       }
     }
   }

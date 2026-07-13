@@ -290,7 +290,10 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
           PipelineEngineFactory.createPipelineEngine(
               variables, pipelineRunConfigurationName, metadataProvider, pipelineMeta);
       pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
-      pipeline.initializeFrom(null);
+      // Do not call initializeFrom(null) here: the factory already initialized the engine from
+      // hop-run's variables (project + environment). Re-initializing from null would drop those
+      // values (e.g. HOSTNAME, TEST_0012) and only re-apply hop-config defaults — breaking the
+      // single-JVM IT suite runner and any hop-run of a pipeline with -e.
 
       List<EngineCompatibilityChecker.Violation> pipelineViolations =
           EngineCompatibilityChecker.checkPipeline(pipelineMeta, pipeline);

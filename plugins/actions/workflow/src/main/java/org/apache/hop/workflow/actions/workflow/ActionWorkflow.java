@@ -479,6 +479,14 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
               String parentValue = parentWorkflow.getParameterValue(parameterName);
               if (!Utils.isEmpty(parentValue)) {
                 workflow.setParameterValue(parameterName, parentValue);
+              } else {
+                // Match hop-run: if the parent has a variable of the same name (env, -p as
+                // variable, project config), use it so nested main-*.hwf parameters do not
+                // fall back to their local-dev defaults (e.g. HOSTNAME=localhost).
+                String parentVariable = parentWorkflow.getVariable(parameterName);
+                if (!Utils.isEmpty(parentVariable)) {
+                  workflow.setParameterValue(parameterName, parentVariable);
+                }
               }
             }
           }

@@ -137,9 +137,8 @@ TMP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}"
 SUREFIRE_DIR="$(cd "${CURRENT_DIR}/../surefire-reports" && pwd)"
 RUNNER_PIPELINE="${CURRENT_DIR}/run-project-tests.hpl"
 
-# Shared hop-run parameters for both single-JVM and per-test modes
+# Shared hop-run parameters for both single-JVM and per-test modes (run configuration added per project)
 HOP_RUN_COMMON_ARGS=(
-  -r "local"
   -e "dev"
   -p "POSTGRES_HOST=${POSTGRES_HOST}"
   -p "POSTGRES_DATABASE=${POSTGRES_DATABASE}"
@@ -180,16 +179,26 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       # Create New Project
       export HOP_CONFIG_FOLDER="$d"
 
+      # Default pipeline run configuration name used by hop-run and the suite runner.
+      # Beam projects name their Beam engine "local" and keep a native Local engine as "hop-local".
+      # The single-JVM suite driver (run-project-tests.hpl) must never run under Beam.
+      PIPELINE_RUN_CONFIG="local"
+      SUITE_RUN_CONFIG="local"
+      if [ -f "$d/metadata/pipeline-run-configuration/hop-local.json" ]; then
+        SUITE_RUN_CONFIG="hop-local"
+      fi
+
       # Prefer single-JVM suite runner when available (unless isolation mode is requested)
       if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -f "${RUNNER_PIPELINE}" ]; then
 
         echo ${SPACER}
-        echo "Running project tests in single JVM via run-project-tests.hpl"
+        echo "Running project tests in single JVM via run-project-tests.hpl (run config: ${SUITE_RUN_CONFIG})"
         echo ${SPACER}
 
         start_time_test=$SECONDS
 
         $HOP_LOCATION/hop-run.sh \
+          -r "${SUITE_RUN_CONFIG}" \
           "${HOP_RUN_COMMON_ARGS[@]}" \
           -p "PROJECT_NAME=${PROJECT_NAME}" \
           -p "IT_SUREFIRE_DIR=${SUREFIRE_DIR}" \
@@ -252,8 +261,9 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
           #Start time test
           start_time_test=$SECONDS
 
-          #Run Test
+          #Run Test (use project pipeline run config, e.g. Beam "local")
           $HOP_LOCATION/hop-run.sh \
+            -r "${PIPELINE_RUN_CONFIG}" \
             "${HOP_RUN_COMMON_ARGS[@]}" \
             -f "$hop_file" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
 

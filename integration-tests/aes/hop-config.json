@@ -167,8 +167,8 @@
     },
     {
       "name": "HOP_PASSWORD_ENCODER_PLUGIN",
-      "value": "Hop",
-      "description": "Specifies the password encoder plugin to use by ID (Hop is the default)."
+      "value": "AES2",
+      "description": "AES2 encoder required by the aes integration-test project (matches docker env)."
     },
     {
       "name": "HOP_SYSTEM_HOSTNAME",

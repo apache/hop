@@ -115,7 +115,7 @@ limitations under the License.
         <group/>
         <length>-1</length>
         <name>expected</name>
-        <nullif>ExecutionTime, ExecutionResult, ExecutionNrErrors, ExecutionLinesRead, ExecutionLinesWritten, ExecutionLinesInput, ExecutionLinesOutput, ExecutionLinesRejected, ExecutionLinesUpdated, ExecutionLinesDeleted, ExecutionFilesRetrieved, ExecutionExitStatus, ExecutionLogText, ExecutionLogChannelId</nullif>
+        <nullif>f1, ExecutionTime, ExecutionResult, ExecutionNrErrors, ExecutionLinesRead, ExecutionLinesWritten, ExecutionLinesInput, ExecutionLinesOutput, ExecutionLinesRejected, ExecutionLinesUpdated, ExecutionLinesDeleted, ExecutionFilesRetrieved, ExecutionExitStatus, ExecutionLogText, ExecutionLogChannelId</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
