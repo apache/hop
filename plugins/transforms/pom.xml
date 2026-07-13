@@ -138,6 +138,7 @@
         <module>setvariable</module>
         <module>sort</module>
         <module>sortedmerge</module>
+        <module>sortedschemamerge</module>
         <module>splitfieldtorows</module>
         <module>splunk</module>
         <module>sql</module>

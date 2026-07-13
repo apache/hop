@@ -1,0 +1,11 @@
+id,attr_a,attr_b,attr_c,attr_d,flag,src
+1,apple,,,,,A
+2,,banana,,,,B
+3,,,cherry,,,C
+4,,,,date,Y,D
+5,elderberry,,,,,A
+6,,fig,,,,B
+7,,,guava,,,C
+8,,,,kiwi,N,D
+9,grape,,,,,A
+10,,,honeydew,,,C

@@ -1,0 +1,63 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Sorted Schema Merge transform merges pre-sorted input streams with different schemas into one sorted stream with a unified sparse row layout.
+
+= image:transforms/icons/sortedschemamerge.svg[Sorted Schema Merge transform Icon, role="image-doc-icon"] Sorted Schema Merge
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Sorted Schema Merge transform combines the behavior of xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge] and xref:pipeline/transforms/streamschemamerge.adoc[Stream Schema Merge]:
+
+* It merges multiple *pre-sorted* input streams into one *globally sorted* output stream.
+* Input streams may have *different field layouts*. The transform builds a unified output schema that is the union of all input fields.
+* Fields that are not present on a given input stream are left *null* (sparse row layout) on rows that come from that stream.
+
+A typical use case is combining data from multiple Data Vault satellites that share business keys and load timestamps, then using xref:pipeline/transforms/repeatfields.adoc[Repeat Fields] to fill previously known attribute values when building an SCD2 table.
+
+IMPORTANT: Each input stream must already be sorted on the configured sort keys (for example with `ORDER BY` in xref:pipeline/transforms/tableinput.adoc[Table Input], or with xref:pipeline/transforms/sort.adoc[Sort Rows]). This transform does *not* re-sort within each stream; it only merges already-sorted streams.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:cross.svg[Not Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
+!===
+|===
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform; must be unique in a single pipeline.
+|Sort keys|The key fields used to compare rows across input streams, including ascending or descending direction. Every sort key must exist on every input stream.
+|Input transforms|The list of upstream transforms that feed this transform. Use *Get* to fill the list from connected hops. At least two input streams are required.
+|===
+
+== Notes
+
+* When the same field name appears on more than one stream with different data types, the merged field type is coerced to `String` (same behavior as Stream Schema Merge).
+* Rows with equal sort keys keep a stable order based on the input stream index.
+* Safe mode row layout checks are not applied across streams with different schemas (`excludeFromRowLayoutVerification`).
