@@ -26,11 +26,13 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -40,6 +42,7 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.start.ActionStart;
@@ -110,6 +113,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     capabilities.setProperty(IHopFileType.CAPABILITY_DISTRIBUTE_VERTICAL, "true");
 
     capabilities.setProperty(IHopFileType.CAPABILITY_FILE_HISTORY, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_SEARCH, "true");
 
     return capabilities;
   }
@@ -258,5 +262,16 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   @Override
   public String getFileTypeImage() {
     return "ui/images/workflow.svg";
+  }
+
+  @Override
+  public ISearchable createSearchable(
+      String filename,
+      String locationDescription,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopException {
+    WorkflowMeta workflowMeta = new WorkflowMeta(variables, filename, metadataProvider);
+    return new HopGuiWorkflowSearchable(locationDescription, workflowMeta);
   }
 }

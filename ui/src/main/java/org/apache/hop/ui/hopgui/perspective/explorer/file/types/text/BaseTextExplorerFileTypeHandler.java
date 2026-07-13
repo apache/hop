@@ -23,14 +23,19 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
+import org.apache.hop.ui.hopgui.search.HopGuiTextFileSearchable;
+import org.apache.hop.ui.hopgui.search.TextFileContent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -160,5 +165,25 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   @Override
   public void copySelectedToClipboard() {
     editorWidget.copy();
+  }
+
+  @Override
+  public ISearchable createSearchable(
+      String locationDescription, IHopMetadataProvider metadataProvider) throws HopException {
+    IHopFileType type = getFileType();
+    if (type == null || !type.hasCapability(IHopFileType.CAPABILITY_SEARCH)) {
+      return null;
+    }
+    // Prefer the open editor buffer so unsaved edits are searchable.
+    String text;
+    if (editorWidget != null
+        && editorWidget.getControl() != null
+        && !editorWidget.getControl().isDisposed()) {
+      text = Const.NVL(editorWidget.getText(), "");
+    } else {
+      text = Const.NVL(readTextFileContent(StandardCharsets.UTF_8), "");
+    }
+    TextFileContent content = new TextFileContent(getFilename(), text);
+    return new HopGuiTextFileSearchable(locationDescription, type.getName(), content);
   }
 }

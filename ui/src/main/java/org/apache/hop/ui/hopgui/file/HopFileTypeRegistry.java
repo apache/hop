@@ -22,6 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 
 /** This class contains all the available Hop File types */
@@ -32,9 +36,11 @@ public class HopFileTypeRegistry {
   private static HopFileTypeRegistry hopFileTypeRegistry;
 
   private List<IHopFileType> hopFileTypes;
+  private boolean pluginsLoaded;
 
   private HopFileTypeRegistry() {
     hopFileTypes = new ArrayList<>();
+    pluginsLoaded = false;
   }
 
   public static final HopFileTypeRegistry getInstance() {
@@ -51,6 +57,43 @@ public class HopFileTypeRegistry {
   public void registerHopFile(IHopFileType hopFileTypeInterface) {
     if (!hopFileTypes.contains(hopFileTypeInterface)) {
       hopFileTypes.add(hopFileTypeInterface);
+    }
+  }
+
+  /**
+   * Ensure {@link HopFileTypePluginType} plugins are registered and loaded into this registry. Safe
+   * to call multiple times (e.g. from Hop GUI and from project search / hop-search). When the GUI
+   * already populated the registry, this is a no-op.
+   */
+  public synchronized void ensureLoaded() {
+    if (pluginsLoaded || !hopFileTypes.isEmpty()) {
+      pluginsLoaded = true;
+      return;
+    }
+    try {
+      PluginRegistry registry = PluginRegistry.getInstance();
+      List<IPlugin> plugins = registry.getPlugins(HopFileTypePluginType.class);
+      // hop-search may not have called HopGuiEnvironment; register and scan if needed.
+      if (plugins.isEmpty()) {
+        PluginRegistry.addPluginType(HopFileTypePluginType.getInstance());
+        HopFileTypePluginType.getInstance().searchPlugins();
+        plugins = registry.getPlugins(HopFileTypePluginType.class);
+      }
+      for (IPlugin plugin : plugins) {
+        try {
+          IHopFileType hopFileType = registry.loadClass(plugin, IHopFileType.class);
+          registerHopFile(hopFileType);
+        } catch (HopPluginException e) {
+          LogChannel.GENERAL.logError(
+              "Unable to load hop file type plugin with ID '"
+                  + (plugin.getIds().length > 0 ? plugin.getIds()[0] : "?")
+                  + "'",
+              e);
+        }
+      }
+      pluginsLoaded = true;
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError("Error loading hop file type plugins for search", e);
     }
   }
 

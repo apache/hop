@@ -26,11 +26,13 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -41,6 +43,7 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -105,6 +108,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     capabilities.setProperty(IHopFileType.CAPABILITY_DISTRIBUTE_VERTICAL, "true");
 
     capabilities.setProperty(IHopFileType.CAPABILITY_FILE_HISTORY, "true");
+    capabilities.setProperty(IHopFileType.CAPABILITY_SEARCH, "true");
 
     return capabilities;
   }
@@ -248,5 +252,16 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
   @Override
   public String getFileTypeImage() {
     return "ui/images/pipeline.svg";
+  }
+
+  @Override
+  public ISearchable createSearchable(
+      String filename,
+      String locationDescription,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopException {
+    PipelineMeta pipelineMeta = new PipelineMeta(filename, metadataProvider, variables);
+    return new HopGuiPipelineSearchable(locationDescription, pipelineMeta);
   }
 }
