@@ -159,6 +159,14 @@ public class HopGuiPipelineRunDelegate {
       }
     }
 
+    // Let plugins enrich the execution configuration (for example unit test variables) before the
+    // configuration dialog is shown so the user can review and change the values.
+    ExtensionPointHandler.callExtensionPoint(
+        log,
+        pipelineGraph.getVariables(),
+        HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id,
+        executionConfiguration);
+
     boolean execConfigAnswer = true;
 
     if (debugAnswer == PipelineDebugDialog.DEBUG_CONFIG) {
@@ -216,11 +224,6 @@ public class HopGuiPipelineRunDelegate {
           pipelineGraph.getVariables(),
           HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id,
           pipelineMeta);
-      ExtensionPointHandler.callExtensionPoint(
-          log,
-          pipelineGraph.getVariables(),
-          HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id,
-          executionConfiguration);
 
       if (previewDebug) {
         if (pipelineDebugMeta.getNrOfUsedTransforms() == 0) {
