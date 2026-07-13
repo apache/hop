@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.apache.hop.core.Const;
@@ -35,6 +36,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.PipelineMetricDisplayUtil;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.ActionResult;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
@@ -54,6 +57,18 @@ public class HopGuiWorkflowGridDelegate {
   public static final long REFRESH_TIME = 100L;
   public static final long UPDATE_TIME_VIEW = 1000L;
   private static final String STRING_CHEF_LOG_TREE_NAME = "Workflow Log Tree";
+
+  /** Column index for Logging date */
+  private static final int COL_LOG_DATE = 6;
+
+  /** Column index for Duration (after Logging date) */
+  private static final int COL_DURATION = 7;
+
+  /** Column index for Bytes read */
+  private static final int COL_BYTES_READ = 8;
+
+  /** Column index for Bytes written */
+  private static final int COL_BYTES_WRITTEN = 9;
 
   private HopGuiWorkflowGraph workflowGraph;
   private CTabItem workflowGridTab;
@@ -133,6 +148,10 @@ public class HopGuiWorkflowGridDelegate {
     column7.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.LogDate"));
     column7.setWidth(150);
 
+    TreeColumn columnDuration = new TreeColumn(wTree, SWT.RIGHT);
+    columnDuration.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.Duration"));
+    columnDuration.setWidth(100);
+
     TreeColumn column8 = new TreeColumn(wTree, SWT.RIGHT);
     column8.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.BytesRead"));
     column8.setWidth(120);
@@ -179,7 +198,12 @@ public class HopGuiWorkflowGridDelegate {
     if (workflowTracker != null) {
       int nrItems = workflowTracker.getTotalNumberOfItems();
 
-      if (nrItems != previousNrItems) {
+      // Rebuild when the tracker grew, or while the workflow is still active so that duration
+      // for in-progress actions keeps updating.
+      IWorkflowEngine<WorkflowMeta> workflow = workflowGraph.getWorkflow();
+      boolean workflowActive = workflow != null && workflow.isActive();
+
+      if (nrItems != previousNrItems || workflowActive) {
         TreeItem[] selectedItem = wTree.getSelection();
         Integer selectedIndex = null;
         if (wTree.getItemCount() > 0 && selectedItem != null && selectedItem.length > 0) {
@@ -213,9 +237,7 @@ public class HopGuiWorkflowGridDelegate {
             .storeExpanded(STRING_CHEF_LOG_TREE_NAME, new String[] {workflowName}, true);
 
         nrRow = 1;
-        for (int i = 0; i < workflowTracker.nrWorkflowTrackers(); i++) {
-          addTrackerToTree(workflowTracker.getWorkflowTracker(i), treeItem);
-        }
+        addChildTrackers(workflowTracker, treeItem);
         previousNrItems = nrItems;
 
         TreeMemory.setExpandedFromMemory(wTree, STRING_CHEF_LOG_TREE_NAME);
@@ -230,7 +252,45 @@ public class HopGuiWorkflowGridDelegate {
     }
   }
 
-  private void addTrackerToTree(WorkflowTracker<?> workflowTracker, TreeItem parentItem) {
+  /**
+   * Add all child trackers under the given parent, pairing start/end so duration is placed on the
+   * correct row.
+   */
+  private void addChildTrackers(WorkflowTracker<?> parentTracker, TreeItem parentItem) {
+    List<WorkflowTracker> children = parentTracker.getWorkflowTrackers();
+    for (int i = 0; i < children.size(); i++) {
+      addTrackerToTree(children.get(i), parentItem, isActionStartStillRunning(children, i));
+    }
+  }
+
+  /**
+   * True when the tracker at {@code index} is a "Start of action" that has not yet been followed by
+   * an "End of action" for the same action name.
+   */
+  private static boolean isActionStartStillRunning(
+      List<? extends WorkflowTracker> trackers, int index) {
+    WorkflowTracker tracker = trackers.get(index);
+    ActionResult actionResult = tracker.getActionResult();
+    // Starts have a null Result; ends carry the execution Result
+    if (actionResult == null || actionResult.getResult() != null) {
+      return false;
+    }
+    String actionName = actionResult.getActionName();
+    if (Utils.isEmpty(actionName)) {
+      return false;
+    }
+    for (int i = index + 1; i < trackers.size(); i++) {
+      ActionResult next = trackers.get(i).getActionResult();
+      if (next != null && actionName.equals(next.getActionName())) {
+        // Matching end exists when Result is non-null
+        return next.getResult() == null;
+      }
+    }
+    return true;
+  }
+
+  private void addTrackerToTree(
+      WorkflowTracker<?> workflowTracker, TreeItem parentItem, boolean actionStillRunning) {
     try {
       if (workflowTracker != null) {
         TreeItem treeItem = new TreeItem(parentItem, SWT.NONE);
@@ -253,9 +313,7 @@ public class HopGuiWorkflowGridDelegate {
                   + workflowTracker.getWorkflowName());
 
           // then populate the sub-actions ...
-          for (int i = 0; i < workflowTracker.nrWorkflowTrackers(); i++) {
-            addTrackerToTree(workflowTracker.getWorkflowTracker(i), treeItem);
-          }
+          addChildTrackers(workflowTracker, treeItem);
         } else {
           ActionResult result = workflowTracker.getActionResult();
           if (result != null) {
@@ -288,6 +346,23 @@ public class HopGuiWorkflowGridDelegate {
                 treeItem.setImage(2, GuiResource.getInstance().getImageFailure());
                 treeItem.setForeground(GuiResource.getInstance().getColorRed());
               }
+              // Duration on the "End of action" line (finished actions have a Result with
+              // elapsed time set by Workflow)
+              if (!Utils.isEmpty(actionName)) {
+                treeItem.setText(
+                    COL_DURATION,
+                    Utils.getDurationHMS(((double) res.getElapsedTimeMillis()) / 1000));
+              }
+            } else if (actionStillRunning) {
+              // Still running: put duration on the "Start of action" line
+              Date startDate = result.getLogDate();
+              if (startDate != null) {
+                long durationMs = System.currentTimeMillis() - startDate.getTime();
+                if (durationMs < 0) {
+                  durationMs = 0;
+                }
+                treeItem.setText(COL_DURATION, Utils.getDurationHMS(((double) durationMs) / 1000));
+              }
             }
             String reason = result.getReason();
             if (reason != null) {
@@ -295,19 +370,22 @@ public class HopGuiWorkflowGridDelegate {
             }
             Date logDate = result.getLogDate();
             if (logDate != null) {
-              treeItem.setText(6, new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(logDate));
+              treeItem.setText(
+                  COL_LOG_DATE, new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(logDate));
             }
             if (Const.toBoolean(
                 HopGui.getInstance()
                     .getVariables()
                     .getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
               treeItem.setText(
-                  7, result.getBytesRead() > 0 ? formatBytes(result.getBytesRead()) : "");
+                  COL_BYTES_READ,
+                  result.getBytesRead() > 0 ? formatBytes(result.getBytesRead()) : "");
               treeItem.setText(
-                  8, result.getBytesWritten() > 0 ? formatBytes(result.getBytesWritten()) : "");
+                  COL_BYTES_WRITTEN,
+                  result.getBytesWritten() > 0 ? formatBytes(result.getBytesWritten()) : "");
             } else {
-              treeItem.setText(7, "");
-              treeItem.setText(8, "");
+              treeItem.setText(COL_BYTES_READ, "");
+              treeItem.setText(COL_BYTES_WRITTEN, "");
             }
           }
         }
