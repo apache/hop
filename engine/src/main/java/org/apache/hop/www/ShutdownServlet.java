@@ -28,6 +28,9 @@ public class ShutdownServlet extends BaseHttpServlet {
 
   public static final String CONTEXT_PATH = "/shutdown";
 
+  /** Delay before the shutdown is performed, to give the servlet time to respond. */
+  private static final long SHUTDOWN_DELAY_MS = 2000L;
+
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
@@ -38,19 +41,25 @@ public class ShutdownServlet extends BaseHttpServlet {
             + "' at address "
             + request.getRemoteAddr());
 
-    TimerTask task =
-        new TimerTask() {
-          public void run() {
-            //  Gracefully shutdown the web server
-            HopServer server = HopServerSingleton.getHopServer();
-            if (server != null) {
-              server.shutdown();
+    HopServer server = HopServerSingleton.getHopServer();
+    if (server != null) {
+      Timer timer = new Timer("Server shutdown timer");
+      TimerTask task =
+          new TimerTask() {
+            @Override
+            public void run() {
+              try {
+                //  Gracefully shutdown the web server
+                server.shutdown();
+              } finally {
+                timer.cancel();
+              }
             }
-          }
-        };
+          };
 
-    // Delay shutdown to give servlet time to respond
-    new Timer("Server shutdown timer").schedule(task, 2000L);
+      // Delay shutdown to give servlet time to respond
+      timer.schedule(task, SHUTDOWN_DELAY_MS);
+    }
     response.setStatus(HttpServletResponse.SC_OK);
   }
 }
