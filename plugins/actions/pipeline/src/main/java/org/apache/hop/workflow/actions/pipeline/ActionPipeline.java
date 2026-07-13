@@ -522,8 +522,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         pipeline.setMetadataProvider(getMetadataProvider());
 
         // Handle parameters...
+        // Factory already initialized the pipeline from this action's variables (parent workflow
+        // + env). Do not re-initialize from null or environment variables are dropped.
         //
-        pipeline.initializeFrom(null);
         pipeline.copyParametersFromDefinitions(pipelineMeta);
 
         // Pass the parameter values and activate...

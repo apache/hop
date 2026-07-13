@@ -3,5 +3,13 @@
     "name" : "AES2_PASSWORD",
     "value" : "AES2 5SPGXV3SEPhoDRiYIxBv+wtnSC7WQYoYU6zyJx1Y75sEzHAM",
     "description" : ""
+  }, {
+    "name" : "HOP_PASSWORD_ENCODER_PLUGIN",
+    "value" : "AES2",
+    "description" : "AES2 encoder required to decrypt AES2_PASSWORD in this suite"
+  }, {
+    "name" : "HOP_AES_ENCODER_KEY",
+    "value" : "abcdef",
+    "description" : "Key matching the ciphertext stored in AES2_PASSWORD"
   } ]
 }

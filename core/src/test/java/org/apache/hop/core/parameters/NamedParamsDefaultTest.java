@@ -79,6 +79,36 @@ class NamedParamsDefaultTest {
   }
 
   @Test
+  void testActivateParametersPrefersExistingVariableOverDefault() throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable("HOSTNAME", "http");
+    variables.setVariable("BOOTSTRAP_SERVERS", "kafka:9092");
+
+    namedParams.addParameterDefinition("HOSTNAME", "localhost", "HTTP host");
+    namedParams.addParameterDefinition("BOOTSTRAP_SERVERS", "", "Kafka bootstrap");
+    namedParams.addParameterDefinition("ONLY_DEFAULT", "from-default", "No prior variable");
+
+    namedParams.activateParameters(variables);
+
+    assertEquals("http", variables.getVariable("HOSTNAME"));
+    assertEquals("kafka:9092", variables.getVariable("BOOTSTRAP_SERVERS"));
+    assertEquals("from-default", variables.getVariable("ONLY_DEFAULT"));
+  }
+
+  @Test
+  void testActivateParametersExplicitValueWinsOverExistingVariable() throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable("HOSTNAME", "http");
+
+    namedParams.addParameterDefinition("HOSTNAME", "localhost", "HTTP host");
+    namedParams.setParameterValue("HOSTNAME", "explicit-host");
+
+    namedParams.activateParameters(variables);
+
+    assertEquals("explicit-host", variables.getVariable("HOSTNAME"));
+  }
+
+  @Test
   void testAddParameterDefinitionWithException() throws DuplicateParamException {
     namedParams.addParameterDefinition("key", "value", "description");
 
