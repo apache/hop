@@ -34,7 +34,7 @@ import org.apache.hop.testing.DataSetField;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -392,13 +392,17 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
       List<Object[]> setRows = set.getAllRows(manager.getVariables(), LogChannel.UI);
       IRowMeta setRowMeta = set.getSetRowMeta();
 
-      PreviewRowsDialog previewRowsDialog =
-          new PreviewRowsDialog(
-              parent.getShell(), new Variables(), SWT.NONE, set.getName(), setRowMeta, setRows);
-      previewRowsDialog.open();
+      new ShowRowsDialog(
+              parent.getShell(),
+              manager.getVariables(),
+              BaseMessages.getString(PKG, "DataSetDialog.ViewRows.Title"),
+              BaseMessages.getString(PKG, "DataSetDialog.ViewRows.Message", set.getName()),
+              setRowMeta,
+              setRows)
+          .open();
 
     } catch (Exception e) {
-      new ErrorDialog(getShell(), CONST_ERROR, "Error previewing data from dataset table", e);
+      new ErrorDialog(getShell(), CONST_ERROR, "Error viewing data from dataset table", e);
     }
   }
 

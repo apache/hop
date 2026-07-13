@@ -44,7 +44,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -832,10 +832,15 @@ public class DatabaseExplorerDialog extends Dialog {
     List<Object[]> rows = pd.open();
     if (pd.isPreviewSucceeded()) {
       if (!rows.isEmpty()) {
-        PreviewRowsDialog prd =
-            new PreviewRowsDialog(
-                shell, variables, SWT.NONE, qualifiedTableName, pd.getRowMeta(), rows);
-        prd.open();
+        new ShowRowsDialog(
+                shell,
+                variables,
+                BaseMessages.getString(PKG, "DatabaseExplorerDialog.ShowRows.Title"),
+                BaseMessages.getString(
+                    PKG, "DatabaseExplorerDialog.ShowRows.Message", qualifiedTableName),
+                pd.getRowMeta(),
+                rows)
+            .open();
       } else {
         MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
         mb.setMessage(BaseMessages.getString(PKG, "DatabaseExplorerDialog.NoRows.Message"));

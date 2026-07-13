@@ -144,6 +144,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.ui.core.dialog.ShowRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -1476,19 +1477,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               }
             }
 
-            PreviewRowsDialog previewRowsDialog =
-                new PreviewRowsDialog(
+            new ShowRowsDialog(
                     hopGui.getActiveShell(),
                     variables,
-                    SWT.NONE,
-                    dataTransformMeta.getName(),
+                    title,
+                    prefix + message,
                     rowBuffer.getRowMeta(),
-                    rowBuffer.getBuffer());
-            previewRowsDialog.setTitleMessage(title, prefix + message);
-            previewRowsDialog.open();
+                    rowBuffer.getBuffer())
+                .open();
           } catch (Exception ex) {
             new ErrorDialog(
-                hopGui.getActiveShell(), CONST_ERROR, "Error showing preview dialog", ex);
+                hopGui.getActiveShell(), CONST_ERROR, "Error showing output rows dialog", ex);
           }
         }
       }
