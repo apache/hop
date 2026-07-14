@@ -19,6 +19,7 @@ package org.apache.hop.lineage;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.context.LineageContext;
@@ -36,6 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.workflow.WorkflowExecutionExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
@@ -86,6 +88,47 @@ public final class LineageRunLifecycleEmitter {
       if (!Utils.isEmpty(parentId)) {
         ctx.putAttribute("parentPipelineLogChannelId", parentId);
       }
+    }
+    return ctx;
+  }
+
+  /**
+   * Correlation context for a workflow action instance that is currently executing — used for the
+   * file and HTTP I/O events emitted from inside {@link IAction#execute}.
+   *
+   * <p>The log channel id is the action instance's own channel, not the workflow's: the workflow
+   * clones the action and hands the clone a fresh log channel per execution, so this is the id that
+   * correlates an I/O event with the action's own lifecycle events and log lines. The workflow's
+   * channel remains available as the {@code workflowLogChannelId} attribute. Falls back to the
+   * workflow's channel only when the action has no channel of its own.
+   */
+  public static LineageContext.Builder actionContextBuilder(
+      IWorkflowEngine<WorkflowMeta> workflow, IAction action) {
+    if (workflow == null || action == null) {
+      return null;
+    }
+    WorkflowMeta meta = workflow.getWorkflowMeta();
+    String workflowName = meta != null ? meta.getName() : null;
+    String filename = meta != null ? meta.getFilename() : null;
+
+    ILogChannel actionLog = action.getLogChannel();
+    String actionLogChannelId = actionLog != null ? actionLog.getLogChannelId() : null;
+
+    LineageContext.Builder ctx =
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.ACTION)
+            .logChannelId(
+                !Utils.isEmpty(actionLogChannelId)
+                    ? actionLogChannelId
+                    : workflow.getLogChannelId())
+            .workflowName(workflowName)
+            .actionName(action.getName());
+    if (!Utils.isEmpty(filename)) {
+      fillFilenameFields(ctx, filename, workflow);
+    }
+    ctx.putAttribute("workflowLogChannelId", workflow.getLogChannelId());
+    if (!Utils.isEmpty(action.getPluginId())) {
+      ctx.putAttribute("actionPluginId", action.getPluginId());
     }
     return ctx;
   }

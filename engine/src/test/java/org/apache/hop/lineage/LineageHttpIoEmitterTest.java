@@ -98,9 +98,13 @@ class LineageHttpIoEmitterTest {
     when(wf.getWorkflowMeta()).thenReturn(meta);
     when(wf.getLogChannelId()).thenReturn("wf-log");
 
+    ILogChannel actionLog = mock(ILogChannel.class);
+    when(actionLog.getLogChannelId()).thenReturn("action-log");
+
     ActionBase action = mock(ActionBase.class);
     when(action.getName()).thenReturn("HTTP");
     when(action.getPluginId()).thenReturn("HTTP");
+    when(action.getLogChannel()).thenReturn(actionLog);
 
     HttpLineagePayload payload =
         new HttpLineagePayload(
@@ -117,6 +121,10 @@ class LineageHttpIoEmitterTest {
                 (LineageEvent e) ->
                     e.getKind() == LineageEventKind.HTTP_IO
                         && e.getContext().getSubjectType() == LineageSubjectType.ACTION
+                        // subject is the action, so its own log channel identifies it
+                        && "action-log".equals(e.getContext().getLogChannelId())
+                        && "wf-log"
+                            .equals(e.getContext().getAttributes().get("workflowLogChannelId"))
                         && e.getPayload() instanceof HttpLineagePayload p
                         && p.getRequestBytes() == 100L));
   }

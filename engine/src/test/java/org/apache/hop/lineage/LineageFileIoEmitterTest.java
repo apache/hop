@@ -60,9 +60,13 @@ class LineageFileIoEmitterTest {
     when(wf.getWorkflowMeta()).thenReturn(meta);
     when(wf.getLogChannelId()).thenReturn("wf-log-1");
 
+    ILogChannel actionLog = mock(ILogChannel.class);
+    when(actionLog.getLogChannelId()).thenReturn("action-log-1");
+
     ActionBase action = mock(ActionBase.class);
     when(action.getName()).thenReturn("Move stuff");
     when(action.getPluginId()).thenReturn("MOVE_FILES");
+    when(action.getLogChannel()).thenReturn(actionLog);
 
     try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
       staticHub.when(LineageHub::getInstance).thenReturn(hub);
@@ -94,6 +98,15 @@ class LineageFileIoEmitterTest {
                   if (!"Move stuff".equals(e.getContext().getActionName())) {
                     return false;
                   }
+                  // The subject is the action, so the log channel must be the action instance's,
+                  // not the workflow's.
+                  if (!"action-log-1".equals(e.getContext().getLogChannelId())) {
+                    return false;
+                  }
+                  if (!"wf-log-1"
+                      .equals(e.getContext().getAttributes().get("workflowLogChannelId"))) {
+                    return false;
+                  }
                   if (!(e.getPayload() instanceof FileIoLineagePayload p)) {
                     return false;
                   }
@@ -104,6 +117,37 @@ class LineageFileIoEmitterTest {
                       && p.isSuccess()
                       && p.getContentSchema() == null;
                 }));
+  }
+
+  @Test
+  void emitWorkflowActionFileIo_fallsBackToWorkflowLogChannelWhenActionHasNone() {
+    LineageHub hub = mock(LineageHub.class);
+
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setName("wf1");
+
+    @SuppressWarnings("unchecked")
+    IWorkflowEngine<WorkflowMeta> wf = mock(IWorkflowEngine.class);
+    when(wf.getWorkflowMeta()).thenReturn(meta);
+    when(wf.getLogChannelId()).thenReturn("wf-log-1");
+
+    ActionBase action = mock(ActionBase.class);
+    when(action.getName()).thenReturn("Move stuff");
+    when(action.getLogChannel()).thenReturn(null);
+
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+
+      LineageFileIoEmitter.emitWorkflowActionFileIo(
+          wf, action, FileIoOperation.DELETE, "file:///data/in.csv", null, null, true, null);
+    }
+
+    verify(hub)
+        .emit(
+            argThat(
+                (LineageEvent e) ->
+                    e.getContext().getSubjectType() == LineageSubjectType.ACTION
+                        && "wf-log-1".equals(e.getContext().getLogChannelId())));
   }
 
   @Test

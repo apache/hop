@@ -19,8 +19,6 @@ package org.apache.hop.lineage;
 
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lineage.context.LineageContext;
-import org.apache.hop.lineage.context.LineagePortableFilename;
-import org.apache.hop.lineage.context.LineageSubjectType;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.lineage.model.LineageEvent;
@@ -54,28 +52,13 @@ public final class LineageHttpIoEmitter {
 
   public static void emitWorkflowActionHttpIo(
       IWorkflowEngine<WorkflowMeta> workflow, IAction action, HttpLineagePayload payload) {
-    if (workflow == null || action == null || payload == null) {
+    if (payload == null) {
       return;
     }
-    WorkflowMeta meta = workflow.getWorkflowMeta();
-    String workflowName = meta != null ? meta.getName() : null;
-    String filename = meta != null ? meta.getFilename() : null;
-
-    LineageContext.Builder ctx =
-        LineageContext.builder()
-            .subjectType(LineageSubjectType.ACTION)
-            .logChannelId(workflow.getLogChannelId())
-            .workflowName(workflowName)
-            .actionName(action.getName());
-    if (!Utils.isEmpty(filename)) {
-      ctx.hopFilename(filename);
-      ctx.hopFilenamePortableKey(LineagePortableFilename.portableKey(filename, workflow));
+    LineageContext.Builder ctx = LineageRunLifecycleEmitter.actionContextBuilder(workflow, action);
+    if (ctx == null) {
+      return;
     }
-    ctx.putAttribute("workflowLogChannelId", workflow.getLogChannelId());
-    if (!Utils.isEmpty(action.getPluginId())) {
-      ctx.putAttribute("actionPluginId", action.getPluginId());
-    }
-
     LineageHub.getInstance().emit(LineageEvent.of(LineageEventKind.HTTP_IO, ctx.build(), payload));
   }
 }
