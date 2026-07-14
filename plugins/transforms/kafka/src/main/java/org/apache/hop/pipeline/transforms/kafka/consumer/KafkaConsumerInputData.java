@@ -31,6 +31,9 @@ public class KafkaConsumerInputData extends BaseTransformData implements ITransf
   public Consumer<Object, Object> consumer;
   public int batchDuration;
   public int batchSize;
+  public boolean stopWhenIdle;
+  public long maxIdleTimeMs;
+  public long lastRecordTime;
   public RowProducer rowProducer;
   public SingleThreadedPipelineExecutor executor;
   public boolean isKafkaConsumerClosing;
