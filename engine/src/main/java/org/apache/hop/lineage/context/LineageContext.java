@@ -38,8 +38,11 @@ import lombok.Getter;
  *       channel)
  *   <li><b>TRANSFORM</b> — {@code pipelineName}, {@code transformName}, {@code copyNr}, and {@code
  *       logChannelId} (the transform's log channel)
- *   <li><b>ACTION</b> — {@code workflowName}, {@code actionName}, and {@code logChannelId} (varies
- *       by lifecycle phase between the workflow's and the action instance's log channel)
+ *   <li><b>ACTION</b> — {@code workflowName}, {@code actionName}, and {@code logChannelId} (the
+ *       executing action instance's log channel; the workflow's channel is always available as the
+ *       {@code workflowLogChannelId} attribute). The one exception is the {@code STARTED} run
+ *       lifecycle phase: the action instance does not exist yet at that point, so {@code
+ *       logChannelId} carries the workflow's channel.
  *   <li><b>OTHER</b> — sentinel for events that do not map to a single subject
  * </ul>
  *
