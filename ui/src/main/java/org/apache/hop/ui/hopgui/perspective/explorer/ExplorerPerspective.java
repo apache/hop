@@ -914,15 +914,48 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     // Which folder is being expanded?
     //
     TreeItem item = (TreeItem) event.item;
-    TreeItemFolder treeItemFolder = (TreeItemFolder) item.getData();
-    if (treeItemFolder != null && !treeItemFolder.loaded) {
-      BusyIndicator.showWhile(
-          hopGui.getDisplay(),
-          () -> {
-            refreshFolder(item, treeItemFolder.path, treeItemFolder.depth + 1);
-            treeItemFolder.loaded = true;
-          });
+    ensureFolderLoaded(item);
+  }
+
+  /**
+   * True when the folder still has only the lazy-loading placeholder child (empty text, no data).
+   * Expanding such a node would show a blank row in the tree.
+   */
+  private static boolean hasOnlyLazyDummyChild(TreeItem item) {
+    if (item == null || item.isDisposed() || item.getItemCount() != 1) {
+      return false;
     }
+    TreeItem firstChild = item.getItem(0);
+    return firstChild.getData() == null && Utils.isEmpty(firstChild.getText());
+  }
+
+  /** Depth passed to {@link #refreshFolder} when loading children of {@code tif}. */
+  private int childDepthForFolder(TreeItemFolder tif) {
+    return tif.path.equals(rootFolder) ? 0 : tif.depth + 1;
+  }
+
+  /**
+   * Loads folder contents when still unloaded or stuck with a lazy placeholder. Safe to call before
+   * any programmatic {@code setExpanded(true)}.
+   */
+  private void ensureFolderLoaded(TreeItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+    TreeItemFolder tif = (TreeItemFolder) item.getData();
+    if (tif == null || !tif.folder) {
+      return;
+    }
+    if (tif.loaded && !hasOnlyLazyDummyChild(item)) {
+      return;
+    }
+
+    BusyIndicator.showWhile(
+        hopGui.getDisplay(),
+        () -> {
+          refreshFolder(item, tif.path, childDepthForFolder(tif));
+          tif.loaded = true;
+        });
   }
 
   private void openFile(Event event) {
@@ -950,6 +983,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           // Expand the folder
           //
           boolean expanded = !item.getExpanded();
+          if (expanded) {
+            ensureFolderLoaded(item);
+          }
           item.setExpanded(expanded);
           TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expanded);
         } else {
@@ -2422,14 +2458,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return true;
     }
     if (tif != null && tif.folder && isDescendant(tif.path, filename)) {
-      if (!tif.loaded) {
-        BusyIndicator.showWhile(
-            hopGui.getDisplay(),
-            () -> {
-              refreshFolder(item, tif.path, tif.depth + 1);
-              tif.loaded = true;
-            });
-      }
+      ensureFolderLoaded(item);
       item.setExpanded(true);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
       for (TreeItem child : item.getItems()) {
@@ -2712,15 +2741,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (selection == null || selection.length == 0) {
       expandCollapse(tree.getTopItem(), true);
     } else {
-      TreeItemFolder treeItemFolder = (TreeItemFolder) selection[0].getData();
-      if (treeItemFolder != null && !treeItemFolder.loaded) {
-        BusyIndicator.showWhile(
-            hopGui.getDisplay(),
-            () -> {
-              refreshFolder(selection[0], treeItemFolder.path, treeItemFolder.depth + 1);
-              treeItemFolder.loaded = true;
-            });
-      }
+      // expandCollapse → ensureFolderLoaded covers lazy folders under the selection
       expandCollapse(selection[0], true);
     }
     tree.setRedraw(true);
@@ -2749,12 +2770,21 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   public void expandCollapse(TreeItem item, boolean expand) {
-    TreeItem[] items = item.getItems();
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+    if (expand) {
+      // Expand All used to setExpanded(true) on lazy folders that still only had a dummy child,
+      // which showed blank rows. Load real children first.
+      ensureFolderLoaded(item);
+    }
     item.setExpanded(expand);
     TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, expand);
 
-    for (TreeItem childItem : items) {
-      if (childItem.getItemCount() >= 1) {
+    for (TreeItem childItem : item.getItems()) {
+      TreeItemFolder childTif = (TreeItemFolder) childItem.getData();
+
+      if ((childTif != null && childTif.folder) || childItem.getItemCount() > 1) {
         expandCollapse(childItem, expand);
       }
     }
@@ -3030,8 +3060,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
 
-    int childDepth = tif.path.equals(rootFolder) ? 0 : tif.depth + 1;
-    refreshFolder(folderItem, tif.path, childDepth);
+    // Dispose children while collapsed so SWT does not leave ghost blank rows under an
+    // expanded parent (common after scoped refresh + later expand/collapse).
+    String[] treePath = ConstUi.getTreeStrings(folderItem);
+    boolean wasExpanded = folderItem.getExpanded();
+    if (wasExpanded) {
+      folderItem.setExpanded(false);
+      // Collapse listener clears TreeMemory; put the remembered expand state back.
+      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, treePath, true);
+    }
+
+    refreshFolder(folderItem, tif.path, childDepthForFolder(tif));
     tif.loaded = true;
     restoreTreeItemExpandedFromMemory(folderItem);
   }
@@ -3436,13 +3475,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (tif != null) {
       boolean expanded =
           TreeMemory.getInstance().isExpanded(FILE_EXPLORER_TREE, ConstUi.getTreeStrings(item));
-      if (expanded && !tif.loaded && item.getItemCount() == 1) {
-        TreeItem firstChild = item.getItem(0);
-        if (firstChild.getData() == null) {
-          int childDepth = tif.path.equals(rootFolder) ? 0 : tif.depth + 1;
-          refreshFolder(item, tif.path, childDepth);
-          tif.loaded = true;
-        }
+      if (expanded) {
+        ensureFolderLoaded(item);
       }
       item.setExpanded(expanded);
     }
@@ -3462,14 +3496,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (tif != null && tif.path != null && treeStateBeforeFilter.containsKey(tif.path)) {
       boolean wasExpanded = treeStateBeforeFilter.get(tif.path);
 
-      // If it should be expanded but has a dummy child, load it first
-      if (wasExpanded && !tif.loaded && item.getItemCount() == 1) {
-        TreeItem firstChild = item.getItem(0);
-        if (firstChild.getData() == null) {
-          // This is a dummy item, load the folder contents
-          refreshFolder(item, tif.path, tif.depth + 1);
-          tif.loaded = true;
-        }
+      // If it should be expanded but still has a lazy placeholder, load real children first
+      if (wasExpanded) {
+        ensureFolderLoaded(item);
       }
 
       item.setExpanded(wasExpanded);
@@ -3733,14 +3762,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
 
     if (tif != null && tif.folder && isDescendant(tif.path, path)) {
-      if (!tif.loaded) {
-        BusyIndicator.showWhile(
-            hopGui.getDisplay(),
-            () -> {
-              refreshFolder(item, tif.path, tif.depth + 1);
-              tif.loaded = true;
-            });
-      }
+      ensureFolderLoaded(item);
       item.setExpanded(true);
       TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, true);
       for (TreeItem child : item.getItems()) {
