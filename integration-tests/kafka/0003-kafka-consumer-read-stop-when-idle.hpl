@@ -65,7 +65,7 @@ limitations under the License.
     <batchSize>10</batchSize>
     <batchDuration>1000</batchDuration>
     <stopWhenIdle>Y</stopWhenIdle>
-    <maxIdleTimeMs>1000</maxIdleTimeMs>
+    <maxIdleTimeMs>5000</maxIdleTimeMs>
     <directBootstrapServers>${BOOTSTRAP_SERVERS}</directBootstrapServers>
     <AUTO_COMMIT>N</AUTO_COMMIT>
     <OutputField kafkaName="key" type="String">Key</OutputField>

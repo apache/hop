@@ -342,8 +342,13 @@ public class KafkaConsumerInputMeta
       // Check if we get called from error path and only in that case, show fields that will dump
       // the
       // record coming from the kafka queue.
-      TransformErrorMeta transformErrorMeta = getParentTransformMeta().getTransformErrorMeta();
+      TransformErrorMeta transformErrorMeta =
+          getParentTransformMeta() != null
+              ? getParentTransformMeta().getTransformErrorMeta()
+              : null;
       if (transformErrorMeta != null
+          && transformErrorMeta.getTargetTransform() != null
+          && nextTransform != null
           && transformErrorMeta.getTargetTransform().getName().equals(nextTransform.getName())) {
         rowMeta.addValueMeta(createValueMetaString(getKeyField().getOutputName()));
         rowMeta.addValueMeta(createValueMetaString(getMessageField().getOutputName()));

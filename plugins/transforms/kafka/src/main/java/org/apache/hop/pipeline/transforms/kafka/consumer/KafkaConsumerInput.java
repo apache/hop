@@ -292,20 +292,25 @@ public class KafkaConsumerInput
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {
-          // No records: optionally stop after max idle time
+          // No records: optionally stop after max idle time.
+          // Do not count idle until partitions are assigned — group join / rebalance can take
+          // longer than maxIdleTimeMs and would otherwise stop before any poll can succeed.
           //
-          if (data.stopWhenIdle
-              && (System.currentTimeMillis() - data.lastRecordTime) >= data.maxIdleTimeMs) {
-            logBasic(
-                "Kafka consumer idle timeout of "
-                    + data.maxIdleTimeMs
-                    + "ms exceeded, stopping gracefully");
-            data.isKafkaConsumerClosing = true;
-            if (data.executor != null) {
-              data.executor.getPipeline().stopAll();
+          if (data.stopWhenIdle) {
+            if (data.consumer.assignment() == null || data.consumer.assignment().isEmpty()) {
+              data.lastRecordTime = System.currentTimeMillis();
+            } else if ((System.currentTimeMillis() - data.lastRecordTime) >= data.maxIdleTimeMs) {
+              logBasic(
+                  "Kafka consumer idle timeout of "
+                      + data.maxIdleTimeMs
+                      + "ms exceeded, stopping gracefully");
+              data.isKafkaConsumerClosing = true;
+              if (data.executor != null) {
+                data.executor.getPipeline().stopAll();
+              }
+              setOutputDone();
+              return false;
             }
-            setOutputDone();
-            return false;
           }
         } else {
           // Grab the records...
