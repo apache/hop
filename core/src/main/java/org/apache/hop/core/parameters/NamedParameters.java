@@ -139,14 +139,16 @@ public class NamedParameters implements INamedParameters {
       if (StringUtils.isNotEmpty(param.key)) {
         String value = param.getValue();
         if (StringUtils.isEmpty(value)) {
-          // Prefer an already-set variable (environment / parent) over the parameter default.
-          // Nested workflows and pipelines used to clobber env values such as HOSTNAME or
-          // BOOTSTRAP_SERVERS when activateParameters applied empty defaults.
+          String defaultValue = Const.NVL(param.getDefaultValue(), "");
+          // Prefer an already-set variable only when the parameter has a non-empty default.
+          // That is the HOSTNAME=localhost case: nested files must not clobber env/project values.
+          // When the default is empty, applying "" is intentional (unset parameter) and must not
+          // silently adopt a same-named parent CURRENT_WORKFLOW variable — see IT main-0004/0006.
           String existing = variables != null ? variables.getVariable(param.getKey()) : null;
-          if (StringUtils.isNotEmpty(existing)) {
+          if (StringUtils.isNotEmpty(existing) && StringUtils.isNotEmpty(defaultValue)) {
             value = existing;
           } else {
-            value = Const.NVL(param.getDefaultValue(), "");
+            value = defaultValue;
           }
         }
         variables.setVariable(param.getKey(), value);
