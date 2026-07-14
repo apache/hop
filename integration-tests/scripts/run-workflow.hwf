@@ -34,6 +34,11 @@ limitations under the License.
       <default_value/>
       <description>The filename of the workflow to execute</description>
     </parameter>
+    <parameter>
+      <name>BOOTSTRAP_SERVERS</name>
+      <default_value>kafka:9092</default_value>
+      <description>Kafka bootstrap servers (docker IT network hostname)</description>
+    </parameter>
   </parameters>
   <actions>
     <action>

@@ -20,11 +20,18 @@ services:
     extends:
       file: integration-tests-base.yaml
       service: integration_test
+    environment:
+      # Available to hop-run / nested workflows as a variable (see run-tests.sh -p)
+      - BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
     links:
       - kafka
 
   kafka:
     image: 'apache/kafka:latest'
+    hostname: kafka
     ports:
       - '9092'
     environment:
@@ -40,4 +47,14 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 3
-
+    healthcheck:
+      # Wait until the broker accepts connections on the PLAINTEXT listener
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1 || exit 1",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 20s
