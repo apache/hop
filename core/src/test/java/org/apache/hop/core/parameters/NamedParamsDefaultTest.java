@@ -79,20 +79,32 @@ class NamedParamsDefaultTest {
   }
 
   @Test
-  void testActivateParametersPrefersExistingVariableOverDefault() throws Exception {
+  void testActivateParametersPrefersExistingVariableOverNonEmptyDefault() throws Exception {
+    // Nested pipelines often declare HOSTNAME default "localhost"; that must not clobber env.
     Variables variables = new Variables();
     variables.setVariable("HOSTNAME", "http");
-    variables.setVariable("BOOTSTRAP_SERVERS", "kafka:9092");
 
     namedParams.addParameterDefinition("HOSTNAME", "localhost", "HTTP host");
-    namedParams.addParameterDefinition("BOOTSTRAP_SERVERS", "", "Kafka bootstrap");
     namedParams.addParameterDefinition("ONLY_DEFAULT", "from-default", "No prior variable");
 
     namedParams.activateParameters(variables);
 
     assertEquals("http", variables.getVariable("HOSTNAME"));
-    assertEquals("kafka:9092", variables.getVariable("BOOTSTRAP_SERVERS"));
     assertEquals("from-default", variables.getVariable("ONLY_DEFAULT"));
+  }
+
+  @Test
+  void testActivateParametersEmptyDefaultDoesNotAdoptExistingVariable() throws Exception {
+    // Empty parameter default means unset: do not silently keep a same-named parent variable
+    // (integration tests main-0004 / main-0006).
+    Variables variables = new Variables();
+    variables.setVariable("TEST_PARAM", "from-parent-variable");
+
+    namedParams.addParameterDefinition("TEST_PARAM", "", "Empty default");
+
+    namedParams.activateParameters(variables);
+
+    assertEquals("", variables.getVariable("TEST_PARAM"));
   }
 
   @Test

@@ -559,6 +559,14 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>rest-client-slack-conversations-loop.hpl</item>
         <item>requires SLACK_BOT_TOKEN with channels:read or conversations:read</item>
       </line>
+      <line>
+        <item>ssh-password.hpl</item>
+        <item>requires reachable SSH host (sample points at a private lab IP)</item>
+      </line>
+      <line>
+        <item>ssh-pri-key.hpl</item>
+        <item>requires SSH private key and reachable SSH host</item>
+      </line>
     </data>
     <distribute>Y</distribute>
     <copies>1</copies>
