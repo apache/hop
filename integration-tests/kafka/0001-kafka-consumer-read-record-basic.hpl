@@ -46,11 +46,6 @@ limitations under the License.
       <to>Log Output</to>
       <enabled>Y</enabled>
     </hop>
-    <hop>
-      <from>Log Output</from>
-      <to>Stop Kafka Processing</to>
-      <enabled>Y</enabled>
-    </hop>
   </order>
   <transform>
     <name>Kafka Consumer</name>
@@ -67,8 +62,10 @@ limitations under the License.
     <consumerGroup/>
     <pipelinePath>${PROJECT_HOME}/0001-kafka-consumer-called-subpipeline.hpl</pipelinePath>
     <subTransform>Out record</subTransform>
-    <batchSize>1</batchSize>
+    <batchSize>10</batchSize>
     <batchDuration>1000</batchDuration>
+    <stopWhenIdle>Y</stopWhenIdle>
+    <maxIdleTimeMs>5000</maxIdleTimeMs>
     <directBootstrapServers>${BOOTSTRAP_SERVERS}</directBootstrapServers>
     <AUTO_COMMIT>N</AUTO_COMMIT>
     <OutputField kafkaName="key" type="String">Key</OutputField>
@@ -115,27 +112,6 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>560</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Stop Kafka Processing</name>
-    <type>Abort</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <abort_option>SAFE_STOP</abort_option>
-    <always_log_rows>Y</always_log_rows>
-    <message>Kafka consumer stopped</message>
-    <row_threshold>0</row_threshold>
-    <attributes/>
-    <GUI>
-      <xloc>672</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>
