@@ -308,7 +308,16 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
     }
   }
 
-  /** Builds the toolbar the way a perspective or dialog does, minus the disabled item. */
+  /**
+   * Builds the toolbar the way a perspective or dialog does, minus the disabled item.
+   *
+   * <p>The owning object is registered first, exactly as the application does it. That object is
+   * not decoration: Hop looks the gui plugin class up for every item, and a combo item asks it for
+   * its values ({@code getZoomLevels()} and friends). So a toolbar whose owner is a live UI object
+   * that cannot be constructed in a test JVM - HopGuiPipelineGraph, TableView, the execution
+   * viewers - cannot be built the way the application builds it, and is skipped with that as the
+   * reason rather than built half-way while Hop logs an error per item.
+   */
   private void buildToolbar(String owner, String root, String disabledItemId) {
     ensureDisplay();
 
@@ -322,9 +331,19 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
         items.remove(disabledItemId);
       }
 
+      // Hop resolves the gui plugin class of every item that is left on the toolbar - to ask it for
+      // an image, for its combo values - so all of them have to be constructible here, not only the
+      // owner. Items can be contributed to a root by more than one class.
+      //
+      for (GuiToolbarItem item : items.values()) {
+        newSourceObject(item.getListenerClass());
+      }
+
       IToolbarContainer container =
           ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-      new GuiToolbarWidgets().createToolbarWidgets(container, root);
+      GuiToolbarWidgets widgets = new GuiToolbarWidgets();
+      widgets.registerGuiPluginObject(newSourceObject(owner));
+      widgets.createToolbarWidgets(container, root);
     } finally {
       if (disabled != null) {
         items.put(disabledItemId, disabled);
@@ -346,6 +365,9 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
         items.remove(disabledItemId);
       }
 
+      // Unlike the toolbar, building a menu never resolves the owning gui plugin object - that only
+      // happens when an item is clicked - so there is nothing to register here.
+      //
       new GuiMenuWidgets().createMenuWidgets(root, shell, new Menu(shell, SWT.POP_UP));
     } finally {
       if (disabled != null) {
@@ -372,7 +394,14 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
       //
       Method getInstance = singletonAccessor(sourceClass);
       if (getInstance != null) {
-        return getInstance.invoke(null);
+        Object singleton = getInstance.invoke(null);
+        if (singleton != null) {
+          return singleton;
+        }
+        // The singleton only exists inside a running HopGui. Fall back to a fresh instance, which
+        // is exactly what BaseGuiWidgets.findGuiPluginInstance does when it finds nothing
+        // registered.
+        //
       }
       return sourceClass.getConstructor().newInstance();
     } catch (ReflectiveOperationException e) {
