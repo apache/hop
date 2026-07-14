@@ -856,6 +856,13 @@ public class GuiCompositeWidgets {
       Control control = widgetsMap.get(guiElements.getId());
       if (control != null) {
 
+        // A widget element declared on a method - a composite, a link, a button - has no field
+        // behind it, so there is no value to put into it.
+        //
+        if (guiElements.getFieldName() == null) {
+          return;
+        }
+
         // What's the value?
         //
         Object value = null;
@@ -866,11 +873,7 @@ public class GuiCompositeWidgets {
                   .invoke(sourceData);
         } catch (Exception e) {
           LogChannel.UI.logError(
-              "Unable to get value for field: '"
-                  + guiElements.getFieldName()
-                  + "' : "
-                  + e.getMessage());
-          e.printStackTrace();
+              "Unable to get value for field: '" + guiElements.getFieldName() + "'", e);
         }
         String stringValue = value == null ? "" : Const.NVL(value.toString(), "");
 
@@ -975,6 +978,13 @@ public class GuiCompositeWidgets {
 
       Control control = widgetsMap.get(guiElements.getId());
       if (control != null) {
+
+        // A widget element declared on a method - a composite, a link, a button - has no field
+        // behind it, so there is no value to retrieve from it.
+        //
+        if (guiElements.getFieldName() == null) {
+          return;
+        }
 
         // What's the value?
         //

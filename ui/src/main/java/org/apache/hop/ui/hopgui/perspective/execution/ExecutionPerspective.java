@@ -197,6 +197,17 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     instance = this;
   }
 
+  /**
+   * When this perspective is disabled (an exclusion in disabledGuiElements.xml) HopGui skips it
+   * while loading the perspectives, so {@link #initialize(HopGui, Composite)} never runs. The
+   * singleton still exists because the @GuiPlugin class is instantiated to register the GUI
+   * elements it declares, so callers reaching us through {@link #getInstance()} get an
+   * uninitialized instance which has no widgets and no state to work with.
+   */
+  private boolean isInitialized() {
+    return hopGui != null;
+  }
+
   @Override
   public String getId() {
     return "execution-perspective";
@@ -206,6 +217,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'i', global = true)
   @Override
   public void activate() {
+    if (!isInitialized()) {
+      return;
+    }
     // Prevents refreshes when not needed.
     if (!hopGui.isActivePerspective(this)) {
       hopGui.setActivePerspective(this);
@@ -221,7 +235,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(this);
+    return isInitialized() && hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -690,7 +704,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     // Only refresh if we're actually displaying anything.
     // Let's be conservative with responsiveness.
     //
-    if (!hopGui.isActivePerspective(this)) {
+    if (!isInitialized() || !hopGui.isActivePerspective(this)) {
       return;
     }
 
@@ -936,8 +950,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.TimeFilter.Tooltip")
   public void selectTimeFilter() {
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_TIME_FILTER);
-    String lastPeriodDescription = ((Combo) item.getControl()).getText();
-    this.timeFilter = LastPeriod.lookupDescription(lastPeriodDescription);
+    if (item == null || !(item.getControl() instanceof Combo combo)) {
+      return;
+    }
+    this.timeFilter = LastPeriod.lookupDescription(combo.getText());
 
     // Update the icon && apply the filter
     updateGui();
@@ -958,8 +974,13 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     this.onlyShowingFailed = false;
     this.filterText = "";
 
+    // The filter box itself can be switched off in disabledGuiElements.xml while this button is
+    // not, in which case there is no box to clear.
+    //
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    ((Text) item.getControl()).setText(FILTER_NAME_DATE_ID);
+    if (item != null && item.getControl() instanceof Text text) {
+      text.setText(FILTER_NAME_DATE_ID);
+    }
 
     // Update the icon && apply the filter
     updateGui();
@@ -974,7 +995,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       defaultText = FILTER_NAME_DATE_ID)
   public void selectTextFilter() {
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    this.filterText = ((Text) item.getControl()).getText();
+    if (item == null || !(item.getControl() instanceof Text text)) {
+      return;
+    }
+    this.filterText = text.getText();
 
     // Update the icon && apply the filter
     updateGui();
@@ -1175,6 +1199,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   public void saveState() {
+    // Nothing was ever restored or shown, so saving would only overwrite the state on disk with
+    // the field defaults.
+    //
+    if (!isInitialized()) {
+      return;
+    }
     try {
       AuditStateMap stateMap = new AuditStateMap();
       stateMap.add(
@@ -1207,6 +1237,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   /** Restore the state of this perspective. */
   public void restoreState() {
+    // There is no toolbar or tree to restore the state into.
+    //
+    if (!isInitialized()) {
+      return;
+    }
     try {
       AuditStateMap stateMap =
           AuditManager.getActive()

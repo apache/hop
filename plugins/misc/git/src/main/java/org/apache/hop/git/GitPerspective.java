@@ -236,7 +236,26 @@ public class GitPerspective implements IHopPerspective {
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'g', global = true)
   @Override
   public void activate() {
+    if (hopGui == null) {
+      // The perspective is switched off in disabledGuiElements.xml: it was never initialized, so
+      // there is nothing to switch to. The git toolbar and menu items that lead here live on the
+      // explorer perspective and are still there.
+      //
+      return;
+    }
     hopGui.setActivePerspective(this);
+  }
+
+  /**
+   * Enable or disable a context menu item. Every menu item can be switched off with an exclusion
+   * for its id in disabledGuiElements.xml, in which case it was never created and there is nothing
+   * here to enable.
+   */
+  private static void setMenuItemEnabled(GuiMenuWidgets menuWidgets, String id, boolean enabled) {
+    MenuItem menuItem = menuWidgets.findMenuItem(id);
+    if (menuItem != null) {
+      menuItem.setEnabled(enabled);
+    }
   }
 
   @Override
@@ -249,7 +268,7 @@ public class GitPerspective implements IHopPerspective {
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(this);
+    return hopGui != null && hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -371,23 +390,26 @@ public class GitPerspective implements IHopPerspective {
           boolean isRemotes = ref.getName().startsWith(Constants.R_REMOTES);
           boolean isTags = ref.getName().startsWith(Constants.R_TAGS);
 
-          refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_CHECKOUT).setEnabled(!isCurrentBranch);
-          refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_MERGE_BRANCH).setEnabled(!isCurrentBranch);
-          refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_PUSH).setEnabled(isHeads);
-          refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_PULL).setEnabled(isHeads);
-          refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_RENAME).setEnabled(isHeads);
-          refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_DELETE).setEnabled(!isCurrentBranch);
+          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_CHECKOUT, !isCurrentBranch);
+          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PUSH, isHeads);
+          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PULL, isHeads);
+          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_RENAME, isHeads);
+          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_DELETE, !isCurrentBranch);
 
           MenuItem menuItem = refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_CREATE_BRANCH);
-          menuItem.setEnabled(isHeads || isRemotes);
-          menuItem.setText(
-              BaseMessages.getString(PKG, "GitPerspective.Menu.CreateBranchFrom.Text", branch));
+          if (menuItem != null) {
+            menuItem.setEnabled(isHeads || isRemotes);
+            menuItem.setText(
+                BaseMessages.getString(PKG, "GitPerspective.Menu.CreateBranchFrom.Text", branch));
+          }
 
           menuItem = refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_MERGE_BRANCH);
-          menuItem.setEnabled(!isCurrentBranch);
-          menuItem.setText(
-              BaseMessages.getString(
-                  PKG, "GitPerspective.Menu.MergeInto.Text", branch, currentBranch));
+          if (menuItem != null) {
+            menuItem.setEnabled(!isCurrentBranch);
+            menuItem.setText(
+                BaseMessages.getString(
+                    PKG, "GitPerspective.Menu.MergeInto.Text", branch, currentBranch));
+          }
         });
 
     // Create Tree editor for rename
@@ -437,10 +459,11 @@ public class GitPerspective implements IHopPerspective {
           RevCommit commit = getSelectedCommit();
           String path = getSelectedFile();
           if (commit != null && path != null) {
-            fileMenuWidgets.findMenuItem(FILE_CONTEXT_MENU_SHOW_TEXT_DIFF).setEnabled(true);
-            fileMenuWidgets
-                .findMenuItem(FILE_CONTEXT_MENU_SHOW_GRAPH_DIFF)
-                .setEnabled(FileTypeUtils.isHopFileType(path));
+            setMenuItemEnabled(fileMenuWidgets, FILE_CONTEXT_MENU_SHOW_TEXT_DIFF, true);
+            setMenuItemEnabled(
+                fileMenuWidgets,
+                FILE_CONTEXT_MENU_SHOW_GRAPH_DIFF,
+                FileTypeUtils.isHopFileType(path));
           } else {
             event.doit = false;
           }
@@ -1488,18 +1511,17 @@ public class GitPerspective implements IHopPerspective {
 
             boolean isCommitInCurrentBranch = isCommitInCurrentBranch(commit);
 
-            historyMenuWidgets
-                .findMenuItem(HISTORY_CONTEXT_MENU_RESET)
-                .setEnabled(isCommitInCurrentBranch);
+            setMenuItemEnabled(
+                historyMenuWidgets, HISTORY_CONTEXT_MENU_RESET, isCommitInCurrentBranch);
 
             // Revert commit with multiple parents isn't allowed
-            historyMenuWidgets
-                .findMenuItem(HISTORY_CONTEXT_MENU_REVERT_COMMIT)
-                .setEnabled(isCommitInCurrentBranch && commit.getParentCount() == 1);
+            setMenuItemEnabled(
+                historyMenuWidgets,
+                HISTORY_CONTEXT_MENU_REVERT_COMMIT,
+                isCommitInCurrentBranch && commit.getParentCount() == 1);
 
-            historyMenuWidgets
-                .findMenuItem(HISTORY_CONTEXT_MENU_CHERRY_PICK)
-                .setEnabled(!isCommitInCurrentBranch);
+            setMenuItemEnabled(
+                historyMenuWidgets, HISTORY_CONTEXT_MENU_CHERRY_PICK, !isCommitInCurrentBranch);
 
           } else {
             event.doit = false;

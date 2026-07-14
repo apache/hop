@@ -241,6 +241,17 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     this.metadataFileType = new MetadataFileType();
   }
 
+  /**
+   * When this perspective is disabled (an exclusion in disabledGuiElements.xml) HopGui skips it
+   * while loading the perspectives, so initialize() never runs. The singleton still exists because
+   * the class is instantiated to register the GUI elements it declares, so callers reaching it
+   * through {@link #getInstance()} get an instance without a HopGui, tree or tab folder to work
+   * with.
+   */
+  private boolean isInitialized() {
+    return hopGui != null;
+  }
+
   @Override
   public String getId() {
     return "metadata-perspective";
@@ -250,6 +261,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'm', global = true)
   @Override
   public void activate() {
+    if (!isInitialized()) {
+      return;
+    }
     hopGui.setActivePerspective(this);
   }
 
@@ -261,7 +275,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(this);
+    return isInitialized() && hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -736,6 +750,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * at that position; otherwise it is appended at the end.
    */
   public void addEditor(MetadataEditor<?> editor, int tabIndex) {
+    if (!isInitialized()) {
+      // There is no tab folder to add the editor to.
+      //
+      return;
+    }
 
     // Create tab item
     //
@@ -890,6 +909,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   public void setActiveEditor(MetadataEditor<?> editor) {
+    if (!isInitialized()) {
+      return;
+    }
     for (CTabItem item : tabFolder.getItems()) {
       if (item.getData().equals(editor)) {
         tabFolder.setSelection(item);
@@ -904,7 +926,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   public MetadataEditor<?> getActiveEditor() {
-    if (tabFolder.getSelectionIndex() < 0) {
+    if (!isInitialized() || tabFolder.getSelectionIndex() < 0) {
       return null;
     }
 
@@ -1997,7 +2019,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   public void updateEditor(MetadataEditor<?> editor) {
 
-    if (editor == null) return;
+    if (editor == null || !isInitialized()) return;
 
     // Update TabItem
     //
@@ -2075,6 +2097,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
+    if (!isInitialized()) {
+      // There is no tree to render the metadata into.
+      //
+      return;
+    }
     reloadModel();
     renderTree();
     // Keep the overview catalog in sync when it is the visible panel (no editor open).
@@ -2720,6 +2747,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
+    if (!isInitialized()) {
+      return false;
+    }
     if (typeHandler instanceof MetadataEditor<?> editor && editor.isCloseable()) {
 
       editors.remove(editor);
@@ -2754,6 +2784,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @Override
   public List<TabItemHandler> getItems() {
     List<TabItemHandler> items = new ArrayList<>();
+    if (!isInitialized()) {
+      return items;
+    }
     for (CTabItem tabItem : tabFolder.getItems()) {
       for (MetadataEditor<?> editor : editors) {
         if (tabItem.getData().equals(editor)) {
@@ -2847,6 +2880,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /** Finds the tree node for a metadata type (by key), searching inside the category headers. */
   private TreeItem findTypeItem(String key) {
+    if (!isInitialized()) {
+      // There is no tree to navigate to.
+      //
+      return null;
+    }
     for (TreeItem categoryItem : tree.getItems()) {
       for (TreeItem typeItem : categoryItem.getItems()) {
         if (TYPE.equals(typeItem.getData(KEY_TYPE)) && key.equals(typeItem.getData())) {
