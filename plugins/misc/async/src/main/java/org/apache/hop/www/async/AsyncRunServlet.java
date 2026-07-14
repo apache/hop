@@ -171,11 +171,13 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
       workflow.initializeFrom(variables);
       workflow.setVariable("SERVER_OBJECT_ID", serverObjectId);
 
-      // See if we need to pass a variable with the content in it...
-      //
-      // Read the content posted?
+      // Pass body and header content into variables when configured.
+      // Guard both independently so an unset header variable never injects a null key
+      // (which caused NPE in Kafka Consumer init via replaceVariableValues — issue #7067).
       //
       String contentVariable = variables.resolve(webService.getBodyContentVariable());
+      String headerContentVariable = variables.resolve(webService.getHeaderContentVariable());
+
       String content = "";
       if (StringUtils.isNotEmpty(contentVariable)) {
         try (InputStream in = request.getInputStream()) {
@@ -193,24 +195,21 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
           }
         }
         workflow.setVariable(contentVariable, Const.NVL(content, ""));
+      }
 
-        String headerContentVariable = variables.resolve(webService.getHeaderContentVariable());
-        String headerContent = "";
-        if (StringUtils.isNotEmpty(headerContentVariable)) {
-          // Create JSON object containing all request headers
-          ObjectMapper objectMapper = new ObjectMapper();
-          ObjectNode headersJson = objectMapper.createObjectNode();
+      if (StringUtils.isNotEmpty(headerContentVariable)) {
+        // Create JSON object containing all request headers
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode headersJson = objectMapper.createObjectNode();
 
-          Enumeration<String> headerNames = request.getHeaderNames();
-          while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            String headerValue = request.getHeader(headerName);
-            headersJson.put(headerName, headerValue);
-          }
-          headerContent = objectMapper.writeValueAsString(headersJson);
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+          String headerName = headerNames.nextElement();
+          String headerValue = request.getHeader(headerName);
+          headersJson.put(headerName, headerValue);
         }
-
-        workflow.setVariable(headerContentVariable, headerContent);
+        String headerContent = objectMapper.writeValueAsString(headersJson);
+        workflow.setVariable(headerContentVariable, Const.NVL(headerContent, ""));
       }
 
       // Set all the other parameters as variables/parameters...
