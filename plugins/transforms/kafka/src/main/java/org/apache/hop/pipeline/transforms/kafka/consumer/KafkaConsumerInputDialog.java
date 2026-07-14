@@ -106,6 +106,9 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   protected TextVar wBatchSize;
   protected Label wlBatchDuration;
   protected TextVar wBatchDuration;
+  protected Button wStopWhenIdle;
+  protected Label wlMaxIdleTimeMs;
+  protected TextVar wMaxIdleTimeMs;
 
   protected CTabFolder wTabFolder;
   protected CTabItem wSetupTab;
@@ -299,6 +302,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     m.setExecutionDataProfile(wProfile.getText());
     m.setBatchSize(wBatchSize.getText());
     m.setBatchDuration(wBatchDuration.getText());
+    m.setStopWhenIdle(wStopWhenIdle.getSelection());
+    m.setMaxIdleTimeMs(wMaxIdleTimeMs.getText());
     m.setSubTransform(wSubTransform.getText());
     setTopicsFromTable();
 
@@ -329,7 +334,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     wOffsetGroup.setLayout(flOffsetGroup);
 
     FormData fdOffsetGroup = new FormData();
-    fdOffsetGroup.top = new FormAttachment(wBatchSize, 15);
+    fdOffsetGroup.top = new FormAttachment(wMaxIdleTimeMs, 15);
     fdOffsetGroup.left = new FormAttachment(0, 0);
     fdOffsetGroup.right = new FormAttachment(100, 0);
     wOffsetGroup.setLayoutData(fdOffsetGroup);
@@ -614,6 +619,34 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     fdBatchSize.top = new FormAttachment(wlBatchSize, 0, SWT.CENTER);
     wBatchSize.setLayoutData(fdBatchSize);
 
+    wStopWhenIdle = new Button(wBatchComp, SWT.CHECK);
+    PropsUi.setLook(wStopWhenIdle);
+    wStopWhenIdle.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.StopWhenIdle"));
+    wStopWhenIdle.addListener(SWT.Selection, e -> meta.setChanged());
+    FormData fdStopWhenIdle = new FormData();
+    fdStopWhenIdle.left = new FormAttachment(middle, 0);
+    fdStopWhenIdle.top = new FormAttachment(wBatchSize, margin);
+    fdStopWhenIdle.right = new FormAttachment(100, 0);
+    wStopWhenIdle.setLayoutData(fdStopWhenIdle);
+
+    wlMaxIdleTimeMs = new Label(wBatchComp, SWT.RIGHT);
+    PropsUi.setLook(wlMaxIdleTimeMs);
+    wlMaxIdleTimeMs.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.MaxIdleTimeMs"));
+    FormData fdlMaxIdleTimeMs = new FormData();
+    fdlMaxIdleTimeMs.left = new FormAttachment(0, 0);
+    fdlMaxIdleTimeMs.top = new FormAttachment(wStopWhenIdle, margin);
+    fdlMaxIdleTimeMs.right = new FormAttachment(middle, -margin);
+    wlMaxIdleTimeMs.setLayoutData(fdlMaxIdleTimeMs);
+
+    wMaxIdleTimeMs = new TextVar(variables, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wMaxIdleTimeMs);
+    wMaxIdleTimeMs.addModifyListener(lsMod);
+    FormData fdMaxIdleTimeMs = new FormData();
+    fdMaxIdleTimeMs.left = new FormAttachment(wlMaxIdleTimeMs, margin);
+    fdMaxIdleTimeMs.right = new FormAttachment(100, 0);
+    fdMaxIdleTimeMs.top = new FormAttachment(wlMaxIdleTimeMs, 0, SWT.CENTER);
+    wMaxIdleTimeMs.setLayoutData(fdMaxIdleTimeMs);
+
     wBatchComp.layout();
     wBatchTab.setControl(wBatchComp);
   }
@@ -827,6 +860,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     wConsumerGroup.setText(Const.NVL(meta.getConsumerGroup(), ""));
     wBatchSize.setText(Const.NVL(meta.getBatchSize(), ""));
     wBatchDuration.setText(Const.NVL(meta.getBatchDuration(), ""));
+    wStopWhenIdle.setSelection(meta.isStopWhenIdle());
+    wMaxIdleTimeMs.setText(Const.NVL(meta.getMaxIdleTimeMs(), "500"));
 
     wbAutoCommit.setSelection(meta.isAutoCommit());
     wbManualCommit.setSelection(!meta.isAutoCommit());

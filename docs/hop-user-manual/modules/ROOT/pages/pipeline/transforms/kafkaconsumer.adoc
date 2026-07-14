@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Kafka Consumer transform continuously pulls data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration.
+:description: The Kafka Consumer transform pulls data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, and can optionally stop when idle.
 
 = image:transforms/icons/KafkaConsumerInput.svg[Kafka Consumer transform Icon, role="image-doc-icon"] Kafka Consumer
 
@@ -40,9 +40,11 @@ Kafka scales topic consumption by distributing partitions among a consumer group
 
 A consumer group is a set of consumers sharing a common group identifier.
 
-Since the Kafka Consumer transform continuously ingests streaming data, you may want to use the Abort transform in your parent or sub-pipeline to stop consuming records from Kafka for specific workflows.
+By default the Kafka Consumer transform continuously ingests streaming data.
+To stop after the topic has been drained, enable *Stop when idle* on the Batch tab (with an optional max idle time).
+You can also use the Abort transform in your parent or sub-pipeline to stop consuming records for other conditions.
 
-For example, you can run the parent pipeline on a timed schedule, or abort the sub-pipeline if sensor data exceeds a preset range.
+For example, you can run the parent pipeline on a timed schedule, drain a topic once per hour with stop-when-idle, or abort the sub-pipeline if sensor data exceeds a preset range.
 
 |
 == Supported Engines
@@ -99,6 +101,12 @@ If set to a value of ‘0’, then Number of records triggers consumption.
 |Number of records|Specify a number.
 After every ‘X’ number of records, the specified pipeline will be executed and these ‘X’ records will be passed to the pipeline.
 If set to a value of ‘0’ then Duration triggers consumption.
+|Stop when idle|When enabled, the consumer stops gracefully after no records are received for the configured max idle time.
+This supports batch-style use cases such as draining a topic periodically instead of running forever.
+While this option is enabled, the consumer polls with a short (100 ms) timeout so idle time can be measured accurately.
+|Max idle time (ms)|The maximum time in milliseconds to wait without receiving records before stopping when *Stop when idle* is enabled.
+Defaults to 500.
+Supports variables.
 |Offset management a|Choose when to commit
 
 * when record read
