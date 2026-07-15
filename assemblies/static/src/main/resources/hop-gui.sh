@@ -110,8 +110,17 @@ Darwin)
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
 esac
-CLASSPATH="lib/core/*:lib/beam/*:lib/swt/$os_path/$arch_path/*"
+CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/$os_path/$arch_path/*"
 
+
+
+
+
+# Optional versioned Spark client pack replaces default lib/spark-client on the classpath.
+if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}" ]; then
+  CLASSPATH=$(echo "${CLASSPATH}" | sed 's|lib/spark-client/\*||g')
+  CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
+fi
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.ui.hopgui.HopGui "$@"
 EXITCODE=$?
 

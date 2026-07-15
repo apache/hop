@@ -25,8 +25,12 @@ services:
     build:
       context: ../../.
       dockerfile: docker/integration-tests/unit-tests-beam.Dockerfile
+      args:
+        HOP_SPARK_CLIENT_VERSION: ${HOP_SPARK_CLIENT_VERSION:-}
     volumes:
       - ../../integration-tests/:/files
     environment:
       - FLASK_ENV=docker
+      # Keep driver Spark client pack in sync with the fat jar (empty = default pack)
+      - HOP_SPARK_CLIENT_VERSION=${HOP_SPARK_CLIENT_VERSION:-}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

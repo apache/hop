@@ -36,10 +36,30 @@ for ARGUMENT in "$@"; do
   GCP_KEY_FILE) GCP_KEY_FILE=${VALUE} ;;
   KEEP_IMAGES) KEEP_IMAGES=${VALUE} ;;
   CLIENT_UNZIP) CLIENT_UNZIP=${VALUE} ;;
+  SPARK_VERSION) SPARK_VERSION=${VALUE} ;;
+  HADOOP_VERSION) HADOOP_VERSION=${VALUE} ;;
+  SPARK_BASE_URL) SPARK_BASE_URL=${VALUE} ;;
+  HOP_SPARK_CLIENT_VERSION) HOP_SPARK_CLIENT_VERSION=${VALUE} ;;
   *) ;;
   esac
 
 done
+
+# Default Spark standalone version for integration-tests/spark (overridable for matrix runs)
+if [ -z "${SPARK_VERSION}" ]; then
+  SPARK_VERSION="3.5.8"
+fi
+if [ -z "${HADOOP_VERSION}" ]; then
+  HADOOP_VERSION="3"
+fi
+# Prefer the fast CDN (current patch only); the Dockerfile falls back to archive.apache.org
+# for historical matrix versions the CDN no longer carries.
+if [ -z "${SPARK_BASE_URL}" ]; then
+  SPARK_BASE_URL="https://dlcdn.apache.org/spark"
+fi
+# Optional: match driver + fat-jar Spark client pack to a cluster minor (see tools/spark-client-pack)
+export SPARK_VERSION HADOOP_VERSION SPARK_BASE_URL
+export HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION:-}"
 
 if [ -z "${PROJECT_NAME}" ]; then
   PROJECT_NAME="*"
@@ -83,8 +103,10 @@ if [ -z "${CLIENT_UNZIP}" ]; then
   CLIENT_UNZIP="true"
 fi
 
-# Cleanup surefire reports
-rm -rf "${CURRENT_DIR}"/../surefire-reports
+# Cleanup surefire reports (matrix runs set SKIP_SUREFIRE_CLEAN=true to keep per-version copies)
+if [ "${SKIP_SUREFIRE_CLEAN:-false}" != "true" ]; then
+  rm -rf "${CURRENT_DIR}"/../surefire-reports
+fi
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 chmod 777 "${CURRENT_DIR}"/../surefire-reports/
 
@@ -103,7 +125,48 @@ else
   echo "Skipping client unzip (CLIENT_UNZIP=${CLIENT_UNZIP}, using existing ${HOP_DIR})"
 fi
 
-# Build base image only once
+# Versioned Spark client packs are not in the client zip. Re-materialise after unzip so
+# HOP_SPARK_CLIENT_VERSION=… finds lib/spark-clients/<ver>/ (includes spark-streaming, etc.).
+# Also copy the selected pack into lib/spark-client/ so the default driver classpath always
+# has spark-core + spark-streaming even if hop-run only loads lib/spark-client/*.
+HOP_HOME_FOR_PACK="${CURRENT_DIR}/../../assemblies/client/target/hop"
+if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+  MATERIALIZE_SCRIPT="${CURRENT_DIR}/../../tools/spark-client-pack/materialize-pack.sh"
+  if [ -f "${MATERIALIZE_SCRIPT}" ]; then
+    echo "Materialising Spark client pack ${HOP_SPARK_CLIENT_VERSION} into ${HOP_HOME_FOR_PACK}"
+    bash "${MATERIALIZE_SCRIPT}" "${HOP_SPARK_CLIENT_VERSION}" "${HOP_HOME_FOR_PACK}"
+    PACK_DIR="${HOP_HOME_FOR_PACK}/lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}"
+    if [ -d "${PACK_DIR}" ] && [ -f "${PACK_DIR}/spark-core_2.12-${HOP_SPARK_CLIENT_VERSION}.jar" ]; then
+      echo "Activating pack ${HOP_SPARK_CLIENT_VERSION} as lib/spark-client (driver classpath)"
+      rm -rf "${HOP_HOME_FOR_PACK}/lib/spark-client"
+      mkdir -p "${HOP_HOME_FOR_PACK}/lib/spark-client"
+      cp -a "${PACK_DIR}/." "${HOP_HOME_FOR_PACK}/lib/spark-client/"
+      # Prove critical jars are present for the driver
+      ls -1 "${HOP_HOME_FOR_PACK}/lib/spark-client"/spark-core*.jar \
+            "${HOP_HOME_FOR_PACK}/lib/spark-client"/spark-streaming*.jar
+    else
+      echo "ERROR: Spark client pack incomplete at ${PACK_DIR}" >&2
+      ls -la "${PACK_DIR}" 2>/dev/null || true
+      exit 1
+    fi
+  else
+    echo "WARNING: ${MATERIALIZE_SCRIPT} not found; pack ${HOP_SPARK_CLIENT_VERSION} may be missing"
+  fi
+fi
+
+# Bust docker cache for the hop COPY layer when packs change
+if [ -d "${HOP_HOME_FOR_PACK}" ]; then
+  date -u +%Y-%m-%dT%H:%M:%SZ > "${HOP_HOME_FOR_PACK}/.spark-client-pack-stamp"
+fi
+
+# Drop stale base/beam images when using a versioned Spark pack so COPY hop picks up jars
+if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+  echo "Invalidating hop-base-image / hop-beam-image for Spark client pack ${HOP_SPARK_CLIENT_VERSION}"
+  docker rmi hop-beam-image 2>/dev/null || true
+  docker rmi hop-base-image 2>/dev/null || true
+fi
+
+# Build base image only once (must run AFTER pack materialise so jars are in the image)
 docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
 
 # The Hop fat jar (needed only by the Beam runners: spark/flink/gcp) is expensive to build, so it
@@ -129,7 +192,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       # Built once per run, and only when such a project is actually enabled.
       if [ "${BEAM_IMAGE_BUILT}" != "true" ] && grep -rqs "hop-fatjar.jar" "$d" 2>/dev/null; then
         echo "Project ${PROJECT_NAME} needs the Hop fat jar; building hop-beam-image (once)."
-        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build
+        if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+          echo "Spark client pack for fat jar: ${HOP_SPARK_CLIENT_VERSION}"
+        fi
+        HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}" \
+          docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build \
+            --build-arg HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}"
         EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml")
         BEAM_IMAGE_BUILT="true"
       fi
@@ -139,7 +207,14 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
         echo "Project compose exists."
         EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
-        PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
+        # Rebuild project images so SPARK_VERSION (and similar) build args take effect
+        if [ "${PROJECT_NAME}" = "spark" ]; then
+          echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
+          PROJECT_NAME=${PROJECT_NAME} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
+            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
+        else
+          PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
+        fi
       else
         echo "Project compose does not exists."
         PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit

@@ -207,26 +207,144 @@ public class HopBeamGuiPlugin {
     }
   }
 
+  /**
+   * Collect jar files from the current Hop installation for fat-jar generation.
+   *
+   * <p>Uses the default Spark client pack ({@code lib/spark-client}), or the versioned pack
+   * selected by system property / env {@code HOP_SPARK_CLIENT_VERSION} under {@code
+   * lib/spark-clients/<version>}. Versioned packs under {@code lib/spark-clients/} are never all
+   * included at once.
+   */
   public static final List<String> findInstalledJarFilenames() {
+    return findInstalledJarFilenames(resolveSparkClientVersion(null));
+  }
+
+  /**
+   * @param sparkClientVersion Spark client pack version (e.g. {@code 3.5.8}), or null/blank for the
+   *     default pack at {@code lib/spark-client}
+   */
+  public static final List<String> findInstalledJarFilenames(String sparkClientVersion) {
     Set<File> jarFiles = new HashSet<>();
-    jarFiles.addAll(FileUtils.listFiles(new File("lib"), new String[] {"jar"}, true));
+    boolean versionedPack = StringUtils.isNotBlank(sparkClientVersion);
+
+    // lib/ tree except spark client pack directories (handled separately below)
+    collectJarsExcludingSparkClientPacks(new File("lib"), jarFiles, versionedPack);
 
     File libSwtFiles = new File("lib/swt/linux/x86_64");
-    if (libSwtFiles.exists())
+    if (libSwtFiles.exists()) {
       jarFiles.addAll(FileUtils.listFiles(libSwtFiles, new String[] {"jar"}, true));
+    }
 
-    jarFiles.addAll(FileUtils.listFiles(new File("plugins"), new String[] {"jar"}, true));
+    File pluginsDir = new File("plugins");
+    if (pluginsDir.isDirectory()) {
+      jarFiles.addAll(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, true));
+    }
 
     // If we are in the hop-web Docker container, we need to import the Hop main JARs too for
-    // Dataflow
-    // (and for other runners probably too)
+    // Dataflow (and for other runners probably too)
     File hopWebJars = new File("webapps/ROOT/WEB-INF/lib");
-    if (hopWebJars.exists())
+    if (hopWebJars.exists()) {
       jarFiles.addAll(FileUtils.listFiles(hopWebJars, new String[] {"jar"}, true));
+    }
+
+    // Selected Spark client pack only (never all versioned packs at once)
+    File sparkClientDir = resolveSparkClientPackDir(sparkClientVersion);
+    if (sparkClientDir.isDirectory()) {
+      jarFiles.addAll(FileUtils.listFiles(sparkClientDir, new String[] {"jar"}, false));
+    }
+
+    // Final guard: when using a versioned pack, drop any spark-* jar outside that pack
+    // (avoids Beam fragments under lib/beam mixing serialVersionUID / version-info).
+    if (versionedPack) {
+      String packPath;
+      try {
+        packPath = sparkClientDir.getCanonicalPath();
+      } catch (Exception e) {
+        packPath = sparkClientDir.getAbsolutePath();
+      }
+      final String packPrefix = packPath;
+      jarFiles.removeIf(
+          f -> {
+            String n = f.getName();
+            // Spark distribution jars are named spark-*.jar; Beam's runner is beam-runners-spark-*
+            if (!n.startsWith("spark-") || !n.endsWith(".jar")) {
+              return false;
+            }
+            try {
+              return !f.getCanonicalPath().startsWith(packPrefix);
+            } catch (Exception e) {
+              return !f.getAbsolutePath().startsWith(packPrefix);
+            }
+          });
+    }
 
     List<String> jarFilenames = new ArrayList<>();
     jarFiles.forEach(file -> jarFilenames.add(file.toString()));
     return jarFilenames;
+  }
+
+  /**
+   * Resolve which Spark client pack version to use. Explicit argument wins, then system property
+   * {@code HOP_SPARK_CLIENT_VERSION}, then env of the same name.
+   */
+  public static String resolveSparkClientVersion(String explicitVersion) {
+    if (StringUtils.isNotBlank(explicitVersion)) {
+      return explicitVersion.trim();
+    }
+    String prop = System.getProperty("HOP_SPARK_CLIENT_VERSION");
+    if (StringUtils.isNotBlank(prop)) {
+      return prop.trim();
+    }
+    String env = System.getenv("HOP_SPARK_CLIENT_VERSION");
+    if (StringUtils.isNotBlank(env)) {
+      return env.trim();
+    }
+    return null;
+  }
+
+  /** Directory for the default pack or {@code lib/spark-clients/<version>}. */
+  public static File resolveSparkClientPackDir(String sparkClientVersion) {
+    if (StringUtils.isBlank(sparkClientVersion)) {
+      return new File("lib/spark-client");
+    }
+    return new File("lib/spark-clients/" + sparkClientVersion.trim());
+  }
+
+  /**
+   * @param versionedPack when true, also skip {@code spark-*.jar} under {@code lib/beam} so Beam's
+   *     fixed Spark fragments cannot mix with an alternate client pack
+   */
+  private static void collectJarsExcludingSparkClientPacks(
+      File dir, Set<File> jarFiles, boolean versionedPack) {
+    if (dir == null || !dir.isDirectory()) {
+      return;
+    }
+    String name = dir.getName();
+    File parent = dir.getParentFile();
+    // Skip lib/spark-client and lib/spark-clients entirely
+    if (parent != null
+        && "lib".equals(parent.getName())
+        && ("spark-client".equals(name) || "spark-clients".equals(name))) {
+      return;
+    }
+    File[] children = dir.listFiles();
+    if (children == null) {
+      return;
+    }
+    for (File child : children) {
+      if (child.isDirectory()) {
+        collectJarsExcludingSparkClientPacks(child, jarFiles, versionedPack);
+      } else if (child.isFile() && child.getName().endsWith(".jar")) {
+        // Versioned packs own all spark-* jars; drop Beam's spark fragments from lib/beam
+        if (versionedPack
+            && child.getName().startsWith("spark-")
+            && parent != null
+            && "beam".equals(parent.getName())) {
+          continue;
+        }
+        jarFiles.add(child);
+      }
+    }
   }
 
   /**

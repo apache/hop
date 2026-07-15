@@ -509,6 +509,7 @@
 
                         <!-- External Integration Test Exclusion -->
                         <exclude>**/integration-tests/**/*.txt</exclude>
+                        <exclude>**/integration-tests/**/*.md</exclude>
                         <exclude>**/integration-tests/**/*.csv</exclude>
                         <exclude>**/integration-tests/**/*.avro</exclude>
                         <exclude>**/integration-tests/**/*.xls</exclude>
