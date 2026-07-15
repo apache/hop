@@ -61,11 +61,11 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
-    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <dynamic_include_subfolders>Y</dynamic_include_subfolders>
     <file>
       <file_required>N</file_required>
       <filemask>main.*\.hwf$</filemask>
-      <include_subfolders>N</include_subfolders>
+      <include_subfolders>Y</include_subfolders>
       <name>${PROJECT_HOME}</name>
     </file>
     <filefield>N</filefield>
