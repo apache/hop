@@ -2,6 +2,10 @@
 
 Generated: 2026-07-10 (issue #7476)
 
+> **Pin moved 3.5.7 → 3.5.8** (current patch on `dlcdn.apache.org`; 3.5.7 is now archive-only
+> and throttled). Same 3.5.x line, same conclusion. The measured row still shows the last
+> **3.5.7** run — re-run `run-spark-matched-matrix.sh` to refresh it for 3.5.8.
+
 - Hop: `2.19.0-SNAPSHOT` · Beam: `2.74.0`
 - Each cell: **Spark client pack V** = **cluster V** (Java 21 driver + cluster)
 - Suite: `main-0001-test-spark-cluster`
@@ -20,7 +24,7 @@ Matching the client pack to the cluster **eliminates RPC serialVersionUID skew**
 Versioned packs remain valuable for:
 
 - Aligning Hop’s client jars with a **3.5.x** cluster patch level
-- Future matrix cells within 3.5.x (e.g. 3.5.3 vs 3.5.7)
+- Future matrix cells within 3.5.x (e.g. 3.5.7 vs 3.5.8)
 
 They are **not** a path back to Spark 3.4 / 3.3 / 3.2 while Hop stays on Java 21.
 

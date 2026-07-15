@@ -50,9 +50,11 @@ services:
       context: ../../docker/integration-tests/spark/.
       dockerfile: Dockerfile.master
       args:
-        SPARK_VERSION: ${SPARK_VERSION:-3.5.7}
+        SPARK_VERSION: ${SPARK_VERSION:-3.5.8}
         HADOOP_VERSION: ${HADOOP_VERSION:-3}
-        BASE_URL: ${SPARK_BASE_URL:-https://archive.apache.org/dist/spark}
+        # Fast CDN by default (current patch); the Dockerfile falls back to archive.apache.org
+        # for historical matrix versions that the CDN no longer carries.
+        BASE_URL: ${SPARK_BASE_URL:-https://dlcdn.apache.org/spark}
     environment:
       - INIT_DAEMON_STEP=setup_spark
       # Advertise a stable compose-network hostname (not the random container id)
@@ -65,9 +67,9 @@ services:
       context: ../../docker/integration-tests/spark/.
       dockerfile: Dockerfile.worker
       args:
-        SPARK_VERSION: ${SPARK_VERSION:-3.5.7}
+        SPARK_VERSION: ${SPARK_VERSION:-3.5.8}
         HADOOP_VERSION: ${HADOOP_VERSION:-3}
-        BASE_URL: ${SPARK_BASE_URL:-https://archive.apache.org/dist/spark}
+        BASE_URL: ${SPARK_BASE_URL:-https://dlcdn.apache.org/spark}
     depends_on:
       spark:
         condition: service_healthy

@@ -19,7 +19,7 @@
 
 # Matched-pair Spark matrix: for each version V, use Spark client pack V + cluster V.
 #
-# Unlike run-spark-matrix.sh (fixed Hop client 3.5.7 vs varying cluster), this script:
+# Unlike run-spark-matrix.sh (fixed Hop client 3.5.8 vs varying cluster), this script:
 #   1. Materialises lib/spark-clients/<V>/ into the Hop install
 #   2. Rebuilds hop-base + hop-beam images so the fat jar embeds pack V
 #   3. Runs the smoke suite with HOP_SPARK_CLIENT_VERSION=V and SPARK_VERSION=V
@@ -28,7 +28,7 @@
 #
 # Usage:
 #   ./integration-tests/scripts/run-spark-matched-matrix.sh KEEP_IMAGES=true
-#   SPARK_VERSIONS="3.5.7 3.4.4" ./integration-tests/scripts/run-spark-matched-matrix.sh
+#   SPARK_VERSIONS="3.5.8 3.4.4" ./integration-tests/scripts/run-spark-matched-matrix.sh
 
 set -u
 
@@ -43,9 +43,9 @@ DOCKER_FILES_DIR="$(cd "${CURRENT_DIR}/../../docker/integration-tests" >/dev/nul
 HOP_HOME="${REPO_ROOT}/assemblies/client/target/hop"
 
 if [ -z "${SPARK_VERSIONS:-}" ]; then
-  # Default: validated 3.5.x pin. Pre-3.5 fails on Java 21 (SPARK-42369) even when matched.
-  # Override to re-document the ceiling: SPARK_VERSIONS="3.5.7 3.4.4"
-  SPARK_VERSIONS="3.5.7"
+  # Default: current 3.5.x pin. Pre-3.5 fails on Java 21 (SPARK-42369) even when matched.
+  # Override to re-document the ceiling: SPARK_VERSIONS="3.5.8 3.4.4"
+  SPARK_VERSIONS="3.5.8"
 fi
 
 FORWARD_ARGS=("$@")
@@ -187,7 +187,7 @@ done
   echo
   echo '```bash'
   echo "./integration-tests/scripts/run-spark-matched-matrix.sh KEEP_IMAGES=true"
-  echo "SPARK_VERSIONS=\"3.5.7 3.4.4\" ./integration-tests/scripts/run-spark-matched-matrix.sh"
+  echo "SPARK_VERSIONS=\"3.5.8 3.4.4\" ./integration-tests/scripts/run-spark-matched-matrix.sh"
   echo '```'
   echo
   echo "## Notes"

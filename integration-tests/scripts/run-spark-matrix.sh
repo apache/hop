@@ -22,7 +22,7 @@
 #
 # Usage:
 #   ./integration-tests/scripts/run-spark-matrix.sh
-#   SPARK_VERSIONS="3.5.7 3.4.4" ./integration-tests/scripts/run-spark-matrix.sh
+#   SPARK_VERSIONS="3.5.8 3.4.4" ./integration-tests/scripts/run-spark-matrix.sh
 #   ./integration-tests/scripts/run-spark-matrix.sh KEEP_IMAGES=true
 #
 # Prerequisites: assemblies/client must already be built (same as run-tests-docker.sh).
@@ -39,12 +39,12 @@ RUN_TESTS="${CURRENT_DIR}/run-tests-docker.sh"
 DOCKER_COMPOSE_FILE="$(cd "${CURRENT_DIR}/../../docker/integration-tests" >/dev/null 2>&1 && pwd)/integration-tests-spark.yaml"
 
 # Representative patch releases for each Spark 3.x line.
-# Override with SPARK_VERSIONS="3.5.7 3.2.4" etc.
+# Override with SPARK_VERSIONS="3.5.8 3.2.4" etc.
 # Note: Hop client mode bundles spark-core at plugins/engines/beam spark.version.
 # Clusters on a different Spark minor typically fail with InvalidClassException
 # (ApplicationDescription serialVersionUID mismatch). That is still a measured result.
 if [ -z "${SPARK_VERSIONS:-}" ]; then
-  SPARK_VERSIONS="3.2.4 3.3.4 3.4.4 3.5.7"
+  SPARK_VERSIONS="3.2.4 3.3.4 3.4.4 3.5.8"
 fi
 
 # Map Spark line → Hadoop binary suffix used on archive.apache.org
@@ -229,7 +229,7 @@ done
   echo "./integration-tests/scripts/run-spark-matrix.sh KEEP_IMAGES=true"
   echo
   echo "# Single version"
-  echo "SPARK_VERSION=3.5.7 ./integration-tests/scripts/run-tests-docker.sh PROJECT_NAME=spark KEEP_IMAGES=true"
+  echo "SPARK_VERSION=3.5.8 ./integration-tests/scripts/run-tests-docker.sh PROJECT_NAME=spark KEEP_IMAGES=true"
   echo '```'
   echo
   echo "## Notes"

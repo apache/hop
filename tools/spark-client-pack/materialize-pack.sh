@@ -22,7 +22,7 @@
 # Usage:
 #   ./tools/spark-client-pack/materialize-pack.sh 3.4.4
 #   ./tools/spark-client-pack/materialize-pack.sh 3.4.4 /path/to/hop
-#   SPARK_CLIENT_VERSIONS="3.3.4 3.4.4 3.5.7" ./tools/spark-client-pack/materialize-pack.sh
+#   SPARK_CLIENT_VERSIONS="3.3.4 3.4.4 3.5.8" ./tools/spark-client-pack/materialize-pack.sh
 #
 # Then generate a matching fat jar:
 #   HOP_SPARK_CLIENT_VERSION=3.4.4 ./hop-conf.sh --generate-fat-jar=/tmp/hop-spark-3.4.4.jar \
@@ -51,7 +51,7 @@ if [ -n "${1:-}" ] && [[ "${1}" != *"="* ]]; then
 elif [ -n "${SPARK_CLIENT_VERSIONS:-}" ]; then
   VERSIONS="${SPARK_CLIENT_VERSIONS}"
 else
-  VERSIONS="3.5.7"
+  VERSIONS="3.5.8"
 fi
 
 MVN="${REPO_ROOT}/mvnw"

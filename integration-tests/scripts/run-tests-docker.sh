@@ -47,13 +47,15 @@ done
 
 # Default Spark standalone version for integration-tests/spark (overridable for matrix runs)
 if [ -z "${SPARK_VERSION}" ]; then
-  SPARK_VERSION="3.5.7"
+  SPARK_VERSION="3.5.8"
 fi
 if [ -z "${HADOOP_VERSION}" ]; then
   HADOOP_VERSION="3"
 fi
+# Prefer the fast CDN (current patch only); the Dockerfile falls back to archive.apache.org
+# for historical matrix versions the CDN no longer carries.
 if [ -z "${SPARK_BASE_URL}" ]; then
-  SPARK_BASE_URL="https://archive.apache.org/dist/spark"
+  SPARK_BASE_URL="https://dlcdn.apache.org/spark"
 fi
 # Optional: match driver + fat-jar Spark client pack to a cluster minor (see tools/spark-client-pack)
 export SPARK_VERSION HADOOP_VERSION SPARK_BASE_URL

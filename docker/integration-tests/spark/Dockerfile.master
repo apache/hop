@@ -20,10 +20,14 @@
 # Java 21 matches Hop's target bytecode (workers execute Hop transforms from the fat jar).
 FROM eclipse-temurin:21-jre-jammy
 
-ARG SPARK_VERSION=3.5.7
+ARG SPARK_VERSION=3.5.8
 ARG HADOOP_VERSION=3
-# archive.apache.org keeps historical releases needed for the multi-version matrix
-ARG BASE_URL=https://archive.apache.org/dist/spark
+# dlcdn.apache.org serves the current patch of each active line at CDN speed; archive.apache.org
+# keeps historical releases (needed for the multi-version matrix) but throttles hard (~100 KB/s).
+# We try BASE_URL first and fall back to ARCHIVE_URL, so the default pin stays fast while older
+# matrix versions (not on the CDN) still resolve.
+ARG BASE_URL=https://dlcdn.apache.org/spark
+ARG ARCHIVE_URL=https://archive.apache.org/dist/spark
 
 ENV ENABLE_INIT_DAEMON=false
 ENV INIT_DAEMON_BASE_URI=http://identifier/init-daemon
@@ -45,9 +49,12 @@ RUN apt-get update \
       && apt-get install -y --no-install-recommends curl bash procps \
       && rm -rf /var/lib/apt/lists/* \
       && chmod +x /wait-for-step.sh /execute-step.sh /finish-step.sh /master.sh \
-      && curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors \
-           "${BASE_URL}/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" \
-           -o /tmp/spark.tgz \
+      && SPARK_TGZ="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" \
+      && ( curl -fSL --connect-timeout 30 --retry 3 --retry-delay 5 --retry-all-errors \
+             --speed-limit 10240 --speed-time 60 \
+             "${BASE_URL}/spark-${SPARK_VERSION}/${SPARK_TGZ}" -o /tmp/spark.tgz \
+           || curl -fSL --connect-timeout 30 --retry 5 --retry-delay 5 --retry-all-errors \
+             "${ARCHIVE_URL}/spark-${SPARK_VERSION}/${SPARK_TGZ}" -o /tmp/spark.tgz ) \
       && tar -xzf /tmp/spark.tgz -C / \
       && mv /spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} /spark \
       && rm /tmp/spark.tgz

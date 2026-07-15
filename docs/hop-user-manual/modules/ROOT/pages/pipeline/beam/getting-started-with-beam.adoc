@@ -61,7 +61,7 @@ Here is the documentation for the relevant plugins:
 
 |2.19.0
 |2.74.0
-|3.5.x (scala 2.12; matrix: 3.5.7 PASS)
+|3.5.x (scala 2.12; pinned 3.5.8, matrix: 3.5.7 PASS)
 |1.19.x
 
 |2.18.0

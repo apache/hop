@@ -220,7 +220,7 @@ public class HopBeamGuiPlugin {
   }
 
   /**
-   * @param sparkClientVersion Spark client pack version (e.g. {@code 3.5.7}), or null/blank for the
+   * @param sparkClientVersion Spark client pack version (e.g. {@code 3.5.8}), or null/blank for the
    *     default pack at {@code lib/spark-client}
    */
   public static final List<String> findInstalledJarFilenames(String sparkClientVersion) {

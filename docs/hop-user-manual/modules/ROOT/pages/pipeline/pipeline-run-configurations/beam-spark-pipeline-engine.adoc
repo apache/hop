@@ -28,9 +28,9 @@ The Apache Spark Runner can be used to execute Beam pipelines using Apache Spark
 
 IMPORTANT: Hop itself always runs on *Java 21* (driver and fat-jar bytecode). Spark standalone clusters used with Hop must also provide a Java 21 runtime so workers can execute Hop transforms.
 
-*Measured support (Hop 2.19 / Beam 2.74, client submit):* *Spark 3.5.x* only (validated *3.5.7*). Hop requires *Java 21*; Spark did not handle the JDK 21 `DirectByteBuffer` constructor change until [SPARK-42369](https://issues.apache.org/jira/browse/SPARK-42369) (fixed in *Spark 3.5.0*). Therefore *Spark 3.4.x and earlier cannot run* with Hop on Java 21 — even with a matching client pack and fat jar.
+*Measured support (Hop 2.19 / Beam 2.74, client submit):* *Spark 3.5.x* only (validated *3.5.8*). Hop requires *Java 21*; Spark did not handle the JDK 21 `DirectByteBuffer` constructor change until [SPARK-42369](https://issues.apache.org/jira/browse/SPARK-42369) (fixed in *Spark 3.5.0*). Therefore *Spark 3.4.x and earlier cannot run* with Hop on Java 21 — even with a matching client pack and fat jar.
 
-For `spark://master` client mode on 3.5.x, the **Spark client libraries on the Hop driver and in the fat jar should still match the cluster patch/minor** (default pack under `lib/spark-client/`, currently 3.5.7).
+For `spark://master` client mode on 3.5.x, the **Spark client libraries on the Hop driver and in the fat jar should still match the cluster patch/minor** (default pack under `lib/spark-client/`, currently 3.5.8).
 
 === Matching Spark client libraries (3.5.x)
 
@@ -39,10 +39,10 @@ Hop installs a default Spark client pack under `lib/spark-client/` (beam engine 
 .Materialise / select a 3.5.x pack
 [source,bash]
 ----
-./tools/spark-client-pack/materialize-pack.sh 3.5.7 /path/to/hop
-export HOP_SPARK_CLIENT_VERSION=3.5.7
-./hop-conf.sh --generate-fat-jar=/path/to/hop-spark-3.5.7.jar \
-  --spark-client-version=3.5.7
+./tools/spark-client-pack/materialize-pack.sh 3.5.8 /path/to/hop
+export HOP_SPARK_CLIENT_VERSION=3.5.8
+./hop-conf.sh --generate-fat-jar=/path/to/hop-spark-3.5.8.jar \
+  --spark-client-version=3.5.8
 ./hop-run.sh -r spark -f your-pipeline.hpl
 ----
 

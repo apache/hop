@@ -31,7 +31,7 @@
   </description>
 
   <properties>
-    <spark.client.version>3.5.7</spark.client.version>
+    <spark.client.version>3.5.8</spark.client.version>
     <spark.scala.binary>2.12</spark.scala.binary>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
