@@ -189,6 +189,13 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       # Create New Project
       export HOP_CONFIG_FOLDER="$d"
 
+      # Project output/ is often written by pipelines (CSV, temp dirs). The container
+      # user uid may not match the host volume owner, so ensure it is world-writable
+      # (same approach as surefire-reports above).
+      if [ -d "$d/output" ]; then
+        chmod 777 "$d/output" 2>/dev/null || true
+      fi
+
       # Default pipeline run configuration name used by hop-run and the suite runner.
       # Beam projects name their Beam engine "local" and keep a native Local engine as "hop-local".
       # The single-JVM suite driver (run-project-tests.hpl) must never run under Beam.

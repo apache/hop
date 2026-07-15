@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-engines</artifactId>
+        <version>2.19.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-engines-spark</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Plugins Engines Spark</name>
+    <description>Native Apache Spark 4.x pipeline engine for Hop (issue #7486)</description>
+
+    <properties>
+        <!-- Matches Spark 4.1.2 parent; needed for local[*] unit tests only -->
+        <hadoop.client.version>3.4.2</hadoop.client.version>
+        <scala.binary.version>2.13</scala.binary.version>
+        <!-- Pin Spark 4.1.x independently of Beam's Spark 3.x dependency -->
+        <spark.version>4.1.2</spark.version>
+    </properties>
+
+    <dependencies>
+        <!-- Spark MetricsServlet / Jetty needs servlet API (SingleThreadModel → use 5.0) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+        <!-- Explicit so packaging is obvious and test scope is not required separately -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-api</artifactId>
+            <version>${hadoop.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-runtime</artifactId>
+            <version>${hadoop.client.version}</version>
+        </dependency>
+
+        <!-- Spark 4.1 — packaged under plugins/engines/spark/lib for local[*].
+             Hadoop client + Log4j MUST stay on the plugin classpath: Spark 4 looks up
+             org.apache.spark.sql.classic.SparkSession reflectively and fails with
+             "Cannot find a SparkSession implementation on the Classpath" when those
+             transitive classes are missing (ClassNotFoundException is swallowed).
+             slf4j is provided by Hop; keep it excluded to avoid dual bindings. -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Transform metadata for native shuffle-aware handlers (driver-side only) -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-memgroupby</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-mergejoin</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-sort</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-uniquerows</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
