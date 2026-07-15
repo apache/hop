@@ -89,12 +89,39 @@ Apache Beam.
 - After rebuilding the plugin, reinstall into your Hop distro (or rebuild
   `assemblies/client`) so `plugins/engines/spark/lib` is updated.
 
+## Execution information location
+
+Attach an **execution information location** (and optionally an execution data
+profile) on the native Spark **pipeline run configuration**, same as Local/Beam.
+
+The driver will:
+
+1. Load and initialize the location at prepare time  
+2. `registerExecution` when the pipeline starts  
+3. Periodically `updateExecutionState` for the pipeline and each transform
+   component (metrics come from Spark accumulators / `EngineMetrics`)  
+4. Write a final state and `close` the location when the pipeline finishes,
+   fails, or is stopped  
+
+Notes:
+
+- **State updates** (`updateExecutionState`) run on the **driver** from
+  `EngineMetrics` (all transform types).  
+- **Row sampling** (`registerData`) runs on **executors** for generic
+  mapPartitions transforms when the run configuration also names an
+  **execution data profile** (First/Last/Random rows, etc.). Extra GUI
+  samplers on the engine are serialized into the closure like Beam.  
+- File locations used for sampling must be **writable from every executor**
+  (shared FS / object store). Local-only paths only receive driver state.  
+- For `spark-submit`, export location + data profile into the metadata JSON.
+
 ## Module layout
 
 - `engines/` — `SparkPipelineEngine`, run configuration, capabilities
 - `pipeline/` — Hop → Spark converter and transform handlers
 - `pipeline/handler/` — native shuffle handlers + generic mapPartitions
 - `core/` — `HopMapPartitionsFn`, row conversion, executor-side Hop init
+- `run/` — `MainSpark` for spark-submit
 
 ## Native handlers (Phase 3)
 

@@ -28,12 +28,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
@@ -49,6 +52,15 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionBuilder;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -69,8 +81,10 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
 import org.apache.hop.spark.core.SparkTransformMetricSlice;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
+import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -143,7 +157,17 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   private Dataset<Row> resultDataset;
   private Thread sparkThread;
   private SparkTransformMetricsAccumulator metricsAccumulator;
+  private SparkExecutionDataAccumulator sampleDataAccumulator;
   private Timer metricsRefreshTimer;
+
+  /** Execution information location from the run configuration (optional). */
+  private ExecutionInfoLocation executionInfoLocation;
+
+  private Timer executionInfoTimer;
+  private volatile boolean executionInfoClosed;
+
+  /** Stable log channel IDs per transform name + copy for execution info / GUI. */
+  private final Map<String, String> componentLogChannelIds = new ConcurrentHashMap<>();
 
   private final List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers =
       Collections.synchronizedList(new ArrayList<>());
@@ -198,6 +222,9 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         logChannel.setLogLevel(logLevel);
       }
 
+      // Execution info location (optional): load + initialize for later register/update/close
+      lookupExecutionInformationLocation();
+
       converter =
           new HopPipelineMetaToSparkConverter(
               this,
@@ -244,11 +271,29 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
       sparkSession = createSparkSession();
 
-      // Register metrics accumulator for mapPartitions transforms (per-partition copies)
+      // Register metrics + sample-data accumulators for mapPartitions transforms
       metricsAccumulator = new SparkTransformMetricsAccumulator();
       sparkSession.sparkContext().register(metricsAccumulator, "hop-transform-metrics");
       converter.setMetricsAccumulator(metricsAccumulator);
+      sampleDataAccumulator = new SparkExecutionDataAccumulator();
+      sparkSession.sparkContext().register(sampleDataAccumulator, "hop-execution-sample-data");
+      converter.setSampleDataAccumulator(sampleDataAccumulator);
+      try {
+        converter.setExecutionSamplingContext(
+            getLogChannelId(), SparkTransformExecutionSampling.serializeDataSamplers(dataSamplers));
+      } catch (HopException e) {
+        logChannel.logError("Error serializing execution data samplers (non-fatal)", e);
+        converter.setExecutionSamplingContext(getLogChannelId(), "[]");
+      }
       seedEngineMetricsComponents();
+
+      // Register at execution info location (if configured) and keep state updated
+      try {
+        registerPipelineExecutionInformation();
+        startExecutionInfoTimer();
+      } catch (HopException e) {
+        logChannel.logError("Error starting execution information tracking (non-fatal)", e);
+      }
 
       fireExecutionStartedListeners();
       ExtensionPointHandler.callExtensionPoint(
@@ -287,6 +332,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                     populateEngineMetrics();
                   } catch (Exception emEx) {
                     logChannel.logError("Error populating final engine metrics", emEx);
+                  }
+                  try {
+                    stopExecutionInfoTimer();
+                  } catch (Exception eiEx) {
+                    logChannel.logError("Error finalizing execution information (non-fatal)", eiEx);
                   }
                   try {
                     fireExecutionFinishedListeners();
@@ -344,6 +394,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         component.setRunning(true);
         component.setStatus(ComponentExecutionStatus.STATUS_RUNNING);
         component.setExecutionStartDate(executionStartDate);
+        assignComponentIdentity(component);
         em.addComponent(component);
         em.setComponentRunning(component, true);
         em.setComponentStatus(component, ComponentExecutionStatus.STATUS_RUNNING.getDescription());
@@ -352,6 +403,27 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     synchronized (this) {
       engineMetrics = em;
     }
+  }
+
+  /** Stable log-channel id per transform copy for execution info + GUI. */
+  private String componentLogChannelId(String transformName, int copyNr) {
+    String key = transformName + '\0' + copyNr;
+    return componentLogChannelIds.computeIfAbsent(
+        key,
+        k -> {
+          String parent = getLogChannelId();
+          if (StringUtils.isEmpty(parent)) {
+            parent = "spark";
+          }
+          return parent + "|" + transformName + "|" + copyNr;
+        });
+  }
+
+  private void assignComponentIdentity(EngineComponent component) {
+    if (component == null) {
+      return;
+    }
+    component.setLogChannelId(componentLogChannelId(component.getName(), component.getCopyNr()));
   }
 
   /**
@@ -386,6 +458,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       component.setStopped(
           componentStatus == ComponentExecutionStatus.STATUS_STOPPED
               || componentStatus == ComponentExecutionStatus.STATUS_HALTING);
+      assignComponentIdentity(component);
 
       em.addComponent(component);
       em.setComponentMetric(component, Pipeline.METRIC_READ, slice.getLinesRead());
@@ -422,6 +495,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         component.setRunning(pipelineStatus == ComponentExecutionStatus.STATUS_RUNNING);
         component.setStopped(
             pipelineStatus == ComponentExecutionStatus.STATUS_STOPPED || isStopped());
+        assignComponentIdentity(component);
         em.addComponent(component);
         em.setComponentStatus(component, pipelineStatus.getDescription());
         em.setComponentRunning(component, component.isRunning());
@@ -429,6 +503,270 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
 
     engineMetrics = em;
+  }
+
+  // --- Execution information location (Beam/Local pattern, driver-side) ---
+
+  /**
+   * Load and initialize the execution information location named on the pipeline run configuration
+   * (if any).
+   */
+  public void lookupExecutionInformationLocation() throws HopException {
+    if (pipelineRunConfiguration == null || metadataProvider == null) {
+      return;
+    }
+    String locationName = resolve(pipelineRunConfiguration.getExecutionInfoLocationName());
+    if (StringUtils.isEmpty(locationName)) {
+      return;
+    }
+    ExecutionInfoLocation location =
+        metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
+    if (location == null) {
+      logChannel.logError(
+          "Execution information location '"
+              + locationName
+              + "' could not be found in the metadata");
+      return;
+    }
+    executionInfoLocation = location;
+    executionInfoClosed = false;
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+    iLocation.initialize(this, metadataProvider);
+    logChannel.logBasic("Using execution information location '" + locationName + "'");
+  }
+
+  /**
+   * Register this pipeline execution at the configured location (metadata, variables, parameters).
+   */
+  public void registerPipelineExecutionInformation() throws HopException {
+    if (executionInfoLocation == null) {
+      return;
+    }
+    executionInfoLocation
+        .getExecutionInfoLocation()
+        .registerExecution(ExecutionBuilder.fromExecutor(this).build());
+  }
+
+  /** Periodically push pipeline + transform state to the execution information location. */
+  public void startExecutionInfoTimer() {
+    if (executionInfoLocation == null) {
+      return;
+    }
+    long delay = Const.toLong(resolve(executionInfoLocation.getDataLoggingDelay()), 2000L);
+    long interval = Const.toLong(resolve(executionInfoLocation.getDataLoggingInterval()), 5000L);
+    final IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+
+    executionInfoTimer = new Timer("hop-spark-execution-info", true);
+    executionInfoTimer.schedule(
+        new TimerTask() {
+          @Override
+          public void run() {
+            try {
+              if (isFinished() || isStopped() || executionInfoClosed) {
+                return;
+              }
+              // Refresh metrics so component state includes latest Spark counters
+              populateEngineMetrics();
+              updatePipelineState(iLocation);
+            } catch (Exception e) {
+              if (logChannel != null) {
+                logChannel.logBasic(
+                    "Warning: unable to register execution info at location "
+                        + executionInfoLocation.getName()
+                        + " (non-fatal): "
+                        + e.getMessage());
+              }
+            }
+          }
+        },
+        delay,
+        interval);
+  }
+
+  protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
+    // Register sample rows collected on executors before updating parent/transform state
+    registerSampleDataFromExecutors(iLocation);
+
+    ExecutionState executionState =
+        ExecutionStateBuilder.fromExecutor(SparkPipelineEngine.this, -1).build();
+    iLocation.updateExecutionState(executionState);
+
+    // Transform Execution + state nodes under the parent pipeline (Beam does the same from workers;
+    // we do it on the driver so caching locations keep hierarchy in one CacheEntry).
+    for (IEngineComponent component : getComponents()) {
+      registerTransformExecution(iLocation, component);
+      ExecutionState transformState =
+          ExecutionStateBuilder.fromTransform(SparkPipelineEngine.this, component).build();
+      iLocation.updateExecutionState(transformState);
+    }
+  }
+
+  /**
+   * Register a transform {@link Execution} child of this pipeline so the GUI can resolve parent →
+   * transform hierarchy (see {@code PipelineExecutionViewer.loadSelectedTransformData}).
+   */
+  protected void registerTransformExecution(
+      IExecutionInfoLocation iLocation, IEngineComponent component) throws HopException {
+    if (iLocation == null || component == null) {
+      return;
+    }
+    String id = component.getLogChannelId();
+    if (StringUtils.isEmpty(id)) {
+      id = componentLogChannelId(component.getName(), component.getCopyNr());
+    }
+    Execution execution =
+        ExecutionBuilder.of()
+            .withId(id)
+            .withParentId(getLogChannelId())
+            .withName(component.getName())
+            .withCopyNr(Integer.toString(component.getCopyNr()))
+            .withExecutorType(ExecutionType.Transform)
+            .withExecutionStartDate(
+                component.getExecutionStartDate() != null
+                    ? component.getExecutionStartDate()
+                    : getExecutionStartDate())
+            .build();
+    iLocation.registerExecution(execution);
+  }
+
+  /**
+   * Pull JSON {@link ExecutionData} samples from the Spark accumulator and register them on the
+   * driver-side execution info location (where the parent pipeline CacheEntry lives).
+   */
+  protected void registerSampleDataFromExecutors(IExecutionInfoLocation iLocation) {
+    if (iLocation == null || sampleDataAccumulator == null || sampleDataAccumulator.isZero()) {
+      return;
+    }
+    try {
+      Map<String, String> samples = sampleDataAccumulator.value();
+      if (samples == null || samples.isEmpty()) {
+        return;
+      }
+      var mapper = HopJson.newMapper();
+      int registered = 0;
+      for (Map.Entry<String, String> entry : samples.entrySet()) {
+        try {
+          ExecutionData data = mapper.readValue(entry.getValue(), ExecutionData.class);
+          if (data != null) {
+            // Ensure parent id points at this pipeline execution
+            if (StringUtils.isEmpty(data.getParentId())) {
+              data.setParentId(getLogChannelId());
+            }
+            // Ensure transform Execution child exists (ownerId is the child log channel id)
+            registerTransformExecutionFromSample(iLocation, data);
+            iLocation.registerData(data);
+            registered++;
+          }
+        } catch (Exception e) {
+          if (logChannel != null) {
+            logChannel.logError(
+                "Error registering executor sample data for owner '"
+                    + entry.getKey()
+                    + "' (non-fatal)",
+                e);
+          }
+        }
+      }
+      if (registered > 0 && logChannel != null) {
+        logChannel.logBasic(
+            "Registered " + registered + " transform sample set(s) from Spark executors");
+      }
+    } catch (Exception e) {
+      if (logChannel != null) {
+        logChannel.logError("Error reading sample data accumulator (non-fatal)", e);
+      }
+    }
+  }
+
+  /**
+   * Beam {@code TransformBaseFn.registerExecutingTransform}: child Execution id = sample owner id,
+   * parent = pipeline log channel id.
+   */
+  private void registerTransformExecutionFromSample(
+      IExecutionInfoLocation iLocation, ExecutionData data) throws HopException {
+    if (StringUtils.isEmpty(data.getOwnerId())) {
+      return;
+    }
+    String transformName = null;
+    String copyNr = "0";
+    if (data.getSetMetaData() != null) {
+      for (ExecutionDataSetMeta setMeta : data.getSetMetaData().values()) {
+        if (setMeta != null && StringUtils.isNotEmpty(setMeta.getName())) {
+          transformName = setMeta.getName();
+          if (StringUtils.isNotEmpty(setMeta.getCopyNr())) {
+            copyNr = setMeta.getCopyNr();
+          }
+          break;
+        }
+      }
+    }
+    if (StringUtils.isEmpty(transformName)) {
+      // ownerId format: parent|transformName|copyNr
+      String ownerId = data.getOwnerId();
+      int first = ownerId.indexOf('|');
+      int last = ownerId.lastIndexOf('|');
+      if (first > 0 && last > first) {
+        transformName = ownerId.substring(first + 1, last);
+        copyNr = ownerId.substring(last + 1);
+      } else {
+        transformName = ownerId;
+      }
+    }
+    Execution execution =
+        ExecutionBuilder.of()
+            .withId(data.getOwnerId())
+            .withParentId(
+                StringUtils.isNotEmpty(data.getParentId()) ? data.getParentId() : getLogChannelId())
+            .withName(transformName)
+            .withCopyNr(copyNr)
+            .withExecutorType(ExecutionType.Transform)
+            .withExecutionStartDate(getExecutionStartDate())
+            .build();
+    iLocation.registerExecution(execution);
+  }
+
+  /** Final pipeline/transform state update and close the location. Safe to call multiple times. */
+  public void stopExecutionInfoTimer() {
+    if (executionInfoLocation == null || executionInfoClosed) {
+      ExecutorUtil.cleanup(executionInfoTimer);
+      return;
+    }
+    try {
+      ExecutorUtil.cleanup(executionInfoTimer);
+      executionInfoTimer = null;
+
+      try {
+        populateEngineMetrics();
+      } catch (Exception e) {
+        // ignore — still try to write state
+      }
+
+      IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+      // Final sample flush from executors (after jobs complete, accumulator is fully merged)
+      registerSampleDataFromExecutors(iLocation);
+
+      ExecutionState executionState =
+          ExecutionStateBuilder.fromExecutor(SparkPipelineEngine.this, -1).build();
+      iLocation.updateExecutionState(executionState);
+
+      for (IEngineComponent component : getComponents()) {
+        registerTransformExecution(iLocation, component);
+        ExecutionState transformState =
+            ExecutionStateBuilder.fromTransform(SparkPipelineEngine.this, component).build();
+        iLocation.updateExecutionState(transformState);
+      }
+
+      iLocation.close();
+    } catch (Throwable e) {
+      if (logChannel != null) {
+        logChannel.logError(
+            "Error writing final execution state to location (non-fatal): "
+                + (executionInfoLocation != null ? executionInfoLocation.getName() : "?"),
+            e);
+      }
+    } finally {
+      executionInfoClosed = true;
+    }
   }
 
   /**
@@ -683,6 +1021,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         logChannel.logError("Error populating metrics after stop", e);
       }
     }
+    stopExecutionInfoTimer();
     try {
       fireExecutionStoppedListeners();
     } catch (HopException e) {
@@ -695,6 +1034,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   @Override
   public void cleanup() {
     ExecutorUtil.cleanup(metricsRefreshTimer);
+    ExecutorUtil.cleanup(executionInfoTimer);
     if (sparkSession != null) {
       try {
         // Only stop sessions we created for local masters to avoid killing shared sessions
@@ -881,6 +1221,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
   @Override
   public void pipelineCompleted() throws HopException {
+    stopExecutionInfoTimer();
     cleanup();
   }
 

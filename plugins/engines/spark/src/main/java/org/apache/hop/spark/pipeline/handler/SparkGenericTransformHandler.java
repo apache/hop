@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.HopMapPartitionsFn;
 import org.apache.hop.spark.core.HopSparkRowConverter;
+import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.core.SparkVariableValue;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
@@ -50,9 +51,24 @@ import org.apache.spark.sql.types.StructType;
 public class SparkGenericTransformHandler implements ISparkPipelineTransformHandler {
 
   private SparkTransformMetricsAccumulator metricsAccumulator;
+  private SparkExecutionDataAccumulator sampleDataAccumulator;
+  private String runConfigName;
+  private String parentLogChannelId;
+  private String dataSamplersJson;
 
   public void setMetricsAccumulator(SparkTransformMetricsAccumulator metricsAccumulator) {
     this.metricsAccumulator = metricsAccumulator;
+  }
+
+  public void setSampleDataAccumulator(SparkExecutionDataAccumulator sampleDataAccumulator) {
+    this.sampleDataAccumulator = sampleDataAccumulator;
+  }
+
+  public void setExecutionSamplingContext(
+      String runConfigName, String parentLogChannelId, String dataSamplersJson) {
+    this.runConfigName = runConfigName;
+    this.parentLogChannelId = parentLogChannelId;
+    this.dataSamplersJson = dataSamplersJson;
   }
 
   @Override
@@ -122,7 +138,11 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
             outputRowMetaJson,
             inputTransform,
             Collections.emptyList(),
-            metricsAccumulator);
+            metricsAccumulator,
+            sampleDataAccumulator,
+            runConfigName != null ? runConfigName : runConfigurationName,
+            parentLogChannelId,
+            dataSamplersJson);
 
     Dataset<Row> source;
     if (inputTransform) {

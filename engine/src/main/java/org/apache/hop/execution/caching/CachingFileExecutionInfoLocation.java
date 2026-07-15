@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,6 +37,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -119,6 +121,10 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
   @Override
   protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
     try {
+      // Multi-writer safe: driver and executors each hold a separate CacheEntry in memory.
+      // Merge child maps from the on-disk file so samples/children written by other processes
+      // are not wiped when this process flushes parent metrics/state.
+      mergeChildrenFromDisk(cacheEntry);
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
       cacheEntry.writeToDisk(actualRootFolder);
@@ -127,6 +133,38 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     } catch (Exception e) {
       throw new HopException(
           "Error writing caching file entry to disk in folder " + actualRootFolder, e);
+    }
+  }
+
+  /**
+   * Union child maps from the existing on-disk entry into {@code cacheEntry}. In-memory values win
+   * on key conflicts ({@code putIfAbsent} from disk).
+   */
+  private void mergeChildrenFromDisk(CacheEntry cacheEntry) {
+    if (cacheEntry == null || StringUtils.isEmpty(cacheEntry.getId())) {
+      return;
+    }
+    try {
+      CacheEntry onDisk = loadCacheEntry(cacheEntry.getId());
+      if (onDisk == null) {
+        return;
+      }
+      mergeMap(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
+      mergeMap(onDisk.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
+      mergeMap(onDisk.getChildExecutionData(), cacheEntry.getChildExecutionData());
+    } catch (Exception e) {
+      // Best-effort: still write our in-memory view if merge fails
+      LogChannel.GENERAL.logError(
+          "Unable to merge on-disk cache entry before persist (non-fatal): " + e.getMessage());
+    }
+  }
+
+  private static <K, V> void mergeMap(Map<K, V> fromDisk, Map<K, V> into) {
+    if (fromDisk == null || fromDisk.isEmpty() || into == null) {
+      return;
+    }
+    for (Map.Entry<K, V> e : fromDisk.entrySet()) {
+      into.putIfAbsent(e.getKey(), e.getValue());
     }
   }
 

@@ -111,6 +111,9 @@ public class MainSpark {
       PipelineMeta pipelineMeta =
           new PipelineMeta(
               XmlHandler.loadXmlString(pipelineMetaXml, PipelineMeta.XML_TAG), metadataProvider);
+      // Match hop-run: when name is synchronized with the filename, use the provided path so
+      // getName() returns the basename (e.g. spark-transforms) instead of the XML <name>.
+      pipelineMeta.setFilename(parsed.getPipelinePath());
 
       System.out.println(">>>>>> Validating native Spark engine plugin in fat jar...");
       PluginRegistry registry = PluginRegistry.getInstance();

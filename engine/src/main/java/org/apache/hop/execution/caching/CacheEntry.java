@@ -220,8 +220,20 @@ public class CacheEntry {
     return lastWritten != null && System.currentTimeMillis() - lastWritten.getTime() > maxAge;
   }
 
+  /**
+   * IDs of child transform/action executions. Includes registered children and owners that only
+   * contributed sample data or state (Beam/Spark may register data before a full child Execution).
+   */
   public List<String> getChildIds() {
-    return new ArrayList<>(childExecutions.keySet());
+    // Preserve insertion-ish order: executions first, then states, then data-only owners
+    java.util.LinkedHashSet<String> ids = new java.util.LinkedHashSet<>(childExecutions.keySet());
+    if (childExecutionStates != null) {
+      ids.addAll(childExecutionStates.keySet());
+    }
+    if (childExecutionData != null) {
+      ids.addAll(childExecutionData.keySet());
+    }
+    return new ArrayList<>(ids);
   }
 
   public void calculateSummary() {

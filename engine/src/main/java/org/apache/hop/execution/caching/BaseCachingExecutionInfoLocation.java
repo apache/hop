@@ -43,6 +43,7 @@ import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
@@ -214,6 +215,12 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     ExecutionType type = execution.getExecutionType();
     if (type == ExecutionType.Pipeline || type == ExecutionType.Workflow) {
       addExecutionToCache(execution);
+      // Persist immediately so distributed engines (Spark/Beam executors) can load the parent
+      // CacheEntry from disk before calling registerData / register child executions.
+      CacheEntry entry = cache.get(execution.getId());
+      if (entry != null) {
+        persistCacheEntry(entry);
+      }
     } else {
       addChildExecutionToCache(execution);
     }
@@ -309,13 +316,19 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     cache.put(execution.getId(), entry);
   }
 
-  protected synchronized void addChildExecutionToCache(Execution execution) {
-    // Find the parent in the cache.
-    // We'll assume that the parent cache entry isn't removed while children are still executing.
+  protected synchronized void addChildExecutionToCache(Execution execution) throws HopException {
+    // Find the parent in the cache (or load from disk for multi-process engines).
     //
-    CacheEntry entry = cache.get(execution.getParentId());
+    CacheEntry entry = findCacheEntry(execution.getParentId());
     if (entry != null) {
       entry.addChildExecution(execution);
+    } else {
+      LogChannel.GENERAL.logError(
+          "Unable to register child execution '"
+              + execution.getId()
+              + "': parent execution '"
+              + execution.getParentId()
+              + "' not found in cache or on disk");
     }
   }
 
@@ -360,14 +373,19 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     return null;
   }
 
-  protected synchronized void addChildStateToCache(ExecutionState executionState) {
+  protected synchronized void addChildStateToCache(ExecutionState executionState)
+      throws HopException {
     CacheEntry entry = cache.get(executionState.getParentId());
+    if (entry == null) {
+      // Load parent from disk (Spark/Beam executors have a separate empty in-memory cache)
+      entry = findCacheEntry(executionState.getParentId());
+    }
     if (entry == null) {
       // Lookup by parent (happens when a pipeline is executed by a transform)
       entry = findCacheEntryWithParent(executionState.getParentId());
     }
     if (entry != null) {
-      // This parent entry should always exit
+      // This parent entry should always exist
       entry.addChildExecutionState(executionState);
     }
   }
@@ -465,11 +483,21 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
    */
   @Override
   public synchronized void registerData(ExecutionData data) throws HopException {
-    // The ownerId in the data refers to the execution ID of the transform or action
+    // The ownerId in the data refers to the execution ID of the transform or action.
+    // Parent may only exist on disk (driver registered it; this process is an executor).
     //
     CacheEntry entry = findCacheEntry(data.getParentId());
     if (entry != null) {
       entry.addExecutionData(data);
+      // Flush promptly so other processes can merge samples when they persist parent state
+      persistCacheEntry(entry);
+    } else {
+      LogChannel.GENERAL.logError(
+          "Unable to register execution data for owner '"
+              + data.getOwnerId()
+              + "': parent execution '"
+              + data.getParentId()
+              + "' not found in cache or on disk");
     }
   }
 
@@ -591,6 +619,18 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       if (cacheEntry == null) {
         return null;
       }
+
+      // Local engine: all transform samples under a single "all-transforms" owner
+      if (executionId == null) {
+        ExecutionData allTransforms = cacheEntry.getExecutionData("all-transforms");
+        if (allTransforms != null) {
+          return allTransforms;
+        }
+        // Beam/Spark: per-transform (or per-copy) ExecutionData under the parent CacheEntry.
+        // Aggregate so the GUI can resolve samples without a separate findChildIds round-trip.
+        return aggregateChildExecutionData(cacheEntry, parentExecutionId);
+      }
+
       ExecutionData data = cacheEntry.getExecutionData(executionId);
       if (data == null) {
         // Retry for the exception for transforms: "all-transforms" stored together.
@@ -601,6 +641,40 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       throw new HopException(
           "Error finding execution data for parent execution ID " + executionId, e);
     }
+  }
+
+  /**
+   * Merge every {@link ExecutionData} stored under a parent cache entry (Beam/Spark style) into one
+   * builder payload the GUI can filter by transform name.
+   */
+  private static ExecutionData aggregateChildExecutionData(
+      CacheEntry cacheEntry, String parentExecutionId) {
+    Map<String, ExecutionData> byOwner = cacheEntry.getChildExecutionData();
+    if (byOwner == null || byOwner.isEmpty()) {
+      return null;
+    }
+    ExecutionDataBuilder builder =
+        ExecutionDataBuilder.of()
+            .withParentId(parentExecutionId)
+            .withOwnerId("all-transforms")
+            .withExecutionType(ExecutionType.Transform)
+            .withFinished(true)
+            .withCollectionDate(new Date());
+    boolean any = false;
+    for (ExecutionData child : byOwner.values()) {
+      if (child == null) {
+        continue;
+      }
+      if (child.getDataSets() != null && !child.getDataSets().isEmpty()) {
+        builder.addDataSets(child.getDataSets());
+        any = true;
+      }
+      if (child.getSetMetaData() != null && !child.getSetMetaData().isEmpty()) {
+        builder.addSetMeta(child.getSetMetaData());
+        any = true;
+      }
+    }
+    return any ? builder.build() : null;
   }
 
   @Override

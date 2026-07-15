@@ -33,6 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.pipeline.handler.SparkBaseTransformHandler;
@@ -86,6 +87,9 @@ public class HopPipelineMetaToSparkConverter {
   private final Map<String, ISparkPipelineTransformHandler> transformHandlers;
   private final SparkGenericTransformHandler genericTransformHandler;
   private SparkTransformMetricsAccumulator metricsAccumulator;
+  private SparkExecutionDataAccumulator sampleDataAccumulator;
+  private String parentLogChannelId;
+  private String dataSamplersJson;
 
   public HopPipelineMetaToSparkConverter(
       IVariables variables,
@@ -318,5 +322,37 @@ public class HopPipelineMetaToSparkConverter {
 
   public SparkTransformMetricsAccumulator getMetricsAccumulator() {
     return metricsAccumulator;
+  }
+
+  /**
+   * Accumulator that carries sample {@code ExecutionData} JSON from executors to the driver for
+   * registration at the driver's execution info location.
+   */
+  public void setSampleDataAccumulator(SparkExecutionDataAccumulator sampleDataAccumulator) {
+    this.sampleDataAccumulator = sampleDataAccumulator;
+    this.genericTransformHandler.setSampleDataAccumulator(sampleDataAccumulator);
+  }
+
+  public SparkExecutionDataAccumulator getSampleDataAccumulator() {
+    return sampleDataAccumulator;
+  }
+
+  /**
+   * Context for executor-side execution data sampling. Call after the engine log channel exists.
+   * Samples are shipped to the driver via {@link #setSampleDataAccumulator}.
+   */
+  public void setExecutionSamplingContext(String parentLogChannelId, String dataSamplersJson) {
+    this.parentLogChannelId = parentLogChannelId;
+    this.dataSamplersJson = dataSamplersJson;
+    this.genericTransformHandler.setExecutionSamplingContext(
+        runConfigName, parentLogChannelId, dataSamplersJson);
+  }
+
+  public String getParentLogChannelId() {
+    return parentLogChannelId;
+  }
+
+  public String getDataSamplersJson() {
+    return dataSamplersJson;
   }
 }
