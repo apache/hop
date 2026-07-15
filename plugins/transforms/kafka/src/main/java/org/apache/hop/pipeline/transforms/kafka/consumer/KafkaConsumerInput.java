@@ -85,6 +85,9 @@ public class KafkaConsumerInput
     data.incomingRowsBuffer = new ArrayList<>();
     data.batchDuration = Const.toInt(resolve(meta.getBatchDuration()), 0);
     data.batchSize = Const.toInt(resolve(meta.getBatchSize()), 0);
+    data.stopWhenIdle = meta.isStopWhenIdle();
+    data.maxIdleTimeMs = Const.toLong(resolve(meta.getMaxIdleTimeMs()), 500L);
+    data.lastRecordTime = System.currentTimeMillis();
 
     data.consumer = buildKafkaConsumer(this, meta);
 
@@ -279,16 +282,36 @@ public class KafkaConsumerInput
 
     // Poll records...
     // If we get any, process them...
+    // When stop-when-idle is enabled, use a short poll timeout so idle time can be measured.
     //
     try {
-      Duration duration =
-          Duration.ofMillis(data.batchDuration > 0 ? data.batchDuration : Long.MAX_VALUE);
+      long pollMs =
+          data.stopWhenIdle ? 100L : (data.batchDuration > 0 ? data.batchDuration : Long.MAX_VALUE);
+      Duration duration = Duration.ofMillis(pollMs);
       ConsumerRecords<Object, Object> records = data.consumer.poll(duration);
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {
-          // We can just skip this one, poll again next iteration of this method
+          // No records: optionally stop after max idle time.
+          // Do not count idle until partitions are assigned — group join / rebalance can take
+          // longer than maxIdleTimeMs and would otherwise stop before any poll can succeed.
           //
+          if (data.stopWhenIdle) {
+            if (data.consumer.assignment() == null || data.consumer.assignment().isEmpty()) {
+              data.lastRecordTime = System.currentTimeMillis();
+            } else if ((System.currentTimeMillis() - data.lastRecordTime) >= data.maxIdleTimeMs) {
+              logBasic(
+                  "Kafka consumer idle timeout of "
+                      + data.maxIdleTimeMs
+                      + "ms exceeded, stopping gracefully");
+              data.isKafkaConsumerClosing = true;
+              if (data.executor != null) {
+                data.executor.getPipeline().stopAll();
+              }
+              setOutputDone();
+              return false;
+            }
+          }
         } else {
           // Grab the records...
           //
@@ -300,6 +323,7 @@ public class KafkaConsumerInput
             }
             incrementLinesInput();
           }
+          data.lastRecordTime = System.currentTimeMillis();
           if (isBasic()) {
             logBasic("Number of rows read: " + data.rowProducer.getRowSet().size());
           }

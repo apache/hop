@@ -104,6 +104,8 @@ class KafkaConsumerInputMetaTest {
     meta.setBatchSize("111");
     meta.setBatchDuration("222");
     meta.setAutoCommit(true);
+    meta.setStopWhenIdle(true);
+    meta.setMaxIdleTimeMs("1500");
     meta.getOptions().clear();
     meta.getOptions().add(new KafkaOption("auto.offset.reset", "latest"));
     meta.getOptions().add(new KafkaOption("ssl.key.password", ""));
@@ -143,6 +145,8 @@ class KafkaConsumerInputMetaTest {
     assertEquals("profile", copy.getExecutionDataProfile());
     assertEquals("111", copy.getBatchSize());
     assertEquals("222", copy.getBatchDuration());
+    assertTrue(copy.isStopWhenIdle());
+    assertEquals("1500", copy.getMaxIdleTimeMs());
     assertTrue(copy.getTopics().contains("topic1"));
     assertTrue(copy.getTopics().contains("topic2"));
 
@@ -193,6 +197,9 @@ class KafkaConsumerInputMetaTest {
     assertEquals("10000", meta.getBatchDuration());
     assertEquals("${KAFKA_SERVER}", meta.getDirectBootstrapServers());
     assertFalse(meta.isAutoCommit());
+    // Legacy XML without the new fields keeps defaults
+    assertFalse(meta.isStopWhenIdle());
+    assertEquals("500", meta.getMaxIdleTimeMs());
 
     assertEquals(6, meta.getOptions().size());
     assertEquals("auto.offset.reset", meta.getOptions().getFirst().getProperty());
@@ -227,5 +234,23 @@ class KafkaConsumerInputMetaTest {
     assertEquals("Timestamp", f.getOutputName());
     assertEquals(KafkaConsumerField.Type.Integer, f.getOutputType());
     assertEquals(KafkaConsumerField.Name.TIMESTAMP, f.getKafkaName());
+  }
+
+  @Test
+  void testStopWhenIdleDefaults() {
+    KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
+    assertFalse(meta.isStopWhenIdle());
+    assertEquals("500", meta.getMaxIdleTimeMs());
+  }
+
+  @Test
+  void testStopWhenIdleClone() {
+    KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
+    meta.setStopWhenIdle(true);
+    meta.setMaxIdleTimeMs("2500");
+
+    KafkaConsumerInputMeta copy = meta.clone();
+    assertTrue(copy.isStopWhenIdle());
+    assertEquals("2500", copy.getMaxIdleTimeMs());
   }
 }
