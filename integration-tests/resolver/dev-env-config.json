@@ -1,0 +1,11 @@
+{
+  "variables" : [ {
+    "name" : "HOP_PWD",
+    "value" : "Encrypted 696e7467d9eacebc03c89cc9bf1cbd649382b8de",
+    "description" : "Hop-encoded password for plaintext integration-test-pwd"
+  }, {
+    "name" : "HOP_PWD_PLAIN",
+    "value" : "integration-test-pwd",
+    "description" : "Expected plaintext after decrypt"
+  } ]
+}
