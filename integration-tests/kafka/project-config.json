@@ -8,6 +8,10 @@
       "name" : "HOP_LICENSE_HEADER_FILE",
       "value" : "${PROJECT_HOME}/../asf-header.txt",
       "description" : "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+    }, {
+      "name" : "BOOTSTRAP_SERVERS",
+      "value" : "kafka:9092",
+      "description" : "Kafka bootstrap servers for the docker integration-test network"
     } ]
   }
 }
