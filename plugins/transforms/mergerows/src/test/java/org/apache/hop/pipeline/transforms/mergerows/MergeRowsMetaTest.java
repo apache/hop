@@ -19,6 +19,8 @@
 package org.apache.hop.pipeline.transforms.mergerows;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -52,5 +54,30 @@ class MergeRowsMetaTest {
     assertEquals(2, meta.getValueFields().size());
     assertEquals("name", meta.getValueFields().get(0));
     assertEquals("score", meta.getValueFields().get(1));
+    // Missing align_input_layouts in XML uses defaultBoolean=false
+    // This keeps previously built pipelines compatible.
+    assertFalse(meta.isAlignInputLayouts());
+  }
+
+  @Test
+  void testDefaultAlignInputLayoutsEnabled() {
+    MergeRowsMeta meta = new MergeRowsMeta();
+    meta.setDefault();
+    assertTrue(meta.isAlignInputLayouts());
+  }
+
+  @Test
+  void testCloneCopiesDiffAndAlign() {
+    MergeRowsMeta meta = new MergeRowsMeta();
+    meta.setFlagField("flag");
+    meta.setDiffJsonField("difference");
+    meta.setAlignInputLayouts(false);
+    meta.getKeyFields().add("id");
+
+    MergeRowsMeta copy = meta.clone();
+    assertEquals("flag", copy.getFlagField());
+    assertEquals("difference", copy.getDiffJsonField());
+    assertFalse(copy.isAlignInputLayouts());
+    assertEquals(1, copy.getKeyFields().size());
   }
 }

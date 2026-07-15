@@ -92,7 +92,29 @@ class MergeRowsMetaCheckTest {
   }
 
   @Test
-  void testCheckInputRowsBothEmpty() throws HopTransformException {
+  void testCheckWithAlignmentEnabledReportsOkWithoutLayoutValidation() {
+    meta.setAlignInputLayouts(true);
+
+    meta.check(
+        remarks,
+        pipelineMeta,
+        transformMeta,
+        null,
+        new String[0],
+        new String[0],
+        (RowMeta) null,
+        new Variables(),
+        null);
+
+    assertNotNull(remarks);
+    assertTrue(remarks.size() >= 2);
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(0).getType());
+    assertEquals(ICheckResult.TYPE_RESULT_OK, remarks.get(1).getType());
+  }
+
+  @Test
+  void testCheckInputRowsBothEmptyStrict() throws HopTransformException {
+    meta.setAlignInputLayouts(false);
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMetaEmpty());
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME)))
@@ -115,7 +137,8 @@ class MergeRowsMetaCheckTest {
   }
 
   @Test
-  void testCheckInputRowsBothNonEmpty() throws HopTransformException {
+  void testCheckInputRowsBothNonEmptyStrict() throws HopTransformException {
+    meta.setAlignInputLayouts(false);
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMeta10Strings());
     when(pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME)))
@@ -138,7 +161,8 @@ class MergeRowsMetaCheckTest {
   }
 
   @Test
-  void testCheckInputRowsEmptyAndNonEmpty() throws HopTransformException {
+  void testCheckInputRowsEmptyAndNonEmptyStrict() throws HopTransformException {
+    meta.setAlignInputLayouts(false);
     when(pipelineMeta.getPrevTransformFields(any(), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMetaEmpty());
     when(pipelineMeta.getPrevTransformFields(any(), eq(COMPARISON_TRANSFORM_NAME)))
@@ -161,7 +185,8 @@ class MergeRowsMetaCheckTest {
   }
 
   @Test
-  void testCheckInputRowsDifferentRowMetaTypes() throws HopTransformException {
+  void testCheckInputRowsDifferentRowMetaTypesStrict() throws HopTransformException {
+    meta.setAlignInputLayouts(false);
     when(pipelineMeta.getPrevTransformFields(any(), eq(REFERENCE_TRANSFORM_NAME)))
         .thenReturn(generateRowMeta10MixedTypes());
     when(pipelineMeta.getPrevTransformFields(any(), eq(COMPARISON_TRANSFORM_NAME)))
