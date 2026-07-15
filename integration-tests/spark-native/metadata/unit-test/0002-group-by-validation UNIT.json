@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        { "transform_field": "state", "data_set_field": "state" },
+        { "transform_field": "count_all", "data_set_field": "count_all" },
+        { "transform_field": "count_distinct_city", "data_set_field": "count_distinct_city" },
+        { "transform_field": "min_id", "data_set_field": "min_id" },
+        { "transform_field": "max_id", "data_set_field": "max_id" },
+        { "transform_field": "sum_id", "data_set_field": "sum_id" }
+      ],
+      "field_order": ["state"],
+      "data_set_name": "0002-group-by-golden",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-group-by-validation UNIT",
+  "description": "Compare Spark Memory Group By output (read back on Local) to golden aggregates by state",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0002-group-by-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

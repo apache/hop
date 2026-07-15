@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
@@ -104,6 +106,8 @@ import org.apache.spark.sql.SparkSession;
     name = SparkConst.PLUGIN_NAME,
     description =
         "Executes batch Hop pipelines natively on Apache Spark 4.x (mapPartitions + Dataset API)")
+@Getter
+@Setter
 public class SparkPipelineEngine extends Variables implements IPipelineEngine<PipelineMeta> {
 
   private final PipelineEngineCapabilities engineCapabilities =
@@ -1485,17 +1489,9 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     return preparing;
   }
 
-  public void setPreparing(boolean preparing) {
-    this.preparing = preparing;
-  }
-
   @Override
   public boolean isReadyToStart() {
     return readyToStart;
-  }
-
-  public void setReadyToStart(boolean readyToStart) {
-    this.readyToStart = readyToStart;
   }
 
   @Override
@@ -1503,17 +1499,9 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     return running;
   }
 
-  public void setRunning(boolean running) {
-    this.running = running;
-  }
-
   @Override
   public boolean isFinished() {
     return finished;
-  }
-
-  public void setFinished(boolean finished) {
-    this.finished = finished;
   }
 
   @Override
@@ -1521,26 +1509,14 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     return stopped;
   }
 
-  public void setStopped(boolean stopped) {
-    this.stopped = stopped;
-  }
-
   @Override
   public boolean isPaused() {
     return paused;
   }
 
-  public void setPaused(boolean paused) {
-    this.paused = paused;
-  }
-
   @Override
   public int getErrors() {
     return errors;
-  }
-
-  public void setErrors(int errors) {
-    this.errors = errors;
   }
 
   @Override
@@ -1591,17 +1567,9 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     return executionStartDate;
   }
 
-  public void setExecutionStartDate(Date executionStartDate) {
-    this.executionStartDate = executionStartDate;
-  }
-
   @Override
   public Date getExecutionEndDate() {
     return executionEndDate;
-  }
-
-  public void setExecutionEndDate(Date executionEndDate) {
-    this.executionEndDate = executionEndDate;
   }
 
   @Override
@@ -1687,10 +1655,6 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
   public ComponentExecutionStatus getStatus() {
     return status;
-  }
-
-  public void setStatus(ComponentExecutionStatus status) {
-    this.status = status;
   }
 
   /** Exposed for tests. */

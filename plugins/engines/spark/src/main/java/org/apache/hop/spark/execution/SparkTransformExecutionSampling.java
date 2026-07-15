@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -68,6 +70,8 @@ import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
  *
  * <p>Not serializable — construct after Hop/plugin init on the executor.
  */
+@Getter
+@Setter
 public class SparkTransformExecutionSampling {
 
   private final String transformName;
@@ -101,14 +105,6 @@ public class SparkTransformExecutionSampling {
     String parent =
         StringUtils.isNotEmpty(parentLogChannelId) ? parentLogChannelId : "spark-pipeline";
     this.ownerLogChannelId = parent + "|" + transformName + "|" + copyNr;
-  }
-
-  public boolean isActive() {
-    return active;
-  }
-
-  public String getOwnerLogChannelId() {
-    return ownerLogChannelId;
   }
 
   /**
