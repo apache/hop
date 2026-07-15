@@ -724,7 +724,15 @@ public class GitGuiPlugin
     //
     GitConfig config = GitConfigSingleton.getConfig();
 
-    git = null;
+    // Close the previous repository so pack/index handles are released (Windows + native git).
+    if (git != null) {
+      try {
+        git.closeRepo();
+      } catch (Exception e) {
+        LogChannel.UI.logError("Error closing previous git repository", e);
+      }
+      git = null;
+    }
     setBranchLabel(null);
 
     if (config.isEnabled()) {
