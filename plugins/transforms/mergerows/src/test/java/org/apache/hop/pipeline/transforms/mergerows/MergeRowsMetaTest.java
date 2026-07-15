@@ -52,8 +52,9 @@ class MergeRowsMetaTest {
     assertEquals(2, meta.getValueFields().size());
     assertEquals("name", meta.getValueFields().get(0));
     assertEquals("score", meta.getValueFields().get(1));
-    // Missing align_input_layouts in XML uses defaultBoolean=true
-    assertEquals(true, meta.isAlignInputLayouts());
+    // Missing align_input_layouts in XML uses defaultBoolean=false
+    // This keeps previously built pipelines compatible.
+    assertEquals(false, meta.isAlignInputLayouts());
   }
 
   @Test

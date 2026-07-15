@@ -101,7 +101,7 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
 
   @HopMetadataProperty(
       key = "align_input_layouts",
-      defaultBoolean = true,
+      defaultBoolean = false,
       injectionKey = "ALIGN_INPUT_LAYOUTS",
       injectionKeyDescription = "MergeRows.Injection.ALIGN_INPUT_LAYOUTS")
   private boolean alignInputLayouts = true;
