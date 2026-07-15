@@ -137,6 +137,13 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Filter Rows for target-stream unit tests -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-filterrows</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Stream Lookup for info-stream unit tests (mapPartitions + broadcast) -->
         <dependency>
             <groupId>org.apache.hop</groupId>

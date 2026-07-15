@@ -162,7 +162,12 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
     }
 
     if (nameBasedProjection) {
-      dataset = projectAndCastByName(log, transformMeta.getName(), dataset, meta.getFields());
+      // header=false → Spark names columns _c0,_c1,... — map by position to the field list
+      if (!meta.isHeader() && isPositionalSparkCsvColumns(dataset.columns())) {
+        dataset = projectAndCastByPosition(log, transformMeta.getName(), dataset, meta.getFields());
+      } else {
+        dataset = projectAndCastByName(log, transformMeta.getName(), dataset, meta.getFields());
+      }
     } else if (hasFields && !delimited) {
       // Parquet/ORC/JSON: select by name + cast when a field list is provided
       dataset = projectAndCastByName(log, transformMeta.getName(), dataset, meta.getFields());
@@ -179,6 +184,65 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
             + path
             + " columns="
             + Arrays.toString(dataset.columns()));
+  }
+
+  /** True when Spark assigned default positional CSV names (_c0, _c1, …). */
+  static boolean isPositionalSparkCsvColumns(String[] columns) {
+    if (columns == null || columns.length == 0) {
+      return false;
+    }
+    for (int i = 0; i < columns.length; i++) {
+      if (!("_c" + i).equals(columns[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Map Spark's default {@code _cN} columns to the configured field list by position (no-header
+   * CSV). Extra file columns are dropped; missing positions become null.
+   */
+  static Dataset<Row> projectAndCastByPosition(
+      ILogChannel log, String transformName, Dataset<Row> source, List<SparkField> fields)
+      throws HopException {
+    String[] columns = source.columns();
+    List<Column> projected = new ArrayList<>();
+    int i = 0;
+    for (SparkField field : fields) {
+      if (StringUtils.isEmpty(field.getName())) {
+        continue;
+      }
+      if (i < columns.length) {
+        projected.add(castColumn(source, columns[i], field).alias(field.getName()));
+      } else {
+        if (log != null) {
+          log.logError(
+              "Spark File Input '"
+                  + transformName
+                  + "': no file column at position "
+                  + i
+                  + " for field '"
+                  + field.getName()
+                  + "' — filled with nulls");
+        }
+        projected.add(lit(null).cast(DataTypes.StringType).alias(field.getName()));
+      }
+      i++;
+    }
+    if (projected.isEmpty()) {
+      throw new HopException(
+          "Spark File Input '" + transformName + "' field list produced no output columns");
+    }
+    if (log != null) {
+      log.logBasic(
+          "Spark File Input '"
+              + transformName
+              + "': mapped "
+              + Math.min(i, columns.length)
+              + " positional column(s) (_cN) to field list (header=false)");
+    }
+    return source.select(projected.toArray(new Column[0]));
   }
 
   /**

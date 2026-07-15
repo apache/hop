@@ -24,6 +24,7 @@
     <!-- Common generic mapPartitions transforms -->
     <folder>../../transforms/constant</folder>
     <folder>../../transforms/filterrows</folder>
+    <folder>../../transforms/switchcase</folder>
     <folder>../../transforms/calculator</folder>
     <folder>../../transforms/selectvalues</folder>
     <folder>../../transforms/dummy</folder>

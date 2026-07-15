@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -32,7 +33,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.spark.core.HopSparkUtil;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
@@ -189,36 +192,39 @@ public class HopPipelineMetaToSparkConverter {
         List<TransformMeta> previousTransforms =
             pipelineMeta.findPreviousTransforms(transformMeta, false);
 
-        // Merge Join (and similar) can have multiple previous/info inputs; the native handler
-        // resolves them from transformDatasetMap. Generic handlers still require a single input.
-        if (!nativeHandler && previousTransforms.size() > 1) {
-          throw new HopException(
-              "Combining data from multiple previous transforms is not yet supported for transform '"
-                  + transformMeta.getName()
-                  + "' on the native Spark engine (plugin id="
-                  + pluginId
-                  + ")");
-        }
-
         Dataset<Row> input = null;
         IRowMeta rowMeta;
         if (previousTransforms.isEmpty()) {
           rowMeta = new org.apache.hop.core.row.RowMeta();
-        } else {
+        } else if (nativeHandler && previousTransforms.size() > 1) {
+          // Merge Join (etc.) resolves named inputs itself from transformDatasetMap
           TransformMeta previous = previousTransforms.get(0);
-          input = transformDatasetMap.get(previous.getName());
-          if (input == null && !nativeHandler) {
-            throw new HopException(
-                "Previous Dataset for transform '"
-                    + previous.getName()
-                    + "' could not be found when handling '"
-                    + transformMeta.getName()
-                    + "'");
-          }
+          input = lookupPreviousDataset(transformDatasetMap, previous, transformMeta, log);
           rowMeta =
               input != null
                   ? pipelineMeta.getTransformFields(variables, previous)
                   : new org.apache.hop.core.row.RowMeta();
+        } else {
+          // One or more main predecessors: resolve each Dataset (incl. target-stream keys) and
+          // union when layouts match (Hop multi-hop merge semantics).
+          ResolvedInputs resolved =
+              resolveAndUnionInputs(
+                  log,
+                  variables,
+                  pipelineMeta,
+                  transformMeta,
+                  previousTransforms,
+                  transformDatasetMap);
+          input = resolved.dataset();
+          rowMeta = resolved.rowMeta();
+          if (input == null && !nativeHandler) {
+            throw new HopException(
+                "Previous Dataset(s) for transform '"
+                    + transformMeta.getName()
+                    + "' could not be found (previous="
+                    + previousTransforms.stream().map(TransformMeta::getName).toList()
+                    + ")");
+          }
         }
 
         handler.handleTransform(
@@ -261,6 +267,105 @@ public class HopPipelineMetaToSparkConverter {
       throw new HopException("Error converting Hop pipeline to Spark", e);
     }
   }
+
+  /**
+   * Resolve Datasets for all main previous transforms (preferring target-stream keys), verify that
+   * Hop row layouts match, and {@code union} them. Matches Beam Flatten / Hop multi-hop merge.
+   */
+  static ResolvedInputs resolveAndUnionInputs(
+      ILogChannel log,
+      IVariables variables,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      List<TransformMeta> previousTransforms,
+      Map<String, Dataset<Row>> transformDatasetMap)
+      throws HopException {
+    if (previousTransforms == null || previousTransforms.isEmpty()) {
+      return new ResolvedInputs(null, new org.apache.hop.core.row.RowMeta());
+    }
+
+    List<Dataset<Row>> datasets = new ArrayList<>();
+    IRowMeta referenceRowMeta = null;
+    List<String> sourceNames = new ArrayList<>();
+
+    for (TransformMeta previous : previousTransforms) {
+      Dataset<Row> ds = lookupPreviousDataset(transformDatasetMap, previous, transformMeta, log);
+      if (ds == null) {
+        throw new HopException(
+            "Previous Dataset for transform '"
+                + previous.getName()
+                + "' could not be found when handling '"
+                + transformMeta.getName()
+                + "'");
+      }
+      IRowMeta prevRowMeta = pipelineMeta.getTransformFields(variables, previous);
+      if (referenceRowMeta == null) {
+        referenceRowMeta = prevRowMeta;
+      } else if (!transformMeta.getTransform().excludeFromRowLayoutVerification()) {
+        try {
+          BaseTransform.safeModeChecking(referenceRowMeta, prevRowMeta);
+        } catch (HopRowException e) {
+          throw new HopException(
+              "Cannot combine data into transform '"
+                  + transformMeta.getName()
+                  + "': previous transforms do not share the same row layout. Hop requires"
+                  + " identical field names, order, and types when multiple hops feed one"
+                  + " transform. Mismatch involving '"
+                  + previous.getName()
+                  + "': "
+                  + e.getMessage(),
+              e);
+        }
+      }
+      datasets.add(ds);
+      sourceNames.add(previous.getName());
+    }
+
+    Dataset<Row> unioned = datasets.get(0);
+    for (int i = 1; i < datasets.size(); i++) {
+      // unionByName is more resilient if Spark column order drifts; layouts already checked
+      unioned = unioned.unionByName(datasets.get(i));
+    }
+    if (datasets.size() > 1) {
+      log.logBasic(
+          "Combined "
+              + datasets.size()
+              + " previous Dataset(s) into transform '"
+              + transformMeta.getName()
+              + "': "
+              + sourceNames);
+    }
+    return new ResolvedInputs(
+        unioned,
+        referenceRowMeta != null ? referenceRowMeta : new org.apache.hop.core.row.RowMeta());
+  }
+
+  /**
+   * Prefer a target-stream Dataset when {@code previous} routed to {@code current} (Filter/Switch);
+   * otherwise use the previous transform's main Dataset.
+   */
+  static Dataset<Row> lookupPreviousDataset(
+      Map<String, Dataset<Row>> transformDatasetMap,
+      TransformMeta previous,
+      TransformMeta current,
+      ILogChannel log) {
+    String targetKey = HopSparkUtil.createTargetTupleId(previous.getName(), current.getName());
+    Dataset<Row> input = transformDatasetMap.get(targetKey);
+    if (input != null) {
+      if (log != null) {
+        log.logBasic(
+            "Transform '"
+                + current.getName()
+                + "' reading from previous target stream key: "
+                + targetKey);
+      }
+      return input;
+    }
+    return transformDatasetMap.get(previous.getName());
+  }
+
+  /** Result of resolving one or more previous Datasets for a transform. */
+  record ResolvedInputs(Dataset<Row> dataset, IRowMeta rowMeta) {}
 
   /** Topological order of transforms (Kahn-style via repeated previous-set checks). */
   protected List<TransformMeta> getSortedTransformsList() {

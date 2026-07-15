@@ -424,8 +424,11 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         sampling = null;
       }
 
+      // Untagged main-path capture (no target streams) or per-target capture lists (Beam pattern)
       List<Object[]> resultRows = new ArrayList<>();
-      if (targetTransforms.isEmpty()) {
+      List<List<Object[]>> targetResultRowsList = new ArrayList<>();
+      final boolean multiTarget = !targetTransforms.isEmpty();
+      if (!multiTarget) {
         transformCombi.transform.addRowListener(
             new RowAdapter() {
               @Override
@@ -436,13 +439,15 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
             });
       } else {
         for (String targetTransform : targetTransforms) {
+          List<Object[]> targetResultRows = new ArrayList<>();
+          targetResultRowsList.add(targetResultRows);
           TransformMetaDataCombi targetCombi = findCombi(pipeline, targetTransform);
           targetCombi.transform.addRowListener(
               new RowAdapter() {
                 @Override
                 public void rowReadEvent(IRowMeta rowMeta, Object[] row)
                     throws HopTransformException {
-                  resultRows.add(row);
+                  targetResultRows.add(row);
                 }
               });
         }
@@ -482,11 +487,15 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         // Source transform: drive until finished with no external input
         boolean more = true;
         while (more && !pipeline.isFinished() && pipeline.getErrors() == 0) {
-          resultRows.clear();
+          clearCapture(resultRows, targetResultRowsList);
           more = executor.oneIteration();
-          for (Object[] hopRow : resultRows) {
-            output.add(HopSparkRowConverter.toSparkRow(outputRowMeta, hopRow));
-          }
+          appendCapturedRows(
+              output,
+              outputRowMeta,
+              multiTarget,
+              resultRows,
+              targetTransforms,
+              targetResultRowsList);
           if (throttle.shouldPublish(resultRows.size())) {
             publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
             flushSamplesQuietly(samplingRef, false);
@@ -497,7 +506,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         while (input.hasNext()) {
           Row sparkRow = input.next();
           Object[] hopRow = HopSparkRowConverter.toHopRow(inputRowMeta, sparkRow);
-          resultRows.clear();
+          clearCapture(resultRows, targetResultRowsList);
           rowProducer.putRow(inputRowMeta, hopRow, false);
           // Forward the main row onto the hop before Stream Lookup's info-first processRow
           // calls getRow() for the main stream (same timing Beam gets from topo order +
@@ -506,9 +515,13 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
             mainInjectorCombi.transform.processRow();
           }
           executor.oneIteration();
-          for (Object[] outHopRow : resultRows) {
-            output.add(HopSparkRowConverter.toSparkRow(outputRowMeta, outHopRow));
-          }
+          appendCapturedRows(
+              output,
+              outputRowMeta,
+              multiTarget,
+              resultRows,
+              targetTransforms,
+              targetResultRowsList);
           rowsSeen++;
           if (throttle.shouldPublish(1) || rowsSeen % METRICS_ROW_INTERVAL == 0) {
             publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
@@ -520,11 +533,15 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           if (mainInjectorCombi != null) {
             mainInjectorCombi.transform.processRow();
           }
-          resultRows.clear();
+          clearCapture(resultRows, targetResultRowsList);
           executor.oneIteration();
-          for (Object[] outHopRow : resultRows) {
-            output.add(HopSparkRowConverter.toSparkRow(outputRowMeta, outHopRow));
-          }
+          appendCapturedRows(
+              output,
+              outputRowMeta,
+              multiTarget,
+              resultRows,
+              targetTransforms,
+              targetResultRowsList);
         }
       }
 
@@ -660,6 +677,36 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     }
     throw new HopRuntimeException(
         "Configuration error, transform '" + name + "' not found in mini-pipeline");
+  }
+
+  private static void clearCapture(
+      List<Object[]> resultRows, List<List<Object[]>> targetResultRowsList) {
+    resultRows.clear();
+    for (List<Object[]> list : targetResultRowsList) {
+      list.clear();
+    }
+  }
+
+  private static void appendCapturedRows(
+      List<Row> output,
+      IRowMeta outputRowMeta,
+      boolean multiTarget,
+      List<Object[]> resultRows,
+      List<String> targetTransforms,
+      List<List<Object[]>> targetResultRowsList)
+      throws HopException {
+    if (!multiTarget) {
+      for (Object[] hopRow : resultRows) {
+        output.add(HopSparkRowConverter.toSparkRow(outputRowMeta, hopRow));
+      }
+      return;
+    }
+    for (int t = 0; t < targetTransforms.size(); t++) {
+      String tag = targetTransforms.get(t);
+      for (Object[] hopRow : targetResultRowsList.get(t)) {
+        output.add(HopSparkRowConverter.toTaggedSparkRow(tag, outputRowMeta, hopRow));
+      }
+    }
   }
 
   /** Throttles metric publishes by wall-clock time (row interval handled by caller). */

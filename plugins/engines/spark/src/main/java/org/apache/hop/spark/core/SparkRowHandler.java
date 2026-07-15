@@ -38,19 +38,28 @@ import org.apache.hop.pipeline.transform.IRowListener;
 public class SparkRowHandler implements IRowHandler {
 
   private final BaseTransform transform;
-  private final IRowSet inputRowSet;
-  private final IRowSet outputRowSet;
 
   public SparkRowHandler(BaseTransform transform) {
     this.transform = transform;
+  }
+
+  /**
+   * Prefer live rowsets from the transform (not a snapshot at construction): hop wiring and {@code
+   * addRowProducer} can still change after the handler is installed.
+   */
+  private IRowSet firstInput() {
     List<IRowSet> inputRowSets = transform.getInputRowSets();
-    this.inputRowSet = inputRowSets.isEmpty() ? null : inputRowSets.get(0);
+    return inputRowSets == null || inputRowSets.isEmpty() ? null : inputRowSets.get(0);
+  }
+
+  private IRowSet firstOutput() {
     List<IRowSet> outputRowSets = transform.getOutputRowSets();
-    this.outputRowSet = outputRowSets.isEmpty() ? null : outputRowSets.get(0);
+    return outputRowSets == null || outputRowSets.isEmpty() ? null : outputRowSets.get(0);
   }
 
   @Override
   public Object[] getRow() throws HopException {
+    IRowSet inputRowSet = firstInput();
     if (inputRowSet == null) {
       return null;
     }
@@ -72,10 +81,12 @@ public class SparkRowHandler implements IRowHandler {
     for (IRowListener rowListener : rowListeners) {
       rowListener.rowWrittenEvent(rowMeta, row);
     }
+    IRowSet outputRowSet = firstOutput();
     if (outputRowSet != null) {
       outputRowSet.putRow(rowMeta, row);
-      transform.incrementLinesWritten();
     }
+    // Always count written (including leaf transforms with no output hop)
+    transform.incrementLinesWritten();
   }
 
   @Override

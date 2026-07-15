@@ -30,7 +30,24 @@ public final class HopSparkUtil {
 
   private static final Object LOAD_LOCK = new Object();
 
+  /**
+   * Marker value for the main (non-targeted) output branch in tagged mapPartitions rows. Must not
+   * collide with a real transform name.
+   */
+  public static final String MAIN_TARGET_TAG = "__main__";
+
+  /** Temporary column used to split multi-target mapPartitions output into Datasets. */
+  public static final String TARGET_TAG_COLUMN = "_hop_target";
+
   private HopSparkUtil() {}
+
+  /**
+   * Dataset-map key for a named target stream (matches Beam {@code HopBeamUtil.createTargetTupleId}
+   * string format; no dependency on the Beam plugin).
+   */
+  public static String createTargetTupleId(String transformName, String targetTransformName) {
+    return transformName + " - TARGET - " + targetTransformName;
+  }
 
   public static void loadTransformMetadataFromXml(
       String transformName,

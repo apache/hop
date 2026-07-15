@@ -85,6 +85,34 @@ public final class HopSparkRowConverter {
     return RowFactory.create(values);
   }
 
+  /**
+   * Spark row with a leading target-branch tag column ({@link HopSparkUtil#TARGET_TAG_COLUMN}) for
+   * multi-output transforms (Filter Rows, Switch/Case).
+   */
+  public static Row toTaggedSparkRow(String targetTag, IRowMeta rowMeta, Object[] hopRow)
+      throws HopException {
+    Object[] values = new Object[rowMeta.size() + 1];
+    values[0] = targetTag != null ? targetTag : HopSparkUtil.MAIN_TARGET_TAG;
+    for (int i = 0; i < rowMeta.size(); i++) {
+      values[i + 1] = toSparkValue(rowMeta.getValueMeta(i), hopRow == null ? null : hopRow[i]);
+    }
+    return RowFactory.create(values);
+  }
+
+  /** Schema for {@link #toTaggedSparkRow}: tag string + payload fields. */
+  public static StructType toTaggedStructType(IRowMeta rowMeta) throws HopException {
+    StructType payload = toStructType(rowMeta);
+    StructField tagField =
+        new StructField(
+            HopSparkUtil.TARGET_TAG_COLUMN, DataTypes.StringType, false, Metadata.empty());
+    StructField[] fields = new StructField[payload.size() + 1];
+    fields[0] = tagField;
+    for (int i = 0; i < payload.size(); i++) {
+      fields[i + 1] = payload.fields()[i];
+    }
+    return new StructType(fields);
+  }
+
   public static Object[] toHopRow(IRowMeta rowMeta, Row sparkRow) throws HopException {
     Object[] hopRow = new Object[rowMeta.size()];
     if (sparkRow == null) {
