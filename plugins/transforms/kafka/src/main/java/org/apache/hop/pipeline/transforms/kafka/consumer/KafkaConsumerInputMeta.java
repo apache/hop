@@ -168,6 +168,18 @@ public class KafkaConsumerInputMeta
   private boolean autoCommit = true;
 
   @HopMetadataProperty(
+      key = "stopWhenIdle",
+      injectionKey = "STOP_WHEN_IDLE",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.STOP_WHEN_IDLE")
+  private boolean stopWhenIdle = false;
+
+  @HopMetadataProperty(
+      key = "maxIdleTimeMs",
+      injectionKey = "MAX_IDLE_TIME_MS",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.MAX_IDLE_TIME_MS")
+  private String maxIdleTimeMs;
+
+  @HopMetadataProperty(
       groupKey = "options",
       key = "option",
       injectionGroupKey = "CONFIGURATION_PROPERTIES",
@@ -194,6 +206,7 @@ public class KafkaConsumerInputMeta
     executionDataProfile = "";
     batchSize = "1000";
     batchDuration = "1000";
+    maxIdleTimeMs = "500";
     subTransform = "";
     topics = new ArrayList<>();
     options = new ArrayList<>();
@@ -243,6 +256,8 @@ public class KafkaConsumerInputMeta
     this.topics = new ArrayList<>(m.topics);
     this.consumerGroup = m.consumerGroup;
     this.autoCommit = m.autoCommit;
+    this.stopWhenIdle = m.stopWhenIdle;
+    this.maxIdleTimeMs = m.maxIdleTimeMs;
     this.mappingMetaRetriever = m.mappingMetaRetriever;
     this.options = new ArrayList<>();
     m.options.forEach(o -> this.options.add(new KafkaOption(o)));
@@ -327,8 +342,13 @@ public class KafkaConsumerInputMeta
       // Check if we get called from error path and only in that case, show fields that will dump
       // the
       // record coming from the kafka queue.
-      TransformErrorMeta transformErrorMeta = getParentTransformMeta().getTransformErrorMeta();
+      TransformErrorMeta transformErrorMeta =
+          getParentTransformMeta() != null
+              ? getParentTransformMeta().getTransformErrorMeta()
+              : null;
       if (transformErrorMeta != null
+          && transformErrorMeta.getTargetTransform() != null
+          && nextTransform != null
           && transformErrorMeta.getTargetTransform().getName().equals(nextTransform.getName())) {
         rowMeta.addValueMeta(createValueMetaString(getKeyField().getOutputName()));
         rowMeta.addValueMeta(createValueMetaString(getMessageField().getOutputName()));
@@ -397,6 +417,19 @@ public class KafkaConsumerInputMeta
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "KafkaConsumerInputMeta.CheckResult.NoBatchDefined"),
               transformMeta));
+    }
+
+    if (isStopWhenIdle()) {
+      try {
+        Long.parseLong(variables.resolve(getMaxIdleTimeMs()));
+      } catch (NumberFormatException e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Max idle time"),
+                transformMeta));
+      }
     }
   }
 

@@ -1,0 +1,11 @@
+{
+  "virtualPath": "",
+  "name": "hop-pwd-literal",
+  "description": "Decrypt Hop passwords; argument is literal Encrypted/AES2 text",
+  "variable-resolver": {
+    "HopPassword": {
+      "resolveAsVariable": false,
+      "failIfVariableNotDefined": false
+    }
+  }
+}

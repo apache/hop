@@ -52,6 +52,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -148,6 +149,8 @@ public class TableView extends Composite {
   public static final String ID_TOOLBAR_CLEAR_SELECTION = "tableview-toolbar-10310-clear-selection";
   public static final String ID_TOOLBAR_FILTERED_SELECTION =
       "tableview-toolbar-10320-filtered-selection";
+  public static final String ID_TOOLBAR_NAVIGATE_TO_COLUMN =
+      "tableview-toolbar-10330-navigate-to-column";
   public static final String ID_TOOLBAR_COPY_SELECTED = "tableview-toolbar-10400-copy-selected";
   public static final String ID_TOOLBAR_PASTE_TO_TABLE = "tableview-toolbar-10410-paste-to-table";
   public static final String ID_TOOLBAR_CUT_SELECTED = "tableview-toolbar-10420-cut-selected";
@@ -727,6 +730,7 @@ public class TableView extends Composite {
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_SELECT_ALL_ROWS, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CLEAR_SELECTION, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FILTERED_SELECTION, hasRows);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_NAVIGATE_TO_COLUMN, columns.length > 0);
   }
 
   private MouseListener createTableMouseListener() {
@@ -1424,8 +1428,16 @@ public class TableView extends Composite {
           OsHelper.customizeMenuitemText(
               BaseMessages.getString(PKG, "TableView.menu.FilteredSelection")));
       miFilter.addListener(SWT.Selection, e -> setFilter());
-      new MenuItem(mRow, SWT.SEPARATOR);
       miFilter.setEnabled(!readonly);
+    }
+
+    if (!removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN)) {
+      MenuItem miNavigateToColumn = new MenuItem(mRow, SWT.NONE);
+      miNavigateToColumn.setText(
+          OsHelper.customizeMenuitemText(
+              BaseMessages.getString(PKG, "TableView.menu.NavigateToColumn")));
+      miNavigateToColumn.addListener(SWT.Selection, e -> navigateToColumn());
+      new MenuItem(mRow, SWT.SEPARATOR);
     }
 
     if (!removeToolItems.contains(ID_TOOLBAR_COPY_SELECTED)) {
@@ -3954,6 +3966,49 @@ public class TableView extends Composite {
       }
 
       table.setSelection(sels);
+    }
+  }
+
+  /**
+   * Open a searchable column picker and scroll the table horizontally so the chosen column is
+   * visible. Useful for wide tables (preview grids, field mapping dialogs, etc.).
+   */
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_NAVIGATE_TO_COLUMN,
+      image = "ui/images/search.svg",
+      toolTip = "i18n::TableView.ToolBarWidget.NavigateToColumn.ToolTip")
+  public void navigateToColumn() {
+    if (columns.length == 0) {
+      return;
+    }
+
+    String[] columnNames = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      columnNames[i] = Const.NVL(columns[i].getName(), "");
+    }
+
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            getShell(),
+            columnNames,
+            BaseMessages.getString(PKG, "TableView.NavigateToColumn.Title"),
+            BaseMessages.getString(PKG, "TableView.NavigateToColumn.Message"));
+    String selection = dialog.open();
+    if (selection == null) {
+      return;
+    }
+
+    int index = dialog.getSelectionNr();
+    if (index < 0 || index >= columns.length) {
+      return;
+    }
+
+    // tableColumn[0] is the row-number (#) column; data columns start at index 1.
+    TableColumn tableCol = tableColumn[index + 1];
+    if (tableCol != null && !tableCol.isDisposed()) {
+      table.showColumn(tableCol);
+      activeTableColumn = index + 1;
     }
   }
 

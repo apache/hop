@@ -25,6 +25,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -91,34 +92,16 @@ public class ResourceUtil {
         // See if we need to rename named resource folders...
         // We have a list of these in the naming interface
         //
-        Map<String, String> dirMap = namingInterface.getDirectoryMap();
-        if (StringUtils.isNotEmpty(sourceResourceFolderMapping)
-            && StringUtils.isNotEmpty(targetResourceFolderMapping)) {
-          FileObject sourceReference =
-              HopVfs.getFileObject(variables.resolve(sourceResourceFolderMapping));
-
-          for (String sourceDirectory : dirMap.keySet()) {
-            // Calculate the relative path compared to the source resource folder
-            // From: ${PROJECT_HOME}/files
-            // To:   files
-            //
-            FileObject source = HopVfs.getFileObject(variables.resolve(sourceDirectory));
-            String relativePath = sourceReference.getName().getRelativeName(source.getName());
-
-            // So now simply add the relative path to the target folder
-            //
-            String targetDirectory = targetResourceFolderMapping;
-            if (!targetDirectory.endsWith("/")) {
-              targetDirectory += "/";
-            }
-            targetDirectory += relativePath;
-            String parameter = dirMap.get(sourceDirectory);
-
-            // Set the resulting variable in the variables map of the execution configuration
-            //
-            variablesMap.put(parameter, targetDirectory);
-          }
-        }
+        // Give every generated folder variable (DATA_PATH_1, ...) a value in the execution
+        // configuration. Otherwise the rewritten filenames (${DATA_PATH_1}/file.txt) stay
+        // unresolved on the remote server (see #7209).
+        //
+        assignNamedResourceDirectoryVariables(
+            variables,
+            namingInterface.getDirectoryMap(),
+            sourceResourceFolderMapping,
+            targetResourceFolderMapping,
+            variablesMap);
 
         // In case we want to add an extra pay-load to the exported ZIP file.
         // We add an extra file definition which gets picked up below and zipped up.
@@ -193,6 +176,70 @@ public class ResourceUtil {
                   PKG, "ResourceUtil.Exception.ErrorClosingZipStream", zipFilename));
         }
       }
+    }
+  }
+
+  /**
+   * Assign a value to every generated named-resource folder variable (e.g. {@code DATA_PATH_1})
+   * that was created while renaming referenced files during a resource export.
+   *
+   * <p>When both a source and target resource folder are configured, the referenced folders are
+   * mapped from the source folder onto the target folder on the server (e.g. {@code
+   * ${PROJECT_HOME}/files} becomes {@code <target>/files}). Otherwise each variable defaults to the
+   * same folder as on the executing (local) machine, so the rewritten {@code ${DATA_PATH_n}/file}
+   * references still resolve. Leaving these variables unset resulted in unresolved {@code
+   * ${DATA_PATH_n}} paths on remote Hop servers (#7209).
+   *
+   * @param variables the variable space used to resolve folders
+   * @param directoryMap map of referenced source folder to generated variable name
+   * @param sourceResourceFolderMapping optional source folder to map from (e.g. ${PROJECT_HOME})
+   * @param targetResourceFolderMapping optional target folder on the server (e.g. /server/)
+   * @param variablesMap the execution configuration variables map to populate
+   */
+  static void assignNamedResourceDirectoryVariables(
+      IVariables variables,
+      Map<String, String> directoryMap,
+      String sourceResourceFolderMapping,
+      String targetResourceFolderMapping,
+      Map<String, String> variablesMap)
+      throws HopException, FileSystemException {
+
+    boolean mapToTargetFolder =
+        StringUtils.isNotEmpty(sourceResourceFolderMapping)
+            && StringUtils.isNotEmpty(targetResourceFolderMapping);
+
+    FileObject sourceReference = null;
+    if (mapToTargetFolder) {
+      sourceReference = HopVfs.getFileObject(variables.resolve(sourceResourceFolderMapping));
+    }
+
+    for (Map.Entry<String, String> entry : directoryMap.entrySet()) {
+      String sourceDirectory = entry.getKey();
+      String parameter = entry.getValue();
+      String targetDirectory;
+
+      if (mapToTargetFolder) {
+        // Calculate the relative path compared to the source resource folder and add it to the
+        // target folder.
+        // From: ${PROJECT_HOME}/files
+        // To:   <target folder>/files
+        //
+        FileObject source = HopVfs.getFileObject(variables.resolve(sourceDirectory));
+        String relativePath = sourceReference.getName().getRelativeName(source.getName());
+        targetDirectory = targetResourceFolderMapping;
+        if (!targetDirectory.endsWith("/")) {
+          targetDirectory += "/";
+        }
+        targetDirectory += relativePath;
+      } else {
+        // Default: use the same folder as on the executing (local) machine.
+        //
+        targetDirectory = variables.resolve(sourceDirectory);
+      }
+
+      // Set the resulting variable in the variables map of the execution configuration
+      //
+      variablesMap.put(parameter, targetDirectory);
     }
   }
 
