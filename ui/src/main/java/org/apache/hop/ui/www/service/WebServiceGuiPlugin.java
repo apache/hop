@@ -132,13 +132,18 @@ public class WebServiceGuiPlugin {
 
         // See if it's open in the metadata perspective...
         //
+        // The perspective is absent when it is switched off in disabledGuiElements.xml, and then
+        // nothing is open in it.
+        //
         MetadataPerspective perspective =
             (MetadataPerspective)
                 hopGui.getPerspectiveManager().findPerspective(MetadataPerspective.class);
         String key = WebService.class.getAnnotation(HopMetadata.class).key();
         WebServiceEditor editor =
-            (WebServiceEditor) perspective.findEditor(key, webService.getName());
-        if (editor != null) {
+            perspective == null
+                ? null
+                : (WebServiceEditor) perspective.findEditor(key, webService.getName());
+        if (perspective != null && editor != null) {
           // We're going to change the current metadata and flag it as changed...
           //
           webService = new WebService();

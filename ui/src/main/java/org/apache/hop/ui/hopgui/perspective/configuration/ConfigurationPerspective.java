@@ -131,7 +131,20 @@ public class ConfigurationPerspective implements IHopPerspective {
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'c', global = true)
   @Override
   public void activate() {
+    if (!isInitialized()) {
+      return;
+    }
     hopGui.setActivePerspective(this);
+  }
+
+  /**
+   * When this perspective is disabled (an exclusion in disabledGuiElements.xml) HopGui skips it
+   * while loading the perspectives, so initialize() never runs. The singleton still exists because
+   * the class is instantiated to register the GUI elements it declares, so callers reaching it
+   * through getInstance() get an instance without a HopGui or any widgets to work with.
+   */
+  private boolean isInitialized() {
+    return hopGui != null;
   }
 
   @Override
@@ -164,7 +177,7 @@ public class ConfigurationPerspective implements IHopPerspective {
 
   @Override
   public boolean isActive() {
-    return hopGui.isActivePerspective(this);
+    return isInitialized() && hopGui.isActivePerspective(this);
   }
 
   @Override
@@ -848,6 +861,11 @@ public class ConfigurationPerspective implements IHopPerspective {
   }
 
   public void showSystemVariablesTab() {
+    if (!isInitialized()) {
+      // There is no tree to navigate.
+      //
+      return;
+    }
     // Navigate to system variables in the tree
     for (TreeItem item : categoryTree.getItems()) {
       if (item.getText().toLowerCase().contains("variable")) {

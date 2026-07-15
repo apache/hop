@@ -71,6 +71,16 @@ chmod 777 "${CURRENT_DIR}"/../surefire-reports/ 2>/dev/null || true
 if [ -z "${BOOTSTRAP_SERVERS}" ]; then
   BOOTSTRAP_SERVERS=kafka:9092
 fi
+# Best-effort diagnostics when running the kafka project (helps Jenkins triage)
+if [ "${PROJECT_NAME}" = "kafka" ] || [ "$(basename "${PROJECT_NAME}" 2>/dev/null)" = "kafka" ]; then
+  echo "Kafka IT: BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS}"
+  if command -v getent >/dev/null 2>&1; then
+    echo "Kafka IT: getent hosts kafka => $(getent hosts kafka 2>&1 || true)"
+  fi
+  if command -v nc >/dev/null 2>&1; then
+    nc -z -w 2 kafka 9092 && echo "Kafka IT: kafka:9092 is reachable" || echo "Kafka IT: kafka:9092 is NOT reachable yet"
+  fi
+fi
 
 # Get database parameters
 if [ -z "${POSTGRES_HOST}" ]; then

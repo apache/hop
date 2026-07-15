@@ -29,7 +29,7 @@
     <name>Hop Plugins Engines Beam</name>
 
     <properties>
-        <spark.version>3.5.7</spark.version>
+        <spark.version>3.5.8</spark.version>
     </properties>
 
     <dependencyManagement>
@@ -1474,6 +1474,105 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--
+          Spark core/streaming are marked provided by beam-runners-spark-3. Hop client-mode
+          submit (BeamSparkPipelineEngine → spark://master) needs them on the driver classpath
+          and in the fat jar. Keep log4j/jackson-scala exclusions to avoid clashing with Hop.
+        -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.12</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.11</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.13</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-1.2-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j2-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.lz4</groupId>
+                    <artifactId>lz4-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.xerial.snappy</groupId>
+                    <artifactId>snappy-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_2.12</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.11</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.13</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.lz4</groupId>
+                    <artifactId>lz4-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.xerial.snappy</groupId>
+                    <artifactId>snappy-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-constant</artifactId>
@@ -1548,76 +1647,6 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.12</artifactId>
-            <version>${spark.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.13</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.code.gson</groupId>
-                    <artifactId>gson</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>joda-time</groupId>
-                    <artifactId>joda-time</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-1.2-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j2-impl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.lz4</groupId>
-                    <artifactId>lz4-java</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.xerial.snappy</groupId>
-                    <artifactId>snappy-java</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming_2.12</artifactId>
-            <version>${spark.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

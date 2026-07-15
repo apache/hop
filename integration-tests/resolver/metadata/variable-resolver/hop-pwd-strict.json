@@ -1,0 +1,11 @@
+{
+  "virtualPath": "",
+  "name": "hop-pwd-strict",
+  "description": "Decrypt Hop passwords from variable names; fail if the variable is not defined",
+  "variable-resolver": {
+    "HopPassword": {
+      "resolveAsVariable": true,
+      "failIfVariableNotDefined": true
+    }
+  }
+}

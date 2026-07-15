@@ -94,7 +94,13 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     Button wIntegratedSecurity =
         (Button) compositeWidgets.getWidgetsMap().get(ID_INTEGRATED_SECURITY_WIDGET);
 
-    boolean enable = !wIntegratedSecurity.getSelection();
+    // The checkbox is absent when it is switched off in disabledGuiElements.xml. There is nothing
+    // to read the setting from then, so we go by what is on the metadata itself.
+    //
+    boolean enable =
+        wIntegratedSecurity == null
+            ? !isUsingIntegratedSecurity()
+            : !wIntegratedSecurity.getSelection();
     for (Control control : controls) {
       control.setEnabled(enable);
     }

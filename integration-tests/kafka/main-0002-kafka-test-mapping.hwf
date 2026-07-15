@@ -30,7 +30,7 @@ limitations under the License.
   <parameters>
     <parameter>
       <name>BOOTSTRAP_SERVERS</name>
-      <description/>
+      <description>Kafka bootstrap servers (docker IT network hostname)</description>
       <default_value>kafka:9092</default_value>
     </parameter>
   </parameters>

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,6 +40,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -487,7 +489,14 @@ public class UpdateDialog extends BaseTransformDialog {
     Button wGetUpdateFields = new Button(composite, SWT.PUSH);
     wGetUpdateFields.setText(BaseMessages.getString(PKG, "UpdateDialog.GetAndUpdateFields"));
     wGetUpdateFields.addListener(SWT.Selection, e -> getUpdateFields());
-    setButtonPositions(new Button[] {wGetUpdateFields}, margin, null);
+    PropsUi.setLook(wGetUpdateFields);
+
+    Button wDoMapping = new Button(composite, SWT.PUSH);
+    wDoMapping.setText(BaseMessages.getString(PKG, "UpdateDialog.DoMapping.Button"));
+    wDoMapping.addListener(SWT.Selection, e -> generateMappings());
+    PropsUi.setLook(wDoMapping);
+
+    setButtonPositions(new Button[] {wGetUpdateFields, wDoMapping}, margin, null);
 
     wReturn.setLayoutData(
         FormDataBuilder.builder()
@@ -495,6 +504,163 @@ public class UpdateDialog extends BaseTransformDialog {
             .bottom(wGetUpdateFields, -margin)
             .fullWidth()
             .result());
+  }
+
+  /**
+   * Reads in the fields from the previous transforms and from the target table and opens an
+   * EnterMappingDialog with this information. After the user did the mapping, that information is
+   * put into the update fields table.
+   */
+  private void generateMappings() {
+
+    // Determine the source and target fields...
+    //
+    IRowMeta sourceFields;
+    IRowMeta targetFields;
+
+    try {
+      sourceFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "UpdateDialog.DoMapping.UnableToFindSourceFields.Title"),
+          BaseMessages.getString(PKG, "UpdateDialog.DoMapping.UnableToFindSourceFields.Message"),
+          e);
+      return;
+    }
+
+    // Load target table fields from the currently selected connection/schema/table
+    // without mutating the transform meta (so Cancel still discards dialog edits).
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta == null) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "UpdateDialog.DoMapping.UnableToFindTargetFields.Title"),
+          BaseMessages.getString(PKG, "UpdateDialog.DoMapping.UnableToFindTargetFields.Message"),
+          new HopException(
+              BaseMessages.getString(PKG, "UpdateMeta.Exception.ConnectionNotDefined")));
+      return;
+    }
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+      db.connect();
+      String realSchemaName = variables.resolve(wSchema.getText());
+      String realTableName = variables.resolve(wTable.getText());
+      if (Utils.isEmpty(realTableName)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "UpdateMeta.Exception.TableNotSpecified"));
+      }
+      targetFields = db.getTableFieldsMeta(realSchemaName, realTableName);
+      if (targetFields == null) {
+        throw new HopException(BaseMessages.getString(PKG, "UpdateMeta.Exception.TableNotFound"));
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "UpdateDialog.DoMapping.UnableToFindTargetFields.Title"),
+          BaseMessages.getString(PKG, "UpdateDialog.DoMapping.UnableToFindTargetFields.Message"),
+          e);
+      return;
+    }
+
+    // Create the existing mapping list...
+    //
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
+    StringBuilder missingSourceFields = new StringBuilder();
+    StringBuilder missingTargetFields = new StringBuilder();
+
+    int nrFields = wReturn.nrNonEmpty();
+    for (int i = 0; i < nrFields; i++) {
+      TableItem item = wReturn.getNonEmpty(i);
+      String source = item.getText(2);
+      String target = item.getText(1);
+
+      int sourceIndex = sourceFields.indexOfValue(source);
+      if (sourceIndex < 0) {
+        missingSourceFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
+      }
+      int targetIndex = targetFields.indexOfValue(target);
+      if (targetIndex < 0) {
+        missingTargetFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
+      }
+      if (sourceIndex < 0 || targetIndex < 0) {
+        continue;
+      }
+
+      SourceToTargetMapping mapping = new SourceToTargetMapping(sourceIndex, targetIndex);
+      mappings.add(mapping);
+    }
+
+    // show a confirm dialog if some missing field was found
+    //
+    if (!missingSourceFields.isEmpty() || !missingTargetFields.isEmpty()) {
+
+      String message = "";
+      if (!missingSourceFields.isEmpty()) {
+        message +=
+            BaseMessages.getString(
+                    PKG,
+                    "UpdateDialog.DoMapping.SomeSourceFieldsNotFound",
+                    missingSourceFields.toString())
+                + Const.CR;
+      }
+      if (!missingTargetFields.isEmpty()) {
+        message +=
+            BaseMessages.getString(
+                    PKG,
+                    "UpdateDialog.DoMapping.SomeTargetFieldsNotFound",
+                    missingTargetFields.toString())
+                + Const.CR;
+      }
+      message += Const.CR;
+      message +=
+          BaseMessages.getString(PKG, "UpdateDialog.DoMapping.SomeFieldsNotFoundContinue")
+              + Const.CR;
+      int answer =
+          BaseDialog.openMessageBox(
+              shell,
+              BaseMessages.getString(PKG, "UpdateDialog.DoMapping.SomeFieldsNotFoundTitle"),
+              message,
+              SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+      boolean goOn = (answer & SWT.YES) != 0;
+      if (!goOn) {
+        return;
+      }
+    }
+    EnterMappingDialog d =
+        new EnterMappingDialog(
+            UpdateDialog.this.shell,
+            sourceFields.getFieldNames(),
+            targetFields.getFieldNames(),
+            mappings);
+    mappings = d.open();
+
+    // mappings == null if the user pressed cancel
+    //
+    if (mappings != null) {
+      // Clear and re-populate!
+      //
+      wReturn.table.removeAll();
+      wReturn.table.setItemCount(mappings.size());
+      for (int i = 0; i < mappings.size(); i++) {
+        SourceToTargetMapping mapping = mappings.get(i);
+        TableItem item = wReturn.table.getItem(i);
+        item.setText(2, sourceFields.getValueMeta(mapping.getSourcePosition()).getName());
+        item.setText(1, targetFields.getValueMeta(mapping.getTargetPosition()).getName());
+      }
+      wReturn.setRowNums();
+      wReturn.optWidth(true);
+      input.setChanged();
+    }
   }
 
   public void setActiveIgnoreLookup() {

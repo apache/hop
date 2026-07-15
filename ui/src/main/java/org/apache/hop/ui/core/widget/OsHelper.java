@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -127,8 +128,16 @@ public class OsHelper {
 
             break;
           case SWT.ID_PREFERENCES:
+            // The perspective is absent when it is switched off in disabledGuiElements.xml.
+            //
             item.addListener(
-                SWT.Selection, event -> HopGui.getConfigurationPerspective().activate());
+                SWT.Selection,
+                event -> {
+                  ConfigurationPerspective perspective = HopGui.getConfigurationPerspective();
+                  if (perspective != null) {
+                    perspective.activate();
+                  }
+                });
 
             break;
           default:

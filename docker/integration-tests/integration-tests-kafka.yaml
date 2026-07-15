@@ -30,10 +30,11 @@ services:
       - kafka
 
   kafka:
-    image: 'apache/kafka:latest'
+    # Pin to match lib kafka-clients.version; avoid :latest drift on nightly CI
+    image: 'apache/kafka:3.9.2'
     hostname: kafka
-    ports:
-      - '9092'
+    # No host port publish: tests use the compose network (kafka:9092) only.
+    # Publishing 9092 on the host risks colliding with other services on ASF agents.
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller

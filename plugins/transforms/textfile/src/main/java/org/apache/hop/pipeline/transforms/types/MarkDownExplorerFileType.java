@@ -110,7 +110,7 @@ public class MarkDownExplorerFileType
               }
             });
     newAction.setCategory("File");
-    newAction.setCategoryOrder("1");
+    newAction.setCategoryOrder("100");
 
     handlers.add(new GuiContextHandler(ACTION_ID_NEW_MARKDOWN, List.of(newAction)));
 

@@ -10,7 +10,7 @@
       "userAgent": "Hop",
       "sparkBatchIntervalMillis": "",
       "pluginsToStage": "",
-      "tempLocation": "/var/folders/v0/hjm6kpgd0076ncdkpf8rg3dw0000gn/T/",
+      "tempLocation": "/tmp",
       "sparkCheckpointDurationMillis": "",
       "fatJar": "/tmp/hop-fatjar.jar",
       "sparkBundleSize": "",
@@ -22,5 +22,5 @@
   },
   "configurationVariables": [],
   "name": "spark",
-  "description": ""
+  "description": "Beam Spark runner against the integration-test standalone cluster"
 }

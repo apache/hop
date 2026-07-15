@@ -1,0 +1,26 @@
+{
+  "engineRunConfiguration": {
+    "BeamSparkPipelineEngine": {
+      "sparkMinReadTimeMillis": "",
+      "sparkMaster": "local[2]",
+      "sparkEnableSparkMetricSinks": false,
+      "streamingHopTransformsBufferSize": "",
+      "sparkCheckpointDir": "",
+      "sparkMaxRecordsPerBatch": "",
+      "userAgent": "Hop",
+      "sparkBatchIntervalMillis": "",
+      "pluginsToStage": "",
+      "tempLocation": "/tmp",
+      "sparkCheckpointDurationMillis": "",
+      "fatJar": "/tmp/hop-fatjar.jar",
+      "sparkBundleSize": "",
+      "sparkReadTimePercentage": "",
+      "streamingHopTransformsFlushInterval": "",
+      "transformPluginClasses": "",
+      "xpPluginClasses": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "spark-local",
+  "description": "Embedded Spark local[2] for driver-only smoke (no cluster)"
+}

@@ -22,10 +22,21 @@
 # ~700MB file, so it is deliberately kept out of the shared base image (unit-tests.Dockerfile) and
 # built here instead. This image is only built/used when a project that references the fat jar
 # actually runs (see integration-tests-beam-base.yaml and scripts/run-tests-docker.sh).
+#
+# HOP_SPARK_CLIENT_VERSION: when set, the fat jar embeds that Spark client pack
+# (lib/spark-clients/<version>/), matching hop-run's driver classpath selection.
 
 FROM hop-base-image
+
+ARG HOP_SPARK_CLIENT_VERSION=
+ENV HOP_SPARK_CLIENT_VERSION=${HOP_SPARK_CLIENT_VERSION}
 
 # Runs as the (already configured) hop/jenkins user inherited from the base image, which owns the
 # Hop installation under ${DEPLOYMENT_PATH}/hop.
 RUN cd ${DEPLOYMENT_PATH}/hop \
-  && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar
+  && if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then \
+       ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar \
+         --spark-client-version="${HOP_SPARK_CLIENT_VERSION}"; \
+     else \
+       ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar; \
+     fi
