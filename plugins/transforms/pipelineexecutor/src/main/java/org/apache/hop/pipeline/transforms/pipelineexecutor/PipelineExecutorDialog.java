@@ -76,6 +76,12 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
   private static final int FIELD_DESCRIPTION = 1;
   private static final int FIELD_NAME = 2;
+  private static final String CONST_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE =
+      "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Title";
+  private static final String CONST_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE =
+      "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Message";
+  private static final String CONST_FILENAME_MISSING_MESSAGE =
+      "PipelineExecutorDialog.FilenameMissing.Message";
 
   private PipelineExecutorMeta pipelineExecutorMeta;
 
@@ -377,15 +383,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       List<String> runConfigurations =
           metadataProvider.getSerializer(PipelineRunConfiguration.class).listObjectNames();
 
-      try {
-        ExtensionPointHandler.callExtensionPoint(
-            HopGui.getInstance().getLog(),
-            variables,
-            HopExtensionPoint.HopGuiRunConfiguration.id,
-            new Object[] {runConfigurations, PipelineMeta.XML_TAG});
-      } catch (HopException e) {
-        // Ignore errors
-      }
+      ExtensionPointHandler.callExtensionPoint(
+          HopGui.getInstance().getLog(),
+          variables,
+          HopExtensionPoint.HopGuiRunConfiguration.id,
+          new Object[] {runConfigurations, PipelineMeta.XML_TAG});
 
       wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
       wRunConfiguration.setText(Const.NVL(pipelineExecutorMeta.getRunConfigurationName(), ""));
@@ -406,7 +408,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       LogChannel.UI.logError("Error getting pipeline run configurations", e);
     }
 
-    // TODO: throw in a separate thread.
+    //  throw in a separate thread.
     //
     try {
       String[] prevTransforms = pipelineMeta.getTransformNames();
@@ -495,7 +497,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
     try {
       loadPipeline();
-    } catch (Throwable t) {
+    } catch (HopException t) {
       // Ignore errors
     }
 
@@ -624,6 +626,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       // Load the specified pipeline metadata in executorPipelineMeta
       //
       loadPipeline();
+      if (executorPipelineMeta == null) {
+        throw new HopException(BaseMessages.getString(PKG, CONST_FILENAME_MISSING_MESSAGE));
+      }
       String[] parameters = executorPipelineMeta.listParameters();
       for (String name : parameters) {
         TableItem item = new TableItem(wPipelineExecutorParameters.table, SWT.NONE);
@@ -636,9 +641,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Title"),
-          BaseMessages.getString(
-              PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Message"),
+          BaseMessages.getString(PKG, CONST_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE),
+          BaseMessages.getString(PKG, CONST_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE),
           e);
     }
   }
@@ -651,6 +655,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       String[] inputFieldNames = inputFields.getFieldNames();
 
       loadPipeline();
+      if (executorPipelineMeta == null) {
+        throw new HopException(BaseMessages.getString(PKG, CONST_FILENAME_MISSING_MESSAGE));
+      }
       String[] parameters = executorPipelineMeta.listParameters();
 
       // Get the current mapping...
@@ -687,8 +694,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Title"),
-          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message"),
+          BaseMessages.getString(PKG, CONST_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE),
+          BaseMessages.getString(PKG, CONST_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE),
           e);
     }
   }
@@ -1152,8 +1159,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       if (Utils.isEmpty(wPath.getText())) {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Header"));
-        mb.setMessage(
-            BaseMessages.getString(PKG, "PipelineExecutorDialog.FilenameMissing.Message"));
+        mb.setMessage(BaseMessages.getString(PKG, CONST_FILENAME_MISSING_MESSAGE));
         mb.open();
         return;
       }
@@ -1171,10 +1177,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       } catch (HopException e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(
-                PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Title"),
-            BaseMessages.getString(
-                PKG, "PipelineExecutorDialog.ErrorLoadingSpecifiedPipeline.Message"),
+            BaseMessages.getString(PKG, CONST_ERROR_LOADING_SPECIFIED_PIPELINE_TITLE),
+            BaseMessages.getString(PKG, CONST_ERROR_LOADING_SPECIFIED_PIPELINE_MESSAGE),
             e);
       }
     }
