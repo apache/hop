@@ -42,13 +42,20 @@
             </includes>
             <outputDirectory>plugins/engines/spark</outputDirectory>
         </dependencySet>
-        <!-- Spark and transitive runtime jars for local[*] execution from Hop -->
+        <!-- Spark and transitive runtime jars for local[*] execution from Hop.
+             Jackson core/databind/annotations MUST NOT be packaged here: HopURLClassLoader
+             is child-first, and dual ObjectMapper classes (plugin lib vs Hop lib/core)
+             cause LinkageError when plugin code calls HopJson.newMapper() during
+             execution sampling on mapPartitions. Use Hop's Jackson from the parent CL. -->
         <dependencySet>
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-engines-spark:jar</exclude>
                 <exclude>org.apache.hop:*:jar</exclude>
                 <exclude>org.slf4j:*:jar</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-core:jar</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-databind:jar</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations:jar</exclude>
             </excludes>
             <outputDirectory>plugins/engines/spark/lib</outputDirectory>
         </dependencySet>

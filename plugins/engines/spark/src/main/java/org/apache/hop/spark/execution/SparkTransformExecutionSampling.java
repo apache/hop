@@ -183,11 +183,21 @@ public class SparkTransformExecutionSampling {
       }
     }
 
-    if (StringUtils.isNotEmpty(dataSamplersJson)) {
-      IExecutionDataSampler<?>[] extraSamplers =
-          HopJson.newMapper().readValue(dataSamplersJson, IExecutionDataSampler[].class);
-      if (extraSamplers != null) {
-        dataSamplers.addAll(Arrays.asList(extraSamplers));
+    if (StringUtils.isNotEmpty(dataSamplersJson) && !"[]".equals(dataSamplersJson.trim())) {
+      try {
+        IExecutionDataSampler<?>[] extraSamplers =
+            HopJson.newMapper().readValue(dataSamplersJson, IExecutionDataSampler[].class);
+        if (extraSamplers != null) {
+          dataSamplers.addAll(Arrays.asList(extraSamplers));
+        }
+      } catch (LinkageError | Exception e) {
+        // local[*]: plugin CL may have a second Jackson → LinkageError on HopJson.newMapper().
+        // Profile samplers above are enough; extra GUI samplers are best-effort.
+        LogChannel.GENERAL.logError(
+            "Unable to deserialize extra data samplers JSON for transform '"
+                + transformName
+                + "' (non-fatal): "
+                + e.getMessage());
       }
     }
 
@@ -365,6 +375,13 @@ public class SparkTransformExecutionSampling {
       try {
         String json = HopJson.newMapper().writeValueAsString(executionData);
         sampleDataAccumulator.addSample(ownerLogChannelId, json);
+      } catch (LinkageError e) {
+        // Dual Jackson on local[*] plugin CL — fall through to local registerData only
+        LogChannel.GENERAL.logError(
+            "Unable to serialize samples via HopJson for '"
+                + transformName
+                + "' (using local registerData only): "
+                + e.getMessage());
       } catch (JsonProcessingException e) {
         throw new HopException(
             "Unable to serialize execution sample data for transform '" + transformName + "'", e);

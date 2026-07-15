@@ -19,8 +19,10 @@ package org.apache.hop.spark.pipeline.handler;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -33,11 +35,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.HopMapPartitionsFn;
 import org.apache.hop.spark.core.HopSparkRowConverter;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
+import org.apache.hop.spark.core.SparkInfoStreamSupport;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.core.SparkVariableValue;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -46,7 +50,8 @@ import org.apache.spark.sql.types.StructType;
 
 /**
  * Wraps a Hop transform in {@link HopMapPartitionsFn} so initialization happens once per Spark
- * partition.
+ * partition. Supports optional info/side streams (Stream Lookup, etc.) via broadcast of collected
+ * rows.
  */
 public class SparkGenericTransformHandler implements ISparkPipelineTransformHandler {
 
@@ -99,11 +104,14 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
       throws HopException {
 
     boolean inputTransform = input == null;
+    // previousTransforms are main predecessors only (converter uses findPreviousTransforms(...,
+    // false))
     if (previousTransforms != null && previousTransforms.size() > 1) {
       throw new HopException(
           "Combining data from multiple previous transforms is not yet supported for transform '"
               + transformMeta.getName()
-              + "' on the native Spark engine (single main input only in v1)");
+              + "' on the native Spark engine (single main input only; use info streams for side"
+              + " data)");
     }
 
     List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transformMeta);
@@ -112,6 +120,38 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
           "Multiple target hops from transform '"
               + transformMeta.getName()
               + "' are not yet supported on the native Spark engine");
+    }
+
+    // Info/side streams: all previous including informational minus main previous
+    List<TransformMeta> infoTransformMetas =
+        resolveInfoTransforms(pipelineMeta, transformMeta, previousTransforms);
+
+    List<String> infoNames = new ArrayList<>();
+    List<String> infoRowMetaJsons = new ArrayList<>();
+    List<Broadcast<List<Object[]>>> infoBroadcasts = new ArrayList<>();
+    for (TransformMeta infoMeta : infoTransformMetas) {
+      Dataset<Row> infoDs = transformDatasetMap.get(infoMeta.getName());
+      if (infoDs == null) {
+        throw new HopException(
+            "Unable to find Dataset for transform '"
+                + infoMeta.getName()
+                + "' providing info for '"
+                + transformMeta.getName()
+                + "'");
+      }
+      IRowMeta infoRowMeta = pipelineMeta.getTransformFields(variables, infoMeta);
+      Broadcast<List<Object[]>> broadcast =
+          SparkInfoStreamSupport.broadcastInfoRows(spark, infoDs, infoRowMeta, infoMeta.getName());
+      infoNames.add(infoMeta.getName());
+      infoRowMetaJsons.add(JsonRowMeta.toJson(infoRowMeta));
+      infoBroadcasts.add(broadcast);
+      log.logBasic(
+          "Broadcast info stream '"
+              + infoMeta.getName()
+              + "' → '"
+              + transformMeta.getName()
+              + "' rows="
+              + broadcast.value().size());
     }
 
     IRowMeta outputRowMeta = pipelineMeta.getTransformFields(variables, transformMeta);
@@ -138,6 +178,9 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
             outputRowMetaJson,
             inputTransform,
             Collections.emptyList(),
+            infoNames,
+            infoRowMetaJsons,
+            infoBroadcasts,
             metricsAccumulator,
             sampleDataAccumulator,
             runConfigName != null ? runConfigName : runConfigurationName,
@@ -147,6 +190,7 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
     Dataset<Row> source;
     if (inputTransform) {
       // One empty row / one partition to drive source transforms (e.g. Row Generator)
+      // or pure multi-info transforms with no main hop
       StructType emptySchema =
           new StructType()
               .add("_spark_hop_driver", org.apache.spark.sql.types.DataTypes.IntegerType, false);
@@ -176,7 +220,37 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
             + transformMeta.getName()
             + "' with generic Spark mapPartitions (plugin id="
             + transformMeta.getTransformPluginId()
+            + (infoNames.isEmpty() ? "" : ", infoStreams=" + infoNames)
             + ")");
+  }
+
+  /**
+   * Informational predecessors of {@code transformMeta} that are not already main previous
+   * transforms (Beam: allPrevious − mainPrevious).
+   */
+  static List<TransformMeta> resolveInfoTransforms(
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      List<TransformMeta> mainPreviousTransforms) {
+    List<TransformMeta> allPrevious = pipelineMeta.findPreviousTransforms(transformMeta, true);
+    if (allPrevious == null || allPrevious.isEmpty()) {
+      return List.of();
+    }
+    Set<String> mainNames = new HashSet<>();
+    if (mainPreviousTransforms != null) {
+      for (TransformMeta main : mainPreviousTransforms) {
+        if (main != null) {
+          mainNames.add(main.getName());
+        }
+      }
+    }
+    List<TransformMeta> info = new ArrayList<>();
+    for (TransformMeta prev : allPrevious) {
+      if (prev != null && !mainNames.contains(prev.getName())) {
+        info.add(prev);
+      }
+    }
+    return info;
   }
 
   private static List<SparkVariableValue> collectVariables(IVariables variables) {

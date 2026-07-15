@@ -274,7 +274,8 @@ public class HopPipelineMetaToSparkConverter {
         if (handled.contains(transformMeta)) {
           continue;
         }
-        List<TransformMeta> previous = pipelineMeta.findPreviousTransforms(transformMeta, false);
+        // Include informational predecessors so Stream Lookup sources are built first
+        List<TransformMeta> previous = pipelineMeta.findPreviousTransforms(transformMeta, true);
         boolean allPreviousHandled = true;
         for (TransformMeta prev : previous) {
           if (!handled.contains(prev)) {

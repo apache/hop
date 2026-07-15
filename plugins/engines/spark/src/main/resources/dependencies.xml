@@ -28,4 +28,6 @@
     <folder>../../transforms/selectvalues</folder>
     <folder>../../transforms/dummy</folder>
     <folder>../../transforms/rowgenerator</folder>
+    <folder>../../transforms/streamlookup</folder>
+    <folder>../../transforms/stringoperations</folder>
 </dependencies>

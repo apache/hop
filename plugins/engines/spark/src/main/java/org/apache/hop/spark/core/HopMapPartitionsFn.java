@@ -20,6 +20,7 @@ package org.apache.hop.spark.core;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +43,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
@@ -54,6 +56,7 @@ import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.TaskContext;
 import org.apache.spark.api.java.function.MapPartitionsFunction;
+import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Row;
 
 /**
@@ -62,7 +65,7 @@ import org.apache.spark.sql.Row;
  * executors never receive live Hop graph objects.
  */
 public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Serializable {
-  private static final long serialVersionUID = 3L;
+  private static final long serialVersionUID = 4L;
 
   /** Publish progress at least every this many input rows. */
   private static final int METRICS_ROW_INTERVAL = 1000;
@@ -79,6 +82,16 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
   private final String outputRowMetaJson;
   private final boolean inputTransform;
   private final List<String> targetTransforms;
+
+  /** Names of info/side transforms (Stream Lookup "from", etc.). */
+  private final List<String> infoTransforms;
+
+  /** Parallel to {@link #infoTransforms}: row meta JSON per info stream. */
+  private final List<String> infoRowMetaJsons;
+
+  /** Parallel to {@link #infoTransforms}: broadcast Hop rows for each info stream. */
+  private final List<Broadcast<List<Object[]>>> infoBroadcasts;
+
   private final SparkTransformMetricsAccumulator metricsAccumulator;
   private final SparkExecutionDataAccumulator sampleDataAccumulator;
   private final String runConfigName;
@@ -109,6 +122,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         null,
         null,
         null,
+        null,
+        null,
+        null,
         null);
   }
 
@@ -133,6 +149,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         outputRowMetaJson,
         inputTransform,
         targetTransforms,
+        null,
+        null,
+        null,
         metricsAccumulator,
         null,
         null,
@@ -164,6 +183,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         outputRowMetaJson,
         inputTransform,
         targetTransforms,
+        null,
+        null,
+        null,
         metricsAccumulator,
         null,
         runConfigName,
@@ -186,6 +208,44 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       String runConfigName,
       String parentLogChannelId,
       String dataSamplersJson) {
+    this(
+        variableValues,
+        metastoreJson,
+        transformName,
+        transformPluginId,
+        transformMetaInterfaceXml,
+        inputRowMetaJson,
+        outputRowMetaJson,
+        inputTransform,
+        targetTransforms,
+        null,
+        null,
+        null,
+        metricsAccumulator,
+        sampleDataAccumulator,
+        runConfigName,
+        parentLogChannelId,
+        dataSamplersJson);
+  }
+
+  public HopMapPartitionsFn(
+      List<SparkVariableValue> variableValues,
+      String metastoreJson,
+      String transformName,
+      String transformPluginId,
+      String transformMetaInterfaceXml,
+      String inputRowMetaJson,
+      String outputRowMetaJson,
+      boolean inputTransform,
+      List<String> targetTransforms,
+      List<String> infoTransforms,
+      List<String> infoRowMetaJsons,
+      List<Broadcast<List<Object[]>>> infoBroadcasts,
+      SparkTransformMetricsAccumulator metricsAccumulator,
+      SparkExecutionDataAccumulator sampleDataAccumulator,
+      String runConfigName,
+      String parentLogChannelId,
+      String dataSamplersJson) {
     this.variableValues = variableValues != null ? variableValues : List.of();
     this.metastoreJson = metastoreJson;
     this.transformName = transformName;
@@ -195,6 +255,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     this.outputRowMetaJson = outputRowMetaJson;
     this.inputTransform = inputTransform;
     this.targetTransforms = targetTransforms != null ? targetTransforms : List.of();
+    this.infoTransforms = infoTransforms != null ? infoTransforms : List.of();
+    this.infoRowMetaJsons = infoRowMetaJsons != null ? infoRowMetaJsons : List.of();
+    this.infoBroadcasts = infoBroadcasts != null ? infoBroadcasts : List.of();
     this.metricsAccumulator = metricsAccumulator;
     this.sampleDataAccumulator = sampleDataAccumulator;
     this.runConfigName = runConfigName;
@@ -231,11 +294,37 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       pipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       pipelineMeta.setMetadataProvider(metadataProvider);
 
+      if (infoTransforms.size() != infoRowMetaJsons.size()
+          || infoTransforms.size() != infoBroadcasts.size()) {
+        throw new HopException(
+            "Info stream configuration mismatch for transform '"
+                + transformName
+                + "': names="
+                + infoTransforms.size()
+                + " metas="
+                + infoRowMetaJsons.size()
+                + " broadcasts="
+                + infoBroadcasts.size());
+      }
+
+      List<IRowMeta> infoRowMetas = new ArrayList<>();
+      for (String infoRowMetaJson : infoRowMetaJsons) {
+        infoRowMetas.add(JsonRowMeta.fromJson(infoRowMetaJson));
+      }
+
       TransformMeta mainInjectorTransformMeta = null;
       if (!inputTransform) {
         mainInjectorTransformMeta =
             createInjectorTransform(
                 pipelineMeta, SparkConst.INJECTOR_TRANSFORM_NAME, inputRowMeta, 200, 200);
+      }
+
+      // Injectors for info/side streams (Stream Lookup, Validator, …) — Beam side-input pattern
+      List<TransformMeta> infoTransformMetas = new ArrayList<>();
+      for (int i = 0; i < infoTransforms.size(); i++) {
+        infoTransformMetas.add(
+            createInjectorTransform(
+                pipelineMeta, infoTransforms.get(i), infoRowMetas.get(i), 200, 350 + 150 * i));
       }
 
       int targetLocationY = 200;
@@ -269,10 +358,14 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       if (!inputTransform) {
         pipelineMeta.addPipelineHop(new PipelineHopMeta(mainInjectorTransformMeta, transformMeta));
       }
+      for (TransformMeta infoTransformMeta : infoTransformMetas) {
+        pipelineMeta.addPipelineHop(new PipelineHopMeta(infoTransformMeta, transformMeta));
+      }
       for (TransformMeta targetTransformMeta : targetTransformMetas) {
         pipelineMeta.addPipelineHop(new PipelineHopMeta(transformMeta, targetTransformMeta));
       }
 
+      // After injectors exist so Stream Lookup "from" can bind to the info injector by name
       iTransformMeta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
       LocalPipelineEngine pipeline =
@@ -285,8 +378,22 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       pipeline.prepareExecution();
 
       RowProducer rowProducer = null;
+      TransformMetaDataCombi mainInjectorCombi = null;
       if (!inputTransform) {
         rowProducer = pipeline.addRowProducer(SparkConst.INJECTOR_TRANSFORM_NAME, 0);
+        mainInjectorCombi = findCombi(pipeline, SparkConst.INJECTOR_TRANSFORM_NAME);
+      }
+      List<RowProducer> infoRowProducers = new ArrayList<>();
+      for (String infoTransform : infoTransforms) {
+        infoRowProducers.add(pipeline.addRowProducer(infoTransform, 0));
+      }
+
+      // Non-blocking getRow/putRow (Beam pattern). Default handler busy-waits on empty hops and
+      // deadlocks Stream Lookup after readLookupValues when the main hop is empty in this thread.
+      for (TransformMetaDataCombi c : pipeline.getTransforms()) {
+        if (c.transform instanceof BaseTransform baseTransform) {
+          baseTransform.setRowHandler(new SparkRowHandler(baseTransform));
+        }
       }
 
       TransformMetaDataCombi transformCombi = findCombi(pipeline, transformName);
@@ -303,8 +410,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           sampling.registerExecutingTransform(pipeline);
           sampling.attach(variables, pipeline, mainTransform, inputRowMeta, outputRowMeta);
         }
-      } catch (Exception sampleEx) {
-        // Non-fatal: pipeline must still process data
+      } catch (Throwable sampleEx) {
+        // Non-fatal: pipeline must still process data. Catch Throwable so LinkageError
+        // (Jackson dual classloaders on local[*]) cannot abort the Spark stage.
         LogChannel.GENERAL.logError(
             "Execution data sampling disabled for transform '"
                 + transformName
@@ -312,7 +420,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                 + copyNr
                 + " (non-fatal): "
                 + sampleEx.getMessage(),
-            sampleEx);
+            sampleEx instanceof Exception ex ? ex : new Exception(sampleEx));
         sampling = null;
       }
 
@@ -347,6 +455,25 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       }
       pipeline.startThreads();
 
+      // Load info streams once per partition (before main rows), same pattern as Beam TransformFn:
+      // put each side-input row through the info Injector via RowProducer, then processRow so the
+      // hop into Stream Lookup (etc.) is filled. finished() + one more processRow flags the
+      // injector done so readLookupValues / getRowFrom see isDone() and do not busy-wait.
+      for (int i = 0; i < infoTransforms.size(); i++) {
+        String infoName = infoTransforms.get(i);
+        IRowMeta infoRowMeta = infoRowMetas.get(i);
+        List<Object[]> infoData =
+            infoBroadcasts.get(i) != null ? infoBroadcasts.get(i).value() : Collections.emptyList();
+        RowProducer infoRowProducer = infoRowProducers.get(i);
+        TransformMetaDataCombi infoCombi = findCombi(pipeline, infoName);
+        for (Object[] infoRow : infoData) {
+          infoRowProducer.putRow(infoRowMeta, infoRow);
+          infoCombi.transform.processRow();
+        }
+        infoRowProducer.finished();
+        infoCombi.transform.processRow();
+      }
+
       List<Row> output = new ArrayList<>();
       MetricsThrottle throttle = new MetricsThrottle();
       final SparkTransformExecutionSampling samplingRef = sampling;
@@ -372,6 +499,12 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           Object[] hopRow = HopSparkRowConverter.toHopRow(inputRowMeta, sparkRow);
           resultRows.clear();
           rowProducer.putRow(inputRowMeta, hopRow, false);
+          // Forward the main row onto the hop before Stream Lookup's info-first processRow
+          // calls getRow() for the main stream (same timing Beam gets from topo order +
+          // non-blocking handler).
+          if (mainInjectorCombi != null) {
+            mainInjectorCombi.transform.processRow();
+          }
           executor.oneIteration();
           for (Object[] outHopRow : resultRows) {
             output.add(HopSparkRowConverter.toSparkRow(outputRowMeta, outHopRow));
@@ -384,6 +517,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         }
         if (rowProducer != null) {
           rowProducer.finished();
+          if (mainInjectorCombi != null) {
+            mainInjectorCombi.transform.processRow();
+          }
           resultRows.clear();
           executor.oneIteration();
           for (Object[] outHopRow : resultRows) {

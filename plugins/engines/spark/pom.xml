@@ -33,6 +33,11 @@
     <properties>
         <!-- Matches Spark 4.1.2 parent; needed for local[*] unit tests only -->
         <hadoop.client.version>3.4.2</hadoop.client.version>
+        <!-- Do not stage Jackson into plugins/engines/spark/lib (Hop parent CL has it).
+             Dual ObjectMapper classes under HopURLClassLoader break HopJson on local[*]. -->
+        <hop.pluginlib.exclude1>jackson-core</hop.pluginlib.exclude1>
+        <hop.pluginlib.exclude2>jackson-databind</hop.pluginlib.exclude2>
+        <hop.pluginlib.exclude3>jackson-annotations</hop.pluginlib.exclude3>
         <scala.binary.version>2.13</scala.binary.version>
         <!-- Pin Spark 4.1.x independently of Beam's Spark 3.x dependency -->
         <spark.version>4.1.2</spark.version>
@@ -62,12 +67,26 @@
              org.apache.spark.sql.classic.SparkSession reflectively and fails with
              "Cannot find a SparkSession implementation on the Classpath" when those
              transitive classes are missing (ClassNotFoundException is swallowed).
-             slf4j is provided by Hop; keep it excluded to avoid dual bindings. -->
+             slf4j is provided by Hop; keep it excluded to avoid dual bindings.
+             Jackson core is also provided by Hop lib/core — dual copies under the plugin
+             classloader cause LinkageError on HopJson.newMapper() (sampling). -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
             <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>*</artifactId>
@@ -117,6 +136,13 @@
             <artifactId>hop-ui</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Stream Lookup for info-stream unit tests (mapPartitions + broadcast) -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-streamlookup</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
