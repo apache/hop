@@ -18,9 +18,14 @@
 package org.apache.hop.resource;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -34,8 +39,14 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.util.ReflectionUtil;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 
 public class ResourceUtil {
 
@@ -89,6 +100,18 @@ public class ResourceUtil {
         // See if we need to rename folders and if we need to expose those as variables in the
         // execution configuration...
         //
+        // Bundle the pipelines/workflows that are referenced from metadata objects (Pipeline Log,
+        // Workflow Log, Pipeline Probe, variable resolvers, web services, ...) and rewrite those
+        // references to point at the copies inside the ZIP archive. Otherwise those pipelines are
+        // missing on the remote server (see #3368).
+        //
+        // This is done first because bundling a referenced pipeline can add new named-resource
+        // folders (DATA_PATH_n) which then need a value assigned below.
+        //
+        SerializableMetadataProvider exportMetadataProvider =
+            exportMetadataReferencedResources(
+                variables, definitions, namingInterface, metadataProvider);
+
         // See if we need to rename named resource folders...
         // We have a list of these in the naming interface
         //
@@ -146,10 +169,7 @@ public class ResourceUtil {
         ZipEntry jsonEntry = new ZipEntry("metadata.json");
         jsonEntry.setComment("Export of the client metadata");
         out.putNextEntry(jsonEntry);
-        out.write(
-            new SerializableMetadataProvider(metadataProvider)
-                .toJson()
-                .getBytes(StandardCharsets.UTF_8));
+        out.write(exportMetadataProvider.toJson().getBytes(StandardCharsets.UTF_8));
         out.closeEntry();
 
         String zipURL = fileObject.getName().toString();
@@ -240,6 +260,205 @@ public class ResourceUtil {
       // Set the resulting variable in the variables map of the execution configuration
       //
       variablesMap.put(parameter, targetDirectory);
+    }
+  }
+
+  /**
+   * Bundle the pipelines and workflows that are referenced from metadata objects (e.g. Pipeline
+   * Log, Workflow Log, Pipeline Probe, variable resolvers, web services) into the export {@code
+   * definitions} and rewrite those references so they resolve inside the ZIP archive on the remote
+   * server. Metadata objects are only serialized to {@code metadata.json}; unlike transforms and
+   * actions they are never walked by the normal resource export, so their referenced pipelines went
+   * missing on the server (#3368).
+   *
+   * <p>The rewriting is done on an independent deep copy of the metadata so the caller's live
+   * metadata objects are never modified.
+   *
+   * @return a metadata provider holding the rewritten copy, to be serialized into the ZIP archive.
+   */
+  static SerializableMetadataProvider exportMetadataReferencedResources(
+      IVariables variables,
+      Map<String, ResourceDefinition> definitions,
+      IResourceNaming namingInterface,
+      IHopMetadataProvider metadataProvider)
+      throws HopException {
+
+    // Deep copy through a JSON round-trip so we never mutate the caller's live metadata objects
+    // (for in-memory providers the objects would otherwise be shared by reference).
+    //
+    SerializableMetadataProvider exportMetadataProvider =
+        new SerializableMetadataProvider(
+            new SerializableMetadataProvider(metadataProvider).toJson());
+
+    Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+
+    for (Class<IHopMetadata> metadataClass : exportMetadataProvider.getMetadataClasses()) {
+      IHopMetadataSerializer<IHopMetadata> serializer =
+          exportMetadataProvider.getSerializer(metadataClass);
+      for (String name : serializer.listObjectNames()) {
+        IHopMetadata object = serializer.load(name);
+        if (rewriteMetadataFileReferences(
+            object, visited, variables, definitions, namingInterface, metadataProvider)) {
+          serializer.save(object);
+        }
+      }
+    }
+    return exportMetadataProvider;
+  }
+
+  /**
+   * Recursively walk a metadata object, bundling and rewriting every {@link
+   * HopMetadataPropertyType#PIPELINE_FILE} / {@link HopMetadataPropertyType#WORKFLOW_FILE} String
+   * reference it (or a nested metadata object / list) holds.
+   *
+   * @return true if anything was rewritten.
+   */
+  private static boolean rewriteMetadataFileReferences(
+      Object object,
+      Set<Object> visited,
+      IVariables variables,
+      Map<String, ResourceDefinition> definitions,
+      IResourceNaming namingInterface,
+      IHopMetadataProvider metadataProvider)
+      throws HopException {
+
+    if (object == null || !visited.add(object)) {
+      return false;
+    }
+    boolean changed = false;
+
+    for (Field field : ReflectionUtil.findAllFields(object.getClass())) {
+      HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
+      if (property == null) {
+        continue;
+      }
+      HopMetadataPropertyType type = property.hopMetadataPropertyType();
+      boolean fileReference =
+          type == HopMetadataPropertyType.PIPELINE_FILE
+              || type == HopMetadataPropertyType.WORKFLOW_FILE
+              || type == HopMetadataPropertyType.HOP_FILE;
+
+      Object value = getMetadataFieldValue(object, field);
+      if (value == null) {
+        continue;
+      }
+
+      if (value instanceof String stringValue) {
+        if (fileReference && StringUtils.isNotEmpty(stringValue)) {
+          String rewritten =
+              exportReferencedFile(
+                  stringValue, type, variables, definitions, namingInterface, metadataProvider);
+          if (rewritten != null && !rewritten.equals(stringValue)) {
+            changed |= setMetadataFieldValue(object, field, rewritten);
+          }
+        }
+      } else if (value instanceof List<?> list) {
+        for (int i = 0; i < list.size(); i++) {
+          Object item = list.get(i);
+          if (item instanceof String stringItem) {
+            if (fileReference && StringUtils.isNotEmpty(stringItem)) {
+              String rewritten =
+                  exportReferencedFile(
+                      stringItem, type, variables, definitions, namingInterface, metadataProvider);
+              if (rewritten != null && !rewritten.equals(stringItem)) {
+                @SuppressWarnings("unchecked")
+                List<Object> objectList = (List<Object>) list;
+                objectList.set(i, rewritten);
+                changed = true;
+              }
+            }
+          } else if (isRecursableMetadataObject(item)) {
+            changed |=
+                rewriteMetadataFileReferences(
+                    item, visited, variables, definitions, namingInterface, metadataProvider);
+          }
+        }
+      } else if (isRecursableMetadataObject(value)) {
+        changed |=
+            rewriteMetadataFileReferences(
+                value, visited, variables, definitions, namingInterface, metadataProvider);
+      }
+    }
+    return changed;
+  }
+
+  private static Object getMetadataFieldValue(Object object, Field field) {
+    try {
+      return ReflectionUtil.getFieldValue(
+          object, field.getName(), field.getType() == boolean.class);
+    } catch (Exception e) {
+      // A metadata property without a conventional getter must never break the whole export;
+      // just skip that field (its reference, if any, is left unchanged).
+      return null;
+    }
+  }
+
+  private static boolean setMetadataFieldValue(Object object, Field field, String value) {
+    try {
+      ReflectionUtil.setFieldValue(object, field.getName(), String.class, value);
+      return true;
+    } catch (Exception e) {
+      // No usable setter: leave the reference unchanged rather than break the export.
+      return false;
+    }
+  }
+
+  /** Only recurse into Hop metadata objects, not JDK types, enums or primitives. */
+  private static boolean isRecursableMetadataObject(Object value) {
+    if (value == null) {
+      return false;
+    }
+    Class<?> clazz = value.getClass();
+    return !clazz.isEnum() && !clazz.isPrimitive() && clazz.getName().startsWith("org.apache.hop.");
+  }
+
+  /**
+   * Load the referenced pipeline or workflow, export its resources into {@code definitions} and
+   * return a reference that resolves against the ZIP archive on the server ({@code
+   * ${Internal.Entry.Current.Folder}/<bundled name>}). For an ambiguous {@link
+   * HopMetadataPropertyType#HOP_FILE} reference the type is decided from the {@code .hwf}/{@code
+   * .hpl} extension (defaulting to a pipeline). A reference that cannot be resolved to an existing
+   * file, or that fails to load/export, is left unchanged: the export must not fail on a peripheral
+   * or stale metadata reference (the server logs and skips it).
+   */
+  private static String exportReferencedFile(
+      String filename,
+      HopMetadataPropertyType type,
+      IVariables variables,
+      Map<String, ResourceDefinition> definitions,
+      IResourceNaming namingInterface,
+      IHopMetadataProvider metadataProvider) {
+
+    String realFilename = variables.resolve(filename);
+    try {
+      if (!HopVfs.getFileObject(realFilename).exists()) {
+        return filename;
+      }
+    } catch (Exception e) {
+      // Can't tell whether it exists; leave the reference untouched rather than break the export.
+      return filename;
+    }
+
+    boolean workflowFile =
+        type == HopMetadataPropertyType.WORKFLOW_FILE
+            || (type == HopMetadataPropertyType.HOP_FILE
+                && realFilename.toLowerCase().endsWith(".hwf"));
+
+    try {
+      String bundledName;
+      if (workflowFile) {
+        WorkflowMeta workflowMeta = new WorkflowMeta(variables, realFilename, metadataProvider);
+        bundledName =
+            workflowMeta.exportResources(variables, definitions, namingInterface, metadataProvider);
+      } else {
+        PipelineMeta pipelineMeta = new PipelineMeta(realFilename, metadataProvider, variables);
+        bundledName =
+            pipelineMeta.exportResources(variables, definitions, namingInterface, metadataProvider);
+      }
+      return "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + bundledName;
+    } catch (Exception e) {
+      // A peripheral metadata reference must not break the whole export; leave it unchanged.
+      return filename;
     }
   }
 

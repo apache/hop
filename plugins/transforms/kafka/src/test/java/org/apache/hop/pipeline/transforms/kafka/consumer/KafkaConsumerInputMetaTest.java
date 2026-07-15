@@ -253,4 +253,22 @@ class KafkaConsumerInputMetaTest {
     assertTrue(copy.isStopWhenIdle());
     assertEquals("2500", copy.getMaxIdleTimeMs());
   }
+
+  /**
+   * On resource export {@code TransformWithMappingMeta.exportResources} bundles the sub-pipeline
+   * and rewrites the reference through {@code replaceFileName(...)}. The sub-pipeline path is
+   * stored in this transform's own {@code filename} field (serialized as {@code pipelinePath}) and
+   * read back through {@link KafkaConsumerInputMeta#getFilename()}, so the rewrite must land on
+   * that same field, otherwise the exported reference still points at the original path and the
+   * sub-pipeline can't be found on a remote server.
+   */
+  @Test
+  void replaceFileNameUpdatesThePipelinePathReference() {
+    KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
+    meta.setFilename("${PROJECT_HOME}/sub-pipeline.hpl");
+
+    meta.replaceFileName("${Internal.Entry.Current.Folder}/sub-pipeline.hpl");
+
+    assertEquals("${Internal.Entry.Current.Folder}/sub-pipeline.hpl", meta.getFilename());
+  }
 }
