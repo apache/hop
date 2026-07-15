@@ -622,6 +622,40 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   }
 
   @Override
+  public IRowMeta getRequiredFields(IVariables variables) throws HopException {
+
+    String realSchemaName = variables.resolve(lookupField.getSchemaName());
+    String realTableName = variables.resolve(lookupField.getTableName());
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
+    if (databaseMeta != null) {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+        db.connect();
+
+        if (!Utils.isEmpty(realTableName)) {
+          // Check if this table exists...
+          if (db.checkTableExists(realSchemaName, realTableName)) {
+            return db.getTableFieldsMeta(realSchemaName, realTableName);
+          } else {
+            throw new HopException(
+                BaseMessages.getString(PKG, "UpdateMeta.Exception.TableNotFound"));
+          }
+        } else {
+          throw new HopException(
+              BaseMessages.getString(PKG, "UpdateMeta.Exception.TableNotSpecified"));
+        }
+      } catch (Exception e) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "UpdateMeta.Exception.ErrorGettingFields"), e);
+      }
+    } else {
+      throw new HopException(
+          BaseMessages.getString(PKG, "UpdateMeta.Exception.ConnectionNotDefined"));
+    }
+  }
+
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
