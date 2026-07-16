@@ -163,9 +163,13 @@ Dataset so a later engine `count()` does not re-write files.
 
 ## Lakehouse connectors (Delta Lake / Apache Iceberg)
 
-Optional **open table format** support (design: open table formats & ACID on native Spark).
-Connector JARs are **not** shipped in the default Hop client assembly (size + license review).
-v1 distribution is **docs-only + operator install** (no automated ASF overlay zip).
+**Open table format** support on the native Spark engine (ACID tables, catalogs, time travel,
+MERGE, maintenance). Connectors **ship in the default** `hop-engines-spark` plugin assembly:
+
+| Path | Contents |
+|------|----------|
+| `plugins/engines/spark/lib/delta/` | Delta Lake 4.3.1 tree |
+| `plugins/engines/spark/lib/iceberg/` | Iceberg Spark runtime 1.11.0 |
 
 **User documentation (Antora):**
 `docs/hop-user-manual/.../pipeline/spark/lakehouse.adoc` plus transform pages
@@ -184,46 +188,36 @@ The `_4.1_2.13` suffix means **Spark 4.1 / Scala 2.13**, not the product major v
 
 `SparkPipelineEngine` sets TCCL to the **Spark engine plugin classloader**, which loads:
 
-1. JARs under `plugins/engines/spark/lib/` (recursive)
+1. JARs under `plugins/engines/spark/lib/` (recursive — includes `lib/delta`, `lib/iceberg`)
 2. Folders from `plugins/engines/spark/dependencies.xml`
 3. The engine plugin jar
 
 A sibling plugin under `plugins/engines/spark-delta` is a **separate** classloader and is
-**not** visible to `SparkSession` / DataSource resolution. Install connectors **into** the
-engine lib tree (or onto the spark-submit driver/executor classpath).
+**not** visible to `SparkSession` / DataSource resolution. Connectors must live **inside**
+the engine lib tree (as shipped) or on the spark-submit driver/executor classpath.
 
-### hop-run / GUI `local[*]` (manual overlay)
+### hop-run / GUI `local[*]`
 
-1. Resolve connector jars (see frozen list below, or use the Maven profile).
-2. Copy them under:
-   - `plugins/engines/spark/lib/delta/` and/or
-   - `plugins/engines/spark/lib/iceberg/`
-3. **Restart Hop** — `PluginRegistry` / `JarCache` do not hot-reload new JARs.
-4. Do **not** re-stage Jackson core/databind/annotations, Spark, Scala library, or slf4j
-   bindings (Hop parent CL + existing spark lib already provide them).
+No manual overlay is required on a normal Hop install. After rebuilding the plugin:
 
 ```bash
-# Dev: stage Delta + Iceberg specific jars into target/lakehouse-connectors
-./mvnw -pl plugins/engines/spark -Plakehouse generate-test-resources
-
-# Then copy into your Hop install (example):
-# cp plugins/engines/spark/target/lakehouse-connectors/delta-*.jar \
-#    $HOP_HOME/plugins/engines/spark/lib/delta/
-# cp plugins/engines/spark/target/lakehouse-connectors/iceberg-*.jar \
-#    $HOP_HOME/plugins/engines/spark/lib/iceberg/
+./mvnw -pl plugins/engines/spark -am package
+# zip / client assembly unpacks lib/delta and lib/iceberg under plugins/engines/spark/
 ```
+
+`target/lakehouse-connectors/` is a frozen jar list for docs verification (generated every build).
 
 ### spark-submit
 
-Prefer `--packages` (or admin-managed `$SPARK_HOME/jars`). Use a **native-provided** fat jar
-so Spark is not embedded twice:
+Use a **native-provided** fat jar so Spark is not embedded twice. Lakehouse jars under
+`plugins/engines/spark/lib/{delta,iceberg}` are **included** in that fat jar (they are not
+filtered out like Spark/Scala/Hadoop client). Optional `--packages` only if you strip them:
 
 ```bash
 export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 
 "${SPARK_HOME}/bin/spark-submit" \
   --master spark://spark:7077 \
-  --packages io.delta:delta-spark_4.1_2.13:4.3.1,org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0 \
   --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
   --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
   --class org.apache.hop.spark.run.MainSpark \
@@ -269,13 +263,12 @@ Recorded by `SparkLakehouseConnectorTest` with `-Plakehouse`:
   (auto-registered on hop-run; can be set at runtime on active sessions).
 - hop-run always applies full Delta/Iceberg conf when those formats are present.
 
-### Frozen jar list (manual overlay — Delta-specific + Iceberg runtime)
+### Frozen jar list (shipped under `lib/delta` + `lib/iceberg`)
 
-Staged by `-Plakehouse` into `target/lakehouse-connectors/` (not packaged into the plugin zip).
-Re-run the profile after pin changes and update this table.
+Also staged into `target/lakehouse-connectors/` on every build for docs verification.
 
-| Jar (frozen 2026-07-16 via `-Plakehouse`) | Role |
-|------------------------------------------|------|
+| Jar | Role |
+|-----|------|
 | `delta-spark_4.1_2.13-4.3.1.jar` | Delta Spark SQL / DataSource |
 | `delta-storage-4.3.1.jar` | Delta storage layer |
 | `delta-kernel-api-4.3.1.jar` | Delta Kernel API |
@@ -285,13 +278,10 @@ Re-run the profile after pin changes and update this table.
 | `unitycatalog-hadoop-0.5.0.jar` | Transitive (UC-related) |
 | `iceberg-spark-runtime-4.1_2.13-1.11.0.jar` | Shaded Iceberg Spark runtime |
 
-Prefer `spark-submit --packages` when possible so Maven resolves the full tree. Exclude any
-duplicate Spark / Jackson / slf4j jars if copying by hand into `lib/`.
-
 ### Probe API
 
 `org.apache.hop.spark.table.SparkLakeConnectorProbe` verifies connector classes are loadable
-and throws `HopException` with the install / `--packages` recipe when missing.
+and throws `HopException` with reinstall / `--packages` guidance when missing.
 `LakeSessionPlan` scans active lake transforms before `SparkSession` build: probes the
 classpath and applies Delta extension + `DeltaCatalog` on new hop-run sessions.
 
@@ -392,16 +382,19 @@ Metrics are log-only (expect 0 in/out in the GUI).
 
 ### RAT / license
 
-Default Hop assemblies do **not** redistribute Delta or Iceberg JARs. If a future release
-ships optional overlay packs, run Apache RAT and license review on every new third-party jar
-before distribution.
+Delta Lake and Apache Iceberg are Apache-2.0 licensed and redistributed under
+`plugins/engines/spark/lib/{delta,iceberg}/`. Re-check transitive licenses when pins change.
+Unity Catalog client jars ship as Delta transitives (Apache-2.0).
 
 ## Build
 
 ```bash
-# Unit tests (no connector download)
+# Unit + lakehouse ITs (connectors are default runtime deps)
 ./mvnw -pl plugins/engines/spark -am test
 
-# Lakehouse packaging spike + path ITs (downloads Delta 4.3.1 / Iceberg 1.11.0 test deps)
+# Package plugin zip (includes lib/delta + lib/iceberg)
+./mvnw -pl plugins/engines/spark -am package
+
+# -Plakehouse is a no-op alias retained for older scripts
 ./mvnw -pl plugins/engines/spark -am test -Plakehouse
 ```

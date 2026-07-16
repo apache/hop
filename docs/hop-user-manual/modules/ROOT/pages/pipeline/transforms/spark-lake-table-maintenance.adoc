@@ -29,7 +29,7 @@ under the License.
 
 It is a **zero-input** action sink (no hop required). Destructive operations require an explicit acknowledgement.
 
-Connector install and session rules: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+Connectors ship with the native Spark plugin. Session rules: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 |
 == Supported Engines

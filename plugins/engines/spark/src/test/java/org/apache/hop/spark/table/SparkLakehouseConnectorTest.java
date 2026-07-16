@@ -38,8 +38,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Lakehouse packaging spike (PR 1). Runs only when connectors are on the test classpath ({@code
- * -Plakehouse}). Default {@code ./mvnw -pl plugins/engines/spark test} skips these via assumptions.
+ * Lakehouse packaging / classpath spike. Connectors are default runtime dependencies of {@code
+ * hop-engines-spark}; assumptions skip only if the classpath is incomplete.
  *
  * <p>Success criteria:
  *
@@ -63,7 +63,7 @@ class SparkLakehouseConnectorTest {
     if (!SparkLakeConnectorProbe.isDeltaPresent(SparkLakeConnectorProbe.class.getClassLoader())) {
       System.err.println(
           "SparkLakehouseConnectorTest: Delta not on classpath — "
-              + "run with -Plakehouse to enable lakehouse spike tests.");
+              + "rebuild hop-engines-spark with default runtime deps.");
     }
   }
 
@@ -243,13 +243,13 @@ class SparkLakehouseConnectorTest {
   private static void assumeDelta() {
     assumeTrue(
         SparkLakeConnectorProbe.isDeltaPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Delta connector not on classpath; enable with -Plakehouse");
+        "Delta connector not on classpath; connectors missing from test classpath");
   }
 
   private static void assumeIceberg() {
     assumeTrue(
         SparkLakeConnectorProbe.isIcebergPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Iceberg connector not on classpath; enable with -Plakehouse");
+        "Iceberg connector not on classpath; connectors missing from test classpath");
   }
 
   private static SparkSession.Builder newSessionBuilder(String appName) {

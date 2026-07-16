@@ -50,7 +50,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Delta OPTIMIZE smoke + destructive ack guard. Requires {@code -Plakehouse} for OPTIMIZE. */
+/** Delta OPTIMIZE smoke + destructive ack guard (OPTIMIZE skipped if connectors missing). */
 class SparkLakeTableMaintenanceTest {
 
   @TempDir Path tempDir;
@@ -122,7 +122,7 @@ class SparkLakeTableMaintenanceTest {
   void deltaOptimizeSmoke() throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isDeltaPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Delta connector not on classpath; enable with -Plakehouse");
+        "Delta connector not on classpath; connectors missing from test classpath");
 
     Path tablePath = tempDir.resolve("opt_table");
     spark =

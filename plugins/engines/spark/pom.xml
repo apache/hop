@@ -31,7 +31,7 @@
     <description>Native Apache Spark 4.x pipeline engine for Hop (issue #7486)</description>
 
     <properties>
-        <!-- Optional lakehouse connectors (profile lakehouse / manual overlay only).
+        <!-- Lakehouse connectors shipped in default engines-spark assembly under lib/{delta,iceberg}.
              Artifact suffix _4.1_2.13 = Spark 4.1 / Scala 2.13, not product version. -->
         <delta.version>4.3.1</delta.version>
         <!-- Matches Spark 4.1.2 parent; needed for local[*] unit tests only -->
@@ -42,7 +42,7 @@
         <hop.pluginlib.exclude2>jackson-databind</hop.pluginlib.exclude2>
         <hop.pluginlib.exclude3>jackson-annotations</hop.pluginlib.exclude3>
         <iceberg.version>1.11.0</iceberg.version>
-        <!-- Where dependency:copy-dependencies stages connector jars for docs / local overlay. -->
+        <!-- Staged jar freeze list for docs / verification (not a second install path). -->
         <lakehouse.connectors.dir>${project.basedir}/target/lakehouse-connectors</lakehouse.connectors.dir>
         <scala.binary.version>2.13</scala.binary.version>
         <!-- Pin Spark 4.1.x independently of Beam's Spark 3.x dependency -->
@@ -145,6 +145,62 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!--
+          Open table format connectors (Delta Lake / Apache Iceberg) — default assembly.
+
+          Runtime scope: not needed to compile Hop code (Class.forName / Spark APIs only).
+          Packaged under plugins/engines/spark/lib/{delta,iceberg}/ via assembly.xml.
+          Exclusions avoid dual Spark / Jackson / Scala / slf4j on the engine classloader.
+        -->
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-spark_${spark.version.prefix}_${scala.binary.version}</artifactId>
+            <version>${delta.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-spark-runtime-4.1_${scala.binary.version}</artifactId>
+            <version>${iceberg.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- Filter Rows for target-stream unit tests -->
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -168,96 +224,39 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Freeze connector jar list under target/lakehouse-connectors for docs verification. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-lakehouse-connectors</id>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputDirectory>${lakehouse.connectors.dir}</outputDirectory>
+                            <includeArtifactIds>delta-spark_4.1_2.13,delta-storage,delta-kernel-api,delta-kernel-defaults,delta-kernel-unitycatalog,iceberg-spark-runtime-4.1_2.13,unitycatalog-client,unitycatalog-hadoop,commons-pool</includeArtifactIds>
+                            <excludeTransitive>false</excludeTransitive>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <!--
-      Optional open table format connectors (Delta Lake / Apache Iceberg).
-
-      Default build and PR CI do NOT download or ship these jars (KD-23).
-      Enable with:  ./mvnw -pl plugins/engines/spark -am test -Plakehouse
-
-      Manual hop-run install: stage jars under plugins/engines/spark/lib/{delta,iceberg}/
-      and restart Hop (plugin classloader does not hot-reload). See README lakehouse section.
-
-      spark-submit: use packages coordinates (or site SPARK_HOME/jars). See README.
+      Legacy profile id: connectors ship in the default assembly now.
+      -Plakehouse remains a no-op alias so existing scripts keep working.
     -->
     <profiles>
         <profile>
             <id>lakehouse</id>
-            <dependencies>
-                <dependency>
-                    <groupId>io.delta</groupId>
-                    <artifactId>delta-spark_${spark.version.prefix}_${scala.binary.version}</artifactId>
-                    <version>${delta.version}</version>
-                    <scope>test</scope>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>com.fasterxml.jackson.core</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>org.apache.spark</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>org.scala-lang</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.iceberg</groupId>
-                    <artifactId>iceberg-spark-runtime-4.1_${scala.binary.version}</artifactId>
-                    <version>${iceberg.version}</version>
-                    <scope>test</scope>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>com.fasterxml.jackson.core</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>org.apache.spark</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>org.scala-lang</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>*</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <!-- Stage connector jars for README freeze list / manual overlay experiments.
-                         Does not install into the plugin assembly (v1 is docs-only). -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy-lakehouse-connectors</id>
-                                <goals>
-                                    <goal>copy-dependencies</goal>
-                                </goals>
-                                <phase>generate-test-resources</phase>
-                                <configuration>
-                                    <outputDirectory>${lakehouse.connectors.dir}</outputDirectory>
-                                    <includeArtifactIds>delta-spark_4.1_2.13,delta-storage,delta-kernel-api,delta-kernel-defaults,delta-kernel-unitycatalog,iceberg-spark-runtime-4.1_2.13,unitycatalog-client,unitycatalog-hadoop,commons-pool</includeArtifactIds>
-                                    <excludeTransitive>false</excludeTransitive>
-                                    <overWriteReleases>false</overWriteReleases>
-                                    <overWriteSnapshots>true</overWriteSnapshots>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>

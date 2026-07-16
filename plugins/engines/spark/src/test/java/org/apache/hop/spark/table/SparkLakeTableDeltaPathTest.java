@@ -47,7 +47,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Delta PATH Input/Output handler round-trip. Requires {@code -Plakehouse} (skipped otherwise). */
+/** Delta PATH Input/Output handler round-trip (skipped if connectors missing). */
 class SparkLakeTableDeltaPathTest {
 
   @TempDir Path tempDir;
@@ -82,7 +82,7 @@ class SparkLakeTableDeltaPathTest {
   void deltaPathOutputThenInputRoundTrip() throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isDeltaPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Delta connector not on classpath; enable with -Plakehouse");
+        "Delta connector not on classpath; connectors missing from test classpath");
 
     Path tablePath = tempDir.resolve("orders_delta");
     spark =

@@ -46,7 +46,10 @@
              Jackson core/databind/annotations MUST NOT be packaged here: HopURLClassLoader
              is child-first, and dual ObjectMapper classes (plugin lib vs Hop lib/core)
              cause LinkageError when plugin code calls HopJson.newMapper() during
-             execution sampling on mapPartitions. Use Hop's Jackson from the parent CL. -->
+             execution sampling on mapPartitions. Use Hop's Jackson from the parent CL.
+
+             Delta / Iceberg go to lib/delta and lib/iceberg (see dependencySets below)
+             so lakehouse connectors stay grouped and easy to audit. -->
         <dependencySet>
             <scope>runtime</scope>
             <excludes>
@@ -56,8 +59,32 @@
                 <exclude>com.fasterxml.jackson.core:jackson-core:jar</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-databind:jar</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-annotations:jar</exclude>
+                <exclude>io.delta:*</exclude>
+                <exclude>org.apache.iceberg:*</exclude>
+                <exclude>io.unitycatalog:*</exclude>
             </excludes>
             <outputDirectory>plugins/engines/spark/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
+    <!-- Lakehouse connectors staged by dependency:copy-dependencies (generate-resources).
+         Using fileSets (not dependencySet includes) so the full transitive freeze list is
+         packaged even when assembly filtering is picky about groupId excludes. -->
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}/lakehouse-connectors</directory>
+            <outputDirectory>plugins/engines/spark/lib/delta</outputDirectory>
+            <includes>
+                <include>delta-*.jar</include>
+                <include>unitycatalog-*.jar</include>
+                <include>commons-pool*.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/lakehouse-connectors</directory>
+            <outputDirectory>plugins/engines/spark/lib/iceberg</outputDirectory>
+            <includes>
+                <include>iceberg-*.jar</include>
+            </includes>
+        </fileSet>
+    </fileSets>
 </assembly>

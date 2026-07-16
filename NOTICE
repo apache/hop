@@ -9,3 +9,13 @@ Hitachi Vantara (https://www.hitachivantara.com//).
 
 This product includes software developed by
 JADAPTIVE (https://www.jadaptive.com/)
+
+This product bundles Delta Lake (io.delta) under the Apache License, Version 2.0.
+See: https://github.com/delta-io/delta
+
+This product bundles Apache Iceberg under the Apache License, Version 2.0.
+See: https://iceberg.apache.org/
+
+This product bundles Unity Catalog client libraries (transitive dependency of
+Delta Lake) under the Apache License, Version 2.0.
+See: https://github.com/unitycatalog/unitycatalog

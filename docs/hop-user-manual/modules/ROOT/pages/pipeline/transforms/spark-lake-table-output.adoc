@@ -29,7 +29,7 @@ under the License.
 
 Unlike *Spark File Output* (classic file formats), the **default save mode is ErrorIfExists** so ACID tables are not overwritten by accident.
 
-This transform is **native Spark only**. Install connectors as described in xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+This transform is **native Spark only**. Connectors ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 |
 == Supported Engines

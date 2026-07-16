@@ -29,7 +29,7 @@ under the License.
 
 It supports **PATH** and **TABLE** identifiers, optional field projection, and **time travel** by version/snapshot or timestamp.
 
-This transform is **not** available on the local Hop engine or on Beam engines. Connector JARs are optional and must be installed as described in xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+This transform is **not** available on the local Hop engine or on Beam engines. Connector JARs ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 |
 == Supported Engines

@@ -47,10 +47,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * Iceberg PATH Input/Output handler round-trip via {@code hop_iceberg.`file:///…`}. Requires {@code
- * -Plakehouse}.
- */
+/** Iceberg PATH Input/Output (skipped if connectors missing). */
 class SparkLakeTableIcebergPathTest {
 
   @TempDir Path tempDir;
@@ -85,7 +82,7 @@ class SparkLakeTableIcebergPathTest {
   void icebergPathOutputThenInputRoundTrip() throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isIcebergPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Iceberg connector not on classpath; enable with -Plakehouse");
+        "Iceberg connector not on classpath; connectors missing from test classpath");
 
     Path tablePath = tempDir.resolve("orders_iceberg");
     Path warehouse = tempDir.resolve("iceberg_wh");

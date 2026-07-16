@@ -29,7 +29,7 @@ under the License.
 
 The **single main-stream upstream hop** is the merge **source**. The transform builds (or accepts) MERGE SQL, executes it as a Spark action, and registers an empty leaf Dataset.
 
-Connector install and session rules: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+Connectors ship with the native Spark plugin. Session rules: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 |
 == Supported Engines

@@ -47,7 +47,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Time travel: write twice, read as-of first version/snapshot. Requires {@code -Plakehouse}. */
+/** Time travel: write twice, read as-of first version/snapshot (skipped if connectors missing). */
 class SparkLakeTableTimeTravelTest {
 
   @TempDir Path tempDir;
@@ -82,7 +82,7 @@ class SparkLakeTableTimeTravelTest {
   void deltaVersionAsOfFirstWrite() throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isDeltaPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Delta connector not on classpath; enable with -Plakehouse");
+        "Delta connector not on classpath; connectors missing from test classpath");
 
     Path tablePath = tempDir.resolve("delta_tt");
     spark =
@@ -116,7 +116,7 @@ class SparkLakeTableTimeTravelTest {
   void icebergSnapshotAsOfFirstWrite() throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isIcebergPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Iceberg connector not on classpath; enable with -Plakehouse");
+        "Iceberg connector not on classpath; connectors missing from test classpath");
 
     Path tablePath = tempDir.resolve("iceberg_tt");
     Path warehouse = tempDir.resolve("wh");

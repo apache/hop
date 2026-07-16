@@ -428,7 +428,7 @@ Classic *Spark File* transforms cover `csv` / `parquet` / `json` / `orc` / `text
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] / xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance]
 * xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata for Iceberg TABLE mode
 
-Connector JARs are **not** in the default Hop assembly — install them under `plugins/engines/spark/lib/{delta,iceberg}` (hop-run/GUI) or via `spark-submit --packages`, then **restart Hop**. Full packaging, session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+Connector JARs **ship in the default Hop assembly** under `plugins/engines/spark/lib/{delta,iceberg}` (and ride a *native-provided* fat jar for cluster submit). Full session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
 === Classic Hop I/O and `${Internal.Transform.ID}`
 
@@ -665,7 +665,7 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 * [ ] Cluster: metadata JSON exported; run configuration name matches submit args
 * [ ] No sorted Group By; no reliance on Copy/Distribute multi-hop behaviour
 * [ ] Classic writers use `${Internal.Transform.ID}` (or accept Spark File Output for bulk writes)
-* [ ] Lakehouse (optional): Delta/Iceberg jars installed + Hop restarted; see xref:pipeline/spark/lakehouse.adoc[lakehouse guide]
+* [ ] Lakehouse (optional): confirm `plugins/engines/spark/lib/{delta,iceberg}` present; see xref:pipeline/spark/lakehouse.adoc[lakehouse guide]
 
 == Related pages
 

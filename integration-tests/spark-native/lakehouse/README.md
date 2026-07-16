@@ -28,23 +28,12 @@ User manual: [Lakehouse tables on the native Spark engine](../../../docs/hop-use
 
 ## Prerequisites
 
-1. Hop with `plugins/engines/spark` (Spark 4.1.x).
-2. Connector JARs on the **engine** classloader (not a sibling plugin only):
-
+1. Hop with `plugins/engines/spark` (Spark 4.1.x). Default assemblies already include:
    ```text
    $HOP_HOME/plugins/engines/spark/lib/delta/      # Delta 4.3.1 tree
    $HOP_HOME/plugins/engines/spark/lib/iceberg/   # iceberg-spark-runtime-4.1_2.13:1.11.0
    ```
-
-   Stage from source:
-
-   ```bash
-   ./mvnw -pl plugins/engines/spark -Plakehouse generate-test-resources
-   # copy plugins/engines/spark/target/lakehouse-connectors/*.jar into lib/{delta,iceberg}
-   ```
-
-3. **Restart Hop** after copying jars.
-4. A **Native Spark** pipeline run configuration (e.g. `spark-local` with master
+2. A **Native Spark** pipeline run configuration (e.g. `spark-local` with master
    `local[*]`), same as the other spark-native samples.
 
 Pins: Delta `io.delta:delta-spark_4.1_2.13:4.3.1`, Iceberg
@@ -113,13 +102,15 @@ pass matching `--conf spark.sql.catalog.lake=…`).
 
 ## Cluster notes
 
+`native-provided` fat jars include `lib/delta` and `lib/iceberg` from the install (Spark
+itself stays out). Optional `--packages` only if those folders were stripped.
+
 ```bash
 export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 ./hop-conf.sh --generate-fat-jar=/tmp/hop-native-provided.jar \
   --spark-client-version=native-provided
 
 "${SPARK_HOME}/bin/spark-submit" \
-  --packages io.delta:delta-spark_4.1_2.13:4.3.1,org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0 \
   --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
   --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
   --class org.apache.hop.spark.run.MainSpark \
@@ -134,11 +125,8 @@ Keep Delta on `spark_catalog`; put Iceberg catalogs under other names.
 ## Automated tests (developers)
 
 ```bash
-# No connector download
+# Unit + lakehouse ITs (connectors are default runtime deps)
 ./mvnw -pl plugins/engines/spark -am test
-
-# Classpath probe, PATH I/O, time travel, MERGE, maintenance (downloads connectors)
-./mvnw -pl plugins/engines/spark -am test -Plakehouse
 ```
 
 See also `plugins/engines/spark/README.md` (frozen jar list, spike findings,

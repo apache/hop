@@ -63,6 +63,20 @@ class HopBeamGuiPluginNativeFatJarTest {
     assertFalse(
         HopBeamGuiPlugin.isExcludedForNativeProvidedSparkFatJar(
             new File("beam-runners-direct-java-2.74.0.jar")));
+    // Lakehouse connectors ship in engines-spark lib and must ride the native-provided fat jar
+    // so cluster submit does not require a separate --packages step for Delta/Iceberg.
+    assertFalse(
+        HopBeamGuiPlugin.isExcludedForNativeProvidedSparkFatJar(
+            new File("delta-spark_4.1_2.13-4.3.1.jar")));
+    assertFalse(
+        HopBeamGuiPlugin.isExcludedForNativeProvidedSparkFatJar(
+            new File("delta-storage-4.3.1.jar")));
+    assertFalse(
+        HopBeamGuiPlugin.isExcludedForNativeProvidedSparkFatJar(
+            new File("iceberg-spark-runtime-4.1_2.13-1.11.0.jar")));
+    assertFalse(
+        HopBeamGuiPlugin.isExcludedForNativeProvidedSparkFatJar(
+            new File("unitycatalog-client-0.5.0.jar")));
   }
 
   @Test

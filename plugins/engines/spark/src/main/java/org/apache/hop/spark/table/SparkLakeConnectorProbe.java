@@ -25,13 +25,14 @@ import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 
 /**
- * Verifies that optional lakehouse connector classes are loadable from a given classloader (the
- * native Spark engine plugin classloader for hop-run / GUI {@code local[*]}, or the driver
- * classpath under spark-submit).
+ * Verifies that lakehouse connector classes are loadable from a given classloader (the native Spark
+ * engine plugin classloader for hop-run / GUI {@code local[*]}, or the driver classpath under
+ * spark-submit).
  *
- * <p>Connectors are <strong>not</strong> shipped in the default Hop assembly. Operators install
- * jars under {@code plugins/engines/spark/lib/} (and restart Hop) or supply them via {@code
- * spark-submit --packages}. See {@code plugins/engines/spark/README.md}.
+ * <p>Default Hop assemblies ship Delta Lake and Apache Iceberg under {@code
+ * plugins/engines/spark/lib/delta/} and {@code lib/iceberg/}. If they are missing (custom install,
+ * stripped fat jar, or cluster without site jars), operators can restore those folders or use
+ * {@code spark-submit --packages}. See {@code plugins/engines/spark/README.md}.
  */
 public final class SparkLakeConnectorProbe {
 
@@ -114,20 +115,22 @@ public final class SparkLakeConnectorProbe {
   public static String missingDeltaMessage(String missingClass) {
     return "Delta Lake connector not on the native Spark engine classpath (missing class: "
         + missingClass
-        + "). Place delta-spark_4.1_2.13 (and its Delta-specific dependencies) under "
-        + "plugins/engines/spark/lib/delta/ (or plugins/engines/spark/lib/), then restart Hop. "
-        + "For spark-submit use: --packages io.delta:delta-spark_4.1_2.13:4.3.1 "
-        + "(see docs: plugins/engines/spark/README.md lakehouse section).";
+        + "). Default Hop installs ship it under plugins/engines/spark/lib/delta/ "
+        + "(delta-spark_4.1_2.13 and deps). Reinstall/rebuild the engines-spark plugin, or place "
+        + "the jars there and restart Hop. For spark-submit (if not using a fat jar that includes "
+        + "lib/delta): --packages io.delta:delta-spark_4.1_2.13:4.3.1 "
+        + "(see docs: pipeline/spark/lakehouse.html).";
   }
 
   /** Actionable message when the Iceberg connector is missing from the engine classpath. */
   public static String missingIcebergMessage(String missingClass) {
     return "Apache Iceberg connector not on the native Spark engine classpath (missing class: "
         + missingClass
-        + "). Place iceberg-spark-runtime-4.1_2.13 under "
-        + "plugins/engines/spark/lib/iceberg/ (or plugins/engines/spark/lib/), then restart Hop. "
-        + "For spark-submit use: --packages org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0 "
-        + "(see docs: plugins/engines/spark/README.md lakehouse section).";
+        + "). Default Hop installs ship it under plugins/engines/spark/lib/iceberg/ "
+        + "(iceberg-spark-runtime-4.1_2.13). Reinstall/rebuild the engines-spark plugin, or place "
+        + "the jar there and restart Hop. For spark-submit (if not using a fat jar that includes "
+        + "lib/iceberg): --packages org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0 "
+        + "(see docs: pipeline/spark/lakehouse.html).";
   }
 
   private static void requireClass(ClassLoader classLoader, String className, String message)

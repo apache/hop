@@ -49,7 +49,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Iceberg TABLE mode via SparkCatalog (Hadoop warehouse). Requires {@code -Plakehouse}. */
+/** Iceberg TABLE mode via SparkCatalog (Hadoop warehouse; skipped if connectors missing). */
 class SparkLakeTableTableModeTest {
 
   @TempDir Path tempDir;
@@ -84,7 +84,7 @@ class SparkLakeTableTableModeTest {
   void icebergTableModeRoundTripWithSparkCatalog() throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isIcebergPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Iceberg connector not on classpath; enable with -Plakehouse");
+        "Iceberg connector not on classpath; connectors missing from test classpath");
 
     Path warehouse = tempDir.resolve("wh");
     SparkCatalog catalogMeta = new SparkCatalog();

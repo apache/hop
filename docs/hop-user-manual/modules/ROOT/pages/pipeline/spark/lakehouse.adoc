@@ -37,7 +37,7 @@ It assumes you already have a working *Native Spark* pipeline run configuration 
 | Upsert | xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] (`MERGE INTO`) |
 | Compaction / vacuum / expire | xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance] |
 
-*Not in v1:* Hudi, automated ASF-shipped connector zip packs, default assembly embedding of Delta/Iceberg JARs.
+*Not in scope:* Hudi; Beam Spark lakehouse.
 
 == Version pins
 
@@ -49,35 +49,20 @@ It assumes you already have a working *Native Spark* pipeline run configuration 
 
 The `_4.1_2.13` suffix means **Spark 4.1 / Scala 2.13**, not the product major version of Delta or Iceberg.
 
-== Install connectors (required)
+== Connectors (shipped by default)
 
-Default Hop assemblies **do not** ship Delta or Iceberg JARs (size and license review). You install connectors yourself onto the **Spark engine plugin classloader** or the Spark submit classpath.
+Default Hop client assemblies package Delta Lake and Apache Iceberg under the **Spark engine plugin classloader**:
 
-IMPORTANT: A sibling plugin folder (for example `plugins/engines/spark-delta`) is **not** enough. `SparkPipelineEngine` builds `SparkSession` under the engine plugin classloader, which only loads `plugins/engines/spark/lib` (recursive) plus folders from `plugins/engines/spark/dependencies.xml`.
-
-=== hop-run / Hop Gui (`local[*]`)
-
-. Resolve connector JARs (Maven Central, or the Maven profile below).
-. Copy them under your Hop install:
-+
 ----
 $HOP_HOME/plugins/engines/spark/lib/delta/     # Delta jars
 $HOP_HOME/plugins/engines/spark/lib/iceberg/  # Iceberg runtime jar
 ----
-. **Restart Hop** (or hop-run). Plugin classloaders and jar caches do not hot-reload new files.
-. Do **not** re-copy Jackson core/databind/annotations, Spark, Scala library, or slf4j bindings — Hop and the existing Spark lib already provide them.
 
-From a Hop source checkout you can stage jars for copy:
+`SparkPipelineEngine` builds `SparkSession` under that classloader (`lib/` recursive + `dependencies.xml` folders). A sibling plugin folder alone is **not** enough.
 
-[source,bash]
-----
-./mvnw -pl plugins/engines/spark -Plakehouse generate-test-resources
-# jars appear under plugins/engines/spark/target/lakehouse-connectors/
-----
+hop-run / Hop Gui (`local[*]`) therefore need **no manual connector install** after a normal Hop install or rebuild of `plugins/engines/spark`.
 
-==== Frozen jar list (manual overlay)
-
-Re-run the `lakehouse` profile after pin changes and refresh this list if coordinates change.
+=== Shipped jar list
 
 [options="header",cols="2,1"]
 |===
@@ -108,11 +93,11 @@ Re-run the `lakehouse` profile after pin changes and refresh this list if coordi
 |Shaded Iceberg Spark runtime
 |===
 
-Prefer `spark-submit --packages` on the cluster so Maven resolves the full tree.
+Jackson, Spark, Scala, and slf4j are **not** duplicated into these folders (Hop parent CL + existing spark lib provide them).
 
 === spark-submit (cluster)
 
-Use a **native-provided** fat jar (Hop only — do not embed Spark) and add connectors with `--packages` or site jars under `$SPARK_HOME/jars`:
+Prefer a **native-provided** fat jar (Hop + plugins + lakehouse connectors — **not** Spark). Fat-jar generation walks `plugins/engines/spark/lib` (including `delta/` and `iceberg/`) and keeps those connectors while excluding the Spark runtime.
 
 [source,bash]
 ----
@@ -124,7 +109,6 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 # Export project metadata (run config + any Spark Catalog entries) to JSON, then:
 "${SPARK_HOME}/bin/spark-submit" \
   --master spark://your-master:7077 \
-  --packages io.delta:delta-spark_4.1_2.13:4.3.1,org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0 \
   --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
   --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
   --class org.apache.hop.spark.run.MainSpark \
@@ -134,9 +118,15 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
   YourNativeSparkRunConfig
 ----
 
+Optional: if you strip connectors from the fat jar or use site-managed `$SPARK_HOME/jars`, you can still add:
+
+----
+--packages io.delta:delta-spark_4.1_2.13:4.3.1,org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0
+----
+
 When both formats are used, keep **Delta** on `spark_catalog` and register Iceberg catalogs under **other** names (for example `lake`). Export full project metadata so `SparkCatalog` entries travel with the job.
 
-If connectors are missing, Hop fails with an actionable `HopException` that repeats the install / `--packages` recipe (`SparkLakeConnectorProbe`).
+If connectors are missing, Hop fails with an actionable `HopException` (`SparkLakeConnectorProbe`).
 
 == Session configuration
 
@@ -240,7 +230,7 @@ Standalone *Spark Lake Table Maintenance*:
 |Symptom |What to check
 
 |Probe / classpath error naming Delta or Iceberg classes
-|Jars under `plugins/engines/spark/lib/{delta,iceberg}`? Hop restarted? Cluster `--packages` / site jars?
+|Standard install has jars under `plugins/engines/spark/lib/{delta,iceberg}`? Rebuild engines-spark / reinstall Hop? Fat jar built with current install? Optional cluster `--packages` / site jars?
 
 |`DELTA_CONFIGURE_SPARK_SESSION_WITH_EXTENSION_AND_CATALOG`
 |`spark_catalog` must be `DeltaCatalog` when using Delta (hop-run sets this when Delta transforms are present)

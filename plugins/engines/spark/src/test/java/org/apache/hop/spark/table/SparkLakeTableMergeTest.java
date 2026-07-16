@@ -52,7 +52,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Delta PATH MERGE upsert. Requires {@code -Plakehouse}. */
+/** Delta PATH MERGE upsert (skipped if connectors missing). */
 class SparkLakeTableMergeTest {
 
   @TempDir Path tempDir;
@@ -87,7 +87,7 @@ class SparkLakeTableMergeTest {
   void deltaPathMergeUpsert() throws Exception {
     assumeTrue(
         SparkLakeConnectorProbe.isDeltaPresent(SparkLakeConnectorProbe.class.getClassLoader()),
-        "Delta connector not on classpath; enable with -Plakehouse");
+        "Delta connector not on classpath; connectors missing from test classpath");
 
     Path tablePath = tempDir.resolve("merge_orders");
     spark =
