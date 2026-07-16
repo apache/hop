@@ -33,6 +33,8 @@ import org.apache.hop.databricks.client.DatabricksJobsClient;
 import org.apache.hop.databricks.client.DatabricksRunLifeCycleState;
 import org.apache.hop.databricks.client.DatabricksRunStatus;
 import org.apache.hop.databricks.client.RestDatabricksJobsClient;
+import org.apache.hop.databricks.deploy.DatabricksJobSpecFactory;
+import org.apache.hop.databricks.deploy.HopSparkDeployHelper;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -64,6 +66,7 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
 
   public static final String MODE_RUN_EXISTING = "RUN_EXISTING";
   public static final String MODE_SUBMIT_ONCE = "SUBMIT_ONCE";
+  public static final String MODE_DEPLOY_AND_RUN = "DEPLOY_AND_RUN";
 
   public static final String WAIT_WAIT = "WAIT";
   public static final String WAIT_FIRE_AND_FORGET = "FIRE_AND_FORGET";
@@ -71,7 +74,7 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
   @HopMetadataProperty(key = "connection")
   private String connectionName;
 
-  /** {@link #MODE_RUN_EXISTING} or {@link #MODE_SUBMIT_ONCE}. */
+  /** {@link #MODE_RUN_EXISTING}, {@link #MODE_SUBMIT_ONCE}, or {@link #MODE_DEPLOY_AND_RUN}. */
   @HopMetadataProperty(key = "run_mode")
   private String runMode = MODE_RUN_EXISTING;
 
@@ -81,6 +84,37 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
   /** Raw Jobs API JSON for runs/submit (one-time). */
   @HopMetadataProperty(key = "submit_json")
   private String submitRunJson;
+
+  /** Local fat jar path for deploy mode. */
+  @HopMetadataProperty(key = "fat_jar")
+  private String fatJarPath;
+
+  /** Pipeline .hpl path for deploy mode. */
+  @HopMetadataProperty(key = "pipeline_file")
+  private String pipelineFilename;
+
+  /** Native Spark pipeline run configuration name (inside exported metadata). */
+  @HopMetadataProperty(key = "run_configuration")
+  private String runConfigurationName;
+
+  /** DBFS directory for uploads, e.g. dbfs:/FileStore/hop/my-job */
+  @HopMetadataProperty(key = "dbfs_base")
+  private String dbfsBasePath = "dbfs:/FileStore/hop";
+
+  /** Existing Databricks cluster id for the JAR task. */
+  @HopMetadataProperty(key = "cluster_id")
+  private String existingClusterId;
+
+  /** Job name when creating a new job (deploy mode). */
+  @HopMetadataProperty(key = "job_name")
+  private String jobName;
+
+  /**
+   * When true and job_id is set, reset the existing job after upload; otherwise create a new job
+   * (job_id empty) or run-now only if create fails... actually: update if job_id non-empty.
+   */
+  @HopMetadataProperty(key = "update_existing_job")
+  private boolean updateExistingJob;
 
   /** {@link #WAIT_WAIT} or {@link #WAIT_FIRE_AND_FORGET}. */
   @HopMetadataProperty(key = "wait_mode")
@@ -165,7 +199,11 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
         Long jobIdValue = null;
         String mode = StringUtils.defaultIfBlank(runMode, MODE_RUN_EXISTING).trim();
 
-        if (MODE_SUBMIT_ONCE.equalsIgnoreCase(mode)) {
+        if (MODE_DEPLOY_AND_RUN.equalsIgnoreCase(mode)) {
+          DeployOutcome outcome = deployAndRun(client, metadataProvider);
+          jobIdValue = outcome.jobId();
+          runId = outcome.runId();
+        } else if (MODE_SUBMIT_ONCE.equalsIgnoreCase(mode)) {
           String json = resolve(submitRunJson);
           if (Utils.isEmpty(json)) {
             throw new HopException(
@@ -232,6 +270,70 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
     }
 
     return result;
+  }
+
+  private record DeployOutcome(long jobId, long runId) {}
+
+  private DeployOutcome deployAndRun(
+      DatabricksJobsClient client, IHopMetadataProvider metadataProvider) throws HopException {
+    String cluster = resolve(existingClusterId);
+    if (Utils.isEmpty(cluster)) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.Error.NoClusterId"));
+    }
+    String name = resolve(jobName);
+    if (Utils.isEmpty(name)) {
+      name = "hop-" + resolve(runConfigurationName);
+    }
+
+    HopSparkDeployHelper.DeployedArtifacts artifacts =
+        HopSparkDeployHelper.deploy(
+            client,
+            metadataProvider,
+            this,
+            getLogChannel(),
+            fatJarPath,
+            pipelineFilename,
+            runConfigurationName,
+            dbfsBasePath);
+
+    long jid;
+    String jobIdStr = resolve(jobId);
+    if (updateExistingJob && StringUtils.isNotBlank(jobIdStr)) {
+      jid = Long.parseLong(jobIdStr.trim());
+      String resetJson =
+          DatabricksJobSpecFactory.buildResetJobJson(
+              jid,
+              name,
+              cluster,
+              artifacts.jarDbfs(),
+              artifacts.pipelineDbfs(),
+              artifacts.metadataDbfs(),
+              artifacts.runConfigName());
+      client.resetJob(resetJson);
+      if (isBasic()) {
+        logBasic("Updated Databricks job_id=" + jid);
+      }
+    } else {
+      String createJson =
+          DatabricksJobSpecFactory.buildCreateJobJson(
+              name,
+              cluster,
+              artifacts.jarDbfs(),
+              artifacts.pipelineDbfs(),
+              artifacts.metadataDbfs(),
+              artifacts.runConfigName());
+      jid = client.createJob(createJson);
+      if (isBasic()) {
+        logBasic("Created Databricks job_id=" + jid);
+      }
+    }
+
+    long rid = client.runNow(jid, Map.of());
+    if (isBasic()) {
+      logBasic("Started Databricks job_id=" + jid + " run_id=" + rid);
+    }
+    return new DeployOutcome(jid, rid);
   }
 
   private DatabricksRunStatus waitForRun(DatabricksJobsClient client, long runId)

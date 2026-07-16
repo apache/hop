@@ -60,6 +60,13 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
   private CCombo wRunMode;
   private TextVar wJobId;
   private StyledText wSubmitJson;
+  private TextVar wFatJar;
+  private TextVar wPipeline;
+  private TextVar wRunConfig;
+  private TextVar wDbfsBase;
+  private TextVar wClusterId;
+  private TextVar wJobName;
+  private Button wUpdateJob;
   private CCombo wWaitMode;
   private TextVar wTimeout;
   private TextVar wPoll;
@@ -177,7 +184,8 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wRunMode.setItems(
         new String[] {
           BaseMessages.getString(PKG, "ActionDatabricksJobRun.RunMode.RunExisting"),
-          BaseMessages.getString(PKG, "ActionDatabricksJobRun.RunMode.SubmitOnce")
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.RunMode.SubmitOnce"),
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.RunMode.DeployAndRun")
         });
     PropsUi.setLook(wRunMode);
     FormData fdRunMode = new FormData();
@@ -188,22 +196,52 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wRunMode.addModifyListener(lsMod);
     wRunMode.addListener(SWT.Selection, e -> enableModeFields());
 
+    Control afterMode = wRunMode;
+
     wlJobId = new Label(wJobComp, SWT.RIGHT);
     wlJobId.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.JobId.Label"));
     PropsUi.setLook(wlJobId);
     FormData fdlJobId = new FormData();
     fdlJobId.left = new FormAttachment(0, 0);
     fdlJobId.right = new FormAttachment(middle, -margin);
-    fdlJobId.top = new FormAttachment(wRunMode, margin);
+    fdlJobId.top = new FormAttachment(afterMode, margin);
     wlJobId.setLayoutData(fdlJobId);
     wJobId = new TextVar(variables, wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wJobId);
     wJobId.addModifyListener(lsMod);
     FormData fdJobId = new FormData();
     fdJobId.left = new FormAttachment(middle, 0);
-    fdJobId.top = new FormAttachment(wRunMode, margin);
+    fdJobId.top = new FormAttachment(afterMode, margin);
     fdJobId.right = new FormAttachment(100, 0);
     wJobId.setLayoutData(fdJobId);
+
+    wFatJar =
+        addLabeledTextVar(
+            wJobComp, wJobId, middle, margin, lsMod, "ActionDatabricksJobRun.FatJar.Label");
+    wPipeline =
+        addLabeledTextVar(
+            wJobComp, wFatJar, middle, margin, lsMod, "ActionDatabricksJobRun.Pipeline.Label");
+    wRunConfig =
+        addLabeledTextVar(
+            wJobComp, wPipeline, middle, margin, lsMod, "ActionDatabricksJobRun.RunConfig.Label");
+    wDbfsBase =
+        addLabeledTextVar(
+            wJobComp, wRunConfig, middle, margin, lsMod, "ActionDatabricksJobRun.DbfsBase.Label");
+    wClusterId =
+        addLabeledTextVar(
+            wJobComp, wDbfsBase, middle, margin, lsMod, "ActionDatabricksJobRun.ClusterId.Label");
+    wJobName =
+        addLabeledTextVar(
+            wJobComp, wClusterId, middle, margin, lsMod, "ActionDatabricksJobRun.JobName.Label");
+
+    wUpdateJob = new Button(wJobComp, SWT.CHECK);
+    PropsUi.setLook(wUpdateJob);
+    wUpdateJob.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.UpdateJob.Label"));
+    FormData fdUpdate = new FormData();
+    fdUpdate.left = new FormAttachment(middle, 0);
+    fdUpdate.top = new FormAttachment(wJobName, margin);
+    wUpdateJob.setLayoutData(fdUpdate);
+    wUpdateJob.addListener(SWT.Selection, e -> action.setChanged());
 
     wlSubmitJson = new Label(wJobComp, SWT.RIGHT);
     wlSubmitJson.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.SubmitJson.Label"));
@@ -211,7 +249,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     FormData fdlSubmit = new FormData();
     fdlSubmit.left = new FormAttachment(0, 0);
     fdlSubmit.right = new FormAttachment(middle, -margin);
-    fdlSubmit.top = new FormAttachment(wJobId, margin);
+    fdlSubmit.top = new FormAttachment(wUpdateJob, margin);
     wlSubmitJson.setLayoutData(fdlSubmit);
     wSubmitJson =
         new StyledText(wJobComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -219,10 +257,10 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wSubmitJson.addModifyListener(lsMod);
     FormData fdSubmit = new FormData();
     fdSubmit.left = new FormAttachment(middle, 0);
-    fdSubmit.top = new FormAttachment(wJobId, margin);
+    fdSubmit.top = new FormAttachment(wUpdateJob, margin);
     fdSubmit.right = new FormAttachment(100, 0);
     fdSubmit.bottom = new FormAttachment(100, -margin);
-    fdSubmit.height = 120;
+    fdSubmit.height = 80;
     wSubmitJson.setLayoutData(fdSubmit);
 
     // --- Run tab ---
@@ -279,16 +317,15 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     return action;
   }
 
-  private Control addTextVarRow(
+  private TextVar addLabeledTextVar(
       Composite parent,
       Control above,
       int middle,
       int margin,
       ModifyListener lsMod,
-      String key,
-      boolean ignored) {
+      String labelKey) {
     Label wl = new Label(parent, SWT.RIGHT);
-    wl.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun." + key + ".Label"));
+    wl.setText(BaseMessages.getString(PKG, labelKey));
     PropsUi.setLook(wl);
     FormData fdl = new FormData();
     fdl.left = new FormAttachment(0, 0);
@@ -303,28 +340,58 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     fd.top = new FormAttachment(above, margin);
     fd.right = new FormAttachment(100, 0);
     w.setLayoutData(fd);
-    // stash for getData via field assignment in open()
     return w;
   }
 
+  private Control addTextVarRow(
+      Composite parent,
+      Control above,
+      int middle,
+      int margin,
+      ModifyListener lsMod,
+      String key,
+      boolean ignored) {
+    return addLabeledTextVar(
+        parent, above, middle, margin, lsMod, "ActionDatabricksJobRun." + key + ".Label");
+  }
+
   private void enableModeFields() {
-    boolean existing = wRunMode.getSelectionIndex() <= 0;
-    wlJobId.setEnabled(existing);
-    wJobId.setEnabled(existing);
-    wlSubmitJson.setEnabled(!existing);
-    wSubmitJson.setEnabled(!existing);
+    int idx = wRunMode.getSelectionIndex();
+    boolean existing = idx == 0;
+    boolean submit = idx == 1;
+    boolean deploy = idx == 2;
+    wlJobId.setEnabled(existing || deploy);
+    wJobId.setEnabled(existing || deploy);
+    wlSubmitJson.setEnabled(submit);
+    wSubmitJson.setEnabled(submit);
+    wFatJar.setEnabled(deploy);
+    wPipeline.setEnabled(deploy);
+    wRunConfig.setEnabled(deploy);
+    wDbfsBase.setEnabled(deploy);
+    wClusterId.setEnabled(deploy);
+    wJobName.setEnabled(deploy);
+    wUpdateJob.setEnabled(deploy);
   }
 
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
     wConnection.setText(Const.NVL(action.getConnectionName(), ""));
-    if (ActionDatabricksJobRun.MODE_SUBMIT_ONCE.equalsIgnoreCase(action.getRunMode())) {
+    if (ActionDatabricksJobRun.MODE_DEPLOY_AND_RUN.equalsIgnoreCase(action.getRunMode())) {
+      wRunMode.select(2);
+    } else if (ActionDatabricksJobRun.MODE_SUBMIT_ONCE.equalsIgnoreCase(action.getRunMode())) {
       wRunMode.select(1);
     } else {
       wRunMode.select(0);
     }
     wJobId.setText(Const.NVL(action.getJobId(), ""));
     wSubmitJson.setText(Const.NVL(action.getSubmitRunJson(), ""));
+    wFatJar.setText(Const.NVL(action.getFatJarPath(), ""));
+    wPipeline.setText(Const.NVL(action.getPipelineFilename(), ""));
+    wRunConfig.setText(Const.NVL(action.getRunConfigurationName(), ""));
+    wDbfsBase.setText(Const.NVL(action.getDbfsBasePath(), "dbfs:/FileStore/hop"));
+    wClusterId.setText(Const.NVL(action.getExistingClusterId(), ""));
+    wJobName.setText(Const.NVL(action.getJobName(), ""));
+    wUpdateJob.setSelection(action.isUpdateExistingJob());
     if (ActionDatabricksJobRun.WAIT_FIRE_AND_FORGET.equalsIgnoreCase(action.getWaitMode())) {
       wWaitMode.select(1);
     } else {
@@ -355,12 +422,22 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     }
     action.setName(wName.getText());
     action.setConnectionName(wConnection.getText());
-    action.setRunMode(
-        wRunMode.getSelectionIndex() == 1
-            ? ActionDatabricksJobRun.MODE_SUBMIT_ONCE
-            : ActionDatabricksJobRun.MODE_RUN_EXISTING);
+    if (wRunMode.getSelectionIndex() == 2) {
+      action.setRunMode(ActionDatabricksJobRun.MODE_DEPLOY_AND_RUN);
+    } else if (wRunMode.getSelectionIndex() == 1) {
+      action.setRunMode(ActionDatabricksJobRun.MODE_SUBMIT_ONCE);
+    } else {
+      action.setRunMode(ActionDatabricksJobRun.MODE_RUN_EXISTING);
+    }
     action.setJobId(wJobId.getText());
     action.setSubmitRunJson(wSubmitJson.getText());
+    action.setFatJarPath(wFatJar.getText());
+    action.setPipelineFilename(wPipeline.getText());
+    action.setRunConfigurationName(wRunConfig.getText());
+    action.setDbfsBasePath(wDbfsBase.getText());
+    action.setExistingClusterId(wClusterId.getText());
+    action.setJobName(wJobName.getText());
+    action.setUpdateExistingJob(wUpdateJob.getSelection());
     action.setWaitMode(
         wWaitMode.getSelectionIndex() == 1
             ? ActionDatabricksJobRun.WAIT_FIRE_AND_FORGET

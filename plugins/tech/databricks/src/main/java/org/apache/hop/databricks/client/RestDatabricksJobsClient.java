@@ -17,13 +17,17 @@
 
 package org.apache.hop.databricks.client;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,11 +40,15 @@ import org.json.simple.parser.JSONParser;
 
 /**
  * Databricks Jobs API client using {@link HttpClient} and Jobs REST endpoints (default base {@code
- * /api/2.1}). Does not log tokens.
+ * /api/2.1}). Does not log tokens. Also supports DBFS upload via the 2.0 DBFS API.
  */
 public final class RestDatabricksJobsClient implements DatabricksJobsClient {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(60);
+  private static final Duration UPLOAD_TIMEOUT = Duration.ofMinutes(30);
+
+  /** DBFS add-block max is 1 MiB of base64-decoded data. */
+  private static final int DBFS_BLOCK_BYTES = 1024 * 1024;
 
   private final String hostBase;
   private final String apiBase;
@@ -176,25 +184,84 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   }
 
   @Override
+  public void uploadToDbfs(Path localFile, String dbfsPath) throws HopException {
+    if (localFile == null || !Files.isRegularFile(localFile)) {
+      throw new HopException("Local file for DBFS upload does not exist: " + localFile);
+    }
+    String path = normalizeDbfsPath(dbfsPath);
+    try {
+      // Create handle (overwrite)
+      JSONObject create = new JSONObject();
+      create.put("path", path);
+      create.put("overwrite", true);
+      String createResp = postJson("/api/2.0/dbfs/create", create.toJSONString(), UPLOAD_TIMEOUT);
+      JSONObject createJson = parseObject(createResp);
+      long handle = requireLong(createJson, "handle");
+
+      try (InputStream in = Files.newInputStream(localFile)) {
+        byte[] buf = new byte[DBFS_BLOCK_BYTES];
+        int n;
+        while ((n = in.read(buf)) >= 0) {
+          if (n == 0) {
+            continue;
+          }
+          byte[] chunk = n == buf.length ? buf : java.util.Arrays.copyOf(buf, n);
+          JSONObject add = new JSONObject();
+          add.put("handle", handle);
+          add.put("data", Base64.getEncoder().encodeToString(chunk));
+          postJson("/api/2.0/dbfs/add-block", add.toJSONString(), UPLOAD_TIMEOUT);
+        }
+      }
+
+      JSONObject close = new JSONObject();
+      close.put("handle", handle);
+      postJson("/api/2.0/dbfs/close", close.toJSONString(), UPLOAD_TIMEOUT);
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Failed to upload " + localFile + " to " + path, e);
+    }
+  }
+
+  @Override
   public void close() {
     // HttpClient does not require close
   }
 
+  static String normalizeDbfsPath(String dbfsPath) throws HopException {
+    if (StringUtils.isBlank(dbfsPath)) {
+      throw new HopException("DBFS path is required");
+    }
+    String p = dbfsPath.trim();
+    if (p.startsWith("dbfs:")) {
+      p = p.substring("dbfs:".length());
+    }
+    if (!p.startsWith("/")) {
+      p = "/" + p;
+    }
+    return p;
+  }
+
   private String get(String path) throws HopException {
-    return exchange("GET", path, null);
+    return exchange("GET", path, null, TIMEOUT);
   }
 
   private String postJson(String path, String jsonBody) throws HopException {
-    return exchange("POST", path, jsonBody);
+    return postJson(path, jsonBody, TIMEOUT);
   }
 
-  private String exchange(String method, String path, String jsonBody) throws HopException {
+  private String postJson(String path, String jsonBody, Duration timeout) throws HopException {
+    return exchange("POST", path, jsonBody, timeout);
+  }
+
+  private String exchange(String method, String path, String jsonBody, Duration timeout)
+      throws HopException {
     try {
       String url = hostBase + (path.startsWith("/") ? path : "/" + path);
       HttpRequest.Builder builder =
           HttpRequest.newBuilder()
               .uri(URI.create(url))
-              .timeout(TIMEOUT)
+              .timeout(timeout)
               .header("Authorization", "Bearer " + token)
               .header("Content-Type", "application/json");
       if ("GET".equalsIgnoreCase(method)) {

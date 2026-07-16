@@ -48,6 +48,12 @@ public interface DatabricksJobsClient extends AutoCloseable {
 
   void cancelRun(long runId) throws HopException;
 
+  /**
+   * Upload a local file to a DBFS path ({@code dbfs:/...}). Overwrites if present. Implementations
+   * may use the DBFS REST API (create / add-block / close).
+   */
+  void uploadToDbfs(java.nio.file.Path localFile, String dbfsPath) throws HopException;
+
   @Override
   void close();
 }

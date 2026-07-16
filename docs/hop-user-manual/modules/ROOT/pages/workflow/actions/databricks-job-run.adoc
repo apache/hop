@@ -37,6 +37,9 @@ Use a xref:metadata-types/databricks-connection.adoc[Databricks Connection] (wor
 
 |One-time submit
 |Calls `jobs/runs/submit` with a raw **Submit JSON** body (full Jobs API payload you provide).
+
+|Deploy & run
+|Uploads fat jar, pipeline `.hpl`, and exported metadata JSON to **DBFS base directory**, then creates or updates a JAR job (`org.apache.hop.spark.run.MainSpark`) on an **existing cluster** and runs it.
 |===
 
 == Wait modes
@@ -95,6 +98,18 @@ Default variable names (configurable on the **Run** tab):
 
 |Submit JSON
 |Full JSON body for runs/submit (one-time mode)
+
+|Fat jar / Pipeline / Run configuration
+|Deploy mode: local fat jar (prefer `hop-conf --generate-fat-jar … --spark-client-version=native-provided`), pipeline path, and Native Spark run configuration name present in the metadata export
+
+|DBFS base directory
+|Upload root, default `dbfs:/FileStore/hop` (files written as `hop-native.jar`, `pipeline.hpl`, `metadata.json`)
+
+|Existing cluster ID
+|Databricks cluster that already has a compatible Spark runtime
+
+|Job name / Update existing job
+|Name for create; if **Update existing job** is checked, **Job ID** is reset with the new settings
 |===
 
 === Run tab
@@ -121,4 +136,8 @@ Default variable names (configurable on the **Run** tab):
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark] — fat jar / MainSpark for JAR tasks on the cluster
 * xref:database/databases/databricks.adoc[Databricks JDBC] — SQL warehouse (different use case)
 
-Deploy (upload jar, create/update job) will be added in a later release; for now, create the job in Databricks or pass a complete submit JSON that references artifacts already on DBFS/UC.
+=== Deploy tips
+
+* Generate a fat jar with `hop-conf.sh --generate-fat-jar=… --spark-client-version=native-provided` when the cluster already provides Spark.
+* The run configuration name must exist in the project metadata that is exported at deploy time.
+* Large jar uploads use the DBFS create / add-block / close API and can take several minutes.

@@ -160,6 +160,19 @@ class ActionDatabricksJobRunTest {
   }
 
   @Test
+  void deployAndRunRequiresClusterId() {
+    ActionDatabricksJobRun action = new ActionDatabricksJobRun("run");
+    action.setMetadataProvider(metadataProvider);
+    action.setConnectionName("dbx");
+    action.setRunMode(ActionDatabricksJobRun.MODE_DEPLOY_AND_RUN);
+    action.setClientFactory((c, v) -> client);
+    Result r = new Result();
+    action.execute(r, 0);
+    assertFalse(r.getResult());
+    assertEquals(1, r.getNrErrors());
+  }
+
+  @Test
   void failedRunMarksResultFalse() throws Exception {
     when(client.runNow(anyLong(), anyMap())).thenReturn(1L);
     when(client.getRun(1L))
