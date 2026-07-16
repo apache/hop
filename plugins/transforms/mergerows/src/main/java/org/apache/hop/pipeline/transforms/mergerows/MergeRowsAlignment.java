@@ -37,6 +37,7 @@ public final class MergeRowsAlignment {
   private MergeRowsAlignment() {}
 
   /** Union of reference and compare layouts plus per-stream field index mappings. */
+  @Getter
   public static final class SchemaMapping {
     private final IRowMeta outputRowMeta;
     private final IRowMeta compareRowMeta;
@@ -45,7 +46,6 @@ public final class MergeRowsAlignment {
 
     private SchemaMapping(
         IRowMeta outputRowMeta,
-        IRowMeta referenceRowMeta,
         IRowMeta compareRowMeta,
         int[] referenceMapping,
         int[] compareMapping) {
@@ -134,7 +134,6 @@ public final class MergeRowsAlignment {
       compareMapping[fieldIndex] = outputRowMeta.indexOfValue(name);
     }
 
-    return new SchemaMapping(
-        outputRowMeta, referenceRowMeta, compareRowMeta, referenceMapping, compareMapping);
+    return new SchemaMapping(outputRowMeta, compareRowMeta, referenceMapping, compareMapping);
   }
 }
