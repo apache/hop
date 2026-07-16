@@ -57,7 +57,7 @@ class WorkflowEngineFactoryTest {
     RemoteWorkflowEngine engine =
         assertInstanceOf(
             RemoteWorkflowEngine.class,
-            createEngine("remote", new RemoteWorkflowRunConfiguration(), parent));
+            createEngine("Remote", new RemoteWorkflowRunConfiguration(), parent));
 
     assertSame(parent, engine.getParent());
     assertEquals(LogLevel.DEBUG, engine.getParent().getLogLevel());
@@ -71,7 +71,7 @@ class WorkflowEngineFactoryTest {
     LocalWorkflowEngine engine =
         assertInstanceOf(
             LocalWorkflowEngine.class,
-            createEngine("local", new LocalWorkflowRunConfiguration(), parent));
+            createEngine("Local", new LocalWorkflowRunConfiguration(), parent));
 
     assertSame(parent, engine.getParent());
   }
@@ -83,11 +83,18 @@ class WorkflowEngineFactoryTest {
     return parent;
   }
 
+  /**
+   * @param enginePluginId the id of the workflow engine plugin to run with, normally filled in when
+   *     the run configuration is read from its metadata
+   */
   private IWorkflowEngine<WorkflowMeta> createEngine(
-      String name,
+      String enginePluginId,
       IWorkflowEngineRunConfiguration engineRunConfiguration,
       SimpleLoggingObject parent)
       throws HopException {
+    engineRunConfiguration.setEnginePluginId(enginePluginId);
+
+    String name = "a-" + enginePluginId + "-run-configuration";
     MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
     metadataProvider
         .getSerializer(WorkflowRunConfiguration.class)
