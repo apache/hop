@@ -214,7 +214,17 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       loggingObject = new LoggingObject(this);
       logLevel = logChannel.getLogLevel();
 
-      workflowTracker = new WorkflowTracker(workflowMeta);
+      // Reset the tracker rather than replace it: the GUI picks up this instance right after
+      // execution starts and keeps reading from it while the workflow runs. Handing it a tracker
+      // that is thrown away here would leave it looking at an object nothing ever updates.
+      //
+      if (workflowTracker == null) {
+        workflowTracker = new WorkflowTracker(workflowMeta);
+      } else {
+        workflowTracker.clear();
+        workflowTracker.setWorkflowName(workflowMeta.getName());
+        workflowTracker.setWorkflowFilename(workflowMeta.getFilename());
+      }
 
       if (previousResult == null) {
         result = new Result();
@@ -357,9 +367,33 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         }
       }
 
+      updateWorkflowTracker(workflowStatus.getWorkflowTracker());
+
     } catch (Exception e) {
       throw new HopException("Error getting workflow status", e);
     }
+  }
+
+  /**
+   * Copies what the server reported into the tracker of this engine, keeping the tracker instance
+   * itself. The GUI holds on to that instance to show the workflow metrics, so it has to be updated
+   * in place rather than swapped out.
+   *
+   * @param serverTracker the tracker as reported by the server, null when the server does not send
+   *     one
+   */
+  private void updateWorkflowTracker(WorkflowTracker serverTracker) {
+    if (serverTracker == null) {
+      return;
+    }
+    workflowTracker.setWorkflowName(serverTracker.getWorkflowName());
+    workflowTracker.setWorkflowFilename(serverTracker.getWorkflowFilename());
+
+    List<WorkflowTracker> children = serverTracker.getWorkflowTrackers();
+    for (WorkflowTracker child : children) {
+      child.setParentWorkflowTracker(workflowTracker);
+    }
+    workflowTracker.setWorkflowTrackers(children);
   }
 
   @Override
