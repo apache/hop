@@ -481,6 +481,7 @@
                         <exclude>.asf.yaml</exclude>
                         <exclude>**/licenses/*</exclude>
                         <exclude>**/target/**</exclude>
+                        <exclude>**/.gitkeep</exclude>
                         <exclude>**/*.svg</exclude>
                         <exclude>**/*.json</exclude>
                         <exclude>**/hop.pwd</exclude>
