@@ -20,6 +20,7 @@ package org.apache.hop.core.variables;
 import java.util.Map;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /** Interface to implement variable sensitive objects. */
 public interface IVariables {
@@ -146,4 +147,17 @@ public interface IVariables {
    * @throws HopValueException In case there is a String conversion error
    */
   String resolve(String aString, IRowMeta rowMeta, Object[] rowData) throws HopValueException;
+
+  /**
+   * The metadata provider associated with the execution this variable space belongs to (e.g. a
+   * running pipeline or workflow). It is used, for example, to look up variable resolvers so that
+   * they are resolved against the metadata of the current execution - the exported/bundled metadata
+   * on a remote server - rather than only the process-global metadata. Returns {@code null} by
+   * default; execution engines expose their own provider.
+   *
+   * @return the metadata provider of this execution, or {@code null} if none.
+   */
+  default IHopMetadataProvider getMetadataProvider() {
+    return null;
+  }
 }

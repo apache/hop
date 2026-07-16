@@ -1,0 +1,13 @@
+{
+  "virtualPath": "",
+  "name": "resolver-0009",
+  "description": "Resolves a variable by running a referenced pipeline. Used to verify that a pipeline referenced from a Variable Resolver metadata object is exported to the remote server (#3368).",
+  "variable-resolver": {
+    "Variable-Resolver-Pipeline": {
+      "outputTransformName": "OUTPUT",
+      "filename": "${PROJECT_HOME}/reflection/0009-resolver.hpl",
+      "expressionVariableName": "VARIABLE_TO_RESOLVE",
+      "runConfigurationName": "local"
+    }
+  }
+}
