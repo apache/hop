@@ -31,4 +31,8 @@
     <folder>../../transforms/rowgenerator</folder>
     <folder>../../transforms/streamlookup</folder>
     <folder>../../transforms/stringoperations</folder>
+    <!-- Classic I/O for POC lookups (often single-threaded sources; writers use Transform.ID) -->
+    <folder>../../transforms/textfile</folder>
+    <folder>../../transforms/getfilenames</folder>
+    <folder>../../transforms/excel</folder>
 </dependencies>

@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 [[NativeSparkPipelineEngine]]
-:imagesdir: ../assets/images
+:imagesdir: ../../../assets/images
 :description: Apache Hop native Spark pipeline engine run configuration options (Spark 4.1.x without Beam).
 
 = Native Spark Pipeline Engine
@@ -25,10 +25,12 @@ under the License.
 The native Spark pipeline engine executes batch Hop pipelines on *Apache Spark 4.1.x* without Apache Beam.
 It builds a Spark SQL Dataset graph from the pipeline and runs transforms via native Dataset operators or generic `mapPartitions` mini-pipelines.
 
-For a full introduction (local runs, info/target streams, spark-submit), see
+For a full introduction — concepts, `local[*]`, fat jar, `spark-submit`, Spark File I/O, `${Internal.Transform.ID}`, metrics, limitations, and integration-test examples — see
 xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine].
 
 This page is *not* the same as xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark], which runs Hop over the Apache Beam Spark runner (Spark 3.5.x line).
+
+image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[Native Spark pipeline run configuration editor,width=70%]
 
 === Requirements
 

@@ -1,0 +1,27 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        { "transform_field": "orderId", "data_set_field": "orderId" },
+        { "transform_field": "productCode", "data_set_field": "productCode" },
+        { "transform_field": "qty", "data_set_field": "qty" },
+        { "transform_field": "productName", "data_set_field": "productName" },
+        { "transform_field": "unitPrice", "data_set_field": "unitPrice" }
+      ],
+      "field_order": ["orderId"],
+      "data_set_name": "0008-excel-stream-lookup-golden",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0008-excel-stream-lookup-validation UNIT",
+  "description": "Compare Spark Excel+Stream Lookup output to golden orders with product attributes",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0008-excel-stream-lookup-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

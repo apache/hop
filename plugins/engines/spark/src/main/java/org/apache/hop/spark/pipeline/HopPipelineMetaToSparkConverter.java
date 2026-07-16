@@ -20,6 +20,7 @@ package org.apache.hop.spark.pipeline;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +32,7 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -217,13 +219,13 @@ public class HopPipelineMetaToSparkConverter {
                   transformDatasetMap);
           input = resolved.dataset();
           rowMeta = resolved.rowMeta();
-          if (input == null && !nativeHandler) {
+          if (input == null) {
             throw new HopException(
                 "Previous Dataset(s) for transform '"
                     + transformMeta.getName()
                     + "' could not be found (previous="
                     + previousTransforms.stream().map(TransformMeta::getName).toList()
-                    + ")");
+                    + "). Check that hops into this transform are enabled.");
           }
         }
 
@@ -367,11 +369,51 @@ public class HopPipelineMetaToSparkConverter {
   /** Result of resolving one or more previous Datasets for a transform. */
   record ResolvedInputs(Dataset<Row> dataset, IRowMeta rowMeta) {}
 
-  /** Topological order of transforms (Kahn-style via repeated previous-set checks). */
-  protected List<TransformMeta> getSortedTransformsList() {
-    List<TransformMeta> transforms = new ArrayList<>(pipelineMeta.getTransforms());
+  /**
+   * Transforms that participate in at least one <strong>enabled</strong> hop (Beam-style active
+   * graph). Fully disconnected transforms and transforms only linked by disabled hops are skipped
+   * so sinks without an active input are not executed.
+   *
+   * <p>Unlike {@link PipelineMeta#getPipelineHopTransforms(boolean)}, this does <em>not</em> re-add
+   * unused canvas transforms (those exist for painting only).
+   */
+  static List<TransformMeta> collectActiveTransforms(PipelineMeta pipelineMeta) {
+    if (pipelineMeta == null) {
+      return List.of();
+    }
+    Set<TransformMeta> active = new LinkedHashSet<>();
+    List<PipelineHopMeta> hops = pipelineMeta.getPipelineHops();
+    if (hops != null) {
+      for (PipelineHopMeta hop : hops) {
+        if (hop == null || !hop.isEnabled()) {
+          continue;
+        }
+        if (hop.getFromTransform() != null) {
+          active.add(hop.getFromTransform());
+        }
+        if (hop.getToTransform() != null) {
+          active.add(hop.getToTransform());
+        }
+      }
+    }
+    // Single-transform pipeline with no hops (rare design canvas)
+    if (active.isEmpty() && pipelineMeta.nrTransforms() == 1) {
+      active.add(pipelineMeta.getTransform(0));
+    }
+    return new ArrayList<>(active);
+  }
+
+  /** Topological order of active transforms (Kahn-style via repeated previous-set checks). */
+  protected List<TransformMeta> getSortedTransformsList() throws HopException {
+    List<TransformMeta> transforms = collectActiveTransforms(pipelineMeta);
+    if (transforms.isEmpty() && pipelineMeta.nrTransforms() > 0) {
+      throw new HopException(
+          "No active transforms to execute on Spark: enable at least one hop between transforms"
+              + " (disabled hops and disconnected transforms are skipped).");
+    }
     List<TransformMeta> sorted = new ArrayList<>();
     Set<TransformMeta> handled = new HashSet<>();
+    Set<TransformMeta> activeSet = new HashSet<>(transforms);
 
     while (sorted.size() < transforms.size()) {
       boolean progress = false;
@@ -383,7 +425,8 @@ public class HopPipelineMetaToSparkConverter {
         List<TransformMeta> previous = pipelineMeta.findPreviousTransforms(transformMeta, true);
         boolean allPreviousHandled = true;
         for (TransformMeta prev : previous) {
-          if (!handled.contains(prev)) {
+          // Only require predecessors that are themselves active in the enabled graph
+          if (activeSet.contains(prev) && !handled.contains(prev)) {
             allPreviousHandled = false;
             break;
           }

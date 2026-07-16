@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -50,6 +51,7 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
@@ -282,6 +284,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           variables.setVariable(variableValue.getVariable(), variableValue.getValue());
         }
       }
+      // Partition-scoped internal variables for classic I/O filenames (e.g. Text File Output
+      // with ${Internal.Transform.ID}). Readable stable ID = transform name + partition id.
+      applyPartitionInternalVariables(variables, transformName, copyNr);
 
       IRowMeta inputRowMeta =
           StringUtils.isNotEmpty(inputRowMetaJson)
@@ -350,6 +355,12 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
       HopSparkUtil.loadTransformMetadataFromXml(
           transformName, iTransformMeta, transformMetaInterfaceXml, metadataProvider);
+
+      // Text File Input / Excel / etc. accept filenames from a *main* hop (not an INFO stream)
+      // and call findInputRowSet(accept_transform_name). The mini-pipeline only has the main
+      // injector named _INJECTOR_, so re-bind accept_transform_name to that injector. Filename
+      // rows must also be fully loaded before processRow drains the source (see below).
+      boolean acceptFilenamesFromMain = bindAcceptingFilenamesToMainInjector(iTransformMeta);
 
       TransformMeta transformMeta = new TransformMeta(transformName, iTransformMeta);
       transformMeta.setTransformPluginId(transformPluginId);
@@ -458,6 +469,10 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         throw new HopException(
             "Error initializing single-threaded executor for transform '" + transformName + "'");
       }
+      // Init calls setInternalVariables() with log-channel UUID / copy 0 — re-apply partition
+      // scope and beamContext so Text File Output auto-suffix and ${Internal.Transform.*} work.
+      applySparkParallelFileContext(pipeline, transformName, copyNr);
+
       pipeline.startThreads();
 
       // Load info streams once per partition (before main rows), same pattern as Beam TransformFn:
@@ -485,22 +500,64 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
       if (inputTransform) {
         // Source transform: drive until finished with no external input
-        boolean more = true;
-        while (more && !pipeline.isFinished() && pipeline.getErrors() == 0) {
-          clearCapture(resultRows, targetResultRowsList);
-          more = executor.oneIteration();
-          appendCapturedRows(
-              output,
-              outputRowMeta,
-              multiTarget,
-              resultRows,
-              targetTransforms,
-              targetResultRowsList);
-          if (throttle.shouldPublish(resultRows.size())) {
-            publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
-            flushSamplesQuietly(samplingRef, false);
+        driveUntilDone(
+            pipeline,
+            executor,
+            output,
+            outputRowMeta,
+            multiTarget,
+            resultRows,
+            targetTransforms,
+            targetResultRowsList,
+            throttle,
+            mainTransform,
+            copyNr,
+            host,
+            partitionStartMs,
+            samplingRef);
+      } else if (acceptFilenamesFromMain) {
+        // Accept-filenames (Text File Input, Excel, …):
+        // 1) Pre-load every partition row (filenames) into the main injector and mark finished.
+        // 2) Drive the file reader with processRow() directly until it returns false.
+        //
+        // We cannot use SingleThreadedPipelineExecutor.oneIteration() after filenames are
+        // drained: with a non-empty input rowset list it only calls processRow once per
+        // remaining hop size. After the first processRow consumes all filenames, size is 0
+        // and further oneIteration() calls never advance the reader (infinite stall after
+        // openNextFile/createReader — the log line users see just before hang).
+        long rowsSeen = 0;
+        while (input.hasNext()) {
+          Row sparkRow = input.next();
+          Object[] hopRow = HopSparkRowConverter.toHopRow(inputRowMeta, sparkRow);
+          rowProducer.putRow(inputRowMeta, hopRow, false);
+          if (mainInjectorCombi != null) {
+            mainInjectorCombi.transform.processRow();
+          }
+          rowsSeen++;
+        }
+        if (rowProducer != null) {
+          rowProducer.finished();
+          if (mainInjectorCombi != null) {
+            mainInjectorCombi.transform.processRow();
           }
         }
+        if (rowsSeen > 0 || throttle.shouldPublish(0)) {
+          publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
+        }
+        driveAcceptFilenamesUntilDone(
+            pipeline,
+            mainTransform,
+            output,
+            outputRowMeta,
+            multiTarget,
+            resultRows,
+            targetTransforms,
+            targetResultRowsList,
+            throttle,
+            copyNr,
+            host,
+            partitionStartMs,
+            samplingRef);
       } else {
         long rowsSeen = 0;
         while (input.hasNext()) {
@@ -677,6 +734,162 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     }
     throw new HopRuntimeException(
         "Configuration error, transform '" + name + "' not found in mini-pipeline");
+  }
+
+  /**
+   * Sets partition-scoped {@code Internal.Transform.*} variables on a variable space (readable ID =
+   * {@code transformName-partitionId}).
+   */
+  static void applyPartitionInternalVariables(
+      IVariables variables, String transformName, int partitionId) {
+    if (variables == null) {
+      return;
+    }
+    String partitionIdStr = Integer.toString(partitionId);
+    String instanceId = transformName + "-" + partitionIdStr;
+    variables.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, transformName);
+    variables.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, partitionIdStr);
+    variables.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, instanceId);
+    variables.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR, partitionIdStr);
+  }
+
+  /**
+   * Beam-parity parallel file context for classic I/O in mapPartitions: enable {@code beamContext}
+   * (Text File Output auto-appends {@code _transformId_bundleNr}) and re-apply partition-scoped
+   * internal variables after transform init overwrote them with log-channel UUIDs.
+   */
+  static void applySparkParallelFileContext(
+      LocalPipelineEngine pipeline, String primaryTransformName, int partitionId) {
+    if (pipeline == null) {
+      return;
+    }
+    String partitionIdStr = Integer.toString(partitionId);
+    for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
+      if (combi.data != null) {
+        combi.data.setBeamContext(true);
+        combi.data.setBeamBundleNr(partitionId);
+      }
+      if (combi.transform instanceof BaseTransform baseTransform) {
+        String name =
+            StringUtils.isNotEmpty(combi.transformName)
+                ? combi.transformName
+                : primaryTransformName;
+        // Prefer the Hop transform name for the main transform (filename templates)
+        if (primaryTransformName != null && primaryTransformName.equals(combi.transformName)) {
+          name = primaryTransformName;
+        }
+        String instanceId = name + "-" + partitionIdStr;
+        baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, name);
+        baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, partitionIdStr);
+        baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, instanceId);
+        baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR, partitionIdStr);
+      }
+    }
+  }
+
+  /**
+   * When a file input transform accepts filenames from a previous hop, re-point {@code
+   * accept_transform_name} at the mini-pipeline main injector so {@code findInputRowSet} succeeds.
+   * Covers {@link BaseFileInputMeta} (Text File Input, JSON, VCard, …) and Excel-style metas with
+   * {@code isAcceptingFilenames}/{@code setAcceptingTransformName}.
+   *
+   * @return true when the transform consumes filename rows from the main injector this way
+   */
+  static boolean bindAcceptingFilenamesToMainInjector(ITransformMeta meta) {
+    if (meta == null) {
+      return false;
+    }
+    if (meta instanceof BaseFileInputMeta<?, ?, ?> baseFile) {
+      if (baseFile.isAcceptingFilenames()) {
+        baseFile.setAcceptingTransformName(SparkConst.INJECTOR_TRANSFORM_NAME);
+        return true;
+      }
+      return false;
+    }
+    // ExcelInputMeta (and similar) are not BaseFileInputMeta but use the same contract
+    try {
+      Object accepting = meta.getClass().getMethod("isAcceptingFilenames").invoke(meta);
+      if (Boolean.TRUE.equals(accepting)) {
+        meta.getClass()
+            .getMethod("setAcceptingTransformName", String.class)
+            .invoke(meta, SparkConst.INJECTOR_TRANSFORM_NAME);
+        return true;
+      }
+    } catch (ReflectiveOperationException ignored) {
+      // not an accept-filenames transform
+    }
+    return false;
+  }
+
+  /**
+   * Drive the single-threaded mini-pipeline until it finishes (source transforms with no main input
+   * hop — Row Generator, Get File Names, etc.).
+   */
+  private void driveUntilDone(
+      LocalPipelineEngine pipeline,
+      SingleThreadedPipelineExecutor executor,
+      List<Row> output,
+      IRowMeta outputRowMeta,
+      boolean multiTarget,
+      List<Object[]> resultRows,
+      List<String> targetTransforms,
+      List<List<Object[]>> targetResultRowsList,
+      MetricsThrottle throttle,
+      ITransform mainTransform,
+      int copyNr,
+      String host,
+      long partitionStartMs,
+      SparkTransformExecutionSampling samplingRef)
+      throws HopException {
+    boolean more = true;
+    while (more && !pipeline.isFinished() && pipeline.getErrors() == 0) {
+      clearCapture(resultRows, targetResultRowsList);
+      more = executor.oneIteration();
+      appendCapturedRows(
+          output, outputRowMeta, multiTarget, resultRows, targetTransforms, targetResultRowsList);
+      if (throttle.shouldPublish(resultRows.size())) {
+        publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
+        flushSamplesQuietly(samplingRef, false);
+      }
+    }
+  }
+
+  /**
+   * After filename rows are pre-loaded onto the main injector, call {@code processRow()} on the
+   * file-input transform until it finishes reading content.
+   *
+   * <p>{@link SingleThreadedPipelineExecutor#oneIteration()} only schedules {@code processRow} once
+   * per remaining input-rowset size when the transform has input hops. After accept-filenames
+   * drains those rows, size is 0 and further iterations never advance the reader.
+   */
+  private void driveAcceptFilenamesUntilDone(
+      LocalPipelineEngine pipeline,
+      ITransform mainTransform,
+      List<Row> output,
+      IRowMeta outputRowMeta,
+      boolean multiTarget,
+      List<Object[]> resultRows,
+      List<String> targetTransforms,
+      List<List<Object[]>> targetResultRowsList,
+      MetricsThrottle throttle,
+      int copyNr,
+      String host,
+      long partitionStartMs,
+      SparkTransformExecutionSampling samplingRef)
+      throws HopException {
+    boolean more = true;
+    long contentRows = 0;
+    while (more && !pipeline.isFinished() && pipeline.getErrors() == 0) {
+      clearCapture(resultRows, targetResultRowsList);
+      more = mainTransform.processRow();
+      appendCapturedRows(
+          output, outputRowMeta, multiTarget, resultRows, targetTransforms, targetResultRowsList);
+      contentRows += resultRows.size();
+      if (throttle.shouldPublish(resultRows.size()) || contentRows % METRICS_ROW_INTERVAL == 0) {
+        publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
+        flushSamplesQuietly(samplingRef, false);
+      }
+    }
   }
 
   private static void clearCapture(

@@ -52,7 +52,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>992</xloc>
+      <xloc>912</xloc>
       <yloc>96</yloc>
     </GUI>
     <partitioning>
@@ -67,7 +67,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>1136</xloc>
+      <xloc>1024</xloc>
       <yloc>192</yloc>
     </GUI>
     <partitioning>
@@ -96,7 +96,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>992</xloc>
+      <xloc>912</xloc>
       <yloc>288</yloc>
     </GUI>
     <partitioning>
@@ -125,7 +125,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>992</xloc>
+      <xloc>912</xloc>
       <yloc>160</yloc>
     </GUI>
     <partitioning>
@@ -154,7 +154,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>736</xloc>
+      <xloc>688</xloc>
       <yloc>96</yloc>
     </GUI>
     <partitioning>
@@ -183,7 +183,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>736</xloc>
+      <xloc>688</xloc>
       <yloc>288</yloc>
     </GUI>
     <partitioning>
@@ -215,7 +215,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>528</xloc>
+      <xloc>496</xloc>
       <yloc>192</yloc>
     </GUI>
     <partitioning>
@@ -228,6 +228,7 @@ limitations under the License.
     <type>MergeJoin</type>
     <name>Merge join</name>
     <join_type>LEFT OUTER</join_type>
+    <transform1>files/customers-noheader-1k.txt</transform1>
     <transform2>uppercase state</transform2>
     <keys_1>
       <key>state</key>
@@ -238,7 +239,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>416</xloc>
+      <xloc>384</xloc>
       <yloc>192</yloc>
     </GUI>
     <partitioning>
@@ -267,7 +268,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>992</xloc>
+      <xloc>912</xloc>
       <yloc>224</yloc>
     </GUI>
     <partitioning>
@@ -303,7 +304,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>832</xloc>
+      <xloc>768</xloc>
       <yloc>192</yloc>
     </GUI>
     <partitioning>
@@ -332,7 +333,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>416</xloc>
+      <xloc>384</xloc>
       <yloc>80</yloc>
     </GUI>
     <partitioning>
@@ -368,7 +369,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>640</xloc>
+      <xloc>608</xloc>
       <yloc>192</yloc>
     </GUI>
     <partitioning>
@@ -398,7 +399,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>416</xloc>
+      <xloc>384</xloc>
       <yloc>288</yloc>
     </GUI>
     <partitioning>
@@ -544,7 +545,7 @@ limitations under the License.
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>1264</xloc>
+      <xloc>1152</xloc>
       <yloc>192</yloc>
     </GUI>
     <partitioning>

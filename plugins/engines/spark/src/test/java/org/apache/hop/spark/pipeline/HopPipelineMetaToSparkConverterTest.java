@@ -18,14 +18,20 @@
 package org.apache.hop.spark.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.EngineCompatibility;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.spark.engines.SparkPipelineEngine;
 import org.apache.hop.spark.util.SparkConst;
 import org.junit.jupiter.api.Test;
@@ -77,6 +83,34 @@ class HopPipelineMetaToSparkConverterTest {
     assertTrue(engine.supports(sort).isSupported());
 
     assertEquals(EngineCompatibility.Verdict.UNKNOWN, engine.supports(null).getVerdict());
+  }
+
+  @Test
+  void collectActiveTransformsSkipsDisabledHopsAndDisconnected() {
+    PipelineMeta pm = new PipelineMeta();
+    TransformMeta a = new TransformMeta("A", new DummyMeta());
+    a.setTransformPluginId("Dummy");
+    TransformMeta b = new TransformMeta("B", new DummyMeta());
+    b.setTransformPluginId("Dummy");
+    TransformMeta orphan = new TransformMeta("Orphan Sink", new DummyMeta());
+    orphan.setTransformPluginId("Dummy");
+    pm.addTransform(a);
+    pm.addTransform(b);
+    pm.addTransform(orphan);
+    PipelineHopMeta hop = new PipelineHopMeta(a, b);
+    hop.setEnabled(false);
+    pm.addPipelineHop(hop);
+
+    List<TransformMeta> active = HopPipelineMetaToSparkConverter.collectActiveTransforms(pm);
+    assertTrue(active.isEmpty(), "disabled hop and disconnected transforms must not run");
+
+    hop.setEnabled(true);
+    pm.clearCaches();
+    active = HopPipelineMetaToSparkConverter.collectActiveTransforms(pm);
+    assertEquals(2, active.size());
+    assertTrue(active.stream().anyMatch(t -> "A".equals(t.getName())));
+    assertTrue(active.stream().anyMatch(t -> "B".equals(t.getName())));
+    assertFalse(active.stream().anyMatch(t -> "Orphan Sink".equals(t.getName())));
   }
 
   @Test

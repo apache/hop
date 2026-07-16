@@ -15,31 +15,33 @@ specific language governing permissions and limitations
 under the License.
 ////
 [[GettingStartedWithNativeSpark]]
-:imagesdir: ../assets/images
-:description: Getting started with the native Apache Spark pipeline engine in Apache Hop (without Beam).
+:imagesdir: ../../../assets/images
+:description: Getting started with the native Apache Spark pipeline engine in Apache Hop (Spark 4.x, without Apache Beam).
 
 :toc:
+:toclevels: 3
 
 = Getting started with the native Spark pipeline engine
 
-== What is the native Spark engine?
+This guide is for data engineers who already know the basics of Hop pipelines (transforms, hops, run configurations, metadata) and want to run *batch* pipelines on https://spark.apache.org[Apache Spark] using Hop’s *native* Spark engine.
 
-The *native Spark pipeline engine* runs Hop batch pipelines on https://spark.apache.org[Apache Spark] *without* Apache Beam.
-It builds a Spark SQL `Dataset` graph from your Hop pipeline and executes transforms either as:
+It walks you from “what is this?” through a `local[*]` first run, cluster `spark-submit`, Spark-oriented I/O, metrics, limitations, and concrete examples from the `integration-tests/spark-native` project.
 
-* *Native handlers* that map to Spark operations (`groupBy`, `join`, file read/write, …), or
-* *Generic mapPartitions* transforms that run a small single-threaded Hop mini-pipeline once per Spark partition
+== What is the native Spark pipeline engine?
 
-This is a different product surface from the xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine], which translates Hop to Apache Beam and then to Spark.
+=== In one sentence
 
-[NOTE]
-====
-*Java:* Hop requires *Java 21*.
+The native Spark pipeline engine takes the *metadata* of a Hop pipeline and executes it as a Spark SQL `Dataset` graph on *Apache Spark 4.1.x* — without translating the pipeline through Apache Beam.
 
-*Spark:* The native engine targets *Spark 4.1.x* (Scala 2.13). For `local[*]` runs, Spark libraries ship under `plugins/engines/spark/lib` so you do not need a separate Spark install.
-====
+=== How that differs from Beam Spark
 
-== When to use native Spark vs Beam Spark
+Apache Hop already had a way to run pipelines on Spark: the xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]. That path converts your Hop graph into an https://beam.apache.org[Apache Beam] pipeline, then uses Beam’s Spark *runner* (Spark *3.5.x* line).
+
+The *native* engine skips Beam entirely:
+
+* Hop’s `SparkPipelineEngine` builds a logical plan of Spark Datasets on the driver.
+* Each Hop transform becomes either a *native handler* (Spark APIs such as `groupBy`, `join`, `read` / `write`) or a *generic* `mapPartitions` stage that runs a small single-threaded Hop mini-pipeline once per Spark partition.
+* You use Hop’s *Spark File Input* / *Spark File Output* transforms for bulk Dataset I/O (not Beam File Input/Output).
 
 [options="header",cols="1,2,2"]
 |===
@@ -47,19 +49,23 @@ This is a different product surface from the xref:pipeline/pipeline-run-configur
 
 |Purpose
 |Batch Hop pipelines on Spark Datasets / mapPartitions
-|Beam pipelines on Spark (batch and streaming)
+|Beam pipelines on Spark (batch *and* streaming)
 
 |Spark line
-|4.1.x
-|3.5.x (see Beam support matrix)
+|https://spark.apache.org/docs/4.1.2/[4.1.x] (Scala 2.13)
+|3.5.x (Scala 2.12; see Beam support matrix)
+
+|Programming model
+|Spark SQL `Dataset` + Hop mini-pipelines
+|Apache Beam PCollections + runners
 
 |Streaming / windows
 |Out of scope — use Beam
 |Supported via Beam
 
-|I/O transforms
-|Prefer *Spark File Input* / *Spark File Output*
-|Prefer *Beam File Input* / *Beam File Output*
+|Preferred bulk I/O
+|*Spark File Input* / *Spark File Output*
+|*Beam File Input* / *Beam File Output*
 
 |Side data (lookups)
 |Info streams (broadcast), e.g. Stream Lookup
@@ -68,95 +74,440 @@ This is a different product surface from the xref:pipeline/pipeline-run-configur
 |Conditional fan-out
 |Target streams (Filter Rows, Switch/Case)
 |Beam multi-output tags
+
+|Engine id (plugin)
+|`SparkPipelineEngine` — “Native Spark pipeline engine”
+|Beam Spark run configuration
 |===
+
+If you need streaming, windowing, or Beam-only connectors, stay on the Beam engines. If you want a straightforward batch path on modern Spark 4 with Dataset-oriented I/O, use native Spark.
+
+=== How a Hop pipeline becomes a Spark job
+
+. You design a normal Hop pipeline (`.hpl`) and select a *Native Spark* pipeline run configuration.
+. On prepare, the engine walks the *enabled* transform graph in order.
+. For each transform it either:
+** applies a *native handler* that rewrites the hop as Spark Dataset operations, or
+** wraps the transform in `mapPartitions` so each Spark partition runs that transform in a tiny local Hop pipeline.
+. File outputs and other Spark *actions* materialise the graph (read → transform → write).
+. Transform metrics are collected via Spark accumulators and shown in Hop like any other engine.
+
+You still design pipelines *visually* in Hop. Spark’s role is the distributed execution engine and the Dataset runtime under the hood.
+
+=== Version support matrix
+
+[NOTE]
+====
+*Java:* Hop requires *Java 21* for the GUI, `hop-run`, and the fat jar executed on the Spark driver/executors. Your Spark cluster must also run a JVM that can load that bytecode (Java 21).
+
+*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.2* in the Hop source tree, Scala *2.13*). For `local[*]` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
+====
+
+[options="header",cols="1,1,2,2"]
+|===
+|Hop version |Native Spark engine |Target Spark |Notes
+
+|2.19.0+
+|Included (`plugins/engines/spark`)
+|4.1.x (Scala 2.13)
+|Independent of Beam’s Spark 3.5.x client packs
+
+|Earlier Hop versions
+|—
+|—
+|Native Spark engine not available; use Beam Spark if needed
+|===
+
+Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental `SPARK_HOME` that points at Spark 3.x when you intend to use native Spark 4.1.
 
 == Prerequisites
 
-* Apache Hop with the *engines-spark* plugin installed (included in a normal Hop client build).
-* Java 21.
-* For cluster submit: a Spark 4.1.x distro (`SPARK_HOME`) and network access to the master / workers.
-* Optional: an *execution information location* and *execution data profile* for metrics and row sampling in the GUI.
+* Apache Hop *2.19+* with the *engines-spark* plugin (standard Hop client / assembly includes it).
+* *Java 21*.
+* Familiarity with Hop pipelines, metadata, and run configurations.
+* For cluster submit:
+** A *Spark 4.1.x* distribution (`SPARK_HOME` pinned to that tree).
+** Network access to the master and workers.
+** Paths for data and metadata that workers can reach (HDFS, object store, shared FS).
+* Optional but recommended: an *execution information location* and *execution data profile* for history, metrics, and row samples in the GUI.
 
-== Create a run configuration
+== How to use it
+
+=== Create a `local[*]` pipeline run configuration
+
+This is the fastest way to learn: Spark runs *inside* the Hop process using all local cores (`local[*]`), with no cluster and no fat jar.
 
 . Open *Metadata* → *Pipeline run configuration* → *New*.
-. Set *Engine type* to *Native Spark* (plugin name as shown in Hop; engine id `Spark`).
-. Configure the options:
+. Give it a clear name, for example `spark-local`.
+. Set *Engine type* to *Native Spark pipeline engine*.
+. On the engine tab, set at least:
 
 [options="header",cols="1,3"]
 |===
-|Option |Description
+|Option |Suggested first value
 
 |Spark master
-|`local[*]` or `local[4]` for embedded local runs; `spark://host:7077` for a standalone cluster. Leave blank under `spark-submit` so the CLI `--master` wins.
+|`local[*]` (or `local[4]` to cap cores)
 
 |Application name
-|Spark application name (default: `Apache Hop`).
+|`Apache Hop` (or your project name)
 
 |Fat jar file location
-|Optional path to a Hop fat jar staged for cluster executors when Hop launches Spark itself. Leave empty for pure `spark-submit` with a *native-provided* fat jar (see below).
+|Leave *empty* for pure `local[*]`
 
-|Spark config (key=value lines)
-|Extra `SparkConf` entries, one `key=value` per line.
+|Spark config
+|Optional; one `key=value` per line (advanced tuning)
 
 |Driver / executor memory & cores
-|Optional Spark resource settings (`2g`, …).
+|Optional; leave empty for local defaults
 
 |Temp location
-|Directory for temporary files.
-
-|Plugins to stage
-|Optional comma-separated plugin folders to stage on the cluster.
+|Optional; defaults to the JVM temp directory
 |===
 
-. Optionally set *Execution information location* and *Execution data profile* on the same run configuration (same as Local / Beam).
-. Save the run configuration and select it when you run a pipeline.
+. On the main run-configuration tab, optionally attach:
+** *Execution information location* — where Hop stores run history
+** *Execution data profile* — which row samples to capture
+. Save the configuration.
 
-== Quick start: local[*]
+image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[Native Spark pipeline run configuration editor,width=80%]
 
-. Design a small batch pipeline, for example:
-** *Spark File Input* (CSV path, separator, field list or header)
-** one or more transforms (Filter Rows, Select Values, Memory Group By, …)
-** *Spark File Output* (path, format, overwrite)
-. Run the pipeline with your native Spark run configuration (`master=local[*]`).
-. Check transform metrics in the GUI; with an execution information location, open the execution history for samples and state.
+Full option reference: xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
 
-Integration samples live under `integration-tests/spark-native/` (input/output, group-by, filter, stream lookup, dual filter targets, switch/case, complex).
+=== First pipeline on `local[*]`
 
-== File input and output
+. Create a small batch pipeline, for example:
+** *Spark File Input* — CSV path under your project, header and separator, field list
+** *Filter Rows* or *Select Values* — any familiar transform
+** *Spark File Output* — path, format (`csv` or `parquet`), save mode *Overwrite*
+. Run the pipeline and choose your `spark-local` run configuration.
+. When it finishes, check:
+** Transform metrics on the pipeline graph (input / output / written / errors)
+** Execution Information perspective if you configured a location
 
-Use the dedicated *Spark File Input* and *Spark File Output* transforms rather than classic Text File Input/Output when running on this engine.
+You do not need `spark-submit` or a fat jar for this path. Hop starts an embedded Spark session and loads Spark from `plugins/engines/spark/lib`.
 
-*CSV / text with a field list*
+=== Run from the command line (local)
 
-* Columns are selected and cast *by name* when the file has a header.
-* When *Header* is disabled, Spark names columns `_c0`, `_c1`, … and Hop maps them *by position* to your field list.
+Same run configuration, no GUI:
 
-*Other formats*
+[source,bash]
+----
+./hop-run.sh \
+  --project=your-project \
+  --runconfig=spark-local \
+  --file=/path/to/your-pipeline.hpl
+----
 
-* Parquet, JSON, ORC, and text are supported via Spark’s format readers/writers.
-* Output supports save modes (Overwrite / Append / …), optional `coalesce`, and partition-by columns.
+=== Build a fat jar for cluster submit
 
-Writes run as Spark *actions* when the graph is materialised; the engine does not re-write files on a later count of the leaf Dataset.
+On a real cluster you must *not* embed a second copy of Spark inside the application jar. The cluster already provides Spark 4.1. Embedding Spark leads to dual classpaths and failures on Java 21.
 
-== How Hop transforms map to Spark
+Use the special fat-jar token *`native-provided`*: Hop and plugins go into the jar; *Spark stays out*.
+
+==== From Hop GUI
+
+. *Tools* → *Generate a Hop fat jar* (when prompted for Spark client version for native submit, use the *native-provided* style packaging for cluster submit — or use the CLI below for an explicit flag).
+. Save the jar *outside* the project (or gitignore it). Fat jars are large.
+
+==== From the command line (recommended, explicit)
+
+[source,bash]
+----
+# From your Hop installation directory
+./hop-conf.sh \
+  --generate-fat-jar=/tmp/hop-native-spark4-submit.jar \
+  --spark-client-version=native-provided
+----
+
+[options="header",cols="1,2,2"]
+|===
+|Token |When to use |Spark runtime
+
+|`native-provided`
+|`spark-submit` on a cluster
+|Cluster provides Spark 4.1.x (*do not* embed)
+
+|`native`
+|Rare: fat jar that *includes* Spark 4 from `plugins/engines/spark/lib` (not for normal cluster submit)
+|Embedded Spark 4
+|===
+
+=== Export project metadata
+
+Cluster runs need your Hop metadata (run configurations, execution locations, connections, etc.) as a single JSON file.
+
+* GUI: *Tools* → *Export metadata to JSON*
+* CLI:
+
+[source,bash]
+----
+./hop-conf.sh \
+  --project=your-project \
+  --export-metadata=/tmp/hop-metadata.json
+----
+
+Keep this export out of git if it is a point-in-time dump of secrets or large metadata; your project `metadata/` folder is already the source of truth.
+
+=== Detailed `spark-submit` instructions
+
+. Install or unpack *Spark 4.1.x* (Hadoop 3 build is typical).
+. *Pin `SPARK_HOME`* to that directory. If `SPARK_HOME` still points at an older Spark (for example 3.3), even a `spark-submit` binary from a 4.1 tree can re-exec the wrong `spark-class` and load the wrong version.
+. Build the *native-provided* fat jar and export metadata (previous sections).
+. Ensure the pipeline run configuration used on the cluster:
+** Engine = *Native Spark pipeline engine* (not Beam Spark)
+** *Master* blank (so `spark-submit --master` wins) *or* set to `spark://host:7077`
+** *Fat jar* field empty (the submit jar already carries Hop)
+. Submit:
+
+[source,bash]
+----
+export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
+
+"${SPARK_HOME}/bin/spark-submit" \
+  --master spark://your-master:7077 \
+  --deploy-mode client \
+  --class org.apache.hop.spark.run.MainSpark \
+  /tmp/hop-native-spark4-submit.jar \
+  /path/to/pipeline.hpl \
+  /tmp/hop-metadata.json \
+  YourNativeSparkRunConfig \
+  /path/to/cluster-env-config.json
+----
+
+*Main class:* `org.apache.hop.spark.run.MainSpark`
+
+*Positional arguments:*
+
+. Path to the pipeline (`.hpl`) — must be readable on the *driver*
+. Path to metadata JSON — readable on the driver
+. Name of the native Spark pipeline run configuration (as in metadata)
+. Optional: *environment configuration file* (JSON) — extra variables for the run (see below)
+
+*Named arguments* (equivalent):
+
+[source,bash]
+----
+"${SPARK_HOME}/bin/spark-submit" \
+  --master spark://your-master:7077 \
+  --class org.apache.hop.spark.run.MainSpark \
+  /tmp/hop-native-spark4-submit.jar \
+  --HopPipelinePath=/path/to/pipeline.hpl \
+  --HopMetadataPath=/tmp/hop-metadata.json \
+  --HopRunConfigurationName=YourNativeSparkRunConfig \
+  --HopConfigFile=/path/to/cluster-env-config.json
+----
+
+==== Environment configuration file (4th argument)
+
+On a laptop, Hop projects usually set `PROJECT_HOME` to a local folder. In a *clustered* `spark-submit` job that path often has no meaning: drivers and executors do not share your desktop filesystem, and paths in pipelines are typically `${PROJECT_HOME}/…` or other project variables.
+
+Pass an optional **environment configuration file** as the 4th positional argument (or `--HopConfigFile=…`). It uses the same JSON format as a Hop environment / `hop-config` variables file. `MainSpark` loads every described variable into the pipeline variable space before execution.
+
+Example `cluster-env-config.json`:
+
+[source,json]
+----
+{
+  "variables": [
+    {
+      "name": "PROJECT_HOME",
+      "value": "s3://hop-project/",
+      "description": "Project root on object storage for the cluster run"
+    },
+    {
+      "name": "OUTPUT_ROOT",
+      "value": "s3://hop-project/output/",
+      "description": "Shared output prefix visible to all executors"
+    }
+  ]
+}
+----
+
+Use this for any value that must differ between local development and the cluster: connection endpoints, bucket prefixes, `${PROJECT_HOME}`, credentials placeholders you resolve elsewhere, and so on.
+
+[IMPORTANT]
+====
+* The config file path must be readable on the *driver* (local path on the submit machine, or a URI Hop VFS can open there).
+* Values such as `s3://hop-project/` only help if workers can actually read/write that location (correct Spark/Hadoop S3A configuration, IAM roles, etc.).
+* Variables in this file override defaults for *this* submit only; they do not rewrite your project’s GUI environment on disk.
+====
+
+*Data paths* in the pipeline (files, tables, object stores) must be reachable from *workers*, not only from your laptop. Prefer HDFS, S3/GS/ABFS, or a shared mount — and set `PROJECT_HOME` (and similar) in the environment config so `${PROJECT_HOME}/…` resolves correctly on the cluster.
+
+*Resource flags* (optional examples):
+
+[source,bash]
+----
+"${SPARK_HOME}/bin/spark-submit" \
+  --master spark://your-master:7077 \
+  --executor-memory 4g \
+  --executor-cores 2 \
+  --driver-memory 2g \
+  --class org.apache.hop.spark.run.MainSpark \
+  /tmp/hop-native-spark4-submit.jar \
+  /path/to/pipeline.hpl \
+  /tmp/hop-metadata.json \
+  YourNativeSparkRunConfig \
+  /path/to/cluster-env-config.json
+----
+
+You can also put memory/core settings in the run configuration’s engine options; CLI flags are useful for per-job overrides.
+
+== Building Spark-oriented pipelines
+
+=== Prefer Spark File Input and Spark File Output
+
+For large or production Dataset I/O, use the dedicated transforms in the *Big Data* category:
+
+* *Spark File Input* — `spark.read.format(...).load`
+* *Spark File Output* — `df.write.format(...).save`
+
+Typical first pipeline shape:
+
+image::pipeline/spark/spark-native-0001-input-output.png[Spark File Input to Spark File Output sample,width=70%]
+
+==== Spark File Input
+
+Common options:
+
+[options="header",cols="1,3"]
+|===
+|Option |Notes
+
+|File path
+|File, directory, or glob visible to Spark (local path on `local[*]`; cluster URI on submit)
+
+|Format
+|`csv`, `parquet`, `json`, `orc`, `text`
+
+|Header / separator / quote
+|CSV and text
+
+|Field list
+|Preferred for stable schemas. With a header, columns are selected and cast *by name*. Without a header, Spark names columns `_c0`, `_c1`, … and Hop maps them *by position* to your field list.
+
+|Infer schema
+|Optional; explicit fields are safer for production
+|===
+
+==== Spark File Output
+
+[options="header",cols="1,3"]
+|===
+|Option |Notes
+
+|File path
+|Output directory/prefix Spark should write to
+
+|Format
+|`csv`, `parquet`, `json`, `orc`, `text`
+
+|Save mode
+|Overwrite, Append, Ignore, ErrorIfExists
+
+|Header
+|CSV/text
+
+|Coalesce
+|e.g. `1` for a single part file (costs a shuffle)
+
+|Partition by
+|Optional partition column list for directory partitioning
+|===
+
+Writes run as Spark *actions* when the engine materialises the graph. Prefer *Spark File Output* for large partitioned writes to object stores or HDFS.
+
+=== Classic Hop I/O and `${Internal.Transform.ID}`
+
+You can still use classic transforms such as *Text File Input*, *Text File Output*, *Get File Names*, or *Microsoft Excel Input* on the generic mapPartitions path (useful for POCs and small lookups). Those plugins are staged for the Spark engine via `plugins/engines/spark/dependencies.xml`.
+
+*Sources with no previous hop* (for example Get File Names, or Excel/Text Input reading a fixed file list) run on a *single* partition so the same small file is not listed or opened once per executor — the same idea as Beam’s single-thread pattern for non-Beam inputs.
+
+==== Unique filenames per partition
+
+Each Spark partition runs its own copy of a classic writer. If every copy uses the same path, files overwrite each other.
+
+*Recommended:* put `${Internal.Transform.ID}` in the filename template, for example:
+
+[source,text]
+----
+${PROJECT_HOME}/out/export_${Internal.Transform.ID}.csv
+----
+
+On the native Spark engine, that variable is set to a *readable* value:
+
+[source,text]
+----
+{transform-name}-{partition-id}
+----
+
+`${Internal.Transform.CopyNr}` and `${Internal.Transform.BundleNr}` are set to the Spark partition id as well.
+
+*Also:* the engine enables Beam-parity parallel-file context so *Text File Output* can auto-append `_<transformId>_<partition>` to the built filename (same idea as Beam’s `beamContext` suffix). Relying on `${Internal.Transform.ID}` in the path remains the clearest approach for operators.
+
+[NOTE]
+====
+For large distributed writes, prefer *Spark File Output* (Spark manages part files). Classic Text File Output is ideal for small POC side-loads and local/shared paths where unique names per partition are enough.
+====
+
+==== Accept filenames from a previous transform
+
+*Get File Names* → *Text File Input* (accept filenames from field) works on native Spark: filename rows are the main Dataset into Text File Input; the mini-pipeline rebinds the accept source to the partition injector and preloads filename rows before the file reader drains them.
+
+Example shape from the integration tests:
+
+image::pipeline/spark/spark-native-0008-text-file-input-spark-readback.png[Get File Names to Text File Input to Spark File Output,width=70%]
+
+== Metrics and execution information
+
+=== Live metrics in the pipeline editor
+
+While a native Spark pipeline runs (and when it finishes), Hop shows transform-level metrics on the graph — lines read/written/input/output, errors, and running/finished state — similar to the local engine. Values are aggregated on the *driver* from Spark accumulators.
+
+image::pipeline/spark/native-spark-provides-runtime-transform-metrics-and-state.png[Runtime transform metrics and state on a native Spark pipeline,width=90%]
+
+=== Execution information location
+
+To keep *history* after the run (and to drill into past executions):
+
+. Create an xref:metadata-types/execution-information-location.adoc[Execution information location] (file, caching file, remote Hop Server, …).
+. Optionally create an xref:metadata-types/execution-data-profile.adoc[Execution data profile] (first/last/random rows, etc.).
+. On the *Native Spark* pipeline run configuration, set both on the main tab.
+. Run a pipeline, then open the xref:hop-gui/perspective-execution-information.adoc[Execution Information] perspective.
+
+image::pipeline/spark/native-spark-logs-to-execution-information-location.png[Execution information logged from a native Spark run,width=90%]
+
+How data is produced:
+
+* *State and metrics* (`updateExecutionState`) — computed on the *driver* from `EngineMetrics` / accumulators for all transform types.
+* *Row samples* (`registerData`) — collected on *executors* for generic `mapPartitions` transforms when a data profile is set, then merged for the GUI (parent/child execution hierarchy, similar to Beam).
+
+[IMPORTANT]
+====
+If the location is file-based and you need *samples from cluster workers*, the root folder must be *writable from every executor* (shared filesystem or object store). A path that exists only on the driver will still get pipeline/transform *state*, but executor samples will be missing or incomplete.
+====
+
+On `local[*]`, Spark’s Jackson libraries must not shadow Hop’s Jackson under the plugin classloader. The Spark plugin packaging excludes core Jackson jars so sampling and `HopJson` keep working.
+
+== How transforms map to Spark
 
 === Native handlers
 
-These use Spark Dataset APIs on the driver graph (no per-row mini-pipeline on every partition for the heavy part of the work):
+These use Spark Dataset APIs on the driver graph (no per-row Hop mini-pipeline for the core of the work):
 
 [options="header",cols="1,2"]
 |===
 |Transform |Spark mapping
 
 |Memory Group By
-|`groupBy` + aggregations
+|`groupBy` + aggregations (SUM, AVG, MIN, MAX, COUNTs, FIRST/LAST, …)
 
 |Merge Join
-|`Dataset.join` (inner / outer variants)
+|`Dataset.join` (inner / left / right / full outer)
 
 |Unique Rows
-|`dropDuplicates` (and optional count)
+|`dropDuplicates` (optional count via groupBy)
 
 |Sort Rows
 |`orderBy`
@@ -165,118 +516,151 @@ These use Spark Dataset APIs on the driver graph (no per-row mini-pipeline on ev
 |`spark.read` / `df.write`
 |===
 
-Sorted *Group By* is not supported — use *Memory Group By*.
-
 === Generic mapPartitions transforms
 
-Most other transforms (Filter Rows, Switch/Case, Stream Lookup, Calculator, Select Values, Dummy, …) run inside `mapPartitions`:
+Most other transforms — Filter Rows, Switch/Case, Stream Lookup, Calculator, Select Values, Dummy, classic file transforms, Excel, and many plugins — run inside `mapPartitions`:
 
-. Each Spark partition starts a small *single-threaded* Hop pipeline for that transform.
-. Input rows for the partition are injected; output rows are collected into a Dataset.
-. Hop plugin JARs used by those transforms must be available on the Spark classpath (see `plugins/engines/spark/dependencies.xml` and the fat jar).
+. Each Spark partition starts a *single-threaded* Hop mini-pipeline for that transform.
+. Partition rows are injected; outputs are collected back into a Dataset.
+. Plugin JARs used by those transforms must be on the Spark classpath (`dependencies.xml` for the engine plugin, and the fat jar on the cluster).
 
-== Info streams and target streams
+=== Info streams and target streams
 
-These concepts match Beam’s side inputs and multi-output tags.
+*Info streams* (side data)::
+Transforms such as *Stream Lookup* need a full secondary dataset while processing the main stream. The engine *broadcasts* the info Dataset to partitions (same idea as Beam `View.asList`). Configure the Stream Lookup *from* transform name exactly.
 
-=== Info streams (side data)
+*Target streams* (conditional routing)::
+*Filter Rows* (true/false) and *Switch/Case* (cases + default) declare named targets. Each input row goes to *one* successor. Downstream hops use keys of the form `Previous - TARGET - Current`.
 
-Transforms such as *Stream Lookup* read a full secondary dataset while processing a main stream.
+*Multiple previous transforms*::
+If several transforms hop into one (branches rejoin), row layouts must match (names, order, types). The engine *unions* those Datasets after a layout check (Beam Flatten equivalent).
 
-* The engine *broadcasts* the info Dataset to partitions (same idea as Beam `View.asList`).
-* The lookup hop must be configured as the Stream Lookup *source* transform (exact name).
-* All previous main hops into a transform must share the same row layout when you merge multiple inputs (see below).
+== Limitations and design rules
 
-=== Target streams (conditional routing)
+Keep these in mind when moving a local pipeline to native Spark.
 
-*Filter Rows* (true/false) and *Switch/Case* (cases + default) declare *target streams*.
+[options="header",cols="1,3"]
+|===
+|Topic |Behaviour on native Spark
 
-* Each input row is routed to *one* named successor.
-* Downstream transforms read from keys of the form `Previous - TARGET - Current`.
-* This is *not* Hop “Distribute vs Copy” on multi-hop fan-out (see next section).
+|Sorted *Group By*
+|*Not supported.* Use *Memory Group By* (native `groupBy`).
 
-=== Multiple previous transforms (merge)
+|Copy vs Distribute on multi-hop output
+|*Not implemented* (same stance as Beam). Named *target streams* route by condition; plain multi-next hops without target metadata are rejected. Round-robin distribute is not available.
 
-If several transforms hop into one transform (e.g. branches rejoin at a Dummy or Switch), Hop requires *identical* row layouts (field names, order, types).
+|Streaming / windows
+|Out of scope. Use the Beam engines.
 
-* The native Spark engine *unions* those Datasets after checking layouts (Beam Flatten equivalent).
-* Layout mismatches fail with a clear error.
+|Native Spark Kafka
+|*Not supported.* There is no Hop transform that maps to Spark’s structured streaming / Kafka source-sink APIs. For Kafka-oriented Beam pipelines, use the Beam engines (e.g. Beam Kafka Consumer/Producer). Hop’s own Kafka transforms (if used) are not native-Spark Dataset I/O.
 
-=== Distribute vs Copy
+|Spark SQL
+|*Not supported* as a first-class surface. You cannot submit arbitrary Spark SQL / `DataFrame` queries from Hop metadata; the engine only builds a Dataset graph from the Hop transform graph (plus native handlers for a fixed set of transforms).
 
-On the local engine, a transform with multiple plain output hops can *distribute* (round-robin) or *copy* (every row to all hops).
+|MLlib / Spark ML
+|*Not supported.* There are no native handlers or transforms for training, pipelines, or model inference via Spark MLlib / `spark.ml`. Keep ML workloads in Spark jobs outside Hop, or call external services from ordinary Hop transforms where that fits.
 
-Like Beam, the native Spark engine does *not* implement that toggle:
+|Large Stream Lookup tables
+|Fully *broadcast* — size carefully.
 
-* Named *target streams* route by condition/case.
-* Full multi-consumer copy of a single Dataset is not a separate “copy mode” flag; plain multi-next hops without target metadata are rejected.
-* Round-robin distribute is not supported.
+|Unique Rows (error stream)
+|Reject-to-error style options may not apply; prefer Dataset-oriented dedup semantics.
 
-== Cluster: spark-submit
+|Transform copies / partitioning GUI
+|Parallelism comes from *Spark partitions*, not Hop “copies” in the local sense.
 
-For a real cluster, prefer *not* embedding Spark inside the application jar (two Spark copies on the driver fail on Java 21).
+|Plugins in mapPartitions
+|Must be present on the Spark classpath (staged list + fat jar). Missing plugins fail at runtime on the executor.
 
-. Build a *native-provided* fat jar (cluster supplies Spark):
+|Beam-only transforms
+|Beam File I/O, Beam Kafka/Kinesis/BigQuery/… are for Beam engines, not native Spark.
+|===
 
-[source,bash]
+== Examples from the integration tests
+
+The Hop source tree includes a self-contained project:
+
+[source,text]
 ----
-./hop-conf.sh --generate-fat-jar=/tmp/hop-native-spark4-submit.jar \
-  --spark-client-version=native-provided
-----
-
-. Export project metadata to JSON (locations, run configs, connection metadata as needed).
-. Pin `SPARK_HOME` to your Spark 4.1.x distribution (do not leave it pointing at an older install).
-. Submit:
-
-[source,bash]
-----
-export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
-
-"${SPARK_HOME}/bin/spark-submit" \
-  --master spark://spark:7077 \
-  --class org.apache.hop.spark.run.MainSpark \
-  /tmp/hop-native-spark4-submit.jar \
-  /path/to/pipeline.hpl \
-  /path/to/metadata.json \
-  YourNativeSparkRunConfig
+integration-tests/spark-native/
 ----
 
-Positional arguments: pipeline path, metadata JSON, run configuration name, optional env config file.
-Named arguments also work: `--HopPipelinePath=…`, `--HopMetadataPath=…`, `--HopRunConfigurationName=…`, `--HopConfigFile=…`.
+Open that folder as a Hop project (or copy patterns into your own). Workflows are named `main-00xx-*.hwf` and typically: clean output → run the Spark pipeline with `spark-local` → validate on the local engine.
 
-In the run configuration used under submit:
+=== 0001 — Spark File Input / Output
 
-* Engine = native Spark (not Beam).
-* Prefer *master blank* (CLI `--master` wins) or set `spark://…`.
-* Leave *fat jar* empty when the submit jar already contains Hop + plugins.
+Minimal path: read a CSV with *Spark File Input*, write with *Spark File Output*.
 
-Paths to the pipeline and metadata must be readable on the driver; data paths must be reachable from workers.
+image::pipeline/spark/spark-native-0001-input-output.png[0001 input output,width=70%]
 
-== Execution information and sampling
+=== 0002 — Memory Group By
 
-Attach an *execution information location* (and optional *execution data profile*) on the run configuration.
+Aggregation via the native Memory Group By handler (Spark `groupBy`).
 
-* *Metrics / state* are updated on the *driver* from Spark accumulators (`EngineMetrics`).
-* *Row samples* for generic mapPartitions transforms are collected on *executors* when a data profile is set, then merged on the driver (parent/child execution hierarchy in the GUI, similar to Beam).
-* File-based locations used for samples must be writable from executors (shared FS / object store) if you need samples from cluster workers.
+image::pipeline/spark/spark-native-0002-group-by.png[0002 group by,width=70%]
 
-[NOTE]
-====
-On `local[*]`, Jackson libraries for Spark must not shadow Hop’s Jackson under the plugin classloader.
-The Spark plugin packaging excludes core Jackson jars so `HopJson` and sampling keep working.
-====
+=== 0003 — Filter Rows
 
-== Tips and limitations
+Row filtering in mapPartitions.
 
-* Prefer *Memory Group By* over sorted Group By.
-* Large Stream Lookup tables are fully broadcast — size them carefully.
-* Streaming, windows, and many Beam-only transforms remain on the Beam engines.
-* Plugin transforms used in mapPartitions must be listed for the Spark plugin classpath (`dependencies.xml` / fat jar contents).
+image::pipeline/spark/spark-native-0003-filter-rows.png[0003 filter rows,width=70%]
+
+=== 0004 — Stream Lookup (info stream)
+
+Main stream plus a lookup Dataset broadcast into *Stream Lookup* — exercises info streams end-to-end.
+
+image::pipeline/spark/spark-native-0004-stream-lookup.png[0004 stream lookup,width=75%]
+
+=== 0005 — Filter Rows with target streams
+
+True/false targets (conditional fan-out without Copy/Distribute).
+
+image::pipeline/spark/spark-native-0005-filter-targets.png[0005 filter targets,width=75%]
+
+=== 0006 — Switch / Case
+
+Multi-way routing with named cases and default.
+
+image::pipeline/spark/spark-native-0005-switch-case.png[0006 switch case,width=75%]
+
+=== 0007 — Classic Text File Input and Spark write-back
+
+Get File Names → Text File Input (accept filenames) → Spark File Output (e.g. Parquet). Validates classic I/O and partition-safe readback.
+
+image::pipeline/spark/spark-native-0008-text-file-input-spark-readback.png[0007 text file input spark readback,width=70%]
+
+=== 0008 — Excel info stream into Stream Lookup
+
+Main data from multiple Parquet files (*Spark File Input*); product dimension from *Microsoft Excel Input* into *Stream Lookup*; CSV result via *Spark File Output*.
+
+image::pipeline/spark/spark-native-0008-excel-stream-lookup.png[0008 excel stream lookup,width=75%]
+
+=== 0099 — Complex sample
+
+A larger pipeline combining several of the patterns above (good stress check for a full Hop + Spark install).
+
+image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95%]
+
+== Checklist
+
+* [ ] Java 21; Hop 2.19+ with `plugins/engines/spark`
+* [ ] Run configuration engine = *Native Spark* (not Beam Spark)
+* [ ] First success on `local[*]` with Spark File Input → transform → Spark File Output
+* [ ] Execution information location attached if you need history and samples
+* [ ] Cluster: fat jar with `--spark-client-version=native-provided`
+* [ ] Cluster: `SPARK_HOME` pinned to Spark *4.1.x*
+* [ ] Cluster: metadata JSON exported; run configuration name matches submit args
+* [ ] No sorted Group By; no reliance on Copy/Distribute multi-hop behaviour
+* [ ] Classic writers use `${Internal.Transform.ID}` (or accept Spark File Output for bulk writes)
 
 == Related pages
 
-* xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline run configurations]
+* xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine] (option reference)
 * xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine] (contrast)
 * xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
+* xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline run configurations]
 * xref:metadata-types/execution-information-location.adoc[Execution information location]
 * xref:metadata-types/execution-data-profile.adoc[Execution data profile]
+* xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective]
+* xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf] (fat jar, metadata export)

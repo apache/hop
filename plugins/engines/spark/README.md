@@ -135,6 +135,20 @@ Notes:
 | `SparkFileInput` | `spark.read.format(...).load` | CSV/Parquet/JSON/ORC/text |
 | `SparkFileOutput` | `df.write.format(...).save` | Save modes, optional coalesce/partitionBy |
 
+## Classic Hop I/O (POC)
+
+`HopMapPartitionsFn` sets partition-scoped variables for classic writers:
+
+| Variable | Value |
+|----------|--------|
+| `${Internal.Transform.ID}` | `{transformName}-{partitionId}` |
+| `${Internal.Transform.CopyNr}` / `BundleNr` | partition id |
+
+It also enables `beamContext` so Text File Output auto-appends `_id_bundle` like Beam.
+`dependencies.xml` stages `textfile`, `getfilenames`, and `excel` for mapPartitions POCs
+(Get File Names → Text File Input, small Excel lookups, etc.). Pure sources still run on
+one partition so files are not listed/read N times.
+
 ## File I/O transforms
 
 Dedicated **Spark File Input** / **Spark File Output** transforms (not Hop Text File Input)

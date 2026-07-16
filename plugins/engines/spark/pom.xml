@@ -151,5 +151,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Text File Input for accept-filenames mini-pipeline binding tests -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-textfile</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

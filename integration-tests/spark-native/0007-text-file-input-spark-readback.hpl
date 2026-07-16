@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>-1</pipeline_status>
+    <parameters/>
+    <name>New pipeline</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <created_user>-</created_user>
+    <modified_user>-</modified_user>
+    <created_date>2026/07/16 12:03:19.564</created_date>
+    <modified_date>2026/07/16 12:03:19.564</modified_date>
+  </info>
+  <transform>
+    <type>GetFileNames</type>
+    <name>source/test-file*.csv</name>
+    <file>
+      <name>${PROJECT_HOME}/output/0007-text-file-input/source/</name>
+      <filemask>test-file.*.csv</filemask>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <filter>
+      <filterfiletype>all_files</filterfiletype>
+    </filter>
+    <rownum>N</rownum>
+    <rownum_field/>
+    <filename_Field/>
+    <wildcard_Field/>
+    <exclude_wildcard_Field/>
+    <filefield>N</filefield>
+    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <isaddresult>Y</isaddresult>
+    <limit>0</limit>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <raiseAnExceptionIfNoFile>Y</raiseAnExceptionIfNoFile>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>SparkFileOutput</type>
+    <name>parquet/*.parquet</name>
+    <file_path>${PROJECT_HOME}/output/0007-text-file-input/parquet</file_path>
+    <file_format>parquet</file_format>
+    <save_mode>Overwrite</save_mode>
+    <header>Y</header>
+    <separator>,</separator>
+    <quote>"</quote>
+    <partition_by/>
+    <coalesce/>
+    <extra_options/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>TextFileInput2</type>
+    <name>read test-file</name>
+    <file_type>CSV</file_type>
+    <compression>None</compression>
+    <separator>,</separator>
+    <enclosure>"</enclosure>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar>\</escapechar>
+    <header>Y</header>
+    <prependFileName>N</prependFileName>
+    <nr_headerlines>1</nr_headerlines>
+    <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>80</nr_lines_per_page>
+    <nr_lines_doc_header>0</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownum_field/>
+    <rownumByFile>N</rownumByFile>
+    <format>Unix</format>
+    <encoding/>
+    <limit>0</limit>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>en_US</date_format_locale>
+    <length/>
+    <filters/>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <schema_definition/>
+    <ignore_fields>N</ignore_fields>
+    <shortFileFieldName/>
+    <extensionFieldName/>
+    <pathFieldName/>
+    <sizeFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <files>
+      <file>
+        <name>${PROJECT_HOME}/output/0007-text-file-input/source/test-file_0.csv</name>
+        <filemask/>
+        <exclude_filemask/>
+        <file_required>N</file_required>
+        <include_subfolders>N</include_subfolders>
+      </file>
+    </files>
+    <accept_filenames>Y</accept_filenames>
+    <accept_transform_name>source/test-file*.csv</accept_transform_name>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field>filename</accept_field>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <error_ignored>N</error_ignored>
+    <file_error_field/>
+    <file_error_message_field/>
+    <skip_bad_files>N</skip_bad_files>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <fields>
+      <field>
+        <name>id</name>
+        <position>-1</position>
+        <length>15</length>
+        <type>Integer</type>
+        <ignore>N</ignore>
+        <format>#</format>
+        <trim_type>none</trim_type>
+        <precision>0</precision>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <repeat>N</repeat>
+        <null_string>-</null_string>
+        <if_null_value/>
+      </field>
+      <field>
+        <name>test</name>
+        <position>-1</position>
+        <length>8</length>
+        <type>String</type>
+        <ignore>N</ignore>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <repeat>N</repeat>
+        <null_string>-</null_string>
+        <if_null_value/>
+      </field>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>256</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <order>
+    <hop>
+      <from>source/test-file*.csv</from>
+      <to>read test-file</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>read test-file</from>
+      <to>parquet/*.parquet</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <notepads/>
+  <attributes/>
+  <transform_error_handling/>
+</pipeline>

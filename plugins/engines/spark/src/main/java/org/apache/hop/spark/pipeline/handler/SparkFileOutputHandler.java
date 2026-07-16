@@ -71,7 +71,10 @@ public class SparkFileOutputHandler extends SparkBaseTransformHandler {
 
     if (input == null) {
       throw new HopException(
-          "Spark File Output '" + transformMeta.getName() + "' has no input Dataset");
+          "Spark File Output '"
+              + transformMeta.getName()
+              + "' has no input Dataset. Connect an enabled hop from an upstream transform"
+              + " (disabled hops and disconnected transforms are not executed on native Spark).");
     }
 
     SparkFileOutputMeta meta = new SparkFileOutputMeta();
