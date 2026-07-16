@@ -46,22 +46,28 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>delete output</name>
-      <description/>
-      <type>DELETE_FILES</type>
+      <name>clean work dir</name>
+      <description>Remove previous table/extract data under /tmp/hop-it-lakehouse (always succeeds)</description>
+      <type>SHELL</type>
       <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
       <arg_from_previous>N</arg_from_previous>
-      <include_subfolders>Y</include_subfolders>
-      <fields>
-        <field>
-          <name>${PROJECT_HOME}/output/0001-table/</name>
-          <filemask>.*</filemask>
-        </field>
-        <field>
-          <name>${PROJECT_HOME}/output/0001-extract/</name>
-          <filemask>.*</filemask>
-        </field>
-      </fields>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
+      <insertScript>Y</insertScript>
+      <loglevel>Basic</loglevel>
+      <script>#!/bin/bash
+set +e
+WORK="/tmp/hop-it-lakehouse"
+echo "Cleaning IT work dir: $WORK"
+rm -rf "$WORK"
+mkdir -p "$WORK"
+exit 0
+</script>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
       <parallel>N</parallel>
       <xloc>224</xloc>
       <yloc>96</yloc>
@@ -142,13 +148,13 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>delete output</to>
+      <to>clean work dir</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>delete output</from>
+      <from>clean work dir</from>
       <to>0001-write</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

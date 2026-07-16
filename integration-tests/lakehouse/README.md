@@ -47,3 +47,10 @@ export HOP_LOCATION=/path/to/hop
 
 PATH mode tables under `${PROJECT_HOME}/output/` (deleted by each main workflow).
 Do not commit `_delta_log` / Iceberg metadata directories.
+
+## Work directory
+
+All table and extract paths use **`/tmp/hop-it-lakehouse/`** (not the project `output/` folder).
+That avoids Docker volume permission issues when deleting Spark `.crc` files between runs.
+
+Cleanup is a Shell action (`rm -rf` + `mkdir`) that always exits 0.

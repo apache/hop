@@ -94,7 +94,7 @@ limitations under the License.
     </partitioning>
     <format>iceberg</format>
     <identifier_mode>PATH</identifier_mode>
-    <table_path>file://${PROJECT_HOME}/output/0003-table</table_path>
+    <table_path>file:///tmp/hop-it-iceberg/0003-table</table_path>
     <table_identifier/>
     <catalog_metadata_name/>
     <save_mode>Overwrite</save_mode>

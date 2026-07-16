@@ -74,7 +74,7 @@ limitations under the License.
     <length>Characters</length>
     <add_to_result_filenames>N</add_to_result_filenames>
     <file>
-      <name>${PROJECT_HOME}/output/0002-extract-current/</name>
+      <name>/tmp/hop-it-lakehouse/0002-extract-current/</name>
       <filemask>.*\.csv</filemask>
       <exclude_filemask/>
       <file_required>Y</file_required>

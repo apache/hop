@@ -49,7 +49,7 @@ limitations under the License.
     </partitioning>
     <format>delta</format>
     <identifier_mode>PATH</identifier_mode>
-    <table_path>${PROJECT_HOME}/output/0001-table</table_path>
+    <table_path>/tmp/hop-it-lakehouse/0001-table</table_path>
     <table_identifier/>
     <catalog_metadata_name/>
     <time_travel_type>NONE</time_travel_type>
@@ -86,7 +86,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <file_path>${PROJECT_HOME}/output/0001-extract</file_path>
+    <file_path>/tmp/hop-it-lakehouse/0001-extract</file_path>
     <file_format>csv</file_format>
     <save_mode>Overwrite</save_mode>
     <header>Y</header>

@@ -102,7 +102,7 @@ limitations under the License.
     </partitioning>
     <format>delta</format>
     <identifier_mode>PATH</identifier_mode>
-    <table_path>${PROJECT_HOME}/output/0001-table</table_path>
+    <table_path>/tmp/hop-it-lakehouse/0001-table</table_path>
     <table_identifier/>
     <catalog_metadata_name/>
     <save_mode>Overwrite</save_mode>
