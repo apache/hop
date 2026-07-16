@@ -28,6 +28,7 @@ import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
@@ -51,6 +52,15 @@ public class HopServerWorkflowStatus {
   @Getter @Setter private int lastLoggingLineNr;
   @Getter @Setter private List<ActionStatus> actionStatusList;
   @Getter @Setter private Result result;
+
+  /**
+   * The tracker of the running workflow, holding a start and an end entry per executed action. This
+   * is what a client needs to show the workflow metrics of a workflow it is not running itself.
+   *
+   * <p>Deliberately kept out of the JSON representation: the tracker refers back to its parent and
+   * carries a lock, neither of which survives a trip through Jackson.
+   */
+  private WorkflowTracker workflowTracker;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   @Getter
@@ -81,6 +91,16 @@ public class HopServerWorkflowStatus {
     this.workflowName = workflowName;
     this.id = id;
     this.statusDescription = statusDescription;
+  }
+
+  @JsonIgnore
+  public WorkflowTracker getWorkflowTracker() {
+    return workflowTracker;
+  }
+
+  @JsonIgnore
+  public void setWorkflowTracker(WorkflowTracker workflowTracker) {
+    this.workflowTracker = workflowTracker;
   }
 
   @JsonIgnore
@@ -116,6 +136,10 @@ public class HopServerWorkflowStatus {
     }
     xml.append("  ").append(XmlHandler.closeTag(CONST_ACTION_STATUS)).append(Const.CR);
 
+    if (workflowTracker != null) {
+      xml.append(workflowTracker.getXml()).append(Const.CR);
+    }
+
     if (result != null) {
       String resultXML = sendResultXmlWithStatus ? result.getXml() : result.getBasicXml();
       xml.append(resultXML);
@@ -149,6 +173,13 @@ public class HopServerWorkflowStatus {
       Node actionStatusNode = XmlHandler.getSubNodeByNr(statusListNode, ActionStatus.XML_TAG, i);
       ActionStatus actionStatus = new ActionStatus(actionStatusNode);
       actionStatusList.add(actionStatus);
+    }
+
+    // Older servers do not send a tracker, in which case there is simply nothing to show.
+    //
+    Node workflowTrackerNode = XmlHandler.getSubNode(workflowStatusNode, WorkflowTracker.XML_TAG);
+    if (workflowTrackerNode != null) {
+      workflowTracker = WorkflowTracker.fromXml(workflowTrackerNode);
     }
 
     String loggingString64 = XmlHandler.getTagValue(workflowStatusNode, "logging_string");
