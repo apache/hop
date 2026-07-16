@@ -460,6 +460,11 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
               setChanged();
             }
           });
+      // Flush form widgets into the engine config before button methods run (e.g. template load).
+      guiCompositeWidgets.setCompositeButtonsListener(
+          sourceObject ->
+              guiCompositeWidgets.getWidgetsContents(
+                  sourceObject, PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID));
     }
   }
 

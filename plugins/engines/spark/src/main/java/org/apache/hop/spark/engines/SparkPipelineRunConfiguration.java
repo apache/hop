@@ -22,16 +22,70 @@ import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
+import org.apache.hop.spark.engines.template.SparkRunConfigTemplate;
 import org.apache.hop.spark.util.SparkConst;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
 @Getter
 @Setter
 public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     implements ISparkPipelineEngineRunConfiguration, Cloneable {
+
+  private static final Class<?> PKG = SparkPipelineRunConfiguration.class;
+
+  /**
+   * Fill the form from a named deployment template (local, standalone, submit, Databricks, …).
+   * Mutates {@code object} (the live editor model); widgets are refreshed by GuiCompositeWidgets.
+   */
+  @GuiWidgetElement(
+      id = "load-spark-config-template",
+      order = "19990-spark-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.BUTTON,
+      label = "i18n::SparkEngine.LoadTemplate.Label",
+      toolTip = "i18n::SparkEngine.LoadTemplate.ToolTip")
+  public void loadConfigurationTemplate(Object object) {
+    if (!(object instanceof SparkPipelineRunConfiguration config)) {
+      return;
+    }
+    Shell shell = HopGui.getInstance().getShell();
+    String[] labels = SparkRunConfigTemplate.displayNames();
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            shell,
+            labels,
+            BaseMessages.getString(PKG, "SparkEngine.LoadTemplate.Dialog.Title"),
+            BaseMessages.getString(PKG, "SparkEngine.LoadTemplate.Dialog.Message"));
+    dialog.setAvoidQuickSearch();
+    String choice = dialog.open();
+    if (choice == null) {
+      return;
+    }
+    SparkRunConfigTemplate template = SparkRunConfigTemplate.fromDisplayName(choice);
+    if (template == null) {
+      return;
+    }
+    if (SparkRunConfigTemplate.looksCustomized(config)) {
+      MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      box.setText(BaseMessages.getString(PKG, "SparkEngine.LoadTemplate.Confirm.Title"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "SparkEngine.LoadTemplate.Confirm.Message", template.getDisplayName()));
+      if (box.open() != SWT.YES) {
+        return;
+      }
+    }
+    template.applyTo(config);
+  }
 
   @GuiWidgetElement(
       order = "20000-spark-options",

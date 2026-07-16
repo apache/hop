@@ -139,6 +139,8 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 
 This is the fastest way to learn: Spark runs *inside* the Hop process using all local cores (`local[*]`), with no cluster and no fat jar.
 
+TIP: On the Native Spark engine options tab, **Load configuration template** can pre-fill common setups (*Local execution*, *Spark standalone server*, *spark-submit*, *Databricks*, *YARN*, …). See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
+
 . Open *Metadata* → *Pipeline run configuration* → *New*.
 . Give it a clear name, for example `spark-local`.
 . Set *Engine type* to *Native Spark pipeline engine*.

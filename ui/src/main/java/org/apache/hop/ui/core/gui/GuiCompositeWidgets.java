@@ -79,6 +79,12 @@ public class GuiCompositeWidgets {
 
   @Getter @Setter private IGuiPluginCompositeButtonsListener compositeButtonsListener;
 
+  /** Parent composite of the last {@link #createCompositeWidgets} call (for button refresh). */
+  private Composite widgetsParentComposite;
+
+  /** Parent GUI element id of the last {@link #createCompositeWidgets} call. */
+  private String widgetsParentGuiElementId;
+
   public GuiCompositeWidgets(IVariables variables) {
     this(variables, 0);
   }
@@ -129,6 +135,9 @@ public class GuiCompositeWidgets {
       }
       return;
     }
+
+    this.widgetsParentComposite = parent;
+    this.widgetsParentGuiElementId = parentGuiElementId;
 
     // Loop over the GUI elements, create and remember the widgets...
     //
@@ -381,9 +390,21 @@ public class GuiCompositeWidgets {
 
             Object guiObject = methodClass.getDeclaredConstructor().newInstance();
 
-            // Invoke the button method
+            // Invoke the button method (mutations apply to sourceObject)
             //
             buttonMethod.invoke(guiObject, sourceObject);
+
+            // Re-bind widgets from the (possibly mutated) source object so template-load and
+            // similar actions show updated fields.
+            if (widgetsParentComposite != null
+                && widgetsParentGuiElementId != null
+                && !widgetsParentComposite.isDisposed()) {
+              setWidgetsContents(sourceObject, widgetsParentComposite, widgetsParentGuiElementId);
+            }
+            if (compositeWidgetsListener != null) {
+              compositeWidgetsListener.widgetModified(
+                  GuiCompositeWidgets.this, button, guiElements.getId());
+            }
           } catch (Exception e) {
             LogChannel.UI.logError(
                 "Error invoking method "

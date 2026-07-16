@@ -39,6 +39,20 @@ image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[N
 
 === Options
 
+==== Load configuration template
+
+Use **Load configuration template** to fill the fields below from a common deployment style:
+
+* *Local execution* — `local[*]`, Spark UI off (embedded Spark in Hop)
+* *Local (capped cores)* — `local[4]`
+* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory
+* *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar
+* *Databricks* — submit-oriented placeholders (master empty); set workspace-specific values yourself
+* *YARN client* — master `yarn`, client deploy mode
+* *Lakehouse local* — same as local; Delta/Iceberg connectors live on the plugin classpath
+
+Templates replace the current engine options after confirmation when the form already has custom values. Edit fields afterward as needed.
+
 [options="header",cols="1,3,1"]
 |===
 |Option |Description |Default
