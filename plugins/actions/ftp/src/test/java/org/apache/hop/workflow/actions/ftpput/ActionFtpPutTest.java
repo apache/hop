@@ -69,4 +69,25 @@ class ActionFtpPutTest {
     assertEquals("proxy-username", action.getSocksProxyUsername());
     assertEquals("proxy-password", action.getSocksProxyPassword());
   }
+
+  /**
+   * Resource export clones every action. A clone that loses its plugin id is written to the export
+   * without its type element, and the exported workflow then fails to load on a remote server. See
+   * issue #5644.
+   */
+  @Test
+  void cloneKeepsNameDescriptionAndPluginId() {
+    ActionFtpPut action = new ActionFtpPut();
+    action.setName("Put files");
+    action.setDescription("a description");
+    action.setPluginId("FTP_PUT");
+    action.setServerName("ftp-server");
+
+    ActionFtpPut copy = (ActionFtpPut) action.clone();
+
+    assertEquals("Put files", copy.getName());
+    assertEquals("a description", copy.getDescription());
+    assertEquals("FTP_PUT", copy.getPluginId());
+    assertEquals("ftp-server", copy.getServerName());
+  }
 }
