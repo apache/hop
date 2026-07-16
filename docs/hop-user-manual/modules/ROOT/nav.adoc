@@ -328,6 +328,7 @@ under the License.
 *** xref:workflow/actions/copyfiles.adoc[Copy Files]
 *** xref:workflow/actions/createfolder.adoc[Create a folder]
 *** xref:workflow/actions/createfile.adoc[Create file]
+*** xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
 *** xref:workflow/actions/pgpdecryptfiles.adoc[Decrypt files with PGP]
 *** xref:workflow/actions/deletefile.adoc[Delete file]
 *** xref:workflow/actions/deleteresultfilenames.adoc[Delete filenames from result]

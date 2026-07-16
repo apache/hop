@@ -1,0 +1,124 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../../assets/images/
+:page-pagination:
+:description: Databricks Job Run workflow action — run or submit Jobs API work and wait for completion.
+
+= Databricks Job Run
+
+== Description
+
+The **Databricks Job Run** action triggers a job on a Databricks workspace via the Jobs REST API and can wait until the run finishes. It stores Job ID, Run ID, and status in workflow variables for downstream actions.
+
+Use a xref:metadata-types/databricks-connection.adoc[Databricks Connection] (workspace host + personal access token). This is **not** the JDBC SQL warehouse connection.
+
+== Modes
+
+[options="header",cols="1,3"]
+|===
+|Mode |Behavior
+
+|Run existing job
+|Calls `jobs/run-now` with the given **Job ID**.
+
+|One-time submit
+|Calls `jobs/runs/submit` with a raw **Submit JSON** body (full Jobs API payload you provide).
+|===
+
+== Wait modes
+
+[options="header",cols="1,3"]
+|===
+|Wait mode |Behavior
+
+|Wait for completion
+|Polls `jobs/runs/get` until the run is terminal (`SUCCESS`, `FAILED`, …) or **Timeout** is reached (0 = no limit).
+
+|Fire and forget
+|Returns as soon as the run is accepted; does not poll.
+|===
+
+If the parent workflow is stopped while waiting, the action attempts to cancel the Databricks run.
+
+== Result variables
+
+Default variable names (configurable on the **Run** tab):
+
+|===
+|Variable |Content
+
+|`DatabricksJobId`
+|Job ID (when known)
+
+|`DatabricksRunId`
+|Run ID
+
+|`DatabricksStatus`
+|Life-cycle or result state (`SUCCESS`, `FAILED`, `PENDING`, …)
+
+|`DatabricksRunPageUrl`
+|Run page URL when returned by the API
+
+|`DatabricksError`
+|Error message on failure
+|===
+
+== Options
+
+=== Job tab
+
+|===
+|Option |Description
+
+|Databricks connection
+|xref:metadata-types/databricks-connection.adoc[Databricks Connection] metadata name
+
+|Mode
+|Run existing job / One-time submit
+
+|Job ID
+|Numeric job id for run-now
+
+|Submit JSON
+|Full JSON body for runs/submit (one-time mode)
+|===
+
+=== Run tab
+
+|===
+|Option |Description
+
+|Wait mode
+|Wait for completion or fire and forget
+
+|Timeout (seconds)
+|Maximum wait; `0` disables the timeout
+
+|Poll interval (seconds)
+|Delay between status polls (default 15)
+
+|Result variable names
+|Override default variable names above
+|===
+
+== Related
+
+* xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark] — fat jar / MainSpark for JAR tasks on the cluster
+* xref:database/databases/databricks.adoc[Databricks JDBC] — SQL warehouse (different use case)
+
+Deploy (upload jar, create/update job) will be added in a later release; for now, create the job in Databricks or pass a complete submit JSON that references artifacts already on DBFS/UC.
