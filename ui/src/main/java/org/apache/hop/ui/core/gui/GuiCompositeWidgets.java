@@ -220,7 +220,7 @@ public class GuiCompositeWidgets {
       // Add the GUI element
       //
       switch (elementType) {
-        case TEXT, FILENAME, FOLDER:
+        case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
           control = getTextControl(parent, guiElements, props, lastControl, label, useNewLayout);
           break;
         case CHECKBOX:
@@ -545,9 +545,17 @@ public class GuiCompositeWidgets {
         break;
     }
 
+    boolean multiLine = guiElements.getType() == GuiElementType.MULTI_LINE_TEXT;
+    int style;
+    if (multiLine) {
+      // Multi-line does not use password masking.
+      style = SWT.BORDER | SWT.MULTI | SWT.LEFT | SWT.WRAP | SWT.V_SCROLL | SWT.H_SCROLL;
+    } else {
+      style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
+    }
+
     if (guiElements.isVariablesEnabled()) {
-      int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
-      if (guiElements.isPassword()) {
+      if (!multiLine && guiElements.isPassword()) {
         String toolTip =
             StringUtils.isNotEmpty(guiElements.getToolTip()) ? guiElements.getToolTip() : null;
         // PasswordTextVar never mirrors the field value in the tooltip (TextVar may on some
@@ -567,8 +575,7 @@ public class GuiCompositeWidgets {
         text = textVar.getTextWidget();
       }
     } else {
-      int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
-      if (guiElements.isPassword()) {
+      if (!multiLine && guiElements.isPassword()) {
         style |= SWT.PASSWORD;
       }
       text = new Text(parent, style);
@@ -580,6 +587,10 @@ public class GuiCompositeWidgets {
 
     layoutControlBetweenLabelAndRightControl(
         props, lastControl, label, control, actionControl, useNewLayout);
+
+    if (multiLine) {
+      applyMultiLineTextHeight(props, control, text, guiElements.getMultiLineTextHeight());
+    }
 
     // Add an action based on the sub-type:
     switch (guiElements.getType()) {
@@ -645,6 +656,37 @@ public class GuiCompositeWidgets {
               + " and type "
               + guiElements.getType(),
           e);
+    }
+  }
+
+  /**
+   * Sets an explicit FormData height for multi-line text so FormLayout does not collapse the
+   * control to a single line.
+   *
+   * @param props UI properties (zoom)
+   * @param control the outer control (may be TextVar composite)
+   * @param text the inner SWT Text
+   * @param lines preferred height in text lines
+   */
+  private void applyMultiLineTextHeight(PropsUi props, Control control, Text text, int lines) {
+    int lineCount = Math.max(1, lines);
+    int lineHeight = 0;
+    try {
+      if (text != null && !text.isDisposed()) {
+        lineHeight = text.getLineHeight();
+      }
+    } catch (Exception e) {
+      // Fall through to font-based estimate
+    }
+    if (lineHeight <= 0) {
+      // Typical default font height * zoom when the control is not yet realized
+      lineHeight = (int) Math.ceil(15 * props.getZoomFactor());
+    }
+    // Small padding per line for borders / inter-line spacing
+    int linePx = lineHeight + Math.max(1, PropsUi.getMargin() / 2);
+    Object layoutData = control.getLayoutData();
+    if (layoutData instanceof FormData fdControl) {
+      fdControl.height = lineCount * linePx;
     }
   }
 
@@ -878,7 +920,7 @@ public class GuiCompositeWidgets {
         String stringValue = value == null ? "" : Const.NVL(value.toString(), "");
 
         switch (guiElements.getType()) {
-          case TEXT, FILENAME, FOLDER:
+          case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               textVar.setText(stringValue);
@@ -991,7 +1033,7 @@ public class GuiCompositeWidgets {
         Object value = null;
 
         switch (guiElements.getType()) {
-          case TEXT, FILENAME, FOLDER:
+          case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               value = textVar.getText();

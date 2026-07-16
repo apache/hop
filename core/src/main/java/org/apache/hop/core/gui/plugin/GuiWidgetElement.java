@@ -81,6 +81,14 @@ public @interface GuiWidgetElement {
   boolean password() default false;
 
   /**
+   * Preferred height of a {@link GuiElementType#MULTI_LINE_TEXT} widget, in text lines (not
+   * pixels). Default is 1. Values less than 1 are treated as 1. Ignored for other element types.
+   *
+   * @return height in lines
+   */
+  int multiLineTextHeight() default 1;
+
+  /**
    * @return true if the widget supports variables
    */
   boolean variables() default true;

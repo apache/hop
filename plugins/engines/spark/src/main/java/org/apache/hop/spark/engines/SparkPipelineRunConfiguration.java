@@ -63,7 +63,8 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   @GuiWidgetElement(
       order = "20030-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.MULTI_LINE_TEXT,
+      multiLineTextHeight = 5,
       label = "i18n::SparkEngine.OptionsConfigs.Label",
       toolTip = "i18n::SparkEngine.OptionsConfigs.ToolTip")
   @HopMetadataProperty
