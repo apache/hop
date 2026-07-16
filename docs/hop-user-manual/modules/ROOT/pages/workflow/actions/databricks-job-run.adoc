@@ -52,7 +52,7 @@ Use a xref:metadata-types/databricks-connection.adoc[Databricks Connection] (wor
 |Polls `jobs/runs/get` until the run is terminal (`SUCCESS`, `FAILED`, …) or **Timeout** is reached (0 = no limit).
 
 |Fire and forget
-|Returns as soon as the run is accepted; does not poll.
+|Returns as soon as the run is accepted; does not poll. Pair with xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait] later in the workflow (using `${DatabricksRunId}`).
 |===
 
 If the parent workflow is stopped while waiting, the action attempts to cancel the Databricks run.
@@ -133,6 +133,7 @@ Default variable names (configurable on the **Run** tab):
 == Related
 
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+* xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait] — poll a run after fire-and-forget
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark] — fat jar / MainSpark for JAR tasks on the cluster
 * xref:database/databases/databricks.adoc[Databricks JDBC] — SQL warehouse (different use case)
 

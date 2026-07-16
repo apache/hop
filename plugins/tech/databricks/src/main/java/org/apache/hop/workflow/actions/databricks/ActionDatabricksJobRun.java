@@ -32,6 +32,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databricks.client.DatabricksJobsClient;
 import org.apache.hop.databricks.client.DatabricksRunLifeCycleState;
 import org.apache.hop.databricks.client.DatabricksRunStatus;
+import org.apache.hop.databricks.client.DatabricksRunWaiter;
 import org.apache.hop.databricks.client.RestDatabricksJobsClient;
 import org.apache.hop.databricks.deploy.DatabricksJobSpecFactory;
 import org.apache.hop.databricks.deploy.HopSparkDeployHelper;
@@ -339,50 +340,36 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
   private DatabricksRunStatus waitForRun(DatabricksJobsClient client, long runId)
       throws HopException, InterruptedException {
     int timeoutSec = Const.toInt(resolve(timeoutSeconds), 3600);
-    int pollSec = Math.max(1, Const.toInt(resolve(pollIntervalSeconds), 15));
-    long deadline =
-        timeoutSec <= 0 ? Long.MAX_VALUE : System.currentTimeMillis() + timeoutSec * 1000L;
+    int pollSec = Const.toInt(resolve(pollIntervalSeconds), 15);
+    return DatabricksRunWaiter.waitFor(
+        client,
+        runId,
+        timeoutSec,
+        pollSec,
+        true,
+        new DatabricksRunWaiter.Hooks() {
+          @Override
+          public boolean isStopped() {
+            return parentWorkflow != null && parentWorkflow.isStopped();
+          }
 
-    while (true) {
-      if (parentWorkflow != null && parentWorkflow.isStopped()) {
-        try {
-          client.cancelRun(runId);
-        } catch (Exception e) {
-          logError("Failed to cancel Databricks run " + runId + ": " + e.getMessage());
-        }
-        throw new HopException(
-            BaseMessages.getString(PKG, "ActionDatabricksJobRun.Error.WorkflowStopped"));
-      }
+          @Override
+          public void onStatus(DatabricksRunStatus status) {
+            applyStatusVariables(status, status.getJobId());
+          }
 
-      DatabricksRunStatus status = client.getRun(runId);
-      applyStatusVariables(status, status.getJobId());
-      if (isDetailed()) {
-        logDetailed(
-            "Databricks run "
-                + runId
-                + " state="
-                + status.getLifeCycleState()
-                + " result="
-                + Const.NVL(status.getResultState(), "-"));
-      }
+          @Override
+          public void logDetailed(String message) {
+            if (isDetailed()) {
+              ActionDatabricksJobRun.this.logDetailed(message);
+            }
+          }
 
-      if (status.getLifeCycleState().isTerminal()) {
-        return status;
-      }
-
-      if (System.currentTimeMillis() >= deadline) {
-        try {
-          client.cancelRun(runId);
-        } catch (Exception e) {
-          logError("Timeout cancel failed for run " + runId + ": " + e.getMessage());
-        }
-        throw new HopException(
-            BaseMessages.getString(
-                PKG, "ActionDatabricksJobRun.Error.Timeout", Integer.toString(timeoutSec)));
-      }
-
-      Thread.sleep(pollSec * 1000L);
-    }
+          @Override
+          public void logError(String message) {
+            ActionDatabricksJobRun.this.logError(message);
+          }
+        });
   }
 
   private void applyStatusVariables(DatabricksRunStatus status, Long jobIdFallback) {
