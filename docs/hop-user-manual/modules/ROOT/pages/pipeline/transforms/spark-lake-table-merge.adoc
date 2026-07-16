@@ -96,6 +96,14 @@ WHEN NOT MATCHED THEN INSERT *
 * At least one action (matched and/or not-matched) is required.
 * Metrics are **log-only** (merge completion); GUI in/out row counts for the sink may stay at zero.
 
+== Metadata injection
+
+Supports xref:pipeline/metadata-injection.adoc[metadata injection].
+
+Keys: `FORMAT`, `IDENTIFIER_MODE`, `TABLE_PATH`, `TABLE_IDENTIFIER`, `CATALOG_METADATA_NAME`, `MERGE_CONDITION`, `MATCHED_ACTION`, `NOT_MATCHED_ACTION`, `NOT_MATCHED_BY_SOURCE_ACTION`, `RAW_MERGE_SQL`.
+
+Useful for multi-table CDC/upsert templates where merge keys and target tables vary per run.
+
 == Notes
 
 * Exactly **one** main-stream input hop.

@@ -31,20 +31,20 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 public class SparkField implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  @HopMetadataProperty(key = "name")
+  @HopMetadataProperty(key = "name", injectionKey = "NAME")
   private String name;
 
   /** Hop type description, e.g. String, Integer, Number, Boolean, Date, BigNumber, Binary */
-  @HopMetadataProperty(key = "type")
+  @HopMetadataProperty(key = "type", injectionKey = "TYPE")
   private String hopType = "String";
 
-  @HopMetadataProperty(key = "length")
+  @HopMetadataProperty(key = "length", injectionKey = "LENGTH")
   private int length = -1;
 
-  @HopMetadataProperty(key = "precision")
+  @HopMetadataProperty(key = "precision", injectionKey = "PRECISION")
   private int precision = -1;
 
-  @HopMetadataProperty(key = "format")
+  @HopMetadataProperty(key = "format", injectionKey = "FORMAT_MASK")
   private String formatMask;
 
   public SparkField() {}

@@ -45,45 +45,47 @@ import org.apache.hop.spark.util.SparkConst;
 public class SparkLakeTableMergeMeta
     extends BaseTransformMeta<SparkLakeTableMerge, SparkLakeTableMergeData> {
 
-  @HopMetadataProperty(key = "format")
+  @HopMetadataProperty(key = "format", injectionKey = "FORMAT")
   private String format = SparkLakeFormats.FORMAT_DELTA;
 
-  @HopMetadataProperty(key = "identifier_mode")
+  @HopMetadataProperty(key = "identifier_mode", injectionKey = "IDENTIFIER_MODE")
   private String identifierMode = SparkLakeTableInputMeta.MODE_PATH;
 
-  @HopMetadataProperty(key = "table_path")
+  @HopMetadataProperty(key = "table_path", injectionKey = "TABLE_PATH")
   private String tablePath;
 
-  @HopMetadataProperty(key = "table_identifier")
+  @HopMetadataProperty(key = "table_identifier", injectionKey = "TABLE_IDENTIFIER")
   private String tableIdentifier;
 
-  @HopMetadataProperty(key = "catalog_metadata_name")
+  @HopMetadataProperty(key = "catalog_metadata_name", injectionKey = "CATALOG_METADATA_NAME")
   private String catalogMetadataName;
 
   /** ON clause, e.g. {@code t.id = s.id} (t = target, s = source). */
-  @HopMetadataProperty(key = "merge_condition")
+  @HopMetadataProperty(key = "merge_condition", injectionKey = "MERGE_CONDITION")
   private String mergeCondition;
 
   /** {@link SparkMergeSqlBuilder#MATCHED_UPDATE_ALL}, DELETE, or NONE */
-  @HopMetadataProperty(key = "matched_action")
+  @HopMetadataProperty(key = "matched_action", injectionKey = "MATCHED_ACTION")
   private String matchedAction = SparkMergeSqlBuilder.MATCHED_UPDATE_ALL;
 
   /** {@link SparkMergeSqlBuilder#NOT_MATCHED_INSERT_ALL} or NONE */
-  @HopMetadataProperty(key = "not_matched_action")
+  @HopMetadataProperty(key = "not_matched_action", injectionKey = "NOT_MATCHED_ACTION")
   private String notMatchedAction = SparkMergeSqlBuilder.NOT_MATCHED_INSERT_ALL;
 
   /**
    * Optional {@link SparkMergeSqlBuilder#NOT_MATCHED_BY_SOURCE_DELETE} (Delta; Iceberg support
    * varies). Default NONE.
    */
-  @HopMetadataProperty(key = "not_matched_by_source_action")
+  @HopMetadataProperty(
+      key = "not_matched_by_source_action",
+      injectionKey = "NOT_MATCHED_BY_SOURCE_ACTION")
   private String notMatchedBySourceAction = SparkMergeSqlBuilder.NOT_MATCHED_BY_SOURCE_NONE;
 
   /**
    * Advanced: full MERGE SQL. When non-empty, overrides structured fields. Operator is trusted;
    * empty by default.
    */
-  @HopMetadataProperty(key = "raw_merge_sql")
+  @HopMetadataProperty(key = "raw_merge_sql", injectionKey = "RAW_MERGE_SQL")
   private String rawMergeSql;
 
   public SparkLakeTableMergeMeta() {

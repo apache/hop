@@ -192,6 +192,12 @@ Writes, merges, and maintenance run as Spark **actions** during graph materialis
 * Prefer a single Lake Table Output / Merge / Maintenance leaf per branch; avoid graphs that would re-trigger the same ACID action.
 * Do not use *Spark File Output* with format `delta` / `iceberg` — use Lake Table transforms so session plan, probes, and SQL identifiers stay consistent.
 
+=== Metadata injection (MDI)
+
+All four Lake Table transforms support xref:pipeline/metadata-injection.adoc[metadata injection] so complex multi-table landings, CDC upserts, and fleet maintenance can use **one template pipeline** driven by an injecting pipeline (table path/identifier, format, merge condition, OPTIMIZE/VACUUM parameters, etc.).
+
+Injection keys are documented on each transform page. Shared identity keys: `FORMAT`, `IDENTIFIER_MODE`, `TABLE_PATH`, `TABLE_IDENTIFIER`, `CATALOG_METADATA_NAME`.
+
 === Quick PATH round-trip (Delta)
 
 . Install Delta jars (see above) and restart Hop.

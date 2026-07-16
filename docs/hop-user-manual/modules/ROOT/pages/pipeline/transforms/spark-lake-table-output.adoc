@@ -90,6 +90,14 @@ NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam
 * **Iceberg TABLE:** `writeTo(catalog.ns.table).using("iceberg")`.
 * **Delta TABLE (advanced):** `format("delta").saveAsTable(id)`.
 
+== Metadata injection
+
+Supports xref:pipeline/metadata-injection.adoc[metadata injection].
+
+Keys: `FORMAT`, `IDENTIFIER_MODE`, `TABLE_PATH`, `TABLE_IDENTIFIER`, `CATALOG_METADATA_NAME`, `SAVE_MODE`, `PARTITION_BY`, `COALESCE`, `EXTRA_OPTIONS`.
+
+Use this with a template write path when landing many tables (different paths/identifiers/save modes) from one injecting pipeline.
+
 == Notes
 
 * Requires exactly one main-stream upstream hop (the data to write).

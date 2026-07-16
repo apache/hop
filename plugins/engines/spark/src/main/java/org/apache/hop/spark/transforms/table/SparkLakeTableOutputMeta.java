@@ -46,36 +46,36 @@ public class SparkLakeTableOutputMeta
     extends BaseTransformMeta<SparkLakeTableOutput, SparkLakeTableOutputData> {
 
   /** {@link SparkLakeFormats#FORMAT_DELTA} or {@link SparkLakeFormats#FORMAT_ICEBERG} */
-  @HopMetadataProperty(key = "format")
+  @HopMetadataProperty(key = "format", injectionKey = "FORMAT")
   private String format = SparkLakeFormats.FORMAT_DELTA;
 
-  @HopMetadataProperty(key = "identifier_mode")
+  @HopMetadataProperty(key = "identifier_mode", injectionKey = "IDENTIFIER_MODE")
   private String identifierMode = SparkLakeTableInputMeta.MODE_PATH;
 
-  @HopMetadataProperty(key = "table_path")
+  @HopMetadataProperty(key = "table_path", injectionKey = "TABLE_PATH")
   private String tablePath;
 
-  @HopMetadataProperty(key = "table_identifier")
+  @HopMetadataProperty(key = "table_identifier", injectionKey = "TABLE_IDENTIFIER")
   private String tableIdentifier;
 
-  @HopMetadataProperty(key = "catalog_metadata_name")
+  @HopMetadataProperty(key = "catalog_metadata_name", injectionKey = "CATALOG_METADATA_NAME")
   private String catalogMetadataName;
 
   /**
    * Default {@link SparkFileOutputMeta#MODE_ERROR} (ErrorIfExists) — ACID tables must not default
    * to destructive overwrite.
    */
-  @HopMetadataProperty(key = "save_mode")
+  @HopMetadataProperty(key = "save_mode", injectionKey = "SAVE_MODE")
   private String saveMode = SparkFileOutputMeta.MODE_ERROR;
 
-  @HopMetadataProperty(key = "partition_by")
+  @HopMetadataProperty(key = "partition_by", injectionKey = "PARTITION_BY")
   private String partitionByColumns;
 
-  @HopMetadataProperty(key = "coalesce")
+  @HopMetadataProperty(key = "coalesce", injectionKey = "COALESCE")
   private String coalescePartitions;
 
   /** Extra Spark write options as key=value lines */
-  @HopMetadataProperty(key = "extra_options")
+  @HopMetadataProperty(key = "extra_options", injectionKey = "EXTRA_OPTIONS")
   private String extraOptions;
 
   public SparkLakeTableOutputMeta() {

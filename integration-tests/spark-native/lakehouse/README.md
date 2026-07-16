@@ -122,6 +122,18 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 
 Keep Delta on `spark_catalog`; put Iceberg catalogs under other names.
 
+## Metadata injection (MDI)
+
+Lake Table Input / Output / Merge / Maintenance expose injection keys (see transform
+docs). Pattern for multi-table work:
+
+1. Template pipeline: Lake Table transforms with empty/variable placeholders.
+2. Injecting pipeline: ETL Metadata Injection maps rows (path, table id, merge ON
+   clause, maintenance op, …) into the template.
+3. Run the template under a **Native Spark** run configuration.
+
+Unit coverage: `SparkLakeTable*MetaInjectionTest` in `plugins/engines/spark`.
+
 ## Automated tests (developers)
 
 ```bash

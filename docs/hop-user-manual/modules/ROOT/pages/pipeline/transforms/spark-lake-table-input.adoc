@@ -106,6 +106,16 @@ NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam
 
 Tip: After two Overwrite writes, Delta version `0` is typically the first commit. For Iceberg, inspect `{table}.snapshots` (or catalog metadata) for snapshot ids.
 
+== Metadata injection
+
+All options support xref:pipeline/metadata-injection.adoc[metadata injection] (ETL Metadata Injection).
+
+Common keys: `FORMAT`, `IDENTIFIER_MODE`, `TABLE_PATH`, `TABLE_IDENTIFIER`, `CATALOG_METADATA_NAME`, `TIME_TRAVEL_TYPE`, `TIME_TRAVEL_VERSION`, `TIME_TRAVEL_TIMESTAMP`, `EXTRA_OPTIONS`.
+
+Field projection group `FIELDS`: `NAME`, `TYPE`, `LENGTH`, `PRECISION`, `FORMAT_MASK`.
+
+Typical pattern: template pipeline with Lake Table Input; injecting pipeline supplies table paths / identifiers (and optional field list) per supplier or table.
+
 == Notes
 
 * Prefer Lake Table Input over *Spark File Input* for `delta` / `iceberg` so session extensions, `hop_iceberg` PATH catalog, and probes stay consistent.

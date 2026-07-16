@@ -117,6 +117,14 @@ Aliases accepted for operation: `COMPACT` / `REWRITE_DATA_FILES` → OPTIMIZE; `
 * Iceberg CALL procedures use the catalog name from TABLE mode (`lake` in `lake.db.t`) or `hop_iceberg` for PATH mode.
 * Metrics are **log-only**; expect little or no GUI row traffic on this sink.
 
+== Metadata injection
+
+Supports xref:pipeline/metadata-injection.adoc[metadata injection].
+
+Keys: `FORMAT`, `IDENTIFIER_MODE`, `TABLE_PATH`, `TABLE_IDENTIFIER`, `CATALOG_METADATA_NAME`, `OPERATION`, `RETENTION_HOURS`, `RETAIN_LAST`, `WHERE_CLAUSE`, `ZORDER_COLUMNS`, `ACKNOWLEDGE_DESTRUCTIVE`.
+
+Injecting pipelines can drive fleet-wide OPTIMIZE/VACUUM across many tables; still set retention and destructive acknowledgement deliberately.
+
 == Safety
 
 * There is **no** default retention for vacuum/expire — set hours deliberately for your recovery needs.

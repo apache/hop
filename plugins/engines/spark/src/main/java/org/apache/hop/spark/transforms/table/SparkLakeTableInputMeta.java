@@ -56,47 +56,51 @@ public class SparkLakeTableInputMeta
   public static final String TIME_TRAVEL_TIMESTAMP = "TIMESTAMP";
 
   /** {@link SparkLakeFormats#FORMAT_DELTA} or {@link SparkLakeFormats#FORMAT_ICEBERG} */
-  @HopMetadataProperty(key = "format")
+  @HopMetadataProperty(key = "format", injectionKey = "FORMAT")
   private String format = SparkLakeFormats.FORMAT_DELTA;
 
   /** PATH (v1 primary) or TABLE (catalog — later PRs) */
-  @HopMetadataProperty(key = "identifier_mode")
+  @HopMetadataProperty(key = "identifier_mode", injectionKey = "IDENTIFIER_MODE")
   private String identifierMode = MODE_PATH;
 
-  @HopMetadataProperty(key = "table_path")
+  @HopMetadataProperty(key = "table_path", injectionKey = "TABLE_PATH")
   private String tablePath;
 
   /** Catalog-qualified table id when mode is TABLE (e.g. lake.db.orders). */
-  @HopMetadataProperty(key = "table_identifier")
+  @HopMetadataProperty(key = "table_identifier", injectionKey = "TABLE_IDENTIFIER")
   private String tableIdentifier;
 
   /** Hop SparkCatalog metadata name when mode is TABLE. */
-  @HopMetadataProperty(key = "catalog_metadata_name")
+  @HopMetadataProperty(key = "catalog_metadata_name", injectionKey = "CATALOG_METADATA_NAME")
   private String catalogMetadataName;
 
   /**
    * Time travel: {@link #TIME_TRAVEL_NONE}, {@link #TIME_TRAVEL_VERSION}, or {@link
    * #TIME_TRAVEL_TIMESTAMP}.
    */
-  @HopMetadataProperty(key = "time_travel_type")
+  @HopMetadataProperty(key = "time_travel_type", injectionKey = "TIME_TRAVEL_TYPE")
   private String timeTravelType = TIME_TRAVEL_NONE;
 
   /** Delta version number or Iceberg snapshot id (when type is VERSION). Supports variables. */
-  @HopMetadataProperty(key = "time_travel_version")
+  @HopMetadataProperty(key = "time_travel_version", injectionKey = "TIME_TRAVEL_VERSION")
   private String timeTravelVersion;
 
   /**
    * Spark-parseable timestamp string (when type is TIMESTAMP), e.g. {@code 2024-01-15 10:30:00}.
    */
-  @HopMetadataProperty(key = "time_travel_timestamp")
+  @HopMetadataProperty(key = "time_travel_timestamp", injectionKey = "TIME_TRAVEL_TIMESTAMP")
   private String timeTravelTimestamp;
 
   /** Extra Spark read options as key=value lines */
-  @HopMetadataProperty(key = "extra_options")
+  @HopMetadataProperty(key = "extra_options", injectionKey = "EXTRA_OPTIONS")
   private String extraOptions;
 
   /** Optional projection (name-based select/cast). */
-  @HopMetadataProperty(groupKey = "fields", key = "field")
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "SparkLakeTableInput.Injection.Group.Fields")
   private List<SparkField> fields = new ArrayList<>();
 
   public SparkLakeTableInputMeta() {

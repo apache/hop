@@ -45,46 +45,46 @@ import org.apache.hop.spark.util.SparkConst;
 public class SparkLakeTableMaintenanceMeta
     extends BaseTransformMeta<SparkLakeTableMaintenance, SparkLakeTableMaintenanceData> {
 
-  @HopMetadataProperty(key = "format")
+  @HopMetadataProperty(key = "format", injectionKey = "FORMAT")
   private String format = SparkLakeFormats.FORMAT_DELTA;
 
-  @HopMetadataProperty(key = "identifier_mode")
+  @HopMetadataProperty(key = "identifier_mode", injectionKey = "IDENTIFIER_MODE")
   private String identifierMode = SparkLakeTableInputMeta.MODE_PATH;
 
-  @HopMetadataProperty(key = "table_path")
+  @HopMetadataProperty(key = "table_path", injectionKey = "TABLE_PATH")
   private String tablePath;
 
-  @HopMetadataProperty(key = "table_identifier")
+  @HopMetadataProperty(key = "table_identifier", injectionKey = "TABLE_IDENTIFIER")
   private String tableIdentifier;
 
-  @HopMetadataProperty(key = "catalog_metadata_name")
+  @HopMetadataProperty(key = "catalog_metadata_name", injectionKey = "CATALOG_METADATA_NAME")
   private String catalogMetadataName;
 
   /** {@link SparkMaintenanceSqlBuilder} operation constants. */
-  @HopMetadataProperty(key = "operation")
+  @HopMetadataProperty(key = "operation", injectionKey = "OPERATION")
   private String operation = SparkMaintenanceSqlBuilder.OP_OPTIMIZE;
 
   /** Required for VACUUM / EXPIRE_SNAPSHOTS (hours). No silent default. */
-  @HopMetadataProperty(key = "retention_hours")
+  @HopMetadataProperty(key = "retention_hours", injectionKey = "RETENTION_HOURS")
   private String retentionHours;
 
   /** Iceberg expire_snapshots retain_last (default 1 when retentionHours set). */
-  @HopMetadataProperty(key = "retain_last")
+  @HopMetadataProperty(key = "retain_last", injectionKey = "RETAIN_LAST")
   private String retainLast;
 
   /** Optional WHERE for OPTIMIZE / DELETE_WHERE. */
-  @HopMetadataProperty(key = "where_clause")
+  @HopMetadataProperty(key = "where_clause", injectionKey = "WHERE_CLAUSE")
   private String whereClause;
 
   /** Optional Delta OPTIMIZE ZORDER BY columns (comma-separated). */
-  @HopMetadataProperty(key = "zorder_columns")
+  @HopMetadataProperty(key = "zorder_columns", injectionKey = "ZORDER_COLUMNS")
   private String zOrderColumns;
 
   /**
    * Must be true for destructive ops (VACUUM, EXPIRE_SNAPSHOTS, DELETE_WHERE). Operator
    * acknowledgement that data files / snapshots may be removed.
    */
-  @HopMetadataProperty(key = "acknowledge_destructive")
+  @HopMetadataProperty(key = "acknowledge_destructive", injectionKey = "ACKNOWLEDGE_DESTRUCTIVE")
   private boolean acknowledgeDestructive;
 
   public SparkLakeTableMaintenanceMeta() {
