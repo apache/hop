@@ -174,7 +174,8 @@ MERGE, maintenance). Connectors **ship in the default** `hop-engines-spark` plug
 **User documentation (Antora):**
 `docs/hop-user-manual/.../pipeline/spark/lakehouse.adoc` plus transform pages
 `spark-lake-table-*.adoc` and `metadata-types/spark-catalog.adoc`.
-**Operator samples:** `integration-tests/spark-native/lakehouse/README.md`.
+**Integration tests:** `integration-tests/lakehouse` (Delta) and
+`integration-tests/iceberg` (Iceberg) — PATH Input/Output, overwrite/time travel, MERGE.
 
 | Pin | Coordinate |
 |-----|------------|

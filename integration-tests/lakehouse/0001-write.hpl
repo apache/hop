@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>0001-write</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>delta PATH write 10 rows</description>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <created_user>-</created_user>
+    <created_date>2026/07/16 00:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/07/16 00:00:00.000</modified_date>
+  </info>
+  <notepads/>
+  <order>
+    <hop>
+      <from>Seed</from>
+      <to>Lake Output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+
+  <transform>
+    <name>Seed</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line><item>0</item><item>n0</item></line>
+      <line><item>1</item><item>n1</item></line>
+      <line><item>2</item><item>n2</item></line>
+      <line><item>3</item><item>n3</item></line>
+      <line><item>4</item><item>n4</item></line>
+      <line><item>5</item><item>n5</item></line>
+      <line><item>6</item><item>n6</item></line>
+      <line><item>7</item><item>n7</item></line>
+      <line><item>8</item><item>n8</item></line>
+      <line><item>9</item><item>n9</item></line>
+    </data>
+
+    <fields>
+      <field>
+        <name>id</name>
+        <type>Integer</type>
+        <format>#</format>
+        <length>-1</length>
+        <precision>0</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>name</name>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <type>SparkLakeTableOutput</type>
+    <name>Lake Output</name>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <format>delta</format>
+    <identifier_mode>PATH</identifier_mode>
+    <table_path>${PROJECT_HOME}/output/0001-table</table_path>
+    <table_identifier/>
+    <catalog_metadata_name/>
+    <save_mode>Overwrite</save_mode>
+    <partition_by/>
+    <coalesce/>
+    <extra_options/>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <attributes/>
+  <transform_error_handling/>
+</pipeline>

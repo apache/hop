@@ -264,4 +264,4 @@ Standalone *Spark Lake Table Maintenance*:
 * xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge]
 * xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance]
 * Developer notes and spike findings: `plugins/engines/spark/README.md` in the Hop source tree
-* Sample walkthroughs: `integration-tests/spark-native/lakehouse/README.md` in the Hop source tree
+* Integration tests: `integration-tests/lakehouse` (Delta) and `integration-tests/iceberg` (Iceberg) in the Hop source tree

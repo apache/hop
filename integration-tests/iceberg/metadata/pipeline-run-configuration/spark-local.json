@@ -1,0 +1,18 @@
+{
+  "engineRunConfiguration": {
+    "SparkPipelineEngine": {
+      "sparkMaster": "local[2]",
+      "sparkAppName": "hop-it-iceberg",
+      "sparkConfigs": "spark.ui.enabled=false\nspark.driver.host=localhost",
+      "fatJar": "",
+      "tempLocation": "/tmp",
+      "driverMemory": "",
+      "executorMemory": "",
+      "executorCores": "",
+      "pluginsToStage": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "spark-local",
+  "description": "Native Spark local[2] for iceberg lake table ITs"
+}

@@ -1,0 +1,18 @@
+{
+  "engineRunConfiguration": {
+    "SparkPipelineEngine": {
+      "sparkMaster": "local[2]",
+      "sparkAppName": "hop-it-lakehouse",
+      "sparkConfigs": "spark.ui.enabled=false\nspark.driver.host=localhost",
+      "fatJar": "",
+      "tempLocation": "/tmp",
+      "driverMemory": "",
+      "executorMemory": "",
+      "executorCores": "",
+      "pluginsToStage": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "spark-local",
+  "description": "Native Spark local[2] for lakehouse lake table ITs"
+}
