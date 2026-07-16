@@ -163,7 +163,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   public ActionFtpPut(ActionFtpPut a) {
-    super(a.getName(), a.getDescription());
+    super(a.getName(), a.getDescription(), a.getPluginId());
     this.serverName = a.serverName;
     this.serverPort = a.serverPort;
     this.userName = a.userName;

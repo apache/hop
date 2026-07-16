@@ -43,4 +43,27 @@ class ActionCheckFilesLockedTest {
     Assertions.assertEquals("/tmp/folder2", action.getCheckedFiles().get(1).getName());
     Assertions.assertEquals(".*\\.zip$", action.getCheckedFiles().get(1).getWildcard());
   }
+
+  /**
+   * Resource export clones every action before serializing it. A clone that loses its name or
+   * plugin id ends up in the export with an empty name and without its type, and the exported
+   * workflow then fails to load on a remote server. See issue #5644.
+   */
+  @Test
+  void cloneKeepsNamePluginIdAndFields() {
+    ActionCheckFilesLocked action = new ActionCheckFilesLocked("Check files locked");
+    action.setDescription("a description");
+    action.setPluginId("CHECK_FILES_LOCKED");
+    action.setIncludeSubfolders(true);
+    action.getCheckedFiles().add(new ActionCheckFilesLocked.CheckedFile("/tmp/file", ".*\\.txt$"));
+
+    ActionCheckFilesLocked copy = (ActionCheckFilesLocked) action.clone();
+
+    Assertions.assertEquals("Check files locked", copy.getName());
+    Assertions.assertEquals("a description", copy.getDescription());
+    Assertions.assertEquals("CHECK_FILES_LOCKED", copy.getPluginId());
+    Assertions.assertTrue(copy.isIncludeSubfolders());
+    Assertions.assertEquals(1, copy.getCheckedFiles().size());
+    Assertions.assertEquals("/tmp/file", copy.getCheckedFiles().get(0).getName());
+  }
 }
