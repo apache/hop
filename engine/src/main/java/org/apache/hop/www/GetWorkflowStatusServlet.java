@@ -130,6 +130,8 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           workflowStatus.setFirstLoggingLineNr(startLineNr);
           workflowStatus.setLastLoggingLineNr(lastLineNr);
           workflowStatus.setLogDate(workflow.getExecutionStartDate());
+          workflowStatus.setExecutionStartDate(workflow.getExecutionStartDate());
+          workflowStatus.setExecutionEndDate(workflow.getExecutionEndDate());
 
           // Add status of executed actions
           for (ActionResult actionResult : workflow.getActionResults()) {
