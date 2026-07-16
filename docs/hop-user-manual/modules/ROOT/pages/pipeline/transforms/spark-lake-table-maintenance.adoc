@@ -1,0 +1,130 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Spark Lake Table Maintenance runs OPTIMIZE, VACUUM, expire snapshots, and related operations on Delta Lake or Apache Iceberg tables.
+
+= image:transforms/icons/spark-lake-table-maintenance.svg[Spark Lake Table Maintenance transform Icon, role="image-doc-icon"] Spark Lake Table Maintenance
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+*Spark Lake Table Maintenance* runs operational SQL / procedures against a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine]: compaction (OPTIMIZE / rewrite data files), vacuum, expire snapshots, rewrite manifests, or conditional deletes.
+
+It is a **zero-input** action sink (no hop required). Destructive operations require an explicit acknowledgement.
+
+Connector install and session rules: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:cross.svg[Not Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
+!===
+
+NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam Spark).
+|===
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|Format
+|`delta` or `iceberg`.
+
+|Identifier mode
+|`PATH` or `TABLE` for the target table.
+
+|Table path / Table identifier / Spark Catalog
+|Same semantics as other Lake Table transforms.
+
+|Operation
+|See <<operations,Operations matrix>> below.
+
+|Retention hours
+|**Required** for `VACUUM` and `EXPIRE_SNAPSHOTS`. No silent default — you must set how long to retain history.
+
+|Retain last
+|Iceberg `expire_snapshots` `retain_last` (defaults to `1` when retention is set and this field is blank).
+
+|Where clause
+|Optional filter for `OPTIMIZE` / required for `DELETE_WHERE` (without the `WHERE` keyword), e.g. `id < 10`.
+
+|Z-Order columns
+|Optional comma-separated columns for Delta `OPTIMIZE … ZORDER BY (…)`.
+
+|Acknowledge destructive
+|Must be enabled for `VACUUM`, `EXPIRE_SNAPSHOTS`, and `DELETE_WHERE`. Confirms that data files or snapshots may be removed.
+|===
+
+[[operations]]
+== Operations matrix
+
+[options="header",cols="1,2,2"]
+|===
+|Operation |Delta |Iceberg
+
+|OPTIMIZE
+|`OPTIMIZE delta.\`path\` [ZORDER BY …]` (optional WHERE)
+|`CALL cat.system.rewrite_data_files(table => '…')`
+
+|VACUUM
+|`VACUUM … RETAIN n HOURS` (**n required**); destructive ack
+|Not used — use `EXPIRE_SNAPSHOTS`
+
+|EXPIRE_SNAPSHOTS
+|n/a
+|`CALL … expire_snapshots(…)` with retention / retain_last; destructive ack
+
+|REWRITE_MANIFESTS
+|n/a
+|`CALL … rewrite_manifests(…)`
+
+|DELETE_WHERE
+|`DELETE FROM … WHERE …` (**WHERE required**); destructive ack
+|Same SQL pattern; destructive ack
+|===
+
+Aliases accepted for operation: `COMPACT` / `REWRITE_DATA_FILES` → OPTIMIZE; `EXPIRE` → EXPIRE_SNAPSHOTS; `DELETE` → DELETE_WHERE.
+
+== Behaviour
+
+* SQL is executed as a Spark action during graph materialisation; an empty leaf Dataset is registered afterward.
+* Iceberg CALL procedures use the catalog name from TABLE mode (`lake` in `lake.db.t`) or `hop_iceberg` for PATH mode.
+* Metrics are **log-only**; expect little or no GUI row traffic on this sink.
+
+== Safety
+
+* There is **no** default retention for vacuum/expire — set hours deliberately for your recovery needs.
+* Destructive ops without acknowledgement fail validation.
+* Prefer OPTIMIZE / rewrite for routine compaction; use VACUUM / expire only when you understand snapshot and time-travel impact.
+
+== Related pages
+
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge]

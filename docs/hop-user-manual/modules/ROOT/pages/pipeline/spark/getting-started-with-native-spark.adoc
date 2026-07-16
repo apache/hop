@@ -27,6 +27,8 @@ This guide is for data engineers who already know the basics of Hop pipelines (t
 
 It walks you from “what is this?” through a `local[*]` first run, cluster `spark-submit`, Spark-oriented I/O, metrics, limitations, and concrete examples from the `integration-tests/spark-native` project.
 
+For **Delta Lake** and **Apache Iceberg** (ACID tables, catalogs, time travel, MERGE, maintenance), see the dedicated xref:pipeline/spark/lakehouse.adoc[lakehouse guide] after you have a working native Spark run configuration.
+
 == What is the native Spark pipeline engine?
 
 === In one sentence
@@ -418,6 +420,16 @@ Common options:
 
 Writes run as Spark *actions* when the engine materialises the graph. Prefer *Spark File Output* for large partitioned writes to object stores or HDFS.
 
+=== Open table formats (Delta Lake / Apache Iceberg)
+
+Classic *Spark File* transforms cover `csv` / `parquet` / `json` / `orc` / `text` only. For ACID lake tables use the dedicated **Lake Table** transforms (Big Data category):
+
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] / xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance]
+* xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata for Iceberg TABLE mode
+
+Connector JARs are **not** in the default Hop assembly — install them under `plugins/engines/spark/lib/{delta,iceberg}` (hop-run/GUI) or via `spark-submit --packages`, then **restart Hop**. Full packaging, session conf, PATH vs TABLE, and samples: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+
 === Classic Hop I/O and `${Internal.Transform.ID}`
 
 You can still use classic transforms such as *Text File Input*, *Text File Output*, *Get File Names*, or *Microsoft Excel Input* on the generic mapPartitions path (useful for POCs and small lookups). Those plugins are staged for the Spark engine via `plugins/engines/spark/dependencies.xml`.
@@ -653,14 +665,17 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 * [ ] Cluster: metadata JSON exported; run configuration name matches submit args
 * [ ] No sorted Group By; no reliance on Copy/Distribute multi-hop behaviour
 * [ ] Classic writers use `${Internal.Transform.ID}` (or accept Spark File Output for bulk writes)
+* [ ] Lakehouse (optional): Delta/Iceberg jars installed + Hop restarted; see xref:pipeline/spark/lakehouse.adoc[lakehouse guide]
 
 == Related pages
 
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine] (option reference)
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine] (Delta / Iceberg)
 * xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine] (contrast)
 * xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
 * xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline run configurations]
 * xref:metadata-types/execution-information-location.adoc[Execution information location]
 * xref:metadata-types/execution-data-profile.adoc[Execution data profile]
+* xref:metadata-types/spark-catalog.adoc[Spark Catalog]
 * xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective]
 * xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf] (fat jar, metadata export)

@@ -249,7 +249,7 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
    * Select and cast columns by name in the order of {@code fields}. Extra file columns are dropped;
    * missing names become null columns with a warning.
    */
-  static Dataset<Row> projectAndCastByName(
+  public static Dataset<Row> projectAndCastByName(
       ILogChannel log, String transformName, Dataset<Row> source, List<SparkField> fields)
       throws HopException {
 

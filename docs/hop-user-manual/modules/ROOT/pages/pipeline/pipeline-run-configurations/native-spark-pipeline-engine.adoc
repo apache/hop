@@ -85,4 +85,5 @@ Also configure *Execution information location* and *Execution data profile* on 
 === Related
 
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine] (Delta Lake / Apache Iceberg)
 * xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]

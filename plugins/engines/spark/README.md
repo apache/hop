@@ -161,8 +161,247 @@ provide a clean Dataset API mapping:
 Writes run as Spark actions during graph build; the output handler registers an empty leaf
 Dataset so a later engine `count()` does not re-write files.
 
+## Lakehouse connectors (Delta Lake / Apache Iceberg)
+
+Optional **open table format** support (design: open table formats & ACID on native Spark).
+Connector JARs are **not** shipped in the default Hop client assembly (size + license review).
+v1 distribution is **docs-only + operator install** (no automated ASF overlay zip).
+
+**User documentation (Antora):**
+`docs/hop-user-manual/.../pipeline/spark/lakehouse.adoc` plus transform pages
+`spark-lake-table-*.adoc` and `metadata-types/spark-catalog.adoc`.
+**Operator samples:** `integration-tests/spark-native/lakehouse/README.md`.
+
+| Pin | Coordinate |
+|-----|------------|
+| Spark | `spark-sql_2.13:4.1.2` (existing) |
+| Delta Lake | `io.delta:delta-spark_4.1_2.13:4.3.1` |
+| Apache Iceberg | `org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0` |
+
+The `_4.1_2.13` suffix means **Spark 4.1 / Scala 2.13**, not the product major version.
+
+### Classloader (why not a sibling plugin)
+
+`SparkPipelineEngine` sets TCCL to the **Spark engine plugin classloader**, which loads:
+
+1. JARs under `plugins/engines/spark/lib/` (recursive)
+2. Folders from `plugins/engines/spark/dependencies.xml`
+3. The engine plugin jar
+
+A sibling plugin under `plugins/engines/spark-delta` is a **separate** classloader and is
+**not** visible to `SparkSession` / DataSource resolution. Install connectors **into** the
+engine lib tree (or onto the spark-submit driver/executor classpath).
+
+### hop-run / GUI `local[*]` (manual overlay)
+
+1. Resolve connector jars (see frozen list below, or use the Maven profile).
+2. Copy them under:
+   - `plugins/engines/spark/lib/delta/` and/or
+   - `plugins/engines/spark/lib/iceberg/`
+3. **Restart Hop** — `PluginRegistry` / `JarCache` do not hot-reload new JARs.
+4. Do **not** re-stage Jackson core/databind/annotations, Spark, Scala library, or slf4j
+   bindings (Hop parent CL + existing spark lib already provide them).
+
+```bash
+# Dev: stage Delta + Iceberg specific jars into target/lakehouse-connectors
+./mvnw -pl plugins/engines/spark -Plakehouse generate-test-resources
+
+# Then copy into your Hop install (example):
+# cp plugins/engines/spark/target/lakehouse-connectors/delta-*.jar \
+#    $HOP_HOME/plugins/engines/spark/lib/delta/
+# cp plugins/engines/spark/target/lakehouse-connectors/iceberg-*.jar \
+#    $HOP_HOME/plugins/engines/spark/lib/iceberg/
+```
+
+### spark-submit
+
+Prefer `--packages` (or admin-managed `$SPARK_HOME/jars`). Use a **native-provided** fat jar
+so Spark is not embedded twice:
+
+```bash
+export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
+
+"${SPARK_HOME}/bin/spark-submit" \
+  --master spark://spark:7077 \
+  --packages io.delta:delta-spark_4.1_2.13:4.3.1,org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:1.11.0 \
+  --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
+  --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+  --class org.apache.hop.spark.run.MainSpark \
+  /tmp/hop-native-provided.jar \
+  /path/to/pipeline.hpl \
+  /path/to/metadata.json \
+  YourNativeSparkRunConfig
+```
+
+When both Delta and Iceberg are used, keep **Delta** on `spark_catalog` and register Iceberg
+catalogs under **other** names (e.g. `lake`).
+
+### Session conf matrix (spike / future transforms)
+
+| When | Conf |
+|------|------|
+| Any Delta use | `spark.sql.extensions` includes `io.delta.sql.DeltaSparkSessionExtension` |
+| Any Delta use | `spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog` |
+| Any Iceberg use | `spark.sql.extensions` includes `org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions` |
+| Iceberg TABLE | `spark.sql.catalog.<name>=…` (+ type/warehouse/uri) |
+
+### Spike findings (PR 1 — 2026-07, Spark 4.1.2 + Delta 4.3.1 + Iceberg 1.11.0)
+
+Recorded by `SparkLakehouseConnectorTest` with `-Plakehouse`:
+
+| Check | Result |
+|-------|--------|
+| `Class.forName(DeltaSparkSessionExtension)` with connector on CL | OK |
+| PATH write/read with extension **and** DeltaCatalog | OK (required gate) |
+| PATH write/read with extension **only** (no DeltaCatalog) | **Fails** with `DELTA_CONFIGURE_SPARK_SESSION_WITH_EXTENSION_AND_CATALOG` |
+| Iceberg extension on CL | OK |
+| Iceberg bare `format("iceberg").save/load(path)` (no catalog conf) | **Fails** — defaults toward `HiveCatalog` / needs HMS jars |
+| Iceberg `writeTo(hop_iceberg.\`file:///path\`)` + SQL read (PR 3) | **OK** |
+| Iceberg Hadoop warehouse + `writeTo("local.db.t")` + `spark.table` | OK (named-table style) |
+| Iceberg TABLE `writeTo` vs `saveAsTable` | **writeTo for PATH**; formal TABLE lock still PR 5 / KD-24 |
+
+**Tiered probe default (updated by spike + PR 3):**
+
+- Always require connector classes on the classpath.
+- **Any Delta use (including PATH-only)** requires session-registered
+  `DeltaSparkSessionExtension` **and** `spark.sql.catalog.spark_catalog=…DeltaCatalog`.
+- **Any Iceberg PATH use** requires Iceberg extensions + Hadoop catalog `hop_iceberg`
+  (auto-registered on hop-run; can be set at runtime on active sessions).
+- hop-run always applies full Delta/Iceberg conf when those formats are present.
+
+### Frozen jar list (manual overlay — Delta-specific + Iceberg runtime)
+
+Staged by `-Plakehouse` into `target/lakehouse-connectors/` (not packaged into the plugin zip).
+Re-run the profile after pin changes and update this table.
+
+| Jar (frozen 2026-07-16 via `-Plakehouse`) | Role |
+|------------------------------------------|------|
+| `delta-spark_4.1_2.13-4.3.1.jar` | Delta Spark SQL / DataSource |
+| `delta-storage-4.3.1.jar` | Delta storage layer |
+| `delta-kernel-api-4.3.1.jar` | Delta Kernel API |
+| `delta-kernel-defaults-4.3.1.jar` | Delta Kernel defaults |
+| `delta-kernel-unitycatalog-4.3.1.jar` | Transitive from delta-spark 4.3.1 |
+| `unitycatalog-client-0.5.0.jar` | Transitive (UC-related) |
+| `unitycatalog-hadoop-0.5.0.jar` | Transitive (UC-related) |
+| `iceberg-spark-runtime-4.1_2.13-1.11.0.jar` | Shaded Iceberg Spark runtime |
+
+Prefer `spark-submit --packages` when possible so Maven resolves the full tree. Exclude any
+duplicate Spark / Jackson / slf4j jars if copying by hand into `lib/`.
+
+### Probe API
+
+`org.apache.hop.spark.table.SparkLakeConnectorProbe` verifies connector classes are loadable
+and throws `HopException` with the install / `--packages` recipe when missing.
+`LakeSessionPlan` scans active lake transforms before `SparkSession` build: probes the
+classpath and applies Delta extension + `DeltaCatalog` on new hop-run sessions.
+
+### Lake Table transforms (PR 2–3 — Delta + Iceberg PATH)
+
+| Plugin id | Role |
+|-----------|------|
+| `SparkLakeTableInput` | Read Delta or Iceberg PATH tables |
+| `SparkLakeTableOutput` | Write Delta or Iceberg PATH; **default save mode ErrorIfExists** |
+
+| Format | PATH read | PATH write |
+|--------|-----------|------------|
+| **Delta** | `spark.read.format("delta").load(path)` | `format("delta").mode(…).save(path)` |
+| **Iceberg** | SQL `SELECT * FROM hop_iceberg.\`file:///…\`` | `writeTo(hop_iceberg.\`uri\`).using("iceberg")` |
+
+Iceberg PATH uses a built-in Hadoop catalog named **`hop_iceberg`** (not `spark_catalog`, so it
+can co-exist with Delta’s `DeltaCatalog`). Bare `format("iceberg").load(path)` is **not** used —
+on Spark 4.1 + Iceberg 1.11 it defaults toward HiveCatalog and fails without HMS jars.
+
+hop-run auto-registers:
+
+| When | Session conf |
+|------|----------------|
+| Any Delta | extensions + `spark.sql.catalog.spark_catalog=…DeltaCatalog` |
+| Any Iceberg | extensions + `spark.sql.catalog.hop_iceberg=…SparkCatalog` (type=hadoop, warehouse under tmp) |
+
+Classic **Spark File Input/Output** are unchanged (csv/parquet/json/orc/text only).
+
+### Time travel (PR 4)
+
+Lake Table Input supports:
+
+| UI type | Delta option | Iceberg SQL |
+|---------|--------------|-------------|
+| `NONE` | (current) | (current) |
+| `VERSION` | `versionAsOf` | `VERSION AS OF <snapshot_id>` |
+| `TIMESTAMP` | `timestampAsOf` | `TIMESTAMP AS OF TIMESTAMP '…'` |
+
+Example: write twice with Overwrite, then set Time travel = VERSION and Version = `0` (Delta)
+or the first snapshot id from `{table}.snapshots` (Iceberg).
+
+### Spark Catalog metadata + TABLE mode (PR 5)
+
+**Metadata type:** `SparkCatalog` (category Connections) — Spark SQL catalog conf for Iceberg
+Hadoop/REST (or custom). Fields: catalog name, type, warehouse/uri, optional credential, extra
+`key=value` lines → `spark.sql.catalog.<name>.*`.
+
+Lake Table transforms in **TABLE** mode:
+
+| Field | Purpose |
+|-------|---------|
+| Identifier mode | `TABLE` |
+| Table identifier | e.g. `lake.db.orders` |
+| Spark Catalog metadata name | Hop metadata entry to register (optional if catalog already on session) |
+
+| Format | TABLE read | TABLE write |
+|--------|------------|-------------|
+| **Iceberg** (primary) | `SELECT * FROM catalog.ns.table` (+ time travel clauses) | `writeTo(id).using("iceberg")` |
+| **Delta** (advanced) | `format("delta").table(id)` | `format("delta").saveAsTable(id)` |
+
+`LakeSessionPlan` loads referenced `SparkCatalog` entries and applies them when building the
+session (hop-run) or registers them on an active session when possible (submit).
+
+For spark-submit, export project metadata JSON including `SparkCatalog` definitions, or pass
+equivalent `--conf spark.sql.catalog.<name>=…`.
+
+### MERGE (PR 6)
+
+**Spark Lake Table Merge** — single upstream hop supplies source rows; target is PATH or TABLE.
+
+| Field | Notes |
+|-------|--------|
+| Merge condition | ON clause, aliases `t` (target) and `s` (source) |
+| When matched | `UPDATE_ALL` / `DELETE` / `NONE` |
+| When not matched | `INSERT_ALL` / `NONE` |
+| Not matched by source | optional `DELETE` (Delta; Iceberg depends on version) |
+| Raw MERGE SQL | advanced override (empty default) |
+
+Target SQL ids: Delta PATH → `delta.\`path\``; Iceberg PATH → `hop_iceberg.\`uri\``; TABLE → multi-part id.
+
+Metrics are log-only (merge completion), not Dataset row counts.
+
+### Maintenance (PR 7)
+
+**Spark Lake Table Maintenance** — zero-input action (no hop required). Destructive ops require
+`acknowledgeDestructive`.
+
+| Operation | Delta | Iceberg |
+|-----------|-------|---------|
+| OPTIMIZE | `OPTIMIZE delta.\`path\` [ZORDER BY …]` | `CALL cat.system.rewrite_data_files` |
+| VACUUM | `VACUUM … RETAIN n HOURS` (**n required**) | n/a → use EXPIRE_SNAPSHOTS |
+| EXPIRE_SNAPSHOTS | n/a | `CALL … expire_snapshots(retain_last => N)` |
+| REWRITE_MANIFESTS | n/a | `CALL … rewrite_manifests` |
+| DELETE_WHERE | `DELETE FROM … WHERE …` (**WHERE required**) | same |
+
+Metrics are log-only (expect 0 in/out in the GUI).
+
+
+### RAT / license
+
+Default Hop assemblies do **not** redistribute Delta or Iceberg JARs. If a future release
+ships optional overlay packs, run Apache RAT and license review on every new third-party jar
+before distribution.
+
 ## Build
 
 ```bash
+# Unit tests (no connector download)
 ./mvnw -pl plugins/engines/spark -am test
+
+# Lakehouse packaging spike + path ITs (downloads Delta 4.3.1 / Iceberg 1.11.0 test deps)
+./mvnw -pl plugins/engines/spark -am test -Plakehouse
 ```

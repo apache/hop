@@ -1,0 +1,118 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Spark Lake Table Input reads Delta Lake or Apache Iceberg tables on the native Spark pipeline engine, with optional time travel and projection.
+
+= image:transforms/icons/spark-lake-table-input.svg[Spark Lake Table Input transform Icon, role="image-doc-icon"] Spark Lake Table Input
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+*Spark Lake Table Input* reads an open table format table (https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg]) as a Spark SQL `Dataset` on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+
+It supports **PATH** and **TABLE** identifiers, optional field projection, and **time travel** by version/snapshot or timestamp.
+
+This transform is **not** available on the local Hop engine or on Beam engines. Connector JARs are optional and must be installed as described in xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:cross.svg[Not Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
+!===
+
+NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam Spark).
+|===
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|Format
+|`delta` or `iceberg`.
+
+|Identifier mode
+|`PATH` — table root path/URI. +
+`TABLE` — catalog-qualified name (e.g. `lake.db.orders`).
+
+|Table path
+|Used when mode is PATH. Must be visible to Spark workers (local path on `local[*]`; shared URI on cluster).
+
+|Table identifier
+|Used when mode is TABLE. Multi-part name: `catalog.namespace.table`.
+
+|Spark Catalog metadata name
+|Optional Hop xref:metadata-types/spark-catalog.adoc[Spark Catalog] entry to register for TABLE mode (Iceberg Hadoop/REST, …). Leave empty if the catalog is already configured on the session.
+
+|Time travel type
+|`NONE` (current), `VERSION`, or `TIMESTAMP`.
+
+|Time travel version
+|Delta table version number or Iceberg snapshot id (when type is VERSION). Supports variables.
+
+|Time travel timestamp
+|Spark-parseable timestamp string when type is TIMESTAMP, e.g. `2024-01-15 10:30:00`.
+
+|Extra options
+|Optional Spark read options as `key=value` lines (advanced).
+
+|Fields
+|Optional projection. When empty, all columns are returned. When set, columns are selected/cast by name (same idea as Spark File Input with a schema).
+|===
+
+== Time travel
+
+[options="header",cols="1,2,2"]
+|===
+|Type |Delta |Iceberg
+
+|NONE
+|Current table version
+|Current snapshot
+
+|VERSION
+|Read option `versionAsOf`
+|SQL `VERSION AS OF <snapshot_id>`
+
+|TIMESTAMP
+|Read option `timestampAsOf`
+|SQL `TIMESTAMP AS OF TIMESTAMP '…'`
+|===
+
+Tip: After two Overwrite writes, Delta version `0` is typically the first commit. For Iceberg, inspect `{table}.snapshots` (or catalog metadata) for snapshot ids.
+
+== Notes
+
+* Prefer Lake Table Input over *Spark File Input* for `delta` / `iceberg` so session extensions, `hop_iceberg` PATH catalog, and probes stay consistent.
+* See the xref:pipeline/spark/lakehouse.adoc[lakehouse guide] for packaging, PATH vs TABLE, and troubleshooting.
+
+== Related pages
+
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
+* xref:metadata-types/spark-catalog.adoc[Spark Catalog]

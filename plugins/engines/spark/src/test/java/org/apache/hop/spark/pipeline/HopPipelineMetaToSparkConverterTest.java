@@ -133,5 +133,17 @@ class HopPipelineMetaToSparkConverterTest {
     assertTrue(
         HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
             SparkConst.SPARK_FILE_OUTPUT_PLUGIN_ID));
+    assertTrue(
+        HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
+            SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID));
+    assertTrue(
+        HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
+            SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID));
+    assertTrue(
+        HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
+            SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID));
+    assertTrue(
+        HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
+            SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID));
   }
 }

@@ -1,0 +1,103 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Spark Lake Table Output writes Delta Lake or Apache Iceberg tables on the native Spark pipeline engine with ACID commit semantics.
+
+= image:transforms/icons/spark-lake-table-output.svg[Spark Lake Table Output transform Icon, role="image-doc-icon"] Spark Lake Table Output
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+*Spark Lake Table Output* writes the incoming Spark `Dataset` to a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table using table-format commit semantics on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+
+Unlike *Spark File Output* (classic file formats), the **default save mode is ErrorIfExists** so ACID tables are not overwritten by accident.
+
+This transform is **native Spark only**. Install connectors as described in xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:cross.svg[Not Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
+!===
+
+NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam Spark).
+|===
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|Format
+|`delta` or `iceberg`.
+
+|Identifier mode
+|`PATH` or `TABLE` (see xref:pipeline/spark/lakehouse.adoc#path-vs-table[PATH vs TABLE]).
+
+|Table path
+|PATH mode: table root directory / URI.
+
+|Table identifier
+|TABLE mode: e.g. `lake.db.orders`.
+
+|Spark Catalog metadata name
+|Optional xref:metadata-types/spark-catalog.adoc[Spark Catalog] Hop metadata for TABLE mode.
+
+|Save mode
+|`ErrorIfExists` (**default**), `Append`, `Overwrite`, or `Ignore`. Choose Overwrite or Append explicitly when you intend to replace or extend data.
+
+|Partition by
+|Optional comma-separated partition column list.
+
+|Coalesce
+|Optional partition count before write (e.g. `1` for a single file layout — costs a shuffle).
+
+|Extra options
+|Optional Spark write options as `key=value` lines (advanced).
+|===
+
+== Behaviour
+
+* The write runs as a Spark **action** when the engine materialises the graph.
+* An empty leaf Dataset is registered so a later engine-wide `count()` does not re-write the table.
+* **Delta PATH:** `format("delta").mode(…).save(path)` (requires Delta extension + `DeltaCatalog` on the session — hop-run applies these when Delta transforms are present).
+* **Iceberg PATH:** `writeTo(hop_iceberg.\`uri\`).using("iceberg")` with the built-in `hop_iceberg` Hadoop catalog.
+* **Iceberg TABLE:** `writeTo(catalog.ns.table).using("iceberg")`.
+* **Delta TABLE (advanced):** `format("delta").saveAsTable(id)`.
+
+== Notes
+
+* Requires exactly one main-stream upstream hop (the data to write).
+* For upserts, use xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] instead of Overwrite.
+* Packaging, session conf, and troubleshooting: xref:pipeline/spark/lakehouse.adoc[lakehouse guide].
+
+== Related pages
+
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input]
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge]

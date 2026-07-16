@@ -33,5 +33,14 @@ public final class SparkConst {
   public static final String SPARK_FILE_INPUT_PLUGIN_ID = "SparkFileInput";
   public static final String SPARK_FILE_OUTPUT_PLUGIN_ID = "SparkFileOutput";
 
+  /** Open table format (Delta / Iceberg) path and catalog I/O — native Spark only. */
+  public static final String SPARK_LAKE_TABLE_INPUT_PLUGIN_ID = "SparkLakeTableInput";
+
+  public static final String SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID = "SparkLakeTableOutput";
+
+  public static final String SPARK_LAKE_TABLE_MERGE_PLUGIN_ID = "SparkLakeTableMerge";
+
+  public static final String SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID = "SparkLakeTableMaintenance";
+
   private SparkConst() {}
 }

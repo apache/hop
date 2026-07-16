@@ -45,6 +45,10 @@ import org.apache.hop.spark.pipeline.handler.SparkBaseTransformHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkGenericTransformHandler;
+import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
+import org.apache.hop.spark.pipeline.handler.SparkLakeTableMaintenanceHandler;
+import org.apache.hop.spark.pipeline.handler.SparkLakeTableMergeHandler;
+import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMemoryGroupByHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMergeJoinHandler;
 import org.apache.hop.spark.pipeline.handler.SparkSortRowsHandler;
@@ -72,7 +76,11 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.UNIQUE_ROWS_PLUGIN_ID,
           SparkConst.SORT_ROWS_PLUGIN_ID,
           SparkConst.SPARK_FILE_INPUT_PLUGIN_ID,
-          SparkConst.SPARK_FILE_OUTPUT_PLUGIN_ID);
+          SparkConst.SPARK_FILE_OUTPUT_PLUGIN_ID,
+          SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID,
+          SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID,
+          SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID,
+          SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID);
 
   /**
    * Plugin ids that must not run as partition-local Hop mini-pipelines. Keep in lockstep with
@@ -154,6 +162,14 @@ public class HopPipelineMetaToSparkConverter {
     transformHandlers.put(SparkConst.SORT_ROWS_PLUGIN_ID, new SparkSortRowsHandler());
     transformHandlers.put(SparkConst.SPARK_FILE_INPUT_PLUGIN_ID, new SparkFileInputHandler());
     transformHandlers.put(SparkConst.SPARK_FILE_OUTPUT_PLUGIN_ID, new SparkFileOutputHandler());
+    transformHandlers.put(
+        SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID, new SparkLakeTableInputHandler());
+    transformHandlers.put(
+        SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID, new SparkLakeTableOutputHandler());
+    transformHandlers.put(
+        SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID, new SparkLakeTableMergeHandler());
+    transformHandlers.put(
+        SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID, new SparkLakeTableMaintenanceHandler());
   }
 
   public void validatePipeline() throws HopException {
@@ -377,7 +393,7 @@ public class HopPipelineMetaToSparkConverter {
    * <p>Unlike {@link PipelineMeta#getPipelineHopTransforms(boolean)}, this does <em>not</em> re-add
    * unused canvas transforms (those exist for painting only).
    */
-  static List<TransformMeta> collectActiveTransforms(PipelineMeta pipelineMeta) {
+  public static List<TransformMeta> collectActiveTransforms(PipelineMeta pipelineMeta) {
     if (pipelineMeta == null) {
       return List.of();
     }

@@ -88,6 +88,7 @@ import org.apache.hop.spark.core.SparkTransformMetricSlice;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
+import org.apache.hop.spark.table.LakeSessionPlan;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -840,7 +841,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     return 0L;
   }
 
-  protected SparkSession createSparkSession() {
+  protected SparkSession createSparkSession() throws HopException {
     ClassLoader pluginCl = getClass().getClassLoader();
     ClassLoader previousCl = Thread.currentThread().getContextClassLoader();
     try {
@@ -859,7 +860,17 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
   }
 
-  private SparkSession buildSparkSession() {
+  private SparkSession buildSparkSession() throws HopException {
+    LakeSessionPlan lakePlan = LakeSessionPlan.from(pipelineMeta, metadataProvider, this);
+    if (!lakePlan.isEmpty()) {
+      lakePlan.verifyClasspath(getClass().getClassLoader());
+      logChannel.logBasic(
+          "Lakehouse session plan formats="
+              + lakePlan.getFormatsNeeded()
+              + " catalogs="
+              + lakePlan.getCatalogsByMetaName().keySet());
+    }
+
     // spark-submit / existing driver: reuse the active session if present
     scala.Option<SparkSession> active = SparkSession.getActiveSession();
     if (active.isDefined()) {
@@ -868,12 +879,18 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
           "Reusing active SparkSession (version="
               + session.version()
               + ", spark-submit or existing driver context)");
+      if (!lakePlan.isEmpty()) {
+        lakePlan.verifyActiveSession(session, logChannel, this);
+      }
       return session;
     }
     scala.Option<SparkSession> def = SparkSession.getDefaultSession();
     if (def.isDefined()) {
       SparkSession session = def.get();
       logChannel.logBasic("Reusing default SparkSession (version=" + session.version() + ")");
+      if (!lakePlan.isEmpty()) {
+        lakePlan.verifyActiveSession(session, logChannel, this);
+      }
       return session;
     }
 
@@ -938,6 +955,13 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               resolve(trimmed.substring(0, eq).trim()), resolve(trimmed.substring(eq + 1).trim()));
         }
       }
+    }
+
+    // Lakehouse: Delta/Iceberg extensions, hop_iceberg PATH catalog, SparkCatalog metadata.
+    // Applied after run-config sparkConfigs so lake defaults fill gaps; explicit run-config
+    // keys already set above win if the user overrode them (except catalog apply overwrites).
+    if (!lakePlan.isEmpty()) {
+      lakePlan.applyToBuilder(builder, this);
     }
 
     // Defaults for local/dev only when not already set by submit or run config extras
