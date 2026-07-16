@@ -501,8 +501,10 @@ public class UIGit extends VCS {
   }
 
   public void closeRepo() {
-    git.close();
-    git = null;
+    if (git != null) {
+      git.close();
+      git = null;
+    }
   }
 
   public void add(String filePattern) throws HopException {
