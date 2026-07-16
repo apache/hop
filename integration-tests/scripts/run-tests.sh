@@ -249,8 +249,9 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
         SUITE_RUN_CONFIG="hop-local"
       fi
 
-      # Prefer single-JVM suite runner when available (unless isolation mode is requested)
-      if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -f "${RUNNER_PIPELINE}" ]; then
+      # Prefer single-JVM suite runner when available (unless isolation mode is requested).
+      # TEST_FILTER is only applied on the classic per-workflow path, so force that mode when set.
+      if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -z "${TEST_FILTER}" ] && [ -f "${RUNNER_PIPELINE}" ]; then
 
         echo ${SPACER}
         echo "Running project tests in single JVM via run-project-tests.hpl (run config: ${SUITE_RUN_CONFIG})"

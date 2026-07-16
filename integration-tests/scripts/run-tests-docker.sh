@@ -24,8 +24,10 @@ EXECUTED_COMPOSE_FILES=("${DOCKER_FILES_DIR}/integration-tests-base.yaml")
 
 for ARGUMENT in "$@"; do
 
-  KEY=$(echo $ARGUMENT | cut -f1 -d=)
-  VALUE=$(echo $ARGUMENT | cut -f2 -d=)
+  # Quote so glob characters in values (e.g. TEST_FILTER='*0077*') are preserved.
+  # cut -f2- keeps values that themselves contain '='.
+  KEY=$(echo "${ARGUMENT}" | cut -f1 -d=)
+  VALUE=$(echo "${ARGUMENT}" | cut -f2- -d=)
 
   case "$KEY" in
   PROJECT_NAME) PROJECT_NAME=${VALUE} ;;
@@ -67,12 +69,15 @@ if [ -z "${PROJECT_NAME}" ]; then
 fi
 
 # Optional filter for main*.hwf basenames (substring or glob, comma-separated).
-# Passed into the test container as TEST_FILTER. Examples:
-#   TEST_FILTER=0077-merge-rows
-#   TEST_FILTER='*0077*'
+# Passed into the test container as TEST_FILTER; when set, run-tests.sh uses the
+# classic per-workflow runner so only matching main*.hwf files execute. Examples:
+#   ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER=0077-merge-rows
+#   ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER='*0077*'
+#   ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER='0077-merge-rows,0076-other'
 if [ -z "${TEST_FILTER}" ]; then
   TEST_FILTER=""
 fi
+export TEST_FILTER
 
 if [ -z "${JENKINS_USER}" ]; then
   JENKINS_USER="jenkins"
