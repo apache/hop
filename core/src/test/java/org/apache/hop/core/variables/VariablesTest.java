@@ -153,4 +153,23 @@ class VariablesTest {
         new String[] {"DataOne", "TheDataOne"},
         vars.resolve(new String[] {"${VarOne}", "The${VarOne}"}));
   }
+
+  /**
+   * Null or empty variable names must not enter the properties map (issue #7067). A null key caused
+   * NPE later when checking Const.INTERNAL_*_VARIABLES Set.of collections.
+   */
+  @Test
+  void setVariableIgnoresNullAndEmptyNames() {
+    Variables vars = new Variables();
+    vars.setVariable(null, "shouldNotStore");
+    vars.setVariable("", "shouldNotStore");
+    vars.setVariable("valid", "ok");
+
+    for (String name : vars.getVariableNames()) {
+      assertTrue(name != null && !name.isEmpty());
+    }
+    assertEquals("ok", vars.getVariable("valid"));
+    assertNull(vars.getVariable(null));
+    assertNull(vars.getVariable(""));
+  }
 }

@@ -65,6 +65,9 @@ public class Variables implements IVariables {
       // the same object as the argument.
       String[] variableNames = variables.getVariableNames();
       for (String variableName : variableNames) {
+        if (Utils.isEmpty(variableName)) {
+          continue;
+        }
         properties.put(variableName, variables.getVariable(variableName));
       }
     }
@@ -140,6 +143,11 @@ public class Variables implements IVariables {
 
   @Override
   public synchronized void setVariable(String variableName, String variableValue) {
+    // Reject null/empty names: HashMap allows null keys, but callers that iterate
+    // names and check Immutable Sets (Set.of) throw NPE on contains(null) — issue #7067.
+    if (Utils.isEmpty(variableName)) {
+      return;
+    }
     if (variableValue != null) {
       properties.put(variableName, variableValue);
     } else {

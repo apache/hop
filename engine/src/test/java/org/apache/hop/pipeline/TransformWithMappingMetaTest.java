@@ -16,7 +16,11 @@
  */
 package org.apache.hop.pipeline;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -167,5 +171,40 @@ class TransformWithMappingMetaTest {
     assertEquals("parentNotInternalValue", childVariables.getVariable(variableOverwrite));
     // keep child only variables
     assertEquals(variableChildOnly, childVariables.getVariable(variableChildOnly));
+  }
+
+  /**
+   * Reproduces issue #7067: a null variable name in the parent space used to NPE when checking
+   * internal variable sets (Set.of(...).contains(null)). Async web services could inject a null key
+   * when header content variable was unset.
+   */
+  @Test
+  void replaceVariableValuesSkipsNullVariableNames() {
+    String variableOverwrite = "paramOverwrite";
+    IVariables childVariables = new Variables();
+    childVariables.setVariable(variableOverwrite, "childValue");
+
+    IVariables replaceByParentVariables = mock(IVariables.class);
+    when(replaceByParentVariables.getVariableNames())
+        .thenReturn(new String[] {null, "", variableOverwrite});
+    when(replaceByParentVariables.getVariable(variableOverwrite)).thenReturn("parentValue");
+
+    assertDoesNotThrow(
+        () ->
+            TransformWithMappingMeta.replaceVariableValues(
+                childVariables, replaceByParentVariables));
+    assertEquals("parentValue", childVariables.getVariable(variableOverwrite));
+  }
+
+  @Test
+  void addMissingVariablesSkipsNullVariableNames() {
+    IVariables fromSpace = new Variables();
+    IVariables toSpace = mock(IVariables.class);
+    when(toSpace.getVariableNames()).thenReturn(new String[] {null, "", "addedVar"});
+    when(toSpace.getVariable("addedVar")).thenReturn("addedValue");
+
+    assertDoesNotThrow(() -> TransformWithMappingMeta.addMissingVariables(fromSpace, toSpace));
+    assertEquals("addedValue", fromSpace.getVariable("addedVar"));
+    assertNull(fromSpace.getVariable(null));
   }
 }

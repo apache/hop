@@ -313,6 +313,10 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     }
     String[] variableNames = toSpace.getVariableNames();
     for (String variable : variableNames) {
+      // Skip null/empty names: Set.contains(null) throws NPE and empty keys are invalid
+      if (Utils.isEmpty(variable)) {
+        continue;
+      }
       if (fromSpace.getVariable(variable) == null) {
         fromSpace.setVariable(variable, toSpace.getVariable(variable));
       }
@@ -326,6 +330,10 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     }
     String[] variableNames = replaceBy.getVariableNames();
     for (String variableName : variableNames) {
+      // Skip null/empty names: Immutable Set.contains(null) throws NPE (issue #7067)
+      if (Utils.isEmpty(variableName)) {
+        continue;
+      }
       if (childPipelineMeta.getVariable(variableName) != null
           && !isInternalVariable(variableName, type)) {
         childPipelineMeta.setVariable(variableName, replaceBy.getVariable(variableName));
@@ -347,10 +355,10 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   }
 
   private static boolean isPipelineInternalVariable(String variableName) {
-    return Const.INTERNAL_PIPELINE_VARIABLES.contains(variableName);
+    return variableName != null && Const.INTERNAL_PIPELINE_VARIABLES.contains(variableName);
   }
 
   private static boolean isWorkflowInternalVariable(String variableName) {
-    return Const.INTERNAL_WORKFLOW_VARIABLES.contains(variableName);
+    return variableName != null && Const.INTERNAL_WORKFLOW_VARIABLES.contains(variableName);
   }
 }
