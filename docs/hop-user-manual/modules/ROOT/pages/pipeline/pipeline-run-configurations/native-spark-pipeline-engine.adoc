@@ -51,7 +51,9 @@ Use **Load configuration template** to fill the fields below from a common deplo
 * *YARN client* — master `yarn`, client deploy mode
 * *Lakehouse local* — same as local; Delta/Iceberg connectors live on the plugin classpath
 
-Templates replace the current engine options after confirmation when the form already has custom values. Edit fields afterward as needed.
+Templates replace the current engine options after confirmation when the form already has custom values. The form fields update immediately after you apply a template. Edit values afterward as needed.
+
+For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode, see xref:metadata-types/spark-catalog.adoc[Spark Catalog] (**Load catalog template**).
 
 [options="header",cols="1,3,1"]
 |===

@@ -30,6 +30,61 @@ PATH-mode Iceberg tables do **not** require this metadata type — the engine au
 
 Connector packaging and session matrix: xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
+== Load catalog template
+
+Use **Load catalog template** at the top of the form to fill fields from a named scenario. Placeholders (bucket, host, URI) must still be adjusted for your environment. Secrets are never stored in templates — put tokens in **Credential**.
+
+Every template writes a commented documentation link as the first line of **Extra conf**, for example:
+
+----
+# docs: https://iceberg.apache.org/docs/latest/spark-configuration/
+----
+
+`#` lines are ignored when Hop builds the Spark session, so the link is guidance only.
+
+[options="header",cols="1,2,3"]
+|===
+|Template |Type |What it sets
+
+|Iceberg Hadoop (local)
+|`hadoop`
+|Catalog `lake`, warehouse `file:///tmp/hop-warehouse`
+
+|Iceberg Hadoop (object store)
+|`hadoop`
+|Catalog `lake`, warehouse `s3a://bucket/warehouse`, S3 `io-impl` in conf extra
+
+|Iceberg REST
+|`rest`
+|Catalog `lake`, URI `https://catalog.example.com/v1`
+
+|Iceberg REST (authenticated)
+|`rest`
+|Same as REST; conf extra notes that **Credential** maps to catalog `.token`
+
+|Hive Metastore (advanced)
+|`hive`
+|Catalog `hive`, thrift URI placeholder (extra deps required)
+
+|AWS Glue (advanced)
+|`glue`
+|Catalog `glue`, S3 warehouse + IO placeholders (extra deps required)
+
+|Nessie (advanced)
+|`custom`
+|Catalog `nessie`, Nessie `catalog-impl` / URI / `ref` placeholders
+
+|Databricks Unity Catalog (advanced)
+|`custom`
+|Catalog `unity`, commented workspace URI/warehouse examples
+
+|Delta named catalog (advanced)
+|`custom`
+|`DeltaCatalog` implementation; prefer `spark_catalog` when coexisting with Iceberg
+|===
+
+The Hop metadata **Name** (how transforms select this entry) is not changed by a template — only catalog fields are.
+
 == Options
 
 [options="header",cols="1,3"]
@@ -38,6 +93,9 @@ Connector packaging and session matrix: xref:pipeline/spark/lakehouse.adoc[Lakeh
 
 |Name
 |Hop metadata name (how transforms reference this entry).
+
+|Load catalog template
+|Button that applies a named scenario (see above). Confirms before replacing non-empty fields.
 
 |Catalog name
 |Spark SQL catalog name — first segment of `catalog.namespace.table` (e.g. `lake`).
@@ -58,7 +116,7 @@ Connector packaging and session matrix: xref:pipeline/spark/lakehouse.adoc[Lakeh
 |Catalog service URI (REST and similar).
 
 |Credential
-|Optional secret (password field) for authenticated catalogs.
+|Optional secret (password field). For REST catalogs, applied as `spark.sql.catalog.<name>.token` when set.
 
 |Conf extra
 |Additional `key=value` lines (one per line; `#` comments and blank lines ignored). +

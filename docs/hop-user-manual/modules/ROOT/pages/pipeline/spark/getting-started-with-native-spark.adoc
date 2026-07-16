@@ -141,6 +141,8 @@ This is the fastest way to learn: Spark runs *inside* the Hop process using all 
 
 TIP: On the Native Spark engine options tab, **Load configuration template** can pre-fill common setups (*Local execution*, *Spark standalone server*, *spark-submit*, *Databricks*, *YARN*, …). See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
 
+TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc[Spark Catalog] entry and use **Load catalog template** (Hadoop local/object store, REST, Hive, Glue, Nessie, …). Each preset starts **Extra conf** with a commented `# docs:` link to vendor documentation.
+
 . Open *Metadata* → *Pipeline run configuration* → *New*.
 . Give it a clear name, for example `spark-local`.
 . Set *Engine type* to *Native Spark pipeline engine*.

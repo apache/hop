@@ -23,12 +23,19 @@ import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.spark.metadata.template.SparkCatalogTemplate;
 import org.apache.hop.spark.table.SparkLakeFormats;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Reusable Spark SQL catalog configuration for lakehouse TABLE mode (Iceberg Hadoop / REST, etc.).
@@ -46,6 +53,8 @@ import org.apache.hop.spark.table.SparkLakeFormats;
     documentationUrl = "/metadata-types/spark-catalog.html")
 public class SparkCatalog extends HopMetadataBase implements Serializable, IHopMetadata {
 
+  private static final Class<?> PKG = SparkCatalog.class;
+
   public static final String TYPE_HADOOP = "hadoop";
   public static final String TYPE_REST = "rest";
   public static final String TYPE_CUSTOM = "custom";
@@ -57,6 +66,51 @@ public class SparkCatalog extends HopMetadataBase implements Serializable, IHopM
   public static final String TYPE_GLUE = "glue";
 
   private static final String PARENT = SparkCatalogEditor.GUI_WIDGETS_PARENT_ID;
+
+  /**
+   * Fill catalog fields from a named scenario (Iceberg Hadoop/REST, Hive, Glue, …). Mutates {@code
+   * object} (the live editor model); widgets are refreshed by GuiCompositeWidgets.
+   */
+  @GuiWidgetElement(
+      id = "load-spark-catalog-template",
+      order = "09990-catalog-template",
+      parentId = PARENT,
+      type = GuiElementType.BUTTON,
+      label = "i18n::SparkCatalog.LoadTemplate.Label",
+      toolTip = "i18n::SparkCatalog.LoadTemplate.ToolTip")
+  public void loadCatalogTemplate(Object object) {
+    if (!(object instanceof SparkCatalog catalog)) {
+      return;
+    }
+    Shell shell = HopGui.getInstance().getShell();
+    String[] labels = SparkCatalogTemplate.displayNames();
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            shell,
+            labels,
+            BaseMessages.getString(PKG, "SparkCatalog.LoadTemplate.Dialog.Title"),
+            BaseMessages.getString(PKG, "SparkCatalog.LoadTemplate.Dialog.Message"));
+    dialog.setAvoidQuickSearch();
+    String choice = dialog.open();
+    if (choice == null) {
+      return;
+    }
+    SparkCatalogTemplate template = SparkCatalogTemplate.fromDisplayName(choice);
+    if (template == null) {
+      return;
+    }
+    if (SparkCatalogTemplate.looksCustomized(catalog)) {
+      MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      box.setText(BaseMessages.getString(PKG, "SparkCatalog.LoadTemplate.Confirm.Title"));
+      box.setMessage(
+          BaseMessages.getString(
+              PKG, "SparkCatalog.LoadTemplate.Confirm.Message", template.getDisplayName()));
+      if (box.open() != SWT.YES) {
+        return;
+      }
+    }
+    template.applyTo(catalog);
+  }
 
   @GuiWidgetElement(
       id = "10000-catalog-name",
@@ -117,7 +171,8 @@ public class SparkCatalog extends HopMetadataBase implements Serializable, IHopM
   @GuiWidgetElement(
       id = "10060-conf-extra",
       parentId = PARENT,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.MULTI_LINE_TEXT,
+      multiLineTextHeight = 5,
       label = "i18n::SparkCatalog.ConfExtra.Label",
       toolTip = "i18n::SparkCatalog.ConfExtra.Tooltip")
   @HopMetadataProperty

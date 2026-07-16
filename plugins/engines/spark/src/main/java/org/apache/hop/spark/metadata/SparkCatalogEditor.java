@@ -23,6 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeButtonsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -100,6 +101,29 @@ public class SparkCatalogEditor extends MetadataEditor<SparkCatalog> {
           @Override
           public void widgetModified(
               GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            setChanged();
+          }
+        });
+    // Flush form → model before button methods; re-bind model → form after mutations
+    // (e.g. Load catalog template). Do not touch wName (Hop metadata name stays independent).
+    guiCompositeWidgets.setCompositeButtonsListener(
+        new IGuiPluginCompositeButtonsListener() {
+          @Override
+          public void buttonPressed(Object sourceObject) {
+            Object model = sourceObject != null ? sourceObject : metadata;
+            guiCompositeWidgets.getWidgetsContents(model, GUI_WIDGETS_PARENT_ID);
+          }
+
+          @Override
+          public void afterButtonPressed(Object sourceObject) {
+            Object model = sourceObject != null ? sourceObject : metadata;
+            if (guiCompositeWidgets != null
+                && wWidgetsComposite != null
+                && !wWidgetsComposite.isDisposed()) {
+              guiCompositeWidgets.setWidgetsContents(
+                  model, wWidgetsComposite, GUI_WIDGETS_PARENT_ID);
+              wWidgetsComposite.layout(true, true);
+            }
             setChanged();
           }
         });

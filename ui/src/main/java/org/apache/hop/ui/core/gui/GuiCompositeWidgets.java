@@ -394,16 +394,23 @@ public class GuiCompositeWidgets {
             //
             buttonMethod.invoke(guiObject, sourceObject);
 
-            // Re-bind widgets from the (possibly mutated) source object so template-load and
-            // similar actions show updated fields.
-            if (widgetsParentComposite != null
-                && widgetsParentGuiElementId != null
-                && !widgetsParentComposite.isDisposed()) {
-              setWidgetsContents(sourceObject, widgetsParentComposite, widgetsParentGuiElementId);
-            }
-            if (compositeWidgetsListener != null) {
-              compositeWidgetsListener.widgetModified(
-                  GuiCompositeWidgets.this, button, guiElements.getId());
+            // Re-bind form fields from the (possibly mutated) source object. Template-load and
+            // similar buttons open modal dialogs; refresh both immediately and on the next UI
+            // cycle so the parent form reliably shows the new values after the shell restores.
+            final Object mutatedSource = sourceObject;
+            final Button sourceButton = button;
+            final String widgetId = guiElements.getId();
+            refreshWidgetsAfterButton(mutatedSource, sourceButton, widgetId);
+            if (button.getDisplay() != null && !button.getDisplay().isDisposed()) {
+              button
+                  .getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (sourceButton.isDisposed()) {
+                          return;
+                        }
+                        refreshWidgetsAfterButton(mutatedSource, sourceButton, widgetId);
+                      });
             }
           } catch (Exception e) {
             LogChannel.UI.logError(
@@ -418,6 +425,29 @@ public class GuiCompositeWidgets {
     layoutControlBetweenLabelAndRightControl(props, lastControl, null, button, null, useNewLayout);
 
     return button;
+  }
+
+  /**
+   * After an annotated BUTTON method returns, push {@code sourceObject} field values back into the
+   * composite widgets and notify listeners. Safe to call more than once.
+   */
+  private void refreshWidgetsAfterButton(
+      Object sourceObject, Button sourceButton, String widgetId) {
+    if (compositeButtonsListener != null) {
+      compositeButtonsListener.afterButtonPressed(sourceObject);
+    }
+    if (widgetsParentComposite != null
+        && widgetsParentGuiElementId != null
+        && !widgetsParentComposite.isDisposed()) {
+      setWidgetsContents(sourceObject, widgetsParentComposite, widgetsParentGuiElementId);
+      if (!widgetsParentComposite.isDisposed()) {
+        widgetsParentComposite.layout(true, true);
+        widgetsParentComposite.redraw();
+      }
+    }
+    if (compositeWidgetsListener != null && sourceButton != null && !sourceButton.isDisposed()) {
+      compositeWidgetsListener.widgetModified(this, sourceButton, widgetId);
+    }
   }
 
   private Link getLinkControl(
@@ -889,6 +919,11 @@ public class GuiCompositeWidgets {
     GuiElements guiElements =
         registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);
     if (guiElements == null) {
+      LogChannel.UI.logError(
+          "setWidgetsContents: no GUI elements found for class: "
+              + sourceData.getClass().getName()
+              + CONST_PARENT_ID
+              + parentGuiElementId);
       return;
     }
 
@@ -898,7 +933,33 @@ public class GuiCompositeWidgets {
       compositeWidgetsListener.widgetsCreated(this);
     }
 
-    parentComposite.layout(true, true);
+    if (parentComposite != null && !parentComposite.isDisposed()) {
+      parentComposite.layout(true, true);
+    }
+  }
+
+  /**
+   * Read a field value from the source object using the annotated getter method name when
+   * available, falling back to {@link PropertyDescriptor}.
+   */
+  private Object readFieldValue(Object sourceData, GuiElements guiElements) {
+    try {
+      if (StringUtils.isNotEmpty(guiElements.getGetterMethod())) {
+        Method getter = sourceData.getClass().getMethod(guiElements.getGetterMethod());
+        return getter.invoke(sourceData);
+      }
+    } catch (Exception e) {
+      // Fall through to PropertyDescriptor
+    }
+    try {
+      return new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
+          .getReadMethod()
+          .invoke(sourceData);
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Unable to get value for field: '" + guiElements.getFieldName() + "'", e);
+      return null;
+    }
   }
 
   private void setWidgetsData(Object sourceData, GuiElements guiElements) {
@@ -928,16 +989,7 @@ public class GuiCompositeWidgets {
 
         // What's the value?
         //
-        Object value = null;
-        try {
-          value =
-              new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
-                  .getReadMethod()
-                  .invoke(sourceData);
-        } catch (Exception e) {
-          LogChannel.UI.logError(
-              "Unable to get value for field: '" + guiElements.getFieldName() + "'", e);
-        }
+        Object value = readFieldValue(sourceData, guiElements);
         String stringValue = value == null ? "" : Const.NVL(value.toString(), "");
 
         switch (guiElements.getType()) {

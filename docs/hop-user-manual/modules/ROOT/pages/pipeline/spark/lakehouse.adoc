@@ -16,7 +16,7 @@ under the License.
 ////
 [[NativeSparkLakehouse]]
 :imagesdir: ../../../assets/images
-:description: Open table formats (Delta Lake and Apache Iceberg) on the Apache Hop native Spark pipeline engine — packaging, session configuration, Lake Table transforms, catalogs, MERGE, and maintenance.
+:description: Open table formats (Delta Lake and Apache Iceberg) on the Apache Hop native Spark pipeline engine
 :toc:
 :toclevels: 3
 
@@ -28,24 +28,42 @@ It assumes you already have a working *Native Spark* pipeline run configuration 
 
 == What you get
 
-| Capability | How |
-|------------|-----|
-| Read / write ACID tables | xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output] |
-| Path-based tables | Identifier mode **PATH** (local, HDFS, object-store URIs Spark can open) |
-| Catalog tables | Identifier mode **TABLE** + xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata (Iceberg-first) |
-| Time travel | Version / snapshot id or timestamp on Input |
-| Upsert | xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] (`MERGE INTO`) |
-| Compaction / vacuum / expire | xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance] |
+[options="header",cols="2,1"]
+|===
+| Capability | How
+
+| Read / write ACID tables | xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
+
+| Path-based tables | Identifier mode **PATH** (local, HDFS, object-store URIs Spark can open)
+
+| Catalog tables | Identifier mode **TABLE** + xref:metadata-types/spark-catalog.adoc[Spark Catalog] metadata (Iceberg-first). Use **Load catalog template** on the metadata editor for Hadoop/REST/Hive/Glue/Nessie skeletons.
+
+| Time travel | Version / snapshot id or timestamp on Input
+
+| Upsert | xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] (`MERGE INTO`)
+
+| Compaction / vacuum / expire | xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance]
+|===
 
 *Not in scope:* Hudi; Beam Spark lakehouse.
 
 == Version pins
 
-| Component | Coordinate / version |
-|-----------|----------------------|
-| Spark (Hop native engine) | `spark-sql_2.13` *4.1.2* (Scala *2.13*) |
-| Delta Lake | `io.delta:delta-spark_4.1_2.13:*4.3.1*` |
-| Apache Iceberg | `org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:*1.11.0*` |
+[options="header",cols="2,1"]
+|===
+| Component
+| Coordinate / version
+
+| Spark (Hop native engine)
+| `spark-sql_2.13` *4.1.2* (Scala *2.13*)
+
+| Delta Lake
+| `io.delta:delta-spark_4.1_2.13:*4.3.1*`
+
+| Apache Iceberg
+| `org.apache.iceberg:iceberg-spark-runtime-4.1_2.13:*1.11.0*`
+
+|===
 
 The `_4.1_2.13` suffix means **Spark 4.1 / Scala 2.13**, not the product major version of Delta or Iceberg.
 
@@ -53,8 +71,9 @@ The `_4.1_2.13` suffix means **Spark 4.1 / Scala 2.13**, not the product major v
 
 Default Hop client assemblies package Delta Lake and Apache Iceberg under the **Spark engine plugin classloader**:
 
+[source,shell]
 ----
-$HOP_HOME/plugins/engines/spark/lib/delta/     # Delta jars
+$HOP_HOME/plugins/engines/spark/lib/delta/    # Delta jars
 $HOP_HOME/plugins/engines/spark/lib/iceberg/  # Iceberg runtime jar
 ----
 
@@ -153,7 +172,9 @@ IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, no
 
 [options="header",cols="1,2,2"]
 |===
-|Mode |Identifier |Typical use
+|Mode
+|Identifier
+|Typical use
 
 |**PATH**
 |Directory / table root Spark can open (`file:///…`, `s3a://…`, …)
@@ -162,17 +183,43 @@ IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, no
 |**TABLE**
 |Multi-part name (`catalog.namespace.table`) + optional Spark Catalog metadata name
 |Production catalogs (Iceberg Hadoop warehouse, REST, …)
+
 |===
 
-| Format | PATH read | PATH write |
-|--------|-----------|------------|
-| **Delta** | `spark.read.format("delta").load(path)` | `format("delta").mode(…).save(path)` |
-| **Iceberg** | SQL over `hop_iceberg.\`uri\`` | `writeTo(hop_iceberg.\`uri\`).using("iceberg")` |
+[options="header",cols="3"]
+|===
+| Format
+| PATH read
+| PATH write
 
-| Format | TABLE read | TABLE write |
-|--------|------------|-------------|
-| **Iceberg** (primary) | `SELECT * FROM catalog.ns.table` | `writeTo(id).using("iceberg")` |
-| **Delta** (advanced) | `format("delta").table(id)` | `format("delta").saveAsTable(id)` |
+| **Delta**
+| `spark.read.format("delta").load(path)`
+| `format("delta").mode(…).save(path)`
+
+| **Iceberg**
+| SQL over `hop_iceberg.uri`
+| `writeTo(hop_iceberg.uri).using("iceberg")`
+
+|===
+
+
+[options="header",cols="3"]
+|===
+| Format
+| TABLE read
+| TABLE write
+
+| **Iceberg** (primary)
+| `SELECT * FROM catalog.ns.table`
+| `writeTo(id).using("iceberg")`
+
+| **Delta** (advanced)
+| `format("delta").table(id)`
+| `format("delta").saveAsTable(id)`
+
+
+|===
+
 
 == Lake Table transforms
 
