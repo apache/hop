@@ -125,6 +125,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
             variables, variables.resolve(runConfigurationName), metadataProvider, pipelineMeta);
     pipeline.setParent(servletLoggingObject);
     pipeline.setMetadataProvider(metadataProvider);
+    pipeline.setLogLevel(pipelineExecutionConfiguration.getLogLevel());
 
     // Also copy the parameters over...
     copyParameters(pipeline, pipelineExecutionConfiguration.getParametersMap());
