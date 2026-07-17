@@ -35,4 +35,5 @@ services:
       - HOP_SPARK_CLIENT_VERSION=${HOP_SPARK_CLIENT_VERSION:-}
       # Optional workflow basename filter (substring or glob). Set by run-tests-docker.sh.
       - TEST_FILTER=${TEST_FILTER:-}
+      - SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS:-false}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

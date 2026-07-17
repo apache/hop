@@ -33,4 +33,6 @@ services:
       - FLASK_ENV=docker
       # Optional workflow basename filter (substring or glob). Set by run-tests-docker.sh.
       - TEST_FILTER=${TEST_FILTER:-}
+      # Skip Google Sheets ITs when no real service-account JSON key is provided.
+      - SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS:-false}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

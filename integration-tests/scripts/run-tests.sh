@@ -130,6 +130,12 @@ if [ -z "${TEST_FILTER}" ]; then
   TEST_FILTER=""
 fi
 
+# When the GCP service-account key is missing or is the IT dummy file, skip Google Sheets
+# workflows (they need a real JSON key; ASF Jenkins provides credentials id gcp-access-hop).
+if [ -z "${SKIP_GOOGLE_SHEETS}" ]; then
+  SKIP_GOOGLE_SHEETS="false"
+fi
+
 #set global variables
 SPACER="==========================================="
 
@@ -138,6 +144,15 @@ should_run_workflow() {
   local file="$1"
   local base
   base=$(basename "$file")
+
+  if [ "${SKIP_GOOGLE_SHEETS}" = "true" ]; then
+    case "${base}" in
+    *google-sheet* | *google-sheets*)
+      echo "Skipping ${base} (SKIP_GOOGLE_SHEETS=true: no valid GCP service-account JSON)"
+      return 1
+      ;;
+    esac
+  fi
 
   if [ -z "${TEST_FILTER}" ]; then
     return 0

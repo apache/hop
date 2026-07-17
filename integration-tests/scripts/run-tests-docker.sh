@@ -110,6 +110,17 @@ if [ -z "${GCP_KEY_FILE}" ]; then
   GCP_KEY_FILE="./docker/integration-tests/resource/dummyfile"
 fi
 
+# Detect a real Google Cloud service-account key. The dummy file is a license comment, not
+# JSON; spreadsheet Google Sheets ITs need a real key (Jenkins: credentials gcp-access-hop).
+SKIP_GOOGLE_SHEETS="false"
+if [ ! -f "${GCP_KEY_FILE}" ] \
+  || [[ "${GCP_KEY_FILE}" == *dummyfile* ]] \
+  || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_FILE}" 2>/dev/null; then
+  SKIP_GOOGLE_SHEETS="true"
+  echo "No valid GCP service-account JSON at GCP_KEY_FILE=${GCP_KEY_FILE}; spreadsheet Google Sheets tests will be skipped"
+fi
+export SKIP_GOOGLE_SHEETS
+
 if [ -z "${HOP_OPTIONS}" ] ; then 
   HOP_OPTIONS="${HOP_OPTIONS} -Djavax.net.ssl.keyStore=./docker/integration-tests/resource/keystore.jks -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.trustStore=./docker/integration-tests/resource/mail/conf/keystore "
 fi
@@ -136,11 +147,28 @@ chmod 777 "${CURRENT_DIR}"/../surefire-reports/
 # alone is enough there. World-writable output/ is a belt-and-suspenders for:
 #   - local runs where someone overrides JENKINS_UID to a fixed value
 #   - compose files that hardcode build-arg UIDs when not using this script's --build-arg
-# Pipelines that write temp artifacts (Excel/ODS writer, etc.) use ${PROJECT_HOME}/output.
+# Pipelines that write temp artifacts (Excel/ODS writer, Spark CSV, etc.) use
+# ${PROJECT_HOME}/output.
+#
+# Spark/Spark-native (and similar) leave part-*.csv / .crc files owned by the previous
+# container UID under output/<case>/. Those subdirs are often 755, so a later run with a
+# different JENKINS_UID cannot delete them and IT "delete output" steps fail. Wipe and
+# re-permission via a short-lived root container when host rm/chmod is not enough.
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
     if [ -d "$d" ] && [ ! -f "$d/disabled.txt" ]; then
       mkdir -p "$d/output"
+      chmod 777 "$d/output" 2>/dev/null || true
+      # Best-effort host cleanup (works when we own the files)
+      chmod -R a+rwx "$d/output" 2>/dev/null || true
+      rm -rf "${d}/output"/* 2>/dev/null || true
+      # If leftovers remain (other UID), clear as root via docker
+      if [ -n "$(ls -A "$d/output" 2>/dev/null)" ]; then
+        echo "Clearing residual files under $d/output as root (prior container UID ownership)"
+        docker run --rm -v "$(cd "$d/output" && pwd):/out" alpine:3.19 \
+          sh -c 'chmod -R a+rwx /out 2>/dev/null; rm -rf /out/* /out/.[!.]* /out/..?* 2>/dev/null; true' \
+          2>/dev/null || true
+      fi
       chmod 777 "$d/output" 2>/dev/null || true
     fi
   fi
@@ -253,18 +281,20 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
         # plugins needed by remote-export ITs (main-0008/0009/0010).
         if [ "${PROJECT_NAME}" = "spark" ]; then
           echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
+          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
             docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
         elif [ "${PROJECT_NAME}" = "hop_server" ]; then
           echo "Rebuilding hop_server images so remote Hop Server matches current assemblies"
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} \
+          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
             docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
         else
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
+          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
         fi
       else
         echo "Project compose does not exists."
-        PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
+        PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+          docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
       fi
     fi
   fi
