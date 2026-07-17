@@ -65,21 +65,28 @@ if [ -z "${PROJECT_NAME}" ]; then
   PROJECT_NAME="*"
 fi
 
+# Match the host/workspace owner when not overridden. ASF Jenkins (Jenkinsfile.daily)
+# always passes the agent identity explicitly:
+#   JENKINS_USER=${USER} JENKINS_UID=$(id -u) JENKINS_GROUP=$(id -gn) JENKINS_GID=$(id -g)
+# Using the same defaults locally keeps the container user aligned with the bind-mounted
+# integration-tests/ tree, so writes under ${PROJECT_HOME}/output (and elsewhere) succeed.
 if [ -z "${JENKINS_USER}" ]; then
-  JENKINS_USER="jenkins"
+  JENKINS_USER="$(id -un 2>/dev/null || echo jenkins)"
 fi
 
 if [ -z "${JENKINS_UID}" ]; then
-  JENKINS_UID="1001"
+  JENKINS_UID="$(id -u 2>/dev/null || echo 1000)"
 fi
 
 if [ -z "${JENKINS_GROUP}" ]; then
-  JENKINS_GROUP="jenkins"
+  JENKINS_GROUP="$(id -gn 2>/dev/null || echo jenkins)"
 fi
 
 if [ -z "${JENKINS_GID}" ]; then
-  JENKINS_GID="1001"
+  JENKINS_GID="$(id -g 2>/dev/null || echo 1000)"
 fi
+
+echo "Integration-test container identity: user=${JENKINS_USER} uid=${JENKINS_UID} group=${JENKINS_GROUP} gid=${JENKINS_GID}"
 
 if [ -z "${SUREFIRE_REPORT}" ]; then
   SUREFIRE_REPORT="true"
@@ -109,6 +116,21 @@ if [ "${SKIP_SUREFIRE_CLEAN:-false}" != "true" ]; then
 fi
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 chmod 777 "${CURRENT_DIR}"/../surefire-reports/
+
+# Pre-create project output/ dirs on the host and make them world-writable.
+# ASF Jenkins passes a container UID that matches the agent workspace owner, so ownership
+# alone is enough there. World-writable output/ is a belt-and-suspenders for:
+#   - local runs where someone overrides JENKINS_UID to a fixed value
+#   - compose files that hardcode build-arg UIDs when not using this script's --build-arg
+# Pipelines that write temp artifacts (Excel/ODS writer, etc.) use ${PROJECT_HOME}/output.
+for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
+  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
+    if [ -d "$d" ] && [ ! -f "$d/disabled.txt" ]; then
+      mkdir -p "$d/output"
+      chmod 777 "$d/output" 2>/dev/null || true
+    fi
+  fi
+done
 
 HOP_CLIENT_TARGET_DIR="${CURRENT_DIR}/../../assemblies/client/target"
 HOP_DIR="${HOP_CLIENT_TARGET_DIR}/hop"
@@ -243,13 +265,16 @@ if [ ! "${KEEP_IMAGES}" = "true" ]; then
 fi
 
 # Print Final Results
+# Use CURRENT_DIR (script location) for both existence checks and reads. Relative
+# paths like ../surefire-reports/ only work when cwd is integration-tests/scripts/;
+# ASF Jenkins and local runs often invoke this script from the repo root.
 if [ -f "${CURRENT_DIR}/../surefire-reports/passed_tests" ]; then
   echo -e "\033[1;32mPassed tests:"
-  PASSED_TESTS="$(cat ../surefire-reports/passed_tests)"
+  PASSED_TESTS="$(cat "${CURRENT_DIR}/../surefire-reports/passed_tests")"
   echo -e "\033[1;32m${PASSED_TESTS}"
 fi
 if [ -f "${CURRENT_DIR}/../surefire-reports/failed_tests" ]; then
   echo -e "\033[1;91mFailed tests:"
-  FAILED_TESTS="$(cat ../surefire-reports/failed_tests)"
+  FAILED_TESTS="$(cat "${CURRENT_DIR}/../surefire-reports/failed_tests")"
   echo -e "\033[1;91m${FAILED_TESTS}"
 fi

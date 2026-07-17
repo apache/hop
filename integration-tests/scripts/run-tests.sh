@@ -189,9 +189,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       # Create New Project
       export HOP_CONFIG_FOLDER="$d"
 
-      # Project output/ is often written by pipelines (CSV, temp dirs). The container
-      # user uid may not match the host volume owner, so ensure it is world-writable
-      # (same approach as surefire-reports above).
+      # Project output/ is often written by pipelines (CSV, Excel/ODS temp files, etc.).
+      # On ASF Jenkins the container UID matches the agent workspace owner (Jenkinsfile.daily
+      # passes id -u / id -g), so writes succeed by ownership. When UIDs differ, output/ is
+      # pre-created and chmod'd world-writable by run-tests-docker.sh on the host; here we
+      # only best-effort reinforce that (mkdir/chmod may no-op if not owner).
+      mkdir -p "$d/output" 2>/dev/null || true
       if [ -d "$d/output" ]; then
         chmod 777 "$d/output" 2>/dev/null || true
       fi
