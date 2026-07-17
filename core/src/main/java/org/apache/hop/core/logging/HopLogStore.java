@@ -39,6 +39,9 @@ public class HopLogStore {
 
   private Timer logCleanerTimer;
 
+  /** The log line timeout the cleaner is running with, 0 or lower means: never clean up lines. */
+  private int maxLogTimeoutMinutes;
+
   private static AtomicBoolean initialized = new AtomicBoolean(false);
 
   private static ILogChannelFactory logChannelFactory = new LogChannelFactory();
@@ -72,6 +75,7 @@ public class HopLogStore {
   }
 
   public void replaceLogCleaner(final int maxLogTimeoutMinutes) {
+    this.maxLogTimeoutMinutes = maxLogTimeoutMinutes;
     ExecutorUtil.cleanup(logCleanerTimer);
     logCleanerTimer = new Timer(true);
 
@@ -205,6 +209,16 @@ public class HopLogStore {
    */
   public static LoggingBuffer getAppender() {
     return getInstance().appender;
+  }
+
+  /**
+   * The log line timeout the log cleaner is actually running with, which is not necessarily the one
+   * that was asked for: a timeout of zero or lower makes it fall back to the default.
+   *
+   * @return the timeout in minutes, 0 or lower means that log lines are never cleaned up
+   */
+  public static int getMaxLogTimeoutMinutes() {
+    return getInstance().maxLogTimeoutMinutes;
   }
 
   /**

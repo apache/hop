@@ -23,6 +23,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -88,9 +89,11 @@ public class HopServerResource {
     HopServerConfig serverConfig =
         HopServerSingleton.getInstance().getPipelineMap().getHopServerConfig();
     List<NVPair> list = new ArrayList<>();
-    list.add(new NVPair("maxLogLines", "" + serverConfig.getMaxLogLines()));
-    list.add(new NVPair("maxLogLinesAge", "" + serverConfig.getMaxLogTimeoutMinutes()));
-    list.add(new NVPair("maxObjectsAge", "" + serverConfig.getObjectTimeoutMinutes()));
+    list.add(new NVPair("maxLogLines", "" + HopLogStore.getAppender().getMaxNrLines()));
+    list.add(new NVPair("maxLogLinesAge", "" + HopLogStore.getMaxLogTimeoutMinutes()));
+    list.add(
+        new NVPair(
+            "maxObjectsAge", "" + HopServerSingleton.determineObjectTimeoutMinutes(serverConfig)));
     list.add(new NVPair("configFile", "" + serverConfig.getFilename()));
     return list;
   }

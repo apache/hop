@@ -33,7 +33,6 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -64,7 +63,7 @@ public class HopServerSingleton {
 
   private HopServerSingleton(HopServerConfig config) throws HopException {
     HopEnvironment.init();
-    HopLogStore.init();
+    configureLogStore(config);
 
     this.log = new LogChannel("HopServer");
     pipelineMap = new PipelineMap();
@@ -90,24 +89,103 @@ public class HopServerSingleton {
     }
   }
 
+  /** How often the server looks for stale objects to purge, in milliseconds. */
+  private static final long PURGE_INTERVAL_MS = 20000L;
+
+  /** How long a stale object is kept when neither the configuration nor the variable says so. */
+  private static final int DEFAULT_OBJECT_TIMEOUT_MINUTES = 24 * 60;
+
+  /**
+   * Hand the log line limits of the server over to the log store. Without this the max_log_lines
+   * and max_log_timeout_minutes of the server configuration are read and reported, but never
+   * applied, and the log store keeps running with its own defaults. See issue #2796.
+   *
+   * <p>A limit of zero or lower keeps the default of the log store, the way it has always behaved
+   * for a server that does not configure one.
+   */
+  static void configureLogStore(final HopServerConfig config) {
+    // Both limits are resolved separately on purpose. Handing the log store the two configured
+    // values as they are would make it take both from the configuration as soon as one of them is
+    // set, so configuring only a line limit would leave the log lines without a timeout.
+    //
+    HopLogStore.init(
+        determineMaxLogLines(config),
+        determineMaxLogTimeoutMinutes(config),
+        EnvUtil.getSystemProperty(Const.HOP_REDIRECT_STDOUT, "N").equalsIgnoreCase("Y"),
+        EnvUtil.getSystemProperty(Const.HOP_REDIRECT_STDERR, "N").equalsIgnoreCase("Y"));
+  }
+
+  /**
+   * The number of log lines a server actually keeps: the configuration file takes precedence over
+   * the variable, which in turn takes precedence over the default.
+   *
+   * @param config the configuration of the server
+   * @return the number of lines, 0 or lower means that every line is kept
+   */
+  public static int determineMaxLogLines(final HopServerConfig config) {
+    if (config.getMaxLogLines() > 0) {
+      return config.getMaxLogLines();
+    }
+    return Const.toInt(
+        EnvUtil.getSystemProperty(Const.HOP_MAX_LOG_SIZE_IN_LINES), Const.MAX_NR_LOG_LINES);
+  }
+
+  /**
+   * The age a server actually lets its log lines reach: the configuration file takes precedence
+   * over the variable, which in turn takes precedence over the default.
+   *
+   * @param config the configuration of the server
+   * @return the timeout in minutes, 0 or lower means that log lines are never cleaned up
+   */
+  public static int determineMaxLogTimeoutMinutes(final HopServerConfig config) {
+    if (config.getMaxLogTimeoutMinutes() > 0) {
+      return config.getMaxLogTimeoutMinutes();
+    }
+    return Const.toInt(
+        EnvUtil.getSystemProperty(Const.HOP_MAX_LOG_TIMEOUT_IN_MINUTES),
+        Const.MAX_LOG_LINE_TIMEOUT_MINUTES);
+  }
+
   public static void installPurgeTimer(
       final HopServerConfig config,
       final ILogChannel log,
       final PipelineMap pipelineMap,
       final WorkflowMap workflowMap) {
+    installPurgeTimer(config, log, pipelineMap, workflowMap, PURGE_INTERVAL_MS);
+  }
 
-    final int objectTimeout;
-    String systemTimeout = EnvUtil.getSystemProperty(Const.HOP_SERVER_OBJECT_TIMEOUT_MINUTES, null);
-
-    // The value specified in XML takes precedence over the environment variable!
-    //
+  /**
+   * The timeout a server actually purges stale objects with: the configuration file takes
+   * precedence over the variable, which in turn takes precedence over the default of one day. A
+   * server that configures nothing still purges, so this never resolves to zero unless it was asked
+   * for.
+   *
+   * @param config the configuration of the server
+   * @return the timeout in minutes, 0 or lower means that objects are never purged
+   */
+  public static int determineObjectTimeoutMinutes(final HopServerConfig config) {
     if (config.getObjectTimeoutMinutes() > 0) {
-      objectTimeout = config.getObjectTimeoutMinutes();
-    } else if (!Utils.isEmpty(systemTimeout)) {
-      objectTimeout = Const.toInt(systemTimeout, 1440);
-    } else {
-      objectTimeout = 24 * 60; // 1440 : default is a one day time-out
+      return config.getObjectTimeoutMinutes();
     }
+    String systemTimeout = EnvUtil.getSystemProperty(Const.HOP_SERVER_OBJECT_TIMEOUT_MINUTES, null);
+    if (!Utils.isEmpty(systemTimeout)) {
+      return Const.toInt(systemTimeout, DEFAULT_OBJECT_TIMEOUT_MINUTES);
+    }
+    return DEFAULT_OBJECT_TIMEOUT_MINUTES;
+  }
+
+  /**
+   * @param purgeIntervalMs how often to look for stale objects, so that a test does not have to
+   *     wait for the interval the server itself uses
+   */
+  static void installPurgeTimer(
+      final HopServerConfig config,
+      final ILogChannel log,
+      final PipelineMap pipelineMap,
+      final WorkflowMap workflowMap,
+      final long purgeIntervalMs) {
+
+    final int objectTimeout = determineObjectTimeoutMinutes(config);
 
     // If we need to time out finished or idle objects, we should create a timer
     // in the background to clean
@@ -203,7 +281,6 @@ public class HopServerSingleton {
                                 + " from "
                                 + workflow.getExecutionStartDate());
                       }
-                      ExecutorUtil.cleanup(timer, 1);
                     }
                   }
 
@@ -214,9 +291,9 @@ public class HopServerSingleton {
             }
           };
 
-      // Search for stale objects every 20 seconds:
+      // Search for stale objects at every interval:
       //
-      timer.schedule(timerTask, 20000, 20000);
+      timer.schedule(timerTask, purgeIntervalMs, purgeIntervalMs);
     }
   }
 
