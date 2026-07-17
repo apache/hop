@@ -220,7 +220,7 @@ The following sample `web.xml` extends Hop Web's default `web.xml` with the `<se
 </web-app>
 ----
 
-Check the https://tomcat.apache.org/tomcat-9.0-doc/realm-howto.html[Apache Tomcat documentation^] on REALM configuration for more advanced configurations.
+Check the https://tomcat.apache.org/tomcat-10.1-doc/realm-howto.html[Apache Tomcat documentation^] on REALM configuration for more advanced configurations.
 
 Mount your local configuration folder with these two files to a `/config` folder in the Apache Hop Web container to do so:
 
@@ -229,10 +229,86 @@ Mount your local configuration folder with these two files to a `/config` folder
 docker run -it --rm \
     -p 8080:8080 \
     -v <PATH_TO_YOUR_LOCAL_CONFIG_DIRECTORY>:/config/ \
-    apache/hop-web`
+    apache/hop-web
 ----
 
 Hop Web will now ask for your username and password:
 
 image:hop-gui/hop-web-basic-authentication.png[Hop Web with basic authentication, width="90%"]
+
+=== Encrypting passwords
+
+The `tomcat-users.xml` shown above stores the password in plain text.
+Tomcat can store a digested (hashed) password instead, so the clear text password is no longer readable in your configuration files.
+
+To do so, add a `CredentialHandler` to the realm in Tomcat's `server.xml` and store the digested password in `tomcat-users.xml`.
+
+NOTE: this only protects the password *at rest* in `tomcat-users.xml`. With `BASIC` authentication the password is still sent by the browser on every request, so combine this with HTTPS to protect it in transit.
+
+==== Generate the digested password
+
+Use Tomcat's `digest.sh` tool to generate the digest for your password:
+
+[source,bash]
+----
+docker run --rm apache/hop-web /usr/local/tomcat/bin/digest.sh -a sha-256 mypassword
+----
+
+This returns the clear text password and its digest, separated by a colon:
+
+[source,console]
+----
+mypassword:f1a6f243e12c5c87ddaaf860cb32c1f73d3985e1a784396097e1af0a26d9f176$1$fc86de3e34b71b9f9c415aa7908123e576984adb9f38612fbf7d595f2e00e460
+----
+
+The part after the colon is what you'll store in `tomcat-users.xml`.
+It has the format `+{salt}${iterations}${digest}+`: by default `digest.sh` generates a random 32 byte salt and uses one iteration, which means the value is different every time you run the command even for the same password.
+
+TIP: `SHA-512` works the same way, pass `-a sha-512` instead. Avoid `MD5` and `SHA-1`, they are no longer considered secure.
+
+==== Configure the realm
+
+Add the `CredentialHandler` to the `UserDatabaseRealm` in `$CATALINA_HOME/conf/server.xml`. In a default Tomcat installation this realm is nested inside a `LockOutRealm`:
+
+[source,xml]
+----
+<Realm className="org.apache.catalina.realm.LockOutRealm">
+  <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+         resourceName="UserDatabase">
+    <CredentialHandler className="org.apache.catalina.realm.MessageDigestCredentialHandler"
+                       algorithm="SHA-256"/>
+  </Realm>
+</Realm>
+----
+
+The `algorithm` needs to match the one you used to generate the digest.
+
+Store the digest instead of the clear text password in `tomcat-users.xml`:
+
+[source,xml]
+----
+<tomcat-users>
+  <role rolename="apachehop"/>
+  <user username="apachehop"
+        password="f1a6f243e12c5c87ddaaf860cb32c1f73d3985e1a784396097e1af0a26d9f176$1$fc86de3e34b71b9f9c415aa7908123e576984adb9f38612fbf7d595f2e00e460"
+        roles="apachehop"/>
+</tomcat-users>
+----
+
+==== Run the container
+
+Unlike `tomcat-users.xml` and `web.xml`, the Hop Web image does not pick up a `server.xml` from the `/config` folder, so mount it straight to Tomcat's `conf` folder:
+
+[source,bash]
+----
+docker run -it --rm \
+    -p 8080:8080 \
+    -v <PATH_TO_YOUR_LOCAL_CONFIG_DIRECTORY>:/config/ \
+    -v <PATH_TO_YOUR_LOCAL_CONFIG_DIRECTORY>/server.xml:/usr/local/tomcat/conf/server.xml \
+    apache/hop-web
+----
+
+Hop Web keeps asking for the same username and password as before, but the clear text password is no longer stored in your configuration.
+
+Check the https://tomcat.apache.org/tomcat-10.1-doc/realm-howto.html#Digested_Passwords[Apache Tomcat documentation^] on digested passwords for more details.
 
