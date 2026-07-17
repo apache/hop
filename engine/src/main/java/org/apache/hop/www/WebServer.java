@@ -63,7 +63,6 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.glassfish.jersey.servlet.ServletContainer;
 
 public class WebServer {
 
@@ -253,15 +252,6 @@ public class WebServer {
     shutdownServlet.setup(pipelineMap, workflowMap);
     shutdownServlet.setJettyMode(true);
     shutdownContext.addServlet(new ServletHolder(shutdownServlet), "/*");
-
-    // setup jersey (REST)
-    ServletHolder jerseyServletHolder = new ServletHolder(ServletContainer.class);
-    jerseyServletHolder.setInitParameter(
-        "com.sun.jersey.config.property.resourceConfigClass",
-        "com.sun.jersey.api.core.PackagesResourceConfig");
-    jerseyServletHolder.setInitParameter(
-        "com.sun.jersey.config.property.packages", "org.apache.hop.www.jaxrs");
-    root.addServlet(jerseyServletHolder, "/api/*");
 
     // Static resources
     ServletHolder staticHolder = new ServletHolder("static", DefaultServlet.class);
