@@ -19,6 +19,7 @@
 package org.apache.hop.execution.caching;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -240,6 +241,51 @@ class CachingFileExecutionInfoLocationTest {
       ExecutionData loaded = reader.getExecutionData(parentId, parentId + "|CheckSum|0");
       assertNotNull(loaded, "expected sample data after multi-writer merge");
       assertTrue(loaded.isFinished());
+    } finally {
+      reader.close();
+    }
+  }
+
+  /**
+   * Short nested workflows register execution then update state at end. State must be persisted
+   * (dirty after setExecutionState) or the GUI filters them out as null-state entries.
+   */
+  @Test
+  void updateExecutionStateIsPersistedOnClose() throws Exception {
+    Path root = tempDir.resolve("state-dirty");
+    String id = "wf-" + UUID.randomUUID();
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+    try {
+      Execution parent = new Execution();
+      parent.setId(id);
+      parent.setName("create-country-folder");
+      parent.setExecutionType(ExecutionType.Workflow);
+      parent.setExecutionStartDate(new Date());
+      parent.setRegistrationDate(new Date());
+      location.registerExecution(parent);
+
+      // registerExecution already flushed; end-of-run state must still write on close
+      org.apache.hop.execution.ExecutionState state = new org.apache.hop.execution.ExecutionState();
+      state.setId(id);
+      state.setName("create-country-folder");
+      state.setExecutionType(ExecutionType.Workflow);
+      state.setStatusDescription("Finished");
+      state.setFailed(false);
+      location.updateExecutionState(state);
+    } finally {
+      location.close();
+    }
+
+    CachingFileExecutionInfoLocation reader = new CachingFileExecutionInfoLocation();
+    reader.setRootFolder(root.toAbsolutePath().toString());
+    reader.initialize(new Variables(), null);
+    try {
+      org.apache.hop.execution.ExecutionState loaded = reader.getExecutionState(id);
+      assertNotNull(loaded, "executionState must be on disk after close()");
+      assertEquals("Finished", loaded.getStatusDescription());
     } finally {
       reader.close();
     }

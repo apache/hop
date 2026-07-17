@@ -342,31 +342,44 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     }
   }
 
-  protected synchronized void addStateToCache(ExecutionState executionState) {
+  protected synchronized void addStateToCache(ExecutionState executionState) throws HopException {
     CacheEntry entry = cache.get(executionState.getId());
+    if (entry == null) {
+      // Load from disk (separate process / cache eviction) — same pattern as registerData
+      entry = findCacheEntry(executionState.getId());
+    }
     if (entry == null) {
       // Lookup by parent (happens when a pipeline is executed by a transform)
       entry = findCacheEntryWithParent(executionState.getParentId());
     }
     if (entry != null) {
-      // This entry should always exist
+      // setExecutionState flags dirty so close()/timer flush include the state
       entry.setExecutionState(executionState);
+    } else {
+      LogChannel.GENERAL.logError(
+          "Unable to update execution state for '"
+              + executionState.getId()
+              + "': parent entry not found in cache or on disk");
     }
   }
 
   protected CacheEntry findCacheEntryWithParent(String parentId) {
+    if (StringUtils.isEmpty(parentId)) {
+      return null;
+    }
     Collection<CacheEntry> values = cache.values();
     for (CacheEntry cacheEntry : values) {
       if (cacheEntry.getExecution() == null) {
         continue;
       }
-      if (cacheEntry.getExecution().getParentId().equals(parentId)) {
+      String execParent = cacheEntry.getExecution().getParentId();
+      if (parentId.equals(execParent)) {
         return cacheEntry;
       }
       if (cacheEntry.getExecutionState() == null) {
         continue;
       }
-      if (cacheEntry.getExecutionState().getId().equals(parentId)) {
+      if (parentId.equals(cacheEntry.getExecutionState().getId())) {
         return cacheEntry;
       }
     }

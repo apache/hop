@@ -24,6 +24,14 @@ public final class SparkConst {
 
   public static final String INJECTOR_TRANSFORM_NAME = "_INJECTOR_";
 
+  /**
+   * Variable set on Spark mapPartitions mini-pipelines so nested Workflow/Pipeline Executor
+   * children register with the same parent id as the transform's execution-info node ({@code
+   * parentPipelineLogId|transformName|copyNr}). Must match the string used in engine code that
+   * rebinds nested parent ids (LocalWorkflowEngine / LocalPipelineEngine).
+   */
+  public static final String VAR_TRANSFORM_OWNER_ID = "Internal.Spark.TransformOwnerId";
+
   public static final String MEMORY_GROUP_BY_PLUGIN_ID = "MemoryGroupBy";
   public static final String MERGE_JOIN_PLUGIN_ID = "MergeJoin";
   public static final String UNIQUE_ROWS_PLUGIN_ID = "Unique";

@@ -37,6 +37,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionBuilder;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -304,12 +305,37 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
       if (executionInfoLocation != null) {
         // Register the execution at this location
         // This adds metadata, variables, parameters, ...
-        executionInfoLocation
-            .getExecutionInfoLocation()
-            .registerExecution(ExecutionBuilder.fromExecutor(this).build());
+        Execution execution = ExecutionBuilder.fromExecutor(this).build();
+        rebindSparkTransformOwnerParent(execution);
+        executionInfoLocation.getExecutionInfoLocation().registerExecution(execution);
       }
     } catch (Exception e) {
       log.logError("Error registering workflow execution information (non-fatal)", e);
+    }
+  }
+
+  /**
+   * When this workflow is nested under a Native Spark mapPartitions transform (Workflow Executor),
+   * the parent transform is registered under a synthetic id {@code pipelineId|name|copy}. Rebind so
+   * the execution perspective can drill down from that transform node.
+   */
+  private void rebindSparkTransformOwnerParent(Execution execution) {
+    if (execution == null) {
+      return;
+    }
+    String sparkOwner = resolve("Internal.Spark.TransformOwnerId");
+    if (StringUtils.isNotEmpty(sparkOwner)) {
+      execution.setParentId(sparkOwner);
+    }
+  }
+
+  private void rebindSparkTransformOwnerParent(ExecutionState state) {
+    if (state == null) {
+      return;
+    }
+    String sparkOwner = resolve("Internal.Spark.TransformOwnerId");
+    if (StringUtils.isNotEmpty(sparkOwner)) {
+      state.setParentId(sparkOwner);
     }
   }
 
@@ -338,6 +364,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
               ExecutionState executionState =
                   ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, lastLogLineNr.get())
                       .build();
+              rebindSparkTransformOwnerParent(executionState);
               iLocation.updateExecutionState(executionState);
               if (executionState.getLastLogLineNr() != null) {
                 lastLogLineNr.set(executionState.getLastLogLineNr());
@@ -459,6 +486,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
       //
       ExecutionState executionState =
           ExecutionStateBuilder.fromExecutor(LocalWorkflowEngine.this, -1).build();
+      rebindSparkTransformOwnerParent(executionState);
       iLocation.updateExecutionState(executionState);
     } finally {
       // Nothing more needs to be done. We can now close the location.

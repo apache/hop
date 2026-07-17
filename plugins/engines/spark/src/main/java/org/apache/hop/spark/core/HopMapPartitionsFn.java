@@ -291,6 +291,8 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       // Partition-scoped internal variables for classic I/O filenames (e.g. Text File Output
       // with ${Internal.Transform.ID}). Readable stable ID = transform name + partition id.
       applyPartitionInternalVariables(variables, transformName, copyNr);
+      // Nested Workflow/Pipeline Executor parent linkage for execution perspective drill-down.
+      applySparkTransformOwnerId(variables, parentLogChannelId, transformName, copyNr);
 
       IRowMeta inputRowMeta =
           StringUtils.isNotEmpty(inputRowMetaJson)
@@ -758,6 +760,22 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
   }
 
   /**
+   * Publish the same synthetic owner id used by {@link
+   * org.apache.hop.spark.execution.SparkTransformExecutionSampling} so nested engines can parent
+   * their execution-info rows for GUI drill-down.
+   */
+  static void applySparkTransformOwnerId(
+      IVariables variables, String parentLogChannelId, String transformName, int partitionId) {
+    if (variables == null || StringUtils.isEmpty(transformName)) {
+      return;
+    }
+    String parent =
+        StringUtils.isNotEmpty(parentLogChannelId) ? parentLogChannelId : "spark-pipeline";
+    String ownerId = parent + "|" + transformName + "|" + partitionId;
+    variables.setVariable(SparkConst.VAR_TRANSFORM_OWNER_ID, ownerId);
+  }
+
+  /**
    * Beam-parity parallel file context for classic I/O in mapPartitions: enable {@code beamContext}
    * (Text File Output auto-appends {@code _transformId_bundleNr}) and re-apply partition-scoped
    * internal variables after transform init overwrote them with log-channel UUIDs.
@@ -768,6 +786,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       return;
     }
     String partitionIdStr = Integer.toString(partitionId);
+    String ownerId = pipeline.getVariable(SparkConst.VAR_TRANSFORM_OWNER_ID);
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
       if (combi.data != null) {
         combi.data.setBeamContext(true);
@@ -787,6 +806,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, partitionIdStr);
         baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, instanceId);
         baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR, partitionIdStr);
+        if (StringUtils.isNotEmpty(ownerId)) {
+          baseTransform.setVariable(SparkConst.VAR_TRANSFORM_OWNER_ID, ownerId);
+        }
       }
     }
   }

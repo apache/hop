@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +59,9 @@ public class CacheEntry {
   private Execution execution;
 
   // The parent execution: pipeline or workflow
+  // Custom getter/setter (below) so we flag dirty when state is updated after an early persist.
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private ExecutionState executionState;
 
   // All the child transform/action executions
@@ -157,6 +161,22 @@ public class CacheEntry {
       return base + "/" + id + ".json";
     }
     return base + Const.FILE_SEPARATOR + id + ".json";
+  }
+
+  /**
+   * Must flag dirty: top-level {@code registerExecution} often persists immediately (dirty=false).
+   * A later {@code updateExecutionState} (timer or end-of-run) would otherwise sit only in memory
+   * and never flush on {@code close()} when no further children dirty the entry — short nested
+   * workflows then appear in the GUI as files without state and are filtered out.
+   */
+  public void setExecutionState(ExecutionState executionState) {
+    this.executionState = executionState;
+    flagDirty();
+  }
+
+  public ExecutionState getExecutionState() {
+    flagRead();
+    return executionState;
   }
 
   public void addChildExecution(Execution childExecution) {

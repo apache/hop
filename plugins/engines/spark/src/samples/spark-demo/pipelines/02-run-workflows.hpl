@@ -67,7 +67,7 @@ limitations under the License.
   </transform>
   <transform>
     <type>WorkflowExecutor</type>
-    <name>Workflow Executor</name>
+    <name>create-country-folder.hwf</name>
     <run_configuration>local</run_configuration>
     <filename>${PROJECT_HOME}/workflows/create-country-folder.hwf</filename>
     <group_size>1</group_size>
@@ -150,11 +150,11 @@ limitations under the License.
     </hop>
     <hop>
       <from>preview</from>
-      <to>Workflow Executor</to>
+      <to>create-country-folder.hwf</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Workflow Executor</from>
+      <from>create-country-folder.hwf</from>
       <to>results</to>
       <enabled>Y</enabled>
     </hop>
