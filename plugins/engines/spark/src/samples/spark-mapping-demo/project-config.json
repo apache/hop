@@ -1,0 +1,15 @@
+{
+  "metadataBaseFolder": "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath": "${PROJECT_HOME}",
+  "dataSetsCsvFolder": "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome": true,
+  "config": {
+    "variables": [
+      {
+        "name": "HOP_DATA",
+        "value": "${PROJECT_HOME}/data",
+        "description": "Local default for data paths. On the Docker cluster, override to file:///data/hop-data via cluster-env.json."
+      }
+    ]
+  }
+}

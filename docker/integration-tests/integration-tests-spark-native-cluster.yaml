@@ -1,0 +1,89 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Native Spark 4.1 standalone cluster for the spark-mapping-demo walk-through.
+#
+# Proves multi-node spark-submit with a Hop project package (Simple Mapping under
+# ${PROJECT_HOME}) and shared data via a Docker volume (HOP_DATA=file:///data/hop-data).
+#
+# From the repository root:
+#
+#   # Prepare fat jar + package zip into dist/spark-native-demo (see sample scripts)
+#   ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
+#
+#   HOP_DIST_DIR="$PWD/dist/spark-native-demo" \
+#     docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+#     up -d --build --scale spark-worker=2
+#
+#   docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+#     exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh
+#
+# Spark master UI: http://localhost:8080
+# Override SPARK_VERSION if needed (default matches plugins/engines/spark Spark 4.1.x pin).
+
+services:
+  spark:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile.master
+      args:
+        SPARK_VERSION: ${SPARK_VERSION:-4.1.2}
+        HADOOP_VERSION: ${HADOOP_VERSION:-3}
+        BASE_URL: ${SPARK_BASE_URL:-https://dlcdn.apache.org/spark}
+    hostname: spark
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+      - SPARK_MASTER_HOST=spark
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      # Host-prepared fat jar + project package zip
+      - ${HOP_DIST_DIR:-../../dist/spark-native-demo}:/opt/hop-dist:ro
+      # Sample project sources + scripts
+      - ../../plugins/engines/spark/src/samples:/opt/hop-samples:ro
+      # Shared data plane (all workers must see the same paths)
+      - hop-demo-data:/data/hop-data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 40s
+
+  spark-worker:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile.worker
+      args:
+        SPARK_VERSION: ${SPARK_VERSION:-4.1.2}
+        HADOOP_VERSION: ${HADOOP_VERSION:-3}
+        BASE_URL: ${SPARK_BASE_URL:-https://dlcdn.apache.org/spark}
+    depends_on:
+      spark:
+        condition: service_healthy
+    environment:
+      - SPARK_MASTER=spark://spark:7077
+      - SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-2}
+      - SPARK_WORKER_MEMORY=${SPARK_WORKER_MEMORY:-2g}
+    volumes:
+      - hop-demo-data:/data/hop-data
+    ports:
+      - "8081"
+
+volumes:
+  hop-demo-data:

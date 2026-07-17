@@ -1,0 +1,192 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[NativeSparkClusterMappingWalkthrough]]
+:imagesdir: ../../../assets/images
+:description: Walk-through: run a Native Spark pipeline with Simple Mapping on a Docker Spark 4.1 cluster using a project package.
+
+= Cluster mapping walk-through (Native Spark)
+
+This walk-through shows that the Native Spark **project package** design works on a *real multi-node* Spark 4.1 cluster — not only on `local[*]`.
+
+You will:
+
+. Build a **`native-provided`** fat jar (cluster provides Spark).
+. Export a **Native Spark project package** (definitions + metadata).
+. Start a Docker Compose cluster (master + workers, shared data volume).
+. `docker exec` **spark-submit** with `MainSpark --HopProjectPackage=…`.
+. See a **Simple Mapping** child under `${PROJECT_HOME}` execute on workers via **SparkFiles**.
+
+Sample project (in source tree):
+
+`plugins/engines/spark/src/samples/spark-mapping-demo`
+
+Compose file:
+
+`docker/integration-tests/integration-tests-spark-native-cluster.yaml`
+
+== What this proves
+
+[options="header",cols="1,2"]
+|===
+|Claim |How the demo shows it
+
+|Nested mappings need files on every executor
+|Child path is `${PROJECT_HOME}/pipelines/mappings/upper-name.hpl` — not embedded in the parent
+
+|Project package is the right unit
+|Package zip is exported specifically for Native Spark (GUI or `hop-conf --export-spark-project`)
+
+|Multi-host shipping works
+|Engine calls `SparkContext.addFile`; workers resolve with `SparkFiles.get` then extract
+
+|Data ≠ definitions
+|Input/output use **`HOP_DATA=file:///data/hop-data`** (shared volume), not package `PROJECT_HOME`
+|===
+
+Related design docs: xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems], xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine].
+
+== Prerequisites
+
+* Docker with Compose v2
+* Hop client **2.19+** with the native Spark plugin (from a built assembly or install)
+* Enough disk to download Spark 4.1.x images (~1 GB first build)
+* From a git checkout of Hop (paths below assume **repository root**)
+
+== 1. Prepare the fat jar and package on the host
+
+[source,bash]
+----
+# Optional: point at your Hop install
+export HOP_HOME=/path/to/hop   # directory that contains hop-conf.sh
+
+./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
+----
+
+This writes into `dist/spark-native-demo/`:
+
+* `hop-native-spark4-submit.jar` — fat jar with token **`native-provided`** (no embedded Spark)
+* `spark-mapping-demo.zip` — Native Spark project package
+* `cluster-env.json` — sets `HOP_DATA` for the cluster
+* `data/customers-sample.csv` — tiny demo CSV
+
+Alternatively:
+
+* *Tools* → *Generate a Hop fat jar* with native-provided packaging, and  
+* *Tools* → *Export project package for Native Spark…* after opening the sample project.
+
+== 2. Start the Spark 4.1 cluster
+
+[source,bash]
+----
+HOP_DIST_DIR="$PWD/dist/spark-native-demo" \
+  docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  up -d --build --scale spark-worker=2
+----
+
+* Master UI: http://localhost:8080 (two workers should register).  
+* Images use the existing `docker/integration-tests/spark` Dockerfiles with **`SPARK_VERSION=4.1.2`** (override with env if needed).  
+* Shared volume `hop-demo-data` is mounted at **`/data/hop-data`** on master and workers.
+
+== 3. Submit the demo job
+
+[source,bash]
+----
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh
+----
+
+What the script does:
+
+. Seeds `/data/hop-data/customers-sample.csv` on the shared volume.  
+. Runs `spark-submit --master spark://spark:7077 --deploy-mode client --class org.apache.hop.spark.run.MainSpark …`  
+. Passes `--HopProjectPackage=/opt/hop-dist/spark-mapping-demo.zip` and  
+  `--HopPipelinePath=pipelines/01-enrich-with-mapping.hpl`.  
+. Loads `cluster-env.json` so `HOP_DATA=file:///data/hop-data`.
+
+In the logs you should see package materialization / distribution and a normal pipeline finish.
+
+== 4. Verify output
+
+[source,bash]
+----
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  exec spark ls -la /data/hop-data/out/enriched
+
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  exec spark sh -c 'head -n 20 /data/hop-data/out/enriched/*'
+----
+
+Expect a header plus rows with an uppercase `displayName` column (from the mapping child).
+
+== Pipeline shape (why it matters)
+
+[source]
+----
+Spark File Input          (${HOP_DATA}/customers-sample.csv)
+        │
+        ▼
+Simple Mapping            (filename = ${PROJECT_HOME}/pipelines/mappings/upper-name.hpl)
+        │                   ↑ only works if the package was extracted on this executor
+        ▼
+Spark File Output         (${HOP_DATA}/out/enriched)
+----
+
+The child mapping concatenates first + last name and uppercases the result. If the package were missing on a worker, the job would fail opening the child `.hpl` — that is the gap this design closes.
+
+== Tear down
+
+[source,bash]
+----
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml down -v
+----
+
+== Troubleshooting
+
+[options="header",cols="1,2"]
+|===
+|Symptom |What to check
+
+|Fat jar / package not found in container
+|`HOP_DIST_DIR` must point at the host folder mounted as `/opt/hop-dist`. Re-run `prepare-dist.sh`.
+
+|Workers cannot open mapping file
+|Confirm logs mention distributing the package / `SparkFiles`. Scale workers ≥ 1 and ensure submit used `--HopProjectPackage`.
+
+|Spark File Input path not found
+|`HOP_DATA` must be the **shared** volume path (`file:///data/hop-data`). Do not point Dataset paths at package `PROJECT_HOME`.
+
+|ClassNotFoundException / wrong Spark
+|Fat jar must be **`native-provided`**. Cluster image must be Spark **4.1.x** + **Java 21**. Do not mix Beam Spark 3 fat jars.
+
+|Driver cannot reverse-connect workers
+|Submit script sets `spark.driver.host=spark` (master hostname on the compose network). Adjust if you change service names.
+
+|Spark download slow / fails on build
+|Dockerfiles fall back to archive.apache.org. Set `SPARK_BASE_URL` or pre-build images once.
+|===
+
+== Follow-ups (not required for this walk-through)
+
+* MinIO + `s3a://` data plane (needs `hadoop-aws` on the Spark classpath).  
+* HDFS instead of a bind mount.  
+* CI job that runs prepare + compose + submit non-interactively.
+
+== Related pages
+
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
+* xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark]
+* xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]

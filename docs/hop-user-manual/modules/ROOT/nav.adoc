@@ -51,6 +51,7 @@ under the License.
 *** xref:pipeline/beam/flink-k8s-operator-running-hop-pipeline.adoc[Running a Hop pipeline using the Flink Kubernetes Operator]
 ** xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
 *** xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems]
+*** xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster mapping walk-through]
 *** xref:pipeline/spark/lakehouse.adoc[Lakehouse tables (Delta / Iceberg)]
 ** xref:pipeline/pipeline-metrics.adoc[Pipeline Metrics]
 ** xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations]

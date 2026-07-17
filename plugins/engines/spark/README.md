@@ -191,6 +191,22 @@ also appends a hint when a known Hop-only scheme still appears in I/O errors aft
 
 Do **not** use package `PROJECT_HOME` as the root for Spark Dataset data paths.
 
+## Cluster walk-through (Docker)
+
+Sample project: `src/samples/spark-mapping-demo`  
+Compose: `docker/integration-tests/integration-tests-spark-native-cluster.yaml` (Spark **4.1.2**)
+
+```bash
+./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
+HOP_DIST_DIR="$PWD/dist/spark-native-demo" \
+  docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  up -d --build --scale spark-worker=2
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh
+```
+
+See user manual: *Cluster mapping walk-through*.
+
 Writes run as Spark actions during graph build; the output handler registers an empty leaf
 Dataset so a later engine `count()` does not re-write files.
 

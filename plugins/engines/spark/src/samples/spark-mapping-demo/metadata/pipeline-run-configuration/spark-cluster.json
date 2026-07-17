@@ -1,0 +1,19 @@
+{
+  "engineRunConfiguration": {
+    "SparkPipelineEngine": {
+      "sparkMaster": "",
+      "sparkAppName": "hop-spark-mapping-demo",
+      "sparkConfigs": "spark.ui.enabled=false\nspark.sql.shuffle.partitions=4",
+      "fatJar": "",
+      "tempLocation": "/tmp",
+      "driverMemory": "",
+      "executorMemory": "",
+      "executorCores": "",
+      "pluginsToStage": "",
+      "pathSchemeMap": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "spark-cluster",
+  "description": "Native Spark for spark-submit (master blank so CLI --master wins). Use with MainSpark --HopProjectPackage on the Docker cluster walk-through."
+}

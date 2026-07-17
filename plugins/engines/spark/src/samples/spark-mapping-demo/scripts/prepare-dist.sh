@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Prepare dist/spark-native-demo for the Native Spark cluster walk-through:
+#   1) native-provided fat jar
+#   2) Spark project package zip (definitions + metadata)
+#   3) seed data copy (also copied into the Docker volume by the submit script)
+#
+# Usage (from Hop install or with HOP_HOME set; repository root optional via REPO_ROOT):
+#   ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
+#
+# Environment:
+#   HOP_HOME       Hop client install (default: current dir if hop-conf.sh is present)
+#   REPO_ROOT      Hop git checkout (default: detected from this script location)
+#   DIST_DIR       Output directory (default: $REPO_ROOT/dist/spark-native-demo)
+#   PROJECT_NAME   Hop project name for hop-conf (default: spark-mapping-demo)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SAMPLE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+# scripts → spark-mapping-demo → samples → src → spark → engines → plugins → repo root
+REPO_ROOT="${REPO_ROOT:-$(cd "${SCRIPT_DIR}/../../../../../../.." && pwd)}"
+DIST_DIR="${DIST_DIR:-${REPO_ROOT}/dist/spark-native-demo}"
+PROJECT_NAME="${PROJECT_NAME:-spark-mapping-demo}"
+FAT_JAR_NAME="${FAT_JAR_NAME:-hop-native-spark4-submit.jar}"
+PACKAGE_NAME="${PACKAGE_NAME:-spark-mapping-demo.zip}"
+
+if [[ -n "${HOP_HOME:-}" ]]; then
+  HOP_CONF="${HOP_HOME}/hop-conf.sh"
+elif [[ -x "./hop-conf.sh" ]]; then
+  HOP_CONF="$(pwd)/hop-conf.sh"
+  HOP_HOME="$(pwd)"
+elif [[ -x "${REPO_ROOT}/assemblies/client/target/hop/hop-conf.sh" ]]; then
+  HOP_HOME="${REPO_ROOT}/assemblies/client/target/hop"
+  HOP_CONF="${HOP_HOME}/hop-conf.sh"
+else
+  echo "ERROR: hop-conf.sh not found. Set HOP_HOME to a Hop install that includes the native Spark plugin." >&2
+  exit 1
+fi
+
+if [[ ! -x "${HOP_CONF}" ]]; then
+  echo "ERROR: not executable: ${HOP_CONF}" >&2
+  exit 1
+fi
+
+mkdir -p "${DIST_DIR}"
+echo ">>> HOP_HOME=${HOP_HOME}"
+echo ">>> SAMPLE_DIR=${SAMPLE_DIR}"
+echo ">>> DIST_DIR=${DIST_DIR}"
+
+echo ">>> Generating native-provided fat jar (Spark provided by cluster)..."
+(
+  cd "${HOP_HOME}"
+  ./hop-conf.sh \
+    --generate-fat-jar="${DIST_DIR}/${FAT_JAR_NAME}" \
+    --spark-client-version=native-provided
+)
+
+echo ">>> Registering / selecting project ${PROJECT_NAME} → ${SAMPLE_DIR}"
+# Create project if missing; ignore errors if it already exists
+set +e
+(
+  cd "${HOP_HOME}"
+  ./hop-conf.sh \
+    --project-create \
+    --project="${PROJECT_NAME}" \
+    --project-home="${SAMPLE_DIR}" \
+    --project-config-file=project-config.json 2>/dev/null
+)
+set -e
+
+echo ">>> Exporting Native Spark project package..."
+(
+  cd "${HOP_HOME}"
+  ./hop-conf.sh \
+    --project="${PROJECT_NAME}" \
+    --export-spark-project="${DIST_DIR}/${PACKAGE_NAME}"
+)
+
+echo ">>> Copying sample data into dist (for inspection; cluster uses /data/hop-data)..."
+mkdir -p "${DIST_DIR}/data"
+cp -f "${SAMPLE_DIR}/data/customers-sample.csv" "${DIST_DIR}/data/"
+cp -f "${SAMPLE_DIR}/cluster-env.json" "${DIST_DIR}/"
+
+echo
+echo "Done. Contents of ${DIST_DIR}:"
+ls -la "${DIST_DIR}"
+echo
+echo "Next:"
+echo "  HOP_DIST_DIR=${DIST_DIR} docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml up -d --build --scale spark-worker=2"
+echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh"
