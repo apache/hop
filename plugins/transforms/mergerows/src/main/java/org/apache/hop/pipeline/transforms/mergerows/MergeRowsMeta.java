@@ -100,6 +100,13 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   private String diffJsonField;
 
   @HopMetadataProperty(
+      key = "align_input_layouts",
+      defaultBoolean = false,
+      injectionKey = "ALIGN_INPUT_LAYOUTS",
+      injectionKeyDescription = "MergeRows.Injection.ALIGN_INPUT_LAYOUTS")
+  private boolean alignInputLayouts = true;
+
+  @HopMetadataProperty(
       groupKey = "passthrough-fields",
       key = "passthrough-field",
       injectionGroupKey = "PASSTHROUGH_FIELDS",
@@ -122,6 +129,8 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
     this.valueFields = new ArrayList<>(m.valueFields);
     this.referenceTransform = m.referenceTransform;
     this.compareTransform = m.compareTransform;
+    this.diffJsonField = m.diffJsonField;
+    this.alignInputLayouts = m.alignInputLayouts;
     m.getPassThroughFields().forEach(f -> this.passThroughFields.add(new PassThroughField(f)));
   }
 
@@ -133,6 +142,7 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   @Override
   public void setDefault() {
     flagField = "flagfield";
+    alignInputLayouts = true;
   }
 
   @Override
@@ -156,11 +166,16 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
     // So we just merge in the info fields.
     //
     if (info != null) {
-      boolean found = false;
-      for (int i = 0; i < info.length && !found; i++) {
-        if (info[i] != null) {
-          r.mergeRowMeta(info[i], name);
-          found = true;
+      if (alignInputLayouts && info.length == 2 && info[0] != null && info[1] != null) {
+        r.mergeRowMeta(
+            MergeRowsAlignment.buildSchemaMapping(info[0], info[1]).getOutputRowMeta(), name);
+      } else {
+        boolean found = false;
+        for (int i = 0; i < info.length && !found; i++) {
+          if (info[i] != null) {
+            r.mergeRowMeta(info[i], name);
+            found = true;
+          }
         }
       }
     }
@@ -255,42 +270,54 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
       remarks.add(cr);
     }
 
-    IRowMeta referenceRowMeta = null;
-    IRowMeta compareRowMeta = null;
-    try {
-      referenceRowMeta =
-          pipelineMeta.getPrevTransformFields(variables, referenceStream.getTransformName());
-      compareRowMeta =
-          pipelineMeta.getPrevTransformFields(variables, compareStream.getTransformName());
-    } catch (HopTransformException kse) {
-      new CheckResult(
-          ICheckResult.TYPE_RESULT_ERROR,
-          BaseMessages.getString(PKG, "MergeRowsMeta.CheckResult.ErrorGettingPrevTransformFields"),
-          transformMeta);
-    }
-    if (referenceRowMeta != null && compareRowMeta != null) {
-      boolean rowsMatch = false;
+    if (!alignInputLayouts) {
+      IRowMeta referenceRowMeta = null;
+      IRowMeta compareRowMeta = null;
       try {
-        MergeRows.checkInputLayoutValid(referenceRowMeta, compareRowMeta);
-        rowsMatch = true;
-      } catch (HopRowException kre) {
-        // Ignore
-      }
-      if (rowsMatch) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_OK,
-                BaseMessages.getString(PKG, "MergeRowsMeta.CheckResult.RowDefinitionMatch"),
-                transformMeta);
-        remarks.add(cr);
-      } else {
-        cr =
+        referenceRowMeta =
+            pipelineMeta.getPrevTransformFields(variables, referenceStream.getTransformName());
+        compareRowMeta =
+            pipelineMeta.getPrevTransformFields(variables, compareStream.getTransformName());
+      } catch (HopTransformException kse) {
+        remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "MergeRowsMeta.CheckResult.RowDefinitionNotMatch"),
-                transformMeta);
-        remarks.add(cr);
+                BaseMessages.getString(
+                    PKG, "MergeRowsMeta.CheckResult.ErrorGettingPrevTransformFields"),
+                transformMeta));
       }
+      if (referenceRowMeta != null && compareRowMeta != null) {
+        boolean rowsMatch = false;
+        try {
+          MergeRows.checkInputLayoutValid(referenceRowMeta, compareRowMeta);
+          rowsMatch = true;
+        } catch (HopRowException kre) {
+          // Ignore
+        }
+        if (rowsMatch) {
+          cr =
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_OK,
+                  BaseMessages.getString(PKG, "MergeRowsMeta.CheckResult.RowDefinitionMatch"),
+                  transformMeta);
+          remarks.add(cr);
+        } else {
+          cr =
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "MergeRowsMeta.CheckResult.RowDefinitionNotMatch"),
+                  transformMeta);
+          remarks.add(cr);
+        }
+      }
+    } else if (referenceStream.getTransformName() != null
+        && compareStream.getTransformName() != null) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "MergeRowsMeta.CheckResult.AlignmentEnabled"),
+              transformMeta);
+      remarks.add(cr);
     }
   }
 

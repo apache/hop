@@ -24,11 +24,14 @@ EXECUTED_COMPOSE_FILES=("${DOCKER_FILES_DIR}/integration-tests-base.yaml")
 
 for ARGUMENT in "$@"; do
 
-  KEY=$(echo $ARGUMENT | cut -f1 -d=)
-  VALUE=$(echo $ARGUMENT | cut -f2 -d=)
+  # Quote so glob characters in values (e.g. TEST_FILTER='*0077*') are preserved.
+  # cut -f2- keeps values that themselves contain '='.
+  KEY=$(echo "${ARGUMENT}" | cut -f1 -d=)
+  VALUE=$(echo "${ARGUMENT}" | cut -f2- -d=)
 
   case "$KEY" in
   PROJECT_NAME) PROJECT_NAME=${VALUE} ;;
+  TEST_FILTER) TEST_FILTER=${VALUE} ;;
   JENKINS_USER) JENKINS_USER=${VALUE} ;;
   JENKINS_UID) JENKINS_UID=${VALUE} ;;
   JENKINS_GROUP) JENKINS_GROUP=${VALUE} ;;
@@ -64,6 +67,17 @@ export HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION:-}"
 if [ -z "${PROJECT_NAME}" ]; then
   PROJECT_NAME="*"
 fi
+
+# Optional filter for main*.hwf basenames (substring or glob, comma-separated).
+# Passed into the test container as TEST_FILTER; when set, run-tests.sh uses the
+# classic per-workflow runner so only matching main*.hwf files execute. Examples:
+#   ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER=0077-merge-rows
+#   ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER='*0077*'
+#   ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER='0077-merge-rows,0076-other'
+if [ -z "${TEST_FILTER}" ]; then
+  TEST_FILTER=""
+fi
+export TEST_FILTER
 
 if [ -z "${JENKINS_USER}" ]; then
   JENKINS_USER="jenkins"
@@ -204,20 +218,24 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
       # Check if specific compose exists
 
+      if [ -n "${TEST_FILTER}" ]; then
+        echo "TEST_FILTER: ${TEST_FILTER}"
+      fi
+
       if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
         echo "Project compose exists."
         EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
         # Rebuild project images so SPARK_VERSION (and similar) build args take effect
         if [ "${PROJECT_NAME}" = "spark" ]; then
           echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
-          PROJECT_NAME=${PROJECT_NAME} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
+          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
             docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
         else
-          PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
+          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
         fi
       else
         echo "Project compose does not exists."
-        PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
+        PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
       fi
     fi
   fi

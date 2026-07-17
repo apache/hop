@@ -121,8 +121,59 @@ if [ -z "${PROJECT_NAME}" ]; then
   PROJECT_NAME="*"
 fi
 
+# Optional filter for main*.hwf workflows (substring or glob against basename).
+# Comma-separated list is supported. Examples:
+#   TEST_FILTER=0077-merge-rows
+#   TEST_FILTER='*0077*','*0078*'
+#   TEST_FILTER=main-0077-merge-rows.hwf
+if [ -z "${TEST_FILTER}" ]; then
+  TEST_FILTER=""
+fi
+
 #set global variables
 SPACER="==========================================="
+
+# Return 0 if the workflow file should run under the current TEST_FILTER.
+should_run_workflow() {
+  local file="$1"
+  local base
+  base=$(basename "$file")
+
+  if [ -z "${TEST_FILTER}" ]; then
+    return 0
+  fi
+
+  local old_ifs=$IFS
+  IFS=','
+  local pattern
+  # shellcheck disable=SC2086
+  for pattern in ${TEST_FILTER}; do
+    # trim whitespace
+    pattern="${pattern#"${pattern%%[![:space:]]*}"}"
+    pattern="${pattern%"${pattern##*[![:space:]]}"}"
+    [ -z "${pattern}" ] && continue
+
+    # No glob meta-characters: treat as basename substring
+    if [[ "${pattern}" != *[\*\?[]* ]]; then
+      case "${base}" in
+      *"${pattern}"*)
+        IFS=$old_ifs
+        return 0
+        ;;
+      esac
+    else
+      # Glob match against basename
+      case "${base}" in
+      ${pattern})
+        IFS=$old_ifs
+        return 0
+        ;;
+      esac
+    fi
+  done
+  IFS=$old_ifs
+  return 1
+}
 
 # Set up a temporary folder
 export TMP_FOLDER=/tmp/hop-it-$$
@@ -198,8 +249,9 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
         SUITE_RUN_CONFIG="hop-local"
       fi
 
-      # Prefer single-JVM suite runner when available (unless isolation mode is requested)
-      if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -f "${RUNNER_PIPELINE}" ]; then
+      # Prefer single-JVM suite runner when available (unless isolation mode is requested).
+      # TEST_FILTER is only applied on the classic per-workflow path, so force that mode when set.
+      if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -z "${TEST_FILTER}" ] && [ -f "${RUNNER_PIPELINE}" ]; then
 
         echo ${SPACER}
         echo "Running project tests in single JVM via run-project-tests.hpl (run config: ${SUITE_RUN_CONFIG})"
@@ -250,7 +302,15 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
         # Classic path: one hop-run JVM per main-*.hwf
         #
+        if [ -n "${TEST_FILTER}" ]; then
+          echo "TEST_FILTER is set: ${TEST_FILTER}"
+        fi
+
         find "$d" -name 'main*.hwf' | sort | while read -r f; do
+
+          if ! should_run_workflow "$f"; then
+            continue
+          fi
 
           #cleanup temp files
           rm -f /tmp/test_output
