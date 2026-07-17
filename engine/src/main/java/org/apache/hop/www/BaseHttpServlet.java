@@ -33,6 +33,10 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -377,5 +381,29 @@ public class BaseHttpServlet extends HttpServlet {
       return Const.UTF_8;
     }
     return null;
+  }
+
+  /**
+   * The logging object a servlet hands to the pipeline or workflow it creates, as its logging
+   * parent.
+   *
+   * <p>It is given a log channel of its own: everything the pipeline or workflow logs is a child of
+   * it, so writing that log to a file hangs the file writer on this log channel. Without one there
+   * is nothing to hang it on. See issue #4677.
+   *
+   * @param contextPath the path of the servlet, to name the logging object after
+   * @param serverObjectId the id this server knows the pipeline or workflow by
+   * @param level the log level that was asked for
+   * @return the logging object to use as a parent
+   */
+  protected SimpleLoggingObject getServletLogging(
+      final String contextPath, final String serverObjectId, final LogLevel level) {
+    SimpleLoggingObject servletLoggingObject =
+        new SimpleLoggingObject(contextPath, LoggingObjectType.HOP_SERVER, null);
+    servletLoggingObject.setContainerObjectId(serverObjectId);
+    servletLoggingObject.setLogLevel(level);
+    servletLoggingObject.setLogChannelId(
+        LoggingRegistry.getInstance().registerLoggingSource(servletLoggingObject, true));
+    return servletLoggingObject;
   }
 }
