@@ -130,7 +130,24 @@ spark.hadoop.fs.s3a.secret.key=...
 
 (Exact keys depend on your Hadoop/Spark version and security model; prefer IAM roles on cloud clusters over embedding keys when possible.)
 
-There is **no** automatic rewrite from `minio://` or Hop `s3://` to `s3a://` in the native engine.
+=== Path scheme map (run configuration)
+
+The Native Spark pipeline run configuration includes an optional **Path scheme map** field: multi-line `from=to` entries applied **only** to *Spark File Input/Output* and *Lake Table PATH* URIs after variable resolution (not to classic Hop VFS / mapPartitions paths).
+
+Example:
+
+[source]
+----
+# Hop VFS / named schemes -> Spark/Hadoop schemes
+s3=s3a
+minio=s3a
+azure=abfs
+----
+
+* Tokens may be written as `s3` or `s3://` (normalized to bare scheme names).
+* Lines starting with `#` are comments.
+* Mapping only rewrites the scheme; it does **not** inject credentials or endpoints — still set `spark.hadoop.fs.s3a.*` (or other FS config) for the *target* scheme.
+* Prefer putting the target URI in pipeline variables when you can; use the map when the same pipeline must keep Hop-style schemes in metadata.
 
 == Cluster environment variables
 

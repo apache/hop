@@ -75,6 +75,22 @@ class SparkLakeTableSupportTest {
   }
 
   @Test
+  void resolveLakeTargetAppliesPathSchemeMap() throws Exception {
+    String id =
+        SparkLakeTableSupport.resolveLakeTargetSqlId(
+            null,
+            new Variables(),
+            SparkLakeFormats.FORMAT_DELTA,
+            SparkLakeTableInputMeta.MODE_PATH,
+            "s3://bucket/table",
+            null,
+            "merge",
+            "Merge",
+            "s3=s3a");
+    assertEquals("delta.`s3a://bucket/table`", id);
+  }
+
+  @Test
   void resolveTableIdentifierPrefixesCatalog() throws Exception {
     assertEquals(
         "lake.db.orders",

@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
+import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
 import org.junit.jupiter.api.Test;
 
 class SparkPathDialectTest {
@@ -83,5 +85,46 @@ class SparkPathDialectTest {
     assertEquals(
         "Error reading 's3a://b/k' as csv",
         SparkPathDialect.withPathHint("Error reading 's3a://b/k' as csv", "s3a://b/k"));
+  }
+
+  @Test
+  void parseSchemeMapIgnoresCommentsAndNormalizesTokens() {
+    Map<String, String> map =
+        SparkPathDialect.parseSchemeMap(
+            """
+            # hop to spark
+            s3=s3a
+            s3://=s3a://
+            minio = s3a
+            azure=abfs
+            broken
+            =s3a
+            s3a=
+            """);
+    assertEquals("s3a", map.get("s3")); // last s3:// line wins over s3=
+    assertEquals("s3a", map.get("minio"));
+    assertEquals("abfs", map.get("azure"));
+    assertFalse(map.containsKey("s3a"));
+  }
+
+  @Test
+  void toSparkUriRewritesMappedSchemesOnly() {
+    String map = "s3=s3a\nminio=s3a\n";
+    assertEquals("s3a://bucket/key", SparkPathDialect.toSparkUri("s3://bucket/key", map));
+    assertEquals("s3a://bucket/key", SparkPathDialect.toSparkUri("S3://bucket/key", map));
+    assertEquals("s3a:///demo/x", SparkPathDialect.toSparkUri("minio:///demo/x", map));
+    assertEquals("s3a://bucket/key", SparkPathDialect.toSparkUri("s3a://bucket/key", map));
+    assertEquals("/local/path", SparkPathDialect.toSparkUri("/local/path", map));
+    assertEquals("hdfs://nn/path", SparkPathDialect.toSparkUri("hdfs://nn/path", map));
+    assertNull(SparkPathDialect.toSparkUri(null, map));
+    assertEquals("", SparkPathDialect.toSparkUri("", map));
+  }
+
+  @Test
+  void toSparkUriWithRunConfiguration() {
+    SparkPipelineRunConfiguration config = new SparkPipelineRunConfiguration();
+    config.setPathSchemeMap("s3=s3a");
+    assertEquals("s3a://b/k", SparkPathDialect.toSparkUri("s3://b/k", config));
+    assertEquals("s3://b/k", SparkPathDialect.toSparkUri("s3://b/k", (String) null));
   }
 }

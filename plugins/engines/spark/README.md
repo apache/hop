@@ -161,7 +161,11 @@ provide a clean Dataset API mapping:
 **Paths are Spark/Hadoop URIs** (e.g. local path, `hdfs://…`, `s3a://…`), not Hop VFS schemes
 (`s3://`, named MinIO `minio://`, …). Dataset `load`/`save` never call `HopVfs`. Classic
 mapPartitions transforms still use Hop VFS. See user manual: *Paths and file systems on native
-Spark*. `SparkPathDialect` appends a hint when a known Hop-only scheme appears in I/O errors.
+Spark*.
+
+Optional **path scheme map** on the run configuration (`from=to` lines, e.g. `s3=s3a`) rewrites
+URI schemes for Spark File / Lake PATH only via `SparkPathDialect.toSparkUri`. `SparkPathDialect`
+also appends a hint when a known Hop-only scheme still appears in I/O errors after mapping.
 
 Writes run as Spark actions during graph build; the output handler registers an empty leaf
 Dataset so a later engine `count()` does not re-write files.

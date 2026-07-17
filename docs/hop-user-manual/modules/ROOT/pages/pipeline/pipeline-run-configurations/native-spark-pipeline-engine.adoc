@@ -97,6 +97,10 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 |Plugins to stage
 |Optional comma-separated plugin folders to stage on the cluster.
 |
+
+|Path scheme map (`from=to` lines)
+|Optional URI scheme rewrite for *Spark File* / *Lake PATH* only (e.g. `s3=s3a`, `minio=s3a`). Does not apply to classic Hop VFS transforms. Configure target FS (e.g. `spark.hadoop.fs.s3a.*`) separately. See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
+|
 |===
 
 Also configure *Execution information location* and *Execution data profile* on the run configuration main tab when you want GUI metrics history and row samples.

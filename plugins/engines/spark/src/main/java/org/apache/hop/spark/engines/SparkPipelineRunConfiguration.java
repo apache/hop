@@ -169,6 +169,16 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   @HopMetadataProperty
   private String pluginsToStage;
 
+  @GuiWidgetElement(
+      order = "20090-spark-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.MULTI_LINE_TEXT,
+      multiLineTextHeight = 4,
+      label = "i18n::SparkEngine.OptionsPathSchemeMap.Label",
+      toolTip = "i18n::SparkEngine.OptionsPathSchemeMap.ToolTip")
+  @HopMetadataProperty
+  private String pathSchemeMap;
+
   public SparkPipelineRunConfiguration() {
     super();
     this.sparkMaster = "local[*]";
@@ -189,6 +199,7 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.executorCores = config.executorCores;
     this.tempLocation = config.tempLocation;
     this.pluginsToStage = config.pluginsToStage;
+    this.pathSchemeMap = config.pathSchemeMap;
   }
 
   @Override

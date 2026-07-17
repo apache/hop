@@ -38,4 +38,11 @@ public interface ISparkPipelineEngineRunConfiguration extends IPipelineEngineRun
   String getTempLocation();
 
   String getPluginsToStage();
+
+  /**
+   * Optional multi-line path scheme map for Spark Dataset / Lake PATH I/O ({@code from=to} per
+   * line, e.g. {@code s3=s3a}). Rewrites only the URI scheme before {@code load}/{@code save};
+   * classic Hop VFS paths are unaffected.
+   */
+  String getPathSchemeMap();
 }

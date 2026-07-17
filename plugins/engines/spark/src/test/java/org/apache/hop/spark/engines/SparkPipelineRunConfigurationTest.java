@@ -34,11 +34,13 @@ class SparkPipelineRunConfigurationTest {
     config.setSparkMaster("spark://host:7077");
     config.setSparkAppName("test-app");
     config.setDriverMemory("1g");
+    config.setPathSchemeMap("s3=s3a\nminio=s3a");
 
     SparkPipelineRunConfiguration copy = config.clone();
     assertNotSame(config, copy);
     assertEquals("spark://host:7077", copy.getSparkMaster());
     assertEquals("test-app", copy.getSparkAppName());
     assertEquals("1g", copy.getDriverMemory());
+    assertEquals("s3=s3a\nminio=s3a", copy.getPathSchemeMap());
   }
 }

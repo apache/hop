@@ -17,18 +17,22 @@
 
 package org.apache.hop.spark.util;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 
 /**
  * Distinguishes <strong>Hop VFS URIs</strong> (Commons VFS / {@code HopVfs}) from
  * <strong>Spark/Hadoop URIs</strong> (Dataset {@code load}/{@code save}, lake PATH).
  *
- * <p>Native Spark file and lake handlers pass paths straight to Spark after variable resolution.
- * Schemes that work in the Hop file dialog (for example {@code s3://} or a named MinIO connection)
- * are not automatically understood by Spark. This class only helps detect common confusions and
- * append clear error hints — it does not rewrite paths.
+ * <p>Native Spark file and lake handlers resolve variables, then optionally rewrite the URI scheme
+ * using the run configuration <em>path scheme map</em> (for example {@code s3=s3a} or {@code
+ * minio=s3a}), then pass the string to Spark. Classic mapPartitions transforms still use Hop VFS
+ * unchanged.
  *
  * @see org.apache.hop.core.vfs.HopVfs
  */
@@ -64,6 +68,99 @@ public final class SparkPathDialect {
   }
 
   /**
+   * Parse a path scheme map from multi-line text ({@code from=to} per line, {@code #} comments).
+   * Tokens may be written as {@code s3}, {@code s3://}, {@code S3A}, etc. — they are normalized to
+   * bare lower-case scheme names. Later lines override earlier ones for the same source scheme.
+   *
+   * @return ordered map sourceScheme → targetScheme; never {@code null}
+   */
+  public static Map<String, String> parseSchemeMap(String mapText) {
+    if (StringUtils.isEmpty(mapText)) {
+      return Collections.emptyMap();
+    }
+    Map<String, String> map = new LinkedHashMap<>();
+    for (String line : mapText.split("\\r?\\n")) {
+      String trimmed = line.trim();
+      if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+        continue;
+      }
+      int eq = trimmed.indexOf('=');
+      if (eq <= 0) {
+        continue;
+      }
+      String from = normalizeSchemeToken(trimmed.substring(0, eq));
+      String to = normalizeSchemeToken(trimmed.substring(eq + 1));
+      if (StringUtils.isEmpty(from) || StringUtils.isEmpty(to)) {
+        continue;
+      }
+      map.put(from, to);
+    }
+    return map.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(map);
+  }
+
+  /** Strip optional {@code ://} and lower-case a scheme token from the map text. */
+  public static String normalizeSchemeToken(String token) {
+    if (StringUtils.isEmpty(token)) {
+      return null;
+    }
+    String t = token.trim();
+    if (t.endsWith("://")) {
+      t = t.substring(0, t.length() - 3);
+    } else if (t.endsWith(":")) {
+      t = t.substring(0, t.length() - 1);
+    }
+    t = t.trim().toLowerCase(Locale.ROOT);
+    return t.isEmpty() ? null : t;
+  }
+
+  /**
+   * Rewrite the URI scheme of {@code path} using the run configuration path scheme map, if any.
+   * Paths without a scheme, or whose scheme is not listed, are returned unchanged (after trim).
+   */
+  public static String toSparkUri(
+      String path, ISparkPipelineEngineRunConfiguration runConfiguration) {
+    if (runConfiguration == null) {
+      return toSparkUri(path, (String) null);
+    }
+    return toSparkUri(path, runConfiguration.getPathSchemeMap());
+  }
+
+  /**
+   * Rewrite the URI scheme of {@code path} using multi-line map text ({@code from=to}). Empty or
+   * null map leaves the path unchanged (trimmed when non-empty).
+   */
+  public static String toSparkUri(String path, String schemeMapText) {
+    return toSparkUri(path, parseSchemeMap(schemeMapText));
+  }
+
+  /**
+   * Rewrite the URI scheme of {@code path} when {@code schemeMap} contains an entry for that
+   * scheme. Only {@code scheme://…} forms are rewritten (not bare {@code file:/…}).
+   */
+  public static String toSparkUri(String path, Map<String, String> schemeMap) {
+    if (StringUtils.isEmpty(path)) {
+      return path;
+    }
+    String p = path.trim();
+    if (schemeMap == null || schemeMap.isEmpty()) {
+      return p;
+    }
+    String scheme = extractScheme(p);
+    if (scheme == null) {
+      return p;
+    }
+    String target = schemeMap.get(scheme);
+    if (StringUtils.isEmpty(target) || target.equals(scheme)) {
+      return p;
+    }
+    String prefix = scheme + "://";
+    if (p.regionMatches(true, 0, prefix, 0, prefix.length())) {
+      return target + "://" + p.substring(prefix.length());
+    }
+    return p;
+  }
+
+  /**
    * {@code true} when the path uses a known static Hop VFS scheme that is not typical for Spark.
    */
   public static boolean isKnownHopVfsScheme(String path) {
@@ -85,9 +182,10 @@ public final class SparkPathDialect {
           "'"
               + scheme
               + "://' is a Hop VFS scheme (AWS SDK). Spark File Input/Output and Lake PATH use"
-              + " Hadoop FileSystem URIs — prefer 's3a://…' with cluster S3A configuration"
-              + " (spark.hadoop.fs.s3a.*). Named MinIO/S3 VFS connections are not Spark schemes;"
-              + " use s3a:// plus endpoint conf instead. See native Spark paths documentation.";
+              + " Hadoop FileSystem URIs — prefer 's3a://…' (or map s3=s3a on the Native Spark run"
+              + " configuration path scheme map) with cluster S3A configuration"
+              + " (spark.hadoop.fs.s3a.*). Named MinIO/S3 VFS connections need a map entry"
+              + " (e.g. minio=s3a) plus S3A endpoint conf. See native Spark paths documentation.";
       case "azure", "azfs" ->
           "'"
               + scheme

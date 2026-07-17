@@ -74,9 +74,10 @@ public class SparkLakeTableMergeHandler extends SparkBaseTransformHandler {
     SparkLakeTableMergeMeta meta = new SparkLakeTableMergeMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
+    String pathSchemeMap = runConfiguration != null ? runConfiguration.getPathSchemeMap() : null;
     String targetSqlId =
         SparkLakeTableSupport.resolveMergeTargetSqlId(
-            spark, variables, meta, transformMeta.getName());
+            spark, variables, meta, transformMeta.getName(), pathSchemeMap);
     String sourceView = SparkMergeSqlBuilder.sourceViewName(transformMeta.getName());
 
     String sql;

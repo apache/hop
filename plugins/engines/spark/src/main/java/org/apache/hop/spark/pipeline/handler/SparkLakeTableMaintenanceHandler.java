@@ -85,9 +85,10 @@ public class SparkLakeTableMaintenanceHandler extends SparkBaseTransformHandler 
               + " (acknowledgeDestructive) before running.");
     }
 
+    String pathSchemeMap = runConfiguration != null ? runConfiguration.getPathSchemeMap() : null;
     MaintenanceTarget target =
         SparkLakeTableSupport.resolveMaintenanceTarget(
-            spark, variables, meta, transformMeta.getName());
+            spark, variables, meta, transformMeta.getName(), pathSchemeMap);
 
     String retention =
         StringUtils.isNotEmpty(meta.getRetentionHours())

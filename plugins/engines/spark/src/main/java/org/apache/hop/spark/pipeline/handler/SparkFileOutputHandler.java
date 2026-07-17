@@ -33,6 +33,7 @@ import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.transforms.io.SparkFileInputMeta;
 import org.apache.hop.spark.transforms.io.SparkFileOutputMeta;
+import org.apache.hop.spark.util.SparkPathDialect;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
@@ -80,10 +81,21 @@ public class SparkFileOutputHandler extends SparkBaseTransformHandler {
     SparkFileOutputMeta meta = new SparkFileOutputMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
-    String path = variables.resolve(meta.getFilePath());
+    String resolved = variables.resolve(meta.getFilePath());
+    String path = SparkPathDialect.toSparkUri(resolved, runConfiguration);
     if (StringUtils.isEmpty(path)) {
       throw new HopException(
           "Spark File Output '" + transformMeta.getName() + "' has no file path configured");
+    }
+    if (log != null && StringUtils.isNotEmpty(resolved) && !resolved.trim().equals(path)) {
+      log.logBasic(
+          "Spark File Output '"
+              + transformMeta.getName()
+              + "' path scheme map: '"
+              + resolved
+              + "' -> '"
+              + path
+              + "'");
     }
 
     String format = SparkFileIoSupport.normalizeFormat(meta.getFileFormat());

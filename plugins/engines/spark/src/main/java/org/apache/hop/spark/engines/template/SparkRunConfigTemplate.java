@@ -197,6 +197,9 @@ public enum SparkRunConfigTemplate {
         || StringUtils.isNotEmpty(config.getExecutorCores())) {
       return true;
     }
+    if (StringUtils.isNotEmpty(config.getPathSchemeMap())) {
+      return true;
+    }
     return StringUtils.isNotEmpty(config.getPluginsToStage());
   }
 

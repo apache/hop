@@ -63,8 +63,10 @@ public class SparkLakeTableInputHandler extends SparkBaseTransformHandler {
     SparkLakeTableInputMeta meta = new SparkLakeTableInputMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
+    String pathSchemeMap = runConfiguration != null ? runConfiguration.getPathSchemeMap() : null;
     Dataset<Row> dataset =
-        SparkLakeTableSupport.resolveRead(spark, variables, log, transformMeta.getName(), meta);
+        SparkLakeTableSupport.resolveRead(
+            spark, variables, log, transformMeta.getName(), meta, pathSchemeMap);
     dataset = trackMetrics(dataset, transformMeta, SparkNativeMetrics.Role.INPUT);
     transformDatasetMap.put(transformMeta.getName(), dataset);
 

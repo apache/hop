@@ -195,6 +195,16 @@ public final class SparkLakeTableSupport {
       org.apache.hop.spark.transforms.table.SparkLakeTableMergeMeta meta,
       String transformName)
       throws HopException {
+    return resolveMergeTargetSqlId(spark, variables, meta, transformName, null);
+  }
+
+  public static String resolveMergeTargetSqlId(
+      SparkSession spark,
+      IVariables variables,
+      org.apache.hop.spark.transforms.table.SparkLakeTableMergeMeta meta,
+      String transformName,
+      String pathSchemeMap)
+      throws HopException {
     return resolveLakeTargetSqlId(
         spark,
         variables,
@@ -203,7 +213,8 @@ public final class SparkLakeTableSupport {
         meta.getTablePath(),
         meta.getTableIdentifier(),
         transformName,
-        "Merge");
+        "Merge",
+        pathSchemeMap);
   }
 
   /**
@@ -214,6 +225,16 @@ public final class SparkLakeTableSupport {
       IVariables variables,
       org.apache.hop.spark.transforms.table.SparkLakeTableMaintenanceMeta meta,
       String transformName)
+      throws HopException {
+    return resolveMaintenanceTarget(spark, variables, meta, transformName, null);
+  }
+
+  public static MaintenanceTarget resolveMaintenanceTarget(
+      SparkSession spark,
+      IVariables variables,
+      org.apache.hop.spark.transforms.table.SparkLakeTableMaintenanceMeta meta,
+      String transformName,
+      String pathSchemeMap)
       throws HopException {
     String format = normalizeFormat(meta.getFormat());
     String mode = normalizeIdentifierMode(meta.getIdentifierMode());
@@ -226,14 +247,17 @@ public final class SparkLakeTableSupport {
             meta.getTablePath(),
             meta.getTableIdentifier(),
             transformName,
-            "Maintenance");
+            "Maintenance",
+            pathSchemeMap);
 
     String procedureCatalog = null;
     String tableRefForCall = null;
     if (SparkLakeFormats.FORMAT_ICEBERG.equals(format)) {
       if (SparkLakeTableInputMeta.MODE_PATH.equals(mode)) {
         procedureCatalog = SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME;
-        tableRefForCall = toTableLocationUri(variables.resolve(meta.getTablePath()));
+        tableRefForCall =
+            toTableLocationUri(
+                SparkPathDialect.toSparkUri(variables.resolve(meta.getTablePath()), pathSchemeMap));
       } else {
         String tableId = resolveTableIdentifier(meta.getTableIdentifier(), null, variables);
         String[] parts = tableId.split("\\.");
@@ -266,6 +290,29 @@ public final class SparkLakeTableSupport {
       String transformName,
       String role)
       throws HopException {
+    return resolveLakeTargetSqlId(
+        spark,
+        variables,
+        formatRaw,
+        modeRaw,
+        tablePath,
+        tableIdentifier,
+        transformName,
+        role,
+        null);
+  }
+
+  public static String resolveLakeTargetSqlId(
+      SparkSession spark,
+      IVariables variables,
+      String formatRaw,
+      String modeRaw,
+      String tablePath,
+      String tableIdentifier,
+      String transformName,
+      String role,
+      String pathSchemeMap)
+      throws HopException {
     String format = normalizeFormat(formatRaw);
     String mode = normalizeIdentifierMode(modeRaw);
 
@@ -273,7 +320,7 @@ public final class SparkLakeTableSupport {
       return resolveTableIdentifier(tableIdentifier, null, variables);
     }
 
-    String path = variables.resolve(tablePath);
+    String path = SparkPathDialect.toSparkUri(variables.resolve(tablePath), pathSchemeMap);
     if (StringUtils.isEmpty(path)) {
       throw new HopException(
           "Spark Lake Table "
@@ -332,6 +379,21 @@ public final class SparkLakeTableSupport {
       String transformName,
       SparkLakeTableInputMeta meta)
       throws HopException {
+    return resolveRead(spark, variables, log, transformName, meta, null);
+  }
+
+  /**
+   * @param pathSchemeMap optional run-config path scheme map ({@code s3=s3a}); applied to PATH mode
+   *     only
+   */
+  public static Dataset<Row> resolveRead(
+      SparkSession spark,
+      IVariables variables,
+      ILogChannel log,
+      String transformName,
+      SparkLakeTableInputMeta meta,
+      String pathSchemeMap)
+      throws HopException {
 
     String format = normalizeFormat(meta.getFormat());
     String mode = normalizeIdentifierMode(meta.getIdentifierMode());
@@ -358,7 +420,8 @@ public final class SparkLakeTableSupport {
       dataset =
           readTable(spark, format, tableId, options, ttType, ttVersion, ttTimestamp, transformName);
     } else {
-      String path = variables.resolve(meta.getTablePath());
+      String path =
+          SparkPathDialect.toSparkUri(variables.resolve(meta.getTablePath()), pathSchemeMap);
       if (StringUtils.isEmpty(path)) {
         throw new HopException(
             "Spark Lake Table Input '" + transformName + "' has no table path configured");
@@ -384,6 +447,21 @@ public final class SparkLakeTableSupport {
       IVariables variables,
       String transformName,
       SparkLakeTableOutputMeta meta)
+      throws HopException {
+    resolveWrite(spark, dataset, variables, transformName, meta, null);
+  }
+
+  /**
+   * @param pathSchemeMap optional run-config path scheme map ({@code s3=s3a}); applied to PATH mode
+   *     only
+   */
+  public static void resolveWrite(
+      SparkSession spark,
+      Dataset<Row> dataset,
+      IVariables variables,
+      String transformName,
+      SparkLakeTableOutputMeta meta,
+      String pathSchemeMap)
       throws HopException {
 
     String format = normalizeFormat(meta.getFormat());
@@ -418,7 +496,8 @@ public final class SparkLakeTableSupport {
       return;
     }
 
-    String path = variables.resolve(meta.getTablePath());
+    String path =
+        SparkPathDialect.toSparkUri(variables.resolve(meta.getTablePath()), pathSchemeMap);
     if (StringUtils.isEmpty(path)) {
       throw new HopException(
           "Spark Lake Table Output '" + transformName + "' has no table path configured");

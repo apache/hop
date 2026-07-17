@@ -76,7 +76,9 @@ public class SparkLakeTableOutputHandler extends SparkBaseTransformHandler {
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
     Dataset<Row> toWrite = trackMetrics(input, transformMeta, SparkNativeMetrics.Role.OUTPUT);
-    SparkLakeTableSupport.resolveWrite(spark, toWrite, variables, transformMeta.getName(), meta);
+    String pathSchemeMap = runConfiguration != null ? runConfiguration.getPathSchemeMap() : null;
+    SparkLakeTableSupport.resolveWrite(
+        spark, toWrite, variables, transformMeta.getName(), meta, pathSchemeMap);
     SparkLakeActionSupport.putEmptyLeaf(transformDatasetMap, transformMeta.getName(), spark);
 
     String target =
