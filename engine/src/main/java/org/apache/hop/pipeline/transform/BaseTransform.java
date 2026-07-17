@@ -37,6 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
@@ -141,7 +143,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private ILogChannel log;
 
-  private String containerObjectId;
+  /** The container object ID. Implements {@link ILoggingObject#getContainerId()}. */
+  @Getter @Setter private String containerId;
 
   private final IPipelineEngine<PipelineMeta> pipeline;
 
@@ -3848,22 +3851,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
-   * Returns the container object ID.
-   *
-   * @return the containerObjectId
-   */
-  @Override
-  public String getContainerId() {
-    return containerObjectId;
-  }
-
-  /**
    * Sets the container object ID.
    *
    * @param containerObjectId the containerObjectId to set
+   * @deprecated Use {@link #setContainerId(String)} instead, which matches {@link
+   *     #getContainerId()}.
    */
+  @Deprecated(since = "2.19.0")
   public void setCarteObjectId(String containerObjectId) {
-    this.containerObjectId = containerObjectId;
+    setContainerId(containerObjectId);
   }
 
   /**
