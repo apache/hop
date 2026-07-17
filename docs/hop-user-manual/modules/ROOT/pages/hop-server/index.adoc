@@ -245,17 +245,21 @@ The syntax of this configuration file is straightforward. Hostname and port are 
   <joining>true</joining>
 
   <!-- The maximum number of log lines kept in memory by the server.
-       The default is 0 which means: keep all lines
+       Leave this at 0 or leave the element out to use the HOP_MAX_LOG_SIZE_IN_LINES variable,
+       which keeps all log lines by default.
    -->
   <max_log_lines>0</max_log_lines>
 
   <!-- The time (in minutes) it takes for a log line to be cleaned up in memory.
-       The default is 0 which means: never clean up log lines
+       Leave this at 0 or leave the element out to use the HOP_MAX_LOG_TIMEOUT_IN_MINUTES variable,
+       which cleans up log lines after 1440 minutes (one day) by default.
   -->
   <max_log_timeout_minutes>1440</max_log_timeout_minutes>
 
-  <!-- The time (in minutes) it takes for a pipeline or workflow execution to be removed from the server status.
-       The default is 0 which means: never clean executions
+  <!-- The time (in minutes) it takes for a finished or stopped pipeline or workflow execution to be
+       removed from the server status.
+       Leave this at 0 or leave the element out to use the HOP_SERVER_OBJECT_TIMEOUT_MINUTES
+       variable, which removes executions after 1440 minutes (one day) by default.
   -->
   <object_timeout_minutes>1440</object_timeout_minutes>
 
@@ -280,6 +284,56 @@ The syntax of this configuration file is straightforward. Hostname and port are 
 
 </hop-server-config>
 ----
+
+==== Cleanup settings and where they come from
+
+`max_log_lines`, `max_log_timeout_minutes` and `object_timeout_minutes` keep the memory use of a
+long running server in check. Each of them is resolved separately, and the first of these that
+supplies a value wins:
+
+. the configuration file, when the element is set to a value larger than 0
+. the matching Java system property, for example `-DHOP_SERVER_OBJECT_TIMEOUT_MINUTES=60`
+. the variable in `hop-config.json`
+. the built-in default
+
+[cols="1,1,1", options="header"]
+|===
+|Configuration element |Variable |Default
+
+|`max_log_lines`
+|`HOP_MAX_LOG_SIZE_IN_LINES`
+|`0`: every log line is kept
+
+|`max_log_timeout_minutes`
+|`HOP_MAX_LOG_TIMEOUT_IN_MINUTES`
+|`1440`: log lines are cleaned up after one day
+
+|`object_timeout_minutes`
+|`HOP_SERVER_OBJECT_TIMEOUT_MINUTES`
+|`1440`: finished and stopped executions are removed from the server status after one day
+|===
+
+A server that is started without a configuration file, or without these elements, therefore keeps
+all of its log lines, cleans them up after a day, and removes finished executions from its status
+after a day. The `Configuration details` section of the status page reports the values the server
+is actually running with.
+
+WARNING: The default keeps *every* log line of *every* execution for a day. A server that runs a lot
+of short executions can run out of memory that way. Set `max_log_lines` to limit this.
+
+[NOTE]
+====
+These three settings are read from Java system properties, not from the environment of the process.
+Setting an environment variable on a container, for example `-e HOP_MAX_LOG_SIZE_IN_LINES=5000`,
+therefore has no effect: the value from `hop-config.json` is used instead. To override them in a
+container, pass them as system properties through `HOP_OPTIONS`:
+
+[source,shell]
+docker run -e HOP_OPTIONS="-Xmx2048m -DHOP_MAX_LOG_SIZE_IN_LINES=5000" ...
+
+Mind that `HOP_OPTIONS` replaces the default `-Xmx2048m`, so repeat the memory settings you need.
+Alternatively, set the elements in the server configuration file, which takes precedence over both.
+====
 
 Example startup commands with a configuration file are: +
 

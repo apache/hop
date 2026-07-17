@@ -35,6 +35,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -662,11 +663,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       HopServerConfig serverConfig = getPipelineMap().getHopServerConfig();
       if (serverConfig != null) {
         String maxLines = "";
-        if (serverConfig.getMaxLogLines() == 0) {
+        if (HopLogStore.getAppender().getMaxNrLines() == 0) {
           maxLines = BaseMessages.getString(PKG, CONST_NO_LIMIT);
         } else {
           maxLines =
-              serverConfig.getMaxLogLines() + BaseMessages.getString(PKG, "GetStatusServlet.Lines");
+              HopLogStore.getAppender().getMaxNrLines()
+                  + BaseMessages.getString(PKG, "GetStatusServlet.Lines");
         }
         out.print(
             CONST_TABLE_ROW
@@ -678,11 +680,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         // The max age of log lines
         //
         String maxAge = "";
-        if (serverConfig.getMaxLogTimeoutMinutes() == 0) {
+        if (HopLogStore.getMaxLogTimeoutMinutes() == 0) {
           maxAge = BaseMessages.getString(PKG, CONST_NO_LIMIT);
         } else {
           maxAge =
-              serverConfig.getMaxLogTimeoutMinutes()
+              HopLogStore.getMaxLogTimeoutMinutes()
                   + BaseMessages.getString(PKG, "GetStatusServlet.Minutes");
         }
         out.print(
@@ -694,13 +696,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
         // The max age of stale objects
         //
+        int objectTimeoutMinutes = HopServerSingleton.determineObjectTimeoutMinutes(serverConfig);
         String maxObjAge = "";
-        if (serverConfig.getObjectTimeoutMinutes() == 0) {
+        if (objectTimeoutMinutes == 0) {
           maxObjAge = BaseMessages.getString(PKG, CONST_NO_LIMIT);
         } else {
           maxObjAge =
-              serverConfig.getObjectTimeoutMinutes()
-                  + BaseMessages.getString(PKG, "GetStatusServlet.Minutes");
+              objectTimeoutMinutes + BaseMessages.getString(PKG, "GetStatusServlet.Minutes");
         }
         out.print(
             CONST_TABLE_ROW
