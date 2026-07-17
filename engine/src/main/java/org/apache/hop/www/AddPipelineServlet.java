@@ -29,7 +29,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
-import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
@@ -123,9 +122,8 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
-          new SimpleLoggingObject(CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null);
-      servletLoggingObject.setContainerObjectId(serverObjectId);
-      servletLoggingObject.setLogLevel(pipelineExecutionConfiguration.getLogLevel());
+          getServletLogging(
+              CONTEXT_PATH, serverObjectId, pipelineExecutionConfiguration.getLogLevel());
 
       IHopMetadataProvider metadataProvider =
           new MultiMetadataProvider(

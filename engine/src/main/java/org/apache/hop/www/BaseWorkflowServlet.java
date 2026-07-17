@@ -23,8 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
@@ -64,7 +62,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     String serverObjectId = UUID.randomUUID().toString();
 
     SimpleLoggingObject servletLoggingObject =
-        getServletLogging(serverObjectId, workflowExecutionConfiguration.getLogLevel());
+        getServletLogging(
+            getContextPath(), serverObjectId, workflowExecutionConfiguration.getLogLevel());
 
     // Create the workflow and store in the list...
     //
@@ -114,7 +113,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     String serverObjectId = UUID.randomUUID().toString();
     SimpleLoggingObject servletLoggingObject =
-        getServletLogging(serverObjectId, pipelineExecutionConfiguration.getLogLevel());
+        getServletLogging(
+            getContextPath(), serverObjectId, pipelineExecutionConfiguration.getLogLevel());
 
     // Create the pipeline and store in the list...
     //
@@ -125,6 +125,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
             variables, variables.resolve(runConfigurationName), metadataProvider, pipelineMeta);
     pipeline.setParent(servletLoggingObject);
     pipeline.setMetadataProvider(metadataProvider);
+    pipeline.setLogLevel(pipelineExecutionConfiguration.getLogLevel());
 
     // Also copy the parameters over...
     copyParameters(pipeline, pipelineExecutionConfiguration.getParametersMap());
@@ -190,13 +191,5 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
       }
     }
     workflow.activateParameters(workflow);
-  }
-
-  private SimpleLoggingObject getServletLogging(final String serverObjectId, final LogLevel level) {
-    SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject(getContextPath(), LoggingObjectType.HOP_SERVER, null);
-    servletLoggingObject.setContainerObjectId(serverObjectId);
-    servletLoggingObject.setLogLevel(level);
-    return servletLoggingObject;
   }
 }

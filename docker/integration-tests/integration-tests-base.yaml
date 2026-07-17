@@ -31,4 +31,6 @@ services:
       - ../../integration-tests/:/files
     environment:
       - FLASK_ENV=docker
+      # Optional workflow basename filter (substring or glob). Set by run-tests-docker.sh.
+      - TEST_FILTER=${TEST_FILTER:-}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

@@ -26,6 +26,7 @@ public class SimpleLoggingObject implements ILoggingObject {
   private ILoggingObject parent;
   private LogLevel logLevel = DefaultLogLevel.getLogLevel();
   private String containerObjectId;
+  private String logChannelId;
   private Date registrationDate;
   private boolean gatheringMetrics;
   private boolean forcingSeparateLogging;
@@ -96,9 +97,23 @@ public class SimpleLoggingObject implements ILoggingObject {
     return null;
   }
 
+  /**
+   * @return the log channel this object logs to, null when it does not have one of its own
+   */
   @Override
   public String getLogChannelId() {
-    return null;
+    return logChannelId;
+  }
+
+  /**
+   * Give this object a log channel of its own. Everything that logs with this object as its parent
+   * is then found back through it, which is what writing the log of a child to a file needs. See
+   * issue #4677.
+   *
+   * @param logChannelId the log channel id to set
+   */
+  public void setLogChannelId(String logChannelId) {
+    this.logChannelId = logChannelId;
   }
 
   @Override

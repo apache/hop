@@ -21,7 +21,11 @@ import java.util.Comparator;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
+import org.w3c.dom.Node;
 
 /**
  * This class holds the result of a action after it was executed. Things we want to keep track of
@@ -34,6 +38,18 @@ import org.apache.hop.core.Result;
 @Getter
 @Setter
 public class ActionResult implements Cloneable, Comparator<ActionResult>, Comparable<ActionResult> {
+  public static final String XML_TAG = "action_result";
+
+  private static final String TAG_ACTION_NAME = "action_name";
+  private static final String TAG_COMMENT = "comment";
+  private static final String TAG_REASON = "reason";
+  private static final String TAG_LOG_DATE = "log_date";
+  private static final String TAG_ACTION_FILENAME = "action_filename";
+  private static final String TAG_LOG_CHANNEL_ID = "log_channel_id";
+  private static final String TAG_CHECKPOINT = "checkpoint";
+  private static final String TAG_BYTES_READ = "bytes_read";
+  private static final String TAG_BYTES_WRITTEN = "bytes_written";
+
   private Result result;
   private String actionName;
 
@@ -98,6 +114,53 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     this.actionFilename = actionFilename;
     this.bytesRead = bytesRead;
     this.bytesWritten = bytesWritten;
+  }
+
+  /**
+   * Reads an action result back from the XML written by {@link #getXml()}.
+   *
+   * @param node the {@link #XML_TAG} node to read
+   */
+  public ActionResult(Node node) throws HopException {
+    actionName = XmlHandler.getTagValue(node, TAG_ACTION_NAME);
+    comment = XmlHandler.getTagValue(node, TAG_COMMENT);
+    reason = XmlHandler.getTagValue(node, TAG_REASON);
+    logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(node, TAG_LOG_DATE));
+    actionFilename = XmlHandler.getTagValue(node, TAG_ACTION_FILENAME);
+    logChannelId = XmlHandler.getTagValue(node, TAG_LOG_CHANNEL_ID);
+    checkpoint = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, TAG_CHECKPOINT));
+    bytesRead = Const.toLong(XmlHandler.getTagValue(node, TAG_BYTES_READ), 0L);
+    bytesWritten = Const.toLong(XmlHandler.getTagValue(node, TAG_BYTES_WRITTEN), 0L);
+
+    // A result is only present once the action finished: the "start of action" entries carry none.
+    //
+    Node resultNode = XmlHandler.getSubNode(node, Result.XML_TAG);
+    if (resultNode != null) {
+      result = new Result(resultNode);
+    }
+  }
+
+  /**
+   * Serializes this action result, including the fields the workflow metrics view displays. The
+   * result itself is left out when the action has not finished yet.
+   */
+  public String getXml() {
+    StringBuilder xml = new StringBuilder();
+    xml.append(XmlHandler.openTag(XML_TAG));
+    xml.append(XmlHandler.addTagValue(TAG_ACTION_NAME, actionName));
+    xml.append(XmlHandler.addTagValue(TAG_COMMENT, comment));
+    xml.append(XmlHandler.addTagValue(TAG_REASON, reason));
+    xml.append(XmlHandler.addTagValue(TAG_LOG_DATE, XmlHandler.date2string(logDate)));
+    xml.append(XmlHandler.addTagValue(TAG_ACTION_FILENAME, actionFilename));
+    xml.append(XmlHandler.addTagValue(TAG_LOG_CHANNEL_ID, logChannelId));
+    xml.append(XmlHandler.addTagValue(TAG_CHECKPOINT, checkpoint));
+    xml.append(XmlHandler.addTagValue(TAG_BYTES_READ, bytesRead));
+    xml.append(XmlHandler.addTagValue(TAG_BYTES_WRITTEN, bytesWritten));
+    if (result != null) {
+      xml.append(result.getBasicXml());
+    }
+    xml.append(XmlHandler.closeTag(XML_TAG));
+    return xml.toString();
   }
 
   @Override

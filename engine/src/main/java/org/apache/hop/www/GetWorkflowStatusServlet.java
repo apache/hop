@@ -130,6 +130,8 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           workflowStatus.setFirstLoggingLineNr(startLineNr);
           workflowStatus.setLastLoggingLineNr(lastLineNr);
           workflowStatus.setLogDate(workflow.getExecutionStartDate());
+          workflowStatus.setExecutionStartDate(workflow.getExecutionStartDate());
+          workflowStatus.setExecutionEndDate(workflow.getExecutionEndDate());
 
           // Add status of executed actions
           for (ActionResult actionResult : workflow.getActionResults()) {
@@ -151,6 +153,12 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
             actionState.setStatus(Status.RUNNING);
             workflowStatus.getActionStatusList().add(actionState);
           }
+
+          // Send the tracker along: it holds the start and end of every action, the comments,
+          // reasons and timings, and it nests the trackers of child workflows. A client that is not
+          // running the workflow itself has no other way to show its metrics.
+          //
+          workflowStatus.setWorkflowTracker(workflow.getWorkflowTracker());
 
           // The log can be quite large at times, we are going to putIfAbsent a base64 encoding
           // around a compressed

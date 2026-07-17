@@ -1,0 +1,17 @@
+{
+  "name": "0008-metadata-log",
+  "enabled": true,
+  "loggingParentsOnly": false,
+  "failParentOnLoggingFailure": false,
+  "pipelineFilename": "${PROJECT_HOME}/reflection/0008-log-marker.hpl",
+  "executingAtStart": true,
+  "executingPeriodically": false,
+  "intervalInSeconds": "30",
+  "executingAtEnd": false,
+  "logLevel": "BASIC",
+  "pipelinesToLog": [
+    {
+      "pipelineToLogFilename": "${PROJECT_HOME}/0008-trigger-pipeline.hpl"
+    }
+  ]
+}

@@ -70,6 +70,7 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.RenameDetector;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -609,17 +610,53 @@ public class GitPerspective implements IHopPerspective {
    * @return {@code true} if the specified commit is in the current branch, {@code false} otherwise.
    */
   public boolean isCommitInCurrentBranch(RevCommit commit) {
+    if (commit == null) {
+      return false;
+    }
     try {
-      Git git = GitGuiPlugin.getInstance().getGit().getGit();
-      Repository repository = git.getRepository();
-      try (RevWalk walk = new RevWalk(repository)) {
-        RevCommit headCommit = walk.parseCommit(repository.resolve(Constants.HEAD));
-        RevCommit commitToCheck = walk.parseCommit(commit.getId());
-        return walk.isMergedInto(commitToCheck, headCommit);
+      UIGit uiGit = GitGuiPlugin.getInstance().getGit();
+      if (uiGit == null) {
+        return false;
       }
+      return isCommitInCurrentBranch(uiGit.getGit().getRepository(), commit.getId());
+    } catch (MissingObjectException e) {
+      // Object id not present in the currently open repository (e.g. after project switch)
+      return false;
     } catch (Exception e) {
       LogChannel.UI.logError("Error checking if commit is in current branch", e);
       return false;
+    }
+  }
+
+  /**
+   * Whether {@code commitId} is reachable from HEAD in {@code repository}.
+   *
+   * <p>Returns {@code false} when the id is missing from this object database (for example a stale
+   * history selection left over from another project after a repository switch). Does not require
+   * SWT or HopGui.
+   *
+   * @param repository repository to check against (may be {@code null})
+   * @param commitId commit object id (may be {@code null})
+   * @return {@code true} if the commit is merged into HEAD
+   * @throws Exception if a non-missing-object git error occurs while walking history
+   */
+  static boolean isCommitInCurrentBranch(Repository repository, AnyObjectId commitId)
+      throws Exception {
+    if (repository == null || commitId == null) {
+      return false;
+    }
+    // Stale selection from a previous project/repo must not be treated as a hard error
+    if (!repository.getObjectDatabase().has(commitId)) {
+      return false;
+    }
+    try (RevWalk walk = new RevWalk(repository)) {
+      ObjectId headId = repository.resolve(Constants.HEAD);
+      if (headId == null) {
+        return false;
+      }
+      RevCommit headCommit = walk.parseCommit(headId);
+      RevCommit commitToCheck = walk.parseCommit(commitId);
+      return walk.isMergedInto(commitToCheck, headCommit);
     }
   }
 
@@ -1614,18 +1651,15 @@ public class GitPerspective implements IHopPerspective {
 
       UIGit uiGit = GitGuiPlugin.getInstance().getGit();
 
-      updateGui();
+      // Drop UI state bound to the previous repository before reading selection / rebuilding.
+      // Otherwise updateGui() would parse stale RevCommit ids against the newly opened repo
+      // (MissingObjectException after project switch). See issue #7520.
+      clearGitUiState();
 
-      // If Git is not used
       if (uiGit == null) {
-        wRefTree.removeAll();
-        wHistoryTable.removeAll();
-        wFileTree.removeAll();
-        setDiffText(null);
+        updateGui();
         return;
       }
-
-      Git git = uiGit.getGit();
 
       // Refresh the file explorer perspective (file tree, change colors...)
       // Refresh the metadata perspective (if file metadata provider)
@@ -1634,11 +1668,29 @@ public class GitPerspective implements IHopPerspective {
         MetadataPerspective.getInstance().refresh();
       }
 
-      refreshRef(git);
+      refreshRef(uiGit.getGit());
       refreshHistory(Constants.HEAD);
+      updateGui();
     } catch (Exception e) {
       LogChannel.UI.logError("Error refresh git history", e);
     }
+  }
+
+  /**
+   * Clears ref/history/file widgets and the diff view. Must run before rebuilding after a
+   * repository switch so no RevCommit/Ref from the previous repo remains selected.
+   */
+  protected void clearGitUiState() {
+    if (wRefTree != null && !wRefTree.isDisposed()) {
+      wRefTree.removeAll();
+    }
+    if (wHistoryTable != null && !wHistoryTable.isDisposed()) {
+      wHistoryTable.removeAll();
+    }
+    if (wFileTree != null && !wFileTree.isDisposed()) {
+      wFileTree.removeAll();
+    }
+    setDiffText(null);
   }
 
   protected void refreshRef(Git git) {

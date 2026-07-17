@@ -33,4 +33,6 @@ services:
       - FLASK_ENV=docker
       # Keep driver Spark client pack in sync with the fat jar (empty = default pack)
       - HOP_SPARK_CLIENT_VERSION=${HOP_SPARK_CLIENT_VERSION:-}
+      # Optional workflow basename filter (substring or glob). Set by run-tests-docker.sh.
+      - TEST_FILTER=${TEST_FILTER:-}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

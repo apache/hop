@@ -96,6 +96,12 @@ cd integration-tests/scripts
 # Optionally you can run a single project by adding the PROJECT_NAME variable to the script
 
 ./run-tests-docker.sh  PROJECT_NAME=database
+
+# Optionally filter which main*.hwf workflows run (basename substring or shell glob;
+# comma-separated lists are supported). Quote globs so the shell does not expand them.
+
+./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER=0077-merge-rows
+./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER='*0077*'
 ----
 +
 . Surefire Reports

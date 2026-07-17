@@ -35,8 +35,8 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.resolver.VariableResolver;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -65,6 +65,9 @@ public class Variables implements IVariables {
       // the same object as the argument.
       String[] variableNames = variables.getVariableNames();
       for (String variableName : variableNames) {
+        if (Utils.isEmpty(variableName)) {
+          continue;
+        }
         properties.put(variableName, variables.getVariable(variableName));
       }
     }
@@ -140,6 +143,11 @@ public class Variables implements IVariables {
 
   @Override
   public synchronized void setVariable(String variableName, String variableValue) {
+    // Reject null/empty names: HashMap allows null keys, but callers that iterate
+    // names and check Immutable Sets (Set.of) throw NPE on contains(null) — issue #7067.
+    if (Utils.isEmpty(variableName)) {
+      return;
+    }
     if (variableValue != null) {
       properties.put(variableName, variableValue);
     } else {
@@ -161,6 +169,26 @@ public class Variables implements IVariables {
     }
 
     return resolved;
+  }
+
+  /**
+   * Walk this variable space and its parents to find the metadata provider of the current execution
+   * (an execution engine exposes its own provider through {@link
+   * IVariables#getMetadataProvider()}).
+   *
+   * @return the first non-null metadata provider found, or {@code null} if none.
+   */
+  private IHopMetadataProvider findExecutionMetadataProvider() {
+    IVariables space = this;
+    int guard = 0;
+    while (space != null && guard++ < 100) {
+      IHopMetadataProvider provider = space.getMetadataProvider();
+      if (provider != null) {
+        return provider;
+      }
+      space = space.getParentVariables();
+    }
+    return null;
   }
 
   private String substituteVariableResolvers(String input) {
@@ -204,7 +232,13 @@ public class Variables implements IVariables {
       }
 
       try {
-        MultiMetadataProvider provider = HopMetadataInstance.getMetadataProvider();
+        // Resolve against the metadata of the current execution (e.g. the exported/bundled
+        // metadata on a remote server) when available, otherwise the process-global metadata.
+        //
+        IHopMetadataProvider provider = findExecutionMetadataProvider();
+        if (provider == null) {
+          provider = HopMetadataInstance.getMetadataProvider();
+        }
         IHopMetadataSerializer<VariableResolver> serializer =
             provider.getSerializer(VariableResolver.class);
 

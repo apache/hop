@@ -202,6 +202,46 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return workflowMeta == null ? null : workflowMeta.getName();
   }
 
+  /**
+   * A remote run configuration names the run configuration the workflow is executed with on the
+   * server. That one can be a remote run configuration again, which hands the workflow to yet
+   * another server. Such a chain has to end somewhere: when it leads back to a run configuration it
+   * already passed, every server in the chain keeps handing the workflow to the next one and the
+   * workflow is registered over and over again. See issue #4086.
+   *
+   * <p>Only the run configurations this client can see are followed. A chain that continues into a
+   * run configuration that only exists on the server is left to that server to sort out.
+   *
+   * @param runConfiguration the remote run configuration to start from
+   * @throws HopException when the chain leads back to a run configuration it already passed
+   */
+  void validateRunConfigurationChain(WorkflowRunConfiguration runConfiguration)
+      throws HopException {
+    List<String> chain = new ArrayList<>();
+    chain.add(runConfiguration.getName());
+
+    WorkflowRunConfiguration current = runConfiguration;
+    while (current != null
+        && current.getEngineRunConfiguration() instanceof RemoteWorkflowRunConfiguration remote) {
+      String linkedName = resolve(remote.getRunConfigurationName());
+      if (StringUtils.isEmpty(linkedName)) {
+        // Reported for the run configuration this engine was asked to run with.
+        //
+        return;
+      }
+      if (chain.contains(linkedName)) {
+        chain.add(linkedName);
+        throw new HopException(
+            "The remote workflow run configuration leads back to itself: "
+                + String.join(" -> ", chain)
+                + ". The run configuration to run the workflow with on the server should not lead "
+                + "back to a remote run configuration.");
+      }
+      chain.add(linkedName);
+      current = metadataProvider.getSerializer(WorkflowRunConfiguration.class).load(linkedName);
+    }
+  }
+
   @Override
   public Result startExecution() {
     try {
@@ -214,7 +254,17 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       loggingObject = new LoggingObject(this);
       logLevel = logChannel.getLogLevel();
 
-      workflowTracker = new WorkflowTracker(workflowMeta);
+      // Reset the tracker rather than replace it: the GUI picks up this instance right after
+      // execution starts and keeps reading from it while the workflow runs. Handing it a tracker
+      // that is thrown away here would leave it looking at an object nothing ever updates.
+      //
+      if (workflowTracker == null) {
+        workflowTracker = new WorkflowTracker(workflowMeta);
+      } else {
+        workflowTracker.clear();
+        workflowTracker.setWorkflowName(workflowMeta.getName());
+        workflowTracker.setWorkflowFilename(workflowMeta.getFilename());
+      }
 
       if (previousResult == null) {
         result = new Result();
@@ -239,18 +289,13 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if (StringUtils.isEmpty(remoteRunConfigurationName)) {
         throw new HopException("No run configuration was specified to the remote workflow with");
       }
-      if (workflowRunConfiguration.getName().equals(remoteRunConfigurationName)) {
-        throw new HopException(
-            "The remote workflow run configuration refers to itself '"
-                + remoteRunConfigurationName
-                + "'");
-      }
       if (metadataProvider == null) {
         throw new HopException(
             "The remote workflow engine didn't receive a metadata to load hop server '"
                 + hopServerName
                 + "'");
       }
+      validateRunConfigurationChain(workflowRunConfiguration);
 
       logChannel.logBasic(
           "Executing this workflow using the Remote Workflow Engine with run configuration '"
@@ -357,9 +402,33 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         }
       }
 
+      updateWorkflowTracker(workflowStatus.getWorkflowTracker());
+
     } catch (Exception e) {
       throw new HopException("Error getting workflow status", e);
     }
+  }
+
+  /**
+   * Copies what the server reported into the tracker of this engine, keeping the tracker instance
+   * itself. The GUI holds on to that instance to show the workflow metrics, so it has to be updated
+   * in place rather than swapped out.
+   *
+   * @param serverTracker the tracker as reported by the server, null when the server does not send
+   *     one
+   */
+  private void updateWorkflowTracker(WorkflowTracker serverTracker) {
+    if (serverTracker == null) {
+      return;
+    }
+    workflowTracker.setWorkflowName(serverTracker.getWorkflowName());
+    workflowTracker.setWorkflowFilename(serverTracker.getWorkflowFilename());
+
+    List<WorkflowTracker> children = serverTracker.getWorkflowTrackers();
+    for (WorkflowTracker child : children) {
+      child.setParentWorkflowTracker(workflowTracker);
+    }
+    workflowTracker.setWorkflowTrackers(children);
   }
 
   @Override

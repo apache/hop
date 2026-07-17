@@ -15,30 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.hop.www.jaxrs;
+package org.apache.hop.core.logging;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-class NVPairTest {
+class SimpleLoggingObjectTest {
 
+  /** Not every logging object logs itself, so it does not have to have a log channel. */
   @Test
-  void defaultConstructor() {
-    NVPair p = new NVPair();
-    assertNull(p.getName());
-    assertNull(p.getValue());
+  void withoutALogChannelOfItsOwnItReportsNone() {
+    SimpleLoggingObject loggingObject =
+        new SimpleLoggingObject("a-servlet", LoggingObjectType.HOP_SERVER, null);
+
+    assertNull(loggingObject.getLogChannelId());
   }
 
+  /**
+   * A logging object that is the parent of what a server runs needs a log channel of its own: it is
+   * what a log file writer is hung on. See issue #4677.
+   */
   @Test
-  void valueConstructorAndSetters() {
-    NVPair p = new NVPair("k", "v");
-    assertEquals("k", p.getName());
-    assertEquals("v", p.getValue());
-    p.setName("k2");
-    p.setValue("v2");
-    assertEquals("k2", p.getName());
-    assertEquals("v2", p.getValue());
+  void itReportsTheLogChannelItWasGiven() {
+    SimpleLoggingObject loggingObject =
+        new SimpleLoggingObject("a-servlet", LoggingObjectType.HOP_SERVER, null);
+
+    loggingObject.setLogChannelId("a-log-channel");
+
+    assertEquals("a-log-channel", loggingObject.getLogChannelId());
   }
 }

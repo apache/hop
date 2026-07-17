@@ -23,7 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -95,6 +98,99 @@ class WorkflowTrackerTest {
 
     ActionMeta actionMeta = createActionMeta("1");
     assertEquals(children[1], workflowTracker.findWorkflowTracker(actionMeta));
+  }
+
+  /**
+   * A tracker is sent to clients that are not running the workflow themselves, so everything the
+   * workflow metrics view shows has to survive the round trip. See issue #3685.
+   */
+  @Test
+  void xmlRoundTripKeepsActionResults() throws Exception {
+    WorkflowTracker<WorkflowMeta> tracker = new WorkflowTracker<>((WorkflowMeta) null);
+    tracker.setWorkflowName("a-workflow");
+    tracker.setWorkflowFilename("/tmp/a-workflow.hwf");
+
+    // The start of an action carries no result yet, which is how the metrics view recognizes it.
+    ActionResult start = new ActionResult();
+    start.setActionName("an action");
+    start.setComment("Start of action");
+    start.setReason("Started by a hop");
+    start.setLogDate(new Date());
+    tracker.addWorkflowTracker(new WorkflowTracker<>((WorkflowMeta) null, start));
+
+    Result result = new Result();
+    result.setResult(true);
+    result.setEntryNr(1);
+    result.setElapsedTimeMillis(1234L);
+
+    ActionResult end = new ActionResult();
+    end.setActionName("an action");
+    end.setComment("Action finished");
+    end.setReason("Followed unconditional link");
+    end.setLogDate(new Date());
+    end.setActionFilename("/tmp/an-action.txt");
+    end.setLogChannelId("channel-1");
+    end.setBytesRead(11L);
+    end.setBytesWritten(22L);
+    end.setResult(result);
+    tracker.addWorkflowTracker(new WorkflowTracker<>((WorkflowMeta) null, end));
+
+    String xml = tracker.getXml();
+    WorkflowTracker<WorkflowMeta> copy =
+        WorkflowTracker.fromXml(
+            XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), WorkflowTracker.XML_TAG));
+
+    assertEquals(xml, copy.getXml(), "The XML should match after rebuilding from XML");
+    assertEquals("a-workflow", copy.getWorkflowName());
+    assertEquals("/tmp/a-workflow.hwf", copy.getWorkflowFilename());
+    assertEquals(2, copy.nrWorkflowTrackers());
+
+    ActionResult copiedStart = copy.getWorkflowTracker(0).getActionResult();
+    assertEquals("an action", copiedStart.getActionName());
+    assertEquals("Start of action", copiedStart.getComment());
+    assertEquals("Started by a hop", copiedStart.getReason());
+    assertNull(copiedStart.getResult(), "A start of action must stay without a result");
+    assertEquals(start.getLogDate().toString(), copiedStart.getLogDate().toString());
+
+    ActionResult copiedEnd = copy.getWorkflowTracker(1).getActionResult();
+    assertEquals("Action finished", copiedEnd.getComment());
+    assertEquals("Followed unconditional link", copiedEnd.getReason());
+    assertEquals("/tmp/an-action.txt", copiedEnd.getActionFilename());
+    assertEquals("channel-1", copiedEnd.getLogChannelId());
+    assertEquals(11L, copiedEnd.getBytesRead());
+    assertEquals(22L, copiedEnd.getBytesWritten());
+    assertTrue(copiedEnd.getResult().isResult());
+    assertEquals(1, copiedEnd.getResult().getEntryNr());
+    assertEquals(1234L, copiedEnd.getResult().getElapsedTimeMillis());
+  }
+
+  /** Child workflows are nested in the tracker and the metrics view shows them that way. */
+  @Test
+  void xmlRoundTripKeepsChildWorkflows() throws Exception {
+    WorkflowTracker<WorkflowMeta> tracker = new WorkflowTracker<>((WorkflowMeta) null);
+    tracker.setWorkflowName("parent");
+
+    WorkflowTracker<WorkflowMeta> child = new WorkflowTracker<>((WorkflowMeta) null);
+    child.setWorkflowName("child");
+    ActionResult childResult = new ActionResult();
+    childResult.setActionName("child action");
+    child.addWorkflowTracker(new WorkflowTracker<>((WorkflowMeta) null, childResult));
+    tracker.addWorkflowTracker(child);
+
+    String xml = tracker.getXml();
+    WorkflowTracker<WorkflowMeta> copy =
+        WorkflowTracker.fromXml(
+            XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), WorkflowTracker.XML_TAG));
+
+    assertEquals(xml, copy.getXml(), "The XML should match after rebuilding from XML");
+    assertEquals(1, copy.nrWorkflowTrackers());
+
+    WorkflowTracker copiedChild = copy.getWorkflowTracker(0);
+    assertEquals("child", copiedChild.getWorkflowName());
+    assertEquals(1, copiedChild.nrWorkflowTrackers());
+    assertEquals(
+        "child action", copiedChild.getWorkflowTracker(0).getActionResult().getActionName());
+    assertEquals(copy, copiedChild.getParentWorkflowTracker(), "The child should know its parent");
   }
 
   private static WorkflowTracker createTracker() {

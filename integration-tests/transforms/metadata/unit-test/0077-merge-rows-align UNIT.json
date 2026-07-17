@@ -1,0 +1,44 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Merge rows with automatic layout alignment on mismatched streams",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "status",
+          "data_set_field": "status"
+        },
+        {
+          "transform_field": "region",
+          "data_set_field": "region"
+        },
+        {
+          "transform_field": "flagfield",
+          "data_set_field": "flagfield"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-merge-rows-align",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0077-merge-rows-align UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0077-merge-rows-align.hpl"
+}

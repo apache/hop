@@ -195,6 +195,46 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return new RemotePipelineRunConfiguration();
   }
 
+  /**
+   * A remote run configuration names the run configuration the pipeline is executed with on the
+   * server. That one can be a remote run configuration again, which hands the pipeline to yet
+   * another server. Such a chain has to end somewhere: when it leads back to a run configuration it
+   * already passed, every server in the chain keeps handing the pipeline to the next one and the
+   * pipeline is registered over and over again. See issue #4086.
+   *
+   * <p>Only the run configurations this client can see are followed. A chain that continues into a
+   * run configuration that only exists on the server is left to that server to sort out.
+   *
+   * @param runConfiguration the remote run configuration to start from
+   * @throws HopException when the chain leads back to a run configuration it already passed
+   */
+  private void validateRunConfigurationChain(PipelineRunConfiguration runConfiguration)
+      throws HopException {
+    List<String> chain = new ArrayList<>();
+    chain.add(runConfiguration.getName());
+
+    PipelineRunConfiguration current = runConfiguration;
+    while (current != null
+        && current.getEngineRunConfiguration() instanceof RemotePipelineRunConfiguration remote) {
+      String linkedName = resolve(remote.getRunConfigurationName());
+      if (StringUtils.isEmpty(linkedName)) {
+        // Reported for the run configuration this engine was asked to run with.
+        //
+        return;
+      }
+      if (chain.contains(linkedName)) {
+        chain.add(linkedName);
+        throw new HopException(
+            "The remote pipeline run configuration leads back to itself: "
+                + String.join(" -> ", chain)
+                + ". The run configuration to run the pipeline with on the server should not lead "
+                + "back to a remote run configuration.");
+      }
+      chain.add(linkedName);
+      current = metadataProvider.getSerializer(PipelineRunConfiguration.class).load(linkedName);
+    }
+  }
+
   @Override
   public void prepareExecution() throws HopException {
     try {
@@ -215,18 +255,13 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       if (StringUtils.isEmpty(remoteRunConfigurationName)) {
         throw new HopException("No run configuration was specified to the remote pipeline with");
       }
-      if (pipelineRunConfiguration.getName().equals(remoteRunConfigurationName)) {
-        throw new HopException(
-            "The remote pipeline run configuration refers to itself '"
-                + remoteRunConfigurationName
-                + "'");
-      }
       if (metadataProvider == null) {
         throw new HopException(
             "The remote pipeline engine didn't receive a metadata to load hop server '"
                 + hopServerName
                 + "'");
       }
+      validateRunConfigurationChain(pipelineRunConfiguration);
 
       // Create a new log channel when we start the action
       // It's only now that we use it

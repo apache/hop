@@ -41,15 +41,16 @@ import org.json.simple.JSONObject;
 
 /**
  * Merge rows from 2 sorted streams to detect changes. Use this as feed for a dimension in case you
- * have no time stamps in your source system.
+ * have no time stamps in your source system. Optionally aligns mismatched input layouts before
+ * comparing.
  */
 public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class;
 
-  private static final String VALUE_IDENTICAL = "identical";
-  private static final String VALUE_CHANGED = "changed";
-  private static final String VALUE_NEW = "new";
-  private static final String VALUE_DELETED = "deleted";
+  static final String VALUE_IDENTICAL = "identical";
+  static final String VALUE_CHANGED = "changed";
+  static final String VALUE_NEW = "new";
+  static final String VALUE_DELETED = "deleted";
 
   public MergeRows(
       TransformMeta transformMeta,
@@ -66,35 +67,53 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
     if (first) {
       first = false;
 
-      // Find the appropriate RowSet
-      //
       List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 
-      // oneRowSet is the "Reference" stream
       data.oneRowSet = findInputRowSet(infoStreams.get(0).getTransformName());
-      // twoRowSet is the "Comparison" stream
       data.twoRowSet = findInputRowSet(infoStreams.get(1).getTransformName());
 
-      data.one = getRowFrom(data.oneRowSet);
-      data.two = getRowFrom(data.twoRowSet);
-
-      try {
-        checkInputLayoutValid(data.oneRowSet.getRowMeta(), data.twoRowSet.getRowMeta());
-      } catch (HopRowException e) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "MergeRows.Exception.InvalidLayoutDetected"), e);
+      data.referenceRowMeta = data.oneRowSet.getRowMeta();
+      if (data.referenceRowMeta == null) {
+        data.referenceRowMeta =
+            getPipelineMeta().getTransformFields(this, meta.getReferenceTransform());
+      }
+      data.compareRowMeta = data.twoRowSet.getRowMeta();
+      if (data.compareRowMeta == null) {
+        data.compareRowMeta =
+            getPipelineMeta().getTransformFields(this, meta.getCompareTransform());
       }
 
-      if (data.one != null) {
-        // Find the key indexes:
+      if (meta.isAlignInputLayouts()) {
+        data.schemaMapping =
+            MergeRowsAlignment.buildSchemaMapping(data.referenceRowMeta, data.compareRowMeta);
+        data.oneRowMeta = data.schemaMapping.getOutputRowMeta();
+        data.twoRowMeta = data.oneRowMeta;
+      } else {
+        try {
+          checkInputLayoutValid(data.referenceRowMeta, data.compareRowMeta);
+        } catch (HopRowException e) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "MergeRows.Exception.InvalidLayoutDetected"), e);
+        }
+        data.oneRowMeta = data.referenceRowMeta;
+        data.twoRowMeta = data.compareRowMeta;
+      }
+
+      data.one = getAlignedRow(0, data.oneRowSet);
+      data.two = getAlignedRow(1, data.twoRowSet);
+
+      IRowMeta keyLookupMeta = data.oneRowMeta;
+      if (data.one != null || data.two != null) {
         data.keyNrs = new int[meta.getKeyFields().size()];
         for (int i = 0; i < data.keyNrs.length; i++) {
-          data.keyNrs[i] = data.oneRowSet.getRowMeta().indexOfValue(meta.getKeyFields().get(i));
+          data.keyNrs[i] = keyLookupMeta.indexOfValue(meta.getKeyFields().get(i));
           if (data.keyNrs[i] < 0) {
             String message =
                 BaseMessages.getString(
                     PKG,
-                    "MergeRows.Exception.UnableToFindFieldInReferenceStream",
+                    meta.isAlignInputLayouts()
+                        ? "MergeRows.Exception.UnableToFindFieldInAlignedStream"
+                        : "MergeRows.Exception.UnableToFindFieldInReferenceStream",
                     meta.getKeyFields().get(i));
             logError(message);
             throw new HopTransformException(message);
@@ -102,15 +121,17 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
         }
       }
 
-      if (data.two != null) {
+      if (data.one != null || data.two != null) {
         data.valueNrs = new int[meta.getValueFields().size()];
         for (int i = 0; i < data.valueNrs.length; i++) {
-          data.valueNrs[i] = data.twoRowSet.getRowMeta().indexOfValue(meta.getValueFields().get(i));
+          data.valueNrs[i] = keyLookupMeta.indexOfValue(meta.getValueFields().get(i));
           if (data.valueNrs[i] < 0) {
             String message =
                 BaseMessages.getString(
                     PKG,
-                    "MergeRows.Exception.UnableToFindFieldInReferenceStream",
+                    meta.isAlignInputLayouts()
+                        ? "MergeRows.Exception.UnableToFindFieldInAlignedStream"
+                        : "MergeRows.Exception.UnableToFindFieldInReferenceStream",
                     meta.getValueFields().get(i));
             logError(message);
             throw new HopTransformException(message);
@@ -118,21 +139,12 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
         }
       }
 
-      // Calculate the indices for the passthrough fields.
-      //
+      // Passthrough indexes use the original (unaligned) row metas.
       data.passThroughIndexes = new ArrayList<>();
-      data.oneRowMeta = data.oneRowSet.getRowMeta();
-      if (data.oneRowMeta == null) {
-        data.oneRowMeta = getPipelineMeta().getTransformFields(this, meta.getReferenceTransform());
-      }
-      data.twoRowMeta = data.twoRowSet.getRowMeta();
-      if (data.twoRowMeta == null) {
-        data.twoRowMeta = getPipelineMeta().getTransformFields(this, meta.getCompareTransform());
-      }
       for (PassThroughField field : meta.getPassThroughFields()) {
         int index;
         if (field.isReferenceField()) {
-          index = data.oneRowMeta.indexOfValue(field.getSourceField());
+          index = data.referenceRowMeta.indexOfValue(field.getSourceField());
           if (index < 0) {
             throw new HopTransformException(
                 "Unable to find passthrough field '"
@@ -141,7 +153,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
                     + meta.getReferenceTransform());
           }
         } else {
-          index = data.twoRowMeta.indexOfValue(field.getSourceField());
+          index = data.compareRowMeta.indexOfValue(field.getSourceField());
           if (index < 0) {
             throw new HopTransformException(
                 "Unable to find passthrough field '"
@@ -170,7 +182,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
       meta.getFields(
           data.outputRowMeta,
           getTransformName(),
-          new IRowMeta[] {data.oneRowMeta, data.twoRowMeta},
+          new IRowMeta[] {data.referenceRowMeta, data.compareRowMeta},
           null,
           this,
           metadataProvider);
@@ -181,34 +193,28 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
     String differenceJson = "{\"changes\":[]}";
     boolean getDifference = StringUtils.isNotEmpty(meta.getDiffJsonField());
 
-    // Remember the rows used to compare: copy rows 'one' and 'two'.
     copyOneTwo();
 
-    if (data.one == null && data.two != null) { // Record 2 is flagged as new!
+    if (data.one == null && data.two != null) {
       outputRow = data.two;
       flagField = VALUE_NEW;
+      data.two = getAlignedRow(1, data.twoRowSet);
 
-      // Also get a next row from compare rowset...
-      data.two = getRowFrom(data.twoRowSet);
-
-    } else if (data.one != null && data.two == null) { // Record 1 is flagged as deleted!
+    } else if (data.one != null && data.two == null) {
       outputRow = data.one;
       flagField = VALUE_DELETED;
+      data.one = getAlignedRow(0, data.oneRowSet);
 
-      // Also get a next row from reference rowset...
-      data.one = getRowFrom(data.oneRowSet);
-
-    } else { // OK, Here is the real start of the compare code!
-
-      int compare = data.oneRowSet.getRowMeta().compare(data.one, data.two, data.keyNrs);
-      if (compare == 0) { // The Key matches, we CAN compare the two rows...
+    } else {
+      int compare = data.oneRowMeta.compare(data.one, data.two, data.keyNrs);
+      if (compare == 0) {
         int compareValues = 0;
         if (getDifference) {
           JSONObject j = new JSONObject();
           JSONArray jChanges = new JSONArray();
           j.put("changes", jChanges);
           for (int valueNr : data.valueNrs) {
-            IValueMeta valueMeta = data.oneRowSet.getRowMeta().getValueMeta(valueNr);
+            IValueMeta valueMeta = data.oneRowMeta.getValueMeta(valueNr);
             Object refData = data.one[valueNr];
             Object cmpData = data.two[valueNr];
             int compareValue = valueMeta.compare(refData, cmpData);
@@ -226,39 +232,34 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
             }
           }
         } else {
-          compareValues = data.oneRowSet.getRowMeta().compare(data.one, data.two, data.valueNrs);
+          compareValues = data.oneRowMeta.compare(data.one, data.two, data.valueNrs);
         }
 
         if (compareValues == 0) {
-          outputRow = data.two; // documented behavior: use the comparison stream
+          outputRow = data.two;
           flagField = VALUE_IDENTICAL;
         } else {
-          // Return the compare (most recent) row
-          //
           outputRow = data.two;
           flagField = VALUE_CHANGED;
         }
 
-        // Get a new row from both streams...
-        data.one = getRowFrom(data.oneRowSet);
-        data.two = getRowFrom(data.twoRowSet);
+        data.one = getAlignedRow(0, data.oneRowSet);
+        data.two = getAlignedRow(1, data.twoRowSet);
       } else {
-        if (compare < 0) { // one < two
+        if (compare < 0) {
           outputRow = data.one;
           flagField = VALUE_DELETED;
-          data.one = getRowFrom(data.oneRowSet);
+          data.one = getAlignedRow(0, data.oneRowSet);
         } else {
           outputRow = data.two;
           flagField = VALUE_NEW;
-          data.two = getRowFrom(data.twoRowSet);
+          data.two = getAlignedRow(1, data.twoRowSet);
         }
       }
     }
 
     int extraPassthroughFields = meta.getPassThroughFields().size();
 
-    // Optionally add the difference JSON field
-    //
     outputRow = RowDataUtil.resizeArray(outputRow, data.outputRowMeta.size());
     int tailIndex = data.outputRowMeta.size() - 2 - extraPassthroughFields;
     if (getDifference && differenceJson != null) {
@@ -268,22 +269,14 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
     }
     outputRow[tailIndex++] = flagField;
 
-    // Copy the passthrough fields
-    //
     for (int i = 0; i < extraPassthroughFields; i++) {
       int sourceIndex = data.passThroughIndexes.get(i);
       PassThroughField field = meta.getPassThroughFields().get(i);
       if (field.isReferenceField()) {
-        // If the record is deleted, identical or changed we copy data
-        // from the reference row.
-        //
         if (data.oneCopy != null && !VALUE_NEW.equals(flagField)) {
           outputRow[tailIndex] = data.oneCopy[sourceIndex];
         }
       } else {
-        // If the record is new, identical or changed we copy data
-        // from the compared-to row.
-        //
         if (data.twoCopy != null && !VALUE_DELETED.equals(flagField)) {
           outputRow[tailIndex] = data.twoCopy[sourceIndex];
         }
@@ -291,7 +284,6 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
       tailIndex++;
     }
 
-    // send the row to the next transforms...
     putRow(data.outputRowMeta, outputRow);
 
     if (checkFeedback(getLinesRead()) && isBasic()) {
@@ -301,20 +293,32 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
     return true;
   }
 
+  private Object[] getAlignedRow(int streamIndex, org.apache.hop.core.IRowSet rowSet)
+      throws HopTransformException {
+    Object[] row = getRowFrom(rowSet);
+    if (streamIndex == 0) {
+      data.oneOriginal = row;
+    } else {
+      data.twoOriginal = row;
+    }
+    if (row == null || data.schemaMapping == null) {
+      return row;
+    }
+    return data.schemaMapping.mapRow(streamIndex, row);
+  }
+
   private void copyOneTwo() throws HopValueException {
     data.oneCopy = null;
     data.twoCopy = null;
 
-    // We only need the exact current record values in case we want to pass through fields
-    //
     if (meta.getPassThroughFields().isEmpty()) {
       return;
     }
-    if (data.one != null) {
-      data.oneCopy = data.oneRowMeta.cloneRow(data.one);
+    if (data.oneOriginal != null) {
+      data.oneCopy = data.referenceRowMeta.cloneRow(data.oneOriginal);
     }
-    if (data.two != null) {
-      data.twoCopy = data.twoRowMeta.cloneRow(data.two);
+    if (data.twoOriginal != null) {
+      data.twoCopy = data.compareRowMeta.cloneRow(data.twoOriginal);
     }
   }
 
@@ -342,7 +346,6 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
    *
    * @param referenceRowMeta Reference row
    * @param compareRowMeta Row to compare to
-   * @return true when templates are compatible.
    * @throws HopRowException in case there is a compatibility error.
    */
   static void checkInputLayoutValid(IRowMeta referenceRowMeta, IRowMeta compareRowMeta)

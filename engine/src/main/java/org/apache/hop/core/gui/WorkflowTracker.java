@@ -25,15 +25,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.w3c.dom.Node;
 
 /** Responsible for tracking the execution of a workflow as a hierarchy. */
 @Getter
 @Setter
 public class WorkflowTracker<T extends WorkflowMeta> {
+  public static final String XML_TAG = "workflow_tracker";
+
+  private static final String XML_TAG_TRACKERS = "workflow_trackers";
+  private static final String TAG_WORKFLOW_NAME = "workflow_name";
+  private static final String TAG_WORKFLOW_FILENAME = "workflow_filename";
+
   /**
    * The trackers for each individual action. Since we invoke LinkedList.removeFirst() there is no
    * sense in lurking the field behind the interface
@@ -99,6 +108,67 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   public WorkflowTracker(T workflowMeta, int maxChildren, ActionResult result) {
     this(workflowMeta, maxChildren);
     this.result = result;
+  }
+
+  /**
+   * Reads a tracker hierarchy back from the XML written by {@link #getXml()}. Used to show the
+   * execution of a remotely running workflow, where the tracker is maintained on the server.
+   *
+   * <p>This is a factory method rather than a constructor because a constructor taking a node would
+   * be ambiguous with {@link #WorkflowTracker(WorkflowMeta)} for a null argument.
+   *
+   * @param node the {@link #XML_TAG} node to read
+   * @return the tracker described by the node
+   */
+  public static WorkflowTracker<WorkflowMeta> fromXml(Node node) throws HopException {
+    WorkflowTracker<WorkflowMeta> tracker = new WorkflowTracker<>(null);
+
+    tracker.workflowName = XmlHandler.getTagValue(node, TAG_WORKFLOW_NAME);
+    tracker.workflowFilename = XmlHandler.getTagValue(node, TAG_WORKFLOW_FILENAME);
+
+    Node resultNode = XmlHandler.getSubNode(node, ActionResult.XML_TAG);
+    if (resultNode != null) {
+      tracker.result = new ActionResult(resultNode);
+    }
+
+    Node trackersNode = XmlHandler.getSubNode(node, XML_TAG_TRACKERS);
+    if (trackersNode != null) {
+      int nrTrackers = XmlHandler.countNodes(trackersNode, XML_TAG);
+      for (int i = 0; i < nrTrackers; i++) {
+        WorkflowTracker<WorkflowMeta> child =
+            fromXml(XmlHandler.getSubNodeByNr(trackersNode, XML_TAG, i));
+        child.setParentWorkflowTracker(tracker);
+        tracker.addWorkflowTracker(child);
+      }
+    }
+    return tracker;
+  }
+
+  /**
+   * Serializes this tracker and, recursively, the trackers of any child workflow. Child workflows
+   * are kept nested so that the hierarchy survives the trip from a workflow running on a server to
+   * the client showing it.
+   */
+  public String getXml() {
+    lock.readLock().lock();
+    try {
+      StringBuilder xml = new StringBuilder();
+      xml.append(XmlHandler.openTag(XML_TAG));
+      xml.append(XmlHandler.addTagValue(TAG_WORKFLOW_NAME, workflowName));
+      xml.append(XmlHandler.addTagValue(TAG_WORKFLOW_FILENAME, workflowFilename));
+      if (result != null) {
+        xml.append(result.getXml());
+      }
+      xml.append(XmlHandler.openTag(XML_TAG_TRACKERS));
+      for (WorkflowTracker workflowTracker : workflowTrackers) {
+        xml.append(workflowTracker.getXml());
+      }
+      xml.append(XmlHandler.closeTag(XML_TAG_TRACKERS));
+      xml.append(XmlHandler.closeTag(XML_TAG));
+      return xml.toString();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   public void addWorkflowTracker(WorkflowTracker workflowTracker) {

@@ -454,6 +454,18 @@ public class KafkaConsumerInputMeta
     return TransformWithMappingMeta.loadMappingMeta(this, metadataProvider, variables);
   }
 
+  /**
+   * The sub-pipeline path is kept in this transform's own {@code filename} field (serialized as
+   * {@code pipelinePath}), which shadows the one in {@link TransformWithMappingMeta}. Resource
+   * export rewrites the reference through this method, so it must update the shadowing field -
+   * otherwise the exported {@code pipelinePath} keeps pointing at the original location and the
+   * bundled sub-pipeline can't be found on a remote server (see the analysis for #3368).
+   */
+  @Override
+  public void replaceFileName(String fileName) {
+    this.filename = fileName;
+  }
+
   @Override
   public boolean supportsErrorHandling() {
     return true;

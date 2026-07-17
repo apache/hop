@@ -170,10 +170,14 @@ public abstract class ActionBase
   /**
    * Copy constructor variant
    *
+   * <p>The plugin id is copied as well: resource export clones every action, and a clone without a
+   * plugin id is written to the export without its {@code <type>} element, which then fails to load
+   * ("Unable to load workflow info from XML node"). See issue #5644.
+   *
    * @param b The action base to copy
    */
   protected ActionBase(ActionBase b) {
-    this(b.name, b.description);
+    this(b.name, b.description, b.pluginId);
   }
 
   /**

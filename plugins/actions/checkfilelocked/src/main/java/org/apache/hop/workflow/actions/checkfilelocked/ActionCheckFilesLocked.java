@@ -75,11 +75,12 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     return new ActionCheckFilesLocked(this);
   }
 
-  public ActionCheckFilesLocked(ActionCheckFilesLocked a) {
-    this();
-    this.argFromPrevious = a.argFromPrevious;
-    this.includeSubfolders = a.includeSubfolders;
-    for (CheckedFile checkedFile : a.checkedFiles) {
+  public ActionCheckFilesLocked(ActionCheckFilesLocked other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.checkedFiles = new ArrayList<>();
+    this.argFromPrevious = other.argFromPrevious;
+    this.includeSubfolders = other.includeSubfolders;
+    for (CheckedFile checkedFile : other.checkedFiles) {
       this.checkedFiles.add(new CheckedFile(checkedFile));
     }
   }
