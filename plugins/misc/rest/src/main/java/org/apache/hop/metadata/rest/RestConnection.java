@@ -51,6 +51,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
 @Getter
@@ -192,6 +193,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   public Invocation.Builder getInvocationBuilder(String url, String proxyHost, Integer proxyPort)
       throws HopException {
     builder = ClientBuilder.newBuilder();
+    builder.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
     setProxyHost(proxyHost, proxyPort);
 
     // Configure SSL if needed (client cert, trust store, or ignore SSL)
