@@ -531,9 +531,10 @@
                         <exclude>**/integration-tests/ssh/keys/it_rsa.pub</exclude>
 
                         <!-- Samples Exclusions -->
-                        <!-- plugins/engines/beam -->
                         <exclude>**/src/main/samples/**/*.txt</exclude>
                         <exclude>**/src/main/samples/**/*.csv</exclude>
+                        <exclude>**/spark-mapping-demo/**/*.csv</exclude>
+                        <exclude>**/spark-mapping-demo/**/_SUCCESS</exclude>
 
                         <!-- Documentation Exclusions-->
                         <exclude>docs/content/**</exclude>
