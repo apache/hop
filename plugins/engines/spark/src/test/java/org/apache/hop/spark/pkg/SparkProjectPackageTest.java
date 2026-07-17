@@ -18,6 +18,7 @@
 package org.apache.hop.spark.pkg;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -125,6 +126,44 @@ class SparkProjectPackageTest {
     String json = Files.readString(new File(m.metadataPath()).toPath());
     // parseable metadata JSON
     new SerializableMetadataProvider(json);
+  }
+
+  @Test
+  void isSparkFilesLocalPathDetectsUserFiles() {
+    assertTrue(
+        SparkProjectPackage.isSparkFilesLocalPath(
+            "/tmp/spark-abc/userFiles-xyz/spark-mapping-demo.zip"));
+    assertFalse(
+        SparkProjectPackage.isSparkFilesLocalPath(
+            "/data/hop-data/packages/spark-mapping-demo.zip"));
+  }
+
+  @Test
+  void resolvePrefersHopDataPackagesOverMissingSparkFiles() throws Exception {
+    File projectHome = new File(tempDir, "shared-proj");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "a.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "shared-pkg.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+
+    File hopData = new File(tempDir, "hop-data");
+    File packages = new File(hopData, "packages");
+    assertTrue(packages.mkdirs());
+    File sharedZip = new File(packages, "shared-pkg.zip");
+    Files.copy(zip.toPath(), sharedZip.toPath());
+
+    Variables vars = new Variables();
+    vars.setVariable("HOP_DATA", hopData.getAbsolutePath());
+    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE, "shared-pkg.zip");
+    // Deliberately point URI at a non-existent driver-only path
+    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_URI, "/nonexistent/shared-pkg.zip");
+
+    String resolved = SparkProjectPackage.resolvePackagePathForMaterialize(vars);
+    assertEquals(sharedZip.getAbsolutePath(), resolved);
   }
 
   @Test

@@ -104,57 +104,112 @@ public final class SparkProjectPackage {
    * project root. Safe to call from every mapPartitions init; materializes once per package path
    * per JVM.
    *
-   * <p>On cluster workers, prefers the file distributed via {@code SparkContext.addFile} / {@code
-   * SparkFiles.get} ({@link #VAR_PACKAGE_SPARK_FILE}).
+   * <p>Resolution order on workers: {@code SparkFiles.get(basename)}, then {@code
+   * $HOP_DATA/packages/basename}, then {@link #VAR_PACKAGE_URI} if that path is local on this host.
+   * Never stores SparkFiles paths back into {@link #VAR_PACKAGE_URI} (those are driver/executor
+   * local and not portable).
    */
   public static void ensureMaterializedOnWorker(IVariables variables) throws HopException {
     if (variables == null) {
       return;
     }
+    String preservedUri = variables.getVariable(VAR_PACKAGE_URI);
+    String sparkFile = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
     String packagePath = resolvePackagePathForMaterialize(variables);
     if (StringUtils.isEmpty(packagePath)) {
       return;
     }
     Materialized m = materialize(packagePath);
-    // Preserve SparkFiles basename for subsequent partition inits
-    String sparkFile = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
-    applyToVariables(variables, m, packagePath);
+    // Never persist SparkFiles paths in VAR_PACKAGE_URI (not valid on other JVMs)
+    String uriToKeep = preservedUri;
+    if (StringUtils.isEmpty(uriToKeep) || isSparkFilesLocalPath(uriToKeep)) {
+      uriToKeep = !isSparkFilesLocalPath(packagePath) ? packagePath : preservedUri;
+    }
+    applyToVariables(variables, m, uriToKeep);
     if (StringUtils.isNotEmpty(sparkFile)) {
       variables.setVariable(VAR_PACKAGE_SPARK_FILE, sparkFile);
     }
   }
 
   /**
-   * Resolve the zip path to open on this JVM: SparkFiles download first, then {@link
-   * #VAR_PACKAGE_URI}.
+   * Resolve the zip path to open on this JVM.
+   *
+   * <ol>
+   *   <li>{@code SparkFiles.get(basename)} when the file exists
+   *   <li>{@code $HOP_DATA/packages/<basename>} (shared volume / object store mount)
+   *   <li>{@link #VAR_PACKAGE_URI} when that path exists locally
+   * </ol>
    */
   public static String resolvePackagePathForMaterialize(IVariables variables) {
     if (variables == null) {
       return null;
     }
-    String sparkFileName = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
-    if (StringUtils.isNotEmpty(sparkFileName)) {
+    String basename = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
+    if (StringUtils.isEmpty(basename)) {
+      String uri = variables.getVariable(VAR_PACKAGE_URI);
+      if (StringUtils.isNotEmpty(uri)) {
+        File f = resolveLocalPackageFile(variables.resolve(uri));
+        if (f != null) {
+          basename = f.getName();
+        }
+      }
+    }
+
+    // 1) SparkFiles (per-executor download from addFile / spark-submit --files)
+    if (StringUtils.isNotEmpty(basename)) {
       try {
-        String downloaded = org.apache.spark.SparkFiles.get(sparkFileName.trim());
+        String downloaded = org.apache.spark.SparkFiles.get(basename.trim());
         if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
           return downloaded;
         }
       } catch (Throwable t) {
-        // SparkFiles not available yet or file not distributed — fall through
+        // not distributed or not ready
       }
     }
-    String raw = variables.getVariable(VAR_PACKAGE_URI);
-    if (StringUtils.isEmpty(raw)) {
-      return null;
+
+    // 2) Shared data plane: $HOP_DATA/packages/<basename>
+    if (StringUtils.isNotEmpty(basename)) {
+      String hopData = variables.getVariable("HOP_DATA");
+      if (StringUtils.isNotEmpty(hopData)) {
+        String dataRoot = variables.resolve(hopData).replace("file://", "");
+        while (dataRoot.endsWith("/") || dataRoot.endsWith("\\")) {
+          dataRoot = dataRoot.substring(0, dataRoot.length() - 1);
+        }
+        File shared = new File(dataRoot + File.separator + "packages", basename.trim());
+        if (shared.isFile()) {
+          return shared.getAbsolutePath();
+        }
+      }
     }
-    String resolved = variables.resolve(raw);
-    return StringUtils.isEmpty(resolved) ? null : resolved;
+
+    // 3) Explicit package URI (must exist on *this* host — shared mount or driver local)
+    String raw = variables.getVariable(VAR_PACKAGE_URI);
+    if (StringUtils.isNotEmpty(raw)) {
+      String resolved = variables.resolve(raw);
+      if (resolveLocalPackageFile(resolved) != null) {
+        return resolved;
+      }
+      // Still return for HopVfs remote URIs (s3a, etc.)
+      if (resolved != null && resolved.contains("://") && !resolved.startsWith("file:")) {
+        return resolved;
+      }
+    }
+    return null;
+  }
+
+  /** True for Spark's ephemeral per-JVM download dirs (not safe to ship in variables). */
+  static boolean isSparkFilesLocalPath(String path) {
+    if (StringUtils.isEmpty(path)) {
+      return false;
+    }
+    // SparkFiles root looks like …/userFiles-<uuid>/basename — never treat as portable URI
+    return path.replace('\\', '/').contains("/userFiles-");
   }
 
   /**
    * Copy the package to a local file if needed and register it with {@code SparkContext.addFile} so
-   * every executor receives it. Sets {@link #VAR_PACKAGE_SPARK_FILE} and rewrites {@link
-   * #VAR_PACKAGE_URI} to the local path used for distribution.
+   * every executor receives it. Sets {@link #VAR_PACKAGE_SPARK_FILE}. Keeps {@link
+   * #VAR_PACKAGE_URI} as a portable path (never a SparkFiles download path).
    *
    * <p>No-op when {@link #VAR_PACKAGE_URI} is unset. Safe to call for {@code local[*]} and
    * spark-submit (including when reusing an active session).
@@ -196,7 +251,10 @@ public final class SparkProjectPackage {
       }
     }
 
-    variables.setVariable(VAR_PACKAGE_URI, localPath);
+    // Portable source path only (shared volume or original URI) — not SparkFiles local path
+    if (!isSparkFilesLocalPath(localPath)) {
+      variables.setVariable(VAR_PACKAGE_URI, localPath);
+    }
     variables.setVariable(VAR_PACKAGE_SPARK_FILE, basename);
   }
 
@@ -506,14 +564,27 @@ public final class SparkProjectPackage {
       return new FileInputStream(local);
     }
 
-    FileObject zipFo = HopVfs.getFileObject(uri);
-    if (!zipFo.exists()) {
+    try {
+      FileObject zipFo = HopVfs.getFileObject(uri);
+      if (zipFo.exists()) {
+        return HopVfs.getInputStream(zipFo);
+      }
+    } catch (Exception e) {
       throw new HopException(
           "Spark project package not found: "
               + uri
-              + " (also tried as a local file; use SparkFiles / absolute path on workers)");
+              + ". On workers prefer a shared path ($HOP_DATA/packages/<zip>) or SparkFiles "
+              + "distribution (spark-submit --files / SparkContext.addFile). Local check failed; "
+              + "HopVfs error: "
+              + e.getMessage(),
+          e);
     }
-    return HopVfs.getInputStream(zipFo);
+    throw new HopException(
+        "Spark project package not found: "
+            + uri
+            + ". On workers copy the zip to $HOP_DATA/packages/ (shared volume) and/or pass "
+            + "spark-submit --files. SparkFiles paths under /tmp/spark-*/userFiles-* are "
+            + "per-JVM and must not be shared via variables.");
   }
 
   /**

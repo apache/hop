@@ -66,14 +66,20 @@ if [[ ! -x "${SPARK_HOME}/bin/spark-submit" ]]; then
   exit 1
 fi
 
-# Seed shared data volume (visible to every worker)
-mkdir -p "${HOP_DATA_DIR}/out"
+# Seed shared data volume (visible to every worker) — data + project package
+mkdir -p "${HOP_DATA_DIR}/out" "${HOP_DATA_DIR}/packages"
 if [[ -f "${SAMPLE_DATA}" ]]; then
   cp -f "${SAMPLE_DATA}" "${HOP_DATA_DIR}/customers-sample.csv"
   echo ">>> Seeded ${HOP_DATA_DIR}/customers-sample.csv"
 else
   echo "WARNING: sample CSV not found at ${SAMPLE_DATA}" >&2
 fi
+
+# Shared package path: all workers mount hop-demo-data at /data/hop-data, so they can open
+# this zip without relying on SparkFiles download (addFile/--files remain as backup).
+SHARED_PACKAGE="${HOP_DATA_DIR}/packages/$(basename "${PACKAGE_ZIP}")"
+cp -f "${PACKAGE_ZIP}" "${SHARED_PACKAGE}"
+echo ">>> Seeded shared project package ${SHARED_PACKAGE}"
 
 # Optional env file for HOP_DATA=file:///data/hop-data
 HOP_CONFIG_ARG=()
@@ -82,18 +88,19 @@ if [[ -f "${CLUSTER_ENV}" ]]; then
   echo ">>> Using cluster env file ${CLUSTER_ENV}"
 fi
 
-echo ">>> spark-submit (client mode on master; workers receive package via SparkFiles)..."
+echo ">>> spark-submit (client mode; package on shared volume + --files + engine addFile)..."
 set -x
 "${SPARK_HOME}/bin/spark-submit" \
   --master "${SPARK_MASTER_URL}" \
   --deploy-mode client \
   --class org.apache.hop.spark.run.MainSpark \
+  --files "${SHARED_PACKAGE}" \
   --conf "spark.driver.host=${DRIVER_HOST}" \
   --conf "spark.driver.bindAddress=0.0.0.0" \
   --conf "spark.ui.enabled=false" \
   --conf "spark.sql.shuffle.partitions=4" \
   "${FAT_JAR}" \
-  --HopProjectPackage="${PACKAGE_ZIP}" \
+  --HopProjectPackage="${SHARED_PACKAGE}" \
   --HopPipelinePath="${PIPELINE_PATH}" \
   --HopRunConfigurationName="${RUN_CONFIG}" \
   ${HOP_CONFIG_ARG[@]+"${HOP_CONFIG_ARG[@]}"}
