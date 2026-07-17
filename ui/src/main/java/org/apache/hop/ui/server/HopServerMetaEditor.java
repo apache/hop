@@ -22,15 +22,16 @@ import org.apache.hop.core.Props;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.www.RegisterPipelineServlet;
+import org.apache.hop.www.GetStatusServlet;
+import org.apache.hop.www.HopServerStatus;
 import org.apache.hop.www.RemoteHopServer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -427,6 +428,19 @@ public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
     return wName.setFocus();
   }
 
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    Button wTest = new Button(parent, SWT.PUSH);
+    wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
+    wTest.addListener(SWT.Selection, e -> test());
+
+    return new Button[] {wTest};
+  }
+
+  /**
+   * Ask the server for its status. That covers everything needed to reach it: the hostname, the
+   * port, the web app name, the protocol, the proxy and the credentials.
+   */
   public void test() {
 
     HopServerMeta serverMeta = getMetadata();
@@ -434,38 +448,33 @@ public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
     getWidgetsContent(serverMeta);
 
     RemoteHopServer server = new RemoteHopServer(serverMeta);
+    String url = "";
 
     try {
-      String xml = "<sample/>";
-      String reply =
-          server.sendXml(manager.getVariables(), xml, RegisterPipelineServlet.CONTEXT_PATH);
+      url = server.constructUrl(manager.getVariables(), GetStatusServlet.CONTEXT_PATH);
+      HopServerStatus status = server.requestServerStatus(manager.getVariables());
 
       String message =
-          BaseMessages.getString(PKG, "HopServer.Replay.Info1")
-              + server.constructUrl(manager.getVariables(), RegisterPipelineServlet.CONTEXT_PATH)
+          BaseMessages.getString(PKG, "HopServer.TestConnection.Success.Message", url)
               + Const.CR
-              + BaseMessages.getString(PKG, "HopServer.Replay.Info2")
               + Const.CR
-              + Const.CR;
-      message += xml;
-      message += Const.CR + Const.CR;
-      message += "Reply was:" + Const.CR + Const.CR;
-      message += reply + Const.CR;
+              + BaseMessages.getString(
+                  PKG,
+                  "HopServer.TestConnection.Success.Status",
+                  Const.NVL(status.getStatusDescription(), ""));
 
-      EnterTextDialog dialog =
-          new EnterTextDialog(
+      ShowMessageDialog dialog =
+          new ShowMessageDialog(
               getShell(),
-              "XML",
-              BaseMessages.getString(PKG, "HopServer.RetournedXMLInfo"),
+              SWT.ICON_INFORMATION | SWT.OK | SWT.APPLICATION_MODAL,
+              BaseMessages.getString(PKG, "HopServer.TestConnection.Success.Title"),
               message);
       dialog.open();
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "HopServer.ExceptionError"),
-          BaseMessages.getString(PKG, "HopServer.ExceptionUnableGetReplay.Error1")
-              + getVariables().resolve(serverMeta.getHostname())
-              + BaseMessages.getString(PKG, "HopServer.ExceptionUnableGetReplay.Error2"),
+          BaseMessages.getString(PKG, "HopServer.TestConnection.Failure.Title"),
+          BaseMessages.getString(PKG, "HopServer.TestConnection.Failure.Message", url),
           e);
     }
   }
