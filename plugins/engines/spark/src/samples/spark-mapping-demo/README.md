@@ -45,7 +45,7 @@ From the **repository root**, with a Hop install that includes the native Spark 
 (`HOP_HOME` or `./hop-conf.sh`):
 
 ```bash
-# 1) Fat jar + project package
+# 1) Fat jar + project package (no need to register the sample in hop-config)
 ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
 
 # 2) Start Spark 4.1 master + workers (shared data volume)

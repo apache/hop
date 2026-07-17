@@ -72,25 +72,18 @@ echo ">>> Generating native-provided fat jar (Spark provided by cluster)..."
     --spark-client-version=native-provided
 )
 
-echo ">>> Registering / selecting project ${PROJECT_NAME} → ${SAMPLE_DIR}"
-# Create project if missing; ignore errors if it already exists
-set +e
-(
-  cd "${HOP_HOME}"
-  ./hop-conf.sh \
-    --project-create \
-    --project="${PROJECT_NAME}" \
-    --project-home="${SAMPLE_DIR}" \
-    --project-config-file=project-config.json 2>/dev/null
-)
-set -e
+# Note: Hop has two different "project" flags:
+#   -j / (enable for this command)  → sets PROJECT_HOME  [ProjectsOptionPlugin]
+#   -p / --project                  → name for create/delete/list only [ManageProjects]
+# You do NOT need to register spark-mapping-demo in hop-config for the export below.
+# Optional GUI convenience: hop-conf -pc -p spark-mapping-demo -ph "${SAMPLE_DIR}"
 
-echo ">>> Exporting Native Spark project package..."
+echo ">>> Exporting Native Spark project package from ${SAMPLE_DIR}..."
 (
   cd "${HOP_HOME}"
   ./hop-conf.sh \
-    --project="${PROJECT_NAME}" \
-    --export-spark-project="${DIST_DIR}/${PACKAGE_NAME}"
+    --export-spark-project="${DIST_DIR}/${PACKAGE_NAME}" \
+    --export-spark-project-home="${SAMPLE_DIR}"
 )
 
 echo ">>> Copying sample data into dist (for inspection; cluster uses /data/hop-data)..."

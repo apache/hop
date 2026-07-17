@@ -145,10 +145,15 @@ This package is **specifically for Native Spark execution** (nested Simple Mappi
 
 [source,bash]
 ----
+# Preferred for scripts (no project registration required):
+./hop-conf.sh --export-spark-project=/tmp/my-project-spark.zip \
+  --export-spark-project-home=/path/to/project
+
+# Or enable a registered project first (-j, not --project/-p):
 ./hop-conf.sh -j my-project --export-spark-project=/tmp/my-project-spark.zip
 ----
 
-(Short option: `-esp`.)
+(Short option for the zip path: `-esp`.)
 
 Zip layout:
 

@@ -83,7 +83,26 @@ This writes into `dist/spark-native-demo/`:
 * `cluster-env.json` — sets `HOP_DATA` for the cluster
 * `data/customers-sample.csv` — tiny demo CSV
 
-Alternatively:
+You do **not** need to register `spark-mapping-demo` in the system Hop configuration.
+`prepare-dist.sh` exports with:
+
+[source,bash]
+----
+hop-conf.sh --export-spark-project=…/spark-mapping-demo.zip \
+  --export-spark-project-home=…/plugins/engines/spark/src/samples/spark-mapping-demo
+----
+
+[NOTE]
+====
+Hop has two different project flags:
+
+* **`-j <name>`** — *enable* a registered project for this command (sets `PROJECT_HOME`)
+* **`-p` / `--project <name>`** — only *names* a project for create/delete/list management
+
+`export-spark-project` needs a home folder via `--export-spark-project-home=…` or a project already enabled with **`-j`**. Using only `--project=` does not set `PROJECT_HOME`.
+====
+
+Alternatively in the GUI:
 
 * *Tools* → *Generate a Hop fat jar* with native-provided packaging, and  
 * *Tools* → *Export project package for Native Spark…* after opening the sample project.
