@@ -202,6 +202,46 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return workflowMeta == null ? null : workflowMeta.getName();
   }
 
+  /**
+   * A remote run configuration names the run configuration the workflow is executed with on the
+   * server. That one can be a remote run configuration again, which hands the workflow to yet
+   * another server. Such a chain has to end somewhere: when it leads back to a run configuration it
+   * already passed, every server in the chain keeps handing the workflow to the next one and the
+   * workflow is registered over and over again. See issue #4086.
+   *
+   * <p>Only the run configurations this client can see are followed. A chain that continues into a
+   * run configuration that only exists on the server is left to that server to sort out.
+   *
+   * @param runConfiguration the remote run configuration to start from
+   * @throws HopException when the chain leads back to a run configuration it already passed
+   */
+  void validateRunConfigurationChain(WorkflowRunConfiguration runConfiguration)
+      throws HopException {
+    List<String> chain = new ArrayList<>();
+    chain.add(runConfiguration.getName());
+
+    WorkflowRunConfiguration current = runConfiguration;
+    while (current != null
+        && current.getEngineRunConfiguration() instanceof RemoteWorkflowRunConfiguration remote) {
+      String linkedName = resolve(remote.getRunConfigurationName());
+      if (StringUtils.isEmpty(linkedName)) {
+        // Reported for the run configuration this engine was asked to run with.
+        //
+        return;
+      }
+      if (chain.contains(linkedName)) {
+        chain.add(linkedName);
+        throw new HopException(
+            "The remote workflow run configuration leads back to itself: "
+                + String.join(" -> ", chain)
+                + ". The run configuration to run the workflow with on the server should not lead "
+                + "back to a remote run configuration.");
+      }
+      chain.add(linkedName);
+      current = metadataProvider.getSerializer(WorkflowRunConfiguration.class).load(linkedName);
+    }
+  }
+
   @Override
   public Result startExecution() {
     try {
@@ -249,18 +289,13 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if (StringUtils.isEmpty(remoteRunConfigurationName)) {
         throw new HopException("No run configuration was specified to the remote workflow with");
       }
-      if (workflowRunConfiguration.getName().equals(remoteRunConfigurationName)) {
-        throw new HopException(
-            "The remote workflow run configuration refers to itself '"
-                + remoteRunConfigurationName
-                + "'");
-      }
       if (metadataProvider == null) {
         throw new HopException(
             "The remote workflow engine didn't receive a metadata to load hop server '"
                 + hopServerName
                 + "'");
       }
+      validateRunConfigurationChain(workflowRunConfiguration);
 
       logChannel.logBasic(
           "Executing this workflow using the Remote Workflow Engine with run configuration '"
