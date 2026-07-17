@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.spark.transforms.io.SparkFileInputMeta;
+import org.apache.hop.spark.util.SparkPathDialect;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -96,7 +97,10 @@ public final class SparkFileIoSupport {
     try {
       writer.save(path);
     } catch (Exception e) {
-      throw new HopException("Error writing Spark Dataset to '" + path + "' as " + format, e);
+      throw new HopException(
+          SparkPathDialect.withPathHint(
+              "Error writing Spark Dataset to '" + path + "' as " + format, path),
+          e);
     }
   }
 }

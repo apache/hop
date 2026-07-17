@@ -1,0 +1,173 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[NativeSparkPathsAndFilesystems]]
+:imagesdir: ../../../assets/images
+:description: Hop VFS URIs versus Spark/Hadoop FileSystem URIs when using the native Spark pipeline engine.
+
+= Paths and file systems on native Spark
+
+Apache Hop uses *two different path languages*. They look similar (both use `scheme://…` URIs) but resolve through different stacks, credentials, and plugins. Mixing them is a common source of confusion when you move from the local engine to the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+
+== Two dialects
+
+[options="header",cols="1,2,2,2"]
+|===
+|Dialect |Resolved by |Typical schemes |Used for
+
+|**Hop VFS URI**
+|Apache Commons VFS via `HopVfs` and Hop VFS plugins
+|`file://`, `s3://`, `azure://` / `azfs://`, `gs://`, `googledrive://`, `dropbox://`, `webdav4(s)://`, **named** connections such as `minio://` or `myconn://`
+|Hop GUI file dialog, classic transforms (Text File Input/Output, Get File Names, …), loading pipeline/metadata on the Spark driver
+
+|**Spark URI** (Hadoop FileSystem URI)
+|Spark SQL Dataset I/O → Hadoop `FileSystem` on the *driver and every executor*
+|`file:///…`, `hdfs://…`, **`s3a://…`**, `abfs://…` / `wasbs://…`, connector-specific `gs://…`, …
+|xref:pipeline/spark/getting-started-with-native-spark.adoc#BuildingSparkOrientedPipelines[Spark File Input/Output], Lake Table **PATH** mode, Iceberg/Delta warehouse locations
+|===
+
+[IMPORTANT]
+====
+A path that opens in the Hop *File* dialog (Hop VFS) is *not* automatically valid for *Spark File Input*.
+Spark never calls `HopVfs` for Dataset `load` / `save`. The engine only resolves Hop variables, then hands the string to Spark.
+====
+
+For the full list of Hop VFS schemes, see xref:vfs.adoc[Virtual File Systems].
+
+== When each stack is used on native Spark
+
+[options="header",cols="2,1,3"]
+|===
+|Feature |Path dialect |Notes
+
+|Spark File Input / Spark File Output
+|**Spark URI**
+|`spark.read…load(path)` / `df.write…save(path)`
+
+|Spark Lake Table (PATH mode)
+|**Spark URI**
+|e.g. `file:///…`, `s3a://bucket/table` — see xref:pipeline/spark/lakehouse.adoc[Lakehouse]
+
+|Spark Catalog warehouse / Iceberg `io-impl`
+|**Spark URI**
+|Templates use `s3a://` and `file:///`
+
+|Classic transforms via `mapPartitions` (Text File Input, Excel, …)
+|**Hop VFS URI**
+|Each partition runs a small Hop pipeline; VFS plugins and named connections work if the *executor* classpath and credentials allow it
+
+|`MainSpark` loading `.hpl` / metadata JSON
+|**Hop VFS URI** (driver only)
+|Driver must open the definition files; *data* paths still must work on executors
+|===
+
+== Scheme collision matrix
+
+[options="header",cols="1,2,2,2"]
+|===
+|You write |Hop VFS meaning |Spark meaning |What to do on native Spark File/Lake
+
+|`s3://bucket/key`
+|AWS S3 via Hop’s S3 VFS plugin (AWS SDK)
+|Often legacy or unused; production Spark expects **S3A**
+|Use **`s3a://bucket/key`** and configure `spark.hadoop.fs.s3a.*` (or cluster `core-site`)
+
+|`s3a://bucket/key`
+|**Not** a Hop VFS scheme (unless you add a bridge plugin)
+|Hadoop S3A FileSystem
+|Correct for Spark; configure IAM / keys / endpoint for S3A
+
+|`minio:///bucket/…` or `myconn://…`
+|Named MinIO or other VFS connection metadata
+|Unknown scheme unless Hadoop is registered for that name
+|Do *not* use named VFS schemes in Spark File path. Use `s3a://` + `fs.s3a.endpoint` (and path-style access) for MinIO-compatible stores
+
+|`azure://` / `azfs://`
+|Hop Azure VFS
+|Spark usually wants **`abfs://`** or **`wasbs://`**
+|Use Azure Hadoop schemes + connector conf for Dataset I/O
+
+|`gs://`
+|Hop Google Cloud Storage VFS
+|Spark GCS connector (same scheme, *different* jars/credentials)
+|Works only if the Spark GCS connector and credentials are on the cluster
+
+|`${PROJECT_HOME}/data.csv`
+|Resolved, then Hop VFS or local rules
+|Resolved, then Hadoop default FS / local path
+|On cluster submit, set `PROJECT_HOME` in the env config to a **Spark-visible** URI (for object storage prefer `s3a://…`)
+|===
+
+== MinIO and S3-compatible storage
+
+Hop’s xref:metadata-types/minio-connection.adoc[Minio Connection] metadata registers the **connection name** as a VFS scheme (for example connection `minio` → `minio:///demo/…`). That path works with classic Hop transforms and the file dialog.
+
+On **Spark File Input/Output** and **Lake PATH**:
+
+. Put objects under a URI Spark’s S3A client can open, typically `s3a://bucket/prefix/…`.
+. Point S3A at your endpoint with run-configuration *Spark config* lines, for example:
+
+[source]
+----
+spark.hadoop.fs.s3a.endpoint=https://minio.example.com:9000
+spark.hadoop.fs.s3a.path.style.access=true
+spark.hadoop.fs.s3a.access.key=...
+spark.hadoop.fs.s3a.secret.key=...
+----
+
+(Exact keys depend on your Hadoop/Spark version and security model; prefer IAM roles on cloud clusters over embedding keys when possible.)
+
+There is **no** automatic rewrite from `minio://` or Hop `s3://` to `s3a://` in the native engine.
+
+== Cluster environment variables
+
+When you `spark-submit` with an environment configuration file, remap project variables to **Spark URIs**, not Hop-only VFS schemes:
+
+[source,json]
+----
+{
+  "variables": [
+    {
+      "name": "PROJECT_HOME",
+      "value": "s3a://hop-project/",
+      "description": "Project root on object storage (Hadoop S3A URI for executors)"
+    },
+    {
+      "name": "OUTPUT_ROOT",
+      "value": "s3a://hop-project/output/",
+      "description": "Shared output prefix visible to all executors"
+    }
+  ]
+}
+----
+
+See xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine] for the full submit flow.
+
+== Practical rules of thumb
+
+. **Spark File / Lake path fields** → use **Spark URIs** (`file:///`, `hdfs://`, `s3a://`, `abfs://`, …).
+. **Classic Hop file transforms** (even on the Spark engine) → use **Hop VFS URIs** and ensure plugins/credentials exist on executors.
+. Prefer *Spark File Output* for large distributed writes; classic Text File Output is for POCs and needs unique names per partition (`${Internal.Transform.ID}`).
+. Do not assume `s3://` means the same thing in Hop and Spark — in Hop docs for object storage on Spark, **`s3a://` is canonical**.
+
+== Related pages
+
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables (Delta / Iceberg)]
+* xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]
+* xref:vfs.adoc[Virtual File Systems]
+* xref:metadata-types/minio-connection.adoc[Minio Connection]
+* xref:metadata-types/spark-catalog.adoc[Spark Catalog]

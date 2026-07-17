@@ -177,7 +177,7 @@ IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, no
 |Typical use
 
 |**PATH**
-|Directory / table root Spark can open (`file:///…`, `s3a://…`, …)
+|Directory / table root Spark can open (`file:///…`, `s3a://…`, …) — a **Spark/Hadoop URI**, not a Hop VFS path (`s3://`, named MinIO, …). See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
 |Local lakes, object-store folders, quick prototypes
 
 |**TABLE**

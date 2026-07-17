@@ -158,6 +158,11 @@ provide a clean Dataset API mapping:
 - **Output:** path, format, save mode (Overwrite/Append/Ignore/ErrorIfExists), header, coalesce,
   partition-by columns
 
+**Paths are Spark/Hadoop URIs** (e.g. local path, `hdfs://…`, `s3a://…`), not Hop VFS schemes
+(`s3://`, named MinIO `minio://`, …). Dataset `load`/`save` never call `HopVfs`. Classic
+mapPartitions transforms still use Hop VFS. See user manual: *Paths and file systems on native
+Spark*. `SparkPathDialect` appends a hint when a known Hop-only scheme appears in I/O errors.
+
 Writes run as Spark actions during graph build; the output handler registers an empty leaf
 Dataset so a later engine `count()` does not re-write files.
 

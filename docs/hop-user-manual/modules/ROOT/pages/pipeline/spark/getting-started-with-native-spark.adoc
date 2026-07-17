@@ -29,6 +29,9 @@ It walks you from “what is this?” through a `local[*]` first run, cluster `s
 
 For **Delta Lake** and **Apache Iceberg** (ACID tables, catalogs, time travel, MERGE, maintenance), see the dedicated xref:pipeline/spark/lakehouse.adoc[lakehouse guide] after you have a working native Spark run configuration.
 
+Before putting object-store paths in *Spark File* or *Lake Table* transforms, read
+xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark] — Hop VFS (`s3://`, named MinIO) and Spark/Hadoop URIs (`s3a://`, …) are different dialects.
+
 == What is the native Spark pipeline engine?
 
 === In one sentence
@@ -318,12 +321,12 @@ Example `cluster-env-config.json`:
   "variables": [
     {
       "name": "PROJECT_HOME",
-      "value": "s3://hop-project/",
-      "description": "Project root on object storage for the cluster run"
+      "value": "s3a://hop-project/",
+      "description": "Project root on object storage for the cluster run (Spark/Hadoop S3A URI, not Hop VFS s3://)"
     },
     {
       "name": "OUTPUT_ROOT",
-      "value": "s3://hop-project/output/",
+      "value": "s3a://hop-project/output/",
       "description": "Shared output prefix visible to all executors"
     }
   ]
@@ -335,7 +338,7 @@ Use this for any value that must differ between local development and the cluste
 [IMPORTANT]
 ====
 * The config file path must be readable on the *driver* (local path on the submit machine, or a URI Hop VFS can open there).
-* Values such as `s3://hop-project/` only help if workers can actually read/write that location (correct Spark/Hadoop S3A configuration, IAM roles, etc.).
+* Values such as `s3a://hop-project/` only help if workers can actually read/write that location (correct Spark/Hadoop **S3A** configuration, IAM roles, etc.). Prefer **`s3a://`** for Spark Dataset I/O — Hop VFS uses `s3://` for a *different* stack. See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
 * Variables in this file override defaults for *this* submit only; they do not rewrite your project’s GUI environment on disk.
 ====
 
@@ -381,8 +384,8 @@ Common options:
 |===
 |Option |Notes
 
-|File path
-|File, directory, or glob visible to Spark (local path on `local[*]`; cluster URI on submit)
+|Spark path (Hadoop URI)
+|File, directory, or glob visible to Spark (local path on `local[*]`; cluster URI such as `hdfs://…` or `s3a://…` on submit). **Not** a Hop VFS path — see xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
 
 |Format
 |`csv`, `parquet`, `json`, `orc`, `text`
@@ -403,8 +406,8 @@ Common options:
 |===
 |Option |Notes
 
-|File path
-|Output directory/prefix Spark should write to
+|Spark path (Hadoop URI)
+|Output directory/prefix Spark should write to (same Spark/Hadoop dialect as input; not Hop VFS)
 
 |Format
 |`csv`, `parquet`, `json`, `orc`, `text`

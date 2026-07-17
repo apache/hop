@@ -32,6 +32,7 @@ import org.apache.hop.spark.pipeline.handler.SparkFileInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileIoSupport;
 import org.apache.hop.spark.transforms.table.SparkLakeTableInputMeta;
 import org.apache.hop.spark.transforms.table.SparkLakeTableOutputMeta;
+import org.apache.hop.spark.util.SparkPathDialect;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -565,12 +566,14 @@ public final class SparkLakeTableSupport {
       return reader.load(path);
     } catch (Exception e) {
       throw new HopException(
-          "Error reading Delta table at '"
-              + path
-              + "' in transform '"
-              + transformName
-              + "'. Ensure the Delta connector is on the engine classpath and the session has"
-              + " DeltaSparkSessionExtension + DeltaCatalog (see plugins/engines/spark/README.md).",
+          SparkPathDialect.withPathHint(
+              "Error reading Delta table at '"
+                  + path
+                  + "' in transform '"
+                  + transformName
+                  + "'. Ensure the Delta connector is on the engine classpath and the session has"
+                  + " DeltaSparkSessionExtension + DeltaCatalog (see plugins/engines/spark/README.md).",
+              path),
           e);
     }
   }
@@ -590,16 +593,18 @@ public final class SparkLakeTableSupport {
       return spark.sql(sql);
     } catch (Exception e) {
       throw new HopException(
-          "Error reading Iceberg table at '"
-              + path
-              + "' (sql="
-              + sql
-              + ") in transform '"
-              + transformName
-              + "'. Ensure the Iceberg runtime is on the engine classpath and session has"
-              + " IcebergSparkSessionExtensions + Hadoop catalog '"
-              + SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME
-              + "' (see plugins/engines/spark/README.md).",
+          SparkPathDialect.withPathHint(
+              "Error reading Iceberg table at '"
+                  + path
+                  + "' (sql="
+                  + sql
+                  + ") in transform '"
+                  + transformName
+                  + "'. Ensure the Iceberg runtime is on the engine classpath and session has"
+                  + " IcebergSparkSessionExtensions + Hadoop catalog '"
+                  + SparkLakeFormats.ICEBERG_PATH_CATALOG_NAME
+                  + "' (see plugins/engines/spark/README.md).",
+              path),
           e);
     }
   }
@@ -663,11 +668,13 @@ public final class SparkLakeTableSupport {
                   .create();
             } catch (Exception createEx) {
               throw new HopException(
-                  "Iceberg append failed for '"
-                      + path
-                      + "' and create fallback also failed in transform '"
-                      + transformName
-                      + "'",
+                  SparkPathDialect.withPathHint(
+                      "Iceberg append failed for '"
+                          + path
+                          + "' and create fallback also failed in transform '"
+                          + transformName
+                          + "'",
+                      path),
                   appendEx);
             }
           }
@@ -699,14 +706,16 @@ public final class SparkLakeTableSupport {
       throw e;
     } catch (Exception e) {
       throw new HopException(
-          "Error writing Iceberg table at '"
-              + path
-              + "' (identifier "
-              + sqlId
-              + ") in transform '"
-              + transformName
-              + "'. Ensure Iceberg is on the classpath and hop_iceberg Hadoop catalog is"
-              + " configured (see plugins/engines/spark/README.md).",
+          SparkPathDialect.withPathHint(
+              "Error writing Iceberg table at '"
+                  + path
+                  + "' (identifier "
+                  + sqlId
+                  + ") in transform '"
+                  + transformName
+                  + "'. Ensure Iceberg is on the classpath and hop_iceberg Hadoop catalog is"
+                  + " configured (see plugins/engines/spark/README.md).",
+              path),
           e);
     }
   }

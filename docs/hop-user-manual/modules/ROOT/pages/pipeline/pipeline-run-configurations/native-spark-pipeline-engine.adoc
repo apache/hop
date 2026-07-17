@@ -28,6 +28,9 @@ It builds a Spark SQL Dataset graph from the pipeline and runs transforms via na
 For a full introduction — concepts, `local[*]`, fat jar, `spark-submit`, Spark File I/O, `${Internal.Transform.ID}`, metrics, limitations, and integration-test examples — see
 xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine].
 
+Paths on *Spark File* and *Lake Table* transforms are **Spark/Hadoop URIs**, not Hop VFS schemes — see
+xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
+
 This page is *not* the same as xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark], which runs Hop over the Apache Beam Spark runner (Spark 3.5.x line).
 
 image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[Native Spark pipeline run configuration editor,width=70%]

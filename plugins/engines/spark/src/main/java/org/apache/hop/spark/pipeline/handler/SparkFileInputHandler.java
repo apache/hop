@@ -44,6 +44,7 @@ import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.transforms.io.SparkField;
 import org.apache.hop.spark.transforms.io.SparkFileInputMeta;
+import org.apache.hop.spark.util.SparkPathDialect;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
@@ -151,13 +152,15 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
       dataset = reader.load(path);
     } catch (Exception e) {
       throw new HopException(
-          "Error reading '"
-              + path
-              + "' as "
-              + format
-              + " in transform '"
-              + transformMeta.getName()
-              + "'",
+          SparkPathDialect.withPathHint(
+              "Error reading '"
+                  + path
+                  + "' as "
+                  + format
+                  + " in transform '"
+                  + transformMeta.getName()
+                  + "'",
+              path),
           e);
     }
 

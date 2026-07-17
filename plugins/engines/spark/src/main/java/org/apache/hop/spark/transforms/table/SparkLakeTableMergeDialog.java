@@ -219,6 +219,11 @@ public class SparkLakeTableMergeDialog extends BaseTransformDialog {
     TextVar text = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(text);
     text.addModifyListener(lsMod);
+    String tooltip = BaseMessages.getString(PKG, labelKey + ".Tooltip");
+    if (!Utils.isEmpty(tooltip) && !tooltip.startsWith("!")) {
+      text.setToolTipText(tooltip);
+      wl.setToolTipText(tooltip);
+    }
     FormData fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
     fd.top = new FormAttachment(wl, 0, SWT.CENTER);
