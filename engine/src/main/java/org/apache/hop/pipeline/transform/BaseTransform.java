@@ -143,7 +143,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private ILogChannel log;
 
-  /** The container object ID. Implements {@link ILoggingObject#getContainerId()}. */
   @Getter @Setter private String containerId;
 
   private final IPipelineEngine<PipelineMeta> pipeline;
