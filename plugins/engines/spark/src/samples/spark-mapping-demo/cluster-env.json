@@ -1,9 +1,0 @@
-{
-  "variables": [
-    {
-      "name": "HOP_DATA",
-      "value": "file:///data/hop-data",
-      "description": "Shared Docker volume for Spark Dataset I/O on all workers (not package PROJECT_HOME)"
-    }
-  ]
-}

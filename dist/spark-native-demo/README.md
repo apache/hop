@@ -19,14 +19,15 @@ under the License.
 
 # Staging location moved
 
-Native Spark demo artifacts default to **`/tmp/spark-mapping-demo-dist`** (not under the git tree).
+Native Spark demo artifacts default to **`/tmp/spark-demo-dist`** (not under the git tree).
 
 ```bash
-./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
-# → /tmp/spark-mapping-demo-dist/{hop-native-spark4-submit.jar,spark-mapping-demo.zip,…}
+./plugins/engines/spark/src/samples/spark-demo/scripts/prepare-dist.sh
+# → /tmp/spark-demo-dist/{hop-native-spark4-submit.jar,spark-demo.zip,hop-data/,…}
 
 docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
   up -d --build --scale spark-worker=2
+# hop-data is bind-mounted to /data/hop-data in the cluster (outputs + executions on the host)
 ```
 
-Override with `DIST_DIR` / `HOP_DIST_DIR` if you prefer another path.
+Override with `DIST_DIR` / `HOP_DIST_DIR` / `HOP_DATA_HOST_DIR` if you prefer other paths.

@@ -22,24 +22,24 @@
 #   3) seed data copy (also copied into the Docker volume by the submit script)
 #
 # Usage (from Hop install or with HOP_HOME set; repository root optional via REPO_ROOT):
-#   ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
+#   ./plugins/engines/spark/src/samples/spark-demo/scripts/prepare-dist.sh
 #
 # Environment:
 #   HOP_HOME       Hop client install (default: current dir if hop-conf.sh is present)
 #   REPO_ROOT      Hop git checkout (default: detected from this script location)
-#   DIST_DIR       Output directory (default: /tmp/spark-mapping-demo-dist)
-#   PROJECT_NAME   Hop project name for hop-conf (default: spark-mapping-demo)
+#   DIST_DIR       Output directory (default: /tmp/spark-demo-dist)
+#   PROJECT_NAME   Hop project name for hop-conf (default: spark-demo)
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SAMPLE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-# scripts → spark-mapping-demo → samples → src → spark → engines → plugins → repo root
+# scripts → spark-demo → samples → src → spark → engines → plugins → repo root
 REPO_ROOT="${REPO_ROOT:-$(cd "${SCRIPT_DIR}/../../../../../../.." && pwd)}"
-DIST_DIR="${DIST_DIR:-/tmp/spark-mapping-demo-dist}"
-PROJECT_NAME="${PROJECT_NAME:-spark-mapping-demo}"
+DIST_DIR="${DIST_DIR:-/tmp/spark-demo-dist}"
+PROJECT_NAME="${PROJECT_NAME:-spark-demo}"
 FAT_JAR_NAME="${FAT_JAR_NAME:-hop-native-spark4-submit.jar}"
-PACKAGE_NAME="${PACKAGE_NAME:-spark-mapping-demo.zip}"
+PACKAGE_NAME="${PACKAGE_NAME:-spark-demo.zip}"
 
 if [[ -n "${HOP_HOME:-}" ]]; then
   HOP_CONF="${HOP_HOME}/hop-conf.sh"
@@ -75,8 +75,8 @@ echo ">>> Generating native-provided fat jar (Spark provided by cluster)..."
 # Note: Hop has two different "project" flags:
 #   -j / (enable for this command)  → sets PROJECT_HOME  [ProjectsOptionPlugin]
 #   -p / --project                  → name for create/delete/list only [ManageProjects]
-# You do NOT need to register spark-mapping-demo in hop-config for the export below.
-# Optional GUI convenience: hop-conf -pc -p spark-mapping-demo -ph "${SAMPLE_DIR}"
+# You do NOT need to register spark-demo in hop-config for the export below.
+# Optional GUI convenience: hop-conf -pc -p spark-demo -ph "${SAMPLE_DIR}"
 
 echo ">>> Exporting Native Spark project package from ${SAMPLE_DIR}..."
 (
@@ -89,16 +89,29 @@ echo ">>> Exporting Native Spark project package from ${SAMPLE_DIR}..."
 echo ">>> Copying sample data into dist (for inspection; cluster uses /data/hop-data)..."
 mkdir -p "${DIST_DIR}/data"
 cp -f "${SAMPLE_DIR}/data/customers-sample.csv" "${DIST_DIR}/data/"
+cp -f "${SAMPLE_DIR}/data/countries.csv" "${DIST_DIR}/data/"
 cp -f "${SAMPLE_DIR}/cluster-env.json" "${DIST_DIR}/"
+
+# Host bind mount for the cluster data plane (compose: …/hop-data → /data/hop-data)
+HOP_DATA_HOST_DIR="${HOP_DATA_HOST_DIR:-${DIST_DIR}/hop-data}"
+mkdir -p "${HOP_DATA_HOST_DIR}/out" "${HOP_DATA_HOST_DIR}/executions" "${HOP_DATA_HOST_DIR}/packages"
+echo ">>> Host data plane: ${HOP_DATA_HOST_DIR} (mounted as /data/hop-data in the cluster)"
 
 echo
 echo "Done. Contents of ${DIST_DIR}:"
 ls -la "${DIST_DIR}"
 echo
 echo "Next:"
-if [[ "${DIST_DIR}" == "/tmp/spark-mapping-demo-dist" ]]; then
+if [[ "${DIST_DIR}" == "/tmp/spark-demo-dist" ]]; then
   echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml up -d --build --scale spark-worker=2"
 else
-  echo "  HOP_DIST_DIR=${DIST_DIR} docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml up -d --build --scale spark-worker=2"
+  echo "  HOP_DIST_DIR=${DIST_DIR} HOP_DATA_HOST_DIR=${HOP_DATA_HOST_DIR} \\"
+  echo "    docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml up -d --build --scale spark-worker=2"
 fi
-echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh"
+echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-demo.sh"
+echo "  # Workflow Executor country demo:"
+echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-workflows-demo.sh"
+echo "  # Nested Native Spark pipelines (per country) demo:"
+echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-pipelines-demo.sh"
+echo "  # Inspect on the host (outputs + execution info):"
+echo "  ls -la ${HOP_DATA_HOST_DIR}/out ${HOP_DATA_HOST_DIR}/executions"

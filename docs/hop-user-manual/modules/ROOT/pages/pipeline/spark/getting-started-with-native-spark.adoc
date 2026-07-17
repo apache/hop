@@ -36,8 +36,8 @@ For **Simple Mapping** / **Pipeline Executor** child pipelines on `spark-submit`
 xref:pipeline/spark/paths-and-filesystems.adoc#spark-project-package[Spark project package]
 (`hop-conf -j … --export-spark-project=…`) and pass `--HopProjectPackage=…` to `MainSpark`.
 
-Hands-on multi-node demo (Docker Compose + sample project `spark-mapping-demo`):
-xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster mapping walk-through].
+Hands-on multi-node demo (Docker Compose + sample project `spark-demo` — Simple Mapping and Workflow Executor):
+xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through].
 
 == What is the native Spark pipeline engine?
 

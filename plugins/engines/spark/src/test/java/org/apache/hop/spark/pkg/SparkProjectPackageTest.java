@@ -131,11 +131,9 @@ class SparkProjectPackageTest {
   @Test
   void isSparkFilesLocalPathDetectsUserFiles() {
     assertTrue(
-        SparkProjectPackage.isSparkFilesLocalPath(
-            "/tmp/spark-abc/userFiles-xyz/spark-mapping-demo.zip"));
+        SparkProjectPackage.isSparkFilesLocalPath("/tmp/spark-abc/userFiles-xyz/spark-demo.zip"));
     assertFalse(
-        SparkProjectPackage.isSparkFilesLocalPath(
-            "/data/hop-data/packages/spark-mapping-demo.zip"));
+        SparkProjectPackage.isSparkFilesLocalPath("/data/hop-data/packages/spark-demo.zip"));
   }
 
   @Test

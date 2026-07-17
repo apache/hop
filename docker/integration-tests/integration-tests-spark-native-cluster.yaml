@@ -15,24 +15,41 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Native Spark 4.1 standalone cluster for the spark-mapping-demo walk-through.
+# Native Spark 4.1 standalone cluster for the spark-demo walk-through.
 #
-# Proves multi-node spark-submit with a Hop project package (Simple Mapping under
-# ${PROJECT_HOME}) and shared data via a Docker volume (HOP_DATA=file:///data/hop-data).
+# Proves multi-node spark-submit with a Hop project package (Simple Mapping /
+# Workflow Executor under ${PROJECT_HOME}) and shared data on a host-visible
+# bind mount (HOP_DATA=file:///data/hop-data inside the containers).
+#
+# Host data plane (default): ${HOP_DIST_DIR:-/tmp/spark-demo-dist}/hop-data
+#   → container /data/hop-data  (CSV seeds, out/, packages/, executions/)
 #
 # From the repository root:
 #
-#   # Prepare fat jar + package zip into /tmp/spark-mapping-demo-dist (see sample scripts)
-#   ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
+#   # Prepare fat jar + package zip into /tmp/spark-demo-dist (see sample scripts)
+#   ./plugins/engines/spark/src/samples/spark-demo/scripts/prepare-dist.sh
 #
 #   docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
 #     up -d --build --scale spark-worker=2
 #
+#   # Mapping demo (default)
 #   docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
-#     exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh
+#     exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-demo.sh
+#
+#   # Workflow Executor country folders demo
+#   docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+#     exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-workflows-demo.sh
+#
+#   # Nested Native Spark pipelines (per country) demo
+#   docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+#     exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-pipelines-demo.sh
+#
+#   # Inspect on the host (no docker exec required)
+#   ls -la /tmp/spark-demo-dist/hop-data/out /tmp/spark-demo-dist/hop-data/executions
 #
 # Spark master UI: http://localhost:8080
 # Override SPARK_VERSION if needed (default matches plugins/engines/spark Spark 4.1.x pin).
+# Override data host path: HOP_DATA_HOST_DIR=/somewhere/else docker compose …
 
 services:
   spark:
@@ -52,11 +69,14 @@ services:
       - "7077:7077"
     volumes:
       # Host-prepared fat jar + project package zip
-      - ${HOP_DIST_DIR:-/tmp/spark-mapping-demo-dist}:/opt/hop-dist:ro
+      - ${HOP_DIST_DIR:-/tmp/spark-demo-dist}:/opt/hop-dist:ro
       # Sample project sources + scripts
       - ../../plugins/engines/spark/src/samples:/opt/hop-samples:ro
-      # Shared data plane (all workers must see the same paths)
-      - hop-demo-data:/data/hop-data
+      # Shared data plane (master + workers): bind-mounted so the host can inspect
+      # outputs and execution-info files without docker exec.
+      # Default: /tmp/spark-demo-dist/hop-data  (override HOP_DATA_HOST_DIR; if you change
+      # HOP_DIST_DIR, set HOP_DATA_HOST_DIR=${HOP_DIST_DIR}/hop-data as well)
+      - ${HOP_DATA_HOST_DIR:-/tmp/spark-demo-dist/hop-data}:/data/hop-data
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/"]
       interval: 5s
@@ -80,9 +100,6 @@ services:
       - SPARK_WORKER_CORES=${SPARK_WORKER_CORES:-2}
       - SPARK_WORKER_MEMORY=${SPARK_WORKER_MEMORY:-2g}
     volumes:
-      - hop-demo-data:/data/hop-data
+      - ${HOP_DATA_HOST_DIR:-/tmp/spark-demo-dist/hop-data}:/data/hop-data
     ports:
       - "8081"
-
-volumes:
-  hop-demo-data:

@@ -35,6 +35,7 @@ class SparkPipelineRunConfigurationTest {
     config.setSparkAppName("test-app");
     config.setDriverMemory("1g");
     config.setPathSchemeMap("s3=s3a\nminio=s3a");
+    config.setGenericTransformRunMode("DRIVER_ONLY");
 
     SparkPipelineRunConfiguration copy = config.clone();
     assertNotSame(config, copy);
@@ -42,5 +43,7 @@ class SparkPipelineRunConfigurationTest {
     assertEquals("test-app", copy.getSparkAppName());
     assertEquals("1g", copy.getDriverMemory());
     assertEquals("s3=s3a\nminio=s3a", copy.getPathSchemeMap());
+    assertEquals("DRIVER_ONLY", copy.getGenericTransformRunMode());
+    assertEquals("DISTRIBUTED", new SparkPipelineRunConfiguration().getGenericTransformRunMode());
   }
 }

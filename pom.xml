@@ -533,8 +533,8 @@
                         <!-- Samples Exclusions -->
                         <exclude>**/src/main/samples/**/*.txt</exclude>
                         <exclude>**/src/main/samples/**/*.csv</exclude>
-                        <exclude>**/spark-mapping-demo/**/*.csv</exclude>
-                        <exclude>**/spark-mapping-demo/**/_SUCCESS</exclude>
+                        <exclude>**/spark-demo/**/*.csv</exclude>
+                        <exclude>**/spark-demo/**/_SUCCESS</exclude>
 
                         <!-- Documentation Exclusions-->
                         <exclude>docs/content/**</exclude>

@@ -93,9 +93,11 @@ import org.apache.hop.spark.table.LakeSessionPlan;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import scala.Option;
 
 /**
  * Native Apache Spark 4.x pipeline engine. Converts Hop pipelines to Spark Dataset graphs and
@@ -160,6 +162,14 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   private HopPipelineMetaToSparkConverter converter;
   private ISparkPipelineEngineRunConfiguration sparkEngineRunConfiguration;
   private SparkSession sparkSession;
+
+  /**
+   * True when this engine created the {@link SparkSession} (and may stop it). False when reusing an
+   * active/default session or nesting under a parent Spark engine — never stop/cancel the shared
+   * context in that case.
+   */
+  private boolean sessionOwnedByThisEngine;
+
   private Dataset<Row> resultDataset;
   private Thread sparkThread;
   private SparkTransformMetricsAccumulator metricsAccumulator;
@@ -898,9 +908,27 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               + lakePlan.getCatalogsByMetaName().keySet());
     }
 
+    // Nested under another Native Spark pipeline: always reuse the parent's session when present.
+    if (parentPipeline instanceof SparkPipelineEngine parentSpark
+        && parentSpark.sparkSession != null) {
+      sessionOwnedByThisEngine = false;
+      SparkSession session = parentSpark.sparkSession;
+      logChannel.logBasic(
+          "Nested Native Spark pipeline reusing parent SparkSession (parent='"
+              + (parentSpark.pipelineMeta != null ? parentSpark.pipelineMeta.getName() : "?")
+              + "', version="
+              + session.version()
+              + ")");
+      if (!lakePlan.isEmpty()) {
+        lakePlan.verifyActiveSession(session, logChannel, this);
+      }
+      return session;
+    }
+
     // spark-submit / existing driver: reuse the active session if present
-    scala.Option<SparkSession> active = SparkSession.getActiveSession();
+    Option<SparkSession> active = SparkSession.getActiveSession();
     if (active.isDefined()) {
+      sessionOwnedByThisEngine = false;
       SparkSession session = active.get();
       logChannel.logBasic(
           "Reusing active SparkSession (version="
@@ -911,8 +939,9 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       }
       return session;
     }
-    scala.Option<SparkSession> def = SparkSession.getDefaultSession();
+    Option<SparkSession> def = SparkSession.getDefaultSession();
     if (def.isDefined()) {
+      sessionOwnedByThisEngine = false;
       SparkSession session = def.get();
       logChannel.logBasic("Reusing default SparkSession (version=" + session.version() + ")");
       if (!lakePlan.isEmpty()) {
@@ -928,7 +957,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       String confMaster = System.getProperty("spark.master");
       if (StringUtils.isEmpty(confMaster)) {
         try {
-          org.apache.spark.SparkConf conf = new org.apache.spark.SparkConf(true);
+          SparkConf conf = new SparkConf(true);
           if (conf.contains("spark.master")) {
             confMaster = conf.get("spark.master");
           }
@@ -1000,7 +1029,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
 
     SparkSession session = builder.getOrCreate();
-    logChannel.logBasic("Created SparkSession version=" + session.version() + " master=" + master);
+    // getOrCreate may still return a shared session under spark-submit; only claim ownership
+    // when we are not nested and no prior active session existed (we already returned above).
+    sessionOwnedByThisEngine = true;
+    logChannel.logBasic(
+        "Created SparkSession version=" + session.version() + " master=" + master + " (owned)");
     return session;
   }
 
@@ -1060,7 +1093,8 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     setStopped(true);
     setRunning(false);
     ExecutorUtil.cleanup(metricsRefreshTimer);
-    if (sparkSession != null) {
+    // Nested / reused sessions share the parent's SparkContext — never cancelAllJobs there.
+    if (sparkSession != null && sessionOwnedByThisEngine) {
       try {
         sparkSession.sparkContext().cancelAllJobs();
       } catch (Exception e) {
@@ -1068,6 +1102,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
           logChannel.logError("Error cancelling Spark jobs", e);
         }
       }
+    } else if (sparkSession != null && logChannel != null) {
+      logChannel.logBasic(
+          "Skipping Spark job cancel for nested/reused session (pipeline='"
+              + (pipelineMeta != null ? pipelineMeta.getName() : "?")
+              + "')");
     }
     try {
       populateEngineMetrics();
@@ -1092,13 +1131,25 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     ExecutorUtil.cleanup(executionInfoTimer);
     if (sparkSession != null) {
       try {
-        // Only stop sessions we created for local masters to avoid killing shared sessions
-        String master =
-            sparkEngineRunConfiguration != null
-                ? resolve(sparkEngineRunConfiguration.getSparkMaster())
-                : "";
-        if (master != null && master.startsWith("local")) {
-          sparkSession.stop();
+        // Only stop sessions this engine created. Nested Pipeline Executor children and
+        // spark-submit drivers must leave the shared SparkSession alone.
+        if (sessionOwnedByThisEngine) {
+          String master =
+              sparkEngineRunConfiguration != null
+                  ? resolve(sparkEngineRunConfiguration.getSparkMaster())
+                  : "";
+          if (master != null && master.startsWith("local")) {
+            logChannel.logBasic(
+                "Stopping owned local SparkSession for pipeline '"
+                    + (pipelineMeta != null ? pipelineMeta.getName() : "?")
+                    + "'");
+            sparkSession.stop();
+          }
+        } else if (logChannel != null) {
+          logChannel.logDetailed(
+              "Leaving shared SparkSession running after nested/reused pipeline '"
+                  + (pipelineMeta != null ? pipelineMeta.getName() : "?")
+                  + "'");
         }
       } catch (Exception e) {
         if (logChannel != null) {
@@ -1108,6 +1159,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         sparkSession = null;
       }
     }
+  }
+
+  /** Whether this engine owns (created) the SparkSession and may stop it. */
+  boolean isSessionOwnedByThisEngine() {
+    return sessionOwnedByThisEngine;
   }
 
   @Override
@@ -1647,10 +1703,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   @Override
   public void setInternalHopVariables(IVariables var) {
     var.setVariable(
-        org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_NAME,
-        org.apache.hop.core.Const.NVL(pipelineMeta != null ? pipelineMeta.getName() : "", ""));
+        Const.INTERNAL_VARIABLE_PIPELINE_NAME,
+        Const.NVL(pipelineMeta != null ? pipelineMeta.getName() : "", ""));
     var.setVariable(
-        org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_ID,
+        Const.INTERNAL_VARIABLE_PIPELINE_ID,
         logChannel != null ? logChannel.getLogChannelId() : "");
   }
 

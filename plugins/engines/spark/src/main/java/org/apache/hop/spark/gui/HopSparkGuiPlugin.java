@@ -19,21 +19,29 @@ package org.apache.hop.spark.gui;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
+import org.apache.hop.spark.util.SparkRunMode;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 /**
- * GUI actions for the Native Spark engine, including project package export for cluster execution.
+ * GUI actions for the Native Spark engine, including project package export for cluster execution
+ * and per-transform Spark run-mode overrides.
  */
 @GuiPlugin
 public class HopSparkGuiPlugin {
@@ -43,6 +51,9 @@ public class HopSparkGuiPlugin {
   public static final String ID_MAIN_MENU_TOOLS_EXPORT_SPARK_PROJECT =
       "40300-menu-tools-export-spark-project-package";
 
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPARK_RUN_MODE =
+      "pipeline-graph-transform-spark-run-mode";
+
   private static HopSparkGuiPlugin instance;
 
   public static HopSparkGuiPlugin getInstance() {
@@ -50,6 +61,64 @@ public class HopSparkGuiPlugin {
       instance = new HopSparkGuiPlugin();
     }
     return instance;
+  }
+
+  /**
+   * Per-transform override of generic mapPartitions run mode (Inherit / Force distributed / Force
+   * Driver Only). Stored on {@link TransformMeta} attributes; effective when running on Native
+   * Spark.
+   */
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPARK_RUN_MODE,
+      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::SparkGuiPlugin.ContextAction.SparkRunMode.Name",
+      tooltip = "i18n::SparkGuiPlugin.ContextAction.SparkRunMode.Tooltip",
+      image = "spark-run-driver.svg",
+      category = "i18n::SparkGuiPlugin.ContextAction.Category",
+      categoryOrder = "9")
+  public void setSparkRunMode(HopGuiPipelineTransformContext context) {
+    HopGui hopGui = HopGui.getInstance();
+    try {
+      TransformMeta transformMeta = context.getTransformMeta();
+      PipelineMeta pipelineMeta = context.getPipelineMeta();
+
+      String currentLabel =
+          SparkRunMode.displayLabelForOverride(SparkRunMode.getOverride(transformMeta));
+      String[] labels = SparkRunMode.overrideDisplayLabels();
+      int preselect = 0;
+      for (int i = 0; i < labels.length; i++) {
+        if (labels[i].equals(currentLabel)) {
+          preselect = i;
+          break;
+        }
+      }
+      EnterSelectionDialog dialog =
+          new EnterSelectionDialog(
+              hopGui.getShell(),
+              labels,
+              BaseMessages.getString(PKG, "SparkGuiPlugin.ContextAction.SparkRunMode.Dialog.Title"),
+              BaseMessages.getString(
+                  PKG,
+                  "SparkGuiPlugin.ContextAction.SparkRunMode.Dialog.Message",
+                  transformMeta.getName(),
+                  currentLabel));
+      dialog.setAvoidQuickSearch();
+      String choice = dialog.open(preselect);
+      if (choice == null) {
+        return;
+      }
+      SparkRunMode.setOverride(transformMeta, SparkRunMode.overrideFromDisplayLabel(choice));
+      transformMeta.setChanged();
+      pipelineMeta.setChanged();
+      context.getPipelineGraph().updateGui();
+    } catch (Exception e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "SparkGuiPlugin.ContextAction.SparkRunMode.Error.Header"),
+          BaseMessages.getString(PKG, "SparkGuiPlugin.ContextAction.SparkRunMode.Error.Message"),
+          e);
+    }
   }
 
   /**

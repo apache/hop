@@ -42,7 +42,7 @@ import picocli.CommandLine;
  *
  * <pre>
  * hop-conf.sh --export-spark-project=/tmp/demo.zip \
- *   --export-spark-project-home=/path/to/spark-mapping-demo
+ *   --export-spark-project-home=/path/to/spark-demo
  * </pre>
  *
  * <p>Alternatively enable a registered project first with <strong>{@code -j}</strong> (not {@code

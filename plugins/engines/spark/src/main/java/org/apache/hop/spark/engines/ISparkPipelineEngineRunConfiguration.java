@@ -45,4 +45,10 @@ public interface ISparkPipelineEngineRunConfiguration extends IPipelineEngineRun
    * classic Hop VFS paths are unaffected.
    */
   String getPathSchemeMap();
+
+  /**
+   * Default execution mode for generic (mapPartitions) Hop transforms: {@code DISTRIBUTED} or
+   * {@code DRIVER_ONLY}. Per-transform overrides can force either mode via transform attributes.
+   */
+  String getGenericTransformRunMode();
 }

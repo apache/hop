@@ -193,19 +193,24 @@ Do **not** use package `PROJECT_HOME` as the root for Spark Dataset data paths.
 
 ## Cluster walk-through (Docker)
 
-Sample project: `src/samples/spark-mapping-demo`  
+Sample project: `src/samples/spark-demo`  
 Compose: `docker/integration-tests/integration-tests-spark-native-cluster.yaml` (Spark **4.1.2**)
 
 ```bash
-./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
-# artifacts default to /tmp/spark-mapping-demo-dist (override DIST_DIR / HOP_DIST_DIR)
+./plugins/engines/spark/src/samples/spark-demo/scripts/prepare-dist.sh
+# artifacts default to /tmp/spark-demo-dist (override DIST_DIR / HOP_DIST_DIR)
+# shared data plane: /tmp/spark-demo-dist/hop-data → /data/hop-data (host-visible)
 docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
   up -d --build --scale spark-worker=2
 docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
-  exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh
+  exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-demo.sh
+# Workflow Executor demo:
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-workflows-demo.sh
+# Host inspect: ls /tmp/spark-demo-dist/hop-data/out /tmp/spark-demo-dist/hop-data/executions
 ```
 
-See user manual: *Cluster mapping walk-through*.
+See user manual: *Cluster demo walk-through*.
 
 Writes run as Spark actions during graph build; the output handler registers an empty leaf
 Dataset so a later engine `count()` does not re-write files.

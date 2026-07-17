@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Thin wrapper: Workflow Executor country-folder demo on the Docker Spark cluster.
+#
+#   docker compose ... exec spark /opt/hop-samples/spark-demo/scripts/spark-submit-workflows-demo.sh
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PIPELINE_PATH="${PIPELINE_PATH:-pipelines/02-run-workflows.hpl}"
+exec "${SCRIPT_DIR}/spark-submit-demo.sh"

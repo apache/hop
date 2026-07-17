@@ -101,9 +101,47 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 |Path scheme map (`from=to` lines)
 |Optional URI scheme rewrite for *Spark File* / *Lake PATH* only (e.g. `s3=s3a`, `minio=s3a`). Does not apply to classic Hop VFS transforms. Configure target FS (e.g. `spark.hadoop.fs.s3a.*`) separately. See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
 |
+
+|Generic transform run mode
+|Default for Hop transforms that run as `mapPartitions` mini-pipelines (Workflow Executor, most classic transforms). `DISTRIBUTED` fans work out across Spark partitions/nodes. `DRIVER_ONLY` materializes the transform input on the Spark driver and runs the mini-pipeline once there, so nested workflows do not execute on multiple nodes. Override per transform with the *Spark Run Mode* context action on the canvas.
+|`DISTRIBUTED`
 |===
 
 Also configure *Execution information location* and *Execution data profile* on the run configuration main tab when you want GUI metrics history and row samples.
+
+==== Generic transform run mode and per-transform override
+
+Most classic Hop transforms (including *Workflow Executor*, *Pipeline Executor*, and mappings) execute on Native Spark as generic `mapPartitions` work. When the input Dataset has many partitions, Spark can run that nested work on multiple executors at once. That is often desirable for pure row transforms, but nested workflows or other non-reentrant side effects may need a single place of execution.
+
+* **Run configuration default** — *Generic transform run mode*: `DISTRIBUTED` (default) or `DRIVER_ONLY`.
+* **Per-transform override** — right-click a transform → *Spark Run Mode*:
+** *Inherit* — use the run configuration default
+** *Force distributed* — always use `mapPartitions` across partitions
+** *Force Driver Only* — always run this transform's mini-pipeline on the Spark driver
++
+The override is stored on the transform (`attributes` group `spark` / key `run_mode`) and is saved with the pipeline. When a force override is set, a small badge is drawn at the **bottom-left** of the transform icon.
+
+image::pipeline/spark/native-spark-run-mode-force-driver.png[Transform with Force Driver Only Spark run-mode badge,width=70%]
+
+Native Dataset handlers (Spark File / Lake Table, Memory Group By, Sort, Unique, Merge Join) ignore this setting.
+
+[NOTE]
+====
+`DRIVER_ONLY` collects that transform's input rows on the driver. Prefer `DISTRIBUTED` for high-volume data; use driver-only for nested execution control (for example a Workflow Executor over a modest set of control rows).
+====
+
+==== Nested Native Spark pipelines (orchestrator pattern)
+
+A parent Native Spark pipeline can start **child** Native Spark pipelines via **Pipeline Executor** (run configuration = Native Spark):
+
+* Put **Force Driver Only** (or run-config `DRIVER_ONLY`) on the Pipeline Executor so children start on the driver.
+* Each child **reuses the parent `SparkSession`** (same Spark application) — it does **not** start a second `spark-submit`.
+* Parameterize the child with control keys (country, month, partition) for paths and filters.
+* Nested engines **must not stop** the shared session when they finish.
+
+Do **not** run nested Native Spark executors under **DISTRIBUTED** mapPartitions on workers (no safe nested SparkContext). For multi-application isolation (separate Spark apps per key), use an external job launcher instead.
+
+Demo: sample project `spark-demo` pipeline `pipelines/03-run-pipelines.hpl` (see xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through]).
 
 === Related
 

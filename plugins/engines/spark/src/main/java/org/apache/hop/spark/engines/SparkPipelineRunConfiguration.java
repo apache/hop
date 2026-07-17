@@ -17,17 +17,21 @@
 
 package org.apache.hop.spark.engines;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.spark.engines.template.SparkRunConfigTemplate;
 import org.apache.hop.spark.util.SparkConst;
+import org.apache.hop.spark.util.SparkRunMode;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -179,11 +183,27 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   @HopMetadataProperty
   private String pathSchemeMap;
 
+  /**
+   * Default for generic mapPartitions transforms ({@link SparkRunMode#DISTRIBUTED} or {@link
+   * SparkRunMode#DRIVER_ONLY}). Overridable per transform via the "Spark Run Mode" context action.
+   */
+  @GuiWidgetElement(
+      id = "genericTransformRunMode",
+      order = "20100-spark-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.COMBO,
+      label = "i18n::SparkEngine.OptionsGenericRunMode.Label",
+      toolTip = "i18n::SparkEngine.OptionsGenericRunMode.ToolTip",
+      comboValuesMethod = "getGenericTransformRunModes")
+  @HopMetadataProperty(key = "generic_transform_run_mode")
+  private String genericTransformRunMode;
+
   public SparkPipelineRunConfiguration() {
     super();
     this.sparkMaster = "local[*]";
     this.sparkAppName = "Apache Hop";
     this.tempLocation = System.getProperty("java.io.tmpdir");
+    this.genericTransformRunMode = SparkRunMode.DISTRIBUTED.name();
     setEnginePluginId(SparkConst.PLUGIN_ID);
     setEnginePluginName(SparkConst.PLUGIN_NAME);
   }
@@ -200,10 +220,17 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.tempLocation = config.tempLocation;
     this.pluginsToStage = config.pluginsToStage;
     this.pathSchemeMap = config.pathSchemeMap;
+    this.genericTransformRunMode = config.genericTransformRunMode;
   }
 
   @Override
   public SparkPipelineRunConfiguration clone() {
     return new SparkPipelineRunConfiguration(this);
+  }
+
+  /** Combo values for {@link #genericTransformRunMode}. */
+  public List<String> getGenericTransformRunModes(
+      ILogChannel log, IHopMetadataProvider metadataProvider) {
+    return SparkRunMode.configDisplayValues();
   }
 }

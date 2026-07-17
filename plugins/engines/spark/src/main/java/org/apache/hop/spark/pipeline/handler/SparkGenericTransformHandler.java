@@ -19,6 +19,7 @@ package org.apache.hop.spark.pipeline.handler;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.core.SparkVariableValue;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
+import org.apache.hop.spark.util.SparkRunMode;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Dataset;
@@ -52,10 +54,13 @@ import org.apache.spark.sql.types.StructType;
 
 /**
  * Wraps a Hop transform in {@link HopMapPartitionsFn} so initialization happens once per Spark
- * partition. Supports optional info/side streams (Stream Lookup, etc.) via broadcast of collected
- * rows.
+ * partition (DISTRIBUTED) or once on the Spark driver (DRIVER_ONLY). Supports optional info/side
+ * streams (Stream Lookup, etc.) via broadcast of collected rows.
  */
 public class SparkGenericTransformHandler implements ISparkPipelineTransformHandler {
+
+  /** Soft warning threshold when materializing input rows on the driver. */
+  static final long DRIVER_ONLY_ROW_WARN_THRESHOLD = 100_000L;
 
   private SparkTransformMetricsAccumulator metricsAccumulator;
   private SparkExecutionDataAccumulator sampleDataAccumulator;
@@ -206,19 +211,26 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
       source = input;
     }
 
-    JavaRDD<Row> outRdd =
-        source
-            .toJavaRDD()
-            .mapPartitions(
-                iterator -> {
-                  try {
-                    return mapFn.call(iterator);
-                  } catch (Exception e) {
-                    throw new RuntimeException(e);
-                  }
-                });
+    SparkRunMode runMode = SparkRunMode.resolve(transformMeta, runConfiguration);
+    warnIfNestedSparkExecutorDistributed(log, transformMeta, runMode);
+    Dataset<Row> taggedOrPlain;
+    if (runMode == SparkRunMode.DRIVER_ONLY) {
+      taggedOrPlain = runOnDriver(log, transformMeta, spark, source, mapFn, mapPartitionsSchema);
+    } else {
+      JavaRDD<Row> outRdd =
+          source
+              .toJavaRDD()
+              .mapPartitions(
+                  iterator -> {
+                    try {
+                      return mapFn.call(iterator);
+                    } catch (Exception e) {
+                      throw new RuntimeException(e);
+                    }
+                  });
+      taggedOrPlain = spark.createDataFrame(outRdd, mapPartitionsSchema);
+    }
 
-    Dataset<Row> taggedOrPlain = spark.createDataFrame(outRdd, mapPartitionsSchema);
     if (!multiTarget) {
       transformDatasetMap.put(transformMeta.getName(), taggedOrPlain);
     } else {
@@ -250,11 +262,84 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
     log.logBasic(
         "Handled transform '"
             + transformMeta.getName()
-            + "' with generic Spark mapPartitions (plugin id="
+            + "' with generic Spark "
+            + runMode.name()
+            + " (plugin id="
             + transformMeta.getTransformPluginId()
             + (infoNames.isEmpty() ? "" : ", infoStreams=" + infoNames)
             + (targetNames.isEmpty() ? "" : ", targets=" + targetNames)
             + ")");
+  }
+
+  /**
+   * Pipeline Executor that starts a nested Native Spark engine must run on the driver. Log a clear
+   * warning when DISTRIBUTED would place that work on executors.
+   */
+  static void warnIfNestedSparkExecutorDistributed(
+      ILogChannel log, TransformMeta transformMeta, SparkRunMode runMode) {
+    if (runMode == SparkRunMode.DRIVER_ONLY || transformMeta == null) {
+      return;
+    }
+    String pluginId = transformMeta.getTransformPluginId();
+    if (!"PipelineExecutor".equals(pluginId)) {
+      return;
+    }
+    log.logBasic(
+        "Transform '"
+            + transformMeta.getName()
+            + "' is Pipeline Executor in DISTRIBUTED mode. Nested Native Spark child pipelines"
+            + " must run on the driver (set Generic transform run mode DRIVER_ONLY or use"
+            + " context action Spark Run Mode → Force Driver Only). DISTRIBUTED mapPartitions on"
+            + " executors cannot safely own a SparkSession.");
+  }
+
+  /**
+   * Run {@link HopMapPartitionsFn} once on the Spark driver so nested executions (Workflow
+   * Executor, etc.) do not fan out across executor partitions.
+   */
+  static Dataset<Row> runOnDriver(
+      ILogChannel log,
+      TransformMeta transformMeta,
+      SparkSession spark,
+      Dataset<Row> source,
+      HopMapPartitionsFn mapFn,
+      StructType mapPartitionsSchema)
+      throws HopException {
+    try {
+      List<Row> inputRows = source.collectAsList();
+      if (inputRows.size() >= DRIVER_ONLY_ROW_WARN_THRESHOLD) {
+        log.logBasic(
+            "DRIVER_ONLY for transform '"
+                + transformMeta.getName()
+                + "': materializing "
+                + inputRows.size()
+                + " input rows on the Spark driver (threshold="
+                + DRIVER_ONLY_ROW_WARN_THRESHOLD
+                + "). Prefer DISTRIBUTED for high-volume data.");
+      }
+
+      Iterator<Row> outputIterator = mapFn.call(inputRows.iterator());
+      List<Row> outputRows = new ArrayList<>();
+      while (outputIterator.hasNext()) {
+        outputRows.add(outputIterator.next());
+      }
+      log.logBasic(
+          "DRIVER_ONLY transform '"
+              + transformMeta.getName()
+              + "': driver processed inputRows="
+              + inputRows.size()
+              + " outputRows="
+              + outputRows.size());
+      return spark.createDataFrame(outputRows, mapPartitionsSchema);
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(
+          "Error running transform '"
+              + transformMeta.getName()
+              + "' in DRIVER_ONLY mode on the Spark driver",
+          e);
+    }
   }
 
   /**

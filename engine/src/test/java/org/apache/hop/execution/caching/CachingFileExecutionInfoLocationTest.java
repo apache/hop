@@ -75,6 +75,36 @@ class CachingFileExecutionInfoLocationTest {
     }
   }
 
+  /**
+   * Spark cluster-env style: {@code HOP_DATA=file:///…} so {@code ${HOP_DATA}/executions} is a VFS
+   * URI. Writes must use Hop VFS, not {@code FileOutputStream} on the URI string.
+   */
+  @Test
+  void registerExecutionWithFileSchemeUriRoot() throws Exception {
+    Path targetDir = tempDir.resolve("vfs-uri-root");
+    String parentId = "parent-" + UUID.randomUUID();
+    String rootUri = targetDir.toAbsolutePath().toUri().toString(); // file:///…
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(rootUri);
+    location.initialize(new Variables(), null);
+    try {
+      Execution parent = new Execution();
+      parent.setId(parentId);
+      parent.setName("spark-file-uri");
+      parent.setExecutionType(ExecutionType.Pipeline);
+      parent.setExecutionStartDate(new Date());
+      parent.setRegistrationDate(new Date());
+      location.registerExecution(parent);
+
+      assertTrue(
+          Files.exists(targetDir.resolve(parentId + ".json")),
+          "cache entry should be written under file:// root via VFS");
+    } finally {
+      location.close();
+    }
+  }
+
   @Test
   void testInitializeCreateFolderFalse() throws Exception {
     Path targetDir = tempDir.resolve(UUID.randomUUID().toString());

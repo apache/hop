@@ -21,7 +21,7 @@ package org.apache.hop.execution.caching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -95,20 +95,24 @@ public class CacheEntry {
    */
   public void writeToDisk(String rootFolder) throws HopException {
     String targetFilename = calculateFilename(rootFolder);
-    String filename = calculateFilename(rootFolder) + ".new";
-    try (FileOutputStream fos = new FileOutputStream(filename)) {
-      // Serialize this object to JSON in a file
+    String filename = targetFilename + ".new";
+    // Use Hop VFS (not java.io.FileOutputStream): rootFolder is often a VFS URI such as
+    // file:///data/hop-data/executions when resolved from ${HOP_DATA}. FileOutputStream treats
+    // "file://…" as a literal path and fails with FileNotFoundException even when the folder
+    // was created successfully via VFS.
+    try (OutputStream os = HopVfs.getOutputStream(filename, false)) {
       ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.writeValue(fos, this);
+      objectMapper.writeValue(os, this);
     } catch (Exception e) {
-      throw new HopException(
-          "Error writing cache entry to file '" + calculateFilename(rootFolder) + "'", e);
+      throw new HopException("Error writing cache entry to file '" + targetFilename + "'", e);
     }
     // Now delete the old file and rename the new one.
     //
     try {
       FileObject targetFileObject = HopVfs.getFileObject(targetFilename);
-      targetFileObject.delete();
+      if (targetFileObject.exists()) {
+        targetFileObject.delete();
+      }
       FileObject fileObject = HopVfs.getFileObject(filename);
       fileObject.moveTo(targetFileObject);
     } catch (Exception e) {
@@ -140,7 +144,19 @@ public class CacheEntry {
    * @param rootFolder the root folder to store the
    */
   public String calculateFilename(String rootFolder) {
-    return rootFolder + Const.FILE_SEPARATOR + id + ".json";
+    if (StringUtils.isEmpty(rootFolder)) {
+      return id + ".json";
+    }
+    // Avoid double separators when the configured folder ends with / or \
+    String base = rootFolder;
+    if (base.endsWith("/") || base.endsWith("\\")) {
+      return base + id + ".json";
+    }
+    // Prefer / for VFS URIs (file://…); Const.FILE_SEPARATOR is wrong on Windows for file:// roots
+    if (base.contains("://") || base.startsWith("file:")) {
+      return base + "/" + id + ".json";
+    }
+    return base + Const.FILE_SEPARATOR + id + ".json";
   }
 
   public void addChildExecution(Execution childExecution) {
