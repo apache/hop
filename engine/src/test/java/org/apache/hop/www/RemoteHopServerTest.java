@@ -60,7 +60,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.server.ServerConnectionManager;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,11 +81,6 @@ class RemoteHopServerTest {
     String passwordEncoderPluginID =
         Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
     Encr.init(passwordEncoderPluginID);
-  }
-
-  @AfterAll
-  static void tearDown() {
-    PluginRegistry.getInstance().reset();
   }
 
   @BeforeEach
