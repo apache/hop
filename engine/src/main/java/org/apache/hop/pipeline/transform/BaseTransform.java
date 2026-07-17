@@ -3853,8 +3853,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * Sets the container object ID.
    *
    * @param containerObjectId the containerObjectId to set
-   * @deprecated Use {@link #setContainerId(String)} instead, which matches {@link
-   *     #getContainerId()}.
+   * @deprecated Use {@code setContainerId(String)} instead
    */
   @Deprecated(since = "2.19.0")
   public void setCarteObjectId(String containerObjectId) {
