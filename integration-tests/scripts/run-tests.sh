@@ -275,8 +275,17 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       fi
 
       # Prefer single-JVM suite runner when available (unless isolation mode is requested).
-      # TEST_FILTER is only applied on the classic per-workflow path, so force that mode when set.
-      if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -z "${TEST_FILTER}" ] && [ -f "${RUNNER_PIPELINE}" ]; then
+      # TEST_FILTER and SKIP_GOOGLE_SHEETS are only applied on the classic per-workflow path
+      # (should_run_workflow), so force that mode when either is set for this project.
+      USE_SUITE_RUNNER=true
+      if [ "${HOP_IT_PER_TEST_JVM}" = "true" ] || [ -n "${TEST_FILTER}" ]; then
+        USE_SUITE_RUNNER=false
+      fi
+      if [ "${SKIP_GOOGLE_SHEETS}" = "true" ] && [ "${PROJECT_NAME}" = "spreadsheet" ]; then
+        USE_SUITE_RUNNER=false
+        echo "SKIP_GOOGLE_SHEETS=true: using classic per-workflow runner so Google Sheets tests are skipped"
+      fi
+      if [ "${USE_SUITE_RUNNER}" = "true" ] && [ -f "${RUNNER_PIPELINE}" ]; then
 
         echo ${SPACER}
         echo "Running project tests in single JVM via run-project-tests.hpl (run config: ${SUITE_RUN_CONFIG})"
