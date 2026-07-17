@@ -293,12 +293,11 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   IPipelineEngine<PipelineMeta> createInternalPipeline() throws HopException {
 
     String runConfigurationName = resolve(meta.getRunConfigurationName());
+    // Variable source is this transform so nested engines resolve EXECUTIONS_INFORMATION_FOLDER /
+    // HOP_DATA the same way when running under Native Spark mapPartitions.
     IPipelineEngine<PipelineMeta> executorPipeline =
         PipelineEngineFactory.createPipelineEngine(
-            getPipeline(),
-            runConfigurationName,
-            metadataProvider,
-            getData().getExecutorPipelineMeta());
+            this, runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta());
     executorPipeline.setParentPipeline(getPipeline());
     executorPipeline.setParent(this);
     executorPipeline.setLogLevel(getLogLevel());

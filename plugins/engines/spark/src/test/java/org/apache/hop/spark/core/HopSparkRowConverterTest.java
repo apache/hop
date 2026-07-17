@@ -87,6 +87,19 @@ class HopSparkRowConverterTest {
   }
 
   @Test
+  void toHopRowPadsWhenSparkRowIsShorterThanMeta() throws Exception {
+    IRowMeta wide = new RowMeta();
+    wide.addValueMeta(new ValueMetaString("s"));
+    wide.addValueMeta(new ValueMetaInteger("i"));
+    wide.addValueMeta(new ValueMetaString("extra"));
+    Object[] padded =
+        HopSparkRowConverter.toHopRow(wide, org.apache.spark.sql.RowFactory.create("only"));
+    assertEquals("only", padded[0]);
+    assertNull(padded[1]);
+    assertNull(padded[2]);
+  }
+
+  @Test
   void nullValuesSurviveRoundTrip() throws Exception {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("s"));

@@ -162,6 +162,43 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
     }
 
     IRowMeta outputRowMeta = pipelineMeta.getTransformFields(variables, transformMeta);
+    // Workflow Executor / Pipeline Executor only emit on named TARGET streams.
+    // getFields(next=null): WE clears the row; PE keeps the *input* layout (e.g. country_name).
+    // Prefer a non-empty target-stream layout so Dummy "results" gets ExecutionTime/… and the
+    // Spark Dataset schema matches hop rows written to those targets (Filter true/false share
+    // the same layout as main, so this is safe for multi-output field-preserving transforms).
+    if (!targetNames.isEmpty()) {
+      for (String targetName : targetNames) {
+        TransformMeta targetMeta = pipelineMeta.findTransform(targetName);
+        if (targetMeta == null) {
+          continue;
+        }
+        IRowMeta targetFields =
+            pipelineMeta.getTransformFields(variables, transformMeta, targetMeta, null);
+        if (targetFields != null && !targetFields.isEmpty()) {
+          if (outputRowMeta == null
+              || outputRowMeta.isEmpty()
+              || !sameFieldLayout(outputRowMeta, targetFields)) {
+            log.logBasic(
+                "Transform '"
+                    + transformMeta.getName()
+                    + "' using target stream '"
+                    + targetName
+                    + "' layout ("
+                    + targetFields.size()
+                    + " fields) for Spark Dataset schema"
+                    + (outputRowMeta != null && !outputRowMeta.isEmpty()
+                        ? " (main reported " + outputRowMeta.size() + " field(s))"
+                        : ""));
+            outputRowMeta = targetFields;
+          }
+          break;
+        }
+      }
+    }
+    if (outputRowMeta == null) {
+      outputRowMeta = new org.apache.hop.core.row.RowMeta();
+    }
     StructType payloadSchema = HopSparkRowConverter.toStructType(outputRowMeta);
     boolean multiTarget = !targetNames.isEmpty();
     StructType mapPartitionsSchema =
@@ -373,7 +410,8 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
 
   /**
    * Names of transforms bound as {@link IStream.StreamType#TARGET} streams (Filter true/false,
-   * Switch/Case cases, …). Empty when the transform only has a default main hop.
+   * Switch/Case cases, Pipeline/Workflow Executor result hops, …). Empty when the transform only
+   * has a default main hop.
    */
   static List<String> resolveTargetTransformNames(TransformMeta transformMeta) {
     if (transformMeta == null || transformMeta.getTransform() == null) {
@@ -390,6 +428,23 @@ public class SparkGenericTransformHandler implements ISparkPipelineTransformHand
       }
     }
     return names;
+  }
+
+  /** Field names + types equal (order-sensitive). Used to detect PE main-vs-target layout drift. */
+  static boolean sameFieldLayout(IRowMeta a, IRowMeta b) {
+    if (a == b) {
+      return true;
+    }
+    if (a == null || b == null || a.size() != b.size()) {
+      return false;
+    }
+    for (int i = 0; i < a.size(); i++) {
+      if (!a.getValueMeta(i).getName().equals(b.getValueMeta(i).getName())
+          || a.getValueMeta(i).getType() != b.getValueMeta(i).getType()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static List<SparkVariableValue> collectVariables(IVariables variables) {

@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
 <pipeline>
   <info>
     <capture_transform_performance>N</capture_transform_performance>
@@ -17,7 +35,7 @@
   </info>
   <transform>
     <type>SparkFileInput</type>
-    <name>Spark File Input</name>
+    <name>countries.csv</name>
     <file_path>${HOP_DATA}/countries.csv</file_path>
     <file_format>csv</file_format>
     <header>Y</header>
@@ -49,7 +67,7 @@
   </transform>
   <transform>
     <type>PipelineExecutor</type>
-    <name>Pipeline Executor</name>
+    <name>nested/enrich-by-country.hpl</name>
     <run_configuration>spark-cluster</run_configuration>
     <filenameInField>N</filenameInField>
     <filenameField/>
@@ -64,7 +82,7 @@
       </variable_mapping>
     </parameters>
     <inherit_all_vars>Y</inherit_all_vars>
-    <execution_result_target_transform/>
+    <execution_result_target_transform>results</execution_result_target_transform>
     <execution_time_field>ExecutionTime</execution_time_field>
     <execution_result_field>ExecutionResult</execution_result_field>
     <execution_errors_field>ExecutionNrErrors</execution_errors_field>
@@ -86,7 +104,7 @@
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI>
-      <xloc>320</xloc>
+      <xloc>464</xloc>
       <yloc>128</yloc>
     </GUI>
     <description>Starts nested Native Spark pipeline per row. Force Driver Only so the child engine runs on the driver and reuses the parent SparkSession.</description>
@@ -104,10 +122,50 @@
       </group>
     </attributes>
   </transform>
+  <transform>
+    <type>Dummy</type>
+    <name>preview</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>128</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>Dummy</type>
+    <name>results</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>656</xloc>
+      <yloc>128</yloc>
+    </GUI>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
   <order>
     <hop>
-      <from>Spark File Input</from>
-      <to>Pipeline Executor</to>
+      <from>countries.csv</from>
+      <to>preview</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>preview</from>
+      <to>nested/enrich-by-country.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>nested/enrich-by-country.hpl</from>
+      <to>results</to>
       <enabled>Y</enabled>
     </hop>
   </order>

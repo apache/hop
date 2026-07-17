@@ -108,6 +108,46 @@ class SparkProjectPackageTest {
   }
 
   @Test
+  void materializeReExtractsWhenZipContentChanges() throws Exception {
+    File projectHome = new File(tempDir, "p-change");
+    assertTrue(projectHome.mkdirs());
+    File pipelines = new File(projectHome, "pipelines");
+    assertTrue(pipelines.mkdirs());
+    Files.writeString(
+        new File(pipelines, "v1.hpl").toPath(), "<pipeline id=\"v1\"/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "change.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+
+    SparkProjectPackage.Materialized m1 = SparkProjectPackage.materialize(zip.getAbsolutePath());
+    assertTrue(new File(m1.projectHome(), "pipelines/v1.hpl").isFile());
+    assertFalse(new File(m1.projectHome(), "pipelines/v2.hpl").exists());
+    String fp1 = SparkProjectPackage.cachedFingerprintForTest(zip.getAbsolutePath());
+    assertNotNull(fp1);
+    assertTrue(fp1.contains("sha256="));
+
+    // Overwrite the same zip path with new project content (same path, new fingerprint)
+    Files.writeString(
+        new File(pipelines, "v2.hpl").toPath(), "<pipeline id=\"v2\"/>", StandardCharsets.UTF_8);
+    // Ensure mtime differs even on coarse filesystems
+    Thread.sleep(10);
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+
+    SparkProjectPackage.Materialized m2 = SparkProjectPackage.materialize(zip.getAbsolutePath());
+    assertTrue(new File(m2.projectHome(), "pipelines/v2.hpl").isFile());
+    String fp2 = SparkProjectPackage.cachedFingerprintForTest(zip.getAbsolutePath());
+    assertNotNull(fp2);
+    assertFalse(fp1.equals(fp2), "fingerprint must change when zip content changes");
+  }
+
+  @Test
   void projectHomeDataPathWarning() {
     assertNull(SparkProjectPackage.projectHomeDataPathWarning("s3a://b/k"));
     assertNotNull(SparkProjectPackage.projectHomeDataPathWarning("${PROJECT_HOME}/files/x.csv"));

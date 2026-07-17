@@ -102,9 +102,21 @@ fi
 
 # Shared package path: master + workers bind-mount the same host hop-data dir at /data/hop-data,
 # so they can open this zip without relying on SparkFiles download (addFile/--files remain as backup).
+# Always refresh the shared copy so zip updates under /opt/hop-dist are picked up (Hop re-extracts
+# when size/mtime/sha-256 of the package change).
 SHARED_PACKAGE="${HOP_DATA_DIR}/packages/$(basename "${PACKAGE_ZIP}")"
+mkdir -p "$(dirname "${SHARED_PACKAGE}")"
 cp -f "${PACKAGE_ZIP}" "${SHARED_PACKAGE}"
 echo ">>> Seeded shared project package ${SHARED_PACKAGE}"
+if command -v stat >/dev/null 2>&1; then
+  echo ">>> Package source: ${PACKAGE_ZIP}"
+  stat -c '>>>   size=%s mtime=%y' "${PACKAGE_ZIP}" 2>/dev/null \
+    || stat -f '>>>   size=%z mtime=%Sm' "${PACKAGE_ZIP}" 2>/dev/null \
+    || true
+  stat -c '>>>   shared size=%s mtime=%y' "${SHARED_PACKAGE}" 2>/dev/null \
+    || stat -f '>>>   shared size=%z mtime=%Sm' "${SHARED_PACKAGE}" 2>/dev/null \
+    || true
+fi
 
 # Optional env file for HOP_DATA=file:///data/hop-data
 HOP_CONFIG_ARG=()

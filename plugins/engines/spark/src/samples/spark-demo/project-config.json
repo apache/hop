@@ -6,6 +6,11 @@
   "config": {
     "variables": [
       {
+        "name": "HOP_LICENSE_HEADER_FILE",
+        "value": "${PROJECT_HOME}/../../../../../../integration-tests/asf-header.txt",
+        "description": "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+      },
+      {
         "name": "HOP_DATA",
         "value": "${PROJECT_HOME}/data",
         "description": "Local default for data paths. On the Docker cluster, override to file:///data/hop-data via cluster-env.json."

@@ -260,20 +260,29 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
   /** This method looks up the execution information location specified in the run configuration. */
   public void lookupExecutionInformationLocation() {
     try {
+      if (workflowRunConfiguration == null || metadataProvider == null) {
+        return;
+      }
       String locationName = resolve(workflowRunConfiguration.getExecutionInfoLocationName());
       if (StringUtils.isNotEmpty(locationName)) {
         ExecutionInfoLocation location =
             metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
         if (location != null) {
-          executionInfoLocation = location;
+          // Clone so nested workflow runs do not share timer/rootFolder state
+          executionInfoLocation = location.clone();
 
           IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
-          // Initialize the location.
-          // This location is closed when nothing else needs to be done.  This is when the timer is
-          // stopped in
-          // stopExecutionInfoTimer().
-          //
+          // Initialize the location with this workflow's variable space (includes inherited parent
+          // pipeline variables after WorkflowExecutor.initializeFrom). This is when
+          // ${EXECUTIONS_INFORMATION_FOLDER} / ${HOP_DATA} must resolve.
+          // The location is closed when the timer is stopped in stopExecutionInfoTimer().
           iLocation.initialize(this, metadataProvider);
+          log.logBasic(
+              "Using execution information location '"
+                  + locationName
+                  + "' (logChannelId="
+                  + getLogChannelId()
+                  + ")");
         } else {
           log.logError(
               "Execution information location '"

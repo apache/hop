@@ -504,6 +504,11 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   protected static void addChildIds(CacheEntry entry, Set<DatedId> ids) {
     for (String childId : entry.getChildIds()) {
       Execution childExecution = entry.getChildExecution(childId);
+      // getChildIds() also includes owners that only contributed sample data or state
+      // (e.g. local engine "all-transforms") without a full child Execution object.
+      if (childExecution == null) {
+        continue;
+      }
       // We're only interested to know about pipelines and workflows here.
       //
       if (childExecution.getExecutionType() == ExecutionType.Pipeline
@@ -517,6 +522,10 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       CacheEntry entry, Set<DatedId> ids, IExecutionSelector selector) {
     for (String childId : entry.getChildIds()) {
       Execution childExecution = entry.getChildExecution(childId);
+      // Data-only owners (no Execution) are not selectable as top-level children.
+      if (childExecution == null) {
+        continue;
+      }
       if (!selector.isSelected(childExecution)) {
         continue;
       }

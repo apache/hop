@@ -370,6 +370,7 @@ Use this for any value that must differ between local development and the cluste
 
 You can also put memory/core settings in the run configuration’s engine options; CLI flags are useful for per-job overrides.
 
+[#_building_spark_oriented_pipelines]
 == Building Spark-oriented pipelines
 
 === Prefer Spark File Input and Spark File Output

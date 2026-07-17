@@ -80,7 +80,8 @@ public final class HopSparkRowConverter {
   public static Row toSparkRow(IRowMeta rowMeta, Object[] hopRow) throws HopException {
     Object[] values = new Object[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {
-      values[i] = toSparkValue(rowMeta.getValueMeta(i), hopRow == null ? null : hopRow[i]);
+      Object hopValue = hopRow == null || i >= hopRow.length ? null : hopRow[i];
+      values[i] = toSparkValue(rowMeta.getValueMeta(i), hopValue);
     }
     return RowFactory.create(values);
   }
@@ -94,7 +95,8 @@ public final class HopSparkRowConverter {
     Object[] values = new Object[rowMeta.size() + 1];
     values[0] = targetTag != null ? targetTag : HopSparkUtil.MAIN_TARGET_TAG;
     for (int i = 0; i < rowMeta.size(); i++) {
-      values[i + 1] = toSparkValue(rowMeta.getValueMeta(i), hopRow == null ? null : hopRow[i]);
+      Object hopValue = hopRow == null || i >= hopRow.length ? null : hopRow[i];
+      values[i + 1] = toSparkValue(rowMeta.getValueMeta(i), hopValue);
     }
     return RowFactory.create(values);
   }
@@ -118,7 +120,9 @@ public final class HopSparkRowConverter {
     if (sparkRow == null) {
       return hopRow;
     }
-    for (int i = 0; i < rowMeta.size(); i++) {
+    // Tolerate short Spark rows (schema drift) — pad remaining Hop fields with null.
+    int available = Math.min(rowMeta.size(), sparkRow.length());
+    for (int i = 0; i < available; i++) {
       hopRow[i] =
           toHopValue(rowMeta.getValueMeta(i), sparkRow.isNullAt(i) ? null : sparkRow.get(i));
     }

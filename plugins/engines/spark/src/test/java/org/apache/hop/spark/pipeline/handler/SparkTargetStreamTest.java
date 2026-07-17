@@ -89,4 +89,15 @@ class SparkTargetStreamTest {
     List<String> targets = SparkGenericTransformHandler.resolveTargetTransformNames(filter);
     assertTrue(targets.isEmpty());
   }
+
+  @Test
+  void sameFieldLayoutDetectsMismatch() {
+    org.apache.hop.core.row.RowMeta a = new org.apache.hop.core.row.RowMeta();
+    a.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("country_name"));
+    org.apache.hop.core.row.RowMeta b = new org.apache.hop.core.row.RowMeta();
+    b.addValueMeta(new org.apache.hop.core.row.value.ValueMetaInteger("ExecutionTime"));
+    b.addValueMeta(new org.apache.hop.core.row.value.ValueMetaBoolean("ExecutionResult"));
+    assertTrue(SparkGenericTransformHandler.sameFieldLayout(a, a));
+    assertTrue(!SparkGenericTransformHandler.sameFieldLayout(a, b));
+  }
 }

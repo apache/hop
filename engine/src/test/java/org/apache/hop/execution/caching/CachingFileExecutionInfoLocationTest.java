@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.caching;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.Variables;
@@ -38,13 +40,22 @@ import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionDataSetMeta;
 import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionSelector;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CachingFileExecutionInfoLocationTest {
 
   private Path tempDir;
+
+  @BeforeAll
+  static void initLogging() {
+    if (!HopLogStore.isInitialized()) {
+      HopLogStore.init();
+    }
+  }
 
   @BeforeEach
   void setUp() throws Exception {
@@ -229,6 +240,62 @@ class CachingFileExecutionInfoLocationTest {
       ExecutionData loaded = reader.getExecutionData(parentId, parentId + "|CheckSum|0");
       assertNotNull(loaded, "expected sample data after multi-writer merge");
       assertTrue(loaded.isFinished());
+    } finally {
+      reader.close();
+    }
+  }
+
+  /**
+   * Local engine (Mapping with "local" run config) stores sample rows under owner {@code
+   * all-transforms} without a corresponding child {@link Execution}. Refreshing the execution
+   * perspective must not NPE when expanding child IDs that only have data.
+   */
+  @Test
+  void findExecutionIdsWithDataOnlyChildDoesNotNpe() throws Exception {
+    Path root = tempDir.resolve("all-transforms-child");
+    String parentId = "parent-" + UUID.randomUUID();
+
+    CachingFileExecutionInfoLocation writer = new CachingFileExecutionInfoLocation();
+    writer.setRootFolder(root.toAbsolutePath().toString());
+    writer.initialize(new Variables(), null);
+    try {
+      Execution parent = new Execution();
+      parent.setId(parentId);
+      parent.setName("upper-name");
+      parent.setExecutionType(ExecutionType.Pipeline);
+      parent.setExecutionStartDate(new Date());
+      parent.setRegistrationDate(new Date());
+      writer.registerExecution(parent);
+
+      ExecutionData data =
+          ExecutionDataBuilder.of()
+              .withParentId(parentId)
+              .withOwnerId(ExecutionDataBuilder.ALL_TRANSFORMS)
+              .withExecutionType(ExecutionType.Transform)
+              .withCollectionDate(new Date())
+              .withFinished(true)
+              .build();
+      writer.registerData(data);
+    } finally {
+      writer.close();
+    }
+
+    CachingFileExecutionInfoLocation reader = new CachingFileExecutionInfoLocation();
+    reader.setRootFolder(root.toAbsolutePath().toString());
+    reader.initialize(new Variables(), null);
+    try {
+      // Execution perspective refresh path
+      List<String> viaSelector =
+          assertDoesNotThrow(() -> reader.findExecutionIDs(IExecutionSelector.ALL));
+      assertTrue(viaSelector.contains(parentId));
+      assertFalse(
+          viaSelector.contains(ExecutionDataBuilder.ALL_TRANSFORMS),
+          "data-only owner must not appear as a selectable execution id");
+
+      // includeChildren=true also walks addChildIds over getChildIds()
+      List<String> withChildren = assertDoesNotThrow(() -> reader.getExecutionIds(true, 0));
+      assertTrue(withChildren.contains(parentId));
+      assertFalse(withChildren.contains(ExecutionDataBuilder.ALL_TRANSFORMS));
     } finally {
       reader.close();
     }

@@ -233,7 +233,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         throw new HopException("The Spark pipeline engine did not receive a metadata provider");
       }
 
-      logChannel = new LogChannel(this, parent);
+      // Force a new log channel ID on every prepare/run (same as LocalPipelineEngine). Nested
+      // Pipeline Executor runs of the same child HPL would otherwise reuse one LoggingRegistry
+      // entry (same filename + parent transform) and overwrite a single execution-info file.
+      logChannel = new LogChannel(this, parent, false, true);
       if (logLevel != null) {
         logChannel.setLogLevel(logLevel);
       }
@@ -544,11 +547,17 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               + "' could not be found in the metadata");
       return;
     }
-    executionInfoLocation = location;
+    // Clone so nested engines do not share timer/rootFolder state on the same instance
+    executionInfoLocation = location.clone();
     executionInfoClosed = false;
-    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+    IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
     iLocation.initialize(this, metadataProvider);
-    logChannel.logBasic("Using execution information location '" + locationName + "'");
+    logChannel.logBasic(
+        "Using execution information location '"
+            + locationName
+            + "' (logChannelId="
+            + getLogChannelId()
+            + ")");
   }
 
   /**

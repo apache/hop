@@ -27,7 +27,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -61,7 +64,9 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  * </pre>
  *
  * <p>Also accepts classic GUI project export zips (single top-level folder). Default
- * materialization extracts into {@code ${java.io.tmpdir}/hop-spark-pkg-&lt;key&gt;/} once per JVM.
+ * materialization extracts into {@code ${java.io.tmpdir}/hop-spark-pkg-&lt;key&gt;/}. Extracts are
+ * reused only while the package zip fingerprint (size, mtime, sha-256) still matches — so
+ * overwriting the same path on a shared volume is picked up on the next materialize.
  *
  * <p><strong>Not for bulk Dataset data.</strong> {@code PROJECT_HOME} after materialize points at
  * definition files. Use separate variables ({@code HOP_DATA}, {@code OUTPUT_ROOT}, {@code s3a://…})
@@ -85,11 +90,16 @@ public final class SparkProjectPackage {
 
   private static final String COMPLETE_MARKER = ".hop-spark-package-complete";
 
-  /** packageUri → absolute project home path (extracted). */
-  private static final Map<String, String> MATERIALIZED = new ConcurrentHashMap<>();
+  /**
+   * packageUri cache key → extract root + fingerprint that was materialized (in-JVM). Disk marker
+   * under the extract root carries the same fingerprint for long-lived worker JVMs.
+   */
+  private static final Map<String, MaterializedState> MATERIALIZED = new ConcurrentHashMap<>();
 
   /** applicationId|localPath keys already passed to SparkContext.addFile on this driver JVM. */
   private static final Set<String> DISTRIBUTED = ConcurrentHashMap.newKeySet();
+
+  private record MaterializedState(String extractRoot, String fingerprint) {}
 
   private static final Set<String> SKIP_DIR_NAMES =
       Set.of(".git", "datasets", "target", "node_modules", ".idea", ".settings");
@@ -135,8 +145,9 @@ public final class SparkProjectPackage {
    * Resolve the zip path to open on this JVM.
    *
    * <ol>
-   *   <li>{@code SparkFiles.get(basename)} when the file exists
-   *   <li>{@code $HOP_DATA/packages/<basename>} (shared volume / object store mount)
+   *   <li>{@code $HOP_DATA/packages/<basename>} (shared volume — preferred; submit scripts refresh
+   *       this on every run)
+   *   <li>{@code SparkFiles.get(basename)} when the file exists (spark-submit --files / addFile)
    *   <li>{@link #VAR_PACKAGE_URI} when that path exists locally
    * </ol>
    */
@@ -155,19 +166,7 @@ public final class SparkProjectPackage {
       }
     }
 
-    // 1) SparkFiles (per-executor download from addFile / spark-submit --files)
-    if (StringUtils.isNotEmpty(basename)) {
-      try {
-        String downloaded = org.apache.spark.SparkFiles.get(basename.trim());
-        if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
-          return downloaded;
-        }
-      } catch (Throwable t) {
-        // not distributed or not ready
-      }
-    }
-
-    // 2) Shared data plane: $HOP_DATA/packages/<basename>
+    // 1) Shared data plane: $HOP_DATA/packages/<basename> (always the freshest in demo/cluster)
     if (StringUtils.isNotEmpty(basename)) {
       String hopData = variables.getVariable("HOP_DATA");
       if (StringUtils.isNotEmpty(hopData)) {
@@ -179,6 +178,18 @@ public final class SparkProjectPackage {
         if (shared.isFile()) {
           return shared.getAbsolutePath();
         }
+      }
+    }
+
+    // 2) SparkFiles (per-executor download from addFile / spark-submit --files)
+    if (StringUtils.isNotEmpty(basename)) {
+      try {
+        String downloaded = org.apache.spark.SparkFiles.get(basename.trim());
+        if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
+          return downloaded;
+        }
+      } catch (Throwable t) {
+        // not distributed or not ready
       }
     }
 
@@ -317,7 +328,8 @@ public final class SparkProjectPackage {
   }
 
   /**
-   * Extract {@code packageUri} under the JVM temp directory if not already done.
+   * Extract {@code packageUri} under the JVM temp directory if not already done for the current
+   * package fingerprint (size + mtime + sha-256).
    *
    * @param packageUri path or VFS URI to the package zip
    */
@@ -326,19 +338,30 @@ public final class SparkProjectPackage {
       throw new HopException("Spark project package URI is empty");
     }
     String key = cacheKey(packageUri);
-    String cached = MATERIALIZED.get(key);
-    if (cached != null) {
-      return buildMaterialized(cached, packageUri);
+    String fingerprint;
+    try {
+      fingerprint = fingerprintPackage(packageUri);
+    } catch (Exception e) {
+      throw new HopException("Unable to fingerprint Spark project package: " + packageUri, e);
+    }
+
+    MaterializedState state = MATERIALIZED.get(key);
+    if (state != null && fingerprint.equals(state.fingerprint())) {
+      return buildMaterialized(state.extractRoot(), packageUri);
     }
     synchronized (MATERIALIZED) {
-      cached = MATERIALIZED.get(key);
-      if (cached != null) {
-        return buildMaterialized(cached, packageUri);
+      state = MATERIALIZED.get(key);
+      if (state != null && fingerprint.equals(state.fingerprint())) {
+        return buildMaterialized(state.extractRoot(), packageUri);
       }
       try {
         File extractRoot = new File(System.getProperty("java.io.tmpdir"), "hop-spark-pkg-" + key);
         File complete = new File(extractRoot, COMPLETE_MARKER);
-        if (!complete.isFile()) {
+        String stored = complete.isFile() ? Files.readString(complete.toPath()).trim() : null;
+        boolean fingerprintMatches =
+            fingerprint.equals(stored) || isLegacyCompleteMarker(stored, packageUri, fingerprint);
+
+        if (!fingerprintMatches) {
           if (extractRoot.exists()) {
             deleteRecursively(extractRoot);
           }
@@ -346,10 +369,9 @@ public final class SparkProjectPackage {
             throw new HopException("Unable to create package extract dir: " + extractRoot);
           }
           extractZip(packageUri, extractRoot);
-          Files.writeString(complete.toPath(), packageUri, StandardCharsets.UTF_8);
+          Files.writeString(complete.toPath(), fingerprint, StandardCharsets.UTF_8);
         }
-        String projectHome = detectProjectHome(extractRoot).getAbsolutePath();
-        MATERIALIZED.put(key, extractRoot.getAbsolutePath());
+        MATERIALIZED.put(key, new MaterializedState(extractRoot.getAbsolutePath(), fingerprint));
         return buildMaterialized(extractRoot.getAbsolutePath(), packageUri);
       } catch (HopException e) {
         throw e;
@@ -357,6 +379,66 @@ public final class SparkProjectPackage {
         throw new HopException("Error materializing Spark project package: " + packageUri, e);
       }
     }
+  }
+
+  /**
+   * Older markers stored only the package URI. Accept them only when size/mtime still match the
+   * current zip so first run after upgrade does not always re-extract unnecessarily when content is
+   * unchanged; if fingerprint fields cannot be reconciled, force re-extract by returning false.
+   */
+  static boolean isLegacyCompleteMarker(String stored, String packageUri, String fingerprint) {
+    if (StringUtils.isEmpty(stored) || stored.contains("sha256=")) {
+      return false;
+    }
+    // Legacy: marker was just the URI string
+    if (!stored.equals(packageUri.trim()) && !stored.equals(packageUri)) {
+      return false;
+    }
+    // URI-only markers cannot prove content identity — always re-extract for safety
+    return false;
+  }
+
+  /**
+   * Fingerprint a package zip for cache invalidation: size, last-modified (local files), and
+   * SHA-256 of contents.
+   */
+  static String fingerprintPackage(String packageUri) throws Exception {
+    File local = resolveLocalPackageFile(packageUri);
+    long size = -1L;
+    long mtime = -1L;
+    if (local != null) {
+      size = local.length();
+      mtime = local.lastModified();
+    } else {
+      try {
+        FileObject fo = HopVfs.getFileObject(packageUri);
+        if (fo.exists() && fo.getType() == FileType.FILE) {
+          size = fo.getContent().getSize();
+          mtime = fo.getContent().getLastModifiedTime();
+        }
+      } catch (Exception ignored) {
+        // size/mtime optional for remote; sha still required
+      }
+    }
+
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    try (InputStream raw = openPackageStream(packageUri);
+        DigestInputStream din = new DigestInputStream(new BufferedInputStream(raw), digest)) {
+      byte[] buf = new byte[8192];
+      while (din.read(buf) >= 0) {
+        // drain
+      }
+    }
+    String sha = HexFormat.of().formatHex(digest.digest());
+    return "uri="
+        + packageUri.trim()
+        + "\nsize="
+        + size
+        + "\nmtime="
+        + mtime
+        + "\nsha256="
+        + sha
+        + "\n";
   }
 
   private static Materialized buildMaterialized(String extractRootPath, String packageUri)
@@ -701,5 +783,11 @@ public final class SparkProjectPackage {
   public static void clearMaterializationCache() {
     MATERIALIZED.clear();
     DISTRIBUTED.clear();
+  }
+
+  /** Visible for tests — current in-JVM materialize fingerprint for a package URI, or null. */
+  static String cachedFingerprintForTest(String packageUri) {
+    MaterializedState state = MATERIALIZED.get(cacheKey(packageUri));
+    return state == null ? null : state.fingerprint();
   }
 }

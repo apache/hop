@@ -220,7 +220,7 @@ public class HopPipelineMetaToSparkConverter {
           input = lookupPreviousDataset(transformDatasetMap, previous, transformMeta, log);
           rowMeta =
               input != null
-                  ? pipelineMeta.getTransformFields(variables, previous)
+                  ? pipelineMeta.getTransformFields(variables, previous, transformMeta, null)
                   : new org.apache.hop.core.row.RowMeta();
         } else {
           // One or more main predecessors: resolve each Dataset (incl. target-stream keys) and
@@ -316,7 +316,10 @@ public class HopPipelineMetaToSparkConverter {
                 + transformMeta.getName()
                 + "'");
       }
-      IRowMeta prevRowMeta = pipelineMeta.getTransformFields(variables, previous);
+      // Pass current as targetTransform so hops like Workflow Executor → results keep
+      // execution-result fields (getFields clears the row when nextTransform is null).
+      IRowMeta prevRowMeta =
+          pipelineMeta.getTransformFields(variables, previous, transformMeta, null);
       if (referenceRowMeta == null) {
         referenceRowMeta = prevRowMeta;
       } else if (!transformMeta.getTransform().excludeFromRowLayoutVerification()) {
