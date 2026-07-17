@@ -20,11 +20,13 @@ package org.apache.hop.spark.pkg;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -134,7 +136,7 @@ public final class SparkProjectPackage {
     if (StringUtils.isNotEmpty(sparkFileName)) {
       try {
         String downloaded = org.apache.spark.SparkFiles.get(sparkFileName.trim());
-        if (StringUtils.isNotEmpty(downloaded) && new File(downloaded).isFile()) {
+        if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
           return downloaded;
         }
       } catch (Throwable t) {
@@ -463,11 +465,9 @@ public final class SparkProjectPackage {
   }
 
   private static void extractZip(String packageUri, File extractRoot) throws Exception {
-    FileObject zipFo = HopVfs.getFileObject(packageUri);
-    if (!zipFo.exists()) {
-      throw new HopException("Spark project package not found: " + packageUri);
-    }
-    try (InputStream raw = HopVfs.getInputStream(zipFo);
+    // Prefer java.io for local paths (incl. SparkFiles.get downloads). HopVfs often fails to
+    // resolve bare absolute paths like /tmp/spark-…/userFiles-…/pkg.zip without a file: scheme.
+    try (InputStream raw = openPackageStream(packageUri);
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(raw))) {
       ZipEntry entry;
       while ((entry = zis.getNextEntry()) != null) {
@@ -489,6 +489,59 @@ public final class SparkProjectPackage {
         zis.closeEntry();
       }
     }
+  }
+
+  /**
+   * Open the package zip for reading. Local filesystem first (SparkFiles / prepare-dist paths),
+   * then Hop VFS for remote URIs.
+   */
+  static InputStream openPackageStream(String packageUri) throws Exception {
+    if (StringUtils.isEmpty(packageUri)) {
+      throw new HopException("Spark project package URI is empty");
+    }
+    String uri = packageUri.trim();
+
+    File local = resolveLocalPackageFile(uri);
+    if (local != null) {
+      return new FileInputStream(local);
+    }
+
+    FileObject zipFo = HopVfs.getFileObject(uri);
+    if (!zipFo.exists()) {
+      throw new HopException(
+          "Spark project package not found: "
+              + uri
+              + " (also tried as a local file; use SparkFiles / absolute path on workers)");
+    }
+    return HopVfs.getInputStream(zipFo);
+  }
+
+  /**
+   * If {@code uri} denotes an existing local file (plain path or {@code file:} URI), return it;
+   * otherwise {@code null}.
+   */
+  static File resolveLocalPackageFile(String uri) {
+    if (StringUtils.isEmpty(uri)) {
+      return null;
+    }
+    try {
+      if (uri.startsWith("file:")) {
+        Path p = Path.of(java.net.URI.create(uri));
+        File f = p.toFile();
+        return f.isFile() ? f : null;
+      }
+    } catch (Exception ignored) {
+      // fall through to plain path
+    }
+    File plain = new File(uri);
+    if (plain.isFile()) {
+      return plain;
+    }
+    // SparkFiles sometimes returns a path that is not yet a regular file but is readable
+    if (plain.exists() && plain.canRead() && plain.length() > 0) {
+      return plain;
+    }
+    return null;
   }
 
   static File detectProjectHome(File extractRoot) throws HopException {

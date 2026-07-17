@@ -17,19 +17,16 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-# dist/spark-native-demo
+# Staging location moved
 
-Staging directory for the Native Spark Docker walk-through. Populate with:
+Native Spark demo artifacts default to **`/tmp/spark-mapping-demo-dist`** (not under the git tree).
 
 ```bash
 ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
+# → /tmp/spark-mapping-demo-dist/{hop-native-spark4-submit.jar,spark-mapping-demo.zip,…}
+
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+  up -d --build --scale spark-worker=2
 ```
 
-Expected artifacts (mounted into the Spark master as `/opt/hop-dist`):
-
-- `hop-native-spark4-submit.jar` — fat jar (`native-provided`)
-- `spark-mapping-demo.zip` — Native Spark project package
-- `cluster-env.json` — `HOP_DATA=file:///data/hop-data`
-- `data/customers-sample.csv` — optional copy for inspection
-
-Do not commit large jars. Keep this folder gitignored for `*.jar` / `*.zip` if desired.
+Override with `DIST_DIR` / `HOP_DIST_DIR` if you prefer another path.

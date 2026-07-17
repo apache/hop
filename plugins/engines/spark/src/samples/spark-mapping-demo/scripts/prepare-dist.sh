@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Prepare dist/spark-native-demo for the Native Spark cluster walk-through:
+# Prepare artifacts for the Native Spark cluster walk-through (outside the source tree):
 #   1) native-provided fat jar
 #   2) Spark project package zip (definitions + metadata)
 #   3) seed data copy (also copied into the Docker volume by the submit script)
@@ -27,7 +27,7 @@
 # Environment:
 #   HOP_HOME       Hop client install (default: current dir if hop-conf.sh is present)
 #   REPO_ROOT      Hop git checkout (default: detected from this script location)
-#   DIST_DIR       Output directory (default: $REPO_ROOT/dist/spark-native-demo)
+#   DIST_DIR       Output directory (default: /tmp/spark-mapping-demo-dist)
 #   PROJECT_NAME   Hop project name for hop-conf (default: spark-mapping-demo)
 
 set -euo pipefail
@@ -36,7 +36,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SAMPLE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # scripts → spark-mapping-demo → samples → src → spark → engines → plugins → repo root
 REPO_ROOT="${REPO_ROOT:-$(cd "${SCRIPT_DIR}/../../../../../../.." && pwd)}"
-DIST_DIR="${DIST_DIR:-${REPO_ROOT}/dist/spark-native-demo}"
+DIST_DIR="${DIST_DIR:-/tmp/spark-mapping-demo-dist}"
 PROJECT_NAME="${PROJECT_NAME:-spark-mapping-demo}"
 FAT_JAR_NAME="${FAT_JAR_NAME:-hop-native-spark4-submit.jar}"
 PACKAGE_NAME="${PACKAGE_NAME:-spark-mapping-demo.zip}"
@@ -96,5 +96,9 @@ echo "Done. Contents of ${DIST_DIR}:"
 ls -la "${DIST_DIR}"
 echo
 echo "Next:"
-echo "  HOP_DIST_DIR=${DIST_DIR} docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml up -d --build --scale spark-worker=2"
+if [[ "${DIST_DIR}" == "/tmp/spark-mapping-demo-dist" ]]; then
+  echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml up -d --build --scale spark-worker=2"
+else
+  echo "  HOP_DIST_DIR=${DIST_DIR} docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml up -d --build --scale spark-worker=2"
+fi
 echo "  docker compose -f ${REPO_ROOT}/docker/integration-tests/integration-tests-spark-native-cluster.yaml exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh"

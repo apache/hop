@@ -76,7 +76,7 @@ export HOP_HOME=/path/to/hop   # directory that contains hop-conf.sh
 ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
 ----
 
-This writes into `dist/spark-native-demo/`:
+By default this writes into **`/tmp/spark-mapping-demo-dist/`** (outside the git tree; override with `DIST_DIR`):
 
 * `hop-native-spark4-submit.jar` — fat jar with token **`native-provided`** (no embedded Spark)
 * `spark-mapping-demo.zip` — Native Spark project package
@@ -88,7 +88,7 @@ You do **not** need to register `spark-mapping-demo` in the system Hop configura
 
 [source,bash]
 ----
-hop-conf.sh --export-spark-project=…/spark-mapping-demo.zip \
+hop-conf.sh --export-spark-project=/tmp/spark-mapping-demo-dist/spark-mapping-demo.zip \
   --export-spark-project-home=…/plugins/engines/spark/src/samples/spark-mapping-demo
 ----
 
@@ -111,10 +111,11 @@ Alternatively in the GUI:
 
 [source,bash]
 ----
-HOP_DIST_DIR="$PWD/dist/spark-native-demo" \
-  docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
   up -d --build --scale spark-worker=2
 ----
+
+(Compose mounts `${HOP_DIST_DIR:-/tmp/spark-mapping-demo-dist}` as `/opt/hop-dist` on the master. Set `HOP_DIST_DIR` only if you used a non-default `DIST_DIR`.)
 
 * Master UI: http://localhost:8080 (two workers should register).  
 * Images use the existing `docker/integration-tests/spark` Dockerfiles with **`SPARK_VERSION=4.1.2`** (override with env if needed).  

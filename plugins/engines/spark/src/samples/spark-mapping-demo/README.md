@@ -32,7 +32,7 @@ you submit a **project package** with `MainSpark`.
 | `data/customers-sample.csv` | Tiny input (copied to shared `/data/hop-data` on the cluster) |
 | `metadata/.../spark-cluster.json` | Native Spark run configuration for `spark-submit` |
 | `cluster-env.json` | Sets `HOP_DATA=file:///data/hop-data` for the cluster |
-| `scripts/prepare-dist.sh` | Host: fat jar + package zip into `dist/spark-native-demo` |
+| `scripts/prepare-dist.sh` | Host: fat jar + package zip into `/tmp/spark-mapping-demo-dist` (override with `DIST_DIR`) |
 | `scripts/spark-submit-demo.sh` | Inside master: `spark-submit` + MainSpark package args |
 
 **Data vs definitions:** Dataset paths use **`HOP_DATA`**. The mapping path uses
@@ -45,12 +45,11 @@ From the **repository root**, with a Hop install that includes the native Spark 
 (`HOP_HOME` or `./hop-conf.sh`):
 
 ```bash
-# 1) Fat jar + project package (no need to register the sample in hop-config)
+# 1) Fat jar + project package → /tmp/spark-mapping-demo-dist (no hop-config registration needed)
 ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
 
-# 2) Start Spark 4.1 master + workers (shared data volume)
-HOP_DIST_DIR="$PWD/dist/spark-native-demo" \
-  docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+# 2) Start Spark 4.1 master + workers (shared data volume; mounts /tmp/spark-mapping-demo-dist)
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
   up -d --build --scale spark-worker=2
 
 # 3) Submit
@@ -64,6 +63,8 @@ docker compose -f docker/integration-tests/integration-tests-spark-native-cluste
 # 5) Tear down
 docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml down -v
 ```
+
+Override the dist folder with `DIST_DIR=/somewhere/else` for prepare and the same path as `HOP_DIST_DIR=…` for compose if needed.
 
 Master UI: http://localhost:8080
 

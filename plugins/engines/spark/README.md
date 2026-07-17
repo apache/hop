@@ -198,8 +198,8 @@ Compose: `docker/integration-tests/integration-tests-spark-native-cluster.yaml` 
 
 ```bash
 ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
-HOP_DIST_DIR="$PWD/dist/spark-native-demo" \
-  docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+# artifacts default to /tmp/spark-mapping-demo-dist (override DIST_DIR / HOP_DIST_DIR)
+docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
   up -d --build --scale spark-worker=2
 docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
   exec spark /opt/hop-samples/spark-mapping-demo/scripts/spark-submit-demo.sh

@@ -22,11 +22,10 @@
 #
 # From the repository root:
 #
-#   # Prepare fat jar + package zip into dist/spark-native-demo (see sample scripts)
+#   # Prepare fat jar + package zip into /tmp/spark-mapping-demo-dist (see sample scripts)
 #   ./plugins/engines/spark/src/samples/spark-mapping-demo/scripts/prepare-dist.sh
 #
-#   HOP_DIST_DIR="$PWD/dist/spark-native-demo" \
-#     docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
+#   docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
 #     up -d --build --scale spark-worker=2
 #
 #   docker compose -f docker/integration-tests/integration-tests-spark-native-cluster.yaml \
@@ -53,7 +52,7 @@ services:
       - "7077:7077"
     volumes:
       # Host-prepared fat jar + project package zip
-      - ${HOP_DIST_DIR:-../../dist/spark-native-demo}:/opt/hop-dist:ro
+      - ${HOP_DIST_DIR:-/tmp/spark-mapping-demo-dist}:/opt/hop-dist:ro
       # Sample project sources + scripts
       - ../../plugins/engines/spark/src/samples:/opt/hop-samples:ro
       # Shared data plane (all workers must see the same paths)

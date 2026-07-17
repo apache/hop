@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -124,6 +125,23 @@ class SparkProjectPackageTest {
     String json = Files.readString(new File(m.metadataPath()).toPath());
     // parseable metadata JSON
     new SerializableMetadataProvider(json);
+  }
+
+  @Test
+  void openPackageStreamReadsLocalZip() throws Exception {
+    File projectHome = new File(tempDir, "stream-proj");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "x.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "stream.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+    assertNotNull(SparkProjectPackage.resolveLocalPackageFile(zip.getAbsolutePath()));
+    try (InputStream in = SparkProjectPackage.openPackageStream(zip.getAbsolutePath())) {
+      assertTrue(in.read() >= 0);
+    }
   }
 
   @Test
