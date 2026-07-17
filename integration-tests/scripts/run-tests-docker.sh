@@ -247,10 +247,17 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
         echo "Project compose exists."
         EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
-        # Rebuild project images so SPARK_VERSION (and similar) build args take effect
+        # Rebuild project images so SPARK_VERSION (and similar) build args take effect.
+        # hop_server also must rebuild: its hop-server service image (apache/hop:Development
+        # from docker/Dockerfile) otherwise stays cached and can miss client-side assembly
+        # plugins needed by remote-export ITs (main-0008/0009/0010).
         if [ "${PROJECT_NAME}" = "spark" ]; then
           echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
           PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
+            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
+        elif [ "${PROJECT_NAME}" = "hop_server" ]; then
+          echo "Rebuilding hop_server images so remote Hop Server matches current assemblies"
+          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} \
             docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
         else
           PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit

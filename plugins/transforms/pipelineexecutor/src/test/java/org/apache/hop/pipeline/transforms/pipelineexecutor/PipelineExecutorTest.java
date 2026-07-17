@@ -208,6 +208,81 @@ class PipelineExecutorTest {
     verify(child, atLeastOnce()).setParameterValue("P", "fallback");
   }
 
+  /**
+   * Empty field mapping must apply the child pipeline parameter default, not a sticky value left
+   * from a previous PipelineExecutor row (integration test main-0003-pipeline-pipeline-executor).
+   */
+  @Test
+  void passParametersToPipelineEmptyFieldUsesChildParameterDefaultNotStickyValue()
+      throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setInheritingAllVariables(true);
+    PipelineExecutorParameters param = new PipelineExecutorParameters();
+    param.setVariable("TEST3_PARAMETER2");
+    param.setField("value2");
+    param.setInput("");
+    meta.setParameters(new ArrayList<>(Collections.singletonList(param)));
+
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("value2"));
+
+    PipelineMeta childMeta = new PipelineMeta();
+    childMeta.setName("child");
+    childMeta.addParameterDefinition("TEST3_PARAMETER2", "default2", "with default");
+
+    LocalPipelineEngine child = new LocalPipelineEngine(childMeta);
+    child.copyParametersFromDefinitions(childMeta);
+    // Simulate sticky value inherited from a previous executor iteration
+    child.setVariable("TEST3_PARAMETER2", "B2");
+
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.setInputRowMeta(inputRowMeta);
+    data.setExecutorPipeline(child);
+
+    PipelineExecutor executor = newExecutor(meta, data);
+    executor.setVariable("TEST3_PARAMETER2", "B2");
+
+    // Empty field cell (mapped from value2)
+    executor.passParametersToPipeline(Collections.singletonList(""));
+
+    assertEquals("default2", child.getVariable("TEST3_PARAMETER2"));
+    assertNull(executor.getVariable("TEST3_PARAMETER2"));
+  }
+
+  @Test
+  void passParametersToPipelineNonEmptyFieldKeepsMappedValue() throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setInheritingAllVariables(true);
+    PipelineExecutorParameters param = new PipelineExecutorParameters();
+    param.setVariable("TEST3_PARAMETER2");
+    param.setField("value2");
+    param.setInput("");
+    meta.setParameters(new ArrayList<>(Collections.singletonList(param)));
+
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("value2"));
+
+    PipelineMeta childMeta = new PipelineMeta();
+    childMeta.setName("child");
+    childMeta.addParameterDefinition("TEST3_PARAMETER2", "default2", "with default");
+
+    LocalPipelineEngine child = new LocalPipelineEngine(childMeta);
+    child.copyParametersFromDefinitions(childMeta);
+    child.setVariable("TEST3_PARAMETER2", "stale");
+
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.setInputRowMeta(inputRowMeta);
+    data.setExecutorPipeline(child);
+
+    PipelineExecutor executor = newExecutor(meta, data);
+
+    executor.passParametersToPipeline(Collections.singletonList("B2"));
+
+    assertEquals("B2", child.getVariable("TEST3_PARAMETER2"));
+  }
+
   @Test
   void collectPipelineResultsDoesNotForwardRowsWhenNoResultRowsTarget() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
