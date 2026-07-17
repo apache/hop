@@ -42,9 +42,11 @@ Samples (Samples project):
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
 !===
 |===
 
@@ -80,33 +82,62 @@ If a file is required and it is not found, an error is generated;otherwise, the 
 [options="header", cols="1,3"]
 |===
 |Option|Description
-2+|Settings 
-|Loop XPath| For every matching entry in the XML file(s) or data, one row of data is added to the output.
+2+|Settings
+
+|Loop XPath
+| For every matching entry in the XML file(s) or data, one row of data is added to the output.
 This is the main specification used to flatten the XML file(s).
 You can use the "Get XPath nodes" button to search for the possible repeating nodes in the XML document, however, if the XML document is large, this can take a while.
-|Encoding|The XML filename encoding, in case none is specified in the XML documents.
-|Namespace aware?|Enable if the XML document requires namespaces to be considered while parsing.
-|Ignore comments?|Enable to ignore all comments in the XML document while parsing.
-|Validate XML?|Enable to validate the XML prior to parsing.
+
+|Encoding
+|The XML filename encoding, in case none is specified in the XML documents.
+
+|Namespace aware?
+|Enable if the XML document requires namespaces to be considered while parsing.
+
+|Ignore comments?
+|Enable to ignore all comments in the XML document while parsing.
+
+|Validate XML?
+|Enable to validate the XML prior to parsing.
 Use a token when you want to replace dynamically in a Xpath field value.
 A token is between @_ and - (@_fieldname-).
 Please see the Example 1 to see how it works.
-|Use token|Enable to use a token for validating the XML. 
-|Ignore empty file|Enable to ignore any files with no content. These are not valid XML documents.
-|Do not raise an error if no files|Enable to do nothing if no files are found. Otherwise, an error is returned.
-|Limit|Specify a maximum number of rows to return. Zero (0) returns all rows.
-|Prune path to handle large files|Specifies a path, similar to the Loop XPath, used to process chunks of data from the XML file. Each matching value defines a chunk of data that is read and processed. Use the prune path to speed up processing of large files.
+
+|Use token
+|Enable to use a token for validating the XML.
+
+|Ignore empty file
+|Enable to ignore any files with no content. These are not valid XML documents.
+
+|Do not raise an error if no files
+|Enable to do nothing if no files are found. Otherwise, an error is returned.
+
+|Limit
+|Specify a maximum number of rows to return. Zero (0) returns all rows.
+
+|Prune path to handle large files
+|Specifies a path, similar to the Loop XPath, used to process chunks of data from the XML file. Each matching value defines a chunk of data that is read and processed. Use the prune path to speed up processing of large files.
 You can also use this parameter to avoid multiple HTTP URL requests.
 You can also do this using the xref:pipeline/transforms/xmlinputstream.adoc[XML Input Stream (StAX)] transform. 
 
 2+|Additional fields
-|Include filename in output?|Allows you to specify a field name to include the file name (String) in the output of this transform.
-|Filename fieldname|The field to read the file name value from.
-|Rownum in output?|Allows you to specify a field name to include the row number (Integer) in the output of this transform.
-|Rownum fieldname|The field to read the row number value from.
+|Include filename in output?
+|Allows you to specify a field name to include the file name (String) in the output of this transform.
 
-2+|Add to result filename|
-|Add files to result filename|Adds the XML filenames read to the result of this pipeline. A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
+|Filename fieldname
+|The field to read the file name value from.
+
+|Rownum in output?
+|Allows you to specify a field name to include the row number (Integer) in the output of this transform.
+
+|Rownum fieldname
+|The field to read the row number value from.
+
+2+|Add to result filename
+
+|Add files to result filename
+|Adds the XML filenames read to the result of this pipeline. A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
 
 |===
 
@@ -136,7 +167,7 @@ You can also do this using the xref:pipeline/transforms/xmlinputstream.adoc[XML 
 |Select fields from snippet|Click to populate the table with fields corresponding to a Loop Xpath and an XML document that must be provided in the popup dialog.
 |===
 
-===Additional output fields tab
+=== Additional output fields tab
 
 [options="header", cols="1,3"]
 |===

@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Dummy transform passes data without making any modifications. It functions as a placeholder for testing purposes or a way to combine multiple streams with the same field layout.
+:description: The Dummy transform passes data without making any modifications.
 
 = image:transforms/icons/dummy.svg[Dummy transform Icon, role="image-doc-icon"] Dummy (do nothing)
 
@@ -34,9 +34,11 @@ It functions as a placeholder for testing purposes or a way to combine multiple 
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 

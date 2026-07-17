@@ -18,13 +18,27 @@ under the License.
 :language: en_US
 :description: The Data Stream Output transform writes to an IPC Data Stream.
 
-= Data Stream Output
-
-== Overview
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
 
 The **Data Stream Output** transform writes rows from a Hop pipeline to a configured xref:/metadata-types/data-stream/data-stream.adoc[Data Stream].
 
 It supports all available Data Stream implementations (Arrow File Stream, Arrow Random Access File, and Arrow Flight).
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
 
 == Options
 

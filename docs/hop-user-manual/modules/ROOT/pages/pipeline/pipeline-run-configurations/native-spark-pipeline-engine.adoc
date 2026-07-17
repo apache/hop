@@ -143,6 +143,74 @@ Do **not** run nested Native Spark executors under **DISTRIBUTED** mapPartitions
 
 Demo: sample project `spark-demo` pipeline `pipelines/03-run-pipelines.hpl` (see xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through]).
 
+[[transforms-not-supported-on-native-spark]]
+=== Transforms not supported on Native Spark
+
+Most classic Hop transforms run on Native Spark via native Dataset handlers or generic `mapPartitions`.
+The list below is taken from each transform’s *Supported Engines* table (**Native Spark** = Not Supported).
+When in doubt, open the transform page — that table is the source of truth.
+
+For broader design limits (copy/distribute, streaming, Spark SQL, MLlib), see
+xref:pipeline/spark/getting-started-with-native-spark.adoc#limitations-and-design-rules[Getting started — Limitations and design rules].
+
+==== Beam-only transforms
+
+Use a xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam] engine instead.
+
+* xref:pipeline/transforms/beambigqueryinput.adoc[BigQuery Input]
+* xref:pipeline/transforms/beambigqueryoutput.adoc[BigQuery Output]
+* xref:pipeline/transforms/beambigtableinput.adoc[Beam Bigtable Input]
+* xref:pipeline/transforms/beambigtableoutput.adoc[Beam Bigtable Output]
+* xref:pipeline/transforms/beamfileinput.adoc[Beam File Input]
+* xref:pipeline/transforms/beamfileoutput.adoc[Beam File Output]
+* xref:pipeline/transforms/beamgcppublisher.adoc[Beam GCP Pub/Sub : Publish]
+* xref:pipeline/transforms/beamgcpsubscriber.adoc[Beam GCP Pub/Sub : Subscribe]
+* xref:pipeline/transforms/beamhivecataloginput.adoc[Beam Hive Catalog Input]
+* xref:pipeline/transforms/beamkafkaconsume.adoc[Beam Kafka Consume]
+* xref:pipeline/transforms/beamkafkaproduce.adoc[Beam Kafka Produce]
+* xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis Consume]
+* xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis Produce]
+* xref:pipeline/transforms/beamtimestamp.adoc[Beam Timestamp]
+* xref:pipeline/transforms/beamwindow.adoc[Beam Window]
+
+==== Barriers, stream ordering, and merge-style transforms
+
+These rely on waiting for other transforms, full-stream ordering, or multi-stream merge semantics that do not map cleanly to a Spark Dataset graph.
+
+* xref:pipeline/transforms/analyticquery.adoc[Analytic Query]
+* xref:pipeline/transforms/append.adoc[Append Streams]
+* xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]
+* xref:pipeline/transforms/blockuntiltransformsfinish.adoc[Blocking until transforms finish]
+* xref:pipeline/transforms/detectemptystream.adoc[Detect Empty Stream]
+* xref:pipeline/transforms/identifylastrow.adoc[Identify last row in a stream]
+* xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
+* xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
+* xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge]
+* xref:pipeline/transforms/sortedschemamerge.adoc[Sorted Schema Merge]
+* xref:pipeline/transforms/streamschemamerge.adoc[Stream Schema Merge]
+
+==== Sorted aggregation and hash-set unique
+
+* xref:pipeline/transforms/groupby.adoc[Group By] — use xref:pipeline/transforms/memgroupby.adoc[Memory Group By] (native Spark `groupBy`) instead
+* xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] — use xref:pipeline/transforms/uniquerows.adoc[Unique Rows] where possible
+
+==== Workflow / pipeline result and control transforms
+
+Result-row and result-file hops, injectors, and metadata injection are not supported as Native Spark graph nodes.
+
+* xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result]
+* xref:pipeline/transforms/filesfromresult.adoc[Files from result]
+* xref:pipeline/transforms/filestoresult.adoc[Files to result]
+* xref:pipeline/transforms/getrowsfromresult.adoc[Get Rows from Result]
+* xref:pipeline/transforms/injector.adoc[Injector]
+* xref:pipeline/transforms/metainject.adoc[Metadata Injection]
+* xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe]
+* xref:pipeline/transforms/repeatfields.adoc[Repeat Fields]
+
+==== Other
+
+* xref:pipeline/transforms/kafkaconsumer.adoc[Kafka Consumer] — no native Spark structured-streaming / Kafka Dataset I/O; use Beam Kafka transforms on a Beam engine for Kafka pipelines
+
 === Related
 
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]

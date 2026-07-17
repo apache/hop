@@ -36,9 +36,11 @@ This transform is **not** available on the local Hop engine or on Beam engines. 
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:cross.svg[Not Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:cross.svg[Not Supported, 24]
-!Dataflow! image:cross.svg[Not Supported, 24]
+!Single Threaded! image:cross.svg[Not Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:cross.svg[Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
 !===
 
 NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam Spark).

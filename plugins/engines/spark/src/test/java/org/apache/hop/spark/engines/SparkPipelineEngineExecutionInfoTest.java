@@ -28,6 +28,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.local.FileExecutionInfoLocation;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -97,6 +98,15 @@ class SparkPipelineEngineExecutionInfoTest {
     engine.lookupExecutionInformationLocation();
     engine.registerPipelineExecutionInformation();
 
+    // lookupExecutionInformationLocation clones the metadata location and initialize()s it.
+    // Use that instance (not the raw pre-init fileLocation) for update/register paths.
+    var locationField = SparkPipelineEngine.class.getDeclaredField("executionInfoLocation");
+    locationField.setAccessible(true);
+    ExecutionInfoLocation engineLocation = (ExecutionInfoLocation) locationField.get(engine);
+    assertNotNull(engineLocation, "expected execution info location after lookup");
+    IExecutionInfoLocation iLocation = engineLocation.getExecutionInfoLocation();
+    assertNotNull(iLocation);
+
     // Seed components with stable log channel ids
     EngineComponent component = new EngineComponent("Dummy", 0);
     component.setStatus(ComponentExecutionStatus.STATUS_RUNNING);
@@ -107,7 +117,7 @@ class SparkPipelineEngineExecutionInfoTest {
     seed.setAccessible(true);
     seed.invoke(engine);
 
-    engine.updatePipelineState(fileLocation);
+    engine.updatePipelineState(iLocation);
 
     // Final update + close
     engine.stopExecutionInfoTimer();

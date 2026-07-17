@@ -562,6 +562,7 @@ Transforms such as *Stream Lookup* need a full secondary dataset while processin
 *Multiple previous transforms*::
 If several transforms hop into one (branches rejoin), row layouts must match (names, order, types). The engine *unions* those Datasets after a layout check (Beam Flatten equivalent).
 
+[[limitations-and-design-rules]]
 == Limitations and design rules
 
 Keep these in mind when moving a local pipeline to native Spark.
@@ -569,6 +570,12 @@ Keep these in mind when moving a local pipeline to native Spark.
 [options="header",cols="1,3"]
 |===
 |Topic |Behaviour on native Spark
+
+|Transforms marked *Not Supported*
+|See the authoritative list on
+xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc#transforms-not-supported-on-native-spark[Native Spark Pipeline Engine — Transforms not supported].
+It is derived from each transform page’s *Supported Engines* table (*Native Spark* row).
+Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*Blocking until transforms finish*), result-row hops, *Kafka Consumer*, multi-way / sorted merges.
 
 |Sorted *Group By*
 |*Not supported.* Use *Memory Group By* (native `groupBy`).

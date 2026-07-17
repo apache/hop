@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline or workflow action via an internal result row set. Remember that values or variables will not be copied, only row data.
+:description: The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline or workflow action.
 
 = image:transforms/icons/rowstoresult.svg[Copy rows to result transform Icon, role="image-doc-icon"] Copy rows to result
 
@@ -30,9 +30,11 @@ The Copy Rows To Result transform allows you to transfer rows of data (in memory
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:cross.svg[Not Supported, 24]
-!Flink! image:cross.svg[Not Supported, 24]
-!Dataflow! image:cross.svg[Not Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 
