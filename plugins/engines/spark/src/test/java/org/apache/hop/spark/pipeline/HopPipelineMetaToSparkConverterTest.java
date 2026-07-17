@@ -19,19 +19,25 @@ package org.apache.hop.spark.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.EngineCompatibility;
+import org.apache.hop.core.plugins.EngineCompatibilityResolver;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.spark.engines.SparkPipelineEngine;
 import org.apache.hop.spark.util.SparkConst;
 import org.junit.jupiter.api.Test;
@@ -145,5 +151,33 @@ class HopPipelineMetaToSparkConverterTest {
     assertTrue(
         HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
             SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID));
+  }
+
+  /**
+   * Every plugin id in {@link HopPipelineMetaToSparkConverter#HARD_BANNED_PLUGIN_IDS} must declare
+   * Native Spark on {@code @Transform.excludedEngines} (value of {@link SparkConst#PLUGIN_ID}).
+   * Keep {@code bannedMetas} in lockstep when the ban list grows.
+   */
+  @Test
+  void hardBannedTransformsExcludeNativeSparkOnAnnotation() {
+    Map<String, Class<?>> bannedMetas = Map.of(SparkConst.GROUP_BY_PLUGIN_ID, GroupByMeta.class);
+
+    assertEquals(
+        HopPipelineMetaToSparkConverter.HARD_BANNED_PLUGIN_IDS.keySet(),
+        bannedMetas.keySet(),
+        "HARD_BANNED_PLUGIN_IDS and bannedMetas must stay in lockstep");
+
+    for (Map.Entry<String, Class<?>> e : bannedMetas.entrySet()) {
+      Transform ann = e.getValue().getAnnotation(Transform.class);
+      assertNotNull(ann, e.getKey() + " must have @Transform");
+      assertTrue(
+          EngineCompatibilityResolver.matchesAny(ann.excludedEngines(), SparkConst.PLUGIN_ID),
+          () ->
+              e.getKey()
+                  + " @Transform.excludedEngines must include "
+                  + SparkConst.PLUGIN_ID
+                  + " but was "
+                  + Arrays.toString(ann.excludedEngines()));
+    }
   }
 }

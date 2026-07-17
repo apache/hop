@@ -208,6 +208,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Hard-banned transform meta for annotation lockstep tests only -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-groupby</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Stream Lookup for info-stream unit tests (mapPartitions + broadcast) -->
         <dependency>
             <groupId>org.apache.hop</groupId>
