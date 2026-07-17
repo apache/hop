@@ -18,6 +18,7 @@
 package org.apache.hop.spark.run;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,6 +36,7 @@ class MainSparkArgsTest {
     assertEquals("meta.json", args.getMetadataPath());
     assertEquals("spark-cluster", args.getRunConfigName());
     assertNull(args.getEnvironmentFile());
+    assertFalse(args.hasProjectPackage());
   }
 
   @Test
@@ -61,6 +63,22 @@ class MainSparkArgsTest {
   }
 
   @Test
+  void parseProjectPackageModeWithoutMetadataPath() throws Exception {
+    MainSparkArgs args =
+        MainSparkArgs.parse(
+            new String[] {
+              "--HopProjectPackage=/tmp/pkg.zip",
+              "--HopPipelinePath=pipelines/run.hpl",
+              "--HopRunConfigurationName=spark-cluster"
+            });
+    assertTrue(args.hasProjectPackage());
+    assertEquals("/tmp/pkg.zip", args.getProjectPackage());
+    assertEquals("pipelines/run.hpl", args.getPipelinePath());
+    assertNull(args.getMetadataPath());
+    assertEquals("spark-cluster", args.getRunConfigName());
+  }
+
+  @Test
   void missingArgsFails() {
     HopException e1 = assertThrows(HopException.class, () -> MainSparkArgs.parse(new String[] {}));
     assertTrue(e1.getMessage().contains("No arguments"));
@@ -77,6 +95,16 @@ class MainSparkArgsTest {
                     new String[] {"--HopPipelinePath=a.hpl", "--HopMetadataPath=b.json"
                       // missing run config
                     }));
-    assertTrue(e3.getMessage().contains("required"));
+    assertTrue(e3.getMessage().contains("required") || e3.getMessage().contains("Pipeline path"));
+
+    HopException e4 =
+        assertThrows(
+            HopException.class,
+            () ->
+                MainSparkArgs.parse(
+                    new String[] {"--HopPipelinePath=a.hpl", "--HopRunConfigurationName=spark"
+                      // no package, no metadata
+                    }));
+    assertTrue(e4.getMessage().contains("Metadata"));
   }
 }

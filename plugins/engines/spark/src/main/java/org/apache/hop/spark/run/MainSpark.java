@@ -41,6 +41,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
+import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.util.SparkConst;
 
 /**
@@ -55,6 +56,15 @@ import org.apache.hop.spark.util.SparkConst;
  *   hop-native-spark4.jar \
  *   pipeline.hpl metadata.json runConfigName
  * </pre>
+ *
+ * <p>Project package mode (nested Simple Mapping / Pipeline Executor definitions):
+ *
+ * <pre>
+ * spark-submit ... MainSpark \
+ *   --HopProjectPackage=/path/project-spark.zip \
+ *   --HopPipelinePath=pipelines/run-on-spark.hpl \
+ *   --HopRunConfigurationName=spark-cluster
+ * </pre>
  */
 public class MainSpark {
 
@@ -65,18 +75,67 @@ public class MainSpark {
 
       MainSparkArgs parsed = MainSparkArgs.parse(args);
       System.out.println(
-          "Argument 1 : Pipeline filename (.hpl)        : " + parsed.getPipelinePath());
+          "Argument : Pipeline path (.hpl)               : " + parsed.getPipelinePath());
+      if (parsed.hasProjectPackage()) {
+        System.out.println(
+            "Argument : Project package (zip)             : " + parsed.getProjectPackage());
+      }
       System.out.println(
-          "Argument 2 : Metadata export filename (.json) : " + parsed.getMetadataPath());
+          "Argument : Metadata export (.json)            : "
+              + Const.NVL(parsed.getMetadataPath(), "(from package)"));
       System.out.println(
-          "Argument 3 : Pipeline run configuration       : " + parsed.getRunConfigName());
+          "Argument : Pipeline run configuration         : " + parsed.getRunConfigName());
       if (StringUtils.isNotEmpty(parsed.getEnvironmentFile())) {
         System.out.println(
-            "Argument 4 : Environment configuration file  : " + parsed.getEnvironmentFile());
+            "Argument : Environment configuration file    : " + parsed.getEnvironmentFile());
       }
 
-      String pipelineMetaXml = readFileIntoString(parsed.getPipelinePath(), Const.UTF_8);
-      String metadataJson = readFileIntoString(parsed.getMetadataPath(), Const.UTF_8);
+      IVariables variables = Variables.getADefaultVariableSpace();
+
+      if (StringUtils.isNotEmpty(parsed.getEnvironmentFile())) {
+        DescribedVariablesConfigFile configFile =
+            new DescribedVariablesConfigFile(variables.resolve(parsed.getEnvironmentFile()));
+        configFile.readFromFile();
+        for (DescribedVariable variable : configFile.getDescribedVariables()) {
+          variables.setVariable(variable.getName(), variable.getValue());
+        }
+        System.out.println(
+            ">>>>>> Applied number of variables: " + configFile.getDescribedVariables().size());
+      }
+
+      String pipelinePath = parsed.getPipelinePath();
+      String metadataPath = parsed.getMetadataPath();
+
+      if (parsed.hasProjectPackage()) {
+        String packageUri = variables.resolve(parsed.getProjectPackage());
+        System.out.println(">>>>>> Materializing Spark project package: " + packageUri);
+        SparkProjectPackage.Materialized materialized = SparkProjectPackage.materialize(packageUri);
+        SparkProjectPackage.applyToVariables(variables, materialized, packageUri);
+        System.out.println(">>>>>> PROJECT_HOME=" + materialized.projectHome());
+        System.out.println(
+            ">>>>>> Note: PROJECT_HOME is the definition package root — use separate variables"
+                + " (HOP_DATA / s3a://…) for Spark Dataset data paths.");
+        pipelinePath =
+            SparkProjectPackage.resolvePipelinePath(pipelinePath, materialized, variables);
+        if (StringUtils.isEmpty(metadataPath)) {
+          if (StringUtils.isEmpty(materialized.metadataPath())) {
+            throw new HopException(
+                "Project package has no metadata.json and --HopMetadataPath was not set: "
+                    + packageUri);
+          }
+          metadataPath = materialized.metadataPath();
+        } else {
+          metadataPath = variables.resolve(metadataPath);
+        }
+        System.out.println(">>>>>> Resolved pipeline path: " + pipelinePath);
+        System.out.println(">>>>>> Resolved metadata path: " + metadataPath);
+      } else {
+        pipelinePath = variables.resolve(pipelinePath);
+        metadataPath = variables.resolve(metadataPath);
+      }
+
+      String pipelineMetaXml = readFileIntoString(pipelinePath, Const.UTF_8);
+      String metadataJson = readFileIntoString(metadataPath, Const.UTF_8);
       String runConfigName = parsed.getRunConfigName();
 
       SerializableMetadataProvider metadataProvider =
@@ -113,7 +172,7 @@ public class MainSpark {
               XmlHandler.loadXmlString(pipelineMetaXml, PipelineMeta.XML_TAG), metadataProvider);
       // Match hop-run: when name is synchronized with the filename, use the provided path so
       // getName() returns the basename (e.g. spark-transforms) instead of the XML <name>.
-      pipelineMeta.setFilename(parsed.getPipelinePath());
+      pipelineMeta.setFilename(pipelinePath);
 
       System.out.println(">>>>>> Validating native Spark engine plugin in fat jar...");
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -125,19 +184,6 @@ public class MainSpark {
                 + SparkConst.PLUGIN_ID
                 + "'. Is plugins/engines/spark included in the fat jar? "
                 + "Generate with: hop-conf.sh --generate-fat-jar=... --spark-client-version=native");
-      }
-
-      IVariables variables = Variables.getADefaultVariableSpace();
-
-      if (StringUtils.isNotEmpty(parsed.getEnvironmentFile())) {
-        DescribedVariablesConfigFile configFile =
-            new DescribedVariablesConfigFile(variables.resolve(parsed.getEnvironmentFile()));
-        configFile.readFromFile();
-        for (DescribedVariable variable : configFile.getDescribedVariables()) {
-          variables.setVariable(variable.getName(), variable.getValue());
-        }
-        System.out.println(
-            ">>>>>> Applied number of variables: " + configFile.getDescribedVariables().size());
       }
 
       // Diagnose SPARK_HOME mismatches: if SPARK_HOME points at an older install

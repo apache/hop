@@ -55,6 +55,7 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
+import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.TaskContext;
 import org.apache.spark.api.java.function.MapPartitionsFunction;
@@ -284,6 +285,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           variables.setVariable(variableValue.getVariable(), variableValue.getValue());
         }
       }
+      // Spark project package: extract once per JVM into java.io.tmpdir and set PROJECT_HOME
+      // so Simple Mapping / Pipeline Executor path loads work on executors.
+      SparkProjectPackage.ensureMaterializedOnWorker(variables);
       // Partition-scoped internal variables for classic I/O filenames (e.g. Text File Output
       // with ${Internal.Transform.ID}). Readable stable ID = transform name + partition id.
       applyPartitionInternalVariables(variables, transformName, copyNr);

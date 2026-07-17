@@ -32,6 +32,10 @@ For **Delta Lake** and **Apache Iceberg** (ACID tables, catalogs, time travel, M
 Before putting object-store paths in *Spark File* or *Lake Table* transforms, read
 xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark] — Hop VFS (`s3://`, named MinIO) and Spark/Hadoop URIs (`s3a://`, …) are different dialects.
 
+For **Simple Mapping** / **Pipeline Executor** child pipelines on `spark-submit`, export a
+xref:pipeline/spark/paths-and-filesystems.adoc#spark-project-package[Spark project package]
+(`hop-conf -j … --export-spark-project=…`) and pass `--HopProjectPackage=…` to `MainSpark`.
+
 == What is the native Spark pipeline engine?
 
 === In one sentence

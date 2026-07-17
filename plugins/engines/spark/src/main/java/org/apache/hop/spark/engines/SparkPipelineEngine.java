@@ -88,6 +88,7 @@ import org.apache.hop.spark.core.SparkTransformMetricSlice;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
+import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.table.LakeSessionPlan;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -846,7 +847,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     ClassLoader previousCl = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(pluginCl);
-      return buildSparkSession();
+      SparkSession session = buildSparkSession();
+      // Ship project package zip to every executor (SparkFiles) when HOP_SPARK_PROJECT_PACKAGE set
+      distributeProjectPackageIfConfigured(session);
+      return session;
     } catch (IllegalStateException e) {
       // Surface a actionable message when classic SparkSession cannot be loaded
       throw new IllegalStateException(
@@ -857,6 +861,29 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
           e);
     } finally {
       Thread.currentThread().setContextClassLoader(previousCl);
+    }
+  }
+
+  /**
+   * When a Native Spark project package is configured, register it with {@code
+   * SparkContext.addFile} so nested Simple Mapping / Pipeline Executor loads work on every
+   * executor. Also re-materializes {@code PROJECT_HOME} on the driver.
+   */
+  private void distributeProjectPackageIfConfigured(SparkSession session) throws HopException {
+    String packageUri = getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
+    if (StringUtils.isEmpty(packageUri)) {
+      return;
+    }
+    SparkProjectPackage.distributeToCluster(session, this);
+    SparkProjectPackage.ensureMaterializedOnWorker(this);
+    if (logChannel != null) {
+      logChannel.logBasic(
+          "Distributed Spark project package for executors (SparkFiles): "
+              + getVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE)
+              + " (source "
+              + getVariable(SparkProjectPackage.VAR_PACKAGE_URI)
+              + "); PROJECT_HOME="
+              + getVariable("PROJECT_HOME"));
     }
   }
 

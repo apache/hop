@@ -167,6 +167,30 @@ Optional **path scheme map** on the run configuration (`from=to` lines, e.g. `s3
 URI schemes for Spark File / Lake PATH only via `SparkPathDialect.toSparkUri`. `SparkPathDialect`
 also appends a hint when a known Hop-only scheme still appears in I/O errors after mapping.
 
+## Project package (nested Simple Mapping / Pipeline Executor)
+
+**Specifically for Native Spark execution** (not File → Export current project to zip).
+
+```bash
+# GUI: Tools → Export project package for Native Spark…
+# CLI:
+./hop-conf.sh -j my-project --export-spark-project=/tmp/my-project-spark.zip
+
+# spark-submit
+--class org.apache.hop.spark.run.MainSpark ... \
+  --HopProjectPackage=/tmp/my-project-spark.zip \
+  --HopPipelinePath=pipelines/run.hpl \
+  --HopRunConfigurationName=YourNativeSparkRunConfig
+```
+
+`SparkProjectPackage` + `SparkPipelineEngine`:
+
+1. Driver stages the zip and sets `HOP_SPARK_PROJECT_PACKAGE`
+2. Session start: `SparkContext.addFile` ships the zip to **all executors** (`SparkFiles`)
+3. Mini-pipeline init: `SparkFiles.get` → extract under `java.io.tmpdir` → `PROJECT_HOME`
+
+Do **not** use package `PROJECT_HOME` as the root for Spark Dataset data paths.
+
 Writes run as Spark actions during graph build; the output handler registers an empty leaf
 Dataset so a later engine `count()` does not re-write files.
 

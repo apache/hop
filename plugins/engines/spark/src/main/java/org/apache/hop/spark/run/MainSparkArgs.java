@@ -29,19 +29,27 @@ public final class MainSparkArgs {
       "Usage:\n"
           + "  MainSpark <pipeline.hpl> <metadata.json> <runConfigName> [env-config.json]\n"
           + "  MainSpark --HopPipelinePath=... --HopMetadataPath=... --HopRunConfigurationName=..."
-          + " [--HopConfigFile=...]";
+          + " [--HopConfigFile=...]\n"
+          + "  MainSpark --HopProjectPackage=package.zip --HopPipelinePath=relative/or/path.hpl"
+          + " --HopRunConfigurationName=... [--HopMetadataPath=...] [--HopConfigFile=...]";
 
   private final String pipelinePath;
   private final String metadataPath;
   private final String runConfigName;
   private final String environmentFile;
+  private final String projectPackage;
 
   public MainSparkArgs(
-      String pipelinePath, String metadataPath, String runConfigName, String environmentFile) {
+      String pipelinePath,
+      String metadataPath,
+      String runConfigName,
+      String environmentFile,
+      String projectPackage) {
     this.pipelinePath = pipelinePath;
     this.metadataPath = metadataPath;
     this.runConfigName = runConfigName;
     this.environmentFile = environmentFile;
+    this.projectPackage = projectPackage;
   }
 
   public String getPipelinePath() {
@@ -60,6 +68,15 @@ public final class MainSparkArgs {
     return environmentFile;
   }
 
+  /** Optional Spark project package zip URI ({@code --HopProjectPackage}). */
+  public String getProjectPackage() {
+    return projectPackage;
+  }
+
+  public boolean hasProjectPackage() {
+    return StringUtils.isNotEmpty(projectPackage);
+  }
+
   /**
    * Parse CLI arguments. Named form is used when the first argument starts with {@code --}.
    *
@@ -74,6 +91,7 @@ public final class MainSparkArgs {
     String metadataPath = null;
     String runConfigName = null;
     String environmentFile = null;
+    String projectPackage = null;
 
     if (args[0].startsWith("--")) {
       for (String arg : args) {
@@ -96,6 +114,9 @@ public final class MainSparkArgs {
           case "--HopConfigFile":
             environmentFile = value;
             break;
+          case "--HopProjectPackage":
+            projectPackage = value;
+            break;
           default:
             break;
         }
@@ -114,13 +135,17 @@ public final class MainSparkArgs {
       }
     }
 
-    if (StringUtils.isEmpty(pipelinePath)
-        || StringUtils.isEmpty(metadataPath)
-        || StringUtils.isEmpty(runConfigName)) {
+    if (StringUtils.isEmpty(pipelinePath) || StringUtils.isEmpty(runConfigName)) {
+      throw new HopException("Pipeline path and run configuration name are required.\n" + USAGE);
+    }
+    if (StringUtils.isEmpty(projectPackage) && StringUtils.isEmpty(metadataPath)) {
       throw new HopException(
-          "Pipeline path, metadata path, and run configuration name are required.\n" + USAGE);
+          "Metadata path is required unless --HopProjectPackage is set (package supplies"
+              + " metadata.json).\n"
+              + USAGE);
     }
 
-    return new MainSparkArgs(pipelinePath, metadataPath, runConfigName, environmentFile);
+    return new MainSparkArgs(
+        pipelinePath, metadataPath, runConfigName, environmentFile, projectPackage);
   }
 }

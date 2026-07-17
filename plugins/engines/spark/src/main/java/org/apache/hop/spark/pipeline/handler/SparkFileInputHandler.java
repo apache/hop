@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
+import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.transforms.io.SparkField;
 import org.apache.hop.spark.transforms.io.SparkFileInputMeta;
 import org.apache.hop.spark.util.SparkPathDialect;
@@ -101,6 +102,12 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
     SparkFileInputMeta meta = new SparkFileInputMeta();
     loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
+    if (log != null) {
+      String phWarn = SparkProjectPackage.projectHomeDataPathWarning(meta.getFilePath());
+      if (phWarn != null) {
+        log.logBasic("WARNING: " + phWarn);
+      }
+    }
     String resolved = variables.resolve(meta.getFilePath());
     String path = SparkPathDialect.toSparkUri(resolved, runConfiguration);
     if (StringUtils.isEmpty(path)) {

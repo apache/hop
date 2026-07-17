@@ -130,6 +130,69 @@ spark.hadoop.fs.s3a.secret.key=...
 
 (Exact keys depend on your Hadoop/Spark version and security model; prefer IAM roles on cloud clusters over embedding keys when possible.)
 
+[[spark-project-package]]
+== Project package (nested pipelines / mappings)
+
+Native Spark ships only the *top-level* pipeline XML plus metadata JSON by default. Transforms such as *Simple Mapping* and *Pipeline Executor* load child `.hpl` files at runtime via Hop VFS using paths like `${PROJECT_HOME}/mappings/child.hpl`. On a cluster those files must exist where every executor can open them.
+
+### Export a Spark project package
+
+This package is **specifically for Native Spark execution** (nested Simple Mapping / Pipeline Executor on the cluster). It is not the same as *File → Export current project to zip*.
+
+**GUI:** *Tools → Export project package for Native Spark…* (requires an active project / `PROJECT_HOME`).
+
+**CLI:**
+
+[source,bash]
+----
+./hop-conf.sh -j my-project --export-spark-project=/tmp/my-project-spark.zip
+----
+
+(Short option: `-esp`.)
+
+Zip layout:
+
+* `metadata.json` — Hop metadata (run configs, connections, catalogs)
+* `hop-spark-package.properties` — marker (`projectRoot=project`)
+* `project/…` — project home files (skips `datasets/`, `.git`, `target/`, hidden names by default)
+
+### Run with MainSpark
+
+[source,bash]
+----
+"${SPARK_HOME}/bin/spark-submit" \
+  --class org.apache.hop.spark.run.MainSpark \
+  /tmp/hop-native-spark4-submit.jar \
+  --HopProjectPackage=/tmp/my-project-spark.zip \
+  --HopPipelinePath=pipelines/run-on-spark.hpl \
+  --HopRunConfigurationName=YourNativeSparkRunConfig \
+  [--HopConfigFile=/path/cluster-env.json]
+----
+
+Flow:
+
+. Driver materializes the package under `${java.io.tmpdir}/hop-spark-pkg-*/` and sets `PROJECT_HOME`.
+. When the Native Spark session starts, the engine calls `SparkContext.addFile` so **every executor** receives the zip (`SparkFiles`).
+. Each mini-pipeline init (`HopMapPartitionsFn`) resolves the zip via `SparkFiles.get`, extracts once per worker JVM, and sets `PROJECT_HOME` for Hop VFS loads.
+
+Variables:
+
+* `HOP_SPARK_PROJECT_PACKAGE` — local path to the zip (after staging)
+* `HOP_SPARK_PROJECT_PACKAGE_SPARK_FILE` — basename for `SparkFiles.get`
+* `PROJECT_HOME` — extracted definition root on that JVM
+
+[IMPORTANT]
+====
+With a project package, **`PROJECT_HOME` is the extracted definition tree**, not your object-store data root.
+
+* Nested mappings: `${PROJECT_HOME}/mappings/…` ✅  
+* Spark File Input data: use `HOP_DATA`, `OUTPUT_ROOT`, or explicit `s3a://…` / `hdfs://…` — **not** `${PROJECT_HOME}/files/…` unless those files are small resources inside the package and you accept local extract paths.
+
+The path scheme map (`s3=s3a`) is independent: it rewrites Dataset schemes only.
+====
+
+Limitations: Workflow Executor and dynamic Pipeline Executor filenames remain experimental. The package must be readable on the *driver* at submit time so `addFile` can stage it (local path or VFS URI Hop can open).
+
 === Path scheme map (run configuration)
 
 The Native Spark pipeline run configuration includes an optional **Path scheme map** field: multi-line `from=to` entries applied **only** to *Spark File Input/Output* and *Lake Table PATH* URIs after variable resolution (not to classic Hop VFS / mapPartitions paths).
