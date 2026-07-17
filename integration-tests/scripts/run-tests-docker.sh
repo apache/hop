@@ -150,26 +150,32 @@ chmod 777 "${CURRENT_DIR}"/../surefire-reports/
 # Pipelines that write temp artifacts (Excel/ODS writer, Spark CSV, etc.) use
 # ${PROJECT_HOME}/output.
 #
-# Spark/Spark-native (and similar) leave part-*.csv / .crc files owned by the previous
-# container UID under output/<case>/. Those subdirs are often 755, so a later run with a
-# different JENKINS_UID cannot delete them and IT "delete output" steps fail. Wipe and
-# re-permission via a short-lived root container when host rm/chmod is not enough.
+# Spark/Spark-native leave untracked part-*.csv / .crc trees under output/<case>/ owned by
+# the previous container UID (often 755). Later runs with a different JENKINS_UID cannot
+# delete them. Only remove *untracked* residual files — never wipe git-tracked content
+# (ldap stores setup pipelines under output/*.hpl).
+REPO_ROOT="$(cd "${CURRENT_DIR}/../.." && pwd)"
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
     if [ -d "$d" ] && [ ! -f "$d/disabled.txt" ]; then
       mkdir -p "$d/output"
       chmod 777 "$d/output" 2>/dev/null || true
-      # Best-effort host cleanup (works when we own the files). Keep tracked
-      # markers (.gitkeep / .gitignore) so the directory stays in git.
-      chmod -R a+rwx "$d/output" 2>/dev/null || true
-      find "$d/output" -mindepth 1 \
-        ! -name '.gitkeep' ! -name '.gitignore' \
-        -exec rm -rf {} + 2>/dev/null || true
-      # If leftovers remain (other UID), clear as root via docker
-      if find "$d/output" -mindepth 1 ! -name '.gitkeep' ! -name '.gitignore' | grep -q .; then
-        echo "Clearing residual files under $d/output as root (prior container UID ownership)"
-        docker run --rm -v "$(cd "$d/output" && pwd):/out" alpine:3.19 \
-          sh -c 'chmod -R a+rwx /out 2>/dev/null; find /out -mindepth 1 ! -name .gitkeep ! -name .gitignore -exec rm -rf {} + 2>/dev/null; true' \
+      abs_out="$(cd "$d/output" && pwd)"
+      rel_out="${abs_out#"${REPO_ROOT}"/}"
+
+      # 1) Untracked leftovers only when the host can delete them (safe for ldap/*.hpl).
+      git -C "${REPO_ROOT}" clean -fd -- "${rel_out}" 2>/dev/null || true
+
+      # 2) Other-UID Spark residuals: chmod as root, then host git clean again.
+      #    Never blanket-delete under output/ (that wiped ldap/output/*.hpl).
+      if find "$d/output" \( -name 'part-*' -o -name '_SUCCESS' -o -name '*.crc' \) 2>/dev/null | grep -q .; then
+        echo "Fixing permissions on Spark residual files under ${rel_out}"
+        docker run --rm -v "${abs_out}:/out" alpine:3.19 \
+          sh -c 'chmod -R a+rwx /out 2>/dev/null; true' 2>/dev/null || true
+        git -C "${REPO_ROOT}" clean -fd -- "${rel_out}" 2>/dev/null || true
+        # Pattern-based delete for anything still stuck (Spark artifacts only)
+        docker run --rm -v "${abs_out}:/out" alpine:3.19 \
+          sh -c 'find /out \( -name "part-*" -o -name "_SUCCESS" -o -name "*.crc" \) -exec rm -rf {} + 2>/dev/null; find /out -type d -empty -delete 2>/dev/null; true' \
           2>/dev/null || true
       fi
       chmod 777 "$d/output" 2>/dev/null || true
