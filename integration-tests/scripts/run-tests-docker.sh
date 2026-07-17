@@ -159,14 +159,17 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
     if [ -d "$d" ] && [ ! -f "$d/disabled.txt" ]; then
       mkdir -p "$d/output"
       chmod 777 "$d/output" 2>/dev/null || true
-      # Best-effort host cleanup (works when we own the files)
+      # Best-effort host cleanup (works when we own the files). Keep tracked
+      # markers (.gitkeep / .gitignore) so the directory stays in git.
       chmod -R a+rwx "$d/output" 2>/dev/null || true
-      rm -rf "${d}/output"/* 2>/dev/null || true
+      find "$d/output" -mindepth 1 \
+        ! -name '.gitkeep' ! -name '.gitignore' \
+        -exec rm -rf {} + 2>/dev/null || true
       # If leftovers remain (other UID), clear as root via docker
-      if [ -n "$(ls -A "$d/output" 2>/dev/null)" ]; then
+      if find "$d/output" -mindepth 1 ! -name '.gitkeep' ! -name '.gitignore' | grep -q .; then
         echo "Clearing residual files under $d/output as root (prior container UID ownership)"
         docker run --rm -v "$(cd "$d/output" && pwd):/out" alpine:3.19 \
-          sh -c 'chmod -R a+rwx /out 2>/dev/null; rm -rf /out/* /out/.[!.]* /out/..?* 2>/dev/null; true' \
+          sh -c 'chmod -R a+rwx /out 2>/dev/null; find /out -mindepth 1 ! -name .gitkeep ! -name .gitignore -exec rm -rf {} + 2>/dev/null; true' \
           2>/dev/null || true
       fi
       chmod 777 "$d/output" 2>/dev/null || true
