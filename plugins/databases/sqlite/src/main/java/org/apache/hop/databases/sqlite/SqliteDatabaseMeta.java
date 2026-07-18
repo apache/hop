@@ -17,14 +17,19 @@
 
 package org.apache.hop.databases.sqlite;
 
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 
 /** Contains SQLite specific information through static final members */
 @DatabaseMetaPlugin(
@@ -211,5 +216,58 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isSqliteVariant() {
     return true;
+  }
+
+  /**
+   * SQLite uses dynamic typing with name-based type affinity (see
+   * https://www.sqlite.org/datatype3.html section 3.1). The JDBC driver reports columns whose
+   * declared type carries a size preceded by a space (e.g. {@code "TEXT (50)"}) as {@link
+   * java.sql.Types#NUMERIC}, which makes the generic mapper turn them into BigNumber/Integer. Since
+   * the declared size is meaningless in SQLite, re-derive the Hop type from the affinity of the
+   * declared type name (which the driver still reports correctly), correcting only the columns the
+   * generic mapper got wrong. See issue #6472.
+   */
+  @Override
+  public IValueMeta customizeValueFromSqlType(IValueMeta v, ResultSetMetaData rm, int index)
+      throws SQLException {
+    if (v == null || rm == null) {
+      return super.customizeValueFromSqlType(v, rm, index);
+    }
+    String typeName = rm.getColumnTypeName(index);
+    if (typeName == null) {
+      return super.customizeValueFromSqlType(v, rm, index);
+    }
+    typeName = typeName.toUpperCase(Locale.ROOT);
+
+    int targetType;
+    if (typeName.contains("INT")) {
+      // INTEGER affinity: SQLite integers are 64-bit, which fit a Hop Integer (Long).
+      targetType = IValueMeta.TYPE_INTEGER;
+    } else if (typeName.contains("CHAR")
+        || typeName.contains("CLOB")
+        || typeName.contains("TEXT")) {
+      // TEXT affinity.
+      targetType = IValueMeta.TYPE_STRING;
+    } else if (typeName.contains("REAL")
+        || typeName.contains("FLOA")
+        || typeName.contains("DOUB")) {
+      // REAL affinity.
+      targetType = IValueMeta.TYPE_NUMBER;
+    } else {
+      // NUMERIC and BLOB affinity: keep whatever the generic mapper produced.
+      return super.customizeValueFromSqlType(v, rm, index);
+    }
+
+    if (v.getType() == targetType) {
+      return super.customizeValueFromSqlType(v, rm, index);
+    }
+
+    try {
+      IValueMeta corrected = ValueMetaFactory.cloneValueMeta(v, targetType);
+      corrected.setPrecision(-1);
+      return corrected;
+    } catch (HopPluginException e) {
+      throw new SQLException(e);
+    }
   }
 }
