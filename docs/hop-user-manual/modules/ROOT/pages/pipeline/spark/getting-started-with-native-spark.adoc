@@ -39,6 +39,9 @@ xref:pipeline/spark/paths-and-filesystems.adoc#spark-project-package[Spark proje
 Hands-on multi-node demo (Docker Compose + sample project `spark-demo` — Simple Mapping and Workflow Executor):
 xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through].
 
+To deploy **MainSpark** JAR jobs to a **Databricks** workspace (classic clusters, UC Volumes, Job Run Deploy & run):
+xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
+
 == What is the native Spark pipeline engine?
 
 === In one sentence

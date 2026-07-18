@@ -39,7 +39,7 @@ Use a xref:metadata-types/databricks-connection.adoc[Databricks Connection] (wor
 |Calls `jobs/runs/submit` with a raw **Submit JSON** body (full Jobs API payload you provide).
 
 |Deploy & run
-|Uploads fat jar, pipeline `.hpl`, and exported metadata JSON to **DBFS base directory**, then creates or updates a JAR job (`org.apache.hop.spark.run.MainSpark`) on an **existing cluster** and runs it.
+|Uploads fat jar, pipeline `.hpl`, and exported metadata JSON to a Volume or DBFS base path (optionally a **Spark project package** zip and **environment config** file), then creates or updates a JAR job (`org.apache.hop.spark.run.MainSpark`) with classic existing / `new_cluster` or serverless compute and runs it. See xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
 |===
 
 == Wait modes
@@ -91,25 +91,58 @@ Default variable names (configurable on the **Run** tab):
 |xref:metadata-types/databricks-connection.adoc[Databricks Connection] metadata name
 
 |Mode
-|Run existing job / One-time submit
+|Run existing job / One-time submit / Deploy & run
 
 |Job ID
-|Numeric job id for run-now
+|Numeric job id for run-now or update-existing deploy
+
+|Job name / Update existing job
+|Name for create; if **Update existing job** is checked, **Job ID** is reset with the new settings (Deploy & run)
 
 |Submit JSON
 |Full JSON body for runs/submit (one-time mode)
+|===
+
+=== Deploy tab
+
+|===
+|Option |Description
 
 |Fat jar / Pipeline / Run configuration
-|Deploy mode: local fat jar (prefer `hop-conf --generate-fat-jar … --spark-client-version=native-provided`), pipeline path, and Native Spark run configuration name present in the metadata export
+|Deploy mode: local fat jar (prefer `hop-conf --generate-fat-jar … --spark-client-version=native-provided`), entry pipeline path, and Native Spark run configuration name present in the metadata export (or project package)
 
-|DBFS base directory
-|Upload root, default `dbfs:/FileStore/hop` (files written as `hop-native.jar`, `pipeline.hpl`, `metadata.json`)
+|DBFS / Volume base directory
+|Upload root for deploy artifacts (`hop-native.jar`, `pipeline.hpl`, `metadata.json`, optional `hop-spark-package.zip`, `env-config.json`). Prefer a Unity Catalog volume when public DBFS root is disabled, e.g. `/Volumes/catalog/schema/volume/hop`. Classic DBFS: `dbfs:/FileStore/hop`.
+|===
 
-|Existing cluster ID
-|Databricks cluster that already has a compatible Spark runtime
+=== Package tab
 
-|Job name / Update existing job
-|Name for create; if **Update existing job** is checked, **Job ID** is reset with the new settings
+|===
+|Option |Description
+
+|Upload Spark project package
+|When checked, export (or upload an existing zip) a **Native Spark project package** so nested Simple Mapping / Pipeline Executor files under `PROJECT_HOME` resolve on the cluster. MainSpark receives `--HopProjectPackage=…`. Same layout as *Tools → Export project package for Native Spark*. Requires the native Spark engine plugin when auto-exporting.
+
+|Project home / Project package file
+|Home used for export (default `PROJECT_HOME`). Optional existing package zip skips export.
+
+|Environment config file
+|Optional described-variables JSON uploaded as `env-config.json` and passed to MainSpark as `--HopConfigFile` (same as MainSpark’s optional env argument).
+|===
+
+=== Compute tab
+
+|===
+|Option |Description
+
+|Cluster / compute
+|**Classic existing:** paste the all-purpose cluster id. **Classic job cluster:** enter `new_cluster` (ephemeral cluster for the run). **Serverless:** enter `serverless` (job `environments` + task `environment_key`; jar via `java_dependencies`).
+
+|new_cluster spark_version / node_type_id / num_workers / JSON
+|Used when compute is `new_cluster`. Defaults: `18.2.x-scala2.13`, `i3.xlarge` (AWS), `1`. Prefer `i3.*` on AWS (local NVMe); `m5.xlarge` often needs EBS.
+
+|Serverless environment_key / client
+|Used when compute is `serverless`. Defaults: key `default`, client `4`.
 |===
 
 === Run tab
@@ -121,7 +154,7 @@ Default variable names (configurable on the **Run** tab):
 |Wait for completion or fire and forget
 
 |Timeout (seconds)
-|Maximum wait; `0` disables the timeout
+|Maximum wait; `0` disables the timeout. For **Deploy & run** with classic `new_cluster`, allow for first jar upload **and** job cluster cold start (often **many minutes** of Pending/Initializing — see xref:pipeline/spark/databricks.adoc[Native Spark on Databricks])
 
 |Poll interval (seconds)
 |Delay between status polls (default 15)
@@ -132,6 +165,7 @@ Default variable names (configurable on the **Run** tab):
 
 == Related
 
+* xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — workspace tiers, classic vs serverless, UC Volumes, Deploy & run checklist
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
 * xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait] — poll a run after fire-and-forget
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark] — fat jar / MainSpark for JAR tasks on the cluster
@@ -139,6 +173,9 @@ Default variable names (configurable on the **Run** tab):
 
 === Deploy tips
 
+* See the full guide: xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
 * Generate a fat jar with `hop-conf.sh --generate-fat-jar=… --spark-client-version=native-provided` when the cluster already provides Spark.
 * The run configuration name must exist in the project metadata that is exported at deploy time.
-* Large jar uploads use the DBFS create / add-block / close API and can take several minutes.
+* **UC Volumes** (`/Volumes/…`): uploads use the Files API (`PUT /api/2.0/fs/files/…`, up to ~5 GiB).
+* **Classic DBFS** (`dbfs:/FileStore/…`): uploads use DBFS create / add-block / close. Public DBFS root is often disabled on newer workspaces — use a volume instead.
+* Large jar uploads can take several minutes.

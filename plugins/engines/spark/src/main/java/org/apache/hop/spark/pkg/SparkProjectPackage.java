@@ -145,24 +145,36 @@ public final class SparkProjectPackage {
    * Resolve the zip path to open on this JVM.
    *
    * <ol>
-   *   <li>{@code $HOP_DATA/packages/<basename>} (shared volume — preferred; submit scripts refresh
-   *       this on every run)
+   *   <li>Cluster-shared {@link #VAR_PACKAGE_URI} (UC {@code /Volumes/…}, {@code /dbfs/}, object
+   *       store) when the path is readable on this host
+   *   <li>{@code $HOP_DATA/packages/<basename>} (shared volume — submit scripts refresh this)
    *   <li>{@code SparkFiles.get(basename)} when the file exists (spark-submit --files / addFile)
-   *   <li>{@link #VAR_PACKAGE_URI} when that path exists locally
+   *   <li>{@link #VAR_PACKAGE_URI} when that path exists locally (driver-only or NFS)
    * </ol>
    */
   public static String resolvePackagePathForMaterialize(IVariables variables) {
     if (variables == null) {
       return null;
     }
+    String rawUri = variables.getVariable(VAR_PACKAGE_URI);
+    String resolvedUri = StringUtils.isNotEmpty(rawUri) ? variables.resolve(rawUri) : null;
+
+    // 0) Cluster-shared URI first — Databricks UC Volumes are mounted on every node; do not wait
+    // for SparkFiles when the package already lives on a path every executor can open.
+    if (StringUtils.isNotEmpty(resolvedUri) && isClusterSharedPackagePath(resolvedUri)) {
+      if (resolveLocalPackageFile(resolvedUri) != null) {
+        return resolvedUri;
+      }
+      if (resolvedUri.contains("://") && !resolvedUri.startsWith("file:")) {
+        return resolvedUri;
+      }
+    }
+
     String basename = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
-    if (StringUtils.isEmpty(basename)) {
-      String uri = variables.getVariable(VAR_PACKAGE_URI);
-      if (StringUtils.isNotEmpty(uri)) {
-        File f = resolveLocalPackageFile(variables.resolve(uri));
-        if (f != null) {
-          basename = f.getName();
-        }
+    if (StringUtils.isEmpty(basename) && StringUtils.isNotEmpty(resolvedUri)) {
+      File f = resolveLocalPackageFile(resolvedUri);
+      if (f != null) {
+        basename = f.getName();
       }
     }
 
@@ -194,15 +206,13 @@ public final class SparkProjectPackage {
     }
 
     // 3) Explicit package URI (must exist on *this* host — shared mount or driver local)
-    String raw = variables.getVariable(VAR_PACKAGE_URI);
-    if (StringUtils.isNotEmpty(raw)) {
-      String resolved = variables.resolve(raw);
-      if (resolveLocalPackageFile(resolved) != null) {
-        return resolved;
+    if (StringUtils.isNotEmpty(resolvedUri)) {
+      if (resolveLocalPackageFile(resolvedUri) != null) {
+        return resolvedUri;
       }
       // Still return for HopVfs remote URIs (s3a, etc.)
-      if (resolved != null && resolved.contains("://") && !resolved.startsWith("file:")) {
-        return resolved;
+      if (resolvedUri.contains("://") && !resolvedUri.startsWith("file:")) {
+        return resolvedUri;
       }
     }
     return null;
@@ -218,12 +228,35 @@ public final class SparkProjectPackage {
   }
 
   /**
-   * Copy the package to a local file if needed and register it with {@code SparkContext.addFile} so
-   * every executor receives it. Sets {@link #VAR_PACKAGE_SPARK_FILE}. Keeps {@link
-   * #VAR_PACKAGE_URI} as a portable path (never a SparkFiles download path).
+   * True when every cluster node can open the same package path without SparkFiles (Databricks UC
+   * Volumes, classic DBFS mount, or remote object-store URI).
+   */
+  static boolean isClusterSharedPackagePath(String path) {
+    if (StringUtils.isEmpty(path)) {
+      return false;
+    }
+    String p = path.trim().replace('\\', '/');
+    if (p.startsWith("/Volumes/") || p.startsWith("/dbfs/")) {
+      return true;
+    }
+    if (p.startsWith("dbfs:")) {
+      return true;
+    }
+    // Object store / remote VFS (not local file:)
+    int scheme = p.indexOf("://");
+    return scheme > 0 && !p.startsWith("file:");
+  }
+
+  /**
+   * Make the project package available on executors.
    *
-   * <p>No-op when {@link #VAR_PACKAGE_URI} is unset. Safe to call for {@code local[*]} and
-   * spark-submit (including when reusing an active session).
+   * <p>When {@link #VAR_PACKAGE_URI} is already on a <strong>cluster-shared</strong> path (UC
+   * {@code /Volumes/…}, {@code /dbfs/}, {@code s3a://…}, …), only keeps that URI — no {@code
+   * SparkContext.addFile}. Databricks job clusters often fail to serve {@code
+   * spark://driver/files/…} for addFile'd Volume paths ("Stream '/files/…' was not found").
+   *
+   * <p>Otherwise stages a local file and calls {@code addFile}, setting {@link
+   * #VAR_PACKAGE_SPARK_FILE}. Safe for {@code local[*]} and classic spark-submit.
    */
   public static void distributeToCluster(
       org.apache.spark.sql.SparkSession spark, IVariables variables) throws HopException {
@@ -236,6 +269,13 @@ public final class SparkProjectPackage {
     }
     String uri = variables.resolve(raw);
     if (StringUtils.isEmpty(uri)) {
+      return;
+    }
+
+    // Shared mount / object store: every node opens the same path — skip SparkFiles.
+    if (isClusterSharedPackagePath(uri)) {
+      variables.setVariable(VAR_PACKAGE_URI, uri);
+      // Do not set VAR_PACKAGE_SPARK_FILE — workers resolve via VAR_PACKAGE_URI only.
       return;
     }
 

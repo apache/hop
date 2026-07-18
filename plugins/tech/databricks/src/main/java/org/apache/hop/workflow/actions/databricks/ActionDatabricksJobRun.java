@@ -27,6 +27,8 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databricks.client.DatabricksJobsClient;
@@ -40,6 +42,7 @@ import org.apache.hop.databricks.metadata.DatabricksConnection;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -98,13 +101,82 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
   @HopMetadataProperty(key = "run_configuration")
   private String runConfigurationName;
 
-  /** DBFS directory for uploads, e.g. dbfs:/FileStore/hop/my-job */
+  /**
+   * Upload root for deploy mode. Prefer a UC Volume path when DBFS root is disabled, e.g. {@code
+   * /Volumes/catalog/schema/volume/hop}. Classic: {@code dbfs:/FileStore/hop}.
+   */
   @HopMetadataProperty(key = "dbfs_base")
   private String dbfsBasePath = "dbfs:/FileStore/hop";
 
-  /** Existing Databricks cluster id for the JAR task. */
+  /**
+   * When true, export/upload a Native Spark project package zip so nested Simple Mapping / Pipeline
+   * Executor paths under {@code PROJECT_HOME} resolve on the cluster.
+   */
+  @HopMetadataProperty(key = "upload_project_package")
+  private boolean uploadProjectPackage;
+
+  /**
+   * Project home used when exporting a package (default: {@code ${PROJECT_HOME}} / active project).
+   */
+  @HopMetadataProperty(key = "project_home")
+  private String projectHome;
+
+  /**
+   * Optional existing Spark project package zip. When blank and {@link #uploadProjectPackage} is
+   * true, the package is exported from {@link #projectHome}.
+   */
+  @HopMetadataProperty(key = "project_package_file")
+  private String projectPackageFile;
+
+  /**
+   * Optional local environment / described-variables JSON uploaded and passed to MainSpark as
+   * {@code --HopConfigFile}.
+   */
+  @HopMetadataProperty(key = "environment_config_file")
+  private String environmentConfigFile;
+
+  /**
+   * Existing all-purpose cluster id, or sentinel {@code new_cluster} (classic job cluster), or
+   * {@code serverless} (job environments + task environment_key; no cluster fields).
+   */
   @HopMetadataProperty(key = "cluster_id")
   private String existingClusterId;
+
+  /** DBR spark_version for classic job clusters, e.g. {@code 18.2.x-scala2.13}. */
+  @HopMetadataProperty(key = "new_cluster_spark_version")
+  private String newClusterSparkVersion = DatabricksJobSpecFactory.DEFAULT_SPARK_VERSION;
+
+  /**
+   * Cloud node type for classic job clusters, e.g. {@code i3.xlarge} (AWS) or {@code
+   * Standard_DS3_v2}.
+   */
+  @HopMetadataProperty(key = "new_cluster_node_type")
+  private String newClusterNodeTypeId = DatabricksJobSpecFactory.DEFAULT_NODE_TYPE_ID;
+
+  /** Worker count for classic job clusters (string for variables). */
+  @HopMetadataProperty(key = "new_cluster_num_workers")
+  private String newClusterNumWorkers =
+      Integer.toString(DatabricksJobSpecFactory.DEFAULT_NUM_WORKERS);
+
+  /**
+   * Optional full {@code new_cluster} JSON object. When set (and cluster field is {@code
+   * new_cluster}), overrides the structured spark_version / node_type_id / num_workers fields.
+   */
+  @HopMetadataProperty(key = "new_cluster_json")
+  private String newClusterJson;
+
+  /**
+   * Serverless environment_key (default {@code default}). Used when cluster field is serverless.
+   */
+  @HopMetadataProperty(key = "environment_key")
+  private String environmentKey = DatabricksJobSpecFactory.DEFAULT_ENVIRONMENT_KEY;
+
+  /**
+   * Serverless environment {@code spec.client} version (e.g. {@code 4} for Spark 4.x). Used when
+   * cluster field is serverless.
+   */
+  @HopMetadataProperty(key = "environment_client")
+  private String environmentClient = DatabricksJobSpecFactory.DEFAULT_ENVIRONMENT_CLIENT;
 
   /** Job name when creating a new job (deploy mode). */
   @HopMetadataProperty(key = "job_name")
@@ -282,11 +354,23 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
       throw new HopException(
           BaseMessages.getString(PKG, "ActionDatabricksJobRun.Error.NoClusterId"));
     }
+    DatabricksJobSpecFactory.ClusterTarget clusterTarget =
+        DatabricksJobSpecFactory.resolveClusterTarget(
+            cluster,
+            resolve(newClusterSparkVersion),
+            resolve(newClusterNodeTypeId),
+            resolve(newClusterNumWorkers),
+            resolve(newClusterJson),
+            resolve(environmentKey),
+            resolve(environmentClient));
     String name = resolve(jobName);
     if (Utils.isEmpty(name)) {
       name = "hop-" + resolve(runConfigurationName);
     }
 
+    HopSparkDeployHelper.DeployOptions deployOptions =
+        new HopSparkDeployHelper.DeployOptions(
+            uploadProjectPackage, projectHome, projectPackageFile, environmentConfigFile);
     HopSparkDeployHelper.DeployedArtifacts artifacts =
         HopSparkDeployHelper.deploy(
             client,
@@ -296,7 +380,8 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
             fatJarPath,
             pipelineFilename,
             runConfigurationName,
-            dbfsBasePath);
+            dbfsBasePath,
+            deployOptions);
 
     long jid;
     String jobIdStr = resolve(jobId);
@@ -304,13 +389,7 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
       jid = Long.parseLong(jobIdStr.trim());
       String resetJson =
           DatabricksJobSpecFactory.buildResetJobJson(
-              jid,
-              name,
-              cluster,
-              artifacts.jarDbfs(),
-              artifacts.pipelineDbfs(),
-              artifacts.metadataDbfs(),
-              artifacts.runConfigName());
+              jid, name, clusterTarget, artifacts.jarDbfs(), artifacts.launch());
       client.resetJob(resetJson);
       if (isBasic()) {
         logBasic("Updated Databricks job_id=" + jid);
@@ -318,12 +397,7 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
     } else {
       String createJson =
           DatabricksJobSpecFactory.buildCreateJobJson(
-              name,
-              cluster,
-              artifacts.jarDbfs(),
-              artifacts.pipelineDbfs(),
-              artifacts.metadataDbfs(),
-              artifacts.runConfigName());
+              name, clusterTarget, artifacts.jarDbfs(), artifacts.launch());
       jid = client.createJob(createJson);
       if (isBasic()) {
         logBasic("Created Databricks job_id=" + jid);
@@ -433,5 +507,63 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
             "connectionName",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+  }
+
+  /**
+   * @return The objects referenced in the transform, like a a pipeline, a workflow, a mapper, a
+   *     reducer, a combiner, ...
+   */
+  @Override
+  public String[] getReferencedObjectDescriptions() {
+    return new String[] {
+      BaseMessages.getString(PKG, "ActionDatabricksJobRun.ReferencedObject.Description"),
+    };
+  }
+
+  private boolean isPipelineDefined() {
+    return StringUtils.isNotEmpty(pipelineFilename);
+  }
+
+  @Override
+  public boolean[] isReferencedObjectEnabled() {
+    return new boolean[] {
+      isPipelineDefined(),
+    };
+  }
+
+  /**
+   * Load the referenced object
+   *
+   * @param index the referenced object index to load (in case there are multiple references)
+   * @param metadataProvider metadataProvider
+   * @param variables the variable variables to use
+   * @return the referenced object once loaded
+   * @throws HopException
+   */
+  @Override
+  public IHasFilename loadReferencedObject(
+      int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    return getPipelineMeta(metadataProvider, variables);
+  }
+
+  public PipelineMeta getPipelineMeta(IHopMetadataProvider metadataProvider, IVariables variables)
+      throws HopException {
+    try {
+      PipelineMeta pipelineMeta = null;
+      CurrentDirectoryResolver directoryResolver = new CurrentDirectoryResolver();
+      IVariables tmpSpace =
+          directoryResolver.resolveCurrentDirectory(variables, parentWorkflow, getFilename());
+
+      pipelineMeta =
+          new PipelineMeta(tmpSpace.resolve(getPipelineFilename()), metadataProvider, this);
+      pipelineMeta.setMetadataProvider(metadataProvider);
+      return pipelineMeta;
+    } catch (final HopException ke) {
+      // if we get a HopException, simply re-throw it
+      throw ke;
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.Exception.MetaDataLoad"), e);
+    }
   }
 }

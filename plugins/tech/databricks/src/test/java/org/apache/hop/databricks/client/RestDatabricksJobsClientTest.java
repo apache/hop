@@ -26,16 +26,42 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.databricks.metadata.DatabricksConnection;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class RestDatabricksJobsClientTest {
 
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
   private WireMockServer server;
   private RestDatabricksJobsClient client;
+
+  @BeforeAll
+  static void setUpClass() throws HopException {
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init();
+    String passwordEncoderPluginID =
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
+  }
 
   @BeforeEach
   void setUp() {
@@ -64,6 +90,56 @@ class RestDatabricksJobsClientTest {
     assertEquals(
         "https://my.databricks.net",
         RestDatabricksJobsClient.normalizeHost("https://my.databricks.net/"));
+  }
+
+  @Test
+  void createResolvesHostAndDecryptsTokenVariable() throws Exception {
+    String plainToken = "dapi-secret-token";
+    Variables variables = new Variables();
+    variables.setVariable("DBX_HOST", "http://localhost:" + server.port());
+    variables.setVariable("DBX_TOKEN", Encr.encryptPasswordIfNotUsingVariables(plainToken));
+
+    DatabricksConnection connection = new DatabricksConnection();
+    connection.setHost("${DBX_HOST}");
+    connection.setToken("${DBX_TOKEN}");
+    connection.setApiBasePath("/api/2.1");
+
+    server.stubFor(
+        WireMock.get(WireMock.urlEqualTo("/api/2.0/preview/scim/v2/Me"))
+            .withHeader("Authorization", WireMock.equalTo("Bearer " + plainToken))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"userName\":\"bob@example.com\"}")));
+
+    try (RestDatabricksJobsClient resolved =
+        RestDatabricksJobsClient.create(connection, variables)) {
+      assertEquals("bob@example.com", resolved.testConnection());
+    }
+  }
+
+  @Test
+  void createDecryptsEncryptedLiteralToken() throws Exception {
+    String plainToken = "literal-pat";
+    DatabricksConnection connection = new DatabricksConnection();
+    connection.setHost("http://localhost:" + server.port());
+    connection.setToken(Encr.encryptPasswordIfNotUsingVariables(plainToken));
+    connection.setApiBasePath("/api/2.1");
+
+    server.stubFor(
+        WireMock.get(WireMock.urlEqualTo("/api/2.0/preview/scim/v2/Me"))
+            .withHeader("Authorization", WireMock.equalTo("Bearer " + plainToken))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"userName\":\"carol@example.com\"}")));
+
+    try (RestDatabricksJobsClient resolved =
+        RestDatabricksJobsClient.create(connection, new Variables())) {
+      assertEquals("carol@example.com", resolved.testConnection());
+    }
   }
 
   @Test
@@ -165,5 +241,141 @@ class RestDatabricksJobsClientTest {
     assertFalse(DatabricksRunLifeCycleState.RUNNING.isTerminal());
     assertEquals(
         DatabricksRunLifeCycleState.PENDING, DatabricksRunLifeCycleState.fromApi("pending"));
+  }
+
+  @Test
+  void isFilesApiPathDetectsVolumesAndWorkspace() {
+    assertTrue(RestDatabricksJobsClient.isFilesApiPath("/Volumes/c/s/v/file.jar"));
+    assertTrue(RestDatabricksJobsClient.isFilesApiPath("/Workspace/Users/a@b.com/x"));
+    assertFalse(RestDatabricksJobsClient.isFilesApiPath("/FileStore/hop/x.jar"));
+    assertFalse(RestDatabricksJobsClient.isFilesApiPath("/tmp/x"));
+  }
+
+  @Test
+  void normalizeDbfsPathStripsSchemeAndSelectsVolumes() throws Exception {
+    assertEquals(
+        "/Volumes/c/s/v/j.jar",
+        RestDatabricksJobsClient.normalizeDbfsPath("dbfs:/Volumes/c/s/v/j.jar"));
+    assertEquals(
+        "/FileStore/hop/j.jar",
+        RestDatabricksJobsClient.normalizeDbfsPath("dbfs:/FileStore/hop/j.jar"));
+    assertTrue(
+        RestDatabricksJobsClient.isFilesApiPath(
+            RestDatabricksJobsClient.normalizeDbfsPath("/Volumes/c/s/v/j.jar")));
+  }
+
+  @Test
+  void encodeFilesApiPathEncodesSegments() {
+    assertEquals(
+        "/Volumes/apache-hop/default/jars/hop-native.jar",
+        RestDatabricksJobsClient.encodeFilesApiPath(
+            "/Volumes/apache-hop/default/jars/hop-native.jar"));
+    assertEquals(
+        "/Volumes/c/s/v/my%20file.jar",
+        RestDatabricksJobsClient.encodeFilesApiPath("/Volumes/c/s/v/my file.jar"));
+  }
+
+  @Test
+  void uploadVolumePathUsesFilesApiPut() throws Exception {
+    Path temp = Files.createTempFile("hop-dbx-upload-", ".bin");
+    try {
+      byte[] payload = "hop-volume-upload".getBytes(StandardCharsets.UTF_8);
+      Files.write(temp, payload);
+
+      server.stubFor(
+          WireMock.put(
+                  WireMock.urlEqualTo(
+                      "/api/2.0/fs/files/Volumes/apache-hop/default/jars/hop-native.jar?overwrite=true"))
+              .withHeader("Authorization", WireMock.equalTo("Bearer test-token"))
+              .withHeader("Content-Type", WireMock.equalTo("application/octet-stream"))
+              .withRequestBody(WireMock.binaryEqualTo(payload))
+              .willReturn(WireMock.aResponse().withStatus(204)));
+
+      client.uploadToDbfs(temp, "/Volumes/apache-hop/default/jars/hop-native.jar");
+
+      server.verify(
+          WireMock.putRequestedFor(
+              WireMock.urlEqualTo(
+                  "/api/2.0/fs/files/Volumes/apache-hop/default/jars/hop-native.jar?overwrite=true")));
+      server.verify(0, WireMock.postRequestedFor(WireMock.urlEqualTo("/api/2.0/dbfs/create")));
+    } finally {
+      Files.deleteIfExists(temp);
+    }
+  }
+
+  @Test
+  void getFileMetadataFilesApiUsesHeadContentLength() throws Exception {
+    server.stubFor(
+        WireMock.head(
+                WireMock.urlEqualTo(
+                    "/api/2.0/fs/files/Volumes/apache-hop/default/jars/hop-native.jar"))
+            .withHeader("Authorization", WireMock.equalTo("Bearer test-token"))
+            .willReturn(
+                WireMock.aResponse().withStatus(200).withHeader("Content-Length", "84200123")));
+
+    WorkspaceFileMetadata meta =
+        client.getFileMetadata("/Volumes/apache-hop/default/jars/hop-native.jar");
+    assertTrue(meta.exists());
+    assertEquals(84200123L, meta.sizeBytes());
+  }
+
+  @Test
+  void getFileMetadataMissingReturnsNotExists() throws Exception {
+    server.stubFor(
+        WireMock.head(WireMock.urlPathMatching("/api/2.0/fs/files/Volumes/.*missing.jar"))
+            .willReturn(WireMock.aResponse().withStatus(404)));
+    server.stubFor(
+        WireMock.get(WireMock.urlPathMatching("/api/2.0/fs/files/Volumes/.*missing.jar"))
+            .willReturn(WireMock.aResponse().withStatus(404)));
+
+    WorkspaceFileMetadata meta = client.getFileMetadata("/Volumes/c/s/v/missing.jar");
+    assertFalse(meta.exists());
+  }
+
+  @Test
+  void downloadTextIfExistsReturnsSidecar() throws Exception {
+    String hash = "a".repeat(64);
+    server.stubFor(
+        WireMock.get(
+                WireMock.urlEqualTo(
+                    "/api/2.0/fs/files/Volumes/apache-hop/default/jars/hop-native.jar.sha256"))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody(hash + "\n")));
+
+    assertEquals(
+        Optional.of(hash + "\n"),
+        client.downloadTextIfExists("/Volumes/apache-hop/default/jars/hop-native.jar.sha256"));
+  }
+
+  @Test
+  void uploadFileStorePathUsesDbfsApi() throws Exception {
+    Path temp = Files.createTempFile("hop-dbx-upload-dbfs-", ".bin");
+    try {
+      Files.writeString(temp, "x");
+
+      server.stubFor(
+          WireMock.post(WireMock.urlEqualTo("/api/2.0/dbfs/create"))
+              .willReturn(
+                  WireMock.aResponse()
+                      .withStatus(200)
+                      .withHeader("Content-Type", "application/json")
+                      .withBody("{\"handle\": 1}")));
+      server.stubFor(
+          WireMock.post(WireMock.urlEqualTo("/api/2.0/dbfs/add-block"))
+              .willReturn(WireMock.aResponse().withStatus(200).withBody("{}")));
+      server.stubFor(
+          WireMock.post(WireMock.urlEqualTo("/api/2.0/dbfs/close"))
+              .willReturn(WireMock.aResponse().withStatus(200).withBody("{}")));
+
+      client.uploadToDbfs(temp, "dbfs:/FileStore/hop/hop-native.jar");
+
+      server.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/api/2.0/dbfs/create")));
+      server.verify(0, WireMock.putRequestedFor(WireMock.urlPathMatching("/api/2.0/fs/files/.*")));
+    } finally {
+      Files.deleteIfExists(temp);
+    }
   }
 }

@@ -884,9 +884,8 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   }
 
   /**
-   * When a Native Spark project package is configured, register it with {@code
-   * SparkContext.addFile} so nested Simple Mapping / Pipeline Executor loads work on every
-   * executor. Also re-materializes {@code PROJECT_HOME} on the driver.
+   * When a Native Spark project package is configured, make it available on executors (shared path
+   * or {@code SparkContext.addFile}) and re-materialize {@code PROJECT_HOME} on the driver.
    */
   private void distributeProjectPackageIfConfigured(SparkSession session) throws HopException {
     String packageUri = getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
@@ -896,13 +895,23 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     SparkProjectPackage.distributeToCluster(session, this);
     SparkProjectPackage.ensureMaterializedOnWorker(this);
     if (logChannel != null) {
-      logChannel.logBasic(
-          "Distributed Spark project package for executors (SparkFiles): "
-              + getVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE)
-              + " (source "
-              + getVariable(SparkProjectPackage.VAR_PACKAGE_URI)
-              + "); PROJECT_HOME="
-              + getVariable("PROJECT_HOME"));
+      String sparkFile = getVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE);
+      String source = getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
+      if (StringUtils.isNotEmpty(sparkFile)) {
+        logChannel.logBasic(
+            "Distributed Spark project package for executors (SparkFiles): "
+                + sparkFile
+                + " (source "
+                + source
+                + "); PROJECT_HOME="
+                + getVariable("PROJECT_HOME"));
+      } else {
+        logChannel.logBasic(
+            "Using cluster-shared Spark project package (no SparkFiles): "
+                + source
+                + "; PROJECT_HOME="
+                + getVariable("PROJECT_HOME"));
+      }
     }
   }
 

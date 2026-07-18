@@ -177,6 +177,10 @@ Zip layout:
   [--HopConfigFile=/path/cluster-env.json]
 ----
 
+**Databricks Deploy & run:** the xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] action can **upload** this package (export from `PROJECT_HOME` or an existing zip) and an optional environment config file to the Volume base path, then pass the same named MainSpark arguments on the JAR task. Enable **Upload Spark project package** on the action when the pipeline needs nested definitions.
+
+On Databricks, packages under **`/Volumes/…`** (or `/dbfs/…`) are treated as **cluster-shared**: Hop does **not** call `SparkContext.addFile` for them. Executors open the same Volume path (UC FUSE mount). That avoids failures such as `Failed to fetch spark://…/files/hop-spark-package.zip` / `Stream '/files/…' was not found` when the driver cannot serve SparkFiles to job-cluster workers.
+
 Flow:
 
 . Driver materializes the package under `${java.io.tmpdir}/hop-spark-pkg-*/` and sets `PROJECT_HOME`.

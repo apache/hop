@@ -53,6 +53,7 @@ under the License.
 *** xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems]
 *** xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster mapping walk-through]
 *** xref:pipeline/spark/lakehouse.adoc[Lakehouse tables (Delta / Iceberg)]
+*** xref:pipeline/spark/databricks.adoc[Native Spark on Databricks]
 ** xref:pipeline/pipeline-metrics.adoc[Pipeline Metrics]
 ** xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[Pipeline Run Configurations]
 *** xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Beam Google DataFlow]

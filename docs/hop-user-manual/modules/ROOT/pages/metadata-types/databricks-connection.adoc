@@ -55,6 +55,7 @@ Use **Test connection** in the editor to call the workspace identity endpoint (S
 
 == Related
 
+* xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — Deploy & run, classic clusters, Volumes
 * xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] — trigger and wait for Jobs API runs
 * xref:database/databases/databricks.adoc[Databricks database (JDBC)] — SQL warehouse access
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark pipeline engine] — fat jar / MainSpark on cluster

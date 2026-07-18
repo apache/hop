@@ -62,4 +62,5 @@ For “submit and block on this step,” use Job Run’s built-in **Wait for com
 == Related
 
 * xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
+* xref:pipeline/spark/databricks.adoc[Native Spark on Databricks]
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]

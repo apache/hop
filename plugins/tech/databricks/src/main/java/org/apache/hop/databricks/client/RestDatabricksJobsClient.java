@@ -31,7 +31,9 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
@@ -40,7 +42,8 @@ import org.json.simple.parser.JSONParser;
 
 /**
  * Databricks Jobs API client using {@link HttpClient} and Jobs REST endpoints (default base {@code
- * /api/2.1}). Does not log tokens. Also supports DBFS upload via the 2.0 DBFS API.
+ * /api/2.1}). Does not log tokens. Uploads use the Files API for UC Volumes / Workspace paths and
+ * the legacy DBFS API for classic {@code dbfs:/} roots.
  */
 public final class RestDatabricksJobsClient implements DatabricksJobsClient {
 
@@ -49,6 +52,9 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
 
   /** DBFS add-block max is 1 MiB of base64-decoded data. */
   private static final int DBFS_BLOCK_BYTES = 1024 * 1024;
+
+  /** Files API single PUT supports files up to 5 GiB. */
+  private static final String FILES_API_PREFIX = "/api/2.0/fs/files";
 
   private final String hostBase;
   private final String apiBase;
@@ -70,7 +76,9 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
       throw new HopException("Databricks connection is required");
     }
     String host = resolve(variables, connection.getHost());
-    String token = resolve(variables, connection.getToken());
+    // PAT may be a literal, ${variable}, or Encrypted… (incl. after variable resolve)
+    String token =
+        Encr.decryptPasswordOptionallyEncrypted(resolve(variables, connection.getToken()));
     String apiBase = resolve(variables, connection.getApiBasePath());
     if (StringUtils.isBlank(host)) {
       throw new HopException("Databricks workspace host is required");
@@ -186,11 +194,306 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   @Override
   public void uploadToDbfs(Path localFile, String dbfsPath) throws HopException {
     if (localFile == null || !Files.isRegularFile(localFile)) {
-      throw new HopException("Local file for DBFS upload does not exist: " + localFile);
+      throw new HopException("Local file for workspace upload does not exist: " + localFile);
     }
     String path = normalizeDbfsPath(dbfsPath);
+    if (isFilesApiPath(path)) {
+      uploadViaFilesApi(localFile, path);
+    } else {
+      uploadViaDbfsApi(localFile, path);
+    }
+  }
+
+  @Override
+  public WorkspaceFileMetadata getFileMetadata(String workspacePath) throws HopException {
+    String path = normalizeDbfsPath(workspacePath);
+    if (isFilesApiPath(path)) {
+      return getFileMetadataFilesApi(path);
+    }
+    return getFileMetadataDbfs(path);
+  }
+
+  @Override
+  public Optional<String> downloadTextIfExists(String workspacePath) throws HopException {
+    String path = normalizeDbfsPath(workspacePath);
+    if (isFilesApiPath(path)) {
+      return downloadTextFilesApi(path);
+    }
+    return downloadTextDbfs(path);
+  }
+
+  @Override
+  public void uploadText(String workspacePath, String text) throws HopException {
+    if (text == null) {
+      text = "";
+    }
     try {
-      // Create handle (overwrite)
+      Path tmp = Files.createTempFile("hop-dbx-text-", ".txt");
+      try {
+        Files.writeString(tmp, text, StandardCharsets.UTF_8);
+        uploadToDbfs(tmp, workspacePath);
+      } finally {
+        Files.deleteIfExists(tmp);
+      }
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Failed to upload text to " + workspacePath, e);
+    }
+  }
+
+  /**
+   * UC Volumes and Workspace files must use the Files API. Classic DBFS roots (FileStore, etc.) use
+   * the legacy DBFS block API.
+   */
+  static boolean isFilesApiPath(String absolutePath) {
+    if (StringUtils.isBlank(absolutePath)) {
+      return false;
+    }
+    String p = absolutePath.trim();
+    return p.startsWith("/Volumes/")
+        || p.equals("/Volumes")
+        || p.startsWith("/Workspace/")
+        || p.equals("/Workspace");
+  }
+
+  /**
+   * Upload via {@code PUT /api/2.0/fs/files{path}?overwrite=true} (UC Volumes / Workspace). Body is
+   * raw octets; max ~5 GiB per Databricks Files API.
+   */
+  private void uploadViaFilesApi(Path localFile, String absolutePath) throws HopException {
+    try {
+      String encodedPath = encodeFilesApiPath(absolutePath);
+      String url = hostBase + FILES_API_PREFIX + encodedPath + "?overwrite=true";
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(url))
+              .timeout(UPLOAD_TIMEOUT)
+              .header("Authorization", "Bearer " + token)
+              .header("Content-Type", "application/octet-stream")
+              .PUT(HttpRequest.BodyPublishers.ofFile(localFile))
+              .build();
+      HttpResponse<String> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+      int code = response.statusCode();
+      String body = response.body() == null ? "" : response.body();
+      if (code < 200 || code >= 300) {
+        throw new HopException(
+            "Databricks API HTTP "
+                + code
+                + " for PUT "
+                + FILES_API_PREFIX
+                + absolutePath
+                + ": "
+                + sanitizeError(body));
+      }
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(
+          "Failed to upload " + localFile + " to " + absolutePath + " via Files API", e);
+    }
+  }
+
+  /**
+   * Files API get-metadata: HEAD {@code /api/2.0/fs/files{path}} — size from Content-Length (no
+   * body).
+   */
+  private WorkspaceFileMetadata getFileMetadataFilesApi(String absolutePath) throws HopException {
+    try {
+      String encodedPath = encodeFilesApiPath(absolutePath);
+      String url = hostBase + FILES_API_PREFIX + encodedPath;
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(url))
+              .timeout(TIMEOUT)
+              .header("Authorization", "Bearer " + token)
+              .method("HEAD", HttpRequest.BodyPublishers.noBody())
+              .build();
+      HttpResponse<Void> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+      int code = response.statusCode();
+      if (code == 404) {
+        return WorkspaceFileMetadata.missing();
+      }
+      if (code < 200 || code >= 300) {
+        // Some gateways reject HEAD — fall back to GET with range 0-0 for size
+        return getFileMetadataFilesApiGetHeaders(absolutePath);
+      }
+      long size = contentLength(response.headers().firstValue("Content-Length").orElse(null));
+      if (size < 0) {
+        size = contentLength(response.headers().firstValue("content-length").orElse(null));
+      }
+      if (size < 0) {
+        return getFileMetadataFilesApiGetHeaders(absolutePath);
+      }
+      return WorkspaceFileMetadata.ofFile(size);
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Failed to get metadata for " + absolutePath, e);
+    }
+  }
+
+  private WorkspaceFileMetadata getFileMetadataFilesApiGetHeaders(String absolutePath)
+      throws HopException {
+    try {
+      String encodedPath = encodeFilesApiPath(absolutePath);
+      String url = hostBase + FILES_API_PREFIX + encodedPath;
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(url))
+              .timeout(TIMEOUT)
+              .header("Authorization", "Bearer " + token)
+              .header("Range", "bytes=0-0")
+              .GET()
+              .build();
+      HttpResponse<byte[]> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+      int code = response.statusCode();
+      if (code == 404) {
+        return WorkspaceFileMetadata.missing();
+      }
+      if (code != 200 && code != 206) {
+        String errBody =
+            response.body() == null ? "" : new String(response.body(), StandardCharsets.UTF_8);
+        throw new HopException(
+            "Databricks API HTTP "
+                + code
+                + " for GET "
+                + FILES_API_PREFIX
+                + absolutePath
+                + ": "
+                + sanitizeError(errBody));
+      }
+      Optional<String> contentRange = response.headers().firstValue("Content-Range");
+      if (contentRange.isPresent()) {
+        // bytes 0-0/12345
+        String cr = contentRange.get();
+        int slash = cr.lastIndexOf('/');
+        if (slash > 0 && slash < cr.length() - 1) {
+          try {
+            return WorkspaceFileMetadata.ofFile(Long.parseLong(cr.substring(slash + 1).trim()));
+          } catch (NumberFormatException ignored) {
+            // fall through
+          }
+        }
+      }
+      long size = contentLength(response.headers().firstValue("Content-Length").orElse(null));
+      if (size >= 0 && code == 200) {
+        return WorkspaceFileMetadata.ofFile(size);
+      }
+      // Last resort: full GET is too heavy — treat as missing size (force re-upload)
+      return WorkspaceFileMetadata.missing();
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Failed to get metadata for " + absolutePath, e);
+    }
+  }
+
+  private WorkspaceFileMetadata getFileMetadataDbfs(String path) throws HopException {
+    try {
+      String q = "/api/2.0/dbfs/get-status?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
+      String body = get(q);
+      JSONObject json = parseObject(body);
+      if (Boolean.TRUE.equals(json.get("is_dir"))) {
+        return WorkspaceFileMetadata.missing();
+      }
+      long size = requireLong(json, "file_size");
+      return WorkspaceFileMetadata.ofFile(size);
+    } catch (HopException e) {
+      String msg = e.getMessage() == null ? "" : e.getMessage();
+      if (msg.contains("404")
+          || msg.contains("RESOURCE_DOES_NOT_EXIST")
+          || msg.contains("File not found")
+          || msg.contains("does not exist")) {
+        return WorkspaceFileMetadata.missing();
+      }
+      throw e;
+    }
+  }
+
+  private Optional<String> downloadTextFilesApi(String absolutePath) throws HopException {
+    try {
+      String encodedPath = encodeFilesApiPath(absolutePath);
+      String url = hostBase + FILES_API_PREFIX + encodedPath;
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(url))
+              .timeout(TIMEOUT)
+              .header("Authorization", "Bearer " + token)
+              .GET()
+              .build();
+      HttpResponse<byte[]> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+      int code = response.statusCode();
+      if (code == 404) {
+        return Optional.empty();
+      }
+      if (code < 200 || code >= 300) {
+        String errBody =
+            response.body() == null ? "" : new String(response.body(), StandardCharsets.UTF_8);
+        throw new HopException(
+            "Databricks API HTTP "
+                + code
+                + " for GET "
+                + FILES_API_PREFIX
+                + absolutePath
+                + ": "
+                + sanitizeError(errBody));
+      }
+      byte[] bytes = response.body() == null ? new byte[0] : response.body();
+      return Optional.of(new String(bytes, StandardCharsets.UTF_8));
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Failed to download " + absolutePath, e);
+    }
+  }
+
+  private Optional<String> downloadTextDbfs(String path) throws HopException {
+    try {
+      // Single-block read: small sidecar files only
+      String q =
+          "/api/2.0/dbfs/read?path="
+              + URLEncoder.encode(path, StandardCharsets.UTF_8)
+              + "&offset=0&length="
+              + (1024 * 1024);
+      String resp = get(q);
+      JSONObject json = parseObject(resp);
+      Object data = json.get("data");
+      if (data == null) {
+        return Optional.of("");
+      }
+      byte[] decoded = Base64.getDecoder().decode(data.toString());
+      return Optional.of(new String(decoded, StandardCharsets.UTF_8));
+    } catch (HopException e) {
+      String msg = e.getMessage() == null ? "" : e.getMessage();
+      if (msg.contains("404")
+          || msg.contains("RESOURCE_DOES_NOT_EXIST")
+          || msg.contains("File not found")
+          || msg.contains("does not exist")) {
+        return Optional.empty();
+      }
+      throw e;
+    }
+  }
+
+  private static long contentLength(String header) {
+    if (StringUtils.isBlank(header)) {
+      return -1L;
+    }
+    try {
+      return Long.parseLong(header.trim());
+    } catch (NumberFormatException e) {
+      return -1L;
+    }
+  }
+
+  /** Legacy DBFS create / add-block / close for classic {@code dbfs:/} paths. */
+  private void uploadViaDbfsApi(Path localFile, String path) throws HopException {
+    try {
       JSONObject create = new JSONObject();
       create.put("path", path);
       create.put("overwrite", true);
@@ -219,7 +522,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
-      throw new HopException("Failed to upload " + localFile + " to " + path, e);
+      throw new HopException("Failed to upload " + localFile + " to " + path + " via DBFS API", e);
     }
   }
 
@@ -228,9 +531,13 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     // HttpClient does not require close
   }
 
+  /**
+   * Normalize upload paths: strip optional {@code dbfs:} scheme, ensure a leading slash. {@code
+   * dbfs:/Volumes/…} becomes {@code /Volumes/…} so the Files API route is selected.
+   */
   static String normalizeDbfsPath(String dbfsPath) throws HopException {
     if (StringUtils.isBlank(dbfsPath)) {
-      throw new HopException("DBFS path is required");
+      throw new HopException("Upload path is required");
     }
     String p = dbfsPath.trim();
     if (p.startsWith("dbfs:")) {
@@ -240,6 +547,23 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
       p = "/" + p;
     }
     return p;
+  }
+
+  /**
+   * Encode an absolute workspace path for the Files API URL path (keep {@code /} separators, encode
+   * each segment).
+   */
+  static String encodeFilesApiPath(String absolutePath) {
+    String p = absolutePath.startsWith("/") ? absolutePath : "/" + absolutePath;
+    String[] parts = p.split("/", -1);
+    StringBuilder sb = new StringBuilder();
+    for (String part : parts) {
+      if (part.isEmpty()) {
+        continue;
+      }
+      sb.append('/').append(URLEncoder.encode(part, StandardCharsets.UTF_8).replace("+", "%20"));
+    }
+    return sb.length() == 0 ? "/" : sb.toString();
   }
 
   private String get(String path) throws HopException {

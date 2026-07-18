@@ -22,11 +22,15 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -59,14 +63,29 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
   private MetaSelectionLine<DatabricksConnection> wConnection;
   private CCombo wRunMode;
   private TextVar wJobId;
-  private StyledText wSubmitJson;
-  private TextVar wFatJar;
-  private TextVar wPipeline;
-  private TextVar wRunConfig;
-  private TextVar wDbfsBase;
-  private TextVar wClusterId;
   private TextVar wJobName;
   private Button wUpdateJob;
+  private StyledText wSubmitJson;
+  private TextVar wFatJar;
+  private Button wbFatJarBrowse;
+  private TextVar wPipeline;
+  private Button wbPipelineBrowse;
+  private Button wbPipelineOpen;
+  private MetaSelectionLine<PipelineRunConfiguration> wRunConfig;
+  private TextVar wDbfsBase;
+  private Button wUploadProjectPackage;
+  private TextVar wProjectHome;
+  private TextVar wProjectPackageFile;
+  private Button wbProjectPackageBrowse;
+  private TextVar wEnvironmentConfigFile;
+  private Button wbEnvironmentConfigBrowse;
+  private TextVar wClusterId;
+  private TextVar wNewClusterSparkVersion;
+  private TextVar wNewClusterNodeType;
+  private TextVar wNewClusterNumWorkers;
+  private StyledText wNewClusterJson;
+  private TextVar wEnvironmentKey;
+  private TextVar wEnvironmentClient;
   private CCombo wWaitMode;
   private TextVar wTimeout;
   private TextVar wPoll;
@@ -142,7 +161,23 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     fdTab.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTab);
 
-    // --- Job tab ---
+    addJobTab(wTabFolder, middle, margin, lsMod);
+    addDeployTab(wTabFolder, middle, margin, lsMod);
+    addPackageTab(wTabFolder, middle, margin, lsMod);
+    addComputeTab(wTabFolder, middle, margin, lsMod);
+    addRunTab(wTabFolder, middle, margin, lsMod);
+
+    wTabFolder.setSelection(0);
+    getData();
+    enableModeFields();
+    wName.setFocus();
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    return action;
+  }
+
+  /** Connection, mode, job id/name, update flag, submit JSON. */
+  private void addJobTab(CTabFolder wTabFolder, int middle, int margin, ModifyListener lsMod) {
     CTabItem tabJob = new CTabItem(wTabFolder, SWT.NONE);
     tabJob.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.Tab.Job"));
     Composite wJobComp = new Composite(wTabFolder, SWT.NONE);
@@ -196,43 +231,26 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wRunMode.addModifyListener(lsMod);
     wRunMode.addListener(SWT.Selection, e -> enableModeFields());
 
-    Control afterMode = wRunMode;
-
     wlJobId = new Label(wJobComp, SWT.RIGHT);
     wlJobId.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.JobId.Label"));
     PropsUi.setLook(wlJobId);
     FormData fdlJobId = new FormData();
     fdlJobId.left = new FormAttachment(0, 0);
     fdlJobId.right = new FormAttachment(middle, -margin);
-    fdlJobId.top = new FormAttachment(afterMode, margin);
+    fdlJobId.top = new FormAttachment(wRunMode, margin);
     wlJobId.setLayoutData(fdlJobId);
     wJobId = new TextVar(variables, wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wJobId);
     wJobId.addModifyListener(lsMod);
     FormData fdJobId = new FormData();
     fdJobId.left = new FormAttachment(middle, 0);
-    fdJobId.top = new FormAttachment(afterMode, margin);
+    fdJobId.top = new FormAttachment(wRunMode, margin);
     fdJobId.right = new FormAttachment(100, 0);
     wJobId.setLayoutData(fdJobId);
 
-    wFatJar =
-        addLabeledTextVar(
-            wJobComp, wJobId, middle, margin, lsMod, "ActionDatabricksJobRun.FatJar.Label");
-    wPipeline =
-        addLabeledTextVar(
-            wJobComp, wFatJar, middle, margin, lsMod, "ActionDatabricksJobRun.Pipeline.Label");
-    wRunConfig =
-        addLabeledTextVar(
-            wJobComp, wPipeline, middle, margin, lsMod, "ActionDatabricksJobRun.RunConfig.Label");
-    wDbfsBase =
-        addLabeledTextVar(
-            wJobComp, wRunConfig, middle, margin, lsMod, "ActionDatabricksJobRun.DbfsBase.Label");
-    wClusterId =
-        addLabeledTextVar(
-            wJobComp, wDbfsBase, middle, margin, lsMod, "ActionDatabricksJobRun.ClusterId.Label");
     wJobName =
         addLabeledTextVar(
-            wJobComp, wClusterId, middle, margin, lsMod, "ActionDatabricksJobRun.JobName.Label");
+            wJobComp, wJobId, middle, margin, lsMod, "ActionDatabricksJobRun.JobName.Label");
 
     wUpdateJob = new Button(wJobComp, SWT.CHECK);
     PropsUi.setLook(wUpdateJob);
@@ -262,8 +280,296 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     fdSubmit.bottom = new FormAttachment(100, -margin);
     fdSubmit.height = 80;
     wSubmitJson.setLayoutData(fdSubmit);
+  }
 
-    // --- Run tab ---
+  /** Fat jar, pipeline, run configuration, upload base. */
+  private void addDeployTab(CTabFolder wTabFolder, int middle, int margin, ModifyListener lsMod) {
+    CTabItem tabDeploy = new CTabItem(wTabFolder, SWT.NONE);
+    tabDeploy.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.Tab.Deploy"));
+    Composite wDeployComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wDeployComp);
+    wDeployComp.setLayout(new FormLayout());
+    tabDeploy.setControl(wDeployComp);
+
+    Label wlFatJar = new Label(wDeployComp, SWT.RIGHT);
+    wlFatJar.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.FatJar.Label"));
+    PropsUi.setLook(wlFatJar);
+    FormData fdlFatJar = new FormData();
+    fdlFatJar.left = new FormAttachment(0, 0);
+    fdlFatJar.right = new FormAttachment(middle, -margin);
+    fdlFatJar.top = new FormAttachment(0, margin);
+    wlFatJar.setLayoutData(fdlFatJar);
+    wbFatJarBrowse = new Button(wDeployComp, SWT.PUSH);
+    PropsUi.setLook(wbFatJarBrowse);
+    wbFatJarBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbFatJar = new FormData();
+    fdbFatJar.right = new FormAttachment(100, 0);
+    fdbFatJar.top = new FormAttachment(wlFatJar, 0, SWT.CENTER);
+    wbFatJarBrowse.setLayoutData(fdbFatJar);
+    wbFatJarBrowse.addListener(SWT.Selection, e -> browseFatJar());
+    wFatJar = new TextVar(variables, wDeployComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wFatJar);
+    wFatJar.addModifyListener(lsMod);
+    FormData fdFatJar = new FormData();
+    fdFatJar.left = new FormAttachment(middle, 0);
+    fdFatJar.top = new FormAttachment(wlFatJar, 0, SWT.CENTER);
+    fdFatJar.right = new FormAttachment(wbFatJarBrowse, -margin);
+    wFatJar.setLayoutData(fdFatJar);
+
+    Label wlPipeline = new Label(wDeployComp, SWT.RIGHT);
+    wlPipeline.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.Pipeline.Label"));
+    PropsUi.setLook(wlPipeline);
+    FormData fdlPipeline = new FormData();
+    fdlPipeline.left = new FormAttachment(0, 0);
+    fdlPipeline.right = new FormAttachment(middle, -margin);
+    fdlPipeline.top = new FormAttachment(wFatJar, margin);
+    wlPipeline.setLayoutData(fdlPipeline);
+    wbPipelineOpen = new Button(wDeployComp, SWT.PUSH);
+    PropsUi.setLook(wbPipelineOpen);
+    wbPipelineOpen.setText(BaseMessages.getString(PKG, "System.Button.Open"));
+    FormData fdbPipelineOpen = new FormData();
+    fdbPipelineOpen.right = new FormAttachment(100, 0);
+    fdbPipelineOpen.top = new FormAttachment(wlPipeline, 0, SWT.CENTER);
+    wbPipelineOpen.setLayoutData(fdbPipelineOpen);
+    wbPipelineOpen.addListener(SWT.Selection, e -> openPipeline());
+    wbPipelineBrowse = new Button(wDeployComp, SWT.PUSH);
+    PropsUi.setLook(wbPipelineBrowse);
+    wbPipelineBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbPipelineBrowse = new FormData();
+    fdbPipelineBrowse.right = new FormAttachment(wbPipelineOpen, -margin);
+    fdbPipelineBrowse.top = new FormAttachment(wlPipeline, 0, SWT.CENTER);
+    wbPipelineBrowse.setLayoutData(fdbPipelineBrowse);
+    wbPipelineBrowse.addListener(SWT.Selection, e -> browsePipeline());
+    wPipeline = new TextVar(variables, wDeployComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wPipeline);
+    wPipeline.addModifyListener(lsMod);
+    FormData fdPipeline = new FormData();
+    fdPipeline.left = new FormAttachment(middle, 0);
+    fdPipeline.top = new FormAttachment(wlPipeline, 0, SWT.CENTER);
+    fdPipeline.right = new FormAttachment(wbPipelineBrowse, -margin);
+    wPipeline.setLayoutData(fdPipeline);
+
+    wRunConfig =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            PipelineRunConfiguration.class,
+            wDeployComp,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ActionDatabricksJobRun.RunConfig.Label"),
+            BaseMessages.getString(PKG, "ActionDatabricksJobRun.RunConfig.Tooltip"));
+    PropsUi.setLook(wRunConfig);
+    FormData fdRunConfig = new FormData();
+    fdRunConfig.left = new FormAttachment(0, 0);
+    fdRunConfig.top = new FormAttachment(wPipeline, margin);
+    fdRunConfig.right = new FormAttachment(100, 0);
+    wRunConfig.setLayoutData(fdRunConfig);
+    try {
+      wRunConfig.fillItems();
+    } catch (Exception e) {
+      // ignore empty metadata
+    }
+    wRunConfig.addModifyListener(lsMod);
+
+    wDbfsBase =
+        addLabeledTextVar(
+            wDeployComp,
+            wRunConfig,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.DbfsBase.Label");
+  }
+
+  /** Optional Spark project package + environment config. */
+  private void addPackageTab(CTabFolder wTabFolder, int middle, int margin, ModifyListener lsMod) {
+    CTabItem tabPackage = new CTabItem(wTabFolder, SWT.NONE);
+    tabPackage.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.Tab.Package"));
+    Composite wPackageComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wPackageComp);
+    wPackageComp.setLayout(new FormLayout());
+    tabPackage.setControl(wPackageComp);
+
+    wUploadProjectPackage = new Button(wPackageComp, SWT.CHECK);
+    PropsUi.setLook(wUploadProjectPackage);
+    wUploadProjectPackage.setText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.UploadProjectPackage.Label"));
+    wUploadProjectPackage.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.UploadProjectPackage.Tooltip"));
+    FormData fdUploadPkg = new FormData();
+    fdUploadPkg.left = new FormAttachment(middle, 0);
+    fdUploadPkg.top = new FormAttachment(0, margin);
+    fdUploadPkg.right = new FormAttachment(100, 0);
+    wUploadProjectPackage.setLayoutData(fdUploadPkg);
+    wUploadProjectPackage.addListener(SWT.Selection, e -> action.setChanged());
+
+    wProjectHome =
+        addLabeledTextVar(
+            wPackageComp,
+            wUploadProjectPackage,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.ProjectHome.Label");
+    wProjectHome.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.ProjectHome.Tooltip"));
+
+    Label wlProjectPackage = new Label(wPackageComp, SWT.RIGHT);
+    wlProjectPackage.setText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.ProjectPackageFile.Label"));
+    PropsUi.setLook(wlProjectPackage);
+    FormData fdlProjectPackage = new FormData();
+    fdlProjectPackage.left = new FormAttachment(0, 0);
+    fdlProjectPackage.right = new FormAttachment(middle, -margin);
+    fdlProjectPackage.top = new FormAttachment(wProjectHome, margin);
+    wlProjectPackage.setLayoutData(fdlProjectPackage);
+    wbProjectPackageBrowse = new Button(wPackageComp, SWT.PUSH);
+    PropsUi.setLook(wbProjectPackageBrowse);
+    wbProjectPackageBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbProjectPackage = new FormData();
+    fdbProjectPackage.right = new FormAttachment(100, 0);
+    fdbProjectPackage.top = new FormAttachment(wlProjectPackage, 0, SWT.CENTER);
+    wbProjectPackageBrowse.setLayoutData(fdbProjectPackage);
+    wbProjectPackageBrowse.addListener(SWT.Selection, e -> browseProjectPackage());
+    wProjectPackageFile = new TextVar(variables, wPackageComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wProjectPackageFile);
+    wProjectPackageFile.addModifyListener(lsMod);
+    wProjectPackageFile.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.ProjectPackageFile.Tooltip"));
+    FormData fdProjectPackage = new FormData();
+    fdProjectPackage.left = new FormAttachment(middle, 0);
+    fdProjectPackage.top = new FormAttachment(wlProjectPackage, 0, SWT.CENTER);
+    fdProjectPackage.right = new FormAttachment(wbProjectPackageBrowse, -margin);
+    wProjectPackageFile.setLayoutData(fdProjectPackage);
+
+    Label wlEnvConfig = new Label(wPackageComp, SWT.RIGHT);
+    wlEnvConfig.setText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.EnvironmentConfigFile.Label"));
+    PropsUi.setLook(wlEnvConfig);
+    FormData fdlEnvConfig = new FormData();
+    fdlEnvConfig.left = new FormAttachment(0, 0);
+    fdlEnvConfig.right = new FormAttachment(middle, -margin);
+    fdlEnvConfig.top = new FormAttachment(wProjectPackageFile, margin);
+    wlEnvConfig.setLayoutData(fdlEnvConfig);
+    wbEnvironmentConfigBrowse = new Button(wPackageComp, SWT.PUSH);
+    PropsUi.setLook(wbEnvironmentConfigBrowse);
+    wbEnvironmentConfigBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbEnvConfig = new FormData();
+    fdbEnvConfig.right = new FormAttachment(100, 0);
+    fdbEnvConfig.top = new FormAttachment(wlEnvConfig, 0, SWT.CENTER);
+    wbEnvironmentConfigBrowse.setLayoutData(fdbEnvConfig);
+    wbEnvironmentConfigBrowse.addListener(SWT.Selection, e -> browseEnvironmentConfig());
+    wEnvironmentConfigFile =
+        new TextVar(variables, wPackageComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wEnvironmentConfigFile);
+    wEnvironmentConfigFile.addModifyListener(lsMod);
+    wEnvironmentConfigFile.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.EnvironmentConfigFile.Tooltip"));
+    FormData fdEnvConfig = new FormData();
+    fdEnvConfig.left = new FormAttachment(middle, 0);
+    fdEnvConfig.top = new FormAttachment(wlEnvConfig, 0, SWT.CENTER);
+    fdEnvConfig.right = new FormAttachment(wbEnvironmentConfigBrowse, -margin);
+    wEnvironmentConfigFile.setLayoutData(fdEnvConfig);
+  }
+
+  /** Cluster / new_cluster / serverless. */
+  private void addComputeTab(CTabFolder wTabFolder, int middle, int margin, ModifyListener lsMod) {
+    CTabItem tabCompute = new CTabItem(wTabFolder, SWT.NONE);
+    tabCompute.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.Tab.Compute"));
+    Composite wComputeComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wComputeComp);
+    wComputeComp.setLayout(new FormLayout());
+    tabCompute.setControl(wComputeComp);
+
+    wClusterId =
+        addLabeledTextVar(
+            wComputeComp,
+            wComputeComp,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.ClusterId.Label",
+            true);
+    wClusterId.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.ClusterId.Tooltip"));
+    wNewClusterSparkVersion =
+        addLabeledTextVar(
+            wComputeComp,
+            wClusterId,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.NewClusterSparkVersion.Label");
+    wNewClusterSparkVersion.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.NewClusterSparkVersion.Tooltip"));
+    wNewClusterNodeType =
+        addLabeledTextVar(
+            wComputeComp,
+            wNewClusterSparkVersion,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.NewClusterNodeType.Label");
+    wNewClusterNodeType.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.NewClusterNodeType.Tooltip"));
+    wNewClusterNumWorkers =
+        addLabeledTextVar(
+            wComputeComp,
+            wNewClusterNodeType,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.NewClusterNumWorkers.Label");
+    wNewClusterNumWorkers.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.NewClusterNumWorkers.Tooltip"));
+
+    Label wlNewClusterJson = new Label(wComputeComp, SWT.RIGHT);
+    wlNewClusterJson.setText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.NewClusterJson.Label"));
+    PropsUi.setLook(wlNewClusterJson);
+    FormData fdlNewClusterJson = new FormData();
+    fdlNewClusterJson.left = new FormAttachment(0, 0);
+    fdlNewClusterJson.right = new FormAttachment(middle, -margin);
+    fdlNewClusterJson.top = new FormAttachment(wNewClusterNumWorkers, margin);
+    wlNewClusterJson.setLayoutData(fdlNewClusterJson);
+    wNewClusterJson =
+        new StyledText(
+            wComputeComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wNewClusterJson);
+    wNewClusterJson.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.NewClusterJson.Tooltip"));
+    wNewClusterJson.addModifyListener(lsMod);
+    FormData fdNewClusterJson = new FormData();
+    fdNewClusterJson.left = new FormAttachment(middle, 0);
+    fdNewClusterJson.top = new FormAttachment(wNewClusterNumWorkers, margin);
+    fdNewClusterJson.right = new FormAttachment(100, 0);
+    fdNewClusterJson.height = 80;
+    wNewClusterJson.setLayoutData(fdNewClusterJson);
+
+    wEnvironmentKey =
+        addLabeledTextVar(
+            wComputeComp,
+            wNewClusterJson,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.EnvironmentKey.Label");
+    wEnvironmentKey.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.EnvironmentKey.Tooltip"));
+    wEnvironmentClient =
+        addLabeledTextVar(
+            wComputeComp,
+            wEnvironmentKey,
+            middle,
+            margin,
+            lsMod,
+            "ActionDatabricksJobRun.EnvironmentClient.Label");
+    wEnvironmentClient.setToolTipText(
+        BaseMessages.getString(PKG, "ActionDatabricksJobRun.EnvironmentClient.Tooltip"));
+  }
+
+  /** Wait mode, timeout, poll, result variables. */
+  private void addRunTab(CTabFolder wTabFolder, int middle, int margin, ModifyListener lsMod) {
     CTabItem tabRun = new CTabItem(wTabFolder, SWT.NONE);
     tabRun.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.Tab.Run"));
     Composite wRunComp = new Composite(wTabFolder, SWT.NONE);
@@ -293,28 +599,20 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wWaitMode.setLayoutData(fdWait);
     wWaitMode.addModifyListener(lsMod);
 
-    Control last = addTextVarRow(wRunComp, wWaitMode, middle, margin, lsMod, "Timeout", true);
+    Control last = addTextVarRow(wRunComp, wWaitMode, middle, margin, lsMod, "Timeout");
     wTimeout = (TextVar) last;
-    last = addTextVarRow(wRunComp, wTimeout, middle, margin, lsMod, "Poll", true);
+    last = addTextVarRow(wRunComp, wTimeout, middle, margin, lsMod, "Poll");
     wPoll = (TextVar) last;
-    last = addTextVarRow(wRunComp, wPoll, middle, margin, lsMod, "VarJobId", false);
+    last = addTextVarRow(wRunComp, wPoll, middle, margin, lsMod, "VarJobId");
     wVarJobId = (TextVar) last;
-    last = addTextVarRow(wRunComp, wVarJobId, middle, margin, lsMod, "VarRunId", false);
+    last = addTextVarRow(wRunComp, wVarJobId, middle, margin, lsMod, "VarRunId");
     wVarRunId = (TextVar) last;
-    last = addTextVarRow(wRunComp, wVarRunId, middle, margin, lsMod, "VarStatus", false);
+    last = addTextVarRow(wRunComp, wVarRunId, middle, margin, lsMod, "VarStatus");
     wVarStatus = (TextVar) last;
-    last = addTextVarRow(wRunComp, wVarStatus, middle, margin, lsMod, "VarPageUrl", false);
+    last = addTextVarRow(wRunComp, wVarStatus, middle, margin, lsMod, "VarPageUrl");
     wVarPageUrl = (TextVar) last;
-    last = addTextVarRow(wRunComp, wVarPageUrl, middle, margin, lsMod, "VarError", false);
+    last = addTextVarRow(wRunComp, wVarPageUrl, middle, margin, lsMod, "VarError");
     wVarError = (TextVar) last;
-
-    wTabFolder.setSelection(0);
-    getData();
-    enableModeFields();
-    wName.setFocus();
-
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-    return action;
   }
 
   private TextVar addLabeledTextVar(
@@ -324,33 +622,49 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
       int margin,
       ModifyListener lsMod,
       String labelKey) {
+    return addLabeledTextVar(parent, above, middle, margin, lsMod, labelKey, false);
+  }
+
+  /**
+   * @param firstOnTab when true, attach top to parent margin instead of {@code above}
+   */
+  private TextVar addLabeledTextVar(
+      Composite parent,
+      Control above,
+      int middle,
+      int margin,
+      ModifyListener lsMod,
+      String labelKey,
+      boolean firstOnTab) {
     Label wl = new Label(parent, SWT.RIGHT);
     wl.setText(BaseMessages.getString(PKG, labelKey));
     PropsUi.setLook(wl);
     FormData fdl = new FormData();
     fdl.left = new FormAttachment(0, 0);
     fdl.right = new FormAttachment(middle, -margin);
-    fdl.top = new FormAttachment(above, margin);
+    if (firstOnTab) {
+      fdl.top = new FormAttachment(0, margin);
+    } else {
+      fdl.top = new FormAttachment(above, margin);
+    }
     wl.setLayoutData(fdl);
     TextVar w = new TextVar(variables, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(w);
     w.addModifyListener(lsMod);
     FormData fd = new FormData();
     fd.left = new FormAttachment(middle, 0);
-    fd.top = new FormAttachment(above, margin);
+    if (firstOnTab) {
+      fd.top = new FormAttachment(0, margin);
+    } else {
+      fd.top = new FormAttachment(above, margin);
+    }
     fd.right = new FormAttachment(100, 0);
     w.setLayoutData(fd);
     return w;
   }
 
   private Control addTextVarRow(
-      Composite parent,
-      Control above,
-      int middle,
-      int margin,
-      ModifyListener lsMod,
-      String key,
-      boolean ignored) {
+      Composite parent, Control above, int middle, int margin, ModifyListener lsMod, String key) {
     return addLabeledTextVar(
         parent, above, middle, margin, lsMod, "ActionDatabricksJobRun." + key + ".Label");
   }
@@ -364,13 +678,28 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wJobId.setEnabled(existing || deploy);
     wlSubmitJson.setEnabled(submit);
     wSubmitJson.setEnabled(submit);
-    wFatJar.setEnabled(deploy);
-    wPipeline.setEnabled(deploy);
-    wRunConfig.setEnabled(deploy);
-    wDbfsBase.setEnabled(deploy);
-    wClusterId.setEnabled(deploy);
     wJobName.setEnabled(deploy);
     wUpdateJob.setEnabled(deploy);
+    wFatJar.setEnabled(deploy);
+    wbFatJarBrowse.setEnabled(deploy);
+    wPipeline.setEnabled(deploy);
+    wbPipelineBrowse.setEnabled(deploy);
+    wbPipelineOpen.setEnabled(deploy);
+    wRunConfig.setEnabled(deploy);
+    wDbfsBase.setEnabled(deploy);
+    wUploadProjectPackage.setEnabled(deploy);
+    wProjectHome.setEnabled(deploy);
+    wProjectPackageFile.setEnabled(deploy);
+    wbProjectPackageBrowse.setEnabled(deploy);
+    wEnvironmentConfigFile.setEnabled(deploy);
+    wbEnvironmentConfigBrowse.setEnabled(deploy);
+    wClusterId.setEnabled(deploy);
+    wNewClusterSparkVersion.setEnabled(deploy);
+    wNewClusterNodeType.setEnabled(deploy);
+    wNewClusterNumWorkers.setEnabled(deploy);
+    wNewClusterJson.setEnabled(deploy);
+    wEnvironmentKey.setEnabled(deploy);
+    wEnvironmentClient.setEnabled(deploy);
   }
 
   public void getData() {
@@ -384,14 +713,40 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
       wRunMode.select(0);
     }
     wJobId.setText(Const.NVL(action.getJobId(), ""));
+    wJobName.setText(Const.NVL(action.getJobName(), ""));
+    wUpdateJob.setSelection(action.isUpdateExistingJob());
     wSubmitJson.setText(Const.NVL(action.getSubmitRunJson(), ""));
     wFatJar.setText(Const.NVL(action.getFatJarPath(), ""));
     wPipeline.setText(Const.NVL(action.getPipelineFilename(), ""));
     wRunConfig.setText(Const.NVL(action.getRunConfigurationName(), ""));
     wDbfsBase.setText(Const.NVL(action.getDbfsBasePath(), "dbfs:/FileStore/hop"));
+    wUploadProjectPackage.setSelection(action.isUploadProjectPackage());
+    wProjectHome.setText(Const.NVL(action.getProjectHome(), ""));
+    wProjectPackageFile.setText(Const.NVL(action.getProjectPackageFile(), ""));
+    wEnvironmentConfigFile.setText(Const.NVL(action.getEnvironmentConfigFile(), ""));
     wClusterId.setText(Const.NVL(action.getExistingClusterId(), ""));
-    wJobName.setText(Const.NVL(action.getJobName(), ""));
-    wUpdateJob.setSelection(action.isUpdateExistingJob());
+    wNewClusterSparkVersion.setText(
+        Const.NVL(
+            action.getNewClusterSparkVersion(),
+            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_SPARK_VERSION));
+    wNewClusterNodeType.setText(
+        Const.NVL(
+            action.getNewClusterNodeTypeId(),
+            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_NODE_TYPE_ID));
+    wNewClusterNumWorkers.setText(
+        Const.NVL(
+            action.getNewClusterNumWorkers(),
+            Integer.toString(
+                org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_NUM_WORKERS)));
+    wNewClusterJson.setText(Const.NVL(action.getNewClusterJson(), ""));
+    wEnvironmentKey.setText(
+        Const.NVL(
+            action.getEnvironmentKey(),
+            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_ENVIRONMENT_KEY));
+    wEnvironmentClient.setText(
+        Const.NVL(
+            action.getEnvironmentClient(),
+            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_ENVIRONMENT_CLIENT));
     if (ActionDatabricksJobRun.WAIT_FIRE_AND_FORGET.equalsIgnoreCase(action.getWaitMode())) {
       wWaitMode.select(1);
     } else {
@@ -404,6 +759,72 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wVarStatus.setText(Const.NVL(action.getResultVariableStatus(), "DatabricksStatus"));
     wVarPageUrl.setText(Const.NVL(action.getResultVariablePageUrl(), "DatabricksRunPageUrl"));
     wVarError.setText(Const.NVL(action.getResultVariableError(), "DatabricksError"));
+  }
+
+  private void browseFatJar() {
+    BaseDialog.presentFileDialog(
+        shell,
+        wFatJar,
+        variables,
+        new String[] {"*.jar;*.JAR", "*"},
+        new String[] {
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.FileType.Jar"),
+          BaseMessages.getString(PKG, "System.FileType.AllFiles")
+        },
+        true);
+  }
+
+  private void browsePipeline() {
+    HopPipelineFileType<?> pipelineFileType = new HopPipelineFileType<>();
+    BaseDialog.presentFileDialog(
+        shell,
+        wPipeline,
+        variables,
+        pipelineFileType.getFilterExtensions(),
+        pipelineFileType.getFilterNames(),
+        true);
+  }
+
+  private void browseProjectPackage() {
+    BaseDialog.presentFileDialog(
+        shell,
+        wProjectPackageFile,
+        variables,
+        new String[] {"*.zip;*.ZIP", "*"},
+        new String[] {
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.FileType.Zip"),
+          BaseMessages.getString(PKG, "System.FileType.AllFiles")
+        },
+        true);
+  }
+
+  private void browseEnvironmentConfig() {
+    BaseDialog.presentFileDialog(
+        shell,
+        wEnvironmentConfigFile,
+        variables,
+        new String[] {"*.json;*.JSON", "*"},
+        new String[] {
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.FileType.Json"),
+          BaseMessages.getString(PKG, "System.FileType.AllFiles")
+        },
+        true);
+  }
+
+  private void openPipeline() {
+    try {
+      String filename = variables.resolve(wPipeline.getText());
+      if (Utils.isEmpty(filename)) {
+        return;
+      }
+      HopGui.getInstance().fileDelegate.fileOpen(filename);
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.Error.OpenPipeline.Title"),
+          BaseMessages.getString(PKG, "ActionDatabricksJobRun.Error.OpenPipeline.Message"),
+          e);
+    }
   }
 
   private void cancel() {
@@ -435,7 +856,17 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     action.setPipelineFilename(wPipeline.getText());
     action.setRunConfigurationName(wRunConfig.getText());
     action.setDbfsBasePath(wDbfsBase.getText());
+    action.setUploadProjectPackage(wUploadProjectPackage.getSelection());
+    action.setProjectHome(wProjectHome.getText());
+    action.setProjectPackageFile(wProjectPackageFile.getText());
+    action.setEnvironmentConfigFile(wEnvironmentConfigFile.getText());
     action.setExistingClusterId(wClusterId.getText());
+    action.setNewClusterSparkVersion(wNewClusterSparkVersion.getText());
+    action.setNewClusterNodeTypeId(wNewClusterNodeType.getText());
+    action.setNewClusterNumWorkers(wNewClusterNumWorkers.getText());
+    action.setNewClusterJson(wNewClusterJson.getText());
+    action.setEnvironmentKey(wEnvironmentKey.getText());
+    action.setEnvironmentClient(wEnvironmentClient.getText());
     action.setJobName(wJobName.getText());
     action.setUpdateExistingJob(wUpdateJob.getSelection());
     action.setWaitMode(

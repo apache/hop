@@ -177,6 +177,52 @@ class SparkProjectPackageTest {
   }
 
   @Test
+  void isClusterSharedPackagePathDetectsVolumesAndObjectStore() {
+    assertTrue(
+        SparkProjectPackage.isClusterSharedPackagePath(
+            "/Volumes/apache-hop/default/jars/hop-spark-package.zip"));
+    assertTrue(SparkProjectPackage.isClusterSharedPackagePath("/dbfs/FileStore/pkg.zip"));
+    assertTrue(SparkProjectPackage.isClusterSharedPackagePath("dbfs:/FileStore/pkg.zip"));
+    assertTrue(SparkProjectPackage.isClusterSharedPackagePath("s3a://bucket/pkg.zip"));
+    assertFalse(SparkProjectPackage.isClusterSharedPackagePath("/tmp/local-pkg.zip"));
+    assertFalse(SparkProjectPackage.isClusterSharedPackagePath("file:/tmp/local-pkg.zip"));
+    assertFalse(SparkProjectPackage.isClusterSharedPackagePath(null));
+  }
+
+  @Test
+  void resolvePrefersClusterSharedUriOverSparkFileBasename() throws Exception {
+    File projectHome = new File(tempDir, "vol-proj");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "a.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    // Simulate UC Volume-style path by using a real local file under a /Volumes-like prefix is
+    // not portable on every OS; use s3a-style remote marker via path that isClusterShared and
+    // exists as local under a fake mount name.
+    File volumesRoot = new File(tempDir, "Volumes");
+    File volumeZipDir = new File(volumesRoot, "c/s/v");
+    assertTrue(volumeZipDir.mkdirs());
+    File zip = new File(volumeZipDir, "hop-spark-package.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+
+    // Absolute path that contains /Volumes/ after normalize — on Linux temp paths won't start
+    // with /Volumes/; test isClusterShared on the string form used by Databricks Deploy.
+    Variables vars = new Variables();
+    String sharedUri = "/Volumes/apache-hop/default/jars/hop-spark-package.zip";
+    // Point URI at our real zip by using isClusterShared detection only for the string; for
+    // resolve we need the file to exist — use real zip path with shared detection via s3a skip.
+    // Instead: set URI to real zip absolute path that we mark via dbfs: if needed.
+    // Practical unit test: shared object-store URI returned when no local file.
+    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_URI, "s3a://bucket/hop-spark-package.zip");
+    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE, "hop-spark-package.zip");
+    assertEquals(
+        "s3a://bucket/hop-spark-package.zip",
+        SparkProjectPackage.resolvePackagePathForMaterialize(vars));
+  }
+
+  @Test
   void resolvePrefersHopDataPackagesOverMissingSparkFiles() throws Exception {
     File projectHome = new File(tempDir, "shared-proj");
     assertTrue(projectHome.mkdirs());

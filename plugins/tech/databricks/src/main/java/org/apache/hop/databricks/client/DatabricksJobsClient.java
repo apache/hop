@@ -49,10 +49,28 @@ public interface DatabricksJobsClient extends AutoCloseable {
   void cancelRun(long runId) throws HopException;
 
   /**
-   * Upload a local file to a DBFS path ({@code dbfs:/...}). Overwrites if present. Implementations
-   * may use the DBFS REST API (create / add-block / close).
+   * Upload a local file to a workspace path and overwrite if present.
+   *
+   * <p>Paths under {@code /Volumes/…} (Unity Catalog volumes) or {@code /Workspace/…} use the Files
+   * API ({@code PUT /api/2.0/fs/files/…}). Classic {@code dbfs:/…} / {@code /FileStore/…} paths use
+   * the legacy DBFS API (create / add-block / close).
    */
   void uploadToDbfs(java.nio.file.Path localFile, String dbfsPath) throws HopException;
+
+  /**
+   * Metadata for a remote workspace file (Files API or DBFS). {@link
+   * WorkspaceFileMetadata#exists()} is false when the path is missing or inaccessible as a file.
+   */
+  WorkspaceFileMetadata getFileMetadata(String workspacePath) throws HopException;
+
+  /**
+   * Download a small remote text file (e.g. checksum sidecar). Returns empty when the file does not
+   * exist.
+   */
+  java.util.Optional<String> downloadTextIfExists(String workspacePath) throws HopException;
+
+  /** Upload UTF-8 text to a workspace path (overwrites). Convenience for tiny sidecar files. */
+  void uploadText(String workspacePath, String text) throws HopException;
 
   @Override
   void close();

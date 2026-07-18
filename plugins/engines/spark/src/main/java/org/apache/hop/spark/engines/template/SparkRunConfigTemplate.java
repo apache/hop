@@ -73,7 +73,13 @@ public enum SparkRunConfigTemplate {
       "",
       "Apache Hop",
       "",
-      "spark.ui.enabled=false",
+"""
+spark.ui.enabled=false
+spark.executor.cores=3
+spark.driver.cores=1
+spark.default.parallelism=12
+spark.sql.shuffle.partitions=12
+      """,
       "",
       "",
       ""),
