@@ -112,7 +112,7 @@ Default variable names (configurable on the **Run** tab):
 |Deploy mode: local fat jar (prefer `hop-conf --generate-fat-jar … --spark-client-version=native-provided`), entry pipeline path, and Native Spark run configuration name present in the metadata export (or project package)
 
 |DBFS / Volume base directory
-|Upload root for deploy artifacts (`hop-native.jar`, `pipeline.hpl`, `metadata.json`, optional `hop-spark-package.zip`, `env-config.json`). Prefer a Unity Catalog volume when public DBFS root is disabled, e.g. `/Volumes/catalog/schema/volume/hop`. Classic DBFS: `dbfs:/FileStore/hop`.
+|Upload root for deploy artifacts. Fat jar: content-addressed `hop-native-<sha12>.jar` (+ `.sha256` sidecar) so Databricks job libraries refresh when jar bytes change (fixed-name overwrite is not enough on long-lived Dedicated clusters — see xref:pipeline/spark/databricks.adoc#lesson-fat-jar-library-uri[Databricks lessons]). Per entry pipeline stem: `pipeline-{stem}.hpl`, `metadata-{stem}.json`, `hop-spark-package-{stem}.zip`, `env-config-{stem}.json`. Prefer a Unity Catalog volume when public DBFS root is disabled, e.g. `/Volumes/catalog/schema/volume/hop`.
 |===
 
 === Package tab
@@ -136,7 +136,7 @@ Default variable names (configurable on the **Run** tab):
 |Option |Description
 
 |Cluster / compute
-|**Classic existing:** paste the all-purpose cluster id. **Classic job cluster:** enter `new_cluster` (ephemeral cluster for the run). **Serverless:** enter `serverless` (job `environments` + task `environment_key`; jar via `java_dependencies`).
+|**Classic existing:** paste the all-purpose cluster id — cluster **access mode must be Dedicated** (not Standard/shared; Standard is Spark Connect and has no `SparkContext`). **Classic job cluster:** enter `new_cluster` (ephemeral cluster for the run). **Serverless:** enter `serverless` (not supported for full Native Spark RDD workloads that need `SparkContext`).
 
 |new_cluster spark_version / node_type_id / num_workers / JSON
 |Used when compute is `new_cluster`. Defaults: `18.2.x-scala2.13`, `i3.xlarge` (AWS), `1`. Prefer `i3.*` on AWS (local NVMe); `m5.xlarge` often needs EBS. Optional full JSON can set `spark_conf` (e.g. match `spark.executor.cores` / `spark.driver.cores` to the node’s vCPUs — see xref:pipeline/spark/databricks.adoc#spark-conf-cores[Native Spark on Databricks]).

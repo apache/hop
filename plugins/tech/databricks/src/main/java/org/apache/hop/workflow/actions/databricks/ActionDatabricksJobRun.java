@@ -58,7 +58,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     id = "DATABRICKS_JOB_RUN",
     name = "i18n::ActionDatabricksJobRun.Name",
     description = "i18n::ActionDatabricksJobRun.Description",
-    image = "databricks-job-run.svg",
+    image = "databricks-run.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BigData",
     keywords = "i18n::ActionDatabricksJobRun.keyword",
     documentationUrl = "/workflow/actions/databricks-job-run.html")

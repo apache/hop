@@ -725,28 +725,14 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wProjectPackageFile.setText(Const.NVL(action.getProjectPackageFile(), ""));
     wEnvironmentConfigFile.setText(Const.NVL(action.getEnvironmentConfigFile(), ""));
     wClusterId.setText(Const.NVL(action.getExistingClusterId(), ""));
-    wNewClusterSparkVersion.setText(
-        Const.NVL(
-            action.getNewClusterSparkVersion(),
-            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_SPARK_VERSION));
-    wNewClusterNodeType.setText(
-        Const.NVL(
-            action.getNewClusterNodeTypeId(),
-            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_NODE_TYPE_ID));
-    wNewClusterNumWorkers.setText(
-        Const.NVL(
-            action.getNewClusterNumWorkers(),
-            Integer.toString(
-                org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_NUM_WORKERS)));
+    // Do not re-inject DEFAULT_* when the user cleared these (Const.NVL treats "" as empty).
+    // Job create still applies factory defaults for new_cluster / serverless when blank.
+    wNewClusterSparkVersion.setText(Const.NVL(action.getNewClusterSparkVersion(), ""));
+    wNewClusterNodeType.setText(Const.NVL(action.getNewClusterNodeTypeId(), ""));
+    wNewClusterNumWorkers.setText(Const.NVL(action.getNewClusterNumWorkers(), ""));
     wNewClusterJson.setText(Const.NVL(action.getNewClusterJson(), ""));
-    wEnvironmentKey.setText(
-        Const.NVL(
-            action.getEnvironmentKey(),
-            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_ENVIRONMENT_KEY));
-    wEnvironmentClient.setText(
-        Const.NVL(
-            action.getEnvironmentClient(),
-            org.apache.hop.databricks.deploy.DatabricksJobSpecFactory.DEFAULT_ENVIRONMENT_CLIENT));
+    wEnvironmentKey.setText(Const.NVL(action.getEnvironmentKey(), ""));
+    wEnvironmentClient.setText(Const.NVL(action.getEnvironmentClient(), ""));
     if (ActionDatabricksJobRun.WAIT_FIRE_AND_FORGET.equalsIgnoreCase(action.getWaitMode())) {
       wWaitMode.select(1);
     } else {

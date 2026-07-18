@@ -19,6 +19,7 @@ package org.apache.hop.spark.pkg;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -197,36 +198,54 @@ class SparkProjectPackageTest {
   }
 
   @Test
-  void resolvePrefersClusterSharedUriOverSparkFileBasename() throws Exception {
-    File projectHome = new File(tempDir, "vol-proj");
+  void resolvePackagePathAlwaysReturnsVolumesUriEvenIfNotLocalFile() {
+    // Executors must not require File.isFile() on /Volumes before materialize (driver-only
+    // PROJECT_HOME is discarded after re-extract from the shared Volume path).
+    Variables vars = new Variables();
+    vars.setVariable(
+        SparkProjectPackage.VAR_PACKAGE_URI,
+        "/Volumes/apache-hop/default/jars/hop-spark-package.zip");
+    vars.setVariable("PROJECT_HOME", "/local_disk0/tmp/hop-spark-pkg-deadbeef/project");
+    assertEquals(
+        "/Volumes/apache-hop/default/jars/hop-spark-package.zip",
+        SparkProjectPackage.resolvePackagePathForMaterialize(vars));
+    assertEquals(
+        java.util.List.of("/Volumes/apache-hop/default/jars/hop-spark-package.zip"),
+        SparkProjectPackage.listPackagePathsForMaterialize(vars));
+  }
+
+  @Test
+  void resolveFallsBackToClusterSharedWhenSparkFilesMissing() {
+    // Basename set but SparkFiles.get has nothing → still return cluster-shared URI.
+    Variables vars = new Variables();
+    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_URI, "s3a://bucket/hop-spark-package.zip");
+    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE, "hop-spark-package.zip");
+    assertEquals(
+        "s3a://bucket/hop-spark-package.zip",
+        SparkProjectPackage.resolvePackagePathForMaterialize(vars));
+  }
+
+  @Test
+  void ensureMaterializedClearsDriverOnlyProjectHome() throws Exception {
+    File projectHome = new File(tempDir, "stale-ph");
     assertTrue(projectHome.mkdirs());
     Files.writeString(new File(projectHome, "a.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
-    // Simulate UC Volume-style path by using a real local file under a /Volumes-like prefix is
-    // not portable on every OS; use s3a-style remote marker via path that isClusterShared and
-    // exists as local under a fake mount name.
-    File volumesRoot = new File(tempDir, "Volumes");
-    File volumeZipDir = new File(volumesRoot, "c/s/v");
-    assertTrue(volumeZipDir.mkdirs());
-    File zip = new File(volumeZipDir, "hop-spark-package.zip");
+    File zip = new File(tempDir, "stale-ph.zip");
     SparkProjectPackage.exportProject(
         projectHome.getAbsolutePath(),
         zip.getAbsolutePath(),
         new MemoryMetadataProvider(),
         new Variables());
 
-    // Absolute path that contains /Volumes/ after normalize — on Linux temp paths won't start
-    // with /Volumes/; test isClusterShared on the string form used by Databricks Deploy.
     Variables vars = new Variables();
-    String sharedUri = "/Volumes/apache-hop/default/jars/hop-spark-package.zip";
-    // Point URI at our real zip by using isClusterShared detection only for the string; for
-    // resolve we need the file to exist — use real zip path with shared detection via s3a skip.
-    // Instead: set URI to real zip absolute path that we mark via dbfs: if needed.
-    // Practical unit test: shared object-store URI returned when no local file.
-    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_URI, "s3a://bucket/hop-spark-package.zip");
-    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE, "hop-spark-package.zip");
-    assertEquals(
-        "s3a://bucket/hop-spark-package.zip",
-        SparkProjectPackage.resolvePackagePathForMaterialize(vars));
+    vars.setVariable(SparkProjectPackage.VAR_PACKAGE_URI, zip.getAbsolutePath());
+    // Simulate driver extract path broadcast to an executor that never had that directory
+    vars.setVariable("PROJECT_HOME", "/local_disk0/tmp/hop-spark-pkg-deadbeef/project");
+    SparkProjectPackage.ensureMaterializedOnWorker(vars);
+    assertTrue(new File(vars.getVariable("PROJECT_HOME")).isDirectory());
+    assertTrue(new File(vars.getVariable("PROJECT_HOME"), "a.hpl").isFile());
+    assertNotEquals(
+        "/local_disk0/tmp/hop-spark-pkg-deadbeef/project", vars.getVariable("PROJECT_HOME"));
   }
 
   @Test
@@ -287,6 +306,38 @@ class SparkProjectPackageTest {
         new Variables());
     String local = SparkProjectPackage.ensureLocalPackageFile(zip.getAbsolutePath());
     assertEquals(zip.getAbsolutePath(), local);
+  }
+
+  @Test
+  void stagePackageToLocalTempCopiesReadableZip() throws Exception {
+    File projectHome = new File(tempDir, "stage-src");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "z.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "stage.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+    String staged = SparkProjectPackage.stagePackageToLocalTemp(zip.getAbsolutePath());
+    assertNotEquals(zip.getAbsolutePath(), staged);
+    assertTrue(staged.contains("hop-spark-pkg-src-"));
+    File stagedFile = new File(staged);
+    assertTrue(stagedFile.isFile());
+    assertTrue(stagedFile.length() > 0);
+    // second call reuses same staging path when content unchanged
+    assertEquals(staged, SparkProjectPackage.stagePackageToLocalTemp(zip.getAbsolutePath()));
+  }
+
+  @Test
+  void ensureLocalPackageFileStagesDbfsStyleUriViaCopy() throws Exception {
+    // dbfs: is cluster-shared — must not return a Volume-style path to addFile.
+    // We cannot open a real dbfs mount in unit tests; use stagePackageToLocalTemp on a real zip
+    // and assert isClusterSharedPackagePath treats dbfs as shared.
+    assertTrue(SparkProjectPackage.isClusterSharedPackagePath("dbfs:/FileStore/pkg.zip"));
+    assertTrue(
+        SparkProjectPackage.isClusterSharedPackagePath(
+            "/Volumes/apache-hop/default/jars/hop-spark-package.zip"));
   }
 
   @Test

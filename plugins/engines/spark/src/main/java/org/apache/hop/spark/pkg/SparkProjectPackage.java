@@ -73,6 +73,12 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  */
 public final class SparkProjectPackage {
 
+  /**
+   * Bumped when worker package distribution behavior changes. Printed by MainSpark so Databricks
+   * logs prove which fat jar is live (avoid debugging stale Volume jars).
+   */
+  public static final String DISTRIBUTION_BUILD_ID = "pkg-dist-v3-stage-volumes-for-addfile";
+
   /** Variable holding the package zip URI/path for driver and executor materialization. */
   public static final String VAR_PACKAGE_URI = "HOP_SPARK_PROJECT_PACKAGE";
 
@@ -110,10 +116,9 @@ public final class SparkProjectPackage {
    * project root. Safe to call from every mapPartitions init; materializes once per package path
    * per JVM.
    *
-   * <p>Resolution order on workers: {@code SparkFiles.get(basename)}, then {@code
-   * $HOP_DATA/packages/basename}, then {@link #VAR_PACKAGE_URI} if that path is local on this host.
-   * Never stores SparkFiles paths back into {@link #VAR_PACKAGE_URI} (those are driver/executor
-   * local and not portable).
+   * <p>Tries each candidate from {@link #listPackagePathsForMaterialize} until one materializes.
+   * Never keeps a driver-only {@code PROJECT_HOME} under another node's {@code /tmp}. Never stores
+   * SparkFiles paths back into {@link #VAR_PACKAGE_URI} (those are per-JVM and not portable).
    */
   public static void ensureMaterializedOnWorker(IVariables variables) throws HopException {
     if (variables == null) {
@@ -121,60 +126,150 @@ public final class SparkProjectPackage {
     }
     String preservedUri = variables.getVariable(VAR_PACKAGE_URI);
     String sparkFile = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
-    String packagePath = resolvePackagePathForMaterialize(variables);
-    if (StringUtils.isEmpty(packagePath)) {
+
+    // Drop driver-broadcast PROJECT_HOME when it is not a real directory on *this* JVM.
+    clearStaleProjectHome(variables);
+
+    java.util.List<String> candidates = listPackagePathsForMaterialize(variables);
+    if (candidates.isEmpty()) {
+      if (StringUtils.isNotEmpty(preservedUri)) {
+        throw new HopException(
+            "Could not resolve Spark project package on this host for materialization: "
+                + variables.resolve(preservedUri)
+                + " (sparkFile="
+                + sparkFile
+                + "). PROJECT_HOME was "
+                + variables.getVariable("PROJECT_HOME")
+                + ". On Databricks Deploy & run, keep the package on a UC Volume (/Volumes/…) and"
+                + " ensure the fat jar stages a SparkFiles copy for executors that cannot open"
+                + " Volumes via java.io.File / Hop VFS.");
+      }
       return;
     }
-    Materialized m = materialize(packagePath);
+
+    HopException lastError = null;
+    Materialized m = null;
+    String usedPath = null;
+    for (String packagePath : candidates) {
+      try {
+        m = materialize(packagePath);
+        usedPath = packagePath;
+        break;
+      } catch (HopException e) {
+        lastError = e;
+      } catch (Exception e) {
+        lastError =
+            new HopException("Error materializing Spark project package: " + packagePath, e);
+      }
+    }
+    if (m == null) {
+      throw new HopException(
+          "Could not materialize Spark project package from any candidate path: "
+              + candidates
+              + ". Last error: "
+              + (lastError != null ? lastError.getMessage() : "none"),
+          lastError);
+    }
+
     // Never persist SparkFiles paths in VAR_PACKAGE_URI (not valid on other JVMs)
     String uriToKeep = preservedUri;
     if (StringUtils.isEmpty(uriToKeep) || isSparkFilesLocalPath(uriToKeep)) {
-      uriToKeep = !isSparkFilesLocalPath(packagePath) ? packagePath : preservedUri;
+      uriToKeep = !isSparkFilesLocalPath(usedPath) ? usedPath : preservedUri;
     }
+    // Always overwrite PROJECT_HOME with *this* JVM's extract (not the driver's /tmp path).
     applyToVariables(variables, m, uriToKeep);
     if (StringUtils.isNotEmpty(sparkFile)) {
       variables.setVariable(VAR_PACKAGE_SPARK_FILE, sparkFile);
     }
+
+    String home = variables.getVariable("PROJECT_HOME");
+    if (StringUtils.isEmpty(home) || !new File(home).isDirectory()) {
+      throw new HopException(
+          "Spark project package materialize did not produce a PROJECT_HOME directory on this"
+              + " host (got '"
+              + home
+              + "') from package path "
+              + usedPath
+              + ". Package URI="
+              + uriToKeep
+              + ".");
+    }
   }
 
   /**
-   * Resolve the zip path to open on this JVM.
-   *
-   * <ol>
-   *   <li>Cluster-shared {@link #VAR_PACKAGE_URI} (UC {@code /Volumes/…}, {@code /dbfs/}, object
-   *       store) when the path is readable on this host
-   *   <li>{@code $HOP_DATA/packages/<basename>} (shared volume — submit scripts refresh this)
-   *   <li>{@code SparkFiles.get(basename)} when the file exists (spark-submit --files / addFile)
-   *   <li>{@link #VAR_PACKAGE_URI} when that path exists locally (driver-only or NFS)
-   * </ol>
+   * Drop {@code PROJECT_HOME} when it does not exist as a directory on this JVM (typical: driver
+   * {@code /local_disk0/tmp/hop-spark-pkg-…} broadcast to executors).
+   */
+  static void clearStaleProjectHome(IVariables variables) {
+    if (variables == null) {
+      return;
+    }
+    String projectHome = variables.getVariable("PROJECT_HOME");
+    if (StringUtils.isEmpty(projectHome)) {
+      return;
+    }
+    if (!new File(projectHome).isDirectory()) {
+      variables.setVariable("PROJECT_HOME", null);
+    }
+  }
+
+  /**
+   * Resolve the preferred zip path to open on this JVM (first candidate from {@link
+   * #listPackagePathsForMaterialize}).
    */
   public static String resolvePackagePathForMaterialize(IVariables variables) {
+    java.util.List<String> paths = listPackagePathsForMaterialize(variables);
+    return paths.isEmpty() ? null : paths.get(0);
+  }
+
+  /**
+   * Ordered candidate package zip paths for this JVM.
+   *
+   * <ol>
+   *   <li>{@code SparkFiles.get(basename)} when the file exists (reliable after driver {@code
+   *       addFile} of a <em>local</em> copy)
+   *   <li>{@code $HOP_DATA/packages/<basename>} (shared data plane)
+   *   <li>Cluster-shared {@link #VAR_PACKAGE_URI} (UC {@code /Volumes/…}, {@code /dbfs/}, object
+   *       store) — returned even when {@link File#isFile()} is false (FUSE lag / executor mount
+   *       quirks); open is attempted via Hop VFS in {@link #materialize}
+   *   <li>{@link #VAR_PACKAGE_URI} when that path exists locally, or is a remote {@code scheme://}
+   *       URI
+   * </ol>
+   */
+  public static java.util.List<String> listPackagePathsForMaterialize(IVariables variables) {
+    java.util.LinkedHashSet<String> ordered = new java.util.LinkedHashSet<>();
     if (variables == null) {
-      return null;
+      return java.util.List.of();
     }
     String rawUri = variables.getVariable(VAR_PACKAGE_URI);
     String resolvedUri = StringUtils.isNotEmpty(rawUri) ? variables.resolve(rawUri) : null;
-
-    // 0) Cluster-shared URI first — Databricks UC Volumes are mounted on every node; do not wait
-    // for SparkFiles when the package already lives on a path every executor can open.
-    if (StringUtils.isNotEmpty(resolvedUri) && isClusterSharedPackagePath(resolvedUri)) {
-      if (resolveLocalPackageFile(resolvedUri) != null) {
-        return resolvedUri;
-      }
-      if (resolvedUri.contains("://") && !resolvedUri.startsWith("file:")) {
-        return resolvedUri;
-      }
-    }
 
     String basename = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
     if (StringUtils.isEmpty(basename) && StringUtils.isNotEmpty(resolvedUri)) {
       File f = resolveLocalPackageFile(resolvedUri);
       if (f != null) {
         basename = f.getName();
+      } else {
+        int slash = Math.max(resolvedUri.lastIndexOf('/'), resolvedUri.lastIndexOf('\\'));
+        if (slash >= 0 && slash < resolvedUri.length() - 1) {
+          basename = resolvedUri.substring(slash + 1);
+        }
       }
     }
 
-    // 1) Shared data plane: $HOP_DATA/packages/<basename> (always the freshest in demo/cluster)
+    // 1) SparkFiles first — local on every executor after addFile(localCopy)
+    if (StringUtils.isNotEmpty(basename)) {
+      try {
+        String downloaded = org.apache.spark.SparkFiles.get(basename.trim());
+        if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
+          ordered.add(downloaded);
+        }
+      } catch (Throwable t) {
+        // not distributed or not ready
+      }
+    }
+
+    // 2) Shared data plane: $HOP_DATA/packages/<basename>
     if (StringUtils.isNotEmpty(basename)) {
       String hopData = variables.getVariable("HOP_DATA");
       if (StringUtils.isNotEmpty(hopData)) {
@@ -184,34 +279,25 @@ public final class SparkProjectPackage {
         }
         File shared = new File(dataRoot + File.separator + "packages", basename.trim());
         if (shared.isFile()) {
-          return shared.getAbsolutePath();
+          ordered.add(shared.getAbsolutePath());
         }
       }
     }
 
-    // 2) SparkFiles (per-executor download from addFile / spark-submit --files)
-    if (StringUtils.isNotEmpty(basename)) {
-      try {
-        String downloaded = org.apache.spark.SparkFiles.get(basename.trim());
-        if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
-          return downloaded;
-        }
-      } catch (Throwable t) {
-        // not distributed or not ready
-      }
+    // 3) Cluster-shared URI (Volumes / DBFS / object store) — try even if File.isFile is false
+    if (StringUtils.isNotEmpty(resolvedUri) && isClusterSharedPackagePath(resolvedUri)) {
+      ordered.add(resolvedUri);
     }
 
-    // 3) Explicit package URI (must exist on *this* host — shared mount or driver local)
-    if (StringUtils.isNotEmpty(resolvedUri)) {
+    // 4) Explicit package URI (local file or remote VFS)
+    if (StringUtils.isNotEmpty(resolvedUri) && !ordered.contains(resolvedUri)) {
       if (resolveLocalPackageFile(resolvedUri) != null) {
-        return resolvedUri;
-      }
-      // Still return for HopVfs remote URIs (s3a, etc.)
-      if (resolvedUri.contains("://") && !resolvedUri.startsWith("file:")) {
-        return resolvedUri;
+        ordered.add(resolvedUri);
+      } else if (resolvedUri.contains("://") && !resolvedUri.startsWith("file:")) {
+        ordered.add(resolvedUri);
       }
     }
-    return null;
+    return new java.util.ArrayList<>(ordered);
   }
 
   /** True for Spark's ephemeral per-JVM download dirs (not safe to ship in variables). */
@@ -246,13 +332,16 @@ public final class SparkProjectPackage {
   /**
    * Make the project package available on executors.
    *
-   * <p>When {@link #VAR_PACKAGE_URI} is already on a <strong>cluster-shared</strong> path (UC
-   * {@code /Volumes/…}, {@code /dbfs/}, {@code s3a://…}, …), only keeps that URI — no {@code
-   * SparkContext.addFile}. Databricks job clusters often fail to serve {@code
-   * spark://driver/files/…} for addFile'd Volume paths ("Stream '/files/…' was not found").
+   * <p>Always stages a <strong>local filesystem copy</strong> and registers it with {@code
+   * SparkContext.addFile} when possible, setting {@link #VAR_PACKAGE_SPARK_FILE}. Do <em>not</em>
+   * call {@code addFile} on a UC Volume path directly — Databricks often fails with {@code Stream
+   * '/files/…' was not found}; copy to {@code java.io.tmpdir} first via {@link
+   * #ensureLocalPackageFile}.
    *
-   * <p>Otherwise stages a local file and calls {@code addFile}, setting {@link
-   * #VAR_PACKAGE_SPARK_FILE}. Safe for {@code local[*]} and classic spark-submit.
+   * <p>When {@link #VAR_PACKAGE_URI} is already on a <strong>cluster-shared</strong> path (UC
+   * {@code /Volumes/…}, {@code /dbfs/}, {@code s3a://…}, …), that portable URI is kept so workers
+   * can also open the shared path; the SparkFiles copy is the reliable fallback when Volume FUSE is
+   * not visible the same way on every executor JVM.
    */
   public static void distributeToCluster(
       org.apache.spark.sql.SparkSession spark, IVariables variables) throws HopException {
@@ -268,14 +357,38 @@ public final class SparkProjectPackage {
       return;
     }
 
-    // Shared mount / object store: every node opens the same path — skip SparkFiles.
-    if (isClusterSharedPackagePath(uri)) {
+    boolean clusterShared = isClusterSharedPackagePath(uri);
+    if (clusterShared) {
+      // Keep the portable shared URI for workers that can open it directly.
       variables.setVariable(VAR_PACKAGE_URI, uri);
-      // Do not set VAR_PACKAGE_SPARK_FILE — workers resolve via VAR_PACKAGE_URI only.
-      return;
     }
 
-    String localPath = ensureLocalPackageFile(uri);
+    // Stage a *true* local filesystem copy for addFile. Never pass /Volumes or dbfs paths to
+    // addFile — Databricks often fails with "Stream '/files/…' was not found".
+    String localPath;
+    try {
+      localPath = ensureLocalPackageFile(uri);
+    } catch (HopException e) {
+      if (clusterShared) {
+        System.err.println(
+            ">>>>>> WARNING: could not stage Spark project package for SparkFiles ("
+                + e.getMessage()
+                + "); workers will try cluster-shared URI only: "
+                + uri);
+        return;
+      }
+      throw e;
+    }
+    if (isClusterSharedPackagePath(localPath) || isSparkFilesLocalPath(localPath)) {
+      // ensureLocalPackageFile must not return a Volume path (addFile would fail).
+      throw new HopException(
+          "Staged package path is not a plain local file (still looks cluster-shared or"
+              + " SparkFiles): "
+              + localPath
+              + " (source "
+              + uri
+              + ")");
+    }
     String basename = new File(localPath).getName();
     if (StringUtils.isEmpty(basename)) {
       throw new HopException("Spark project package has empty filename: " + localPath);
@@ -288,39 +401,66 @@ public final class SparkProjectPackage {
       appId = "unknown";
     }
     String distKey = appId + "|" + localPath;
+    boolean addFileOk = DISTRIBUTED.contains(distKey);
     if (DISTRIBUTED.add(distKey)) {
       try {
         spark.sparkContext().addFile(localPath);
+        addFileOk = true;
       } catch (Exception e) {
         DISTRIBUTED.remove(distKey);
-        throw new HopException(
-            "Failed to distribute Spark project package via SparkContext.addFile: " + localPath, e);
+        addFileOk = false;
+        if (!clusterShared) {
+          throw new HopException(
+              "Failed to distribute Spark project package via SparkContext.addFile: " + localPath,
+              e);
+        }
+        System.err.println(
+            ">>>>>> WARNING: SparkContext.addFile failed for staged package "
+                + localPath
+                + " ("
+                + e.getMessage()
+                + "); workers will try cluster-shared URI only: "
+                + uri);
       }
     }
 
-    // Portable source path only (shared volume or original URI) — not SparkFiles local path
-    if (!isSparkFilesLocalPath(localPath)) {
+    // Non-shared: rewrite URI to the local staged path used for distribution.
+    if (!clusterShared && !isSparkFilesLocalPath(localPath)) {
       variables.setVariable(VAR_PACKAGE_URI, localPath);
     }
-    variables.setVariable(VAR_PACKAGE_SPARK_FILE, basename);
+    // Only advertise SparkFiles basename when addFile succeeded (or was already registered).
+    if (addFileOk) {
+      variables.setVariable(VAR_PACKAGE_SPARK_FILE, basename);
+    }
   }
 
   /**
-   * Ensure {@code packageUri} is a local filesystem path suitable for {@code addFile}. Remote/VFS
-   * URIs are copied into {@code java.io.tmpdir}.
+   * Ensure {@code packageUri} is a plain local filesystem path suitable for {@code
+   * SparkContext.addFile}.
+   *
+   * <p><strong>UC Volumes / DBFS / object-store URIs are always copied</strong> into {@code
+   * java.io.tmpdir}. Returning {@code /Volumes/…} directly looks like a local file on the driver
+   * ({@link File#isFile()} is true) but {@code addFile} of that path fails on Databricks executors.
    */
   public static String ensureLocalPackageFile(String packageUri) throws HopException {
     if (StringUtils.isEmpty(packageUri)) {
       throw new HopException("Spark project package URI is empty");
     }
-    File asFile = new File(packageUri);
+    String uri = packageUri.trim();
+
+    // Always stage cluster-shared paths to a real local temp zip for addFile.
+    if (isClusterSharedPackagePath(uri)) {
+      return stagePackageToLocalTemp(uri);
+    }
+
+    File asFile = new File(uri);
     if (asFile.isFile()) {
       return asFile.getAbsolutePath();
     }
     // file:/ URI without Hop VFS
-    if (packageUri.startsWith("file:")) {
+    if (uri.startsWith("file:")) {
       try {
-        File f = new File(java.net.URI.create(packageUri));
+        File f = new File(java.net.URI.create(uri));
         if (f.isFile()) {
           return f.getAbsolutePath();
         }
@@ -328,28 +468,54 @@ public final class SparkProjectPackage {
         // fall through to HopVfs
       }
     }
-    try {
-      FileObject fo = HopVfs.getFileObject(packageUri);
-      if (!fo.exists() || fo.getType() != FileType.FILE) {
-        throw new HopException("Spark project package not found or not a file: " + packageUri);
+    return stagePackageToLocalTemp(uri);
+  }
+
+  /**
+   * Copy {@code packageUri} into {@code java.io.tmpdir}/hop-spark-pkg-src-&lt;key&gt;.zip when
+   * missing or stale (size / mtime vs local source when visible).
+   */
+  static String stagePackageToLocalTemp(String packageUri) throws HopException {
+    if (StringUtils.isEmpty(packageUri)) {
+      throw new HopException("Spark project package URI is empty");
+    }
+    File local =
+        new File(
+            System.getProperty("java.io.tmpdir"),
+            "hop-spark-pkg-src-" + cacheKey(packageUri) + ".zip");
+    boolean needCopy = !local.isFile() || local.length() == 0;
+    File sourceFile = resolveLocalPackageFile(packageUri);
+    if (!needCopy && sourceFile != null) {
+      if (sourceFile.length() != local.length()
+          || sourceFile.lastModified() > local.lastModified()) {
+        needCopy = true;
       }
-      File local =
-          new File(
-              System.getProperty("java.io.tmpdir"),
-              "hop-spark-pkg-src-" + cacheKey(packageUri) + ".zip");
-      if (!local.isFile() || local.length() == 0) {
-        try (InputStream in = HopVfs.getInputStream(fo);
+    }
+    if (needCopy) {
+      try {
+        if (local.exists() && !local.delete() && local.isFile()) {
+          // overwrite via FileOutputStream truncate below
+        }
+        try (InputStream in = openPackageStream(packageUri);
             OutputStream out = Files.newOutputStream(local.toPath())) {
           in.transferTo(out);
         }
+      } catch (HopException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new HopException(
+            "Unable to stage Spark project package locally for distribution: " + packageUri, e);
       }
-      return local.getAbsolutePath();
-    } catch (HopException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HopException(
-          "Unable to stage Spark project package locally for distribution: " + packageUri, e);
     }
+    if (!local.isFile() || local.length() == 0) {
+      throw new HopException(
+          "Staged Spark project package is empty or missing after copy: "
+              + local.getAbsolutePath()
+              + " (source "
+              + packageUri
+              + ")");
+    }
+    return local.getAbsolutePath();
   }
 
   /** Set package URI + PROJECT_HOME (+ optional metadata path helper is caller-side). */
@@ -382,12 +548,16 @@ public final class SparkProjectPackage {
     }
 
     MaterializedState state = MATERIALIZED.get(key);
-    if (state != null && fingerprint.equals(state.fingerprint())) {
+    if (state != null
+        && fingerprint.equals(state.fingerprint())
+        && isUsableExtractRoot(state.extractRoot())) {
       return buildMaterialized(state.extractRoot(), packageUri);
     }
     synchronized (MATERIALIZED) {
       state = MATERIALIZED.get(key);
-      if (state != null && fingerprint.equals(state.fingerprint())) {
+      if (state != null
+          && fingerprint.equals(state.fingerprint())
+          && isUsableExtractRoot(state.extractRoot())) {
         return buildMaterialized(state.extractRoot(), packageUri);
       }
       try {
@@ -397,7 +567,7 @@ public final class SparkProjectPackage {
         boolean fingerprintMatches =
             fingerprint.equals(stored) || isLegacyCompleteMarker(stored, packageUri, fingerprint);
 
-        if (!fingerprintMatches) {
+        if (!fingerprintMatches || !isUsableExtractRoot(extractRoot.getAbsolutePath())) {
           if (extractRoot.exists()) {
             deleteRecursively(extractRoot);
           }
@@ -414,6 +584,22 @@ public final class SparkProjectPackage {
       } catch (Exception e) {
         throw new HopException("Error materializing Spark project package: " + packageUri, e);
       }
+    }
+  }
+
+  /** True when extract root exists and {@link #detectProjectHome} yields a directory. */
+  static boolean isUsableExtractRoot(String extractRootPath) {
+    if (StringUtils.isEmpty(extractRootPath)) {
+      return false;
+    }
+    File extractRoot = new File(extractRootPath);
+    if (!extractRoot.isDirectory()) {
+      return false;
+    }
+    try {
+      return detectProjectHome(extractRoot).isDirectory();
+    } catch (HopException e) {
+      return false;
     }
   }
 

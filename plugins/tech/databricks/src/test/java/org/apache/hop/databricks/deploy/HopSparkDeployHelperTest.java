@@ -60,6 +60,14 @@ class HopSparkDeployHelperTest {
   }
 
   @Test
+  void fatJarRemoteNameUsesShaPrefix() throws Exception {
+    assertEquals(
+        "hop-native-2f80e51734a5.jar",
+        HopSparkDeployHelper.fatJarRemoteName(
+            "2f80e51734a5a939850a50ab92d326c32fc04d1e91ec6947e5a997e512130084"));
+  }
+
+  @Test
   void uploadFatJarSkippedWhenSizeAndSidecarMatch() throws Exception {
     Path jar = tempDir.resolve("fat.jar");
     Files.write(jar, "same-content-bytes".getBytes(StandardCharsets.UTF_8));
@@ -136,6 +144,19 @@ class HopSparkDeployHelperTest {
   }
 
   @Test
+  void remoteArtifactStemFromPipelinePath() {
+    assertEquals(
+        "hello-mapping-databricks",
+        HopSparkDeployHelper.remoteArtifactStem("/home/matt/proj/hello-mapping-databricks.hpl"));
+    assertEquals("entry", HopSparkDeployHelper.remoteArtifactStem("pipelines/entry.hpl"));
+    assertEquals("foo-bar", HopSparkDeployHelper.remoteArtifactStem("foo bar.hpl"));
+    assertEquals("pipeline", HopSparkDeployHelper.remoteArtifactStem(""));
+    assertEquals(
+        "hop-spark-package-hello-mapping-databricks.zip",
+        HopSparkDeployHelper.projectPackageRemoteName("hello-mapping-databricks"));
+  }
+
+  @Test
   void relativePipelinePathUnderProjectHome() throws Exception {
     Path home = tempDir.resolve("proj");
     Path pipes = home.resolve("pipelines");
@@ -186,17 +207,20 @@ class HopSparkDeployHelperTest {
             new HopSparkDeployHelper.DeployOptions(
                 true, home.toString(), pkg.toString(), env.toString()));
 
-    assertEquals("/Volumes/c/s/v/hop-native.jar", artifacts.jarDbfs());
-    assertEquals("/Volumes/c/s/v/hop-spark-package.zip", artifacts.projectPackageDbfs());
-    assertEquals("/Volumes/c/s/v/env-config.json", artifacts.envConfigDbfs());
+    String expectedJar =
+        "/Volumes/c/s/v/"
+            + HopSparkDeployHelper.fatJarRemoteName(HopSparkDeployHelper.sha256Hex(jar));
+    assertEquals(expectedJar, artifacts.jarDbfs());
+    assertEquals("/Volumes/c/s/v/hop-spark-package-entry.zip", artifacts.projectPackageDbfs());
+    assertEquals("/Volumes/c/s/v/env-config-entry.json", artifacts.envConfigDbfs());
     assertEquals(null, artifacts.metadataDbfs());
     assertEquals("pipelines/entry.hpl", artifacts.launch().pipelinePath());
     assertTrue(artifacts.launch().hasProjectPackage());
     assertTrue(artifacts.launch().hasConfigFile());
     assertTrue(artifacts.launch().useNamedParameters());
 
-    verify(client).uploadToDbfs(eq(pkg), eq("/Volumes/c/s/v/hop-spark-package.zip"));
-    verify(client).uploadToDbfs(eq(env), eq("/Volumes/c/s/v/env-config.json"));
+    verify(client).uploadToDbfs(eq(pkg), eq("/Volumes/c/s/v/hop-spark-package-entry.zip"));
+    verify(client).uploadToDbfs(eq(env), eq("/Volumes/c/s/v/env-config-entry.json"));
     // relative pipeline under package — no separate pipeline.hpl upload of entry
     verify(client, never()).uploadToDbfs(eq(hpl), anyString());
   }
@@ -229,11 +253,55 @@ class HopSparkDeployHelperTest {
             "/Volumes/c/s/v2",
             new HopSparkDeployHelper.DeployOptions(false, null, null, env.toString()));
 
-    assertEquals("/Volumes/c/s/v2/pipeline.hpl", artifacts.pipelineDbfs());
-    assertEquals("/Volumes/c/s/v2/metadata.json", artifacts.metadataDbfs());
+    assertEquals("/Volumes/c/s/v2/pipeline-p.hpl", artifacts.pipelineDbfs());
+    assertEquals("/Volumes/c/s/v2/metadata-p.json", artifacts.metadataDbfs());
     assertEquals(null, artifacts.projectPackageDbfs());
-    assertEquals("/Volumes/c/s/v2/env-config.json", artifacts.envConfigDbfs());
+    assertEquals("/Volumes/c/s/v2/env-config-p.json", artifacts.envConfigDbfs());
     assertTrue(artifacts.launch().useNamedParameters());
-    verify(client).uploadToDbfs(eq(hpl), eq("/Volumes/c/s/v2/pipeline.hpl"));
+    verify(client).uploadToDbfs(eq(hpl), eq("/Volumes/c/s/v2/pipeline-p.hpl"));
+  }
+
+  @Test
+  void concurrentPipelinesGetDistinctPackagePaths() throws Exception {
+    Path jar = tempDir.resolve("fat3.jar");
+    Files.write(jar, "jar".getBytes(StandardCharsets.UTF_8));
+    Path home = tempDir.resolve("home3");
+    Files.createDirectories(home);
+    Path a = home.resolve("hello-a.hpl");
+    Path b = home.resolve("hello-b.hpl");
+    Files.writeString(a, "<a/>");
+    Files.writeString(b, "<b/>");
+    Path pkg = tempDir.resolve("shared.zip");
+    Files.write(pkg, "z".getBytes(StandardCharsets.UTF_8));
+
+    DatabricksJobsClient client = mock(DatabricksJobsClient.class);
+    when(client.getFileMetadata(anyString())).thenReturn(WorkspaceFileMetadata.missing());
+
+    var artA =
+        HopSparkDeployHelper.deploy(
+            client,
+            null,
+            null,
+            mock(ILogChannel.class),
+            jar.toString(),
+            a.toString(),
+            "rc",
+            "/Volumes/v",
+            new HopSparkDeployHelper.DeployOptions(true, home.toString(), pkg.toString(), null));
+    var artB =
+        HopSparkDeployHelper.deploy(
+            client,
+            null,
+            null,
+            mock(ILogChannel.class),
+            jar.toString(),
+            b.toString(),
+            "rc",
+            "/Volumes/v",
+            new HopSparkDeployHelper.DeployOptions(true, home.toString(), pkg.toString(), null));
+
+    assertEquals("/Volumes/v/hop-spark-package-hello-a.zip", artA.projectPackageDbfs());
+    assertEquals("/Volumes/v/hop-spark-package-hello-b.zip", artB.projectPackageDbfs());
+    assertTrue(!artA.projectPackageDbfs().equals(artB.projectPackageDbfs()));
   }
 }

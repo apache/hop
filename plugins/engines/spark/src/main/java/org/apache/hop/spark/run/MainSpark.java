@@ -90,6 +90,18 @@ public class MainSpark {
 
   private static void runPipeline(String[] args) throws Exception {
     System.out.println(">>>>>> Initializing Hop");
+    System.out.println(
+        ">>>>>> Spark project package distribution build: "
+            + SparkProjectPackage.DISTRIBUTION_BUILD_ID);
+    try {
+      java.net.URL loc =
+          SparkProjectPackage.class.getProtectionDomain().getCodeSource().getLocation();
+      if (loc != null) {
+        System.out.println(">>>>>> SparkProjectPackage loaded from: " + loc);
+      }
+    } catch (Exception ignored) {
+      // best-effort diagnostics only
+    }
     HopEnvironment.init();
 
     MainSparkArgs parsed = MainSparkArgs.parse(args);

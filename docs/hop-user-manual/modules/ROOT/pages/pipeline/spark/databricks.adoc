@@ -45,12 +45,13 @@ image::pipeline/spark/databricks-pipeline-hello-databricks.png[Hello Databricks 
 
 When mode is **Deploy & run**, the Job Run action:
 
-. Uploads artifacts to a workspace path (UC Volume or classic DBFS):
-  * fat jar → `hop-native.jar` (skip when size + `.sha256` sidecar match)
-  * pipeline → `pipeline.hpl` (simple mode; may be omitted when a package-relative path is used)
-  * exported Hop metadata → `metadata.json` (simple mode; embedded in the package when package mode is on)
-  * optional Spark project package → `hop-spark-package.zip` (nested Simple Mapping / Pipeline Executor)
-  * optional environment config → `env-config.json` (MainSpark `--HopConfigFile`)
+. Uploads artifacts to a workspace path (UC Volume or classic DBFS). Names are chosen so concurrent deploys and library refreshes stay correct:
+  * fat jar → **content-addressed** `hop-native-<sha12>.jar` (first 12 hex chars of the local jar’s SHA-256) plus a matching `.sha256` sidecar — skip upload when that remote path already matches size + sidecar (see <<faq-skip-jar-upload>> and <<lesson-fat-jar-library-uri>>)
+  * pipeline → `pipeline-{stem}.hpl` (simple mode; may be omitted when a package-relative path is used)
+  * exported Hop metadata → `metadata-{stem}.json` (simple mode; embedded in the package when package mode is on)
+  * optional Spark project package → `hop-spark-package-{stem}.zip` (nested Simple Mapping / Pipeline Executor)
+  * optional environment config → `env-config-{stem}.json` (MainSpark `--HopConfigFile`)
+  * `{stem}` = sanitized pipeline file basename without extension (e.g. `hello-mapping-databricks`)
 . Creates or updates a Databricks **Jobs** definition with a `spark_jar_task`:
   * main class: `org.apache.hop.spark.run.MainSpark`
   * parameters: classic positional `pipeline`, `metadata`, `runConfig` — or named `--Hop*` args when a project package and/or env file is present
@@ -88,6 +89,8 @@ all-purpose cluster** or a classic **job cluster** (`new_cluster` in the Jobs AP
 * **Serverless-only error** — `Only serverless compute is supported in the workspace` means classic `new_cluster` / existing all-purpose clusters are blocked. Serverless needs job-level `environments` and task `environment_key`, and **must not** send task-level `libraries` the same way classic jobs do.
 * **Spark 4.1 / Java 21 style workloads** — for Hop’s **native** Spark 4.x engine and a fat jar built for modern runtimes, provision a workspace that **allows classic clusters** (e.g. AWS Premium workspace) and a DBR / job cluster configuration aligned with your Spark and JVM expectations. Do not assume Free/serverless will match local `native-provided` fat-jar testing.
 * **New workspace for classic** — if the current workspace is permanently serverless-oriented, creating a **new** classic-capable workspace (cloud account + tier that allows classic compute) is often simpler than fighting Free-tier product limits.
+* [[lesson-fat-jar-library-uri]]**Fat jar library URI must change when jar bytes change (Dedicated / long-lived cluster “caching crapout”)** — overwriting a **fixed** Volume path such as `/Volumes/…/hop-native.jar` (even with Files API `?overwrite=true` and a fresh `.sha256` sidecar) is **not** enough for Databricks to always run the new classes. A long-lived **Dedicated** (or other all-purpose) cluster often keeps **previously installed job libraries** on the driver/executor classpath (old URI still wins even after a successful Volume overwrite). Symptoms:
+  **Volume object is minutes old and matches local `sha256sum`**, but MainSpark driver log still shows **old behavior** (e.g. missing `>>>>>> Spark project package distribution build: pkg-dist-…` right after `Initializing Hop`, or obsolete package-distribution log strings such as `cluster-shared … (no SparkFiles)`). Hop Deploy & run therefore uploads a **content-addressed** library path `hop-native-<sha12>.jar` and points the job’s `libraries[].jar` at that URI so each content change is a **new library identity**. **Still required after the first switch** (or if old `hop-native.jar` remains installed on the cluster): **restart the target Dedicated cluster** so accumulated libraries are cleared, then re-run. Verify the driver log prints the expected `pkg-dist-…` fingerprint before debugging package/mapping logic.
 
 == Connection and secrets
 
@@ -139,19 +142,20 @@ PERMISSION_DENIED: Public DBFS root is disabled
 /Volumes/apache-hop/default/jars
 ----
 
-Artifacts land as:
+Artifacts land as (names depend on jar content and entry pipeline stem):
 
 ----
-/Volumes/apache-hop/default/jars/hop-native.jar
-/Volumes/apache-hop/default/jars/hop-native.jar.sha256
-/Volumes/apache-hop/default/jars/pipeline.hpl
-/Volumes/apache-hop/default/jars/metadata.json
+/Volumes/apache-hop/default/jars/hop-native-2f80e51734a5.jar
+/Volumes/apache-hop/default/jars/hop-native-2f80e51734a5.jar.sha256
+/Volumes/apache-hop/default/jars/pipeline-hello-databricks.hpl
+/Volumes/apache-hop/default/jars/metadata-hello-databricks.json
+/Volumes/apache-hop/default/jars/hop-spark-package-hello-databricks.zip
 ----
 
-The `.sha256` sidecar is written so later deploys can **skip re-uploading** an unchanged fat jar (see <<faq-skip-jar-upload>>).
+The `.sha256` sidecar next to the content-addressed jar lets later deploys **skip re-uploading** the same bytes (see <<faq-skip-jar-upload>>). The content-addressed **filename** is what forces Databricks to treat a new jar as a new job library (see <<lesson-fat-jar-library-uri>>).
 
 .UC Volume after deploy: fat jar, SHA-256 sidecar, exported metadata, and pipeline
-image::pipeline/spark/databricks-workspace-catalog-jars-volume.png[Databricks Catalog Explorer volume jars showing hop-native.jar, checksum sidecar, metadata.json, and pipeline.hpl,width=80%]
+image::pipeline/spark/databricks-workspace-catalog-jars-volume.png[Databricks Catalog Explorer volume jars showing hop-native jar, checksum sidecar, metadata, and pipeline artifacts,width=80%]
 
 === Which upload API Hop uses
 
@@ -276,10 +280,21 @@ Plan timeouts accordingly:
 === Existing classic cluster
 
 . In Databricks UI: **Compute** → create/start a classic all-purpose cluster on the new workspace.
+. **Access mode must be Dedicated (single user)** — not **Standard** (shared) and not Serverless. Standard/Serverless use **Spark Connect**, which does **not** expose `SparkContext`. Hop Native Spark needs a real context for RDDs, accumulators, and mapPartitions.
 . Wait until **Running**.
 . Copy **Cluster ID**.
 . Set **Cluster / compute** to that id (not `new_cluster` / not `serverless`).
 . Leave job id empty on first create; after success, store `${DatabricksJobId}` if you enable **Update existing job**.
+
+If you see:
+
+----
+[UNSUPPORTED_CONNECT_FEATURE.SESSION_SPARK_CONTEXT] Feature is not supported in Spark Connect:
+SparkContext is not available on Standard access mode or Serverless compute.
+Switch to Dedicated access mode to access it.
+----
+
+…the cluster is the wrong access mode. Either switch the all-purpose cluster to **Dedicated**, or use Deploy & run with **`new_cluster`** (classic job cluster), which provides a full SparkContext.
 
 == FAQ
 
@@ -476,14 +491,19 @@ First jar upload is slow (hundreds of MB). Classic **`new_cluster`** cold start 
 [[faq-skip-jar-upload]]
 === Fat jar re-upload every run is slow — can Hop skip it?
 
-**Yes (size + checksum sidecar).** Deploy & run does **not** re-upload the fat jar when the remote file already matches the local one:
+**Yes (content-addressed path + size + checksum sidecar).** Deploy & run computes the local fat jar’s SHA-256 and targets:
 
-. Probe remote `{upload-base}/hop-native.jar` for **file size** (Files API metadata / DBFS get-status).
-. If size matches, download the tiny sidecar `{upload-base}/hop-native.jar.sha256` and compare to a local **SHA-256** of the fat jar.
-. If both match → log *Skipping fat jar upload* and leave the remote jar as-is.
-. If missing, size differs, or hash differs → upload the jar and write/update the sidecar.
+----
+{upload-base}/hop-native-<first-12-hex-of-sha>.jar
+{upload-base}/hop-native-<first-12-hex-of-sha>.jar.sha256
+----
 
-Pipeline (`.hpl`) and metadata JSON are still uploaded each run (they are small).
+. Probe that **content-addressed** remote path for **file size** (Files API metadata / DBFS get-status).
+. If size matches, download the tiny sidecar and compare to the local **SHA-256**.
+. If both match → log *Skipping fat jar upload* and leave the remote jar as-is (same library URI as last time).
+. If the local jar content changed → the remote **filename** changes → upload a new object and point the job library at the new URI (see <<lesson-fat-jar-library-uri>>).
+
+Pipeline (`.hpl`) and metadata JSON are still uploaded each run when used (they are small). Project package zips are per-pipeline stem.
 
 **Manual check** (without Hop):
 
@@ -491,13 +511,14 @@ Pipeline (`.hpl`) and metadata JSON are still uploaded each run (they are small)
 ----
 ls -l work/hop-native-spark4-submit.jar
 sha256sum work/hop-native-spark4-submit.jar
+# First 12 hex chars of that sum → hop-native-<12hex>.jar on the Volume
 
 # Remote size (example Files API HEAD)
 curl -sS -I -H "Authorization: Bearer $DATABRICKS_TOKEN" \
-  "https://$DATABRICKS_HOST/api/2.0/fs/files/Volumes/.../hop-native.jar"
+  "https://$DATABRICKS_HOST/api/2.0/fs/files/Volumes/.../hop-native-<12hex>.jar"
 ----
 
-Databricks does **not** expose a standard content MD5/SHA for volume files comparable to S3 ETag, so Hop stores its own `.sha256` sidecar next to the jar.
+Databricks does **not** expose a standard content MD5/SHA for volume files comparable to S3 ETag, so Hop stores its own `.sha256` sidecar next to the jar. The **filename prefix** is the operational identity for job libraries; the sidecar is for skip-upload efficiency.
 
 == End-to-end checklist
 
@@ -506,6 +527,7 @@ Databricks does **not** expose a standard content MD5/SHA for volume files compa
 * [ ] UC Volume exists and PAT can write; upload base is `/Volumes/…` (not disabled FileStore)
 * [ ] Client assembly includes current `hop-tech-databricks` plugin (Files API + compute modes)
 * [ ] Fat jar `native-provided`; Native Spark run config name matches deploy field
+* [ ] After a fat jar rebuild: deploy log shows content-addressed `hop-native-<sha12>.jar` (or restart Dedicated cluster if still on a fixed library path); driver log shows expected `pkg-dist-…` / MainSpark fingerprint when debugging library freshness
 * [ ] Cluster / compute = existing classic id **or** `new_cluster` with valid `node_type_id` / `spark_version`
 * [ ] Job id empty on first create; wait mode and timeout sized for upload + **job cluster cold start** (often 8+ minutes) + pipeline run
 * [ ] After success: note Job ID, Run ID, run page URL variables; open run in Databricks UI

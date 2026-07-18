@@ -51,7 +51,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     id = "DATABRICKS_JOB_WAIT",
     name = "i18n::ActionDatabricksJobWait.Name",
     description = "i18n::ActionDatabricksJobWait.Description",
-    image = "databricks-job-wait.svg",
+    image = "databricks-wait.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BigData",
     keywords = "i18n::ActionDatabricksJobWait.keyword",
     documentationUrl = "/workflow/actions/databricks-job-wait.html")

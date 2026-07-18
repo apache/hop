@@ -48,12 +48,62 @@ import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
  */
 public final class HopSparkDeployHelper {
 
+  /**
+   * Unversioned "latest" name (optional human convenience). Prefer {@link
+   * #fatJarRemoteName(String)} so each content change gets a new library URI — Databricks existing
+   * clusters often keep the previous JAR on the classpath when only the bytes at a fixed path are
+   * overwritten.
+   */
   public static final String FAT_JAR_REMOTE_NAME = "hop-native.jar";
+
+  /** Prefix for content-addressed fat jars: {@code hop-native-<sha12>.jar}. */
+  public static final String FAT_JAR_REMOTE_PREFIX = "hop-native-";
+
+  /** Hex chars of SHA-256 used in {@link #fatJarRemoteName(String)}. */
+  public static final int FAT_JAR_SHA_PREFIX_LENGTH = 12;
+
+  /**
+   * @deprecated fixed name; use {@link #pipelineRemoteName(String)} for concurrent-safe deploys
+   */
   public static final String PIPELINE_REMOTE_NAME = "pipeline.hpl";
+
+  /**
+   * @deprecated fixed name; use {@link #metadataRemoteName(String)}
+   */
   public static final String METADATA_REMOTE_NAME = "metadata.json";
+
+  /** Prefix for pipeline-scoped package zips: {@code hop-spark-package-{stem}.zip}. */
+  public static final String PROJECT_PACKAGE_REMOTE_PREFIX = "hop-spark-package";
+
+  /**
+   * @deprecated fixed name; use {@link #projectPackageRemoteName(String)}
+   */
   public static final String PROJECT_PACKAGE_REMOTE_NAME = "hop-spark-package.zip";
+
+  /**
+   * @deprecated fixed name; use {@link #envConfigRemoteName(String)}
+   */
   public static final String ENV_CONFIG_REMOTE_NAME = "env-config.json";
+
   public static final String SHA256_SIDECAR_SUFFIX = ".sha256";
+  private static final int MAX_STEM_LENGTH = 80;
+
+  /**
+   * Content-addressed remote fat jar filename for a local SHA-256 hex digest.
+   *
+   * <p>Example: {@code hop-native-2f80e51734a5.jar} for sha {@code 2f80e51734a5…}.
+   */
+  public static String fatJarRemoteName(String sha256Hex) {
+    String sha = normalizeSha256(sha256Hex);
+    if (sha.length() < FAT_JAR_SHA_PREFIX_LENGTH) {
+      throw new IllegalArgumentException(
+          "SHA-256 hex too short for fat jar remote name (need >= "
+              + FAT_JAR_SHA_PREFIX_LENGTH
+              + "): "
+              + sha256Hex);
+    }
+    return FAT_JAR_REMOTE_PREFIX + sha.substring(0, FAT_JAR_SHA_PREFIX_LENGTH) + ".jar";
+  }
 
   /** Plugin id of the native Spark pipeline engine (engines/spark). */
   public static final String SPARK_ENGINE_PLUGIN_ID = "SparkPipelineEngine";
@@ -171,12 +221,27 @@ public final class HopSparkDeployHelper {
 
     Path pipelineLocal = materializeToTemp(pipeline, "hop-dbx-pipeline-", ".hpl", "pipeline");
 
-    String jarDbfs = base + "/" + FAT_JAR_REMOTE_NAME;
-    String pipelineDbfs = base + "/" + PIPELINE_REMOTE_NAME;
-    String metadataDbfs = base + "/" + METADATA_REMOTE_NAME;
+    // Per-pipeline remote names so concurrent deploys from the same project do not clobber
+    // each other's package / pipeline / metadata / env files on the Volume.
+    String stem = remoteArtifactStem(pipeline);
+    // Content-addressed fat jar path: fixed hop-native.jar overwrites do not refresh libraries on
+    // a running Dedicated cluster (job still loads old MainSpark classes). A new URI does.
+    String localJarSha = sha256Hex(jarPath);
+    String jarDbfs = base + "/" + fatJarRemoteName(localJarSha);
+    String pipelineDbfs = base + "/" + pipelineRemoteName(stem);
+    String metadataDbfs = base + "/" + metadataRemoteName(stem);
     String packageDbfs = null;
     String envDbfs = null;
 
+    if (log != null && log.isBasic()) {
+      log.logBasic(
+          "Fat jar library URI (content-addressed, sha256="
+              + localJarSha
+              + "): "
+              + jarDbfs
+              + " — if a prior run still logged old package-distribution behavior after overwriting"
+              + " hop-native.jar, this new path forces Databricks to install a new library.");
+    }
     uploadFatJarIfNeeded(client, log, jarPath, jarDbfs);
 
     // --- Project package (optional) ---
@@ -200,7 +265,7 @@ public final class HopSparkDeployHelper {
         }
         exportSparkProjectPackage(home, packageLocal.toString(), metadataProvider, variables);
       }
-      packageDbfs = base + "/" + PROJECT_PACKAGE_REMOTE_NAME;
+      packageDbfs = base + "/" + projectPackageRemoteName(stem);
       if (log != null && log.isBasic()) {
         log.logBasic("Uploading project package to " + packageDbfs);
       }
@@ -221,7 +286,7 @@ public final class HopSparkDeployHelper {
       log.logDetailed(
           "Using package-relative pipeline path '"
               + relativePipeline
-              + "' (not uploading separate pipeline.hpl)");
+              + "' (not uploading separate pipeline file)");
     }
 
     // --- Metadata: always in simple mode; package embeds metadata when package mode ---
@@ -248,7 +313,7 @@ public final class HopSparkDeployHelper {
     if (StringUtils.isNotBlank(envLocalPath)) {
       Path envLocal =
           materializeToTemp(envLocalPath, "hop-dbx-env-", ".json", "environment config");
-      envDbfs = base + "/" + ENV_CONFIG_REMOTE_NAME;
+      envDbfs = base + "/" + envConfigRemoteName(stem);
       if (log != null && log.isBasic()) {
         log.logBasic("Uploading environment config to " + envDbfs);
       }
@@ -267,6 +332,71 @@ public final class HopSparkDeployHelper {
         envDbfs,
         runConfig,
         launch);
+  }
+
+  /**
+   * Sanitize pipeline path to a Volume-safe artifact stem (basename without extension).
+   *
+   * <p>Example: {@code /path/hello-mapping-databricks.hpl} → {@code hello-mapping-databricks}.
+   */
+  static String remoteArtifactStem(String pipelinePath) {
+    if (StringUtils.isBlank(pipelinePath)) {
+      return "pipeline";
+    }
+    String p = pipelinePath.trim().replace('\\', '/');
+    int slash = p.lastIndexOf('/');
+    String base = slash >= 0 ? p.substring(slash + 1) : p;
+    int dot = base.lastIndexOf('.');
+    if (dot > 0) {
+      base = base.substring(0, dot);
+    }
+    if (StringUtils.isBlank(base)) {
+      return "pipeline";
+    }
+    StringBuilder sb = new StringBuilder(base.length());
+    for (int i = 0; i < base.length(); i++) {
+      char c = base.charAt(i);
+      if ((c >= 'a' && c <= 'z')
+          || (c >= 'A' && c <= 'Z')
+          || (c >= '0' && c <= '9')
+          || c == '.'
+          || c == '_'
+          || c == '-') {
+        sb.append(c);
+      } else {
+        sb.append('-');
+      }
+    }
+    String stem = sb.toString().replaceAll("-+", "-");
+    while (stem.startsWith("-")) {
+      stem = stem.substring(1);
+    }
+    while (stem.endsWith("-")) {
+      stem = stem.substring(0, stem.length() - 1);
+    }
+    if (stem.isEmpty()) {
+      return "pipeline";
+    }
+    if (stem.length() > MAX_STEM_LENGTH) {
+      stem = stem.substring(0, MAX_STEM_LENGTH);
+    }
+    return stem;
+  }
+
+  static String projectPackageRemoteName(String stem) {
+    return PROJECT_PACKAGE_REMOTE_PREFIX + "-" + stem + ".zip";
+  }
+
+  static String pipelineRemoteName(String stem) {
+    return "pipeline-" + stem + ".hpl";
+  }
+
+  static String metadataRemoteName(String stem) {
+    return "metadata-" + stem + ".json";
+  }
+
+  static String envConfigRemoteName(String stem) {
+    return "env-config-" + stem + ".json";
   }
 
   /** Resolve project home: explicit field, else {@code PROJECT_HOME} variable. */
@@ -424,20 +554,35 @@ public final class HopSparkDeployHelper {
             "Skipping fat jar upload (remote matches local size="
                 + localSize
                 + " sha256="
-                + localSha.substring(0, Math.min(12, localSha.length()))
-                + "…): "
-                + remoteJarPath);
+                + localSha
+                + "): "
+                + remoteJarPath
+                + " — if Databricks still runs old package-distribution behavior, restart the"
+                + " target cluster or delete the remote jar + .sha256 sidecar and re-deploy.");
       }
       return;
     }
 
     if (log != null && log.isBasic()) {
-      log.logBasic("Uploading fat jar to " + remoteJarPath + " (" + localSize + " bytes)");
+      log.logBasic(
+          "Uploading fat jar to "
+              + remoteJarPath
+              + " (size="
+              + localSize
+              + " sha256="
+              + localSha
+              + ")");
     }
     client.uploadToDbfs(localJar, remoteJarPath);
     client.uploadText(sidecarPath, localSha + "\n");
     if (log != null && log.isBasic()) {
-      log.logBasic("Wrote fat jar checksum sidecar " + sidecarPath);
+      log.logBasic(
+          "Wrote fat jar checksum sidecar "
+              + sidecarPath
+              + " (sha256="
+              + localSha
+              + "). On long-lived clusters, restart the cluster if the next job still logs an old"
+              + " Spark project package distribution build id.");
     }
   }
 

@@ -878,15 +878,19 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
   /**
    * After package materialize, ensure PROJECT_HOME is a real directory on this JVM. Detects the
    * common failure where only the driver extract path was broadcast and workers never re-extracted
-   * the package (Simple Mapping then fails to open ${PROJECT_HOME}/…).
+   * the package (nested Simple Mapping / Pipeline Executor then fail to open {@code
+   * ${PROJECT_HOME}/…}).
    */
   static void validateProjectHomeOnWorker(IVariables variables) throws HopException {
     if (variables == null) {
       return;
     }
     String packageUri = variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
+    String sparkFile = variables.getVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE);
     String projectHome = variables.getVariable("PROJECT_HOME");
-    if (StringUtils.isEmpty(packageUri) && StringUtils.isEmpty(projectHome)) {
+    if (StringUtils.isEmpty(packageUri)
+        && StringUtils.isEmpty(sparkFile)
+        && StringUtils.isEmpty(projectHome)) {
       return;
     }
     if (StringUtils.isNotEmpty(projectHome)) {
@@ -899,14 +903,19 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               + projectHome
               + ". Package URI="
               + packageUri
-              + ". For Databricks Deploy & run, ensure hop-spark-package.zip is on a path every"
-              + " node can open (/Volumes/…) and that the zip contains the nested mapping .hpl"
-              + " files under project/.");
+              + ", SparkFiles basename="
+              + sparkFile
+              + ". The driver extract under /tmp is not visible on workers — re-run with a fat jar"
+              + " that stages the project package via SparkFiles (local copy + addFile) and/or a"
+              + " UC Volume path every node can open. Nested definition files (mappings,"
+              + " sub-pipelines) live under project/ inside the package zip.");
     }
-    if (StringUtils.isNotEmpty(packageUri)) {
+    if (StringUtils.isNotEmpty(packageUri) || StringUtils.isNotEmpty(sparkFile)) {
       throw new HopException(
           "HOP_SPARK_PROJECT_PACKAGE is set ("
               + packageUri
+              + ", sparkFile="
+              + sparkFile
               + ") but PROJECT_HOME was not set after package materialization on this executor.");
     }
   }

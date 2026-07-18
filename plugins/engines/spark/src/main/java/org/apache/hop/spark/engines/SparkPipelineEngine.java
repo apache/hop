@@ -289,6 +289,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       statusDescription = Pipeline.STRING_RUNNING;
 
       sparkSession = createSparkSession();
+      requireClassicSparkContext(sparkSession);
 
       // Register metrics + sample-data accumulators for mapPartitions transforms
       metricsAccumulator = new SparkTransformMetricsAccumulator();
@@ -884,6 +885,56 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   }
 
   /**
+   * Native Spark uses RDDs, accumulators, and {@code SparkContext} APIs. Databricks Spark Connect
+   * sessions (cluster access mode <strong>Standard</strong> / shared, or Serverless) do not expose
+   * a real SparkContext. Fail early with an actionable message.
+   */
+  static void requireClassicSparkContext(SparkSession session) throws HopException {
+    if (session == null) {
+      throw new HopException("SparkSession is null");
+    }
+    String sessionClass = session.getClass().getName();
+    try {
+      // Touches the real context; Connect client throws SparkUnsupportedOperationException.
+      session.sparkContext().appName();
+    } catch (Throwable t) {
+      String msg = t.getMessage() != null ? t.getMessage() : t.getClass().getSimpleName();
+      if (isSparkConnectContextError(sessionClass, msg, t)) {
+        throw new HopException(
+            "Apache Hop Native Spark requires a classic SparkContext (RDD / accumulator APIs). "
+                + "This session is Spark Connect ("
+                + sessionClass
+                + ") which does not expose SparkContext on Databricks "
+                + "Standard access mode or Serverless compute. "
+                + "Use a classic job cluster (Deploy & run with cluster field = new_cluster) or an "
+                + "all-purpose cluster with access mode Dedicated (single user), not Standard/shared "
+                + "or Serverless. Underlying error: "
+                + msg,
+            t);
+      }
+      throw new HopException("Unable to access SparkContext from SparkSession: " + msg, t);
+    }
+  }
+
+  static boolean isSparkConnectContextError(String sessionClass, String message, Throwable t) {
+    if (sessionClass != null && sessionClass.contains("connect")) {
+      return true;
+    }
+    if (message != null) {
+      String m = message.toLowerCase();
+      if (m.contains("spark connect")
+          || m.contains("unsupported_connect")
+          || m.contains("session_spark_context")
+          || m.contains("standard access mode")
+          || m.contains("serverless")) {
+        return true;
+      }
+    }
+    String tn = t != null ? t.getClass().getName() : "";
+    return tn.contains("SparkUnsupportedOperationException") || tn.contains("connect");
+  }
+
+  /**
    * When a Native Spark project package is configured, make it available on executors (shared path
    * or {@code SparkContext.addFile}) and re-materialize {@code PROJECT_HOME} on the driver.
    */
@@ -899,18 +950,19 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       String source = getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
       if (StringUtils.isNotEmpty(sparkFile)) {
         logChannel.logBasic(
-            "Distributed Spark project package for executors (SparkFiles): "
+            "Distributed Spark project package for executors (SparkFiles="
                 + sparkFile
-                + " (source "
+                + ", source="
                 + source
                 + "); PROJECT_HOME="
                 + getVariable("PROJECT_HOME"));
       } else {
         logChannel.logBasic(
-            "Using cluster-shared Spark project package (no SparkFiles): "
+            "Using Spark project package URI only (no SparkFiles basename): "
                 + source
                 + "; PROJECT_HOME="
-                + getVariable("PROJECT_HOME"));
+                + getVariable("PROJECT_HOME")
+                + " — workers must open this path directly");
       }
     }
   }
