@@ -71,3 +71,4 @@ screenshots/
 # Docker script leaving audit data
 docker/local-data/
 
+/integration-tests/spreadsheet/files/exelwriter-testfile
