@@ -51,6 +51,9 @@ public class HopSparkGuiPlugin {
   public static final String ID_MAIN_MENU_TOOLS_EXPORT_SPARK_PROJECT =
       "40300-menu-tools-export-spark-project-package";
 
+  public static final String ID_MAIN_MENU_TOOLS_SPARK_PACKAGE_CONFIG =
+      "40310-menu-tools-spark-package-config";
+
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPARK_RUN_MODE =
       "pipeline-graph-transform-spark-run-mode";
 
@@ -121,6 +124,32 @@ public class HopSparkGuiPlugin {
     }
   }
 
+  /** Edit {@code spark-package.json} include/exclude rules for Native Spark project packages. */
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = ID_MAIN_MENU_TOOLS_SPARK_PACKAGE_CONFIG,
+      label = "i18n::SparkGuiPlugin.Menu.SparkPackageConfig.Text",
+      parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
+      image = "spark-file-input.svg",
+      separator = true)
+  public void menuToolsSparkPackageConfig() {
+    HopGui hopGui = HopGui.getInstance();
+    Shell shell = hopGui.getShell();
+    IVariables variables = hopGui.getVariables();
+    String projectHome = variables.getVariable("PROJECT_HOME");
+    if (StringUtils.isEmpty(projectHome)) {
+      MessageBox box = new MessageBox(shell, SWT.CLOSE | SWT.ICON_WARNING);
+      box.setText(
+          BaseMessages.getString(PKG, "SparkGuiPlugin.ExportSparkProject.NoProject.Header"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "SparkGuiPlugin.ExportSparkProject.NoProject.Message"));
+      box.open();
+      return;
+    }
+    projectHome = variables.resolve(projectHome);
+    new SparkPackageConfigDialog(shell, projectHome).open();
+  }
+
   /**
    * Export the active project as a zip for <strong>Native Spark</strong> execution (MainSpark
    * {@code --HopProjectPackage}). Not the same as File → Export current project to zip.
@@ -130,8 +159,7 @@ public class HopSparkGuiPlugin {
       id = ID_MAIN_MENU_TOOLS_EXPORT_SPARK_PROJECT,
       label = "i18n::SparkGuiPlugin.Menu.ExportSparkProjectPackage.Text",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
-      image = "spark-file-input.svg",
-      separator = true)
+      image = "spark-file-input.svg")
   public void menuToolsExportSparkProjectPackage() {
     HopGui hopGui = HopGui.getInstance();
     Shell shell = hopGui.getShell();

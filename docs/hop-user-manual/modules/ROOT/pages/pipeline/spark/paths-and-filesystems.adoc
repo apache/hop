@@ -162,7 +162,54 @@ Zip layout:
 
 * `metadata.json` — Hop metadata (run configs, connections, catalogs)
 * `hop-spark-package.properties` — marker (`projectRoot=project`)
-* `project/…` — project home files (skips `datasets/`, `.git`, `target/`, hidden names by default)
+* `project/…` — project home files (see filters below)
+
+==== Package include / exclude filters
+
+Export does **not** read `.gitignore`. Built-in skipped directory basenames (case-insensitive):
+
+`work`, `datasets`, `target`, `.git`, `node_modules`, `.idea`, `.settings`
+
+Configure extras with **`spark-package.json`** in the project home (Tools → *Edit Native Spark package filters…* in Hop GUI, or edit the file by hand):
+
+[source,json]
+----
+{
+  "excludeDirs": [ "tmp", "screenshots" ],
+  "excludeGlobs": [ "**/*.jar", "**/*.zip" ],
+  "includePaths": [ "work/cluster-env.json" ],
+  "replaceDefaultExcludeDirs": false
+}
+----
+
+|===
+|Field |Meaning
+
+|`excludeDirs`
+|Extra directory basenames to skip (merged with built-ins unless replace is true)
+
+|`excludeGlobs`
+|Globs relative to project home (e.g. `**/*.jar`)
+
+|`includePaths`
+|Relative paths force-included even under a skipped dir
+
+|`replaceDefaultExcludeDirs`
+|If true, only the listed `excludeDirs` apply (built-ins off)
+|===
+
+**hop-conf** (merged on top of `spark-package.json`):
+
+[source,bash]
+----
+./hop-conf.sh --export-spark-project=/tmp/pkg.zip \
+  --export-spark-project-home=/path/to/project \
+  --export-spark-project-exclude-dirs=tmp,screenshots \
+  --export-spark-project-exclude-globs='**/*.jar' \
+  --export-spark-project-include=work/cluster-env.json
+----
+
+Databricks Deploy & run auto-export uses the same rules (reads `spark-package.json` when present).
 
 === Run with MainSpark
 

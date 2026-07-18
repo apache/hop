@@ -57,10 +57,16 @@ class SparkProjectPackageTest {
     assertTrue(mapping.mkdirs());
     Files.writeString(
         new File(mapping, "child.hpl").toPath(), "<pipeline/>", StandardCharsets.UTF_8);
-    // datasets/ should be skipped
+    // datasets/ and work/ (fat jars) should be skipped
     File datasets = new File(projectHome, "datasets");
     assertTrue(datasets.mkdirs());
     Files.writeString(new File(datasets, "big.csv").toPath(), "a,b\n", StandardCharsets.UTF_8);
+    File work = new File(projectHome, "work");
+    assertTrue(work.mkdirs());
+    Files.writeString(
+        new File(work, "hop-native-spark4-submit.jar").toPath(),
+        "fake-jar",
+        StandardCharsets.UTF_8);
 
     File zip = new File(tempDir, "pkg.zip");
     MemoryMetadataProvider memory = new MemoryMetadataProvider();
@@ -74,6 +80,7 @@ class SparkProjectPackageTest {
     assertTrue(new File(m.projectHome(), "pipelines/parent.hpl").isFile());
     assertTrue(new File(m.projectHome(), "mappings/child.hpl").isFile());
     assertTrue(!new File(m.projectHome(), "datasets/big.csv").exists());
+    assertTrue(!new File(m.projectHome(), "work/hop-native-spark4-submit.jar").exists());
     assertNotNull(m.metadataPath());
     assertTrue(new File(m.metadataPath()).isFile());
 

@@ -31,6 +31,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
+import org.apache.hop.spark.pkg.PackageExportFilter;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
 import picocli.CommandLine;
 
@@ -72,6 +73,34 @@ public class ExportSparkProjectConfigPlugin implements IConfigOptions {
               + "with -j <name>. Prefer this for scripts so you need not register the project.")
   private String exportSparkProjectHome;
 
+  @CommandLine.Option(
+      names = {"--export-spark-project-exclude-dirs"},
+      description =
+          "Comma-separated extra directory basenames to skip (merged with defaults and "
+              + "spark-package.json). Example: tmp,screenshots")
+  private String exportExcludeDirs;
+
+  @CommandLine.Option(
+      names = {"--export-spark-project-exclude-globs"},
+      description =
+          "Comma-separated exclude globs relative to project home (e.g. **/*.jar,**/*.zip)")
+  private String exportExcludeGlobs;
+
+  @CommandLine.Option(
+      names = {"--export-spark-project-include"},
+      description =
+          "Comma-separated relative paths to force-include even under skipped dirs "
+              + "(e.g. work/cluster-env.json)")
+  private String exportIncludePaths;
+
+  @CommandLine.Option(
+      names = {"--export-spark-project-replace-default-excludes"},
+      description =
+          "If set, do not apply built-in exclude dirs (work, datasets, target, …); use only "
+              + "spark-package.json and --export-spark-project-exclude-dirs",
+      defaultValue = "false")
+  private boolean exportReplaceDefaultExcludes;
+
   @Override
   public boolean handleOption(
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
@@ -89,7 +118,13 @@ public class ExportSparkProjectConfigPlugin implements IConfigOptions {
     IHopMetadataProvider metadataProvider =
         resolveMetadataProvider(projectHome, hasHopMetadataProvider, variables, log);
 
-    SparkProjectPackage.exportProject(projectHome, zip, metadataProvider, variables);
+    PackageExportFilter cliFilter =
+        new PackageExportFilter(
+            PackageExportFilter.splitCsv(exportExcludeDirs),
+            PackageExportFilter.splitCsv(exportExcludeGlobs),
+            PackageExportFilter.splitCsv(exportIncludePaths),
+            exportReplaceDefaultExcludes);
+    SparkProjectPackage.exportProject(projectHome, zip, metadataProvider, variables, cliFilter);
     log.logBasic(
         "Spark project package written. Submit with MainSpark "
             + "--HopProjectPackage="

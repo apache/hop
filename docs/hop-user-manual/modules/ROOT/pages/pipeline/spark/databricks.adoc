@@ -211,6 +211,39 @@ When the field is `new_cluster`, Hop can build:
 * **`num_workers`** — worker count (string fields support variables).
 * Optional **full new_cluster JSON** overrides the structured fields when you need more knobs (Spark conf, single-node, EBS volumes, etc.).
 
+[[spark-conf-cores]]
+==== Match Spark cores and parallelism to the node
+
+Hop’s simple `new_cluster` defaults only set `spark_version`, `node_type_id`, and `num_workers`. Without explicit Spark conf, DBR may under-use the instance CPUs and multi-million-row Hop pipelines can crawl even when the cluster looks “idle.”
+
+**Tune `spark_conf` so cores and default parallelism match the machine you bought.** Example for **one worker `i3.xlarge` (4 vCPUs)** with the driver and executor sharing that capacity:
+
+[source,json]
+----
+"new_cluster": {
+  "spark_version": "18.2.x-scala2.13",
+  "node_type_id": "i3.xlarge",
+  "num_workers": 1,
+  "spark_conf": {
+    "spark.executor.cores": "3",
+    "spark.driver.cores": "1",
+    "spark.default.parallelism": "12",
+    "spark.sql.shuffle.partitions": "12"
+  }
+}
+----
+
+| Setting | Example (1× `i3.xlarge`, 4 cores) | Intent |
+| --- | --- | --- |
+| `spark.executor.cores` | `3` | Executor threads on the worker |
+| `spark.driver.cores` | `1` | Driver share of the same node (3+1 = 4 cores available) |
+| `spark.default.parallelism` | `12` | Default RDD partitions (often a few × total cores) |
+| `spark.sql.shuffle.partitions` | `12` | Shuffle partitions; keep in the same ballpark |
+
+Put this under **optional new_cluster JSON** on the Job Run **Compute** tab (cluster field = `new_cluster`). Scale the numbers when you change node type or worker count (more workers → more total cores → raise parallelism/partitions).
+
+**Observed impact (Hello-style multi-million-row Native Spark pipeline on classic job compute):** pipeline **execution** dropped from on the order of **~10 minutes** to about **~41 seconds** after applying the conf above — cold start / Pending time is unchanged (see <<job-cluster-cold-start>>).
+
 [[job-cluster-cold-start]]
 ==== Job cluster cold start is slow
 
@@ -372,7 +405,7 @@ Notes on that log:
 * `Reusing active SparkSession` — expected on Databricks (do not `spark.stop()` / do not force a second context).
 * `Handled transform …` lines are **graph build** (seconds); wall time until `result row count=…` is the real work.
 * Final line **`Skipping System.exit(0) (Databricks / TrapExit security manager)`** is the success marker for the exit fix above; the Jobs UI should show **Succeeded** (see the screenshot under <<job-cluster-cold-start>>).
-* Example timing: **5 000 000** rows in about **10 minutes** on classic job compute is normal for this engine path (see <<faq-low-cpu-rowgen>>). A pure Spark SQL `range` job would be much faster; Hop generic transforms are not that path.
+* Example timing: without core/parallelism conf, **5 000 000** rows can take on the order of **~10 minutes** on classic job compute; with <<spark-conf-cores, cores matched to the node>> (e.g. 3+1 on `i3.xlarge`), the same style workload has been seen around **~40 seconds** of *execution* time. A pure Spark SQL `range` job would still be faster; Hop generic transforms are not that path (see also <<faq-low-cpu-rowgen>>).
 
 [[faq-low-cpu-rowgen]]
 === Low cluster CPU / slow Row Generator (millions of rows)
@@ -387,13 +420,13 @@ Source transforms such as **Generate rows** are wired as **one empty driver row 
 
 **What to expect**
 
-* Spark UI: often **1 task** on the heavy stage.
-* Wall clock dominated by Hop row loops + conversion + GC, not by “idle Databricks”.
-* Same pattern on a **local** Spark cluster — switching away from Databricks does not parallelize Row Generator sources.
+* Spark UI: source transforms such as Generate rows still often start as **1 task** (see engine design).
+* Still set <<spark-conf-cores, executor/driver cores and shuffle partitions>> so DBR uses the CPUs you pay for — under-configured clusters show low CPU and multi-minute runs for millions of rows even after the cluster is “Running”.
+* Wall clock for generic Hop transforms remains higher than pure Spark SQL; local clusters show the same architectural limits.
 
 **When you need real scale**
 
-Prefer partitioned sources (files, lake tables, or a future multi-partition generator), keep high-volume work in native Spark I/O where possible, and treat generic Hop `mapPartitions` as **compatibility**, not as a bulk SQL engine.
+Prefer partitioned sources (files, lake tables, or a multi-partition generator), keep high-volume work in native Spark I/O where possible, and treat generic Hop `mapPartitions` as **compatibility**, not as a bulk SQL engine.
 
 [[faq-grpc-context]]
 === Job fails at init: `NoClassDefFoundError: io/grpc/Context`

@@ -73,7 +73,7 @@ public enum SparkRunConfigTemplate {
       "",
       "Apache Hop",
       "",
-"""
+      """
 spark.ui.enabled=false
 spark.executor.cores=3
 spark.driver.cores=1

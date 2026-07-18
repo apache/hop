@@ -17,6 +17,7 @@
 
 package org.apache.hop.spark.core;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -38,11 +39,13 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
+import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -288,6 +291,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       // Spark project package: extract once per JVM into java.io.tmpdir and set PROJECT_HOME
       // so Simple Mapping / Pipeline Executor path loads work on executors.
       SparkProjectPackage.ensureMaterializedOnWorker(variables);
+      validateProjectHomeOnWorker(variables);
       // Partition-scoped internal variables for classic I/O filenames (e.g. Text File Output
       // with ${Internal.Transform.ID}). Readable stable ID = transform name + partition id.
       applyPartitionInternalVariables(variables, transformName, copyNr);
@@ -362,6 +366,10 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       HopSparkUtil.loadTransformMetadataFromXml(
           transformName, iTransformMeta, transformMetaInterfaceXml, metadataProvider);
 
+      // Resolve ${PROJECT_HOME}/… mapping/executor filenames on this JVM after package materialize
+      // so Simple Mapping / Pipeline Executor open the child .hpl from the local extract.
+      resolveNestedPipelineFilename(iTransformMeta, variables, transformName);
+
       // Text File Input / Excel / etc. accept filenames from a *main* hop (not an INFO stream)
       // and call findInputRowSet(accept_transform_name). The mini-pipeline only has the main
       // injector named _INJECTOR_, so re-bind accept_transform_name to that injector. Filename
@@ -372,6 +380,14 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       transformMeta.setTransformPluginId(transformPluginId);
       transformMeta.setLocation(400, 200);
       pipelineMeta.addTransform(transformMeta);
+      // Give CurrentDirectoryResolver a folder under PROJECT_HOME when resolving relatives
+      String projectHome = variables.getVariable("PROJECT_HOME");
+      if (StringUtils.isNotEmpty(projectHome)) {
+        pipelineMeta.setFilename(
+            projectHome
+                + (projectHome.endsWith("/") || projectHome.endsWith("\\") ? "" : File.separator)
+                + "_spark_map_partitions.hpl");
+      }
       if (!inputTransform) {
         pipelineMeta.addPipelineHop(new PipelineHopMeta(mainInjectorTransformMeta, transformMeta));
       }
@@ -392,7 +408,24 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       pipeline
           .getPipelineRunConfiguration()
           .setName("spark-transform-local (" + transformName + ")");
-      pipeline.prepareExecution();
+      try {
+        pipeline.prepareExecution();
+      } catch (Exception e) {
+        throw new HopException(
+            "Failed to prepare transform '"
+                + transformName
+                + "' (plugin id="
+                + transformPluginId
+                + ") on Spark partition "
+                + copyNr
+                + " host="
+                + host
+                + " PROJECT_HOME="
+                + variables.getVariable("PROJECT_HOME")
+                + " HOP_SPARK_PROJECT_PACKAGE="
+                + variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI),
+            e);
+      }
 
       RowProducer rowProducer = null;
       TransformMetaDataCombi mainInjectorCombi = null;
@@ -773,6 +806,109 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         StringUtils.isNotEmpty(parentLogChannelId) ? parentLogChannelId : "spark-pipeline";
     String ownerId = parent + "|" + transformName + "|" + partitionId;
     variables.setVariable(SparkConst.VAR_TRANSFORM_OWNER_ID, ownerId);
+  }
+
+  /**
+   * After package materialize, resolve nested pipeline paths (Simple Mapping, Pipeline Executor, …)
+   * to absolute files on this JVM and verify they exist.
+   */
+  static void resolveNestedPipelineFilename(
+      ITransformMeta iTransformMeta, IVariables variables, String transformName)
+      throws HopException {
+    if (!(iTransformMeta instanceof TransformWithMappingMeta<?, ?> mappingMeta)) {
+      return;
+    }
+    String filename = mappingMeta.getFilename();
+    if (StringUtils.isEmpty(filename)) {
+      throw new HopException(
+          "Transform '"
+              + transformName
+              + "' is a nested pipeline transform but has no filename configured");
+    }
+    String resolved = variables != null ? variables.resolve(filename) : filename;
+    if (StringUtils.isEmpty(resolved) || resolved.contains("${") || resolved.contains("%")) {
+      throw new HopException(
+          "Could not resolve nested pipeline filename for transform '"
+              + transformName
+              + "': '"
+              + filename
+              + "' → '"
+              + resolved
+              + "' (PROJECT_HOME="
+              + (variables != null ? variables.getVariable("PROJECT_HOME") : null)
+              + ", package="
+              + (variables != null
+                  ? variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI)
+                  : null)
+              + "). Deploy with Upload Spark project package so PROJECT_HOME is set on every"
+              + " executor.");
+    }
+    File f = new File(resolved);
+    boolean exists = f.isFile();
+    if (!exists) {
+      try {
+        exists = HopVfs.fileExists(resolved);
+      } catch (Exception e) {
+        throw new HopException(
+            "Nested pipeline file not found for transform '"
+                + transformName
+                + "': "
+                + resolved
+                + " (from '"
+                + filename
+                + "')",
+            e);
+      }
+    }
+    if (!exists) {
+      throw new HopException(
+          "Nested pipeline file not found for transform '"
+              + transformName
+              + "': "
+              + resolved
+              + " (from '"
+              + filename
+              + "'). Check that hop-spark-package.zip contains this path under project/ "
+              + "(e.g. project/mappings/add-uuid.hpl) and re-run Deploy & run with package"
+              + " upload.");
+    }
+    mappingMeta.setFilename(resolved);
+  }
+
+  /**
+   * After package materialize, ensure PROJECT_HOME is a real directory on this JVM. Detects the
+   * common failure where only the driver extract path was broadcast and workers never re-extracted
+   * the package (Simple Mapping then fails to open ${PROJECT_HOME}/…).
+   */
+  static void validateProjectHomeOnWorker(IVariables variables) throws HopException {
+    if (variables == null) {
+      return;
+    }
+    String packageUri = variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
+    String projectHome = variables.getVariable("PROJECT_HOME");
+    if (StringUtils.isEmpty(packageUri) && StringUtils.isEmpty(projectHome)) {
+      return;
+    }
+    if (StringUtils.isNotEmpty(projectHome)) {
+      File home = new File(projectHome);
+      if (home.isDirectory()) {
+        return;
+      }
+      throw new HopException(
+          "PROJECT_HOME is not a directory on this Spark executor: "
+              + projectHome
+              + ". Package URI="
+              + packageUri
+              + ". For Databricks Deploy & run, ensure hop-spark-package.zip is on a path every"
+              + " node can open (/Volumes/…) and that the zip contains the nested mapping .hpl"
+              + " files under project/.");
+    }
+    if (StringUtils.isNotEmpty(packageUri)) {
+      throw new HopException(
+          "HOP_SPARK_PROJECT_PACKAGE is set ("
+              + packageUri
+              + ") but PROJECT_HOME was not set after package materialization on this executor.");
+    }
   }
 
   /**

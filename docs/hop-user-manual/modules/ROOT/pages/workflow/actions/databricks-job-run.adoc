@@ -139,7 +139,7 @@ Default variable names (configurable on the **Run** tab):
 |**Classic existing:** paste the all-purpose cluster id. **Classic job cluster:** enter `new_cluster` (ephemeral cluster for the run). **Serverless:** enter `serverless` (job `environments` + task `environment_key`; jar via `java_dependencies`).
 
 |new_cluster spark_version / node_type_id / num_workers / JSON
-|Used when compute is `new_cluster`. Defaults: `18.2.x-scala2.13`, `i3.xlarge` (AWS), `1`. Prefer `i3.*` on AWS (local NVMe); `m5.xlarge` often needs EBS.
+|Used when compute is `new_cluster`. Defaults: `18.2.x-scala2.13`, `i3.xlarge` (AWS), `1`. Prefer `i3.*` on AWS (local NVMe); `m5.xlarge` often needs EBS. Optional full JSON can set `spark_conf` (e.g. match `spark.executor.cores` / `spark.driver.cores` to the node’s vCPUs — see xref:pipeline/spark/databricks.adoc#spark-conf-cores[Native Spark on Databricks]).
 
 |Serverless environment_key / client
 |Used when compute is `serverless`. Defaults: key `default`, client `4`.

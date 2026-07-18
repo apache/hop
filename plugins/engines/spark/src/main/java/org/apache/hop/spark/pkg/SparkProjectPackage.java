@@ -31,7 +31,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.HashSet;
 import java.util.HexFormat;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -100,9 +99,6 @@ public final class SparkProjectPackage {
   private static final Set<String> DISTRIBUTED = ConcurrentHashMap.newKeySet();
 
   private record MaterializedState(String extractRoot, String fingerprint) {}
-
-  private static final Set<String> SKIP_DIR_NAMES =
-      Set.of(".git", "datasets", "target", "node_modules", ".idea", ".settings");
 
   private SparkProjectPackage() {}
 
@@ -492,6 +488,9 @@ public final class SparkProjectPackage {
   /**
    * Export a Hop project home directory into a Spark-oriented package zip.
    *
+   * <p>Loads {@link PackageExportFilter#CONFIG_FILENAME} from the project home when present and
+   * merges it with built-in default exclude dirs.
+   *
    * @param projectHome local/VFS path of the project home (definition tree)
    * @param zipFilename destination zip (created/overwritten)
    * @param metadataProvider metadata to embed as root {@code metadata.json} (required for
@@ -502,6 +501,20 @@ public final class SparkProjectPackage {
       String zipFilename,
       IHopMetadataProvider metadataProvider,
       IVariables variables)
+      throws HopException {
+    exportProject(projectHome, zipFilename, metadataProvider, variables, null);
+  }
+
+  /**
+   * Export with an explicit filter layer (CLI/GUI). Merge order: built-in defaults (via empty
+   * filter) → {@code spark-package.json} in project home → {@code explicitFilter}.
+   */
+  public static void exportProject(
+      String projectHome,
+      String zipFilename,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      PackageExportFilter explicitFilter)
       throws HopException {
     if (StringUtils.isEmpty(projectHome)) {
       throw new HopException("Project home is required for Spark project package export");
@@ -514,6 +527,11 @@ public final class SparkProjectPackage {
     }
     String realHome = variables != null ? variables.resolve(projectHome) : projectHome;
     String realZip = variables != null ? variables.resolve(zipFilename) : zipFilename;
+
+    PackageExportFilter filter =
+        PackageExportFilter.empty()
+            .merge(PackageExportFilter.loadFromProjectHome(realHome))
+            .merge(explicitFilter);
 
     try {
       FileObject home = HopVfs.getFileObject(realHome);
@@ -555,7 +573,7 @@ public final class SparkProjectPackage {
                   return false;
                 }
                 String rel = relativePath(home, fo);
-                if (rel == null || shouldSkipRelative(rel)) {
+                if (rel == null || filter.shouldSkipRelative(rel)) {
                   return false;
                 }
                 // Do not nest the destination zip into itself
@@ -581,10 +599,7 @@ public final class SparkProjectPackage {
                   return true;
                 }
                 String base = fo.getName().getBaseName();
-                if (base.startsWith(".") && fileInfo.getDepth() > 0) {
-                  return false;
-                }
-                return !SKIP_DIR_NAMES.contains(base.toLowerCase(Locale.ROOT));
+                return !filter.shouldSkipDirectoryBasename(base, fileInfo.getDepth());
               }
             });
       }
@@ -789,19 +804,6 @@ public final class SparkProjectPackage {
       rel = rel.substring(1);
     }
     return rel;
-  }
-
-  private static boolean shouldSkipRelative(String rel) {
-    String[] parts = rel.replace('\\', '/').split("/");
-    for (String part : parts) {
-      if (part.startsWith(".") && part.length() > 1) {
-        return true;
-      }
-      if (SKIP_DIR_NAMES.contains(part.toLowerCase(Locale.ROOT))) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private static void deleteRecursively(File f) throws IOException {
