@@ -92,19 +92,19 @@ class ExecProcessTest {
     return "/bin/echo hop-single";
   }
 
-  private RowMeta inputRowMetaForArguments(String processField, String... argFieldNames) {
+  private RowMeta inputRowMetaForArguments(String... argFieldNames) {
     RowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new ValueMetaString(processField));
+    rowMeta.addValueMeta(new ValueMetaString("cmd"));
     for (String name : argFieldNames) {
       rowMeta.addValueMeta(new ValueMetaString(name));
     }
     return rowMeta;
   }
 
-  private ExecProcessMeta metaForArgumentsMode(String processField, String... argFieldNames) {
+  private ExecProcessMeta metaForArgumentsMode(String... argFieldNames) {
     ExecProcessMeta meta = new ExecProcessMeta();
     meta.setDefault();
-    meta.setProcessField(processField);
+    meta.setProcessField("cmd");
     meta.setResultFieldName("result_out");
     meta.setErrorFieldName("result_err");
     meta.setExitValueFieldName("result_exit");
@@ -130,9 +130,9 @@ class ExecProcessTest {
     HopEnvironment.init();
 
     String[] cmd = echoStdoutAndStderrCommand();
-    ExecProcessMeta meta = metaForArgumentsMode("cmd", "a1", "a2");
+    ExecProcessMeta meta = metaForArgumentsMode("a1", "a2");
     Object[] row = new Object[] {cmd[0], cmd[1], cmd[2]};
-    RowMeta rowMeta = inputRowMetaForArguments("cmd", "a1", "a2");
+    RowMeta rowMeta = inputRowMetaForArguments("a1", "a2");
 
     ExecProcess transform = newTransform(meta, rowMeta, row);
 
@@ -152,9 +152,9 @@ class ExecProcessTest {
     HopEnvironment.init();
 
     String[] cmd = largeStdoutCommand();
-    ExecProcessMeta meta = metaForArgumentsMode("cmd", "a1", "a2");
+    ExecProcessMeta meta = metaForArgumentsMode("a1", "a2");
     Object[] row = new Object[] {cmd[0], cmd[1], cmd[2]};
-    RowMeta rowMeta = inputRowMetaForArguments("cmd", "a1", "a2");
+    RowMeta rowMeta = inputRowMetaForArguments("a1", "a2");
 
     ExecProcess transform = newTransform(meta, rowMeta, row);
 
@@ -202,9 +202,9 @@ class ExecProcessTest {
     HopEnvironment.init();
 
     String[] cmd = failingCommand();
-    ExecProcessMeta meta = metaForArgumentsMode("cmd", "a1", "a2");
+    ExecProcessMeta meta = metaForArgumentsMode("a1", "a2");
     Object[] row = new Object[] {cmd[0], cmd[1], cmd[2]};
-    RowMeta rowMeta = inputRowMetaForArguments("cmd", "a1", "a2");
+    RowMeta rowMeta = inputRowMetaForArguments("a1", "a2");
     meta.setFailWhenNotSuccess(true);
 
     when(smh.transformMeta.isDoingErrorHandling()).thenReturn(false);
@@ -249,8 +249,7 @@ class ExecProcessTest {
     assertFalse(transform.init());
   }
 
-  private ExecProcess newTransform(ExecProcessMeta meta, IRowMeta rowMeta, Object[] row)
-      throws HopException {
+  private ExecProcess newTransform(ExecProcessMeta meta, IRowMeta rowMeta, Object[] row) {
     TransformMeta tm = smh.transformMeta;
     when(tm.isDoingErrorHandling()).thenReturn(false);
 
@@ -263,8 +262,8 @@ class ExecProcessTest {
     return transform;
   }
 
-  private static Object[] readSingleOutputRow(ExecProcess transform) throws HopException {
-    IRowSet outputRowSet = transform.getOutputRowSets().get(0);
+  private static Object[] readSingleOutputRow(ExecProcess transform) {
+    IRowSet outputRowSet = transform.getOutputRowSets().getFirst();
     Object[] out = outputRowSet.getRow();
     assertNotNull(out);
     return out;

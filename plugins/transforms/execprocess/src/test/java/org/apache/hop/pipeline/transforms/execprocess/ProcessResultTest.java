@@ -17,19 +17,33 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
-import lombok.Getter;
-import lombok.Setter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@Getter
-@Setter
-public class ProcessResult {
-  private String outputStream;
-  private String errorStream;
-  private long exitValue;
+import org.junit.jupiter.api.Test;
 
-  public ProcessResult() {
-    this.outputStream = null;
-    this.errorStream = null;
-    this.exitValue = 1;
+/** Unit test for {@link ProcessResult} */
+class ProcessResultTest {
+
+  @Test
+  void defaultsMatchHistoricalConstructor() {
+    ProcessResult result = new ProcessResult();
+
+    assertNull(result.getOutputStream());
+    assertNull(result.getErrorStream());
+    assertEquals(1L, result.getExitValue());
+  }
+
+  @Test
+  void gettersAndSettersRoundTrip() {
+    ProcessResult result = new ProcessResult();
+
+    result.setOutputStream("stdout");
+    result.setErrorStream("stderr");
+    result.setExitValue(0L);
+
+    assertEquals("stdout", result.getOutputStream());
+    assertEquals("stderr", result.getErrorStream());
+    assertEquals(0L, result.getExitValue());
   }
 }
