@@ -277,6 +277,17 @@ public class HopGuiFileDelegate {
         }
       }
     }
+
+    // Execution Information tabs are not IHopFileTypeHandlers, so they never appear in
+    // getItems(). Close them explicitly so project switches (and File → Close All) do not leave
+    // viewers from the previous project open. Callers that need to remember tabs (project switch)
+    // must call ExecutionPerspective.saveState() first.
+    //
+    ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
+    if (executionPerspective != null) {
+      executionPerspective.closeAllTabs();
+    }
+
     this.isClosing = false;
   }
 

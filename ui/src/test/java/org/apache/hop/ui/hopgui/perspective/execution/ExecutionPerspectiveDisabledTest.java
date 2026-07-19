@@ -74,6 +74,12 @@ class ExecutionPerspectiveDisabledTest {
   }
 
   @Test
+  void closingAllTabsDoesNotFail() {
+    // HopGuiFileDelegate#closeAllFiles closes execution tabs after file tabs.
+    assertDoesNotThrow(() -> disabledPerspective.closeAllTabs());
+  }
+
+  @Test
   void theKeyboardShortcutDoesNotFail() {
     // The Ctrl-Shift-I shortcut on activate() is registered even though the perspective is not.
     assertDoesNotThrow(() -> disabledPerspective.activate());

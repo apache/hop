@@ -51,6 +51,7 @@ import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.LastPeriod;
 import org.apache.hop.execution.caching.CachingFileExecutionInfoLocation;
 import org.apache.hop.execution.local.FileExecutionInfoLocation;
+import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
@@ -85,6 +86,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
+import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
@@ -165,6 +167,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   public static final String CONFIGURE_LOCATIONS = "configure-locations";
 
   private static final String EXECUTION_AUDIT_TYPE = "execution-perspective-gui";
+  private static final String EXECUTION_TABS_AUDIT_TYPE = "execution-perspective-tabs";
   private static final String AUDIT_EXECUTION_TOOLBAR = "toolbar";
   private static final String AUDIT_ONLY_PARENTS = "only-parents";
   private static final String AUDIT_ONLY_FAILED = "only-failed";
@@ -174,6 +177,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private static final String AUDIT_ONLY_PIPELINES = "only-pipelines";
   private static final String AUDIT_FILTER_TEXT = "filter-text";
   private static final String AUDIT_TIME_FILTER = "time-filter";
+  private static final String AUDIT_ACTIVE_TAB = "active-tab";
+  private static final String TAB_KEY_DELIMITER = "\t";
   public static final String SNAP_ID_EIL_REFRESH = "EILRefresh";
 
   @Getter private static ExecutionPerspective instance;
@@ -195,6 +200,19 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private GuiToolbarWidgets toolBarWidgets;
 
   private final List<IExecutionViewer> viewers = new ArrayList<>();
+
+  /**
+   * When true, {@link #addViewer(IExecutionViewer)} does not activate this perspective. Used while
+   * restoring open tabs on project switch so the data-orchestration perspective keeps focus.
+   */
+  private boolean restoringTabs;
+
+  /**
+   * When true, {@link #closeTab(CTabFolderEvent, CTabItem)} does not rewrite audit state. Used by
+   * {@link #closeAllTabs()} so a project switch that already called {@link #saveState()} is not
+   * overwritten with an empty open-tabs list.
+   */
+  private boolean closingAllTabs;
 
   /**
    * Gets locationMap
@@ -419,9 +437,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
     viewers.add(viewer);
 
-    // Activate the perspective
+    // Activate the perspective unless we are restoring tabs after a project switch
     //
-    this.activate();
+    if (!restoringTabs) {
+      this.activate();
+    }
 
     // Switch to the tab
     //
@@ -1455,6 +1475,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
     if (isRemoved) {
       hopGui.auditDelegate.writeLastOpenFiles();
+      // Keep the per-project open-tabs audit in sync when the user closes a single tab.
+      // Skip during closeAllTabs so a prior saveState() for project switch is not wiped.
+      //
+      if (!closingAllTabs) {
+        saveState();
+      }
     }
     if (!isRemoved && event != null) {
       event.doit = false;
@@ -1464,6 +1490,33 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     //
     if (tabFolder.getItemCount() == 0) {
       HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
+    }
+  }
+
+  /**
+   * Close every open execution viewer tab. Does not write audit state — callers that need to
+   * remember tabs (project switch) must call {@link #saveState()} first.
+   */
+  public void closeAllTabs() {
+    if (!isInitialized() || tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
+
+    closingAllTabs = true;
+    try {
+      // Copy the list — closeTab disposes items and mutates the folder
+      //
+      List<CTabItem> items = new ArrayList<>();
+      for (CTabItem item : tabFolder.getItems()) {
+        items.add(item);
+      }
+      for (CTabItem item : items) {
+        if (!item.isDisposed()) {
+          closeTab(null, item);
+        }
+      }
+    } finally {
+      closingAllTabs = false;
     }
   }
 
@@ -1480,30 +1533,52 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       return;
     }
     try {
-      AuditStateMap stateMap = new AuditStateMap();
-      stateMap.add(
-          new AuditState(
-              AUDIT_EXECUTION_TOOLBAR,
-              Map.of(
-                  AUDIT_ONLY_PARENTS,
-                  onlyShowingParents,
-                  AUDIT_ONLY_FAILED,
-                  onlyShowingFailed,
-                  AUDIT_ONLY_RUNNING,
-                  onlyShowingRunning,
-                  AUDIT_ONLY_FINISHED,
-                  onlyShowingFinished,
-                  AUDIT_ONLY_WORKFLOWS,
-                  onlyShowingWorkflows,
-                  AUDIT_ONLY_PIPELINES,
-                  onlyShowingPipelines,
-                  AUDIT_FILTER_TEXT,
-                  Const.NVL(filterText, ""),
-                  AUDIT_TIME_FILTER,
-                  timeFilter.getCode())));
+      String namespace = HopNamespace.getNamespace();
+      String activeKey = "";
+      IExecutionViewer activeViewer = getActiveViewer();
+      List<String> openTabs = new ArrayList<>();
 
+      if (tabFolder != null && !tabFolder.isDisposed()) {
+        for (CTabItem item : tabFolder.getItems()) {
+          if (item.isDisposed()) {
+            continue;
+          }
+          Object data = item.getData();
+          if (data instanceof BaseExecutionViewer baseViewer) {
+            String locationName = Const.NVL(baseViewer.getLocationName(), "");
+            String executionId =
+                baseViewer.getExecution() != null
+                    ? Const.NVL(baseViewer.getExecution().getId(), "")
+                    : "";
+            if (StringUtils.isEmpty(locationName) || StringUtils.isEmpty(executionId)) {
+              continue;
+            }
+            String tabKey = toTabKey(locationName, executionId);
+            openTabs.add(tabKey);
+            if (baseViewer == activeViewer) {
+              activeKey = tabKey;
+            }
+          }
+        }
+      }
+
+      Map<String, Object> toolbarProps = new HashMap<>();
+      toolbarProps.put(AUDIT_ONLY_PARENTS, onlyShowingParents);
+      toolbarProps.put(AUDIT_ONLY_FAILED, onlyShowingFailed);
+      toolbarProps.put(AUDIT_ONLY_RUNNING, onlyShowingRunning);
+      toolbarProps.put(AUDIT_ONLY_FINISHED, onlyShowingFinished);
+      toolbarProps.put(AUDIT_ONLY_WORKFLOWS, onlyShowingWorkflows);
+      toolbarProps.put(AUDIT_ONLY_PIPELINES, onlyShowingPipelines);
+      toolbarProps.put(AUDIT_FILTER_TEXT, Const.NVL(filterText, ""));
+      toolbarProps.put(AUDIT_TIME_FILTER, timeFilter.getCode());
+      toolbarProps.put(AUDIT_ACTIVE_TAB, activeKey);
+
+      AuditStateMap stateMap = new AuditStateMap();
+      stateMap.add(new AuditState(AUDIT_EXECUTION_TOOLBAR, toolbarProps));
+
+      AuditManager.getActive().saveAuditStateMap(namespace, EXECUTION_AUDIT_TYPE, stateMap);
       AuditManager.getActive()
-          .saveAuditStateMap(HopNamespace.getNamespace(), EXECUTION_AUDIT_TYPE, stateMap);
+          .storeList(namespace, EXECUTION_TABS_AUDIT_TYPE, new AuditList(openTabs));
     } catch (Exception e) {
       hopGui.getLog().logError("Error saving execution perspective state", e);
     }
@@ -1517,9 +1592,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       return;
     }
     try {
+      String namespace = HopNamespace.getNamespace();
       AuditStateMap stateMap =
-          AuditManager.getActive()
-              .loadAuditStateMap(HopNamespace.getNamespace(), EXECUTION_AUDIT_TYPE);
+          AuditManager.getActive().loadAuditStateMap(namespace, EXECUTION_AUDIT_TYPE);
       AuditState toolbarState = stateMap.get(AUDIT_EXECUTION_TOOLBAR);
       if (toolbarState == null) {
         toolbarState = new AuditState();
@@ -1533,12 +1608,150 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       filterText = toolbarState.extractString(AUDIT_FILTER_TEXT, "");
       String timeFilterName = toolbarState.extractString(AUDIT_TIME_FILTER, "");
       timeFilter = IEnumHasCode.lookupCode(LastPeriod.class, timeFilterName, LastPeriod.ONE_HOUR);
+      String activeKey = toolbarState.extractString(AUDIT_ACTIVE_TAB, "");
 
       updateGui();
       refresh();
+
+      // Re-open execution viewer tabs that were open last time this project was used.
+      // Missing locations/executions fail silently — they are not important enough to block
+      // project activation.
+      //
+      restoreOpenTabs(namespace, activeKey);
     } catch (Exception e) {
-      hopGui.getLog().logError("Error restoring explorer perspective state", e);
+      hopGui.getLog().logError("Error restoring execution perspective state", e);
     }
+  }
+
+  /**
+   * Restore previously open execution tabs for the given project namespace. Failures for individual
+   * tabs are logged and skipped.
+   */
+  private void restoreOpenTabs(String namespace, String activeKey) {
+    if (tabFolder == null || tabFolder.isDisposed()) {
+      return;
+    }
+
+    AuditList auditList;
+    try {
+      auditList = AuditManager.getActive().retrieveList(namespace, EXECUTION_TABS_AUDIT_TYPE);
+    } catch (Exception e) {
+      hopGui.getLog().logError("Error loading open execution tabs for project restore", e);
+      return;
+    }
+    if (auditList == null || auditList.getNames() == null || auditList.getNames().isEmpty()) {
+      return;
+    }
+
+    restoringTabs = true;
+    IExecutionViewer activeViewer = null;
+    try {
+      for (String tabKey : auditList.getNames()) {
+        if (StringUtils.isEmpty(tabKey)) {
+          continue;
+        }
+        try {
+          String[] parts = tabKey.split(TAB_KEY_DELIMITER, 2);
+          if (parts.length < 2 || StringUtils.isEmpty(parts[0]) || StringUtils.isEmpty(parts[1])) {
+            hopGui
+                .getLog()
+                .logDebug("Skipping invalid execution tab key during restore: " + tabKey);
+            continue;
+          }
+          String locationName = parts[0];
+          String executionId = parts[1];
+
+          ExecutionInfoLocation location = ensureLocationInitialized(locationName);
+          if (location == null) {
+            hopGui
+                .getLog()
+                .logDebug(
+                    "Skipping restore of execution tab: location '"
+                        + locationName
+                        + "' not available");
+            continue;
+          }
+
+          IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+          Execution execution = iLocation.getExecution(executionId);
+          if (execution == null) {
+            hopGui
+                .getLog()
+                .logDebug(
+                    "Skipping restore of execution tab: execution '"
+                        + executionId
+                        + "' not found in location '"
+                        + locationName
+                        + "'");
+            continue;
+          }
+
+          ExecutionState executionState = iLocation.getExecutionState(executionId);
+          createExecutionViewer(locationName, execution, executionState);
+
+          if (tabKey.equals(activeKey)) {
+            activeViewer = findViewer(execution.getId(), execution.getName());
+          }
+        } catch (Exception e) {
+          // Missing or corrupt execution information is not important enough to surface.
+          //
+          hopGui
+              .getLog()
+              .logDebug("Skipping restore of execution tab '" + tabKey + "': " + e.getMessage());
+        }
+      }
+
+      if (activeViewer != null) {
+        setActiveViewer(activeViewer);
+      }
+    } finally {
+      restoringTabs = false;
+    }
+  }
+
+  /**
+   * Ensure the named execution information location is initialized and present in {@link
+   * #locationMap}. Does not require the perspective to be active (unlike {@link #refresh()}).
+   *
+   * @param locationName metadata name of the location
+   * @return the location, or null if it cannot be loaded/initialized
+   */
+  private ExecutionInfoLocation ensureLocationInitialized(String locationName) {
+    if (StringUtils.isEmpty(locationName) || locationMap == null) {
+      return null;
+    }
+
+    ExecutionInfoLocation location = locationMap.get(locationName);
+    if (location != null) {
+      return location;
+    }
+
+    try {
+      IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+          hopGui.getMetadataProvider().getSerializer(ExecutionInfoLocation.class);
+      if (!serializer.exists(locationName)) {
+        return null;
+      }
+      location = serializer.load(locationName);
+      if (location == null || location.getExecutionInfoLocation() == null) {
+        return null;
+      }
+      location
+          .getExecutionInfoLocation()
+          .initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
+      locationMap.put(locationName, location);
+      return location;
+    } catch (Exception e) {
+      hopGui
+          .getLog()
+          .logDebug(
+              "Could not initialize execution location '" + locationName + "' for tab restore", e);
+      return null;
+    }
+  }
+
+  private static String toTabKey(String locationName, String executionId) {
+    return locationName + TAB_KEY_DELIMITER + executionId;
   }
 
   public ExecutionInfoLocation lookupLocation(String locationName) {

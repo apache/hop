@@ -166,7 +166,12 @@ public class ProjectsGuiPlugin {
         return;
       }
 
-      // Close's all
+      // Save execution perspective state (toolbar filters + open tabs) under the current project
+      // namespace before closing tabs / switching namespace.
+      //
+      ExecutionPerspective.getInstance().saveState();
+
+      // Close's all (including execution information tabs)
       //
       hopGui.fileDelegate.closeAllFiles();
 
@@ -179,7 +184,6 @@ public class ProjectsGuiPlugin {
       // Save explorer perspective state for the current project before switching namespace
       //
       ExplorerPerspective.getInstance().saveExplorerStateOnShutdown();
-      ExecutionPerspective.getInstance().saveState();
 
       // This is called only in Hop GUI so we want to start with a new set of variables
       // It avoids variables from one project showing up in another
