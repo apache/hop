@@ -88,6 +88,17 @@ Optional `--repo <id>` forces a single repository (skips the fallback chain).
 
 *Tools → Marketplace…* lists featured optional plugins, installs/uninstalls them, and opens *Manage…* to edit repositories (same config as the CLI).
 
+=== Environment file (Apply / Validate)
+
+The dialog also exposes declarative environments (same as the CLI):
+
+* **Environment file** — path to `hop-env.yaml` / `.yml` / `.json`. If present, `full-client-env.yaml` at the install root is pre-filled.
+* **Browse…** — choose a file.
+* **Validate** — compare the local install to the file without downloading. Use **Strict validate** to also fail when extra marketplace plugins are installed.
+* **Apply** — install missing plugins and dependencies. Optionally enable **Prune extras on apply** (same as `apply --prune`; confirm before running).
+
+After Apply, restart Hop so plugins load.
+
 == Declarative environments (`hop-env.yaml`)
 
 For CI/CD, Docker, and reproducible servers you can declare the required plugins (and optional jars) in a file, commit it to Git, and apply it without using the GUI.
