@@ -32,6 +32,8 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
+import org.apache.hop.marketplace.catalog.OptionalPluginCatalog;
+import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
@@ -60,6 +62,7 @@ import picocli.CommandLine.Parameters;
       MarketplaceCommand.InstallCommand.class,
       MarketplaceCommand.UninstallCommand.class,
       MarketplaceCommand.ListCommand.class,
+      MarketplaceCommand.QueryCommand.class,
       MarketplaceCommand.ApplyCommand.class,
       MarketplaceCommand.ValidateCommand.class,
       MarketplaceCommand.RepoCommand.class
@@ -227,6 +230,60 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         System.err.println("ERROR: " + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "list failed" : e.getMessage(), e);
+      }
+    }
+  }
+
+  @Command(
+      name = "query",
+      description =
+          "Search the optional-plugin catalog (local registry). Filter is a case-insensitive"
+              + " substring over artifactId, name, category, description, and install path.")
+  static class QueryCommand extends MarketplaceSubCommand {
+    @Parameters(
+        index = "0",
+        arity = "0..1",
+        paramLabel = "FILTER",
+        description =
+            "Case-insensitive substring to match. Omit or use empty string to list all optional"
+                + " plugins.")
+    private String filter;
+
+    @Override
+    public void run() {
+      try {
+        Path hopHome = null;
+        try {
+          hopHome = HopHome.resolve();
+        } catch (Exception ignored) {
+          // installed status is optional
+        }
+        java.util.List<OptionalPluginInfo> matches = OptionalPluginCatalog.query(filter);
+        if (matches.isEmpty()) {
+          System.out.println(
+              "No optional plugins match filter: "
+                  + (StringUtils.isBlank(filter) ? "(all)" : filter));
+          return;
+        }
+        for (OptionalPluginInfo info : matches) {
+          String installed = "";
+          if (hopHome != null && OptionalPluginCatalog.isInstalledOnDisk(hopHome, info)) {
+            installed = "  [installed]";
+          }
+          System.out.printf(
+              "%-28s  %-22s  %-12s  %s%s%n  %s%n",
+              Const.NVL(info.getArtifactId(), ""),
+              Const.NVL(info.getName(), ""),
+              Const.NVL(info.getCategory(), ""),
+              Const.NVL(info.getInstallPath(), ""),
+              installed,
+              Const.NVL(info.getDescription(), ""));
+        }
+        System.out.println(matches.size() + " plugin(s) matched.");
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "query failed" : e.getMessage(), e);
       }
     }
   }

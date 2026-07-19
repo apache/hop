@@ -33,6 +33,8 @@ From the Hop install directory (or invoke the `hop` script by path — it alread
 ./hop marketplace install hop-engines-spark:2.19.0 --repo asf
 ./hop marketplace install hop-engines-beam
 ./hop marketplace list
+./hop marketplace query parquet
+./hop marketplace query engines
 ./hop marketplace uninstall hop-tech-parquet
 
 # Repositories (saved to ${HOP_CONFIG_FOLDER}/hop-config.json)

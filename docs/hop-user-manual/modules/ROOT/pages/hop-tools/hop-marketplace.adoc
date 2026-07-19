@@ -66,6 +66,8 @@ From the Hop install directory:
 ./hop marketplace install hop-engines-spark:2.19.0
 ./hop marketplace install hop-engines-spark:2.19.0 --repo asf
 ./hop marketplace list
+./hop marketplace query parquet
+./hop marketplace query "spark engine"
 ./hop marketplace uninstall hop-tech-parquet
 
 # Repositories
@@ -85,6 +87,11 @@ After install, apply, or uninstall, *restart Hop* so the plugin registry reloads
 
 Coordinates for `install`: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
 Optional `--repo <id>` forces a single repository (skips the fallback chain).
+
+`query` searches the local optional-plugin catalog (not Maven Central). The filter is a
+case-insensitive substring matched against artifact id, name, category, description, and install
+path. Omit the filter (or pass an empty string) to list every optional plugin. Matches may show
+`[installed]` when the plugin folder is present under the Hop install.
 
 == GUI
 

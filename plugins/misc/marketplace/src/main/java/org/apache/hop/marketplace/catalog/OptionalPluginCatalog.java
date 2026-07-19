@@ -50,6 +50,36 @@ public final class OptionalPluginCatalog {
     return PLUGINS;
   }
 
+  /**
+   * Case-insensitive substring filter over artifactId, name, category, description, and
+   * installPath. Blank filter returns all optional plugins.
+   */
+  public static List<OptionalPluginInfo> query(String filter) {
+    if (StringUtils.isBlank(filter)) {
+      return listOptional();
+    }
+    String needle = filter.trim().toLowerCase();
+    List<OptionalPluginInfo> matches = new ArrayList<>();
+    for (OptionalPluginInfo info : PLUGINS) {
+      if (matchesFilter(info, needle)) {
+        matches.add(info);
+      }
+    }
+    return Collections.unmodifiableList(matches);
+  }
+
+  private static boolean matchesFilter(OptionalPluginInfo info, String needleLower) {
+    return containsIgnoreCase(info.getArtifactId(), needleLower)
+        || containsIgnoreCase(info.getName(), needleLower)
+        || containsIgnoreCase(info.getCategory(), needleLower)
+        || containsIgnoreCase(info.getDescription(), needleLower)
+        || containsIgnoreCase(info.getInstallPath(), needleLower);
+  }
+
+  private static boolean containsIgnoreCase(String value, String needleLower) {
+    return value != null && value.toLowerCase().contains(needleLower);
+  }
+
   public static boolean isInstalledOnDisk(Path hopHome, OptionalPluginInfo info) {
     if (info.getInstallPath() == null) {
       return false;

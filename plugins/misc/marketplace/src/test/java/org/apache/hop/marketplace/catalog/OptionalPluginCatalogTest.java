@@ -17,6 +17,7 @@
 
 package org.apache.hop.marketplace.catalog;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,5 +44,27 @@ class OptionalPluginCatalogTest {
           info.getInstallPath() != null && info.getInstallPath().startsWith("plugins/"),
           "installPath for " + info.getArtifactId());
     }
+  }
+
+  @Test
+  void queryFiltersCaseInsensitive() {
+    List<OptionalPluginInfo> parquet = OptionalPluginCatalog.query("parquet");
+    assertFalse(parquet.isEmpty());
+    assertTrue(parquet.stream().anyMatch(p -> "hop-tech-parquet".equals(p.getArtifactId())));
+
+    List<OptionalPluginInfo> engines = OptionalPluginCatalog.query("ENGINES");
+    assertTrue(engines.stream().anyMatch(p -> "hop-engines-spark".equals(p.getArtifactId())));
+    assertTrue(engines.stream().anyMatch(p -> "hop-engines-beam".equals(p.getArtifactId())));
+
+    List<OptionalPluginInfo> none = OptionalPluginCatalog.query("zzz-no-such-plugin-zzz");
+    assertTrue(none.isEmpty());
+  }
+
+  @Test
+  void queryBlankReturnsAll() {
+    assertFalse(OptionalPluginCatalog.query("").isEmpty());
+    assertFalse(OptionalPluginCatalog.query(null).isEmpty());
+    assertEquals(
+        OptionalPluginCatalog.listOptional().size(), OptionalPluginCatalog.query("  ").size());
   }
 }
