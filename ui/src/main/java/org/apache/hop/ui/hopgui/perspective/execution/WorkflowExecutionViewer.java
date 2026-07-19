@@ -318,6 +318,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       infoView.add("Parent ID", execution.getParentId());
       infoView.add("Registration", formatDate(execution.getRegistrationDate()));
       infoView.add("Start", formatDate(execution.getExecutionStartDate()));
+      infoView.add("End", formatDate(executionState.getExecutionEndDate()));
+      infoView.add("Duration", formatExecutionDuration(execution, executionState));
       infoView.add("Type", executionState.getExecutionType().name());
       infoView.add("Status", statusDescription);
       infoView.add("Status Last updated", formatDate(executionState.getUpdateTime()));

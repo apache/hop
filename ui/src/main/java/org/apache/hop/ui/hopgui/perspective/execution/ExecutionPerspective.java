@@ -1194,6 +1194,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
     String filename = execution.getFilename();
     String relativeFilename = toProjectRelativePath(filename);
+    String storageRoot = resolveStorageRootPath(getSelectedExecutionLocation());
     String storagePath = resolveStoragePath(getSelectedExecutionLocation(), execution);
     String uuid = execution.getId();
 
@@ -1209,6 +1210,11 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
         BaseMessages.getString(PKG, "ExecutionPerspective.CopyMenu.RelativeFilename"),
         relativeFilename,
         StringUtils.isNotEmpty(relativeFilename));
+    addCopyMenuItem(
+        menu,
+        BaseMessages.getString(PKG, "ExecutionPerspective.CopyMenu.StorageRoot"),
+        storageRoot,
+        StringUtils.isNotEmpty(storageRoot));
     addCopyMenuItem(
         menu,
         BaseMessages.getString(PKG, "ExecutionPerspective.CopyMenu.StoragePath"),
@@ -1291,8 +1297,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
    * Builds the on-disk storage path for file-based execution locations, or {@code null} when the
    * location type does not store execution information as files/folders.
    */
-  private String resolveStoragePath(ExecutionInfoLocation location, Execution execution) {
-    if (location == null || execution == null || StringUtils.isEmpty(execution.getId())) {
+  private String resolveStorageRootPath(ExecutionInfoLocation location) {
+    if (location == null) {
       return null;
     }
     IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
@@ -1301,10 +1307,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       if (StringUtils.isEmpty(root)) {
         return null;
       }
-      if (root.endsWith("/") || root.endsWith("\\")) {
-        return root + execution.getId();
-      }
-      return root + "/" + execution.getId();
+      return root;
     }
     if (iLocation instanceof CachingFileExecutionInfoLocation cachingLocation) {
       String root = cachingLocation.getActualRootFolder();
@@ -1314,6 +1317,28 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       if (StringUtils.isEmpty(root)) {
         return null;
       }
+      return root;
+    }
+    return null;
+  }
+
+  /**
+   * Builds the on-disk storage path for file-based execution locations, or {@code null} when the
+   * location type does not store execution information as files/folders.
+   */
+  private String resolveStoragePath(ExecutionInfoLocation location, Execution execution) {
+    String root = resolveStorageRootPath(location);
+    if (StringUtils.isEmpty(root)) {
+      return null;
+    }
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+    if (iLocation instanceof FileExecutionInfoLocation fileLocation) {
+      if (root.endsWith("/") || root.endsWith("\\")) {
+        return root + execution.getId();
+      }
+      return root + "/" + execution.getId();
+    }
+    if (iLocation instanceof CachingFileExecutionInfoLocation cachingLocation) {
       // Match CacheEntry.calculateFilename: root + id + ".json"
       if (root.endsWith("/") || root.endsWith("\\")) {
         return root + execution.getId() + ".json";
