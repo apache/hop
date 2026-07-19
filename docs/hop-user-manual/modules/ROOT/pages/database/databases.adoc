@@ -18,7 +18,10 @@ under the License.
 :imagesdir: ../../assets/images
 :openvar: ${
 :closevar: }
-:description: Hop supports tens of databases out of the box. If your preferred database has no specific support, you can probably still connect through a generic database connection.
+:description: Documentation about relational database connections
+
+:TOC:
+
 = Database Plugins
 
 Apache Hop has optimized support for many database types. If you are using an unsupported database, you can always create a generic connection.
@@ -27,6 +30,105 @@ To create a database connection go to the metadata perspective, right-click on `
 
 The connection is saved in a central location and can then be used by all pipelines and workflows.
 If you have set your project to work with Hop, the database information will be in the `{openvar}PROJECT_HOME{closevar}/metadata/rdbms` folder. For each connection, a separate .json file will be generated in this folder. This json file will have the name of the connection and will contain all of the connection information.
+
+TIP: Prefer variables for host, port, database name, username and password instead of hard-coded values.
+The same connection metadata can then run unchanged in Development, Test, Acceptance and Production (DTAP) by loading different environment configuration files.
+See xref:projects/index.adoc[Projects and environments] for how lifecycle environments work.
+
+== Generate environment variables
+
+Best practice is to parameterize relational database connections with environment variables.
+The connection editor can generate those variables for you so you do not have to invent names or edit configuration files by hand in several places.
+
+=== How to use it
+
+. Open a relational database connection in the Metadata perspective and give it a name (for example `EDW`).
+. Optionally fill in the current host, port, database, username, password and/or manual URL values.
+. Click *Generate variables* in the button bar (next to Explore and Test).
+. Review the proposed variables in the dialog.
+You can change names, values and descriptions.
+Leave values empty when you want a template without secrets or environment-specific data.
++
+image::database/generate-variables-proposals.png[Proposed environment variables for connection EDW,width="90%"]
+. When asked, choose whether to create or update an environment configuration JSON file, and pick a filename (for example `{openvar}PROJECT_HOME{closevar}/EDW-config.json`).
++
+image::database/generate-variables-save-as-env-config-file-question.png[Prompt to create or update an environment configuration JSON file for DTAP,width="70%"]
+. The editor replaces the connection fields with variable expressions such as `{openvar}EDW_HOSTNAME{closevar}`.
+
+For a connection named `EDW`, Hop typically proposes:
+
+[%header, width="90%", cols="2,3,3"]
+|===
+|Variable|Purpose|When proposed
+|`EDW_HOSTNAME`|Server host name|Always
+|`EDW_PORT`|Port number|Always
+|`EDW_DATABASE`|Database / catalog name|Always
+|`EDW_USERNAME`|Username|When the username field is available for the connection type
+|`EDW_PASSWORD`|Password|When the password field is available for the connection type
+|`EDW_URL`|Manual JDBC URL|Only when a manual URL is filled in
+|===
+
+The connection name is turned into a variable prefix (upper case; characters other than letters, digits and underscore become `_`).
+For example `My DB` becomes `MY_DB_HOSTNAME`, `MY_DB_PORT`, and so on.
+
+Each variable gets a short description (for example “Hostname for database connection EDW”).
+In the review dialog you can encode sensitive values with the *Encode value* action if you store them encrypted in the configuration file.
+
+After the file is written, add it to the configuration files list of the relevant xref:projects/projects-environments.adoc[lifecycle environment] so Hop loads the variables when that environment is selected.
+Paths in the file dialog may use variables such as `{openvar}PROJECT_HOME{closevar}`; Hop resolves them when reading or writing the file.
+
+=== DTAP and empty configuration files
+
+Development, Test, Acceptance and Production (DTAP) usually need the *same* variable names and the *same* connection metadata, but *different* host, credentials and sometimes database names.
+
+A practical pattern is:
+
+. *Generate once in the project*
+Use *Generate variables* and create a configuration JSON that lists the variable names (and descriptions) for the connection.
+Clear the values in the review dialog (or leave them empty) so the file contains structure only—no hostnames, passwords or other secrets.
+Commit this empty or minimal template to version control with the project (or in a shared config location your team uses for templates).
+
+. *Fill values per environment outside the main project tree*
+For each lifecycle stage (Development, Test, Acceptance, Production), maintain a copy of that configuration file with the real values for that stage.
+Those files are typically *not* the empty template: they are deployed with the server, CI agent or runtime, or kept in a separate repository/secure store.
+Point each Hop xref:projects/projects-environments.adoc[environment] at its own configuration file(s).
+
+. *Keep pipelines and connection metadata environment-agnostic*
+Because the RDBMS connection stores only expressions like `{openvar}EDW_HOSTNAME{closevar}`, the same metadata under `{openvar}PROJECT_HOME{closevar}/metadata/rdbms` works in every stage.
+You switch behavior by selecting a different environment (and therefore a different set of variable values), not by editing connections or pipelines.
+
+TIP: Store environment-specific configuration files *outside* the project home when they contain secrets or production endpoints.
+See the tip in xref:projects/index.adoc#_environments[Environments]: keep them out of the project folder and consider a separate version control repository for environment configs.
+
+.Example empty / template environment config (structure only)
+[source,json]
+----
+{
+  "variables" : [ {
+    "name" : "EDW_HOSTNAME",
+    "value" : "",
+    "description" : "Hostname for database connection EDW"
+  }, {
+    "name" : "EDW_PORT",
+    "value" : "",
+    "description" : "Port for database connection EDW"
+  }, {
+    "name" : "EDW_DATABASE",
+    "value" : "",
+    "description" : "Database name for database connection EDW"
+  }, {
+    "name" : "EDW_USERNAME",
+    "value" : "",
+    "description" : "Username for database connection EDW"
+  }, {
+    "name" : "EDW_PASSWORD",
+    "value" : "",
+    "description" : "Password for database connection EDW"
+  } ]
+}
+----
+
+A Development environment file might set `EDW_HOSTNAME` to `localhost` and use local credentials; Production would point at the production host and credentials—same variable names, different values, same project metadata.
 
 == Adding JDBC drivers
 
