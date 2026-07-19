@@ -1659,6 +1659,7 @@ public class ProjectsGuiPlugin {
                     && !name.contains("HOP_AUDIT_FOLDER")
                     && !name.contains("HOP_CONFIG_FOLDER")
                     && !name.contains("PROJECT_HOME")
+                    && !name.contains("PARENT_PROJECT_NAME")
                     && !name.contains("HOP_PROJECTS")
                     && !name.contains("HOP_PLATFORM_OS")
                     && !name.contains("HOP_PROJECT_NAME")
