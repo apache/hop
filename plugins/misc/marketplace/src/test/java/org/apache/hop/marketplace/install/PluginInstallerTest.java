@@ -17,6 +17,7 @@
 
 package org.apache.hop.marketplace.install;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -76,14 +77,15 @@ class PluginInstallerTest {
 
       MarketplaceConfig config = new MarketplaceConfig();
       config.getRepositories().clear();
-      config
-          .getRepositories()
-          .add(new MarketplaceRepository("local", "http://127.0.0.1:" + port + "/"));
+      MarketplaceRepository local =
+          new MarketplaceRepository("local", "http://127.0.0.1:" + port + "/", true);
+      config.getRepositories().add(local);
 
       LogChannel log = new LogChannel("test");
       PluginInstaller installer = new PluginInstaller(log, hopHome, config);
       MavenCoordinates coords = new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0");
-      installer.install(coords, true);
+      InstallReceipt receipt = installer.install(coords, true);
+      assertEquals("local", receipt.getRepositoryId());
 
       Path pluginJar = hopHome.resolve("plugins/tech/test/plugin.jar");
       assertTrue(Files.isRegularFile(pluginJar));
@@ -139,14 +141,57 @@ class PluginInstallerTest {
 
       MarketplaceConfig config = new MarketplaceConfig();
       config.getRepositories().clear();
-      config
-          .getRepositories()
-          .add(
-              new MarketplaceRepository(
-                  "local", "http://127.0.0.1:" + port + "/", "admin", "s3cret"));
+      MarketplaceRepository local =
+          new MarketplaceRepository("local", "http://127.0.0.1:" + port + "/", "admin", "s3cret");
+      local.setPrimary(true);
+      config.getRepositories().add(local);
 
       new PluginInstaller(new LogChannel("test"), hopHome, config)
           .install(new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"), true);
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void installFallsBackToSecondRepository() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    String path = "/org/apache/hop/hop-test-plugin/1.0.0/hop-test-plugin-1.0.0.zip";
+    server.createContext(
+        "/missing/",
+        exchange -> {
+          exchange.sendResponseHeaders(404, -1);
+          exchange.close();
+        });
+    server.createContext(
+        path,
+        exchange -> {
+          exchange.getResponseHeaders().add("Content-Type", "application/zip");
+          exchange.sendResponseHeaders(200, zipBytes.length);
+          exchange.getResponseBody().write(zipBytes);
+          exchange.close();
+        });
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-fallback");
+      Files.createDirectories(hopHome.resolve("plugins"));
+
+      MarketplaceConfig config = new MarketplaceConfig();
+      config.getRepositories().clear();
+      MarketplaceRepository missing =
+          new MarketplaceRepository("missing", "http://127.0.0.1:" + port + "/missing/", true);
+      MarketplaceRepository ok =
+          new MarketplaceRepository("ok", "http://127.0.0.1:" + port + "/", false);
+      config.getRepositories().add(missing);
+      config.getRepositories().add(ok);
+
+      InstallReceipt receipt =
+          new PluginInstaller(new LogChannel("test"), hopHome, config)
+              .install(new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"), true);
+      assertEquals("ok", receipt.getRepositoryId());
       assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
     } finally {
       server.stop(0);

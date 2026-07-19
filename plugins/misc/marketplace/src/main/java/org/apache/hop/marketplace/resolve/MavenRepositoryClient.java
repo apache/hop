@@ -28,7 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +74,48 @@ public class MavenRepositoryClient {
     String relative = resolveZipRelativePath(repository, coordinates);
     String url = base + relative;
     return download(url, repository, coordinates.gav(), targetFile);
+  }
+
+  /**
+   * Try each repository in order until a zip is downloaded. Aggregates per-repo errors if all fail
+   * (fallback chain).
+   */
+  public Path downloadZipWithFallback(
+      List<MarketplaceRepository> repositories, MavenCoordinates coordinates, Path targetFile)
+      throws HopException {
+    if (repositories == null || repositories.isEmpty()) {
+      throw new HopException("No marketplace repositories configured");
+    }
+    List<String> errors = new ArrayList<>();
+    for (MarketplaceRepository repository : repositories) {
+      if (repository == null || !repository.isEnabled()) {
+        continue;
+      }
+      try {
+        log.logBasic(
+            "Trying repository '"
+                + repository.displayName()
+                + "' ("
+                + repository.normalizedUrl()
+                + ") for "
+                + coordinates.gav());
+        return downloadZip(repository, coordinates, targetFile);
+      } catch (HopException e) {
+        String msg =
+            repository.getId()
+                + " @ "
+                + repository.normalizedUrl()
+                + " → "
+                + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+        errors.add(msg);
+        log.logBasic("Repository attempt failed: " + msg);
+      }
+    }
+    throw new HopException(
+        "Could not download "
+            + coordinates.gav()
+            + " from any configured repository:\n  - "
+            + String.join("\n  - ", errors));
   }
 
   /**

@@ -19,8 +19,9 @@ under the License.
 
 # Hop Marketplace plugin
 
-Bundled core plugin that installs optional Hop plugins from a Maven repository
-(Maven Central, ASF Nexus, or a local Artifactory).
+Bundled core plugin that installs optional Hop plugins from Maven repositories.
+**Default primary:** [Apache Repository](https://repository.apache.org/content/groups/public/)
+(`repository.apache.org`), with **Maven Central** as fallback.
 
 ## CLI
 
@@ -29,16 +30,29 @@ From the Hop install directory (or invoke the `hop` script by path — it alread
 
 ```bash
 ./hop marketplace install hop-tech-parquet
-./hop marketplace install hop-engines-spark:2.19.0
+./hop marketplace install hop-engines-spark:2.19.0 --repo asf
 ./hop marketplace install hop-engines-beam
 ./hop marketplace list
 ./hop marketplace uninstall hop-tech-parquet
+
+# Repositories (saved to ${HOP_CONFIG_FOLDER}/hop-config.json)
+./hop marketplace repo list
+./hop marketplace repo add --id local-nexus --url http://127.0.0.1:8081/repository/hop-plugins/ --primary
+./hop marketplace repo set-primary asf
+./hop marketplace repo enable central
+./hop marketplace repo disable local-nexus
+./hop marketplace repo remove local-nexus
+./hop marketplace repo reset-defaults   # ASF primary + Central
 
 # Declarative environment (CI/CD / Docker)
 ./hop marketplace apply -f hop-env.yaml
 ./hop marketplace apply -f hop-env.yaml --prune
 ./hop marketplace validate -f hop-env.yaml
 ```
+
+Install tries the **primary** repository first, then other **enabled** repositories
+in list order, until the zip is found (or all fail). Use `--repo <id>` to force a
+single repository.
 
 Coordinates:
 
@@ -58,6 +72,8 @@ version: "1.0"
 hopVersion: "2.19.0"
 enforceOnRun: false   # set true to hard-fail hop-run on drift
 repositories:
+  - id: asf
+    url: "https://repository.apache.org/content/groups/public/"
   - id: central
     url: "https://repo1.maven.org/maven2/"
 plugins:
@@ -75,12 +91,13 @@ Discovery order: `-f` / `HOP_ENV_FILE` / `PROJECT_HOME/hop-env.yaml` / install-r
 ## Config (`hop-config.json`)
 
 Marketplace settings live under the `marketplace` key in **`${HOP_CONFIG_FOLDER}/hop-config.json`**
-(always that path — not a separate file under the client zip). If `HOP_CONFIG_FOLDER` is
-unset, Hop defaults it to `<working-dir>/config` (with the hop launcher, that is
-`<install>/config`).
+(always that path). If `HOP_CONFIG_FOLDER` is unset, Hop defaults it to
+`<working-dir>/config` (with the hop launcher: `<install>/config`).
 
-Local Sonatype Nexus (recommended for marketplace development — see
-`docker/marketplace-nexus/README.md`):
+When the `marketplace` key is absent, defaults are:
+
+1. **asf** (primary) — `https://repository.apache.org/content/groups/public/`
+2. **central** — `https://repo1.maven.org/maven2/`
 
 ```json
 {
@@ -90,25 +107,34 @@ Local Sonatype Nexus (recommended for marketplace development — see
     "defaultVersion": "2.19.0-SNAPSHOT",
     "repositories": [
       {
-        "id": "local-nexus",
-        "url": "http://localhost:8081/repository/hop-plugins/"
+        "id": "asf",
+        "name": "Apache Repository",
+        "url": "https://repository.apache.org/content/groups/public/",
+        "primary": true,
+        "enabled": true
+      },
+      {
+        "id": "central",
+        "name": "Maven Central",
+        "url": "https://repo1.maven.org/maven2/",
+        "primary": false,
+        "enabled": true
       }
     ]
   }
 }
 ```
 
-After `./docker/marketplace-nexus/start.sh`, installs are **anonymous** — no password
-in that hop-config.
+Local Sonatype Nexus for development (see `docker/marketplace-nexus/README.md`):
 
 ```bash
-cd /path/to/hop
+./hop marketplace repo add --id local-nexus \
+  --url http://127.0.0.1:8081/repository/hop-plugins/ --primary
 ./hop marketplace install hop-tech-parquet
 ```
 
-Local Nexus after `docker/marketplace-nexus/start.sh` is **anonymous read** — leave
-`username` / `password` out of config and do **not** set `HOP_MARKETPLACE_*` (wrong
-Basic auth causes HTTP 401 even though anonymous would succeed).
+Anonymous local Nexus needs **no** username/password and **no** `HOP_MARKETPLACE_*`
+env (wrong Basic auth causes HTTP 401 even when anonymous would work).
 
 Corporate private repos can use Basic auth (prefer a read-only user):
 
@@ -119,23 +145,7 @@ export HOP_MARKETPLACE_PASSWORD='…'
 
 ## GUI
 
-Hop GUI → **Tools → Marketplace…** lists Wave 1 optional plugins, installs from the
-configured Maven repository, and uninstalls marketplace-managed installs. Restart
-Hop after install/uninstall.
-
-## Beam note
-
-`hop-engines-beam` marketplace package is the **plugin** (`plugins/engines/beam`) only.
-`lib/beam` remains part of the default Hop distribution and is never removed by
-marketplace uninstall.
-
-## Integration tests / full local install
-
-Optional plugins are **not** in `hop-client.zip`. For ITs (or a full local install):
-
-```bash
-unzip assemblies/client/target/hop-client-*.zip -d assemblies/client/target/
-./tools/install-wave1-plugins.sh assemblies/client/target/hop
-```
-
-`integration-tests/scripts/run-tests-docker.sh` and Jenkins run this automatically.
+Hop GUI → **Tools → Marketplace…** lists Wave 1 optional plugins. Choose the
+**primary repository**, or **Manage…** to add/edit/remove/reorder repositories
+(same hop-config.json as the CLI). Install uses the primary first, then fallbacks.
+Restart after install or uninstall.

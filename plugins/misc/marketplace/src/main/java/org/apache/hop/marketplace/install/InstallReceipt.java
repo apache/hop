@@ -29,6 +29,13 @@ public class InstallReceipt {
   private String artifactId;
   private String version;
   private String installedAt;
+
+  /** Repository id that supplied the zip (if known). */
+  private String repositoryId;
+
+  /** Repository base URL used for the download. */
+  private String repositoryUrl;
+
   private List<String> paths = new ArrayList<>();
   private boolean pendingActivation;
 

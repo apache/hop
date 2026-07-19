@@ -24,15 +24,23 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 @Setter
 public class MarketplaceRepository {
-  private String id = "central";
-  private String url = "https://repo1.maven.org/maven2/";
+  private String id = MarketplaceConfig.DEFAULT_ASF_ID;
+  private String name;
+  private String url = MarketplaceConfig.DEFAULT_ASF_URL;
 
-  /** Optional HTTP Basic auth username (e.g. Artifactory admin). */
+  /** When true, this repository is tried first for installs. */
+  private boolean primary;
+
+  /** When false, skipped in the install fallback chain. */
+  private boolean enabled = true;
+
+  /** Optional HTTP Basic auth username. */
   private String username;
 
   /**
    * Optional HTTP Basic auth password. Prefer leaving this empty in hop-config.json and setting
-   * {@code HOP_MARKETPLACE_PASSWORD} instead. Do not send credentials for anonymous local Nexus.
+   * {@code HOP_MARKETPLACE_PASSWORD} instead for private repos. Do not set for anonymous ASF /
+   * Central / local Nexus.
    */
   private String password;
 
@@ -43,27 +51,45 @@ public class MarketplaceRepository {
   public MarketplaceRepository(String id, String url) {
     this.id = id;
     this.url = url;
+    this.name = id;
+  }
+
+  public MarketplaceRepository(String id, String url, boolean primary) {
+    this(id, url);
+    this.primary = primary;
+  }
+
+  public MarketplaceRepository(String id, String name, String url, boolean primary) {
+    this.id = id;
+    this.name = name;
+    this.url = url;
+    this.primary = primary;
   }
 
   public MarketplaceRepository(String id, String url, String username, String password) {
-    this.id = id;
-    this.url = url;
+    this(id, url);
     this.username = username;
     this.password = password;
+  }
+
+  public String displayName() {
+    if (StringUtils.isNotBlank(name)) {
+      return name;
+    }
+    return StringUtils.isNotBlank(id) ? id : normalizedUrl();
   }
 
   /** Base URL always ending with {@code /}. */
   public String normalizedUrl() {
     if (StringUtils.isBlank(url)) {
-      return MarketplaceConfig.DEFAULT_REPO_URL;
+      return MarketplaceConfig.DEFAULT_ASF_URL;
     }
     return url.endsWith("/") ? url : url + "/";
   }
 
   /**
    * Effective credentials: repository config fields, then {@code HOP_MARKETPLACE_USERNAME} / {@code
-   * HOP_MARKETPLACE_PASSWORD}. No credentials means anonymous HTTP (correct for local Nexus after
-   * {@code docker/marketplace-nexus/start.sh}).
+   * HOP_MARKETPLACE_PASSWORD}. No credentials means anonymous HTTP.
    */
   public String effectiveUsername() {
     if (StringUtils.isNotBlank(username)) {

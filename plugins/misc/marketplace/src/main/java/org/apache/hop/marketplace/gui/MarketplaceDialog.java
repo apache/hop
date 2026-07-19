@@ -27,6 +27,7 @@ import org.apache.hop.marketplace.catalog.OptionalPluginCatalog;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 import org.apache.hop.marketplace.command.MarketplaceCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
+import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
@@ -43,6 +44,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -50,7 +52,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** Tools → Marketplace dialog: list optional plugins and install/uninstall from a Maven repo. */
 public class MarketplaceDialog extends Dialog {
@@ -62,7 +63,8 @@ public class MarketplaceDialog extends Dialog {
 
   private Shell shell;
   private Table wTable;
-  private Text wRepo;
+  private Combo wRepo;
+  private final java.util.List<String> repoComboIds = new java.util.ArrayList<>();
   private Label wStatus;
   private Path hopHome;
   private MarketplaceConfig config;
@@ -96,7 +98,7 @@ public class MarketplaceDialog extends Dialog {
       return;
     }
 
-    // Repository URL
+    // Primary repository (install still uses full fallback chain with this first)
     Label wlRepo = new Label(shell, SWT.RIGHT);
     props.setLook(wlRepo);
     wlRepo.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Repository.Label"));
@@ -105,15 +107,23 @@ public class MarketplaceDialog extends Dialog {
     fdlRepo.top = new FormAttachment(0, 0);
     wlRepo.setLayoutData(fdlRepo);
 
-    wRepo = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Button wManageRepos = new Button(shell, SWT.PUSH);
+    wManageRepos.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.ManageRepos"));
+    wManageRepos.addListener(SWT.Selection, e -> manageRepositories());
+    FormData fdManage = new FormData();
+    fdManage.right = new FormAttachment(100, 0);
+    fdManage.top = new FormAttachment(0, 0);
+    wManageRepos.setLayoutData(fdManage);
+
+    wRepo = new Combo(shell, SWT.READ_ONLY | SWT.BORDER);
     props.setLook(wRepo);
-    wRepo.setText(config.primaryRepositoryUrl());
-    wRepo.setEditable(false);
     FormData fdRepo = new FormData();
     fdRepo.left = new FormAttachment(wlRepo, Const.MARGIN);
     fdRepo.top = new FormAttachment(wlRepo, 0, SWT.CENTER);
-    fdRepo.right = new FormAttachment(100, 0);
+    fdRepo.right = new FormAttachment(wManageRepos, -Const.MARGIN);
     wRepo.setLayoutData(fdRepo);
+    wRepo.addListener(SWT.Selection, e -> onPrimaryRepoSelected());
+    fillRepoCombo();
 
     // Buttons (bottom)
     Button wClose = new Button(shell, SWT.PUSH);
@@ -183,6 +193,53 @@ public class MarketplaceDialog extends Dialog {
       if (!display.readAndDispatch()) {
         display.sleep();
       }
+    }
+  }
+
+  private void fillRepoCombo() {
+    wRepo.removeAll();
+    repoComboIds.clear();
+    MarketplaceRepository primary = config.primaryRepository();
+    int select = 0;
+    int i = 0;
+    for (MarketplaceRepository repo : config.getRepositories()) {
+      if (repo == null || !repo.isEnabled()) {
+        continue;
+      }
+      wRepo.add(repo.displayName() + " — " + repo.normalizedUrl());
+      repoComboIds.add(repo.getId());
+      if (primary != null && primary.getId() != null && primary.getId().equals(repo.getId())) {
+        select = i;
+      }
+      i++;
+    }
+    if (i > 0) {
+      wRepo.select(select);
+    }
+  }
+
+  private void onPrimaryRepoSelected() {
+    int idx = wRepo.getSelectionIndex();
+    if (idx < 0 || idx >= repoComboIds.size()) {
+      return;
+    }
+    try {
+      config.setPrimary(repoComboIds.get(idx));
+      config.save();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+          BaseMessages.getString(PKG, "MarketplaceDialog.Repository.SetPrimary.Error"),
+          e);
+    }
+  }
+
+  private void manageRepositories() {
+    ManageRepositoriesDialog dialog = new ManageRepositoriesDialog(shell, config);
+    if (dialog.open()) {
+      config = MarketplaceConfig.load();
+      fillRepoCombo();
     }
   }
 

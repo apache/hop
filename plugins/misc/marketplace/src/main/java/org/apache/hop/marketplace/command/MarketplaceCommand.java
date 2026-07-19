@@ -20,9 +20,11 @@ package org.apache.hop.marketplace.command;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -31,6 +33,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
+import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.env.EnvironmentDrift;
 import org.apache.hop.marketplace.env.HopEnvironmentLoader;
@@ -58,7 +61,8 @@ import picocli.CommandLine.Parameters;
       MarketplaceCommand.UninstallCommand.class,
       MarketplaceCommand.ListCommand.class,
       MarketplaceCommand.ApplyCommand.class,
-      MarketplaceCommand.ValidateCommand.class
+      MarketplaceCommand.ValidateCommand.class,
+      MarketplaceCommand.RepoCommand.class
     })
 @HopCommand(id = "marketplace", description = "Hop plugin marketplace")
 public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
@@ -76,12 +80,18 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     this.variables = variables;
     this.metadataProvider = metadataProvider;
     this.log = new LogChannel("Marketplace");
-    // Wire nested subcommands with shared context
-    for (CommandLine sub : cmd.getSubcommands().values()) {
+    // Wire nested subcommands (including marketplace repo *) with shared context
+    wireSubcommands(cmd, log, variables);
+  }
+
+  private static void wireSubcommands(
+      CommandLine commandLine, ILogChannel log, IVariables variables) {
+    for (CommandLine sub : commandLine.getSubcommands().values()) {
       Object userObject = sub.getCommand();
       if (userObject instanceof MarketplaceSubCommand nested) {
         nested.init(log, variables);
       }
+      wireSubcommands(sub, log, variables);
     }
   }
 
@@ -121,6 +131,12 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             "artifactId, artifactId:version, or groupId:artifactId:version (e.g. hop-tech-parquet)")
     private String coordinate;
 
+    @Option(
+        names = {"--repo"},
+        description =
+            "Use only this repository id (skip fallback chain). Default: try primary then others.")
+    private String repoId;
+
     @Override
     public void run() {
       try {
@@ -134,9 +150,17 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
 
         MavenCoordinates gav =
             MavenCoordinates.parse(coordinate, config.getGroupId(), resolveDefaultVersion(config));
-        new PluginInstaller(log, hopHome, config).install(gav, true);
+        InstallReceipt receipt =
+            new PluginInstaller(log, hopHome, config).install(gav, true, repoId);
         System.out.println(
-            "Plugin " + gav.gav() + " installed under " + hopHome + ". Restart Hop to load it.");
+            "Plugin "
+                + gav.gav()
+                + " installed under "
+                + hopHome
+                + (receipt.getRepositoryId() != null
+                    ? " from repo '" + receipt.getRepositoryId() + "'"
+                    : "")
+                + ". Restart Hop to load it.");
       } catch (Exception e) {
         System.err.println("ERROR: " + e.getMessage());
         if (log != null) {
@@ -329,6 +353,226 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             drift.getExtraMarketplacePlugins().add(id);
           }
         }
+      }
+    }
+  }
+
+  @Command(
+      name = "repo",
+      description = "Manage marketplace Maven repositories in hop-config.json",
+      subcommands = {
+        MarketplaceCommand.RepoListCommand.class,
+        MarketplaceCommand.RepoAddCommand.class,
+        MarketplaceCommand.RepoRemoveCommand.class,
+        MarketplaceCommand.RepoSetPrimaryCommand.class,
+        MarketplaceCommand.RepoEnableCommand.class,
+        MarketplaceCommand.RepoDisableCommand.class,
+        MarketplaceCommand.RepoResetDefaultsCommand.class
+      })
+  static class RepoCommand extends MarketplaceSubCommand {
+    @Override
+    public void run() {
+      // picocli shows usage when no subcommand
+      new CommandLine(this).usage(System.out);
+    }
+  }
+
+  @Command(name = "list", description = "List configured marketplace repositories")
+  static class RepoListCommand extends MarketplaceSubCommand {
+    @Override
+    public void run() {
+      MarketplaceConfig config = MarketplaceConfig.load();
+      System.out.printf("%-8s %-10s %-12s %-20s %s%n", "PRIMARY", "ENABLED", "ID", "NAME", "URL");
+      for (MarketplaceRepository repo : config.getRepositories()) {
+        if (repo == null) {
+          continue;
+        }
+        System.out.printf(
+            "%-8s %-10s %-12s %-20s %s%n",
+            repo.isPrimary() ? "*" : "",
+            repo.isEnabled() ? "yes" : "no",
+            Const.NVL(repo.getId(), ""),
+            Const.NVL(repo.displayName(), ""),
+            repo.normalizedUrl());
+      }
+      System.out.println();
+      System.out.println(
+          "Install order: "
+              + config.orderedRepositories().stream()
+                  .map(MarketplaceRepository::getId)
+                  .collect(Collectors.joining(" → ")));
+    }
+  }
+
+  @Command(name = "add", description = "Add a marketplace repository and save hop-config.json")
+  static class RepoAddCommand extends MarketplaceSubCommand {
+    @Option(
+        names = {"--id"},
+        required = true,
+        description = "Stable repository id (e.g. local-nexus)")
+    private String id;
+
+    @Option(
+        names = {"--url"},
+        required = true,
+        description = "Maven base URL (…/repository/hop-plugins/)")
+    private String url;
+
+    @Option(
+        names = {"--name"},
+        description = "Display name")
+    private String name;
+
+    @Option(
+        names = {"--primary"},
+        description = "Make this the primary repository")
+    private boolean primary;
+
+    @Option(
+        names = {"--username"},
+        description = "Optional Basic auth username")
+    private String username;
+
+    @Option(
+        names = {"--password"},
+        description = "Optional Basic auth password (prefer env HOP_MARKETPLACE_PASSWORD)")
+    private String password;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        MarketplaceRepository repo =
+            new MarketplaceRepository(id, StringUtils.isNotBlank(name) ? name : id, url, primary);
+        repo.setUsername(username);
+        repo.setPassword(password);
+        config.addRepository(repo);
+        config.save();
+        System.out.println(
+            "Added repository '"
+                + id
+                + "'"
+                + (primary ? " (primary)" : "")
+                + " → "
+                + repo.normalizedUrl());
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "repo add failed" : e.getMessage(), e);
+      }
+    }
+  }
+
+  @Command(name = "remove", description = "Remove a marketplace repository by id")
+  static class RepoRemoveCommand extends MarketplaceSubCommand {
+    @Parameters(index = "0", paramLabel = "ID", description = "Repository id")
+    private String id;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        config.removeRepository(id);
+        config.save();
+        System.out.println("Removed repository '" + id + "'");
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this),
+            e.getMessage() == null ? "repo remove failed" : e.getMessage(),
+            e);
+      }
+    }
+  }
+
+  @Command(name = "set-primary", description = "Set the primary marketplace repository")
+  static class RepoSetPrimaryCommand extends MarketplaceSubCommand {
+    @Parameters(index = "0", paramLabel = "ID", description = "Repository id")
+    private String id;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        config.setPrimary(id);
+        config.save();
+        System.out.println("Primary marketplace repository is now '" + id + "'");
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this),
+            e.getMessage() == null ? "repo set-primary failed" : e.getMessage(),
+            e);
+      }
+    }
+  }
+
+  @Command(name = "enable", description = "Enable a repository in the fallback chain")
+  static class RepoEnableCommand extends MarketplaceSubCommand {
+    @Parameters(index = "0", paramLabel = "ID")
+    private String id;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        config.setEnabled(id, true);
+        config.save();
+        System.out.println("Enabled repository '" + id + "'");
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this),
+            e.getMessage() == null ? "repo enable failed" : e.getMessage(),
+            e);
+      }
+    }
+  }
+
+  @Command(name = "disable", description = "Disable a repository (skip in fallback chain)")
+  static class RepoDisableCommand extends MarketplaceSubCommand {
+    @Parameters(index = "0", paramLabel = "ID")
+    private String id;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        config.setEnabled(id, false);
+        config.save();
+        System.out.println("Disabled repository '" + id + "'");
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this),
+            e.getMessage() == null ? "repo disable failed" : e.getMessage(),
+            e);
+      }
+    }
+  }
+
+  @Command(
+      name = "reset-defaults",
+      description = "Reset repositories to ASF primary + Maven Central fallback")
+  static class RepoResetDefaultsCommand extends MarketplaceSubCommand {
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        config.resetToDefaults();
+        config.save();
+        System.out.println(
+            "Marketplace repositories reset to ASF primary + Maven Central fallback.");
+        for (MarketplaceRepository repo : config.getRepositories()) {
+          System.out.println(
+              (repo.isPrimary() ? "* " : "  ") + repo.getId() + "  " + repo.normalizedUrl());
+        }
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this),
+            e.getMessage() == null ? "repo reset-defaults failed" : e.getMessage(),
+            e);
       }
     }
   }

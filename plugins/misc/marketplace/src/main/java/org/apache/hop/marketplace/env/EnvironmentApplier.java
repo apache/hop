@@ -202,6 +202,7 @@ public class EnvironmentApplier {
     config.getRepositories().clear();
     MarketplaceRepository baseRepo = baseConfig.primaryRepository();
     if (env.getRepositories() != null && !env.getRepositories().isEmpty()) {
+      boolean first = true;
       for (HopEnvironmentSpec.RepositoryRef ref : env.getRepositories()) {
         if (StringUtils.isNotBlank(ref.getUrl())) {
           MarketplaceRepository repo =
@@ -214,7 +215,10 @@ public class EnvironmentApplier {
                   StringUtils.isNotBlank(ref.getPassword())
                       ? ref.getPassword()
                       : baseRepo.getPassword());
+          repo.setPrimary(first);
+          repo.setEnabled(true);
           config.getRepositories().add(repo);
+          first = false;
         }
       }
     }
@@ -222,10 +226,9 @@ public class EnvironmentApplier {
       config.getRepositories().addAll(baseConfig.getRepositories());
     }
     if (config.getRepositories().isEmpty()) {
-      config
-          .getRepositories()
-          .add(new MarketplaceRepository("central", MarketplaceConfig.DEFAULT_REPO_URL));
+      config.getRepositories().addAll(MarketplaceConfig.defaultRepositories());
     }
+    config.ensureValidPrimary();
     return config;
   }
 

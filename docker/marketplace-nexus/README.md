@@ -74,28 +74,18 @@ export NEXUS_PASSWORD=hop-nexus-dev   # or your NEXUS_ADMIN_PASSWORD
 
 ## Hop marketplace (anonymous install)
 
-Edit **`${HOP_CONFIG_FOLDER}/hop-config.json`** (always that file). If
-`HOP_CONFIG_FOLDER` is unset, the hop launcher uses `<install>/config`.
-
-```json
-{
-  "marketplace": {
-    "enabled": true,
-    "groupId": "org.apache.hop",
-    "defaultVersion": "2.19.0-SNAPSHOT",
-    "repositories": [
-      {
-        "id": "local-nexus",
-        "url": "http://127.0.0.1:8081/repository/hop-plugins/"
-      }
-    ]
-  }
-}
-```
+Config is always **`${HOP_CONFIG_FOLDER}/hop-config.json`**. Defaults are ASF
+primary + Maven Central; add local Nexus and make it primary for dev:
 
 ```bash
 cd /path/to/hop          # the unzipped hop-client directory
+./hop marketplace repo add --id local-nexus \
+  --url http://127.0.0.1:8081/repository/hop-plugins/ --primary
+./hop marketplace repo list
 ./hop marketplace install hop-tech-parquet
+# restore production defaults later:
+./hop marketplace repo set-primary asf
+# or: ./hop marketplace repo reset-defaults
 ```
 
 Quick check:

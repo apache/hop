@@ -31,10 +31,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
+import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.apache.hop.marketplace.resolve.MavenRepositoryClient;
 
@@ -77,11 +79,45 @@ public class PluginInstaller {
    */
   public InstallReceipt install(MavenCoordinates coordinates, boolean activateImmediately)
       throws HopException {
+    return install(coordinates, activateImmediately, null);
+  }
+
+  /**
+   * @param forceRepoId when non-blank, only that repository is used (no fallback chain)
+   */
+  public InstallReceipt install(
+      MavenCoordinates coordinates, boolean activateImmediately, String forceRepoId)
+      throws HopException {
     Path downloadDir = hopHome.resolve(STAGING_DIR).resolve(".download");
     Path zipFile =
         downloadDir.resolve(coordinates.artifactId() + "-" + coordinates.version() + ".zip");
     try {
-      client.downloadZip(config.primaryRepository(), coordinates, zipFile);
+      List<MarketplaceRepository> repos = resolveRepositories(forceRepoId);
+      MarketplaceRepository used = null;
+      List<String> errors = new ArrayList<>();
+      for (MarketplaceRepository repo : repos) {
+        try {
+          client.downloadZip(repo, coordinates, zipFile);
+          used = repo;
+          break;
+        } catch (HopException e) {
+          errors.add(
+              repo.getId()
+                  + " @ "
+                  + repo.normalizedUrl()
+                  + " → "
+                  + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+          log.logBasic("Repository attempt failed: " + errors.get(errors.size() - 1));
+        }
+      }
+      if (used == null) {
+        throw new HopException(
+            "Could not download "
+                + coordinates.gav()
+                + " from any configured repository:\n  - "
+                + String.join("\n  - ", errors));
+      }
+
       Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId());
       deleteRecursive(stageRoot);
       Files.createDirectories(stageRoot);
@@ -92,6 +128,8 @@ public class PluginInstaller {
       receipt.setArtifactId(coordinates.artifactId());
       receipt.setVersion(coordinates.version());
       receipt.setInstalledAt(Instant.now().toString());
+      receipt.setRepositoryId(used.getId());
+      receipt.setRepositoryUrl(used.normalizedUrl());
       receipt.setPaths(relativePaths);
       receipt.setPendingActivation(!activateImmediately);
       writeReceipt(receipt);
@@ -114,6 +152,20 @@ public class PluginInstaller {
     } catch (IOException e) {
       throw new HopException("Failed to install plugin " + coordinates.gav(), e);
     }
+  }
+
+  private List<MarketplaceRepository> resolveRepositories(String forceRepoId) throws HopException {
+    if (StringUtils.isNotBlank(forceRepoId)) {
+      MarketplaceRepository forced = config.findRepository(forceRepoId);
+      if (forced == null) {
+        throw new HopException("Unknown marketplace repository id: " + forceRepoId);
+      }
+      if (!forced.isEnabled()) {
+        throw new HopException("Marketplace repository is disabled: " + forceRepoId);
+      }
+      return List.of(forced);
+    }
+    return config.orderedRepositories();
   }
 
   /** Activate all staged plugins (startup hook). */

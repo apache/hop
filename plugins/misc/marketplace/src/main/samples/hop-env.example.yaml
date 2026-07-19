@@ -10,14 +10,15 @@ version: "1.0"
 hopVersion: "2.19.0-SNAPSHOT"
 enforceOnRun: false
 
-# Defaults to Maven Central when omitted.
-# Local Sonatype Nexus (docker/marketplace-nexus/start.sh):
+# First entry is primary; later entries are fallbacks.
 repositories:
-  - id: local-nexus
-    url: "http://127.0.0.1:8081/repository/hop-plugins/"
-  # Production / CI:
-  # - id: central
-  #   url: "https://repo1.maven.org/maven2/"
+  - id: asf
+    url: "https://repository.apache.org/content/groups/public/"
+  - id: central
+    url: "https://repo1.maven.org/maven2/"
+  # Local Sonatype Nexus for development (docker/marketplace-nexus/start.sh):
+  # - id: local-nexus
+  #   url: "http://127.0.0.1:8081/repository/hop-plugins/"
 
 plugins:
   - artifactId: hop-tech-parquet
