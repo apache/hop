@@ -61,18 +61,16 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
+        <!-- Beam runtime libraries (lib/beam, etc.) stay in the default client.
+             The Beam engine plugin itself is optional (marketplace): hop-engines-beam zip. -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-engines-beam</artifactId>
             <version>${project.version}</version>
+            <classifier>libs</classifier>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engines-spark</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- hop-engines-spark is a marketplace-optional plugin (not bundled in the client). -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-ui</artifactId>

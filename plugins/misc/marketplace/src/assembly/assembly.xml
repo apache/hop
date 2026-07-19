@@ -13,13 +13,14 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
+  ~
   -->
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <!-- Marketplace plugin payload only. Runtime jars stay in assembly-libs (lib/beam, etc.). -->
-    <id>plugin</id>
+
+    <id>hop-misc-marketplace</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -27,29 +28,12 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/engines/beam</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>plugins/engines/beam</outputDirectory>
+            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
-    <fileSets>
-        <fileSet>
-            <directory>${project.basedir}/src/main/samples</directory>
-            <outputDirectory>config/projects/samples/</outputDirectory>
-        </fileSet>
-    </fileSets>
-
-    <dependencySets>
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-engines-beam:jar</include>
-            </includes>
-            <outputDirectory>plugins/engines/beam</outputDirectory>
-        </dependencySet>
-    </dependencySets>
+    <componentDescriptors>
+        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

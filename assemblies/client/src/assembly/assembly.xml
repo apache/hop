@@ -40,7 +40,7 @@
                 <include>org.apache.hop:hop-core:zip</include>
                 <include>org.apache.hop:hop-engine:zip</include>
                 <include>org.apache.hop:hop-ui:zip</include>
-                <include>org.apache.hop:hop-engines-beam:zip</include>
+                <include>org.apache.hop:hop-engines-beam:zip:libs</include>
                 <include>org.apache.hop:hop-ui-rcp:zip</include>
             </includes>
             <unpack>true</unpack>

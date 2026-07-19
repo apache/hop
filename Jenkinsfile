@@ -113,6 +113,15 @@ pipeline {
                 }
             }
         }
+        stage('Assembly size check') {
+            when {
+                  anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
+                }
+            steps {
+                // ASF Artifactory rejects packages over ~850MB; fail early with margin.
+                sh "./tools/check-assembly-size.sh"
+            }
+        }
         stage('Unzip Apache Hop'){
             when {
                   anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }

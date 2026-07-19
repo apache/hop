@@ -618,12 +618,7 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engines-spark</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-engines-spark -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-async</artifactId>
@@ -657,6 +652,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-mail</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-marketplace</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -708,13 +709,7 @@
             <version>2.19.0-SNAPSHOT</version>
             <type>zip</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-tech-arrow</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-tech-arrow -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-avro</artifactId>
@@ -733,24 +728,14 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-tech-cassandra</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-tech-cassandra -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-databricks</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-tech-dropbox</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-tech-dropbox -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-elastic</artifactId>
@@ -787,12 +772,7 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-tech-parquet</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-tech-parquet -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-salesforce</artifactId>
@@ -1009,24 +989,14 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-drools</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-transform-drools -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-dynamicsqlrow</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-edi2xml</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-transform-edi2xml -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-excel</artifactId>
@@ -1417,12 +1387,7 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-script</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-transform-script -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-selectvalues</artifactId>
@@ -1507,12 +1472,7 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-stanfordnlp</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-transform-stanfordnlp -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-streamlookup</artifactId>
@@ -1591,12 +1551,7 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-tika</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-transform-tika -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-tokenreplacement</artifactId>

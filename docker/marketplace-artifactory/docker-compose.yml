@@ -1,0 +1,36 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Local Artifactory OSS for Hop marketplace plugin testing (no ASF Nexus credentials required).
+# Usage:
+#   docker compose -f docker/marketplace-artifactory/docker-compose.yml up -d
+#   # open http://localhost:8082  (default admin / password — set on first UI login)
+#   ./docker/marketplace-artifactory/publish-wave1-plugins.sh
+#
+services:
+  artifactory:
+    image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.104.14
+    container_name: hop-marketplace-artifactory
+    ports:
+      - "8082:8082"
+      - "8081:8081"
+    volumes:
+      - hop-artifactory-data:/var/opt/jfrog/artifactory
+    environment:
+      # Reduce memory for local dev
+      EXTRA_JAVA_OPTIONS: -Xms512m -Xmx1g
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/artifactory/api/system/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 120s
+
+volumes:
+  hop-artifactory-data:
