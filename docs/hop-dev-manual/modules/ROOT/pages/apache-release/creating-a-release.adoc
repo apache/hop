@@ -55,6 +55,22 @@ Build the software using the apache release profile
 mvn clean install -Papache-release
 ----
 
+=== Optional marketplace plugins (Wave 1)
+
+Large plugins are *not* bundled in the hop-client zip. Each optional plugin module
+still builds a standalone zip (Maven assembly with `appendAssemblyId=false`), so
+`mvn deploy` / the apache-release process publishes both the jar and the zip under
+the same GAV, for example:
+
+----
+https://repository.apache.org/content/groups/public/org/apache/hop/hop-tech-parquet/<version>/hop-tech-parquet-<version>.zip
+----
+
+After staging a release, verify Wave 1 zips resolve from the ASF public group (and
+later Maven Central). Local SNAPSHOT testing can use `docker/marketplace-nexus/`
+instead. Keep the client under the ASF ~850 MB package limit by running
+`tools/check-assembly-size.sh` before promoting artifacts.
+
 we are going to use the `mvn release:prepare` command to prepare the release process
 
 full command:

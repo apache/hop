@@ -149,3 +149,17 @@ Hop GUI → **Tools → Marketplace…** lists Wave 1 optional plugins. Choose t
 **primary repository**, or **Manage…** to add/edit/remove/reorder repositories
 (same hop-config.json as the CLI). Install uses the primary first, then fallbacks.
 Restart after install or uninstall.
+
+## Packaging & size
+
+Optional plugin modules already produce installable zips via the reactor `assembly`
+profile (`appendAssemblyId=false` → `artifactId-version.zip` next to the jar). A
+normal Maven deploy publishes that zip so marketplace can download it from ASF /
+Central. For local SNAPSHOTs use `docker/marketplace-nexus/publish-wave1-plugins.sh`.
+
+Lean client size (after Wave 1 optional split) is checked with:
+
+```bash
+./tools/check-assembly-size.sh
+# typically hop-client ~590 MB (limit 850 MB)
+```
