@@ -14,6 +14,9 @@
 # Default install dir: assemblies/client/target/hop
 #
 # Requires plugin modules to have been packaged (*.zip under plugins/**/target/).
+# Keep the plugin list in sync with:
+#   plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml
+# (source of truth for full-client-env.yaml and the GUI catalog).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

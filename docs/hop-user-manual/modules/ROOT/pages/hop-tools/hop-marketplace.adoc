@@ -20,6 +20,29 @@ under the License.
 
 Some Hop plugins are optional: they are not bundled in the default client zip so the download stays under the ASF packaging size limit. The *marketplace* installs those plugins into the running Hop client’s `plugins/` tree from a Maven repository.
 
+== Restore the previous full plugin set
+
+The default hop-client zip is intentionally smaller: large plugins are optional. To install
+*all* marketplace-optional plugins that used to ship in the fat client (for this Hop version),
+use the generated environment file at the install root:
+
+[source,bash]
+----
+cd /path/to/hop
+./hop marketplace apply -f full-client-env.yaml
+# then restart Hop
+----
+
+Notes:
+
+* Requires network access to Apache Repository / Maven Central (or a mirror configured in hop-config).
+* For SNAPSHOT builds, point marketplace at a local Nexus that has the Wave 1 zips published.
+* The download is large (hundreds of MB); that is expected.
+* Do *not* pass `--prune` unless you also want other marketplace installs removed.
+* `full-client-env.yaml` is generated at build time from `optional-plugins.yaml` (source of truth). When more plugins become optional, rebuild the client to refresh the file.
+
+A copy is also under `config/projects/samples/marketplace/full-client-env.yaml`.
+
 == Defaults
 
 Without extra configuration, Hop uses:

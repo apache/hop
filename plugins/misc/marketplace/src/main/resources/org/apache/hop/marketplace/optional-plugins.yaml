@@ -1,0 +1,88 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Source of truth for marketplace-optional plugins (not bundled in hop-client).
+# full-client-env.yaml is generated from this list; GUI catalog loads it at runtime.
+# When moving a plugin out of the fat assembly, add an entry here only.
+
+schemaVersion: "1"
+groupId: org.apache.hop
+plugins:
+  - artifactId: hop-engines-spark
+    name: Native Spark engine
+    category: Engines
+    description: Run pipelines on Apache Spark (local or cluster).
+    installPath: plugins/engines/spark
+    modulePath: plugins/engines/spark
+  - artifactId: hop-engines-beam
+    name: Apache Beam engine
+    category: Engines
+    description: Beam pipeline engine and transforms (plugin only; lib/beam stays in the core install).
+    installPath: plugins/engines/beam
+    modulePath: plugins/engines/beam
+  - artifactId: hop-transform-script
+    name: Script transform
+    category: Transforms
+    description: Scripting transform with embedded language runtimes.
+    installPath: plugins/transforms/script
+    modulePath: plugins/transforms/script
+  - artifactId: hop-tech-cassandra
+    name: Cassandra
+    category: Technology
+    description: Apache Cassandra input/output and related tech.
+    installPath: plugins/tech/cassandra
+    modulePath: plugins/tech/cassandra
+  - artifactId: hop-transform-tika
+    name: Apache Tika
+    category: Transforms
+    description: Extract text and metadata from documents via Apache Tika.
+    installPath: plugins/transforms/tika
+    modulePath: plugins/transforms/tika
+  - artifactId: hop-transform-drools
+    name: Drools
+    category: Transforms
+    description: Business rules with Drools.
+    installPath: plugins/transforms/drools
+    modulePath: plugins/transforms/drools
+  - artifactId: hop-tech-parquet
+    name: Parquet
+    category: Technology
+    description: Parquet file format support.
+    installPath: plugins/tech/parquet
+    modulePath: plugins/tech/parquet
+  - artifactId: hop-transform-stanfordnlp
+    name: Stanford NLP
+    category: Transforms
+    description: Natural language processing with Stanford NLP.
+    installPath: plugins/transforms/stanfordnlp
+    modulePath: plugins/transforms/stanfordnlp
+  - artifactId: hop-tech-arrow
+    name: Apache Arrow
+    category: Technology
+    description: Apache Arrow integration.
+    installPath: plugins/tech/arrow
+    modulePath: plugins/tech/arrow
+  - artifactId: hop-tech-dropbox
+    name: Dropbox
+    category: Technology
+    description: Dropbox VFS and related support.
+    installPath: plugins/tech/dropbox
+    modulePath: plugins/tech/dropbox
+  - artifactId: hop-transform-edi2xml
+    name: EDI to XML
+    category: Transforms
+    description: Convert EDI messages to XML.
+    installPath: plugins/transforms/edi2xml
+    modulePath: plugins/transforms/edi2xml

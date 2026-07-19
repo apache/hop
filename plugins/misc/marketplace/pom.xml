@@ -42,10 +42,38 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- SnakeYAML for hop-env.yaml (version managed by hop-libs) -->
+        <!-- SnakeYAML for hop-env.yaml and optional-plugins registry (version managed by hop-libs) -->
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Generate full-client-env.yaml from optional-plugins.yaml (shipped at install root). -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-full-client-env</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>${maven.multiModuleProjectDirectory}/tools/generate-full-client-env.sh</argument>
+                                <argument>${project.version}</argument>
+                                <argument>${project.build.directory}/generated/full-client-env.yaml</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

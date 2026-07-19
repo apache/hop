@@ -31,6 +31,17 @@
             <outputDirectory>${hop.plugin.libdir}</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <!-- Install-root helper: ./hop marketplace apply -f full-client-env.yaml -->
+        <file>
+            <source>${project.build.directory}/generated/full-client-env.yaml</source>
+            <outputDirectory>.</outputDirectory>
+            <destName>full-client-env.yaml</destName>
+        </file>
+        <file>
+            <source>${project.build.directory}/generated/full-client-env.yaml</source>
+            <outputDirectory>config/projects/samples/marketplace/</outputDirectory>
+            <destName>full-client-env.yaml</destName>
+        </file>
     </files>
 
     <fileSets>

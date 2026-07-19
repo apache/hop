@@ -48,6 +48,9 @@ From the Hop install directory (or invoke the `hop` script by path — it alread
 ./hop marketplace apply -f hop-env.yaml
 ./hop marketplace apply -f hop-env.yaml --prune
 ./hop marketplace validate -f hop-env.yaml
+
+# Restore all optional plugins that used to ship in the fat client
+./hop marketplace apply -f full-client-env.yaml
 ```
 
 Install tries the **primary** repository first, then other **enabled** repositories
@@ -149,6 +152,23 @@ Hop GUI → **Tools → Marketplace…** lists Wave 1 optional plugins. Choose t
 **primary repository**, or **Manage…** to add/edit/remove/reorder repositories
 (same hop-config.json as the CLI). Install uses the primary first, then fallbacks.
 Restart after install or uninstall.
+
+## Optional plugin registry & full-client-env.yaml
+
+Source of truth for marketplace-optional plugins:
+
+`src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml`
+
+- GUI catalog loads this file at runtime.
+- `tools/generate-full-client-env.sh` builds `full-client-env.yaml` (Maven `generate-resources`).
+- The marketplace plugin zip places `full-client-env.yaml` at the **Hop install root** (and under samples).
+
+When moving another plugin out of the fat client: exclude it from assemblies, **add one entry**
+to `optional-plugins.yaml`, rebuild. Then:
+
+```bash
+./hop marketplace apply -f full-client-env.yaml
+```
 
 ## Packaging & size
 
