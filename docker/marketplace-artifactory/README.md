@@ -21,55 +21,62 @@ under the License.
 
 Use this stack to exercise plugin install/uninstall **without** ASF Nexus permissions.
 
-## Security keys (required)
+## Requirements
 
-JFrog Artifactory microservices **hang at startup** unless both a **master key** and a
-**join key** are provided (you will see `Cluster join: Join key is missing` otherwise).
-Generate them once on the host (hex strings, mode `600`, owned by UID/GID `1030:1030` —
-the Artifactory process user in the official image):
+Recent **Artifactory OSS 7.x requires PostgreSQL** (the embedded database is gone). This
+compose stack runs:
 
-```bash
-./docker/marketplace-artifactory/generate-keys.sh
-```
+| Service | Purpose |
+|---------|---------|
+| `postgres` | Required DB for Artifactory |
+| `artifactory` | Maven repo for Hop plugin zips |
 
-That writes under `docker/marketplace-artifactory/keys/`:
+Also requires Docker Compose and `openssl` on the host.
 
-| File | Source |
-|------|--------|
-| `master.key` | `openssl rand -hex 32` |
-| `join.key` | `openssl rand -hex 32` |
+## Security keys
 
-Permissions are set to `600` and ownership to `1030:1030` (via Docker if you lack host root).
-Keys are gitignored.
-
-The compose file bind-mounts:
-
-```text
-./keys/master.key → /var/opt/jfrog/artifactory/etc/security/master.key
-./keys/join.key   → /var/opt/jfrog/artifactory/etc/security/join.key
-```
-
-and sets `JF_SHARED_SECURITY_MASTER_KEY_FILE` / `JF_SHARED_SECURITY_JOIN_KEY_FILE`.
-
-If you previously started the stack with only a master key, regenerate/refresh keys and
-recreate the container:
+Artifactory needs a **master key** (AES-128) and a **join key**. Generate once:
 
 ```bash
 ./docker/marketplace-artifactory/generate-keys.sh
-docker compose -f docker/marketplace-artifactory/docker-compose.yml down
-docker compose -f docker/marketplace-artifactory/docker-compose.yml up -d
 ```
+
+| File | Size | How |
+|------|------|-----|
+| `keys/master.key` | 32 hex chars | `openssl rand -hex 16` |
+| `keys/join.key` | 64 hex chars | `openssl rand -hex 32` |
+| `.env` | compose env | master/join + Postgres password |
+
+Keys and `.env` are gitignored. Keys are passed into the container as
+**environment variables** (`JF_SHARED_SECURITY_MASTER_KEY` /
+`JF_SHARED_SECURITY_JOIN_KEY`), not bind-mounted files — Artifactory tries to
+rewrite key files and RO mounts break startup.
 
 ## Start
 
 ```bash
-./docker/marketplace-artifactory/generate-keys.sh
-docker compose -f docker/marketplace-artifactory/docker-compose.yml up -d
+# First time or after failed starts with an old volume layout:
+./docker/marketplace-artifactory/start.sh --reset
+
+# Normal start:
+./docker/marketplace-artifactory/start.sh
 ```
 
-Open http://localhost:8082 and complete first-time Artifactory setup (admin password).
+First boot can take **2–4 minutes**. Watch logs:
 
-Create a **local** Maven repository, for example:
+```bash
+docker logs -f hop-marketplace-artifactory
+```
+
+Healthy when:
+
+```bash
+curl -sf http://localhost:8082/artifactory/api/system/ping && echo OK
+```
+
+Open http://localhost:8082 and complete first-time admin password setup.
+
+### Create the Maven repository
 
 | Field | Value |
 |-------|--------|
@@ -77,7 +84,7 @@ Create a **local** Maven repository, for example:
 | Repository Key | `hop-plugins-local` |
 | Repository Layout | maven-2-default |
 
-Public URL base (typical OSS default):
+Base URL:
 
 ```text
 http://localhost:8082/artifactory/hop-plugins-local/
@@ -94,11 +101,7 @@ export ARTIFACTORY_PASSWORD=…   # from first-time setup
 ./docker/marketplace-artifactory/publish-wave1-plugins.sh
 ```
 
-The script deploys each Wave 1 `*.zip` with Maven layout under `org/apache/hop/…`.
-
 ## Point Hop marketplace at local Artifactory
-
-In `config/hop-config.json` (or via GUI later):
 
 ```json
 {
@@ -116,16 +119,26 @@ In `config/hop-config.json` (or via GUI later):
 }
 ```
 
-Then from the Hop install directory:
-
 ```bash
 export HOP_HOME=/path/to/hop
 ./hop marketplace install hop-tech-parquet
-./hop marketplace install hop-engines-beam
 ./hop marketplace list
 ```
 
-Notes:
+## Troubleshooting
 
-- `hop-engines-beam` marketplace zip is the **plugin only**; `lib/beam` stays in the default client.
-- Restart Hop after install/uninstall so the plugin registry reloads.
+| Symptom | Fix |
+|---------|-----|
+| `Cannot start … database other than PostgreSQL` | Use this compose stack (includes Postgres). Wipe old volumes: `start.sh --reset` |
+| `Join key is missing` | Run `generate-keys.sh`; ensure `.env` is passed to compose (`start.sh` does this) |
+| `read-only file system` on join.key | Do not bind-mount key files; use env vars via `.env` |
+| Stuck after earlier failed boots | `./start.sh --reset` to drop volumes |
+| Low disk warning | Free space under Docker’s data root |
+
+## Stop
+
+```bash
+docker compose -f docker/marketplace-artifactory/docker-compose.yml --env-file docker/marketplace-artifactory/.env down
+# Wipe data:
+docker compose -f docker/marketplace-artifactory/docker-compose.yml --env-file docker/marketplace-artifactory/.env down -v
+```

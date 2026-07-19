@@ -8,13 +8,12 @@
 #
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
-# Generate JFrog Artifactory security keys required for a clean startup:
-#   - master.key  (shared master key)
-#   - join.key    (cluster join key; required even for a single-node OSS stack)
+# Generate JFrog Artifactory security keys for docker-compose:
+#   - master.key  AES-128 → openssl rand -hex 16  (32 hex chars)
+#   - join.key    cluster join → openssl rand -hex 32 (64 hex chars)
 #
-# Both are openssl rand -hex 32 (64 hex chars, no trailing newline), mode 600,
-# owned by UID/GID 1030:1030 (Artifactory process user in the official image).
-# Without them, services hang ("Cluster join: Join key is missing").
+# Keys are written under keys/ and also mirrored into .env for compose
+# (JF_SHARED_SECURITY_MASTER_KEY / JF_SHARED_SECURITY_JOIN_KEY).
 #
 # Usage:
 #   ./docker/marketplace-artifactory/generate-keys.sh
@@ -23,117 +22,57 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KEYS_DIR="${SCRIPT_DIR}/keys"
-
-ARTIFACTORY_UID=1030
-ARTIFACTORY_GID=1030
+ENV_FILE="${SCRIPT_DIR}/.env"
 
 if ! command -v openssl >/dev/null 2>&1; then
-  echo "ERROR: openssl is required on the host to generate keys" >&2
+  echo "ERROR: openssl is required on the host" >&2
   exit 1
 fi
 
 mkdir -p "${KEYS_DIR}"
 
-# Write key material to a host temp file (64 hex chars, no newline)
-make_key_material() {
-  local tmp
-  tmp="$(mktemp)"
-  openssl rand -hex 32 | tr -d '\n' > "${tmp}"
-  # Verify length (32 bytes → 64 hex chars)
-  local len
-  len="$(wc -c < "${tmp}" | tr -d ' ')"
-  if [[ "${len}" != "64" ]]; then
-    rm -f "${tmp}"
-    echo "ERROR: expected 64-char hex key, got length ${len}" >&2
-    exit 1
-  fi
-  echo "${tmp}"
-}
-
-# Install a key file as 1030:1030 mode 600. Works even when an old key is owned by 1030.
-install_key() {
+# $1=filename $2=openssl hex byte count (16 → 32 chars, 32 → 64 chars)
+ensure_key() {
   local name="$1"
+  local bytes="$2"
+  local expected_len=$((bytes * 2))
   local dest="${KEYS_DIR}/${name}"
-  local material
-  material="$(make_key_material)"
 
   if [[ -f "${dest}" ]]; then
-    # Readable empty/corrupt keys should be replaced
-    local existing_len=0
-    if [[ -r "${dest}" ]]; then
-      existing_len="$(wc -c < "${dest}" | tr -d ' ')"
-    else
-      # Unreadable (owned by 1030): probe via docker
-      if command -v docker >/dev/null 2>&1; then
-        existing_len="$(docker run --rm -v "${KEYS_DIR}:/keys" alpine:3.19 \
-          sh -c "wc -c < /keys/${name}" | tr -d ' ')"
-      fi
-    fi
-    if [[ "${existing_len}" == "64" ]]; then
-      rm -f "${material}"
-      echo "Key already exists and looks valid: ${dest} (${existing_len} bytes)"
+    local len
+    len="$(wc -c < "${dest}" | tr -d ' ')"
+    if [[ "${len}" == "${expected_len}" ]]; then
+      echo "Key already exists: ${dest} (${len} bytes)"
       return 0
     fi
-    echo "Replacing invalid/empty ${dest} (length ${existing_len})"
+    echo "Replacing invalid ${dest} (length ${len}, expected ${expected_len})"
   else
-    echo "Generating ${name}..."
+    echo "Generating ${name} (openssl rand -hex ${bytes})..."
   fi
 
-  # Try host write first
-  if cat "${material}" > "${dest}" 2>/dev/null \
-    && chmod 600 "${dest}" 2>/dev/null \
-    && chown "${ARTIFACTORY_UID}:${ARTIFACTORY_GID}" "${dest}" 2>/dev/null; then
-    rm -f "${material}"
-    echo "Wrote ${dest}"
-    return 0
-  fi
-
-  # Host cannot overwrite 1030-owned file: install via docker as root
-  if command -v docker >/dev/null 2>&1; then
-    docker run --rm \
-      -v "${KEYS_DIR}:/keys" \
-      -v "${material}:/tmp/key.material:ro" \
-      alpine:3.19 \
-      sh -c "cp /tmp/key.material /keys/${name} && chmod 600 /keys/${name} && chown ${ARTIFACTORY_UID}:${ARTIFACTORY_GID} /keys/${name}"
-    rm -f "${material}"
-    echo "Wrote ${dest} (via docker)"
-    return 0
-  fi
-
-  rm -f "${material}"
-  echo "ERROR: unable to write ${dest} (need docker or root for chown 1030:1030)" >&2
-  exit 1
+  # No trailing newline
+  openssl rand -hex "${bytes}" | tr -d '\n' > "${dest}"
+  chmod 600 "${dest}" 2>/dev/null || true
+  echo "Wrote ${dest}"
 }
 
-fix_perms() {
-  local name="$1"
-  if chmod 600 "${KEYS_DIR}/${name}" 2>/dev/null \
-    && chown "${ARTIFACTORY_UID}:${ARTIFACTORY_GID}" "${KEYS_DIR}/${name}" 2>/dev/null; then
-    return 0
-  fi
-  if command -v docker >/dev/null 2>&1; then
-    docker run --rm -v "${KEYS_DIR}:/keys" alpine:3.19 \
-      sh -c "chmod 600 /keys/${name} && chown ${ARTIFACTORY_UID}:${ARTIFACTORY_GID} /keys/${name}"
-    return 0
-  fi
-  echo "WARNING: could not enforce 600 / ${ARTIFACTORY_UID}:${ARTIFACTORY_GID} on ${name}" >&2
-  return 1
-}
+ensure_key "master.key" 16
+ensure_key "join.key" 32
 
-install_key "master.key"
-install_key "join.key"
-fix_perms "master.key"
-fix_perms "join.key"
+MASTER_KEY="$(cat "${KEYS_DIR}/master.key")"
+JOIN_KEY="$(cat "${KEYS_DIR}/join.key")"
 
-echo "Key files:"
-if command -v docker >/dev/null 2>&1; then
-  docker run --rm -v "${KEYS_DIR}:/keys" alpine:3.19 \
-    sh -c 'ls -la /keys/master.key /keys/join.key && echo -n "lengths: " && wc -c /keys/master.key /keys/join.key'
-else
-  ls -la "${KEYS_DIR}"/*.key
-  wc -c "${KEYS_DIR}"/*.key
-fi
+# Compose reads these as JF_SHARED_SECURITY_* (no file mounts — Artifactory
+# tries to rewrite key files and RO bind-mounts fail).
+cat > "${ENV_FILE}" <<EOF
+# Generated by generate-keys.sh — do not commit
+JF_SHARED_SECURITY_MASTER_KEY=${MASTER_KEY}
+JF_SHARED_SECURITY_JOIN_KEY=${JOIN_KEY}
+POSTGRES_PASSWORD=hop_artifactory_dev
+EOF
+chmod 600 "${ENV_FILE}"
 
-echo "Done. Restart Artifactory with:"
-echo "  docker compose -f docker/marketplace-artifactory/docker-compose.yml down"
-echo "  docker compose -f docker/marketplace-artifactory/docker-compose.yml up -d"
+echo "Wrote ${ENV_FILE} for docker compose"
+echo "Done. Start with:"
+echo "  ./docker/marketplace-artifactory/start.sh"
+echo "  # or: docker compose -f docker/marketplace-artifactory/docker-compose.yml --env-file docker/marketplace-artifactory/.env up -d"
