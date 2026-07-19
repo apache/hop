@@ -1,0 +1,32 @@
+{
+  "base_filename": "0005-filter-false-golden.csv",
+  "name": "0005-filter-false-golden",
+  "description": "Golden Filter dual-target false branch (953 rows)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "id",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "stateCode",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "state",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

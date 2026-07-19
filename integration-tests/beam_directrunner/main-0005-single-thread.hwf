@@ -67,6 +67,18 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
+      <name>create /tmp/0005</name>
+      <description>Ensure output parent folder exists for Beam SINGLE_BEAM file writers</description>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <foldername>${java.io.tmpdir}/0005</foldername>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <parallel>N</parallel>
+      <xloc>368</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>Run Pipeline Unit Tests</name>
       <description/>
       <type>RunPipelineTests</type>
@@ -120,6 +132,13 @@ limitations under the License.
     </hop>
     <hop>
       <from>delete /tmp/0005/*</from>
+      <to>create /tmp/0005</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>create /tmp/0005</from>
       <to>0005-generate-single-file.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

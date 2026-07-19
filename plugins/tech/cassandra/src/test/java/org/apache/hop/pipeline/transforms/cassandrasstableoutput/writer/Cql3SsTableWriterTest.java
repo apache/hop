@@ -35,11 +35,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.cassandra.io.sstable.CQLSSTableWriter;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.TestUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
@@ -48,6 +50,11 @@ class Cql3SsTableWriterTest {
   @BeforeAll
   static void notOnWindows() {
     assumeFalse(SystemUtils.IS_OS_WINDOWS);
+  }
+
+  @BeforeAll
+  static void setUp() throws HopException {
+    TestUtil.registerTestPluginTypes();
   }
 
   public static final String KEY_FIELD = "KEY_FIELD";

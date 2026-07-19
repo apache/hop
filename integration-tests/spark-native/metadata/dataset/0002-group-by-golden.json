@@ -1,0 +1,56 @@
+{
+  "base_filename": "0002-group-by-golden.csv",
+  "name": "0002-group-by-golden",
+  "description": "Golden Memory Group By by state: count_all, count_distinct_city, min_id, max_id, sum_id",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "state",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "count_all",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "count_distinct_city",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "min_id",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "max_id",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "sum_id",
+      "field_format": "#"
+    }
+  ],
+  "folder_name": ""
+}

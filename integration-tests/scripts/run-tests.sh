@@ -130,6 +130,12 @@ if [ -z "${TEST_FILTER}" ]; then
   TEST_FILTER=""
 fi
 
+# When the GCP service-account key is missing or is the IT dummy file, skip Google Sheets
+# workflows (they need a real JSON key; ASF Jenkins provides credentials id gcp-access-hop).
+if [ -z "${SKIP_GOOGLE_SHEETS}" ]; then
+  SKIP_GOOGLE_SHEETS="false"
+fi
+
 #set global variables
 SPACER="==========================================="
 
@@ -138,6 +144,15 @@ should_run_workflow() {
   local file="$1"
   local base
   base=$(basename "$file")
+
+  if [ "${SKIP_GOOGLE_SHEETS}" = "true" ]; then
+    case "${base}" in
+    *google-sheet* | *google-sheets*)
+      echo "Skipping ${base} (SKIP_GOOGLE_SHEETS=true: no valid GCP service-account JSON)"
+      return 1
+      ;;
+    esac
+  fi
 
   if [ -z "${TEST_FILTER}" ]; then
     return 0
@@ -240,6 +255,16 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       # Create New Project
       export HOP_CONFIG_FOLDER="$d"
 
+      # Project output/ is often written by pipelines (CSV, Excel/ODS temp files, etc.).
+      # On ASF Jenkins the container UID matches the agent workspace owner (Jenkinsfile.daily
+      # passes id -u / id -g), so writes succeed by ownership. When UIDs differ, output/ is
+      # pre-created and chmod'd world-writable by run-tests-docker.sh on the host; here we
+      # only best-effort reinforce that (mkdir/chmod may no-op if not owner).
+      mkdir -p "$d/output" 2>/dev/null || true
+      if [ -d "$d/output" ]; then
+        chmod 777 "$d/output" 2>/dev/null || true
+      fi
+
       # Default pipeline run configuration name used by hop-run and the suite runner.
       # Beam projects name their Beam engine "local" and keep a native Local engine as "hop-local".
       # The single-JVM suite driver (run-project-tests.hpl) must never run under Beam.
@@ -250,8 +275,17 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       fi
 
       # Prefer single-JVM suite runner when available (unless isolation mode is requested).
-      # TEST_FILTER is only applied on the classic per-workflow path, so force that mode when set.
-      if [ "${HOP_IT_PER_TEST_JVM}" != "true" ] && [ -z "${TEST_FILTER}" ] && [ -f "${RUNNER_PIPELINE}" ]; then
+      # TEST_FILTER and SKIP_GOOGLE_SHEETS are only applied on the classic per-workflow path
+      # (should_run_workflow), so force that mode when either is set for this project.
+      USE_SUITE_RUNNER=true
+      if [ "${HOP_IT_PER_TEST_JVM}" = "true" ] || [ -n "${TEST_FILTER}" ]; then
+        USE_SUITE_RUNNER=false
+      fi
+      if [ "${SKIP_GOOGLE_SHEETS}" = "true" ] && [ "${PROJECT_NAME}" = "spreadsheet" ]; then
+        USE_SUITE_RUNNER=false
+        echo "SKIP_GOOGLE_SHEETS=true: using classic per-workflow runner so Google Sheets tests are skipped"
+      fi
+      if [ "${USE_SUITE_RUNNER}" = "true" ] && [ -f "${RUNNER_PIPELINE}" ]; then
 
         echo ${SPACER}
         echo "Running project tests in single JVM via run-project-tests.hpl (run config: ${SUITE_RUN_CONFIG})"

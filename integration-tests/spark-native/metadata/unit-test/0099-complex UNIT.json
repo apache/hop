@@ -1,0 +1,152 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "firstname",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "zip",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "state_1",
+          "data_set_field": "state_1"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "nrPerState",
+          "data_set_field": "nrPerState"
+        },
+        {
+          "transform_field": "label",
+          "data_set_field": "label"
+        },
+        {
+          "transform_field": "Comment",
+          "data_set_field": "Comment"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "0099-complex-golden",
+      "transform_name": "output/0099-complex.csv"
+    }
+  ],
+  "input_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "Last name"
+        },
+        {
+          "transform_field": "firstname",
+          "data_set_field": "First name"
+        },
+        {
+          "transform_field": "zip",
+          "data_set_field": "cust_zip_code"
+        },
+        {
+          "transform_field": "city",
+          "data_set_field": "city"
+        },
+        {
+          "transform_field": "birthdate",
+          "data_set_field": "birthdate"
+        },
+        {
+          "transform_field": "street",
+          "data_set_field": "street"
+        },
+        {
+          "transform_field": "housenr",
+          "data_set_field": "housenr"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "0099-customers-input",
+      "transform_name": "files/customers-noheader-1k.txt"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "population"
+        }
+      ],
+      "field_order": [
+        "state",
+        "population"
+      ],
+      "data_set_name": "0099-state-population-input",
+      "transform_name": "files/state-population.txt"
+    }
+  ],
+  "name": "0099-complex UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0099-complex.hpl"
+}

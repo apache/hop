@@ -46,7 +46,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "/pipeline/transforms/groupby.html",
-    keywords = "i18n::GroupByMeta.keyword")
+    keywords = "i18n::GroupByMeta.keyword",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
 
   private static final Class<?> PKG = GroupByMeta.class;

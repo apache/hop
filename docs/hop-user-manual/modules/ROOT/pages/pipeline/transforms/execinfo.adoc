@@ -35,13 +35,14 @@ This means that this transform always needs input-rows in order to produce outpu
 First use Generate rows to create your fields and values to use (children: Boolean = true) and (limit: Integer = 200). Then use a first transform to get the ids (Operation: Get execution IDs), and a second connected transform to delete them (Operation: Delete execution). Optionally you can also delete by other fields such as date and ID. It can take a while to query the Execution Information, so keep an eye on the Duration column.
 
 | == Supported Engines
-[%noheader,cols="2,1a",frame=none,role="table-supported-engines"]
-
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
-!Hop Engine! image:check_mark.svg[Supported,24]
-!Spark! image:check_mark.svg[Maybe Supported,24]
-!Flink! image:check_mark.svg[Maybe Supported,24]
-!Dataflow! image:check_mark.svg[Maybe Supported,24]
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 
 |===

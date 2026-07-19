@@ -35,9 +35,11 @@ If you want to make sure fields keep their original data type, make sure to conv
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 

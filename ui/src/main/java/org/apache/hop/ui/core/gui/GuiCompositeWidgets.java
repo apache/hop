@@ -79,6 +79,12 @@ public class GuiCompositeWidgets {
 
   @Getter @Setter private IGuiPluginCompositeButtonsListener compositeButtonsListener;
 
+  /** Parent composite of the last {@link #createCompositeWidgets} call (for button refresh). */
+  private Composite widgetsParentComposite;
+
+  /** Parent GUI element id of the last {@link #createCompositeWidgets} call. */
+  private String widgetsParentGuiElementId;
+
   public GuiCompositeWidgets(IVariables variables) {
     this(variables, 0);
   }
@@ -129,6 +135,9 @@ public class GuiCompositeWidgets {
       }
       return;
     }
+
+    this.widgetsParentComposite = parent;
+    this.widgetsParentGuiElementId = parentGuiElementId;
 
     // Loop over the GUI elements, create and remember the widgets...
     //
@@ -220,7 +229,7 @@ public class GuiCompositeWidgets {
       // Add the GUI element
       //
       switch (elementType) {
-        case TEXT, FILENAME, FOLDER:
+        case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
           control = getTextControl(parent, guiElements, props, lastControl, label, useNewLayout);
           break;
         case CHECKBOX:
@@ -381,9 +390,28 @@ public class GuiCompositeWidgets {
 
             Object guiObject = methodClass.getDeclaredConstructor().newInstance();
 
-            // Invoke the button method
+            // Invoke the button method (mutations apply to sourceObject)
             //
             buttonMethod.invoke(guiObject, sourceObject);
+
+            // Re-bind form fields from the (possibly mutated) source object. Template-load and
+            // similar buttons open modal dialogs; refresh both immediately and on the next UI
+            // cycle so the parent form reliably shows the new values after the shell restores.
+            final Object mutatedSource = sourceObject;
+            final Button sourceButton = button;
+            final String widgetId = guiElements.getId();
+            refreshWidgetsAfterButton(mutatedSource, sourceButton, widgetId);
+            if (button.getDisplay() != null && !button.getDisplay().isDisposed()) {
+              button
+                  .getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (sourceButton.isDisposed()) {
+                          return;
+                        }
+                        refreshWidgetsAfterButton(mutatedSource, sourceButton, widgetId);
+                      });
+            }
           } catch (Exception e) {
             LogChannel.UI.logError(
                 "Error invoking method "
@@ -397,6 +425,29 @@ public class GuiCompositeWidgets {
     layoutControlBetweenLabelAndRightControl(props, lastControl, null, button, null, useNewLayout);
 
     return button;
+  }
+
+  /**
+   * After an annotated BUTTON method returns, push {@code sourceObject} field values back into the
+   * composite widgets and notify listeners. Safe to call more than once.
+   */
+  private void refreshWidgetsAfterButton(
+      Object sourceObject, Button sourceButton, String widgetId) {
+    if (compositeButtonsListener != null) {
+      compositeButtonsListener.afterButtonPressed(sourceObject);
+    }
+    if (widgetsParentComposite != null
+        && widgetsParentGuiElementId != null
+        && !widgetsParentComposite.isDisposed()) {
+      setWidgetsContents(sourceObject, widgetsParentComposite, widgetsParentGuiElementId);
+      if (!widgetsParentComposite.isDisposed()) {
+        widgetsParentComposite.layout(true, true);
+        widgetsParentComposite.redraw();
+      }
+    }
+    if (compositeWidgetsListener != null && sourceButton != null && !sourceButton.isDisposed()) {
+      compositeWidgetsListener.widgetModified(this, sourceButton, widgetId);
+    }
   }
 
   private Link getLinkControl(
@@ -545,9 +596,17 @@ public class GuiCompositeWidgets {
         break;
     }
 
+    boolean multiLine = guiElements.getType() == GuiElementType.MULTI_LINE_TEXT;
+    int style;
+    if (multiLine) {
+      // Multi-line does not use password masking.
+      style = SWT.BORDER | SWT.MULTI | SWT.LEFT | SWT.WRAP | SWT.V_SCROLL | SWT.H_SCROLL;
+    } else {
+      style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
+    }
+
     if (guiElements.isVariablesEnabled()) {
-      int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
-      if (guiElements.isPassword()) {
+      if (!multiLine && guiElements.isPassword()) {
         String toolTip =
             StringUtils.isNotEmpty(guiElements.getToolTip()) ? guiElements.getToolTip() : null;
         // PasswordTextVar never mirrors the field value in the tooltip (TextVar may on some
@@ -567,8 +626,7 @@ public class GuiCompositeWidgets {
         text = textVar.getTextWidget();
       }
     } else {
-      int style = SWT.BORDER | SWT.SINGLE | SWT.LEFT;
-      if (guiElements.isPassword()) {
+      if (!multiLine && guiElements.isPassword()) {
         style |= SWT.PASSWORD;
       }
       text = new Text(parent, style);
@@ -580,6 +638,10 @@ public class GuiCompositeWidgets {
 
     layoutControlBetweenLabelAndRightControl(
         props, lastControl, label, control, actionControl, useNewLayout);
+
+    if (multiLine) {
+      applyMultiLineTextHeight(props, control, text, guiElements.getMultiLineTextHeight());
+    }
 
     // Add an action based on the sub-type:
     switch (guiElements.getType()) {
@@ -645,6 +707,37 @@ public class GuiCompositeWidgets {
               + " and type "
               + guiElements.getType(),
           e);
+    }
+  }
+
+  /**
+   * Sets an explicit FormData height for multi-line text so FormLayout does not collapse the
+   * control to a single line.
+   *
+   * @param props UI properties (zoom)
+   * @param control the outer control (may be TextVar composite)
+   * @param text the inner SWT Text
+   * @param lines preferred height in text lines
+   */
+  private void applyMultiLineTextHeight(PropsUi props, Control control, Text text, int lines) {
+    int lineCount = Math.max(1, lines);
+    int lineHeight = 0;
+    try {
+      if (text != null && !text.isDisposed()) {
+        lineHeight = text.getLineHeight();
+      }
+    } catch (Exception e) {
+      // Fall through to font-based estimate
+    }
+    if (lineHeight <= 0) {
+      // Typical default font height * zoom when the control is not yet realized
+      lineHeight = (int) Math.ceil(15 * props.getZoomFactor());
+    }
+    // Small padding per line for borders / inter-line spacing
+    int linePx = lineHeight + Math.max(1, PropsUi.getMargin() / 2);
+    Object layoutData = control.getLayoutData();
+    if (layoutData instanceof FormData fdControl) {
+      fdControl.height = lineCount * linePx;
     }
   }
 
@@ -826,6 +919,11 @@ public class GuiCompositeWidgets {
     GuiElements guiElements =
         registry.findGuiElements(sourceData.getClass().getName(), parentGuiElementId);
     if (guiElements == null) {
+      LogChannel.UI.logError(
+          "setWidgetsContents: no GUI elements found for class: "
+              + sourceData.getClass().getName()
+              + CONST_PARENT_ID
+              + parentGuiElementId);
       return;
     }
 
@@ -835,7 +933,33 @@ public class GuiCompositeWidgets {
       compositeWidgetsListener.widgetsCreated(this);
     }
 
-    parentComposite.layout(true, true);
+    if (parentComposite != null && !parentComposite.isDisposed()) {
+      parentComposite.layout(true, true);
+    }
+  }
+
+  /**
+   * Read a field value from the source object using the annotated getter method name when
+   * available, falling back to {@link PropertyDescriptor}.
+   */
+  private Object readFieldValue(Object sourceData, GuiElements guiElements) {
+    try {
+      if (StringUtils.isNotEmpty(guiElements.getGetterMethod())) {
+        Method getter = sourceData.getClass().getMethod(guiElements.getGetterMethod());
+        return getter.invoke(sourceData);
+      }
+    } catch (Exception e) {
+      // Fall through to PropertyDescriptor
+    }
+    try {
+      return new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
+          .getReadMethod()
+          .invoke(sourceData);
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          "Unable to get value for field: '" + guiElements.getFieldName() + "'", e);
+      return null;
+    }
   }
 
   private void setWidgetsData(Object sourceData, GuiElements guiElements) {
@@ -865,20 +989,11 @@ public class GuiCompositeWidgets {
 
         // What's the value?
         //
-        Object value = null;
-        try {
-          value =
-              new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
-                  .getReadMethod()
-                  .invoke(sourceData);
-        } catch (Exception e) {
-          LogChannel.UI.logError(
-              "Unable to get value for field: '" + guiElements.getFieldName() + "'", e);
-        }
+        Object value = readFieldValue(sourceData, guiElements);
         String stringValue = value == null ? "" : Const.NVL(value.toString(), "");
 
         switch (guiElements.getType()) {
-          case TEXT, FILENAME, FOLDER:
+          case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               textVar.setText(stringValue);
@@ -991,7 +1106,7 @@ public class GuiCompositeWidgets {
         Object value = null;
 
         switch (guiElements.getType()) {
-          case TEXT, FILENAME, FOLDER:
+          case TEXT, FILENAME, FOLDER, MULTI_LINE_TEXT:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               value = textVar.getText();

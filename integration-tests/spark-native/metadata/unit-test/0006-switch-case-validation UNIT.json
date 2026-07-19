@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "0006-switch-ca-golden",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0006-switch-case-validation UNIT",
+  "description": "Compare Switch/Case CA target output to golden",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0006-switch-case-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

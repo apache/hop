@@ -1,0 +1,48 @@
+{
+  "base_filename": "0008-excel-stream-lookup-golden.csv",
+  "name": "0008-excel-stream-lookup-golden",
+  "description": "Golden: 6 orders from 3 parquet parts with productName/unitPrice from Excel via Stream Lookup",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "orderId",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "productCode",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "qty",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "productName",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "unitPrice",
+      "field_format": "#"
+    }
+  ],
+  "folder_name": ""
+}

@@ -1,0 +1,544 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[NativeSparkOnDatabricks]]
+:imagesdir: ../../../assets/images
+:description: Run Apache Hop native Spark (MainSpark JAR) jobs on Databricks — workspace tiers, classic clusters, UC Volumes, compute modes, and Deploy & run lessons learned.
+:toc:
+:toclevels: 3
+
+= Native Spark on Databricks
+
+This page captures practical lessons for running **Hop native Spark** pipelines on a **Databricks** workspace via the xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] **Deploy & run** path (`MainSpark` JAR task).
+
+It is not a full Databricks admin guide. It focuses on what usually goes wrong when connecting Hop to Free / trial / serverless-oriented workspaces versus a **classic-cluster-capable** (e.g. Premium) workspace suitable for Spark 4.1 and modern Java.
+
+For general native Spark concepts (engine, fat jar, `local[*]` first), start with
+xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine].
+
+== Sample project shape
+
+A minimal Hop project for this path typically includes:
+
+* A small pipeline to run on the cluster (e.g. generate rows → random UUID → dummy)
+* A workflow with **Databricks Job Run** (Deploy & run) and optional **Databricks Job Wait**
+* A `work/` folder with the **native-provided** fat jar
+* Metadata: Databricks Connection, Native Spark pipeline run configuration
+
+.Sample `hello-databricks.hpl` in the project explorer (Generate rows → UUID → Dummy)
+image::pipeline/spark/databricks-pipeline-hello-databricks.png[Hello Databricks sample pipeline in Hop GUI: Generate rows, Random value (uuid), Dummy,width=85%]
+
+== What Deploy & run does
+
+When mode is **Deploy & run**, the Job Run action:
+
+. Uploads artifacts to a workspace path (UC Volume or classic DBFS). Names are chosen so concurrent deploys and library refreshes stay correct:
+  * fat jar → **content-addressed** `hop-native-<sha12>.jar` (first 12 hex chars of the local jar’s SHA-256) plus a matching `.sha256` sidecar — skip upload when that remote path already matches size + sidecar (see <<faq-skip-jar-upload>> and <<lesson-fat-jar-library-uri>>)
+  * pipeline → `pipeline-{stem}.hpl` (simple mode; may be omitted when a package-relative path is used)
+  * exported Hop metadata → `metadata-{stem}.json` (simple mode; embedded in the package when package mode is on)
+  * optional Spark project package → `hop-spark-package-{stem}.zip` (nested Simple Mapping / Pipeline Executor)
+  * optional environment config → `env-config-{stem}.json` (MainSpark `--HopConfigFile`)
+  * `{stem}` = sanitized pipeline file basename without extension (e.g. `hello-mapping-databricks`)
+. Creates or updates a Databricks **Jobs** definition with a `spark_jar_task`:
+  * main class: `org.apache.hop.spark.run.MainSpark`
+  * parameters: classic positional `pipeline`, `metadata`, `runConfig` — or named `--Hop*` args when a project package and/or env file is present
+. Calls `jobs/run-now` and optionally waits for completion (or fire-and-forget +
+  xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait]).
+
+Credentials come from xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+metadata (workspace host + personal access token). That is **not** the
+xref:database/databases/databricks.adoc[Databricks JDBC] SQL warehouse connection.
+
+.Deploy & run dialog: connection, fat jar / pipeline paths, UC Volume upload base, classic `new_cluster` (e.g. DBR `18.2.x-scala2.13`, AWS `i3.xlarge`)
+image::pipeline/spark/databricks-workflow-deploy-to-databricks.png[Databricks Job Run dialog: Deploy and run with fat jar, pipeline, Volume base path, and new_cluster settings,width=90%]
+
+== Workspace and tier: classic clusters vs serverless
+
+Hop’s Deploy & run path is built for a **classic compute** story: either an **existing
+all-purpose cluster** or a classic **job cluster** (`new_cluster` in the Jobs API).
+
+[options="header",cols="1,2,2"]
+|===
+|Workspace style |Typical compute |Hop Deploy & run JAR jobs
+
+|Free / some trial / serverless-only
+|No (or very limited) user-created classic clusters; serverless Jobs only
+|*Not* a good fit for full MainSpark JAR deploy today. Serverless has different job shape (environments / `environment_key` / `java_dependencies`), runtime limits (often older Java / constrained Spark), and no dynamic classic cluster create.
+
+|Premium (or equivalent) with **classic clusters** enabled
+|All-purpose clusters and/or classic job clusters (e.g. AWS `m5.*`, DBR with Spark 4.x)
+|**Supported path.** Create or attach a classic cluster that can run your Spark / Java line, then use existing cluster id or `new_cluster`.
+|===
+
+=== Lessons learned
+
+* **Free tier / “cannot create a cluster”** — many Free or UI-first workspaces never expose a classic cluster id. Deploy & run then has nothing valid to put in `existing_cluster_id`. Putting the literal string `new_cluster` into that field without a nested object produces errors such as _Cluster new_cluster does not exist_ (the API treated it as a cluster id).
+* **Serverless-only error** — `Only serverless compute is supported in the workspace` means classic `new_cluster` / existing all-purpose clusters are blocked. Serverless needs job-level `environments` and task `environment_key`, and **must not** send task-level `libraries` the same way classic jobs do.
+* **Spark 4.1 / Java 21 style workloads** — for Hop’s **native** Spark 4.x engine and a fat jar built for modern runtimes, provision a workspace that **allows classic clusters** (e.g. AWS Premium workspace) and a DBR / job cluster configuration aligned with your Spark and JVM expectations. Do not assume Free/serverless will match local `native-provided` fat-jar testing.
+* **New workspace for classic** — if the current workspace is permanently serverless-oriented, creating a **new** classic-capable workspace (cloud account + tier that allows classic compute) is often simpler than fighting Free-tier product limits.
+* [[lesson-fat-jar-library-uri]]**Fat jar library URI must change when jar bytes change (Dedicated / long-lived cluster “caching crapout”)** — overwriting a **fixed** Volume path such as `/Volumes/…/hop-native.jar` (even with Files API `?overwrite=true` and a fresh `.sha256` sidecar) is **not** enough for Databricks to always run the new classes. A long-lived **Dedicated** (or other all-purpose) cluster often keeps **previously installed job libraries** on the driver/executor classpath (old URI still wins even after a successful Volume overwrite). Symptoms:
+  **Volume object is minutes old and matches local `sha256sum`**, but MainSpark driver log still shows **old behavior** (e.g. missing `>>>>>> Spark project package distribution build: pkg-dist-…` right after `Initializing Hop`, or obsolete package-distribution log strings such as `cluster-shared … (no SparkFiles)`). Hop Deploy & run therefore uploads a **content-addressed** library path `hop-native-<sha12>.jar` and points the job’s `libraries[].jar` at that URI so each content change is a **new library identity**. **Still required after the first switch** (or if old `hop-native.jar` remains installed on the cluster): **restart the target Dedicated cluster** so accumulated libraries are cleared, then re-run. Verify the driver log prints the expected `pkg-dist-…` fingerprint before debugging package/mapping logic.
+
+== Connection and secrets
+
+* Create a **Databricks Connection** (Jobs / PAT), not only a JDBC entry.
+* Prefer Hop **variables** for host and token (project or lifecycle environment JSON).
+* Password-style fields and variable values may be stored as `Encrypted …`. The Jobs client resolves variables and then calls `Encr.decryptPasswordOptionallyEncrypted` so both plain and encrypted PAT values work.
+* **Test connection** in the metadata editor uses the same variable space as Hop GUI (`MetadataManager` / `HopGui` variables). After changing the plugin, rebuild the **client assembly** so the running `plugins/tech/databricks` jar matches your source (evaluate-in-IDE vs stale plugin jar is a common false lead).
+
+Example environment variables:
+
+----
+DATABRICKS_HOST=https://dbc-….cloud.databricks.com
+DATABRICKS_TOKEN=Encrypted …
+----
+
+Connection fields:
+
+----
+host  = ${DATABRICKS_HOST}
+token = ${DATABRICKS_TOKEN}
+----
+
+CLI (with projects/environments registered in Hop config):
+
+[source,bash]
+----
+cd $HOP_HOME   # e.g. assemblies/client/target/hop
+export HOP_CONFIG_FOLDER=/path/to/your/hop-config-dir
+./hop run -j my-project -e my-databricks-env \
+  -f main-deploy-to-databricks.hwf -r local -l BASIC
+----
+
+[[artifact-storage]]
+== Artifact storage: UC Volumes vs DBFS
+
+Modern workspaces often have **public DBFS root disabled**. Uploads to
+`dbfs:/FileStore/…` then fail with:
+
+----
+PERMISSION_DENIED: Public DBFS root is disabled
+----
+
+=== Prefer Unity Catalog Volumes
+
+. Create a volume (e.g. catalog `apache-hop`, schema `default`, volume `jars`).
+. Set **Upload base directory** on Job Run Deploy & run to something like:
+
+----
+/Volumes/apache-hop/default/jars
+----
+
+Artifacts land as (names depend on jar content and entry pipeline stem):
+
+----
+/Volumes/apache-hop/default/jars/hop-native-2f80e51734a5.jar
+/Volumes/apache-hop/default/jars/hop-native-2f80e51734a5.jar.sha256
+/Volumes/apache-hop/default/jars/pipeline-hello-databricks.hpl
+/Volumes/apache-hop/default/jars/metadata-hello-databricks.json
+/Volumes/apache-hop/default/jars/hop-spark-package-hello-databricks.zip
+----
+
+The `.sha256` sidecar next to the content-addressed jar lets later deploys **skip re-uploading** the same bytes (see <<faq-skip-jar-upload>>). The content-addressed **filename** is what forces Databricks to treat a new jar as a new job library (see <<lesson-fat-jar-library-uri>>).
+
+.UC Volume after deploy: fat jar, SHA-256 sidecar, exported metadata, and pipeline
+image::pipeline/spark/databricks-workspace-catalog-jars-volume.png[Databricks Catalog Explorer volume jars showing hop-native jar, checksum sidecar, metadata, and pipeline artifacts,width=80%]
+
+=== Which upload API Hop uses
+
+[options="header",cols="1,2,2"]
+|===
+|Path prefix |API |Notes
+
+|`/Volumes/…` or `/Workspace/…`
+|**Files API** — `PUT /api/2.0/fs/files{path}?overwrite=true` with `Content-Type: application/octet-stream`
+|Required for UC Volumes. Single streaming PUT (up to ~5 GiB). Parent folders/volume must exist and be writable by the PAT.
+
+|Classic `dbfs:/FileStore/…` (or other non-Volume paths)
+|**Legacy DBFS** — `dbfs/create` → `add-block` → `close`
+|Only where public DBFS root is still enabled. Not interchangeable with Volumes.
+|===
+
+If logs still show `POST /api/2.0/dbfs/create` for a `/Volumes/…` path, the running plugin jar is almost certainly **older than the Files API fix** — rebuild/copy `hop-tech-databricks` into the client `plugins/tech/databricks` folder and restart Hop.
+
+Job library and MainSpark parameter paths for volumes stay as absolute `/Volumes/…` (no `dbfs:` scheme).
+
+== Compute modes (Deploy & run)
+
+The **Cluster / compute** field accepts one of:
+
+[options="header",cols="1,2,2"]
+|===
+|Value |Jobs API shape |When to use
+
+|**Existing cluster id**
+|Task: `existing_cluster_id` + task `libraries` (jar)
+|You already started a classic all-purpose cluster. Paste its cluster id.
+
+|Literal **`new_cluster`**
+|Task: nested `new_cluster` object (`spark_version`, `node_type_id`, `num_workers`, …) + task `libraries`
+|Classic **job cluster**: Databricks creates a cluster for the run and tears it down afterward (similar idea to ephemeral Dataflow workers). **Not** the string `"existing_cluster_id": "new_cluster"`.
+
+|Literal **`serverless`**
+|Job: `environments` with `environment_key` + `spec.client` + `java_dependencies`; task: `environment_key` only (no cluster fields, no task `libraries`)
+|Serverless-only workspaces. JAR-on-serverless is a different product surface (runtime limits, library rules). Prefer classic for Hop native Spark 4.x / Java 21 style deploy until you explicitly target serverless.
+|===
+
+=== Classic job cluster (`new_cluster`) defaults
+
+When the field is `new_cluster`, Hop can build:
+
+[source,json]
+----
+"new_cluster": {
+  "spark_version": "18.2.x-scala2.13",
+  "node_type_id": "i3.xlarge",
+  "num_workers": 1
+}
+----
+
+* **`spark_version`** — Databricks Runtime string. Example: `18.2.x-scala2.13` (DBR line shipping Spark 4.1.x / Scala 2.13). Align with the runtime you validated for the fat jar.
+* **`node_type_id`** — cloud-specific. On **AWS**, prefer **`i3.xlarge`** (local NVMe SSD; no extra EBS block required). Avoid bare `m5.xlarge` without EBS (see <<faq-ebs-m5>>). Azure example: `Standard_DS3_v2`. Wrong type → create-job 400.
+* **`num_workers`** — worker count (string fields support variables).
+* Optional **full new_cluster JSON** overrides the structured fields when you need more knobs (Spark conf, single-node, EBS volumes, etc.).
+
+[[spark-conf-cores]]
+==== Match Spark cores and parallelism to the node
+
+Hop’s simple `new_cluster` defaults only set `spark_version`, `node_type_id`, and `num_workers`. Without explicit Spark conf, DBR may under-use the instance CPUs and multi-million-row Hop pipelines can crawl even when the cluster looks “idle.”
+
+**Tune `spark_conf` so cores and default parallelism match the machine you bought.** Example for **one worker `i3.xlarge` (4 vCPUs)** with the driver and executor sharing that capacity:
+
+[source,json]
+----
+"new_cluster": {
+  "spark_version": "18.2.x-scala2.13",
+  "node_type_id": "i3.xlarge",
+  "num_workers": 1,
+  "spark_conf": {
+    "spark.executor.cores": "3",
+    "spark.driver.cores": "1",
+    "spark.default.parallelism": "12",
+    "spark.sql.shuffle.partitions": "12"
+  }
+}
+----
+
+| Setting | Example (1× `i3.xlarge`, 4 cores) | Intent |
+| --- | --- | --- |
+| `spark.executor.cores` | `3` | Executor threads on the worker |
+| `spark.driver.cores` | `1` | Driver share of the same node (3+1 = 4 cores available) |
+| `spark.default.parallelism` | `12` | Default RDD partitions (often a few × total cores) |
+| `spark.sql.shuffle.partitions` | `12` | Shuffle partitions; keep in the same ballpark |
+
+Put this under **optional new_cluster JSON** on the Job Run **Compute** tab (cluster field = `new_cluster`). Scale the numbers when you change node type or worker count (more workers → more total cores → raise parallelism/partitions).
+
+**Observed impact (Hello-style multi-million-row Native Spark pipeline on classic job compute):** pipeline **execution** dropped from on the order of **~10 minutes** to about **~41 seconds** after applying the conf above — cold start / Pending time is unchanged (see <<job-cluster-cold-start>>).
+
+[[job-cluster-cold-start]]
+==== Job cluster cold start is slow
+
+With **`new_cluster`**, Databricks provisions a fresh classic job cluster for the run. That is **not** instant: cloud VMs, DBR image pull, and Spark/JVM startup often take **several minutes**. A small sample such as *Hello Databricks* can sit in **Pending / Initializing** for **~8 minutes or more** before the pipeline itself starts — especially on the first run of a node type/runtime in the account.
+
+.Jobs UI: *Hello Databricks* run stuck in Initializing while the classic job cluster starts (normal; often many minutes)
+image::pipeline/spark/databricks-jobs-pipelines-hello-databricks-initializing.png[Databricks Jobs run for Hello Databricks showing pipeline Initializing while the job cluster starts,width=90%]
+
+Once the cluster is up, the same run moves to **Running** and a tiny pipeline usually finishes quickly:
+
+.Jobs UI: *Hello Databricks* pipeline Running after the job cluster is ready
+image::pipeline/spark/databricks-jobs-pipelines-hello-databricks-running.png[Databricks Jobs run for Hello Databricks showing pipeline Running,width=90%]
+
+When the fat jar includes the TrapExit-safe `MainSpark` exit path, the same run ends as **Succeeded**:
+
+.Jobs UI: *Hello Databricks* pipeline Succeeded (after cluster start + pipeline run)
+image::pipeline/spark/databricks-jobs-pipelines-hello-databricks-succeeded.png[Databricks Jobs run for Hello Databricks showing pipeline Succeeded,width=90%]
+
+Even a trivial *Hello Databricks* job still pays **Spark / JVM baseline** on the driver container: metrics often show on the order of **~4 GB** of container memory used (not “a few MB for three transforms”). That is expected overhead for DBR + Spark + loading the fat jar — size your node type for the **platform floor**, not only for row volume.
+
+.Metrics: *Hello Databricks* container memory used ~4 GB vs a much higher limit on `i3.xlarge`
+image::pipeline/spark/databricks-jobs-pipelines-hello-databricks-memory-usage-4gb.png[Databricks container memory usage chart for Hello Databricks showing about 4 GB used,width=90%]
+
+Plan timeouts accordingly:
+
+* On **Databricks Job Run** (wait mode) or **Databricks Job Wait**, set **timeout** high enough for **jar upload (first time) + cluster start + pipeline run** — e.g. **3600s** (1 hour), not a few minutes.
+* Prefer fire-and-forget + Job Wait if you do not want the workflow action to hold a long poll in one step.
+* **Existing all-purpose cluster** (already Running) avoids most of this wait; **`new_cluster`** always pays the cold-start cost each run.
+
+=== Existing classic cluster
+
+. In Databricks UI: **Compute** → create/start a classic all-purpose cluster on the new workspace.
+. **Access mode must be Dedicated (single user)** — not **Standard** (shared) and not Serverless. Standard/Serverless use **Spark Connect**, which does **not** expose `SparkContext`. Hop Native Spark needs a real context for RDDs, accumulators, and mapPartitions.
+. Wait until **Running**.
+. Copy **Cluster ID**.
+. Set **Cluster / compute** to that id (not `new_cluster` / not `serverless`).
+. Leave job id empty on first create; after success, store `${DatabricksJobId}` if you enable **Update existing job**.
+
+If you see:
+
+----
+[UNSUPPORTED_CONNECT_FEATURE.SESSION_SPARK_CONTEXT] Feature is not supported in Spark Connect:
+SparkContext is not available on Standard access mode or Serverless compute.
+Switch to Dedicated access mode to access it.
+----
+
+…the cluster is the wrong access mode. Either switch the all-purpose cluster to **Dedicated**, or use Deploy & run with **`new_cluster`** (classic job cluster), which provides a full SparkContext.
+
+== FAQ
+
+[[faq-ebs-m5]]
+=== Create job fails: “At least one EBS volume must be attached … node type m5.xlarge”
+
+**Symptom**
+
+----
+Databricks API HTTP 400 for POST /api/2.1/jobs/create
+INVALID_PARAMETER_VALUE
+At least one EBS volume must be attached for clusters created with node type m5.xlarge.
+----
+
+**Cause**
+
+On AWS, **`m5.xlarge`** (and many non-`i3` instance types) do not ship local instance store disks that Databricks can use as worker/driver local storage for a classic job cluster. Databricks then requires an **EBS volume** attachment in the `new_cluster` definition. Hop’s simple defaults only set `spark_version`, `node_type_id`, and `num_workers` — no EBS block — so `m5.xlarge` fails at `jobs/create`.
+
+**Fix (simplest, recommended on AWS)**
+
+Switch **`node_type_id`** to **`i3.xlarge`** (or another **`i3.*`** size that fits your budget).
+
+* `i3` instances include **local NVMe SSDs**, so Databricks does **not** require extra EBS configuration for a basic job cluster.
+* `i3.xlarge` is a commonly used worker type for Databricks jobs.
+
+In the Job Run dialog (Deploy & run, cluster field = `new_cluster`):
+
+* Set **new_cluster node_type_id** to `i3.xlarge`
+
+Or in optional **new_cluster JSON**:
+
+[source,json]
+----
+{
+  "spark_version": "18.2.x-scala2.13",
+  "node_type_id": "i3.xlarge",
+  "num_workers": 1
+}
+----
+
+**Alternative**
+
+Keep `m5.xlarge` (or similar) and supply a full `new_cluster` JSON that includes the required **EBS volume** settings for your account/cloud (see Databricks Jobs API / cluster create docs for `aws_attributes` / disk specs). Prefer `i3.xlarge` unless you have a reason to stay on EBS-backed types.
+
+=== Other common create/deploy errors
+
+[options="header",cols="1,2"]
+|===
+|Message (summary) |What to do
+
+|Public DBFS root is disabled / FileStore access denied
+|Use a UC Volume path (`/Volumes/…`), not `dbfs:/FileStore/…`. See <<artifact-storage, artifact storage>> above.
+
+|`/Volumes/… cannot be opened for writing` with `dbfs/create`
+|Volume path must use the **Files API**, not legacy DBFS. Rebuild/update the Databricks plugin; upload base should start with `/Volumes/`.
+
+|Cluster `new_cluster` does not exist
+|Do not put the word `new_cluster` as an existing cluster id without the nested object. Use cluster field **`new_cluster`** so Hop emits a real `new_cluster` block.
+
+|Only serverless compute is supported
+|Workspace is serverless-only. Use classic-capable workspace/tier for MainSpark JAR, or `serverless` compute mode (different job shape; not the default for Hop native Spark 4.x / Java 21 style deploy).
+|===
+
+[[faq-exit-marks-failed]]
+=== Pipeline log says success but Databricks marks the job **Failed**
+
+**Symptom**
+
+Driver stdout looks healthy, for example:
+
+----
+Spark pipeline finished, result row count=1000
+>>>>>> Execution finished...
+----
+
+…then Databricks Jobs still shows the run as **Failed**. You may also see:
+
+----
+Error running native Spark pipeline: Program attempted to exit with code 0
+com.databricks.backend.daemon.driver.ExitSecurityException: Program attempted to exit with code 0
+    at com.databricks.backend.daemon.driver.TrapExitSecurityManager.checkExit(...)
+    at java.base/java.lang.System.exit(...)
+    at org.apache.hop.spark.run.MainSpark.main(...)
+----
+
+Logs may mention cleaning a REPL wrapper. A line such as `Hop configuration file not found … /databricks/driver/config/hop-config.json` is **benign** (Hop skips serializing config when that path is missing).
+
+**Cause**
+
+Databricks installs **`TrapExitSecurityManager`**: any `System.exit` (including **code 0**) throws **`ExitSecurityException`** instead of ending the process. Older `MainSpark` called `System.exit(0)` after a successful pipeline; the security manager blocked it, and the generic catch block mis-reported that as *Error running native Spark pipeline*, so Jobs marked the run **Failed** even though Spark finished (`result row count=1000`). Same class of issue as Databricks KB *“Job fails, but Apache Spark tasks finish”*.
+
+**Fix**
+
+* Use a fat jar where `MainSpark` **returns from `main` without `System.exit(0)`** on Databricks (env / `SPARK_HOME` under `/databricks` / TrapExit security manager), and treats a trapped exit-0 as success if exit is still attempted.
+* Rebuild **native-provided** fat jar, re-upload (or refresh via size/checksum skip), and re-run.
+* On plain `spark-submit` (non-Databricks), success still uses `System.exit(0)` so non-daemon Spark threads do not hang the JVM.
+
+**Healthy driver log (success)** — Jobs UI should show **Succeeded**:
+
+----
+>>>>>> Initializing Hop
+Hop configuration file not found, not serializing: /databricks/driver/config/hop-config.json
+Argument : Pipeline path (.hpl)               : /Volumes/apache-hop/default/jars/pipeline.hpl
+Argument : Metadata export (.json)            : /Volumes/apache-hop/default/jars/metadata.json
+Argument : Pipeline run configuration         : databricks-native
+>>>>>> Loading pipeline metadata
+>>>>>> Validating native Spark engine plugin in fat jar...
+>>>>>> SPARK_HOME=/databricks/spark
+>>>>>> Pipeline execution starting (native Spark)...
+2026/07/18 13:06:41 - pipeline - Prepared native Spark pipeline engine with run configuration 'databricks-native' (master=)
+2026/07/18 13:06:41 - pipeline - Reusing active SparkSession (version=4.1.0, spark-submit or existing driver context)
+2026/07/18 13:06:53 - General - Handled transform '5M rows' with generic Spark DISTRIBUTED (plugin id=RowGenerator)
+2026/07/18 13:06:54 - General - Handled transform 'uuid' with generic Spark DISTRIBUTED (plugin id=RandomValue)
+2026/07/18 13:06:54 - General - Handled transform 'results' with generic Spark DISTRIBUTED (plugin id=Dummy)
+2026/07/18 13:16:43 - pipeline - Spark pipeline finished, result row count=5000000
+>>>>>> Execution finished...
+>>>>>> Skipping System.exit(0) (Databricks / TrapExit security manager)
+----
+
+Notes on that log:
+
+* `Hop configuration file not found … hop-config.json` — **benign**.
+* `Reusing active SparkSession` — expected on Databricks (do not `spark.stop()` / do not force a second context).
+* `Handled transform …` lines are **graph build** (seconds); wall time until `result row count=…` is the real work.
+* Final line **`Skipping System.exit(0) (Databricks / TrapExit security manager)`** is the success marker for the exit fix above; the Jobs UI should show **Succeeded** (see the screenshot under <<job-cluster-cold-start>>).
+* Example timing: without core/parallelism conf, **5 000 000** rows can take on the order of **~10 minutes** on classic job compute; with <<spark-conf-cores, cores matched to the node>> (e.g. 3+1 on `i3.xlarge`), the same style workload has been seen around **~40 seconds** of *execution* time. A pure Spark SQL `range` job would still be faster; Hop generic transforms are not that path (see also <<faq-low-cpu-rowgen>>).
+
+[[faq-low-cpu-rowgen]]
+=== Low cluster CPU / slow Row Generator (millions of rows)
+
+**Symptom**
+
+Databricks metrics show only **~5–7%** cluster CPU while a multi-million-row pipeline runs for many minutes. You expected “a few seconds” for 5M rows.
+
+**Cause**
+
+Source transforms such as **Generate rows** are wired as **one empty driver row → `repartition(1)` → one `mapPartitions` task**. Downstream generic transforms (e.g. Random value, Dummy) stay on that **single partition** unless something shuffles. Each partition runs a **single-threaded Hop mini-pipeline** (not Catalyst `range`), and the engine materializes with `Dataset.count()` at the end. Cluster-wide CPU stays low because **most cores never get a task**.
+
+**What to expect**
+
+* Spark UI: source transforms such as Generate rows still often start as **1 task** (see engine design).
+* Still set <<spark-conf-cores, executor/driver cores and shuffle partitions>> so DBR uses the CPUs you pay for — under-configured clusters show low CPU and multi-minute runs for millions of rows even after the cluster is “Running”.
+* Wall clock for generic Hop transforms remains higher than pure Spark SQL; local clusters show the same architectural limits.
+
+**When you need real scale**
+
+Prefer partitioned sources (files, lake tables, or a multi-partition generator), keep high-volume work in native Spark I/O where possible, and treat generic Hop `mapPartitions` as **compatibility**, not as a bulk SQL engine.
+
+[[faq-grpc-context]]
+=== Job fails at init: `NoClassDefFoundError: io/grpc/Context`
+
+**Symptom**
+
+----
+Error running native Spark pipeline:
+java.lang.NoClassDefFoundError: io/grpc/Context
+  at … GoogleCredentials.getApplicationDefault …
+  at org.apache.hop.vfs.gs.GoogleStorageFileProvider …
+  at org.apache.hop.core.HopEnvironment.init …
+  at org.apache.hop.spark.run.MainSpark.main …
+----
+
+**Cause**
+
+During `HopEnvironment.init`, Hop registers VFS plugins. The **Google Storage** VFS provider used to call **Application Default Credentials** immediately. That path probes the GCE metadata service and needs **`io.grpc.Context`**. A **native-provided** fat jar typically includes Beam’s *vendored* gRPC (`org.apache.beam.vendor.grpc…`) but **not** plain `io.grpc.*`. On **Databricks AWS** (not GCP) ADC is unnecessary for a simple Hello pipeline, but the missing class still aborted Hop startup.
+
+**Fix**
+
+* Use a Hop build where Google Storage VFS **does not fail Hop init** when ADC/gRPC is unavailable (credentials loaded only when a key is configured, and linkage errors are swallowed for the default provider).
+* Rebuild the fat jar from that install and re-upload (or let skip-upload refresh the sidecar after you replace the jar).
+* If you actually need `gs://` on the cluster, either ship a service account key config or ensure full Google auth/gRPC libraries are on the driver classpath (not only Beam-vendored gRPC).
+
+== Fat jar and pipeline run configuration
+
+. Build a **native-provided** fat jar (Spark provided by the cluster, not bundled):
+
+[source,bash]
+----
+./hop-conf.sh \
+  --generate-fat-jar=/path/to/hop-native-spark-submit.jar \
+  --spark-client-version=native-provided
+----
+
+. Create a **Native Spark** pipeline run configuration in project metadata (name is exported into `metadata.json`). Deploy & run passes that name as the third MainSpark argument.
+. Point Deploy & run at:
+  * fat jar path (variables OK, e.g. `${PROJECT_HOME}/work/….jar`)
+  * pipeline `.hpl`
+  * that run configuration name
+  * upload base under a Volume
+  * classic compute (existing id or `new_cluster`)
+
+First jar upload is slow (hundreds of MB). Classic **`new_cluster`** cold start is also slow (often **~8+ minutes** of Pending/Initializing before a tiny pipeline runs — see above). Timeouts on the action should allow for upload **plus** cluster start **plus** the pipeline (e.g. **3600s**).
+
+[[faq-skip-jar-upload]]
+=== Fat jar re-upload every run is slow — can Hop skip it?
+
+**Yes (content-addressed path + size + checksum sidecar).** Deploy & run computes the local fat jar’s SHA-256 and targets:
+
+----
+{upload-base}/hop-native-<first-12-hex-of-sha>.jar
+{upload-base}/hop-native-<first-12-hex-of-sha>.jar.sha256
+----
+
+. Probe that **content-addressed** remote path for **file size** (Files API metadata / DBFS get-status).
+. If size matches, download the tiny sidecar and compare to the local **SHA-256**.
+. If both match → log *Skipping fat jar upload* and leave the remote jar as-is (same library URI as last time).
+. If the local jar content changed → the remote **filename** changes → upload a new object and point the job library at the new URI (see <<lesson-fat-jar-library-uri>>).
+
+Pipeline (`.hpl`) and metadata JSON are still uploaded each run when used (they are small). Project package zips are per-pipeline stem.
+
+**Manual check** (without Hop):
+
+[source,bash]
+----
+ls -l work/hop-native-spark4-submit.jar
+sha256sum work/hop-native-spark4-submit.jar
+# First 12 hex chars of that sum → hop-native-<12hex>.jar on the Volume
+
+# Remote size (example Files API HEAD)
+curl -sS -I -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+  "https://$DATABRICKS_HOST/api/2.0/fs/files/Volumes/.../hop-native-<12hex>.jar"
+----
+
+Databricks does **not** expose a standard content MD5/SHA for volume files comparable to S3 ETag, so Hop stores its own `.sha256` sidecar next to the jar. The **filename prefix** is the operational identity for job libraries; the sidecar is for skip-upload efficiency.
+
+== End-to-end checklist
+
+* [ ] Workspace allows **classic** compute (Premium or equivalent); not Free/serverless-only for JAR deploy
+* [ ] Databricks Connection + variables for host/token; Test connection succeeds
+* [ ] UC Volume exists and PAT can write; upload base is `/Volumes/…` (not disabled FileStore)
+* [ ] Client assembly includes current `hop-tech-databricks` plugin (Files API + compute modes)
+* [ ] Fat jar `native-provided`; Native Spark run config name matches deploy field
+* [ ] After a fat jar rebuild: deploy log shows content-addressed `hop-native-<sha12>.jar` (or restart Dedicated cluster if still on a fixed library path); driver log shows expected `pkg-dist-…` / MainSpark fingerprint when debugging library freshness
+* [ ] Cluster / compute = existing classic id **or** `new_cluster` with valid `node_type_id` / `spark_version`
+* [ ] Job id empty on first create; wait mode and timeout sized for upload + **job cluster cold start** (often 8+ minutes) + pipeline run
+* [ ] After success: note Job ID, Run ID, run page URL variables; open run in Databricks UI
+
+== Related
+
+* xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
+* xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait]
+* xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
+* xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark run configuration]
+* xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems]
+* xref:database/databases/databricks.adoc[Databricks JDBC] (SQL warehouse — separate use case)
+* xref:metadata-types/spark-catalog.adoc[Spark Catalog] (Unity Catalog templates for lakehouse TABLE mode)

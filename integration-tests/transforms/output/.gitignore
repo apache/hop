@@ -1,0 +1,4 @@
+# Temp files written by integration tests (Excel writer, etc.)
+*
+!.gitignore
+!.gitkeep

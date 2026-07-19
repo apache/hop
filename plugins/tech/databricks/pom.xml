@@ -29,4 +29,14 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Technology Databricks</name>
 
+    <dependencies>
+        <!-- WireMock for Jobs API REST client tests -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8-standalone</artifactId>
+            <version>2.35.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -19,9 +19,20 @@ package org.apache.hop.ui.core.gui;
 
 public interface IGuiPluginCompositeButtonsListener {
   /**
-   * This method is called when one of the buttons is pressed
+   * Called when a composite button is pressed, <strong>before</strong> the annotated button method
+   * runs. Typical use: flush widget contents into {@code sourceObject}.
    *
-   * @param sourceObject The source object
+   * @param sourceObject The source object behind the composite widgets
    */
   void buttonPressed(Object sourceObject);
+
+  /**
+   * Called after the annotated button method returns successfully. Typical use: re-bind widgets
+   * from {@code sourceObject} when the button mutated it (e.g. load template).
+   *
+   * @param sourceObject The source object behind the composite widgets
+   */
+  default void afterButtonPressed(Object sourceObject) {
+    // optional
+  }
 }

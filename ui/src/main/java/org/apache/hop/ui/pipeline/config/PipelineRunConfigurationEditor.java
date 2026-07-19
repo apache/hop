@@ -460,6 +460,42 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
               setChanged();
             }
           });
+      // Flush form → model before button methods; re-bind model → form after mutations
+      // (e.g. Load configuration template). Do not call setWidgetsContent() here: that sets
+      // wPluginType and can fire changeConnectionType, which re-reads the still-stale widgets
+      // and overwrites the template values just applied to the model.
+      guiCompositeWidgets.setCompositeButtonsListener(
+          new org.apache.hop.ui.core.gui.IGuiPluginCompositeButtonsListener() {
+            @Override
+            public void buttonPressed(Object sourceObject) {
+              if (sourceObject != null) {
+                guiCompositeWidgets.getWidgetsContents(
+                    sourceObject, PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+              }
+            }
+
+            @Override
+            public void afterButtonPressed(Object sourceObject) {
+              IPipelineEngineRunConfiguration engine =
+                  sourceObject instanceof IPipelineEngineRunConfiguration
+                      ? (IPipelineEngineRunConfiguration) sourceObject
+                      : workingConfiguration.getEngineRunConfiguration();
+              if (engine != null) {
+                workingConfiguration.setEngineRunConfiguration(engine);
+              }
+              if (engine != null
+                  && guiCompositeWidgets != null
+                  && wPluginSpecificComp != null
+                  && !wPluginSpecificComp.isDisposed()) {
+                guiCompositeWidgets.setWidgetsContents(
+                    engine,
+                    wPluginSpecificComp,
+                    PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+                wPluginSpecificComp.layout(true, true);
+              }
+              setChanged();
+            }
+          });
     }
   }
 
@@ -528,14 +564,26 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wExecutionInfoLocation.setText(
         Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
     if (workingConfiguration.getEngineRunConfiguration() != null) {
-      wPluginType.setText(
-          Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), ""));
-      guiCompositeWidgets.setWidgetsContents(
-          workingConfiguration.getEngineRunConfiguration(),
-          wPluginSpecificComp,
-          PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+      // Only update the engine-type combo when the value actually changes. Unconditional
+      // setText fires SWT.Modify → changeConnectionType, which re-reads plugin widgets and
+      // can wipe in-memory mutations (e.g. after Load configuration template).
+      String pluginName =
+          Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), "");
+      if (!pluginName.equals(Const.NVL(wPluginType.getText(), ""))) {
+        wPluginType.setText(pluginName);
+      }
+      if (guiCompositeWidgets != null
+          && wPluginSpecificComp != null
+          && !wPluginSpecificComp.isDisposed()) {
+        guiCompositeWidgets.setWidgetsContents(
+            workingConfiguration.getEngineRunConfiguration(),
+            wPluginSpecificComp,
+            PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+      }
     } else {
-      wPluginType.setText("");
+      if (!wPluginType.getText().isEmpty()) {
+        wPluginType.setText("");
+      }
     }
 
     try {

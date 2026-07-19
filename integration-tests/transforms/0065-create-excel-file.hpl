@@ -118,7 +118,7 @@ limitations under the License.
       <filename_in_field>N</filename_in_field>
       <if_file_exists>new</if_file_exists>
       <if_sheet_exists>new</if_sheet_exists>
-      <name>${PROJECT_HOME}/files/excel/temp-excel-output</name>
+      <name>${PROJECT_HOME}/output/temp-excel-output</name>
       <password/>
       <protect_sheet>N</protect_sheet>
       <protected_by/>

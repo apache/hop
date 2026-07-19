@@ -1,0 +1,38 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<dependencies>
+    <!-- Native handlers need transform metadata classes on the driver -->
+    <folder>../../transforms/memgroupby</folder>
+    <folder>../../transforms/mergejoin</folder>
+    <folder>../../transforms/uniquerows</folder>
+    <folder>../../transforms/sort</folder>
+    <!-- Common generic mapPartitions transforms -->
+    <folder>../../transforms/constant</folder>
+    <folder>../../transforms/filterrows</folder>
+    <folder>../../transforms/switchcase</folder>
+    <folder>../../transforms/calculator</folder>
+    <folder>../../transforms/selectvalues</folder>
+    <folder>../../transforms/dummy</folder>
+    <folder>../../transforms/rowgenerator</folder>
+    <folder>../../transforms/streamlookup</folder>
+    <folder>../../transforms/stringoperations</folder>
+    <!-- Classic I/O for POC lookups (often single-threaded sources; writers use Transform.ID) -->
+    <folder>../../transforms/textfile</folder>
+    <folder>../../transforms/getfilenames</folder>
+    <folder>../../transforms/excel</folder>
+</dependencies>

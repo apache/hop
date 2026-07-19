@@ -1,0 +1,14 @@
+{
+  "variables" : [
+    {
+      "name" : "HOP_DATA",
+      "value" : "/tmp/spark-demo-dist/hop-data",
+      "description" : "Shared Docker volume for Spark Dataset I/O on all workers (not package PROJECT_HOME)"
+    },
+    {
+      "name" : "EXECUTIONS_INFORMATION_FOLDER",
+      "value" : "/tmp/spark-demo-dist/hop-data/executions/",
+      "description" : ""
+    }
+  ]
+}

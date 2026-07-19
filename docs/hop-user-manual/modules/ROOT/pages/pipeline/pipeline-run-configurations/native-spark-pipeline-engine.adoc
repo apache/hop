@@ -1,0 +1,218 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[NativeSparkPipelineEngine]]
+:imagesdir: ../../../assets/images
+:description: Apache Hop native Spark pipeline engine run configuration options (Spark 4.1.x without Beam).
+
+= Native Spark Pipeline Engine
+
+== Overview
+
+The native Spark pipeline engine executes batch Hop pipelines on *Apache Spark 4.1.x* without Apache Beam.
+It builds a Spark SQL Dataset graph from the pipeline and runs transforms via native Dataset operators or generic `mapPartitions` mini-pipelines.
+
+For a full introduction — concepts, `local[*]`, fat jar, `spark-submit`, Spark File I/O, `${Internal.Transform.ID}`, metrics, limitations, and integration-test examples — see
+xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine].
+
+Paths on *Spark File* and *Lake Table* transforms are **Spark/Hadoop URIs**, not Hop VFS schemes — see
+xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
+
+This page is *not* the same as xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark], which runs Hop over the Apache Beam Spark runner (Spark 3.5.x line).
+
+image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[Native Spark pipeline run configuration editor,width=70%]
+
+=== Requirements
+
+* Java 21
+* Spark 4.1.x (bundled under `plugins/engines/spark/lib` for `local[*]`)
+
+=== Options
+
+==== Load configuration template
+
+Use **Load configuration template** to fill the fields below from a common deployment style:
+
+* *Local execution* — `local[*]`, Spark UI off (embedded Spark in Hop)
+* *Local (capped cores)* — `local[4]`
+* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory
+* *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar
+* *Databricks* — submit-oriented placeholders (master empty); set workspace-specific values yourself
+* *YARN client* — master `yarn`, client deploy mode
+* *Lakehouse local* — same as local; Delta/Iceberg connectors live on the plugin classpath
+
+Templates replace the current engine options after confirmation when the form already has custom values. The form fields update immediately after you apply a template. Edit values afterward as needed.
+
+For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode, see xref:metadata-types/spark-catalog.adoc[Spark Catalog] (**Load catalog template**).
+
+[options="header",cols="1,3,1"]
+|===
+|Option |Description |Default
+
+|Spark master
+|Spark master URL: `local[*]`, `local[4]`, or `spark://host:7077`. Leave empty under `spark-submit` so the CLI master is used.
+|`local[*]`
+
+|Application name
+|Spark application name.
+|`Apache Hop`
+
+|Fat jar file location
+|Optional Hop fat jar staged for executors when Hop starts the Spark session. Leave empty for pure `spark-submit` with a native-provided fat jar.
+|
+
+|Spark config (key=value lines)
+|Additional SparkConf entries, one `key=value` per line.
+|
+
+|Driver memory
+|`spark.driver.memory` (e.g. `2g`).
+|
+
+|Executor memory
+|`spark.executor.memory`.
+|
+
+|Executor cores
+|`spark.executor.cores`.
+|
+
+|Temp location
+|Directory for temporary files.
+|JVM temp dir
+
+|Plugins to stage
+|Optional comma-separated plugin folders to stage on the cluster.
+|
+
+|Path scheme map (`from=to` lines)
+|Optional URI scheme rewrite for *Spark File* / *Lake PATH* only (e.g. `s3=s3a`, `minio=s3a`). Does not apply to classic Hop VFS transforms. Configure target FS (e.g. `spark.hadoop.fs.s3a.*`) separately. See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
+|
+
+|Generic transform run mode
+|Default for Hop transforms that run as `mapPartitions` mini-pipelines (Workflow Executor, most classic transforms). `DISTRIBUTED` fans work out across Spark partitions/nodes. `DRIVER_ONLY` materializes the transform input on the Spark driver and runs the mini-pipeline once there, so nested workflows do not execute on multiple nodes. Override per transform with the *Spark Run Mode* context action on the canvas.
+|`DISTRIBUTED`
+|===
+
+Also configure *Execution information location* and *Execution data profile* on the run configuration main tab when you want GUI metrics history and row samples.
+
+==== Generic transform run mode and per-transform override
+
+Most classic Hop transforms (including *Workflow Executor*, *Pipeline Executor*, and mappings) execute on Native Spark as generic `mapPartitions` work. When the input Dataset has many partitions, Spark can run that nested work on multiple executors at once. That is often desirable for pure row transforms, but nested workflows or other non-reentrant side effects may need a single place of execution.
+
+* **Run configuration default** — *Generic transform run mode*: `DISTRIBUTED` (default) or `DRIVER_ONLY`.
+* **Per-transform override** — right-click a transform → *Spark Run Mode*:
+** *Inherit* — use the run configuration default
+** *Force distributed* — always use `mapPartitions` across partitions
+** *Force Driver Only* — always run this transform's mini-pipeline on the Spark driver
++
+The override is stored on the transform (`attributes` group `spark` / key `run_mode`) and is saved with the pipeline. When a force override is set, a small badge is drawn at the **bottom-left** of the transform icon.
+
+image::pipeline/spark/native-spark-run-mode-force-driver.png[Transform with Force Driver Only Spark run-mode badge,width=70%]
+
+Native Dataset handlers (Spark File / Lake Table, Memory Group By, Sort, Unique, Merge Join) ignore this setting.
+
+[NOTE]
+====
+`DRIVER_ONLY` collects that transform's input rows on the driver. Prefer `DISTRIBUTED` for high-volume data; use driver-only for nested execution control (for example a Workflow Executor over a modest set of control rows).
+====
+
+==== Nested Native Spark pipelines (orchestrator pattern)
+
+A parent Native Spark pipeline can start **child** Native Spark pipelines via **Pipeline Executor** (run configuration = Native Spark):
+
+* Put **Force Driver Only** (or run-config `DRIVER_ONLY`) on the Pipeline Executor so children start on the driver.
+* Each child **reuses the parent `SparkSession`** (same Spark application) — it does **not** start a second `spark-submit`.
+* Parameterize the child with control keys (country, month, partition) for paths and filters.
+* Nested engines **must not stop** the shared session when they finish.
+
+Do **not** run nested Native Spark executors under **DISTRIBUTED** mapPartitions on workers (no safe nested SparkContext). For multi-application isolation (separate Spark apps per key), use an external job launcher instead.
+
+Demo: sample project `spark-demo` pipeline `pipelines/03-run-pipelines.hpl` (see xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through]).
+
+[[transforms-not-supported-on-native-spark]]
+=== Transforms not supported on Native Spark
+
+Most classic Hop transforms run on Native Spark via native Dataset handlers or generic `mapPartitions`.
+The list below is taken from each transform’s *Supported Engines* table (**Native Spark** = Not Supported).
+When in doubt, open the transform page — that table is the source of truth.
+
+For broader design limits (copy/distribute, streaming, Spark SQL, MLlib), see
+xref:pipeline/spark/getting-started-with-native-spark.adoc#limitations-and-design-rules[Getting started — Limitations and design rules].
+
+==== Beam-only transforms
+
+Use a xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam] engine instead.
+
+* xref:pipeline/transforms/beambigqueryinput.adoc[BigQuery Input]
+* xref:pipeline/transforms/beambigqueryoutput.adoc[BigQuery Output]
+* xref:pipeline/transforms/beambigtableinput.adoc[Beam Bigtable Input]
+* xref:pipeline/transforms/beambigtableoutput.adoc[Beam Bigtable Output]
+* xref:pipeline/transforms/beamfileinput.adoc[Beam File Input]
+* xref:pipeline/transforms/beamfileoutput.adoc[Beam File Output]
+* xref:pipeline/transforms/beamgcppublisher.adoc[Beam GCP Pub/Sub : Publish]
+* xref:pipeline/transforms/beamgcpsubscriber.adoc[Beam GCP Pub/Sub : Subscribe]
+* xref:pipeline/transforms/beamhivecataloginput.adoc[Beam Hive Catalog Input]
+* xref:pipeline/transforms/beamkafkaconsume.adoc[Beam Kafka Consume]
+* xref:pipeline/transforms/beamkafkaproduce.adoc[Beam Kafka Produce]
+* xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis Consume]
+* xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis Produce]
+* xref:pipeline/transforms/beamtimestamp.adoc[Beam Timestamp]
+* xref:pipeline/transforms/beamwindow.adoc[Beam Window]
+
+==== Barriers, stream ordering, and merge-style transforms
+
+These rely on waiting for other transforms, full-stream ordering, or multi-stream merge semantics that do not map cleanly to a Spark Dataset graph.
+
+* xref:pipeline/transforms/analyticquery.adoc[Analytic Query]
+* xref:pipeline/transforms/append.adoc[Append Streams]
+* xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]
+* xref:pipeline/transforms/blockuntiltransformsfinish.adoc[Blocking until transforms finish]
+* xref:pipeline/transforms/detectemptystream.adoc[Detect Empty Stream]
+* xref:pipeline/transforms/identifylastrow.adoc[Identify last row in a stream]
+* xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
+* xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
+* xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge]
+* xref:pipeline/transforms/sortedschemamerge.adoc[Sorted Schema Merge]
+* xref:pipeline/transforms/streamschemamerge.adoc[Stream Schema Merge]
+
+==== Sorted aggregation and hash-set unique
+
+* xref:pipeline/transforms/groupby.adoc[Group By] — use xref:pipeline/transforms/memgroupby.adoc[Memory Group By] (native Spark `groupBy`) instead
+* xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] — use xref:pipeline/transforms/uniquerows.adoc[Unique Rows] where possible
+
+==== Workflow / pipeline result and control transforms
+
+Result-row and result-file hops, injectors, and metadata injection are not supported as Native Spark graph nodes.
+
+* xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result]
+* xref:pipeline/transforms/filesfromresult.adoc[Files from result]
+* xref:pipeline/transforms/filestoresult.adoc[Files to result]
+* xref:pipeline/transforms/getrowsfromresult.adoc[Get Rows from Result]
+* xref:pipeline/transforms/injector.adoc[Injector]
+* xref:pipeline/transforms/metainject.adoc[Metadata Injection]
+* xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe]
+* xref:pipeline/transforms/repeatfields.adoc[Repeat Fields]
+
+==== Other
+
+* xref:pipeline/transforms/kafkaconsumer.adoc[Kafka Consumer] — no native Spark structured-streaming / Kafka Dataset I/O; use Beam Kafka transforms on a Beam engine for Kafka pipelines
+
+=== Related
+
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine] (Delta Lake / Apache Iceberg)
+* xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark pipeline engine]
