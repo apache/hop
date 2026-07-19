@@ -442,7 +442,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           //
           data.groupSize = -1;
           if (!Utils.isEmpty(meta.getGroupSize())) {
-            data.groupSize = Const.toInt(resolve(meta.getGroupSize()), -1);
+            data.groupSize = Const.toIntExpanded(resolve(meta.getGroupSize()), -1);
           }
 
           // Is there a grouping time set?

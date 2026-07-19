@@ -360,6 +360,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdlMaxErrors.right = new FormAttachment(middle, -margin);
     wlMaxErrors.setLayoutData(fdlMaxErrors);
     wMaxErrors = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMaxErrors.enableExpandedInteger();
     PropsUi.setLook(wMaxErrors);
     wMaxErrors.addModifyListener(lsMod);
     FormData fdMaxErrors = new FormData();
@@ -378,6 +379,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdlCommit.right = new FormAttachment(middle, -margin);
     wlCommit.setLayoutData(fdlCommit);
     wCommit = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCommit.enableExpandedInteger();
     PropsUi.setLook(wCommit);
     wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();
@@ -396,6 +398,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdlBindSize.right = new FormAttachment(middle, -margin);
     wlBindSize.setLayoutData(fdlBindSize);
     wBindSize = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBindSize.enableExpandedInteger();
     PropsUi.setLook(wBindSize);
     wBindSize.addModifyListener(lsMod);
     FormData fdBindSize = new FormData();
@@ -414,6 +417,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdlReadSize.right = new FormAttachment(middle, -margin);
     wlReadSize.setLayoutData(fdlReadSize);
     wReadSize = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wReadSize.enableExpandedInteger();
     PropsUi.setLook(wReadSize);
     wReadSize.addModifyListener(lsMod);
     FormData fdReadSize = new FormData();

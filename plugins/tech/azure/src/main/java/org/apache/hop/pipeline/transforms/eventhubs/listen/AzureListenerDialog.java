@@ -249,6 +249,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchSize.enableExpandedInteger();
     PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();
@@ -267,6 +268,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdlPrefetchSize.top = new FormAttachment(lastControl, margin);
     wlPrefetchSize.setLayoutData(fdlPrefetchSize);
     wPrefetchSize = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPrefetchSize.enableExpandedInteger();
     PropsUi.setLook(wPrefetchSize);
     wPrefetchSize.addModifyListener(lsMod);
     FormData fdPrefetchSize = new FormData();

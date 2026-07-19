@@ -90,6 +90,7 @@ public class CloneRowDialog extends BaseTransformDialog {
     wlnrClone.setLayoutData(fdlnrClone);
 
     wnrClone = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wnrClone.enableExpandedInteger();
     PropsUi.setLook(wnrClone);
     wnrClone.setToolTipText(BaseMessages.getString(PKG, "CloneRowDialog.nrClone.Tooltip"));
     wnrClone.addModifyListener(lsMod);

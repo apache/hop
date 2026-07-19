@@ -491,7 +491,10 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if (super.init()) {
       try {
-        data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
+        String commitSize = resolve(meta.getCommitSize());
+        String expandedCommitSize = Const.expandIntegerString(commitSize);
+        data.commitSize =
+            Integer.parseInt(expandedCommitSize != null ? expandedCommitSize : commitSize);
 
         if (Utils.isEmpty(meta.getConnection()))
           throw new HopException(BaseMessages.getString(PKG, "TableOutput.Init.ConnectionMissing"));

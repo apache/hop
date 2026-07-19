@@ -56,7 +56,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
 
     if (first) {
       first = false;
-      realRowLimit = Const.toInt(resolve(meta.getRowLimit()), 0);
+      realRowLimit = Const.toIntExpanded(resolve(meta.getRowLimit()), 0);
     }
 
     try {

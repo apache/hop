@@ -59,6 +59,14 @@ public class TextVar extends Composite {
 
   protected Text wText;
 
+  /** Variable ($) indicator; always present. */
+  protected Label wVariableImage;
+
+  /** Optional expanded-integer (#) indicator; created by {@link #enableExpandedInteger()}. */
+  protected Label wHashImage;
+
+  protected FormData fdText;
+
   protected ModifyListener modifyListenerTooltipText;
 
   public TextVar(IVariables variables, Composite composite, int flags) {
@@ -158,22 +166,22 @@ public class TextVar extends Composite {
 
     // Add the variable $ image on the top right of the control
     //
-    Label wImage = new Label(this, SWT.NONE);
-    PropsUi.setLook(wImage);
-    wImage.setImage(GuiResource.getInstance().getImageVariableMini());
-    wImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
+    wVariableImage = new Label(this, SWT.NONE);
+    PropsUi.setLook(wVariableImage);
+    wVariableImage.setImage(GuiResource.getInstance().getImageVariableMini());
+    wVariableImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
     fdlImage.top = new FormAttachment(0, 0);
     fdlImage.right = new FormAttachment(100, 0);
-    wImage.setLayoutData(fdlImage);
+    wVariableImage.setLayoutData(fdlImage);
 
     // add a text field on it...
     wText = new Text(this, flags);
     PropsUi.setLook(wText);
-    FormData fdText = new FormData();
+    fdText = new FormData();
     fdText.top = new FormAttachment(0, 0);
     fdText.left = new FormAttachment(0, 0);
-    fdText.right = new FormAttachment(wImage, 0);
+    fdText.right = new FormAttachment(wVariableImage, 0);
     fdText.bottom = new FormAttachment(100, 0);
     wText.setLayoutData(fdText);
 
@@ -184,6 +192,38 @@ public class TextVar extends Composite {
         new ControlSpaceKeyAdapter(
             variables, wText, getCaretPositionInterface, insertTextInterface);
     wText.addKeyListener(controlSpaceKeyAdapter);
+  }
+
+  /**
+   * Show a mini {@code #} indicator that this field accepts expanded integer notation (grouping
+   * separators, k/m/g/b suffixes, scientific forms). Call after construction on fields that use
+   * {@link Const#toIntExpanded(String, int)} / {@link Const#toLongExpanded(String, long)}.
+   *
+   * <p>Layout becomes: {@code [ text ........ ] [#] [$]}. Safe to call more than once.
+   *
+   * @return this widget for chaining
+   */
+  public TextVar enableExpandedInteger() {
+    if (wHashImage != null || wVariableImage == null || wText == null) {
+      return this;
+    }
+
+    wHashImage = new Label(this, SWT.NONE);
+    PropsUi.setLook(wHashImage);
+    wHashImage.setImage(GuiResource.getInstance().getImageHashMini());
+    wHashImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.ExpandedInteger"));
+    FormData fdlHash = new FormData();
+    fdlHash.top = new FormAttachment(0, 0);
+    fdlHash.right = new FormAttachment(wVariableImage, 0);
+    wHashImage.setLayoutData(fdlHash);
+
+    // Rebind text field to end at the hash icon (left of $)
+    if (fdText != null) {
+      fdText.right = new FormAttachment(wHashImage, 0);
+      wText.setLayoutData(fdText);
+    }
+    layout(true, true);
+    return this;
   }
 
   /**
