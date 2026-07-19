@@ -32,7 +32,7 @@ public class MarketplaceRepository {
 
   /**
    * Optional HTTP Basic auth password. Prefer leaving this empty in hop-config.json and setting
-   * {@code HOP_MARKETPLACE_PASSWORD} or {@code ARTIFACTORY_PASSWORD} instead.
+   * {@code HOP_MARKETPLACE_PASSWORD} instead. Do not send credentials for anonymous local Nexus.
    */
   private String password;
 
@@ -61,8 +61,9 @@ public class MarketplaceRepository {
   }
 
   /**
-   * Effective credentials: config fields, then env {@code HOP_MARKETPLACE_*} / {@code
-   * ARTIFACTORY_*}.
+   * Effective credentials: repository config fields, then {@code HOP_MARKETPLACE_USERNAME} / {@code
+   * HOP_MARKETPLACE_PASSWORD}. No credentials means anonymous HTTP (correct for local Nexus after
+   * {@code docker/marketplace-nexus/start.sh}).
    */
   public String effectiveUsername() {
     if (StringUtils.isNotBlank(username)) {
@@ -70,9 +71,7 @@ public class MarketplaceRepository {
     }
     String fromEnv =
         firstNonBlank(
-            System.getenv("HOP_MARKETPLACE_USERNAME"),
-            System.getenv("HOP_MARKETPLACE_USER"),
-            System.getenv("ARTIFACTORY_USER"));
+            System.getenv("HOP_MARKETPLACE_USERNAME"), System.getenv("HOP_MARKETPLACE_USER"));
     return StringUtils.isNotBlank(fromEnv) ? fromEnv : null;
   }
 
@@ -80,9 +79,7 @@ public class MarketplaceRepository {
     if (StringUtils.isNotBlank(password)) {
       return password;
     }
-    String fromEnv =
-        firstNonBlank(
-            System.getenv("HOP_MARKETPLACE_PASSWORD"), System.getenv("ARTIFACTORY_PASSWORD"));
+    String fromEnv = System.getenv("HOP_MARKETPLACE_PASSWORD");
     return StringUtils.isNotBlank(fromEnv) ? fromEnv : null;
   }
 

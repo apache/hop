@@ -152,6 +152,9 @@ public class MavenRepositoryClient {
       applyBasicAuth(builder, repository);
       HttpResponse<String> response =
           httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() == 401 || response.statusCode() == 403) {
+        throw new HopException(authFailureMessage(response.statusCode(), url, repository));
+      }
       if (response.statusCode() != 200) {
         throw new HopException(
             "HTTP " + response.statusCode() + " fetching maven-metadata from " + url);
@@ -176,15 +179,7 @@ public class MavenRepositoryClient {
       HttpResponse<InputStream> response =
           httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
       if (response.statusCode() == 401 || response.statusCode() == 403) {
-        throw new HopException(
-            "HTTP "
-                + response.statusCode()
-                + " downloading "
-                + label
-                + " from "
-                + url
-                + ". For local Nexus enable anonymous read, or set"
-                + " HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD.");
+        throw new HopException(authFailureMessage(response.statusCode(), url, repository));
       }
       if (response.statusCode() != 200) {
         throw new HopException(
@@ -215,5 +210,24 @@ public class MavenRepositoryClient {
     String token =
         Base64.getEncoder().encodeToString((user + ":" + pass).getBytes(StandardCharsets.UTF_8));
     builder.header("Authorization", "Basic " + token);
+  }
+
+  private static String authFailureMessage(
+      int status, String url, MarketplaceRepository repository) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("HTTP ").append(status).append(" from ").append(url).append(". ");
+    if (repository != null && repository.hasCredentials()) {
+      sb.append("Basic auth was sent as user '")
+          .append(repository.effectiveUsername())
+          .append("'. Wrong credentials make Nexus reject the request even when anonymous read")
+          .append(" would work. Clear username/password in hop-config marketplace.repositories")
+          .append(" and unset HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD, or fix the")
+          .append(" password.");
+    } else {
+      sb.append("No credentials were sent (anonymous). Enable anonymous read on the repository")
+          .append(" (docker/marketplace-nexus/start.sh does this), or set")
+          .append(" HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD for a private repo.");
+    }
+    return sb.toString();
   }
 }

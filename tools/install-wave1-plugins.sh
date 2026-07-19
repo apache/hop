@@ -10,18 +10,18 @@
 #
 # Unpack Wave 1 marketplace plugin zips into a Hop install (e.g. for IT images).
 # Usage:
-#   ./tools/install-wave1-plugins.sh [HOP_HOME]
-# Default HOP_HOME: assemblies/client/target/hop
+#   ./tools/install-wave1-plugins.sh [HOP_INSTALL_DIR]
+# Default install dir: assemblies/client/target/hop
 #
 # Requires plugin modules to have been packaged (*.zip under plugins/**/target/).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-HOP_HOME="${1:-${ROOT}/assemblies/client/target/hop}"
+INSTALL_DIR="${1:-${ROOT}/assemblies/client/target/hop}"
 VERSION="${HOP_VERSION:-2.19.0-SNAPSHOT}"
 
-if [[ ! -d "${HOP_HOME}" ]]; then
-  echo "Hop home not found: ${HOP_HOME}" >&2
+if [[ ! -d "${INSTALL_DIR}" ]]; then
+  echo "Hop install not found: ${INSTALL_DIR}" >&2
   echo "Unzip hop-client first, or pass an existing install path." >&2
   exit 1
 fi
@@ -53,9 +53,9 @@ for entry in "${PLUGINS[@]}"; do
     continue
   fi
   echo "Installing ${id} from ${rel}"
-  unzip -o -q "${zip}" -d "${HOP_HOME}"
+  unzip -o -q "${zip}" -d "${INSTALL_DIR}"
   installed=$((installed + 1))
 done
 
-echo "Wave 1 plugins: installed=${installed} skipped=${skipped} into ${HOP_HOME}"
+echo "Wave 1 plugins: installed=${installed} skipped=${skipped} into ${INSTALL_DIR}"
 # Note: beam plugin zip does not include lib/beam (already in core client).

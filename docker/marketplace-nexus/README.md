@@ -74,7 +74,8 @@ export NEXUS_PASSWORD=hop-nexus-dev   # or your NEXUS_ADMIN_PASSWORD
 
 ## Hop marketplace (anonymous install)
 
-`config/hop-config.json` under `$HOP_HOME`:
+Edit **`${HOP_CONFIG_FOLDER}/hop-config.json`** (always that file). If
+`HOP_CONFIG_FOLDER` is unset, the hop launcher uses `<install>/config`.
 
 ```json
 {
@@ -93,9 +94,7 @@ export NEXUS_PASSWORD=hop-nexus-dev   # or your NEXUS_ADMIN_PASSWORD
 ```
 
 ```bash
-export HOP_HOME=/path/to/hop
-export HOP_CONFIG_FOLDER="$HOP_HOME/config"   # optional but recommended
-# no password for install
+cd /path/to/hop          # the unzipped hop-client directory
 ./hop marketplace install hop-tech-parquet
 ```
 
@@ -106,6 +105,17 @@ Quick check:
 curl -sI "http://127.0.0.1:8081/repository/hop-plugins/" | head -1
 ```
 
+## Smoke test (CLI install / list / validate / apply / uninstall)
+
+```bash
+# Nexus up + Wave 1 published + hop client unzipped
+./docker/marketplace-nexus/smoke-test.sh
+```
+
+Uses a temporary `HOP_CONFIG_FOLDER` (does not touch your real hop-config) and
+installs two small plugins into `assemblies/client/target/hop` (override with
+`HOP_DIR`).
+
 ## Scripts
 
 | Script | Role |
@@ -113,6 +123,7 @@ curl -sI "http://127.0.0.1:8081/repository/hop-plugins/" | head -1
 | `start.sh` | Compose up + wait + configure |
 | `configure-nexus.sh` | Anonymous + hosted repo (idempotent) |
 | `publish-wave1-plugins.sh` | `mvn deploy:deploy-file` of Wave 1 zips |
+| `smoke-test.sh` | Anonymous install / list / validate / apply / uninstall |
 
 ## Stop
 

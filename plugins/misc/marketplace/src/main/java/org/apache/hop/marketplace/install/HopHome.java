@@ -24,21 +24,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
 /**
- * Resolves the Hop installation directory (the folder that contains {@code plugins/}).
+ * Resolves the Hop client install directory (folder containing {@code plugins/}).
  *
- * <p>Order: {@code HOP_HOME} / {@code hop.home} if they point at a valid install, then {@code
- * user.dir}, then parent of {@code user.dir}. A relative {@code HOP_HOME} that is resolved against
- * a cwd already inside the install (e.g. {@code assemblies/client/target/hop} while sitting in that
- * directory) is ignored so we do not double the path.
+ * <p>Hop launchers {@code cd} to the install root before starting the JVM, so the process working
+ * directory <em>is</em> the install. Marketplace unpacks plugins into that tree only — the same
+ * {@code plugins/} folder Hop already scans.
  */
 public final class HopHome {
-
-  public static final String ENV_HOP_HOME = "HOP_HOME";
-  public static final String PROP_HOP_HOME = "hop.home";
 
   private HopHome() {}
 
@@ -53,23 +48,13 @@ public final class HopHome {
     }
     throw new HopException(
         "Cannot determine Hop installation directory (need a folder containing plugins/)."
+            + " Run the hop launcher from the client install (./hop …)."
             + " Tried: "
-            + String.join(", ", tried)
-            + ". Unset a relative HOP_HOME if you are already in the hop install, or set HOP_HOME"
-            + " to an absolute path.");
+            + String.join(", ", tried));
   }
 
   private static Set<Path> candidates() {
-    // LinkedHashSet preserves order and drops duplicates after normalize
     Set<Path> paths = new LinkedHashSet<>();
-    String fromEnv = System.getenv(ENV_HOP_HOME);
-    if (StringUtils.isNotBlank(fromEnv)) {
-      paths.add(Paths.get(fromEnv.trim()));
-    }
-    String fromProp = System.getProperty(PROP_HOP_HOME);
-    if (StringUtils.isNotBlank(fromProp)) {
-      paths.add(Paths.get(fromProp.trim()));
-    }
     Path cwd = Paths.get(System.getProperty("user.dir", "."));
     paths.add(cwd);
     Path parent = cwd.toAbsolutePath().normalize().getParent();

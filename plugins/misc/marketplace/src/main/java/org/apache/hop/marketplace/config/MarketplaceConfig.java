@@ -31,6 +31,10 @@ import org.apache.hop.core.logging.LogChannel;
 
 /**
  * Marketplace settings stored under the {@code marketplace} key in hop-config.json (or defaults).
+ *
+ * <p>Hop always loads that file from {@code ${HOP_CONFIG_FOLDER}/hop-config.json}. When {@code
+ * HOP_CONFIG_FOLDER} is unset, it defaults to {@code <user.dir>/config} (with the hop launcher, the
+ * client install's {@code config/} directory).
  */
 @Getter
 @Setter

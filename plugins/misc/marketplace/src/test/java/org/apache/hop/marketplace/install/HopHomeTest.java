@@ -44,22 +44,26 @@ class HopHomeTest {
     Path hop = tempDir.resolve("hop");
     Files.createDirectories(hop.resolve("plugins"));
     String previous = System.getProperty("user.dir");
-    String previousProp = System.getProperty(HopHome.PROP_HOP_HOME);
     try {
-      System.clearProperty(HopHome.PROP_HOP_HOME);
       System.setProperty("user.dir", hop.toString());
-      // Env HOP_HOME may still be set in the process; prop/user.dir path must work when env
-      // is unset — we only assert isHopHome behavior + absolute resolution of user.dir
-      Path resolved = hop.toAbsolutePath().normalize();
-      assertTrue(HopHome.isHopHome(resolved));
-      assertEquals(resolved, hop.toAbsolutePath().normalize());
+      assertEquals(hop.toAbsolutePath().normalize(), HopHome.resolve());
     } finally {
       System.setProperty("user.dir", previous);
-      if (previousProp == null) {
-        System.clearProperty(HopHome.PROP_HOP_HOME);
-      } else {
-        System.setProperty(HopHome.PROP_HOP_HOME, previousProp);
-      }
+    }
+  }
+
+  @Test
+  void resolveFallsBackToParentOfUserDir() throws Exception {
+    Path hop = tempDir.resolve("hop");
+    Files.createDirectories(hop.resolve("plugins"));
+    Path nested = hop.resolve("subdir");
+    Files.createDirectories(nested);
+    String previous = System.getProperty("user.dir");
+    try {
+      System.setProperty("user.dir", nested.toString());
+      assertEquals(hop.toAbsolutePath().normalize(), HopHome.resolve());
+    } finally {
+      System.setProperty("user.dir", previous);
     }
   }
 }

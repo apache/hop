@@ -24,7 +24,8 @@ Bundled core plugin that installs optional Hop plugins from a Maven repository
 
 ## CLI
 
-From the Hop install directory (`HOP_HOME`):
+From the Hop install directory (or invoke the `hop` script by path — it already
+`cd`s to the install root):
 
 ```bash
 ./hop marketplace install hop-tech-parquet
@@ -69,9 +70,14 @@ dependencies:
 ```
 
 `hop-run` checks the env file only when `enforceOnRun: true` or `-Dhop.env.enforce=true`.
-Discovery order: `-f` / `HOP_ENV_FILE` / `PROJECT_HOME/hop-env.yaml` / `$HOP_HOME/hop-env.yaml`.
+Discovery order: `-f` / `HOP_ENV_FILE` / `PROJECT_HOME/hop-env.yaml` / install-root `hop-env.yaml`.
 
 ## Config (`hop-config.json`)
+
+Marketplace settings live under the `marketplace` key in **`${HOP_CONFIG_FOLDER}/hop-config.json`**
+(always that path — not a separate file under the client zip). If `HOP_CONFIG_FOLDER` is
+unset, Hop defaults it to `<working-dir>/config` (with the hop launcher, that is
+`<install>/config`).
 
 Local Sonatype Nexus (recommended for marketplace development — see
 `docker/marketplace-nexus/README.md`):
@@ -93,16 +99,23 @@ Local Sonatype Nexus (recommended for marketplace development — see
 ```
 
 After `./docker/marketplace-nexus/start.sh`, installs are **anonymous** — no password
-in Hop config.
+in that hop-config.
 
-Corporate private repos can use Basic auth (prefer a read-only user, not admin):
+```bash
+cd /path/to/hop
+./hop marketplace install hop-tech-parquet
+```
+
+Local Nexus after `docker/marketplace-nexus/start.sh` is **anonymous read** — leave
+`username` / `password` out of config and do **not** set `HOP_MARKETPLACE_*` (wrong
+Basic auth causes HTTP 401 even though anonymous would succeed).
+
+Corporate private repos can use Basic auth (prefer a read-only user):
 
 ```bash
 export HOP_MARKETPLACE_USERNAME=reader
 export HOP_MARKETPLACE_PASSWORD='…'
 ```
-
-**HTTP 401** means the repository requires auth or anonymous is disabled on the server.
 
 ## GUI
 
