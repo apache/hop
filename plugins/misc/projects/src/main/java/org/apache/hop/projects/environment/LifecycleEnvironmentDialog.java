@@ -19,6 +19,7 @@ package org.apache.hop.projects.environment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -83,6 +84,17 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
   private boolean needingEnvironmentRefresh;
 
+  /** Last name we auto-suggested (for detecting when the user edits away from it). */
+  private String lastSuggestedName;
+
+  /** When true, project/purpose changes rewrite the name field (new environments only). */
+  private boolean nameAutoManaged;
+
+  private boolean updatingSuggestedName;
+
+  /** Localized purpose label → fixed English suffix (for new-environment name suggestion). */
+  private Map<String, String> knownPurposeSuffixes;
+
   public LifecycleEnvironmentDialog(
       Shell parent, LifecycleEnvironment environment, IVariables variables) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
@@ -95,6 +107,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
     props = PropsUi.getInstance();
 
     needingEnvironmentRefresh = false;
+    lastSuggestedName = null;
+    nameAutoManaged = StringUtils.isEmpty(originalName);
+    updatingSuggestedName = false;
   }
 
   public String open() {
@@ -146,6 +161,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdName.right = new FormAttachment(100, 0);
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     wName.setLayoutData(fdName);
+    wName.addListener(SWT.Modify, e -> onNameModified());
     Control lastControl = wName;
 
     Label wlPurpose = new Label(shell, SWT.RIGHT);
@@ -164,7 +180,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdPurpose.right = new FormAttachment(100, 0);
     fdPurpose.top = new FormAttachment(wlPurpose, 0, SWT.CENTER);
     wPurpose.setLayoutData(fdPurpose);
-    wPurpose.addListener(SWT.Modify, e -> needingEnvironmentRefresh = true);
+    wPurpose.addListener(
+        SWT.Modify,
+        e -> {
+          needingEnvironmentRefresh = true;
+          updateSuggestedName();
+        });
     lastControl = wPurpose;
 
     Label wlProject = new Label(shell, SWT.RIGHT);
@@ -183,7 +204,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdProject.right = new FormAttachment(100, 0);
     fdProject.top = new FormAttachment(wlProject, 0, SWT.CENTER);
     wProject.setLayoutData(fdProject);
-    wProject.addListener(SWT.Modify, e -> needingEnvironmentRefresh = true);
+    wProject.addListener(
+        SWT.Modify,
+        e -> {
+          needingEnvironmentRefresh = true;
+          updateSuggestedName();
+        });
     lastControl = wProject;
 
     Label wlCanvasText = new Label(shell, SWT.RIGHT);
@@ -631,19 +657,53 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private void getData() {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
+    String developmentLabel =
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Development");
+    String testingLabel =
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Testing");
+    String acceptanceLabel =
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Acceptance");
+    String productionLabel =
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Production");
+    String continuousIntegrationLabel =
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CI");
+    String commonBuildLabel =
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CB");
+
+    knownPurposeSuffixes =
+        LifecycleEnvironmentNaming.knownPurposeSuffixes(
+            developmentLabel,
+            testingLabel,
+            acceptanceLabel,
+            productionLabel,
+            continuousIntegrationLabel,
+            commonBuildLabel);
+
     wProject.setItems(config.listProjectConfigNames().toArray(new String[0]));
     wPurpose.setItems(
-        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Development"),
-        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Testing"),
-        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Acceptance"),
-        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.Production"),
-        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CI"),
-        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Purpose.Text.CB"));
+        developmentLabel,
+        testingLabel,
+        acceptanceLabel,
+        productionLabel,
+        continuousIntegrationLabel,
+        commonBuildLabel);
 
-    wName.setText(Const.NVL(environment.getName(), ""));
+    // Setting project/purpose may fire Modify and update the suggested name for new envs.
     wPurpose.setText(Const.NVL(environment.getPurpose(), ""));
     wProject.setText(Const.NVL(environment.getProjectName(), ""));
     wCanvasText.setText(Const.NVL(environment.getCanvasText(), ""));
+
+    if (StringUtils.isNotEmpty(environment.getName())) {
+      // Provided name (edit or rare pre-fill): do not auto-overwrite.
+      nameAutoManaged = false;
+      setNameText(environment.getName());
+    } else if (isNewEnvironment()) {
+      nameAutoManaged = true;
+      // Project/purpose listeners may already have suggested a name; ensure we do so if not.
+      updateSuggestedName();
+    } else {
+      setNameText("");
+    }
 
     for (int i = 0; i < environment.getConfigurationFiles().size(); i++) {
       String configurationFile = environment.getConfigurationFiles().get(i);
@@ -658,6 +718,53 @@ public class LifecycleEnvironmentDialog extends Dialog {
     //
     if (!environment.getConfigurationFiles().isEmpty()) {
       wConfigFiles.setSelection(new int[] {0});
+    }
+  }
+
+  private boolean isNewEnvironment() {
+    return StringUtils.isEmpty(originalName);
+  }
+
+  /**
+   * When creating a new environment, keep the name field in sync with project + purpose until the
+   * user edits the name manually.
+   */
+  private void updateSuggestedName() {
+    if (!isNewEnvironment()
+        || !nameAutoManaged
+        || wName == null
+        || wProject == null
+        || wPurpose == null) {
+      return;
+    }
+
+    String suggested =
+        LifecycleEnvironmentNaming.suggestEnvironmentName(
+            wProject.getText(), wPurpose.getText(), knownPurposeSuffixes);
+    lastSuggestedName = suggested;
+    setNameText(suggested);
+  }
+
+  private void setNameText(String text) {
+    updatingSuggestedName = true;
+    try {
+      wName.setText(Const.NVL(text, ""));
+    } finally {
+      updatingSuggestedName = false;
+    }
+  }
+
+  private void onNameModified() {
+    if (updatingSuggestedName || !isNewEnvironment()) {
+      return;
+    }
+    String current = wName.getText();
+    // Cleared field or still matching last suggestion → keep auto-managing.
+    if (StringUtils.isEmpty(current)
+        || (lastSuggestedName != null && current.equals(lastSuggestedName))) {
+      nameAutoManaged = true;
+    } else {
+      nameAutoManaged = false;
     }
   }
 
