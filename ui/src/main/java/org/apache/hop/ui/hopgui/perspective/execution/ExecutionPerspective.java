@@ -152,6 +152,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   public static final String CONST_ERROR1 = "Error";
   public static final String FILTER_NAME_DATE_ID = "name - date - ID";
 
+  /** Tree item data key for the empty-state "configure locations" placeholder. */
+  public static final String CONFIGURE_LOCATIONS = "configure-locations";
+
   private static final String EXECUTION_AUDIT_TYPE = "execution-perspective-gui";
   private static final String AUDIT_EXECUTION_TOOLBAR = "toolbar";
   private static final String AUDIT_ONLY_PARENTS = "only-parents";
@@ -467,7 +470,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
       TreeItem treeItem = tree.getSelection()[0];
       if (treeItem != null) {
-        if (treeItem.getData() instanceof Execution execution) {
+        if (Boolean.TRUE.equals(treeItem.getData(CONFIGURE_LOCATIONS))) {
+          createNewExecutionInfoLocation();
+        } else if (treeItem.getData() instanceof Execution execution) {
           ExecutionInfoLocation location =
               (ExecutionInfoLocation) treeItem.getParentItem().getData();
           ExecutionState executionState =
@@ -480,6 +485,29 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     } catch (Exception e) {
       getShell().setCursor(null);
       new ErrorDialog(getShell(), CONST_ERROR1, "Error showing viewer for execution", e);
+    }
+  }
+
+  /**
+   * Opens a new Execution Information Location editor in the metadata perspective. Used when the
+   * user double-clicks the empty-state placeholder in the execution tree.
+   */
+  private void createNewExecutionInfoLocation() {
+    try {
+      MetadataManager<ExecutionInfoLocation> manager =
+          new MetadataManager<>(
+              hopGui.getVariables(),
+              hopGui.getMetadataProvider(),
+              ExecutionInfoLocation.class,
+              hopGui.getShell());
+      manager.newMetadataWithEditor("");
+      hopGui.getEventsHandler().fire(HopGuiEvents.MetadataCreated.name());
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          CONST_ERROR1,
+          BaseMessages.getString(PKG, "ExecutionPerspective.CreateLocation.Error.Message"),
+          e);
     }
   }
 
@@ -731,110 +759,125 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
       List<ExecutionInfoLocation> locations = serializer.loadAll();
       locations.sort(Comparator.comparing(HopMetadataBase::getName));
-      ILogChannel log = hopGui.getLog();
-      Metrics startLocationRefresh =
-          new Metrics(MetricsSnapshotType.START, SNAP_ID_EIL_REFRESH, "Refresh EIL tree");
-      Metrics endLocationRefresh =
-          new Metrics(MetricsSnapshotType.STOP, SNAP_ID_EIL_REFRESH, "Refresh EIL tree end");
 
-      log.setGatheringMetrics(true);
+      // When no locations are configured, show a helpful placeholder the user can double-click
+      // to create a new Execution Information Location in the metadata perspective.
+      //
+      if (locations.isEmpty()) {
+        TreeItem configureItem = new TreeItem(tree, SWT.NONE);
+        configureItem.setText(
+            0, BaseMessages.getString(PKG, "ExecutionPerspective.Tree.ConfigureLocations"));
+        configureItem.setImage(GuiResource.getInstance().getImageLocation());
+        configureItem.setData(CONFIGURE_LOCATIONS, true);
+        tree.setToolTipText(
+            BaseMessages.getString(PKG, "ExecutionPerspective.Tree.ConfigureLocations.Tooltip"));
+      } else {
+        ILogChannel log = hopGui.getLog();
+        Metrics startLocationRefresh =
+            new Metrics(MetricsSnapshotType.START, SNAP_ID_EIL_REFRESH, "Refresh EIL tree");
+        Metrics endLocationRefresh =
+            new Metrics(MetricsSnapshotType.STOP, SNAP_ID_EIL_REFRESH, "Refresh EIL tree end");
 
-      for (ExecutionInfoLocation location : locations) {
-        log.snap(startLocationRefresh);
-        IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+        log.setGatheringMetrics(true);
+        tree.setToolTipText(null);
 
-        try {
-          // Initialize the location first...
-          //
-          iLocation.initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
-
-          // Keep the location around to close at the next refresh.
-          //
-          locationMap.put(location.getName(), location);
-
-          TreeItem locationItem = new TreeItem(tree, SWT.NONE);
-          locationItem.setText(0, Const.NVL(location.getName(), ""));
-          locationItem.setImage(GuiResource.getInstance().getImageLocation());
-          TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
-          locationItem.setData(location);
+        for (ExecutionInfoLocation location : locations) {
+          log.snap(startLocationRefresh);
+          IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
           try {
-            // Get the data in the location.  The plugins are supposed to prune as much of the IDs
-            // upfront.
-            // Below we'll run the isSelected() condition again to make sure.
+            // Initialize the location first...
             //
-            IExecutionSelector executionSelector =
-                new DefaultExecutionSelector(
-                    onlyShowingParents,
-                    onlyShowingFailed,
-                    onlyShowingRunning,
-                    onlyShowingFinished,
-                    onlyShowingWorkflows,
-                    onlyShowingPipelines,
-                    filterText,
-                    timeFilter);
-            List<String> ids = iLocation.findExecutionIDs(executionSelector);
+            iLocation.initialize(hopGui.getVariables(), hopGui.getMetadataProvider());
 
-            // Display the executions
+            // Keep the location around to close at the next refresh.
             //
-            for (String id : ids) {
-              try {
-                Execution execution = iLocation.getExecution(id);
-                if (execution != null) {
-                  // Apply an extra filter to make sure
-                  //
-                  if (!executionSelector.isSelected(execution)) {
-                    continue;
-                  }
-                  // We only need to consider the state after the previous filtering
-                  //
-                  ExecutionState state = iLocation.getExecutionState(id);
-                  if (!executionSelector.isSelected(state)) {
-                    continue;
-                  }
+            locationMap.put(location.getName(), location);
 
-                  TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
-                  switch (execution.getExecutionType()) {
-                    case Pipeline:
-                      decoratePipelineTreeItem(executionItem, location, execution, state);
-                      break;
-                    case Workflow:
-                      decorateWorkflowTreeItem(executionItem, location, execution, state);
-                      break;
-                    default:
-                      break;
+            TreeItem locationItem = new TreeItem(tree, SWT.NONE);
+            locationItem.setText(0, Const.NVL(location.getName(), ""));
+            locationItem.setImage(GuiResource.getInstance().getImageLocation());
+            TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, locationItem, true);
+            locationItem.setData(location);
+
+            try {
+              // Get the data in the location.  The plugins are supposed to prune as much of the IDs
+              // upfront.
+              // Below we'll run the isSelected() condition again to make sure.
+              //
+              IExecutionSelector executionSelector =
+                  new DefaultExecutionSelector(
+                      onlyShowingParents,
+                      onlyShowingFailed,
+                      onlyShowingRunning,
+                      onlyShowingFinished,
+                      onlyShowingWorkflows,
+                      onlyShowingPipelines,
+                      filterText,
+                      timeFilter);
+              List<String> ids = iLocation.findExecutionIDs(executionSelector);
+
+              // Display the executions
+              //
+              for (String id : ids) {
+                try {
+                  Execution execution = iLocation.getExecution(id);
+                  if (execution != null) {
+                    // Apply an extra filter to make sure
+                    //
+                    if (!executionSelector.isSelected(execution)) {
+                      continue;
+                    }
+                    // We only need to consider the state after the previous filtering
+                    //
+                    ExecutionState state = iLocation.getExecutionState(id);
+                    if (!executionSelector.isSelected(state)) {
+                      continue;
+                    }
+
+                    TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
+                    switch (execution.getExecutionType()) {
+                      case Pipeline:
+                        decoratePipelineTreeItem(executionItem, location, execution, state);
+                        break;
+                      case Workflow:
+                        decorateWorkflowTreeItem(executionItem, location, execution, state);
+                        break;
+                      default:
+                        break;
+                    }
                   }
+                } catch (Exception e) {
+                  TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
+                  errorItem.setText("Error reading " + id + " (double click for details)");
+                  errorItem.setForeground(GuiResource.getInstance().getColorRed());
+                  errorItem.setData(CONST_ERROR, e);
+                  errorItem.setImage(GuiResource.getInstance().getImageError());
                 }
-              } catch (Exception e) {
-                TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
-                errorItem.setText("Error reading " + id + " (double click for details)");
-                errorItem.setForeground(GuiResource.getInstance().getColorRed());
-                errorItem.setData(CONST_ERROR, e);
-                errorItem.setImage(GuiResource.getInstance().getImageError());
               }
+            } catch (Exception e) {
+              // Error contacting location
+              //
+              TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
+              errorItem.setText("Not reachable (double click for details)");
+              errorItem.setForeground(GuiResource.getInstance().getColorRed());
+              errorItem.setData(CONST_ERROR, e);
+              errorItem.setImage(GuiResource.getInstance().getImageError());
             }
           } catch (Exception e) {
-            // Error contacting location
+            // We couldn't initialize a location
             //
-            TreeItem errorItem = new TreeItem(locationItem, SWT.NONE);
-            errorItem.setText("Not reachable (double click for details)");
-            errorItem.setForeground(GuiResource.getInstance().getColorRed());
-            errorItem.setData(CONST_ERROR, e);
-            errorItem.setImage(GuiResource.getInstance().getImageError());
+            TreeItem locationItem = new TreeItem(tree, SWT.NONE);
+            locationItem.setText(
+                0, Const.NVL(location.getName(), "") + " (error: double click for details)");
+            locationItem.setForeground(GuiResource.getInstance().getColorRed());
+            locationItem.setImage(GuiResource.getInstance().getImageLocation());
+            locationItem.setData(CONST_ERROR, e);
           }
-        } catch (Exception e) {
-          // We couldn't initialize a location
-          //
-          TreeItem locationItem = new TreeItem(tree, SWT.NONE);
-          locationItem.setText(
-              0, Const.NVL(location.getName(), "") + " (error: double click for details)");
-          locationItem.setForeground(GuiResource.getInstance().getColorRed());
-          locationItem.setImage(GuiResource.getInstance().getImageLocation());
-          locationItem.setData(CONST_ERROR, e);
+          log.snap(endLocationRefresh);
         }
-        log.snap(endLocationRefresh);
+        log.setGatheringMetrics(false);
       }
-      log.setGatheringMetrics(false);
 
       TreeUtil.setOptimalWidthOnColumns(tree);
       TreeMemory.setExpandedFromMemory(tree, EXECUTION_PERSPECTIVE_TREE);
