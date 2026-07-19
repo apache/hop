@@ -32,6 +32,11 @@ From the Hop install directory (`HOP_HOME`):
 ./hop marketplace install hop-engines-beam
 ./hop marketplace list
 ./hop marketplace uninstall hop-tech-parquet
+
+# Declarative environment (CI/CD / Docker)
+./hop marketplace apply -f hop-env.yaml
+./hop marketplace apply -f hop-env.yaml --prune
+./hop marketplace validate -f hop-env.yaml
 ```
 
 Coordinates:
@@ -41,6 +46,30 @@ Coordinates:
 - `groupId:artifactId:version`
 
 After install or uninstall, **restart Hop** so the plugin registry reloads.
+
+### hop-env.yaml
+
+See `config/projects/samples/marketplace/hop-env.example.yaml` (after install) or
+`plugins/misc/marketplace/src/main/samples/hop-env.example.yaml` in source.
+
+```yaml
+version: "1.0"
+hopVersion: "2.19.0"
+enforceOnRun: false   # set true to hard-fail hop-run on drift
+repositories:
+  - id: central
+    url: "https://repo1.maven.org/maven2/"
+plugins:
+  - artifactId: hop-tech-parquet
+    version: "2.19.0"
+dependencies:
+  - groupId: org.postgresql
+    artifactId: postgresql
+    version: "42.7.3"
+```
+
+`hop-run` checks the env file only when `enforceOnRun: true` or `-Dhop.env.enforce=true`.
+Discovery order: `-f` / `HOP_ENV_FILE` / `PROJECT_HOME/hop-env.yaml` / `$HOP_HOME/hop-env.yaml`.
 
 ## Config (`hop-config.json`)
 

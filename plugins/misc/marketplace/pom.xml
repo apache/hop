@@ -29,7 +29,23 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Miscellaneous Marketplace</name>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <!-- Jackson is provided by Hop core/lib -->
+        <!-- SnakeYAML for hop-env.yaml (version managed by hop-libs) -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
     </dependencies>
 </project>

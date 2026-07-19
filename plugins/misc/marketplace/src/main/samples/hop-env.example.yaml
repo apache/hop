@@ -1,0 +1,34 @@
+# Example declarative Hop environment (copy to hop-env.yaml in your project or install).
+# Apply with:
+#   hop marketplace apply -f hop-env.yaml
+#   hop marketplace apply -f hop-env.yaml --prune
+# Validate:
+#   hop marketplace validate -f hop-env.yaml
+# Optional hop-run enforcement: set enforceOnRun: true  (or -Dhop.env.enforce=true)
+
+version: "1.0"
+hopVersion: "2.19.0-SNAPSHOT"
+enforceOnRun: false
+
+# Defaults to Maven Central when omitted
+repositories:
+  - id: central
+    url: "https://repo1.maven.org/maven2/"
+  # Local Artifactory for development:
+  # - id: local-artifactory
+  #   url: "http://localhost:8082/artifactory/hop-plugins-local/"
+
+plugins:
+  - artifactId: hop-tech-parquet
+    version: "2.19.0-SNAPSHOT"
+  - artifactId: hop-engines-spark
+    version: "2.19.0-SNAPSHOT"
+  # Beam engine plugin only (lib/beam stays in the core client):
+  # - artifactId: hop-engines-beam
+  #   version: "2.19.0-SNAPSHOT"
+
+# Optional JDBC (or other) jars into lib/jdbc
+# dependencies:
+#   - groupId: org.postgresql
+#     artifactId: postgresql
+#     version: "42.7.3"

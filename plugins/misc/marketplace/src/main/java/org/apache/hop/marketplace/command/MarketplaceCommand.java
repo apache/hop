@@ -31,6 +31,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
+import org.apache.hop.marketplace.env.EnvironmentApplier;
+import org.apache.hop.marketplace.env.EnvironmentDrift;
+import org.apache.hop.marketplace.env.HopEnvironmentLoader;
+import org.apache.hop.marketplace.env.HopEnvironmentSpec;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
@@ -40,6 +44,7 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Getter
@@ -51,7 +56,9 @@ import picocli.CommandLine.Parameters;
     subcommands = {
       MarketplaceCommand.InstallCommand.class,
       MarketplaceCommand.UninstallCommand.class,
-      MarketplaceCommand.ListCommand.class
+      MarketplaceCommand.ListCommand.class,
+      MarketplaceCommand.ApplyCommand.class,
+      MarketplaceCommand.ValidateCommand.class
     })
 @HopCommand(id = "marketplace", description = "Hop plugin marketplace")
 public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
@@ -196,6 +203,132 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         System.err.println("ERROR: " + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "list failed" : e.getMessage(), e);
+      }
+    }
+  }
+
+  @Command(
+      name = "apply",
+      description =
+          "Install plugins and dependencies declared in hop-env.yaml (or .json). Optional --prune"
+              + " removes marketplace plugins not listed in the file.")
+  static class ApplyCommand extends MarketplaceSubCommand {
+    @Option(
+        names = {"-f", "--file"},
+        required = true,
+        description = "Path to hop-env.yaml or hop-env.json")
+    private String file;
+
+    @Option(
+        names = {"--prune"},
+        description =
+            "Uninstall marketplace-installed plugins that are not listed in the environment file")
+    private boolean prune;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        if (!config.isEnabled()) {
+          throw new HopException("Marketplace is disabled in hop-config.json");
+        }
+        Path hopHome = HopHome.resolve();
+        Path envPath = Path.of(file).toAbsolutePath().normalize();
+        HopEnvironmentSpec env = HopEnvironmentLoader.load(envPath);
+        new EnvironmentApplier(log, hopHome, config).apply(env, prune);
+        System.out.println(
+            "Environment applied from "
+                + envPath
+                + ". Restart Hop (or re-run) so new plugins are loaded.");
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        if (log != null) {
+          log.logError("Marketplace apply failed", e);
+        }
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "apply failed" : e.getMessage(), e);
+      }
+    }
+  }
+
+  @Command(
+      name = "validate",
+      description =
+          "Check the local install against hop-env.yaml without installing. Exit code 1 on drift.")
+  static class ValidateCommand extends MarketplaceSubCommand {
+    @Option(
+        names = {"-f", "--file"},
+        description =
+            "Path to hop-env.yaml or hop-env.json (default: discover hop-env.* under project/Hop"
+                + " home)")
+    private String file;
+
+    @Option(
+        names = {"--strict"},
+        description = "Also fail if extra marketplace plugins are installed beyond the env file")
+    private boolean strict;
+
+    @Override
+    public void run() {
+      try {
+        Path hopHome = HopHome.resolve();
+        Path envPath = EnvironmentApplier.resolveEnvironmentFile(hopHome, file);
+        if (envPath == null) {
+          throw new HopException(
+              "No environment file found. Pass -f hop-env.yaml or set HOP_ENV_FILE.");
+        }
+        HopEnvironmentSpec env = HopEnvironmentLoader.load(envPath);
+        EnvironmentDrift drift =
+            new EnvironmentApplier(log, hopHome, MarketplaceConfig.load()).validate(env);
+        boolean hard =
+            !drift.getMissingPlugins().isEmpty()
+                || !drift.getVersionMismatches().isEmpty()
+                || !drift.getMissingDependencies().isEmpty()
+                || (strict && !drift.getExtraMarketplacePlugins().isEmpty());
+        // populate extras only when strict (validate() currently does not; add here)
+        if (strict) {
+          addExtraPlugins(hopHome, env, drift);
+          hard = hard || !drift.getExtraMarketplacePlugins().isEmpty();
+        }
+        if (!hard) {
+          System.out.println("OK: environment matches " + envPath);
+          return;
+        }
+        System.err.println("Environment drift against " + envPath + ":");
+        System.err.print(drift.formatReport());
+        System.err.println("Run: hop marketplace apply -f " + envPath);
+        throw new CommandLine.ExecutionException(new CommandLine(this), "environment drift");
+      } catch (CommandLine.ExecutionException e) {
+        throw e;
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this), e.getMessage() == null ? "validate failed" : e.getMessage(), e);
+      }
+    }
+
+    private static void addExtraPlugins(
+        Path hopHome, HopEnvironmentSpec env, EnvironmentDrift drift) throws Exception {
+      java.util.Set<String> desired = new java.util.HashSet<>();
+      if (env.getPlugins() != null) {
+        for (HopEnvironmentSpec.PluginRef ref : env.getPlugins()) {
+          if (ref.getArtifactId() != null) {
+            desired.add(ref.getArtifactId());
+          }
+        }
+      }
+      Path receipts = hopHome.resolve(PluginInstaller.RECEIPTS_DIR);
+      if (!Files.isDirectory(receipts)) {
+        return;
+      }
+      try (DirectoryStream<Path> stream = Files.newDirectoryStream(receipts, "*.json")) {
+        for (Path f : stream) {
+          String name = f.getFileName().toString();
+          String id = name.substring(0, name.length() - ".json".length());
+          if (!desired.contains(id)) {
+            drift.getExtraMarketplacePlugins().add(id);
+          }
+        }
       }
     }
   }

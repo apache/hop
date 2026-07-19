@@ -33,6 +33,13 @@
         </file>
     </files>
 
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/marketplace/</outputDirectory>
+        </fileSet>
+    </fileSets>
+
     <componentDescriptors>
         <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
     </componentDescriptors>
