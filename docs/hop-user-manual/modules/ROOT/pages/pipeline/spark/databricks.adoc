@@ -176,6 +176,12 @@ If logs still show `POST /api/2.0/dbfs/create` for a `/Volumes/…` path, the ru
 
 Job library and MainSpark parameter paths for volumes stay as absolute `/Volumes/…` (no `dbfs:` scheme).
 
+=== Hop VFS for Volumes
+
+From Hop GUI and local transforms you can use a xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection] (scheme = metadata name, auth via referenced Databricks Connection) to browse, read, and write the same Files API paths (for example `dbx-jars:///Volumes/apache-hop/default/jars/…`).
+That is **Hop-side I/O only** — it does not replace absolute `/Volumes/…` paths on the cluster or in Jobs API library URIs.
+See xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS].
+
 == Compute modes (Deploy & run)
 
 The **Cluster / compute** field accepts one of:
