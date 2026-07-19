@@ -59,8 +59,25 @@ After install or uninstall, **restart Hop** so the plugin registry reloads.
 
 For local testing see `docker/marketplace-artifactory/README.md`.
 
+## GUI
+
+Hop GUI → **Tools → Marketplace…** lists Wave 1 optional plugins, installs from the
+configured Maven repository, and uninstalls marketplace-managed installs. Restart
+Hop after install/uninstall.
+
 ## Beam note
 
 `hop-engines-beam` marketplace package is the **plugin** (`plugins/engines/beam`) only.
 `lib/beam` remains part of the default Hop distribution and is never removed by
 marketplace uninstall.
+
+## Integration tests / full local install
+
+Optional plugins are **not** in `hop-client.zip`. For ITs (or a full local install):
+
+```bash
+unzip assemblies/client/target/hop-client-*.zip -d assemblies/client/target/
+./tools/install-wave1-plugins.sh assemblies/client/target/hop
+```
+
+`integration-tests/scripts/run-tests-docker.sh` and Jenkins run this automatically.

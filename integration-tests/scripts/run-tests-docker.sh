@@ -198,6 +198,16 @@ else
   echo "Skipping client unzip (CLIENT_UNZIP=${CLIENT_UNZIP}, using existing ${HOP_DIR})"
 fi
 
+# Optional plugins (Wave 1) are not in hop-client.zip; install from reactor zips for ITs.
+if [ -x "${REPO_ROOT}/tools/install-wave1-plugins.sh" ]; then
+  echo "Installing Wave 1 marketplace plugins into ${HOP_DIR} for integration tests"
+  "${REPO_ROOT}/tools/install-wave1-plugins.sh" "${HOP_DIR}" || {
+    echo "WARNING: install-wave1-plugins.sh reported errors; some ITs may fail if plugins are missing"
+  }
+else
+  echo "WARNING: tools/install-wave1-plugins.sh not found; optional plugins not installed into ${HOP_DIR}"
+fi
+
 # Versioned Spark client packs are not in the client zip. Re-materialise after unzip so
 # HOP_SPARK_CLIENT_VERSION=… finds lib/spark-clients/<ver>/ (includes spark-streaming, etc.).
 # Also copy the selected pack into lib/spark-client/ so the default driver classpath always

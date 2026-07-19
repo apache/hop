@@ -83,7 +83,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     cmd.usage(System.out);
   }
 
-  static String resolveDefaultVersion(MarketplaceConfig config) {
+  public static String resolveDefaultVersion(MarketplaceConfig config) {
     if (StringUtils.isNotBlank(config.getDefaultVersion())) {
       return config.getDefaultVersion();
     }

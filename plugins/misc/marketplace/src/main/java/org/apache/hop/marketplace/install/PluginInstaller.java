@@ -214,7 +214,7 @@ public class PluginInstaller {
     }
   }
 
-  static InstallReceipt readReceipt(Path hopHome, String artifactId) throws HopException {
+  public static InstallReceipt readReceipt(Path hopHome, String artifactId) throws HopException {
     Path file = hopHome.resolve(RECEIPTS_DIR).resolve(artifactId + ".json");
     if (!Files.isRegularFile(file)) {
       return null;
