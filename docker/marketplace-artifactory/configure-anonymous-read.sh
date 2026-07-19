@@ -8,16 +8,18 @@
 #
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
-# Configure local Artifactory so Hop marketplace can download plugins without
-# admin credentials:
-#   1. Ensure local Maven repo hop-plugins-local exists
-#   2. Enable global "Allow Anonymous Access"
-#   3. Grant anonymous *read only* on hop-plugins-local (not deploy/delete)
+# Configure *Artifactory OSS* so Hop can download plugins without admin credentials.
 #
-# Deploy/publish still requires admin (or another user with write).
+# IMPORTANT: Artifactory OSS does NOT allow creating repositories (or many admin
+# security resources) via REST — those APIs return HTTP 400 "Artifactory Pro only".
+# Repository + anonymous + read permission are done in the UI; this script prints
+# the exact clicks and verifies anonymous access afterward.
 #
 # Usage:
-#   export ARTIFACTORY_PASSWORD='…'   # admin password from first login
+#   # 1) Create hop-plugins-local in the UI (see printed steps)
+#   # 2) Enable anonymous + read permission (see printed steps)
+#   # 3) Optional verify:
+#   export ARTIFACTORY_PASSWORD='…'
 #   ./docker/marketplace-artifactory/configure-anonymous-read.sh
 #
 set -euo pipefail
@@ -26,172 +28,116 @@ BASE_URL="${ARTIFACTORY_URL_BASE:-http://localhost:8082}"
 USER="${ARTIFACTORY_USER:-admin}"
 PASS="${ARTIFACTORY_PASSWORD:-}"
 REPO_KEY="${ARTIFACTORY_REPO_KEY:-hop-plugins-local}"
-PERM_NAME="${ARTIFACTORY_ANON_PERM:-hop-plugins-anonymous-read}"
+
+REPO_URL="${BASE_URL}/artifactory/${REPO_KEY}/"
+
+echo "============================================================"
+echo " Artifactory OSS — anonymous read for Hop marketplace"
+echo "============================================================"
+echo
+echo "Artifactory OSS license: repository create/manage REST APIs are Pro-only."
+echo "Do the following once in the UI at ${BASE_URL}/"
+echo
+
+cat <<EOF
+┌─────────────────────────────────────────────────────────────────┐
+│  A) Create local Maven repository (if you have not already)     │
+├─────────────────────────────────────────────────────────────────┤
+│  Administration → Repositories → Create a Repository → Local    │
+│                                                                 │
+│  Package type:     Maven                                        │
+│  Repository Key:   ${REPO_KEY}                                  │
+│  Repository Layout: maven-2-default                             │
+│  (Save / Create)                                                │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  B) Allow anonymous access (global)                             │
+├─────────────────────────────────────────────────────────────────┤
+│  Administration → User Management → Settings                    │
+│    ☑ Allow Anonymous Access                                     │
+│  Save                                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  C) Anonymous READ only on ${REPO_KEY} (not deploy)               │
+├─────────────────────────────────────────────────────────────────┤
+│  Administration → User Management → Permissions → + Add         │
+│                                                                 │
+│  Permission name:  hop-plugins-anonymous-read                   │
+│  Resources → Repositories:  select only "${REPO_KEY}"           │
+│  (do not use "Any Local" / "Anything" if you want least priv) │
+│                                                                 │
+│  Users:  anonymous                                              │
+│  Actions:  ☑ Read   ☐ Annotate ☐ Deploy ☐ Delete ☐ Manage       │
+│  Save                                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+Security model:
+  • Hop marketplace install  → anonymous HTTP GET (no password)
+  • publish-wave1-plugins.sh → admin (or a deploy user) only
+
+EOF
 
 if [[ -z "${PASS}" ]]; then
-  echo "Set ARTIFACTORY_PASSWORD to the Artifactory admin password." >&2
-  exit 1
+  echo "Set ARTIFACTORY_PASSWORD and re-run this script to verify anonymous access:"
+  echo "  export ARTIFACTORY_PASSWORD='…'"
+  echo "  $0"
+  exit 0
 fi
 
 AUTH=(-u "${USER}:${PASS}")
-API="${BASE_URL}/artifactory/api"
 
-echo "==> Checking Artifactory at ${BASE_URL}"
+echo "==> Checking Artifactory"
 if ! curl -sf "${BASE_URL}/artifactory/api/system/ping" >/dev/null; then
-  echo "ERROR: Artifactory not reachable (ping failed)." >&2
+  echo "ERROR: ping failed — is the stack up?" >&2
   exit 1
 fi
+echo "    ping OK"
 
-# --- 1) Local Maven repository ------------------------------------------------
-echo "==> Ensuring local Maven repository '${REPO_KEY}'"
-REPO_CODE=$(curl -s -o /tmp/hop-af-repo.json -w '%{http_code}' "${AUTH[@]}" \
-  "${API}/repositories/${REPO_KEY}" || true)
-if [[ "${REPO_CODE}" == "200" ]]; then
-  echo "    Repository already exists"
-else
-  HTTP=$(curl -s -o /tmp/hop-af-create-repo.json -w '%{http_code}' "${AUTH[@]}" \
-    -X PUT "${API}/repositories/${REPO_KEY}" \
-    -H 'Content-Type: application/json' \
-    -d "{
-      \"key\": \"${REPO_KEY}\",
-      \"rclass\": \"local\",
-      \"packageType\": \"maven\",
-      \"repoLayoutRef\": \"maven-2-default\",
-      \"description\": \"Hop marketplace plugin zips (local / IT)\"
-    }")
-  if [[ "${HTTP}" != "200" && "${HTTP}" != "201" ]]; then
-    echo "ERROR: create repository failed (HTTP ${HTTP}):" >&2
-    cat /tmp/hop-af-create-repo.json >&2 || true
-    exit 1
-  fi
-  echo "    Created ${REPO_KEY}"
-fi
+# Confirm we are on OSS (informational)
+LICENSE=$(curl -sf "${AUTH[@]}" "${BASE_URL}/artifactory/api/system/version" \
+  | sed -n 's/.*"license"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1 || true)
+echo "    license: ${LICENSE:-unknown}"
 
-# --- 2) Enable anonymous access (global) --------------------------------------
-# Artifactory security configuration (classic REST). We GET, patch anonAccessEnabled, PUT back.
-echo "==> Enabling global anonymous access"
-if curl -sf "${AUTH[@]}" "${API}/security/configuration" -o /tmp/hop-af-sec.json; then
-  # configuration is XML for some versions, JSON for others — handle both lightly
-  if head -c 1 /tmp/hop-af-sec.json | grep -q '<'; then
-    # XML: set <anonAccessEnabled>true</anonAccessEnabled>
-    if grep -q '<anonAccessEnabled>' /tmp/hop-af-sec.json; then
-      sed -i 's#<anonAccessEnabled>[^<]*</anonAccessEnabled>#<anonAccessEnabled>true</anonAccessEnabled>#' /tmp/hop-af-sec.json
-    else
-      # insert before closing security tag if present
-      sed -i 's#</security>#  <anonAccessEnabled>true</anonAccessEnabled>\n</security>#' /tmp/hop-af-sec.json
-    fi
-    HTTP=$(curl -s -o /tmp/hop-af-sec-put.json -w '%{http_code}' "${AUTH[@]}" \
-      -X POST "${API}/security/configuration" \
-      -H 'Content-Type: application/xml' \
-      --data-binary @/tmp/hop-af-sec.json)
-  else
-    # JSON (Access / newer): set anonAccessEnabled
-    if command -v python3 >/dev/null 2>&1; then
-      python3 - <<'PY'
-import json
-from pathlib import Path
-p = Path("/tmp/hop-af-sec.json")
-data = json.loads(p.read_text())
-# common shapes
-if isinstance(data, dict):
-    data["anonAccessEnabled"] = True
-    if "security" in data and isinstance(data["security"], dict):
-        data["security"]["anonAccessEnabled"] = True
-p.write_text(json.dumps(data))
-PY
-    fi
-    HTTP=$(curl -s -o /tmp/hop-af-sec-put.json -w '%{http_code}' "${AUTH[@]}" \
-      -X POST "${API}/security/configuration" \
-      -H 'Content-Type: application/json' \
-      --data-binary @/tmp/hop-af-sec.json)
-  fi
-  if [[ "${HTTP}" == "200" || "${HTTP}" == "201" || "${HTTP}" == "204" ]]; then
-    echo "    Anonymous access enabled (API)"
-  else
-    echo "    WARNING: could not set anonymous via API (HTTP ${HTTP})."
-    echo "    Do this in the UI: Administration → User Management → Settings → Allow Anonymous Access"
-    cat /tmp/hop-af-sec-put.json 2>/dev/null || true
-  fi
-else
-  echo "    WARNING: GET /security/configuration failed."
-  echo "    Enable in UI: Administration → User Management → Settings → Allow Anonymous Access"
-fi
-
-# --- 3) Permission: anonymous READ only on hop-plugins-local --------------------
-# Artifactory 7.x removed anonymous from the default "Anything" target — grant explicitly.
-echo "==> Creating permission '${PERM_NAME}' (anonymous → read on ${REPO_KEY} only)"
-HTTP=$(curl -s -o /tmp/hop-af-perm.json -w '%{http_code}' "${AUTH[@]}" \
-  -X PUT "${API}/v2/security/permissions/${PERM_NAME}" \
-  -H 'Content-Type: application/json' \
-  -d "{
-    \"name\": \"${PERM_NAME}\",
-    \"repo\": {
-      \"include-patterns\": [\"**\"],
-      \"exclude-patterns\": [],
-      \"repositories\": [\"${REPO_KEY}\"],
-      \"actions\": {
-        \"users\": {
-          \"anonymous\": [\"read\"]
-        }
-      }
-    }
-  }")
-
-if [[ "${HTTP}" != "200" && "${HTTP}" != "201" ]]; then
-  # Fallback: classic permissions API
-  HTTP2=$(curl -s -o /tmp/hop-af-perm2.json -w '%{http_code}' "${AUTH[@]}" \
-    -X PUT "${API}/security/permissions/${PERM_NAME}" \
-    -H 'Content-Type: application/json' \
-    -d "{
-      \"name\": \"${PERM_NAME}\",
-      \"repositories\": [\"${REPO_KEY}\"],
-      \"principals\": {
-        \"users\": {
-          \"anonymous\": [\"r\"]
-        }
-      }
-    }")
-  if [[ "${HTTP2}" != "200" && "${HTTP2}" != "201" ]]; then
-    echo "ERROR: could not create permission (v2 HTTP ${HTTP}, classic HTTP ${HTTP2}):" >&2
-    cat /tmp/hop-af-perm.json >&2 || true
-    cat /tmp/hop-af-perm2.json >&2 || true
-    echo >&2
-    echo "UI fallback:" >&2
-    echo "  1) Administration → User Management → Settings → Allow Anonymous Access = ON" >&2
-    echo "  2) Administration → User Management → Permissions → New Permission" >&2
-    echo "       Repositories: ${REPO_KEY}" >&2
-    echo "       Users: anonymous → Read only (no Deploy/Delete/Manage)" >&2
-    exit 1
-  fi
-  echo "    Permission created (classic API)"
-else
-  echo "    Permission created (v2 API)"
-fi
-
-# --- 4) Smoke test anonymous download path ------------------------------------
-echo "==> Smoke test: anonymous GET on repo root (expect 200 or 404 empty, not 401)"
-ANON_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
-  "${BASE_URL}/artifactory/${REPO_KEY}/" || true)
-case "${ANON_CODE}" in
+echo "==> Checking repository '${REPO_KEY}' exists (authenticated)"
+# OSS: list/get repository REST may also be limited; probe storage path instead.
+HTTP_AUTH=$(curl -s -o /dev/null -w '%{http_code}' "${AUTH[@]}" "${REPO_URL}" || true)
+case "${HTTP_AUTH}" in
   200|404)
-    echo "    OK (HTTP ${ANON_CODE}) — anonymous can reach the repository"
+    echo "    Repository path reachable as admin (HTTP ${HTTP_AUTH})"
     ;;
   401|403)
-    echo "    STILL DENIED (HTTP ${ANON_CODE}). Check UI anonymous + permission steps above." >&2
+    echo "ERROR: admin auth failed (HTTP ${HTTP_AUTH}). Check ARTIFACTORY_PASSWORD." >&2
     exit 1
     ;;
   *)
-    echo "    Unexpected HTTP ${ANON_CODE} (repo may be empty; try install after publish)"
+    echo "    WARNING: unexpected HTTP ${HTTP_AUTH} for ${REPO_URL}"
+    echo "    If the repo is missing, create it in the UI (step A above)."
     ;;
 esac
 
-echo
-echo "Done. Deploy still needs admin; downloads do not:"
-echo "  # publish (authenticated)"
-echo "  export ARTIFACTORY_PASSWORD=…"
-echo "  ./docker/marketplace-artifactory/publish-wave1-plugins.sh"
-echo
-echo "  # install (no credentials)"
-echo "  # hop-config marketplace.repositories[0].url ="
-echo "  #   ${BASE_URL}/artifactory/${REPO_KEY}/"
-echo "  ./hop marketplace install hop-tech-parquet"
+echo "==> Checking anonymous read on '${REPO_KEY}'"
+HTTP_ANON=$(curl -s -o /dev/null -w '%{http_code}' "${REPO_URL}" || true)
+case "${HTTP_ANON}" in
+  200|404)
+    echo "    OK — anonymous access works (HTTP ${HTTP_ANON})"
+    echo
+    echo "Hop config (no username/password):"
+    echo "  \"url\": \"${REPO_URL}\""
+    echo
+    echo "Then:"
+    echo "  unset HOP_MARKETPLACE_PASSWORD ARTIFACTORY_PASSWORD"
+    echo "  ./hop marketplace install hop-tech-parquet"
+    exit 0
+    ;;
+  401|403)
+    echo "    NOT YET (HTTP ${HTTP_ANON}) — finish UI steps B and C above, then re-run:"
+    echo "      $0"
+    exit 1
+    ;;
+  *)
+    echo "    Unexpected HTTP ${HTTP_ANON}. Finish UI steps A–C and re-run."
+    exit 1
+    ;;
+esac
