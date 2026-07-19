@@ -29,7 +29,7 @@ plugins:
   - artifactId: hop-engines-beam
     name: Apache Beam engine
     category: Engines
-    description: Beam pipeline engine and transforms (plugin only; lib/beam stays in the core install).
+    description: Beam pipeline engine and transforms; SDKs under plugins/engines/beam/lib-beam.
     installPath: plugins/engines/beam
     modulePath: plugins/engines/beam
   - artifactId: hop-transform-script

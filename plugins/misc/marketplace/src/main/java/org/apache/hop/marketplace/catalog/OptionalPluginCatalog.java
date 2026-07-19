@@ -120,7 +120,7 @@ public final class OptionalPluginCatalog {
             "hop-engines-beam",
             "Apache Beam engine",
             "Engines",
-            "Beam pipeline engine and transforms (plugin only; lib/beam stays in the core install).",
+            "Beam pipeline engine and transforms (includes Beam SDKs under lib-beam).",
             "plugins/engines/beam"));
     wave1.add(
         new OptionalPluginInfo(

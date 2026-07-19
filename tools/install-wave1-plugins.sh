@@ -61,4 +61,4 @@ for entry in "${PLUGINS[@]}"; do
 done
 
 echo "Wave 1 plugins: installed=${installed} skipped=${skipped} into ${INSTALL_DIR}"
-# Note: beam plugin zip does not include lib/beam (already in core client).
+# Note: beam plugin zip includes lib-beam (Beam SDKs).

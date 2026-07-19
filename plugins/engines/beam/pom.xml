@@ -1662,8 +1662,9 @@
 
     <!--
       Two zips:
-      - hop-engines-beam-${version}.zip : marketplace plugin (plugins/engines/beam only)
-      - hop-engines-beam-${version}-libs.zip : core lib/beam (+ spark-client / shared lib/core)
+      - hop-engines-beam-${version}.zip : marketplace plugin (plugins/engines/beam + lib-beam SDKs)
+      - hop-engines-beam-${version}-libs.zip : slim client libs (lib/spark-client + shared lib/core extras)
+      Opt-in full Beam in hop-client: mvn … -Pbeam (assemblies/client)
     -->
     <build>
         <plugins>

@@ -18,7 +18,7 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <!-- Core distribution: lib/beam (+ spark-client / shared lib/core from Beam). NOT the marketplace plugin. -->
+    <!-- Slim client libs: default Spark client pack + shared lib/core extras from Beam deps. Beam SDKs live in plugin zip (lib-beam). -->
     <id>libs</id>
     <formats>
         <format>zip</format>
@@ -27,137 +27,7 @@
 
     <dependencySets>
         <!-- hop-engines-beam.jar is packaged in the plugin zip -->
-        <dependencySet>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.apache.hop:hop-engines-beam:jar</exclude>
-                <exclude>org.apache.hadoop:*:jar</exclude>
-                <exclude>org.apache.hadoop.thirdparty:*:jar</exclude>
-                <exclude>org.yaml:snakeyaml:jar</exclude>
-                <exclude>com.google.protobuf:protobuf-java:jar</exclude>
-                <exclude>com.google.protobuf:protobuf-java-util:jar</exclude>
-                <exclude>org.jetbrains:annotations:jar</exclude>
-                <exclude>com.google.auto.value:auto-value-annotations:jar</exclude>
-                <exclude>org.apache.beam:beam-vendor-guava-32_1_2-jre:jar</exclude>
-                <exclude>com.github.luben:zstd-jni:jar</exclude>
-                <exclude>com.google.auth:google-auth-library-oauth2-http:jar</exclude>
-                <exclude>com.google.oauth-client:google-oauth-client:jar</exclude>
-                <exclude>com.google.api-client:google-api-client:jar</exclude>
-                <exclude>com.google.http-client:google-http-client:jar</exclude>
-                <exclude>com.google.http-client:google-http-client-apache-v2:jar</exclude>
-                <exclude>com.google.http-client:google-http-client-appengine:jar</exclude>
-                <exclude>google-http-client-gson:jar</exclude>
-                <exclude>com.google.http-client:google-http-client-jackson2:jar</exclude>
-                <exclude>com.google.android:annotations:jar</exclude>
-                <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar</exclude>
-                <exclude>com.google.api:api-common:jar</exclude>
-                <exclude>com.google.auto.value:auto-value-annotations:jar</exclude>
-                <exclude>com.google.guava::jar</exclude>
-                <exclude>org.jetbrains.kotlin::jar</exclude>
-                <exclude>io.netty::jar</exclude>
-                <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar</exclude>
-                <exclude>io.projectreactor.netty::jar</exclude>
-                <exclude>io.grpc:grpc-netty-shaded:jar</exclude>
-                <exclude>io.grpc:grpc-xds:jar</exclude>
-                <exclude>org.apache.kafka::jar</exclude>
-                <exclude>org.xerial.snappy:snappy-java:jar</exclude>
-                <exclude>org.eclipse.jetty::jar</exclude>
-                <exclude>org.eclipse.jetty.compression::jar</exclude>
-                <exclude>com.google.cloud:google-cloud-storage:jar</exclude>
-                <exclude>io.grpc::jar</exclude>
-                <exclude>com.google.cloud:google-cloud-core-grpc:jar</exclude>
-                <exclude>com.google.api.grpc:grpc-google-cloud-storage-v2:jar</exclude>
-                <exclude>com.google.api:gax-grpc:jar</exclude>
-                <exclude>com.google.api.grpc::jar</exclude>
-                <exclude>org.checkerframework:checker-qual:jar</exclude>
-                <exclude>io.confluent:common-utils:jar</exclude>
-                <exclude>commons-cli:commons-cli:jar</exclude>
-                <exclude>commons-codec:commons-codec:jar</exclude>
-                <exclude>commons-logging:commons-logging:jar</exclude>
-                <exclude>org.apache.commons:commons-text:jar</exclude>
-                <exclude>com.google.cloud.opentelemetry:detector-resources-support:jar</exclude>
-                <exclude>com.google.errorprone:error_prone_annotations:jar</exclude>
-                <exclude>com.google.cloud.opentelemetry:exporter-metrics:jar</exclude>
-                <exclude>com.google.api:gax:jar</exclude>
-                <exclude>com.google.api:gax-httpjson:jar</exclude>
-                <exclude>com.google.apis:google-api-services-storage:jar</exclude>
-                <exclude>com.google.auth:google-auth-library-credentials:jar</exclude>
-                <exclude>com.google.auth:google-auth-library-oauth2-http:jar</exclude>
-                <exclude>com.google.cloud:google-cloud-core:jar</exclude>
-                <exclude>com.google.cloud:google-cloud-core-http:jar</exclude>
-                <exclude>com.google.cloud:google-cloud-monitoring:jar</exclude>
-                <exclude>com.google.http-client:google-http-client-gson:jar</exclude>
-                <exclude>org.apache.httpcomponents:httpclient:jar</exclude>
-                <exclude>org.apache.httpcomponents:httpcore:jar</exclude>
-                <exclude>com.google.j2objc:j2objc-annotations:jar</exclude>
-                <exclude>com.fasterxml.jackson.core::jar</exclude>
-                <exclude>com.fasterxml.jackson.dataformat::jar</exclude>
-                <exclude>com.fasterxml.jackson.datatype::jar</exclude>
-                <exclude>com.fasterxml.jackson::jar</exclude>
-                <exclude>com.github.stephenc.jcip:jcip-annotations:jar</exclude>
-                <exclude>net.java.dev.jna::jar</exclude>
-                <exclude>com.google.code.findbugs:jsr305:jar</exclude>
-                <exclude>com.squareup.okhttp3:okhttp:jar</exclude>
-                <exclude>com.squareup.okio::jar</exclude>
-                <exclude>io.opentelemetry::jar</exclude>
-                <exclude>com.google.cloud.opentelemetry:shared-resourcemapping:jar</exclude>
-                <exclude>org.codehaus.woodstox:stax2-api:jar</exclude>
-                <exclude>org.threeten::jar</exclude>
-                <exclude>org.lz4:lz4-java:jar</exclude>
-                <exclude>io.opentelemetry.contrib::jar</exclude>
-                <exclude>io.opentelemetry.semconv::jar</exclude>
-                <exclude>io.perfmark:perfmark-api:jar</exclude>
-                <exclude>com.google.re2j:re2j:jar</exclude>
-                <exclude>org.reactivestreams:reactive-streams:jar</exclude>
-                <exclude>io.projectreactor:reactor-core:jar</exclude>
-                <exclude>org.bouncycastle::jar</exclude>
-                <exclude>com.microsoft.azure:msal4j:jar</exclude>
-                <exclude>com.microsoft.azure:msal4j-persistence-extension:jar</exclude>
-                <exclude>com.amazonaws:aws-java-sdk-core:jar</exclude>
-                <exclude>com.amazonaws:aws-java-sdk-kms:jar</exclude>
-                <exclude>com.amazonaws:aws-java-sdk-s3:jar</exclude>
-                <exclude>com.nimbusds:oauth2-oidc-sdk:jar</exclude>
-                <exclude>com.azure:azure-core:jar</exclude>
-                <exclude>com.azure:azure-identity:jar</exclude>
-                <exclude>com.azure:azure-core-http-netty:jar</exclude>
-                <exclude>com.azure:azure-json:jar</exclude>
-                <exclude>com.microsoft.azure:azure-keyvault-core:jar</exclude>
-                <exclude>com.azure:azure-security-keyvault-secrets:jar</exclude>
-                <exclude>com.azure:azure-storage-blob:jar</exclude>
-                <exclude>com.azure:azure-storage-common:jar</exclude>
-                <exclude>com.azure:azure-storage-internal-avro:jar</exclude>
-                <exclude>com.azure:azure-xml:jar</exclude>
-                <exclude>com.nimbusds:nimbus-jose-jwt:jar</exclude>
-                <exclude>io.confluent::jar</exclude>
-                <exclude>com.google.code.gson:gson:jar</exclude>
-                <exclude>org.apache.commons:commons-collections4:jar</exclude>
-                <exclude>org.jspecify:jspecify:jar</exclude>
-                <exclude>org.apache.commons:commons-lang3:jar</exclude>
-                <exclude>commons-collections:commons-collections:jar</exclude>
-                <exclude>com.fasterxml.woodstox:woodstox-core:jar</exclude>
-                <exclude>com.ibm.icu:icu4j:jar</exclude>
-                <exclude>com.fasterxml.jackson.core:jackson-annotations:jar</exclude>
-                <exclude>software.amazon.awssdk:*:jar</exclude>
-                <exclude>software.amazon.eventstream:eventstream:jar</exclude>
-                <exclude>javax.annotation:javax.annotation-api:jar</exclude>
-                <exclude>javax.inject:javax.inject:jar</exclude>
-                <exclude>org.jctools:jctools-core:jar</exclude>
-                <exclude>com.nimbusds:lang-tag:jar</exclude>
-                <exclude>io.dropwizard.metrics:*:jar</exclude>
-                <exclude>com.eclipsesource.minimal-json:minimal-json:jar</exclude>
-                <exclude>org.slf4j:slf4j-api:jar</exclude>
-                <!-- Spark client runtime lives in lib/spark-client (versioned packs); keep Beam's own Spark fragments in lib/beam -->
-                <exclude>org.apache.spark:spark-core_2.12:jar</exclude>
-                <exclude>org.apache.spark:spark-streaming_2.12:jar</exclude>
-                <exclude>org.apache.spark:spark-launcher_2.12:jar</exclude>
-                <exclude>org.apache.spark:spark-kvstore_2.12:jar</exclude>
-                <exclude>org.apache.spark:spark-network-common_2.12:jar</exclude>
-                <exclude>org.apache.spark:spark-network-shuffle_2.12:jar</exclude>
-                <exclude>org.apache.spark:spark-unsafe_2.12:jar</exclude>
-                <exclude>org.apache.spark:spark-tags_2.12:jar</exclude>
-            </excludes>
-            <outputDirectory>lib/beam</outputDirectory>
-        </dependencySet>
+        
         <!-- Default Spark client pack (matches plugins/engines/beam spark.version). Optional
              additional packs can be materialised under lib/spark-clients/<version>/ via
              tools/spark-client-pack. Selected at runtime with HOP_SPARK_CLIENT_VERSION. -->

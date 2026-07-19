@@ -46,7 +46,7 @@ public class PluginUninstaller {
               + "'. Only plugins installed via the marketplace can be uninstalled this way.");
     }
 
-    // Delete files deepest-first; skip protected paths (e.g. lib/beam)
+    // Delete files deepest-first; skip protected paths (e.g. lib/core)
     Set<Path> dirs = new HashSet<>();
     for (String relative : receipt.getPaths()) {
       if (PluginInstaller.isProtectedPath(relative)) {

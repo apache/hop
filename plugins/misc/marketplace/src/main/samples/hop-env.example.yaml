@@ -42,7 +42,7 @@ plugins:
     version: "2.19.0-SNAPSHOT"
   - artifactId: hop-engines-spark
     version: "2.19.0-SNAPSHOT"
-  # Beam engine plugin only (lib/beam stays in the core client):
+  # Beam engine plugin only (Beam SDKs ship under plugins/engines/beam/lib-beam with the plugin):
   # - artifactId: hop-engines-beam
   #   version: "2.19.0-SNAPSHOT"
 

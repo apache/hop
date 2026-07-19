@@ -18,7 +18,7 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <!-- Marketplace plugin payload only. Runtime jars stay in assembly-libs (lib/beam, etc.). -->
+    <!-- Marketplace plugin: Hop Beam jar + Beam SDKs under lib-beam (runners etc.). -->
     <id>plugin</id>
     <formats>
         <format>zip</format>
@@ -52,4 +52,8 @@
             <outputDirectory>plugins/engines/beam</outputDirectory>
         </dependencySet>
     </dependencySets>
+
+    <componentDescriptors>
+        <componentDescriptor>${project.basedir}/src/assembly/assembly-beam-runtime.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>

@@ -73,7 +73,7 @@ RUN groupadd -r hop -g ${HOP_GID} \
 COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
 COPY ./assemblies/client/target/hop/config "${CATALINA_HOME}"/webapps/ROOT/config
 COPY ./assemblies/client/target/hop/lib/core "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib
-COPY ./assemblies/client/target/hop/lib/beam "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib
+COPY ./assemblies/client/target/hop/plugins/engines/beam/lib-beam "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib
 COPY ./assemblies/client/target/hop/plugins "${CATALINA_HOME}"/plugins
 COPY ./assemblies/client/target/hop/lib/jdbc/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/

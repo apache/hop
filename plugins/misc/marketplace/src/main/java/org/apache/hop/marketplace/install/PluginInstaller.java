@@ -214,12 +214,13 @@ public class PluginInstaller {
     }
   }
 
+  /**
+   * Core install paths marketplace zips must not overwrite. Beam SDKs live under the Beam plugin
+   * ({@code plugins/engines/beam/lib-beam}) and are installed/uninstalled with that plugin.
+   */
   static boolean isProtectedPath(String relative) {
     String normalized = relative.replace('\\', '/');
-    return normalized.equals("lib/beam")
-        || normalized.startsWith("lib/beam/")
-        || normalized.equals("lib/core")
-        || normalized.startsWith("lib/core/");
+    return normalized.equals("lib/core") || normalized.startsWith("lib/core/");
   }
 
   private List<String> unzipAllowedEntries(Path zipFile, Path stageRoot)

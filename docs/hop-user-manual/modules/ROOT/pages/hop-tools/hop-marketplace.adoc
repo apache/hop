@@ -43,6 +43,8 @@ Notes:
 
 A copy is also under `config/projects/samples/marketplace/full-client-env.yaml`.
 
+Beam SDKs/runners live under `plugins/engines/beam/lib-beam` (installed with the Beam plugin), not under `lib/beam`. Launch scripts add that folder to the classpath only when it exists. Developers who want Beam baked into a local hop-client build can use Maven profile `-Pbeam` (for example `./mvnw -pl assemblies/client -am package -Pbeam`).
+
 == Defaults
 
 Without extra configuration, Hop uses:
@@ -237,7 +239,7 @@ plugins:
   - groupId: org.apache.hop    # optional; default org.apache.hop
     artifactId: hop-engines-spark
     version: "2.19.0"
-  # Beam engine plugin only (lib/beam stays in the core client):
+  # Beam engine plugin only (Beam SDKs ship under plugins/engines/beam/lib-beam with the plugin):
   # - artifactId: hop-engines-beam
   #   version: "2.19.0"
 

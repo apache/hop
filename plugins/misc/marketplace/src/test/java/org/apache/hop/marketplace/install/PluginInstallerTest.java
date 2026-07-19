@@ -50,7 +50,8 @@ class PluginInstallerTest {
 
   @Test
   void protectedPaths() {
-    assertTrue(PluginInstaller.isProtectedPath("lib/beam/foo.jar"));
+    assertFalse(PluginInstaller.isProtectedPath("lib/beam/foo.jar"));
+    assertFalse(PluginInstaller.isProtectedPath("plugins/engines/beam/lib-beam/x.jar"));
     assertTrue(PluginInstaller.isProtectedPath("lib/core/bar.jar"));
     assertFalse(PluginInstaller.isProtectedPath("plugins/engines/beam/hop.jar"));
     assertFalse(PluginInstaller.isProtectedPath("plugins/tech/parquet/lib/x.jar"));
@@ -93,7 +94,7 @@ class PluginInstallerTest {
           Files.isRegularFile(
               hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json")));
       // protected path from zip must not be written
-      assertFalse(Files.exists(hopHome.resolve("lib/beam/evil.jar")));
+      assertFalse(Files.exists(hopHome.resolve("lib/core/evil.jar")));
 
       new PluginUninstaller(log, hopHome).uninstall("hop-test-plugin");
       assertFalse(Files.exists(pluginJar));
@@ -208,7 +209,7 @@ class PluginInstallerTest {
       zos.write("<version>1.0.0</version>".getBytes(StandardCharsets.UTF_8));
       zos.closeEntry();
       // Should be ignored on activate
-      zos.putNextEntry(new ZipEntry("lib/beam/evil.jar"));
+      zos.putNextEntry(new ZipEntry("lib/core/evil.jar"));
       zos.write("nope".getBytes(StandardCharsets.UTF_8));
       zos.closeEntry();
     }
