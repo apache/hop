@@ -56,6 +56,11 @@ public class HopEnvironmentSpec {
   public static class RepositoryRef {
     private String id;
     private String url;
+
+    /** Optional Basic auth username (prefer env HOP_MARKETPLACE_PASSWORD for secrets). */
+    private String username;
+
+    private String password;
   }
 
   @Getter

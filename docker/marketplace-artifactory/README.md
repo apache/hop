@@ -112,18 +112,27 @@ export ARTIFACTORY_PASSWORD=…   # from first-time setup
     "repositories": [
       {
         "id": "local-artifactory",
-        "url": "http://localhost:8082/artifactory/hop-plugins-local/"
+        "url": "http://localhost:8082/artifactory/hop-plugins-local/",
+        "username": "admin"
       }
     ]
   }
 }
 ```
 
+Password via env (recommended — avoids storing secrets in hop-config.json):
+
 ```bash
 export HOP_HOME=/path/to/hop
+export HOP_MARKETPLACE_USERNAME=admin
+export HOP_MARKETPLACE_PASSWORD='your-artifactory-password'
+# aliases also work: ARTIFACTORY_USER / ARTIFACTORY_PASSWORD
 ./hop marketplace install hop-tech-parquet
 ./hop marketplace list
 ```
+
+**HTTP 401** means Artifactory rejected anonymous download — set the env vars (or put
+`password` on the repository object) and retry.
 
 ## Troubleshooting
 

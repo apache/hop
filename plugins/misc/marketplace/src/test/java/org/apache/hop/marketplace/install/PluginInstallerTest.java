@@ -103,6 +103,56 @@ class PluginInstallerTest {
     }
   }
 
+  @Test
+  void installWithBasicAuth() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    String path = "/org/apache/hop/hop-test-plugin/1.0.0/hop-test-plugin-1.0.0.zip";
+    server.createContext(
+        path,
+        exchange -> {
+          String auth = exchange.getRequestHeaders().getFirst("Authorization");
+          if (auth == null || !auth.startsWith("Basic ")) {
+            exchange.sendResponseHeaders(401, -1);
+            exchange.close();
+            return;
+          }
+          String decoded =
+              new String(
+                  java.util.Base64.getDecoder().decode(auth.substring("Basic ".length())),
+                  StandardCharsets.UTF_8);
+          if (!"admin:s3cret".equals(decoded)) {
+            exchange.sendResponseHeaders(401, -1);
+            exchange.close();
+            return;
+          }
+          exchange.getResponseHeaders().add("Content-Type", "application/zip");
+          exchange.sendResponseHeaders(200, zipBytes.length);
+          exchange.getResponseBody().write(zipBytes);
+          exchange.close();
+        });
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-auth");
+      Files.createDirectories(hopHome.resolve("plugins"));
+
+      MarketplaceConfig config = new MarketplaceConfig();
+      config.getRepositories().clear();
+      config
+          .getRepositories()
+          .add(
+              new MarketplaceRepository(
+                  "local", "http://127.0.0.1:" + port + "/", "admin", "s3cret"));
+
+      new PluginInstaller(new LogChannel("test"), hopHome, config)
+          .install(new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"), true);
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
   private static byte[] buildPluginZip() throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(bos)) {

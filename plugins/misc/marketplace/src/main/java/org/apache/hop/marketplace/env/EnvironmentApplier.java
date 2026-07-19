@@ -36,6 +36,7 @@ import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
+import org.apache.hop.marketplace.resolve.MavenRepositoryClient;
 
 /** Applies or validates a {@link HopEnvironmentSpec} against a Hop installation. */
 public class EnvironmentApplier {
@@ -144,11 +145,22 @@ public class EnvironmentApplier {
       }
       MavenCoordinates coords =
           new MavenCoordinates(dep.getGroupId(), dep.getArtifactId(), dep.getVersion());
-      String base = config.primaryRepositoryUrl();
+      String relativePath =
+          coords.groupId().replace('.', '/')
+              + "/"
+              + coords.artifactId()
+              + "/"
+              + coords.version()
+              + "/"
+              + coords.artifactId()
+              + "-"
+              + coords.version()
+              + ".jar";
       log.logBasic("Downloading dependency " + coords.gav() + " → " + target);
       try {
         Files.createDirectories(dir);
-        downloadJar(base, coords, jar);
+        new MavenRepositoryClient(log)
+            .downloadArtifact(config.primaryRepository(), relativePath, coords.gav(), jar);
       } catch (IOException e) {
         throw new HopException("Failed to install dependency " + coords.gav(), e);
       }
@@ -156,45 +168,6 @@ public class EnvironmentApplier {
 
     if (prune) {
       pruneExtras(desiredArtifacts);
-    }
-  }
-
-  private void downloadJar(String repoBase, MavenCoordinates coords, Path targetJar)
-      throws HopException, IOException {
-    String path =
-        coords.groupId().replace('.', '/')
-            + "/"
-            + coords.artifactId()
-            + "/"
-            + coords.version()
-            + "/"
-            + coords.artifactId()
-            + "-"
-            + coords.version()
-            + ".jar";
-    String base = repoBase.endsWith("/") ? repoBase : repoBase + "/";
-    java.net.http.HttpClient http =
-        java.net.http.HttpClient.newBuilder()
-            .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
-            .build();
-    java.net.http.HttpRequest request =
-        java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + path))
-            .timeout(java.time.Duration.ofMinutes(10))
-            .GET()
-            .build();
-    try {
-      java.net.http.HttpResponse<java.io.InputStream> response =
-          http.send(request, java.net.http.HttpResponse.BodyHandlers.ofInputStream());
-      if (response.statusCode() != 200) {
-        throw new HopException("HTTP " + response.statusCode() + " downloading " + base + path);
-      }
-      Files.createDirectories(targetJar.getParent());
-      try (java.io.InputStream in = response.body()) {
-        Files.copy(in, targetJar, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new HopException("Interrupted downloading " + coords.gav(), e);
     }
   }
 
@@ -227,14 +200,21 @@ public class EnvironmentApplier {
             ? env.getHopVersion()
             : MarketplaceCommand.resolveDefaultVersion(baseConfig));
     config.getRepositories().clear();
+    MarketplaceRepository baseRepo = baseConfig.primaryRepository();
     if (env.getRepositories() != null && !env.getRepositories().isEmpty()) {
       for (HopEnvironmentSpec.RepositoryRef ref : env.getRepositories()) {
         if (StringUtils.isNotBlank(ref.getUrl())) {
-          config
-              .getRepositories()
-              .add(
-                  new MarketplaceRepository(
-                      StringUtils.defaultIfBlank(ref.getId(), "env"), ref.getUrl()));
+          MarketplaceRepository repo =
+              new MarketplaceRepository(
+                  StringUtils.defaultIfBlank(ref.getId(), "env"),
+                  ref.getUrl(),
+                  StringUtils.isNotBlank(ref.getUsername())
+                      ? ref.getUsername()
+                      : baseRepo.getUsername(),
+                  StringUtils.isNotBlank(ref.getPassword())
+                      ? ref.getPassword()
+                      : baseRepo.getPassword());
+          config.getRepositories().add(repo);
         }
       }
     }

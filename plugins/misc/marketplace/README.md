@@ -80,13 +80,26 @@ Discovery order: `-f` / `HOP_ENV_FILE` / `PROJECT_HOME/hop-env.yaml` / `$HOP_HOM
     "groupId": "org.apache.hop",
     "defaultVersion": "2.19.0-SNAPSHOT",
     "repositories": [
-      { "id": "central", "url": "https://repo1.maven.org/maven2/" }
+      {
+        "id": "local-artifactory",
+        "url": "http://localhost:8082/artifactory/hop-plugins-local/",
+        "username": "admin"
+      }
     ]
   }
 }
 ```
 
-For local testing see `docker/marketplace-artifactory/README.md`.
+Password via environment (recommended — do not store secrets in hop-config.json):
+
+```bash
+export HOP_MARKETPLACE_USERNAME=admin            # or ARTIFACTORY_USER
+export HOP_MARKETPLACE_PASSWORD='your-password'  # or ARTIFACTORY_PASSWORD
+```
+
+**HTTP 401** means the repository requires auth: set the env vars (or `password` on the
+repository object) and retry. For local Artifactory details see
+`docker/marketplace-artifactory/README.md`.
 
 ## GUI
 

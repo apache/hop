@@ -81,7 +81,7 @@ public class PluginInstaller {
     Path zipFile =
         downloadDir.resolve(coordinates.artifactId() + "-" + coordinates.version() + ".zip");
     try {
-      client.downloadZip(config.primaryRepositoryUrl(), coordinates, zipFile);
+      client.downloadZip(config.primaryRepository(), coordinates, zipFile);
       Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId());
       deleteRecursive(stageRoot);
       Files.createDirectories(stageRoot);

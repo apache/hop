@@ -72,13 +72,17 @@ public class MarketplaceConfig {
 
   /** First repository base URL, or Maven Central. Always ends with {@code /}. */
   public String primaryRepositoryUrl() {
-    if (repositories == null || repositories.isEmpty()) {
-      return DEFAULT_REPO_URL;
+    return primaryRepository().normalizedUrl();
+  }
+
+  /** First configured repository (with credentials), or Maven Central defaults. */
+  public MarketplaceRepository primaryRepository() {
+    if (repositories != null && !repositories.isEmpty()) {
+      MarketplaceRepository first = repositories.get(0);
+      if (first != null && first.getUrl() != null && !first.getUrl().isBlank()) {
+        return first;
+      }
     }
-    String url = repositories.get(0).getUrl();
-    if (url == null || url.isBlank()) {
-      return DEFAULT_REPO_URL;
-    }
-    return url.endsWith("/") ? url : url + "/";
+    return new MarketplaceRepository("central", DEFAULT_REPO_URL);
   }
 }
