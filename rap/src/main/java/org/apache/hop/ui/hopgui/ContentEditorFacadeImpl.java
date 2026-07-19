@@ -246,7 +246,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
     @Override
     public void selectAll() {
-      // Monaco handles selection on client; no-op or could call a remote method if we add one
+      // Monaco handles selection on client; no-op until a remote method is added
     }
 
     @Override
@@ -257,6 +257,26 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     @Override
     public void copy() {
       // Monaco handles copy on client
+    }
+
+    @Override
+    public void cut() {
+      // no-op for Monaco until clipboard remote ops exist
+    }
+
+    @Override
+    public void paste() {
+      // no-op for Monaco until clipboard remote ops exist
+    }
+
+    @Override
+    public void undo() {
+      // no-op for Monaco until undo remote ops exist
+    }
+
+    @Override
+    public void redo() {
+      // no-op for Monaco until redo remote ops exist
     }
   }
 
@@ -348,6 +368,26 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     @Override
     public void copy() {
       text.copy();
+    }
+
+    @Override
+    public void cut() {
+      text.cut();
+    }
+
+    @Override
+    public void paste() {
+      text.paste();
+    }
+
+    @Override
+    public void undo() {
+      // SWT Text has no standard undo API
+    }
+
+    @Override
+    public void redo() {
+      // SWT Text has no standard redo API
     }
   }
 }

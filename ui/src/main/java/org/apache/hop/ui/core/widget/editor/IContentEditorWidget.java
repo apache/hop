@@ -108,4 +108,16 @@ public interface IContentEditorWidget {
 
   /** Copy selected text to clipboard. */
   void copy();
+
+  /** Cut selected text to clipboard. No-op if not supported by the implementation. */
+  void cut();
+
+  /** Paste from clipboard at the caret. No-op if not supported by the implementation. */
+  void paste();
+
+  /** Undo the last edit. No-op if not supported by the implementation. */
+  void undo();
+
+  /** Redo the last undone edit. No-op if not supported by the implementation. */
+  void redo();
 }

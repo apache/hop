@@ -29,8 +29,6 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
@@ -82,22 +80,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 
 /**
- * Desktop (RCP) implementation of the content editor using native SWT: Eclipse JFace SourceViewer
- * with rule-based syntax highlighting (XML, JSON, SQL), bracket matching, and XML auto-closing
- * tags.
+ * Desktop (RCP) implementation of the content editor using Eclipse JFace SourceViewer with
+ * rule-based syntax highlighting, bracket matching, and XML auto-closing tags.
+ *
+ * <p>Toolbar button registration lives in {@link ContentEditorActions} (shared with Hop Web).
+ * Context menu items and keyboard shortcuts stay here (RCP / JFace only).
  */
-@GuiPlugin(name = "Content editor")
+@GuiPlugin(name = "Content editor (desktop)")
 public class ContentEditorWidget implements IContentEditorWidget {
   private static final Class<?> PKG = ContentEditorWidget.class;
-
-  public static final String ID_TOOLBAR_UNDO = "ContentEditor-Toolbar-10000-undo";
-  public static final String ID_TOOLBAR_REDO = "ContentEditor-Toolbar-10010-redo";
-  public static final String ID_TOOLBAR_SELECT_ALL = "ContentEditor-Toolbar-20000-select-all";
-  public static final String ID_TOOLBAR_UNSELECT_ALL = "ContentEditor-Toolbar-20010-unselect-all";
-  public static final String ID_TOOLBAR_COPY = "ContentEditor-Toolbar-30000-copy";
-  public static final String ID_TOOLBAR_PASTE = "ContentEditor-Toolbar-30010-paste";
-  public static final String ID_TOOLBAR_CUT = "ContentEditor-Toolbar-30020-cut";
-  public static final String ID_TOOLBAR_FIND = "ContentEditor-Toolbar-40000-find";
 
   public static final String ID_CONTEXT_MENU_UNDO = "ContentEditor-ContextMenu-10000-undo";
   public static final String ID_CONTEXT_MENU_REDO = "ContentEditor-ContextMenu-10010-redo";
@@ -294,11 +285,11 @@ public class ContentEditorWidget implements IContentEditorWidget {
 
     // Update the toolbar items...
     if (toolbarWidgets != null) {
-      toolbarWidgets.enableToolbarItem(ID_TOOLBAR_UNDO, canUndo);
-      toolbarWidgets.enableToolbarItem(ID_TOOLBAR_REDO, canRedo);
-      toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CUT, canCut);
-      toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY, canCopy);
-      toolbarWidgets.enableToolbarItem(ID_TOOLBAR_PASTE, canPaste);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_UNDO, canUndo);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_REDO, canRedo);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_CUT, canCut);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_COPY, canCopy);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_PASTE, canPaste);
     }
 
     // Update the HopGui main menu items...
@@ -406,14 +397,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
       id = ID_CONTEXT_MENU_UNDO,
       label = "i18n::ContentEditorWidget.Menu.Undo",
       image = "ui/images/undo.svg")
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = ID_TOOLBAR_UNDO,
-      type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/undo.svg",
-      toolTip = "i18n::ContentEditorWidget.ToolBar.Undo.Tooltip")
   @GuiKeyboardShortcut(control = true, key = 'z')
   @GuiOsxKeyboardShortcut(command = true, key = 'z')
+  @Override
   public void undo() {
     sourceViewer.doOperation(SourceViewer.UNDO);
   }
@@ -424,14 +410,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
       id = ID_CONTEXT_MENU_REDO,
       label = "i18n::ContentEditorWidget.Menu.Redo",
       image = "ui/images/redo.svg")
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = ID_TOOLBAR_REDO,
-      type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/redo.svg",
-      toolTip = "i18n::ContentEditorWidget.ToolBar.Redo.Tooltip")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
+  @Override
   public void redo() {
     sourceViewer.doOperation(SourceViewer.REDO);
   }
@@ -442,13 +423,6 @@ public class ContentEditorWidget implements IContentEditorWidget {
       id = ID_CONTEXT_MENU_SELECT_ALL,
       label = "i18n::ContentEditorWidget.Menu.SelectAll",
       image = "ui/images/select-all.svg",
-      separator = true)
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = ID_TOOLBAR_SELECT_ALL,
-      type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/select-all.svg",
-      toolTip = "i18n::ContentEditorWidget.ToolBar.SelectAll.Tooltip",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'a')
   @GuiOsxKeyboardShortcut(command = true, key = 'a')
@@ -466,12 +440,6 @@ public class ContentEditorWidget implements IContentEditorWidget {
       id = ID_CONTEXT_MENU_UNSELECT_ALL,
       label = "i18n::ContentEditorWidget.Menu.UnselectAll",
       image = "ui/images/unselect-all.svg")
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = ID_TOOLBAR_UNSELECT_ALL,
-      type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/unselect-all.svg",
-      toolTip = "i18n::ContentEditorWidget.ToolBar.UnselectAll.Tooltip")
   @GuiKeyboardShortcut(key = SWT.ESC)
   @GuiOsxKeyboardShortcut(key = SWT.ESC)
   @Override
@@ -486,13 +454,6 @@ public class ContentEditorWidget implements IContentEditorWidget {
       label = "i18n::ContentEditorWidget.Menu.Copy",
       image = "ui/images/copy.svg",
       separator = true)
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = ID_TOOLBAR_COPY,
-      type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/copy.svg",
-      toolTip = "i18n::ContentEditorWidget.ToolBar.Copy.Tooltip",
-      separator = true)
   @GuiKeyboardShortcut(control = true, key = 'c')
   @GuiOsxKeyboardShortcut(command = true, key = 'c')
   @Override
@@ -506,14 +467,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
       id = ID_CONTEXT_MENU_CUT,
       label = "i18n::ContentEditorWidget.Menu.Cut",
       image = "ui/images/cut.svg")
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = ID_TOOLBAR_CUT,
-      type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/cut.svg",
-      toolTip = "i18n::ContentEditorWidget.ToolBar.Cut.Tooltip")
   @GuiKeyboardShortcut(control = true, key = 'x')
   @GuiOsxKeyboardShortcut(command = true, key = 'x')
+  @Override
   public void cut() {
     sourceViewer.doOperation(SourceViewer.CUT);
   }
@@ -524,14 +480,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
       id = ID_CONTEXT_MENU_PASTE,
       label = "i18n::ContentEditorWidget.Menu.Paste",
       image = "ui/images/paste.svg")
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = ID_TOOLBAR_PASTE,
-      type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/paste.svg",
-      toolTip = "i18n::ContentEditorWidget.ToolBar.Paste.Tooltip")
   @GuiKeyboardShortcut(control = true, key = 'v')
   @GuiOsxKeyboardShortcut(command = true, key = 'v')
+  @Override
   public void paste() {
     sourceViewer.doOperation(SourceViewer.PASTE);
   }
