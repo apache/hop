@@ -95,6 +95,17 @@ public abstract class BaseFileInputMeta<
     return getFileInput() == null ? null : getFileInput().getAcceptingTransformName();
   }
 
+  /**
+   * Sets the name of the transform that provides filenames when {@link #isAcceptingFilenames()} is
+   * true. Used by distributed engines (Spark mini-pipelines) to re-bind the accept source to a
+   * local injector.
+   */
+  public void setAcceptingTransformName(String acceptingTransformName) {
+    if (getFileInput() != null) {
+      getFileInput().setAcceptingTransformName(acceptingTransformName);
+    }
+  }
+
   public String getAcceptingField() {
     return getFileInput() == null ? null : getFileInput().getAcceptingField();
   }

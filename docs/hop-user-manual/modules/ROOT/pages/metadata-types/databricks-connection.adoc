@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Databricks Connection metadata for the Jobs / workspace REST API (PAT), used by Databricks Job Run actions.
+
+= Databricks Connection
+
+== Description
+
+*Databricks Connection* stores workspace credentials for the **Databricks Jobs / workspace REST API**.
+It is **not** the same as the xref:database/databases/databricks.adoc[Databricks JDBC] relational connection (SQL warehouse).
+
+Use this metadata type when orchestrating jobs from Hop (for example the upcoming **Databricks Job Run** workflow action) or when testing Jobs API access from the connection editor.
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Name
+|Hop metadata name (how actions reference this connection).
+
+|Description
+|Optional free-text description.
+
+|Workspace host
+|Workspace URL host, e.g. `https://adb-1234567890123456.7.azuredatabricks.net`. The `https://` scheme is optional.
+
+|Personal access token
+|Databricks PAT (stored as a password field). Prefer Hop variables / secret backends for production. Tokens are never written to Hop logs by the Jobs client.
+
+|API base path
+|Jobs API prefix. Default: `/api/2.1`.
+|===
+
+== Test connection
+
+Use **Test connection** in the editor to call the workspace identity endpoint (SCIM *Me*) or fall back to listing jobs. A successful test shows the resolved user name or host.
+
+== Related
+
+* xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — Deploy & run, classic clusters, Volumes
+* xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] — trigger and wait for Jobs API runs
+* xref:database/databases/databricks.adoc[Databricks database (JDBC)] — SQL warehouse access
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark pipeline engine] — fat jar / MainSpark on cluster
+* xref:metadata-types/spark-catalog.adoc[Spark Catalog] — Unity Catalog templates for lakehouse TABLE mode

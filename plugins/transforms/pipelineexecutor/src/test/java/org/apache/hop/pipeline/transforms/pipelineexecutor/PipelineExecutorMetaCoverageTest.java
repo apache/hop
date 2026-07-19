@@ -322,6 +322,22 @@ class PipelineExecutorMetaCoverageTest {
   }
 
   @Test
+  void searchInfoAndTargetTransformsRebindsTargetStreams() {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setExecutionResultTargetTransform("results");
+    // Build IO meta before name resolution (streams start with null subjects)
+    assertNotNull(meta.getTransformIOMeta());
+    assertNull(meta.getTransformIOMeta().getTargetStreams().get(0).getTransformMeta());
+
+    TransformMeta results = new TransformMeta("results", mock(ITransformMeta.class));
+    meta.searchInfoAndTargetTransforms(List.of(results));
+
+    assertEquals(results, meta.getExecutionResultTargetTransformMeta());
+    assertEquals(results, meta.getTransformIOMeta().getTargetStreams().get(0).getTransformMeta());
+  }
+
+  @Test
   void prepareExecutionResultsFileFieldsAddsFileNameColumn() throws HopTransformException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();

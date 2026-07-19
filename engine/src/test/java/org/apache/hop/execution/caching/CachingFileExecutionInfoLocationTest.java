@@ -18,21 +18,45 @@
 
 package org.apache.hop.execution.caching;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionData;
+import org.apache.hop.execution.ExecutionDataBuilder;
+import org.apache.hop.execution.ExecutionDataSetMeta;
+import org.apache.hop.execution.ExecutionType;
+import org.apache.hop.execution.IExecutionSelector;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CachingFileExecutionInfoLocationTest {
 
   private Path tempDir;
+
+  @BeforeAll
+  static void initLogging() {
+    if (!HopLogStore.isInitialized()) {
+      HopLogStore.init();
+    }
+  }
 
   @BeforeEach
   void setUp() throws Exception {
@@ -63,6 +87,36 @@ class CachingFileExecutionInfoLocationTest {
     }
   }
 
+  /**
+   * Spark cluster-env style: {@code HOP_DATA=file:///…} so {@code ${HOP_DATA}/executions} is a VFS
+   * URI. Writes must use Hop VFS, not {@code FileOutputStream} on the URI string.
+   */
+  @Test
+  void registerExecutionWithFileSchemeUriRoot() throws Exception {
+    Path targetDir = tempDir.resolve("vfs-uri-root");
+    String parentId = "parent-" + UUID.randomUUID();
+    String rootUri = targetDir.toAbsolutePath().toUri().toString(); // file:///…
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(rootUri);
+    location.initialize(new Variables(), null);
+    try {
+      Execution parent = new Execution();
+      parent.setId(parentId);
+      parent.setName("spark-file-uri");
+      parent.setExecutionType(ExecutionType.Pipeline);
+      parent.setExecutionStartDate(new Date());
+      parent.setRegistrationDate(new Date());
+      location.registerExecution(parent);
+
+      assertTrue(
+          Files.exists(targetDir.resolve(parentId + ".json")),
+          "cache entry should be written under file:// root via VFS");
+    } finally {
+      location.close();
+    }
+  }
+
   @Test
   void testInitializeCreateFolderFalse() throws Exception {
     Path targetDir = tempDir.resolve(UUID.randomUUID().toString());
@@ -78,6 +132,218 @@ class CachingFileExecutionInfoLocationTest {
       assertFalse(Files.exists(targetDir));
     } finally {
       location.close();
+    }
+  }
+
+  /**
+   * GUI path: getExecutionData(parentId, null) must aggregate per-transform sample data (Beam/Spark
+   * style) so PipelineExecutionViewer can show rows without a separate "all-transforms" owner.
+   */
+  @Test
+  void getExecutionDataNullIdAggregatesChildSamples() throws Exception {
+    Path root = tempDir.resolve("gui-agg");
+    String parentId = "parent-" + UUID.randomUUID();
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+
+    Execution parent = new Execution();
+    parent.setId(parentId);
+    parent.setName("spark-transforms");
+    parent.setExecutionType(ExecutionType.Pipeline);
+    parent.setExecutionStartDate(new Date());
+    parent.setRegistrationDate(new Date());
+    location.registerExecution(parent);
+
+    String ownerId = parentId + "|checksum|0";
+    ExecutionData data =
+        ExecutionDataBuilder.of()
+            .withParentId(parentId)
+            .withOwnerId(ownerId)
+            .withExecutionType(ExecutionType.Transform)
+            .withCollectionDate(new Date())
+            .withFinished(true)
+            .build();
+    // Minimal non-empty payload so aggregate sees content
+    data.setSetMetaData(
+        Map.of(
+            "FirstOutput/checksum.0",
+            new ExecutionDataSetMeta(
+                "FirstOutput/checksum.0", ownerId, "checksum", "0", "First output rows")));
+    List<Object[]> rows = new ArrayList<>();
+    rows.add(new Object[] {"v1"});
+    data.setDataSets(
+        Map.of(
+            "FirstOutput/checksum.0",
+            new RowBuffer(new RowMetaBuilder().addString("c").build(), rows)));
+    location.registerData(data);
+    try {
+      // Same CacheEntry the GUI uses after load: aggregate without a second process
+      ExecutionData loaded = location.getExecutionData(parentId, null);
+      assertNotNull(loaded, "GUI expects aggregated data for parentId + null child");
+      assertNotNull(loaded.getSetMetaData());
+      assertTrue(loaded.getSetMetaData().containsKey("FirstOutput/checksum.0"));
+      assertTrue(location.findChildIds(ExecutionType.Pipeline, parentId).contains(ownerId));
+    } finally {
+      location.close();
+    }
+  }
+
+  /**
+   * Simulates Spark driver + executor: separate location instances (separate in-memory caches)
+   * sharing the same root folder. Executor registerData must load the parent from disk and survive
+   * a later driver close() without wiping childExecutionData.
+   */
+  @Test
+  void registerDataFromSeparateProcessSurvivesDriverClose() throws Exception {
+    Path root = tempDir.resolve("shared");
+    String parentId = "parent-" + UUID.randomUUID();
+
+    CachingFileExecutionInfoLocation driver = new CachingFileExecutionInfoLocation();
+    driver.setRootFolder(root.toAbsolutePath().toString());
+    driver.initialize(new Variables(), null);
+
+    Execution parent = new Execution();
+    parent.setId(parentId);
+    parent.setName("spark-transforms");
+    parent.setExecutionType(ExecutionType.Pipeline);
+    parent.setExecutionStartDate(new Date());
+    parent.setRegistrationDate(new Date());
+    driver.registerExecution(parent);
+
+    // Parent must be on disk immediately for executors
+    assertTrue(Files.exists(root.resolve(parentId + ".json")));
+
+    // Executor-side location (fresh cache)
+    CachingFileExecutionInfoLocation executor = new CachingFileExecutionInfoLocation();
+    executor.setRootFolder(root.toAbsolutePath().toString());
+    executor.initialize(new Variables(), null);
+
+    ExecutionData data =
+        ExecutionDataBuilder.of()
+            .withParentId(parentId)
+            .withOwnerId(parentId + "|CheckSum|0")
+            .withExecutionType(ExecutionType.Transform)
+            .withCollectionDate(new Date())
+            .withFinished(true)
+            .build();
+    executor.registerData(data);
+    executor.close();
+
+    // Driver final flush must not drop samples written by the executor
+    driver.close();
+
+    CachingFileExecutionInfoLocation reader = new CachingFileExecutionInfoLocation();
+    reader.setRootFolder(root.toAbsolutePath().toString());
+    reader.initialize(new Variables(), null);
+    try {
+      ExecutionData loaded = reader.getExecutionData(parentId, parentId + "|CheckSum|0");
+      assertNotNull(loaded, "expected sample data after multi-writer merge");
+      assertTrue(loaded.isFinished());
+    } finally {
+      reader.close();
+    }
+  }
+
+  /**
+   * Short nested workflows register execution then update state at end. State must be persisted
+   * (dirty after setExecutionState) or the GUI filters them out as null-state entries.
+   */
+  @Test
+  void updateExecutionStateIsPersistedOnClose() throws Exception {
+    Path root = tempDir.resolve("state-dirty");
+    String id = "wf-" + UUID.randomUUID();
+
+    CachingFileExecutionInfoLocation location = new CachingFileExecutionInfoLocation();
+    location.setRootFolder(root.toAbsolutePath().toString());
+    location.initialize(new Variables(), null);
+    try {
+      Execution parent = new Execution();
+      parent.setId(id);
+      parent.setName("create-country-folder");
+      parent.setExecutionType(ExecutionType.Workflow);
+      parent.setExecutionStartDate(new Date());
+      parent.setRegistrationDate(new Date());
+      location.registerExecution(parent);
+
+      // registerExecution already flushed; end-of-run state must still write on close
+      org.apache.hop.execution.ExecutionState state = new org.apache.hop.execution.ExecutionState();
+      state.setId(id);
+      state.setName("create-country-folder");
+      state.setExecutionType(ExecutionType.Workflow);
+      state.setStatusDescription("Finished");
+      state.setFailed(false);
+      location.updateExecutionState(state);
+    } finally {
+      location.close();
+    }
+
+    CachingFileExecutionInfoLocation reader = new CachingFileExecutionInfoLocation();
+    reader.setRootFolder(root.toAbsolutePath().toString());
+    reader.initialize(new Variables(), null);
+    try {
+      org.apache.hop.execution.ExecutionState loaded = reader.getExecutionState(id);
+      assertNotNull(loaded, "executionState must be on disk after close()");
+      assertEquals("Finished", loaded.getStatusDescription());
+    } finally {
+      reader.close();
+    }
+  }
+
+  /**
+   * Local engine (Mapping with "local" run config) stores sample rows under owner {@code
+   * all-transforms} without a corresponding child {@link Execution}. Refreshing the execution
+   * perspective must not NPE when expanding child IDs that only have data.
+   */
+  @Test
+  void findExecutionIdsWithDataOnlyChildDoesNotNpe() throws Exception {
+    Path root = tempDir.resolve("all-transforms-child");
+    String parentId = "parent-" + UUID.randomUUID();
+
+    CachingFileExecutionInfoLocation writer = new CachingFileExecutionInfoLocation();
+    writer.setRootFolder(root.toAbsolutePath().toString());
+    writer.initialize(new Variables(), null);
+    try {
+      Execution parent = new Execution();
+      parent.setId(parentId);
+      parent.setName("upper-name");
+      parent.setExecutionType(ExecutionType.Pipeline);
+      parent.setExecutionStartDate(new Date());
+      parent.setRegistrationDate(new Date());
+      writer.registerExecution(parent);
+
+      ExecutionData data =
+          ExecutionDataBuilder.of()
+              .withParentId(parentId)
+              .withOwnerId(ExecutionDataBuilder.ALL_TRANSFORMS)
+              .withExecutionType(ExecutionType.Transform)
+              .withCollectionDate(new Date())
+              .withFinished(true)
+              .build();
+      writer.registerData(data);
+    } finally {
+      writer.close();
+    }
+
+    CachingFileExecutionInfoLocation reader = new CachingFileExecutionInfoLocation();
+    reader.setRootFolder(root.toAbsolutePath().toString());
+    reader.initialize(new Variables(), null);
+    try {
+      // Execution perspective refresh path
+      List<String> viaSelector =
+          assertDoesNotThrow(() -> reader.findExecutionIDs(IExecutionSelector.ALL));
+      assertTrue(viaSelector.contains(parentId));
+      assertFalse(
+          viaSelector.contains(ExecutionDataBuilder.ALL_TRANSFORMS),
+          "data-only owner must not appear as a selectable execution id");
+
+      // includeChildren=true also walks addChildIds over getChildIds()
+      List<String> withChildren = assertDoesNotThrow(() -> reader.getExecutionIds(true, 0));
+      assertTrue(withChildren.contains(parentId));
+      assertFalse(withChildren.contains(ExecutionDataBuilder.ALL_TRANSFORMS));
+    } finally {
+      reader.close();
     }
   }
 }

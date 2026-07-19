@@ -49,6 +49,9 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
 
   private boolean password;
 
+  /** Height in text lines for MULTI_LINE_TEXT (minimum 1). */
+  private int multiLineTextHeight = 1;
+
   private String fieldName;
 
   private Class<?> fieldClass;
@@ -104,6 +107,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.disabledImage = null;
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
+    this.multiLineTextHeight = Math.max(1, guiElement.multiLineTextHeight());
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
     this.label = getTranslation(guiElement.label(), fieldPackageName, field.getDeclaringClass());
@@ -143,6 +147,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.disabledImage = null;
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
+    this.multiLineTextHeight = Math.max(1, guiElement.multiLineTextHeight());
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
     this.label = getTranslation(guiElement.label(), methodPackageName, method.getDeclaringClass());
@@ -368,6 +373,22 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
    */
   public void setPassword(boolean password) {
     this.password = password;
+  }
+
+  /**
+   * Preferred height for {@link GuiElementType#MULTI_LINE_TEXT}, in text lines (at least 1).
+   *
+   * @return value of multiLineTextHeight
+   */
+  public int getMultiLineTextHeight() {
+    return multiLineTextHeight;
+  }
+
+  /**
+   * @param multiLineTextHeight The multiLineTextHeight to set (clamped to at least 1)
+   */
+  public void setMultiLineTextHeight(int multiLineTextHeight) {
+    this.multiLineTextHeight = Math.max(1, multiLineTextHeight);
   }
 
   /**

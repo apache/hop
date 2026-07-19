@@ -153,7 +153,7 @@ limitations under the License.
     <file>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
-      <name>${PROJECT_HOME}/files/excel/temp-excel-output.xlsx</name>
+      <name>${PROJECT_HOME}/output/temp-excel-output.xlsx</name>
     </file>
     <filefield>N</filefield>
     <filter>

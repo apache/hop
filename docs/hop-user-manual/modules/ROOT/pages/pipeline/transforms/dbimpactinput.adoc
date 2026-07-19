@@ -20,7 +20,7 @@ under the License.
 :openvar: ${
 :closevar: }
 
-= image:images/icons/database.svg[Database Impact Input, role="image-doc-icon"] Database Impact Input
+= image:transforms/icons/database.svg[Database Impact Input Icon, role="image-doc-icon"] Database Impact Input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
@@ -37,9 +37,11 @@ IMPORTANT: This transform supports error handling.  You can add an error handlin
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 

@@ -41,6 +41,7 @@ By default, Hop contains the following metadata types:
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
 xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can be used for Inter Process Communication (IPC) or fast data serialization.
+* xref:metadata-types/databricks-connection.adoc[Databricks Connection]: Workspace connection for the Databricks Jobs / REST API (PAT); not the JDBC SQL warehouse connection
 * xref:metadata-types/execution-data-profile.adoc[Execution Data Profile]: Collects and profiles data as it flows through a pipeline using configurable samplers for insight into value ranges, nulls, and row samples.
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location]: Defines where and how Apache Hop stores execution metadata, supporting local files, remote servers, Neo4j, or Elastic for later inspection and analysis.
 * xref:metadata-types/google-storage-authentication.adoc[Google Storage Connection]: A Google Cloud Storage connection type.
@@ -60,6 +61,7 @@ xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can
 * xref:metadata-types/rest-connection.adoc[REST Connection]: Describes all the metadata needed to connect to a REST api.
 * xref:metadata-types/salesforce-connection.adoc[Salesforce Connection]: Describes a reusable Salesforce connection that can be used across multiple Salesforce transforms
 * xref:metadata-types/splunk-connection.adoc[Splunk Connection]: Describes a Splunk connection
+* xref:metadata-types/spark-catalog.adoc[Spark Catalog]: Spark SQL catalog configuration for Delta Lake / Apache Iceberg TABLE mode on the native Spark engine
 * xref:metadata-types/static-schema-definition.adoc[Static Schema Definition]: Defines a reusable data stream layout to ensure consistency across multiple pipelines and simplify schema management.
 * xref:metadata-types/variable-resolver/index.adoc[Variable Resolver]: Use plugins to resolve variable values with a pipeline, a key store, a vaults, or secret managers.
 * xref:hop-server/web-service.adoc[Web Service]: Allows to run a pipeline to generate output for a servlet on Hop Server

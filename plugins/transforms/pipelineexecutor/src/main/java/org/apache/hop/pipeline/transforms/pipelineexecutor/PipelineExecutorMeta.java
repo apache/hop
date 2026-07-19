@@ -529,6 +529,22 @@ public class PipelineExecutorMeta
         TransformMeta.findTransform(transforms, resultFilesTargetTransform);
     executorsOutputTransformMeta =
         TransformMeta.findTransform(transforms, executorsOutputTransform);
+
+    // Rebind TARGET streams: getTransformIOMeta() may have been created before names were
+    // resolved, leaving Stream.transformMeta null (Beam/Spark multi-target discovery).
+    List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
+    if (targetStreams.size() > 0) {
+      targetStreams.get(0).setTransformMeta(executionResultTargetTransformMeta);
+    }
+    if (targetStreams.size() > 1) {
+      targetStreams.get(1).setTransformMeta(outputRowsSourceTransformMeta);
+    }
+    if (targetStreams.size() > 2) {
+      targetStreams.get(2).setTransformMeta(resultFilesTargetTransformMeta);
+    }
+    if (targetStreams.size() > 3) {
+      targetStreams.get(3).setTransformMeta(executorsOutputTransformMeta);
+    }
   }
 
   @Override

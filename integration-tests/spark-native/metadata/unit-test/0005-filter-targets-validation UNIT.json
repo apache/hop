@@ -1,0 +1,57 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "0005-filter-true-golden",
+      "transform_name": "Verify true"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "stateCode",
+          "data_set_field": "stateCode"
+        },
+        {
+          "transform_field": "state",
+          "data_set_field": "state"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "0005-filter-false-golden",
+      "transform_name": "Verify false"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-filter-targets-validation UNIT",
+  "description": "Compare dual Filter Rows target outputs to golden",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0005-filter-targets-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

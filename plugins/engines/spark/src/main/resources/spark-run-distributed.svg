@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Network / multi-node badge: three nodes linked -->
+  <circle cx="4" cy="4" r="2.2" fill="#0e3a5a"/>
+  <circle cx="12" cy="4" r="2.2" fill="#0e3a5a"/>
+  <circle cx="8" cy="12" r="2.2" fill="#0e3a5a"/>
+  <path d="M5.5 5 L7 10 M10.5 5 L9 10 M6 4 H10" stroke="#0e3a5a" stroke-width="1.2" fill="none"/>
+</svg>

@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Files To Result transform allows you to set filenames in the internal result files of a pipeline, for use by subsequent workflow actions. Subsequent workflow actions can then use this information
+:description: The Files To Result transform allows you to set filenames in the internal result files of a pipeline, for use by subsequent workflow actions.
 
 = image:transforms/icons/filestoresult.svg[Files to result transform Icon, role="image-doc-icon"] Files to result
 
@@ -40,9 +40,11 @@ WARNING: the Files To Result is available for historical reasons. Check the xref
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:cross.svg[Not Supported, 24]
-!Flink! image:cross.svg[Not Supported, 24]
-!Dataflow! image:cross.svg[Not Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 

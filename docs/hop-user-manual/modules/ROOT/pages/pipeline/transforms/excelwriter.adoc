@@ -42,9 +42,11 @@ The `.xls` files use a binary format which is better suited for simple content, 
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 
@@ -53,9 +55,22 @@ The `.xls` files use a binary format which is better suited for simple content, 
 [options="header"]
 |===
 |Format|Extension|Backend|Notes
-|Excel 97–2003|`.xls`|POI|Sheet password protection supported
-|Excel 2007+|`.xlsx`|POI|Streaming mode for large files; no sheet password protection
-|OpenDocument Spreadsheet|`.ods`|ODFDOM|LibreOffice Calc compatible; see <<ods-limitations>> below
+
+|Excel 97–2003
+|`.xls`
+|POI
+|Sheet password protection supported
+
+|Excel 2007+
+|`.xlsx`
+|POI
+|Streaming mode for large files; no sheet password protection
+
+|OpenDocument Spreadsheet
+|`.ods`
+|ODFDOM
+|LibreOffice Calc compatible; see <<ods-limitations>> below
+
 |===
 
 == Options

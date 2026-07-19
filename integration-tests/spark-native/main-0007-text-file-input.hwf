@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>New workflow</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <created_user>-</created_user>
+  <modified_user>-</modified_user>
+  <created_date>2026/07/16 11:49:49.976</created_date>
+  <modified_date>2026/07/16 11:49:49.976</modified_date>
+  <parameters/>
+  <actions>
+    <action>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
+      <hour>12</hour>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <xloc>80</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0007-text-file-input-create-test-files.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <name>0007-text-file-input-create-test-files</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>272</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0007-text-file-input-spark-readback.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>spark-local</run_configuration>
+      <name>0007-text-file-input-spark-readback</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>560</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0007-text-file-input-validate.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <name>0007-text-file-input-validate</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>816</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>0007-text-file-input-create-test-files</to>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0007-text-file-input-create-test-files</from>
+      <to>0007-text-file-input-spark-readback</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0007-text-file-input-spark-readback</from>
+      <to>0007-text-file-input-validate</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+      <enabled>Y</enabled>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <note>Regular pipeline engine: Create 3 test files in 3 text file output copies
+Read the files back with a Spark native engine, write to parquet files.
+Verify with an pipeline unit test </note>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <fontbold>N</fontbold>
+      <fontitalic>N</fontitalic>
+      <fontcolorred>200</fontcolorred>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorblue>250</fontcolorblue>
+      <backgroundcolorred>15</backgroundcolorred>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <bordercolorred>200</bordercolorred>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorblue>250</bordercolorblue>
+      <xloc>80</xloc>
+      <yloc>192</yloc>
+      <width>32</width>
+      <height>32</height>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

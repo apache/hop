@@ -24,12 +24,16 @@
 #   ./tools/spark-client-pack/materialize-pack.sh 3.4.4 /path/to/hop
 #   SPARK_CLIENT_VERSIONS="3.3.4 3.4.4 3.5.8" ./tools/spark-client-pack/materialize-pack.sh
 #
-# Then generate a matching fat jar:
+# Then generate a matching fat jar (Beam Spark 3.x packs only):
 #   HOP_SPARK_CLIENT_VERSION=3.4.4 ./hop-conf.sh --generate-fat-jar=/tmp/hop-spark-3.4.4.jar \
 #       --spark-client-version=3.4.4
 #
 # And run Hop with the same pack on the driver classpath:
 #   HOP_SPARK_CLIENT_VERSION=3.4.4 ./hop-run.sh ...
+#
+# Native Spark 4 engine fat jar (no pack to materialise; uses plugins/engines/spark/lib):
+#   ./hop-conf.sh --generate-fat-jar=/tmp/hop-native-spark4.jar --spark-client-version=native
+# Do not use "native" as a pack version argument to this script.
 
 set -euo pipefail
 

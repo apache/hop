@@ -197,7 +197,9 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     data.executorWorkflow = createWorkflow(data.executorWorkflowMeta, this);
 
-    data.executorWorkflow.initializeFrom(getPipeline());
+    // Re-apply variables from this transform after factory create so nested execution-info
+    // locations see HOP_DATA / EXECUTIONS_INFORMATION_FOLDER (and any mapPartitions injects).
+    data.executorWorkflow.initializeFrom(this);
     data.executorWorkflow.setParentPipeline(getPipeline());
     data.executorWorkflow.setLogLevel(getLogLevel());
     data.executorWorkflow.setInternalHopVariables();
@@ -360,8 +362,11 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   IWorkflowEngine<WorkflowMeta> createWorkflow(
       WorkflowMeta workflowMeta, ILoggingObject parentLogging) throws HopException {
 
+    // Use this transform as the variable source (same space as the parent pipeline, including
+    // Spark-injected HOP_DATA / EXECUTIONS_INFORMATION_FOLDER) so execution-info location paths
+    // resolve when the workflow is nested under Native Spark mapPartitions / DRIVER_ONLY.
     return WorkflowEngineFactory.createWorkflowEngine(
-        getPipeline(),
+        this,
         resolve(meta.getRunConfigurationName()),
         metadataProvider,
         workflowMeta,

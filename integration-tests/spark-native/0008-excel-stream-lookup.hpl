@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>0008-excel-stream-lookup</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Native Spark: main from 3 Parquet files + Excel info stream into Stream Lookup</description>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <created_user>-</created_user>
+    <created_date>2026/07/16 00:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/07/16 00:00:00.000</modified_date>
+  </info>
+  <notepads/>
+  <order>
+    <hop>
+      <from>orders parquet/*</from>
+      <to>Lookup product</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>products.xlsx</from>
+      <to>Lookup product</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Lookup product</from>
+      <to>result csv</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+
+  <transform>
+    <type>SparkFileInput</type>
+    <name>orders parquet/*</name>
+    <description>Main stream: all orders-*.parquet under source/ (3 part files)</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_path>${PROJECT_HOME}/output/0008-excel-stream-lookup/source/parquet</file_path>
+    <file_format>parquet</file_format>
+    <header>Y</header>
+    <separator>,</separator>
+    <quote>"</quote>
+    <infer_schema>N</infer_schema>
+    <multi_line>N</multi_line>
+    <extra_options/>
+    <fields>
+      <field>
+        <name>orderId</name>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>0</precision>
+      </field>
+      <field>
+        <name>productCode</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>qty</name>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>0</precision>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <type>ExcelInput</type>
+    <name>products.xlsx</name>
+    <description>Info stream for Stream Lookup (classic Excel on mapPartitions)</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <header>Y</header>
+    <noempty>Y</noempty>
+    <stoponempty>N</stoponempty>
+    <filefield/>
+    <sheetfield/>
+    <sheetrownumfield/>
+    <rownumfield/>
+    <limit>0</limit>
+    <encoding/>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <accept_filenames>N</accept_filenames>
+    <accept_field/>
+    <accept_transform_name/>
+    <file>
+      <name>${PROJECT_HOME}/output/0008-excel-stream-lookup/source/products.xlsx</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>Y</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>productCode</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>productName</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>unitPrice</name>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>0</precision>
+        <trim_type>both</trim_type>
+        <repeat>N</repeat>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+    </fields>
+    <sheets>
+      <sheet>
+        <name>Sheet1</name>
+        <startrow>0</startrow>
+        <startcol>0</startcol>
+      </sheet>
+    </sheets>
+    <strict_types>N</strict_types>
+    <error_ignored>N</error_ignored>
+    <error_line_skipped>N</error_line_skipped>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <spreadsheet_type>POI</spreadsheet_type>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <type>StreamLookup</type>
+    <name>Lookup product</name>
+    <description>Main = parquet orders; info = Excel product catalog</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <from>products.xlsx</from>
+    <input_sorted>N</input_sorted>
+    <preserve_memory>N</preserve_memory>
+    <sorted_list>N</sorted_list>
+    <integer_pair>N</integer_pair>
+    <lookup>
+      <key>
+        <name>productCode</name>
+        <field>productCode</field>
+      </key>
+      <value>
+        <name>productName</name>
+        <rename>productName</rename>
+        <default/>
+        <type>String</type>
+      </value>
+      <value>
+        <name>unitPrice</name>
+        <rename>unitPrice</rename>
+        <default>0</default>
+        <type>Integer</type>
+      </value>
+    </lookup>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <type>SparkFileOutput</type>
+    <name>result csv</name>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_path>${PROJECT_HOME}/output/0008-excel-stream-lookup/result</file_path>
+    <file_format>csv</file_format>
+    <save_mode>Overwrite</save_mode>
+    <header>Y</header>
+    <separator>,</separator>
+    <quote>"</quote>
+    <partition_by/>
+    <coalesce>1</coalesce>
+    <extra_options/>
+    <attributes/>
+    <GUI>
+      <xloc>608</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling/>
+  <attributes/>
+</pipeline>

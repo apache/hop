@@ -557,27 +557,43 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
   }
 
   private void createParentFolder(String filename) throws HopTransformException {
-    if (!meta.getFileSettings().isCreateParentFolder()) return;
+    if (!meta.getFileSettings().isCreateParentFolder()) {
+      return;
+    }
     // Check for parent folder
     FileObject parentfolder = null;
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject(filename).getParent();
+      parentfolder = HopVfs.getFileObject(filename, variables).getParent();
+      if (parentfolder == null) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "JsonEOutput.Error.ErrorCreatingParentFolder", filename));
+      }
       if (!parentfolder.exists()) {
+        String parentUri = HopVfs.getFriendlyURI(parentfolder);
         if (isDebug()) {
           logDebug(
-              BaseMessages.getString(
-                  PKG, "JsonOutput.Error.ParentFolderNotExist", parentfolder.getName()));
+              BaseMessages.getString(PKG, "JsonEOutput.Error.ParentFolderNotExist", parentUri));
         }
-        parentfolder.createFolder();
+        try {
+          parentfolder.createFolder();
+        } catch (Exception createEx) {
+          // Another concurrent writer (e.g. Beam parallel outputs) may have created it
+          parentfolder = HopVfs.getFileObject(filename, variables).getParent();
+          if (parentfolder == null || !parentfolder.exists()) {
+            throw createEx;
+          }
+        }
         if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "JsonOutput.Log.ParentFolderCreated"));
+          logDebug(BaseMessages.getString(PKG, "JsonEOutput.Log.ParentFolderCreated"));
         }
       }
     } catch (Exception e) {
+      String parentDesc =
+          parentfolder != null ? HopVfs.getFriendlyURI(parentfolder) : String.valueOf(filename);
       throw new HopTransformException(
-          BaseMessages.getString(
-              PKG, "JsonOutput.Error.ErrorCreatingParentFolder", parentfolder.getName()));
+          BaseMessages.getString(PKG, "JsonEOutput.Error.ErrorCreatingParentFolder", parentDesc),
+          e);
     } finally {
       if (parentfolder != null) {
         try {

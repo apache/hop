@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Kafka Consumer transform pulls data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, and can optionally stop when idle.
+:description: The Kafka Consumer transform pulls data from a Kafka topic.
 
 = image:transforms/icons/KafkaConsumerInput.svg[Kafka Consumer transform Icon, role="image-doc-icon"] Kafka Consumer
 
@@ -51,9 +51,11 @@ For example, you can run the parent pipeline on a timed schedule, drain a topic 
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 

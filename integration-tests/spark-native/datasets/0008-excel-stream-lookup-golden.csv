@@ -1,0 +1,7 @@
+orderId,productCode,qty,productName,unitPrice
+1,AAA,2,Alpha Widget,10
+2,BBB,1,Beta Gadget,20
+3,CCC,5,Gamma Device,30
+4,AAA,1,Alpha Widget,10
+5,BBB,3,Beta Gadget,20
+6,CCC,2,Gamma Device,30

@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,11 +32,13 @@ import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -98,11 +101,30 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
   @Override
   public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
       throws HopException {
-    // The actual root folder
-    //
-    actualRootFolder = variables.resolve(rootFolder);
+    // Resolve root folder with the executor's variables (pipeline or workflow). Nested engines
+    // (Workflow Executor, Pipeline Executor) must inherit parent variables so ${HOP_DATA} /
+    // ${EXECUTIONS_INFORMATION_FOLDER} resolve the same way as the top-level run.
+    actualRootFolder = variables != null ? variables.resolve(rootFolder) : rootFolder;
 
-    if (createParentFolder && StringUtils.isNotEmpty(actualRootFolder)) {
+    if (StringUtils.isEmpty(actualRootFolder)) {
+      throw new HopException(
+          "Caching file execution information location has an empty root folder"
+              + " (configured value was '"
+              + Const.NVL(rootFolder, "")
+              + "'). Set a path or a variable that resolves on this executor.");
+    }
+    if (actualRootFolder.contains("${") || actualRootFolder.contains("%%")) {
+      throw new HopException(
+          "Caching file execution information location root folder still contains unresolved"
+              + " variables after resolution: '"
+              + actualRootFolder
+              + "' (configured '"
+              + Const.NVL(rootFolder, "")
+              + "'). Ensure variables like EXECUTIONS_INFORMATION_FOLDER / HOP_DATA are set on"
+              + " the pipeline or workflow that opens this location (including nested executors).");
+    }
+
+    if (createParentFolder) {
       try {
         FileObject folder = HopVfs.getFileObject(actualRootFolder);
         if (!folder.exists()) {
@@ -114,11 +136,17 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     }
 
     super.initialize(variables, metadataProvider);
+    LogChannel.GENERAL.logBasic(
+        "Caching file execution info location ready: rootFolder=" + actualRootFolder);
   }
 
   @Override
   protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
     try {
+      // Multi-writer safe: driver and executors each hold a separate CacheEntry in memory.
+      // Merge child maps from the on-disk file so samples/children written by other processes
+      // are not wiped when this process flushes parent metrics/state.
+      mergeChildrenFromDisk(cacheEntry);
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
       cacheEntry.writeToDisk(actualRootFolder);
@@ -127,6 +155,38 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
     } catch (Exception e) {
       throw new HopException(
           "Error writing caching file entry to disk in folder " + actualRootFolder, e);
+    }
+  }
+
+  /**
+   * Union child maps from the existing on-disk entry into {@code cacheEntry}. In-memory values win
+   * on key conflicts ({@code putIfAbsent} from disk).
+   */
+  private void mergeChildrenFromDisk(CacheEntry cacheEntry) {
+    if (cacheEntry == null || StringUtils.isEmpty(cacheEntry.getId())) {
+      return;
+    }
+    try {
+      CacheEntry onDisk = loadCacheEntry(cacheEntry.getId());
+      if (onDisk == null) {
+        return;
+      }
+      mergeMap(onDisk.getChildExecutions(), cacheEntry.getChildExecutions());
+      mergeMap(onDisk.getChildExecutionStates(), cacheEntry.getChildExecutionStates());
+      mergeMap(onDisk.getChildExecutionData(), cacheEntry.getChildExecutionData());
+    } catch (Exception e) {
+      // Best-effort: still write our in-memory view if merge fails
+      LogChannel.GENERAL.logError(
+          "Unable to merge on-disk cache entry before persist (non-fatal): " + e.getMessage());
+    }
+  }
+
+  private static <K, V> void mergeMap(Map<K, V> fromDisk, Map<K, V> into) {
+    if (fromDisk == null || fromDisk.isEmpty() || into == null) {
+      return;
+    }
+    for (Map.Entry<K, V> e : fromDisk.entrySet()) {
+      into.putIfAbsent(e.getKey(), e.getValue());
     }
   }
 
@@ -203,7 +263,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           // To add child IDs we need to load the file.
           // We won't store these in the cache though.
           //
-          if (!selector.isSelectingParents()) {
+          if (!activeSelector.isSelectingParents()) {
             entry = loadCacheEntry(id);
             if (entry != null) {
               addChildIds(entry, ids);

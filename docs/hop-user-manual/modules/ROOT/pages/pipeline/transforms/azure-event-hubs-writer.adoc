@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Azure Event Hubs Writer transform allows you to write messages (events) to a streaming service bus called Event Hubs on the Microsoft Azure cloud platform.
+:description: The Azure Event Hubs Writer transform allows you to write messages (events) to Event Hubs on the Microsoft Azure cloud platform.
 
 = image:transforms/icons/azure.svg[Azure Event Hubs Writer Icon, role="image-doc-icon"] Azure Event Hubs Writer
 
@@ -31,9 +31,11 @@ The Azure Event Hubs Writer transform allows you to write messages (events) to a
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:cross.svg[Not Supported, 24]
-!Flink! image:cross.svg[Not Supported, 24]
-!Dataflow! image:cross.svg[Not Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 

@@ -34,9 +34,11 @@ TIP: More information on this file format is available on https://en.wikipedia.o
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
 !===
 |===
 
@@ -47,19 +49,42 @@ TIP: More information on this file format is available on https://en.wikipedia.o
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform. This name has to be unique in a single pipeline.
-|Filename is defined in a field?|The file name to read is available in a field in the input stream.
-|Get filename from field|Specify the field to read the file name from.
-|File or directory|Specifies the location and/or name of the input text file.
-|Add|Click to add the file/directory/wildcard combination to the list of selected files (grid) below.|
-|Browse|Click to select the file to load from a file browser.
-|Regular expression|Specifies the regular expression you want to use to select the files in the directory specified in the previous option.
-|Exclude Regular|Specifies a regular expression to exclude files from the specified directory. 
-|Selected Files|Contains a list of selected files (or wildcard selections) and a property specifying if that file is required or not.
+
+|Transform name
+|Name of the transform. This name has to be unique in a single pipeline.
+
+|Filename is defined in a field?
+|The file name to read is available in a field in the input stream.
+
+|Get filename from field
+|Specify the field to read the file name from.
+
+|File or directory
+|Specifies the location and/or name of the input text file.
+|Add|Click to add the file/directory/wildcard combination to the list of selected files (grid) below.
+
+|Browse
+|Click to select the file to load from a file browser.
+
+|Regular expression
+|Specifies the regular expression you want to use to select the files in the directory specified in the previous option.
+
+|Exclude Regular
+|Specifies a regular expression to exclude files from the specified directory.
+
+|Selected Files
+|Contains a list of selected files (or wildcard selections) and a property specifying if that file is required or not.
 If a file is required and it is not found, an error is generated, otherwise, the file name is skipped.
-|Delete|Click to remove the selected file or wildcard selection from the list.
-|Edit|Click to modiy the selected file or wildcard.
-|Show filenames(s)...|Displays a list of all files that will be loaded based on the current selected file definitions
+
+|Delete
+|Click to remove the selected file or wildcard selection from the list.
+
+|Edit
+|Click to modiy the selected file or wildcard.
+
+|Show filenames(s)...
+|Displays a list of all files that will be loaded based on the current selected file definitions
+
 |===
 
 === Content Tab
@@ -75,7 +100,7 @@ If a file is required and it is not found, an error is generated, otherwise, the
 |Include filename in output?|Allows you to specify a field name to include the file name in the output of this transform.
 |Rownum in output|Allows you to specify a field name to include the row number (Integer) in the output of this transform.
 |Reset rownum per file?|Enable to reset the generated row number to 1 at the start of every individual file. Otherwise, the rownum counts all rows in all files.
-|Include section name in output?|Allows you specify a field name to include the section namemin the output of this transform.
+|Include section name in output?|Allows you specify a field name to include the section name in the output of this transform.
 |Add filename to result?|Adds the names of the files read to the result of this pipeline.
 A unique list is kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
 |===

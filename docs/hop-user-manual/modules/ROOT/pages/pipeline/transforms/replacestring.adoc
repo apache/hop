@@ -39,9 +39,11 @@ You can also use xref::variables.adoc#_hexadecimal_values[hexadecimal replacemen
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 

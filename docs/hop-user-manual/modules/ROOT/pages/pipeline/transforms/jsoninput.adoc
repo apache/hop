@@ -54,9 +54,11 @@ Check the `json-input-nested-elements.hpl` sample in the Samples project for an 
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 
@@ -199,7 +201,9 @@ The Additional output fields tab contains the following options to specify addit
 While processing input JSON files, if a JSON record has one or more field  containing null values, by default the null values will be present in the transform output.
 
 For example if we have a JSON file like this
-```json
+
+[source,json]
+----
 {
   "persons" : [
     {
@@ -220,7 +224,7 @@ For example if we have a JSON file like this
     }
   ]
 }
-```
+----
 
 When extracting the fields id and Name using the following field definition:
 [options="header", cols="1a, 3a"]
@@ -232,30 +236,33 @@ When extracting the fields id and Name using the following field definition:
 
 given the default behavior, the output will be
 
-```
+[source]
+----
 id;Name
 1;Name 1
 2;Name 2
 3;null
 4;Name 4
-```
+----
 
 Now let's only select the `name` field and see what happens
 
-```
+[source]
+----
 Name
 Name 1
 Name 2
 Name 4
-```
+----
 
 You will notice that you only have 3 rowsets returned in this case ( the null line is omited from the result)
 
 
 To change Hop's behavior regarding null values in JSON files, so that null values will not be considered in JSON output, you change the `HOP_JSON_INCLUDE_NULLS` configuration variable and set it's value to N
 
-```
+[source]
+----
 HOP_JSON_INPUT_INCLUDE_NULLS = N
-```
+----
 
 After restaring Hop, when we run the pipeline once again you will have 3 rows resulting because the the null values will be omitted.

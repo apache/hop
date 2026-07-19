@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The BigQuery Output transform writes data to a Google Cloud BigQuery table. It runs on the local Hop engine (via streaming inserts) as well as every Beam engine (Direct, Dataflow, Spark, Flink).
+:description: The BigQuery Output transform writes data to a Google Cloud BigQuery table.
 
 = image:transforms/icons/beam-bq-output.svg[BigQuery Output Icon, role="image-doc-icon"] BigQuery Output
 
@@ -31,9 +31,11 @@ The BigQuery Output transform writes data to a link:https://cloud.google.com/big
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 

@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Get File Names transform allows you to get information associated with file names on the file system. The information about the retrieved files is added as rows onto the stream.
+:description: The Get File Names transform allows you to get information associated with file names on the file system.
 
 = image:transforms/icons/getfilenames.svg[Get filenames transform Icon, role="image-doc-icon"] Get filenames
 
@@ -32,12 +32,14 @@ The information about the retrieved files is added as rows onto the stream.
 
 | == Supported Engines
 
-[%noheader,cols="2,1a",frame=none,role="table-supported-engines"]
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
-!Hop Engine! image:check_mark.svg[Supported,24]
-!Spark! image:check_mark.svg[Supported,24]
-!Flink! image:check_mark.svg[Supported,24]
-!Dataflow! image:check_mark.svg[Supported,24]
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 
 |===

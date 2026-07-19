@@ -32,6 +32,7 @@
     <modules>
         <module>beam</module>
         <module>single-threaded</module>
+        <module>spark</module>
     </modules>
 
 </project>

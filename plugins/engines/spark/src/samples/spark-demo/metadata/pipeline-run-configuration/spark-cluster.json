@@ -1,0 +1,23 @@
+{
+  "engineRunConfiguration": {
+    "SparkPipelineEngine": {
+      "generic_transform_run_mode": "DISTRIBUTED",
+      "tempLocation": "/tmp",
+      "sparkMaster": "",
+      "driverMemory": "",
+      "executorMemory": "",
+      "sparkConfigs": "spark.ui.enabled\u003dfalse\nspark.sql.shuffle.partitions\u003d4",
+      "executorCores": "",
+      "sparkAppName": "hop-spark-demo",
+      "fatJar": "",
+      "pathSchemeMap": "",
+      "pluginsToStage": ""
+    }
+  },
+  "defaultSelection": true,
+  "configurationVariables": [],
+  "name": "spark-cluster",
+  "description": "Native Spark for spark-submit (master blank so CLI --master wins). Use with MainSpark --HopProjectPackage on the Docker cluster walk-through. generic_transform_run_mode: DISTRIBUTED or DRIVER_ONLY.",
+  "dataProfile": "first-last",
+  "executionInfoLocationName": "data-executions"
+}

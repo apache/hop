@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-engines</artifactId>
+        <version>2.19.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-engines-spark</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Plugins Engines Spark</name>
+    <description>Native Apache Spark 4.x pipeline engine for Hop (issue #7486)</description>
+
+    <properties>
+        <!-- Lakehouse connectors shipped in default engines-spark assembly under lib/{delta,iceberg}.
+             Artifact suffix _4.1_2.13 = Spark 4.1 / Scala 2.13, not product version. -->
+        <delta.version>4.3.1</delta.version>
+        <!-- Matches Spark 4.1.2 parent; needed for local[*] unit tests only -->
+        <hadoop.client.version>3.4.2</hadoop.client.version>
+        <!-- Do not stage Jackson into plugins/engines/spark/lib (Hop parent CL has it).
+             Dual ObjectMapper classes under HopURLClassLoader break HopJson on local[*]. -->
+        <hop.pluginlib.exclude1>jackson-core</hop.pluginlib.exclude1>
+        <hop.pluginlib.exclude2>jackson-databind</hop.pluginlib.exclude2>
+        <hop.pluginlib.exclude3>jackson-annotations</hop.pluginlib.exclude3>
+        <iceberg.version>1.11.0</iceberg.version>
+        <!-- Staged jar freeze list for docs / verification (not a second install path). -->
+        <lakehouse.connectors.dir>${project.basedir}/target/lakehouse-connectors</lakehouse.connectors.dir>
+        <scala.binary.version>2.13</scala.binary.version>
+        <!-- Pin Spark 4.1.x independently of Beam's Spark 3.x dependency -->
+        <spark.version>4.1.2</spark.version>
+        <!-- Spark major.minor used in Delta/Iceberg Maven artifact names (4.1 from 4.1.2). -->
+        <spark.version.prefix>4.1</spark.version.prefix>
+    </properties>
+
+    <dependencies>
+        <!-- Spark MetricsServlet / Jetty needs servlet API (SingleThreadModel → use 5.0) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+        <!-- Explicit so packaging is obvious and test scope is not required separately -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-api</artifactId>
+            <version>${hadoop.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-runtime</artifactId>
+            <version>${hadoop.client.version}</version>
+        </dependency>
+
+        <!-- Spark 4.1 — packaged under plugins/engines/spark/lib for local[*].
+             Hadoop client + Log4j MUST stay on the plugin classpath: Spark 4 looks up
+             org.apache.spark.sql.classic.SparkSession reflectively and fails with
+             "Cannot find a SparkSession implementation on the Classpath" when those
+             transitive classes are missing (ClassNotFoundException is swallowed).
+             slf4j is provided by Hop; keep it excluded to avoid dual bindings.
+             Jackson core is also provided by Hop lib/core — dual copies under the plugin
+             classloader cause LinkageError on HopJson.newMapper() (sampling). -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Transform metadata for native shuffle-aware handlers (driver-side only) -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-memgroupby</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-mergejoin</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-sort</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-uniquerows</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+          Open table format connectors (Delta Lake / Apache Iceberg) — default assembly.
+
+          Runtime scope: not needed to compile Hop code (Class.forName / Spark APIs only).
+          Packaged under plugins/engines/spark/lib/{delta,iceberg}/ via assembly.xml.
+          Exclusions avoid dual Spark / Jackson / Scala / slf4j on the engine classloader.
+        -->
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-spark_${spark.version.prefix}_${scala.binary.version}</artifactId>
+            <version>${delta.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-spark-runtime-4.1_${scala.binary.version}</artifactId>
+            <version>${iceberg.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Filter Rows for target-stream unit tests -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-filterrows</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Hard-banned transform meta for annotation lockstep tests only -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-groupby</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Stream Lookup for info-stream unit tests (mapPartitions + broadcast) -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-streamlookup</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Text File Input for accept-filenames mini-pipeline binding tests -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-textfile</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Freeze connector jar list under target/lakehouse-connectors for docs verification. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-lakehouse-connectors</id>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputDirectory>${lakehouse.connectors.dir}</outputDirectory>
+                            <includeArtifactIds>delta-spark_4.1_2.13,delta-storage,delta-kernel-api,delta-kernel-defaults,delta-kernel-unitycatalog,iceberg-spark-runtime-4.1_2.13,unitycatalog-client,unitycatalog-hadoop,commons-pool</includeArtifactIds>
+                            <excludeTransitive>false</excludeTransitive>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--
+      Legacy profile id: connectors ship in the default assembly now.
+      -Plakehouse remains a no-op alias so existing scripts keep working.
+    -->
+    <profiles>
+        <profile>
+            <id>lakehouse</id>
+        </profile>
+    </profiles>
+</project>

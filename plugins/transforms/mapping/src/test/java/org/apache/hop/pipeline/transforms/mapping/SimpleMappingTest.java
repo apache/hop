@@ -153,7 +153,7 @@ class SimpleMappingTest {
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
-    smp.init();
+    // mappingPipeline already set by @BeforeEach; dispose path under test (not full init)
 
     smp.dispose();
     verify(transformMockHelper.pipeline, times(1)).isFinished();
@@ -196,7 +196,7 @@ class SimpleMappingTest {
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
-    smp.init();
+    // Use pre-mocked mappingPipeline from iTransformData (full init needs a real mapping .hpl)
     smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
     smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
 
@@ -215,6 +215,7 @@ class SimpleMappingTest {
     // The transform was started
     simpleMpData.wasStarted = true;
 
+    // mappingPipeline is already set up by @BeforeEach (do not call init — needs a real .hpl)
     smp =
         new SimpleMapping(
             transformMockHelper.transformMeta,
@@ -223,10 +224,25 @@ class SimpleMappingTest {
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
-    smp.init();
 
     smp.dispose();
     verify(transformMockHelper.pipeline, times(1)).isFinished();
     verify(transformMockHelper.pipeline, times(1)).waitUntilFinished();
+  }
+
+  @Test
+  void disposeWithNullMappingPipelineDoesNotNpe() {
+    // Failed init leaves mappingPipeline null; Pipeline.prepareExecution still calls dispose().
+    simpleMpData.mappingPipeline = null;
+    simpleMpData.wasStarted = false;
+    smp =
+        new SimpleMapping(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            simpleMpData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    smp.dispose();
   }
 }

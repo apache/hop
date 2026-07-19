@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Fake Data tranform allows you to generate fake data using the Java Faker library. It can be used to generate pretty data for development, testing or showcasing a project.
+:description: The Fake Data tranform allows you to generate fake data using the Java Faker library.
 
 = image:transforms/icons/fake.svg[Fake data transform Icon, role="image-doc-icon"] Fake data
 
@@ -36,9 +36,11 @@ For instance, we could generate some random Pokémon data.
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 

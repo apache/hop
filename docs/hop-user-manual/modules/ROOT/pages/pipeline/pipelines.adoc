@@ -56,4 +56,6 @@ Pipelines are an extensive topic. Check the pages below to learn more about work
 * xref:pipeline/metadata-injection.adoc[Metadata Injection]
 * xref:pipeline/partitioning.adoc[Partitioning]
 * xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam]
+* xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]
+* xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine (Delta / Iceberg)]
 * xref:pipeline/transforms.adoc[Transforms]

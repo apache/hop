@@ -1,0 +1,18 @@
+{
+  "engineRunConfiguration": {
+    "SparkPipelineEngine": {
+      "sparkMaster": "local[2]",
+      "sparkAppName": "hop-it-spark-native",
+      "sparkConfigs": "spark.ui.enabled=false\nspark.driver.host=localhost",
+      "fatJar": "",
+      "tempLocation": "/tmp",
+      "driverMemory": "",
+      "executorMemory": "",
+      "executorCores": "",
+      "pluginsToStage": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "spark-local",
+  "description": "Native SparkPipelineEngine embedded local[2]. Leave fatJar empty for local sessions (Spark 4.1 plugin classpath). hop-beam-image still provides /tmp/hop-fatjar.jar for future native-cluster IT; do not set fatJar to that Beam 3.5 pack jar until a native 4.x pack exists."
+}

@@ -2385,7 +2385,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFields.optimizeTableView();
 
     // Date locale
-    wDateLocale.setText(meta.getContent().getDateFormatLocale());
+    wDateLocale.setText(Const.NVL(meta.getContent().getDateFormatLocale(), ""));
 
     wShortFileFieldName.setText(
         Const.NVL(meta.getAdditionalOutputFields().getShortFilenameField(), ""));

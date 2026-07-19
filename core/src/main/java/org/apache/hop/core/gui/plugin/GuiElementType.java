@@ -20,6 +20,11 @@ package org.apache.hop.core.gui.plugin;
 public enum GuiElementType {
   NONE, // To disable default options
   TEXT,
+  /**
+   * Multi-line text widget ({@code SWT.MULTI}). Height in lines is set via {@link
+   * GuiWidgetElement#multiLineTextHeight()}.
+   */
+  MULTI_LINE_TEXT,
   FILENAME, // Text widget with browse button
   FOLDER, // Text widget with browse button
   COMBO,

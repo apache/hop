@@ -40,9 +40,11 @@ IMPORTANT: Each input stream must already be sorted on the configured sort keys 
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:cross.svg[Not Supported, 24]
-!Flink! image:cross.svg[Not Supported, 24]
-!Dataflow! image:cross.svg[Not Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:cross.svg[Not Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
 

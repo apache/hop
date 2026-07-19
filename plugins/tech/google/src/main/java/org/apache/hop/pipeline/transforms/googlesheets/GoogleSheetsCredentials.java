@@ -61,7 +61,17 @@ public class GoogleSheetsCredentials {
       throw new FileNotFoundException("Resource not found:" + jsonCredentialPath);
     }
 
-    credential = GoogleCredentials.fromStream(in);
+    try {
+      credential = GoogleCredentials.fromStream(in);
+    } catch (IOException e) {
+      throw new IOException(
+          "Unable to load Google credentials from '"
+              + jsonCredentialPath
+              + "'. Expected a service-account JSON key file (as downloaded from Google Cloud). "
+              + "Integration tests require GCP_KEY_FILE pointing at that JSON (Jenkins uses "
+              + "credentials 'gcp-access-hop'); the default dummy file is not valid JSON.",
+          e);
+    }
 
     if (httpTransport != null) {
       HttpTransportFactory proxyTransportFactory = () -> httpTransport;

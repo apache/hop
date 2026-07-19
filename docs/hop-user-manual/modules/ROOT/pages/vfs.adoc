@@ -29,6 +29,13 @@ Apache Hop makes fervent usage of VFS.
 Beyond the standard VFS file system types, we have added a number which are present in the various technology stacks supported by Hop.
 Like the standard file systems each has its own unique name scheme which you can use.
 
+[IMPORTANT]
+====
+**Native Spark** Dataset I/O (*Spark File Input/Output*, Lake Table PATH) does *not* use Hop VFS.
+Those transforms expect **Spark/Hadoop URIs** (for example `s3a://`, `hdfs://`, `file:///`), which are a different dialect from Hop schemes such as `s3://` or named MinIO connections.
+See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
+====
+
 == Apache Hop VFS File Systems
 
 The table below provides a quick overview of the VFS file systems supported by Apache Hop.

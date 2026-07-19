@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Combination Lookup-Update transform allows you to store information in a junk-dimension table. The transform can possibly also be used to maintain Kimball pure Type 1 dimensions.
+:description: The Combination Lookup-Update transform allows you to store information in a junk-dimension table.
 
 = image:transforms/icons/combinationlookup.svg[Combination lookup/update transform Icon, role="image-doc-icon"] Combination lookup/update
 
@@ -49,9 +49,11 @@ This can speed up lookup performance dramatically while limiting the fields to i
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:check_mark.svg[Supported, 24]
-!Flink! image:check_mark.svg[Supported, 24]
-!Dataflow! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:check_mark.svg[Supported, 24]
+!Beam Flink! image:check_mark.svg[Supported, 24]
+!Beam Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 

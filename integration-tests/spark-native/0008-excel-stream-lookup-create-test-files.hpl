@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<pipeline>
+  <info>
+    <name>0008-excel-stream-lookup-create-test-files</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Local: build products.xlsx (lookup) and 3 order parquet part files (main stream)</description>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <created_user>-</created_user>
+    <created_date>2026/07/16 00:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/07/16 00:00:00.000</modified_date>
+  </info>
+  <notepads/>
+  <order>
+    <hop>
+      <from>product catalog</from>
+      <to>products.xlsx</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>orders</from>
+      <to>orders parquet (3 parts)</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+
+  <!-- ========== Lookup side: Excel workbook ========== -->
+  <transform>
+    <type>DataGrid</type>
+    <name>product catalog</name>
+    <description>Lookup dimension: productCode → productName, unitPrice</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>AAA</item>
+        <item>Alpha Widget</item>
+        <item>10</item>
+      </line>
+      <line>
+        <item>BBB</item>
+        <item>Beta Gadget</item>
+        <item>20</item>
+      </line>
+      <line>
+        <item>CCC</item>
+        <item>Gamma Device</item>
+        <item>30</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <name>productCode</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>productName</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>unitPrice</name>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>0</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <type>TypeExitExcelWriterTransform</type>
+    <name>products.xlsx</name>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <appendEmpty>0</appendEmpty>
+    <appendLines>N</appendLines>
+    <appendOffset>0</appendOffset>
+    <appendOmitHeader>N</appendOmitHeader>
+    <fields>
+      <field>
+        <name>productCode</name>
+        <type>String</type>
+        <title>productCode</title>
+        <formula>N</formula>
+        <commentField/>
+        <commentAuthorField/>
+        <styleCell/>
+        <titleStyleCell/>
+        <hyperlinkField/>
+        <format/>
+      </field>
+      <field>
+        <name>productName</name>
+        <type>String</type>
+        <title>productName</title>
+        <formula>N</formula>
+        <commentField/>
+        <commentAuthorField/>
+        <styleCell/>
+        <titleStyleCell/>
+        <hyperlinkField/>
+        <format/>
+      </field>
+      <field>
+        <name>unitPrice</name>
+        <type>Integer</type>
+        <title>unitPrice</title>
+        <formula>N</formula>
+        <commentField/>
+        <commentAuthorField/>
+        <styleCell/>
+        <titleStyleCell/>
+        <hyperlinkField/>
+        <format/>
+      </field>
+    </fields>
+    <file>
+      <name>${PROJECT_HOME}/output/0008-excel-stream-lookup/source/products</name>
+      <extension>xlsx</extension>
+      <sheetname>Sheet1</sheetname>
+      <createParentFolder>Y</createParentFolder>
+      <do_not_open_newfile_init>Y</do_not_open_newfile_init>
+      <split>N</split>
+      <splitevery>0</splitevery>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <filename_in_field>N</filename_in_field>
+      <filename_field/>
+      <if_file_exists>new</if_file_exists>
+      <if_sheet_exists>new</if_sheet_exists>
+      <protect_sheet>N</protect_sheet>
+      <protected_by/>
+      <password/>
+      <autosizecolums>N</autosizecolums>
+      <stream_data>N</stream_data>
+    </file>
+    <header>Y</header>
+    <footer>N</footer>
+    <makeSheetActive>Y</makeSheetActive>
+    <rowWritingMethod>overwrite</rowWritingMethod>
+    <startingCell>A1</startingCell>
+    <forceFormulaRecalculation>N</forceFormulaRecalculation>
+    <leaveExistingStylesUnchanged>N</leaveExistingStylesUnchanged>
+    <template>
+      <enabled>N</enabled>
+      <filename/>
+      <sheet_enabled>N</sheet_enabled>
+      <sheetname/>
+      <hidden>N</hidden>
+    </template>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+
+  <!-- ========== Main stream: 6 orders → 3 parquet files (split size 2) ========== -->
+  <transform>
+    <type>DataGrid</type>
+    <name>orders</name>
+    <description>Main fact rows: 6 orders → ParquetFileOutput splits every 2 rows → 3 files</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>1</item>
+        <item>AAA</item>
+        <item>2</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>BBB</item>
+        <item>1</item>
+      </line>
+      <line>
+        <item>3</item>
+        <item>CCC</item>
+        <item>5</item>
+      </line>
+      <line>
+        <item>4</item>
+        <item>AAA</item>
+        <item>1</item>
+      </line>
+      <line>
+        <item>5</item>
+        <item>BBB</item>
+        <item>3</item>
+      </line>
+      <line>
+        <item>6</item>
+        <item>CCC</item>
+        <item>2</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <name>orderId</name>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>0</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>productCode</name>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+      <field>
+        <name>qty</name>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>0</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <type>ParquetFileOutput</type>
+    <name>orders parquet (3 parts)</name>
+    <description>split_size=2 → three *.parquet part files under source/</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compression_codec>UNCOMPRESSED</compression_codec>
+    <data_page_size>8192</data_page_size>
+    <dictionary_page_size>1048576</dictionary_page_size>
+    <fields>
+      <field>
+        <source_field>orderId</source_field>
+        <target_field>orderId</target_field>
+      </field>
+      <field>
+        <source_field>productCode</source_field>
+        <target_field>productCode</target_field>
+      </field>
+      <field>
+        <source_field>qty</source_field>
+        <target_field>qty</target_field>
+      </field>
+    </fields>
+    <filename_base>${PROJECT_HOME}/output/0008-excel-stream-lookup/source/parquet/orders</filename_base>
+    <filename_create_parent_folders>Y</filename_create_parent_folders>
+    <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
+    <filename_ext>parquet</filename_ext>
+    <filename_include_copy>N</filename_include_copy>
+    <filename_include_date>N</filename_include_date>
+    <filename_include_datetime>N</filename_include_datetime>
+    <filename_include_split>Y</filename_include_split>
+    <filename_include_time>N</filename_include_time>
+    <filename_split_size>2</filename_split_size>
+    <row_group_size>20000</row_group_size>
+    <version>1.0</version>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling/>
+  <attributes/>
+</pipeline>
