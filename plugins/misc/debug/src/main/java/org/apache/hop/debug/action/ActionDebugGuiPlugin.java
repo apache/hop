@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -67,6 +68,7 @@ public class ActionDebugGuiPlugin {
     try {
       WorkflowMeta workflowMeta = context.getWorkflowMeta();
       ActionMeta action = context.getActionMeta();
+      IVariables variables = context.getWorkflowGraph().getVariables();
 
       Map<String, Map<String, String>> attributesMap = workflowMeta.getAttributesMap();
       Map<String, String> debugGroupAttributesMap = attributesMap.get(Defaults.DEBUG_GROUP);
@@ -83,7 +85,7 @@ public class ActionDebugGuiPlugin {
       }
 
       ActionDebugLevelDialog dialog =
-          new ActionDebugLevelDialog(hopGui.getActiveShell(), debugLevel);
+          new ActionDebugLevelDialog(hopGui.getActiveShell(), debugLevel, variables);
       if (dialog.open()) {
         DebugLevelUtil.storeActionDebugLevel(
             debugGroupAttributesMap, action.toString(), debugLevel);
