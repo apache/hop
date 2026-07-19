@@ -229,6 +229,10 @@ public class HopDescribedVariablesDialog extends Dialog {
       for (int index : wFields.getSelectionIndices()) {
         TableItem item = wFields.table.getItem(index);
         String value = item.getText(2);
+        // Already encrypted? Skip so double-click / re-encode does not nest encryption
+        if (value != null && value.startsWith(Encr.PASSWORD_ENCRYPTED_PREFIX)) {
+          continue;
+        }
         String encoded = encoder.encode(value, true);
         item.setText(2, Const.NVL(encoded, ""));
       }
