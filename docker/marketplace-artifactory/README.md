@@ -53,46 +53,34 @@ curl -sf http://localhost:8082/artifactory/api/system/ping && echo OK
 
 Open http://localhost:8082 and set the **admin** password on first login.
 
-## Configure anonymous read (Artifactory **OSS**)
+## Configure anonymous read (Artifactory **OSS** + Platform UI)
 
-**Artifactory OSS blocks repository (and many security) REST APIs** — they return
-HTTP 400 *“available only in Artifactory Pro”*. Do setup in the UI; the helper
-script only prints steps and verifies anonymous access.
+**Repo-create REST is Pro-only** on OSS (HTTP 400). Use the **JFrog Platform UI**
+at http://localhost:8082/ui/ — menus move every release; use deep links.
 
-### UI steps (required on OSS)
+**Step-by-step with current UI landmarks:** see **[JFROG-UI.md](./JFROG-UI.md)**.
 
-1. **Create local Maven repo**  
-   **Administration → Repositories → Create a Repository → Local**  
-   - Package type: **Maven**  
-   - Repository Key: **`hop-plugins-local`**  
-   - Layout: **maven-2-default**  
+Quick links (log in as admin first):
 
-2. **Allow anonymous access**  
-   **Administration → User Management → Settings**  
-   - ☑ **Allow Anonymous Access** → Save  
+| Task | URL |
+|------|-----|
+| Repositories | http://localhost:8082/ui/admin/repositories |
+| Anonymous access | http://localhost:8082/ui/admin/security/general |
+| Permissions | http://localhost:8082/ui/admin/user_management/permissions |
 
-3. **Anonymous read-only permission**  
-   **Administration → User Management → Permissions → + Add**  
-   - Name: `hop-plugins-anonymous-read`  
-   - **Repositories:** only `hop-plugins-local`  
-   - **Users:** `anonymous`  
-   - **Actions:** ☑ **Read** only (no Deploy / Delete / Manage / Annotate)  
+Or print the same guide + verify:
 
-Repo URL:
+```bash
+./docker/marketplace-artifactory/configure-anonymous-read.sh
+# after UI steps A–C:
+export ARTIFACTORY_PASSWORD='your-admin-password'
+./docker/marketplace-artifactory/configure-anonymous-read.sh
+```
+
+Repo URL for Hop:
 
 ```text
 http://localhost:8082/artifactory/hop-plugins-local/
-```
-
-### Verify
-
-```bash
-export ARTIFACTORY_PASSWORD='your-admin-password'
-./docker/marketplace-artifactory/configure-anonymous-read.sh
-# Expect: OK — anonymous access works
-
-# Expect not 401:
-curl -sI "http://localhost:8082/artifactory/hop-plugins-local/" | head -1
 ```
 
 ## Publish Wave 1 plugin zips (authenticated)
