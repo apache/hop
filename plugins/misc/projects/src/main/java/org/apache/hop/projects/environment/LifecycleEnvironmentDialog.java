@@ -67,6 +67,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private Text wName;
   private Combo wPurpose;
   private Combo wProject;
+  private Text wCanvasText;
   private TableView wConfigFiles;
 
   private IVariables variables;
@@ -178,6 +179,26 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wProject.setLayoutData(fdProject);
     wProject.addListener(SWT.Modify, e -> needingEnvironmentRefresh = true);
     lastControl = wProject;
+
+    Label wlCanvasText = new Label(shell, SWT.RIGHT);
+    PropsUi.setLook(wlCanvasText);
+    wlCanvasText.setText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.CanvasText"));
+    FormData fdlCanvasText = new FormData();
+    fdlCanvasText.left = new FormAttachment(0, 0);
+    fdlCanvasText.right = new FormAttachment(middle, 0);
+    fdlCanvasText.top = new FormAttachment(lastControl, margin);
+    wlCanvasText.setLayoutData(fdlCanvasText);
+    wCanvasText = new Text(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    PropsUi.setLook(wCanvasText);
+    wCanvasText.setToolTipText(
+        BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ToolTip.CanvasText"));
+    FormData fdCanvasText = new FormData();
+    fdCanvasText.left = new FormAttachment(middle, margin);
+    fdCanvasText.right = new FormAttachment(100, 0);
+    fdCanvasText.top = new FormAttachment(wlCanvasText, 0, SWT.CENTER);
+    wCanvasText.setLayoutData(fdCanvasText);
+    lastControl = wCanvasText;
 
     Label wlConfigFiles = new Label(shell, SWT.LEFT);
     PropsUi.setLook(wlConfigFiles);
@@ -420,6 +441,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wName.setText(Const.NVL(environment.getName(), ""));
     wPurpose.setText(Const.NVL(environment.getPurpose(), ""));
     wProject.setText(Const.NVL(environment.getProjectName(), ""));
+    wCanvasText.setText(Const.NVL(environment.getCanvasText(), ""));
 
     for (int i = 0; i < environment.getConfigurationFiles().size(); i++) {
       String configurationFile = environment.getConfigurationFiles().get(i);
@@ -441,6 +463,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     env.setName(wName.getText());
     env.setPurpose(wPurpose.getText());
     env.setProjectName(wProject.getText());
+    env.setCanvasText(wCanvasText.getText());
 
     env.getConfigurationFiles().clear();
     for (TableItem item : wConfigFiles.getNonEmptyItems()) {
