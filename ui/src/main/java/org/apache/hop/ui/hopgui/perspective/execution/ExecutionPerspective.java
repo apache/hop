@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -48,6 +49,8 @@ import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.LastPeriod;
+import org.apache.hop.execution.caching.CachingFileExecutionInfoLocation;
+import org.apache.hop.execution.local.FileExecutionInfoLocation;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
@@ -91,12 +94,16 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -121,6 +128,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ExecutionPerspective-Toolbar";
 
+  public static final String TOOLBAR_ITEM_COPY_FILENAME =
+      "ExecutionPerspective-Toolbar-10000-CopyFilename";
   public static final String TOOLBAR_ITEM_EDIT = "ExecutionPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE =
       "ExecutionPerspective-Toolbar-10030-Duplicate";
@@ -330,6 +339,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
+    tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(
         SWT.DefaultSelection,
         event -> {
@@ -338,6 +348,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             onNewViewer();
           }
         });
+
+    // Copy-filename starts disabled until an execution with a filename is selected.
+    updateSelection();
 
     PropsUi.setLook(tree);
 
@@ -883,6 +896,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       TreeMemory.setExpandedFromMemory(tree, EXECUTION_PERSPECTIVE_TREE);
 
       tree.setRedraw(true);
+      updateSelection();
     } catch (Exception e) {
       getShell().setCursor(null);
       new ErrorDialog(
@@ -1118,6 +1132,198 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     }
 
     return false;
+  }
+
+  /**
+   * Enables toolbar items that depend on the current tree selection (copy is enabled when an
+   * execution is selected so UUID and other options can be offered).
+   */
+  private void updateSelection() {
+    if (toolBarWidgets == null) {
+      return;
+    }
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_COPY_FILENAME, getSelectedExecution() != null);
+  }
+
+  /**
+   * @return the selected execution tree item data, or {@code null} if none / not an execution
+   */
+  private Execution getSelectedExecution() {
+    if (tree == null || tree.isDisposed() || tree.getSelectionCount() != 1) {
+      return null;
+    }
+    Object data = tree.getSelection()[0].getData();
+    if (data instanceof Execution execution) {
+      return execution;
+    }
+    return null;
+  }
+
+  /**
+   * @return the parent {@link ExecutionInfoLocation} for the selected execution, or {@code null}
+   */
+  private ExecutionInfoLocation getSelectedExecutionLocation() {
+    if (tree == null || tree.isDisposed() || tree.getSelectionCount() != 1) {
+      return null;
+    }
+    TreeItem item = tree.getSelection()[0];
+    if (!(item.getData() instanceof Execution)) {
+      return null;
+    }
+    TreeItem parentItem = item.getParentItem();
+    if (parentItem != null && parentItem.getData() instanceof ExecutionInfoLocation location) {
+      return location;
+    }
+    return null;
+  }
+
+  /**
+   * Shows a popup menu under the copy toolbar button so the user can choose what to copy: full
+   * filename path, project-relative filename, on-disk storage path (file locations only), or UUID.
+   */
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_COPY_FILENAME,
+      toolTip = "i18n::ExecutionPerspective.ToolbarElement.Copy.Tooltip",
+      image = "ui/images/copy.svg")
+  public void copyToClipboard() {
+    Execution execution = getSelectedExecution();
+    if (execution == null) {
+      return;
+    }
+
+    String filename = execution.getFilename();
+    String relativeFilename = toProjectRelativePath(filename);
+    String storagePath = resolveStoragePath(getSelectedExecutionLocation(), execution);
+    String uuid = execution.getId();
+
+    Menu menu = new Menu(getShell(), SWT.POP_UP);
+
+    addCopyMenuItem(
+        menu,
+        BaseMessages.getString(PKG, "ExecutionPerspective.CopyMenu.Filename"),
+        filename,
+        StringUtils.isNotEmpty(filename));
+    addCopyMenuItem(
+        menu,
+        BaseMessages.getString(PKG, "ExecutionPerspective.CopyMenu.RelativeFilename"),
+        relativeFilename,
+        StringUtils.isNotEmpty(relativeFilename));
+    addCopyMenuItem(
+        menu,
+        BaseMessages.getString(PKG, "ExecutionPerspective.CopyMenu.StoragePath"),
+        storagePath,
+        StringUtils.isNotEmpty(storagePath));
+    addCopyMenuItem(
+        menu,
+        BaseMessages.getString(PKG, "ExecutionPerspective.CopyMenu.Uuid"),
+        uuid,
+        StringUtils.isNotEmpty(uuid));
+
+    positionCopyMenu(menu);
+    menu.addListener(SWT.Hide, event -> menu.getDisplay().asyncExec(menu::dispose));
+    menu.setVisible(true);
+  }
+
+  private void addCopyMenuItem(Menu menu, String label, String value, boolean enabled) {
+    MenuItem item = new MenuItem(menu, SWT.PUSH);
+    item.setText(label);
+    item.setEnabled(enabled);
+    if (enabled && value != null) {
+      item.addListener(SWT.Selection, e -> GuiResource.getInstance().toClipboard(value));
+    }
+  }
+
+  private void positionCopyMenu(Menu menu) {
+    ToolItem toolItem =
+        toolBarWidgets != null ? toolBarWidgets.findToolItem(TOOLBAR_ITEM_COPY_FILENAME) : null;
+    if (toolItem != null && !toolItem.isDisposed() && toolItem.getParent() != null) {
+      ToolBar bar = toolItem.getParent();
+      Rectangle bounds = toolItem.getBounds();
+      menu.setLocation(bar.toDisplay(bounds.x, bounds.y + bounds.height));
+      return;
+    }
+    Control control =
+        toolBarWidgets != null
+            ? toolBarWidgets.getControlForMenu(TOOLBAR_ITEM_COPY_FILENAME)
+            : null;
+    if (control != null && !control.isDisposed()) {
+      Rectangle bounds = control.getBounds();
+      Point location = control.getParent().toDisplay(bounds.x, bounds.y + bounds.height);
+      menu.setLocation(location);
+      return;
+    }
+    menu.setLocation(getShell().getDisplay().getCursorLocation());
+  }
+
+  /**
+   * Expresses {@code path} relative to {@code PROJECT_HOME} as {@code ${PROJECT_HOME}/…} when
+   * possible. Returns {@code null} when the path cannot be relativized.
+   */
+  private String toProjectRelativePath(String path) {
+    if (StringUtils.isEmpty(path)) {
+      return null;
+    }
+    // Already project-relative
+    if (path.startsWith(Const.VAR_PROJECT_HOME) || path.startsWith("${PROJECT_HOME}")) {
+      return path;
+    }
+    String projectHome = hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME);
+    if (StringUtils.isEmpty(projectHome) || Const.VAR_PROJECT_HOME.equals(projectHome)) {
+      return null;
+    }
+    // Normalize trailing separators on project home for prefix matching
+    String home = projectHome;
+    while (home.endsWith("/") || home.endsWith("\\")) {
+      home = home.substring(0, home.length() - 1);
+    }
+    if (path.startsWith(home + "/") || path.startsWith(home + "\\") || path.equals(home)) {
+      String rel = path.substring(home.length());
+      return Const.VAR_PROJECT_HOME
+          + (rel.isEmpty() || rel.startsWith("/") || rel.startsWith("\\")
+              ? rel.replace('\\', '/')
+              : "/" + rel.replace('\\', '/'));
+    }
+    return null;
+  }
+
+  /**
+   * Builds the on-disk storage path for file-based execution locations, or {@code null} when the
+   * location type does not store execution information as files/folders.
+   */
+  private String resolveStoragePath(ExecutionInfoLocation location, Execution execution) {
+    if (location == null || execution == null || StringUtils.isEmpty(execution.getId())) {
+      return null;
+    }
+    IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+    if (iLocation instanceof FileExecutionInfoLocation fileLocation) {
+      String root = hopGui.getVariables().resolve(fileLocation.getRootFolder());
+      if (StringUtils.isEmpty(root)) {
+        return null;
+      }
+      if (root.endsWith("/") || root.endsWith("\\")) {
+        return root + execution.getId();
+      }
+      return root + "/" + execution.getId();
+    }
+    if (iLocation instanceof CachingFileExecutionInfoLocation cachingLocation) {
+      String root = cachingLocation.getActualRootFolder();
+      if (StringUtils.isEmpty(root)) {
+        root = hopGui.getVariables().resolve(cachingLocation.getRootFolder());
+      }
+      if (StringUtils.isEmpty(root)) {
+        return null;
+      }
+      // Match CacheEntry.calculateFilename: root + id + ".json"
+      if (root.endsWith("/") || root.endsWith("\\")) {
+        return root + execution.getId() + ".json";
+      }
+      if (root.contains("://") || root.startsWith("file:")) {
+        return root + "/" + execution.getId() + ".json";
+      }
+      return root + Const.FILE_SEPARATOR + execution.getId() + ".json";
+    }
+    return null;
   }
 
   @GuiToolbarElement(
