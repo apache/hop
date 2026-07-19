@@ -122,6 +122,37 @@ class DatabricksFileObjectTest {
   }
 
   @Test
+  void listCacheProvidesLastModifiedOnChildAttach() throws Exception {
+    long mtime = 1_700_000_000_000L;
+    server.stubFor(
+        WireMock.head(WireMock.urlEqualTo("/api/2.0/fs/files/Volumes/c/s/v"))
+            .willReturn(WireMock.aResponse().withStatus(404)));
+    server.stubFor(
+        WireMock.get(WireMock.urlEqualTo("/api/2.0/fs/files/Volumes/c/s/v"))
+            .willReturn(WireMock.aResponse().withStatus(404)));
+    server.stubFor(
+        WireMock.get(WireMock.urlEqualTo("/api/2.0/fs/directories/Volumes/c/s/v"))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(
+                        """
+                        {"contents":[
+                          {"name":"run.json","path":"/Volumes/c/s/v/run.json","is_directory":false,"file_size":99,"last_modified":%d}
+                        ]}
+                        """
+                            .formatted(mtime))));
+
+    FileObject dir = resolve("/Volumes/c/s/v");
+    FileObject[] children = dir.getChildren();
+    assertEquals(1, children.length);
+    assertEquals(FileType.FILE, children[0].getType());
+    assertEquals(99L, children[0].getContent().getSize());
+    assertEquals(mtime, children[0].getContent().getLastModifiedTime());
+  }
+
+  @Test
   void writeThenReadRoundTrip() throws Exception {
     byte[] payload = "vfs-round-trip".getBytes(StandardCharsets.UTF_8);
     server.stubFor(

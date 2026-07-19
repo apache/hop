@@ -83,8 +83,19 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     if (StringUtils.isBlank(host)) {
       throw new HopException("Databricks workspace host is required");
     }
+    if (host.contains("${") || host.contains("%%")) {
+      throw new HopException(
+          "Databricks workspace host still contains unresolved variables: '"
+              + host
+              + "'. Set DATABRICKS_HOST (or the variables used in the connection) for this process.");
+    }
     if (StringUtils.isBlank(token)) {
       throw new HopException("Databricks personal access token is required");
+    }
+    if (token.contains("${") || token.contains("%%")) {
+      throw new HopException(
+          "Databricks personal access token still contains unresolved variables. Set DATABRICKS_TOKEN "
+              + "for this process.");
     }
     HttpClient client = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
     return new RestDatabricksJobsClient(host, apiBase, token, client);

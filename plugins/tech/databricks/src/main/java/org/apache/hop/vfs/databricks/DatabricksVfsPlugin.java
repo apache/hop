@@ -27,6 +27,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.vfs.databricks.metadata.DatabricksVfsConnection;
 
@@ -56,8 +57,12 @@ public class DatabricksVfsPlugin implements IVfs {
   public Map<String, FileProvider> getProviders(IVariables variables) {
     Map<String, FileProvider> providers = new HashMap<>();
     try {
-      IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+      // Prefer the active runtime metadata (GUI project / MainSpark export). Standard folders
+      // alone are empty on Databricks (no hop-config metadata tree).
+      IHopMetadataProvider metadataProvider = HopMetadataInstance.getMetadataProvider();
+      if (metadataProvider == null) {
+        metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(variables);
+      }
       List<DatabricksVfsConnection> connections =
           metadataProvider.getSerializer(DatabricksVfsConnection.class).loadAll();
       for (DatabricksVfsConnection connection : connections) {

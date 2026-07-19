@@ -24,7 +24,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
@@ -37,6 +39,7 @@ import org.apache.hop.databricks.client.DatabricksFilesClient;
 import org.apache.hop.databricks.client.DirectoryEntry;
 import org.apache.hop.databricks.client.RestDatabricksFilesClient;
 import org.apache.hop.databricks.client.WorkspaceFileMetadata;
+import org.apache.hop.vfs.databricks.DatabricksListCache.ChildInfo;
 
 /** File object backed by the Databricks Files API (UC Volumes / Workspace). */
 public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSystem> {
@@ -71,16 +74,31 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
       // No root configured — virtual multi-volume root
       type = FileType.FOLDER;
       size = -1L;
+      lastModified = 0L;
       return;
     }
     if (!RestDatabricksFilesClient.isFilesApiPath(path)) {
       if ("/Volumes".equals(path) || "/Workspace".equals(path)) {
         type = FileType.FOLDER;
         size = -1L;
+        lastModified = 0L;
         return;
       }
       type = FileType.IMAGINARY;
       size = -1L;
+      lastModified = 0L;
+      return;
+    }
+
+    // Prefer metadata from a recent parent directory listing (includes last_modified).
+    ChildInfo cached = getAbstractFileSystem().getListCache().get(path);
+    if (cached != null) {
+      type = cached.type;
+      size = cached.size;
+      lastModified = cached.lastModifiedEpochMs;
+      if (type == FileType.FOLDER) {
+        // Keep listedChildren null until doListChildren; type is enough for attach.
+      }
       return;
     }
 
@@ -89,12 +107,15 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
         && path.equals(getAbstractFileSystem().getRootPath())) {
       try {
         listedChildren = client().listDirectory(path);
+        rememberListCache(path, listedChildren);
         type = FileType.FOLDER;
         size = -1L;
+        lastModified = 0L;
       } catch (HopException e) {
         // Still treat as folder so create child works even if list fails (empty / permission)
         type = FileType.FOLDER;
         size = -1L;
+        lastModified = 0L;
         listedChildren = null;
       }
       return;
@@ -105,17 +126,35 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
     if (meta.exists()) {
       type = FileType.FILE;
       size = meta.sizeBytes();
+      // HEAD does not reliably expose last_modified; leave 0 (unknown) unless list cache filled it.
+      lastModified = 0L;
       return;
     }
     try {
       listedChildren = client.listDirectory(path);
+      rememberListCache(path, listedChildren);
       type = FileType.FOLDER;
       size = -1L;
+      lastModified = 0L;
     } catch (HopException e) {
       type = FileType.IMAGINARY;
       size = -1L;
+      lastModified = 0L;
       listedChildren = null;
     }
+  }
+
+  private void rememberListCache(String parentPath, List<DirectoryEntry> entries) {
+    if (entries == null || entries.isEmpty()) {
+      return;
+    }
+    Map<String, ChildInfo> map = new LinkedHashMap<>();
+    for (DirectoryEntry entry : entries) {
+      if (entry.path() != null) {
+        map.put(DatabricksListCache.normalizePath(entry.path()), ChildInfo.fromEntry(entry));
+      }
+    }
+    getAbstractFileSystem().getListCache().put(parentPath, map);
   }
 
   @Override
@@ -155,6 +194,7 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
     }
     if (listedChildren == null) {
       listedChildren = client().listDirectory(path);
+      rememberListCache(path, listedChildren);
     }
     return listedChildren.stream()
         .map(
@@ -217,8 +257,11 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
           try {
             type = FileType.FILE;
             size = Files.size(temp);
+            lastModified = System.currentTimeMillis();
+            getAbstractFileSystem().getListCache().invalidateParentOf(path);
           } catch (IOException ignored) {
             type = FileType.FILE;
+            lastModified = System.currentTimeMillis();
           }
         } finally {
           try {
@@ -254,6 +297,8 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
     client().createDirectory(path);
     type = FileType.FOLDER;
     listedChildren = null;
+    lastModified = System.currentTimeMillis();
+    getAbstractFileSystem().getListCache().invalidateParentOf(path);
   }
 
   /**
@@ -300,6 +345,8 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
     }
     type = FileType.IMAGINARY;
     listedChildren = null;
+    lastModified = 0L;
+    getAbstractFileSystem().getListCache().invalidateParentOf(path);
   }
 
   /**

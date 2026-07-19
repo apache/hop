@@ -73,11 +73,27 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
     if (StringUtils.isBlank(host)) {
       throw new HopException("Databricks workspace host is required");
     }
+    if (looksUnresolved(host)) {
+      throw new HopException(
+          "Databricks workspace host still contains unresolved variables after resolve: '"
+              + host
+              + "'. Set DATABRICKS_HOST (or the variables used in the connection) on the process "
+              + "that opens the VFS scheme (Hop GUI environment, or MainSpark --HopConfigFile / job env).");
+    }
     if (StringUtils.isBlank(token)) {
       throw new HopException("Databricks personal access token is required");
     }
+    if (looksUnresolved(token) || token.contains("${")) {
+      throw new HopException(
+          "Databricks personal access token still contains unresolved variables. Set DATABRICKS_TOKEN "
+              + "(or the variables used in the connection) on the process that opens the VFS scheme.");
+    }
     HttpClient client = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
     return new RestDatabricksFilesClient(host, token, client);
+  }
+
+  private static boolean looksUnresolved(String value) {
+    return value != null && (value.contains("${") || value.contains("%%"));
   }
 
   /** Visible for tests with a custom {@link HttpClient}. */

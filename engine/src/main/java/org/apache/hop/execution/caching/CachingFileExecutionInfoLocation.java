@@ -237,7 +237,9 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           long startDate =
               ZonedDateTime.of(roughStartDate, ZoneId.systemDefault()).toInstant().toEpochMilli();
           long lastModified = file.getContent().getLastModifiedTime();
-          if (lastModified < startDate) {
+          // Some VFS providers (e.g. Databricks Files API before list-cache attach) report
+          // lastModified as 0 / unknown. Do not pre-skip those — load and apply content filters.
+          if (lastModified > 0 && lastModified < startDate) {
             // Skip for performance
             continue;
           }
@@ -258,7 +260,18 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
         }
 
         if (!ids.contains(new DatedId(id, null))) {
-          ids.add(new DatedId(id, new Date(file.getContent().getLastModifiedTime())));
+          long lastModified = file.getContent().getLastModifiedTime();
+          Date dated;
+          if (lastModified > 0) {
+            dated = new Date(lastModified);
+          } else if (entry.getExecution() != null
+              && entry.getExecution().getExecutionStartDate() != null) {
+            // VFS providers without mtime: use execution start for sorting
+            dated = entry.getExecution().getExecutionStartDate();
+          } else {
+            dated = new Date(0L);
+          }
+          ids.add(new DatedId(id, dated));
 
           // To add child IDs we need to load the file.
           // We won't store these in the cache though.

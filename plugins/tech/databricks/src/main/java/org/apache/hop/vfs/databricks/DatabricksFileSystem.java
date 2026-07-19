@@ -35,6 +35,8 @@ public class DatabricksFileSystem extends AbstractFileSystem {
   /** Normalized scheme root, or empty when absolute workspace paths are required. */
   private final String rootPath;
 
+  private final DatabricksListCache listCache = new DatabricksListCache();
+
   protected DatabricksFileSystem(
       final FileName rootName,
       final DatabricksFilesClient client,
@@ -50,6 +52,10 @@ public class DatabricksFileSystem extends AbstractFileSystem {
     super(rootName, null, fileSystemOptions);
     this.client = client;
     this.rootPath = rootPath == null ? "" : rootPath;
+  }
+
+  DatabricksListCache getListCache() {
+    return listCache;
   }
 
   @Override

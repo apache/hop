@@ -31,6 +31,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databricks.client.RestDatabricksFilesClient;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.vfs.databricks.metadata.DatabricksVfsConnection;
 
@@ -113,8 +114,10 @@ public class DatabricksFileProvider extends AbstractOriginatingFileProvider {
               + "' has no Databricks Connection selected");
     }
     connName = variables.resolve(connName);
-    IHopMetadataProvider metadataProvider =
-        HopMetadataUtil.getStandardHopMetadataProvider(variables);
+    IHopMetadataProvider metadataProvider = HopMetadataInstance.getMetadataProvider();
+    if (metadataProvider == null) {
+      metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(variables);
+    }
     DatabricksConnection connection =
         metadataProvider.getSerializer(DatabricksConnection.class).load(connName);
     if (connection == null) {

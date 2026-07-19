@@ -78,6 +78,7 @@ Hop Databricks VFS URIs are for **Hop-side** I/O only:
 
 * Hop GUI file dialogs, local engine, classic file transforms/actions
 * Convenience copies (configs, samples, modest artifacts) via the workspace **Files API**
+* **Execution information** (Caching File location root folder) so MainSpark on the cluster and the laptop GUI share the same Volume path — see xref:pipeline/spark/databricks.adoc#exec-info-on-volume[Execution information on a UC Volume]
 
 Do **not** use this VFS as the primary path for **large Spark data landings**.
 The Files API is a single-stream workspace HTTP upload — fine for small/medium files, not a bulk object-store client.
@@ -102,6 +103,7 @@ If root path is left empty, every URI must include the full `/Volumes/…` or `/
 
 * xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection]
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
-* xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — artifact storage, Files API vs DBFS
+* xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — artifact storage, Files API vs DBFS, xref:pipeline/spark/databricks.adoc#exec-info-on-volume[execution information on a Volume]
+* xref:metadata-types/execution-information-location.adoc[Execution Information Location]
 * xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
 * xref:vfs.adoc[Virtual File Systems overview]

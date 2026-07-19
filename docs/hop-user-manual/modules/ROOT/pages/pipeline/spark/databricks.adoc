@@ -16,7 +16,7 @@ under the License.
 ////
 [[NativeSparkOnDatabricks]]
 :imagesdir: ../../../assets/images
-:description: Run Apache Hop native Spark (MainSpark JAR) jobs on Databricks — workspace tiers, classic clusters, UC Volumes, compute modes, and Deploy & run lessons learned.
+:description: Run Apache Hop native Spark (MainSpark JAR) jobs on Databricks — workspace tiers, classic clusters, UC Volumes, execution information on Volumes, compute modes, and Deploy & run lessons learned.
 :toc:
 :toclevels: 3
 
@@ -37,6 +37,7 @@ A minimal Hop project for this path typically includes:
 * A workflow with **Databricks Job Run** (Deploy & run) and optional **Databricks Job Wait**
 * A `work/` folder with the **native-provided** fat jar
 * Metadata: Databricks Connection, Native Spark pipeline run configuration
+* Optionally (for remote execution history from the laptop GUI): Databricks VFS Connection, **Caching File** execution information location on a UC Volume, and an environment config with `DATABRICKS_HOST` / `DATABRICKS_TOKEN` — see <<exec-info-on-volume>>
 
 .Sample `hello-databricks.hpl` in the project explorer (Generate rows → UUID → Dummy)
 image::pipeline/spark/databricks-pipeline-hello-databricks.png[Hello Databricks sample pipeline in Hop GUI: Generate rows, Random value (uuid), Dummy,width=85%]
@@ -182,11 +183,144 @@ From Hop GUI and local transforms you can use a xref:metadata-types/databricks-v
 That is **Hop-side I/O only** — it does not replace absolute `/Volumes/…` paths on the cluster or in Jobs API library URIs.
 See xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS].
 
-==== Execution information on a UC Volume (optional)
+[[exec-info-on-volume]]
+=== Execution information on a UC Volume
 
-You can point a **Caching File** (or File) xref:metadata-types/execution-information-location.adoc[execution information location] at a Databricks VFS URI, for example `db-volume:///executions`, so the MainSpark **driver** writes Hop execution JSON/samples to a Volume via the Files API and the laptop GUI can open the same location remotely.
+You can store Hop **execution information** (pipeline graph, logs, transform metrics, and row samples from an execution data profile) on a **Unity Catalog Volume** and open it from the laptop Hop GUI — even though the pipeline ran on Databricks under `MainSpark`.
 
-This is suitable for **small** execution metadata only (same Files API limits as other VFS use). Prefer the **Caching File** location with a multi-second persistence delay. The job package must include the VFS connection, Databricks Connection (PAT via variables), and location metadata; native Spark Dataset paths still use `/Volumes/…` or cloud URIs, not the VFS scheme.
+That works because:
+
+* The **Caching File** location writes one JSON file per top-level execution (plus nested state/samples inside it).
+* The root folder can be a **Databricks VFS** URI (for example `db-volume:///executions`).
+* On the cluster, MainSpark resolves named VFS schemes from the **exported project metadata** and writes through the **Files API** using the Databricks Connection PAT.
+* On the laptop, the same location metadata + environment variables let the xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective] list and open those remote files.
+
+This is for **execution metadata** only (logs, metrics, sample rows), not for bulk Spark datasets. Prefer **Caching File** over plain File so writes are batched (fewer Files API round-trips). Native Spark Dataset I/O still uses `/Volumes/…` or cloud URIs — not the Hop VFS scheme.
+
+==== Pattern overview
+
+[options="header",cols="1,3"]
+|===
+|Piece |Role
+
+|xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+|Workspace host + PAT (Jobs API and Files API auth for VFS)
+
+|Environment / lifecycle config
+|`DATABRICKS_HOST`, `DATABRICKS_TOKEN` (and optional cluster id). Must be active in Hop GUI **and** deployed to the job (`--HopConfigFile` / env-config artifact)
+
+|xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection]
+|Named scheme (e.g. `db-volume`) + optional root path under a Volume
+
+|xref:metadata-types/execution-information-location.adoc[Execution Information Location] (**Caching File**)
+|Root folder = `{scheme}:///executions` (or another folder under the VFS root)
+
+|xref:metadata-types/pipeline-run-config.adoc[Pipeline run configuration] (**Native Spark**)
+|**Execution information location** = the Caching File location; optional **execution data profile** for sample rows
+
+|Deploy & run package
+|Exports connection, VFS, location, run config, and (when configured) the env config so the **driver** can write the same URI
+|===
+
+==== 1. Databricks Connection (variables for secrets)
+
+Create a Jobs/PAT connection. Prefer variables so the same metadata works on the laptop and on the cluster after Deploy & run ships the environment config.
+
+.Databricks Connection: workspace host and PAT via `${DATABRICKS_HOST}` / encrypted token variable
+image::pipeline/spark/databricks-connection.png[Databricks Connection metadata editor with variable-based host and personal access token,width=85%]
+
+==== 2. Environment configuration file
+
+Define at least host and token in a Hop **environment** or lifecycle configuration file that you use when opening the project in GUI and when Deploy & run attaches env config for MainSpark:
+
+----
+DATABRICKS_HOST=https://dbc-….cloud.databricks.com
+DATABRICKS_TOKEN=Encrypted …
+----
+
+Optional: `DATABRICKS_CLUSTER_ID` for existing-cluster deploy.
+
+.Environment configuration: `DATABRICKS_HOST`, encrypted `DATABRICKS_TOKEN`, optional cluster id
+image::pipeline/spark/databricks-environment-configuration-file.png[Hop environment configuration file editor with Databricks host, token, and cluster id variables,width=90%]
+
+[IMPORTANT]
+====
+If the GUI can browse the Volume but the cluster writes a **local** path such as `db-volume:///…` under the driver cwd, the driver did **not** resolve the named VFS scheme or the host/token variables. Confirm:
+
+* Env config is deployed (`env-config-….json` / `--HopConfigFile`) and contains the same variables.
+* Exported **metadata** includes the Databricks Connection, VFS connection, and execution location (Deploy & run package / metadata export).
+* The PAT can **write** to the Volume path.
+====
+
+==== 3. Databricks VFS Connection (scheme + Volume root)
+
+Create a VFS connection whose **name is the URI scheme**. Point **Root path** at a folder on a UC Volume (create that folder in Catalog Explorer if needed).
+
+.Databricks VFS Connection: scheme `db-volume`, connection `databricks-free`, root `/Volumes/…/testing`
+image::pipeline/spark/databricks-vfs-connection-to-volume.png[Databricks VFS Connection editor with scheme name, Databricks Connection, and Volume root path,width=85%]
+
+With root path `/Volumes/apache-hop/default/testing`:
+
+* Hop URI `db-volume:///executions` maps to workspace path `/Volumes/apache-hop/default/testing/executions`
+* Leave root empty only if you prefer full paths in every URI (`db-volume:///Volumes/…`)
+
+See xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS].
+
+==== 4. Caching File execution information location
+
+Create an xref:metadata-types/execution-information-location.adoc[Execution Information Location]:
+
+* **Location type**: **Caching File location**
+* **Folder**: the VFS URI, e.g. `db-volume:///executions`
+* **Create folder?**: optional; you can also create `executions` on the Volume first
+* **Persistence delay**: multi-second (e.g. `5000`) so the driver does not write on every metric tick
+* **Maximum cache age**: long enough to cover the pipeline (e.g. hours for long jobs)
+
+.Caching File location `db-executions` with folder `db-volume:///executions`
+image::pipeline/spark/databricks-volume-caching-execution-information-location.png[Execution information location editor: Caching File type and Databricks VFS folder URI,width=85%]
+
+==== 5. Native Spark run configuration
+
+On the **Native Spark** pipeline run configuration used by Deploy & run:
+
+* **Execution information location** = the Caching File location (e.g. `db-executions`)
+* **Execution data profile** = optional but recommended (e.g. `first-last`) so the perspective can show sample rows
+* Engine type **Native Spark pipeline engine**; fat jar path is used for local `spark-submit` — on Databricks, Deploy & run supplies the library jar separately
+
+.Native Spark run configuration: execution location `db-executions`, data profile `first-last`
+image::pipeline/spark/databricks-native-spark-pipeline-run-configuration.png[Native Spark pipeline run configuration with execution information location and data profile,width=75%]
+
+==== 6. Run on Databricks, inspect from Hop GUI
+
+. Deploy & run the pipeline (or workflow with Job Run) with the run configuration above and env config attached.
+. Wait until the job finishes (or is far enough along that the cache has flushed at least once).
+. In Hop GUI, open the **Execution Information** perspective (`Ctrl-Shift-I`).
+. Select the location (e.g. `db-executions`), refresh, and open the pipeline execution.
+. Use **Info**, **Log**, **Metrics**, and **Data** tabs — same as a local run.
+
+.Execution Information perspective: `hello-databricks` from Volume location `db-executions` with cluster log text
+image::pipeline/spark/databricks-execution-perspective-looking-at-spark-execution.png[Execution Information perspective showing a Spark pipeline execution loaded from a Databricks Volume,width=95%]
+
+Typical log lines on a successful remote capture:
+
+----
+Using execution information location 'db-executions' …
+Prepared native Spark pipeline engine with run configuration 'databricks-native' …
+Reusing active SparkSession (version=4.1.0, …)
+Spark pipeline finished, result row count=…
+Registered … transform sample set(s) from Spark executors
+----
+
+JSON files on the Volume look like `{execution-id}.json` under the mapped folder (e.g. `/Volumes/…/testing/executions/`).
+
+==== Tips and limits
+
+* **Time filter** in the perspective defaults to a short window (e.g. `< 1h`). Widen it if the run is older.
+* **Parents only** / status filters still apply; turn them off if you expect a child execution.
+* Files API is **single-stream HTTP** — fine for execution JSON (tens to a few hundred KB typical); do not use this path for large data landings.
+* **Create parent folder** on the Volume before the first run if create-folder is off or list permissions are restricted.
+* Laptop and cluster must share the **same** connection name, VFS scheme name, location name, and variable names so metadata exported for Deploy & run matches what the GUI uses.
+* Deleting executions from the perspective removes the remote JSON (subject to PAT permissions).
 
 == Compute modes (Deploy & run)
 
@@ -543,12 +677,17 @@ Databricks does **not** expose a standard content MD5/SHA for volume files compa
 * [ ] Cluster / compute = existing classic id **or** `new_cluster` with valid `node_type_id` / `spark_version`
 * [ ] Job id empty on first create; wait mode and timeout sized for upload + **job cluster cold start** (often 8+ minutes) + pipeline run
 * [ ] After success: note Job ID, Run ID, run page URL variables; open run in Databricks UI
+* [ ] (Optional remote execution history) VFS connection + Caching File location on a Volume; run config points at that location; env vars on driver; GUI Execution Information perspective can list the run — see <<exec-info-on-volume>>
 
 == Related
 
 * xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
 * xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait]
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+* xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection]
+* xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS]
+* xref:metadata-types/execution-information-location.adoc[Execution Information Location]
+* xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective]
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark run configuration]
 * xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems]
