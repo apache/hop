@@ -126,7 +126,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
 
     if (createParentFolder) {
       try {
-        FileObject folder = HopVfs.getFileObject(actualRootFolder);
+        FileObject folder = HopVfs.getFileObject(actualRootFolder, variables);
         if (!folder.exists()) {
           folder.createFolder();
         }
@@ -149,7 +149,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       mergeChildrenFromDisk(cacheEntry);
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
-      cacheEntry.writeToDisk(actualRootFolder);
+      cacheEntry.writeToDisk(actualRootFolder, variables);
       // Remember when we last wrote to disk
       cacheEntry.setLastWritten(new Date());
     } catch (Exception e) {
@@ -193,7 +193,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
   @Override
   public void deleteCacheEntry(CacheEntry cacheEntry) throws HopException {
     try {
-      cacheEntry.deleteFromDisk(actualRootFolder);
+      cacheEntry.deleteFromDisk(actualRootFolder, variables);
     } catch (Exception e) {
       throw new HopException(
           "Error deleting caching file entry from folder " + actualRootFolder, e);
@@ -205,11 +205,11 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       CacheEntry entry = new CacheEntry();
       entry.setId(executionId);
       String filename = entry.calculateFilename(actualRootFolder);
-      if (!HopVfs.fileExists(filename)) {
+      if (!HopVfs.fileExists(filename, variables)) {
         return null;
       }
       ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(HopVfs.getInputStream(filename), CacheEntry.class);
+      return objectMapper.readValue(HopVfs.getInputStream(filename, variables), CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(
           "Error loading execution information location file for executionId '" + executionId + "'",
@@ -290,7 +290,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
 
   private FileObject[] getAllFileObjects(String actualRootFolder)
       throws FileSystemException, HopFileException {
-    FileObject folder = HopVfs.getFileObject(actualRootFolder);
+    FileObject folder = HopVfs.getFileObject(actualRootFolder, variables);
     return folder.findFiles(
         new AllFileSelector() {
           @Override

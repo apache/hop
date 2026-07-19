@@ -182,6 +182,12 @@ From Hop GUI and local transforms you can use a xref:metadata-types/databricks-v
 That is **Hop-side I/O only** — it does not replace absolute `/Volumes/…` paths on the cluster or in Jobs API library URIs.
 See xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS].
 
+==== Execution information on a UC Volume (optional)
+
+You can point a **Caching File** (or File) xref:metadata-types/execution-information-location.adoc[execution information location] at a Databricks VFS URI, for example `db-volume:///executions`, so the MainSpark **driver** writes Hop execution JSON/samples to a Volume via the Files API and the laptop GUI can open the same location remotely.
+
+This is suitable for **small** execution metadata only (same Files API limits as other VFS use). Prefer the **Caching File** location with a multi-second persistence delay. The job package must include the VFS connection, Databricks Connection (PAT via variables), and location metadata; native Spark Dataset paths still use `/Volumes/…` or cloud URIs, not the VFS scheme.
+
 == Compute modes (Deploy & run)
 
 The **Cluster / compute** field accepts one of:
