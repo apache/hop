@@ -14,7 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Install optional Hop plugins from Apache Repository / Maven Central using the marketplace CLI or GUI.
+:description: Install optional Hop plugins from Apache Repository / Maven Central using the marketplace CLI or GUI, and declare environments with hop-env.yaml.
 
 = Hop Marketplace
 
@@ -31,7 +31,7 @@ Install tries the primary repository first, then other *enabled* repositories, u
 
 Settings are stored under the `marketplace` key in `${HOP_CONFIG_FOLDER}/hop-config.json` (always that file).
 
-== CLI
+== CLI overview
 
 From the Hop install directory:
 
@@ -39,6 +39,7 @@ From the Hop install directory:
 ----
 ./hop marketplace install hop-tech-parquet
 ./hop marketplace install hop-engines-spark:2.19.0
+./hop marketplace install hop-engines-spark:2.19.0 --repo asf
 ./hop marketplace list
 ./hop marketplace uninstall hop-tech-parquet
 
@@ -50,35 +51,232 @@ From the Hop install directory:
 
 # Declarative environment (CI / Docker)
 ./hop marketplace apply -f hop-env.yaml
+./hop marketplace apply -f hop-env.yaml --prune
 ./hop marketplace validate -f hop-env.yaml
+./hop marketplace validate -f hop-env.yaml --strict
 ----
 
-After install or uninstall, *restart Hop* so the plugin registry reloads.
+After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
 
-Coordinates: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
+Coordinates for `install`: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
+Optional `--repo <id>` forces a single repository (skips the fallback chain).
 
 == GUI
 
 *Tools → Marketplace…* lists featured optional plugins, installs/uninstalls them, and opens *Manage…* to edit repositories (same config as the CLI).
 
-== hop-env.yaml
+== Declarative environments (`hop-env.yaml`)
 
-For reproducible environments (Docker, CI):
+For CI/CD, Docker, and reproducible servers you can declare the required plugins (and optional jars) in a file, commit it to Git, and apply it without using the GUI.
+
+Supported file names / formats:
+
+* `hop-env.yaml` / `hop-env.yml` (YAML)
+* `hop-env.json` (JSON — same field names)
+
+=== `hop marketplace apply`
+
+Installs missing plugins and dependencies declared in the environment file. Already-satisfied plugins are skipped.
+
+[cols="1,3"]
+|===
+| Option | Description
+
+| `-f`, `--file` *(required)*
+| Path to `hop-env.yaml` or `hop-env.json`.
+
+| `--prune`
+| After installing what the file requires, *uninstall* marketplace-managed plugins that have an install receipt but are *not* listed under `plugins`. Core/bundled plugins and plugins present on disk without a marketplace receipt are not removed by prune.
+|===
+
+Examples:
+
+[source,bash]
+----
+# Install everything listed (idempotent)
+./hop marketplace apply -f hop-env.yaml
+
+# Also remove marketplace plugins that are no longer in the file
+./hop marketplace apply -f ./deploy/hop-env.yaml --prune
+----
+
+Behaviour notes:
+
+* Repositories listed in the file override hop-config for this apply (first entry is primary; later entries are fallbacks). If the file omits `repositories`, hop-config repositories are used.
+* Plugin `version` defaults to `hopVersion` in the file, then the marketplace/hop version.
+* Plugins already on disk without a marketplace receipt (for example installed offline with `tools/install-wave1-plugins.sh`) count as satisfied and are not re-downloaded.
+* Dependencies are downloaded as jars into `target` (default `lib/jdbc`).
+
+Always restart Hop after a successful apply when new plugins were installed.
+
+=== `hop marketplace validate`
+
+Compares the local install to the environment file *without* downloading or installing anything. Useful in CI as a pre-flight check.
+
+[cols="1,3"]
+|===
+| Option | Description
+
+| `-f`, `--file`
+| Path to the environment file. If omitted, Hop discovers a file (see <<hop-env-discovery>>).
+
+| `--strict`
+| Also fail when *extra* marketplace-installed plugins (receipts under `plugins/.marketplace/`) are present that are not listed in the file. Without `--strict`, extras are ignored.
+|===
+
+Exit codes:
+
+* *0* — environment matches (prints `OK: environment matches …`)
+* *non-zero* — drift detected or error (prints a drift report and suggests `hop marketplace apply -f …`)
+
+What counts as drift (always hard-fail):
+
+* *Missing plugin* — not on disk and no install receipt
+* *Version mismatch* — receipt version differs from the version required in the file
+* *Missing dependency* — jar not found under the dependency `target` directory
+
+Examples:
+
+[source,bash]
+----
+./hop marketplace validate -f hop-env.yaml
+./hop marketplace validate -f hop-env.yaml --strict
+
+# Discover hop-env under PROJECT_HOME or the Hop install
+export PROJECT_HOME=/path/to/my-project
+./hop marketplace validate
+----
+
+=== hop-run enforcement
+
+When a hop-env file is found and enforcement is on, `hop-run` validates before execution and aborts on missing plugins/deps or version mismatches (same checks as validate without `--strict`).
+
+Enable enforcement either:
+
+* in the file: `enforceOnRun: true`, or
+* with a system property: `-Dhop.env.enforce=true` (or `Y`)
+
+If a hop-env file is present but `enforceOnRun` is false and the property is unset, hop-run only logs that the file was found and skips the check.
+
+[[hop-env-discovery]]
+=== How the environment file is discovered
+
+Used by `validate` (when `-f` is omitted) and by hop-run:
+
+. Explicit path: `-f` / `--file` (validate only), or variable / property `HOP_ENV_FILE` / `hop.env.file`
+. Under `PROJECT_HOME` (system property or env): `hop-env.yaml`, then `.yml`, then `.json`
+. Under the Hop install root: same file names
+
+=== `hop-env.yaml` format
+
+Full example:
+
+[source,yaml]
+----
+# Schema version of this file format (optional; default "1.0")
+version: "1.0"
+
+# Default plugin version when a plugin entry omits "version"
+hopVersion: "2.19.0"
+
+# If true, hop-run fails when the install drifts from this file
+enforceOnRun: false
+
+# Maven repositories for apply (optional).
+# First entry is primary; later entries are fallbacks for that apply only.
+# If omitted, hop-config marketplace.repositories are used.
+repositories:
+  - id: asf
+    url: "https://repository.apache.org/content/groups/public/"
+  - id: central
+    url: "https://repo1.maven.org/maven2/"
+  # Private mirror example:
+  # - id: corporate
+  #   url: "https://nexus.example.com/repository/hop-plugins/"
+  #   username: reader
+  #   password: "…"   # prefer env HOP_MARKETPLACE_PASSWORD for secrets
+
+# Required optional plugins (installed into plugins/)
+plugins:
+  - artifactId: hop-tech-parquet
+    version: "2.19.0"          # optional if hopVersion is set
+  - groupId: org.apache.hop    # optional; default org.apache.hop
+    artifactId: hop-engines-spark
+    version: "2.19.0"
+  # Beam engine plugin only (lib/beam stays in the core client):
+  # - artifactId: hop-engines-beam
+  #   version: "2.19.0"
+
+# Optional non-plugin jars (e.g. JDBC drivers)
+dependencies:
+  - groupId: org.postgresql
+    artifactId: postgresql
+    version: "42.7.3"
+    target: lib/jdbc           # optional; default lib/jdbc
+----
+
+==== Top-level fields
+
+[cols="1,1,3"]
+|===
+| Field | Required | Description
+
+| `version`
+| No
+| Format version of the hop-env file itself (default `1.0`).
+
+| `hopVersion`
+| Recommended
+| Default version for plugin entries that omit `version`. Also used when aligning plugins with a Hop release.
+
+| `enforceOnRun`
+| No
+| When `true`, hop-run validates this file before running and fails on missing plugins/deps or version mismatches.
+
+| `repositories`
+| No
+| List of Maven base URLs used when *applying* this file. Order: first = primary, rest = fallbacks. Each item: `id`, `url`, optional `username` / `password`.
+
+| `plugins`
+| No
+| List of optional Hop plugins to install. Each item: `artifactId` (required), optional `groupId` (default `org.apache.hop`), optional `version` (default `hopVersion` / Hop version).
+
+| `dependencies`
+| No
+| Extra jars (not Hop plugin zips). Each item: `groupId`, `artifactId`, `version` (all required), optional `target` directory under the Hop install (default `lib/jdbc`). Downloaded as `artifactId-version.jar`.
+|===
+
+==== Minimal examples
+
+*Only plugins, ASF defaults from hop-config:*
 
 [source,yaml]
 ----
 version: "1.0"
 hopVersion: "2.19.0"
-repositories:
-  - id: asf
-    url: "https://repository.apache.org/content/groups/public/"
 plugins:
   - artifactId: hop-tech-parquet
-    version: "2.19.0"
+  - artifactId: hop-tech-cassandra
 ----
 
-See also the sample under `config/projects/samples` after the marketplace plugin is present, or the source sample in `plugins/misc/marketplace`.
+*CI gate (no install):*
+
+[source,bash]
+----
+./hop marketplace validate -f hop-env.yaml --strict || exit 1
+----
+
+*Docker / pipeline install then run:*
+
+[source,bash]
+----
+./hop marketplace apply -f /files/hop-env.yaml
+# restart container or new process so plugins load
+./hop-run.sh -f /files/main.hwf
+----
+
+A longer sample ships with the marketplace plugin sources (`plugins/misc/marketplace/src/main/samples/hop-env.example.yaml`) and may appear under samples after the plugin is installed.
 
 == Enterprise / air-gapped
 
-Point marketplace repositories at your internal Nexus or Artifactory mirror of `org.apache.hop` plugin zips. Prefer anonymous read where possible; for private repos set Basic auth on the repository entry or use `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`. Wrong credentials can cause HTTP 401 even when anonymous access would work.
+Point marketplace repositories at your internal Nexus or Artifactory mirror of `org.apache.hop` plugin zips. Prefer anonymous read where possible; for private repos set Basic auth on the repository entry (in hop-config or in hop-env `repositories`) or use `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`. Wrong credentials can cause HTTP 401 even when anonymous access would work.
