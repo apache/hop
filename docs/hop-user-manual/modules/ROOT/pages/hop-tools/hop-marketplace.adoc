@@ -323,3 +323,7 @@ A longer sample ships with the marketplace plugin sources (`plugins/misc/marketp
 == Enterprise / air-gapped
 
 Point marketplace repositories at your internal Nexus or Artifactory mirror of `org.apache.hop` plugin zips. Prefer anonymous read where possible; for private repos set Basic auth on the repository entry (in hop-config or in hop-env `repositories`) or use `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`. Wrong credentials can cause HTTP 401 even when anonymous access would work.
+
+== For plugin authors
+
+If you develop a third-party plugin (outside the Hop repository) and want to publish installable zips to your own Nexus, see the developer guide *Publishing a Hop plugin to your own Maven repository* in the Hop Development Manual (`marketplace-publish-plugin.adoc`). It covers packaging, Hop version requirements, other plugin dependencies, and a sample release script.

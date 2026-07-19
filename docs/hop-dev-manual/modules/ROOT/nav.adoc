@@ -25,6 +25,7 @@ under the License.
 * xref:integration-testing.adoc[Integration testing]
 * xref:internationalisation.adoc[Internationalisation (i18n)]
 * xref:plugin-development.adoc[Plugins Development]
+* xref:marketplace-publish-plugin.adoc[Publishing a plugin to Nexus (marketplace)]
 * xref:engine-compatibility.adoc[Engine compatibility]
 * xref:lineage.adoc[Lineage observation hub]
 * xref:plugin-samples.adoc[Plugins Samples]

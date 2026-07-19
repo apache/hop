@@ -1,0 +1,26 @@
+# Example hop-env for a third-party plugin published to a private Nexus.
+# Adjust groupId, versions, and repository URL for your environment.
+#
+#   ./hop marketplace apply -f plugin-env.example.yaml
+#   # restart Hop
+#
+version: "1.0"
+# Hop client line users should run (optional Apache plugins use this as default version)
+hopVersion: "2.19.0"
+enforceOnRun: false
+
+repositories:
+  - id: sandbox
+    url: "https://nexus.sandbox.example/repository/hop-plugins/"
+  - id: asf
+    url: "https://repository.apache.org/content/groups/public/"
+
+plugins:
+  # Other plugins this product needs (install first)
+  - groupId: org.apache.hop
+    artifactId: hop-tech-parquet
+    version: "2.19.0"
+  # Your plugin (groupId:artifactId:version)
+  - groupId: com.example
+    artifactId: hop-data-vault
+    version: "1.2.0"
