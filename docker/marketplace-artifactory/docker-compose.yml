@@ -11,7 +11,8 @@
 #
 # Prerequisites:
 #   ./docker/marketplace-artifactory/generate-keys.sh
-#   # creates keys/master.key (openssl rand -hex 32), mode 600, owner 1030:1030
+#   # creates keys/master.key and keys/join.key (openssl rand -hex 32),
+#   # mode 600, owner 1030:1030
 #
 # Usage:
 #   docker compose -f docker/marketplace-artifactory/docker-compose.yml up -d
@@ -29,20 +30,23 @@ services:
       - "8081:8081"
     volumes:
       - hop-artifactory-data:/var/opt/jfrog/artifactory
-      # Master key is required at startup; without it Artifactory hangs.
-      # Host file is prepared by generate-keys.sh (600 / 1030:1030).
+      # Both keys are required at startup; without them microservices hang
+      # ("Cluster join: Join key is missing" / master key pending).
+      # Host files prepared by generate-keys.sh (600 / 1030:1030).
       - ./keys/master.key:/var/opt/jfrog/artifactory/etc/security/master.key:ro
+      - ./keys/join.key:/var/opt/jfrog/artifactory/etc/security/join.key:ro
     environment:
       # Reduce memory for local dev
       EXTRA_JAVA_OPTIONS: -Xms512m -Xmx1g
-      # Point shared security at the mounted master key (Artifactory 7.x)
+      # Artifactory 7.x shared security key locations
       JF_SHARED_SECURITY_MASTER_KEY_FILE: /var/opt/jfrog/artifactory/etc/security/master.key
+      JF_SHARED_SECURITY_JOIN_KEY_FILE: /var/opt/jfrog/artifactory/etc/security/join.key
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/artifactory/api/system/ping"]
       interval: 30s
       timeout: 10s
       retries: 20
-      start_period: 120s
+      start_period: 180s
 
 volumes:
   hop-artifactory-data:
