@@ -55,6 +55,15 @@
     return map[String(lang).toLowerCase()] || "plaintext";
   }
 
+  /** Monaco built-in themes: vs (light), vs-dark, hc-black */
+  function normalizeTheme(theme) {
+    if (!theme) return "vs";
+    var t = String(theme).toLowerCase();
+    if (t === "vs-dark" || t === "dark") return "vs-dark";
+    if (t === "hc-black" || t === "hc") return "hc-black";
+    return "vs";
+  }
+
   rap.registerTypeHandler("hop.MonacoEditor", {
     factory: function(properties) {
       return new hop.MonacoEditor(properties);
@@ -71,7 +80,7 @@
         widget._container.parentNode.removeChild(widget._container);
       }
     },
-    properties: [ "content", "language", "readOnly" ],
+    properties: [ "content", "language", "readOnly", "theme" ],
     events: [ "contentChanged" ]
   });
 
@@ -81,6 +90,7 @@
     this._content = properties.content != null ? properties.content : "";
     this._language = properties.language != null ? properties.language : "plaintext";
     this._readOnly = properties.readOnly === true;
+    this._theme = normalizeTheme(properties.theme);
     this._editor = null;
     this._container = null;
     this._parentId = properties.parent;
@@ -123,6 +133,13 @@
       this._readOnly = readOnly === true;
       if (this._editor && typeof this._editor.updateOptions === "function") {
         this._editor.updateOptions({ readOnly: this._readOnly });
+      }
+    },
+
+    setTheme: function(theme) {
+      this._theme = normalizeTheme(theme);
+      if (this._editor && window.monaco && window.monaco.editor) {
+        window.monaco.editor.setTheme(this._theme);
       }
     },
 
@@ -193,6 +210,7 @@
         self._editor = window.monaco.editor.create(container, {
           value: self._content,
           language: langForEditor,
+          theme: self._theme,
           readOnly: self._readOnly,
           automaticLayout: true,
           scrollBeyondLastLine: false,

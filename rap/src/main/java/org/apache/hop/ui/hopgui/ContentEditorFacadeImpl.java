@@ -59,6 +59,10 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       // Editor host (Monaco parent) fills the area below the toolbar.
       Composite host = new Composite(root, SWT.NONE);
       PropsUi.setLook(host);
+      // Avoid a light flash before Monaco mounts when Hop Web is in dark mode
+      if (PropsUi.getInstance().isDarkMode()) {
+        host.setBackground(host.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+      }
 
       Connection connection = RWT.getUISession().getConnection();
       RemoteObject remoteObject = connection.createRemoteObject(MONACO_REMOTE_TYPE);
@@ -66,6 +70,8 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       remoteObject.set("self", remoteObject.getId());
       remoteObject.set("content", "");
       remoteObject.set("language", languageId != null ? languageId : "plaintext");
+      // Match Hop Web theme (/ui-dark → Monaco vs-dark), same idea as canvas themeId
+      remoteObject.set("theme", PropsUi.getInstance().isDarkMode() ? "vs-dark" : "vs");
 
       RapMonacoEditorWidget widget =
           new RapMonacoEditorWidget(root, host, remoteObject, languageId);
