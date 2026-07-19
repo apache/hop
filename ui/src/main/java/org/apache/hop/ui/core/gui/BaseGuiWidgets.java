@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.gui;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -193,21 +194,25 @@ public class BaseGuiWidgets {
     return e -> {
       try {
         // See if we can find a static method which accepts this instance as an argument.
-        // What's the registered GUI object we have?
+        // Parameter type may be the concrete class or any interface/superclass (e.g. facade
+        // toolbars register a ContentEditorWidget but listeners take IContentEditorWidget).
         //
-        try {
-          Class<?> listenerClass = classLoader.loadClass(listenerClassName);
-          Method listenerMethod =
-              listenerClass.getMethod(listenerMethodName, guiPluginObject.getClass());
-          listenerMethod.invoke(null, guiPluginObject);
-          return;
-        } catch (NoSuchMethodException
-            | ClassNotFoundException
-            | InvocationTargetException exception) {
-          // Ignore this and re-try with the standard empty method
-        } catch (Exception exception) {
-          // An exception thrown by the method itself
-          throw exception;
+        if (guiPluginObject != null) {
+          try {
+            Class<?> listenerClass = classLoader.loadClass(listenerClassName);
+            Method listenerMethod =
+                findStaticListenerMethod(
+                    listenerClass, listenerMethodName, guiPluginObject.getClass());
+            if (listenerMethod != null) {
+              listenerMethod.invoke(null, guiPluginObject);
+              return;
+            }
+          } catch (ClassNotFoundException | InvocationTargetException exception) {
+            // Ignore this and re-try with the standard empty method
+          } catch (Exception exception) {
+            // An exception thrown by the method itself
+            throw exception;
+          }
         }
 
         Object guiPluginInstance =
@@ -235,6 +240,30 @@ public class BaseGuiWidgets {
             exception);
       }
     };
+  }
+
+  /**
+   * Find a public static method with a single parameter assignable from {@code argumentType}.
+   * Prefers the most specific matching parameter type when more than one candidate exists.
+   */
+  static Method findStaticListenerMethod(
+      Class<?> listenerClass, String methodName, Class<?> argumentType) {
+    Method best = null;
+    for (Method method : listenerClass.getMethods()) {
+      if (!methodName.equals(method.getName())
+          || !Modifier.isStatic(method.getModifiers())
+          || method.getParameterCount() != 1) {
+        continue;
+      }
+      Class<?> parameterType = method.getParameterTypes()[0];
+      if (!parameterType.isAssignableFrom(argumentType)) {
+        continue;
+      }
+      if (best == null || best.getParameterTypes()[0].isAssignableFrom(parameterType)) {
+        best = method;
+      }
+    }
+    return best;
   }
 
   /**

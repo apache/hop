@@ -20,7 +20,10 @@ package org.apache.hop.ui.hopgui;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
@@ -30,16 +33,19 @@ import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Hop Web (RAP) implementation of the content editor. Uses Monaco Editor when available
  * (client-side JavaScript), with fallback to a plain Text widget.
+ *
+ * <p>Builds the shared {@link IContentEditorWidget#GUI_PLUGIN_TOOLBAR_PARENT_ID} toolbar so
+ * plugin-contributed actions (e.g. Markdown preview) appear in hop-web as well as desktop.
  */
 public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
@@ -48,14 +54,11 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
   @Override
   protected IContentEditorWidget createContentEditorInternal(Composite parent, String languageId) {
     try {
-      Composite host = new Composite(parent, SWT.NONE);
+      Composite root = createRootComposite(parent);
+
+      // Editor host (Monaco parent) fills the area below the toolbar.
+      Composite host = new Composite(root, SWT.NONE);
       PropsUi.setLook(host);
-      FormData fd = new FormData();
-      fd.left = new FormAttachment(0, 0);
-      fd.right = new FormAttachment(100, 0);
-      fd.top = new FormAttachment(0, 0);
-      fd.bottom = new FormAttachment(100, 0);
-      host.setLayoutData(fd);
 
       Connection connection = RWT.getUISession().getConnection();
       RemoteObject remoteObject = connection.createRemoteObject(MONACO_REMOTE_TYPE);
@@ -64,7 +67,11 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       remoteObject.set("content", "");
       remoteObject.set("language", languageId != null ? languageId : "plaintext");
 
-      RapMonacoEditorWidget widget = new RapMonacoEditorWidget(host, remoteObject);
+      RapMonacoEditorWidget widget =
+          new RapMonacoEditorWidget(root, host, remoteObject, languageId);
+      Control toolbar = addToolbar(root, widget);
+      host.setLayoutData(FormDataBuilder.builder().top(toolbar).bottom().fullWidth().build());
+
       remoteObject.setHandler(widget.getOperationHandler());
       remoteObject.listen("contentChanged", true);
       host.addListener(
@@ -79,34 +86,67 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       return widget;
     } catch (Exception e) {
       LogChannel.UI.logDebug("Monaco editor not available, using plain Text: " + e.getMessage());
-      return createFallbackTextWidget(parent);
+      return createFallbackTextWidget(parent, languageId);
     }
   }
 
-  private static IContentEditorWidget createFallbackTextWidget(Composite parent) {
-    Text text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+  private static IContentEditorWidget createFallbackTextWidget(
+      Composite parent, String languageId) {
+    Composite root = createRootComposite(parent);
+
+    Text text = new Text(root, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
     PropsUi.setLook(text, Props.WIDGET_STYLE_FIXED);
-    FormData fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(0, 0);
-    fd.bottom = new FormAttachment(100, 0);
-    text.setLayoutData(fd);
-    return new RapContentEditorWidget(text);
+
+    RapContentEditorWidget widget = new RapContentEditorWidget(root, text, languageId);
+    Control toolbar = addToolbar(root, widget);
+    text.setLayoutData(FormDataBuilder.builder().top(toolbar).bottom().fullWidth().build());
+    return widget;
+  }
+
+  private static Composite createRootComposite(Composite parent) {
+    Composite root = new Composite(parent, SWT.NONE);
+    root.setLayout(new FormLayout());
+    root.setLayoutData(FormDataBuilder.builder().fullSize().build());
+    PropsUi.setLook(root);
+    return root;
+  }
+
+  /**
+   * Create the shared content-editor toolbar on {@code root}, registering {@code widget} for
+   * toolbar filters and static listeners.
+   *
+   * @return the toolbar control
+   */
+  private static Control addToolbar(Composite root, IContentEditorWidget widget) {
+    IToolbarContainer toolbarContainer =
+        ToolbarFacade.createToolbarContainer(root, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    Control toolbar = toolbarContainer.getControl();
+    toolbar.setLayoutData(FormDataBuilder.builder().top().fullWidth().build());
+    PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
+
+    GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
+    toolbarWidgets.registerGuiPluginObject(widget);
+    toolbarWidgets.createToolbarWidgets(
+        toolbarContainer, IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    toolbar.pack();
+    return toolbar;
   }
 
   private static class RapMonacoEditorWidget implements IContentEditorWidget {
 
-    private final Composite control;
+    private final Composite root;
     private final RemoteObject remoteObject;
     private volatile String cachedContent = "";
     private final java.util.List<ModifyListener> modifyListeners = new CopyOnWriteArrayList<>();
     private boolean suppressModify;
+    private volatile String languageId;
     private final AbstractOperationHandler operationHandler;
 
-    RapMonacoEditorWidget(Composite control, RemoteObject remoteObject) {
-      this.control = control;
+    RapMonacoEditorWidget(
+        Composite root, Composite host, RemoteObject remoteObject, String languageId) {
+      this.root = root;
       this.remoteObject = remoteObject;
+      this.languageId = languageId != null ? languageId : "";
       this.operationHandler =
           new AbstractOperationHandler() {
             @Override
@@ -119,13 +159,13 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
               if (suppressModify) {
                 return;
               }
-              Display display = control.getDisplay();
-              if (display == null || control.isDisposed()) {
+              Display display = host.getDisplay();
+              if (display == null || host.isDisposed()) {
                 return;
               }
               Runnable run =
                   () -> {
-                    if (control.isDisposed()) return;
+                    if (host.isDisposed()) return;
                     for (ModifyListener listener : modifyListeners) {
                       try {
                         listener.modifyText(null);
@@ -149,7 +189,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
     @Override
     public Control getControl() {
-      return control;
+      return root;
     }
 
     @Override
@@ -175,7 +215,13 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     }
 
     @Override
+    public @Nullable String getLanguage() {
+      return languageId;
+    }
+
+    @Override
     public void setLanguage(String languageId) {
+      this.languageId = languageId != null ? languageId : "";
       remoteObject.set("language", languageId != null ? languageId : "plaintext");
     }
 
@@ -216,12 +262,16 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
   private static class RapContentEditorWidget implements IContentEditorWidget {
 
+    private final Composite root;
     private final Text text;
     private final java.util.List<ModifyListener> modifyListeners = new CopyOnWriteArrayList<>();
     private boolean suppressModify;
+    private volatile String languageId;
 
-    RapContentEditorWidget(Text text) {
+    RapContentEditorWidget(Composite root, Text text, String languageId) {
+      this.root = root;
       this.text = text;
+      this.languageId = languageId != null ? languageId : "";
       text.addModifyListener(
           e -> {
             if (suppressModify) return;
@@ -237,7 +287,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
     @Override
     public Control getControl() {
-      return text;
+      return root;
     }
 
     @Override
@@ -261,8 +311,13 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     }
 
     @Override
+    public @Nullable String getLanguage() {
+      return languageId;
+    }
+
+    @Override
     public void setLanguage(String languageId) {
-      // no-op for plain text
+      this.languageId = languageId != null ? languageId : "";
     }
 
     @Override

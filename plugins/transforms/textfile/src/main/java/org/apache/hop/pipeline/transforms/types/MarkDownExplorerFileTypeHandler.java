@@ -74,10 +74,8 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
   @Override
   public void renderFile(Composite composite) {
 
-    // Create the standard editor widget
+    // Shared content-editor toolbar (incl. Markdown preview) is built inside the editor widget.
     editorWidget = ContentEditorFacade.createContentEditor(composite, getLanguageId());
-
-    // Position the editor widget below the toolbar
     editorWidget.getControl().setLayoutData(FormDataBuilder.builder().fullSize().build());
 
     // If it's a new file, there's no need to reload it
@@ -111,10 +109,8 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       type = GuiToolbarElementType.BUTTON,
       image = "ui/images/preview.svg",
       separator = true)
-  //  public static void previewMarkdown(IContentEditorWidget editorWidget) {
-  public void previewMarkdown() {
+  public static void previewMarkdown(IContentEditorWidget editorWidget) {
     try {
-      // IContentEditorWidget editorWidget = (IContentEditorWidget) event.widget;
       String markdown = editorWidget.getText();
 
       // Parse markdown to HTML body content
