@@ -21,9 +21,32 @@ under the License.
 
 Use this stack to exercise plugin install/uninstall **without** ASF Nexus permissions.
 
+## Master key (required)
+
+JFrog Artifactory will **hang at startup** unless a master key is provided. Generate
+it once on the host (hex string, mode `600`, owned by UID/GID `1030:1030` — the
+Artifactory process user in the official image):
+
+```bash
+./docker/marketplace-artifactory/generate-keys.sh
+```
+
+That writes `docker/marketplace-artifactory/keys/master.key` via
+`openssl rand -hex 32`, sets permissions, and chowns to `1030:1030` (using Docker
+if you lack host root). The key is gitignored.
+
+The compose file bind-mounts:
+
+```text
+./keys/master.key → /var/opt/jfrog/artifactory/etc/security/master.key
+```
+
+and sets `JF_SHARED_SECURITY_MASTER_KEY_FILE` to that path.
+
 ## Start
 
 ```bash
+./docker/marketplace-artifactory/generate-keys.sh
 docker compose -f docker/marketplace-artifactory/docker-compose.yml up -d
 ```
 

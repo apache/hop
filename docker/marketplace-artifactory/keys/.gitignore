@@ -1,0 +1,4 @@
+# Generated locally by generate-keys.sh — never commit secrets
+master.key
+*
+!.gitignore

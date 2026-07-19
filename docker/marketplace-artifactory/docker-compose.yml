@@ -8,23 +8,35 @@
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
 # Local Artifactory OSS for Hop marketplace plugin testing (no ASF Nexus credentials required).
+#
+# Prerequisites:
+#   ./docker/marketplace-artifactory/generate-keys.sh
+#   # creates keys/master.key (openssl rand -hex 32), mode 600, owner 1030:1030
+#
 # Usage:
 #   docker compose -f docker/marketplace-artifactory/docker-compose.yml up -d
-#   # open http://localhost:8082  (default admin / password — set on first UI login)
+#   # open http://localhost:8082  (set admin password on first UI login)
 #   ./docker/marketplace-artifactory/publish-wave1-plugins.sh
 #
 services:
   artifactory:
     image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.104.14
     container_name: hop-marketplace-artifactory
+    # Official image runs as artifactory (UID/GID 1030)
+    user: "1030:1030"
     ports:
       - "8082:8082"
       - "8081:8081"
     volumes:
       - hop-artifactory-data:/var/opt/jfrog/artifactory
+      # Master key is required at startup; without it Artifactory hangs.
+      # Host file is prepared by generate-keys.sh (600 / 1030:1030).
+      - ./keys/master.key:/var/opt/jfrog/artifactory/etc/security/master.key:ro
     environment:
       # Reduce memory for local dev
       EXTRA_JAVA_OPTIONS: -Xms512m -Xmx1g
+      # Point shared security at the mounted master key (Artifactory 7.x)
+      JF_SHARED_SECURITY_MASTER_KEY_FILE: /var/opt/jfrog/artifactory/etc/security/master.key
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/artifactory/api/system/ping"]
       interval: 30s
