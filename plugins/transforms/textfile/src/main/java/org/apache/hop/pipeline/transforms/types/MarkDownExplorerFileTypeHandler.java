@@ -30,6 +30,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -271,17 +272,24 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       html.append(htmlContent);
       html.append("\n</body>\n</html>");
 
-      // Create a temporary file
-      File tempFile = File.createTempFile("markdown_preview_", ".html");
-      tempFile.deleteOnExit();
+      String fullHtml = html.toString();
 
-      // Write the HTML to the temp file
-      try (OutputStream outputStream = new FileOutputStream(tempFile)) {
-        outputStream.write(html.toString().getBytes(StandardCharsets.UTF_8));
+      // Hop Web: openUrl(file://...) points at the server temp path, which the client browser
+      // cannot read. Show the rendered HTML in an in-app Browser dialog instead.
+      // Desktop: keep writing a temp file and open it in the system browser.
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        ShowBrowserDialog dialog =
+            new ShowBrowserDialog(
+                HopGui.getInstance().getActiveShell(), "Markdown preview", fullHtml);
+        dialog.open();
+      } else {
+        File tempFile = File.createTempFile("markdown_preview_", ".html");
+        tempFile.deleteOnExit();
+        try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+          outputStream.write(fullHtml.getBytes(StandardCharsets.UTF_8));
+        }
+        EnvironmentUtils.getInstance().openUrl(tempFile.toURI().toString());
       }
-
-      // Open in browser
-      EnvironmentUtils.getInstance().openUrl(tempFile.toURI().toString());
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getActiveShell(),

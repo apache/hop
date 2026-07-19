@@ -207,8 +207,11 @@ public class BaseGuiWidgets {
               listenerMethod.invoke(null, guiPluginObject);
               return;
             }
-          } catch (ClassNotFoundException | InvocationTargetException exception) {
-            // Ignore this and re-try with the standard empty method
+          } catch (ClassNotFoundException exception) {
+            // No such listener class — fall through to the instance method path
+          } catch (InvocationTargetException exception) {
+            // Static method was found and threw; do not hide the error behind a retry
+            throw exception;
           } catch (Exception exception) {
             // An exception thrown by the method itself
             throw exception;
