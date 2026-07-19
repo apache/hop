@@ -108,7 +108,9 @@ public class RestDialog extends BaseTransformDialog {
 
   private ColumnInfo[] colinf;
 
-  private ColumnInfo[] colinfoparams;
+  private ColumnInfo[] queryParameterColumns;
+
+  private ColumnInfo[] matrixParameterColumns;
 
   private TextVar wConnectionTimeout;
 
@@ -692,7 +694,7 @@ public class RestDialog extends BaseTransformDialog {
 
     int matrixParametersRows = input.getMatrixParameterFields().size();
 
-    colinfoparams =
+    matrixParameterColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "RestDialog.ColumnInfo.ParameterField"),
@@ -710,7 +712,7 @@ public class RestDialog extends BaseTransformDialog {
             variables,
             wMatrixParametersComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinfoparams,
+            matrixParameterColumns,
             matrixParametersRows,
             lsMod,
             props);
@@ -757,7 +759,7 @@ public class RestDialog extends BaseTransformDialog {
 
     int ParametersRows = input.getParameterFields().size();
 
-    colinfoparams =
+    queryParameterColumns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "RestDialog.ColumnInfo.ParameterField"),
@@ -775,7 +777,7 @@ public class RestDialog extends BaseTransformDialog {
             variables,
             wParametersComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinfoparams,
+            queryParameterColumns,
             ParametersRows,
             lsMod,
             props);
@@ -1548,7 +1550,7 @@ public class RestDialog extends BaseTransformDialog {
                 }
 
                 String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
-                colinfoparams[0].setComboValues(fieldNames);
+                setParameterComboValues(queryParameterColumns, matrixParameterColumns, fieldNames);
                 colinf[0].setComboValues(fieldNames);
                 wUrlField.setItems(fieldNames);
                 wBody.setItems(fieldNames);
@@ -1562,6 +1564,14 @@ public class RestDialog extends BaseTransformDialog {
           }
         };
     shell.getDisplay().asyncExec(runnable);
+  }
+
+  static void setParameterComboValues(
+      ColumnInfo[] queryParameterColumns,
+      ColumnInfo[] matrixParameterColumns,
+      String[] fieldNames) {
+    queryParameterColumns[0].setComboValues(fieldNames);
+    matrixParameterColumns[0].setComboValues(fieldNames);
   }
 
   private void activateUrlInfield() {

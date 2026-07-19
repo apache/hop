@@ -121,24 +121,31 @@ TIP: To figure out what Headers are required, you can use Postman and remove as 
 
 === Parameters Tab
 
-The Parameters tab enables you to define parameter values for POST, GET, PUT, and DELETE requests.
+The Parameters tab enables you to add URL query parameters to POST, GET, PUT, DELETE, and PATCH requests.
+Each row maps a field from the incoming Hop stream to a query parameter name.
+Click **Get fields** to populate the **Parameter field** list, then enter the parameter name expected by the API in **Parameter name**.
+
+For example, if an incoming field named `search_value` contains `apache hop`, mapping it to the parameter name `q` adds `?q=apache+hop` to the request URL.
+Hop URL-encodes the parameter name and value.
 
 [options="header"]
 |===
 |Option|Description
-|Parameter|The field from incoming Hop stream that contains the parameter information
-|Parameter|The name of the outgoing Hop field from this transform
+|Parameter field|The field from the incoming Hop stream that contains the parameter value
+|Parameter name|The query parameter name expected by the REST API
 |===
 
 === Matrix Parameters tab
 
 Use the Matrix Parameters tab to define matrix parameter values for POST, PUT, DELETE, and PATCH requests.
+Unlike query parameters, which follow a `?`, matrix parameters are appended to the URL path with a semicolon.
+For example, a matrix parameter named `language` with the value `en` produces a path such as `/resource;language=en`.
 
 [options="header"]
 |===
 |Option|Description
-|Parameter|The field from the incoming Hop stream that contains the matrix parameter information
-|Parameter|The name of the outgoing Hop field from this transform
+|Parameter field|The field from the incoming Hop stream that contains the matrix parameter value
+|Parameter name|The matrix parameter name expected by the REST API
 |===
 
 === Pagination tab
