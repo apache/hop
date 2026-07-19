@@ -97,9 +97,17 @@ export HOP_MARKETPLACE_USERNAME=admin            # or ARTIFACTORY_USER
 export HOP_MARKETPLACE_PASSWORD='your-password'  # or ARTIFACTORY_PASSWORD
 ```
 
-**HTTP 401** means the repository requires auth: set the env vars (or `password` on the
-repository object) and retry. For local Artifactory details see
-`docker/marketplace-artifactory/README.md`.
+**HTTP 401** means the repository requires auth. For local Artifactory, prefer
+**anonymous read** on `hop-plugins-local` (no credentials in Hop):
+
+```bash
+export ARTIFACTORY_PASSWORD='admin-password'
+./docker/marketplace-artifactory/configure-anonymous-read.sh
+```
+
+Then install without password. Corporate repos that cannot allow anonymous can still use
+`HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD` (prefer a read-only user, not admin).
+See `docker/marketplace-artifactory/README.md`.
 
 ## GUI
 
