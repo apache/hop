@@ -20,10 +20,21 @@ package org.apache.hop.marketplace.install;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
-/** Resolves the Hop installation directory (the folder that contains {@code plugins/}). */
+/**
+ * Resolves the Hop installation directory (the folder that contains {@code plugins/}).
+ *
+ * <p>Order: {@code HOP_HOME} / {@code hop.home} if they point at a valid install, then {@code
+ * user.dir}, then parent of {@code user.dir}. A relative {@code HOP_HOME} that is resolved against
+ * a cwd already inside the install (e.g. {@code assemblies/client/target/hop} while sitting in that
+ * directory) is ignored so we do not double the path.
+ */
 public final class HopHome {
 
   public static final String ENV_HOP_HOME = "HOP_HOME";
@@ -32,33 +43,44 @@ public final class HopHome {
   private HopHome() {}
 
   public static Path resolve() throws HopException {
+    List<String> tried = new ArrayList<>();
+    for (Path candidate : candidates()) {
+      Path abs = candidate.toAbsolutePath().normalize();
+      tried.add(abs.toString());
+      if (isHopHome(abs)) {
+        return abs;
+      }
+    }
+    throw new HopException(
+        "Cannot determine Hop installation directory (need a folder containing plugins/)."
+            + " Tried: "
+            + String.join(", ", tried)
+            + ". Unset a relative HOP_HOME if you are already in the hop install, or set HOP_HOME"
+            + " to an absolute path.");
+  }
+
+  private static Set<Path> candidates() {
+    // LinkedHashSet preserves order and drops duplicates after normalize
+    Set<Path> paths = new LinkedHashSet<>();
     String fromEnv = System.getenv(ENV_HOP_HOME);
     if (StringUtils.isNotBlank(fromEnv)) {
-      return validate(Paths.get(fromEnv));
+      paths.add(Paths.get(fromEnv.trim()));
     }
     String fromProp = System.getProperty(PROP_HOP_HOME);
     if (StringUtils.isNotBlank(fromProp)) {
-      return validate(Paths.get(fromProp));
+      paths.add(Paths.get(fromProp.trim()));
     }
-    Path cwd = Paths.get(System.getProperty("user.dir"));
-    if (Files.isDirectory(cwd.resolve("plugins"))) {
-      return cwd.toAbsolutePath().normalize();
+    Path cwd = Paths.get(System.getProperty("user.dir", "."));
+    paths.add(cwd);
+    Path parent = cwd.toAbsolutePath().normalize().getParent();
+    if (parent != null) {
+      paths.add(parent);
     }
-    // hop-gui often runs with cwd = hop home already; otherwise walk up one level
-    Path parent = cwd.getParent();
-    if (parent != null && Files.isDirectory(parent.resolve("plugins"))) {
-      return parent.toAbsolutePath().normalize();
-    }
-    throw new HopException(
-        "Cannot determine Hop installation directory. Set HOP_HOME or run from the Hop install root"
-            + " (the directory that contains plugins/).");
+    return paths;
   }
 
-  private static Path validate(Path path) throws HopException {
-    Path abs = path.toAbsolutePath().normalize();
-    if (!Files.isDirectory(abs)) {
-      throw new HopException("Hop home is not a directory: " + abs);
-    }
-    return abs;
+  /** True if path is a directory that looks like a Hop install (has {@code plugins/}). */
+  static boolean isHopHome(Path path) {
+    return path != null && Files.isDirectory(path) && Files.isDirectory(path.resolve("plugins"));
   }
 }
