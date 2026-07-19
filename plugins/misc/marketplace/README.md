@@ -73,6 +73,9 @@ Discovery order: `-f` / `HOP_ENV_FILE` / `PROJECT_HOME/hop-env.yaml` / `$HOP_HOM
 
 ## Config (`hop-config.json`)
 
+Local Sonatype Nexus (recommended for marketplace development — see
+`docker/marketplace-nexus/README.md`):
+
 ```json
 {
   "marketplace": {
@@ -81,33 +84,25 @@ Discovery order: `-f` / `HOP_ENV_FILE` / `PROJECT_HOME/hop-env.yaml` / `$HOP_HOM
     "defaultVersion": "2.19.0-SNAPSHOT",
     "repositories": [
       {
-        "id": "local-artifactory",
-        "url": "http://localhost:8082/artifactory/hop-plugins-local/",
-        "username": "admin"
+        "id": "local-nexus",
+        "url": "http://localhost:8081/repository/hop-plugins/"
       }
     ]
   }
 }
 ```
 
-Password via environment (recommended — do not store secrets in hop-config.json):
+After `./docker/marketplace-nexus/start.sh`, installs are **anonymous** — no password
+in Hop config.
+
+Corporate private repos can use Basic auth (prefer a read-only user, not admin):
 
 ```bash
-export HOP_MARKETPLACE_USERNAME=admin            # or ARTIFACTORY_USER
-export HOP_MARKETPLACE_PASSWORD='your-password'  # or ARTIFACTORY_PASSWORD
+export HOP_MARKETPLACE_USERNAME=reader
+export HOP_MARKETPLACE_PASSWORD='…'
 ```
 
-**HTTP 401** means the repository requires auth. For local Artifactory, prefer
-**anonymous read** on `hop-plugins-local` (no credentials in Hop):
-
-```bash
-export ARTIFACTORY_PASSWORD='admin-password'
-./docker/marketplace-artifactory/configure-anonymous-read.sh
-```
-
-Then install without password. Corporate repos that cannot allow anonymous can still use
-`HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD` (prefer a read-only user, not admin).
-See `docker/marketplace-artifactory/README.md`.
+**HTTP 401** means the repository requires auth or anonymous is disabled on the server.
 
 ## GUI
 

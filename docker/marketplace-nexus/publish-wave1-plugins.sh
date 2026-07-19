@@ -8,19 +8,34 @@
 #
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
-# Deploy Wave 1 marketplace plugin zips to a local Maven repository
-# (Artifactory, Nexus, or any HTTP Maven layout endpoint that accepts deploy-file).
+# Deploy Wave 1 marketplace plugin zips to local Nexus (or any Maven repo).
+#
+# Env:
+#   NEXUS_REPO_URL or ARTIFACTORY_URL  e.g. http://localhost:8081/repository/hop-plugins
+#   NEXUS_USER / NEXUS_PASSWORD        (or ARTIFACTORY_USER / ARTIFACTORY_PASSWORD)
+#   HOP_VERSION                        default 2.19.0-SNAPSHOT
+#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-REPO_URL="${ARTIFACTORY_URL:-http://localhost:8082/artifactory/hop-plugins-local}"
-REPO_ID="${ARTIFACTORY_REPO_ID:-hop-plugins-local}"
-USER="${ARTIFACTORY_USER:-admin}"
-PASS="${ARTIFACTORY_PASSWORD:-}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Load .env from start/configure if present
+if [[ -f "${SCRIPT_DIR}/.env" ]]; then
+  # shellcheck disable=SC1091
+  set -a
+  source "${SCRIPT_DIR}/.env"
+  set +a
+fi
+
+REPO_URL="${NEXUS_REPO_URL:-${ARTIFACTORY_URL:-http://localhost:8081/repository/hop-plugins}}"
+REPO_URL="${REPO_URL%/}"
+REPO_ID="${NEXUS_REPO_ID:-hop-plugins}"
+USER="${NEXUS_USER:-${NEXUS_ADMIN_USER:-${ARTIFACTORY_USER:-admin}}}"
+PASS="${NEXUS_PASSWORD:-${NEXUS_ADMIN_PASSWORD:-${ARTIFACTORY_PASSWORD:-}}}"
 VERSION="${HOP_VERSION:-2.19.0-SNAPSHOT}"
 GROUP_ID="org.apache.hop"
 
-# artifactId → path to built zip (relative to repo root)
 declare -A ZIPS=(
   [hop-engines-spark]="plugins/engines/spark/target/hop-engines-spark-${VERSION}.zip"
   [hop-engines-beam]="plugins/engines/beam/target/hop-engines-beam-${VERSION}.zip"
@@ -35,44 +50,56 @@ declare -A ZIPS=(
   [hop-transform-edi2xml]="plugins/transforms/edi2xml/target/hop-transform-edi2xml-${VERSION}.zip"
 )
 
-if [[ -z "$PASS" ]]; then
-  echo "Set ARTIFACTORY_PASSWORD (and optionally ARTIFACTORY_USER / ARTIFACTORY_URL)" >&2
+if [[ -z "${PASS}" ]]; then
+  echo "Set NEXUS_PASSWORD (or NEXUS_ADMIN_PASSWORD). After start.sh the default is hop-nexus-dev." >&2
   exit 1
 fi
 
 MVN="${ROOT}/mvnw"
-if [[ ! -x "$MVN" ]]; then
+if [[ ! -x "${MVN}" ]]; then
   MVN=mvn
 fi
+
+# Temporary settings.xml so deploy-file can authenticate without editing ~/.m2
+SETTINGS="$(mktemp)"
+trap 'rm -f "${SETTINGS}"' EXIT
+cat > "${SETTINGS}" <<EOF
+<settings>
+  <servers>
+    <server>
+      <id>${REPO_ID}</id>
+      <username>${USER}</username>
+      <password>${PASS}</password>
+    </server>
+  </servers>
+</settings>
+EOF
 
 deploy_one() {
   local artifactId="$1"
   local rel="$2"
-  local file="$ROOT/$rel"
-  if [[ ! -f "$file" ]]; then
-    echo "SKIP (not built): $artifactId — missing $rel" >&2
+  local file="${ROOT}/${rel}"
+  if [[ ! -f "${file}" ]]; then
+    echo "SKIP (not built): ${artifactId} — missing ${rel}"
     return 0
   fi
-  echo "Deploying $artifactId → $REPO_URL"
-  "$MVN" -q org.apache.maven.plugins:maven-deploy-plugin:3.1.3:deploy-file \
-    -DgroupId="$GROUP_ID" \
-    -DartifactId="$artifactId" \
-    -Dversion="$VERSION" \
+  echo "Deploying ${artifactId} → ${REPO_URL}"
+  "${MVN}" -q -s "${SETTINGS}" \
+    org.apache.maven.plugins:maven-deploy-plugin:3.1.3:deploy-file \
+    -DgroupId="${GROUP_ID}" \
+    -DartifactId="${artifactId}" \
+    -Dversion="${VERSION}" \
     -Dpackaging=zip \
-    -Dfile="$file" \
-    -DrepositoryId="$REPO_ID" \
-    -Durl="$REPO_URL" \
+    -Dfile="${file}" \
+    -DrepositoryId="${REPO_ID}" \
+    -Durl="${REPO_URL}" \
     -DgeneratePom=true \
     -DretryFailedDeploymentCount=2
 }
 
-# Allow password via settings or wagon; deploy-file uses server credentials from settings.xml
-# when repositoryId matches. Also support inline for local-only:
-export MAVEN_OPTS="${MAVEN_OPTS:-}"
-
 for artifactId in "${!ZIPS[@]}"; do
-  deploy_one "$artifactId" "${ZIPS[$artifactId]}"
+  deploy_one "${artifactId}" "${ZIPS[${artifactId}]}"
 done
 
-echo "Done. Configure hop marketplace repositories[0].url to: ${REPO_URL%/}/"
+echo "Done. Marketplace base URL: ${REPO_URL}/"
 echo "Example: hop marketplace install hop-tech-parquet"
