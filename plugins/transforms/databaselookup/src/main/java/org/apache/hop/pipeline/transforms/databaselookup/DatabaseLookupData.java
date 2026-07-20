@@ -37,6 +37,10 @@ public class DatabaseLookupData extends BaseTransformData implements ITransformD
   public IRowMeta outputRowMeta;
   public IRowMeta lookupMeta;
   public IRowMeta returnMeta;
+
+  /** Cached lookup-table field metadata (from getTableFields), reused for return type inference. */
+  public IRowMeta dbRowMeta;
+
   public boolean isCanceled;
   public boolean allEquals;
   public int[] conditions;

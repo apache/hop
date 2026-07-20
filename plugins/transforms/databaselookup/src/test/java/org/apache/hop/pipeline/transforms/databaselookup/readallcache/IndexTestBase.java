@@ -24,25 +24,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
- * This is a base class for several similar cases. All of them are checking how indexes work with
- * the same tuple of data: [0, 1, 2, 2, 3]. Since the data set is known, each subclass show
- * implement tests for the following values:
- *
- * <ul>
- *   <li>-1
- *   <li>0
- *   <li>1
- *   <li>2
- *   <li>3
- *   <li>100
- * </ul>
+ * Base class for index cases against the shared data set family [0, 1, 2, 2, 3] (sorted, reverse,
+ * shuffled). Subclasses implement assertions for lookups of -1, 0, 1, 2, 3, and 100.
  */
 public abstract class IndexTestBase<T extends Index> {
 
@@ -54,32 +45,43 @@ public abstract class IndexTestBase<T extends Index> {
     return result;
   }
 
+  static Stream<Long[][]> sampleData() {
+    return Stream.of(toMatrix(0, 1, 2, 2, 3), toMatrix(3, 2, 2, 1, 0), toMatrix(1, 3, 2, 0, 2));
+  }
+
+  /** Retained for subclasses that still reference the old helper. */
   static List<Object[]> createSampleData() {
-    // sorted, reversely sorted, and shuffled data
     return Arrays.asList(
         new Object[] {toMatrix(0, 1, 2, 2, 3)},
         new Object[] {toMatrix(3, 2, 2, 1, 0)},
         new Object[] {toMatrix(1, 3, 2, 0, 2)});
   }
 
-  final Long[][] rows;
   private final Class<T> clazz;
 
+  Long[][] rows;
   T index;
   SearchingContext context;
 
-  public IndexTestBase(Class<T> clazz, Long[][] rows) {
-    this.rows = rows;
+  public IndexTestBase(Class<T> clazz) {
     this.clazz = clazz;
   }
 
-  @BeforeEach
-  void setUp() throws Exception {
-    index = createIndexInstance(0, new ValueMetaInteger(), 5);
+  /**
+   * @deprecated use {@link #IndexTestBase(Class)}
+   */
+  @Deprecated
+  public IndexTestBase(Class<T> clazz, Long[][] ignoredRows) {
+    this(clazz);
+  }
+
+  private void prepare(Long[][] sampleRows) throws Exception {
+    this.rows = sampleRows;
+    index = createIndexInstance(0, new ValueMetaInteger(), sampleRows.length);
     index.performIndexingOf(rows);
 
     context = new SearchingContext();
-    context.init(5);
+    context.init(sampleRows.length);
   }
 
   T createIndexInstance(int column, IValueMeta meta, int rowsAmount) throws Exception {
@@ -92,6 +94,7 @@ public abstract class IndexTestBase<T extends Index> {
   void tearDown() {
     index = null;
     context = null;
+    rows = null;
   }
 
   void testFindsNothing(long value) {
@@ -124,21 +127,63 @@ public abstract class IndexTestBase<T extends Index> {
 
   abstract void doAssertMatches(BitSet candidates, long lookupValue, long actualValue);
 
-  @Test
   abstract void lookupFor_MinusOne();
 
-  @Test
   abstract void lookupFor_Zero();
 
-  @Test
   abstract void lookupFor_One();
 
-  @Test
   abstract void lookupFor_Two();
 
-  @Test
   abstract void lookupFor_Three();
 
-  @Test
   abstract void lookupFor_Hundred();
+
+  @ParameterizedTest
+  @MethodSource(
+      "org.apache.hop.pipeline.transforms.databaselookup.readallcache.IndexTestBase#sampleData")
+  void runsLookupFor_MinusOne(Long[][] sampleRows) throws Exception {
+    prepare(sampleRows);
+    lookupFor_MinusOne();
+  }
+
+  @ParameterizedTest
+  @MethodSource(
+      "org.apache.hop.pipeline.transforms.databaselookup.readallcache.IndexTestBase#sampleData")
+  void runsLookupFor_Zero(Long[][] sampleRows) throws Exception {
+    prepare(sampleRows);
+    lookupFor_Zero();
+  }
+
+  @ParameterizedTest
+  @MethodSource(
+      "org.apache.hop.pipeline.transforms.databaselookup.readallcache.IndexTestBase#sampleData")
+  void runsLookupFor_One(Long[][] sampleRows) throws Exception {
+    prepare(sampleRows);
+    lookupFor_One();
+  }
+
+  @ParameterizedTest
+  @MethodSource(
+      "org.apache.hop.pipeline.transforms.databaselookup.readallcache.IndexTestBase#sampleData")
+  void runsLookupFor_Two(Long[][] sampleRows) throws Exception {
+    prepare(sampleRows);
+    lookupFor_Two();
+  }
+
+  @ParameterizedTest
+  @MethodSource(
+      "org.apache.hop.pipeline.transforms.databaselookup.readallcache.IndexTestBase#sampleData")
+  void runsLookupFor_Three(Long[][] sampleRows) throws Exception {
+    prepare(sampleRows);
+    lookupFor_Three();
+  }
+
+  @ParameterizedTest
+  @MethodSource(
+      "org.apache.hop.pipeline.transforms.databaselookup.readallcache.IndexTestBase#sampleData")
+  void runsLookupFor_Hundred(Long[][] sampleRows) throws Exception {
+    prepare(sampleRows);
+    lookupFor_Hundred();
+  }
 }
