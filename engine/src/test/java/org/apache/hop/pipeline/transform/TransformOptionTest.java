@@ -24,26 +24,20 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 @ExtendWith(MockitoExtension.class)
 class TransformOptionTest {
   @Mock TransformMeta transformMeta;
   @Mock IVariables variables;
-
-  @BeforeAll
-  static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
 
   @BeforeEach
   void setup() {

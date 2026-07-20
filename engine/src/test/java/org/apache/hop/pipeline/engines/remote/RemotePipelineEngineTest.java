@@ -21,30 +21,26 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * The run configuration a remote run configuration hands the pipeline to is used on the server.
  * When that leads back to a remote run configuration the pipeline keeps being handed on and
  * registered again and again. See issue #4086.
  */
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class RemotePipelineEngineTest {
 
   private static final String SERVER_NAME = "a-server";
-
-  @BeforeAll
-  static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
 
   /** A remote run configuration that names itself never reaches a server that would run it. */
   @Test

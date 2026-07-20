@@ -20,19 +20,20 @@ package org.apache.hop.core.metadata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.util.TestUtil;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.server.HopServerMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class SerializableMetadataProviderTest {
 
   @BeforeEach
   void before() throws Exception {
-    HopEnvironment.init();
     TestUtil.registerTestPluginTypes();
   }
 
