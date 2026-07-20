@@ -212,6 +212,11 @@ prepare_webapp() {
   log "Overlaying latest Hop module JARs (core, engine, ui, rap)"
   overlay_module_jars "${webapp}/WEB-INF/lib"
   overlay_module_jars "${client_lib}"
+
+  # Do not leave the desktop RCP UI fragment on the Hop Web classpath (see web.Dockerfile).
+  # Stripping here keeps the staged webapp correct even if Dockerfile is bypassed.
+  rm -f "${webapp}/WEB-INF/lib"/hop-ui-rcp-*.jar
+  log "Removed hop-ui-rcp from staged webapp WEB-INF/lib (Hop Web must use hop-ui-rap only)"
 }
 
 build_image() {

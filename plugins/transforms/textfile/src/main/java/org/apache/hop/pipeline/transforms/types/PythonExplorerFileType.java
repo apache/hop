@@ -49,6 +49,8 @@ public class PythonExplorerFileType
             IHopFileType.CAPABILITY_CLOSE,
             IHopFileType.CAPABILITY_FILE_HISTORY,
             IHopFileType.CAPABILITY_COPY,
+            IHopFileType.CAPABILITY_CUT,
+            IHopFileType.CAPABILITY_PASTE,
             IHopFileType.CAPABILITY_SELECT));
   }
 

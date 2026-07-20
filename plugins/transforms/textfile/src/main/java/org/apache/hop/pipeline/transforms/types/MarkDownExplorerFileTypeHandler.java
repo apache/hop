@@ -23,17 +23,17 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
-import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
+import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
 import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileTypeHandler;
@@ -45,19 +45,16 @@ import org.commonmark.ext.task.list.items.TaskListItemsExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 /** How do we handle a markdown file in the file explorer perspective? */
-@GuiPlugin
+@GuiPlugin(name = "Markdown file type handler")
 public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler {
 
   private static final Class<?> PKG = MarkDownExplorerFileType.class;
 
-  public static final String TOOLBAR_PARENT_ID = "MarkDownExplorerFileTypeHandler-Toolbar";
+  protected static final String LANGUAGE = "markdown";
+
   public static final String TOOLBAR_ITEM_PREVIEW =
       "MarkDownExplorerFileTypeHandler-ToolBar-Preview";
 
@@ -72,41 +69,15 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
 
   @Override
   protected String getLanguageId() {
-    return "markdown";
+    return LANGUAGE;
   }
 
   @Override
   public void renderFile(Composite composite) {
-    // Create the toolbar container using the facade
-    IToolbarContainer toolBarContainer =
-        ToolbarFacade.createToolbarContainer(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-    Control toolBarControl = toolBarContainer.getControl();
 
-    // Create the toolbar widgets using GuiToolbarWidgets
-    GuiToolbarWidgets toolBarWidgets = new GuiToolbarWidgets();
-    toolBarWidgets.registerGuiPluginObject(this);
-    toolBarWidgets.createToolbarWidgets(toolBarContainer, TOOLBAR_PARENT_ID);
-
-    // Layout data for the toolbar control
-    FormData fdToolBar = new FormData();
-    fdToolBar.left = new FormAttachment(0, 0);
-    fdToolBar.right = new FormAttachment(100, 0);
-    fdToolBar.top = new FormAttachment(0, 0);
-    toolBarControl.setLayoutData(fdToolBar);
-    toolBarControl.pack();
-    PropsUi.setLook(toolBarControl, Props.WIDGET_STYLE_TOOLBAR);
-
-    // Create the standard editor widget
+    // Shared content-editor toolbar (incl. Markdown preview) is built inside the editor widget.
     editorWidget = ContentEditorFacade.createContentEditor(composite, getLanguageId());
-
-    // Position the editor widget below the toolbar
-    Control editorControl = editorWidget.getControl();
-    FormData fdEditor = new FormData();
-    fdEditor.left = new FormAttachment(0, 0);
-    fdEditor.right = new FormAttachment(100, 0);
-    fdEditor.top = new FormAttachment(toolBarControl, 0);
-    fdEditor.bottom = new FormAttachment(100, 0);
-    editorControl.setLayoutData(fdEditor);
+    editorWidget.getControl().setLayoutData(FormDataBuilder.builder().fullSize().build());
 
     // If it's a new file, there's no need to reload it
     if (this.getFilename() != null) {
@@ -123,13 +94,23 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
         });
   }
 
+  @GuiToolbarElementFilter(parentId = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID)
+  public static boolean showForMarkdownFileType(String itemId, Object guiPluginInstance) {
+    if (TOOLBAR_ITEM_PREVIEW.equals(itemId)
+        && guiPluginInstance instanceof IContentEditorWidget editor) {
+      return LANGUAGE.equals(editor.getLanguage());
+    }
+    return true;
+  }
+
   @GuiToolbarElement(
-      root = TOOLBAR_PARENT_ID,
+      root = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_PREVIEW,
       toolTip = "i18n::MarkDownFileTypeHandler.Preview.Tooltip",
       type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/preview.svg")
-  public void previewMarkdown() {
+      image = "ui/images/preview.svg",
+      separator = true)
+  public static void previewMarkdown(IContentEditorWidget editorWidget) {
     try {
       String markdown = editorWidget.getText();
 
@@ -291,20 +272,30 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       html.append(htmlContent);
       html.append("\n</body>\n</html>");
 
-      // Create a temporary file
-      File tempFile = File.createTempFile("markdown_preview_", ".html");
-      tempFile.deleteOnExit();
+      String fullHtml = html.toString();
 
-      // Write the HTML to the temp file
-      try (OutputStream outputStream = new FileOutputStream(tempFile)) {
-        outputStream.write(html.toString().getBytes(StandardCharsets.UTF_8));
+      // Hop Web: openUrl(file://...) points at the server temp path, which the client browser
+      // cannot read. Show the rendered HTML in an in-app Browser dialog instead.
+      // Desktop: keep writing a temp file and open it in the system browser.
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        ShowBrowserDialog dialog =
+            new ShowBrowserDialog(
+                HopGui.getInstance().getActiveShell(), "Markdown preview", fullHtml);
+        dialog.open();
+      } else {
+        File tempFile = File.createTempFile("markdown_preview_", ".html");
+        tempFile.deleteOnExit();
+        try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+          outputStream.write(fullHtml.getBytes(StandardCharsets.UTF_8));
+        }
+        EnvironmentUtils.getInstance().openUrl(tempFile.toURI().toString());
       }
-
-      // Open in browser
-      EnvironmentUtils.getInstance().openUrl(tempFile.toURI().toString());
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error generating or displaying Markdown preview", e);
+          HopGui.getInstance().getActiveShell(),
+          "Error",
+          "Error generating or displaying Markdown preview",
+          e);
     }
   }
 }
