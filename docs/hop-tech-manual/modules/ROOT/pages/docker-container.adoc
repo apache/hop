@@ -86,6 +86,22 @@ If you do not set this variable, no project or environment will be created.
 |`project-config.json`
 | Name of the project config file.
 
+|```HOP_PARENT_PROJECT_NAME```
+|
+| Optional name of a one-level parent project to register in the container before the main project.
+Required together with `HOP_PARENT_PROJECT_FOLDER` when the main project inherits metadata from another project (`parentProjectName` in `project-config.json`).
+Only a single parent level is supported in the image; deeper chains need a custom entrypoint.
+
+|```HOP_PARENT_PROJECT_FOLDER```
+|
+| Path to the home of the parent Hop project inside the container.
+Required together with `HOP_PARENT_PROJECT_NAME`.
+Mount both parent and child project folders into the container.
+
+|```HOP_PARENT_PROJECT_CONFIG_FILE_NAME```
+|`project-config.json`
+| Name of the parent project config file (relative to the parent home).
+
 |```HOP_ENVIRONMENT_NAME```
 |
 | The name of the Hop environment to create in the container.
@@ -291,6 +307,34 @@ docker run -it --rm \
   --name my-simple-hop-container \
   apache/hop:<tag>
 ----
+
+=== Projects with a parent
+
+When a project inherits metadata from another project (`parentProjectName` in `project-config.json`), both project homes must be mounted and the parent must be registered in the container as well.
+
+Set `HOP_PARENT_PROJECT_NAME` and `HOP_PARENT_PROJECT_FOLDER` (optionally `HOP_PARENT_PROJECT_CONFIG_FILE_NAME`).
+The entrypoint registers the parent first, then the main project with `--project-parent`, so parent metadata is merged into `HOP_METADATA_FOLDER` and the built-in variables `PARENT_PROJECT_HOME` / `PARENT_PROJECT_NAME` resolve correctly.
+
+Only **one parent level** is supported through these environment variables.
+
+[source,bash]
+----
+docker run -it --rm \
+  --env HOP_LOG_LEVEL=Basic \
+  --env HOP_FILE_PATH='jobs/load_projectB_data.hwf' \
+  --env HOP_PROJECT_FOLDER=/files/projects/projectB \
+  --env HOP_PROJECT_NAME=projectB \
+  --env HOP_PARENT_PROJECT_FOLDER=/files/projects/projectA \
+  --env HOP_PARENT_PROJECT_NAME=projectA \
+  --env HOP_ENVIRONMENT_NAME=prod_docker_exec \
+  --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/files/projects/projectB/prod_docker_exec-config.json \
+  --env HOP_RUN_CONFIG=docker_run_config \
+  -v /path/to/projects:/files/projects \
+  --name docker-exec-projectB \
+  apache/hop:<tag>
+----
+
+The value of `HOP_PARENT_PROJECT_NAME` should match `parentProjectName` in the child project's `project-config.json`.
 
 === Running the long-lived container (server)
 

@@ -972,7 +972,10 @@ public class SynchronizeAfterMerge
         data.releaseSavepoint = false;
       }
 
-      data.commitSize = Integer.parseInt(resolve(meta.getCommitSize()));
+      String commitSize = resolve(meta.getCommitSize());
+      String expandedCommitSize = Const.expandIntegerString(commitSize);
+      data.commitSize =
+          Integer.parseInt(expandedCommitSize != null ? expandedCommitSize : commitSize);
       data.batchMode = data.commitSize > 0 && meta.isUsingBatchUpdates();
 
       // Batch updates are not supported on PostgreSQL (and look-a-likes) together with error

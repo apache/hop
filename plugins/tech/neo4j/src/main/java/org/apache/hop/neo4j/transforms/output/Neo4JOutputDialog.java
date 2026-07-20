@@ -178,6 +178,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchSize.enableExpandedInteger();
     PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();

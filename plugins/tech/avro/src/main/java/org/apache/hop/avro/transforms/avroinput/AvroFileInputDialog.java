@@ -107,6 +107,7 @@ public class AvroFileInputDialog extends BaseTransformDialog {
     fdlRowsLimit.top = new FormAttachment(lastControl, margin);
     wlRowsLimit.setLayoutData(fdlRowsLimit);
     wRowsLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRowsLimit.enableExpandedInteger();
     wRowsLimit.setText(transformName);
     PropsUi.setLook(wRowsLimit);
     FormData fdRowsLimit = new FormData();

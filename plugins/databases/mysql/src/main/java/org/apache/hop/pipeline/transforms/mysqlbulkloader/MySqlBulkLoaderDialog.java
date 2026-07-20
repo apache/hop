@@ -351,6 +351,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlBulkSize.top = new FormAttachment(wCharSet, margin);
     wlBulkSize.setLayoutData(fdlBulkSize);
     wBulkSize = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBulkSize.enableExpandedInteger();
     PropsUi.setLook(wBulkSize);
     wBulkSize.addModifyListener(lsMod);
     FormData fdBulkSize = new FormData();

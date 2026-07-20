@@ -618,6 +618,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog {
     wlCommit.setLayoutData(fdlCommit);
 
     wCommit = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCommit.enableExpandedInteger();
     PropsUi.setLook(wCommit);
     wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();

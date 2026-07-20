@@ -28,6 +28,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.action.ActionDebugLevel;
 import org.apache.hop.debug.transform.TransformDebugLevel;
 
@@ -39,8 +40,7 @@ public class DebugLevelUtil {
       TransformDebugLevel debugLevel)
       throws HopValueException, UnsupportedEncodingException {
     debugGroupAttributesMap.put(
-        transformName + " : " + Defaults.TRANSFORM_ATTR_LOGLEVEL,
-        debugLevel.getLogLevel().getCode());
+        transformName + " : " + Defaults.TRANSFORM_ATTR_LOGLEVEL, debugLevel.getLogLevel());
     debugGroupAttributesMap.put(
         transformName + " : " + Defaults.TRANSFORM_ATTR_START_ROW,
         Integer.toString(debugLevel.getStartRow()));
@@ -75,7 +75,7 @@ public class DebugLevelUtil {
     }
 
     TransformDebugLevel debugLevel = new TransformDebugLevel();
-    debugLevel.setLogLevel(LogLevel.lookupCode(logLevelCode));
+    debugLevel.setLogLevel(logLevelCode);
     debugLevel.setStartRow(Const.toInt(startRowString, -1));
     debugLevel.setEndRow(Const.toInt(endRowString, -1));
 
@@ -104,7 +104,7 @@ public class DebugLevelUtil {
   public static void storeActionDebugLevel(
       Map<String, String> debugGroupAttributesMap, String entryName, ActionDebugLevel debugLevel) {
     debugGroupAttributesMap.put(
-        entryName + " : " + Defaults.ACTION_ATTR_LOGLEVEL, debugLevel.getLogLevel().getCode());
+        entryName + " : " + Defaults.ACTION_ATTR_LOGLEVEL, debugLevel.getLogLevel());
     debugGroupAttributesMap.put(
         entryName + " : " + Defaults.ACTION_ATTR_LOG_RESULT,
         debugLevel.isLoggingResult() ? "Y" : "N");
@@ -151,13 +151,89 @@ public class DebugLevelUtil {
     }
 
     ActionDebugLevel debugLevel = new ActionDebugLevel();
-    debugLevel.setLogLevel(LogLevel.lookupCode(logLevelCode));
+    debugLevel.setLogLevel(logLevelCode);
     debugLevel.setLoggingResult(loggingResult);
     debugLevel.setLoggingVariables(loggingVariables);
     debugLevel.setLoggingResultRows(loggingResultRows);
     debugLevel.setLoggingResultFiles(loggingResultFiles);
 
     return debugLevel;
+  }
+
+  /**
+   * Resolve a log level specification (code, description, or variable expression) to a {@link
+   * LogLevel}. Variables are expanded first, then matched against codes (preferred) and
+   * descriptions. Falls back to {@link LogLevel#BASIC} when unresolved or unrecognized (same
+   * default as {@link LogLevel#lookupCode(String)}).
+   *
+   * @param variables variable space used to resolve expressions (may be null)
+   * @param logLevelSpec stored code, description, or variable expression
+   * @return resolved log level
+   */
+  public static LogLevel resolveLogLevel(IVariables variables, String logLevelSpec) {
+    String resolved =
+        variables != null
+            ? variables.resolve(Const.NVL(logLevelSpec, ""))
+            : Const.NVL(logLevelSpec, "");
+    if (StringUtils.isEmpty(resolved)) {
+      return LogLevel.BASIC;
+    }
+    // Prefer exact code match so unknown values do not silently become BASIC via lookupCode
+    for (LogLevel level : LogLevel.values()) {
+      if (level.getCode().equalsIgnoreCase(resolved)) {
+        return level;
+      }
+    }
+    for (LogLevel level : LogLevel.values()) {
+      if (level.getDescription().equalsIgnoreCase(resolved)) {
+        return level;
+      }
+    }
+    return LogLevel.BASIC;
+  }
+
+  /**
+   * Map a stored log level code to its description for UI display. If the value is not a known code
+   * (e.g. a variable expression), return it unchanged.
+   *
+   * @param logLevelSpec stored code or variable expression
+   * @return description for a known code, otherwise the original string
+   */
+  public static String logLevelCodeToDisplay(String logLevelSpec) {
+    if (StringUtils.isEmpty(logLevelSpec)) {
+      return Const.NVL(logLevelSpec, "");
+    }
+    for (LogLevel level : LogLevel.values()) {
+      if (level.getCode().equalsIgnoreCase(logLevelSpec)) {
+        return level.getDescription();
+      }
+    }
+    return logLevelSpec;
+  }
+
+  /**
+   * Map dialog text to a value suitable for storage. If the text matches a log level description,
+   * store the stable code; otherwise store the text as-is (variable or free-form).
+   *
+   * @param displayText combo text from the dialog
+   * @return code for a known description, otherwise the original text
+   */
+  public static String logLevelDisplayToCode(String displayText) {
+    if (StringUtils.isEmpty(displayText)) {
+      return displayText;
+    }
+    for (LogLevel level : LogLevel.values()) {
+      if (level.getDescription().equalsIgnoreCase(displayText)) {
+        return level.getCode();
+      }
+    }
+    // Already a code?
+    for (LogLevel level : LogLevel.values()) {
+      if (level.getCode().equalsIgnoreCase(displayText)) {
+        return level.getCode();
+      }
+    }
+    return displayText;
   }
 
   public static String getDurationHMS(double seconds) {

@@ -180,10 +180,11 @@ public class Project extends ConfigFile implements IConfigFile {
     // definition as well
     //
     Project parentProject = null;
+    ProjectConfig parentProjectConfig = null;
     String realParentProjectName = variables.resolve(parentProjectName);
     if (StringUtils.isNotEmpty(realParentProjectName)) {
 
-      ProjectConfig parentProjectConfig =
+      parentProjectConfig =
           ProjectsConfigSingleton.getConfig().findProjectConfig(realParentProjectName);
       if (parentProjectConfig != null) {
         try {
@@ -197,6 +198,20 @@ public class Project extends ConfigFile implements IConfigFile {
               he);
         }
       }
+    }
+
+    // Expose the immediate parent project (if any) for path references like
+    // ${PARENT_PROJECT_HOME}/shared/pipeline.hpl. Clear when missing so project
+    // switches do not leave stale values.
+    //
+    if (parentProjectConfig != null && parentProject != null) {
+      variables.setVariable(
+          ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME, Const.NVL(realParentProjectName, ""));
+      String parentHome = variables.resolve(parentProjectConfig.getProjectHome());
+      variables.setVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME, Const.NVL(parentHome, ""));
+    } else {
+      variables.setVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME, "");
+      variables.setVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME, "");
     }
 
     // Set the name of the active environment

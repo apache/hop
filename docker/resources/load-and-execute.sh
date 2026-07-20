@@ -188,6 +188,36 @@ if [ -n "${HOP_SYSTEM_PROPERTIES}" ]; then
   HOP_EXEC_OPTIONS+=("--system-properties=${HOP_SYSTEM_PROPERTIES}")
 fi
 
+# Register a project in hop-config if it is not already present.
+# Usage: register_hop_project NAME FOLDER CONFIG_FILE [PARENT_NAME]
+#
+register_hop_project() {
+  local name="$1"
+  local home="$2"
+  local cfg="$3"
+  local parent="${4:-}"
+
+  if $("${DEPLOYMENT_PATH}"/hop-conf.sh -pl | grep -q -E "^  ${name} :"); then
+    log "project ${name} already exists"
+    return 0
+  fi
+
+  local conf_args=(
+    --project="${name}"
+    --project-create
+    --project-home="${home}"
+    --project-config-file="${cfg}"
+    --project-keep-config-file
+  )
+  if [ -n "${parent}" ]; then
+    conf_args+=(--project-parent="${parent}")
+  fi
+
+  log "Registering project ${name} in the Hop container configuration (home=${home})"
+  log "${DEPLOYMENT_PATH}/hop-conf.sh ${conf_args[*]}"
+  "${DEPLOYMENT_PATH}"/hop-conf.sh "${conf_args[@]}"
+}
+
 # If a project folder is defined we assume that we want to create it in the container
 #
 if [ -n "${HOP_PROJECT_FOLDER}" ]; then
@@ -208,19 +238,32 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
     log "The specified project folder exists"
   fi
 
-  log "Registering project ${HOP_PROJECT_NAME} in the Hop container configuration"
-  log "${DEPLOYMENT_PATH}/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_FOLDER}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}' --project-keep-config-file"
-
-  if $("${DEPLOYMENT_PATH}"/hop-conf.sh -pl | grep -q -E "^  ${HOP_PROJECT_NAME} :"); then
-    log "project ${HOP_PROJECT_NAME} already exists"
-  else
-    "${DEPLOYMENT_PATH}"/hop-conf.sh \
-      --project="${HOP_PROJECT_NAME}" \
-      --project-create \
-      --project-home="${HOP_PROJECT_FOLDER}" \
-      --project-config-file="${HOP_PROJECT_CONFIG_FILE_NAME}" \
-      --project-keep-config-file
+  # Optional one-level parent project (issue #2596). Register the parent first so
+  # metadata inheritance and PARENT_PROJECT_HOME resolve when the child is enabled.
+  #
+  HOP_PARENT_PROJECT_CONFIG_FILE_NAME="${HOP_PARENT_PROJECT_CONFIG_FILE_NAME:-project-config.json}"
+  if [ -n "${HOP_PARENT_PROJECT_FOLDER}" ] || [ -n "${HOP_PARENT_PROJECT_NAME}" ]; then
+    if [ -z "${HOP_PARENT_PROJECT_FOLDER}" ] || [ -z "${HOP_PARENT_PROJECT_NAME}" ]; then
+      log "Error: both HOP_PARENT_PROJECT_NAME and HOP_PARENT_PROJECT_FOLDER must be set to register a parent project"
+      exitWithCode 9
+    fi
+    if [ ! -d "${HOP_PARENT_PROJECT_FOLDER}" ]; then
+      log "Warning: the folder specified in variable HOP_PARENT_PROJECT_FOLDER does not exist in the container: ${HOP_PARENT_PROJECT_FOLDER}"
+    else
+      log "The specified parent project folder exists"
+    fi
+    register_hop_project \
+      "${HOP_PARENT_PROJECT_NAME}" \
+      "${HOP_PARENT_PROJECT_FOLDER}" \
+      "${HOP_PARENT_PROJECT_CONFIG_FILE_NAME}"
   fi
+
+  HOP_PROJECT_CONFIG_FILE_NAME="${HOP_PROJECT_CONFIG_FILE_NAME:-project-config.json}"
+  register_hop_project \
+    "${HOP_PROJECT_NAME}" \
+    "${HOP_PROJECT_FOLDER}" \
+    "${HOP_PROJECT_CONFIG_FILE_NAME}" \
+    "${HOP_PARENT_PROJECT_NAME:-}"
 
   HOP_EXEC_OPTIONS+=("--project=${HOP_PROJECT_NAME}")
 

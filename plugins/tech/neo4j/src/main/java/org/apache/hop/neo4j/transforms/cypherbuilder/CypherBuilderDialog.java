@@ -205,6 +205,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchSize.enableExpandedInteger();
     PropsUi.setLook(wBatchSize);
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment(middle, 0);

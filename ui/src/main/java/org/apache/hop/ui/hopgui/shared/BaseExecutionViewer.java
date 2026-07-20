@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.Execution;
@@ -139,6 +140,33 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       return "";
     }
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
+  }
+
+  /**
+   * Formats pipeline/workflow execution duration from start to end (or last update while still
+   * running).
+   *
+   * @return human-readable duration, or empty string when start is unknown
+   */
+  protected String formatExecutionDuration(Execution execution, ExecutionState executionState) {
+    if (execution == null || execution.getExecutionStartDate() == null) {
+      return "";
+    }
+    Date end = null;
+    if (executionState != null) {
+      end = executionState.getExecutionEndDate();
+      if (end == null) {
+        end = executionState.getUpdateTime();
+      }
+    }
+    if (end == null) {
+      return "";
+    }
+    long durationMs = end.getTime() - execution.getExecutionStartDate().getTime();
+    if (durationMs < 0) {
+      return "";
+    }
+    return Utils.getDurationHMS(durationMs / 1000.0);
   }
 
   public abstract void drillDownOnLocation(Point location);

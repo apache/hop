@@ -367,7 +367,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
       // The maximum number of elements in a bundle.")
       if (StringUtils.isNotEmpty(getFlinkMaxBundleSize())) {
-        long value = Const.toLong(resolve(getFlinkMaxBundleSize()), -1L);
+        long value = Const.toLongExpanded(resolve(getFlinkMaxBundleSize()), -1L);
         if (value > 0) {
           options.setMaxBundleSize(value);
         }

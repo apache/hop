@@ -54,6 +54,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -63,6 +64,7 @@ import org.apache.hop.execution.ExecutionDataBuilder;
 import org.apache.hop.execution.ExecutionDataSetMeta;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.ExecutionStateComponentMetrics;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
@@ -331,6 +333,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       infoView.add("Registration", formatDate(execution.getRegistrationDate()));
       infoView.add("Start", formatDate(execution.getExecutionStartDate()));
       infoView.add("End", formatDate(executionState.getExecutionEndDate()));
+      infoView.add("Duration", formatExecutionDuration(execution, executionState));
       infoView.add("Type", executionState.getExecutionType().name());
       infoView.add("Status", statusDescription);
       infoView.add("Status Last updated", formatDate(executionState.getUpdateTime()));
@@ -472,7 +475,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       // We display everything that makes sense:
       // name, copy, inits, input, read, written, output, updated, rejected, errors, buffer in,
-      // buffer out, data volume, data volume in, data volume out
+      // buffer out, data volume, data volume in, data volume out, duration, speed
       //
       List<ColumnInfo> columns = new ArrayList<>();
       columns.add(new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, true));
@@ -491,6 +494,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       addColumn(columns, indexMap, metricNames, Pipeline.METRIC_DATA_VOLUME);
       addColumn(columns, indexMap, metricNames, Pipeline.METRIC_DATA_VOLUME_IN);
       addColumn(columns, indexMap, metricNames, Pipeline.METRIC_DATA_VOLUME_OUT);
+      // Always reserve Duration / Speed columns (blank when not recorded for a component).
+      addNamedColumn(columns, indexMap, ExecutionStateBuilder.METRIC_HEADER_DURATION, "Duration");
+      addNamedColumn(columns, indexMap, ExecutionStateBuilder.METRIC_HEADER_SPEED, "Speed (r/s)");
 
       metricsView =
           new TableView(
@@ -512,7 +518,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           Integer index = indexMap.get(metricHeader);
           Long value = metrics.getMetrics().get(metricHeader);
           if (value != null && index != null && index > 1 && index <= columns.size()) {
-            item.setText(index, value.toString());
+            if (ExecutionStateBuilder.METRIC_HEADER_DURATION.equals(metricHeader)) {
+              item.setText(index, Utils.getDurationHMS(value / 1000.0));
+            } else {
+              item.setText(index, value.toString());
+            }
           }
         }
       }
@@ -538,6 +548,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Index +1 because of the left-hand row number; use raw header for lookup
       indexMap.put(metric.getHeader(), columns.size());
     }
+  }
+
+  private void addNamedColumn(
+      List<ColumnInfo> columns, Map<String, Integer> indexMap, String key, String displayHeader) {
+    columns.add(new ColumnInfo(displayHeader, ColumnInfo.COLUMN_TYPE_TEXT, true, true));
+    indexMap.put(key, columns.size());
   }
 
   /** An entry is selected in the data list. Show the corresponding rows. */

@@ -17,20 +17,21 @@
 
 package org.apache.hop.debug.action;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
@@ -41,12 +42,13 @@ public class ActionDebugLevelDialog extends Dialog {
 
   private ActionDebugLevel input;
   private ActionDebugLevel debugLevel;
+  private IVariables variables;
 
   private Shell shell;
 
   // Connection properties
   //
-  private Combo wLogLevel;
+  private ComboVar wLogLevel;
   private Button wLoggingResult;
   private Button wLoggingVariables;
   private Button wLoggingRows;
@@ -56,9 +58,10 @@ public class ActionDebugLevelDialog extends Dialog {
 
   private boolean ok;
 
-  public ActionDebugLevelDialog(Shell par, ActionDebugLevel debugLevel) {
+  public ActionDebugLevelDialog(Shell par, ActionDebugLevel debugLevel, IVariables variables) {
     super(par, SWT.NONE);
     this.input = debugLevel;
+    this.variables = variables;
     props = PropsUi.getInstance();
     ok = false;
 
@@ -90,7 +93,7 @@ public class ActionDebugLevelDialog extends Dialog {
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
-    wLogLevel = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLogLevel = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLogLevel.setItems(LogLevel.getLogLevelDescriptions());
     PropsUi.setLook(wLogLevel);
     FormData fdName = new FormData();
@@ -196,7 +199,7 @@ public class ActionDebugLevelDialog extends Dialog {
   }
 
   public void getData() {
-    wLogLevel.setText(debugLevel.getLogLevel().getDescription());
+    wLogLevel.setText(DebugLevelUtil.logLevelCodeToDisplay(debugLevel.getLogLevel()));
     wLoggingResult.setSelection(debugLevel.isLoggingResult());
     wLoggingVariables.setSelection(debugLevel.isLoggingVariables());
     wLoggingRows.setSelection(debugLevel.isLoggingResultRows());
@@ -218,8 +221,7 @@ public class ActionDebugLevelDialog extends Dialog {
 
   // Get dialog info in securityService
   private void getInfo(ActionDebugLevel level) {
-    int index = Const.indexOfString(wLogLevel.getText(), LogLevel.getLogLevelDescriptions());
-    level.setLogLevel(LogLevel.values()[index]);
+    level.setLogLevel(DebugLevelUtil.logLevelDisplayToCode(wLogLevel.getText()));
     level.setLoggingResult(wLoggingResult.getSelection());
     level.setLoggingVariables(wLoggingVariables.getSelection());
     level.setLoggingResultRows(wLoggingRows.getSelection());

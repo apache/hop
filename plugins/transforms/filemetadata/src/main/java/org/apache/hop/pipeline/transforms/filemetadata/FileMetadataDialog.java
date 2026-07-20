@@ -250,6 +250,7 @@ public class FileMetadataDialog extends BaseTransformDialog {
     fdlLimit.top = new FormAttachment(0, margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLimit.enableExpandedInteger();
     wLimit.setToolTipText(
         BaseMessages.getString(PKG, "FileMetadata.methods.DELIMITED_FIELDS.limit.tooltip"));
     PropsUi.setLook(wLimit);
