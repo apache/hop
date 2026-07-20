@@ -23,7 +23,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
@@ -33,6 +32,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -43,7 +43,9 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class WorkflowTest {
 
   int count = 10000;
@@ -141,7 +143,6 @@ class WorkflowTest {
 
   @BeforeAll
   static void beforeClass() throws HopException, HopPluginException {
-    HopEnvironment.init();
     PluginRegistry.getInstance()
         .registerPluginClass(
             ActionBlockingForWorkflowStopTest.class.getName(),

@@ -65,14 +65,14 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     // Pre-calculate some values...
     //
     data.pageSize =
-        Const.toInt(resolve(meta.getDataPageSize()), ParquetProperties.DEFAULT_PAGE_SIZE);
+        Const.toIntExpanded(resolve(meta.getDataPageSize()), ParquetProperties.DEFAULT_PAGE_SIZE);
     data.dictionaryPageSize =
-        Const.toInt(
+        Const.toIntExpanded(
             resolve(meta.getDictionaryPageSize()), ParquetProperties.DEFAULT_DICTIONARY_PAGE_SIZE);
     data.rowGroupSize =
-        Const.toInt(
+        Const.toIntExpanded(
             resolve(meta.getRowGroupSize()), ParquetProperties.DEFAULT_PAGE_ROW_COUNT_LIMIT);
-    data.maxSplitSizeRows = Const.toLong(resolve(meta.getFileSplitSize()), -1);
+    data.maxSplitSizeRows = Const.toLongExpanded(resolve(meta.getFileSplitSize()), -1);
 
     return super.init();
   }

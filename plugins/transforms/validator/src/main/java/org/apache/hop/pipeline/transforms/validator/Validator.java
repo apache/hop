@@ -47,6 +47,9 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> implements ITransform {
   private static final Class<?> PKG = ValidatorMeta.class;
 
+  /** Placeholder used in log/error messages when failed data must not be exposed. */
+  static final String OMITTED_VALUE = "?";
+
   public Validator(
       TransformMeta transformMeta,
       ValidatorMeta meta,
@@ -279,7 +282,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                     PKG,
                     "Validator.Exception.NullNotAllowed",
                     field.getFieldName(),
-                    inputRowMeta.getString(r)),
+                    getRowForMessage(inputRowMeta, r)),
                 field.getFieldName());
         exceptions.add(exception);
         if (!meta.isValidatingAll()) {
@@ -297,7 +300,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                     PKG,
                     "Validator.Exception.OnlyNullAllowed",
                     field.getFieldName(),
-                    inputRowMeta.getString(r)),
+                    getRowForMessage(inputRowMeta, r)),
                 field.getFieldName());
         exceptions.add(exception);
         if (!meta.isValidatingAll()) {
@@ -367,7 +370,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.ShorterThanMininumLength",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       Integer.toString(stringValue.length()),
                       field.getMinimumLength()),
                   field.getFieldName());
@@ -390,7 +393,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.LongerThanMaximumLength",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       Integer.toString(stringValue.length()),
                       field.getMaximumLength()),
                   field.getFieldName());
@@ -413,7 +416,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.LowerThanMinimumValue",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       data.constantsMeta[i].getString(data.minimumValue[i])),
                   field.getFieldName());
           exceptions.add(exception);
@@ -435,7 +438,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.HigherThanMaximumValue",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       data.constantsMeta[i].getString(data.maximumValue[i])),
                   field.getFieldName());
           exceptions.add(exception);
@@ -465,7 +468,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                         PKG,
                         "Validator.Exception.NotInList",
                         field.getFieldName(),
-                        valueMeta.getString(valueData)),
+                        getValueForMessage(valueMeta, valueData)),
                     field.getFieldName());
             exceptions.add(exception);
             if (!meta.isValidatingAll()) {
@@ -498,7 +501,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.DoesNotStartWithString",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       field.getStartString()),
                   field.getFieldName());
           exceptions.add(exception);
@@ -519,7 +522,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.DoesNotEndWithString",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       field.getEndString()),
                   field.getFieldName());
           exceptions.add(exception);
@@ -541,7 +544,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.StartsWithString",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       field.getStartStringNotAllowed()),
                   field.getFieldName());
           exceptions.add(exception);
@@ -563,7 +566,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                       PKG,
                       "Validator.Exception.EndsWithString",
                       field.getFieldName(),
-                      valueMeta.getString(valueData),
+                      getValueForMessage(valueMeta, valueData),
                       field.getEndStringNotAllowed()),
                   field.getFieldName());
           exceptions.add(exception);
@@ -586,7 +589,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                         PKG,
                         "Validator.Exception.MatchingRegExpExpected",
                         field.getFieldName(),
-                        valueMeta.getString(valueData),
+                        getValueForMessage(valueMeta, valueData),
                         data.regularExpression[i]),
                     field.getFieldName());
             exceptions.add(exception);
@@ -610,7 +613,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                         PKG,
                         "Validator.Exception.MatchingRegExpNotAllowed",
                         field.getFieldName(),
-                        valueMeta.getString(valueData),
+                        getValueForMessage(valueMeta, valueData),
                         data.regularExpressionNotAllowed[i]),
                     field.getFieldName());
             exceptions.add(exception);
@@ -623,6 +626,28 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     }
 
     return exceptions;
+  }
+
+  /**
+   * Returns the field value for inclusion in validation messages, or a placeholder when logging of
+   * failed data is suppressed.
+   */
+  String getValueForMessage(IValueMeta valueMeta, Object valueData) throws HopValueException {
+    if (meta.isSuppressingLogFailedData()) {
+      return OMITTED_VALUE;
+    }
+    return valueMeta.getString(valueData);
+  }
+
+  /**
+   * Returns the row for inclusion in validation messages, or a placeholder when logging of failed
+   * data is suppressed.
+   */
+  String getRowForMessage(IRowMeta inputRowMeta, Object[] r) throws HopValueException {
+    if (meta.isSuppressingLogFailedData()) {
+      return OMITTED_VALUE;
+    }
+    return inputRowMeta.getString(r);
   }
 
   // package-local visibility for testing purposes
@@ -640,7 +665,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
             "Validator.Exception.NonNumericDataNotAllowed",
             field.getFieldName(),
             valueMeta.toStringMeta(),
-            valueMeta.getString(valueData)),
+            getValueForMessage(valueMeta, valueData)),
         field.getFieldName());
   }
 

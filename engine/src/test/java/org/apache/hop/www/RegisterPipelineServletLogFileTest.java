@@ -23,11 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
@@ -37,24 +37,20 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Registering a pipeline with a log file used to fail with a NullPointerException, because the
  * logging object of the servlet had no log channel to hang the log file writer on. See issue #4677.
  */
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class RegisterPipelineServletLogFileTest {
 
   private static final String RUN_CONFIGURATION_NAME = "local";
 
   private Path logFile;
-
-  @BeforeAll
-  static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
 
   @BeforeEach
   void setUp() throws Exception {

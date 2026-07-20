@@ -401,7 +401,9 @@ public class KafkaConsumerInputMeta
 
     long size = Long.MIN_VALUE;
     try {
-      size = Long.parseLong(variables.resolve(getBatchSize()));
+      String batchSizeResolved = variables.resolve(getBatchSize());
+      String batchSizeExpanded = Const.expandIntegerString(batchSizeResolved);
+      size = Long.parseLong(batchSizeExpanded != null ? batchSizeExpanded : batchSizeResolved);
     } catch (NumberFormatException e) {
       remarks.add(
           new CheckResult(

@@ -585,6 +585,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wlSplitSize.setLayoutData(fdlSplitSize);
 
     wSplitSize = new TextVar(variables, wLoaderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSplitSize.enableExpandedInteger();
     PropsUi.setLook(wSplitSize);
     wSplitSize.addModifyListener(lsMod);
     FormData fdSplitSize = new FormData();

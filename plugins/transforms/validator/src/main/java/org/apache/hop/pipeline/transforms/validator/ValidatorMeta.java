@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.validator;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -38,6 +40,8 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
+@Getter
+@Setter
 @Transform(
     id = "Validator",
     name = "i18n::ValidatorDialog.Transform.Name",
@@ -76,6 +80,27 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
       injectionKeyDescription = "Validator.Injection.CONCATENATION_SEPARATOR")
   private String concatenationSeparator;
 
+  /**
+   * When true, failed field/row values are omitted from validation error messages. Errors are still
+   * logged and error rows are still produced for error handling. Defaults to false so existing
+   * pipelines keep including failed values in messages.
+   */
+  @HopMetadataProperty(
+      key = "suppress_log_failed_data",
+      injectionKey = "SUPPRESS_LOG_FAILED_DATA",
+      injectionKeyDescription = "Validator.Injection.SUPPRESS_LOG_FAILED_DATA")
+  private boolean suppressingLogFailedData;
+
+  /** The standard new validation stream */
+  @Getter @Setter
+  private static IStream newValidation =
+      new Stream(
+          IStream.StreamType.INFO,
+          null,
+          BaseMessages.getString(PKG, "ValidatorMeta.NewValidation.Description"),
+          StreamIcon.INFO,
+          null);
+
   public ValidatorMeta() {
     this.validations = new ArrayList<>();
   }
@@ -86,6 +111,7 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
     this.validatingAll = m.validatingAll;
     this.concatenatingErrors = m.concatenatingErrors;
     this.concatenationSeparator = m.concatenationSeparator;
+    this.suppressingLogFailedData = m.suppressingLogFailedData;
   }
 
   @Override
@@ -170,7 +196,7 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
   }
 
   @Override
-  public void searchInfoAndTargetTransforms(List transforms) {
+  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     for (Validation validation : validations) {
       TransformMeta transformMeta =
           TransformMeta.findTransform(transforms, validation.getSourcingTransformName());
@@ -178,15 +204,6 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
     }
     resetTransformIoMeta();
   }
-
-  /** The standard new validation stream */
-  private static IStream newValidation =
-      new Stream(
-          IStream.StreamType.INFO,
-          null,
-          BaseMessages.getString(PKG, "ValidatorMeta.NewValidation.Description"),
-          StreamIcon.INFO,
-          null);
 
   @Override
   public void handleStreamSelection(IStream stream) {
@@ -211,95 +228,5 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
 
     // Force the IO to be recreated when it is next needed.
     resetTransformIoMeta();
-  }
-
-  /**
-   * Gets validations
-   *
-   * @return value of validations
-   */
-  public List<Validation> getValidations() {
-    return validations;
-  }
-
-  /**
-   * Sets validations
-   *
-   * @param validations value of validations
-   */
-  public void setValidations(List<Validation> validations) {
-    this.validations = validations;
-  }
-
-  /**
-   * Gets validatingAll
-   *
-   * @return value of validatingAll
-   */
-  public boolean isValidatingAll() {
-    return validatingAll;
-  }
-
-  /**
-   * Sets validatingAll
-   *
-   * @param validatingAll value of validatingAll
-   */
-  public void setValidatingAll(boolean validatingAll) {
-    this.validatingAll = validatingAll;
-  }
-
-  /**
-   * Gets concatenatingErrors
-   *
-   * @return value of concatenatingErrors
-   */
-  public boolean isConcatenatingErrors() {
-    return concatenatingErrors;
-  }
-
-  /**
-   * Sets concatenatingErrors
-   *
-   * @param concatenatingErrors value of concatenatingErrors
-   */
-  public void setConcatenatingErrors(boolean concatenatingErrors) {
-    this.concatenatingErrors = concatenatingErrors;
-  }
-
-  /**
-   * Gets concatenationSeparator
-   *
-   * @return value of concatenationSeparator
-   */
-  public String getConcatenationSeparator() {
-    return concatenationSeparator;
-  }
-
-  /**
-   * Sets concatenationSeparator
-   *
-   * @param concatenationSeparator value of concatenationSeparator
-   */
-  public void setConcatenationSeparator(String concatenationSeparator) {
-    this.concatenationSeparator = concatenationSeparator;
-  }
-
-  /**
-   * Gets newValidation
-   *
-   * @return value of newValidation
-   */
-  public static IStream getNewValidation() {
-    return newValidation;
-  }
-
-  /**
-   * Sets newValidation
-   *
-   * @param newValidation value of newValidation
-   */
-  public static void setNewValidation(IStream newValidation) {
-    ValidatorMeta.newValidation = newValidation;
   }
 }

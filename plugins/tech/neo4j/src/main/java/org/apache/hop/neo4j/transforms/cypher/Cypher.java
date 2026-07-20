@@ -97,7 +97,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       return false;
     }
 
-    data.batchSize = Const.toLong(resolve(meta.getBatchSize()), 1);
+    data.batchSize = Const.toLongExpanded(resolve(meta.getBatchSize()), 1);
 
     // Try at least once and then do retries as needed
     //

@@ -43,6 +43,10 @@ ENV HOP_GUI_ZOOM_FACTOR=1.0
 ENV HOP_PROJECT_FOLDER=
 # name of the project config file including file extension
 ENV HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
+# optional one-level parent project (see issue #2596)
+ENV HOP_PARENT_PROJECT_NAME=
+ENV HOP_PARENT_PROJECT_FOLDER=
+ENV HOP_PARENT_PROJECT_CONFIG_FILE_NAME=project-config.json
 # environment to use with hop run
 ENV HOP_ENVIRONMENT_NAME=environment1
 # comma separated list of paths to environment config files (including filename and file extension).
@@ -77,6 +81,11 @@ COPY ./assemblies/client/target/hop/plugins/engines/beam/lib-beam "${CATALINA_HO
 COPY ./assemblies/client/target/hop/plugins "${CATALINA_HOME}"/plugins
 COPY ./assemblies/client/target/hop/lib/jdbc/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/
+
+# Desktop (RCP) UI fragment must not ship in Hop Web. Client lib/core is shared with the
+# desktop assembly and includes hop-ui-rcp; loading its GuiPlugins (e.g. ContentEditorWidget)
+# fails on RAP with NoClassDefFoundError for SWT types such as VerifyKeyListener.
+RUN rm -f "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib/hop-ui-rcp-*.jar
 
 # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' "${CATALINA_HOME}"/webapps/ROOT/config/hop-config.json

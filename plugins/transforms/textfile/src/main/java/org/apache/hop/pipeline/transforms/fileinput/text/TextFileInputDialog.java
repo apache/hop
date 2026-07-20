@@ -2522,7 +2522,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getContent().setEnclosure(wEnclosure.getText());
     meta.getContent().setEscapeCharacter(wEscape.getText());
     meta.getContent().setBreakInEnclosureAllowed(wEnclBreaks.getSelection());
-    meta.getContent().setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    meta.getContent().setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     meta.getContent().setFilenameField(wInclFilenameField.getText());
     meta.getContent().setRowNumberField(wInclRownumField.getText());
     meta.getFileInput().setAddingResult(wAddResult.getSelection());

@@ -1407,7 +1407,11 @@ public class TestingGuiPlugin {
     TransformMeta transformMeta = context.getTransformMeta();
     IVariables variables = context.getPipelineGraph().getVariables();
 
-    if (transformMeta == null || pipelineMeta == null) {
+    if (pipelineMeta == null) {
+      return;
+    }
+    List<TransformMeta> targets = resolveTweakTargetTransforms(pipelineMeta, transformMeta);
+    if (targets.isEmpty()) {
       return;
     }
     if (checkTestPresent(hopGui, context)) {
@@ -1419,12 +1423,10 @@ public class TestingGuiPlugin {
       if (unitTest == null) {
         return;
       }
-      PipelineUnitTestTweak unitTestTweak = unitTest.findTweak(transformMeta.getName());
-      if (unitTestTweak != null) {
-        unitTest.getTweaks().remove(unitTestTweak);
-      }
-      if (enable) {
-        unitTest.getTweaks().add(new PipelineUnitTestTweak(tweak, transformMeta.getName()));
+
+      // Apply to all selected transforms (issue #2742), not only the one right-clicked
+      for (TransformMeta target : targets) {
+        applyTweakToTransform(unitTest, target.getName(), tweak, enable);
       }
 
       saveUnitTest(variables, metadataProvider, unitTest, pipelineMeta);
@@ -1439,9 +1441,53 @@ public class TestingGuiPlugin {
           BaseMessages.getString(
               PKG,
               "TestingGuiPlugin.TweakUnitTestTransform.Error.Message",
-              transformMeta.getName(),
+              targets.get(0).getName(),
               tweak.name()),
           exception);
+    }
+  }
+
+  /**
+   * Resolve which transforms a unit-test tweak action should affect. Prefer the current selection;
+   * if nothing is selected, fall back to the transform that was right-clicked.
+   *
+   * @param pipelineMeta the pipeline containing the selection
+   * @param clickedTransform the transform under the context menu, may be null
+   * @return the transforms to tweak (never null)
+   */
+  static List<TransformMeta> resolveTweakTargetTransforms(
+      PipelineMeta pipelineMeta, TransformMeta clickedTransform) {
+    List<TransformMeta> selected = pipelineMeta.getSelectedTransforms();
+    if (selected != null && !selected.isEmpty()) {
+      return selected;
+    }
+    if (clickedTransform == null) {
+      return Collections.emptyList();
+    }
+    return Collections.singletonList(clickedTransform);
+  }
+
+  /**
+   * Apply or clear a unit-test tweak on a single transform. When enabling, any existing tweak on
+   * the transform is replaced. When disabling, only a tweak of the requested type is removed so a
+   * multi-select action does not wipe unrelated tweaks.
+   *
+   * @param unitTest the active unit test
+   * @param transformName name of the transform to tweak
+   * @param tweak the tweak type
+   * @param enable true to set the tweak, false to clear a matching tweak
+   */
+  static void applyTweakToTransform(
+      PipelineUnitTest unitTest, String transformName, PipelineTweak tweak, boolean enable) {
+    PipelineUnitTestTweak existing = unitTest.findTweak(transformName);
+    if (existing != null) {
+      if (!enable && existing.getTweak() != tweak) {
+        return;
+      }
+      unitTest.getTweaks().remove(existing);
+    }
+    if (enable) {
+      unitTest.getTweaks().add(new PipelineUnitTestTweak(tweak, transformName));
     }
   }
 

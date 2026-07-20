@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -193,7 +194,8 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     if (strLimitRows.trim().isEmpty()) {
       limitRows = 0;
     } else {
-      limitRows = Long.parseLong(strLimitRows);
+      String expandedLimit = Const.expandIntegerString(strLimitRows);
+      limitRows = Long.parseLong(expandedLimit != null ? expandedLimit : strLimitRows);
     }
 
     defaultCharset = Charset.forName(resolve(meta.getDefaultCharset()));

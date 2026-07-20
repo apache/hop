@@ -81,6 +81,8 @@ public class SetTransformDebugLevelExtensionPoint
             log.logDetailed("Found debug level info for transform " + transformName);
 
             List<IEngineComponent> transformCopies = pipeline.getComponentCopies(transformName);
+            final LogLevel resolvedLogLevel =
+                DebugLevelUtil.resolveLogLevel(variables, debugLevel.getLogLevel());
 
             if (debugLevel.getStartRow() < 0
                 && debugLevel.getEndRow() < 0
@@ -89,16 +91,15 @@ public class SetTransformDebugLevelExtensionPoint
                   "Set logging level for transform "
                       + transformName
                       + " to "
-                      + debugLevel.getLogLevel().getDescription());
+                      + resolvedLogLevel.getDescription());
 
               // Just a general log level on the transform
               //
               for (IEngineComponent transformCopy : transformCopies) {
-                LogLevel logLevel = debugLevel.getLogLevel();
-                transformCopy.getLogChannel().setLogLevel(logLevel);
+                transformCopy.getLogChannel().setLogLevel(resolvedLogLevel);
                 log.logDetailed(
                     "Applied logging level "
-                        + logLevel.getDescription()
+                        + resolvedLogLevel.getDescription()
                         + " on transform copy "
                         + transformCopy.getName()
                         + "."
@@ -145,7 +146,7 @@ public class SetTransformDebugLevelExtensionPoint
                         }
 
                         if (enabled) {
-                          transformCopy.setLogLevel(debugLevel.getLogLevel());
+                          transformCopy.setLogLevel(resolvedLogLevel);
                         }
                       }
 

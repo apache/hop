@@ -741,6 +741,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wlGroupSize.setLayoutData(fdlGroupSize);
 
     wGroupSize = new TextVar(variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wGroupSize.enableExpandedInteger();
     PropsUi.setLook(wGroupSize);
     FormData fdGroupSize = new FormData();
     fdGroupSize.right = new FormAttachment(100);
@@ -1129,7 +1130,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
         || wGroupTime == null) {
       return;
     }
-    boolean enableSize = Const.toInt(variables.resolve(wGroupSize.getText()), -1) >= 0;
+    boolean enableSize = Const.toIntExpanded(variables.resolve(wGroupSize.getText()), -1) >= 0;
     boolean enableField = !Utils.isEmpty(wGroupField.getText());
 
     wlGroupSize.setEnabled(true);

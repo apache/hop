@@ -17,39 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ProcessResult {
   private String outputStream;
   private String errorStream;
   private long exitValue;
 
   public ProcessResult() {
-    super();
     this.outputStream = null;
     this.errorStream = null;
     this.exitValue = 1;
-  }
-
-  public String getOutputStream() {
-    return this.outputStream;
-  }
-
-  public void setOutputStream(String string) {
-    this.outputStream = string;
-  }
-
-  public String getErrorStream() {
-    return this.errorStream;
-  }
-
-  public void setErrorStream(String string) {
-    this.errorStream = string;
-  }
-
-  public long getExistStatus() {
-    return this.exitValue;
-  }
-
-  public void setExistStatus(long value) {
-    this.exitValue = value;
   }
 }

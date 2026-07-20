@@ -39,6 +39,8 @@ public class LifecycleEnvironment implements IAttributes {
 
   private String projectName;
 
+  private String canvasText;
+
   private List<String> configurationFiles;
 
   /** Group → (key → value); see {@link IAttributes}. */
@@ -62,6 +64,7 @@ public class LifecycleEnvironment implements IAttributes {
     this.name = env.name;
     this.purpose = env.purpose;
     this.projectName = env.projectName;
+    this.canvasText = env.canvasText;
     this.configurationFiles = new ArrayList<>(env.configurationFiles);
     this.attributesMap = deepCopyAttributes(env.attributesMap);
   }
@@ -146,6 +149,22 @@ public class LifecycleEnvironment implements IAttributes {
    */
   public void setProjectName(String projectName) {
     this.projectName = projectName;
+  }
+
+  /**
+   * Gets canvasText — optional large watermark drawn top-right on pipeline/workflow canvases.
+   *
+   * @return value of canvasText
+   */
+  public String getCanvasText() {
+    return canvasText;
+  }
+
+  /**
+   * @param canvasText The canvas text to set (empty/null means do not draw)
+   */
+  public void setCanvasText(String canvasText) {
+    this.canvasText = canvasText;
   }
 
   /**

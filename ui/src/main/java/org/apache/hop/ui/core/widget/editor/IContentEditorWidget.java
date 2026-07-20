@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.widget.editor;
 
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Control;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Common interface for a content/code editor widget used in both Hop GUI (desktop) and Hop Web.
@@ -28,6 +29,10 @@ import org.eclipse.swt.widgets.Control;
  * modifications through a single API.
  */
 public interface IContentEditorWidget {
+
+  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ContentEditor-Toolbar";
+
+  public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "ContentEditor-ContextMenu";
 
   /**
    * The SWT control to attach to a layout (e.g. the editor composite or the AWT bridge canvas).
@@ -57,6 +62,13 @@ public interface IContentEditorWidget {
    * @param text the new content
    */
   void setTextSuppressModify(String text);
+
+  /**
+   * Get the language used for syntax highlighting and validation.
+   *
+   * @return language identifier (e.g. "json", "xml", "javascript")
+   */
+  @Nullable String getLanguage();
 
   /**
    * Set the language/mode used for syntax highlighting and validation. Interpretation is
@@ -96,4 +108,16 @@ public interface IContentEditorWidget {
 
   /** Copy selected text to clipboard. */
   void copy();
+
+  /** Cut selected text to clipboard. No-op if not supported by the implementation. */
+  void cut();
+
+  /** Paste from clipboard at the caret. No-op if not supported by the implementation. */
+  void paste();
+
+  /** Undo the last edit. No-op if not supported by the implementation. */
+  void undo();
+
+  /** Redo the last undone edit. No-op if not supported by the implementation. */
+  void redo();
 }

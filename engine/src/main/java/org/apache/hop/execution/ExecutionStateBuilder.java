@@ -37,6 +37,13 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public final class ExecutionStateBuilder {
+
+  /** Metric map key: component duration in milliseconds. */
+  public static final String METRIC_HEADER_DURATION = "Duration";
+
+  /** Metric map key: component throughput in rows per second. */
+  public static final String METRIC_HEADER_SPEED = "Speed";
+
   private ExecutionType executionType;
   private Date updateTime;
   private String statusDescription;
@@ -122,11 +129,96 @@ public final class ExecutionStateBuilder {
         addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_DATA_VOLUME_IN);
         addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_DATA_VOLUME_OUT);
 
+        // Duration (ms) and speed (rows/s) for the Metrics tab in the execution perspective.
+        //
+        long durationMs = resolveDurationMs(component);
+        if (durationMs > 0) {
+          componentMetrics.getMetrics().put(METRIC_HEADER_DURATION, durationMs);
+        }
+        Long speed = resolveSpeedRowsPerSecond(component, engineMetrics, durationMs);
+        if (speed != null) {
+          componentMetrics.getMetrics().put(METRIC_HEADER_SPEED, speed);
+        }
+
         builder.addMetrics(componentMetrics);
       }
     }
 
     return builder;
+  }
+
+  /**
+   * Resolves component duration in milliseconds. Prefers {@link
+   * IEngineComponent#getExecutionDuration()}; falls back to first/last row timestamps when duration
+   * is zero (same idea as the live pipeline metrics grid).
+   */
+  static long resolveDurationMs(IEngineComponent component) {
+    long durationMs = component.getExecutionDuration();
+    if (durationMs > 0) {
+      return durationMs;
+    }
+    Date first = component.getFirstRowReadDate();
+    if (first == null) {
+      return 0;
+    }
+    Date last = component.getLastRowWrittenDate();
+    if (last != null) {
+      return Math.max(0, last.getTime() - first.getTime());
+    }
+    return Math.max(0, System.currentTimeMillis() - first.getTime());
+  }
+
+  /**
+   * Resolves throughput in rows per second. Prefers the engine speed map when a numeric value can
+   * be parsed; otherwise computes from row counts and duration (same formula as {@code
+   * TransformStatus}).
+   *
+   * @return rows/s as a long, or {@code null} when speed is not meaningful
+   */
+  static Long resolveSpeedRowsPerSecond(
+      IEngineComponent component, EngineMetrics engineMetrics, long durationMs) {
+    if (engineMetrics != null) {
+      String speedText = engineMetrics.getComponentSpeedMap().get(component);
+      Long parsed = parseSpeedRowsPerSecond(speedText);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+    if (durationMs <= 0) {
+      return null;
+    }
+    long inProc = Math.max(component.getLinesInput(), component.getLinesRead());
+    long outProc =
+        Math.max(
+            component.getLinesOutput() + component.getLinesUpdated(),
+            component.getLinesWritten() + component.getLinesRejected());
+    double lapsedSec = durationMs / 1000.0;
+    if (lapsedSec <= 0) {
+      return null;
+    }
+    double inSpeed = inProc / lapsedSec;
+    double outSpeed = outProc / lapsedSec;
+    return Math.round(Math.max(inSpeed, outSpeed));
+  }
+
+  /**
+   * Parses a speed string as produced by the local pipeline engine / {@code TransformStatus} (e.g.
+   * {@code " 1,234"}). Returns {@code null} for empty, dash, or non-numeric values.
+   */
+  static Long parseSpeedRowsPerSecond(String speedText) {
+    if (speedText == null) {
+      return null;
+    }
+    String cleaned = speedText.trim().replace(",", "").replace(" ", "");
+    if (cleaned.isEmpty() || "-".equals(cleaned)) {
+      return null;
+    }
+    try {
+      // TransformStatus may use a decimal; store whole rows/s.
+      return Math.round(Double.parseDouble(cleaned));
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   public static ExecutionStateBuilder fromTransform(

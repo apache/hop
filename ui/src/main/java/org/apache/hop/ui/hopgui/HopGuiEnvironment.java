@@ -86,9 +86,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
         Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray(new Class<?>[0]);
         String guiPluginClassName = guiPlugin.getClassMap().get(typeClasses[0]);
 
-        // TextDiffDialog is the side-by-side revision compare dialog. Only works on SWT
+        // Desktop-only GUI plugins (require SWT types not available under RAP)
         if (EnvironmentUtils.getInstance().isWeb()
-            && "org.apache.hop.git.TextDiffDialog".equals(guiPluginClassName)) {
+            && ("org.apache.hop.git.TextDiffDialog".equals(guiPluginClassName)
+                // Content editor JFace implementation lives in hop-ui-rcp only
+                || "org.apache.hop.ui.hopgui.ContentEditorWidget".equals(guiPluginClassName))) {
           continue;
         }
 

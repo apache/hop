@@ -110,9 +110,26 @@ Let's take a look at it:
 You can define variables on a project level as well.
 This makes it handy to reference things like input and output folders which are not sensitive to being checked into version control.
 
+Hop also sets a few built-in project variables when a project is activated:
+
+.Built-in project variables
+[cols="30%,70%",options="header"]
+|===
+|Variable|Description
+|`PROJECT_HOME`|Home folder of the active project
+|`HOP_PROJECT_NAME`|Name of the active project
+|`PARENT_PROJECT_HOME`|Home folder of the immediate parent project (empty if none)
+|`PARENT_PROJECT_NAME`|Name of the immediate parent project (empty if none)
+|===
+
+Use the parent variables to reference shared assets without fragile relative paths, for example:
+
+`{openvar}PARENT_PROJECT_HOME{closevar}/SHARED_PIPELINES/example.hpl`
+
 ==== Parent projects
 
 As you can see from the project configuration file (`parentProjectName`), a project can have a parent from which it will inherit all the metadata objects as well as all the variables that are defined in it.
+When a parent is configured, Hop also sets `{openvar}PARENT_PROJECT_HOME{closevar}` and `{openvar}PARENT_PROJECT_NAME{closevar}` so pipelines and environment config files can point into the parent project home (for example shared pipelines or secrets kept outside the child repository).
 
 === Environment configuration
 

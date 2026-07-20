@@ -166,6 +166,7 @@ public class TableInputDialog extends BaseTransformDialog {
     fdlLimit.bottom = new FormAttachment(wOk, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLimit.enableExpandedInteger();
     PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();

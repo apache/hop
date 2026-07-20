@@ -143,6 +143,7 @@ public class GuiResource {
   private SwtUniversalImage imageMissing;
   private SwtUniversalImage imageDeprecated;
   private SwtUniversalImage imageVariable;
+  private SwtUniversalImage imageHash;
   private SwtUniversalImage imagePipeline;
   private SwtUniversalImage imagePipelineDisabled;
   private SwtUniversalImage imagePartitionSchema;
@@ -444,6 +445,7 @@ public class GuiResource {
     imageFolder.dispose();
     imageMissing.dispose();
     imageVariable.dispose();
+    imageHash.dispose();
     imagePipeline.dispose();
     imagePipelineDisabled.dispose();
     imagePartitionSchema.dispose();
@@ -829,6 +831,7 @@ public class GuiResource {
     imageFalseDisabled =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/false-disabled.svg");
     imageVariable = SwtSvgImageUtil.getImageAsResource(display, "ui/images/variable.svg");
+    imageHash = SwtSvgImageUtil.getImageAsResource(display, "ui/images/hash.svg");
     imageFile = SwtSvgImageUtil.getImageAsResource(display, "ui/images/file.svg");
     imageFolder = SwtSvgImageUtil.getImageAsResource(display, "ui/images/folder.svg");
     imagePartitionSchema =
@@ -1186,6 +1189,18 @@ public class GuiResource {
 
   public Image getImageVariableMini() {
     return getZoomedImaged(imageVariable, display, 12, 12);
+  }
+
+  /**
+   * @return the hash / expanded-integer indicator image at standard small icon size
+   */
+  public Image getImageHash() {
+    return getZoomedImaged(imageHash, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  /** Mini hash icon for TextVar expanded-integer notation indicator (matches variable mini). */
+  public Image getImageHashMini() {
+    return getZoomedImaged(imageHash, display, 12, 12);
   }
 
   public Image getImagePipeline() {

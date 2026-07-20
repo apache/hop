@@ -153,6 +153,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     fdlSortSize.top = new FormAttachment(wPrefix, margin);
     wlSortSize.setLayoutData(fdlSortSize);
     wSortSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSortSize.enableExpandedInteger();
     PropsUi.setLook(wSortSize);
     wSortSize.addModifyListener(lsMod);
     FormData fdSortSize = new FormData();

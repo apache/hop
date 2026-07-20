@@ -454,7 +454,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     input.setConnection(wConnection.getText());
     input.setCached(wCache.getSelection());
     input.setCacheSize(Const.toInt(wCacheSize.getText(), 0));
-    input.setRowLimit(Const.toInt(wLimit.getText(), 0));
+    input.setRowLimit(Const.toIntExpanded(wLimit.getText(), 0));
     input.setSql(wSql.getText());
     input.setOuterJoin(wOuter.getSelection());
     input.setReplaceVariables(wUseVars.getSelection());

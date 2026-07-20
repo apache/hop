@@ -23,31 +23,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 @ExtendWith(MockitoExtension.class)
 class TransformWithMappingMetaTest {
 
   @Mock PipelineMeta pipelineMeta;
-
-  @BeforeEach
-  void setupBefore() throws Exception {
-    // Without initialization of the Hop Environment, the load of the pipeline fails
-    // when run in Windows (saying it cannot find the Database plugin ID for Oracle). Digging into
-    // it I discovered that it's during the read of the shared objects xml which doesn't reference
-    // Oracle
-    // at all. Initializing the environment fixed everything.
-    HopEnvironment.init();
-  }
 
   @Test
   void activateParamsTest() throws Exception {

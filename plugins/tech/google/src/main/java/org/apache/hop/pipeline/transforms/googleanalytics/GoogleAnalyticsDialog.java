@@ -609,7 +609,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
       googleAnalyticsFields.add(field);
     }
     meta.setGoogleAnalyticsFields(googleAnalyticsFields);
-    meta.setRowLimit(Const.toInt(wLimit.getText(), 0));
+    meta.setRowLimit(Const.toIntExpanded(wLimit.getText(), 0));
   }
 
   // Preview the data

@@ -1117,7 +1117,7 @@ public class YamlInputDialog extends BaseTransformDialog {
     transformName = wTransformName.getText();
 
     // copy info to TextFileInputMeta class (input)
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setFilenameField(wInclFilenameField.getText());
     in.setRowNumberField(wInclRowNumField.getText());
     in.setAddingResultFile(wAddResult.getSelection());

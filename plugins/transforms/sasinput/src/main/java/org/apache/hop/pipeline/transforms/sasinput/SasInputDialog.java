@@ -133,6 +133,7 @@ public class SasInputDialog extends BaseTransformDialog {
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLimit.enableExpandedInteger();
     wLimit.setToolTipText(BaseMessages.getString(PKG, "SASInputDialog.Limit.Tooltip"));
     PropsUi.setLook(wLimit);
     FormData fdLimit = new FormData();

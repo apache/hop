@@ -29,6 +29,7 @@ import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopConversionException;
 import org.apache.hop.core.exception.HopException;
@@ -938,7 +939,10 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
     if (super.init()) {
       // see if a variable is used as encoding value
       String realEncoding = resolve(meta.getEncoding());
-      data.preferredBufferSize = Integer.parseInt(resolve(meta.getBufferSize()));
+      String bufferSize = resolve(meta.getBufferSize());
+      String expandedBufferSize = Const.expandIntegerString(bufferSize);
+      data.preferredBufferSize =
+          Integer.parseInt(expandedBufferSize != null ? expandedBufferSize : bufferSize);
 
       // If the transform doesn't have any previous transforms, we just get the filename.
       // Otherwise, we'll grab the list of file names later...

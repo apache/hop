@@ -199,4 +199,13 @@ class ReadAllCacheTest {
     Object[] found = cache.getRowFromCache(new RowMeta(), new Object[0]);
     assertArrayEquals(new Object[] {"one"}, found, "(keys[1] == 1L) --> row 2");
   }
+
+  @Test
+  void builder_BuildsEmptyCacheWhenNoRowsAdded() throws Exception {
+    transformData.conditions = new int[] {DatabaseLookupMeta.CONDITION_EQ};
+    ReadAllCache.Builder builder = new ReadAllCache.Builder(transformData, 0);
+    builder.setKeysMeta(keysMeta);
+    ReadAllCache cache = builder.build();
+    assertNull(cache.getRowFromCache(keysMeta.clone(), keys[0]));
+  }
 }
