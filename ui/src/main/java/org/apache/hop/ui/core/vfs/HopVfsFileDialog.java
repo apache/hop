@@ -135,6 +135,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   public static final String BROWSER_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BrowserToolbar";
   private static final String BROWSER_ITEM_ID_CREATE_FOLDER = "0020-create-folder";
+  private static final String BROWSER_ITEM_ID_DRILL_INTO = "0030-drill-into";
   private static final String BROWSER_ITEM_ID_SHOW_HIDDEN = "0200-show-hidden";
   private static final String BROWSER_ITEM_ID_DELETE = "0100-delete";
   private static final String BROWSER_ITEM_ID_RENAME = "0110-rename";
@@ -1419,6 +1420,114 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   @GuiToolbarElement(
       root = BROWSER_TOOLBAR_PARENT_ID,
+      id = BROWSER_ITEM_ID_DRILL_INTO,
+      toolTip = "i18n::HopVfsFileDialog.DrillInto.Tooltip.Message",
+      image = "ui/images/zipfile.svg")
+  public void drillIntoArchive() {
+    FileObject file = getSelectedFileObject();
+    if (file == null) {
+      return;
+    }
+    try {
+      String archiveUri = buildArchiveBrowseUri(file);
+      if (archiveUri == null) {
+        return;
+      }
+      navigateTo(archiveUri, true);
+    } catch (Exception e) {
+      showError(
+          BaseMessages.getString(PKG, "HopVfsFileDialog.DrillInto.Error.Message", file.toString()),
+          e);
+    }
+  }
+
+  /**
+   * Map a file name or path to a Commons VFS archive scheme that supports browsing with {@code !/}.
+   *
+   * @param nameOrPath file name, path, or URI
+   * @return scheme such as {@code zip}, {@code jar}, {@code tar}, {@code tgz}, {@code tbz2}, or
+   *     {@code null} if the file is not a drillable archive
+   */
+  static String getArchiveScheme(String nameOrPath) {
+    if (StringUtils.isEmpty(nameOrPath)) {
+      return null;
+    }
+    String base = nameOrPath;
+    int bang = base.lastIndexOf('!');
+    if (bang >= 0) {
+      base = base.substring(bang + 1);
+    }
+    int slash = Math.max(base.lastIndexOf('/'), base.lastIndexOf('\\'));
+    if (slash >= 0) {
+      base = base.substring(slash + 1);
+    }
+    String lower = base.toLowerCase();
+    // Compound suffixes before short ones (.tar.gz before .gz)
+    if (lower.endsWith(".tar.gz") || lower.endsWith(".tgz")) {
+      return "tgz";
+    }
+    if (lower.endsWith(".tar.bz2") || lower.endsWith(".tbz2")) {
+      return "tbz2";
+    }
+    if (lower.endsWith(".tar")) {
+      return "tar";
+    }
+    if (lower.endsWith(".zip")) {
+      return "zip";
+    }
+    if (lower.endsWith(".jar")
+        || lower.endsWith(".war")
+        || lower.endsWith(".ear")
+        || lower.endsWith(".par")
+        || lower.endsWith(".sar")
+        || lower.endsWith(".ejb3")) {
+      return "jar";
+    }
+    return null;
+  }
+
+  /**
+   * Build a VFS URI that opens an archive for browsing ({@code scheme:archFileUri!/}).
+   *
+   * @param scheme VFS archive scheme (zip, jar, tar, tgz, tbz2)
+   * @param archFileUri path or URI of the archive file
+   * @return browse URI, or {@code null} if inputs are incomplete
+   */
+  static String buildArchiveBrowseUri(String scheme, String archFileUri) {
+    if (StringUtils.isEmpty(scheme) || StringUtils.isEmpty(archFileUri)) {
+      return null;
+    }
+    return scheme + ":" + archFileUri + "!/";
+  }
+
+  /**
+   * Build a VFS URI that opens the given archive for browsing (scheme + archive + {@code !/}).
+   *
+   * @param file archive file object
+   * @return browse URI, or {@code null} if not a supported archive
+   */
+  static String buildArchiveBrowseUri(FileObject file) {
+    if (file == null) {
+      return null;
+    }
+    String scheme = getArchiveScheme(file.getName().getBaseName());
+    if (scheme == null) {
+      return null;
+    }
+    String archFileUri;
+    String root = file.getName().getRootURI();
+    if (root != null && root.startsWith("file:")) {
+      // Local files: match Hop issue style zip:/path/to/archive.zip!/
+      archFileUri = HopVfs.getFilename(file);
+    } else {
+      // Nested / remote: keep full URI (e.g. jar:zip:...!/nested.jar!/)
+      archFileUri = file.getName().getURI();
+    }
+    return buildArchiveBrowseUri(scheme, archFileUri);
+  }
+
+  @GuiToolbarElement(
+      root = BROWSER_TOOLBAR_PARENT_ID,
       id = BROWSER_ITEM_ID_RENAME,
       toolTip = "i18n::HopVfsFileDialog.RenameFile.Tooltip.Message",
       image = "ui/images/rename.svg")
@@ -1665,10 +1774,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     FileObject file = getSelectedFileObject();
 
     boolean isEnabled = false;
+    boolean canDrillInto = false;
     if (file != null) {
       try {
         // Protect root can be modified
         if (file.getParent() != null) isEnabled = true;
+        canDrillInto = file.isFile() && getArchiveScheme(file.getName().getBaseName()) != null;
       } catch (FileSystemException e) {
         // Ignore
       }
@@ -1676,5 +1787,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_DELETE, isEnabled);
     browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_RENAME, isEnabled);
+    browserToolbarWidgets.enableToolbarItem(BROWSER_ITEM_ID_DRILL_INTO, canDrillInto);
   }
 }

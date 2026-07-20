@@ -62,6 +62,7 @@ Tools -> Options contains an option to specify whether you want or don't want gl
 .. image:icons/delete.svg[width="25px"]Remove the selected bookmark
 . **File/folder browser**: Browse your current file system, create folders and toggle hidden files and folders.
 .. image:icons/folder-add.svg[width="25px"]Create folder
+.. image:icons/zipfile.svg[width="25px"]Drill into a selected archive (zip, jar, tar, tgz, tbz2) using VFS
 .. image:icons/preview.svg[width="25px"]Show or hide hidden files and directories
 . **File/folder information**
 .. file and folder name
