@@ -705,6 +705,17 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         return;
       }
 
+      // Directory browser: an archive is not a valid folder selection — enter it instead so the
+      // user can pick a folder inside (zip:…!/path).
+      //
+      if (this.browsingDirectories && isDrillableArchive(activeFileObject)) {
+        String archiveUri = buildArchiveBrowseUri(activeFileObject);
+        if (archiveUri != null) {
+          navigateTo(archiveUri, true);
+          return;
+        }
+      }
+
       ok();
     } catch (Exception e) {
       showError(
@@ -852,15 +863,26 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
 
     try {
-      navigateTo(HopVfs.getFilename(fileObject), true);
-
       if (fileObject.isFolder()) {
         // Browse into the selected folder...
         //
-        refreshBrowser();
-      } else {
+        navigateTo(HopVfs.getFilename(fileObject), true);
+        return;
+      }
+
+      // Double-click drills into supported archives (zip/jar/tar/...). To select the archive
+      // itself as a file, select it and press OK.
+      //
+      String archiveUri = buildArchiveBrowseUri(fileObject);
+      if (archiveUri != null) {
+        navigateTo(archiveUri, true);
+        return;
+      }
+
+      if (!browsingDirectories) {
         // Take this file as the user choice for this dialog
         //
+        navigateTo(HopVfs.getFilename(fileObject), true);
         okButton();
       }
     } catch (Exception e) {
@@ -1029,7 +1051,16 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         fileObjectsMap.put(getTreeItemPath(childFolderItem), child);
       }
     }
-    if (!browsingDirectories) {
+    if (browsingDirectories) {
+      // Directory mode: still show drillable archives so users can open project homes inside zip
+      // (and similar) via VFS without typing URIs by hand.
+      //
+      for (final FileObject child : children) {
+        if (child.isFile() && isDrillableArchive(child)) {
+          addBrowserFileItem(folderItem, child);
+        }
+      }
+    } else {
       for (final FileObject child : children) {
         if (child.isFile()) {
           String baseFilename = child.getName().getBaseName();
@@ -1052,31 +1083,57 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             }
           }
 
-          // Hidden file?
+          // Always offer drillable archives even when the active filter would hide them
+          // (e.g. "Pipelines" only), so nested zip/jar browsing stays available.
           //
+          if (!selectFile && isDrillableArchive(child)) {
+            selectFile = true;
+          }
+
           if (selectFile) {
-            TreeItem childFileItem = new TreeItem(folderItem, SWT.NONE);
-            childFileItem.setImage(getFileImage(child));
-            childFileItem.setFont(GuiResource.getInstance().getFontBold());
-            childFileItem.setText(0, child.getName().getBaseName());
-            childFileItem.setText(1, getFileDate(child));
-            childFileItem.setText(2, getFileSize(child));
-            fileObjectsMap.put(getTreeItemPath(childFileItem), child);
-
-            // Gray out if the file is not readable
-            //
-            if (!child.isReadable()) {
-              childFileItem.setForeground(GuiResource.getInstance().getColorGray());
-            }
-
-            if (child.equals(activeFileObject)) {
-              wBrowser.setSelection(childFileItem);
-              wBrowser.showSelection();
-            }
+            addBrowserFileItem(folderItem, child);
           }
         }
       }
     }
+  }
+
+  /**
+   * Add a file row to the browser tree (name, modified, size, image, selection map).
+   *
+   * @param folderItem parent tree item for the current folder
+   * @param child file to display
+   */
+  private void addBrowserFileItem(TreeItem folderItem, FileObject child)
+      throws FileSystemException {
+    String baseFilename = child.getName().getBaseName();
+    if (!showingHiddenFiles && baseFilename.startsWith(".")) {
+      return;
+    }
+    if (shouldFilterOut(baseFilename)) {
+      return;
+    }
+
+    TreeItem childFileItem = new TreeItem(folderItem, SWT.NONE);
+    childFileItem.setImage(getFileImage(child));
+    childFileItem.setFont(GuiResource.getInstance().getFontBold());
+    childFileItem.setText(0, baseFilename);
+    childFileItem.setText(1, getFileDate(child));
+    childFileItem.setText(2, getFileSize(child));
+    fileObjectsMap.put(getTreeItemPath(childFileItem), child);
+
+    if (!child.isReadable()) {
+      childFileItem.setForeground(GuiResource.getInstance().getColorGray());
+    }
+
+    if (child.equals(activeFileObject)) {
+      wBrowser.setSelection(childFileItem);
+      wBrowser.showSelection();
+    }
+  }
+
+  private static boolean isDrillableArchive(FileObject file) throws FileSystemException {
+    return file != null && file.isFile() && getArchiveScheme(file.getName().getBaseName()) != null;
   }
 
   private static int compareBaseName(FileObject child1, FileObject child2) {
@@ -1778,8 +1835,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     if (file != null) {
       try {
         // Protect root can be modified
-        if (file.getParent() != null) isEnabled = true;
-        canDrillInto = file.isFile() && getArchiveScheme(file.getName().getBaseName()) != null;
+        if (file.getParent() != null) {
+          isEnabled = true;
+        }
+        canDrillInto = isDrillableArchive(file);
       } catch (FileSystemException e) {
         // Ignore
       }

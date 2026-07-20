@@ -117,6 +117,7 @@ public class ProjectsConfig {
       existing.setProjectName(projectConfig.getProjectName());
       existing.setProjectHome(projectConfig.getProjectHome());
       existing.setConfigFilename(projectConfig.getConfigFilename());
+      existing.setReadOnly(projectConfig.isReadOnly());
     }
   }
 

@@ -582,28 +582,25 @@ public class ProjectsGuiPlugin {
         }
       }
 
-      String projectFolder = projectConfig.getProjectHome();
-
       ProjectDialog projectDialog =
           new ProjectDialog(
               hopGui.getActiveShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
         config.addProjectConfig(projectConfig);
 
-        // Project's home changed. Update reference in hop-config.json
-        if (!projectFolder.equals(projectConfig.getProjectHome())) {
-          // Refresh project reference in hop-config.json
-          HopConfig.getInstance().saveToFile();
-        }
-
         if (!projectName.equals(projectConfig.getProjectName())) {
           // Project got renamed
           projectName = projectConfig.getProjectName();
-          // Refresh project reference in hop-config.json
-          HopConfig.getInstance().saveToFile();
         }
 
-        project.saveToFile();
+        // Persist project registration (name, home, config path, read-only) in hop-config.json
+        HopConfig.getInstance().saveToFile();
+
+        // Do not write project-config.json for read-only projects (archives, HTTP, ...).
+        //
+        if (!projectConfig.isReadOnly()) {
+          project.saveToFile();
+        }
         updateProjectToolItem(projectName);
 
         if (projectDialog.isNeedingProjectRefresh()) {
@@ -1015,15 +1012,19 @@ public class ProjectsGuiPlugin {
         config.addProjectConfig(projectConfig);
         HopConfig.getInstance().saveToFile();
 
-        // Save the project-config.json file as well in the project itself
+        // Save or load the project-config.json in the project itself.
+        // Read-only projects (archives, HTTP, ...) never write the config file: it must already
+        // exist (validated in the project dialog).
         //
         FileObject configFile =
             HopVfs.getFileObject(projectConfig.getActualProjectConfigFilename(variables));
-        if (!configFile.exists()) {
-          // Create the empty configuration file if it does not exists
+        if (projectConfig.isReadOnly()) {
+          project.readFromFile();
+        } else if (!configFile.exists()) {
+          // Create the empty configuration file if it does not exist
           project.saveToFile();
         } else {
-          // If projects exists load configuration
+          // If project already exists load configuration
           MessageBox box = new MessageBox(hopGui.getActiveShell(), SWT.ICON_QUESTION | SWT.OK);
           box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ProjectExists.Dialog.Header"));
           box.setMessage(
@@ -1037,77 +1038,83 @@ public class ProjectsGuiPlugin {
 
         enableHopGuiProject(projectName, project, null);
 
-        // Now see if these project contains any local run configurations.
-        // If not we can add those automatically
+        // Do not create local run configurations inside a read-only project (would try to write
+        // metadata).
         //
-        // First pipeline
-        //
-        IHopMetadataSerializer<PipelineRunConfiguration> prcSerializer =
-            hopGui.getMetadataProvider().getSerializer(PipelineRunConfiguration.class);
-        List<PipelineRunConfiguration> pipelineRunConfigs = prcSerializer.loadAll();
-        boolean localFound = false;
-        for (PipelineRunConfiguration pipelineRunConfig : pipelineRunConfigs) {
-          if (pipelineRunConfig.getEngineRunConfiguration()
-              instanceof LocalPipelineRunConfiguration) {
-            localFound = true;
-            break;
+        if (!projectConfig.isReadOnly()) {
+          // Now see if these project contains any local run configurations.
+          // If not we can add those automatically
+          //
+          // First pipeline
+          //
+          IHopMetadataSerializer<PipelineRunConfiguration> prcSerializer =
+              hopGui.getMetadataProvider().getSerializer(PipelineRunConfiguration.class);
+          List<PipelineRunConfiguration> pipelineRunConfigs = prcSerializer.loadAll();
+          boolean localFound = false;
+          for (PipelineRunConfiguration pipelineRunConfig : pipelineRunConfigs) {
+            if (pipelineRunConfig.getEngineRunConfiguration()
+                instanceof LocalPipelineRunConfiguration) {
+              localFound = true;
+              break;
+            }
           }
-        }
-        if (!localFound) {
-          PipelineExecutionConfigurationDialog.createLocalPipelineConfiguration(
-              hopGui.getShell(), prcSerializer);
-        }
+          if (!localFound) {
+            PipelineExecutionConfigurationDialog.createLocalPipelineConfiguration(
+                hopGui.getShell(), prcSerializer);
+          }
 
-        // Then the local workflow run configuration
-        //
-        IHopMetadataSerializer<WorkflowRunConfiguration> wrcSerializer =
-            hopGui.getMetadataProvider().getSerializer(WorkflowRunConfiguration.class);
-        localFound = false;
-        List<WorkflowRunConfiguration> workflowRunConfigs = wrcSerializer.loadAll();
-        for (WorkflowRunConfiguration workflowRunConfig : workflowRunConfigs) {
-          if (workflowRunConfig.getEngineRunConfiguration()
-              instanceof LocalWorkflowRunConfiguration) {
-            localFound = true;
-            break;
+          // Then the local workflow run configuration
+          //
+          IHopMetadataSerializer<WorkflowRunConfiguration> wrcSerializer =
+              hopGui.getMetadataProvider().getSerializer(WorkflowRunConfiguration.class);
+          localFound = false;
+          List<WorkflowRunConfiguration> workflowRunConfigs = wrcSerializer.loadAll();
+          for (WorkflowRunConfiguration workflowRunConfig : workflowRunConfigs) {
+            if (workflowRunConfig.getEngineRunConfiguration()
+                instanceof LocalWorkflowRunConfiguration) {
+              localFound = true;
+              break;
+            }
           }
-        }
-        if (!localFound) {
+          if (!localFound) {
+            MessageBox box =
+                new MessageBox(
+                    HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+            box.setText(
+                BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Header"));
+            box.setMessage(
+                BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Message"));
+            int answer = box.open();
+            if ((answer & SWT.YES) != 0) {
+              LocalWorkflowRunConfiguration localWorkflowRunConfiguration =
+                  new LocalWorkflowRunConfiguration();
+              localWorkflowRunConfiguration.setEnginePluginId("Local");
+              WorkflowRunConfiguration local =
+                  new WorkflowRunConfiguration(
+                      "local",
+                      BaseMessages.getString(
+                          PKG, "ProjectGuiPlugin.LocalWFRunConfigDescription.Text"),
+                      null,
+                      localWorkflowRunConfiguration,
+                      true);
+              wrcSerializer.save(local);
+            }
+          }
+
+          // Ask to put the project in a lifecycle environment
+          //
           MessageBox box =
               new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-          box.setText(
-              BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Header"));
+          box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Header"));
           box.setMessage(
-              BaseMessages.getString(PKG, "ProjectGuiPlugin.LocalWFRunConfig.Dialog.Message"));
+              BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message1")
+                  + Const.CR
+                  + BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message2"));
           int answer = box.open();
           if ((answer & SWT.YES) != 0) {
-            LocalWorkflowRunConfiguration localWorkflowRunConfiguration =
-                new LocalWorkflowRunConfiguration();
-            localWorkflowRunConfiguration.setEnginePluginId("Local");
-            WorkflowRunConfiguration local =
-                new WorkflowRunConfiguration(
-                    "local",
-                    BaseMessages.getString(
-                        PKG, "ProjectGuiPlugin.LocalWFRunConfigDescription.Text"),
-                    null,
-                    localWorkflowRunConfiguration,
-                    true);
-            wrcSerializer.save(local);
+
+            addNewEnvironment();
           }
-        }
-
-        // Ask to put the project in a lifecycle environment
-        //
-        MessageBox box =
-            new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Header"));
-        box.setMessage(
-            BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message1")
-                + Const.CR
-                + BaseMessages.getString(PKG, "ProjectGuiPlugin.Lifecycle.Dialog.Message2"));
-        int answer = box.open();
-        if ((answer & SWT.YES) != 0) {
-
-          addNewEnvironment();
         }
       }
 
@@ -1546,6 +1553,7 @@ public class ProjectsGuiPlugin {
 
     AtomicBoolean includeVariables = new AtomicBoolean(true);
     AtomicBoolean includeMetadata = new AtomicBoolean(true);
+    AtomicBoolean exportAsIs = new AtomicBoolean(false);
     AtomicBoolean cancel = new AtomicBoolean(true);
 
     // After getting the filename we create a tree dialog to select the items you wish to include in
@@ -1588,35 +1596,74 @@ public class ProjectsGuiPlugin {
               .bottom(okButton, -2 * PropsUi.getMargin())
               .result());
 
+      Button btnIncludeVariables = new Button(treeShell, SWT.CHECK);
+      PropsUi.setLook(btnIncludeVariables);
+      btnIncludeVariables.setText(
+              BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeVariables.Label"));
+      btnIncludeVariables.setSelection(true);
+      btnIncludeVariables.addListener(
+              SWT.Selection, event -> includeVariables.set(btnIncludeVariables.getSelection()));
+      btnIncludeVariables.setLayoutData(
+              new FormDataBuilder().fullWidth().bottom(separator, -PropsUi.getMargin()).result());
+
+      // Bottom → top: metadata, as-is, variables, file tree
+      //
       Button btnIncludeMetadata = new Button(treeShell, SWT.CHECK);
       PropsUi.setLook(btnIncludeMetadata);
       btnIncludeMetadata.setText(
           BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeMetadata.Label"));
       btnIncludeMetadata.setSelection(true);
       btnIncludeMetadata.setLayoutData(
-          new FormDataBuilder().fullWidth().bottom(separator, -2 * PropsUi.getMargin()).result());
+          new FormDataBuilder().fullWidth().bottom(btnIncludeVariables, -2 * PropsUi.getMargin()).result());
       btnIncludeMetadata.addListener(
           SWT.Selection, event -> includeMetadata.set(btnIncludeMetadata.getSelection()));
 
-      Button btnIncludeVariables = new Button(treeShell, SWT.CHECK);
-      PropsUi.setLook(btnIncludeVariables);
-      btnIncludeVariables.setText(
-          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeVariables.Label"));
-      btnIncludeVariables.setSelection(true);
-      btnIncludeVariables.addListener(
-          SWT.Selection, event -> includeVariables.set(btnIncludeVariables.getSelection()));
-      btnIncludeVariables.setLayoutData(
-          new FormDataBuilder()
-              .fullWidth()
-              .bottom(btnIncludeMetadata, -PropsUi.getMargin())
-              .result());
+
+      Button btnExportAsIs = new Button(treeShell, SWT.CHECK);
+      PropsUi.setLook(btnExportAsIs);
+      btnExportAsIs.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ExportAsIs.Label"));
+      btnExportAsIs.setToolTipText(
+              BaseMessages.getString(PKG, "ProjectGuiPlugin.ExportAsIs.Tooltip"));
+      btnExportAsIs.setSelection(false);
+      btnExportAsIs.setLayoutData(
+              new FormDataBuilder()
+                      .fullWidth()
+                      .bottom(btnIncludeMetadata, -PropsUi.getMargin())
+                      .result());
+
+      // Remember selections so we can restore them when "export as-is" is turned off.
+      AtomicBoolean savedIncludeVariables = new AtomicBoolean(true);
+      AtomicBoolean savedIncludeMetadata = new AtomicBoolean(true);
+      btnExportAsIs.addListener(
+          SWT.Selection,
+          event -> {
+            boolean asIs = btnExportAsIs.getSelection();
+            exportAsIs.set(asIs);
+            if (asIs) {
+              savedIncludeVariables.set(btnIncludeVariables.getSelection());
+              savedIncludeMetadata.set(btnIncludeMetadata.getSelection());
+              btnIncludeVariables.setSelection(false);
+              btnIncludeMetadata.setSelection(false);
+              includeVariables.set(false);
+              includeMetadata.set(false);
+              btnIncludeVariables.setEnabled(false);
+              btnIncludeMetadata.setEnabled(false);
+            } else {
+              btnIncludeVariables.setEnabled(true);
+              btnIncludeMetadata.setEnabled(true);
+              btnIncludeVariables.setSelection(savedIncludeVariables.get());
+              btnIncludeMetadata.setSelection(savedIncludeMetadata.get());
+              includeVariables.set(savedIncludeVariables.get());
+              includeMetadata.set(savedIncludeMetadata.get());
+            }
+          });
 
       tree = new FileTree(treeShell, HopVfs.getFileObject(projectHome), projectName);
       tree.setLayoutData(
           new FormDataBuilder()
               .top()
               .fullWidth()
-              .bottom(btnIncludeVariables, -PropsUi.getMargin())
+              .bottom(btnExportAsIs, -PropsUi.getMargin())
               .result());
 
       BaseTransformDialog.setSize(treeShell);
@@ -1640,47 +1687,19 @@ public class ProjectsGuiPlugin {
             try {
               monitor.setTaskName(
                   BaseMessages.getString(PKG, "ProjectGuiPlugin.ZipDirectory.Taskname.Text"));
-              HashMap<String, String> variablesMap = new HashMap<>();
-
-              for (String name : variables.getVariableNames()) {
-                if (!name.contains("java.")
-                    && !name.contains("user.")
-                    && !name.contains("sun.")
-                    && !name.contains("os.")
-                    && !name.contains("file.")
-                    && !name.contains("jdk.")
-                    && !name.contains("http.")
-                    && !name.contains("path.")
-                    && !name.contains("ftp.")
-                    && !name.contains("line.")
-                    && !name.contains("awt.")
-                    && !name.equals("HOP_METADATA_FOLDER")
-                    && !name.contains("HOP_ENVIRONMENT_NAME")
-                    && !name.contains("HOP_AUDIT_FOLDER")
-                    && !name.contains("HOP_CONFIG_FOLDER")
-                    && !name.contains("PROJECT_HOME")
-                    && !name.contains("PARENT_PROJECT_NAME")
-                    && !name.contains("HOP_PROJECTS")
-                    && !name.contains("HOP_PLATFORM_OS")
-                    && !name.contains("HOP_PROJECT_NAME")
-                    && !name.contains("HOP_SERVER_URL")) {
-                  String value = variables.getVariable(name);
-                  variablesMap.put(name, value);
-                }
-              }
-              ObjectMapper objectMapper = new ObjectMapper();
-              String variablesJson = objectMapper.writeValueAsString(variablesMap);
-
-              SerializableMetadataProvider metadataProvider =
-                  new SerializableMetadataProvider(hopGui.getMetadataProvider());
-              String metadataJson = metadataProvider.toJson();
+              boolean asIs = exportAsIs.get();
 
               FileObject zipFile = HopVfs.getFileObject(zipFilename);
               OutputStream outputStream = HopVfs.getOutputStream(zipFile, false);
               ZipOutputStream zos = new ZipOutputStream(outputStream);
               FileObject projectDirectory = HopVfs.getFileObject(projectHome);
-              String projectHomeFolder =
-                  HopVfs.getFileObject(projectHome).getParent().getName().getURI();
+              // As-is: strip project home so entries land at the zip root (compatible with
+              // zip:file://…!/ read-only project open). Normal: strip parent so entries are under
+              // {projectName}/…
+              String stripBase =
+                  asIs
+                      ? projectDirectory.getName().getURI()
+                      : projectDirectory.getParent().getName().getURI();
 
               // Includes selected files and dependencies
               if (!tree.getFileObjects().isEmpty()) {
@@ -1690,30 +1709,71 @@ public class ProjectsGuiPlugin {
                     continue;
                   }
                   monitor.subTask(fileObject.getName().getURI());
-                  zipFile(fileObject, fileObject.getName().getURI(), zos, projectHomeFolder);
+                  zipFile(fileObject, fileObject.getName().getURI(), zos, stripBase);
                 }
               }
 
-              // Includes config file
-              zipFile(
-                  HopVfs.getFileObject(
-                      Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
-                  projectDirectory.getName().getBaseName()
-                      + Const.FILE_SEPARATOR
-                      + Const.HOP_CONFIG,
-                  zos,
-                  projectHomeFolder);
+              // Sidecars only for the classic (non as-is) export format
+              if (!asIs) {
+                HashMap<String, String> variablesMap = new HashMap<>();
 
-              // Includes variables
-              if (includeVariables.get()) {
-                zipString(
-                    variablesJson, "variables.json", zos, projectDirectory.getName().getBaseName());
-              }
+                for (String name : variables.getVariableNames()) {
+                  if (!name.contains("java.")
+                      && !name.contains("user.")
+                      && !name.contains("sun.")
+                      && !name.contains("os.")
+                      && !name.contains("file.")
+                      && !name.contains("jdk.")
+                      && !name.contains("http.")
+                      && !name.contains("path.")
+                      && !name.contains("ftp.")
+                      && !name.contains("line.")
+                      && !name.contains("awt.")
+                      && !name.equals("HOP_METADATA_FOLDER")
+                      && !name.contains("HOP_ENVIRONMENT_NAME")
+                      && !name.contains("HOP_AUDIT_FOLDER")
+                      && !name.contains("HOP_CONFIG_FOLDER")
+                      && !name.contains("PROJECT_HOME")
+                      && !name.contains("PARENT_PROJECT_NAME")
+                      && !name.contains("HOP_PROJECTS")
+                      && !name.contains("HOP_PLATFORM_OS")
+                      && !name.contains("HOP_PROJECT_NAME")
+                      && !name.contains("HOP_SERVER_URL")) {
+                    String value = variables.getVariable(name);
+                    variablesMap.put(name, value);
+                  }
+                }
+                ObjectMapper objectMapper = new ObjectMapper();
+                String variablesJson = objectMapper.writeValueAsString(variablesMap);
 
-              // Includes metadata
-              if (includeMetadata.get()) {
-                zipString(
-                    metadataJson, "metadata.json", zos, projectDirectory.getName().getBaseName());
+                SerializableMetadataProvider metadataProvider =
+                    new SerializableMetadataProvider(hopGui.getMetadataProvider());
+                String metadataJson = metadataProvider.toJson();
+
+                // Includes config file
+                zipFile(
+                    HopVfs.getFileObject(
+                        Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
+                    projectDirectory.getName().getBaseName()
+                        + Const.FILE_SEPARATOR
+                        + Const.HOP_CONFIG,
+                    zos,
+                    stripBase);
+
+                // Includes variables
+                if (includeVariables.get()) {
+                  zipString(
+                      variablesJson,
+                      "variables.json",
+                      zos,
+                      projectDirectory.getName().getBaseName());
+                }
+
+                // Includes metadata
+                if (includeMetadata.get()) {
+                  zipString(
+                      metadataJson, "metadata.json", zos, projectDirectory.getName().getBaseName());
+                }
               }
 
               zos.close();
@@ -1747,6 +1807,36 @@ public class ProjectsGuiPlugin {
   }
 
   /**
+   * Build a zip entry path by stripping a base URI/path prefix from an absolute file URI.
+   *
+   * @param absoluteUri absolute file URI or path
+   * @param stripBase URI/path prefix to remove (project home or its parent)
+   * @return relative zip entry path without a leading slash
+   */
+  static String relativeZipPath(String absoluteUri, String stripBase) {
+    if (absoluteUri == null) {
+      return "";
+    }
+    String path = absoluteUri;
+    if (StringUtils.isNotEmpty(stripBase)) {
+      String base = stripBase;
+      // Normalize trailing slashes so file://…/project and file://…/project/ both strip cleanly
+      while (base.endsWith("/")) {
+        base = base.substring(0, base.length() - 1);
+      }
+      if (path.startsWith(base)) {
+        path = path.substring(base.length());
+      } else {
+        path = path.replace(stripBase, "");
+      }
+    }
+    while (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+    return path;
+  }
+
+  /**
    * Add file Object to zip file
    *
    * @param fileToZip the file to add
@@ -1766,10 +1856,7 @@ public class ProjectsGuiPlugin {
     }
 
     // Build relative filename
-    filename = filename.replace(projectHomeParent, "");
-    if (filename.startsWith("/")) {
-      filename = filename.substring(1);
-    }
+    filename = relativeZipPath(filename, projectHomeParent);
 
     zipOutputStream.putNextEntry(new ZipEntry(filename));
     if (fileToZip.isFolder()) {
@@ -1777,9 +1864,10 @@ public class ProjectsGuiPlugin {
       for (FileObject childFile : fileToZip.getChildren()) {
         zipFile(
             childFile,
+            // Pass already-relative path so nested calls do not re-strip incorrectly
             filename + "/" + childFile.getName().getBaseName(),
             zipOutputStream,
-            projectHomeParent);
+            "");
       }
     } else {
       InputStream fis = HopVfs.getInputStream(fileToZip);

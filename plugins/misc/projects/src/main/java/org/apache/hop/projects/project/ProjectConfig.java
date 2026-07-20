@@ -17,8 +17,10 @@
 
 package org.apache.hop.projects.project;
 
+import java.util.Locale;
 import java.util.Objects;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -26,9 +28,23 @@ import org.apache.hop.core.vfs.HopVfs;
 
 public class ProjectConfig {
 
+  /**
+   * VFS schemes that provide read-only access to archive contents (Zip, Jar and Tar family). See
+   * https://commons.apache.org/proper/commons-vfs/filesystems.html#Zip.2C_Jar_and_Tar
+   */
+  private static final String[] ARCHIVE_URI_SCHEMES = {
+    "zip:", "jar:", "tar:", "tgz:", "tbz2:",
+  };
+
   protected String projectName;
   protected String projectHome;
   protected String configFilename;
+
+  /**
+   * When true, Hop will not write to the project's configuration file (project-config.json). Useful
+   * for projects opened from archives (zip/jar/tar), HTTP locations, or other read-only folders.
+   */
+  protected boolean readOnly;
 
   public ProjectConfig() {
     super();
@@ -39,6 +55,26 @@ public class ProjectConfig {
     this.projectName = projectName;
     this.projectHome = projectHome;
     this.configFilename = configFilename;
+  }
+
+  /**
+   * Returns true when the given path is a Commons VFS archive URI (zip, jar, tar, tgz, tbz2),
+   * including nested forms such as {@code jar:zip:outer.zip!/nested.jar!/dir}.
+   *
+   * @param path project home path or URI (may be null/empty)
+   * @return true if the path uses an archive scheme
+   */
+  public static boolean isArchiveUri(String path) {
+    if (StringUtils.isEmpty(path)) {
+      return false;
+    }
+    String lower = path.trim().toLowerCase(Locale.ROOT);
+    for (String scheme : ARCHIVE_URI_SCHEMES) {
+      if (lower.startsWith(scheme)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -79,6 +115,14 @@ public class ProjectConfig {
                 + "' does not exist");
       }
       String actualConfigFilename = variables.resolve(getConfigFilename());
+      // Use VFS resolve so archive/HTTP URIs work (FilenameUtils.concat mangles schemes).
+      // For plain local paths keep the previous FilenameUtils behaviour for compatibility.
+      //
+      String scheme = actualHome.getName().getScheme();
+      if (scheme != null && !"file".equalsIgnoreCase(scheme)) {
+        FileObject configFile = actualHome.resolveFile(actualConfigFilename);
+        return configFile.getName().getURI();
+      }
       String fullFilename = FilenameUtils.concat(actualHome.toString(), actualConfigFilename);
       if (fullFilename == null) {
         throw new HopException(
@@ -164,5 +208,21 @@ public class ProjectConfig {
    */
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
+  }
+
+  /**
+   * Gets readOnly
+   *
+   * @return value of readOnly
+   */
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+  /**
+   * @param readOnly The readOnly flag to set
+   */
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
   }
 }
