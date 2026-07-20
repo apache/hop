@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.annotations.Transform;
@@ -59,6 +58,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -72,22 +72,18 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.transforms.FakeMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /** Unit test for {@link PipelineMeta} */
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class PipelineMetaTest {
   public static final String TRANSFORM_NAME = "Any transform name";
-
-  @BeforeAll
-  static void initHop() throws Exception {
-    HopEnvironment.init();
-  }
 
   private PipelineMeta pipelineMeta;
   private IVariables variables;

@@ -60,6 +60,10 @@ public abstract class SwtBotTestBase {
         GraphicsEnvironment.isHeadless(),
         "No display available (headless); skipping SWTBot UI tests. Run on a desktop or under Xvfb.");
     // Registers the transform/plugin metadata (e.g. the Abort transform) the dialogs look up.
+    // reset() first so we always get a full re-registration: a bare init() is a no-op when an
+    // earlier test already flipped HopEnvironment.initialized, and a test that wiped the
+    // PluginRegistry in the meantime would otherwise leave the dialogs without their plugins.
+    HopEnvironment.reset();
     HopEnvironment.init();
     keepAuditStateOutOfSourceTree();
     ensureDisplay();
