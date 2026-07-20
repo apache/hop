@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
@@ -218,7 +219,10 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       // execute process
       try {
         if (!meta.isArgumentsInFields()) {
-          p = data.runtime.exec(new String[] {process[0]});
+          // Match historical Runtime.exec(String) whitespace tokenization without using the
+          // deprecated String overload. A single-element String[] would treat the whole command
+          // line (e.g. "/bin/echo hop-single") as the executable name.
+          p = data.runtime.exec(tokenizeCommandLine(process[0]));
         } else {
           p = data.runtime.exec(process);
         }
@@ -321,6 +325,19 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
         p.destroy();
       }
     }
+  }
+
+  /**
+   * Tokenize a command line the same way Runtime.exec(String) historically did (whitespace via
+   * {@link StringTokenizer}).
+   */
+  static String[] tokenizeCommandLine(String command) {
+    StringTokenizer st = new StringTokenizer(command);
+    String[] cmdArray = new String[st.countTokens()];
+    for (int i = 0; st.hasMoreTokens(); i++) {
+      cmdArray[i] = st.nextToken();
+    }
+    return cmdArray;
   }
 
   private String getOutputString(BufferedReader b) throws IOException {
