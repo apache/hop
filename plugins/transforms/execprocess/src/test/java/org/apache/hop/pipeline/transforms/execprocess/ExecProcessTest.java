@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
@@ -213,6 +215,14 @@ class ExecProcessTest {
 
     assertFalse(transform.processRow());
     assertEquals(1, transform.getErrors());
+  }
+
+  @Test
+  void tokenizeCommandLine_splitsOnWhitespaceLikeRuntimeExecString() {
+    assertEquals(
+        Arrays.asList("/bin/echo", "hop-single"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("/bin/echo hop-single")));
+    assertEquals(List.of("cmd"), Arrays.asList(ExecProcess.tokenizeCommandLine("cmd")));
   }
 
   @Test
