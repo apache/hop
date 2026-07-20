@@ -127,12 +127,12 @@ public class MavenRepositoryClient {
     return downloadZip(repo, coordinates, targetFile);
   }
 
-  public Path downloadArtifact(
+  public void downloadArtifact(
       MarketplaceRepository repository, String relativePath, String label, Path targetFile)
       throws HopException {
     String base = repository.normalizedUrl();
     String url = base + (relativePath.startsWith("/") ? relativePath.substring(1) : relativePath);
-    return download(url, repository, label, targetFile);
+    download(url, repository, label, targetFile);
   }
 
   /**

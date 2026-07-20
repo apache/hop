@@ -23,11 +23,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.AttributesContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -38,6 +40,7 @@ import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -145,6 +148,57 @@ public class ProjectsUtil {
     //
     ExtensionPointHandler.callExtensionPoint(
         log, variables, Defaults.EXTENSION_POINT_PROJECT_ACTIVATED, projectName);
+
+    // Plugin-agnostic attributes context for marketplace, resource checks, etc.
+    // Thrown HopException from listeners aborts environment enablement.
+    //
+    AttributesContext attributesContext =
+        buildAttributesContext(config, projectConfig, projectName, environmentName, variables);
+    ExtensionPointHandler.callExtensionPoint(
+        log, variables, HopExtensionPoint.HopProjectEnvironmentAfterEnabled.id, attributesContext);
+  }
+
+  /**
+   * Build a core {@link AttributesContext} for the enabled project/environment so optional plugins
+   * can read identity fields and namespaced {@link org.apache.hop.core.IAttributes} groups without
+   * depending on Projects classes.
+   */
+  public static AttributesContext buildAttributesContext(
+      ProjectsConfig config,
+      ProjectConfig projectConfig,
+      String projectName,
+      String environmentName,
+      IVariables variables)
+      throws HopException {
+    AttributesContext context = new AttributesContext();
+    context.setProjectName(projectName);
+    context.setEnvironmentName(environmentName);
+
+    if (projectConfig != null) {
+      try {
+        String home = projectConfig.getProjectHome();
+        if (variables != null && StringUtils.isNotEmpty(home)) {
+          home = variables.resolve(home);
+        }
+        context.setProjectHome(home);
+      } catch (Exception e) {
+        // best-effort project home
+        context.setProjectHome(projectConfig.getProjectHome());
+      }
+    }
+
+    LifecycleEnvironment environment =
+        StringUtils.isNotEmpty(environmentName) && config != null
+            ? config.findEnvironment(environmentName)
+            : null;
+    if (environment != null) {
+      context.setPurpose(environment.getPurpose());
+      if (environment.getConfigurationFiles() != null) {
+        context.setConfigurationFiles(new ArrayList<>(environment.getConfigurationFiles()));
+      }
+      context.copyAttributesFrom(environment);
+    }
+    return context;
   }
 
   public static void validateFileInProject(

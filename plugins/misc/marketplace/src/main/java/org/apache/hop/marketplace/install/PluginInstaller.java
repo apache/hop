@@ -231,7 +231,7 @@ public class PluginInstaller {
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
         String name = entry.getName();
-        if (name == null || name.isBlank()) {
+        if (name.isBlank()) {
           continue;
         }
         // Normalize and reject path traversal

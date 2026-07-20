@@ -12,7 +12,7 @@
 #
 # Prerequisites:
 #   - ./docker/marketplace-nexus/start.sh
-#   - ./docker/marketplace-nexus/publish-wave1-plugins.sh
+#   - ./docker/marketplace-nexus/publish-marketplace-plugins.sh
 #   - Unzipped hop client at assemblies/client/target/hop (or HOP_DIR)
 #
 # Usage (from repo root):
@@ -26,7 +26,7 @@ REPO_URL="${NEXUS_REPO_URL:-http://127.0.0.1:8081/repository/hop-plugins/}"
 REPO_URL="${REPO_URL%/}/"
 VERSION="${HOP_VERSION:-2.19.0-SNAPSHOT}"
 
-# Small plugins for a fast round-trip (publish-wave1 must have deployed them)
+# Small plugins for a fast round-trip (publish-marketplace-plugins must have deployed them)
 INSTALL_A="${SMOKE_PLUGIN_A:-hop-tech-dropbox}"
 INSTALL_B="${SMOKE_PLUGIN_B:-hop-transform-edi2xml}"
 

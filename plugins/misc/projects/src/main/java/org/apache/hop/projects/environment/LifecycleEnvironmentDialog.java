@@ -19,9 +19,13 @@ package org.apache.hop.projects.environment;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.AttributesContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -30,6 +34,7 @@ import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.AttributesDialogExtension;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -40,12 +45,14 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -76,6 +83,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
   private boolean needingEnvironmentRefresh;
 
+  private AttributesDialogExtension dialogExtension;
+
   public LifecycleEnvironmentDialog(
       Shell parent, LifecycleEnvironment environment, IVariables variables) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
@@ -105,7 +114,6 @@ public class LifecycleEnvironmentDialog extends Dialog {
     PropsUi.setLook(shell);
 
     int margin = PropsUi.getMargin() + 2;
-    int middle = props.getMiddlePct();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -124,7 +132,67 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wCancel.addListener(SWT.Selection, event -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOK, wCancel}, margin * 3, null);
 
-    Label wlName = new Label(shell, SWT.RIGHT);
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    PropsUi.setLook(wTabFolder);
+    FormData fdTabs = new FormData();
+    fdTabs.left = new FormAttachment(0, 0);
+    fdTabs.top = new FormAttachment(0, 0);
+    fdTabs.right = new FormAttachment(100, 0);
+    fdTabs.bottom = new FormAttachment(wOK, -margin * 2);
+    wTabFolder.setLayoutData(fdTabs);
+
+    createGeneralTab(wTabFolder, margin);
+    createConfigurationFilesTab(wTabFolder, margin);
+
+    // Optional plugins (marketplace, resource checks, …) contribute extra tabs
+    AttributesContext attributesContext = new AttributesContext(environment);
+    attributesContext.setProjectName(environment.getProjectName());
+    attributesContext.setEnvironmentName(environment.getName());
+    attributesContext.setPurpose(environment.getPurpose());
+    if (environment.getConfigurationFiles() != null) {
+      attributesContext.setConfigurationFiles(
+          new java.util.ArrayList<>(environment.getConfigurationFiles()));
+    }
+    dialogExtension =
+        new AttributesDialogExtension(shell, wTabFolder, variables, attributesContext);
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.UI,
+          variables,
+          HopExtensionPoint.HopGuiLifecycleEnvironmentDialogTabs.id,
+          dialogExtension);
+    } catch (Exception e) {
+      new ErrorDialog(shell, CONST_ERROR, "Error loading optional environment dialog tabs", e);
+    }
+
+    wTabFolder.setSelection(0);
+
+    getData();
+    if (dialogExtension != null) {
+      dialogExtension.runLoadCallbacks();
+    }
+
+    wName.setFocus();
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return returnValue;
+  }
+
+  private void createGeneralTab(CTabFolder folder, int margin) {
+    CTabItem tab = new CTabItem(folder, SWT.NONE);
+    tab.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Tab.General"));
+    Composite comp = new Composite(folder, SWT.NONE);
+    PropsUi.setLook(comp);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    comp.setLayout(layout);
+    tab.setControl(comp);
+
+    int middle = props.getMiddlePct();
+
+    Label wlName = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.EnvironmentName"));
     FormData fdlName = new FormData();
@@ -132,25 +200,24 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdlName.right = new FormAttachment(middle, 0);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    wName = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, margin);
     fdName.right = new FormAttachment(100, 0);
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     wName.setLayoutData(fdName);
-    Control lastControl = wName;
 
-    Label wlPurpose = new Label(shell, SWT.RIGHT);
+    Label wlPurpose = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlPurpose);
     wlPurpose.setText(
         BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.EnvironmentPurpose"));
     FormData fdlPurpose = new FormData();
     fdlPurpose.left = new FormAttachment(0, 0);
     fdlPurpose.right = new FormAttachment(middle, 0);
-    fdlPurpose.top = new FormAttachment(lastControl, margin);
+    fdlPurpose.top = new FormAttachment(wName, margin);
     wlPurpose.setLayoutData(fdlPurpose);
-    wPurpose = new Combo(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    wPurpose = new Combo(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wPurpose);
     FormData fdPurpose = new FormData();
     fdPurpose.left = new FormAttachment(middle, margin);
@@ -158,18 +225,17 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdPurpose.top = new FormAttachment(wlPurpose, 0, SWT.CENTER);
     wPurpose.setLayoutData(fdPurpose);
     wPurpose.addListener(SWT.Modify, e -> needingEnvironmentRefresh = true);
-    lastControl = wPurpose;
 
-    Label wlProject = new Label(shell, SWT.RIGHT);
+    Label wlProject = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlProject);
     wlProject.setText(
         BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Label.ReferencedProject"));
     FormData fdlProject = new FormData();
     fdlProject.left = new FormAttachment(0, 0);
     fdlProject.right = new FormAttachment(middle, 0);
-    fdlProject.top = new FormAttachment(lastControl, margin);
+    fdlProject.top = new FormAttachment(wPurpose, margin);
     wlProject.setLayoutData(fdlProject);
-    wProject = new Combo(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    wProject = new Combo(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wProject);
     FormData fdProject = new FormData();
     fdProject.left = new FormAttachment(middle, margin);
@@ -177,19 +243,30 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdProject.top = new FormAttachment(wlProject, 0, SWT.CENTER);
     wProject.setLayoutData(fdProject);
     wProject.addListener(SWT.Modify, e -> needingEnvironmentRefresh = true);
-    lastControl = wProject;
+  }
 
-    Label wlConfigFiles = new Label(shell, SWT.LEFT);
+  private void createConfigurationFilesTab(CTabFolder folder, int margin) {
+    CTabItem tab = new CTabItem(folder, SWT.NONE);
+    tab.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Tab.ConfigurationFiles"));
+    Composite comp = new Composite(folder, SWT.NONE);
+    PropsUi.setLook(comp);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    comp.setLayout(layout);
+    tab.setControl(comp);
+
+    Label wlConfigFiles = new Label(comp, SWT.LEFT);
     PropsUi.setLook(wlConfigFiles);
     wlConfigFiles.setText(
         BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Group.Label.ConfigurationFiles"));
     FormData fdlConfigFiles = new FormData();
     fdlConfigFiles.left = new FormAttachment(0, 0);
     fdlConfigFiles.right = new FormAttachment(100, 0);
-    fdlConfigFiles.top = new FormAttachment(lastControl, margin);
+    fdlConfigFiles.top = new FormAttachment(0, 0);
     wlConfigFiles.setLayoutData(fdlConfigFiles);
 
-    Button wbSelect = new Button(shell, SWT.PUSH);
+    Button wbSelect = new Button(comp, SWT.PUSH);
     PropsUi.setLook(wbSelect);
     wbSelect.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Select"));
     FormData fdAdd = new FormData();
@@ -211,10 +288,10 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wConfigFiles =
         new TableView(
             variables,
-            shell,
+            comp,
             SWT.SINGLE | SWT.BORDER,
             columnInfo,
-            environment.getConfigurationFiles().size(),
+            Math.max(environment.getConfigurationFiles().size(), 1),
             null,
             props);
     PropsUi.setLook(wConfigFiles);
@@ -222,11 +299,11 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdConfigFiles.left = new FormAttachment(0, 0);
     fdConfigFiles.right = new FormAttachment(wbSelect, -2 * margin);
     fdConfigFiles.top = new FormAttachment(wlConfigFiles, margin);
-    fdConfigFiles.bottom = new FormAttachment(wOK, -margin * 2);
+    fdConfigFiles.bottom = new FormAttachment(100, 0);
     wConfigFiles.setLayoutData(fdConfigFiles);
     wConfigFiles.table.addListener(SWT.Selection, this::setButtonStates);
 
-    Button wbNew = new Button(shell, SWT.PUSH);
+    Button wbNew = new Button(comp, SWT.PUSH);
     PropsUi.setLook(wbNew);
     wbNew.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.New"));
     FormData fdNew = new FormData();
@@ -236,7 +313,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wbNew.setLayoutData(fdNew);
     wbNew.addListener(SWT.Selection, this::newConfigFile);
 
-    wbEdit = new Button(shell, SWT.PUSH);
+    wbEdit = new Button(comp, SWT.PUSH);
     PropsUi.setLook(wbEdit);
     wbEdit.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Edit"));
     FormData fdEdit = new FormData();
@@ -245,14 +322,6 @@ public class LifecycleEnvironmentDialog extends Dialog {
     fdEdit.top = new FormAttachment(wbNew, margin);
     wbEdit.setLayoutData(fdEdit);
     wbEdit.addListener(SWT.Selection, this::editConfigFile);
-
-    getData();
-
-    wName.setFocus();
-
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
-    return returnValue;
   }
 
   private void editConfigFile(Event event) {
@@ -385,6 +454,16 @@ public class LifecycleEnvironmentDialog extends Dialog {
       }
 
       getInfo(environment);
+      if (dialogExtension != null) {
+        dialogExtension.getContext().setProjectName(environment.getProjectName());
+        dialogExtension.getContext().setEnvironmentName(environment.getName());
+        dialogExtension.getContext().setPurpose(environment.getPurpose());
+        dialogExtension
+            .getContext()
+            .setConfigurationFiles(new java.util.ArrayList<>(environment.getConfigurationFiles()));
+        dialogExtension.runSaveCallbacks();
+        dialogExtension.getContext().copyAttributesTo(environment);
+      }
       returnValue = environment.getName();
 
       dispose();
@@ -421,10 +500,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wPurpose.setText(Const.NVL(environment.getPurpose(), ""));
     wProject.setText(Const.NVL(environment.getProjectName(), ""));
 
+    wConfigFiles.table.removeAll();
     for (int i = 0; i < environment.getConfigurationFiles().size(); i++) {
       String configurationFile = environment.getConfigurationFiles().get(i);
-      TableItem item = wConfigFiles.table.getItem(i);
+      TableItem item = new TableItem(wConfigFiles.table, SWT.NONE);
       item.setText(1, Const.NVL(configurationFile, ""));
+    }
+    if (environment.getConfigurationFiles().isEmpty()) {
+      new TableItem(wConfigFiles.table, SWT.NONE);
     }
     wConfigFiles.setRowNums();
     wConfigFiles.optWidth(true);

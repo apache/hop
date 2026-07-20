@@ -29,7 +29,7 @@ It is fully scriptable (no Pro-only APIs, no Postgres, no join keys).
 | Action | Who |
 |--------|-----|
 | `hop marketplace install` / GUI install | **Anonymous** read |
-| `publish-wave1-plugins.sh` | **admin** (or a deploy user) |
+| `publish-marketplace-plugins.sh` | **admin** (or a deploy user) |
 
 Do not put admin credentials in day-to-day `hop-config.json`.
 
@@ -59,18 +59,31 @@ to IPv6 (`::1`) while Docker only publishes IPv4, which surfaces as
 
 First start can take **1–3 minutes** while Nexus initializes.
 
-## Publish Wave 1 plugin zips
+## Publish marketplace plugin zips
+
+Plugin list and module paths come **only** from
+`plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml`.
+Add a plugin there once; this script packages/deploys it automatically.
 
 ```bash
-# Package plugins first (from repo root)
-./mvnw -pl plugins/engines/spark,plugins/engines/beam,plugins/transforms/script,\
-plugins/tech/cassandra,plugins/transforms/tika,plugins/transforms/drools,\
-plugins/tech/parquet,plugins/transforms/stanfordnlp,plugins/tech/arrow,\
-plugins/tech/dropbox,plugins/transforms/edi2xml -am package -DskipTests
-
 export NEXUS_PASSWORD=hop-nexus-dev   # or your NEXUS_ADMIN_PASSWORD
-./docker/marketplace-nexus/publish-wave1-plugins.sh
+
+# Package every registry module, then deploy zips to local Nexus:
+./docker/marketplace-nexus/publish-marketplace-plugins.sh --package
+
+# Or package yourself, then deploy only:
+# ./mvnw -pl … -am package -DskipTests
+./docker/marketplace-nexus/publish-marketplace-plugins.sh
+
+# Artifactory (or any Maven 2 repo):
+# export ARTIFACTORY_URL='https://artifactory.example/artifactory/hop-plugins-local'
+# export ARTIFACTORY_USER=deploy
+# export ARTIFACTORY_PASSWORD=…
+# export NEXUS_REPO_ID=artifactory
+# ./docker/marketplace-nexus/publish-marketplace-plugins.sh --package
 ```
+
+`publish-wave1-plugins.sh` remains as a deprecated alias of this script.
 
 ## Hop marketplace (anonymous install)
 
@@ -98,7 +111,7 @@ curl -sI "http://127.0.0.1:8081/repository/hop-plugins/" | head -1
 ## Smoke test (CLI install / list / validate / apply / uninstall)
 
 ```bash
-# Nexus up + Wave 1 published + hop client unzipped
+# Nexus up + marketplace plugins published + hop client unzipped
 ./docker/marketplace-nexus/smoke-test.sh
 ```
 
@@ -112,7 +125,8 @@ installs two small plugins into `assemblies/client/target/hop` (override with
 |--------|------|
 | `start.sh` | Compose up + wait + configure |
 | `configure-nexus.sh` | Anonymous + hosted repo (idempotent) |
-| `publish-wave1-plugins.sh` | `mvn deploy:deploy-file` of Wave 1 zips |
+| `publish-marketplace-plugins.sh` | `deploy-file` of all zips from `optional-plugins.yaml` |
+| `publish-wave1-plugins.sh` | Deprecated alias of `publish-marketplace-plugins.sh` |
 | `smoke-test.sh` | Anonymous install / list / validate / apply / uninstall |
 
 ## Stop

@@ -8,10 +8,11 @@
 #
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
-# Deprecated name: use publish-marketplace-plugins.sh
-# Forwards all arguments and environment to the registry-driven publisher.
+# Compatibility wrapper: list marketplace plugin zip paths from optional-plugins.yaml.
+# Prefer: ./tools/list-marketplace-plugins.sh --zips
+#
+# Output lines: artifactId|modulePath/target/artifactId-${HOP_VERSION}.zip
 #
 set -euo pipefail
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo "NOTE: publish-wave1-plugins.sh is deprecated; use publish-marketplace-plugins.sh" >&2
-exec "${SCRIPT_DIR}/publish-marketplace-plugins.sh" "$@"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "${ROOT}/tools/list-marketplace-plugins.sh" --zips

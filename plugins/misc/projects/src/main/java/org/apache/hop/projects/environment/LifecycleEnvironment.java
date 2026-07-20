@@ -18,11 +18,20 @@
 package org.apache.hop.projects.environment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import org.apache.hop.core.IAttributes;
 
-/** A project lifecycle environment describes the state of a project and its configuration. */
-public class LifecycleEnvironment {
+/**
+ * A project lifecycle environment describes the state of a project and its configuration.
+ *
+ * <p>Implements {@link IAttributes} so optional plugins (marketplace, resource checks, …) can store
+ * namespaced group/key/value settings without hard-wiring fields into this class. Groups are
+ * persisted under {@code attributesMap} in hop-config projects configuration.
+ */
+public class LifecycleEnvironment implements IAttributes {
 
   private String name;
 
@@ -32,8 +41,12 @@ public class LifecycleEnvironment {
 
   private List<String> configurationFiles;
 
+  /** Group → (key → value); see {@link IAttributes}. */
+  private Map<String, Map<String, String>> attributesMap;
+
   public LifecycleEnvironment() {
     configurationFiles = new ArrayList<>();
+    attributesMap = new HashMap<>();
   }
 
   public LifecycleEnvironment(
@@ -41,7 +54,8 @@ public class LifecycleEnvironment {
     this.name = name;
     this.purpose = purpose;
     this.projectName = projectName;
-    this.configurationFiles = configurationFiles;
+    this.configurationFiles = configurationFiles != null ? configurationFiles : new ArrayList<>();
+    this.attributesMap = new HashMap<>();
   }
 
   public LifecycleEnvironment(LifecycleEnvironment env) {
@@ -49,6 +63,24 @@ public class LifecycleEnvironment {
     this.purpose = env.purpose;
     this.projectName = env.projectName;
     this.configurationFiles = new ArrayList<>(env.configurationFiles);
+    this.attributesMap = deepCopyAttributes(env.attributesMap);
+  }
+
+  private static Map<String, Map<String, String>> deepCopyAttributes(
+      Map<String, Map<String, String>> source) {
+    Map<String, Map<String, String>> copy = new HashMap<>();
+    if (source == null) {
+      return copy;
+    }
+    for (Map.Entry<String, Map<String, String>> entry : source.entrySet()) {
+      if (entry.getKey() == null) {
+        continue;
+      }
+      copy.put(
+          entry.getKey(),
+          entry.getValue() == null ? new HashMap<>() : new HashMap<>(entry.getValue()));
+    }
+    return copy;
   }
 
   @Override
@@ -130,5 +162,53 @@ public class LifecycleEnvironment {
    */
   public void setConfigurationFiles(List<String> configurationFiles) {
     this.configurationFiles = configurationFiles;
+  }
+
+  @Override
+  public void setAttributesMap(Map<String, Map<String, String>> attributesMap) {
+    this.attributesMap = attributesMap != null ? attributesMap : new HashMap<>();
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getAttributesMap() {
+    if (attributesMap == null) {
+      attributesMap = new HashMap<>();
+    }
+    return attributesMap;
+  }
+
+  @Override
+  public void setAttributes(String groupName, Map<String, String> attributes) {
+    if (groupName == null) {
+      return;
+    }
+    getAttributesMap().put(groupName, attributes != null ? attributes : new HashMap<>());
+  }
+
+  @Override
+  public void setAttribute(String groupName, String key, String value) {
+    if (groupName == null || key == null) {
+      return;
+    }
+    Map<String, String> attributes = getAttributes(groupName);
+    if (attributes == null) {
+      attributes = new HashMap<>();
+      getAttributesMap().put(groupName, attributes);
+    }
+    attributes.put(key, value);
+  }
+
+  @Override
+  public Map<String, String> getAttributes(String groupName) {
+    return getAttributesMap().get(groupName);
+  }
+
+  @Override
+  public String getAttribute(String groupName, String key) {
+    Map<String, String> attributes = getAttributes(groupName);
+    if (attributes == null) {
+      return null;
+    }
+    return attributes.get(key);
   }
 }

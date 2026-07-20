@@ -85,7 +85,7 @@ echo "Publish (authenticated):"
 echo "  export NEXUS_URL=${BASE_URL}/repository/hop-plugins"
 echo "  export NEXUS_USER=${ADMIN_USER}"
 echo "  export NEXUS_PASSWORD=${ADMIN_PASSWORD}"
-echo "  ./publish-wave1-plugins.sh"
+echo "  ./publish-marketplace-plugins.sh [--package]"
 echo
 echo "Hop marketplace (anonymous read):"
 echo "  \"url\": \"${BASE_URL}/repository/hop-plugins/\""

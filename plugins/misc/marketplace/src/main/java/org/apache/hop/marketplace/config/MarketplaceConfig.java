@@ -97,7 +97,6 @@ public class MarketplaceConfig {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public void save() {
     ensureValidPrimary();
     Map<String, Object> asMap = HopJson.newMapper().convertValue(this, Map.class);
@@ -197,9 +196,6 @@ public class MarketplaceConfig {
           continue;
         }
         if (primary != null && Objects.equals(primary.getId(), repo.getId()) && primary == repo) {
-          continue;
-        }
-        if (primary != null && primary == repo) {
           continue;
         }
         // skip duplicate of primary by id

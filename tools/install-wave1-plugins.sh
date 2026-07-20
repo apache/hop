@@ -8,20 +8,21 @@
 #
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unpack Wave 1 marketplace plugin zips into a Hop install (e.g. for IT images).
+# Unpack marketplace-optional plugin zips into a Hop install (e.g. for IT images).
+# Plugin list is read only from optional-plugins.yaml (via list-marketplace-plugins.sh).
+#
 # Usage:
 #   ./tools/install-wave1-plugins.sh [HOP_INSTALL_DIR]
 # Default install dir: assemblies/client/target/hop
 #
 # Requires plugin modules to have been packaged (*.zip under plugins/**/target/).
-# Keep the plugin list in sync with:
-#   plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml
-# (source of truth for full-client-env.yaml and the GUI catalog).
+#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALL_DIR="${1:-${ROOT}/assemblies/client/target/hop}"
 VERSION="${HOP_VERSION:-2.19.0-SNAPSHOT}"
+LIST_SCRIPT="${ROOT}/tools/list-marketplace-plugins.sh"
 
 if [[ ! -d "${INSTALL_DIR}" ]]; then
   echo "Hop install not found: ${INSTALL_DIR}" >&2
@@ -29,20 +30,11 @@ if [[ ! -d "${INSTALL_DIR}" ]]; then
   exit 1
 fi
 
-# artifactId|relative path to zip under repo root
-PLUGINS=(
-  "hop-engines-spark|plugins/engines/spark/target/hop-engines-spark-${VERSION}.zip"
-  "hop-engines-beam|plugins/engines/beam/target/hop-engines-beam-${VERSION}.zip"
-  "hop-transform-script|plugins/transforms/script/target/hop-transform-script-${VERSION}.zip"
-  "hop-tech-cassandra|plugins/tech/cassandra/target/hop-tech-cassandra-${VERSION}.zip"
-  "hop-transform-tika|plugins/transforms/tika/target/hop-transform-tika-${VERSION}.zip"
-  "hop-transform-drools|plugins/transforms/drools/target/hop-transform-drools-${VERSION}.zip"
-  "hop-tech-parquet|plugins/tech/parquet/target/hop-tech-parquet-${VERSION}.zip"
-  "hop-transform-stanfordnlp|plugins/transforms/stanfordnlp/target/hop-transform-stanfordnlp-${VERSION}.zip"
-  "hop-tech-arrow|plugins/tech/arrow/target/hop-tech-arrow-${VERSION}.zip"
-  "hop-tech-dropbox|plugins/tech/dropbox/target/hop-tech-dropbox-${VERSION}.zip"
-  "hop-transform-edi2xml|plugins/transforms/edi2xml/target/hop-transform-edi2xml-${VERSION}.zip"
-)
+if [[ ! -x "${LIST_SCRIPT}" ]]; then
+  chmod +x "${LIST_SCRIPT}" 2>/dev/null || true
+fi
+
+mapfile -t PLUGINS < <(HOP_VERSION="${VERSION}" "${LIST_SCRIPT}" --zips)
 
 installed=0
 skipped=0
@@ -60,5 +52,5 @@ for entry in "${PLUGINS[@]}"; do
   installed=$((installed + 1))
 done
 
-echo "Wave 1 plugins: installed=${installed} skipped=${skipped} into ${INSTALL_DIR}"
+echo "Marketplace plugins: installed=${installed} skipped=${skipped} into ${INSTALL_DIR}"
 # Note: beam plugin zip includes lib-beam (Beam SDKs).

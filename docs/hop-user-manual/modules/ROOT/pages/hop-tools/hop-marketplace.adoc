@@ -14,34 +14,37 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Install optional Hop plugins from Apache Repository / Maven Central using the marketplace CLI or GUI, and declare environments with hop-env.yaml.
+:description: Install optional Hop plugins from Apache Repository / Maven Central
+:openvar: ${
+:closevar: }
+
+:TOC:
 
 = Hop Marketplace
 
-Some Hop plugins are optional: they are not bundled in the default client zip so the download stays under the ASF packaging size limit. The *marketplace* installs those plugins into the running Hop client’s `plugins/` tree from a Maven repository.
+Some Hop plugins are optional: they are not bundled in the default client zip so the download sizes stay within reason. The *marketplace* installs those plugins into the running Hop client’s `plugins/` tree from a Maven repository.
 
-== Restore the previous full plugin set
+== Restore the full plugin set
 
-The default hop-client zip is intentionally smaller: large plugins are optional. To install
-*all* marketplace-optional plugins that used to ship in the fat client (for this Hop version),
-use the generated environment file at the install root:
+The default hop-client zip is intentionally smaller: we made large plugins optional since version 2.19.0. To install
+*all* marketplace-optional plugins that used to ship in the download (before version 2.19),
+use the generated environment file at the installation root:
 
 [source,bash]
 ----
 cd /path/to/hop
 ./hop marketplace apply -f full-client-env.yaml
-# then restart Hop
+
+# Please restart Hop server or GUI instances that might still be open
 ----
 
-Notes:
+*Notes*:
 
 * Requires network access to Apache Repository / Maven Central (or a mirror configured in hop-config).
-* For SNAPSHOT builds, point marketplace at a local Nexus that has the Wave 1 zips published.
+* For SNAPSHOT builds when developing you can point the marketplace at a local Nexus that has the plugin zip files published.  See folder `docker/marketplace-nexus` in the source code to run your own Nexus locally.
 * The download is large (hundreds of MB); that is expected.
-* Do *not* pass `--prune` unless you also want other marketplace installs removed.
-* `full-client-env.yaml` is generated at build time from `optional-plugins.yaml` (source of truth). When more plugins become optional, rebuild the client to refresh the file.
-
-A copy is also under `config/projects/samples/marketplace/full-client-env.yaml`.
+* Do *NOT* pass `--prune` unless you also want other marketplace installs removed.
+* `full-client-env.yaml` is generated at build time from marketplace plugin source file `optional-plugins.yaml` (source of truth).
 
 Beam SDKs/runners live under `plugins/engines/beam/lib-beam` (installed with the Beam plugin), not under `lib/beam`. Launch scripts add that folder to the classpath only when it exists. Developers who want Beam baked into a local hop-client build can use Maven profile `-Pbeam` (for example `./mvnw -pl assemblies/client -am package -Pbeam`).
 
@@ -54,7 +57,15 @@ Without extra configuration, Hop uses:
 
 Install tries the primary repository first, then other *enabled* repositories, until the plugin zip is found.
 
-Settings are stored under the `marketplace` key in `${HOP_CONFIG_FOLDER}/hop-config.json` (always that file).
+Settings are stored under the `marketplace` key in
+
+[source]
+----
+${HOP_CONFIG_FOLDER}/hop-config.json
+----
+
+[NOTE]
+`config/hop-config.json` in your client distribution is only provided to get started but will be not survive a Hop version upgrade.  Configure your own configuration.
 
 == CLI overview
 
@@ -95,18 +106,125 @@ path. Omit the filter (or pass an empty string) to list every optional plugin. M
 
 == GUI
 
-*Tools → Marketplace…* lists featured optional plugins, installs/uninstalls them, and opens *Manage…* to edit repositories (same config as the CLI).
+The marketplace GUI is the primary way to install optional plugins, manage Maven repositories, and edit declarative environment files without using the CLI.
 
-=== Environment file (Apply / Validate)
+=== Opening the marketplace
 
-The dialog also exposes declarative environments (same as the CLI):
+You can open the marketplace dialog from:
 
-* **Environment file** — path to `hop-env.yaml` / `.yml` / `.json`. If present, `full-client-env.yaml` at the install root is pre-filled.
-* **Browse…** — choose a file.
-* **Validate** — compare the local install to the file without downloading. Use **Strict validate** to also fail when extra marketplace plugins are installed.
-* **Apply** — install missing plugins and dependencies. Optionally enable **Prune extras on apply** (same as `apply --prune`; confirm before running).
+* *Tools → Marketplace…*
+* The Hop Gui toolbar marketplace icon
 
-After Apply, restart Hop so plugins load.
+image::marketplace/marketplace-hopgui-toolbar-icon.png[Hop Gui toolbar marketplace icon,50%,align="left"]
+
+On first use you may also see the welcome page that introduces the marketplace:
+
+image::marketplace/marketplace-welcome-dialog.png[Marketplace welcome dialog,75%,align="left"]
+
+The main *Plugin Marketplace* dialog has three tabs:
+
+* *Plugins* — browse, search, install, and uninstall optional plugins
+* *Environment* — edit `hop-env.yaml` / JSON environments and validate or apply them
+* *Repositories* — configure Maven repositories (same settings as the CLI / hop-config)
+
+After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
+
+=== Plugins tab
+
+image::marketplace/marketplace-dialog-plugins.png[Marketplace dialog Plugins tab,75%,align="left"]
+
+Use this tab to work with the local optional-plugin catalog:
+
+* *Search* — type three or more characters to filter by name, artifact id, category, description, or install path. Clear the filter with the clear button.
+* Table columns: *Name*, *Artifact*, *Category*, *Status*, *Description*.
+* *Status* values:
+** *Installed* — present on disk with a marketplace install receipt (version shown when known)
+** *Present on disk* — plugin folder exists but no marketplace receipt
+** *Not installed* — not found under `plugins/`
+* *Install* / *Uninstall* / *Refresh* — act on the selected plugin (uninstall requires a marketplace receipt)
+
+Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
+
+=== Environment tab
+
+image::marketplace/marketplace-dialog-environment.png[Marketplace dialog Environment tab,75%,align="left"]
+
+This tab embeds the full environment editor (no separate “Edit…” window). It is the GUI equivalent of `hop marketplace validate` / `apply` and of editing `hop-env.yaml` by hand.
+
+==== File toolbar
+
+* *New* — empty environment specification
+* *Open…* — open a `hop-env.yaml` / `.yml` / `.json` file
+* *Save* / *Save As…* — write YAML or JSON (by extension)
+* Filename *combo* — current path plus recently used environment files (remembered via the Hop audit list for this namespace). Selecting an entry loads that file.
+* On open, Hop prefers the last file you edited in this dialog; otherwise it may pre-select `full-client-env.yaml` at the install root when that file exists.
+
+==== Nested editor tabs
+
+[cols="1,3"]
+|===
+| Tab | Contents
+
+| *General*
+| Spec `version`, `hopVersion`, and `enforceOnRun` (when true, hop-run can fail if the install drifts from this file; also controlled by `-Dhop.env.enforce=true`).
+
+| *Repositories*
+| Ordered list of Maven repositories for *this environment file* (first row is primary). Optional username/password. *Import from hop-config…* copies enabled repositories from hop-config (one-shot; env-file repos stay independent of the main *Repositories* tab).
+
+| *Plugins*
+| Plugin GAVs to install. *From catalog…* multi-selects from the optional-plugin catalog. Leave Group ID blank to use `org.apache.hop`. Version can default from *Hop version* on General when applying.
+
+| *Dependencies*
+| Optional jars (for example JDBC) with target directory under Hop home (default `lib/jdbc`).
+|===
+
+==== Validate and Apply
+
+At the bottom of the Environment tab:
+
+* *Validate* — compare the local install to the saved environment file without downloading.
+* *Apply* — install missing plugins and dependencies declared in the file.
+* *Prune extras on apply* — same as CLI `apply --prune` (confirm before running).
+* *Strict validate* — also fail when extra marketplace-installed plugins (receipts under `plugins/.marketplace/`) are not listed in the file.
+
+If validation finds drift, Hop shows a report. Use *Apply* to fix, then restart Hop.
+
+image::marketplace/marketplace-environment-drift.png[Marketplace environment drift report,75%,align="left"]
+
+[[marketplace-gui-repositories]]
+=== Repositories tab
+
+image::marketplace/marketplace-dialog-repositories.png[Marketplace dialog Repositories tab,75%,align="left"]
+
+Configure the global marketplace repository list (stored under `marketplace` in `${HOP_CONFIG_FOLDER}/hop-config.json` — the same config the CLI uses):
+
+* Table columns: *Primary*, *Enabled*, *Id*, *Name*, *URL*, *Auth*
+* *Add* / *Edit* / *Remove* — maintain repository entries
+* *Set primary* — install tries this repository first
+* *Up* / *Down* — order fallbacks after the primary
+* *Reset defaults* — Apache Repository (primary) + Maven Central
+* *Save* — write hop-config (required to keep changes)
+
+Add or edit a repository with id, name, URL, optional credentials, and primary/enabled flags:
+
+image::marketplace/marketplace-dialog-repository-editor.png[Add or edit marketplace repository,60%,align="left"]
+
+=== Projects lifecycle environments
+
+When the *Projects* plugin is installed, each lifecycle environment can store marketplace-specific *attributes* (namespaced under the `marketplace` group). On the environment properties dialog, open the *Marketplace plugins* tab:
+
+image::marketplace/marketplace-lifecycle-enviromnent-enforce-configuration.png[Lifecycle environment Marketplace plugins configuration,75%,align="left"]
+
+Typical options:
+
+* *Environment file* — path to a `hop-env.yaml` (variables allowed, for example under the project home)
+* *On enable* — `off` (no check), `warn` (log or dialog on drift), or `enforce` (fail enabling the environment if the install does not match)
+* *Strict* — treat extra marketplace plugins as drift
+* *Auto-apply missing plugins on enable* — optional; off by default (use only on controlled machines)
+
+If *On enable* is unset, purpose-based defaults apply: *Production* → enforce, *Testing* / *Acceptance* → warn, *Development* / CI-style purposes → off.
+
+This complements hop-env `enforceOnRun` (checked at hop-run) and the Environment tab *Validate* / *Apply* actions (manual checks from the marketplace dialog).
 
 == Declarative environments (`hop-env.yaml`)
 

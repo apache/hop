@@ -31,7 +31,7 @@ import lombok.Setter;
  * enforceOnRun: false
  * repositories:
  *   - id: central
- *     url: https://repo1.maven.org/maven2/
+ *     url: <a href="https://repo1.maven.org/maven2/">Maven central</a>
  * plugins:
  *   - artifactId: hop-tech-parquet
  *     version: "2.19.0"

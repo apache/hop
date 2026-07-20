@@ -19,6 +19,7 @@ package org.apache.hop.marketplace.gui;
 
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 
@@ -29,6 +30,9 @@ public class MarketplaceGuiPlugin {
   public static final Class<?> PKG = MarketplaceGuiPlugin.class;
 
   public static final String ID_MAIN_MENU_TOOLS_MARKETPLACE = "40200-menu-tools-marketplace";
+
+  /** After Save As ({@code toolbar-10050-save-as}) on the main toolbar. */
+  public static final String ID_MAIN_TOOLBAR_MARKETPLACE = "toolbar-10060-marketplace";
 
   private static MarketplaceGuiPlugin instance;
 
@@ -49,6 +53,12 @@ public class MarketplaceGuiPlugin {
       label = "i18n::MarketplaceGuiPlugin.Menu.Marketplace.Text",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
       image = "ui/images/plugin.svg",
+      separator = true)
+  @GuiToolbarElement(
+      root = HopGui.ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_MARKETPLACE,
+      image = "ui/images/plugin.svg",
+      toolTip = "i18n::MarketplaceGuiPlugin.Toolbar.Marketplace.Tooltip",
       separator = true)
   public void menuToolsMarketplace() {
     HopGui hopGui = HopGui.getInstance();

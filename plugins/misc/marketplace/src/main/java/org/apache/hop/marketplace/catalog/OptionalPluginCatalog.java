@@ -88,7 +88,6 @@ public final class OptionalPluginCatalog {
     return Files.isDirectory(path);
   }
 
-  @SuppressWarnings("unchecked")
   private static List<OptionalPluginInfo> loadRegistry() {
     try (InputStream in = OptionalPluginCatalog.class.getResourceAsStream(REGISTRY_RESOURCE)) {
       if (in == null) {

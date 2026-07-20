@@ -21,63 +21,54 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-/** Edit marketplace repository list (saved to hop-config.json). */
-public class ManageRepositoriesDialog extends Dialog {
+/**
+ * Marketplace repository list editor hosted as a panel (e.g. Marketplace dialog Repositories tab).
+ * Settings are saved to hop-config.json via {@link MarketplaceConfig#save()}.
+ */
+public class MarketplaceRepositoriesPanel {
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
 
-  private final PropsUi props;
   private final MarketplaceConfig config;
-  private boolean saved;
-
-  private Shell shell;
-  private Table wTable;
-
-  public ManageRepositoriesDialog(Shell parent, MarketplaceConfig config) {
-    super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
-    this.props = PropsUi.getInstance();
-    this.config = config;
-  }
+  private final Shell shell;
+  private final TableView wTable;
 
   /**
-   * @return true if the user saved changes
+   * Build the repositories UI into {@code parent} (must use {@link FormLayout}).
+   *
+   * @param parent tab composite
+   * @param config shared marketplace config (mutated in place; call Save to persist)
    */
-  public boolean open() {
-    Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
-    props.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
-    shell.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Shell.Title"));
+  public MarketplaceRepositoriesPanel(Composite parent, MarketplaceConfig config) {
+    PropsUi props = PropsUi.getInstance();
+    this.config = config;
+    this.shell = parent.getShell();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-    shell.setLayout(formLayout);
-
-    Label wlHelp = new Label(shell, SWT.LEFT | SWT.WRAP);
-    props.setLook(wlHelp);
+    Label wlHelp = new Label(parent, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(wlHelp);
     wlHelp.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Help"));
     FormData fdlHelp = new FormData();
     fdlHelp.left = new FormAttachment(0, 0);
@@ -85,108 +76,131 @@ public class ManageRepositoriesDialog extends Dialog {
     fdlHelp.right = new FormAttachment(100, 0);
     wlHelp.setLayoutData(fdlHelp);
 
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> shell.dispose());
+    Label wHelpSep = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
+    FormData fdHelpSep = new FormData();
+    fdHelpSep.left = new FormAttachment(0, 0);
+    fdHelpSep.right = new FormAttachment(100, 0);
+    fdHelpSep.top = new FormAttachment(wlHelp, PropsUi.getMargin());
+    wHelpSep.setLayoutData(fdHelpSep);
 
-    Button wSave = new Button(shell, SWT.PUSH);
+    Button wSave = new Button(parent, SWT.PUSH);
     wSave.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.Save"));
     wSave.addListener(SWT.Selection, e -> save());
 
-    Button wReset = new Button(shell, SWT.PUSH);
+    Button wReset = new Button(parent, SWT.PUSH);
     wReset.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.ResetDefaults"));
     wReset.addListener(SWT.Selection, e -> resetDefaults());
 
-    Button wRemove = new Button(shell, SWT.PUSH);
+    Button wRemove = new Button(parent, SWT.PUSH);
     wRemove.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.Remove"));
     wRemove.addListener(SWT.Selection, e -> removeSelected());
 
-    Button wEdit = new Button(shell, SWT.PUSH);
+    Button wEdit = new Button(parent, SWT.PUSH);
     wEdit.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.Edit"));
     wEdit.addListener(SWT.Selection, e -> editSelected());
 
-    Button wAdd = new Button(shell, SWT.PUSH);
+    Button wAdd = new Button(parent, SWT.PUSH);
     wAdd.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.Add"));
     wAdd.addListener(SWT.Selection, e -> addRepository());
 
-    Button wPrimary = new Button(shell, SWT.PUSH);
+    Button wPrimary = new Button(parent, SWT.PUSH);
     wPrimary.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.SetPrimary"));
     wPrimary.addListener(SWT.Selection, e -> setPrimarySelected());
 
-    Button wUp = new Button(shell, SWT.PUSH);
+    Button wUp = new Button(parent, SWT.PUSH);
     wUp.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.MoveUp"));
     wUp.addListener(SWT.Selection, e -> moveSelected(-1));
 
-    Button wDown = new Button(shell, SWT.PUSH);
+    Button wDown = new Button(parent, SWT.PUSH);
     wDown.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Button.MoveDown"));
     wDown.addListener(SWT.Selection, e -> moveSelected(1));
 
     BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {wAdd, wEdit, wRemove, wPrimary, wUp, wDown, wReset, wSave, wCancel},
-        Const.MARGIN,
-        null);
+        parent,
+        new Button[] {wAdd, wEdit, wRemove, wPrimary, wUp, wDown, wReset, wSave},
+        PropsUi.getMargin(),
+        wlHelp);
 
-    wTable = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE | SWT.V_SCROLL);
-    props.setLook(wTable);
-    wTable.setHeaderVisible(true);
-    wTable.setLinesVisible(true);
-    addColumn(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Primary"), 60);
-    addColumn(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Enabled"), 60);
-    addColumn(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Id"), 100);
-    addColumn(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Name"), 160);
-    addColumn(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Url"), 360);
-    addColumn(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Auth"), 50);
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Primary"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Enabled"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Id"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Url"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Column.Auth"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+    };
+    wTable =
+        new TableView(
+            Variables.getADefaultVariableSpace(),
+            parent,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE | SWT.V_SCROLL,
+            columns,
+            1,
+            true,
+            null,
+            props,
+            false);
+    PropsUi.setLook(wTable);
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
-    fdTable.top = new FormAttachment(wlHelp, Const.MARGIN * 2);
+    fdTable.top = new FormAttachment(wSave, PropsUi.getMargin());
     fdTable.right = new FormAttachment(100, 0);
-    fdTable.bottom = new FormAttachment(wSave, -Const.MARGIN * 2);
+    fdTable.bottom = new FormAttachment(100, 0);
     wTable.setLayoutData(fdTable);
 
     refreshTable();
-
-    BaseTransformDialog.setSize(shell);
-    shell.open();
-    Display display = parent.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
-    return saved;
-  }
-
-  private void addColumn(String title, int width) {
-    TableColumn col = new TableColumn(wTable, SWT.LEFT);
-    col.setText(title);
-    col.setWidth(width);
   }
 
   private void refreshTable() {
-    wTable.removeAll();
+    wTable.table.removeAll();
     if (config.getRepositories() == null) {
+      wTable.optimizeTableView();
       return;
     }
     for (MarketplaceRepository repo : config.getRepositories()) {
       if (repo == null) {
         continue;
       }
-      TableItem item = new TableItem(wTable, SWT.NONE);
-      item.setText(0, repo.isPrimary() ? "*" : "");
-      item.setText(1, repo.isEnabled() ? "Y" : "N");
-      item.setText(2, Const.NVL(repo.getId(), ""));
-      item.setText(3, Const.NVL(repo.displayName(), ""));
-      item.setText(4, Const.NVL(repo.getUrl(), ""));
+      TableItem item = new TableItem(wTable.table, SWT.NONE);
+      item.setText(1, repo.isPrimary() ? "*" : "");
+      item.setText(2, repo.isEnabled() ? "Y" : "N");
+      item.setText(3, Const.NVL(repo.getId(), ""));
+      item.setText(4, Const.NVL(repo.displayName(), ""));
+      item.setText(5, Const.NVL(repo.getUrl(), ""));
       item.setText(
-          5, repo.hasCredentials() || StringUtils.isNotBlank(repo.getUsername()) ? "Y" : "");
+          6, repo.hasCredentials() || StringUtils.isNotBlank(repo.getUsername()) ? "Y" : "");
       item.setData(repo);
     }
+    wTable.optimizeTableView();
   }
 
   private MarketplaceRepository selected() {
-    TableItem[] items = wTable.getSelection();
+    TableItem[] items = wTable.table.getSelection();
     if (items == null || items.length == 0) {
       return null;
     }
@@ -226,7 +240,7 @@ public class ManageRepositoriesDialog extends Dialog {
 
   private boolean editRepository(MarketplaceRepository repo, boolean isNew) {
     Shell dialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
-    props.setLook(dialog);
+    PropsUi.setLook(dialog);
     dialog.setText(
         BaseMessages.getString(
             PKG,
@@ -234,15 +248,15 @@ public class ManageRepositoriesDialog extends Dialog {
                 ? "ManageRepositoriesDialog.Edit.Title.Add"
                 : "ManageRepositoriesDialog.Edit.Title.Edit"));
     FormLayout layout = new FormLayout();
-    layout.marginWidth = Const.FORM_MARGIN;
-    layout.marginHeight = Const.FORM_MARGIN;
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
     dialog.setLayout(layout);
 
-    int middle = 25;
-    int margin = Const.MARGIN;
+    int middle = PropsUi.getInstance().getMiddlePct();
+    int margin = PropsUi.getMargin();
 
     Label wlId = new Label(dialog, SWT.RIGHT);
-    props.setLook(wlId);
+    PropsUi.setLook(wlId);
     wlId.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Id"));
     FormData fdlId = new FormData();
     fdlId.left = new FormAttachment(0, 0);
@@ -250,17 +264,17 @@ public class ManageRepositoriesDialog extends Dialog {
     fdlId.right = new FormAttachment(middle, -margin);
     wlId.setLayoutData(fdlId);
     Text wId = new Text(dialog, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wId);
+    PropsUi.setLook(wId);
     wId.setText(Const.NVL(repo.getId(), ""));
     wId.setEditable(isNew);
     FormData fdId = new FormData();
-    fdId.left = new FormAttachment(middle, 0);
+    fdId.left = new FormAttachment(middle, margin);
     fdId.top = new FormAttachment(wlId, 0, SWT.CENTER);
     fdId.right = new FormAttachment(100, 0);
     wId.setLayoutData(fdId);
 
     Label wlName = new Label(dialog, SWT.RIGHT);
-    props.setLook(wlName);
+    PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Name"));
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -268,16 +282,16 @@ public class ManageRepositoriesDialog extends Dialog {
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
     Text wName = new Text(dialog, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wName);
+    PropsUi.setLook(wName);
     wName.setText(Const.NVL(repo.getName(), ""));
     FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
+    fdName.left = new FormAttachment(middle, margin);
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
     Label wlUrl = new Label(dialog, SWT.RIGHT);
-    props.setLook(wlUrl);
+    PropsUi.setLook(wlUrl);
     wlUrl.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Url"));
     FormData fdlUrl = new FormData();
     fdlUrl.left = new FormAttachment(0, 0);
@@ -285,16 +299,16 @@ public class ManageRepositoriesDialog extends Dialog {
     fdlUrl.right = new FormAttachment(middle, -margin);
     wlUrl.setLayoutData(fdlUrl);
     Text wUrl = new Text(dialog, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUrl);
+    PropsUi.setLook(wUrl);
     wUrl.setText(Const.NVL(repo.getUrl(), ""));
     FormData fdUrl = new FormData();
-    fdUrl.left = new FormAttachment(middle, 0);
+    fdUrl.left = new FormAttachment(middle, margin);
     fdUrl.top = new FormAttachment(wlUrl, 0, SWT.CENTER);
     fdUrl.right = new FormAttachment(100, 0);
     wUrl.setLayoutData(fdUrl);
 
     Label wlUser = new Label(dialog, SWT.RIGHT);
-    props.setLook(wlUser);
+    PropsUi.setLook(wlUser);
     wlUser.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Username"));
     FormData fdlUser = new FormData();
     fdlUser.left = new FormAttachment(0, 0);
@@ -302,16 +316,16 @@ public class ManageRepositoriesDialog extends Dialog {
     fdlUser.right = new FormAttachment(middle, -margin);
     wlUser.setLayoutData(fdlUser);
     Text wUser = new Text(dialog, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUser);
+    PropsUi.setLook(wUser);
     wUser.setText(Const.NVL(repo.getUsername(), ""));
     FormData fdUser = new FormData();
-    fdUser.left = new FormAttachment(middle, 0);
+    fdUser.left = new FormAttachment(middle, margin);
     fdUser.top = new FormAttachment(wlUser, 0, SWT.CENTER);
     fdUser.right = new FormAttachment(100, 0);
     wUser.setLayoutData(fdUser);
 
     Label wlPass = new Label(dialog, SWT.RIGHT);
-    props.setLook(wlPass);
+    PropsUi.setLook(wlPass);
     wlPass.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Password"));
     FormData fdlPass = new FormData();
     fdlPass.left = new FormAttachment(0, 0);
@@ -319,28 +333,28 @@ public class ManageRepositoriesDialog extends Dialog {
     fdlPass.right = new FormAttachment(middle, -margin);
     wlPass.setLayoutData(fdlPass);
     Text wPass = new Text(dialog, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
-    props.setLook(wPass);
+    PropsUi.setLook(wPass);
     FormData fdPass = new FormData();
-    fdPass.left = new FormAttachment(middle, 0);
+    fdPass.left = new FormAttachment(middle, margin);
     fdPass.top = new FormAttachment(wlPass, 0, SWT.CENTER);
     fdPass.right = new FormAttachment(100, 0);
     wPass.setLayoutData(fdPass);
 
     Button wEnabled = new Button(dialog, SWT.CHECK);
-    props.setLook(wEnabled);
+    PropsUi.setLook(wEnabled);
     wEnabled.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Enabled"));
     wEnabled.setSelection(repo.isEnabled());
     FormData fdEnabled = new FormData();
-    fdEnabled.left = new FormAttachment(middle, 0);
+    fdEnabled.left = new FormAttachment(middle, margin);
     fdEnabled.top = new FormAttachment(wPass, margin);
     wEnabled.setLayoutData(fdEnabled);
 
     Button wPrimary = new Button(dialog, SWT.CHECK);
-    props.setLook(wPrimary);
+    PropsUi.setLook(wPrimary);
     wPrimary.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Primary"));
     wPrimary.setSelection(repo.isPrimary());
     FormData fdPrimary = new FormData();
-    fdPrimary.left = new FormAttachment(middle, 0);
+    fdPrimary.left = new FormAttachment(middle, margin);
     fdPrimary.top = new FormAttachment(wEnabled, margin);
     wPrimary.setLayoutData(fdPrimary);
 
@@ -367,6 +381,7 @@ public class ManageRepositoriesDialog extends Dialog {
           repo.setEnabled(wEnabled.getSelection());
           repo.setPrimary(wPrimary.getSelection());
           ok[0] = true;
+          PropsUi.getInstance().setScreen(new WindowProperty(dialog));
           dialog.dispose();
         });
     Button wCancel = new Button(dialog, SWT.PUSH);
@@ -375,7 +390,7 @@ public class ManageRepositoriesDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons(
         dialog, new Button[] {wOk, wCancel}, margin, wPrimary);
 
-    dialog.setSize(560, 360);
+    BaseTransformDialog.setSize(dialog);
     dialog.open();
     Display display = shell.getDisplay();
     while (!dialog.isDisposed()) {
@@ -441,7 +456,7 @@ public class ManageRepositoriesDialog extends Dialog {
     list.remove(idx);
     list.add(target, repo);
     refreshTable();
-    wTable.setSelection(target);
+    wTable.table.setSelection(target);
   }
 
   private void resetDefaults() {
@@ -459,8 +474,10 @@ public class ManageRepositoriesDialog extends Dialog {
     try {
       config.ensureValidPrimary();
       config.save();
-      saved = true;
-      shell.dispose();
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Save.Done.Header"));
+      box.setMessage(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Save.Done.Message"));
+      box.open();
     } catch (Exception e) {
       new ErrorDialog(
           shell,
