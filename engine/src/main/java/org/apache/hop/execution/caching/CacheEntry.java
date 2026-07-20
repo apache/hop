@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
@@ -98,13 +99,23 @@ public class CacheEntry {
    * @throws HopException In case there was an error writing.
    */
   public void writeToDisk(String rootFolder) throws HopException {
+    writeToDisk(rootFolder, null);
+  }
+
+  /**
+   * Write this cache entry to a file under {@code rootFolder}.
+   *
+   * @param variables required for named VFS schemes (e.g. Databricks/MinIO connection schemes)
+   */
+  public void writeToDisk(String rootFolder, IVariables variables) throws HopException {
     String targetFilename = calculateFilename(rootFolder);
     String filename = targetFilename + ".new";
     // Use Hop VFS (not java.io.FileOutputStream): rootFolder is often a VFS URI such as
     // file:///data/hop-data/executions when resolved from ${HOP_DATA}. FileOutputStream treats
     // "file://…" as a literal path and fails with FileNotFoundException even when the folder
-    // was created successfully via VFS.
-    try (OutputStream os = HopVfs.getOutputStream(filename, false)) {
+    // was created successfully via VFS. Named schemes (db-volume://) need variables so providers
+    // load from project metadata.
+    try (OutputStream os = HopVfs.getOutputStream(filename, false, variables)) {
       ObjectMapper objectMapper = new ObjectMapper();
       objectMapper.writeValue(os, this);
     } catch (Exception e) {
@@ -113,11 +124,11 @@ public class CacheEntry {
     // Now delete the old file and rename the new one.
     //
     try {
-      FileObject targetFileObject = HopVfs.getFileObject(targetFilename);
+      FileObject targetFileObject = HopVfs.getFileObject(targetFilename, variables);
       if (targetFileObject.exists()) {
         targetFileObject.delete();
       }
-      FileObject fileObject = HopVfs.getFileObject(filename);
+      FileObject fileObject = HopVfs.getFileObject(filename, variables);
       fileObject.moveTo(targetFileObject);
     } catch (Exception e) {
       throw new HopException(
@@ -130,9 +141,13 @@ public class CacheEntry {
   }
 
   public void deleteFromDisk(String rootFolder) throws HopException {
+    deleteFromDisk(rootFolder, null);
+  }
+
+  public void deleteFromDisk(String rootFolder, IVariables variables) throws HopException {
     String targetFilename = calculateFilename(rootFolder);
     try {
-      FileObject fileObject = HopVfs.getFileObject(targetFilename);
+      FileObject fileObject = HopVfs.getFileObject(targetFilename, variables);
       fileObject.delete();
     } catch (Exception e) {
       throw new HopException(

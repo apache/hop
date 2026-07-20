@@ -19,11 +19,13 @@ package org.apache.hop.spark.run;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.IPlugin;
@@ -33,7 +35,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -168,7 +173,18 @@ public class MainSpark {
     String metadataJson = readFileIntoString(metadataPath, Const.UTF_8);
     String runConfigName = parsed.getRunConfigName();
 
-    SerializableMetadataProvider metadataProvider = new SerializableMetadataProvider(metadataJson);
+    SerializableMetadataProvider serializableMetadata =
+        new SerializableMetadataProvider(metadataJson);
+    // Publish as the process-wide metadata instance so named VFS plugins (Databricks, MinIO, …)
+    // load connections from the export — not only from a hop-config metadata folder (empty on
+    // Databricks drivers). Reset HopVfs so scheme providers are registered against this metadata.
+    MultiMetadataProvider metadataProvider =
+        new MultiMetadataProvider(
+            Encr.getEncoder(), List.<IHopMetadataProvider>of(serializableMetadata), variables);
+    HopMetadataInstance.setMetadataProvider(metadataProvider);
+    HopVfs.reset();
+    System.out.println(
+        ">>>>>> Runtime metadata published for named VFS schemes (HopMetadataInstance)");
 
     IHopMetadataSerializer<PipelineRunConfiguration> serializer =
         metadataProvider.getSerializer(PipelineRunConfiguration.class);

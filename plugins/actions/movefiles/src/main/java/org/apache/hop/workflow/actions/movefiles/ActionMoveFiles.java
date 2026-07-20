@@ -656,7 +656,8 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               "ActionMoveFiles.Error.Exception.MoveProcess",
               realSourceFilefoldername,
               destinationFileFolder == null ? "" : destinationFileFolder.toString(),
-              e.getMessage()));
+              e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
+          e);
     } finally {
       if (sourceFileFolder != null) {
         try {
@@ -939,13 +940,16 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         }
       }
     } catch (Exception e) {
+      // Pass Throwable so Hop logs the full stack (including VFS root cause), not only
+      // e.getMessage().
       logError(
           BaseMessages.getString(
               PKG,
               "ActionMoveFiles.Error.Exception.MoveProcessError",
               sourceFileFolder.toString(),
               destinationFilename.toString(),
-              e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
+              e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
+          e);
       updateErrors();
     } finally {
       if (destinationFile != null) {

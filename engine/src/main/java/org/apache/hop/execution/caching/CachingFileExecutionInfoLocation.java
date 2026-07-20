@@ -126,7 +126,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
 
     if (createParentFolder) {
       try {
-        FileObject folder = HopVfs.getFileObject(actualRootFolder);
+        FileObject folder = HopVfs.getFileObject(actualRootFolder, variables);
         if (!folder.exists()) {
           folder.createFolder();
         }
@@ -149,7 +149,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       mergeChildrenFromDisk(cacheEntry);
       // Before writing to disk, we calculate some summaries for convenience of other tools.
       cacheEntry.calculateSummary();
-      cacheEntry.writeToDisk(actualRootFolder);
+      cacheEntry.writeToDisk(actualRootFolder, variables);
       // Remember when we last wrote to disk
       cacheEntry.setLastWritten(new Date());
     } catch (Exception e) {
@@ -193,7 +193,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
   @Override
   public void deleteCacheEntry(CacheEntry cacheEntry) throws HopException {
     try {
-      cacheEntry.deleteFromDisk(actualRootFolder);
+      cacheEntry.deleteFromDisk(actualRootFolder, variables);
     } catch (Exception e) {
       throw new HopException(
           "Error deleting caching file entry from folder " + actualRootFolder, e);
@@ -205,11 +205,11 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       CacheEntry entry = new CacheEntry();
       entry.setId(executionId);
       String filename = entry.calculateFilename(actualRootFolder);
-      if (!HopVfs.fileExists(filename)) {
+      if (!HopVfs.fileExists(filename, variables)) {
         return null;
       }
       ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(HopVfs.getInputStream(filename), CacheEntry.class);
+      return objectMapper.readValue(HopVfs.getInputStream(filename, variables), CacheEntry.class);
     } catch (Exception e) {
       throw new HopException(
           "Error loading execution information location file for executionId '" + executionId + "'",
@@ -237,7 +237,9 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           long startDate =
               ZonedDateTime.of(roughStartDate, ZoneId.systemDefault()).toInstant().toEpochMilli();
           long lastModified = file.getContent().getLastModifiedTime();
-          if (lastModified < startDate) {
+          // Some VFS providers (e.g. Databricks Files API before list-cache attach) report
+          // lastModified as 0 / unknown. Do not pre-skip those — load and apply content filters.
+          if (lastModified > 0 && lastModified < startDate) {
             // Skip for performance
             continue;
           }
@@ -258,7 +260,18 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
         }
 
         if (!ids.contains(new DatedId(id, null))) {
-          ids.add(new DatedId(id, new Date(file.getContent().getLastModifiedTime())));
+          long lastModified = file.getContent().getLastModifiedTime();
+          Date dated;
+          if (lastModified > 0) {
+            dated = new Date(lastModified);
+          } else if (entry.getExecution() != null
+              && entry.getExecution().getExecutionStartDate() != null) {
+            // VFS providers without mtime: use execution start for sorting
+            dated = entry.getExecution().getExecutionStartDate();
+          } else {
+            dated = new Date(0L);
+          }
+          ids.add(new DatedId(id, dated));
 
           // To add child IDs we need to load the file.
           // We won't store these in the cache though.
@@ -290,7 +303,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
 
   private FileObject[] getAllFileObjects(String actualRootFolder)
       throws FileSystemException, HopFileException {
-    FileObject folder = HopVfs.getFileObject(actualRootFolder);
+    FileObject folder = HopVfs.getFileObject(actualRootFolder, variables);
     return folder.findFiles(
         new AllFileSelector() {
           @Override

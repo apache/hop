@@ -112,9 +112,9 @@ public abstract class BaseExplorerFileTypeHandler implements IExplorerFileTypeHa
   @Override
   public void setFilename(String filename) {
     explorerFile.setFilename(filename);
-    // Update name based on filename
+    // Update name based on filename (use variables so named VFS schemes resolve)
     try {
-      String name = HopVfs.getFileObject(filename).getName().getBaseName();
+      String name = HopVfs.getFileObject(filename, getVariables()).getName().getBaseName();
       explorerFile.setName(name);
     } catch (HopFileException e) {
       // Ignore

@@ -72,6 +72,8 @@ Options:
 * *Persistence delay*: This is the maximum time to wait before execution information is written to disk, expressed in milliseconds.
 * *Maximum cache age*: This is the maximum time to keep execution information around in memory, before clearing it out, expressed in milliseconds.  It's advised to keep this below the expected duration of your workflow or pipeline.
 
+The root folder can be a local path or a **VFS URI**. For example, on Databricks you can store execution JSON on a Unity Catalog Volume via a xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection] (`db-volume:///executions`) so a native Spark job on the cluster and the laptop GUI share the same location. Full walkthrough: xref:pipeline/spark/databricks.adoc#exec-info-on-volume[Execution information on a UC Volume].
+
 === Remote location
 
 A remote location allows you to write execution information to a Hop Server.

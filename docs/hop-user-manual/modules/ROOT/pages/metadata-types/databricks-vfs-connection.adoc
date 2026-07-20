@@ -1,0 +1,74 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Named Databricks VFS connection for Unity Catalog Volumes and Workspace files (Files API)
+
+= Databricks VFS Connection
+
+== Description
+
+*Databricks VFS Connection* registers a **named VFS scheme** for Unity Catalog Volumes and Workspace files via the Databricks **Files API**.
+
+* The metadata **Name** is the URI scheme (like xref:metadata-types/minio-connection.adoc[MinIO Connection]).
+* **Authentication** is not stored on this object. Select an existing xref:metadata-types/databricks-connection.adoc[Databricks Connection] (workspace host + PAT).
+
+Example: VFS name `db-volume`, root path `/Volumes/apache-hop/default/testing`, Databricks Connection `prod-workspace`:
+
+----
+db-volume:///input/customers-1M.txt
+----
+
+resolves to workspace path `/Volumes/apache-hop/default/testing/input/customers-1M.txt`.
+
+This is **Hop-side I/O** only (GUI, local engine, classic file transforms).
+**Native Spark** Dataset I/O does **not** use Hop VFS schemes — use absolute `/Volumes/…` or cloud URIs (`s3a://…`, …) on the cluster.
+Do not use this connection as the primary bulk path for large Spark datasets (workspace Files API is not a high-throughput object-store client).
+See xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS] and
+xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Name (URI scheme)
+|VFS scheme used in paths: `{name}:///…`. Prefer short names; do not reuse built-in schemes (`file`, `s3`, …).
+
+|Description
+|Optional free-text description.
+
+|Databricks Connection
+|Existing Jobs/workspace connection that supplies host and personal access token.
+
+|Root path
+|Absolute UC Volume or Workspace path that is the **root of this scheme**. Shortens URIs: `{name}:///input` → `{root}/input`. Leave empty if every URI must include full `/Volumes/…` or `/Workspace/…` paths.
+|===
+
+== Tips
+
+* Create the **Databricks Connection** first and use **Test connection** there (or on this editor, which validates the referenced connection).
+* Set **Root path** to your testing volume (for example `/Volumes/apache-hop/default/testing`) so workflow paths stay short.
+* In File → Open, type `{name}:///` to list the root path contents (when root is set).
+* One Jobs connection can back several VFS schemes (different root volumes).
+
+== Related
+
+* xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS]
+* xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+* xref:pipeline/spark/databricks.adoc[Native Spark on Databricks]
