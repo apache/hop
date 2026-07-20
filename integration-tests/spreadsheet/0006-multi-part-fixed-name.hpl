@@ -130,7 +130,7 @@ limitations under the License.
       <date_time_format/>
       <do_not_open_newfile_init>Y</do_not_open_newfile_init>
       <extension>xlsx</extension>
-      <name>${PROJECT_HOME}/files/exel-multi-part</name>
+      <name>${PROJECT_HOME}/output/exel-multi-part</name>
       <filename_field/>
       <filename_in_field>N</filename_in_field>
       <if_file_exists>new</if_file_exists>

@@ -53,7 +53,7 @@ limitations under the License.
       <description/>
       <type>DELETE_FILE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/files/jsonoutput-mdi-test.json</filename>
+      <filename>${PROJECT_HOME}/output/jsonoutput-mdi-test.json</filename>
       <fail_if_file_not_exists>N</fail_if_file_not_exists>
       <parallel>N</parallel>
       <xloc>208</xloc>

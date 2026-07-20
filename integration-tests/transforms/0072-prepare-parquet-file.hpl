@@ -259,7 +259,7 @@ limitations under the License.
         <target_field>Int_Number</target_field>
       </field>
     </fields>
-    <filename_base>${PROJECT_HOME}/files/parquet-test</filename_base>
+    <filename_base>${PROJECT_HOME}/output/parquet-test</filename_base>
     <filename_create_parent_folders>Y</filename_create_parent_folders>
     <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
     <filename_ext>parquet</filename_ext>

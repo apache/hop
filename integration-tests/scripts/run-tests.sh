@@ -255,14 +255,19 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       # Create New Project
       export HOP_CONFIG_FOLDER="$d"
 
-      # Project output/ is often written by pipelines (CSV, Excel/ODS temp files, etc.).
+      # Project output/ and files/ are written by pipelines (CSV, Excel/ODS, HTTP downloads,
+      # MDI JSON, parquet, etc.). MDI also writes *-injected.hpl into the project root.
       # On ASF Jenkins the container UID matches the agent workspace owner (Jenkinsfile.daily
-      # passes id -u / id -g), so writes succeed by ownership. When UIDs differ, output/ is
+      # passes id -u / id -g), so writes succeed by ownership. When UIDs differ, dirs are
       # pre-created and chmod'd world-writable by run-tests-docker.sh on the host; here we
       # only best-effort reinforce that (mkdir/chmod may no-op if not owner).
-      mkdir -p "$d/output" 2>/dev/null || true
+      chmod a+rwx "$d" 2>/dev/null || true
+      mkdir -p "$d/output" "$d/files" 2>/dev/null || true
       if [ -d "$d/output" ]; then
         chmod 777 "$d/output" 2>/dev/null || true
+      fi
+      if [ -d "$d/files" ]; then
+        chmod 777 "$d/files" 2>/dev/null || true
       fi
 
       # Default pipeline run configuration name used by hop-run and the suite runner.
