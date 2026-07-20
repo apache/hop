@@ -1417,6 +1417,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       try {
         Thread.sleep(1);
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         throw new HopTransformException(e);
       }
     }
@@ -1523,7 +1524,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         }
       }
       incrementLinesRejected();
-      if (!Utils.isEmpty(errorDescriptions)) {
+      if (isLoggingErrorDescriptions() && !Utils.isEmpty(errorDescriptions)) {
         logError(errorDescriptions);
       }
     } else if (transformErrorMeta.isEnabled()) {
@@ -2721,6 +2722,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   public void logRowlevel(String message, Object... arguments) {
     log.logRowlevel(message, arguments);
+  }
+
+  /**
+   * Whether rejected-row error descriptions should be written to the log.
+   *
+   * <p>Transforms that can produce a very large number of validation/rejection errors may override
+   * this to reduce log volume. Error rows are still sent to the error handling hop when configured.
+   *
+   * @return true when error descriptions should be logged (default)
+   * @since 2.19.0
+   */
+  protected boolean isLoggingErrorDescriptions() {
+    return true;
   }
 
   /**
