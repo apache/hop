@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.execprocess;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -35,6 +37,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 @Transform(
     id = "ExecProcess",
     image = "execprocess.svg",
@@ -68,7 +72,7 @@ public class ExecProcessMeta extends BaseTransformMeta<ExecProcess, ExecProcessD
 
   /** Output Line Delimiter - defaults to empty string for backward compatibility */
   @HopMetadataProperty(key = "outputlinedelimiter")
-  public String outputLineDelimiter = "";
+  private String outputLineDelimiter = "";
 
   /** Whether arguments for the command are provided in input fields */
   @HopMetadataProperty(key = "argumentsInFields")
@@ -196,6 +200,13 @@ public class ExecProcessMeta extends BaseTransformMeta<ExecProcess, ExecProcessD
     }
   }
 
+  @Override
+  public boolean supportsErrorHandling() {
+    return failWhenNotSuccess;
+  }
+
+  @Getter
+  @Setter
   public static final class EPField {
     @HopMetadataProperty(key = "argumentFieldName")
     private String name;
@@ -205,122 +216,5 @@ public class ExecProcessMeta extends BaseTransformMeta<ExecProcess, ExecProcessD
     public EPField(EPField f) {
       this.name = f.name;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-  }
-
-  @Override
-  public boolean supportsErrorHandling() {
-    return failWhenNotSuccess;
-  }
-
-  public void setOutputLineDelimiter(String value) {
-    this.outputLineDelimiter = value;
-  }
-
-  public String getOutputLineDelimiter() {
-    return outputLineDelimiter;
-  }
-
-  public boolean isArgumentsInFields() {
-    return argumentsInFields;
-  }
-
-  public void setArgumentsInFields(boolean argumentsInFields) {
-    this.argumentsInFields = argumentsInFields;
-  }
-
-  public List<EPField> getArgumentFields() {
-    return argumentFields;
-  }
-
-  public void setArgumentFields(List<EPField> argumentFields) {
-    this.argumentFields = argumentFields;
-  }
-
-  /**
-   * @return Returns the processField.
-   */
-  public String getProcessField() {
-    return processField;
-  }
-
-  /**
-   * @param processField The processField to set.
-   */
-  public void setProcessField(String processField) {
-    this.processField = processField;
-  }
-
-  /**
-   * @return Returns the resultName.
-   */
-  public String getResultFieldName() {
-    return resultFieldName;
-  }
-
-  /**
-   * @param errorFieldName The errorFieldName to set.
-   */
-  public void setResultFieldName(String errorFieldName) {
-    this.resultFieldName = errorFieldName;
-  }
-
-  /**
-   * @return Returns the errorFieldName.
-   */
-  public String getErrorFieldName() {
-    return errorFieldName;
-  }
-
-  /**
-   * @param errorFieldName The errorFieldName to set.
-   */
-  public void setErrorFieldName(String errorFieldName) {
-    this.errorFieldName = errorFieldName;
-  }
-
-  /**
-   * @return Returns the exitvaluefieldname.
-   */
-  public String getExitValueFieldName() {
-    return exitValueFieldName;
-  }
-
-  /**
-   * @param exitValueFieldName The exitValueFieldName to set.
-   */
-  public void setExitValueFieldName(String exitValueFieldName) {
-    this.exitValueFieldName = exitValueFieldName;
-  }
-
-  /**
-   * @return Returns the failWhenNotSuccess.
-   */
-  public boolean isFailWhenNotSuccess() {
-    return failWhenNotSuccess;
-  }
-
-  /**
-   * @param failWhenNotSuccess The failWhenNotSuccess to set.
-   */
-  public void setFailWhenNotSuccess(boolean failWhenNotSuccess) {
-    this.failWhenNotSuccess = failWhenNotSuccess;
   }
 }

@@ -59,8 +59,10 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
 
   @Override
   public boolean processRow() throws HopException {
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
+    // Get row from input rowset & set row busy!
+    Object[] r = getRow();
+    // no more input to be expected...
+    if (r == null) {
       setOutputDone();
       return false;
     }
@@ -98,7 +100,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
         execProcess(processString, processResult);
       }
 
-      if (meta.isFailWhenNotSuccess() && processResult.getExistStatus() != 0) {
+      if (meta.isFailWhenNotSuccess() && processResult.getExitValue() != 0) {
         String errorString = processResult.getErrorStream();
         if (StringUtils.isEmpty(errorString)) {
           errorString = processResult.getOutputStream();
@@ -114,10 +116,10 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       outputRow[rowIndex++] = processResult.getErrorStream();
 
       // Add result field to input stream
-      outputRow[rowIndex] = processResult.getExistStatus();
+      outputRow[rowIndex] = processResult.getExitValue();
 
-      // add new values to the row.
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
+      // add new values to the row. copy row to output rowset(s)
+      putRow(data.outputRowMeta, outputRow);
 
       if (isRowLevel()) {
         logRowlevel(
@@ -198,6 +200,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       try {
         waitForLatch.await();
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         throw new HopException("Interrupted exception while kill the process", e);
       }
     }
@@ -215,7 +218,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       // execute process
       try {
         if (!meta.isArgumentsInFields()) {
-          p = data.runtime.exec(process[0]);
+          p = data.runtime.exec(new String[] {process[0]});
         } else {
           p = data.runtime.exec(process);
         }
@@ -302,7 +305,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
               ie);
         }
 
-        processresult.setExistStatus(child.exitValue());
+        processresult.setExitValue(child.exitValue());
       }
     } catch (IOException ioe) {
       throw new HopException(
