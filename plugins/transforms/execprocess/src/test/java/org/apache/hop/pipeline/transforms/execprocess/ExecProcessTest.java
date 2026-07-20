@@ -33,6 +33,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -51,7 +52,8 @@ class ExecProcessTest {
   TransformMockHelper<ExecProcessMeta, ExecProcessData> smh;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws HopException {
+    TestUtil.registerTestPluginTypes();
     smh =
         new TransformMockHelper<>(
             "Execute a process", ExecProcessMeta.class, ExecProcessData.class);

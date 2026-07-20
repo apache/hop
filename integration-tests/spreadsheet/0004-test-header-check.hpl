@@ -222,7 +222,7 @@ limitations under the License.
     <accept_field/>
     <accept_transform_name/>
     <file>
-      <name>${PROJECT_HOME}/files/exel-header-test.xlsx</name>
+      <name>${PROJECT_HOME}/output/exel-header-test.xlsx</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>

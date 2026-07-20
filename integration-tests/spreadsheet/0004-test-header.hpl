@@ -113,7 +113,7 @@ limitations under the License.
       <date_time_format/>
       <do_not_open_newfile_init>N</do_not_open_newfile_init>
       <extension>xlsx</extension>
-      <name>${PROJECT_HOME}/files/exel-header-test</name>
+      <name>${PROJECT_HOME}/output/exel-header-test</name>
       <filename_field/>
       <filename_in_field>N</filename_in_field>
       <if_file_exists>reuse</if_file_exists>

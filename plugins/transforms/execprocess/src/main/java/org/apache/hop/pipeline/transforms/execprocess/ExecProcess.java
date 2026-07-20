@@ -218,7 +218,10 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       // execute process
       try {
         if (!meta.isArgumentsInFields()) {
-          p = data.runtime.exec(new String[] {process[0]});
+          // String form tokenizes the command line (spaces), matching the historical
+          // "single process field" behavior. String[] form would treat the whole line
+          // as one executable name (regression from #7565).
+          p = data.runtime.exec(process[0]);
         } else {
           p = data.runtime.exec(process);
         }

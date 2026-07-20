@@ -106,7 +106,7 @@ limitations under the License.
       <type>DELETE_FILE</type>
       <attributes/>
       <fail_if_file_not_exists>N</fail_if_file_not_exists>
-      <filename>${PROJECT_HOME}/files/parquet-test-00-0001.parquet</filename>
+      <filename>${PROJECT_HOME}/output/parquet-test-00-0001.parquet</filename>
       <parallel>N</parallel>
       <xloc>864</xloc>
       <yloc>192</yloc>
