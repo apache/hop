@@ -841,7 +841,7 @@ public class TikaDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to TikaMeta class (input)
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setEncoding(wEncoding.getText());
     in.setOutputFormat(wOutputFormat.getText());
     in.setAddingResultFile(wAddResult.getSelection());

@@ -144,10 +144,12 @@ public class ModifyActionLogLevelExtensionPoint
                   final ActionDebugLevel debugLevel =
                       DebugLevelUtil.getActionDebugLevel(entryLevelMap, actionCopy.toString());
                   if (debugLevel != null) {
-                    // Set the debug level for this one...
+                    // Set the debug level for this one (resolve variables at runtime)...
                     //
-                    log.setLogLevel(debugLevel.getLogLevel());
-                    workflow.setLogLevel(debugLevel.getLogLevel());
+                    LogLevel resolvedLogLevel =
+                        DebugLevelUtil.resolveLogLevel(workflow, debugLevel.getLogLevel());
+                    log.setLogLevel(resolvedLogLevel);
+                    workflow.setLogLevel(resolvedLogLevel);
                   }
                 }
               } catch (Exception e) {

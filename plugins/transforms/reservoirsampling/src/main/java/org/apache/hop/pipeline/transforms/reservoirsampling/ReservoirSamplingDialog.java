@@ -89,6 +89,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog {
     mWlSampleSize.setLayoutData(mFdlSampleSize);
 
     wSampleSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSampleSize.enableExpandedInteger();
     PropsUi.setLook(wSampleSize);
     wSampleSize.addModifyListener(lsMod);
     FormData mFdSampleSize = new FormData();

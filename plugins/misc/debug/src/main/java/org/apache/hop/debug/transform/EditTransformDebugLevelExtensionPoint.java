@@ -53,7 +53,8 @@ public class EditTransformDebugLevelExtensionPoint
       IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
       TransformDebugLevelDialog dialog =
-          new TransformDebugLevelDialog(HopGui.getInstance().getShell(), debugLevel, inputRowMeta);
+          new TransformDebugLevelDialog(
+              HopGui.getInstance().getShell(), debugLevel, inputRowMeta, variables);
       if (dialog.open()) {
         DebugLevelUtil.storeTransformDebugLevel(
             pipelineMeta.getAttributesMap().get(Defaults.DEBUG_GROUP),

@@ -65,6 +65,12 @@ If you do not set this variable, no project or environment will be created.
 |```HOP_PROJECT_FOLDER```
 | Path to the home of the Hop project.
 
+|```HOP_PARENT_PROJECT_NAME```
+| Optional name of a one-level parent project to register before the main project (required with `HOP_PARENT_PROJECT_FOLDER` when the project inherits metadata).
+
+|```HOP_PARENT_PROJECT_FOLDER```
+| Path to the home of the parent Hop project.
+
 |```HOP_ENVIRONMENT_NAME```
 | The name of the Hop environment to create in the container.
 If you do not set this variable, no environment will be created.

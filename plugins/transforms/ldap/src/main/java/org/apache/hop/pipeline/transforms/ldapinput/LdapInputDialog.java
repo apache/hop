@@ -1381,7 +1381,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     in.setTrustAllCertificates(wTrustAll.getSelection());
 
     // copy info to TextFileInputMeta class (input)
-    in.setRowLimit(Const.toInt(wLimit.getText(), 0));
+    in.setRowLimit(Const.toIntExpanded(wLimit.getText(), 0));
     in.setTimeLimit(Const.toInt(wTimeLimit.getText(), 0));
     in.setMultiValuedSeparator(wMultiValuedSeparator.getText());
     in.setIncludeRowNumber(wInclRownum.getSelection());

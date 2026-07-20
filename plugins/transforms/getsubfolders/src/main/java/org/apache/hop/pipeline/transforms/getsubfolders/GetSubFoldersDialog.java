@@ -584,7 +584,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     in.setDynamicFolderNameField(wFolderNameField.getText());
     in.setFolderNameDynamic(wFolderField.getSelection());
     in.setRowNumberField(wInclRowNumberField.getText());
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
   }
 
   // Preview the data

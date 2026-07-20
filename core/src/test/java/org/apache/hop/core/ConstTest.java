@@ -3640,6 +3640,64 @@ class ConstTest {
   }
 
   @Test
+  void testExpandIntegerString() {
+    assertEquals("123", Const.expandIntegerString("123"));
+    assertEquals("100000000", Const.expandIntegerString("100,000,000"));
+    assertEquals("100000000", Const.expandIntegerString("100.000.000"));
+    assertEquals("100000000", Const.expandIntegerString("100_000_000"));
+    assertEquals("100000000", Const.expandIntegerString("100 000 000"));
+    assertEquals("100000", Const.expandIntegerString("100k"));
+    assertEquals("100000", Const.expandIntegerString("100K"));
+    assertEquals("100000000", Const.expandIntegerString("100m"));
+    assertEquals("1000000000", Const.expandIntegerString("1g"));
+    assertEquals("1000000000", Const.expandIntegerString("1b"));
+    assertEquals("1500000", Const.expandIntegerString("1.5m"));
+    assertEquals("1500000", Const.expandIntegerString("1,5m"));
+    assertEquals("100000000", Const.expandIntegerString("1e8"));
+    assertEquals("100000000", Const.expandIntegerString("1E8"));
+    assertEquals("1500000", Const.expandIntegerString("1.5e6"));
+    assertEquals("100000000", Const.expandIntegerString("1x10^8"));
+    assertEquals("100000000", Const.expandIntegerString("1×10^8"));
+    assertEquals("100000000", Const.expandIntegerString("10^8"));
+    assertEquals("-1000000", Const.expandIntegerString("-1m"));
+    assertNull(Const.expandIntegerString(null));
+    assertNull(Const.expandIntegerString(""));
+    assertNull(Const.expandIntegerString("abc"));
+    assertNull(Const.expandIntegerString("1z"));
+  }
+
+  @Test
+  void testToLongExpanded() {
+    assertEquals(123L, Const.toLongExpanded("123", -12));
+    assertEquals(100_000_000L, Const.toLongExpanded("100,000,000", -1));
+    assertEquals(100_000_000L, Const.toLongExpanded("100.000.000", -1));
+    assertEquals(100_000_000L, Const.toLongExpanded("100m", -1));
+    assertEquals(1_500_000L, Const.toLongExpanded("1.5m", -1));
+    assertEquals(100_000_000L, Const.toLongExpanded("1e8", -1));
+    assertEquals(100_000_000L, Const.toLongExpanded("1x10^8", -1));
+    assertEquals(100_000_000L, Const.toLongExpanded("10^8", -1));
+    assertEquals(1_000_000_000L, Const.toLongExpanded("1b", -1));
+    assertEquals(-1_000_000L, Const.toLongExpanded("-1m", -1));
+    assertEquals(-12L, Const.toLongExpanded("123f", -12));
+    assertEquals(-12L, Const.toLongExpanded(null, -12));
+    assertEquals(-12L, Const.toLongExpanded("", -12));
+    // Plain digit strings match toLong
+    assertEquals(1447252914241L, Const.toLongExpanded("1447252914241", -12));
+  }
+
+  @Test
+  void testToIntExpanded() {
+    assertEquals(123, Const.toIntExpanded("123", -12));
+    assertEquals(100_000, Const.toIntExpanded("100k", -12));
+    assertEquals(100_000_000, Const.toIntExpanded("100m", -12));
+    assertEquals(-12, Const.toIntExpanded("123f", -12));
+    assertEquals(-12, Const.toIntExpanded(null, -12));
+    // Overflow past Integer.MAX_VALUE returns default
+    assertEquals(-12, Const.toIntExpanded("3g", -12));
+    assertEquals(-12, Const.toIntExpanded("10^12", -12));
+  }
+
+  @Test
   void testToDouble() {
     Assertions.assertEquals(123.45, Const.toDouble("123.45", -12.34), 1e-15);
     Assertions.assertEquals(-12.34, Const.toDouble("123asd", -12.34), 1e-15);

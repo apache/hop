@@ -82,7 +82,7 @@ public class AvroFileInput extends BaseTransform<AvroFileInputMeta, AvroFileInpu
                 + "' doesn't exist in the input of this transform");
       }
 
-      data.rowsLimit = Const.toInt(resolve(meta.getRowsLimit()), -1);
+      data.rowsLimit = Const.toIntExpanded(resolve(meta.getRowsLimit()), -1);
 
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);

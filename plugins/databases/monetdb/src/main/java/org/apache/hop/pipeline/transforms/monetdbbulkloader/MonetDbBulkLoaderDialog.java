@@ -277,6 +277,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlBufferSize);
 
     wBufferSize = new TextVar(variables, wGeneralSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBufferSize.enableExpandedInteger();
     PropsUi.setLook(wBufferSize);
     wBufferSize.addModifyListener(lsMod);
 

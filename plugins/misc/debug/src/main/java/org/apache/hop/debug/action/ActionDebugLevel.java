@@ -20,7 +20,7 @@ package org.apache.hop.debug.action;
 import org.apache.hop.core.logging.LogLevel;
 
 public class ActionDebugLevel implements Cloneable {
-  private LogLevel logLevel;
+  private String logLevel;
 
   private boolean loggingResult;
   private boolean loggingVariables;
@@ -28,7 +28,7 @@ public class ActionDebugLevel implements Cloneable {
   private boolean loggingResultFiles;
 
   public ActionDebugLevel() {
-    logLevel = LogLevel.DEBUG;
+    logLevel = LogLevel.DEBUG.getCode();
     loggingResult = false;
     loggingVariables = false;
     loggingResultRows = false;
@@ -37,11 +37,16 @@ public class ActionDebugLevel implements Cloneable {
 
   public ActionDebugLevel(LogLevel logLevel) {
     this();
+    this.logLevel = logLevel != null ? logLevel.getCode() : LogLevel.DEBUG.getCode();
+  }
+
+  public ActionDebugLevel(String logLevel) {
+    this();
     this.logLevel = logLevel;
   }
 
   public ActionDebugLevel(
-      LogLevel logLevel,
+      String logLevel,
       boolean loggingResult,
       boolean loggingVariables,
       boolean loggingResultRows,
@@ -53,6 +58,20 @@ public class ActionDebugLevel implements Cloneable {
     this.loggingResultFiles = loggingResultFiles;
   }
 
+  public ActionDebugLevel(
+      LogLevel logLevel,
+      boolean loggingResult,
+      boolean loggingVariables,
+      boolean loggingResultRows,
+      boolean loggingResultFiles) {
+    this(
+        logLevel != null ? logLevel.getCode() : LogLevel.DEBUG.getCode(),
+        loggingResult,
+        loggingVariables,
+        loggingResultRows,
+        loggingResultFiles);
+  }
+
   @Override
   public ActionDebugLevel clone() {
     return new ActionDebugLevel(
@@ -61,7 +80,7 @@ public class ActionDebugLevel implements Cloneable {
 
   @Override
   public String toString() {
-    String s = logLevel.toString();
+    String s = logLevel;
     if (loggingResult) {
       s += ", logging result";
     }
@@ -78,19 +97,26 @@ public class ActionDebugLevel implements Cloneable {
   }
 
   /**
-   * Gets logLevel
+   * Gets logLevel (code or variable expression)
    *
    * @return value of logLevel
    */
-  public LogLevel getLogLevel() {
+  public String getLogLevel() {
     return logLevel;
   }
 
   /**
-   * @param logLevel The logLevel to set
+   * @param logLevel The logLevel to set (code or variable expression)
+   */
+  public void setLogLevel(String logLevel) {
+    this.logLevel = logLevel;
+  }
+
+  /**
+   * @param logLevel The logLevel enum to set (stores its code)
    */
   public void setLogLevel(LogLevel logLevel) {
-    this.logLevel = logLevel;
+    this.logLevel = logLevel != null ? logLevel.getCode() : null;
   }
 
   /**

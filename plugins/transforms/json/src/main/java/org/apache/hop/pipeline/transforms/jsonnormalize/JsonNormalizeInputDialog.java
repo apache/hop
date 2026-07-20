@@ -1419,7 +1419,7 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
   private void getInfo(JsonNormalizeInputMeta in) {
     transformName = wTransformName.getText(); // return value
 
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setFilenameField(wInclFilenameField.getText());
     in.setRowNumberField(wInclRownumField.getText());
     in.setAddResultFile(wAddResult.getSelection());

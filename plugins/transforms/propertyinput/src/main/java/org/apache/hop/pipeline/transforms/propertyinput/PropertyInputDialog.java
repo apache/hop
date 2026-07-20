@@ -1339,7 +1339,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to PropertyInputMeta class (input)
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setIncludingFilename(wInclFilename.getSelection());
     in.setFilenameField(wInclFilenameField.getText());
     in.setIncludeRowNumber(wInclRowNum.getSelection());

@@ -144,8 +144,8 @@ public class SnowflakeBulkLoader
     // Create a new split?
     if ((row != null
         && data.outputCount > 0
-        && Const.toInt(resolve(meta.getSplitSize()), 0) > 0
-        && (data.outputCount % Const.toInt(resolve(meta.getSplitSize()), 0)) == 0)) {
+        && Const.toIntExpanded(resolve(meta.getSplitSize()), 0) > 0
+        && (data.outputCount % Const.toIntExpanded(resolve(meta.getSplitSize()), 0)) == 0)) {
 
       // Done with this part or with everything.
       closeFile();

@@ -296,6 +296,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdlCommit.top = new FormAttachment(wbTable, margin);
     wlCommit.setLayoutData(fdlCommit);
     wCommit = new TextVar(variables, wContentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCommit.enableExpandedInteger();
     PropsUi.setLook(wCommit);
     FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment(middle, 0);

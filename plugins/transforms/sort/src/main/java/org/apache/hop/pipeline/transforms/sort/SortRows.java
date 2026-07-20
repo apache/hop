@@ -518,7 +518,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       return false;
     }
 
-    data.sortSize = Const.toInt(resolve(meta.getSortSize()), -1);
+    data.sortSize = Const.toIntExpanded(resolve(meta.getSortSize()), -1);
     data.freeMemoryPctLimit = Const.toInt(meta.getFreeMemoryLimit(), -1);
     if (data.sortSize <= 0 && data.freeMemoryPctLimit <= 0) {
       // Prefer the memory limit as it should never fail

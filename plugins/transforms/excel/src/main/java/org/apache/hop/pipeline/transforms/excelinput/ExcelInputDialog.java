@@ -1210,7 +1210,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to Meta class (input)
-    meta.setRowLimit(Const.toLong(wLimit.getText(), 0));
+    meta.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0));
     meta.setEncoding(wEncoding.getText());
     meta.setSchemaDefinition(wSchemaDefinition.getText());
     meta.setIgnoreFields(wIgnoreFields.getSelection());

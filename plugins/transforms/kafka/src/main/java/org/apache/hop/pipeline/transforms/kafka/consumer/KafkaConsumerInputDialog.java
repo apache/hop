@@ -611,6 +611,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     wlBatchSize.setLayoutData(fdlBatchSize);
 
     wBatchSize = new TextVar(variables, wBatchComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchSize.enableExpandedInteger();
     PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();

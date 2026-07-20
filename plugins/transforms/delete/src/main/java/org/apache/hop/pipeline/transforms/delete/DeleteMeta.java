@@ -105,7 +105,9 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   public int getCommitSize(IVariables vs) {
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = (commitSize == null) ? "0" : commitSize;
-    return Integer.parseInt(vs.resolve(commitSize));
+    String resolved = vs.resolve(commitSize);
+    String expanded = Const.expandIntegerString(resolved);
+    return Integer.parseInt(expanded != null ? expanded : resolved);
   }
 
   public DeleteMeta(DeleteMeta obj) {

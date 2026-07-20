@@ -1804,7 +1804,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to TextFileInputMeta class (input)
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setPrunePath(wPrunePath.getText());
     in.setLoopXPath(wLoopXPath.getText());
     in.setEncoding(wEncoding.getText());

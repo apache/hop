@@ -256,11 +256,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   }
 
   public int getCommitSizeAsInt(IVariables variables) {
-    try {
-      return Integer.parseInt(variables.resolve(getCommitSize()));
-    } catch (NumberFormatException ex) {
-      return DEFAULT_COMMIT_SIZE;
-    }
+    return Const.toIntExpanded(variables.resolve(getCommitSize()), DEFAULT_COMMIT_SIZE);
   }
 
   /**
@@ -797,11 +793,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   }
 
   public int getBindSizeAsInt(IVariables variables) {
-    try {
-      return Integer.parseInt(variables.resolve(getBindSize()));
-    } catch (NumberFormatException ex) {
-      return DEFAULT_BIND_SIZE;
-    }
+    return Const.toIntExpanded(variables.resolve(getBindSize()), DEFAULT_BIND_SIZE);
   }
 
   public String getBindSize() {
@@ -813,11 +805,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   }
 
   public int getMaxErrorsAsInt(IVariables variables) {
-    try {
-      return Integer.parseInt(variables.resolve(getMaxErrors()));
-    } catch (NumberFormatException ex) {
-      return DEFAULT_MAX_ERRORS;
-    }
+    return Const.toIntExpanded(variables.resolve(getMaxErrors()), DEFAULT_MAX_ERRORS);
   }
 
   public String getMaxErrors() {
@@ -829,11 +817,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   }
 
   public int getReadSizeAsInt(IVariables variables) {
-    try {
-      return Integer.parseInt(variables.resolve(getReadSize()));
-    } catch (NumberFormatException ex) {
-      return DEFAULT_READ_SIZE;
-    }
+    return Const.toIntExpanded(variables.resolve(getReadSize()), DEFAULT_READ_SIZE);
   }
 
   public String getReadSize() {

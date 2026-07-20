@@ -182,7 +182,7 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
       data.neoTypes.add(neoType);
     }
 
-    data.batchSize = Const.toInt(resolve(meta.getBatchSize()), 1);
+    data.batchSize = Const.toIntExpanded(resolve(meta.getBatchSize()), 1);
 
     data.cypher = meta.getCypher(this);
 

@@ -58,8 +58,8 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
   @Override
   public boolean init() {
 
-    data.batchSize = Const.toInt(resolve(meta.getBatchSize()), 100);
-    data.prefetchSize = Const.toInt(resolve(meta.getPrefetchSize()), -1);
+    data.batchSize = Const.toIntExpanded(resolve(meta.getBatchSize()), 100);
+    data.prefetchSize = Const.toIntExpanded(resolve(meta.getPrefetchSize()), -1);
     data.list = new LinkedList<>();
 
     return super.init();
@@ -209,11 +209,11 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
     options.setExceptionNotification(new AzureListenerErrorNotificationHandler(AzureListener.this));
 
     if (!StringUtils.isNotEmpty(meta.getBatchSize())) {
-      options.setMaxBatchSize(Const.toInt(resolve(meta.getBatchSize()), 100));
+      options.setMaxBatchSize(Const.toIntExpanded(resolve(meta.getBatchSize()), 100));
     }
 
     if (!StringUtils.isNotEmpty(meta.getPrefetchSize())) {
-      options.setPrefetchCount(Const.toInt(resolve(meta.getPrefetchSize()), 100));
+      options.setPrefetchCount(Const.toIntExpanded(resolve(meta.getPrefetchSize()), 100));
     }
 
     data.executorService = Executors.newSingleThreadScheduledExecutor();

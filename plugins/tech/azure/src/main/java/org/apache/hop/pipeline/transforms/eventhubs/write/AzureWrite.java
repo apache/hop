@@ -48,7 +48,7 @@ public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData> 
   @Override
   public boolean init() {
 
-    data.batchSize = Const.toLong(resolve(meta.getBatchSize()), 1);
+    data.batchSize = Const.toLongExpanded(resolve(meta.getBatchSize()), 1);
     data.list = new LinkedList<>();
 
     return super.init();

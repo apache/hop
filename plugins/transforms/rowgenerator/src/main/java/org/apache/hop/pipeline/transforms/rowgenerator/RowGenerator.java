@@ -263,9 +263,9 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
 
       if (super.init()) {
         // Determine the number of rows to generate...
-        data.rowLimit = Const.toLong(resolve(meta.getRowLimit()), -1L);
+        data.rowLimit = Const.toLongExpanded(resolve(meta.getRowLimit()), -1L);
         data.rowsWritten = 0L;
-        data.delay = Const.toLong(resolve(meta.getIntervalInMs()), -1L);
+        data.delay = Const.toLongExpanded(resolve(meta.getIntervalInMs()), -1L);
 
         if (!meta.isNeverEnding() && data.rowLimit < 0L) { // Unable to parse
           logError(BaseMessages.getString(PKG, "RowGenerator.Wrong.RowLimit.Number"));

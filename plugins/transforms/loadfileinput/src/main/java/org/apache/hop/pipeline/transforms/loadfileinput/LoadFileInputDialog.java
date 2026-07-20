@@ -1248,7 +1248,7 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     // copy info to TextFileInputMeta class (input)
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setEncoding(wEncoding.getText());
     in.setRowNumberField(wInclRownumField.getText());
     in.setAddingResultFile(wAddResult.getSelection());

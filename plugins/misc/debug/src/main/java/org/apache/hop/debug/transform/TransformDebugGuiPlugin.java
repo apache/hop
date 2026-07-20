@@ -87,7 +87,8 @@ public class TransformDebugGuiPlugin {
 
       IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
       TransformDebugLevelDialog dialog =
-          new TransformDebugLevelDialog(hopGui.getActiveShell(), debugLevel, inputRowMeta);
+          new TransformDebugLevelDialog(
+              hopGui.getActiveShell(), debugLevel, inputRowMeta, variables);
       if (dialog.open()) {
         DebugLevelUtil.storeTransformDebugLevel(
             debugGroupAttributesMap, transformMeta.getName(), debugLevel);

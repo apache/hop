@@ -17,17 +17,16 @@
 
 package org.apache.hop.projects.xp;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.PathVariableReplacer;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
@@ -35,7 +34,9 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 @ExtensionPoint(
     id = "HopGuiFileReplaceHomeVariable",
     extensionPointId = "HopGuiFileOpenedDialog",
-    description = "Replace ${PROJECT_HOME} in selected filenames as a best practice aid")
+    description =
+        "Replace path-like project/environment variables (e.g. ${PROJECT_HOME}, ${SOURCE_FILES})"
+            + " in selected filenames as a best practice aid")
 public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFileOpenedExtension> {
 
   // TODO make this optional
@@ -55,39 +56,36 @@ public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFile
     if (projectConfig == null) {
       return;
     }
-    String homeFolder;
-
-    if (variables != null) {
-      homeFolder = variables.resolve(projectConfig.getProjectHome());
-    } else {
-      homeFolder = projectConfig.getProjectHome();
-    }
 
     try {
-      if (StringUtils.isNotEmpty(homeFolder)) {
-
-        FileObject file = HopVfs.getFileObject(ext.filename);
-        String absoluteFile = file.getName().getPath();
-
-        FileObject home = HopVfs.getFileObject(homeFolder);
-        String absoluteHome = home.getName().getPath();
-        // Make the URI always end with a /
-        if (!absoluteHome.endsWith("/")) {
-          absoluteHome += "/";
-        }
-
-        // Replace the project home variable in the filename
-        //
-        if (absoluteFile.startsWith(absoluteHome)) {
-          ext.filename =
-              "${"
-                  + ProjectsUtil.VARIABLE_PROJECT_HOME
-                  + "}/"
-                  + absoluteFile.substring(absoluteHome.length());
-        }
+      IVariables vars = ensureProjectHomeVariable(variables, projectConfig, ext.variables);
+      String replaced = PathVariableReplacer.replacePathWithVariable(vars, ext.filename);
+      if (replaced != null) {
+        ext.filename = replaced;
       }
     } catch (Exception e) {
-      log.logError("Error setting default folder for project " + projectName, e);
+      log.logError("Error replacing path variables for project " + projectName, e);
     }
+  }
+
+  /**
+   * Ensure {@code PROJECT_HOME} is available even when the dialog passed a null variable space.
+   * Prefer the extension's own variables when present.
+   */
+  static IVariables ensureProjectHomeVariable(
+      IVariables callVariables, ProjectConfig projectConfig, IVariables extensionVariables) {
+    IVariables vars = extensionVariables != null ? extensionVariables : callVariables;
+    if (vars == null) {
+      vars = new Variables();
+      vars.initializeFrom(null);
+    }
+    // Expose PROJECT_HOME from the active project config when missing so replacement works
+    // even if the dialog variable space is incomplete.
+    if (StringUtil.isEmpty(vars.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME))
+        && projectConfig.getProjectHome() != null) {
+      vars.setVariable(
+          ProjectsUtil.VARIABLE_PROJECT_HOME, vars.resolve(projectConfig.getProjectHome()));
+    }
+    return vars;
   }
 }

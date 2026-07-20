@@ -416,7 +416,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
     }
 
     input.setConnection(wConnection.getText());
-    input.setRowLimit(Const.toInt(wLimit.getText(), 0));
+    input.setRowLimit(Const.toIntExpanded(wLimit.getText(), 0));
     input.setSql(wSqlComposite.getText());
     input.setSqlFieldName(wSqlFieldName.getText());
     input.setOuterJoin(wOuter.getSelection());

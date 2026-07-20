@@ -670,8 +670,8 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         data.filenames = null;
       }
 
-      data.nrRowsToSkip = Const.toLong(this.resolve(meta.getNrRowsToSkip()), 0);
-      data.rowLimit = Const.toLong(this.resolve(meta.getRowLimit()), 0);
+      data.nrRowsToSkip = Const.toLongExpanded(this.resolve(meta.getNrRowsToSkip()), 0);
+      data.rowLimit = Const.toLongExpanded(this.resolve(meta.getRowLimit()), 0);
       data.encoding = this.resolve(meta.getEncoding());
 
       data.outputRowMeta = new RowMeta();

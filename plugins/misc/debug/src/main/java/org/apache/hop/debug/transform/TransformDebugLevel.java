@@ -21,33 +21,46 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.logging.LogLevel;
 
 public class TransformDebugLevel implements Cloneable {
-  private LogLevel logLevel;
+  private String logLevel;
   private int startRow;
   private int endRow;
   private Condition condition;
 
   public TransformDebugLevel() {
     condition = new Condition();
-    logLevel = LogLevel.DEBUG;
+    logLevel = LogLevel.DEBUG.getCode();
     startRow = -1;
     endRow = -1;
   }
 
   public TransformDebugLevel(LogLevel logLevel) {
     this();
+    this.logLevel = logLevel != null ? logLevel.getCode() : LogLevel.DEBUG.getCode();
+  }
+
+  public TransformDebugLevel(String logLevel) {
+    this();
     this.logLevel = logLevel;
   }
 
-  public TransformDebugLevel(LogLevel logLevel, int startRow, int endRow, Condition condition) {
+  public TransformDebugLevel(String logLevel, int startRow, int endRow, Condition condition) {
     this(logLevel);
     this.startRow = startRow;
     this.endRow = endRow;
     this.condition = condition;
   }
 
+  public TransformDebugLevel(LogLevel logLevel, int startRow, int endRow, Condition condition) {
+    this(
+        logLevel != null ? logLevel.getCode() : LogLevel.DEBUG.getCode(),
+        startRow,
+        endRow,
+        condition);
+  }
+
   @Override
   public String toString() {
-    String s = logLevel.toString();
+    String s = logLevel;
     if (startRow >= 0) {
       s += ", start row=" + startRow;
     }
@@ -66,19 +79,26 @@ public class TransformDebugLevel implements Cloneable {
   }
 
   /**
-   * Gets logLevel
+   * Gets logLevel (code or variable expression)
    *
    * @return value of logLevel
    */
-  public LogLevel getLogLevel() {
+  public String getLogLevel() {
     return logLevel;
   }
 
   /**
-   * @param logLevel The logLevel to set
+   * @param logLevel The logLevel to set (code or variable expression)
+   */
+  public void setLogLevel(String logLevel) {
+    this.logLevel = logLevel;
+  }
+
+  /**
+   * @param logLevel The logLevel enum to set (stores its code)
    */
   public void setLogLevel(LogLevel logLevel) {
-    this.logLevel = logLevel;
+    this.logLevel = logLevel != null ? logLevel.getCode() : null;
   }
 
   /**

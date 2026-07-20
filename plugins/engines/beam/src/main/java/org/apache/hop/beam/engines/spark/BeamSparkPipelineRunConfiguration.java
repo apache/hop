@@ -231,7 +231,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       }
     }
     if (StringUtils.isNotEmpty(getSparkMaxRecordsPerBatch())) {
-      long records = Const.toLong(resolve(getSparkMaxRecordsPerBatch()), -1L);
+      long records = Const.toLongExpanded(resolve(getSparkMaxRecordsPerBatch()), -1L);
       if (records >= 0) {
         options.setMaxRecordsPerBatch(records);
       }
@@ -249,7 +249,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       }
     }
     if (StringUtils.isNotEmpty(getSparkBundleSize())) {
-      long bundleSize = Const.toLong(resolve(getSparkBundleSize()), -1L);
+      long bundleSize = Const.toLongExpanded(resolve(getSparkBundleSize()), -1L);
       if (bundleSize >= 0) {
         options.setBundleSize(bundleSize);
       }

@@ -1292,6 +1292,237 @@ public class Const {
   }
 
   /**
+   * Pattern for scientific / power-of-ten integer forms: {@code 1e8}, {@code 1.5E+6}, {@code
+   * 1x10^8}, {@code 1×10^8}, {@code 10^8}.
+   */
+  private static final Pattern EXPANDED_SCIENTIFIC_PATTERN =
+      Pattern.compile(
+          "^([+-]?)(?:([0-9][0-9_ .,]*[0-9]|[0-9])\\s*[x×]\\s*10\\s*\\^\\s*|([0-9][0-9_ .,]*)\\s*[eE]|10\\s*\\^\\s*)([+-]?\\d+)$");
+
+  /** Pattern for optional trailing magnitude suffix: k / m / g / b (case-insensitive). */
+  private static final Pattern EXPANDED_SUFFIX_PATTERN =
+      Pattern.compile("^([+-]?)(.*?)\\s*([kKmMgGbB])$");
+
+  /**
+   * Expand a human-friendly integer string into a plain digit form (optional leading sign).
+   *
+   * <p>Supports:
+   *
+   * <ul>
+   *   <li>Grouping separators: spaces, underscores, commas; dots when used as thousands grouping
+   *       (e.g. {@code 100.000.000})
+   *   <li>Trailing magnitude suffixes: {@code k}/{@code K} (×10³), {@code m}/{@code M} (×10⁶),
+   *       {@code g}/{@code G}/{@code b}/{@code B} (×10⁹). A single decimal separator is allowed in
+   *       the coefficient when a suffix is present (e.g. {@code 1.5m}, {@code 1,5m}).
+   *   <li>Scientific / power forms: {@code 1e8}, {@code 1E+8}, {@code 1x10^8}, {@code 10^8}
+   * </ul>
+   *
+   * @param str the input string
+   * @return expanded digit string (with optional leading {@code -}), or {@code null} if the input
+   *     cannot be expanded to an integer
+   */
+  public static String expandIntegerString(String str) {
+    if (str == null) {
+      return null;
+    }
+    String trimmed = str.trim();
+    if (trimmed.isEmpty()) {
+      return null;
+    }
+
+    try {
+      // Scientific / power-of-ten first (e.g. 1e8, 1x10^8, 10^8)
+      Matcher sci = EXPANDED_SCIENTIFIC_PATTERN.matcher(trimmed);
+      if (sci.matches()) {
+        String sign = sci.group(1);
+        String coeffGroup = sci.group(2) != null ? sci.group(2) : sci.group(3);
+        String expGroup = sci.group(4);
+        BigDecimal coefficient;
+        if (coeffGroup == null || coeffGroup.isEmpty()) {
+          // Form: 10^N
+          coefficient = BigDecimal.ONE;
+        } else {
+          coefficient = parseExpandedCoefficient(coeffGroup, true);
+        }
+        int exp = Integer.parseInt(expGroup);
+        BigDecimal value = coefficient.multiply(BigDecimal.TEN.pow(exp));
+        return formatExpandedLong(sign, value);
+      }
+
+      // Trailing magnitude suffix: k / m / g / b
+      Matcher suffixMatcher = EXPANDED_SUFFIX_PATTERN.matcher(trimmed);
+      if (suffixMatcher.matches()) {
+        String sign = suffixMatcher.group(1);
+        String body = suffixMatcher.group(2).trim();
+        char suffix = Character.toLowerCase(suffixMatcher.group(3).charAt(0));
+        if (body.isEmpty()) {
+          return null;
+        }
+        BigDecimal coefficient = parseExpandedCoefficient(body, true);
+        long multiplier;
+        switch (suffix) {
+          case 'k':
+            multiplier = 1_000L;
+            break;
+          case 'm':
+            multiplier = 1_000_000L;
+            break;
+          case 'g':
+          case 'b':
+            multiplier = 1_000_000_000L;
+            break;
+          default:
+            return null;
+        }
+        BigDecimal value = coefficient.multiply(BigDecimal.valueOf(multiplier));
+        return formatExpandedLong(sign, value);
+      }
+
+      // Plain integer with optional grouping separators
+      String sign = "";
+      String body = trimmed;
+      if (body.startsWith("+") || body.startsWith("-")) {
+        sign = body.startsWith("-") ? "-" : "";
+        body = body.substring(1).trim();
+      }
+      body = stripIntegerGrouping(body);
+      if (body.isEmpty() || !body.chars().allMatch(Character::isDigit)) {
+        return null;
+      }
+      // Normalize leading zeros via Long parse (overflows → BigInteger path not needed for plain)
+      long value = Long.parseLong(body);
+      return sign + Long.toString(value);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * Parse a coefficient that may contain grouping separators and at most one decimal separator.
+   *
+   * @param body coefficient text without sign or magnitude suffix
+   * @param allowDecimal whether a single decimal point/comma is allowed
+   */
+  private static BigDecimal parseExpandedCoefficient(String body, boolean allowDecimal) {
+    String s = body.trim();
+    // Remove spaces and underscores always
+    s = s.replace(" ", "").replace("_", "");
+
+    int lastDot = s.lastIndexOf('.');
+    int lastComma = s.lastIndexOf(',');
+    boolean hasDot = lastDot >= 0;
+    boolean hasComma = lastComma >= 0;
+
+    if (allowDecimal && (hasDot || hasComma)) {
+      // Decide which separator is decimal: the last of '.' or ','
+      int decimalPos = Math.max(lastDot, lastComma);
+      String intPart = s.substring(0, decimalPos).replace(",", "").replace(".", "");
+      String fracPart = s.substring(decimalPos + 1).replace(",", "").replace(".", "");
+      if (intPart.isEmpty()) {
+        intPart = "0";
+      }
+      if (!intPart.chars().allMatch(Character::isDigit)
+          || !fracPart.chars().allMatch(Character::isDigit)) {
+        throw new NumberFormatException("Invalid coefficient: " + body);
+      }
+      return new BigDecimal(intPart + "." + fracPart);
+    }
+
+    s = stripIntegerGrouping(s);
+    if (s.isEmpty() || !s.chars().allMatch(Character::isDigit)) {
+      throw new NumberFormatException("Invalid coefficient: " + body);
+    }
+    return new BigDecimal(s);
+  }
+
+  /**
+   * Strip thousands grouping from a digit string. Removes commas always; removes dots only when
+   * they form thousands groups of three digits (e.g. {@code 100.000.000}).
+   */
+  private static String stripIntegerGrouping(String body) {
+    String s = body.replace(" ", "").replace("_", "");
+    if (s.indexOf(',') >= 0) {
+      s = s.replace(",", "");
+    }
+    if (s.indexOf('.') >= 0) {
+      // Thousands pattern: digits with groups of 3 after each dot, no other characters
+      if (s.matches("\\d{1,3}(\\.\\d{3})+")) {
+        s = s.replace(".", "");
+      } else if (s.chars().filter(c -> c == '.').count() > 1) {
+        // Multiple dots that are not a clean thousands pattern → invalid later
+        return s;
+      } else {
+        // Single dot without suffix path: treat as invalid for pure integers
+        // (leave the dot so digit check fails)
+      }
+    }
+    return s;
+  }
+
+  private static String formatExpandedLong(String sign, BigDecimal value) {
+    // Truncate toward zero for fractional results (e.g. 1.5m is exact; 1e-1 would become 0)
+    BigDecimal truncated = value.setScale(0, RoundingMode.DOWN);
+    if (truncated.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0
+        || truncated.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) < 0) {
+      throw new NumberFormatException("Expanded value out of long range");
+    }
+    long longValue = truncated.longValueExact();
+    if ("-".equals(sign)) {
+      // Avoid Long.MIN_VALUE negation issues; value should already be positive magnitude
+      if (longValue == Long.MIN_VALUE) {
+        throw new NumberFormatException("Expanded value out of long range");
+      }
+      return Long.toString(-longValue);
+    }
+    return Long.toString(longValue);
+  }
+
+  /**
+   * Convert a human-friendly integer String into a {@code long}. If conversion fails, return the
+   * default. See {@link #expandIntegerString(String)} for accepted forms.
+   *
+   * @param str The String to convert
+   * @param def The default value
+   * @return The converted value or the default
+   */
+  public static long toLongExpanded(String str, long def) {
+    try {
+      String expanded = expandIntegerString(str);
+      if (expanded == null) {
+        return def;
+      }
+      return Long.parseLong(expanded);
+    } catch (Exception e) {
+      return def;
+    }
+  }
+
+  /**
+   * Convert a human-friendly integer String into an {@code int}. If conversion fails or the value
+   * is outside the {@code int} range, return the default. See {@link #expandIntegerString(String)}
+   * for accepted forms.
+   *
+   * @param str The String to convert
+   * @param def The default value
+   * @return The converted value or the default
+   */
+  public static int toIntExpanded(String str, int def) {
+    try {
+      String expanded = expandIntegerString(str);
+      if (expanded == null) {
+        return def;
+      }
+      long value = Long.parseLong(expanded);
+      if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+        return def;
+      }
+      return (int) value;
+    } catch (Exception e) {
+      return def;
+    }
+  }
+
+  /**
    * Convert a String into a double. If the conversion fails, assign a default value.
    *
    * @param str The String to convert to a double

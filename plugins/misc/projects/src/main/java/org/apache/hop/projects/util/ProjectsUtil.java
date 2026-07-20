@@ -46,6 +46,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 public class ProjectsUtil {
 
   public static final String VARIABLE_PROJECT_HOME = "PROJECT_HOME";
+  public static final String VARIABLE_PARENT_PROJECT_HOME = "PARENT_PROJECT_HOME";
+  public static final String VARIABLE_PARENT_PROJECT_NAME = "PARENT_PROJECT_NAME";
   public static final String VARIABLE_HOP_DATASETS_FOLDER = "HOP_DATASETS_FOLDER";
   public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
 

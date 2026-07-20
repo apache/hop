@@ -22,12 +22,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
@@ -38,11 +41,15 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
@@ -1413,6 +1420,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
   @Override
   public Button[] createButtonsForButtonBar(Composite parent) {
+    Button wGenerateVariables = new Button(parent, SWT.PUSH);
+    wGenerateVariables.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.button.GenerateVariables"));
+    wGenerateVariables.addListener(SWT.Selection, e -> generateVariables());
+
     Button wExplore = new Button(parent, SWT.PUSH);
     wExplore.setText(BaseMessages.getString(PKG, "DatabaseDialog.button.Explore"));
     wExplore.addListener(SWT.Selection, e -> explore());
@@ -1421,7 +1433,206 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
     wTest.addListener(SWT.Selection, e -> test());
 
-    return new Button[] {wExplore, wTest};
+    return new Button[] {wGenerateVariables, wExplore, wTest};
+  }
+
+  /**
+   * Propose connection-scoped environment variables (for example {@code EDW_HOSTNAME}), optionally
+   * write them to a described-variables JSON config file for DTAP environments, and replace the
+   * editor fields with {@code ${…}} expressions.
+   */
+  private void generateVariables() {
+    String connectionName = wName.getText();
+    if (StringUtils.isBlank(connectionName)) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
+      box.setText(
+          BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.NameRequired.Title"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.NameRequired.Message"));
+      box.open();
+      return;
+    }
+
+    DatabaseMeta meta = getMetadata();
+    getWidgetsContent(meta);
+
+    boolean includeUsername =
+        wUsername != null && !excludedElementIds.contains(BaseDatabaseMeta.ELEMENT_ID_USERNAME);
+    boolean includePassword =
+        wPassword != null && !excludedElementIds.contains(BaseDatabaseMeta.ELEMENT_ID_PASSWORD);
+
+    Map<String, String> descriptions = new LinkedHashMap<>();
+    descriptions.put(
+        DatabaseConnectionVariablesHelper.SUFFIX_HOSTNAME,
+        BaseMessages.getString(
+            PKG, "DatabaseDialog.GenerateVariables.Description.Hostname", connectionName));
+    descriptions.put(
+        DatabaseConnectionVariablesHelper.SUFFIX_PORT,
+        BaseMessages.getString(
+            PKG, "DatabaseDialog.GenerateVariables.Description.Port", connectionName));
+    descriptions.put(
+        DatabaseConnectionVariablesHelper.SUFFIX_DATABASE,
+        BaseMessages.getString(
+            PKG, "DatabaseDialog.GenerateVariables.Description.Database", connectionName));
+    descriptions.put(
+        DatabaseConnectionVariablesHelper.SUFFIX_USERNAME,
+        BaseMessages.getString(
+            PKG, "DatabaseDialog.GenerateVariables.Description.Username", connectionName));
+    descriptions.put(
+        DatabaseConnectionVariablesHelper.SUFFIX_PASSWORD,
+        BaseMessages.getString(
+            PKG, "DatabaseDialog.GenerateVariables.Description.Password", connectionName));
+    descriptions.put(
+        DatabaseConnectionVariablesHelper.SUFFIX_URL,
+        BaseMessages.getString(
+            PKG, "DatabaseDialog.GenerateVariables.Description.Url", connectionName));
+
+    List<DescribedVariable> proposed =
+        DatabaseConnectionVariablesHelper.buildProposedVariables(
+            connectionName,
+            meta.getHostname(),
+            meta.getPort(),
+            meta.getDatabaseName(),
+            meta.getUsername(),
+            meta.getPassword(),
+            meta.getManualUrl(),
+            includeUsername,
+            includePassword,
+            descriptions);
+
+    if (proposed.isEmpty()) {
+      MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
+      box.setText(
+          BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.NameRequired.Title"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.NameRequired.Message"));
+      box.open();
+      return;
+    }
+
+    HopDescribedVariablesDialog variablesDialog =
+        new HopDescribedVariablesDialog(
+            getShell(),
+            BaseMessages.getString(
+                PKG, "DatabaseDialog.GenerateVariables.DialogMessage", connectionName),
+            proposed,
+            null);
+    List<DescribedVariable> confirmed = variablesDialog.open();
+    if (confirmed == null) {
+      return;
+    }
+
+    // Optional: create or update a described-variables JSON file for DTAP / deployment use.
+    // Values may be left empty in the dialog to produce a VCS template; environment-specific
+    // copies are typically deployed per stage and not auto-registered on a lifecycle environment.
+    MessageBox createConfigBox = new MessageBox(getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    createConfigBox.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.CreateConfig.Title"));
+    createConfigBox.setMessage(
+        BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.CreateConfig.Message"));
+    if (createConfigBox.open() == SWT.YES) {
+      saveVariablesToConfigFile(confirmed, connectionName);
+    }
+
+    applyVariableExpressionsToEditor(meta, confirmed);
+    setWidgetsContent();
+    setChanged();
+    MetadataPerspective.getInstance().updateEditor(this);
+  }
+
+  private void saveVariablesToConfigFile(List<DescribedVariable> variables, String connectionName) {
+    try {
+      String prefix =
+          DatabaseConnectionVariablesHelper.sanitizeConnectionNamePrefix(connectionName);
+      String defaultName = DatabaseConnectionVariablesHelper.defaultConfigFilename(prefix);
+
+      FileObject startFile;
+      String projectHome = manager.getVariables().resolve(Const.VAR_PROJECT_HOME);
+      if (StringUtils.isNotEmpty(projectHome)
+          && !Const.VAR_PROJECT_HOME.equals(projectHome)
+          && HopVfs.fileExists(projectHome)) {
+        startFile = HopVfs.getFileObject(projectHome + Const.FILE_SEPARATOR + defaultName);
+      } else {
+        startFile = HopVfs.getFileObject(defaultName);
+      }
+
+      String configFilename =
+          BaseDialog.presentFileDialog(
+              true,
+              getShell(),
+              null,
+              manager.getVariables(),
+              startFile,
+              new String[] {"*.json", "*"},
+              new String[] {
+                BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.FileFilter.Json"),
+                BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.FileFilter.All")
+              },
+              true);
+      if (StringUtils.isEmpty(configFilename)) {
+        return;
+      }
+
+      // Resolve variables (e.g. ${PROJECT_HOME}) before VFS read/write
+      String realConfigFilename = manager.getVariables().resolve(configFilename);
+
+      DescribedVariablesConfigFile configFile =
+          new DescribedVariablesConfigFile(realConfigFilename);
+      if (HopVfs.fileExists(realConfigFilename)) {
+        configFile.readFromFile();
+      }
+      for (DescribedVariable variable : variables) {
+        if (variable != null && StringUtils.isNotBlank(variable.getName())) {
+          configFile.setDescribedVariable(variable);
+        }
+      }
+      configFile.saveToFile();
+
+      MessageBox done = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      done.setText(
+          BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.ConfigSaved.Title"));
+      done.setMessage(
+          BaseMessages.getString(
+              PKG, "DatabaseDialog.GenerateVariables.ConfigSaved.Message", realConfigFilename));
+      done.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.ConfigError.Title"),
+          BaseMessages.getString(PKG, "DatabaseDialog.GenerateVariables.ConfigError.Message"),
+          e);
+    }
+  }
+
+  private void applyVariableExpressionsToEditor(
+      DatabaseMeta meta, List<DescribedVariable> variables) {
+    Map<String, String> namesBySuffix =
+        DatabaseConnectionVariablesHelper.findVariableNamesBySuffix(variables);
+
+    String hostnameVar = namesBySuffix.get(DatabaseConnectionVariablesHelper.SUFFIX_HOSTNAME);
+    if (hostnameVar != null) {
+      meta.setHostname(DatabaseConnectionVariablesHelper.expressionFor(hostnameVar));
+    }
+    String portVar = namesBySuffix.get(DatabaseConnectionVariablesHelper.SUFFIX_PORT);
+    if (portVar != null) {
+      meta.setPort(DatabaseConnectionVariablesHelper.expressionFor(portVar));
+    }
+    String databaseVar = namesBySuffix.get(DatabaseConnectionVariablesHelper.SUFFIX_DATABASE);
+    if (databaseVar != null) {
+      meta.setDBName(DatabaseConnectionVariablesHelper.expressionFor(databaseVar));
+    }
+    String usernameVar = namesBySuffix.get(DatabaseConnectionVariablesHelper.SUFFIX_USERNAME);
+    if (usernameVar != null) {
+      meta.setUsername(DatabaseConnectionVariablesHelper.expressionFor(usernameVar));
+    }
+    String passwordVar = namesBySuffix.get(DatabaseConnectionVariablesHelper.SUFFIX_PASSWORD);
+    if (passwordVar != null) {
+      meta.setPassword(DatabaseConnectionVariablesHelper.expressionFor(passwordVar));
+    }
+    String urlVar = namesBySuffix.get(DatabaseConnectionVariablesHelper.SUFFIX_URL);
+    if (urlVar != null) {
+      meta.setManualUrl(DatabaseConnectionVariablesHelper.expressionFor(urlVar));
+    }
   }
 
   @Override

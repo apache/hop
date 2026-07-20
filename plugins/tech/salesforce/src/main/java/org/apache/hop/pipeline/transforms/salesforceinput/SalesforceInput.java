@@ -392,7 +392,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
           }
         }
 
-        data.limit = Const.toLong(resolve(meta.getRowLimit()), 0);
+        data.limit = Const.toLongExpanded(resolve(meta.getRowLimit()), 0);
 
         // Do we have to query for all records included deleted records
         data.connection.setQueryAll(meta.isQueryAll());

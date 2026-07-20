@@ -93,7 +93,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      data.limit = Const.toLong(resolve(meta.getLimit()), -1);
+      data.limit = Const.toLongExpanded(resolve(meta.getLimit()), -1);
     }
 
     String rawFilename = getInputRowMeta().getString(fileRowData, meta.getAcceptingField(), null);

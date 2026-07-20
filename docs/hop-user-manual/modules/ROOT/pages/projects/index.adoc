@@ -72,3 +72,9 @@ Just like projects, environments are defined in one or a number of configuration
 
 TIP: store your environment configuration files outside of the project folder.
 You may even want to check them in to a separate version control repository.
+
+==== Import variables
+
+When you create or edit a lifecycle environment, the *Import variables* button scans the associated project for Unix-style variable expressions (`{openvar}VARIABLE_NAME{closevar}`) in pipelines, workflows and metadata objects (using the same project search infrastructure as the Hop Gui search perspective, with a regular expression for that pattern).
+
+Variables that are already defined in one of the environment's configuration files, as well as runtime/project managed names such as `{openvar}PROJECT_HOME{closevar}`, are omitted. The remaining names are shown in a dialog where you can set values and descriptions, then save them to an existing environment configuration file or create a new one that is added to the environment.

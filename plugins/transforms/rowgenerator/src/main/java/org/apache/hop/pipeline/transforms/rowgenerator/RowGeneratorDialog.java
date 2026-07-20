@@ -95,6 +95,7 @@ public class RowGeneratorDialog extends BaseTransformDialog {
     fdlLimit.top = new FormAttachment(lastControl, margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLimit.enableExpandedInteger();
     PropsUi.setLook(wLimit);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);

@@ -103,7 +103,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
       throw new HopException("Error encoding row as XML", e);
     }
 
-    long intervalMs = Const.toLong(variables.resolve(meta.getIntervalInMs()), -1L);
+    long intervalMs = Const.toLongExpanded(variables.resolve(meta.getIntervalInMs()), -1L);
     if (intervalMs < 0) {
       throw new HopException(
           "The interval in milliseconds is expected to be >= 0, not '"
@@ -157,7 +157,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
 
       // A fixed number of records
       //
-      long numRecords = Const.toLong(variables.resolve(meta.getRowLimit()), -1L);
+      long numRecords = Const.toLongExpanded(variables.resolve(meta.getRowLimit()), -1L);
       if (numRecords < 0) {
         throw new HopException(
             "Please specify a valid number of records to generate, not '"

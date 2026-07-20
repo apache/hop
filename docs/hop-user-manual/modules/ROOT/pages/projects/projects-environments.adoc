@@ -89,6 +89,8 @@ The edit button opens the environment file and lets you add variable key-value p
 
 image::hop-gui/environment/environment-variables.png[Environment Variables, width="80%"]
 
+When you browse for a file or directory in Hop Gui with a project active, paths under a matching path-like variable are rewritten automatically. For example, `{openvar}PROJECT_HOME{closevar}` is used for files under the project home, and an environment variable such as `SOURCE_FILES=/data/incoming` rewrites a selection under that folder to `{openvar}SOURCE_FILES{closevar}/…`. If more than one variable matches, the longest (most specific) path wins. The same applies to path variables defined on the project itself.
+
 After creating an environment the user interface will switch to it.
 
 

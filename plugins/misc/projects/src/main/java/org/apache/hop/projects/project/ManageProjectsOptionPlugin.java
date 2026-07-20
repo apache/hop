@@ -386,7 +386,13 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     log.logBasic(CONST_PROJECT + projectName + "' was created for home folder : " + projectHome);
 
     Project project = projectConfig.loadProject(variables);
-    project.setParentProjectName(config.getStandardParentProject());
+    // Keep an existing parent from a pre-existing project-config.json (Docker
+    // --project-keep-config-file). Only fall back to the standard parent when none is set.
+    // --project-parent still wins via modifyProjectSettings below.
+    //
+    if (StringUtils.isEmpty(project.getParentProjectName())) {
+      project.setParentProjectName(config.getStandardParentProject());
+    }
     modifyProjectSettings(project);
 
     // Check to see if there's not a loop in the project parent hierarchy

@@ -530,7 +530,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
       // How many rows do we group together for the pipeline?
       if (!Utils.isEmpty(meta.getGroupSize())) {
-        pipelineExecutorData.groupSize = Const.toInt(resolve(meta.getGroupSize()), -1);
+        pipelineExecutorData.groupSize = Const.toIntExpanded(resolve(meta.getGroupSize()), -1);
       } else {
         pipelineExecutorData.groupSize = -1;
       }

@@ -364,7 +364,9 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
 
   private void writeIfBatchSizeRecordsAreReached()
       throws HopException, CrateDBHopException, IOException {
-    int maxBatchSize = Integer.parseInt(meta.getBatchSize());
+    String batchSize = meta.getBatchSize();
+    String expandedBatchSize = Const.expandIntegerString(batchSize);
+    int maxBatchSize = Integer.parseInt(expandedBatchSize != null ? expandedBatchSize : batchSize);
     if (data.httpBulkArgs.size() >= maxBatchSize) {
       String[] columns =
           meta.getFields().stream()

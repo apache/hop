@@ -584,7 +584,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       data.monetNumberMeta.setDecimalSymbol(".");
       data.monetNumberMeta.setStringEncoding(encoding);
 
-      data.bufferSize = Const.toInt(resolve(meta.getBufferSize()), 100000);
+      data.bufferSize = Const.toIntExpanded(resolve(meta.getBufferSize()), 100000);
 
       // Allocate the buffer
       //

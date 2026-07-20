@@ -307,6 +307,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     fdlRowsToSkip.right = new FormAttachment(middle, -margin);
     wlRowsToSkip.setLayoutData(fdlRowsToSkip);
     wRowsToSkip = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRowsToSkip.enableExpandedInteger();
     PropsUi.setLook(wRowsToSkip);
     wRowsToSkip.addModifyListener(lsMod);
     FormData fdRowsToSkip = new FormData();
@@ -327,6 +328,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLimit.enableExpandedInteger();
     PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();

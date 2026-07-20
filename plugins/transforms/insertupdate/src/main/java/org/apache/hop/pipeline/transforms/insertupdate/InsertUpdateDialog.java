@@ -216,6 +216,7 @@ public class InsertUpdateDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCommit);
 
     wCommit = new TextVar(variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCommit.enableExpandedInteger();
     wCommit.addModifyListener(lsMod);
     wCommit.setLayoutData(
         new FormDataBuilder().left(middle, 0).top(wTable, margin).right().result());

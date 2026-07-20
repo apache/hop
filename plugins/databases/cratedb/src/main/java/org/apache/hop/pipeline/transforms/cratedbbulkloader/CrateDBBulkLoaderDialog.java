@@ -662,6 +662,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
     wlBatchSize.setLayoutData(fdlBatchSize);
 
     wBatchSize = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchSize.enableExpandedInteger();
     PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     wBatchSize.addFocusListener(lsFocusLost);

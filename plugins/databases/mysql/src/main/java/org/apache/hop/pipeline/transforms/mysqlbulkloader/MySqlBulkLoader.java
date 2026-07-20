@@ -577,7 +577,7 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
     data.bulkNumberMeta.setDecimalSymbol(".");
     data.bulkNumberMeta.setStringEncoding(realEncoding);
 
-    data.bulkSize = Const.toLong(resolve(meta.getBulkSize()), -1L);
+    data.bulkSize = Const.toLongExpanded(resolve(meta.getBulkSize()), -1L);
 
     // Schema-table combination...
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);

@@ -17,14 +17,45 @@
 
 package org.apache.hop.projects.project;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.stream.Stream;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.projects.config.ProjectsConfig;
+import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.util.Defaults;
+import org.apache.hop.projects.util.ProjectsUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 public class ProjectTest {
+
+  private final java.util.List<String> registeredProjectNames = new ArrayList<>();
+  private Path tempRoot;
+
+  @AfterEach
+  public void tearDown() throws Exception {
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    for (String name : registeredProjectNames) {
+      config.removeProjectConfig(name);
+    }
+    registeredProjectNames.clear();
+    if (tempRoot != null && Files.exists(tempRoot)) {
+      try (Stream<Path> walk = Files.walk(tempRoot)) {
+        walk.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
+      tempRoot = null;
+    }
+  }
 
   @Test
   public void testEnforcingExecutionInHomeSerialization() throws Exception {
@@ -53,5 +84,121 @@ public class ProjectTest {
     } finally {
       tempFile.delete();
     }
+  }
+
+  @Test
+  public void testParentProjectVariablesWhenNoParent() throws Exception {
+    tempRoot = Files.createTempDirectory("hop-project-no-parent");
+    Path home = tempRoot.resolve("child");
+    Files.createDirectories(home);
+    writeMinimalConfig(home, null);
+
+    ProjectConfig projectConfig =
+        new ProjectConfig(
+            "orphan", home.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    registerProject(projectConfig);
+
+    Project project = projectConfig.loadProject(new Variables());
+    IVariables variables = new Variables();
+    project.modifyVariables(variables, projectConfig, new ArrayList<>(), null);
+
+    assertEquals("orphan", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
+    assertEquals(home.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+    assertEquals("", variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME));
+    assertEquals("", variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME));
+  }
+
+  @Test
+  public void testParentProjectVariablesWithParent() throws Exception {
+    tempRoot = Files.createTempDirectory("hop-project-with-parent");
+    Path parentHome = tempRoot.resolve("parent");
+    Path childHome = tempRoot.resolve("child");
+    Files.createDirectories(parentHome);
+    Files.createDirectories(childHome);
+    writeMinimalConfig(parentHome, null);
+    writeMinimalConfig(childHome, "parent-proj");
+
+    ProjectConfig parentConfig =
+        new ProjectConfig(
+            "parent-proj", parentHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    ProjectConfig childConfig =
+        new ProjectConfig(
+            "child-proj", childHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    registerProject(parentConfig);
+    registerProject(childConfig);
+
+    Project child = childConfig.loadProject(new Variables());
+    IVariables variables = new Variables();
+    child.modifyVariables(variables, childConfig, new ArrayList<>(), null);
+
+    assertEquals("child-proj", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
+    assertEquals(childHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+    assertEquals("parent-proj", variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME));
+    assertEquals(
+        parentHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME));
+  }
+
+  @Test
+  public void testParentProjectVariablesImmediateParentOnly() throws Exception {
+    tempRoot = Files.createTempDirectory("hop-project-chain");
+    Path grandHome = tempRoot.resolve("grand");
+    Path parentHome = tempRoot.resolve("parent");
+    Path childHome = tempRoot.resolve("child");
+    Files.createDirectories(grandHome);
+    Files.createDirectories(parentHome);
+    Files.createDirectories(childHome);
+    writeMinimalConfig(grandHome, null);
+    writeMinimalConfig(parentHome, "grand-proj");
+    writeMinimalConfig(childHome, "parent-proj");
+
+    registerProject(
+        new ProjectConfig(
+            "grand-proj", grandHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME));
+    registerProject(
+        new ProjectConfig(
+            "parent-proj", parentHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME));
+    ProjectConfig childConfig =
+        new ProjectConfig(
+            "child-proj", childHome.toString(), ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    registerProject(childConfig);
+
+    Project child = childConfig.loadProject(new Variables());
+    IVariables variables = new Variables();
+    child.modifyVariables(variables, childConfig, new ArrayList<>(), null);
+
+    // Immediate parent only — not the grandparent
+    assertEquals("parent-proj", variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_NAME));
+    assertEquals(
+        parentHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME));
+    assertEquals("child-proj", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
+    assertEquals(childHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+  }
+
+  private void registerProject(ProjectConfig projectConfig) {
+    ProjectsConfigSingleton.getConfig().addProjectConfig(projectConfig);
+    registeredProjectNames.add(projectConfig.getProjectName());
+  }
+
+  private static void writeMinimalConfig(Path projectHome, String parentProjectName)
+      throws Exception {
+    String parentJson =
+        parentProjectName == null ? "null" : "\"" + parentProjectName.replace("\"", "\\\"") + "\"";
+    String json =
+        "{\n"
+            + "  \"metadataBaseFolder\" : \"${PROJECT_HOME}/metadata\",\n"
+            + "  \"unitTestsBasePath\" : \"${PROJECT_HOME}\",\n"
+            + "  \"dataSetsCsvFolder\" : \"${PROJECT_HOME}/datasets\",\n"
+            + "  \"enforcingExecutionInHome\" : true,\n"
+            + "  \"parentProjectName\" : "
+            + parentJson
+            + ",\n"
+            + "  \"config\" : {\n"
+            + "    \"variables\" : [ ]\n"
+            + "  }\n"
+            + "}\n";
+    Files.writeString(
+        projectHome.resolve(ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME),
+        json,
+        StandardCharsets.UTF_8);
   }
 }

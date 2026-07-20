@@ -1019,7 +1019,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     in.setDynamicExcludeWildcardField(wExcludeWildcardField.getText());
     in.setFileField(wFileField.getSelection());
     in.setRowNumberField(wInclRownum.getSelection() ? wInclRownumField.getText() : "");
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setDynamicIncludeSubFolders(wIncludeSubFolder.getSelection());
     in.setDoNotFailIfNoFile(wDoNotFailIfNoFile.getSelection());
     in.setRaiseAnExceptionIfNoFile(wRaiseAnExceptionIfNoFile.getSelection());

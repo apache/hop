@@ -861,7 +861,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         return false;
       }
 
-      data.batchSize = Const.toLong(resolve(meta.getBatchSize()), 1);
+      data.batchSize = Const.toLongExpanded(resolve(meta.getBatchSize()), 1);
     }
 
     return super.init();

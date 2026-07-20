@@ -341,7 +341,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
       data.db = new Database(this, this, databaseMeta);
-      data.db.setQueryLimit(Const.toInt(resolve(meta.getRowLimit()), 0));
+      data.db.setQueryLimit(Const.toIntExpanded(resolve(meta.getRowLimit()), 0));
       // Statement timeout is for transform dialog / pipeline preview only (Hop GUI sets preview).
       // Normal pipeline runs use JDBC driver default (0 = no explicit timeout on the statement).
       if (getPipeline() != null && getPipeline().isPreview()) {

@@ -48,7 +48,7 @@ public class EditActionDebugLevelExtensionPoint
       }
       ActionDebugLevel debugLevel = (ActionDebugLevel) ext.getAreaOwner().getOwner();
       ActionDebugLevelDialog dialog =
-          new ActionDebugLevelDialog(HopGui.getInstance().getShell(), debugLevel);
+          new ActionDebugLevelDialog(HopGui.getInstance().getShell(), debugLevel, variables);
       if (dialog.open()) {
         WorkflowMeta workflowMeta = ext.getWorkflowGraph().getWorkflowMeta();
         ActionMeta actionCopy = (ActionMeta) ext.getAreaOwner().getParent();

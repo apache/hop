@@ -277,6 +277,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     fdlFilenameSplitSize.top = new FormAttachment(lastControl, margin);
     wlFilenameSplitSize.setLayoutData(fdlFilenameSplitSize);
     wFilenameSplitSize = new TextVar(variables, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilenameSplitSize.enableExpandedInteger();
     PropsUi.setLook(wFilenameSplitSize);
     FormData fdFilenameSplitSize = new FormData();
     fdFilenameSplitSize.left = new FormAttachment(middle, 0);
@@ -356,6 +357,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     fdlRowGroupSize.top = new FormAttachment(lastControl, margin);
     wlRowGroupSize.setLayoutData(fdlRowGroupSize);
     wRowGroupSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRowGroupSize.enableExpandedInteger();
     PropsUi.setLook(wRowGroupSize);
     FormData fdRowGroupSize = new FormData();
     fdRowGroupSize.left = new FormAttachment(middle, 0);
@@ -373,6 +375,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     fdlDataPageSize.top = new FormAttachment(lastControl, margin);
     wlDataPageSize.setLayoutData(fdlDataPageSize);
     wDataPageSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDataPageSize.enableExpandedInteger();
     PropsUi.setLook(wDataPageSize);
     FormData fdDataPageSize = new FormData();
     fdDataPageSize.left = new FormAttachment(middle, 0);
@@ -391,6 +394,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     fdlDictionaryPageSize.top = new FormAttachment(lastControl, margin);
     wlDictionaryPageSize.setLayoutData(fdlDictionaryPageSize);
     wDictionaryPageSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDictionaryPageSize.enableExpandedInteger();
     PropsUi.setLook(wDictionaryPageSize);
     FormData fdDictionaryPageSize = new FormData();
     fdDictionaryPageSize.left = new FormAttachment(middle, 0);

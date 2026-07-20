@@ -109,7 +109,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
           return false;
         }
 
-        data.batchSize = Const.toLong(resolve(meta.getBatchSize()), 1);
+        data.batchSize = Const.toLongExpanded(resolve(meta.getBatchSize()), 1);
       }
 
       if (StringUtils.isEmpty(meta.getModel())) {

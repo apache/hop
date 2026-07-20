@@ -1293,7 +1293,7 @@ public class JsonInputDialog extends BaseTransformDialog {
   private void getInfo(JsonInputMeta in) {
     transformName = wTransformName.getText(); // return value
 
-    in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
+    in.setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     in.setFilenameField(wInclFilenameField.getText());
     in.setRowNumberField(wInclRownumField.getText());
     in.setAddResultFile(wAddResult.getSelection());

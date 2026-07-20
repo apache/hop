@@ -84,7 +84,7 @@ public class KafkaConsumerInput
 
     data.incomingRowsBuffer = new ArrayList<>();
     data.batchDuration = Const.toInt(resolve(meta.getBatchDuration()), 0);
-    data.batchSize = Const.toInt(resolve(meta.getBatchSize()), 0);
+    data.batchSize = Const.toIntExpanded(resolve(meta.getBatchSize()), 0);
     data.stopWhenIdle = meta.isStopWhenIdle();
     data.maxIdleTimeMs = Const.toLong(resolve(meta.getMaxIdleTimeMs()), 500L);
     data.lastRecordTime = System.currentTimeMillis();
@@ -252,7 +252,7 @@ public class KafkaConsumerInput
 
     // The batch size : max poll size
     //
-    int batch = Const.toInt(variables.resolve(meta.getBatchSize()), 0);
+    int batch = Const.toIntExpanded(variables.resolve(meta.getBatchSize()), 0);
     if (batch > 0) {
       config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batch);
     }

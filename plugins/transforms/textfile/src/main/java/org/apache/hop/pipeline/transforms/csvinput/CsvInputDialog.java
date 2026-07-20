@@ -316,6 +316,7 @@ public class CsvInputDialog extends BaseTransformDialog
     fdlBufferSize.right = new FormAttachment(middle, -margin);
     wlBufferSize.setLayoutData(fdlBufferSize);
     wBufferSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBufferSize.enableExpandedInteger();
     PropsUi.setLook(wBufferSize);
     wBufferSize.addModifyListener(lsMod);
     FormData fdBufferSize = new FormData();

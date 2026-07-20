@@ -30,6 +30,8 @@ public class LifecycleEnvironment {
 
   private String projectName;
 
+  private String canvasText;
+
   private List<String> configurationFiles;
 
   public LifecycleEnvironment() {
@@ -48,6 +50,7 @@ public class LifecycleEnvironment {
     this.name = env.name;
     this.purpose = env.purpose;
     this.projectName = env.projectName;
+    this.canvasText = env.canvasText;
     this.configurationFiles = new ArrayList<>(env.configurationFiles);
   }
 
@@ -114,6 +117,22 @@ public class LifecycleEnvironment {
    */
   public void setProjectName(String projectName) {
     this.projectName = projectName;
+  }
+
+  /**
+   * Gets canvasText — optional large watermark drawn top-right on pipeline/workflow canvases.
+   *
+   * @return value of canvasText
+   */
+  public String getCanvasText() {
+    return canvasText;
+  }
+
+  /**
+   * @param canvasText The canvas text to set (empty/null means do not draw)
+   */
+  public void setCanvasText(String canvasText) {
+    this.canvasText = canvasText;
   }
 
   /**

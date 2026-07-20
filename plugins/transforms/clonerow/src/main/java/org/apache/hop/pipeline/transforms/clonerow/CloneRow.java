@@ -101,7 +101,7 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> {
         }
       } else {
         String nrclonesString = resolve(meta.getNrClones());
-        data.nrclones = Const.toInt(nrclonesString, 0);
+        data.nrclones = Const.toIntExpanded(nrclonesString, 0);
         if (isDebug()) {
           logDebug(BaseMessages.getString(PKG, "CloneRow.Log.NrClones", "" + data.nrclones));
         }
