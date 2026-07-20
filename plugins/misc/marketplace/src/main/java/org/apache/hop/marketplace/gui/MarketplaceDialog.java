@@ -108,7 +108,8 @@ public class MarketplaceDialog extends Dialog {
     Button wClose = new Button(shell, SWT.PUSH);
     wClose.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Close"));
     wClose.addListener(SWT.Selection, e -> close());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wClose}, PropsUi.getMargin(), null);
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wClose}, PropsUi.getMargin(), null);
 
     // Status (shared across tabs)
     wStatus = new Label(shell, SWT.LEFT);
