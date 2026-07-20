@@ -21,7 +21,11 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -35,12 +39,15 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -358,9 +365,7 @@ class DatabaseLookupUTest {
       DatabaseLookupData data)
       throws HopException {
 
-    NoneDatabaseMeta genericMeta = new NoneDatabaseMeta();
-    DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setIDatabase(genericMeta);
+    DatabaseMeta dbMeta = createNoneDbMeta();
 
     DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, dbMeta);
     when(transform.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
@@ -404,6 +409,292 @@ class DatabaseLookupUTest {
 
     assertNotNull(data.cache.getRowFromCache(data.lookupMeta, new Object[] {1L}));
     assertNotNull(data.cache.getRowFromCache(data.lookupMeta, new Object[] {2L}));
+  }
+
+  @Test
+  void infersReturnTypeFromTableWhenDefaultTypeEmpty() throws Exception {
+    Database db = mock(Database.class);
+
+    RowMeta tableFields = new RowMeta();
+    tableFields.addValueMeta(new ValueMetaInteger("ID"));
+    tableFields.addValueMeta(new ValueMetaString("stock_name"));
+    when(db.getTableFields(nullable(String.class))).thenReturn(tableFields);
+
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("connection1");
+    Lookup lookup = meta.getLookup();
+    lookup.setTableName("VirtualTable");
+    lookup.getKeyFields().add(new KeyField("id", "", "=", "ID"));
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "stock_name",
+                "",
+                "",
+                "",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    DatabaseLookupData data = new DatabaseLookupData();
+    DatabaseMeta dbMeta = createNoneDbMeta();
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, dbMeta);
+    when(transform.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+        .thenReturn(dbMeta);
+    doReturn(null).when(transform).lookupValues(any(IRowMeta.class), any(Object[].class));
+
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaInteger("id"));
+    transform.setInputRowMeta(input);
+
+    transform.init();
+    data.db = db;
+
+    transform.processRow();
+
+    IValueMeta stockName = data.outputRowMeta.searchValueMeta("stock_name");
+    assertNotNull(stockName);
+    assertThat(stockName.getType(), is(IValueMeta.TYPE_STRING));
+    assertThat(data.returnValueTypes[0], is(IValueMeta.TYPE_STRING));
+  }
+
+  @Test
+  void init_SetsHasDbConditionForLikeOperator() {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("connection1");
+    meta.getLookup().getKeyFields().add(new KeyField("id", "", "LIKE", "ID"));
+
+    DatabaseLookupData data = new DatabaseLookupData();
+    Database db = mock(Database.class);
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, createNoneDbMeta());
+    when(transform.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+        .thenReturn(createNoneDbMeta());
+
+    assertTrue(transform.init());
+    assertTrue(data.hasDBCondition);
+    assertFalse(data.allEquals);
+    assertEquals(DatabaseLookupMeta.CONDITION_LIKE, data.conditions[0]);
+  }
+
+  @Test
+  void init_ReturnsFalseWhenConnectionMissing() {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("");
+    DatabaseLookupData data = new DatabaseLookupData();
+    DatabaseLookup transform =
+        new DatabaseLookup(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+
+    assertFalse(transform.init());
+  }
+
+  @Test
+  void lookupValues_ReturnsDefaultNullIfWhenNoMatch() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setCached(false);
+    meta.getLookup().getKeyFields().add(new KeyField("id", "", "=", "ID"));
+    meta.getLookup()
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "name",
+                "",
+                "N/A",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    DatabaseLookupData data = new DatabaseLookupData();
+    Database db = mock(Database.class);
+    when(db.getLookup(anyBoolean())).thenReturn(null);
+
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, createNoneDbMeta());
+    when(transform.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+        .thenReturn(createNoneDbMeta());
+    doReturn(false).when(transform).isRowLevel();
+
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaInteger("id"));
+    transform.setInputRowMeta(input);
+
+    data.db = db;
+    data.keynrs = new int[] {0};
+    data.keynrs2 = new int[] {-1};
+    data.lookupMeta = new RowMeta();
+    data.lookupMeta.addValueMeta(new ValueMetaInteger("ID"));
+    data.returnMeta = new RowMeta();
+    data.returnMeta.addValueMeta(new ValueMetaString("name"));
+    data.outputRowMeta = input.clone();
+    data.outputRowMeta.addValueMeta(new ValueMetaString("name"));
+    data.returnValueTypes = new int[] {IValueMeta.TYPE_STRING};
+    data.nullif = new Object[] {"N/A"};
+    data.trimIndexes = new ArrayList<>();
+
+    Object[] result = transform.lookupValues(input, new Object[] {1L});
+    assertNotNull(result);
+    assertEquals("N/A", result[1]);
+  }
+
+  @Test
+  void lookupValues_EatsRowWhenEatingRowOnLookupFailure() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setCached(false);
+    meta.getLookup().setEatingRowOnLookupFailure(true);
+    meta.getLookup().getKeyFields().add(new KeyField("id", "", "=", "ID"));
+    meta.getLookup()
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "name",
+                "",
+                "",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    DatabaseLookupData data = new DatabaseLookupData();
+    Database db = mock(Database.class);
+    when(db.getLookup(anyBoolean())).thenReturn(null);
+
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, createNoneDbMeta());
+    doReturn(false).when(transform).isRowLevel();
+
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaInteger("id"));
+    transform.setInputRowMeta(input);
+
+    data.db = db;
+    data.keynrs = new int[] {0};
+    data.keynrs2 = new int[] {-1};
+    data.lookupMeta = new RowMeta();
+    data.lookupMeta.addValueMeta(new ValueMetaInteger("ID"));
+    data.returnMeta = new RowMeta();
+    data.returnMeta.addValueMeta(new ValueMetaString("name"));
+    data.outputRowMeta = input.clone();
+    data.outputRowMeta.addValueMeta(new ValueMetaString("name"));
+    data.returnValueTypes = new int[] {IValueMeta.TYPE_STRING};
+    data.nullif = new Object[] {null};
+    data.trimIndexes = new ArrayList<>();
+
+    assertNull(transform.lookupValues(input, new Object[] {1L}));
+  }
+
+  @Test
+  void lookupValues_StoresInCacheOnDbHitWhenCached() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setCached(true);
+    meta.setLoadingAllDataInCache(false);
+    meta.getLookup().getKeyFields().add(new KeyField("id", "", "=", "ID"));
+    meta.getLookup()
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "name",
+                "",
+                "",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    DatabaseLookupData data = new DatabaseLookupData();
+    data.allEquals = true;
+    data.cache = mock(DatabaseLookupData.ICache.class);
+    when(data.cache.getRowFromCache(any(IRowMeta.class), any(Object[].class))).thenReturn(null);
+
+    Database db = mock(Database.class);
+    when(db.getLookup(anyBoolean())).thenReturn(new Object[] {"Alice"});
+    RowMeta returnRowMeta = new RowMeta();
+    returnRowMeta.addValueMeta(new ValueMetaString("name"));
+    when(db.getReturnRowMeta()).thenReturn(returnRowMeta);
+
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, createNoneDbMeta());
+    doReturn(false).when(transform).isRowLevel();
+
+    RowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaInteger("id"));
+    transform.setInputRowMeta(input);
+
+    data.db = db;
+    data.keynrs = new int[] {0};
+    data.keynrs2 = new int[] {-1};
+    data.lookupMeta = new RowMeta();
+    data.lookupMeta.addValueMeta(new ValueMetaInteger("ID"));
+    data.returnMeta = new RowMeta();
+    data.returnMeta.addValueMeta(new ValueMetaString("name"));
+    data.outputRowMeta = input.clone();
+    data.outputRowMeta.addValueMeta(new ValueMetaString("name"));
+    data.returnValueTypes = new int[] {IValueMeta.TYPE_STRING};
+    data.nullif = new Object[] {null};
+    data.trimIndexes = new ArrayList<>();
+
+    Object[] result = transform.lookupValues(input, new Object[] {1L});
+    assertEquals("Alice", result[1]);
+    verify(data.cache, times(1))
+        .storeRowInCache(any(DatabaseLookupMeta.class), any(IRowMeta.class), any(), any());
+  }
+
+  @Test
+  void determineFieldsTypesQueryingDb_ThrowsWhenKeyColumnMissingInTable() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("connection1");
+    meta.getLookup().setTableName("t");
+    meta.getLookup().getKeyFields().add(new KeyField("id", "", "=", "MISSING"));
+
+    DatabaseLookupData data = new DatabaseLookupData();
+    Database db = mock(Database.class);
+    RowMeta tableFields = new RowMeta();
+    tableFields.addValueMeta(new ValueMetaInteger("ID"));
+    when(db.getTableFields(nullable(String.class))).thenReturn(tableFields);
+
+    DatabaseLookup transform = spyLookup(mockHelper, meta, data, db, createNoneDbMeta());
+    when(transform.getPipelineMeta().findDatabase(any(String.class), any(IVariables.class)))
+        .thenReturn(createNoneDbMeta());
+    data.db = db;
+
+    assertThrows(HopException.class, transform::determineFieldsTypesQueryingDb);
+  }
+
+  @Test
+  void stopRunning_CancelsQueryOnce() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("connection1");
+    DatabaseLookupData data = new DatabaseLookupData();
+    Database db = mock(Database.class);
+    data.db = db;
+    data.isCanceled = false;
+
+    DatabaseLookup transform =
+        new DatabaseLookup(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+
+    transform.stopRunning();
+    transform.stopRunning();
+
+    verify(db, times(1)).cancelQuery();
+    assertTrue(data.isCanceled);
+  }
+
+  @Test
+  void dispose_ClearsCacheAndDisconnects() {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("connection1");
+    DatabaseLookupData data = new DatabaseLookupData();
+    Database db = mock(Database.class);
+    data.db = db;
+    data.cache = DefaultCache.newCache(data, 16);
+
+    DatabaseLookup transform =
+        new DatabaseLookup(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+
+    transform.dispose();
+
+    verify(db, times(1)).disconnect();
+    assertNull(data.db);
+    assertNull(data.cache);
+  }
+
+  private DatabaseMeta createNoneDbMeta() {
+    NoneDatabaseMeta genericMeta = new NoneDatabaseMeta();
+    DatabaseMeta dbMeta = new DatabaseMeta();
+    dbMeta.setIDatabase(genericMeta);
+    return dbMeta;
   }
 
   public class MockDatabaseLookup extends DatabaseLookup {

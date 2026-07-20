@@ -20,7 +20,10 @@ package org.apache.hop.pipeline.transforms.databaselookup;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopTransformException;
@@ -39,11 +43,15 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.DatabaseImpact;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,12 +120,120 @@ class DatabaseLookupMetaTest {
     List<IValueMeta> expectedRow =
         Arrays.asList(
             new IValueMeta[] {
-              new ValueMetaString("value"), new ValueMetaString("v1"), new ValueMetaString("v2"),
+              new ValueMetaString("value"),
+              new ValueMetaString("v1"),
+              new ValueMetaString("v2"),
+              new ValueMetaString("v3"),
             });
-    assertEquals(3, row.getValueMetaList().size());
-    for (int i = 0; i < 3; i++) {
+    assertEquals(4, row.getValueMetaList().size());
+    for (int i = 0; i < 4; i++) {
       assertEquals(expectedRow.get(i).getName(), row.getValueMetaList().get(i).getName());
     }
+  }
+
+  @Test
+  void getFieldsInfersTypeFromInfoWhenDefaultTypeEmpty() throws Exception {
+    Lookup lookup = databaseLookupMeta.getLookup();
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "stock_name",
+                "",
+                "",
+                "",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    IRowMeta[] info = new IRowMeta[1];
+    info[0] = new RowMeta();
+    info[0].addValueMeta(new ValueMetaString("stock_name"));
+
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("id"));
+
+    databaseLookupMeta.getFields(row, "Database lookup", info, null, null, null);
+
+    assertEquals(2, row.size());
+    IValueMeta stockName = row.searchValueMeta("stock_name");
+    assertNotNull(stockName);
+    assertEquals(IValueMeta.TYPE_STRING, stockName.getType());
+  }
+
+  @Test
+  void getFieldsInfersTypeFromInfoWhenDefaultTypeNone() throws Exception {
+    Lookup lookup = databaseLookupMeta.getLookup();
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "amount",
+                "amt",
+                "",
+                "None",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    IRowMeta[] info = new IRowMeta[1];
+    info[0] = new RowMeta();
+    info[0].addValueMeta(new ValueMetaInteger("amount"));
+
+    IRowMeta row = new RowMeta();
+    databaseLookupMeta.getFields(row, "Database lookup", info, null, null, null);
+
+    assertEquals(1, row.size());
+    IValueMeta amt = row.searchValueMeta("amt");
+    assertNotNull(amt);
+    assertEquals(IValueMeta.TYPE_INTEGER, amt.getType());
+  }
+
+  @Test
+  void getFieldsExplicitTypeOverridesInfoType() throws Exception {
+    Lookup lookup = databaseLookupMeta.getLookup();
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "amount",
+                "",
+                "",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    IRowMeta[] info = new IRowMeta[1];
+    info[0] = new RowMeta();
+    info[0].addValueMeta(new ValueMetaInteger("amount"));
+
+    IRowMeta row = new RowMeta();
+    databaseLookupMeta.getFields(row, "Database lookup", info, null, null, null);
+
+    assertEquals(1, row.size());
+    IValueMeta amount = row.searchValueMeta("amount");
+    assertNotNull(amount);
+    assertEquals(IValueMeta.TYPE_STRING, amount.getType());
+  }
+
+  @Test
+  void getFieldsThrowsWhenTypeMissingAndFieldNotInInfo() {
+    Lookup lookup = databaseLookupMeta.getLookup();
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "missing_col",
+                "",
+                "",
+                "",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    IRowMeta[] info = new IRowMeta[1];
+    info[0] = new RowMeta();
+    info[0].addValueMeta(new ValueMetaString("other"));
+
+    IRowMeta row = new RowMeta();
+    HopTransformException thrown =
+        assertThrows(
+            HopTransformException.class,
+            () -> databaseLookupMeta.getFields(row, "Database lookup", info, null, null, null));
+    assertTrue(thrown.getMessage().contains("missing_col"));
   }
 
   @Test
@@ -357,5 +473,151 @@ class DatabaseLookupMetaTest {
     assertEquals("f3", meta.getLookup().getReturnValues().get(0).getNewName());
     assertEquals("?", meta.getLookup().getReturnValues().get(0).getDefaultValue());
     assertEquals("String", meta.getLookup().getReturnValues().get(0).getDefaultType());
+  }
+
+  @Test
+  void supportsErrorHandling_ReturnsTrue() {
+    assertTrue(databaseLookupMeta.supportsErrorHandling());
+  }
+
+  @Test
+  void getConditionStrings_ContainsAllOperators() {
+    List<String> conditions = DatabaseLookupMeta.getConditionStrings();
+    assertEquals(10, conditions.size());
+    assertTrue(conditions.contains("="));
+    assertTrue(conditions.contains("<>"));
+    assertTrue(conditions.contains("LIKE"));
+    assertTrue(conditions.contains("BETWEEN"));
+    assertTrue(conditions.contains("IS NULL"));
+    assertTrue(conditions.contains("IS NOT NULL"));
+  }
+
+  @Test
+  void check_ReportsErrorWhenConnectionMissing() {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("");
+    List<ICheckResult> remarks = new ArrayList<>();
+    TransformMeta transformMeta = new TransformMeta("lookup", meta);
+    Variables variables = new Variables();
+
+    meta.check(
+        remarks,
+        mock(PipelineMeta.class),
+        transformMeta,
+        new RowMeta(),
+        new String[] {"prev"},
+        new String[] {},
+        null,
+        variables,
+        metadataProvider);
+
+    assertTrue(
+        remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR),
+        "Expected a missing-connection error remark");
+  }
+
+  @Test
+  void check_ReportsErrorWhenNoInputReceived() {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("postgres");
+    meta.getLookup().setTableName("");
+    List<ICheckResult> remarks = new ArrayList<>();
+    TransformMeta transformMeta = new TransformMeta("lookup", meta);
+    Variables variables = new Variables();
+
+    // Connection exists in metadata but connecting to NONE DB may fail — still should report
+    // no-input when input array is empty.
+    meta.check(
+        remarks,
+        mock(PipelineMeta.class),
+        transformMeta,
+        new RowMeta(),
+        new String[] {},
+        new String[] {},
+        null,
+        variables,
+        metadataProvider);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText() != null
+                        && r.getText().toLowerCase().contains("no input")),
+        "Expected a no-input error remark, got: " + remarks);
+  }
+
+  @Test
+  void check_ReportsOkWhenReceivingInput() {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("postgres");
+    meta.getLookup().setTableName("");
+    List<ICheckResult> remarks = new ArrayList<>();
+    TransformMeta transformMeta = new TransformMeta("lookup", meta);
+    Variables variables = new Variables();
+
+    meta.check(
+        remarks,
+        mock(PipelineMeta.class),
+        transformMeta,
+        new RowMeta(),
+        new String[] {"prev"},
+        new String[] {},
+        null,
+        variables,
+        metadataProvider);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_OK
+                        && r.getText() != null
+                        && r.getText().toLowerCase().contains("receiving")),
+        "Expected an OK remark about receiving input, got: " + remarks);
+  }
+
+  @Test
+  void analyseImpact_AddsReadImpactForKeysAndReturns() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.setConnection("postgres");
+    Lookup lookup = meta.getLookup();
+    lookup.setTableName("users");
+    lookup.getKeyFields().add(new KeyField("in_id", "", "=", "id"));
+    lookup
+        .getReturnValues()
+        .add(
+            new ReturnValue(
+                "name",
+                "user_name",
+                "",
+                "String",
+                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
+
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("in_id"));
+
+    List<DatabaseImpact> impact = new ArrayList<>();
+    TransformMeta transformMeta = new TransformMeta("lookup", meta);
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    when(pipelineMeta.getName()).thenReturn("pipe");
+
+    meta.analyseImpact(
+        new Variables(),
+        impact,
+        pipelineMeta,
+        transformMeta,
+        prev,
+        new String[] {},
+        new String[] {},
+        null,
+        metadataProvider);
+
+    assertEquals(2, impact.size());
+    assertEquals(DatabaseImpact.TYPE_IMPACT_READ, impact.get(0).getType());
+    assertEquals("id", impact.get(0).getField());
+    assertEquals(DatabaseImpact.TYPE_IMPACT_READ, impact.get(1).getType());
+    assertEquals("name", impact.get(1).getField());
   }
 }

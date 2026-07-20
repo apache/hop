@@ -130,34 +130,48 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     try {
-      // info row metadata: null or length 0 : no lookup row metadata from database
+      // Prefer an explicit return type. When none is configured, infer from table field
+      // metadata (info row from design-time / runtime, otherwise query the table).
       //
-      if (Utils.isEmpty(infoRowMeta) || infoRowMeta[0] == null) {
-        for (ReturnValue returnValue : lookup.getReturnValues()) {
-          IValueMeta v =
-              ValueMetaFactory.createValueMeta(
-                  !Utils.isEmpty(returnValue.getNewName())
-                      ? returnValue.getNewName()
-                      : returnValue.getTableField(),
-                  ValueMetaFactory.getIdForValueMeta(returnValue.getDefaultType()));
-          v.setOrigin(name);
-          row.addValueMeta(v);
-        }
-        return;
+      IRowMeta tableFields = null;
+      if (!Utils.isEmpty(infoRowMeta) && infoRowMeta[0] != null) {
+        tableFields = infoRowMeta[0];
       }
 
       for (ReturnValue returnValue : lookup.getReturnValues()) {
-        IValueMeta v = infoRowMeta[0].searchValueMeta(returnValue.getTableField());
-        if (v != null) {
-          IValueMeta copy = v.clone(); // avoid renaming other value meta
-          copy.setName(
-              !Utils.isEmpty(returnValue.getNewName())
-                  ? returnValue.getNewName()
-                  : returnValue.getTableField());
-          copy.setOrigin(name);
-          row.addValueMeta(copy);
+        String fieldName =
+            !Utils.isEmpty(returnValue.getNewName())
+                ? returnValue.getNewName()
+                : returnValue.getTableField();
+        int typeId = ValueMetaFactory.getIdForValueMeta(returnValue.getDefaultType());
+        IValueMeta v;
+        if (typeId != IValueMeta.TYPE_NONE) {
+          v = ValueMetaFactory.createValueMeta(fieldName, typeId);
+        } else {
+          if (tableFields == null) {
+            tableFields = getTableFields(variables);
+          }
+          if (tableFields == null) {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, "DatabaseLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField"));
+          }
+          IValueMeta source = tableFields.searchValueMeta(returnValue.getTableField());
+          if (source == null) {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG,
+                    "DatabaseLookupMeta.Exception.UnableToFindReturnField",
+                    returnValue.getTableField()));
+          }
+          v = source.clone(); // avoid renaming other value meta
+          v.setName(fieldName);
         }
+        v.setOrigin(name);
+        row.addValueMeta(v);
       }
+    } catch (HopTransformException e) {
+      throw e;
     } catch (HopException e) {
       throw new HopTransformException("Error getting fields metadata", e);
     }

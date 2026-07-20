@@ -50,4 +50,32 @@ class SearchingContextTest {
     ctx.intersect(set, false);
     assertTrue(ctx.isEmpty(), "Expected to be empty");
   }
+
+  @Test
+  void intersect_InverseModeRemovesCandidates() {
+    SearchingContext ctx = new SearchingContext();
+    ctx.init(4);
+
+    BitSet remove = ctx.getWorkingSet();
+    remove.set(0);
+    remove.set(2);
+    ctx.intersect(remove, true);
+
+    assertFalse(ctx.isEmpty());
+    BitSet candidates = ctx.getCandidates();
+    assertFalse(candidates.get(0));
+    assertTrue(candidates.get(1));
+    assertFalse(candidates.get(2));
+    assertTrue(candidates.get(3));
+  }
+
+  @Test
+  void setEmpty_MarksContextEmpty() {
+    SearchingContext ctx = new SearchingContext();
+    ctx.init(3);
+    assertFalse(ctx.isEmpty());
+
+    ctx.setEmpty();
+    assertTrue(ctx.isEmpty());
+  }
 }
