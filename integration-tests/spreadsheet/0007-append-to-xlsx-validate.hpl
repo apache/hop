@@ -207,7 +207,7 @@ limitations under the License.
       <file_required>N</file_required>
       <filemask/>
       <include_subfolders>N</include_subfolders>
-      <name>${PROJECT_HOME}/files/sample-file-append-test.xlsx</name>
+      <name>${PROJECT_HOME}/output/sample-file-append-test.xlsx</name>
     </file>
     <filefield/>
     <header>Y</header>

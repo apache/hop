@@ -173,7 +173,7 @@ limitations under the License.
     </fields>
     <data>
       <line>
-        <item>${PROJECT_HOME}/files/excelwriter-mdi-test</item>
+        <item>${PROJECT_HOME}/output/excelwriter-mdi-test</item>
         <item>xlsx</item>
       </line>
     </data>

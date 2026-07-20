@@ -130,7 +130,7 @@ limitations under the License.
     <appendLines>N</appendLines>
     <add_to_result_filenames>Y</add_to_result_filenames>
     <file>
-      <name>${PROJECT_HOME}/files/exelwriter-testfile</name>
+      <name>${PROJECT_HOME}/output/exelwriter-testfile</name>
       <extention>xlsx</extention>
       <do_not_open_newfile_init>N</do_not_open_newfile_init>
       <split>N</split>

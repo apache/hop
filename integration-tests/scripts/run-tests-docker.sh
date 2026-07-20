@@ -112,14 +112,29 @@ fi
 
 # Detect a real Google Cloud service-account key. The dummy file is a license comment, not
 # JSON; spreadsheet Google Sheets ITs need a real key (Jenkins: credentials gcp-access-hop).
+# Require non-empty file + type=service_account + JSON-looking content so a corrupt/empty
+# secret still skips cleanly. When python3 is available, also require parseable JSON.
 SKIP_GOOGLE_SHEETS="false"
+GCP_KEY_OK="true"
 if [ ! -f "${GCP_KEY_FILE}" ] \
   || [[ "${GCP_KEY_FILE}" == *dummyfile* ]] \
-  || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_FILE}" 2>/dev/null; then
+  || [ ! -s "${GCP_KEY_FILE}" ] \
+  || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_FILE}" 2>/dev/null \
+  || ! grep -qE '\{' "${GCP_KEY_FILE}" 2>/dev/null; then
+  GCP_KEY_OK="false"
+elif command -v python3 >/dev/null 2>&1; then
+  if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "${GCP_KEY_FILE}" 2>/dev/null; then
+    GCP_KEY_OK="false"
+  fi
+fi
+if [ "${GCP_KEY_OK}" = "true" ]; then
+  echo "GCP service-account JSON present at GCP_KEY_FILE=${GCP_KEY_FILE}; Google Sheets ITs will run"
+else
   SKIP_GOOGLE_SHEETS="true"
   echo "No valid GCP service-account JSON at GCP_KEY_FILE=${GCP_KEY_FILE}; spreadsheet Google Sheets tests will be skipped"
 fi
 export SKIP_GOOGLE_SHEETS
+echo "SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS}"
 
 if [ -z "${HOP_OPTIONS}" ] ; then 
   HOP_OPTIONS="${HOP_OPTIONS} -Djavax.net.ssl.keyStore=./docker/integration-tests/resource/keystore.jks -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.trustStore=./docker/integration-tests/resource/mail/conf/keystore "
@@ -142,31 +157,52 @@ fi
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 chmod 777 "${CURRENT_DIR}"/../surefire-reports/
 
-# Pre-create project output/ dirs on the host and make them world-writable.
+# Pre-create project write dirs on the host and make them world-writable.
 # ASF Jenkins passes a container UID that matches the agent workspace owner, so ownership
-# alone is enough there. World-writable output/ is a belt-and-suspenders for:
+# alone is often enough. World-writable dirs are belt-and-suspenders for:
 #   - local runs where someone overrides JENKINS_UID to a fixed value
 #   - compose files that hardcode build-arg UIDs when not using this script's --build-arg
-# Pipelines that write temp artifacts (Excel/ODS writer, Spark CSV, etc.) use
-# ${PROJECT_HOME}/output.
+#   - residual files from a previous container UID that the host cannot delete/overwrite
+#
+# Many ITs write under ${PROJECT_HOME}/output (Excel/ODS, Spark CSV, mail), under
+# ${PROJECT_HOME}/files (HTTP download, spreadsheet Excel writer, MDI JSON, parquet),
+# and some MDI tests write *-injected.hpl into the project root itself.
 #
 # Spark/Spark-native leave untracked part-*.csv / .crc trees under output/<case>/ owned by
-# the previous container UID (often 755). Later runs with a different JENKINS_UID cannot
-# delete them. Only remove *untracked* residual files — never wipe git-tracked content
+# the previous container UID. Later runs with a different JENKINS_UID cannot delete them.
+# Only remove *untracked* residual files under output/ — never wipe git-tracked content
 # (ldap stores setup pipelines under output/*.hpl).
 REPO_ROOT="$(cd "${CURRENT_DIR}/../.." && pwd)"
+IT_ROOT="$(cd "${CURRENT_DIR}/.." && pwd)"
+
+# Best-effort: re-own the whole integration-tests tree as the container user so bind-mount
+# writes succeed even when a previous run left root/other-UID residuals (needs Docker).
+# Ownership only — do not chmod -R the tree (that dirties git file modes on 644 fixtures).
+if docker info >/dev/null 2>&1; then
+  echo "Ensuring integration-tests/ is owned by ${JENKINS_UID}:${JENKINS_GID} (container identity)"
+  docker run --rm -v "${IT_ROOT}:/files" alpine:3.19 \
+    sh -c "chown -R ${JENKINS_UID}:${JENKINS_GID} /files 2>/dev/null; true" \
+    2>/dev/null || true
+fi
+
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
     if [ -d "$d" ] && [ ! -f "$d/disabled.txt" ]; then
-      mkdir -p "$d/output"
-      chmod 777 "$d/output" 2>/dev/null || true
+      # Project root: MDI target_file=…-injected.hpl writes here.
+      chmod a+rwx "$d" 2>/dev/null || true
+
+      mkdir -p "$d/output" "$d/files"
+      chmod 777 "$d/output" "$d/files" 2>/dev/null || true
+
       abs_out="$(cd "$d/output" && pwd)"
       rel_out="${abs_out#"${REPO_ROOT}"/}"
+      abs_files="$(cd "$d/files" && pwd)"
+      rel_files="${abs_files#"${REPO_ROOT}"/}"
 
-      # 1) Untracked leftovers only when the host can delete them (safe for ldap/*.hpl).
+      # 1) Untracked leftovers under output/ only when the host can delete them (safe for ldap/*.hpl).
       git -C "${REPO_ROOT}" clean -fd -- "${rel_out}" 2>/dev/null || true
 
-      # 2) Other-UID Spark residuals: chmod as root, then host git clean again.
+      # 2) Other-UID residuals under output/: chmod as root, then host git clean again.
       #    Never blanket-delete under output/ (that wiped ldap/output/*.hpl).
       if find "$d/output" \( -name 'part-*' -o -name '_SUCCESS' -o -name '*.crc' \) 2>/dev/null | grep -q .; then
         echo "Fixing permissions on Spark residual files under ${rel_out}"
@@ -178,6 +214,47 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
           sh -c 'find /out \( -name "part-*" -o -name "_SUCCESS" -o -name "*.crc" \) -exec rm -rf {} + 2>/dev/null; find /out -type d -empty -delete 2>/dev/null; true' \
           2>/dev/null || true
       fi
+
+      # 3) files/ must stay writable for overwrite (HopVfs deletes then recreates).
+      #    Re-assert modes; do not wipe fixtures. Only remove *untracked* generated leftovers
+      #    (never rm a path that is still in git — e.g. http/files/exel-part-001.xlsx is a fixture).
+      if [ -d "$d/files" ]; then
+        chmod 777 "$d/files" 2>/dev/null || true
+        for residual in \
+          http-action-output \
+          jsonoutput-mdi-test_0.json \
+          excelwriter-mdi-test.xlsx \
+          exelwriter-testfile \
+          exelwriter-testfile.xls \
+          exel-header-test.xlsx \
+          exel-part-001.xlsx \
+          exel-part-002.xlsx \
+          exel-multi-part_0.xlsx \
+          exel-multi-part_1.xlsx \
+          exel-multi-part_2.xlsx \
+          exel-multi-part_3.xlsx \
+          exel-multi-part_4.xlsx \
+          sample-file-append-test.xlsx \
+          parquet-test-00-0001.parquet; do
+          residual_path="$d/files/${residual}"
+          residual_rel="${residual_path#"${REPO_ROOT}"/}"
+          # Skip if tracked by git (fixture), only drop untracked leftovers
+          if [ -e "${residual_path}" ] \
+            && ! git -C "${REPO_ROOT}" ls-files --error-unmatch "${residual_rel}" >/dev/null 2>&1; then
+            rm -f "${residual_path}" 2>/dev/null || true
+          fi
+        done
+        # If host still cannot write into files/, force a+rwx via root.
+        if ! touch "$d/files/.hop-it-write-check" 2>/dev/null; then
+          echo "Fixing permissions on ${rel_files} (container/host UID mismatch)"
+          docker run --rm -v "${abs_files}:/filesdir" alpine:3.19 \
+            sh -c 'chmod -R a+rwx /filesdir 2>/dev/null; true' 2>/dev/null || true
+        else
+          rm -f "$d/files/.hop-it-write-check" 2>/dev/null || true
+        fi
+        chmod 777 "$d/files" 2>/dev/null || true
+      fi
+
       chmod 777 "$d/output" 2>/dev/null || true
     fi
   fi

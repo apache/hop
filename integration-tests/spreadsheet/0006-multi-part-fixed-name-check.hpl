@@ -126,7 +126,7 @@ limitations under the License.
     <accept_field/>
     <accept_transform_name/>
     <file>
-      <name>${PROJECT_HOME}/files/</name>
+      <name>${PROJECT_HOME}/output/</name>
       <filemask>^exel-multi-part.*</filemask>
       <exclude_filemask/>
       <file_required>N</file_required>
