@@ -79,7 +79,7 @@ limitations under the License.
     <defaultPathLeafToNull>Y</defaultPathLeafToNull>
     <rownum_field/>
     <file>
-      <name>${PROJECT_HOME}/files/jsonoutput-mdi-test_0.json</name>
+      <name>${PROJECT_HOME}/output/jsonoutput-mdi-test_0.json</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>

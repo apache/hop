@@ -197,7 +197,7 @@ limitations under the License.
     </fields>
     <data>
       <line>
-        <item>${PROJECT_HOME}/files/jsonoutput-mdi-test</item>
+        <item>${PROJECT_HOME}/output/jsonoutput-mdi-test</item>
         <item>json</item>
       </line>
     </data>

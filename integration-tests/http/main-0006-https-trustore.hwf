@@ -82,7 +82,7 @@ limitations under the License.
       <type>HTTP</type>
       <attributes/>
       <url>${HTTPS_TEST_URL}</url>
-      <targetfilename>${PROJECT_HOME}/files/http-action-output</targetfilename>
+      <targetfilename>${PROJECT_HOME}/output/http-action-output</targetfilename>
       <file_appended>N</file_appended>
       <date_time_added>N</date_time_added>
       <targetfilename_extension/>

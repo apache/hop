@@ -133,7 +133,7 @@ limitations under the License.
         <group/>
         <length>-1</length>
         <name>file</name>
-        <nullif>files/parquet-test-00-0001.parquet</nullif>
+        <nullif>output/parquet-test-00-0001.parquet</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>

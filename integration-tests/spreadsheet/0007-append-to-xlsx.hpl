@@ -203,7 +203,7 @@ limitations under the License.
       <filename_in_field>N</filename_in_field>
       <if_file_exists>reuse</if_file_exists>
       <if_sheet_exists>reuse</if_sheet_exists>
-      <name>${PROJECT_HOME}/files/sample-file-append-test</name>
+      <name>${PROJECT_HOME}/output/sample-file-append-test</name>
       <password/>
       <protect_sheet>N</protect_sheet>
       <protected_by/>
