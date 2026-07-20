@@ -21,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
@@ -35,15 +35,20 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.remote.RemoteWorkflowEngine;
 import org.apache.hop.workflow.engines.remote.RemoteWorkflowRunConfiguration;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+/**
+ * Uses {@link RestoreHopEngineEnvironmentExtension} rather than a plain {@code
+ * HopEnvironment.init()} in a {@code @BeforeAll}. The bare init is a no-op when a previous test
+ * already flipped {@code HopEnvironment.initialized} to true, and a base {@code
+ * RestoreHopEnvironmentExtension} test running in between wipes the PluginRegistry without nulling
+ * that flag. That combination left the workflow engine plugins ("Local"/"Remote") unregistered and
+ * made this class fail depending on test execution order. The engine extension forces a full reset
+ * + re-init, so the registry is always populated here.
+ */
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class WorkflowEngineFactoryTest {
-
-  @BeforeAll
-  static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
 
   /**
    * The parent logging object is how the log level is pushed down into the engine. A workflow that

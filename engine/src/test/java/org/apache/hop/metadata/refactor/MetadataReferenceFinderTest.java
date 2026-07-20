@@ -26,13 +26,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Unit tests for {@link MetadataReferenceFinder}.
@@ -46,6 +47,7 @@ import org.junit.jupiter.api.Test;
  * <p>The tests here focus on guard conditions (null/empty inputs) and behaviors that are
  * independent of plugin registration.
  */
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class MetadataReferenceFinderTest {
 
   private static MemoryMetadataProvider provider;
@@ -54,7 +56,6 @@ class MetadataReferenceFinderTest {
 
   @BeforeAll
   static void setupEnvironment() throws Exception {
-    HopEnvironment.init();
     provider = new MemoryMetadataProvider();
   }
 
