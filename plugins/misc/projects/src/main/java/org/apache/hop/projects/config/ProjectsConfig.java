@@ -118,7 +118,51 @@ public class ProjectsConfig {
       existing.setProjectHome(projectConfig.getProjectHome());
       existing.setConfigFilename(projectConfig.getConfigFilename());
       existing.setReadOnly(projectConfig.isReadOnly());
+      existing.setGroup(projectConfig.getGroup());
+      existing.setTags(projectConfig.getTags());
     }
+  }
+
+  /**
+   * Update an existing project registration, including rename of the project name.
+   *
+   * @param originalName name currently stored in hop-config
+   * @param projectConfig updated registration (may have a new projectName)
+   */
+  public void updateProjectConfig(String originalName, ProjectConfig projectConfig) {
+    if (StringUtils.isEmpty(originalName)
+        || originalName.equalsIgnoreCase(projectConfig.getProjectName())) {
+      addProjectConfig(projectConfig);
+      return;
+    }
+    ProjectConfig existing = findProjectConfig(originalName);
+    if (existing == null) {
+      addProjectConfig(projectConfig);
+      return;
+    }
+    existing.setProjectName(projectConfig.getProjectName());
+    existing.setProjectHome(projectConfig.getProjectHome());
+    existing.setConfigFilename(projectConfig.getConfigFilename());
+    existing.setReadOnly(projectConfig.isReadOnly());
+    existing.setGroup(projectConfig.getGroup());
+    existing.setTags(projectConfig.getTags());
+  }
+
+  /**
+   * Distinct non-empty group names from registered projects, sorted case-insensitively.
+   *
+   * @return list of group names
+   */
+  public List<String> listProjectGroups() {
+    List<String> groups = new ArrayList<>();
+    for (ProjectConfig projectConfig : projectConfigurations) {
+      String group = projectConfig.getGroup();
+      if (StringUtils.isNotEmpty(group) && !groups.contains(group)) {
+        groups.add(group);
+      }
+    }
+    Collections.sort(groups, String.CASE_INSENSITIVE_ORDER);
+    return groups;
   }
 
   public int indexOfProjectConfig(String projectName) {

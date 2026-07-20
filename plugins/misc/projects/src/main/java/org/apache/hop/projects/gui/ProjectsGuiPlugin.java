@@ -77,7 +77,6 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
@@ -792,28 +791,9 @@ public class ProjectsGuiPlugin {
   }
 
   public void selectProject() {
-    List<String> projectNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
-    projectNames.sort(String::compareToIgnoreCase);
-
-    String[] projects = projectNames.toArray(new String[0]);
-
-    EnterSelectionDialog dialog =
-        new EnterSelectionDialog(
-            HopGui.getInstance().getActiveShell(),
-            projects,
-            BaseMessages.getString(PKG, "ProjectGuiPlugin.Dialog.AvailableProjects.Title"),
-            BaseMessages.getString(PKG, "ProjectGuiPlugin.Dialog.AvailableProjects.Message"));
-
-    String currentProject = HopNamespace.getNamespace();
-    dialog.setCurrentValue(currentProject);
-    int index = Const.indexOfString(currentProject, projects);
-    if (index >= 0) {
-      dialog.setSelectedNrs(
-          new int[] {
-            index,
-          });
-    }
-
+    HopGui hopGui = HopGui.getInstance();
+    SelectProjectsDialog dialog =
+        new SelectProjectsDialog(hopGui.getActiveShell(), hopGui.getVariables());
     String name = dialog.open();
     if (name != null) {
       selectProject(name);
@@ -1138,29 +1118,41 @@ public class ProjectsGuiPlugin {
     // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
     String projectName =
         HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
+    deleteRegisteredProject(HopGui.getInstance().getShell(), projectName);
+  }
+
+  /**
+   * Delete a project registration by name (confirmation + parent-project checks). Used by the
+   * toolbar delete action and the projects browser dialog.
+   *
+   * @param parentShell parent for confirmation/error dialogs (must be the active modal dialog when
+   *     called from SelectProjectsDialog, otherwise message boxes appear behind it)
+   * @param projectName name of the project to remove from hop-config
+   * @return true if the project was removed
+   */
+  public boolean deleteRegisteredProject(Shell parentShell, String projectName) {
     if (StringUtils.isEmpty(projectName)) {
-      return;
+      return false;
     }
+    Shell shell = parentShell != null ? parentShell : HopGui.getInstance().getShell();
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     ProjectConfig currentProjectConfig = config.findProjectConfig(projectName);
     if (currentProjectConfig == null) {
-      return;
+      return false;
     }
 
     String projectHome = currentProjectConfig.getProjectHome();
     String configFilename = currentProjectConfig.getConfigFilename();
 
     try {
-
       List<String> refs = ProjectsUtil.getParentProjectReferences(projectName);
 
       if (refs.isEmpty()) {
-        performProjectDeletion(projectName, config, projectHome, configFilename);
+        return performProjectDeletion(shell, projectName, config, projectHome, configFilename);
       } else {
         String prjReferences = String.join(",", refs);
-        MessageBox box =
-            new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
+        MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
         box.setText(
             BaseMessages.getString(
                 PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Header"));
@@ -1173,21 +1165,33 @@ public class ProjectsGuiPlugin {
                 + BaseMessages.getString(
                     PKG, "ProjectGuiPlugin.DeleteProject.ProjectReferencedAsParent.Message2"));
         box.open();
+        return false;
       }
     } catch (Exception e) {
       new ErrorDialog(
-          HopGui.getInstance().getShell(),
+          shell,
           BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Header"),
           BaseMessages.getString(
               PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Message", projectName),
           e);
+      return false;
     }
   }
 
-  private void performProjectDeletion(
-      String projectName, ProjectsConfig config, String projectHome, String configFilename) {
-    MessageBox box =
-        new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+  /**
+   * Confirm and remove a project registration from hop-config (does not delete files on disk).
+   *
+   * @param parentShell parent for confirmation/error dialogs
+   * @return true if the project was removed
+   */
+  public boolean performProjectDeletion(
+      Shell parentShell,
+      String projectName,
+      ProjectsConfig config,
+      String projectHome,
+      String configFilename) {
+    Shell shell = parentShell != null ? parentShell : HopGui.getInstance().getShell();
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
     box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Header"));
     box.setMessage(
         BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Dialog.Message1", projectName)
@@ -1208,15 +1212,17 @@ public class ProjectsGuiPlugin {
         } else {
           updateProjectToolItem(config.getDefaultProject());
         }
+        return true;
       } catch (Exception e) {
         new ErrorDialog(
-            HopGui.getInstance().getShell(),
+            shell,
             BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Header"),
             BaseMessages.getString(
                 PKG, "ProjectGuiPlugin.DeleteProject.Error.Dialog.Message", projectName),
             e);
       }
     }
+    return false;
   }
 
   @GuiMenuElement(
@@ -1599,12 +1605,12 @@ public class ProjectsGuiPlugin {
       Button btnIncludeVariables = new Button(treeShell, SWT.CHECK);
       PropsUi.setLook(btnIncludeVariables);
       btnIncludeVariables.setText(
-              BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeVariables.Label"));
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeVariables.Label"));
       btnIncludeVariables.setSelection(true);
       btnIncludeVariables.addListener(
-              SWT.Selection, event -> includeVariables.set(btnIncludeVariables.getSelection()));
+          SWT.Selection, event -> includeVariables.set(btnIncludeVariables.getSelection()));
       btnIncludeVariables.setLayoutData(
-              new FormDataBuilder().fullWidth().bottom(separator, -PropsUi.getMargin()).result());
+          new FormDataBuilder().fullWidth().bottom(separator, -PropsUi.getMargin()).result());
 
       // Bottom → top: metadata, as-is, variables, file tree
       //
@@ -1614,22 +1620,24 @@ public class ProjectsGuiPlugin {
           BaseMessages.getString(PKG, "ProjectGuiPlugin.IncludeMetadata.Label"));
       btnIncludeMetadata.setSelection(true);
       btnIncludeMetadata.setLayoutData(
-          new FormDataBuilder().fullWidth().bottom(btnIncludeVariables, -2 * PropsUi.getMargin()).result());
+          new FormDataBuilder()
+              .fullWidth()
+              .bottom(btnIncludeVariables, -2 * PropsUi.getMargin())
+              .result());
       btnIncludeMetadata.addListener(
           SWT.Selection, event -> includeMetadata.set(btnIncludeMetadata.getSelection()));
-
 
       Button btnExportAsIs = new Button(treeShell, SWT.CHECK);
       PropsUi.setLook(btnExportAsIs);
       btnExportAsIs.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ExportAsIs.Label"));
       btnExportAsIs.setToolTipText(
-              BaseMessages.getString(PKG, "ProjectGuiPlugin.ExportAsIs.Tooltip"));
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.ExportAsIs.Tooltip"));
       btnExportAsIs.setSelection(false);
       btnExportAsIs.setLayoutData(
-              new FormDataBuilder()
-                      .fullWidth()
-                      .bottom(btnIncludeMetadata, -PropsUi.getMargin())
-                      .result());
+          new FormDataBuilder()
+              .fullWidth()
+              .bottom(btnIncludeMetadata, -PropsUi.getMargin())
+              .result());
 
       // Remember selections so we can restore them when "export as-is" is turned off.
       AtomicBoolean savedIncludeVariables = new AtomicBoolean(true);

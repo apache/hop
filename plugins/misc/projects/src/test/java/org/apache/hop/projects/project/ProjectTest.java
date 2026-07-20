@@ -208,6 +208,72 @@ public class ProjectTest {
   }
 
   @Test
+  public void testGroupAndTagsHelpers() {
+    ProjectConfig config =
+        new ProjectConfig(
+            "demo", "/home/user/demo", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    config.setGroup("Clients");
+    config.setTags(ProjectConfig.parseTags("etl, customer-a; legacy"));
+
+    assertEquals("Clients", config.getGroup());
+    assertEquals(3, config.getTags().size());
+    assertEquals("etl, customer-a, legacy", config.getTagsAsDisplayString());
+
+    assertTrue(config.matchesFilter("client"));
+    assertTrue(config.matchesFilter("ETL"));
+    assertTrue(config.matchesFilter("customer-a"));
+    assertTrue(config.matchesFilter("/home/user"));
+    assertFalse(config.matchesFilter("unrelated-xyz"));
+    assertTrue(config.matchesFilter(""));
+    assertTrue(config.matchesFilter(null));
+  }
+
+  @Test
+  public void testAddProjectConfigPreservesGroupTagsAndReadOnly() {
+    ProjectConfig config =
+        new ProjectConfig("meta", "/tmp/meta", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    config.setGroup("Internal");
+    config.setTags(ProjectConfig.parseTags("poc"));
+    config.setReadOnly(true);
+    registerProject(config);
+
+    ProjectConfig update = new ProjectConfig("meta", "/tmp/meta2", "config/project-config.json");
+    update.setGroup("Clients");
+    update.setTags(ProjectConfig.parseTags("active, critical"));
+    update.setReadOnly(false);
+    ProjectsConfigSingleton.getConfig().addProjectConfig(update);
+
+    ProjectConfig stored = ProjectsConfigSingleton.getConfig().findProjectConfig("meta");
+    assertEquals("/tmp/meta2", stored.getProjectHome());
+    assertEquals("config/project-config.json", stored.getConfigFilename());
+    assertEquals("Clients", stored.getGroup());
+    assertEquals("active, critical", stored.getTagsAsDisplayString());
+    assertFalse(stored.isReadOnly());
+  }
+
+  @Test
+  public void testUpdateProjectConfigRename() {
+    ProjectConfig config =
+        new ProjectConfig("old-name", "/tmp/old", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    config.setGroup("Legacy");
+    registerProject(config);
+
+    ProjectConfig renamed =
+        new ProjectConfig("new-name", "/tmp/new", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    renamed.setGroup("Legacy");
+    renamed.setTags(ProjectConfig.parseTags("migrated"));
+    ProjectsConfigSingleton.getConfig().updateProjectConfig("old-name", renamed);
+    registeredProjectNames.remove("old-name");
+    registeredProjectNames.add("new-name");
+
+    assertTrue(ProjectsConfigSingleton.getConfig().findProjectConfig("old-name") == null);
+    ProjectConfig stored = ProjectsConfigSingleton.getConfig().findProjectConfig("new-name");
+    assertEquals("new-name", stored.getProjectName());
+    assertEquals("/tmp/new", stored.getProjectHome());
+    assertEquals("migrated", stored.getTagsAsDisplayString());
+  }
+
+  @Test
   public void testLoadProjectFromZipArchive() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-zip");
     Path zipFile = tempRoot.resolve("project.zip");
