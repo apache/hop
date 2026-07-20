@@ -56,10 +56,12 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.plugins.JarCache;
@@ -388,8 +390,25 @@ public class HopGui
     notifyWebThemePreferenceChanged(Boolean.valueOf(darkMode));
   }
 
+  /**
+   * Apply a startup log level from the {@code HOP_LOG_LEVEL} system property (e.g. set by {@code
+   * hop-gui.sh debug}). Sets the default level so newly created channels inherit it, and updates
+   * the already-created static UI/GENERAL channels so GUI-side debug logging becomes visible.
+   */
+  private static void applyStartupLogLevel() {
+    String levelCode = System.getProperty("HOP_LOG_LEVEL");
+    if (StringUtils.isEmpty(levelCode)) {
+      return;
+    }
+    LogLevel level = LogLevel.lookupCode(levelCode);
+    DefaultLogLevel.setLogLevel(level);
+    LogChannel.UI.setLogLevel(level);
+    LogChannel.GENERAL.setLogLevel(level);
+  }
+
   public static void main(String[] arguments) {
     try {
+      applyStartupLogLevel();
       setupConsoleLogging();
       if (!HopEnvironment.isInitialized()) {
         HopEnvironment.init();

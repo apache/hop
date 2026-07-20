@@ -148,6 +148,34 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
     // Do nothing by default
   }
 
+  /** Drop into the folder itself (no split). */
+  int DROP_ZONE_CENTER = 0;
+
+  /** Split the folder and drop into a new pane above it. */
+  int DROP_ZONE_NORTH = 1;
+
+  /** Split the folder and drop into a new pane below it. */
+  int DROP_ZONE_SOUTH = 2;
+
+  /** Split the folder and drop into a new pane to its left. */
+  int DROP_ZONE_WEST = 3;
+
+  /** Split the folder and drop into a new pane to its right. */
+  int DROP_ZONE_EAST = 4;
+
+  /**
+   * Resolve the folder that should receive a tab dropped in the given zone of {@code targetFolder}.
+   * For an edge zone a perspective may create a new split pane and return it; the default just
+   * returns the target folder (drop into it, no split).
+   *
+   * @param targetFolder the folder under the cursor
+   * @param zone one of the {@code DROP_ZONE_*} constants
+   * @return the folder that should receive the dropped tab (never {@code null})
+   */
+  default CTabFolder resolveDropFolderForZone(CTabFolder targetFolder, int zone) {
+    return targetFolder;
+  }
+
   /** Clear search/filter text fields when a new project is activated. */
   default void clearSearchFilters() {
     // Do nothing by default

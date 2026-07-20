@@ -46,6 +46,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.SwtErrorHandler;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
 
 public class HopGuiAuditDelegate {
 
@@ -158,23 +159,17 @@ public class HopGuiAuditDelegate {
                       HopFileTypeRegistry.getInstance().findHopFileType(resolvedFilename);
                 }
 
-                // Set target pane for Explorer split view before opening
+                // Route the file into its saved editor pane (restored layout tree) before opening.
                 if (perspective instanceof ExplorerPerspective explorerPerspective) {
                   AuditState auditState = auditStateMap.get(tabKey);
                   Object paneObj =
                       auditState != null ? auditState.getStateMap().get(STATE_PROPERTY_PANE) : null;
-                  int pane = 0;
-                  if (paneObj instanceof Number) {
-                    pane = ((Number) paneObj).intValue();
-                  } else if (paneObj != null) {
-                    try {
-                      pane = Integer.parseInt(paneObj.toString());
-                    } catch (NumberFormatException ignored) {
-                      pane = 0;
-                    }
-                  }
-                  if (pane == 1 && explorerPerspective.getRightTabFolder() != null) {
-                    perspective.setDropTargetFolder(explorerPerspective.getRightTabFolder());
+                  CTabFolder targetFolder =
+                      paneObj != null
+                          ? explorerPerspective.getTabFolderForLeafId(paneObj.toString())
+                          : null;
+                  if (targetFolder != null) {
+                    perspective.setDropTargetFolder(targetFolder);
                   }
                 }
 
@@ -219,6 +214,11 @@ public class HopGuiAuditDelegate {
         //
         if (activeFileTypeHandler != null) {
           perspective.setActiveFileTypeHandler(activeFileTypeHandler);
+        }
+
+        // Drop any restored editor pane whose file(s) failed to open, so no ghost panes remain.
+        if (perspective instanceof ExplorerPerspective explorerPerspective) {
+          explorerPerspective.finishEditorLayoutRestore();
         }
       }
     }
@@ -350,7 +350,10 @@ public class HopGuiAuditDelegate {
               stateProperties.put(STATE_PROPERTY_FILETYPE, fileType.getName());
             }
             if (perspective instanceof ExplorerPerspective ep) {
-              stateProperties.put(STATE_PROPERTY_PANE, ep.getPaneIndexForTab(tabItem.getTabItem()));
+              String leafId = ep.getLeafIdForTab(tabItem.getTabItem());
+              if (leafId != null) {
+                stateProperties.put(STATE_PROPERTY_PANE, leafId);
+              }
             }
 
             auditStateMap.add(new AuditState(tabKey, stateProperties));

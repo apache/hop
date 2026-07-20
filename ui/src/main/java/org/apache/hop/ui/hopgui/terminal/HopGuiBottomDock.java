@@ -109,6 +109,9 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
   /** Reserved state key for terminal font size percent (e.g. 100 = 100%). */
   private static final String STATE_TERMINAL_FONT_SIZE_PERCENT_KEY = "terminalFontSizePercent";
 
+  /** Reserved state key for the dock's height as a percentage of the vertical sash. */
+  private static final String STATE_TERMINAL_HEIGHT_PERCENT_KEY = "terminalHeightPercent";
+
   // State map keys
   private static final String STATE_TAB_NAME = "tabName";
   private static final String STATE_SHELL_PATH = "shellPath";
@@ -817,6 +820,14 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
               STATE_TERMINAL_FONT_SIZE_PERCENT_KEY,
               java.util.Map.of("value", Integer.valueOf(terminalFontSizePercent))));
 
+      // Persist the dock height. When visible, read the live sash ratio so a user-dragged divider
+      // is captured (there is no drag listener updating terminalHeightPercent); otherwise keep the
+      // last known value.
+      stateMap.add(
+          new AuditState(
+              STATE_TERMINAL_HEIGHT_PERCENT_KEY,
+              java.util.Map.of("value", Integer.valueOf(getCurrentTerminalHeightPercent()))));
+
       AuditList auditList = new AuditList(terminalIds);
       AuditManager.getActive()
           .storeList(HopNamespace.getNamespace(), TERMINAL_AUDIT_TYPE, auditList);
@@ -947,6 +958,15 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
         terminalFontSizePercent = Math.clamp(saved, 50, 200);
       }
 
+      // Restore dock height percent (applied by showDock/showTerminal when the panel is shown)
+      AuditState heightState = stateMap.get(STATE_TERMINAL_HEIGHT_PERCENT_KEY);
+      if (heightState != null
+          && heightState.getStateMap() != null
+          && heightState.getStateMap().get("value") != null) {
+        int saved = Const.toInt(heightState.getStateMap().get("value").toString(), 35);
+        terminalHeightPercent = Math.clamp(saved, 5, 95);
+      }
+
       if (auditList.getNames().isEmpty()) {
         return;
       }
@@ -993,6 +1013,30 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
           .getLog()
           .logError(BaseMessages.getString(PKG, "HopGuiTerminalPanel.Error.RestoringTerminals"), e);
     }
+  }
+
+  /**
+   * The dock's current height as a percentage of the vertical sash. When the dock is visible this
+   * reads the live sash weights (capturing a user-dragged divider); otherwise it returns the last
+   * known {@link #terminalHeightPercent}.
+   */
+  private int getCurrentTerminalHeightPercent() {
+    if (terminalVisible
+        && verticalSash != null
+        && !verticalSash.isDisposed()
+        && verticalSash.getMaximizedControl() == null) {
+      int[] weights = verticalSash.getWeights();
+      if (weights.length == 2) {
+        long total = (long) weights[0] + weights[1];
+        if (total > 0) {
+          int percent = (int) Math.round(weights[1] * 100.0 / total);
+          if (percent > 0 && percent < 100) {
+            terminalHeightPercent = percent;
+          }
+        }
+      }
+    }
+    return terminalHeightPercent;
   }
 
   /** Set terminal height percentage */
