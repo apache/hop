@@ -42,8 +42,9 @@ import org.json.simple.parser.JSONParser;
 
 /**
  * Databricks Jobs API client using {@link HttpClient} and Jobs REST endpoints (default base {@code
- * /api/2.1}). Does not log tokens. Uploads use the Files API for UC Volumes / Workspace paths and
- * the legacy DBFS API for classic {@code dbfs:/} roots.
+ * /api/2.1}). Does not log tokens. Uploads use the Files API for UC Volumes / Workspace paths
+ * (delegated to {@link RestDatabricksFilesClient}) and the legacy DBFS API for classic {@code
+ * dbfs:/} roots.
  */
 public final class RestDatabricksJobsClient implements DatabricksJobsClient {
 
@@ -53,13 +54,11 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   /** DBFS add-block max is 1 MiB of base64-decoded data. */
   private static final int DBFS_BLOCK_BYTES = 1024 * 1024;
 
-  /** Files API single PUT supports files up to 5 GiB. */
-  private static final String FILES_API_PREFIX = "/api/2.0/fs/files";
-
   private final String hostBase;
   private final String apiBase;
   private final String token;
   private final HttpClient httpClient;
+  private final RestDatabricksFilesClient filesClient;
   private final JSONParser parser = new JSONParser();
 
   public RestDatabricksJobsClient(
@@ -68,6 +67,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     this.apiBase = normalizeApiBase(apiBase);
     this.token = Objects.requireNonNull(token, "token");
     this.httpClient = Objects.requireNonNull(httpClient, "httpClient");
+    this.filesClient = new RestDatabricksFilesClient(this.hostBase, this.token, this.httpClient);
   }
 
   public static RestDatabricksJobsClient create(
@@ -83,8 +83,19 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     if (StringUtils.isBlank(host)) {
       throw new HopException("Databricks workspace host is required");
     }
+    if (host.contains("${") || host.contains("%%")) {
+      throw new HopException(
+          "Databricks workspace host still contains unresolved variables: '"
+              + host
+              + "'. Set DATABRICKS_HOST (or the variables used in the connection) for this process.");
+    }
     if (StringUtils.isBlank(token)) {
       throw new HopException("Databricks personal access token is required");
+    }
+    if (token.contains("${") || token.contains("%%")) {
+      throw new HopException(
+          "Databricks personal access token still contains unresolved variables. Set DATABRICKS_TOKEN "
+              + "for this process.");
     }
     HttpClient client = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
     return new RestDatabricksJobsClient(host, apiBase, token, client);
@@ -94,6 +105,11 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   public static RestDatabricksJobsClient createForTest(
       String hostBase, String apiBase, String token, HttpClient httpClient) {
     return new RestDatabricksJobsClient(hostBase, apiBase, token, httpClient);
+  }
+
+  /** Files API client shared for Volume / Workspace paths (deploy + VFS). */
+  public RestDatabricksFilesClient files() {
+    return filesClient;
   }
 
   @Override
@@ -198,7 +214,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     }
     String path = normalizeDbfsPath(dbfsPath);
     if (isFilesApiPath(path)) {
-      uploadViaFilesApi(localFile, path);
+      filesClient.upload(localFile, path);
     } else {
       uploadViaDbfsApi(localFile, path);
     }
@@ -208,7 +224,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   public WorkspaceFileMetadata getFileMetadata(String workspacePath) throws HopException {
     String path = normalizeDbfsPath(workspacePath);
     if (isFilesApiPath(path)) {
-      return getFileMetadataFilesApi(path);
+      return filesClient.getFileMetadata(path);
     }
     return getFileMetadataDbfs(path);
   }
@@ -217,13 +233,18 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   public Optional<String> downloadTextIfExists(String workspacePath) throws HopException {
     String path = normalizeDbfsPath(workspacePath);
     if (isFilesApiPath(path)) {
-      return downloadTextFilesApi(path);
+      return filesClient.downloadTextIfExists(path);
     }
     return downloadTextDbfs(path);
   }
 
   @Override
   public void uploadText(String workspacePath, String text) throws HopException {
+    String path = normalizeDbfsPath(workspacePath);
+    if (isFilesApiPath(path)) {
+      filesClient.uploadText(path, text);
+      return;
+    }
     if (text == null) {
       text = "";
     }
@@ -231,7 +252,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
       Path tmp = Files.createTempFile("hop-dbx-text-", ".txt");
       try {
         Files.writeString(tmp, text, StandardCharsets.UTF_8);
-        uploadToDbfs(tmp, workspacePath);
+        uploadViaDbfsApi(tmp, path);
       } finally {
         Files.deleteIfExists(tmp);
       }
@@ -247,149 +268,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
    * the legacy DBFS block API.
    */
   static boolean isFilesApiPath(String absolutePath) {
-    if (StringUtils.isBlank(absolutePath)) {
-      return false;
-    }
-    String p = absolutePath.trim();
-    return p.startsWith("/Volumes/")
-        || p.equals("/Volumes")
-        || p.startsWith("/Workspace/")
-        || p.equals("/Workspace");
-  }
-
-  /**
-   * Upload via {@code PUT /api/2.0/fs/files{path}?overwrite=true} (UC Volumes / Workspace). Body is
-   * raw octets; max ~5 GiB per Databricks Files API.
-   */
-  private void uploadViaFilesApi(Path localFile, String absolutePath) throws HopException {
-    try {
-      String encodedPath = encodeFilesApiPath(absolutePath);
-      String url = hostBase + FILES_API_PREFIX + encodedPath + "?overwrite=true";
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(url))
-              .timeout(UPLOAD_TIMEOUT)
-              .header("Authorization", "Bearer " + token)
-              .header("Content-Type", "application/octet-stream")
-              .PUT(HttpRequest.BodyPublishers.ofFile(localFile))
-              .build();
-      HttpResponse<String> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-      int code = response.statusCode();
-      String body = response.body() == null ? "" : response.body();
-      if (code < 200 || code >= 300) {
-        throw new HopException(
-            "Databricks API HTTP "
-                + code
-                + " for PUT "
-                + FILES_API_PREFIX
-                + absolutePath
-                + ": "
-                + sanitizeError(body));
-      }
-    } catch (HopException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HopException(
-          "Failed to upload " + localFile + " to " + absolutePath + " via Files API", e);
-    }
-  }
-
-  /**
-   * Files API get-metadata: HEAD {@code /api/2.0/fs/files{path}} — size from Content-Length (no
-   * body).
-   */
-  private WorkspaceFileMetadata getFileMetadataFilesApi(String absolutePath) throws HopException {
-    try {
-      String encodedPath = encodeFilesApiPath(absolutePath);
-      String url = hostBase + FILES_API_PREFIX + encodedPath;
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(url))
-              .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
-              .method("HEAD", HttpRequest.BodyPublishers.noBody())
-              .build();
-      HttpResponse<Void> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-      int code = response.statusCode();
-      if (code == 404) {
-        return WorkspaceFileMetadata.missing();
-      }
-      if (code < 200 || code >= 300) {
-        // Some gateways reject HEAD — fall back to GET with range 0-0 for size
-        return getFileMetadataFilesApiGetHeaders(absolutePath);
-      }
-      long size = contentLength(response.headers().firstValue("Content-Length").orElse(null));
-      if (size < 0) {
-        size = contentLength(response.headers().firstValue("content-length").orElse(null));
-      }
-      if (size < 0) {
-        return getFileMetadataFilesApiGetHeaders(absolutePath);
-      }
-      return WorkspaceFileMetadata.ofFile(size);
-    } catch (HopException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HopException("Failed to get metadata for " + absolutePath, e);
-    }
-  }
-
-  private WorkspaceFileMetadata getFileMetadataFilesApiGetHeaders(String absolutePath)
-      throws HopException {
-    try {
-      String encodedPath = encodeFilesApiPath(absolutePath);
-      String url = hostBase + FILES_API_PREFIX + encodedPath;
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(url))
-              .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
-              .header("Range", "bytes=0-0")
-              .GET()
-              .build();
-      HttpResponse<byte[]> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-      int code = response.statusCode();
-      if (code == 404) {
-        return WorkspaceFileMetadata.missing();
-      }
-      if (code != 200 && code != 206) {
-        String errBody =
-            response.body() == null ? "" : new String(response.body(), StandardCharsets.UTF_8);
-        throw new HopException(
-            "Databricks API HTTP "
-                + code
-                + " for GET "
-                + FILES_API_PREFIX
-                + absolutePath
-                + ": "
-                + sanitizeError(errBody));
-      }
-      Optional<String> contentRange = response.headers().firstValue("Content-Range");
-      if (contentRange.isPresent()) {
-        // bytes 0-0/12345
-        String cr = contentRange.get();
-        int slash = cr.lastIndexOf('/');
-        if (slash > 0 && slash < cr.length() - 1) {
-          try {
-            return WorkspaceFileMetadata.ofFile(Long.parseLong(cr.substring(slash + 1).trim()));
-          } catch (NumberFormatException ignored) {
-            // fall through
-          }
-        }
-      }
-      long size = contentLength(response.headers().firstValue("Content-Length").orElse(null));
-      if (size >= 0 && code == 200) {
-        return WorkspaceFileMetadata.ofFile(size);
-      }
-      // Last resort: full GET is too heavy — treat as missing size (force re-upload)
-      return WorkspaceFileMetadata.missing();
-    } catch (HopException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HopException("Failed to get metadata for " + absolutePath, e);
-    }
+    return RestDatabricksFilesClient.isFilesApiPath(absolutePath);
   }
 
   private WorkspaceFileMetadata getFileMetadataDbfs(String path) throws HopException {
@@ -411,44 +290,6 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
         return WorkspaceFileMetadata.missing();
       }
       throw e;
-    }
-  }
-
-  private Optional<String> downloadTextFilesApi(String absolutePath) throws HopException {
-    try {
-      String encodedPath = encodeFilesApiPath(absolutePath);
-      String url = hostBase + FILES_API_PREFIX + encodedPath;
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(url))
-              .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
-              .GET()
-              .build();
-      HttpResponse<byte[]> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-      int code = response.statusCode();
-      if (code == 404) {
-        return Optional.empty();
-      }
-      if (code < 200 || code >= 300) {
-        String errBody =
-            response.body() == null ? "" : new String(response.body(), StandardCharsets.UTF_8);
-        throw new HopException(
-            "Databricks API HTTP "
-                + code
-                + " for GET "
-                + FILES_API_PREFIX
-                + absolutePath
-                + ": "
-                + sanitizeError(errBody));
-      }
-      byte[] bytes = response.body() == null ? new byte[0] : response.body();
-      return Optional.of(new String(bytes, StandardCharsets.UTF_8));
-    } catch (HopException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HopException("Failed to download " + absolutePath, e);
     }
   }
 
@@ -477,17 +318,6 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
         return Optional.empty();
       }
       throw e;
-    }
-  }
-
-  private static long contentLength(String header) {
-    if (StringUtils.isBlank(header)) {
-      return -1L;
-    }
-    try {
-      return Long.parseLong(header.trim());
-    } catch (NumberFormatException e) {
-      return -1L;
     }
   }
 
@@ -528,7 +358,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
 
   @Override
   public void close() {
-    // HttpClient does not require close
+    filesClient.close();
   }
 
   /**
@@ -536,17 +366,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
    * dbfs:/Volumes/…} becomes {@code /Volumes/…} so the Files API route is selected.
    */
   static String normalizeDbfsPath(String dbfsPath) throws HopException {
-    if (StringUtils.isBlank(dbfsPath)) {
-      throw new HopException("Upload path is required");
-    }
-    String p = dbfsPath.trim();
-    if (p.startsWith("dbfs:")) {
-      p = p.substring("dbfs:".length());
-    }
-    if (!p.startsWith("/")) {
-      p = "/" + p;
-    }
-    return p;
+    return RestDatabricksFilesClient.normalizeWorkspacePath(dbfsPath);
   }
 
   /**
@@ -554,16 +374,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
    * each segment).
    */
   static String encodeFilesApiPath(String absolutePath) {
-    String p = absolutePath.startsWith("/") ? absolutePath : "/" + absolutePath;
-    String[] parts = p.split("/", -1);
-    StringBuilder sb = new StringBuilder();
-    for (String part : parts) {
-      if (part.isEmpty()) {
-        continue;
-      }
-      sb.append('/').append(URLEncoder.encode(part, StandardCharsets.UTF_8).replace("+", "%20"));
-    }
-    return sb.length() == 0 ? "/" : sb.toString();
+    return RestDatabricksFilesClient.encodeFilesApiPath(absolutePath);
   }
 
   private String get(String path) throws HopException {
@@ -651,22 +462,11 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
 
   /** Strip likely secrets from error payloads before logging. */
   static String sanitizeError(String body) {
-    if (body == null) {
-      return "";
-    }
-    String trimmed = body.length() > 500 ? body.substring(0, 500) + "…" : body;
-    return trimmed.replaceAll("(?i)\\b(token|authorization|bearer)\\b\\s*[:=]?\\s*\\S+", "$1=***");
+    return RestDatabricksFilesClient.sanitizeError(body);
   }
 
   static String normalizeHost(String host) {
-    String h = host.trim();
-    if (!h.startsWith("http://") && !h.startsWith("https://")) {
-      h = "https://" + h;
-    }
-    while (h.endsWith("/")) {
-      h = h.substring(0, h.length() - 1);
-    }
-    return h;
+    return RestDatabricksFilesClient.normalizeHost(host);
   }
 
   static String normalizeApiBase(String apiBase) {

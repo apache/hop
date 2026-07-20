@@ -31,7 +31,9 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 /**
  * Workspace connection for the Databricks REST / Jobs API (not JDBC SQL warehouse). Used by
- * Databricks Job Run actions and related Jobs API clients.
+ * Databricks Job Run actions and related Jobs API clients. Also referenced by Databricks VFS
+ * Connection metadata for Volumes / Workspace file access (host + PAT only — VFS scheme is the VFS
+ * metadata name, not this connection name).
  */
 @Getter
 @Setter

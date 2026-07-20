@@ -518,6 +518,8 @@ How data is produced:
 If the location is file-based and you need *samples from cluster workers*, the root folder must be *writable from every executor* (shared filesystem or object store). A path that exists only on the driver will still get pipeline/transform *state*, but executor samples will be missing or incomplete.
 ====
 
+On **Databricks**, a practical pattern is a **Caching File** location whose root is a named Databricks VFS URI on a UC Volume (driver writes execution JSON via the Files API; laptop GUI opens the same location). Walkthrough: xref:pipeline/spark/databricks.adoc#exec-info-on-volume[Execution information on a UC Volume].
+
 On `local[*]`, Spark’s Jackson libraries must not shadow Hop’s Jackson under the plugin classloader. The Spark plugin packaging excludes core Jackson jars so sampling and `HopJson` keep working.
 
 == How transforms map to Spark

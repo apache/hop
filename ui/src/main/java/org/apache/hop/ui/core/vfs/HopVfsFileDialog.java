@@ -985,40 +985,30 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void populateFolder(FileObject folder, TreeItem folderItem) throws FileSystemException {
 
     FileObject[] children = folder.getChildren();
+    if (children == null || children.length == 0) {
+      return;
+    }
 
+    // Comparator must define a total order (TimSort). Never treat unequal FileObjects as equal
+    // when metadata fails — that used to return 0 from catch and caused:
+    // IllegalArgumentException: Comparison method violates its general contract!
     Arrays.sort(
         children,
         (child1, child2) -> {
-          try {
-            int cmp;
-            switch (sortIndex) {
-              case 0:
-                String name1 = child1.getName().getBaseName();
-                String name2 = child2.getName().getBaseName();
-                cmp = name1.compareToIgnoreCase(name2);
-                break;
-              case 1:
-                long time1 = child1.getContent().getLastModifiedTime();
-                long time2 = child2.getContent().getLastModifiedTime();
-                cmp = Long.compare(time1, time2);
-                break;
-              case 2:
-                long size1 = child1.getContent().getSize();
-                long size2 = child2.getContent().getSize();
-                cmp = Long.compare(size1, size2);
-                break;
-
-              default:
-                cmp = 0;
-            }
-            if (ascending) {
-              return -cmp;
-            } else {
-              return cmp;
-            }
-          } catch (Exception e) {
-            return 0;
+          int cmp =
+              switch (sortIndex) {
+                case 1 -> Long.compare(safeLastModified(child1), safeLastModified(child2));
+                case 2 -> Long.compare(safeSize(child1), safeSize(child2));
+                default -> compareBaseName(child1, child2);
+              };
+          if (cmp == 0) {
+            cmp = compareBaseName(child1, child2);
           }
+          if (cmp == 0) {
+            cmp = compareUri(child1, child2);
+          }
+          // Preserve existing UI: ascending flag is inverted relative to natural order
+          return ascending ? -cmp : cmp;
         });
 
     // First the child folders
@@ -1085,6 +1075,43 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           }
         }
       }
+    }
+  }
+
+  private static int compareBaseName(FileObject child1, FileObject child2) {
+    try {
+      String name1 = child1.getName().getBaseName();
+      String name2 = child2.getName().getBaseName();
+      return name1.compareToIgnoreCase(name2);
+    } catch (Exception e) {
+      return Integer.compare(System.identityHashCode(child1), System.identityHashCode(child2));
+    }
+  }
+
+  private static int compareUri(FileObject child1, FileObject child2) {
+    try {
+      return child1.getName().getURI().compareTo(child2.getName().getURI());
+    } catch (Exception e) {
+      return Integer.compare(System.identityHashCode(child1), System.identityHashCode(child2));
+    }
+  }
+
+  private static long safeLastModified(FileObject child) {
+    try {
+      return child.getContent().getLastModifiedTime();
+    } catch (Exception e) {
+      return Long.MIN_VALUE;
+    }
+  }
+
+  private static long safeSize(FileObject child) {
+    try {
+      if (child.isFolder()) {
+        return -1L;
+      }
+      return child.getContent().getSize();
+    } catch (Exception e) {
+      return Long.MIN_VALUE;
     }
   }
 

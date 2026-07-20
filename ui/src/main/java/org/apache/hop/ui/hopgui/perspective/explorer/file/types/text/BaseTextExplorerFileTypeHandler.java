@@ -82,14 +82,15 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
     try {
       // Save the current explorer file ....
-      //
+      // Named VFS schemes (MinIO, Databricks, WebDAV, …) only resolve when variables are passed so
+      // HopVfs can load connection providers from project metadata.
       String filename = explorerFile.getFilename();
 
-      boolean fileExist = HopVfs.fileExists(filename);
+      boolean fileExist = HopVfs.fileExists(filename, getVariables());
 
       // Save the file...
       //
-      try (OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
+      try (OutputStream outputStream = HopVfs.getOutputStream(filename, false, getVariables())) {
         outputStream.write(editorWidget.getText().getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       }
@@ -117,10 +118,15 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
         filename = filename + this.getFileType().getDefaultFileExtension();
       }
 
-      // Normalize file name
-      filename = HopVfs.normalize(filename);
+      // Resolve via VFS with variables (named schemes). Only normalize local/relative paths.
+      FileObject fileObject = HopVfs.getFileObject(filename, getVariables());
+      if (!HopVfs.startsWithScheme(filename, getVariables()) && !filename.contains("://")) {
+        filename = HopVfs.normalize(filename);
+        fileObject = HopVfs.getFileObject(filename, getVariables());
+      } else {
+        filename = fileObject.getName().getURI();
+      }
 
-      FileObject fileObject = HopVfs.getFileObject(filename);
       if (fileObject.exists()) {
         MessageBox box =
             new MessageBox(hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);

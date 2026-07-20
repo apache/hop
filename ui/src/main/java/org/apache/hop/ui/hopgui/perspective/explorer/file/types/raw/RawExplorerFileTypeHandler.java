@@ -113,8 +113,10 @@ public class RawExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler 
     }
     try {
       String filename = explorerFile.getFilename();
-      boolean fileExist = HopVfs.fileExists(filename);
-      try (java.io.OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
+      // Named VFS schemes need variables so providers load from project metadata
+      boolean fileExist = HopVfs.fileExists(filename, getVariables());
+      try (java.io.OutputStream outputStream =
+          HopVfs.getOutputStream(filename, false, getVariables())) {
         outputStream.write(editorWidget.getText().getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       }
@@ -134,8 +136,13 @@ public class RawExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler 
       throw new HopException("Binary file cannot be saved as text.");
     }
     try {
-      filename = HopVfs.normalize(filename);
-      FileObject fileObject = HopVfs.getFileObject(filename);
+      FileObject fileObject = HopVfs.getFileObject(filename, getVariables());
+      if (!HopVfs.startsWithScheme(filename, getVariables()) && !filename.contains("://")) {
+        filename = HopVfs.normalize(filename);
+        fileObject = HopVfs.getFileObject(filename, getVariables());
+      } else {
+        filename = fileObject.getName().getURI();
+      }
       if (fileObject.exists()) {
         MessageBox box =
             new MessageBox(hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
