@@ -1865,46 +1865,51 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     new TabCloseHandler(this, folder);
     new TabItemReorder(this, folder);
 
-    Menu menu = folder.getMenu();
-    new MenuItem(menu, SWT.SEPARATOR);
-    MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
-    miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+    // Split ("Move to Right") and detach ("Move to New Window") depend on native drag and floating
+    // windows, which don't work under RAP, so they are desktop-only (see also the drag-to-split
+    // guard in TabItemReorder and the isWeb() overlay gating).
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      Menu menu = folder.getMenu();
+      new MenuItem(menu, SWT.SEPARATOR);
+      MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
+      miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
 
-    folder.addListener(
-        SWT.MenuDetect,
-        event -> {
-          Point pt = folder.toControl(folder.getDisplay().getCursorLocation());
-          splitMenuTargetTab = folder.getItem(new Point(pt.x, pt.y));
-        });
+      folder.addListener(
+          SWT.MenuDetect,
+          event -> {
+            Point pt = folder.toControl(folder.getDisplay().getCursorLocation());
+            splitMenuTargetTab = folder.getItem(new Point(pt.x, pt.y));
+          });
 
-    MenuItem miDetach = new MenuItem(menu, SWT.NONE);
-    miDetach.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToNewWindow"));
+      MenuItem miDetach = new MenuItem(menu, SWT.NONE);
+      miDetach.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToNewWindow"));
 
-    menu.addListener(
-        SWT.Show,
-        e -> {
-          miSplitMove.setText(
-              BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
-          // Splitting only makes sense if the folder keeps at least one tab behind.
-          miSplitMove.setEnabled(splitMenuTargetTab != null && folder.getItemCount() > 1);
-          miDetach.setEnabled(splitMenuTargetTab != null);
-        });
+      menu.addListener(
+          SWT.Show,
+          e -> {
+            miSplitMove.setText(
+                BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+            // Splitting only makes sense if the folder keeps at least one tab behind.
+            miSplitMove.setEnabled(splitMenuTargetTab != null && folder.getItemCount() > 1);
+            miDetach.setEnabled(splitMenuTargetTab != null);
+          });
 
-    miSplitMove.addListener(
-        SWT.Selection,
-        e -> {
-          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
-            splitOrMoveTab(splitMenuTargetTab);
-          }
-        });
+      miSplitMove.addListener(
+          SWT.Selection,
+          e -> {
+            if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+              splitOrMoveTab(splitMenuTargetTab);
+            }
+          });
 
-    miDetach.addListener(
-        SWT.Selection,
-        e -> {
-          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
-            detachTabToWindow(splitMenuTargetTab);
-          }
-        });
+      miDetach.addListener(
+          SWT.Selection,
+          e -> {
+            if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+              detachTabToWindow(splitMenuTargetTab);
+            }
+          });
+    }
 
     return folder;
   }

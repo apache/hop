@@ -619,6 +619,12 @@ public class TabItemReorder {
    * side maps to that edge (split), the middle maps to {@code CENTER} (drop into the folder as-is).
    */
   private int computeDropZone(CTabFolder folder, Point p) {
+    // Drag-to-split relies on native DnD + floating overlays, which don't behave under RAP, so on
+    // the web every drop is a plain centre drop (no edge splits). This is the single choke point
+    // for edge zones (drag feedback, drop routing and isDropSupported all go through here).
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return IHopPerspective.DROP_ZONE_CENTER;
+    }
     Point size = folder.getSize();
     if (size.x <= 0 || size.y <= 0) {
       return IHopPerspective.DROP_ZONE_CENTER;
