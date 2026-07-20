@@ -37,6 +37,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.DataSet;
+import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
@@ -521,5 +522,46 @@ public class DataSetConst {
 
   public static String[] getTestTypeDescriptions() {
     return testTypeDesc;
+  }
+
+  /**
+   * Get the localized description for a pipeline unit-test tweak.
+   *
+   * @param tweak the tweak type
+   * @return description for dialogs/editors
+   */
+  public static String getTweakDescription(PipelineTweak tweak) {
+    int index = 0; // NONE
+    if (tweak != null) {
+      PipelineTweak[] tweaks = PipelineTweak.values();
+      for (int i = 0; i < tweaks.length; i++) {
+        if (tweaks[i] == tweak) {
+          index = i;
+          break;
+        }
+      }
+    }
+    return tweakDesc[index];
+  }
+
+  /**
+   * Get the PipelineTweak for a description (from the dialog).
+   *
+   * @param tweakDescription the description to look for
+   * @return the tweak type or NONE if nothing matched
+   */
+  public static PipelineTweak getTweakForDescription(String tweakDescription) {
+    if (StringUtils.isEmpty(tweakDescription)) {
+      return PipelineTweak.NONE;
+    }
+    int index = Const.indexOfString(tweakDescription, tweakDesc);
+    if (index < 0) {
+      return PipelineTweak.NONE;
+    }
+    return PipelineTweak.values()[index];
+  }
+
+  public static String[] getTweakDescriptions() {
+    return tweakDesc;
   }
 }
