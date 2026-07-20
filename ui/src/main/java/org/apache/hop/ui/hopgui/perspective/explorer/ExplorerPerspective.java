@@ -2211,10 +2211,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         });
 
     Composite composite = new Composite(targetFolder, SWT.NONE);
-    FormLayout layoutComposite = new FormLayout();
-    layoutComposite.marginWidth = PropsUi.getFormMargin();
-    layoutComposite.marginHeight = PropsUi.getFormMargin();
-    composite.setLayout(layoutComposite);
+    composite.setLayout(new FormLayout());
     composite.setLayoutData(new FormDataBuilder().fullSize().result());
     PropsUi.setLook(composite);
 

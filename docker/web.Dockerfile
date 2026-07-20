@@ -82,6 +82,11 @@ COPY ./assemblies/client/target/hop/plugins "${CATALINA_HOME}"/plugins
 COPY ./assemblies/client/target/hop/lib/jdbc/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/
 
+# Desktop (RCP) UI fragment must not ship in Hop Web. Client lib/core is shared with the
+# desktop assembly and includes hop-ui-rcp; loading its GuiPlugins (e.g. ContentEditorWidget)
+# fails on RAP with NoClassDefFoundError for SWT types such as VerifyKeyListener.
+RUN rm -f "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib/hop-ui-rcp-*.jar
+
 # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' "${CATALINA_HOME}"/webapps/ROOT/config/hop-config.json
 
