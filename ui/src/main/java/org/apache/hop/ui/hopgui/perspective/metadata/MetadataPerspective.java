@@ -1082,9 +1082,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   /**
-   * Adds one "New &lt;type&gt;" item per metadata type to {@code menu}, optionally restricted to a
-   * single category. Types are grouped by category (in the configured category order, with a
-   * separator between groups) and keep the model's name order within a group.
+   * Adds "New &lt;type&gt;" items to {@code menu}, optionally restricted to a single category. When
+   * a single category is requested (the category context menu) the type items are added directly,
+   * since the category is already chosen. Otherwise each category becomes a cascade submenu so the
+   * (long) list of metadata types stays compact. Categories follow the configured category order
+   * and types keep the model's name order within a category.
    */
   private void addNewTypeMenuItems(Menu menu, String onlyCategoryId) {
     List<String> categoryIds = new ArrayList<>();
@@ -1098,29 +1100,49 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         Comparator.comparingInt(MetadataCategories::orderOf)
             .thenComparing(MetadataCategories::labelFor));
 
-    boolean needSeparator = false;
     for (String categoryId : categoryIds) {
-      if (needSeparator) {
-        new MenuItem(menu, SWT.SEPARATOR);
-      }
-      for (MetadataTypeModel typeModel : typeModels) {
-        if (!typeModel.categoryId.equals(categoryId)) {
-          continue;
-        }
-        MenuItem typeMenuItem = new MenuItem(menu, SWT.POP_UP);
-        typeMenuItem.setText(
-            BaseMessages.getString(PKG, "MetadataPerspective.Menu.NewOfType", typeModel.typeName));
-        typeMenuItem.setImage(
+      if (onlyCategoryId != null) {
+        // Scoped to one category: add the type items straight into the menu.
+        addTypeItems(menu, categoryId);
+      } else {
+        // Every category becomes a cascade submenu (a "sub folder").
+        MenuItem categoryMenuItem = new MenuItem(menu, SWT.CASCADE);
+        categoryMenuItem.setText(MetadataCategories.labelFor(categoryId));
+        categoryMenuItem.setImage(
             GuiResource.getInstance()
                 .getImage(
-                    typeModel.image,
-                    typeModel.metadataClass.getClassLoader(),
+                    MetadataCategories.imageFor(categoryId),
+                    getClass().getClassLoader(),
                     ConstUi.SMALL_ICON_SIZE,
                     ConstUi.SMALL_ICON_SIZE));
-        String key = typeModel.key;
-        typeMenuItem.addListener(SWT.Selection, e -> createMetadataOfType(key, ""));
+        Menu subMenu = new Menu(menu);
+        categoryMenuItem.setMenu(subMenu);
+        addTypeItems(subMenu, categoryId);
       }
-      needSeparator = true;
+    }
+  }
+
+  /**
+   * Appends one "New &lt;type&gt;" push item per metadata type of {@code categoryId} to {@code
+   * menu}.
+   */
+  private void addTypeItems(Menu menu, String categoryId) {
+    for (MetadataTypeModel typeModel : typeModels) {
+      if (!typeModel.categoryId.equals(categoryId)) {
+        continue;
+      }
+      MenuItem typeMenuItem = new MenuItem(menu, SWT.POP_UP);
+      typeMenuItem.setText(
+          BaseMessages.getString(PKG, "MetadataPerspective.Menu.NewOfType", typeModel.typeName));
+      typeMenuItem.setImage(
+          GuiResource.getInstance()
+              .getImage(
+                  typeModel.image,
+                  typeModel.metadataClass.getClassLoader(),
+                  ConstUi.SMALL_ICON_SIZE,
+                  ConstUi.SMALL_ICON_SIZE));
+      String key = typeModel.key;
+      typeMenuItem.addListener(SWT.Selection, e -> createMetadataOfType(key, ""));
     }
   }
 
