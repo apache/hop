@@ -64,7 +64,7 @@ class MetadataCategoriesTest {
   @Test
   void imageFor_knownReturnsConfiguredIconOthersFallBack() {
     assertEquals(
-        "ui/images/database.svg", MetadataCategories.imageFor(HopMetadataCategory.CONNECTIONS));
+        "ui/images/connection.svg", MetadataCategories.imageFor(HopMetadataCategory.CONNECTIONS));
     assertEquals(
         "ui/images/location.svg", MetadataCategories.imageFor(HopMetadataCategory.FILE_STORAGE));
     // Unknown and Other fall back to the generic metadata icon.

@@ -50,7 +50,7 @@ public final class MetadataCategories {
           new CategoryInfo(
               HopMetadataCategory.CONNECTIONS,
               "MetadataPerspective.Category.Connections",
-              "ui/images/database.svg"),
+              "ui/images/connection.svg"),
           new CategoryInfo(
               HopMetadataCategory.FILE_STORAGE,
               "MetadataPerspective.Category.FileStorage",
@@ -74,11 +74,11 @@ public final class MetadataCategories {
           new CategoryInfo(
               HopMetadataCategory.TESTING,
               "MetadataPerspective.Category.Testing",
-              "ui/images/catalog.svg"),
+              "ui/images/test.svg"),
           new CategoryInfo(
               HopMetadataCategory.DATA_DEFINITION,
               "MetadataPerspective.Category.DataDefinition",
-              "ui/images/partition_schema.svg"),
+              "ui/images/schema.svg"),
           new CategoryInfo(
               HopMetadataCategory.VARIABLES,
               "MetadataPerspective.Category.Variables",
