@@ -37,10 +37,11 @@ if [ -z "${HOP_OPTIONS}" ]; then
   HOP_OPTIONS="-Xmx2048m"
 fi
 
-# optional line for attaching a debugger
+# optional line for attaching a debugger + turning on GUI debug logging
 #
 if [ "$1" = "debug" ] || [ "$1" = "DEBUG" ]; then
   HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+  HOP_OPTIONS="${HOP_OPTIONS} -DHOP_LOG_LEVEL=Debug"
 fi
 
 # Add HOP variables if they're set:

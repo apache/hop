@@ -382,6 +382,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public CTabFolder extraViewTabFolder;
 
+  /**
+   * When the execution results (log/metrics) panel is detached into its own floating window, this
+   * holds that window; it is {@code null} while the panel is docked in {@link #sashForm}.
+   */
+  private Shell extraViewShell;
+
   private boolean initialized;
 
   private boolean halted;
@@ -4705,6 +4711,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     extraViewTabFolder.dispose();
     extraViewTabFolder = null;
 
+    // If the panel was floating, close its window too.
+    if (extraViewShell != null && !extraViewShell.isDisposed()) {
+      Shell shell = extraViewShell;
+      extraViewShell = null;
+      shell.dispose();
+    }
+
     sashForm.layout();
     sashForm.setWeights(100);
 
@@ -4752,12 +4765,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private ToolItem minMaxItem;
   private ToolItem rotateItem;
 
-  /** Add an extra view to the main composite SashForm */
+  /** Add the extra view (log/metrics) docked in the main composite SashForm. */
   public void addExtraView() {
+    addExtraView(sashForm);
+  }
 
-    // Always use standalone mode - execution results render in pipeline's own sashForm
-    // Add a tab folder in the pipeline's sashForm
-    extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
+  /**
+   * Build the execution-results tab folder inside the given parent. When {@code parent} is the
+   * pipeline's own {@link #sashForm} the panel is docked (with min/max, rotate and detach
+   * controls); otherwise it is being hosted in a floating window (with a dock control instead). The
+   * delegates always (re)build their tabs into the {@link #extraViewTabFolder} field, so switching
+   * parents is a dispose-and-rebuild rather than an SWT reparent.
+   *
+   * @param parent the composite to host the tab folder (the sash when docked, a floating shell
+   *     otherwise)
+   */
+  public void addExtraView(Composite parent) {
+    boolean detached = parent != sashForm;
+
+    extraViewTabFolder = new CTabFolder(parent, SWT.MULTI);
     PropsUi.setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
 
     // Layout the tab folder to fill its parent
@@ -4768,39 +4794,56 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     fdTabFolder.bottom = new FormAttachment(100, 0);
     extraViewTabFolder.setLayoutData(fdTabFolder);
 
-    extraViewTabFolder.addMouseListener(
-        new MouseAdapter() {
+    // Double-click to maximize only makes sense while docked in the sash.
+    if (!detached) {
+      extraViewTabFolder.addMouseListener(
+          new MouseAdapter() {
 
-          @Override
-          public void mouseDoubleClick(MouseEvent arg0) {
-            if (sashForm.getMaximizedControl() == null) {
-              sashForm.setMaximizedControl(extraViewTabFolder);
-            } else {
-              sashForm.setMaximizedControl(null);
+            @Override
+            public void mouseDoubleClick(MouseEvent arg0) {
+              if (sashForm.getMaximizedControl() == null) {
+                sashForm.setMaximizedControl(extraViewTabFolder);
+              } else {
+                sashForm.setMaximizedControl(null);
+              }
             }
-          }
-        });
+          });
+    }
 
-    // Create toolbar for close and min/max to the upper right corner...
+    // Create toolbar for the panel controls in the upper right corner...
     //
     ToolBar extraViewToolBar = new ToolBar(extraViewTabFolder, SWT.FLAT);
     extraViewTabFolder.setTopRight(extraViewToolBar, SWT.RIGHT);
     PropsUi.setLook(extraViewToolBar);
 
-    minMaxItem = new ToolItem(extraViewToolBar, SWT.PUSH);
-    minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    minMaxItem.setToolTipText(
-        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
-    minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
+    if (detached) {
+      ToolItem dockItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+      dockItem.setImage(GuiResource.getInstance().getImageDockPanel());
+      dockItem.setToolTipText(
+          BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.DockButton.Tooltip"));
+      dockItem.addListener(SWT.Selection, e -> dockExtraView());
+    } else {
+      minMaxItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+      minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
+      minMaxItem.setToolTipText(
+          BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
+      minMaxItem.addListener(SWT.Selection, e -> minMaxExtraView());
 
-    rotateItem = new ToolItem(extraViewToolBar, SWT.PUSH);
-    rotateItem.setImage(
-        PropsUi.getInstance().isGraphExtraViewVerticalOrientation()
-            ? GuiResource.getInstance().getImageRotateRight()
-            : GuiResource.getInstance().getImageRotateLeft());
-    rotateItem.setToolTipText(
-        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.RotateButton.Tooltip"));
-    rotateItem.addListener(SWT.Selection, e -> rotateExtraView());
+      rotateItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+      rotateItem.setImage(
+          PropsUi.getInstance().isGraphExtraViewVerticalOrientation()
+              ? GuiResource.getInstance().getImageRotateRight()
+              : GuiResource.getInstance().getImageRotateLeft());
+      rotateItem.setToolTipText(
+          BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.RotateButton.Tooltip"));
+      rotateItem.addListener(SWT.Selection, e -> rotateExtraView());
+
+      ToolItem detachItem = new ToolItem(extraViewToolBar, SWT.PUSH);
+      detachItem.setImage(GuiResource.getInstance().getImageDetachPanel());
+      detachItem.setToolTipText(
+          BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.DetachButton.Tooltip"));
+      detachItem.addListener(SWT.Selection, e -> detachExtraView());
+    }
 
     ToolItem closeItem = new ToolItem(extraViewToolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClose());
@@ -4811,9 +4854,84 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
-    // Refresh layout for standalone mode
-    sashForm.layout(true, true);
-    sashForm.setWeights(60, 40);
+    if (!detached) {
+      // Refresh layout of the docked sash
+      sashForm.layout(true, true);
+      sashForm.setWeights(60, 40);
+    }
+  }
+
+  /**
+   * Detach the execution-results panel into a floating window that stays bound to this pipeline.
+   * The live log sniffer and metrics grid pull from the running pipeline (log channel id / engine
+   * metrics), not from their parent widget, so the feed keeps working after the move. Implemented
+   * as dispose-and-rebuild to avoid the reparenting fragility of {@code Control.setParent()}.
+   */
+  public void detachExtraView() {
+    if (extraViewShell != null || extraViewTabFolder == null || extraViewTabFolder.isDisposed()) {
+      return;
+    }
+    int selection = extraViewTabFolder.getSelectionIndex();
+
+    // Tear down the docked folder without flipping the "show results" toolbar state.
+    extraViewTabFolder.dispose();
+    extraViewTabFolder = null;
+    sashForm.setWeights(100);
+    sashForm.layout();
+
+    extraViewShell = new Shell(getShell(), SWT.SHELL_TRIM);
+    extraViewShell.setText(
+        BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.Window.Title", getName()));
+    extraViewShell.setImage(GuiResource.getInstance().getImagePipeline());
+    extraViewShell.setLayout(new FormLayout());
+
+    addExtraView(extraViewShell);
+    addAllTabs();
+    selectExtraViewTab(selection);
+
+    // The window's close box re-docks the panel rather than destroying it.
+    extraViewShell.addListener(
+        SWT.Close,
+        e -> {
+          e.doit = false;
+          dockExtraView();
+        });
+
+    extraViewShell.setSize(900, 400);
+    extraViewShell.setLocation(getShell().getLocation().x + 60, getShell().getLocation().y + 60);
+    extraViewShell.open();
+  }
+
+  /** Re-dock the floating execution-results panel back into the pipeline's sash. */
+  public void dockExtraView() {
+    if (extraViewShell == null) {
+      return;
+    }
+    int selection = extraViewTabFolder == null ? 0 : extraViewTabFolder.getSelectionIndex();
+
+    if (extraViewTabFolder != null && !extraViewTabFolder.isDisposed()) {
+      extraViewTabFolder.dispose();
+    }
+    extraViewTabFolder = null;
+
+    Shell shell = extraViewShell;
+    extraViewShell = null;
+    if (!shell.isDisposed()) {
+      shell.dispose();
+    }
+
+    addExtraView(sashForm);
+    addAllTabs();
+    selectExtraViewTab(selection);
+  }
+
+  private void selectExtraViewTab(int index) {
+    if (extraViewTabFolder != null
+        && !extraViewTabFolder.isDisposed()
+        && extraViewTabFolder.getItemCount() > 0) {
+      extraViewTabFolder.setSelection(
+          Math.max(0, Math.min(index, extraViewTabFolder.getItemCount() - 1)));
+    }
   }
 
   public synchronized void start(PipelineExecutionConfiguration executionConfiguration)

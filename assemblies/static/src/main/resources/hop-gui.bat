@@ -82,8 +82,8 @@ REM
 REM If the user passes in DEBUG as the first parameter, it starts Hop in debugger mode and opens port 5005
 REM to allow attaching a debugger to step code.
 if [%1]==[DEBUG] (
-REM # optional line for attaching a debugger
-set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005)
+REM # optional line for attaching a debugger + turning on GUI debug logging
+set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -DHOP_LOG_LEVEL=Debug)
 
 REM Pass HOP variables if they're set.
 if not "%HOP_AUDIT_FOLDER%"=="" (

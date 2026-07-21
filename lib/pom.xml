@@ -68,7 +68,7 @@
         <jackcess.version>4.0.10</jackcess.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom -->
-        <jackson.version>2.22.0</jackson.version>
+        <jackson.version>2.21.5</jackson.version>
         <jakarta-activation-api.version>2.1.4</jakarta-activation-api.version>
         <jakarta-annotation-api.version>3.0.0</jakarta-annotation-api.version>
         <jakarta-servlet-api.version>6.1.0</jakarta-servlet-api.version>
