@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.widget;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,7 +61,15 @@ public class FileTree extends Composite {
   private final AtomicBoolean findDependencies;
   private static final String FILE_OBJECT = "fileObject";
   private static final String FOLDER = "folder";
+  private static final String FILE = "file";
   private final Tree tree;
+
+  /**
+   * Guard against re-entrant SWT CHECK events. Programmatic {@link TreeItem#setChecked(boolean)}
+   * can fire nested selection events on some platforms (notably GTK); those must not undo a cascade
+   * that is already in progress.
+   */
+  private boolean ignoreCheckEvents;
 
   public FileTree(Composite composite, FileObject rootFolder, String rootFolderName)
       throws FileSystemException {
@@ -100,23 +109,54 @@ public class FileTree extends Composite {
     tree.addListener(
         SWT.Selection,
         event -> {
-          if (event.detail == SWT.CHECK) {
-            TreeItem[] selectedTreeItems = tree.getSelection();
-            TreeItem item = (TreeItem) event.item;
-            boolean checked = item.getChecked();
-            if (selectedTreeItems.length > 0) {
-              for (TreeItem treeItem : selectedTreeItems) {
-                if (!treeItem.getChecked() == checked) {
-                  selectionEvent(rootItem, treeItem, checked);
-                }
+          if (event.detail != SWT.CHECK || ignoreCheckEvents) {
+            return;
+          }
+          TreeItem item = (TreeItem) event.item;
+          if (item == null || item.isDisposed()) {
+            return;
+          }
+          boolean checked = item.getChecked();
+          // Snapshot multi-selection before we change checkboxes / deselect.
+          TreeItem[] multiSelection = tree.getSelection();
+
+          ignoreCheckEvents = true;
+          try {
+            // Always process the item that was checked/unchecked so folder selection
+            // propagates to all children.
+            selectionEvent(rootItem, item, checked);
+            // Also apply the same state to any other multi-selected items.
+            for (TreeItem treeItem : multiSelection) {
+              if (treeItem != item && !treeItem.isDisposed()) {
+                treeItem.setChecked(checked);
+                selectionEvent(rootItem, treeItem, checked);
               }
-            } else {
-              selectionEvent(rootItem, item, checked);
             }
             tree.deselectAll();
+          } finally {
+            ignoreCheckEvents = false;
           }
         });
-    rootItem.setExpanded(true);
+
+    // Select everything by default so export works without manual checkbox interaction.
+    // Guard ignoreCheckEvents so programmatic setChecked does not fire nested handlers.
+    ignoreCheckEvents = true;
+    try {
+      cascadeCheck(rootItem, true);
+    } finally {
+      ignoreCheckEvents = false;
+    }
+    expandAll(rootItem);
+  }
+
+  /** Expand the given item and all descendants so the default selection is visible. */
+  private void expandAll(TreeItem item) {
+    item.setExpanded(true);
+    for (TreeItem child : item.getItems()) {
+      if (FOLDER.equals(child.getData("type"))) {
+        expandAll(child);
+      }
+    }
   }
 
   /**
@@ -127,9 +167,14 @@ public class FileTree extends Composite {
    * @param checked true when enabling a checkbox, false when disabling
    */
   private void selectionEvent(TreeItem rootItem, TreeItem treeItem, boolean checked) {
-    if (treeItem.getData("type").equals(FOLDER)) {
-      checkItems(rootItem, treeItem, checked);
-      checkGrayedItems(treeItem);
+    Object type = treeItem.getData("type");
+    if (FOLDER.equals(type)) {
+      // Cascade to every descendant. Do not resolve pipeline/workflow dependencies while
+      // cascading: every file under the folder is included, and dependency resolution would
+      // re-enter checkbox updates and can undo the cascade (empty export).
+      cascadeCheck(treeItem, checked);
+      // Update grayed/checked state of ancestors only — cascadeCheck already set this folder.
+      checkGrayedItems(treeItem.getParentItem());
     } else {
       FileObject fileObject = (FileObject) treeItem.getData(FILE_OBJECT);
       if (findDependencies.get()) {
@@ -137,9 +182,11 @@ public class FileTree extends Composite {
       }
       if (checked) {
         fileObjects.add(fileObject);
+        treeItem.setGrayed(false);
         treeItem.setChecked(true);
       } else {
         fileObjects.remove(fileObject);
+        treeItem.setGrayed(false);
         treeItem.setChecked(false);
       }
       checkGrayedItems(treeItem.getParentItem());
@@ -156,7 +203,10 @@ public class FileTree extends Composite {
    */
   private void populateFolder(FileObject folder, TreeItem folderItem) throws FileSystemException {
     FileObject[] children = folder.getChildren();
-    Arrays.sort(children);
+    Arrays.sort(
+        children,
+        Comparator.comparing(
+            child -> child.getName().getBaseName(), String.CASE_INSENSITIVE_ORDER));
 
     // Add the folders
     for (FileObject child : children) {
@@ -184,7 +234,7 @@ public class FileTree extends Composite {
         TreeItem childItem = new TreeItem(folderItem, SWT.NONE);
         childItem.setImage(GuiResource.getInstance().getImageFile());
         childItem.setText(child.getName().getBaseName());
-        childItem.setData("type", "file");
+        childItem.setData("type", FILE);
         childItem.setData(FILE_OBJECT, child);
       }
     }
@@ -213,56 +263,56 @@ public class FileTree extends Composite {
   }
 
   /**
-   * Scan the Tree to find the TreeItem to select/deselect
+   * Recursively set the checked state of a folder and all descendants, and update {@link
+   * #fileObjects} for every file under that folder.
    *
-   * @param rootItem the main tree to update
-   * @param item that needs to be enabled/disabled
-   * @param checked true when enabled, false when disabled
+   * @param item folder or file tree item
+   * @param checked true when enabling a checkbox, false when disabling
    */
-  void checkItems(TreeItem rootItem, TreeItem item, boolean checked) {
+  void cascadeCheck(TreeItem item, boolean checked) {
     item.setGrayed(false);
     item.setChecked(checked);
-    TreeItem[] items = item.getItems();
-    for (TreeItem treeItem : items) {
-      if (treeItem.getData("type").equals("file")) {
-        FileObject fileObject = (FileObject) treeItem.getData(FILE_OBJECT);
-        if (findDependencies.get() && item != rootItem) {
-          addDependencies(fileObject, rootItem, checked);
-        }
+    for (TreeItem child : item.getItems()) {
+      Object type = child.getData("type");
+      if (FILE.equals(type)) {
+        FileObject fileObject = (FileObject) child.getData(FILE_OBJECT);
         if (checked) {
           fileObjects.add(fileObject);
         } else {
           fileObjects.remove(fileObject);
         }
       }
-      checkItems(rootItem, treeItem, checked);
+      cascadeCheck(child, checked);
     }
   }
 
   /**
-   * Set Grayed to checkboxes to the parents of the current item
+   * Set Grayed to checkboxes on the given folder and its ancestors, based on child state.
    *
-   * @param parentItem The start folder to start checking
+   * @param parentItem The start folder to start checking (typically the parent of the changed item)
    */
   void checkGrayedItems(TreeItem parentItem) {
-    if (parentItem == null) {
+    if (parentItem == null || parentItem.isDisposed()) {
       return;
     }
     TreeItem[] items = parentItem.getItems();
-    boolean allChecked = true;
+    boolean allChecked = items.length > 0;
     boolean atLeastOneChecked = false;
     for (TreeItem treeItem : items) {
-      if (!treeItem.getChecked() || (treeItem.getChecked() && treeItem.getGrayed())) {
+      if (!treeItem.getChecked() || treeItem.getGrayed()) {
         allChecked = false;
       }
       atLeastOneChecked = treeItem.getChecked() || atLeastOneChecked;
     }
     if (allChecked) {
       parentItem.setGrayed(false);
-      parentItem.setChecked(atLeastOneChecked);
-    } else {
+      parentItem.setChecked(true);
+    } else if (atLeastOneChecked) {
       parentItem.setGrayed(true);
-      parentItem.setChecked(atLeastOneChecked);
+      parentItem.setChecked(true);
+    } else {
+      parentItem.setGrayed(false);
+      parentItem.setChecked(false);
     }
     checkGrayedItems(parentItem.getParentItem());
   }
@@ -370,13 +420,19 @@ public class FileTree extends Composite {
   void checkItemsByFileObject(TreeItem rootItem, String file, boolean checked) {
     TreeItem[] children = rootItem.getItems();
     for (TreeItem treeItem : children) {
-      if (treeItem.getData("type").equals(FOLDER)) {
+      Object type = treeItem.getData("type");
+      if (FOLDER.equals(type)) {
         checkItemsByFileObject(treeItem, file, checked);
       }
-      if (treeItem.getData("type").equals("file")
+      if (FILE.equals(type)
           && ((FileObject) treeItem.getData(FILE_OBJECT)).getName().getURI().equals(file)) {
         treeItem.setGrayed(false);
         treeItem.setChecked(checked);
+        if (checked) {
+          fileObjects.add((FileObject) treeItem.getData(FILE_OBJECT));
+        } else {
+          fileObjects.remove((FileObject) treeItem.getData(FILE_OBJECT));
+        }
         checkGrayedItems(treeItem.getParentItem());
       }
     }

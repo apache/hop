@@ -80,8 +80,10 @@ public class ProjectDialog extends Dialog {
 
   private Text wName;
   private TextVar wHome;
+  private Button wReadOnly;
   private ComboVar wParentProject;
   private TextVar wConfigFile;
+  private Button wbConfigFile;
   private Text wDescription;
   private Text wCompany;
   private Text wDepartment;
@@ -226,6 +228,19 @@ public class ProjectDialog extends Dialog {
     wHome.setLayoutData(fdHome);
     lastControl = wHome;
 
+    // Read-only option below the home folder path (auto-enabled for archive URIs)
+    //
+    wReadOnly = new Button(comp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wReadOnly);
+    wReadOnly.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ReadOnly"));
+    FormData fdReadOnly = new FormData();
+    fdReadOnly.left = new FormAttachment(middle, margin);
+    fdReadOnly.right = new FormAttachment(99, 0);
+    fdReadOnly.top = new FormAttachment(lastControl, margin);
+    wReadOnly.setLayoutData(fdReadOnly);
+    wReadOnly.addListener(SWT.Selection, e -> updateReadOnlyWidgets());
+    lastControl = wReadOnly;
+
     Label wlConfigFile = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlConfigFile);
     wlConfigFile.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.ConfigurationFile"));
@@ -234,7 +249,7 @@ public class ProjectDialog extends Dialog {
     fdlConfigFile.right = new FormAttachment(middle, 0);
     fdlConfigFile.top = new FormAttachment(lastControl, margin);
     wlConfigFile.setLayoutData(fdlConfigFile);
-    Button wbConfigFile = new Button(comp, SWT.PUSH);
+    wbConfigFile = new Button(comp, SWT.PUSH);
     PropsUi.setLook(wbConfigFile);
     wbConfigFile.setText(BaseMessages.getString(PKG, "ProjectDialog.Button.Browse"));
     FormData fdbConfigFile = new FormData();
@@ -463,9 +478,14 @@ public class ProjectDialog extends Dialog {
     // See if we need a project refresh/reload
     //
     wParentProject.addModifyListener(e -> needingProjectRefresh = true);
-    wHome.addModifyListener(e -> needingProjectRefresh = true);
+    wHome.addModifyListener(
+        e -> {
+          needingProjectRefresh = true;
+          autoSetReadOnlyFromHome();
+        });
 
     getData();
+    updateReadOnlyWidgets();
 
     comp.pack();
     scroll.setContent(comp);
@@ -476,6 +496,43 @@ public class ProjectDialog extends Dialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return returnValue;
+  }
+
+  /**
+   * Automatically select read-only when the home folder is a VFS archive URI (zip/jar/tar/...). The
+   * user can still uncheck the option, or check it manually for other cases (http://, read-only
+   * folders, ...).
+   */
+  private void autoSetReadOnlyFromHome() {
+    if (ProjectConfig.isArchiveUri(variables.resolve(wHome.getText()))) {
+      if (!wReadOnly.getSelection()) {
+        wReadOnly.setSelection(true);
+        updateReadOnlyWidgets();
+      }
+    }
+  }
+
+  /**
+   * Enable or disable project settings that are stored in project-config.json. When the project is
+   * read-only those cannot be persisted, so the widgets are disabled. Name, home folder, config
+   * path and the read-only flag remain editable (they live in hop-config.json).
+   */
+  private void updateReadOnlyWidgets() {
+    boolean editable = !wReadOnly.getSelection();
+
+    // Config file browse is of limited use for archives; keep the relative path editable.
+    wbConfigFile.setEnabled(editable);
+    wParentProject.setEnabled(editable);
+    wDescription.setEnabled(editable);
+    wCompany.setEnabled(editable);
+    wDepartment.setEnabled(editable);
+    wVersion.setEnabled(editable);
+    wMetadataBaseFolder.setEnabled(editable);
+    wUnitTestsBasePath.setEnabled(editable);
+    wDataSetCsvFolder.setEnabled(editable);
+    wEnforceHomeExecution.setEnabled(editable);
+    wVariables.setEnabled(editable);
+    wVariables.setReadonly(!editable);
   }
 
   private void browseHomeFolder(Event event) {
@@ -574,6 +631,7 @@ public class ProjectDialog extends Dialog {
 
       String homeFolder = wHome.getText();
       boolean projectHomeFolderChanged = this.editMode && !oriProjectHome.equals(homeFolder);
+      boolean readOnly = wReadOnly.getSelection();
 
       if (StringUtils.isEmpty(variables.resolve(homeFolder))) {
         throw new HopException("Please specify a home folder for your project");
@@ -593,16 +651,24 @@ public class ProjectDialog extends Dialog {
         }
       }
 
-      // If the home folder doesn't exist and project is new aks if want it created
-      if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists()
-          && (!this.editMode || projectHomeFolderChanged)) {
-        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText(BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Header"));
-        box.setMessage(
-            BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Message", homeFolder));
-        int anwser = box.open();
-        if ((anwser & SWT.YES) != 0) {
-          HopVfs.getFileObject(homeFolder).createFolder();
+      // If the home folder doesn't exist and project is new ask if it should be created.
+      // Never create folders for a read-only project (archives, HTTP, etc.).
+      //
+      FileObject homeFolderObject = HopVfs.getFileObject(variables.resolve(homeFolder));
+      if (!homeFolderObject.exists()) {
+        if (readOnly) {
+          throw new HopException(
+              BaseMessages.getString(PKG, "ProjectDialog.ReadOnly.HomeMissing.Error", homeFolder));
+        }
+        if (!this.editMode || projectHomeFolderChanged) {
+          MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+          box.setText(BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Header"));
+          box.setMessage(
+              BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Message", homeFolder));
+          int anwser = box.open();
+          if ((anwser & SWT.YES) != 0) {
+            HopVfs.getFileObject(homeFolder).createFolder();
+          }
         }
       }
 
@@ -618,6 +684,20 @@ public class ProjectDialog extends Dialog {
 
       if (Utils.isEmpty(wConfigFile.getText())) {
         throw new HopException("Please specify project's configuration file relative path!");
+      }
+
+      // Read-only projects cannot create/write project-config.json: it must already exist.
+      //
+      if (readOnly) {
+        ProjectConfig verifyConfig =
+            new ProjectConfig(projectName, homeFolder, wConfigFile.getText());
+        String configPath = verifyConfig.getActualProjectConfigFilename(variables);
+        FileObject configFile = HopVfs.getFileObject(configPath);
+        if (!configFile.exists()) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "ProjectDialog.ReadOnly.ConfigMissing.Error", configPath));
+        }
       }
 
       if (wParentProject.getText() != null
@@ -716,6 +796,9 @@ public class ProjectDialog extends Dialog {
     wName.setText(Const.NVL(projectConfig.getProjectName(), ""));
     wHome.setText(Const.NVL(projectConfig.getProjectHome(), ""));
     wConfigFile.setText(Const.NVL(projectConfig.getConfigFilename(), ""));
+    wReadOnly.setSelection(
+        projectConfig.isReadOnly()
+            || ProjectConfig.isArchiveUri(variables.resolve(projectConfig.getProjectHome())));
 
     wDescription.setText(Const.NVL(project.getDescription(), ""));
     wCompany.setText(Const.NVL(project.getCompany(), ""));
@@ -759,6 +842,7 @@ public class ProjectDialog extends Dialog {
     projectConfig.setProjectName(wName.getText());
     projectConfig.setProjectHome(wHome.getText());
     projectConfig.setConfigFilename(wConfigFile.getText());
+    projectConfig.setReadOnly(wReadOnly.getSelection());
 
     project.setParentProjectName(wParentProject.getText());
     project.setDescription(wDescription.getText());
