@@ -38,7 +38,7 @@ class TerminalShellDetectorTest {
     if (os.contains("win")) {
       // Windows should return PowerShell or cmd
       assertTrue(
-          shell.contains("powershell") || shell.contains("cmd"),
+          shell.toLowerCase().contains("powershell") || shell.contains("cmd"),
           "Windows should detect PowerShell or cmd");
     } else if (os.contains("mac") || os.contains("nix") || os.contains("nux")) {
       // Unix-like systems should return a shell in /bin
