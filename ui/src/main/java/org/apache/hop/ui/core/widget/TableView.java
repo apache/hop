@@ -188,8 +188,11 @@ public class TableView extends Composite {
   @Getter private int activeTableColumn;
   private int activeTableRow;
 
-  /** When the inline editor was last opened (ms), used to catch a double-click's second click. */
-  private long inlineEditorOpenedAt;
+  /**
+   * The wrapper the inline editor lives in when the cell carries the "expand" icon, or null when
+   * the editor sits in the cell directly. Disposed together with {@link #text}.
+   */
+  private Composite inlineEditorHolder;
 
   /** The currently open multi-line pop-out editor, if any (guards against stacking two). */
   private Shell multilineShell;
@@ -626,8 +629,9 @@ public class TableView extends Composite {
     // Table listens to the mouse:
     table.addMouseListener(createTableMouseListener());
 
-    // Double-click a text cell to edit its value in a floating multi-line editor.
-    table.addListener(SWT.MouseDoubleClick, e -> onCellDoubleClick());
+    // Double-click is deliberately NOT bound here: it belongs to the text editor, where it selects
+    // a word. The multi-line editor is reached through the expand icon on the inline editor, and
+    // opens on its own for values that already contain line breaks.
 
     // Desktop only: draw long / multi-line text cells shortened & single-lined, while getText()
     // keeps returning the full value. RWT does not deliver the custom item-draw events, so in
@@ -1198,7 +1202,7 @@ public class TableView extends Composite {
           }
 
         } else if (e.keyCode == SWT.ESC) {
-          text.dispose();
+          disposeInlineEditor();
           table.setFocus();
         }
       }
@@ -1279,6 +1283,7 @@ public class TableView extends Composite {
         final int colNr = activeTableColumn;
         final int rowNr = table.indexOf(row);
         final Control ftext = text;
+        final Composite fholder = inlineEditorHolder;
 
         final String[] fBeforeEdit = beforeEdit;
 
@@ -1295,7 +1300,7 @@ public class TableView extends Composite {
                   return;
                 }
                 row.setText(colNr, value);
-                ftext.dispose();
+                disposeInlineEditor(ftext, fholder);
 
                 String[] afterEdit = getItemText(row);
                 checkChanged(
@@ -1853,6 +1858,30 @@ public class TableView extends Composite {
     }
   }
 
+  /**
+   * Tear down the inline editor. Text cells wrap their editor in a holder composite so it can carry
+   * the "expand to multi-line editor" icon; disposing the editor alone would leave that wrapper
+   * hanging over the cell, so always route removal through here.
+   */
+  private void disposeInlineEditor() {
+    disposeInlineEditor(text, inlineEditorHolder);
+  }
+
+  /** Variant for call sites that captured the editor and its holder before going asynchronous. */
+  private void disposeInlineEditor(Control editorControl, Composite holder) {
+    if (editorControl != null && !editorControl.isDisposed()) {
+      editorControl.dispose();
+    }
+    if (holder != null) {
+      if (!holder.isDisposed()) {
+        holder.dispose();
+      }
+      if (inlineEditorHolder == holder) {
+        inlineEditorHolder = null;
+      }
+    }
+  }
+
   private void applyTextChange(TableItem row, int rowNr, int colNr) {
     if (text == null || text.isDisposed()) {
       return;
@@ -1860,7 +1889,7 @@ public class TableView extends Composite {
     String textData = getTextWidgetValue(colNr);
 
     row.setText(colNr, textData);
-    text.dispose();
+    disposeInlineEditor();
     table.setFocus();
 
     tableViewModifyListener.cellFocusLost(rowNr);
@@ -1952,40 +1981,13 @@ public class TableView extends Composite {
   }
 
   /**
-   * Double-clicking an editable text cell opens a lightweight, non-modal multi-line editor anchored
-   * to the cell (the same floating-shell idea as the Ctrl+Space variable helper). Handy for long
-   * values, SQL, JSON and multi-line content. Combo/button/read-only cells keep their own
-   * behaviour.
+   * Opens a lightweight, non-modal multi-line editor anchored to the cell (the same floating-shell
+   * idea as the Ctrl+Space variable helper). Handy for long values, SQL, JSON and multi-line
+   * content. Reached from the expand icon on the inline editor, and opened automatically for values
+   * that already contain line breaks.
    */
-  private void onCellDoubleClick() {
-    if (readonly || !table.isEnabled() || !isEnabled() || columns.length == 0) {
-      return;
-    }
-    if (activeTableItem == null || activeTableItem.isDisposed()) {
-      return;
-    }
-    int rowNr = activeTableRow;
-    int colNr = activeTableColumn;
-    if (colNr < 1 || colNr - 1 >= columns.length || rowNr < 0 || rowNr >= table.getItemCount()) {
-      return;
-    }
-    ColumnInfo colinfo = columns[colNr - 1];
-    if (colinfo == null
-        || (colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT
-            && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
-        || colinfo.isReadOnly()) {
-      return;
-    }
-    if (colinfo.getDisabledListener() != null
-        && colinfo.getDisabledListener().isFieldDisabled(rowNr)) {
-      return;
-    }
-    editMultiline(activeTableItem, rowNr, colNr, colinfo);
-  }
-
   private void editMultiline(TableItem row, int rowNr, int colNr, ColumnInfo colinfo) {
-    // A pop-out is already open (e.g. both a double-click and its second-click fallback fired) —
-    // don't stack a second one.
+    // A pop-out is already open — don't stack a second one.
     if (multilineShell != null && !multilineShell.isDisposed()) {
       multilineShell.setFocus();
       return;
@@ -1995,7 +1997,7 @@ public class TableView extends Composite {
     String seed;
     if (text != null && !text.isDisposed()) {
       seed = getTextWidgetValue(colNr);
-      text.dispose();
+      disposeInlineEditor();
     } else {
       seed = row.getText(colNr);
     }
@@ -2025,6 +2027,8 @@ public class TableView extends Composite {
 
     final Text multi = new Text(popup, SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER);
     PropsUi.setLook(multi);
+    // Enter closing the editor is surprising in a multi-line box, so spell the keys out.
+    multi.setToolTipText(BaseMessages.getString(PKG, "TableView.tooltip.MultilineEditorKeys"));
     // Seed with the platform delimiter so line breaks render (Windows needs \r\n).
     multi.setText(toPlatformLineBreaks(seed));
 
@@ -2073,16 +2077,20 @@ public class TableView extends Composite {
           }
         };
 
-    // Ctrl+Enter commits; Escape cancels. (Clicking away commits too — armed below via shell
-    // deactivation rather than a text focus-out, so grabbing a resize edge doesn't
-    // commit-and-close.)
+    // Enter commits and closes; only Shift+Enter inserts a line break. Escape cancels. (Clicking
+    // away commits too — armed below via shell deactivation rather than a text focus-out, so
+    // grabbing a resize edge doesn't commit-and-close.)
     multi.addListener(
         SWT.KeyDown,
         e -> {
           if (e.keyCode == SWT.ESC) {
             cancel.run();
-          } else if ((e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
-              && (e.stateMask & SWT.MOD1) != 0) {
+          } else if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+            if ((e.stateMask & SWT.SHIFT) != 0) {
+              return; // let the Text insert the line break
+            }
+            // Swallow the key so the newline is not typed into the value we are about to store.
+            e.doit = false;
             commit.run();
           }
         });
@@ -2905,7 +2913,7 @@ public class TableView extends Composite {
     }
 
     if (text != null && !text.isDisposed()) {
-      text.dispose();
+      disposeInlineEditor();
     }
 
     if (colinfo.getSelectionAdapter() != null) {
@@ -2934,6 +2942,27 @@ public class TableView extends Composite {
 
     final ModifyListener modifyListener = me -> setColumnWidthBasedOnTextField(colNr, useVariables);
 
+    // Text cells get an "expand" icon on the right edge of the inline editor which opens the
+    // multi-line pop-out. Holding both needs a wrapper composite around the editor, so only create
+    // one where the pop-out actually applies. Passwords never expand.
+    final boolean expandable =
+        !passwordField
+            && (colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT
+                || colinfo.getType() == ColumnInfo.COLUMN_TYPE_TEXT_BUTTON);
+    final Composite editorParent;
+    if (expandable) {
+      inlineEditorHolder = new Composite(table, SWT.NONE);
+      PropsUi.setLook(inlineEditorHolder);
+      FormLayout holderLayout = new FormLayout();
+      holderLayout.marginWidth = 0;
+      holderLayout.marginHeight = 0;
+      inlineEditorHolder.setLayout(holderLayout);
+      editorParent = inlineEditorHolder;
+    } else {
+      inlineEditorHolder = null;
+      editorParent = table;
+    }
+
     if (useVariables) {
       IGetCaretPosition getCaretPositionInterface =
           () -> ((TextVar) text).getTextWidget().getCaretPosition();
@@ -2959,19 +2988,20 @@ public class TableView extends Composite {
       if (passwordField) {
         textWidget =
             new PasswordTextVar(
-                variables, table, SWT.NONE, getCaretPositionInterface, insertTextInterface);
+                variables, editorParent, SWT.NONE, getCaretPositionInterface, insertTextInterface);
       } else if (isTextButton) {
         textWidget =
             new TextVarButton(
                 variables,
-                table,
+                editorParent,
                 SWT.NONE,
                 getCaretPositionInterface,
                 insertTextInterface,
                 columnInfo.getTextVarButtonSelectionListener());
       } else {
         textWidget =
-            new TextVar(variables, table, SWT.NONE, getCaretPositionInterface, insertTextInterface);
+            new TextVar(
+                variables, editorParent, SWT.NONE, getCaretPositionInterface, insertTextInterface);
       }
 
       text = textWidget;
@@ -2995,7 +3025,7 @@ public class TableView extends Composite {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
       }
     } else {
-      Text textWidget = new Text(table, SWT.NONE);
+      Text textWidget = new Text(editorParent, SWT.NONE);
       text = textWidget;
       textWidget.setText(content);
       if (lsMod != null) {
@@ -3019,34 +3049,11 @@ public class TableView extends Composite {
     }
     PropsUi.setLook(text);
 
-    // Double-clicking inside the inline editor expands it into the multi-line editor. The inline
-    // editor is created on the first click, so on some platforms (Windows) the second click of a
-    // double-click lands on this fresh editor as a single click and neither the table nor the
-    // editor sees a full double-click. So also treat a click arriving within the OS double-click
-    // time of the editor opening as that second click. Deferred so this handler finishes before the
-    // inline editor it belongs to is disposed.
-    if (!passwordField) {
-      Control innerText = (text instanceof TextVar tv) ? tv.getTextWidget() : text;
-      Runnable expand =
-          () ->
-              getDisplay()
-                  .asyncExec(
-                      () -> {
-                        if (!isDisposed()) {
-                          editMultiline(row, rowNr, colNr, colinfo);
-                        }
-                      });
-      innerText.addListener(SWT.MouseDoubleClick, e -> expand.run());
-      innerText.addListener(
-          SWT.MouseDown,
-          e -> {
-            if (System.currentTimeMillis() - inlineEditorOpenedAt
-                <= getDisplay().getDoubleClickTime()) {
-              expand.run();
-            }
-          });
+    Control editorControl = text;
+    if (expandable) {
+      editorControl = inlineEditorHolder;
+      addExpandIcon(inlineEditorHolder, row, rowNr, colNr, colinfo);
     }
-    inlineEditorOpenedAt = System.currentTimeMillis();
 
     int width = tableColumn[colNr].getWidth();
     int height = 30;
@@ -3055,11 +3062,60 @@ public class TableView extends Composite {
     editor.grabHorizontal = true;
 
     // Open the text editor in the correct column of the selected row.
-    editor.setEditor(text, row, colNr);
+    editor.setEditor(editorControl, row, colNr);
 
     text.setFocus();
-    text.setSize(width, height);
+    editorControl.setSize(width, height);
     editor.layout();
+  }
+
+  /**
+   * Put a small "expand" icon on the right edge of the inline editor which opens the value in the
+   * floating multi-line editor. It is a {@link Label} rather than a {@link Button} on purpose: a
+   * label does not take focus, so clicking it does not fire the editor's focus-lost handler (which
+   * would commit and dispose the editor before the click was ever handled).
+   */
+  private void addExpandIcon(
+      Composite holder, TableItem row, int rowNr, int colNr, ColumnInfo colinfo) {
+    Label expandLabel = new Label(holder, SWT.NONE);
+    PropsUi.setLook(expandLabel);
+    expandLabel.setImage(GuiResource.getInstance().getImageMaximizePanel());
+    expandLabel.setToolTipText(BaseMessages.getString(PKG, "TableView.tooltip.ExpandValue"));
+
+    // The holder sits on top of the table cell, so without a background of its own the cell's own
+    // text shows through around the icon. Take the editor's background so the two read as one field
+    // in both the light and the dark theme.
+    Color editorBackground =
+        (text instanceof TextVar textVar)
+            ? textVar.getTextWidget().getBackground()
+            : text.getBackground();
+    holder.setBackground(editorBackground);
+    expandLabel.setBackground(editorBackground);
+
+    FormData fdExpand = new FormData();
+    fdExpand.top = new FormAttachment(0, 0);
+    fdExpand.right = new FormAttachment(100, -2);
+    fdExpand.bottom = new FormAttachment(100, 0);
+    expandLabel.setLayoutData(fdExpand);
+
+    FormData fdText = new FormData();
+    fdText.left = new FormAttachment(0, 0);
+    fdText.top = new FormAttachment(0, 0);
+    fdText.right = new FormAttachment(expandLabel, -2);
+    fdText.bottom = new FormAttachment(100, 0);
+    text.setLayoutData(fdText);
+
+    // Deferred so this handler finishes before the inline editor it belongs to is disposed.
+    expandLabel.addListener(
+        SWT.MouseDown,
+        e ->
+            getDisplay()
+                .asyncExec(
+                    () -> {
+                      if (!isDisposed()) {
+                        editMultiline(row, rowNr, colNr, colinfo);
+                      }
+                    }));
   }
 
   private void setColumnWidthBasedOnTextField(final int colNr, final boolean useVariables) {
@@ -3864,7 +3920,7 @@ public class TableView extends Composite {
 
   public void unEdit() {
     if (text != null && !text.isDisposed()) {
-      text.dispose();
+      disposeInlineEditor();
       text = null;
     }
     if (comboVar != null && !comboVar.isDisposed()) {
