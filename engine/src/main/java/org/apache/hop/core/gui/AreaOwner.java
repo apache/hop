@@ -56,6 +56,11 @@ public class AreaOwner {
      * there are available output rows.
      */
     TRANSFORM_OUTPUT_DATA(true),
+    /**
+     * Data preview icon on a pipeline hop (near the source) for rows sampled on that hop, including
+     * target hops such as Filter true/false branches.
+     */
+    HOP_OUTPUT_DATA(true),
     /** The pipeline hop decoration */
     TRANSFORM_TARGET_HOP_ICON(true),
 

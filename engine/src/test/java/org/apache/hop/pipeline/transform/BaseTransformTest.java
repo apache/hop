@@ -17,9 +17,11 @@
 
 package org.apache.hop.pipeline.transform;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -29,6 +31,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -360,6 +363,43 @@ class BaseTransformTest {
     } catch (UnsupportedOperationException uoe) {
       assertTrue(uoe.getMessage().contains(this.getClass().getName()));
     }
+  }
+
+  @Test
+  void putRowToInvokesRowToListenersNotRowListeners() throws HopException {
+    BaseTransform<ITransformMeta, ITransformData> baseTransform =
+        new BaseTransform<>(
+            mockHelper.transformMeta,
+            mockHelper.iTransformMeta,
+            mockHelper.iTransformData,
+            0,
+            mockHelper.pipelineMeta,
+            mockHelper.pipeline);
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("col"));
+    Object[] row = new Object[] {"value"};
+    QueueRowSet rowSet = new QueueRowSet();
+
+    IRowListener rowListener = mock(IRowListener.class);
+    baseTransform.addRowListener(rowListener);
+
+    final IRowSet[] receivedRowSet = new IRowSet[1];
+    final Object[][] receivedRow = new Object[1][];
+    baseTransform.addRowToListener(
+        (meta, data, dest) -> {
+          receivedRowSet[0] = dest;
+          receivedRow[0] = data;
+        });
+
+    baseTransform.putRowTo(rowMeta, row, rowSet);
+
+    assertSame(rowSet, receivedRowSet[0]);
+    assertSame(row, receivedRow[0]);
+    assertEquals(1L, baseTransform.getLinesWritten());
+    verify(rowListener, never()).rowWrittenEvent(any(), any());
+    verify(rowListener, never()).rowReadEvent(any(), any());
+    verify(rowListener, never()).errorRowWrittenEvent(any(), any());
   }
 
   private IRowHandler rowHandlerWithDefaultMethods() {
