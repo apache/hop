@@ -119,6 +119,33 @@ Uses a temporary `HOP_CONFIG_FOLDER` (does not touch your real hop-config) and
 installs two small plugins into `assemblies/client/target/hop` (override with
 `HOP_DIR`).
 
+## Dummy staging (full registry verify + smoke)
+
+End-to-end dry-run of “stage plugin zips → confirm Maven layout → install”:
+
+```bash
+./docker/marketplace-nexus/start.sh
+export NEXUS_PASSWORD=hop-nexus-dev
+
+# Publish all optional-plugins.yaml zips, HTTP-verify each GAV, smoke install:
+./docker/marketplace-nexus/dummy-staging.sh
+
+# Package modules first if zips are missing:
+./docker/marketplace-nexus/dummy-staging.sh --package
+
+# Already published; only verify + smoke:
+./docker/marketplace-nexus/dummy-staging.sh --skip-publish
+```
+
+After a real ASF `release:perform`, point the same checks at the staging repo:
+
+```bash
+export REPO_URL='https://repository.apache.org/content/repositories/orgapachehop-XXXX/'
+# or NEXUS_REPO_URL=…
+./docker/marketplace-nexus/dummy-staging.sh --skip-publish
+# then drop the staging repository if it was only a dry-run
+```
+
 ## Scripts
 
 | Script | Role |
@@ -127,6 +154,7 @@ installs two small plugins into `assemblies/client/target/hop` (override with
 | `configure-nexus.sh` | Anonymous + hosted repo (idempotent) |
 | `publish-marketplace-plugins.sh` | `deploy-file` of all zips from `optional-plugins.yaml` |
 | `publish-wave1-plugins.sh` | Deprecated alias of `publish-marketplace-plugins.sh` |
+| `dummy-staging.sh` | Publish (optional) + verify all registry zips + install smoke |
 | `smoke-test.sh` | Anonymous install / list / validate / apply / uninstall |
 
 ## Stop

@@ -55,21 +55,36 @@ Build the software using the apache release profile
 mvn clean install -Papache-release
 ----
 
-=== Optional marketplace plugins (Wave 1)
+=== Optional marketplace plugins
 
-Large plugins are *not* bundled in the hop-client zip. Each optional plugin module
-still builds a standalone zip (Maven assembly with `appendAssemblyId=false`), so
-`mvn deploy` / the apache-release process publishes both the jar and the zip under
-the same GAV, for example:
+Large / lesser-used plugins are *not* bundled in the hop-client zip (ASF package size).
+Each plugin module with `src/assembly/assembly.xml` builds a standalone zip (Maven
+assembly with `appendAssemblyId=false`).
+
+The root `maven-release-plugin` is configured with `-P=-assemblies -DskipTests`:
+
+* **`-assemblies`** — skip the `assemblies/` reactor (hop-client / hop-web products go to
+  dist.apache.org, not Maven Central).
+* **Do not** disable the per-module **`assembly`** profile — that would drop plugin zips
+  from staging and break the marketplace.
+
+So `release:perform` publishes both the jar and the zip under the same GAV, for example:
 
 ----
 https://repository.apache.org/content/groups/public/org/apache/hop/hop-tech-parquet/<version>/hop-tech-parquet-<version>.zip
 ----
 
-After staging a release, verify Wave 1 zips resolve from the ASF public group (and
-later Maven Central). Local SNAPSHOT testing can use `docker/marketplace-nexus/`
-instead. Keep the client under the ASF ~850 MB package limit by running
-`tools/check-assembly-size.sh` before promoting artifacts.
+After staging a release candidate, verify marketplace zips in the Nexus staging
+repository (see xref:apache-release/checking-a-release.adoc[Checking a release]).
+Optional plugins are listed in
+`plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml`.
+
+**SNAPSHOT** testing: Jenkins deploys plugin zips to the ASF snapshots repository so
+marketplace can install them during development. Local-only testing can still use
+`docker/marketplace-nexus/` and `publish-marketplace-plugins.sh`.
+
+Keep the client under the ASF ~850 MB package limit by running
+`tools/check-assembly-size.sh` before promoting distribution artifacts.
 
 we are going to use the `mvn release:prepare` command to prepare the release process
 

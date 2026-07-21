@@ -328,9 +328,129 @@ publish side (admin / CI user).
 ## Packaging & size
 
 Optional plugins are **not** bundled in the default hop-client zip so the download stays
-under the ASF packaging limit. Production releases publish the same GAV zips to
-Apache Repository / Maven Central; day-to-day SNAPSHOT testing uses local Nexus or
-Artifactory as above.
+under the ASF packaging limit.
+
+### Production / ASF Nexus
+
+Release `release:perform` uses `-P=-assemblies -DskipTests` (root `pom.xml`):
+
+- Skips the `assemblies/` reactor (hop-client goes to dist.apache.org).
+- Keeps the per-module **`assembly`** profile so each plugin zip is attached and
+  staged to `repository.apache.org`, then Maven Central after the vote.
+
+Example after release:
+
+```text
+https://repository.apache.org/content/groups/public/org/apache/hop/hop-tech-parquet/<version>/hop-tech-parquet-<version>.zip
+```
+
+### SNAPSHOT (CI)
+
+Jenkins on **main** does two steps (see `Jenkinsfile`):
+
+1. `mvn … -DaltDeploymentRepository=…::file:./local-snapshots-dir clean deploy`  
+   (full reactor: tests, assemblies, plugin zips)
+2. `mvn -P deploy-snapshots wagon:upload` → ASF snapshots  
+   (`repository.apache.org`). Plugin zips are **included**; hop-assemblies and
+   core/engine/ui zips stay excluded.
+
+**Pre-merge confidence (does not need ASF credentials):**
+
+```bash
+# 1) Same deploy *layout* as Jenkins step 1 (skipTests optional on a laptop)
+rm -rf local-snapshots-dir && mkdir local-snapshots-dir
+./mvnw -T 2 -B -DskipTests \
+  -DaltDeploymentRepository=snapshot-repo::default::file:$(pwd)/local-snapshots-dir \
+  clean deploy
+
+# 2) Every optional-plugins.yaml artifact must have a .zip in that tree
+./tools/verify-ci-snapshot-zips.sh
+
+# Full CI flags (longer; needs xvfb for UI tests) — closer to Jenkins:
+# xvfb-run -a --server-args='-screen 0 1280x1024x24' ./mvnw -T 2 -U -B -e -fae -V \
+#   -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -DSkipTestContainers=true \
+#   -DaltDeploymentRepository=snapshot-repo::default::file:$(pwd)/local-snapshots-dir \
+#   clean deploy
+```
+
+**After merge to apache/hop main:** wait for Jenkins Deploy green, then check e.g.
+
+`https://repository.apache.org/content/repositories/snapshots/org/apache/hop/hop-tech-parquet/`
+
+for a `.zip` under the SNAPSHOT folder. Private data-hopper deploys do **not** replace this check.
+
+Point marketplace at ASF snapshots when testing SNAPSHOT Hop builds from Apache CI.
+
+### SNAPSHOT to a private Nexus (e.g. data-hopper)
+
+For local or private builders (same idea as Jenkins deploy, different target), use
+a Maven server id + URL such as:
+
+```text
+https://repository.data-hopper.com/repository/apache-hop-plugins/
+```
+
+**Do not** put deploy passwords in the Hop git tree. Use env vars or `~/.m2/settings.xml`.
+
+**Fast path — optional plugin zips only** (recommended for marketplace work):
+
+```bash
+export HOP_DEPLOY_USER=hop_build
+export HOP_DEPLOY_PASSWORD='…'   # from your password manager
+export DATA_HOPPER_URL='https://repository.data-hopper.com/repository/apache-hop-plugins'
+./tools/deploy-snapshots-data-hopper.sh marketplace
+```
+
+**Jenkins-like full reactor** (jars + plugin zips; skips `assemblies/` hop-client module):
+
+```xml
+<!-- ~/.m2/settings.xml -->
+<server>
+  <id>apache-hop-plugins</id>
+  <username>hop_build</username>
+  <password>…</password>
+</server>
+```
+
+```bash
+./tools/deploy-snapshots-data-hopper.sh reactor
+# equivalent:
+# ./mvnw clean deploy -DskipTests -P=-assemblies \
+#   -DaltDeploymentRepository=apache-hop-plugins::default::https://repository.data-hopper.com/repository/apache-hop-plugins/
+```
+
+Then point Hop at the repo:
+
+```bash
+./hop marketplace repo add --id data-hopper \
+  --url https://repository.data-hopper.com/repository/apache-hop-plugins/ --primary
+./hop marketplace install hop-tech-parquet
+```
+
+Verify zips:
+
+```bash
+export NEXUS_REPO_URL='https://repository.data-hopper.com/repository/apache-hop-plugins/'
+./docker/marketplace-nexus/dummy-staging.sh --skip-publish
+```
+
+Official product defaults remain ASF public + Maven Central; private Nexus is optional.
+
+### Local Nexus / Artifactory
+
+Offline / sandbox work still uses `docker/marketplace-nexus/` and
+`publish-marketplace-plugins.sh` as documented above.
+
+**Dummy staging** (publish every registry zip, HTTP-verify Maven layout, CLI install smoke):
+
+```bash
+./docker/marketplace-nexus/start.sh
+export NEXUS_PASSWORD=hop-nexus-dev
+./docker/marketplace-nexus/dummy-staging.sh
+```
+
+Same script can validate an ASF staging repo with
+`NEXUS_REPO_URL=<staging-url> ./docker/marketplace-nexus/dummy-staging.sh --skip-publish`.
 
 Lean client size check:
 

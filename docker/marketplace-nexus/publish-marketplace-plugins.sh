@@ -54,13 +54,28 @@ for arg in "$@"; do
   esac
 done
 
-# Load .env from start/configure if present
+# Capture caller overrides before optional .env (local docker defaults must not win).
+_OV_REPO_URL="${NEXUS_REPO_URL:-${ARTIFACTORY_URL:-}}"
+_OV_REPO_ID="${NEXUS_REPO_ID:-}"
+_OV_USER="${NEXUS_USER:-${ARTIFACTORY_USER:-}}"
+_OV_PASS="${NEXUS_PASSWORD:-${ARTIFACTORY_PASSWORD:-}}"
+_OV_VERSION="${HOP_VERSION:-}"
+
+# Load .env from start/configure if present (defaults for local Nexus only)
 if [[ -f "${SCRIPT_DIR}/.env" ]]; then
   # shellcheck disable=SC1091
   set -a
+  # shellcheck source=/dev/null
   source "${SCRIPT_DIR}/.env"
   set +a
 fi
+
+# Restore explicit environment / caller exports
+[[ -n "${_OV_REPO_URL}" ]] && NEXUS_REPO_URL="${_OV_REPO_URL}" && ARTIFACTORY_URL="${_OV_REPO_URL}"
+[[ -n "${_OV_REPO_ID}" ]] && NEXUS_REPO_ID="${_OV_REPO_ID}"
+[[ -n "${_OV_USER}" ]] && NEXUS_USER="${_OV_USER}" && ARTIFACTORY_USER="${_OV_USER}"
+[[ -n "${_OV_PASS}" ]] && NEXUS_PASSWORD="${_OV_PASS}" && ARTIFACTORY_PASSWORD="${_OV_PASS}"
+[[ -n "${_OV_VERSION}" ]] && HOP_VERSION="${_OV_VERSION}"
 
 REPO_URL="${NEXUS_REPO_URL:-${ARTIFACTORY_URL:-http://127.0.0.1:8081/repository/hop-plugins}}"
 REPO_URL="${REPO_URL%/}"
@@ -68,6 +83,8 @@ REPO_ID="${NEXUS_REPO_ID:-hop-plugins}"
 USER="${NEXUS_USER:-${NEXUS_ADMIN_USER:-${ARTIFACTORY_USER:-admin}}}"
 PASS="${NEXUS_PASSWORD:-${NEXUS_ADMIN_PASSWORD:-${ARTIFACTORY_PASSWORD:-}}}"
 VERSION="${HOP_VERSION:-2.19.0-SNAPSHOT}"
+
+echo "Deploy target: ${REPO_URL} (server id=${REPO_ID}, user=${USER})"
 
 # Prefer groupId from registry when set
 GROUP_ID="${GROUP_ID:-}"
