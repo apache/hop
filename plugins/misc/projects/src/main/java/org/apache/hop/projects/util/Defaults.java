@@ -22,4 +22,10 @@ public class Defaults {
   public static final String VARIABLE_HOP_ENVIRONMENT_NAME = "HOP_ENVIRONMENT_NAME";
 
   public static final String EXTENSION_POINT_PROJECT_ACTIVATED = "ProjectActivated";
+
+  /**
+   * Default filename (relative to project home) used when a project has auto-export of metadata
+   * enabled and no custom filename is configured.
+   */
+  public static final String DEFAULT_AUTO_EXPORT_METADATA_FILENAME = "metadata.json";
 }
