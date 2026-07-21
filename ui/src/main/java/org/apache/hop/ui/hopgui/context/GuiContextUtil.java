@@ -162,7 +162,12 @@ public class GuiContextUtil {
 
         contextDialog =
             new ContextDialog(
-                parent, message, clickLocation, actions, contextHandler.getContextId());
+                parent,
+                message,
+                clickLocation,
+                actions,
+                contextHandler.getContextId(),
+                contextHandler::getSupportedActions);
         shellDialogMap.put(parent.getText(), contextDialog);
         GuiAction selectedAction = contextDialog.open();
         shellDialogMap.remove(parent.getText());

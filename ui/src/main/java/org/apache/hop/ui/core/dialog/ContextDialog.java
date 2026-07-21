@@ -24,6 +24,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -49,6 +50,7 @@ import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -97,7 +99,8 @@ public class ContextDialog extends Dialog {
   public static final String AUDIT_NAME_CATEGORY_STATES = "CategoryStates";
 
   private final Point location;
-  private final List<GuiAction> actions;
+  private List<GuiAction> actions;
+  private final Supplier<List<GuiAction>> actionsSupplier;
   private final PropsUi props;
   private Shell shell;
   private Text wSearch;
@@ -303,11 +306,22 @@ public class ContextDialog extends Dialog {
 
   public ContextDialog(
       Shell parent, String title, Point location, List<GuiAction> actions, String contextId) {
+    this(parent, title, location, actions, contextId, null);
+  }
+
+  public ContextDialog(
+      Shell parent,
+      String title,
+      Point location,
+      List<GuiAction> actions,
+      String contextId,
+      Supplier<List<GuiAction>> actionsSupplier) {
     super(parent);
 
     this.setText(title);
     this.location = location;
     this.actions = actions;
+    this.actionsSupplier = actionsSupplier;
 
     props = PropsUi.getInstance();
 
@@ -328,58 +342,10 @@ public class ContextDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImageHop());
     shell.setLayout(new FormLayout());
 
-    Display display = shell.getDisplay();
-
     xMargin = 3 * margin;
     yMargin = 2 * margin;
 
-    // Let's take a look at the list of actions and see if we've got categories to use...
-    //
-    categories = new ArrayList<>();
-    for (GuiAction action : actions) {
-      CategoryAndOrder categoryAndOrder;
-      if (StringUtils.isNotEmpty(action.getCategory())) {
-        categoryAndOrder =
-            new CategoryAndOrder(
-                action.getCategory(), Const.NVL(action.getCategoryOrder(), "0"), false);
-      } else {
-        // Add an "Other" category
-        categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
-      }
-      if (!categories.contains(categoryAndOrder)) {
-        categories.add(categoryAndOrder);
-      }
-    }
-
-    categories.sort(Comparator.comparing(o -> o.order));
-
-    // Correct the icon size which is multiplied in GuiResource...
-    //
-    int correctedIconSize = (int) (iconSize / props.getZoomFactor());
-
-    // Load the action images
-    //
-    items.clear();
-    for (GuiAction action : actions) {
-      ClassLoader classLoader = action.getClassLoader();
-      if (classLoader == null) {
-        classLoader = ClassLoader.getSystemClassLoader();
-      }
-      // Load or get from the image cache...
-      //
-      Image image;
-      try {
-        image =
-            GuiResource.getInstance()
-                .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
-      } catch (Exception e) {
-        image =
-            GuiResource.getInstance()
-                .getSwtImageMissing()
-                .getAsBitmapForSize(display, correctedIconSize, correctedIconSize);
-      }
-      items.add(new Item(action, image));
-    }
+    rebuildCategoriesAndItems();
 
     // Add a search bar at the top...
     //
@@ -578,6 +544,7 @@ public class ContextDialog extends Dialog {
 
     // Wait until the dialog is closed
     //
+    Display display = shell.getDisplay();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
         display.sleep();
@@ -797,6 +764,23 @@ public class ContextDialog extends Dialog {
         //
         Item item = (Item) areaOwner.getOwner();
         if (item != null) {
+          // ALT-Click: toggle transform/action favorite without closing the dialog (issue #3526)
+          //
+          boolean altClicked = (event.stateMask & SWT.ALT) != 0;
+          if (altClicked && GuiActionFavorites.tryToggleFromAction(item.getAction())) {
+            try {
+              HopConfig.getInstance().saveToFile();
+            } catch (Exception e) {
+              new ErrorDialog(
+                  shell,
+                  BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Header"),
+                  BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Message"),
+                  e);
+            }
+            refreshActionsFromSupplier();
+            return;
+          }
+
           selectedAction = item.getAction();
 
           shiftClicked = (event.stateMask & SWT.SHIFT) != 0;
@@ -809,6 +793,93 @@ public class ContextDialog extends Dialog {
         break;
       default:
         break;
+    }
+  }
+
+  /**
+   * Rebuild the category list and icon items from the current {@link #actions} list. Preserves
+   * collapsed state of categories when refreshing after a favorites toggle.
+   */
+  private void rebuildCategoriesAndItems() {
+    Map<String, Boolean> previousCollapsed = new HashMap<>();
+    if (categories != null) {
+      for (CategoryAndOrder category : categories) {
+        previousCollapsed.put(category.getCategory(), category.isCollapsed());
+      }
+    }
+
+    categories = new ArrayList<>();
+    for (GuiAction action : actions) {
+      CategoryAndOrder categoryAndOrder;
+      if (StringUtils.isNotEmpty(action.getCategory())) {
+        categoryAndOrder =
+            new CategoryAndOrder(
+                action.getCategory(), Const.NVL(action.getCategoryOrder(), "0"), false);
+      } else {
+        categoryAndOrder = new CategoryAndOrder(CATEGORY_OTHER, "9999", false);
+      }
+      if (!categories.contains(categoryAndOrder)) {
+        Boolean wasCollapsed = previousCollapsed.get(categoryAndOrder.getCategory());
+        if (wasCollapsed != null) {
+          categoryAndOrder.setCollapsed(wasCollapsed);
+        }
+        categories.add(categoryAndOrder);
+      }
+    }
+
+    categories.sort(Comparator.comparing(o -> o.order));
+
+    int correctedIconSize = (int) (iconSize / props.getZoomFactor());
+    Display display = shell != null && !shell.isDisposed() ? shell.getDisplay() : null;
+
+    items.clear();
+    for (GuiAction action : actions) {
+      ClassLoader classLoader = action.getClassLoader();
+      if (classLoader == null) {
+        classLoader = ClassLoader.getSystemClassLoader();
+      }
+      Image image;
+      try {
+        image =
+            GuiResource.getInstance()
+                .getImage(action.getImage(), classLoader, correctedIconSize, correctedIconSize);
+      } catch (Exception e) {
+        if (display != null) {
+          image =
+              GuiResource.getInstance()
+                  .getSwtImageMissing()
+                  .getAsBitmapForSize(display, correctedIconSize, correctedIconSize);
+        } else {
+          image = null;
+        }
+      }
+      items.add(new Item(action, image));
+    }
+  }
+
+  /**
+   * Reload actions from the supplier (after a favorite toggle) and re-apply the current search
+   * filter so the Favorites category appears/disappears without closing the dialog.
+   */
+  private void refreshActionsFromSupplier() {
+    if (actionsSupplier == null) {
+      return;
+    }
+    String selectedName = selectedItem != null ? selectedItem.getAction().getName() : null;
+    actions = actionsSupplier.get();
+    rebuildCategoriesAndItems();
+    String searchText = wSearch != null && !wSearch.isDisposed() ? wSearch.getText() : "";
+    filter(searchText);
+
+    // Try to re-select the same tool by name after the list refresh
+    //
+    if (selectedName != null) {
+      for (Item item : filteredItems) {
+        if (selectedName.equals(item.getAction().getName())) {
+          selectItem(item, false);
+          break;
+        }
+      }
     }
   }
 

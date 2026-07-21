@@ -31,6 +31,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
+import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -87,20 +88,19 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
         continue;
       }
 
+      String pluginId = actionPlugin.getIds()[0];
+      boolean favorite =
+          GuiActionFavorites.isFavorite(GuiActionFavorites.Kind.WORKFLOW_ACTION, pluginId);
       GuiAction createActionGuiAction =
           new GuiAction(
-              "workflow-graph-create-workflow-action-" + actionPlugin.getIds()[0],
+              GuiActionFavorites.createId(GuiActionFavorites.Kind.WORKFLOW_ACTION, pluginId),
               GuiActionType.Create,
               actionPlugin.getName(),
-              actionPlugin.getDescription(),
+              GuiActionFavorites.tooltipWithFavoriteHint(actionPlugin.getDescription(), favorite),
               actionPlugin.getImageFile(),
               (shiftClicked, controlClicked, t) ->
                   workflowGraph.workflowActionDelegate.newAction(
-                      workflowMeta,
-                      actionPlugin.getIds()[0],
-                      actionPlugin.getName(),
-                      controlClicked,
-                      click));
+                      workflowMeta, pluginId, actionPlugin.getName(), controlClicked, click));
       createActionGuiAction.getKeywords().addAll(Arrays.asList(actionPlugin.getKeywords()));
       // Also search on the English name/category/keywords for non-English locales (issue #2633)
       createActionGuiAction.getKeywords().addAll(Arrays.asList(actionPlugin.getEnglishKeywords()));
@@ -110,11 +110,17 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
       try {
         createActionGuiAction.setClassLoader(registry.getClassLoader(actionPlugin));
       } catch (HopPluginException e) {
-        LogChannel.UI.logError(
-            "Unable to get classloader for action plugin " + actionPlugin.getIds()[0], e);
+        LogChannel.UI.logError("Unable to get classloader for action plugin " + pluginId, e);
       }
       createActionGuiAction.getKeywords().add(actionPlugin.getCategory());
       guiActions.add(createActionGuiAction);
+
+      // Duplicate under Favorites when the user marked this action as favorite (issue #3526)
+      if (favorite) {
+        guiActions.add(
+            GuiActionFavorites.createFavoriteAction(
+                createActionGuiAction, GuiActionFavorites.Kind.WORKFLOW_ACTION, pluginId));
+      }
     }
 
     return guiActions;
