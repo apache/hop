@@ -1911,6 +1911,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           });
     }
 
+    // Set a theme for this control that changes dynamically
+    PropsUi.setTheme(folder);
+
     return folder;
   }
 
@@ -2258,7 +2261,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     Composite composite = new Composite(targetFolder, SWT.NONE);
     composite.setLayout(new FormLayout());
     composite.setLayoutData(new FormDataBuilder().fullSize().result());
-    PropsUi.setLook(composite);
+    PropsUi.setTheme(composite);
 
     fileTypeHandler.renderFile(composite);
 
@@ -2351,6 +2354,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           e);
     }
 
+    PropsUi.setTheme(pipelineGraph);
+
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(this);
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
@@ -2432,6 +2437,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               + " trying to handle a new workflow tab",
           e);
     }
+
+    PropsUi.setTheme(workflowGraph);
 
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(this);
@@ -4379,6 +4386,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     // Collapse the docked source pane if the detach emptied it.
     reclaimFolder(sourceFolder);
+
+    // Set a theme for this control that changes dynamically
+    PropsUi.setTheme(shell);
 
     // The window's close box re-docks its tabs rather than discarding them.
     shell.addListener(

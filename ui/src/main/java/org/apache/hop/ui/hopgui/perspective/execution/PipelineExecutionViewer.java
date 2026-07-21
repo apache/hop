@@ -413,7 +413,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     dataList =
         new org.eclipse.swt.widgets.List(
             dataSash, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL);
-    PropsUi.setLook(dataList);
     dataList.addListener(SWT.Selection, e -> showDataRows());
 
     // An empty table view on the right.  This will be populated during a refresh.
@@ -429,7 +428,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             true,
             null,
             props);
-    PropsUi.setLook(dataView);
 
     dataView.optimizeTableView();
 
@@ -457,7 +455,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             true,
             null,
             props);
-    PropsUi.setLook(metricsView);
 
     metricsView.optimizeTableView();
 
@@ -528,6 +525,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
 
       metricsTab.setControl(metricsView);
+
+      // Set a theme for this control that changes dynamically
+      PropsUi.setTheme(metricsView);
+
       metricsView.layout(true, true);
       metricsView.optimizeTableView();
     }

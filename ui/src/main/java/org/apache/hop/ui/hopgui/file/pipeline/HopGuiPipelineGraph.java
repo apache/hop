@@ -5124,6 +5124,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       extraViewTabFolder.setSelection(0);
     }
 
+    PropsUi.setTheme(extraViewTabFolder);
+
     toolBarWidgets.setToolbarItemImage(
         TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS, "ui/images/hide-results.svg");
     toolBarWidgets.setToolbarItemToolTip(

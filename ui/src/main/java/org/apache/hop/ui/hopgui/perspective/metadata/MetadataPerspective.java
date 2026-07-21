@@ -809,6 +809,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     tabItem.setControl(composite);
     tabItem.setData(editor);
 
+    // Set a theme for this control that changes dynamically
+    PropsUi.setTheme(composite);
+
     editors.add(editor);
 
     // Add listeners

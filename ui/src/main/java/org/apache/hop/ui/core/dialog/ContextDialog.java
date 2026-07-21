@@ -564,6 +564,8 @@ public class ContextDialog extends Dialog {
     // Manually set canvas size otherwise canvas never gets drawn.
     wCanvas.setSize(10, 10);
 
+    PropsUi.setTheme(shell);
+
     // Show the dialog now
     //
     shell.open();

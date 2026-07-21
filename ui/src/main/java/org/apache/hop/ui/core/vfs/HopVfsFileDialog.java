@@ -625,6 +625,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     keyHandler.addParentObjectToHandle(this, shell);
     HopGui.getInstance().replaceKeyboardShortcutListeners(shell, keyHandler);
 
+    PropsUi.setTheme(shell);
+
     shell.open();
 
     while (!shell.isDisposed()) {

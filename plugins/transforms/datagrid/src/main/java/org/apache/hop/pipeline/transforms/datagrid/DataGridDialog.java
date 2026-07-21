@@ -282,6 +282,9 @@ public class DataGridDialog extends BaseTransformDialog {
     fdData.bottom = new FormAttachment(100, 0);
     wData.setLayoutData(fdData);
 
+    // Set a theme for this control that changes dynamically
+    PropsUi.setTheme(wData);
+
     wTabFolder.layout(true, true);
 
     wFields.nrNonEmpty();
