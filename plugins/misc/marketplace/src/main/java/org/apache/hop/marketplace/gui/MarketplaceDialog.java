@@ -28,8 +28,10 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.marketplace.catalog.OptionalPluginCatalog;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
+import org.apache.hop.marketplace.catalog.PluginDiscovery;
 import org.apache.hop.marketplace.command.MarketplaceCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
+import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
@@ -47,6 +49,9 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -73,7 +78,7 @@ public class MarketplaceDialog extends Dialog {
   private Label wStatus;
   private Path hopHome;
   private MarketplaceConfig config;
-  private boolean tableOptimized;
+  private MarketplaceRepositoriesPanel repositoriesPanel;
 
   public MarketplaceDialog(Shell parent) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
@@ -107,7 +112,8 @@ public class MarketplaceDialog extends Dialog {
     // Shell-level Close only; Install/Uninstall/Refresh live on the Plugins tab.
     Button wClose = new Button(shell, SWT.PUSH);
     wClose.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Close"));
-    wClose.addListener(SWT.Selection, e -> close());
+    // shell.close() → ShellAdapter.shellClosed (single dirty check for button and window X)
+    wClose.addListener(SWT.Selection, e -> shell.close());
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wClose}, PropsUi.getMargin(), null);
 
@@ -131,11 +137,24 @@ public class MarketplaceDialog extends Dialog {
     wTabFolder.setLayoutData(fdTabs);
 
     createPluginsTab(wTabFolder);
-    createEnvironmentTab(wTabFolder);
     createRepositoriesTab(wTabFolder);
+    createEnvironmentTab(wTabFolder);
     wTabFolder.setSelection(0);
 
-    refreshTable();
+    shell.addShellListener(
+        new ShellAdapter() {
+          @Override
+          public void shellClosed(ShellEvent e) {
+            // X / Alt+F4 — same dirty prompt as Close button
+            if (!confirmClose()) {
+              e.doit = false;
+            } else {
+              props.setScreen(new WindowProperty(shell));
+            }
+          }
+        });
+
+    refreshTable(false);
 
     BaseTransformDialog.setSize(shell);
     shell.open();
@@ -169,7 +188,7 @@ public class MarketplaceDialog extends Dialog {
 
     Button wRefresh = new Button(comp, SWT.PUSH);
     wRefresh.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Refresh"));
-    wRefresh.addListener(SWT.Selection, e -> refreshTable());
+    wRefresh.addListener(SWT.Selection, e -> refreshTable(true));
 
     BaseTransformDialog.positionBottomButtons(
         comp, new Button[] {wInstall, wUninstall, wRefresh}, PropsUi.getMargin(), null);
@@ -200,7 +219,7 @@ public class MarketplaceDialog extends Dialog {
     fdSearch.top = new FormAttachment(wlSearch, 0, SWT.CENTER);
     fdSearch.right = new FormAttachment(wClearSearch, -PropsUi.getMargin());
     wSearch.setLayoutData(fdSearch);
-    wSearch.addListener(SWT.Modify, e -> refreshTable());
+    wSearch.addListener(SWT.Modify, e -> refreshTable(false));
 
     Label wSearchSep = new Label(comp, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSearchSep = new FormData();
@@ -216,12 +235,22 @@ public class MarketplaceDialog extends Dialog {
           false,
           true),
       new ColumnInfo(
+          BaseMessages.getString(PKG, "MarketplaceDialog.Column.Version"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
           BaseMessages.getString(PKG, "MarketplaceDialog.Column.Artifact"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false,
           true),
       new ColumnInfo(
           BaseMessages.getString(PKG, "MarketplaceDialog.Column.Category"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MarketplaceDialog.Column.Repository"),
           ColumnInfo.COLUMN_TYPE_TEXT,
           false,
           true),
@@ -311,7 +340,7 @@ public class MarketplaceDialog extends Dialog {
     tab.setControl(comp);
 
     // Full repository management UI (formerly a nested ManageRepositoriesDialog)
-    new MarketplaceRepositoriesPanel(comp, config);
+    repositoriesPanel = new MarketplaceRepositoriesPanel(comp, config);
   }
 
   private void clearSearch() {
@@ -321,47 +350,130 @@ public class MarketplaceDialog extends Dialog {
     }
   }
 
-  private void refreshTable() {
-    wTable.table.removeAll();
-    // Filter only when more than 2 characters are typed (same as explorer/metadata search).
-    String searchText = wSearch != null ? wSearch.getText() : "";
-    List<OptionalPluginInfo> plugins =
-        searchText != null && searchText.trim().length() > 2
-            ? OptionalPluginCatalog.query(searchText)
-            : OptionalPluginCatalog.listWave1();
-    for (OptionalPluginInfo info : plugins) {
-      // Column 0 is the (hidden) index column; data columns are 1-based.
-      TableItem item = new TableItem(wTable.table, SWT.NONE);
-      item.setText(1, Const.NVL(info.getName(), ""));
-      item.setText(2, Const.NVL(info.getArtifactId(), ""));
-      item.setText(3, Const.NVL(info.getCategory(), ""));
-      boolean onDisk = OptionalPluginCatalog.isInstalledOnDisk(hopHome, info);
-      InstallReceipt receipt = null;
-      try {
-        receipt = PluginInstaller.readReceipt(hopHome, info.getArtifactId());
-      } catch (Exception e) {
-        log.logError("Unable to read receipt for " + info.getArtifactId(), e);
-      }
-      String status;
-      if (onDisk && receipt != null) {
-        status =
-            BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
-                + " ("
-                + receipt.getVersion()
-                + ")";
-      } else if (onDisk) {
-        status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.Present");
-      } else {
-        status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.NotInstalled");
-      }
-      item.setText(4, status);
-      item.setText(5, Const.NVL(info.getDescription(), ""));
-      item.setData(info);
+  /**
+   * Reload the plugins list.
+   *
+   * @param userRefresh when true (Refresh button), prompt to save dirty repositories and show a
+   *     wait cursor; search filter updates pass false.
+   */
+  private void refreshTable(boolean userRefresh) {
+    if (userRefresh && !ensureRepositoriesSavedForRefresh()) {
+      return;
     }
-    if (!tableOptimized) {
+
+    Cursor waitCursor = null;
+    if (userRefresh && shell != null && !shell.isDisposed()) {
+      waitCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+      shell.setCursor(waitCursor);
+    }
+    try {
+      // Keep shared in-memory config (after optional save/discard). Do not reload from disk on
+      // every search keystroke — that would drop unsaved repository edits.
+      if (repositoriesPanel != null) {
+        config = repositoriesPanel.getConfig();
+      }
+      wTable.table.removeAll();
+      // Filter only when more than 2 characters are typed (same as explorer/metadata search).
+      String searchText = wSearch != null ? wSearch.getText() : "";
+      String filter =
+          searchText != null && searchText.trim().length() > 2 ? searchText.trim() : null;
+      // Apache optional catalog + live list from every browse=true repository
+      List<OptionalPluginInfo> plugins = PluginDiscovery.query(filter, null, config, log);
+      for (OptionalPluginInfo info : plugins) {
+        // Column 0 is the (hidden) index column; data columns are 1-based.
+        TableItem item = new TableItem(wTable.table, SWT.NONE);
+        String name = Const.NVL(info.getName(), info.getArtifactId());
+        item.setText(1, Const.NVL(name, ""));
+        item.setText(2, Const.NVL(info.getVersion(), ""));
+        item.setText(3, Const.NVL(info.getArtifactId(), ""));
+        item.setText(4, Const.NVL(info.getCategory(), ""));
+        item.setText(5, repositoryDisplayName(info.getSource()));
+        boolean onDisk = OptionalPluginCatalog.isInstalledOnDisk(hopHome, info);
+        InstallReceipt receipt = null;
+        try {
+          receipt = PluginInstaller.readReceipt(hopHome, info.getArtifactId());
+        } catch (Exception e) {
+          log.logError("Unable to read receipt for " + info.getArtifactId(), e);
+        }
+        String status;
+        if (onDisk && receipt != null) {
+          status =
+              BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
+                  + " ("
+                  + receipt.getVersion()
+                  + ")";
+        } else if (onDisk) {
+          status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.Present");
+        } else {
+          status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.NotInstalled");
+        }
+        item.setText(6, status);
+        item.setText(7, Const.NVL(info.getDescription(), ""));
+        item.setData(info);
+      }
       wTable.optimizeTableView();
-      tableOptimized = true;
+    } finally {
+      if (userRefresh && shell != null && !shell.isDisposed()) {
+        shell.setCursor(null);
+      }
     }
+  }
+
+  /**
+   * If repository edits are unsaved, ask the user to save before refreshing plugins (discovery uses
+   * the config that is saved / in memory).
+   *
+   * @return false if the user cancelled
+   */
+  private boolean ensureRepositoriesSavedForRefresh() {
+    if (repositoriesPanel == null || !repositoriesPanel.isDirty()) {
+      return true;
+    }
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.ReposDirty.Header"));
+    box.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.ReposDirty.Refresh.Message"));
+    int answer = box.open();
+    if (answer == SWT.CANCEL) {
+      return false;
+    }
+    if (answer == SWT.YES) {
+      return repositoriesPanel.saveChanges(false);
+    }
+    // No — discard in-memory edits and reload hop-config so refresh matches disk
+    try {
+      MarketplaceConfig loaded = MarketplaceConfig.load();
+      config = loaded;
+      repositoriesPanel.setConfig(loaded);
+      return true;
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+          BaseMessages.getString(PKG, "MarketplaceDialog.ReposDirty.Reload.Error"),
+          e);
+      return false;
+    }
+  }
+
+  /**
+   * @return true if the dialog may close (saved, discarded, or clean)
+   */
+  private boolean confirmClose() {
+    if (repositoriesPanel == null || !repositoriesPanel.isDirty()) {
+      return true;
+    }
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.ReposDirty.Header"));
+    box.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.ReposDirty.Close.Message"));
+    int answer = box.open();
+    if (answer == SWT.CANCEL) {
+      return false;
+    }
+    if (answer == SWT.YES) {
+      return repositoriesPanel.saveChanges(false);
+    }
+    // No — discard
+    return true;
   }
 
   private OptionalPluginInfo selected() {
@@ -372,27 +484,56 @@ public class MarketplaceDialog extends Dialog {
     return (OptionalPluginInfo) items[0].getData();
   }
 
+  /**
+   * Human-readable origin for a discovery hit: repository display name when {@code source} is a
+   * known repo id, otherwise the source string (e.g. {@code apache}).
+   */
+  private String repositoryDisplayName(String source) {
+    if (StringUtils.isBlank(source)) {
+      return "";
+    }
+    if ("apache".equalsIgnoreCase(source)) {
+      return BaseMessages.getString(PKG, "MarketplaceDialog.Repository.Apache");
+    }
+    if (config != null) {
+      MarketplaceRepository repo = config.findRepository(source);
+      if (repo != null) {
+        return Const.NVL(repo.displayName(), source);
+      }
+    }
+    return source;
+  }
+
   private void installSelected() {
     OptionalPluginInfo info = selected();
     if (info == null) {
       return;
     }
     try {
-      // Re-read repo URL in case config changed
-      config = MarketplaceConfig.load();
-      String version = MarketplaceCommand.resolveDefaultVersion(config);
-      MavenCoordinates coords =
-          new MavenCoordinates(config.getGroupId(), info.getArtifactId(), version);
+      if (repositoriesPanel != null) {
+        config = repositoriesPanel.getConfig();
+      }
+      String groupId =
+          StringUtils.isNotBlank(info.getGroupId()) ? info.getGroupId() : config.getGroupId();
+      String version =
+          StringUtils.isNotBlank(info.getVersion())
+              ? info.getVersion()
+              : MarketplaceCommand.resolveDefaultVersion(config);
+      MavenCoordinates coords = new MavenCoordinates(groupId, info.getArtifactId(), version);
+      String preferredRepo =
+          StringUtils.isNotBlank(info.getSource()) && !"apache".equalsIgnoreCase(info.getSource())
+              ? info.getSource()
+              : null;
       wStatus.setText(
           BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installing", coords.gav()));
       shell.update();
-      new PluginInstaller(log, hopHome, config).install(coords, true);
+      new PluginInstaller(log, hopHome, config).install(coords, true, null, preferredRepo);
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Install.Done.Header"));
       box.setMessage(
           BaseMessages.getString(PKG, "MarketplaceDialog.Install.Done.Message", coords.gav()));
       box.open();
-      refreshTable();
+      refreshTable(false);
       wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
     } catch (Exception e) {
       new ErrorDialog(
@@ -428,7 +569,7 @@ public class MarketplaceDialog extends Dialog {
         return;
       }
       new PluginUninstaller(log, hopHome).uninstall(info.getArtifactId());
-      refreshTable();
+      refreshTable(false);
       wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
     } catch (Exception e) {
       new ErrorDialog(
@@ -437,10 +578,5 @@ public class MarketplaceDialog extends Dialog {
           BaseMessages.getString(PKG, "MarketplaceDialog.Uninstall.Error", info.getArtifactId()),
           e);
     }
-  }
-
-  private void close() {
-    props.setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }

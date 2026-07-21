@@ -17,9 +17,12 @@
 
 package org.apache.hop.marketplace.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 
 @Getter
 @Setter
@@ -43,6 +46,44 @@ public class MarketplaceRepository {
    * Central / local Nexus.
    */
   private String password;
+
+  /**
+   * When true, include this repository in {@code marketplace query} and the GUI Plugins tab (live
+   * Nexus zip list, or {@link #catalogUrl} if set). Default false so ASF/Central stay install-only
+   * endpoints.
+   */
+  private boolean browse;
+
+  /**
+   * Optional remote catalog index URL (YAML/JSON). Advanced only — prefer live Nexus zip listing
+   * when {@link #browse} is true.
+   */
+  private String catalogUrl;
+
+  /**
+   * Optional plugin metadata from a shareable repository definition (import/export). Used to enrich
+   * live discovery results (names, categories, descriptions) or as a fallback list if live browse
+   * returns nothing. Not a discovery cache — listing always prefers a live Nexus/catalog fetch.
+   */
+  private List<OptionalPluginInfo> plugins = new ArrayList<>();
+
+  /**
+   * Optional search/filter string applied when browsing this repository (substring over GAV /
+   * catalog fields). Empty means no extra filter beyond {@link #groupIdFilter}.
+   */
+  private String searchQuery;
+
+  /** When false, SNAPSHOT versions are hidden from discovery results. Default true. */
+  private boolean includeSnapshots = true;
+
+  /** Optional Maven groupId restriction for discovery (e.g. {@code com.acme.hop}). */
+  private String groupIdFilter;
+
+  /** Optional human homepage for this marketplace (documentation only). */
+  private String homepage;
+
+  /** Optional human description (documentation / export). */
+  private String description;
 
   public MarketplaceRepository() {
     // Jackson

@@ -23,11 +23,31 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OptionalPluginInfo {
+  private String groupId;
   private String artifactId;
+  private String version;
   private String name;
   private String category;
   private String description;
   private String installPath;
+
+  /** Where this entry came from (e.g. {@code apache}, repository id, catalog URL). */
+  private String source;
+
+  /** Last modified time from remote repository (ISO-8601 or raw Nexus value), if known. */
+  private String lastUpdated;
+
+  /**
+   * Minimum Hop version this plugin supports (e.g. {@code 2.18.1}). When set, discovery hides the
+   * plugin if the running Hop version is older.
+   */
+  private String minHopVersion;
+
+  /**
+   * Optional maximum Hop version this plugin supports. When set, discovery hides the plugin if the
+   * running Hop version is newer.
+   */
+  private String maxHopVersion;
 
   public OptionalPluginInfo() {
     // Jackson / default
@@ -40,5 +60,6 @@ public class OptionalPluginInfo {
     this.category = category;
     this.description = description;
     this.installPath = installPath;
+    this.source = "apache";
   }
 }

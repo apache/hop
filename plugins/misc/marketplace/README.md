@@ -32,6 +32,7 @@ From the Hop install directory (or invoke the `hop` script by path — it alread
 ./hop marketplace install hop-tech-parquet
 ./hop marketplace install hop-engines-spark:2.19.0 --repo asf
 ./hop marketplace install hop-engines-beam
+./hop marketplace install datavault   # short name → discovered GAV + version
 ./hop marketplace list
 ./hop marketplace query parquet
 ./hop marketplace query engines
@@ -40,11 +41,19 @@ From the Hop install directory (or invoke the `hop` script by path — it alread
 # Repositories (saved to ${HOP_CONFIG_FOLDER}/hop-config.json)
 ./hop marketplace repo list
 ./hop marketplace repo add --id local-nexus --url http://127.0.0.1:8081/repository/hop-plugins/ --primary
+./hop marketplace repo add --id community --url https://nexus.example/repository/hop/ --browse
+./hop marketplace repo import hop-marketplace-repo.yaml
+./hop marketplace repo export community -o community-marketplace.yaml
 ./hop marketplace repo set-primary asf
-./hop marketplace repo enable central
-./hop marketplace repo disable local-nexus
-./hop marketplace repo remove local-nexus
-./hop marketplace repo reset-defaults   # ASF primary + Central
+./hop marketplace repo reset-defaults
+
+# Discovery: Apache optional catalog + every browse=true repo (live Nexus zip list)
+# Default: ASCII table.  --csv for scripts.  --include-gav adds groupId:artifactId:version.
+./hop marketplace query parquet
+./hop marketplace query datavault
+./hop marketplace query vault --repo community
+./hop marketplace query datavault --include-gav
+./hop marketplace query --csv > plugins.csv
 
 # Declarative environment (CI/CD / Docker)
 ./hop marketplace apply -f hop-env.yaml
@@ -174,9 +183,34 @@ export HOP_MARKETPLACE_PASSWORD='…'
 Hop GUI → **Tools → Marketplace…**, or the main toolbar icon after **Save As…**
 (separator before it), opens the marketplace. The startup **Welcome** dialog also has a
 **Marketplace** topic (docs link, open dialog, install-all via `full-client-env.yaml`).
-The dialog lists optional plugins from the registry. Choose the **primary repository**,
-or **Manage…** to add/edit/remove/reorder repositories (same hop-config.json as the CLI).
-Install uses the primary first, then fallbacks.
+The **Plugins** tab lists Apache optionals plus a live zip list from every enabled
+repository with **Browse** turned on (same as `marketplace query`). The **Repositories**
+tab only manages endpoints (add/edit, Import/Export, primary, browse flag) — it does not
+list plugins. Install uses the primary repository first, then fallbacks.
+
+## Company marketplace (shareable repo definition)
+
+Three steps:
+
+```bash
+./hop marketplace repo import hop-marketplace-repo.yaml   # browse: true
+./hop marketplace query datavault                        # no special flags
+./hop marketplace install datavault                      # resolves hop-datavault + version from repo
+# or explicit: ./hop marketplace install org.apache.hop:hop-datavault:0.4.0-SNAPSHOT
+```
+
+
+**How listing works**
+
+- Bundled Apache optional plugins: **version = running Hop version** (not absolute latest on ASF)
+- Every enabled repo with **`browse: true`**: live Nexus search for `*.zip` (one row per artifact, latest plugin version, last updated)
+- Optional YAML `plugins:` metadata **enriches** names/categories and can set:
+  - `minHopVersion` / `maxHopVersion` — hide if this Hop is outside the range (e.g. datavault needs ≥ 2.18.1)
+  - `version` — optional pin of the plugin artifact; otherwise latest from browse
+
+GUI **Plugins** tab uses the same discovery as `query`.
+
+Sample: `src/main/samples/hop-marketplace-repo.community.example.yaml`
 
 **Environment file** path + **Browse…** / **Edit…** / **Validate** / **Apply** manage
 declarative `hop-env.yaml` files. **Edit…** opens a tabbed editor (General,

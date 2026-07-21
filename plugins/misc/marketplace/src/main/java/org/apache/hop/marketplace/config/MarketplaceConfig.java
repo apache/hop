@@ -60,8 +60,6 @@ public class MarketplaceConfig {
   private boolean enabled = true;
   private String groupId = DEFAULT_GROUP_ID;
   private String defaultVersion;
-  private String searchApiUrl = "https://search.maven.org/solrsearch/select";
-  private int cacheTtlHours = 24;
   private List<MarketplaceRepository> repositories = new ArrayList<>();
 
   public MarketplaceConfig() {

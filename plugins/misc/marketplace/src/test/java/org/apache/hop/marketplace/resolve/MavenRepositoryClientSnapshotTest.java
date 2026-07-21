@@ -20,6 +20,7 @@ package org.apache.hop.marketplace.resolve;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.junit.jupiter.api.Test;
 
 class MavenRepositoryClientSnapshotTest {
@@ -75,5 +76,19 @@ class MavenRepositoryClientSnapshotTest {
   @Test
   void emptyMetadata() {
     assertNull(MavenRepositoryClient.parseSnapshotZipValue("", "a", "1-SNAPSHOT"));
+  }
+
+  @Test
+  void uniqueSnapshotUsesBaseDirectory() throws Exception {
+    MavenRepositoryClient client = new MavenRepositoryClient(null);
+    MarketplaceRepository repo =
+        new MarketplaceRepository("x", "https://example.com/repository/hop/");
+    String path =
+        client.resolveZipRelativePath(
+            repo,
+            new MavenCoordinates("org.apache.hop", "hop-datavault", "0.4.0-20260721.105615-1"));
+    assertEquals(
+        "org/apache/hop/hop-datavault/0.4.0-SNAPSHOT/hop-datavault-0.4.0-20260721.105615-1.zip",
+        path);
   }
 }

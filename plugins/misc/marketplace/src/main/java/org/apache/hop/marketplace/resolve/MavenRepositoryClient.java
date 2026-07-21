@@ -136,14 +136,31 @@ public class MavenRepositoryClient {
   }
 
   /**
-   * For release versions: {@code g/a/v/a-v.zip}. For {@code *-SNAPSHOT}, resolve the unique
-   * timestamped file name from {@code maven-metadata.xml} (as deployed by Maven / Nexus).
+   * For release versions: {@code g/a/v/a-v.zip}. For {@code *-SNAPSHOT} (including unique
+   * timestamped forms like {@code 1.0.0-20260721.105615-1} from Nexus search), resolve the unique
+   * file name from {@code maven-metadata.xml} under the base SNAPSHOT directory.
    */
   String resolveZipRelativePath(MarketplaceRepository repository, MavenCoordinates coordinates)
       throws HopException {
-    String version = coordinates.version();
+    String version = SnapshotVersions.toBaseVersion(coordinates.version());
     if (version == null || !version.endsWith("-SNAPSHOT")) {
       return coordinates.zipRepositoryPath();
+    }
+
+    // When the caller already passed a unique SNAPSHOT, place that file under the base folder
+    // without requiring metadata (Nexus search already named the asset).
+    if (SnapshotVersions.isUniqueSnapshot(coordinates.version())) {
+      String groupPath = coordinates.groupId().replace('.', '/');
+      return groupPath
+          + "/"
+          + coordinates.artifactId()
+          + "/"
+          + version
+          + "/"
+          + coordinates.artifactId()
+          + "-"
+          + coordinates.version().trim()
+          + ".zip";
     }
 
     String groupPath = coordinates.groupId().replace('.', '/');
@@ -157,7 +174,16 @@ public class MavenRepositoryClient {
       // Fall back to non-unique name (some repos allow it)
       log.logBasic(
           "Could not parse SNAPSHOT zip from maven-metadata.xml; trying non-unique file name");
-      return coordinates.zipRepositoryPath();
+      return groupPath
+          + "/"
+          + coordinates.artifactId()
+          + "/"
+          + version
+          + "/"
+          + coordinates.artifactId()
+          + "-"
+          + version
+          + ".zip";
     }
     return groupPath
         + "/"

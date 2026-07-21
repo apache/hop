@@ -79,7 +79,7 @@ public class PluginInstaller {
    */
   public InstallReceipt install(MavenCoordinates coordinates, boolean activateImmediately)
       throws HopException {
-    return install(coordinates, activateImmediately, null);
+    return install(coordinates, activateImmediately, null, null);
   }
 
   /**
@@ -88,11 +88,25 @@ public class PluginInstaller {
   public InstallReceipt install(
       MavenCoordinates coordinates, boolean activateImmediately, String forceRepoId)
       throws HopException {
+    return install(coordinates, activateImmediately, forceRepoId, null);
+  }
+
+  /**
+   * @param forceRepoId when non-blank, only that repository is used (no fallback chain)
+   * @param preferredRepoId when non-blank and force is blank, try this repository first then the
+   *     normal fallback chain (used when discovery knows the source repo)
+   */
+  public InstallReceipt install(
+      MavenCoordinates coordinates,
+      boolean activateImmediately,
+      String forceRepoId,
+      String preferredRepoId)
+      throws HopException {
     Path downloadDir = hopHome.resolve(STAGING_DIR).resolve(".download");
     Path zipFile =
         downloadDir.resolve(coordinates.artifactId() + "-" + coordinates.version() + ".zip");
     try {
-      List<MarketplaceRepository> repos = resolveRepositories(forceRepoId);
+      List<MarketplaceRepository> repos = resolveRepositories(forceRepoId, preferredRepoId);
       MarketplaceRepository used = null;
       List<String> errors = new ArrayList<>();
       for (MarketplaceRepository repo : repos) {
@@ -154,7 +168,8 @@ public class PluginInstaller {
     }
   }
 
-  private List<MarketplaceRepository> resolveRepositories(String forceRepoId) throws HopException {
+  private List<MarketplaceRepository> resolveRepositories(
+      String forceRepoId, String preferredRepoId) throws HopException {
     if (StringUtils.isNotBlank(forceRepoId)) {
       MarketplaceRepository forced = config.findRepository(forceRepoId);
       if (forced == null) {
@@ -165,7 +180,21 @@ public class PluginInstaller {
       }
       return List.of(forced);
     }
-    return config.orderedRepositories();
+    List<MarketplaceRepository> ordered = new ArrayList<>(config.orderedRepositories());
+    if (StringUtils.isNotBlank(preferredRepoId)) {
+      MarketplaceRepository preferred = null;
+      for (int i = 0; i < ordered.size(); i++) {
+        MarketplaceRepository r = ordered.get(i);
+        if (r != null && preferredRepoId.equals(r.getId())) {
+          preferred = ordered.remove(i);
+          break;
+        }
+      }
+      if (preferred != null) {
+        ordered.add(0, preferred);
+      }
+    }
+    return ordered;
   }
 
   /** Activate all staged plugins (startup hook). */

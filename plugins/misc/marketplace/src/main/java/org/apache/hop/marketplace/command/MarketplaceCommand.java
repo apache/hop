@@ -20,6 +20,10 @@ package org.apache.hop.marketplace.command;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -34,8 +39,10 @@ import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.marketplace.catalog.OptionalPluginCatalog;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
+import org.apache.hop.marketplace.catalog.PluginDiscovery;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
+import org.apache.hop.marketplace.config.MarketplaceRepositoryDefinition;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.env.EnvironmentDrift;
 import org.apache.hop.marketplace.env.HopEnvironmentLoader;
@@ -125,19 +132,26 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "install", description = "Download and install a plugin zip by Maven coordinates")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "install",
+      description =
+          "Download and install a plugin zip. Short names resolve via the same discovery as query"
+              + " (e.g. datavault → hop-datavault:0.4.0-SNAPSHOT from a browse repo).")
   static class InstallCommand extends MarketplaceSubCommand {
     @Parameters(
         index = "0",
         paramLabel = "COORDINATE",
         description =
-            "artifactId, artifactId:version, or groupId:artifactId:version (e.g. hop-tech-parquet)")
+            "Short name, artifactId, artifactId:version, or groupId:artifactId:version"
+                + " (e.g. datavault, hop-tech-parquet, hop-datavault:0.4.0-SNAPSHOT)")
     private String coordinate;
 
     @Option(
         names = {"--repo"},
         description =
-            "Use only this repository id (skip fallback chain). Default: try primary then others.")
+            "Use only this repository id (skip fallback chain). Default: prefer discovery source,"
+                + " then primary and other enabled repos.")
     private String repoId;
 
     @Override
@@ -151,10 +165,25 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         // Activate any previously staged plugins first
         new PluginInstaller(log, hopHome, config).activateAllPending();
 
-        MavenCoordinates gav =
-            MavenCoordinates.parse(coordinate, config.getGroupId(), resolveDefaultVersion(config));
+        PluginDiscovery.InstallTarget target =
+            PluginDiscovery.resolveInstall(
+                coordinate, config.getGroupId(), resolveDefaultVersion(config), config, log);
+        MavenCoordinates gav = target.coordinates();
+        if (StringUtils.isNotBlank(target.preferredRepoId()) && StringUtils.isBlank(repoId)) {
+          System.out.println(
+              "Resolved "
+                  + coordinate
+                  + " → "
+                  + gav.gav()
+                  + " (prefer repo '"
+                  + target.preferredRepoId()
+                  + "')");
+        } else if (!coordinate.trim().equals(gav.artifactId()) || !coordinate.contains(":")) {
+          System.out.println("Resolved " + coordinate + " → " + gav.gav());
+        }
         InstallReceipt receipt =
-            new PluginInstaller(log, hopHome, config).install(gav, true, repoId);
+            new PluginInstaller(log, hopHome, config)
+                .install(gav, true, repoId, target.preferredRepoId());
         System.out.println(
             "Plugin "
                 + gav.gav()
@@ -176,6 +205,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
   }
 
   @Command(
+      mixinStandardHelpOptions = true,
       name = "uninstall",
       description = "Remove a plugin previously installed via the marketplace")
   static class UninstallCommand extends MarketplaceSubCommand {
@@ -196,7 +226,10 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "list", description = "List marketplace-installed plugins (receipts)")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "list",
+      description = "List marketplace-installed plugins (receipts)")
   static class ListCommand extends MarketplaceSubCommand {
     @Override
     public void run() {
@@ -212,8 +245,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           for (Path file : stream) {
             any = true;
             InstallReceipt receipt =
-                org.apache.hop.core.json.HopJson.newMapper()
-                    .readValue(file.toFile(), InstallReceipt.class);
+                HopJson.newMapper().readValue(file.toFile(), InstallReceipt.class);
             System.out.printf(
                 "%s  %s:%s:%s%s%n",
                 receipt.getArtifactId(),
@@ -235,19 +267,39 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
   }
 
   @Command(
+      mixinStandardHelpOptions = true,
       name = "query",
       description =
-          "Search the optional-plugin catalog (local registry). Filter is a case-insensitive"
-              + " substring over artifactId, name, category, description, and install path.")
+          "Search plugins: bundled Apache optional catalog plus every enabled repository with"
+              + " browse=true (live Nexus zip list). Filter is a case-insensitive substring."
+              + " Default output is an ASCII table; use --csv for machine-readable CSV.")
   static class QueryCommand extends MarketplaceSubCommand {
+    private static final int TABLE_DESCRIPTION_MAX = 56;
+
     @Parameters(
         index = "0",
         arity = "0..1",
         paramLabel = "FILTER",
         description =
-            "Case-insensitive substring to match. Omit or use empty string to list all optional"
-                + " plugins.")
+            "Case-insensitive substring to match. Omit or use empty string to list matches.")
     private String filter;
+
+    @Option(
+        names = {"--repo"},
+        description =
+            "Only include this repository id among browse-enabled remotes (Apache catalog still"
+                + " included).")
+    private String repoId;
+
+    @Option(
+        names = {"--csv"},
+        description = "Print results as CSV (header + rows) instead of an ASCII table")
+    private boolean csv;
+
+    @Option(
+        names = {"--include-gav"},
+        description = "Include a GAV (groupId:artifactId:version) column in the output")
+    private boolean includeGav;
 
     @Override
     public void run() {
@@ -258,27 +310,27 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         } catch (Exception ignored) {
           // installed status is optional
         }
-        java.util.List<OptionalPluginInfo> matches = OptionalPluginCatalog.query(filter);
-        if (matches.isEmpty()) {
-          System.out.println(
-              "No optional plugins match filter: "
-                  + (StringUtils.isBlank(filter) ? "(all)" : filter));
+        MarketplaceConfig config = MarketplaceConfig.load();
+        List<OptionalPluginInfo> matches = PluginDiscovery.query(filter, repoId, config, log);
+
+        List<String> headers = queryHeaders(includeGav);
+        List<List<String>> rows = new ArrayList<>();
+        for (OptionalPluginInfo info : matches) {
+          rows.add(queryRow(info, hopHome, includeGav, csv));
+        }
+
+        if (csv) {
+          // Always emit header so scripts get stable columns even when empty
+          CliTable.printCsv(System.out, headers, rows);
           return;
         }
-        for (OptionalPluginInfo info : matches) {
-          String installed = "";
-          if (hopHome != null && OptionalPluginCatalog.isInstalledOnDisk(hopHome, info)) {
-            installed = "  [installed]";
-          }
-          System.out.printf(
-              "%-28s  %-22s  %-12s  %s%s%n  %s%n",
-              Const.NVL(info.getArtifactId(), ""),
-              Const.NVL(info.getName(), ""),
-              Const.NVL(info.getCategory(), ""),
-              Const.NVL(info.getInstallPath(), ""),
-              installed,
-              Const.NVL(info.getDescription(), ""));
+
+        if (matches.isEmpty()) {
+          System.out.println(
+              "No plugins match filter: " + (StringUtils.isBlank(filter) ? "(all)" : filter));
+          return;
         }
+        CliTable.printTable(System.out, headers, rows);
         System.out.println(matches.size() + " plugin(s) matched.");
       } catch (Exception e) {
         System.err.println("ERROR: " + e.getMessage());
@@ -286,9 +338,54 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             new CommandLine(this), e.getMessage() == null ? "query failed" : e.getMessage(), e);
       }
     }
+
+    static List<String> queryHeaders(boolean includeGav) {
+      List<String> headers = new ArrayList<>();
+      headers.add("ARTIFACT");
+      headers.add("VERSION");
+      headers.add("CATEGORY");
+      headers.add("SOURCE");
+      if (includeGav) {
+        headers.add("GAV");
+      }
+      headers.add("INSTALLED");
+      headers.add("UPDATED");
+      headers.add("DESCRIPTION");
+      return headers;
+    }
+
+    static List<String> queryRow(
+        OptionalPluginInfo info, Path hopHome, boolean includeGav, boolean fullDescription) {
+      List<String> row = new ArrayList<>();
+      row.add(Const.NVL(info.getArtifactId(), ""));
+      row.add(Const.NVL(info.getVersion(), ""));
+      row.add(Const.NVL(info.getCategory(), ""));
+      row.add(Const.NVL(info.getSource(), "apache"));
+      if (includeGav) {
+        row.add(formatGav(info));
+      }
+      boolean onDisk = hopHome != null && OptionalPluginCatalog.isInstalledOnDisk(hopHome, info);
+      row.add(onDisk ? "yes" : "");
+      row.add(Const.NVL(info.getLastUpdated(), ""));
+      String description = Const.NVL(info.getDescription(), "");
+      if (!fullDescription) {
+        description = CliTable.truncate(description, TABLE_DESCRIPTION_MAX);
+      }
+      row.add(description);
+      return row;
+    }
+
+    static String formatGav(OptionalPluginInfo info) {
+      String group =
+          StringUtils.isNotBlank(info.getGroupId()) ? info.getGroupId() : "org.apache.hop";
+      String artifact = Const.NVL(info.getArtifactId(), "");
+      String version = StringUtils.isNotBlank(info.getVersion()) ? info.getVersion() : "?";
+      return group + ":" + artifact + ":" + version;
+    }
   }
 
   @Command(
+      mixinStandardHelpOptions = true,
       name = "apply",
       description =
           "Install plugins and dependencies declared in hop-env.yaml (or .json). Optional --prune"
@@ -333,6 +430,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
   }
 
   @Command(
+      mixinStandardHelpOptions = true,
       name = "validate",
       description =
           "Check the local install against hop-env.yaml without installing. Exit code 1 on drift.")
@@ -390,7 +488,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
 
     private static void addExtraPlugins(
         Path hopHome, HopEnvironmentSpec env, EnvironmentDrift drift) throws Exception {
-      java.util.Set<String> desired = new java.util.HashSet<>();
+      Set<String> desired = new HashSet<>();
       if (env.getPlugins() != null) {
         for (HopEnvironmentSpec.PluginRef ref : env.getPlugins()) {
           if (ref.getArtifactId() != null) {
@@ -415,6 +513,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
   }
 
   @Command(
+      mixinStandardHelpOptions = true,
       name = "repo",
       description = "Manage marketplace Maven repositories in hop-config.json",
       subcommands = {
@@ -424,7 +523,9 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         MarketplaceCommand.RepoSetPrimaryCommand.class,
         MarketplaceCommand.RepoEnableCommand.class,
         MarketplaceCommand.RepoDisableCommand.class,
-        MarketplaceCommand.RepoResetDefaultsCommand.class
+        MarketplaceCommand.RepoResetDefaultsCommand.class,
+        MarketplaceCommand.RepoExportCommand.class,
+        MarketplaceCommand.RepoImportCommand.class
       })
   static class RepoCommand extends MarketplaceSubCommand {
     @Override
@@ -434,23 +535,31 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "list", description = "List configured marketplace repositories")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "list",
+      description = "List configured marketplace repositories")
   static class RepoListCommand extends MarketplaceSubCommand {
     @Override
     public void run() {
       MarketplaceConfig config = MarketplaceConfig.load();
-      System.out.printf("%-8s %-10s %-12s %-20s %s%n", "PRIMARY", "ENABLED", "ID", "NAME", "URL");
+      System.out.printf(
+          "%-8s %-10s %-8s %-14s %-20s %s%n", "PRIMARY", "ENABLED", "BROWSE", "ID", "NAME", "URL");
       for (MarketplaceRepository repo : config.getRepositories()) {
         if (repo == null) {
           continue;
         }
         System.out.printf(
-            "%-8s %-10s %-12s %-20s %s%n",
+            "%-8s %-10s %-8s %-14s %-20s %s%n",
             repo.isPrimary() ? "*" : "",
             repo.isEnabled() ? "yes" : "no",
+            repo.isBrowse() ? "yes" : "no",
             Const.NVL(repo.getId(), ""),
             Const.NVL(repo.displayName(), ""),
             repo.normalizedUrl());
+        if (StringUtils.isNotBlank(repo.getCatalogUrl())) {
+          System.out.println("         catalog: " + repo.getCatalogUrl());
+        }
       }
       System.out.println();
       System.out.println(
@@ -461,7 +570,10 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "add", description = "Add a marketplace repository and save hop-config.json")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "add",
+      description = "Add a marketplace repository and save hop-config.json")
   static class RepoAddCommand extends MarketplaceSubCommand {
     @Option(
         names = {"--id"},
@@ -495,6 +607,31 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         description = "Optional Basic auth password (prefer env HOP_MARKETPLACE_PASSWORD)")
     private String password;
 
+    @Option(
+        names = {"--browse"},
+        description = "Include this repository in marketplace query/GUI discovery")
+    private boolean browse;
+
+    @Option(
+        names = {"--catalog-url"},
+        description = "Optional hop-marketplace-catalog.yaml URL for discovery")
+    private String catalogUrl;
+
+    @Option(
+        names = {"--search-query"},
+        description = "Optional discovery filter for this repository")
+    private String searchQuery;
+
+    @Option(
+        names = {"--group-id-filter"},
+        description = "Optional Maven groupId filter for discovery")
+    private String groupIdFilter;
+
+    @Option(
+        names = {"--no-snapshots"},
+        description = "Hide SNAPSHOT versions in discovery for this repository")
+    private boolean noSnapshots;
+
     @Override
     public void run() {
       try {
@@ -503,6 +640,11 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             new MarketplaceRepository(id, StringUtils.isNotBlank(name) ? name : id, url, primary);
         repo.setUsername(username);
         repo.setPassword(password);
+        repo.setBrowse(browse);
+        repo.setCatalogUrl(catalogUrl);
+        repo.setSearchQuery(searchQuery);
+        repo.setGroupIdFilter(groupIdFilter);
+        repo.setIncludeSnapshots(!noSnapshots);
         config.addRepository(repo);
         config.save();
         System.out.println(
@@ -510,6 +652,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                 + id
                 + "'"
                 + (primary ? " (primary)" : "")
+                + (browse ? " (browse)" : "")
                 + " → "
                 + repo.normalizedUrl());
       } catch (Exception e) {
@@ -520,7 +663,90 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "remove", description = "Remove a marketplace repository by id")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "export",
+      description =
+          "Export a repository definition YAML/JSON (shareable; passwords omitted). For company"
+              + " marketplace onboarding.")
+  static class RepoExportCommand extends MarketplaceSubCommand {
+    @Parameters(index = "0", paramLabel = "ID", description = "Configured repository id")
+    private String id;
+
+    @Option(
+        names = {"-o", "--output"},
+        required = true,
+        description = "Output file (.yaml / .yml / .json)")
+    private String output;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceConfig config = MarketplaceConfig.load();
+        MarketplaceRepository repo = config.findRepository(id);
+        if (repo == null) {
+          throw new HopException("Unknown repository id: " + id);
+        }
+        Path out = Path.of(output);
+        MarketplaceRepositoryDefinition.save(out, repo);
+        System.out.println("Wrote repository definition: " + out.toAbsolutePath().normalize());
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this),
+            e.getMessage() == null ? "repo export failed" : e.getMessage(),
+            e);
+      }
+    }
+  }
+
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "import",
+      description =
+          "Import a hop-marketplace-repo.yaml (or URL) into hop-config.json. Upserts by repository"
+              + " id.")
+  static class RepoImportCommand extends MarketplaceSubCommand {
+    @Parameters(
+        index = "0",
+        paramLabel = "FILE_OR_URL",
+        description = "Path or https URL to hop-marketplace-repo.yaml")
+    private String fileOrUrl;
+
+    @Option(
+        names = {"--primary"},
+        description = "Make the imported repository primary")
+    private boolean primary;
+
+    @Override
+    public void run() {
+      try {
+        MarketplaceRepository imported = MarketplaceRepositoryDefinition.loadFromUri(fileOrUrl);
+        MarketplaceConfig config = MarketplaceConfig.load();
+        boolean existed = config.findRepository(imported.getId()) != null;
+        MarketplaceRepositoryDefinition.applyToConfig(config, imported, primary);
+        config.save();
+        System.out.println(
+            (existed ? "Updated" : "Imported")
+                + " repository '"
+                + imported.getId()
+                + "' → "
+                + imported.normalizedUrl()
+                + (imported.isBrowse() ? " (browse enabled)" : ""));
+      } catch (Exception e) {
+        System.err.println("ERROR: " + e.getMessage());
+        throw new CommandLine.ExecutionException(
+            new CommandLine(this),
+            e.getMessage() == null ? "repo import failed" : e.getMessage(),
+            e);
+      }
+    }
+  }
+
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "remove",
+      description = "Remove a marketplace repository by id")
   static class RepoRemoveCommand extends MarketplaceSubCommand {
     @Parameters(index = "0", paramLabel = "ID", description = "Repository id")
     private String id;
@@ -542,7 +768,10 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "set-primary", description = "Set the primary marketplace repository")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "set-primary",
+      description = "Set the primary marketplace repository")
   static class RepoSetPrimaryCommand extends MarketplaceSubCommand {
     @Parameters(index = "0", paramLabel = "ID", description = "Repository id")
     private String id;
@@ -564,7 +793,10 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "enable", description = "Enable a repository in the fallback chain")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "enable",
+      description = "Enable a repository in the fallback chain")
   static class RepoEnableCommand extends MarketplaceSubCommand {
     @Parameters(index = "0", paramLabel = "ID")
     private String id;
@@ -586,7 +818,10 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     }
   }
 
-  @Command(name = "disable", description = "Disable a repository (skip in fallback chain)")
+  @Command(
+      mixinStandardHelpOptions = true,
+      name = "disable",
+      description = "Disable a repository (skip in fallback chain)")
   static class RepoDisableCommand extends MarketplaceSubCommand {
     @Parameters(index = "0", paramLabel = "ID")
     private String id;
@@ -609,6 +844,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
   }
 
   @Command(
+      mixinStandardHelpOptions = true,
       name = "reset-defaults",
       description = "Reset repositories to ASF primary + Maven Central fallback")
   static class RepoResetDefaultsCommand extends MarketplaceSubCommand {
