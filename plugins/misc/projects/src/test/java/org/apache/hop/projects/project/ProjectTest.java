@@ -28,6 +28,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfig;
@@ -172,6 +174,139 @@ public class ProjectTest {
         parentHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PARENT_PROJECT_HOME));
     assertEquals("child-proj", variables.getVariable(Defaults.VARIABLE_HOP_PROJECT_NAME));
     assertEquals(childHome.toString(), variables.getVariable(ProjectsUtil.VARIABLE_PROJECT_HOME));
+  }
+
+  @Test
+  public void testIsArchiveUri() {
+    assertTrue(ProjectConfig.isArchiveUri("zip:file:///tmp/project.zip!/my-project"));
+    assertTrue(ProjectConfig.isArchiveUri("zip:http://example.com/p.zip!/folder"));
+    assertTrue(ProjectConfig.isArchiveUri("jar:file:///tmp/lib.jar!/META-INF"));
+    assertTrue(ProjectConfig.isArchiveUri("tar:file:///tmp/a.tar!/proj"));
+    assertTrue(ProjectConfig.isArchiveUri("tgz:file:///tmp/a.tgz!/proj"));
+    assertTrue(ProjectConfig.isArchiveUri("tbz2:file:///tmp/a.tbz2!/proj"));
+    assertTrue(ProjectConfig.isArchiveUri("jar:zip:outer.zip!/nested.jar!/dir"));
+    assertTrue(ProjectConfig.isArchiveUri("tar:gz:http://host/mytar.tar.gz!/mytar.tar!/path"));
+    assertTrue(ProjectConfig.isArchiveUri("  ZIP:/tmp/a.zip!/proj  "));
+
+    assertFalse(ProjectConfig.isArchiveUri(null));
+    assertFalse(ProjectConfig.isArchiveUri(""));
+    assertFalse(ProjectConfig.isArchiveUri("/home/user/project"));
+    assertFalse(ProjectConfig.isArchiveUri("file:///home/user/project"));
+    assertFalse(ProjectConfig.isArchiveUri("http://example.com/project"));
+    assertFalse(ProjectConfig.isArchiveUri("s3://bucket/project"));
+    // A path ending in .zip without an archive scheme is not an archive URI
+    assertFalse(ProjectConfig.isArchiveUri("/tmp/project.zip"));
+  }
+
+  @Test
+  public void testReadOnlyFlagDefaultsAndSetters() {
+    ProjectConfig config =
+        new ProjectConfig("demo", "/tmp/demo", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    assertFalse(config.isReadOnly());
+    config.setReadOnly(true);
+    assertTrue(config.isReadOnly());
+  }
+
+  @Test
+  public void testGroupAndTagsHelpers() {
+    ProjectConfig config =
+        new ProjectConfig(
+            "demo", "/home/user/demo", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    config.setGroup("Clients");
+    config.setTags(ProjectConfig.parseTags("etl, customer-a; legacy"));
+
+    assertEquals("Clients", config.getGroup());
+    assertEquals(3, config.getTags().size());
+    assertEquals("etl, customer-a, legacy", config.getTagsAsDisplayString());
+
+    assertTrue(config.matchesFilter("client"));
+    assertTrue(config.matchesFilter("ETL"));
+    assertTrue(config.matchesFilter("customer-a"));
+    assertTrue(config.matchesFilter("/home/user"));
+    assertFalse(config.matchesFilter("unrelated-xyz"));
+    assertTrue(config.matchesFilter(""));
+    assertTrue(config.matchesFilter(null));
+  }
+
+  @Test
+  public void testAddProjectConfigPreservesGroupTagsAndReadOnly() {
+    ProjectConfig config =
+        new ProjectConfig("meta", "/tmp/meta", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    config.setGroup("Internal");
+    config.setTags(ProjectConfig.parseTags("poc"));
+    config.setReadOnly(true);
+    registerProject(config);
+
+    ProjectConfig update = new ProjectConfig("meta", "/tmp/meta2", "config/project-config.json");
+    update.setGroup("Clients");
+    update.setTags(ProjectConfig.parseTags("active, critical"));
+    update.setReadOnly(false);
+    ProjectsConfigSingleton.getConfig().addProjectConfig(update);
+
+    ProjectConfig stored = ProjectsConfigSingleton.getConfig().findProjectConfig("meta");
+    assertEquals("/tmp/meta2", stored.getProjectHome());
+    assertEquals("config/project-config.json", stored.getConfigFilename());
+    assertEquals("Clients", stored.getGroup());
+    assertEquals("active, critical", stored.getTagsAsDisplayString());
+    assertFalse(stored.isReadOnly());
+  }
+
+  @Test
+  public void testUpdateProjectConfigRename() {
+    ProjectConfig config =
+        new ProjectConfig("old-name", "/tmp/old", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    config.setGroup("Legacy");
+    registerProject(config);
+
+    ProjectConfig renamed =
+        new ProjectConfig("new-name", "/tmp/new", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    renamed.setGroup("Legacy");
+    renamed.setTags(ProjectConfig.parseTags("migrated"));
+    ProjectsConfigSingleton.getConfig().updateProjectConfig("old-name", renamed);
+    registeredProjectNames.remove("old-name");
+    registeredProjectNames.add("new-name");
+
+    assertTrue(ProjectsConfigSingleton.getConfig().findProjectConfig("old-name") == null);
+    ProjectConfig stored = ProjectsConfigSingleton.getConfig().findProjectConfig("new-name");
+    assertEquals("new-name", stored.getProjectName());
+    assertEquals("/tmp/new", stored.getProjectHome());
+    assertEquals("migrated", stored.getTagsAsDisplayString());
+  }
+
+  @Test
+  public void testLoadProjectFromZipArchive() throws Exception {
+    tempRoot = Files.createTempDirectory("hop-project-zip");
+    Path zipFile = tempRoot.resolve("project.zip");
+
+    String configJson =
+        "{\n"
+            + "  \"description\" : \"zipped project\",\n"
+            + "  \"metadataBaseFolder\" : \"${PROJECT_HOME}/metadata\",\n"
+            + "  \"unitTestsBasePath\" : \"${PROJECT_HOME}\",\n"
+            + "  \"dataSetsCsvFolder\" : \"${PROJECT_HOME}/datasets\",\n"
+            + "  \"enforcingExecutionInHome\" : true,\n"
+            + "  \"parentProjectName\" : null,\n"
+            + "  \"config\" : {\n"
+            + "    \"variables\" : [ ]\n"
+            + "  }\n"
+            + "}\n";
+
+    try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+      ZipEntry entry = new ZipEntry("my-project/" + ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+      zos.putNextEntry(entry);
+      zos.write(configJson.getBytes(StandardCharsets.UTF_8));
+      zos.closeEntry();
+    }
+
+    String homeUri = "zip:file://" + zipFile.toAbsolutePath() + "!/my-project";
+    ProjectConfig projectConfig =
+        new ProjectConfig("zipped", homeUri, ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
+    projectConfig.setReadOnly(true);
+    registerProject(projectConfig);
+
+    Project project = projectConfig.loadProject(new Variables());
+    assertEquals("zipped project", project.getDescription());
+    assertTrue(projectConfig.isReadOnly());
   }
 
   private void registerProject(ProjectConfig projectConfig) {
