@@ -28,6 +28,7 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ContextDialog;
+import org.apache.hop.ui.core.gui.ShortcutDisplayUtil;
 
 /**
  * Manages user favorites for transforms (pipeline canvas) and workflow actions. Favorites are
@@ -75,17 +76,19 @@ public final class GuiActionFavorites {
   }
 
   /**
-   * Append the ALT-Click hint to a plugin description for use as a GuiAction tooltip.
+   * Append the ALT-Click hint to a plugin description for use as a GuiAction tooltip. The modifier
+   * is shown with the platform specific label: "⌥" (Option) on macOS, "ALT" elsewhere.
    *
    * @param description the plugin description (may be null)
    * @param favorite true if the plugin is already a favorite (show remove hint)
    * @return description plus newline and hint
    */
   public static String tooltipWithFavoriteHint(String description, boolean favorite) {
+    String modifier = ShortcutDisplayUtil.getAltModifierDisplay();
     String hint =
         favorite
-            ? BaseMessages.getString(PKG, "ContextDialog.Favorite.RemoveHint")
-            : BaseMessages.getString(PKG, "ContextDialog.Favorite.AddHint");
+            ? BaseMessages.getString(PKG, "ContextDialog.Favorite.RemoveHint", modifier)
+            : BaseMessages.getString(PKG, "ContextDialog.Favorite.AddHint", modifier);
     return Const.NVL(description, "") + hint;
   }
 
