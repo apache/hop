@@ -614,44 +614,33 @@ public class ConfigGeneralOptionsTab {
   }
 
   /**
-   * Creates a button with image in front and text label behind it (like checkboxes).
+   * Creates an action button with icon and text together (Reset / Clear).
    *
    * @param parent The parent composite
-   * @param labelKey The message key for the label text
+   * @param labelKey The message key for the button text
    * @param tooltipKey Optional tooltip message key (can be null)
    * @param lastControl The last control to attach to
    * @param margin The margin to use
-   * @return An array containing [Button, Label] controls
+   * @return An array containing the Button
    */
   private Control[] createButton(
       Composite parent, String labelKey, String tooltipKey, Control lastControl, int margin) {
-    // Button with image
     Button button = new Button(parent, SWT.PUSH);
     PropsUi.setLook(button);
+    button.setText(BaseMessages.getString(PKG, labelKey));
 
-    // Try to set image, otherwise use text
-    Image buttonImage = GuiResource.getInstance().getImageResetOption();
+    // Compact icon beside the text (smaller than toolbar SMALL_ICON_SIZE)
+    Image buttonImage = GuiResource.getInstance().getImage("ui/images/reset_option.svg", 12, 12);
     if (buttonImage != null) {
       button.setImage(buttonImage);
-      button.setBackground(GuiResource.getInstance().getColorWhite());
-    } else {
-      button.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Button.Reset"));
     }
 
     if (tooltipKey != null) {
       button.setToolTipText(BaseMessages.getString(PKG, tooltipKey));
     }
 
-    // Calculate proper button height based on image and zoom factor
-    int buttonHeight = (int) (32 * PropsUi.getInstance().getZoomFactor());
-    if (buttonImage != null) {
-      // Ensure button is at least as tall as the image with some padding
-      buttonHeight = Math.max(buttonHeight, buttonImage.getBounds().height + 8);
-    }
-
     FormData fdButton = new FormData();
     fdButton.left = new FormAttachment(0, 0);
-    fdButton.height = buttonHeight;
     if (lastControl != null) {
       fdButton.top = new FormAttachment(lastControl, margin);
     } else {
@@ -659,18 +648,7 @@ public class ConfigGeneralOptionsTab {
     }
     button.setLayoutData(fdButton);
 
-    // Label with text behind the button
-    Label label = new Label(parent, SWT.LEFT);
-    PropsUi.setLook(label);
-    label.setText(BaseMessages.getString(PKG, labelKey));
-
-    FormData fdLabel = new FormData();
-    fdLabel.left = new FormAttachment(button, margin);
-    fdLabel.top = new FormAttachment(button, 0, SWT.CENTER);
-    fdLabel.right = new FormAttachment(100, 0);
-    label.setLayoutData(fdLabel);
-
-    return new Control[] {button, label};
+    return new Control[] {button};
   }
 
   /**
