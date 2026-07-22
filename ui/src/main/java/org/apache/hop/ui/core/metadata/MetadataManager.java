@@ -354,6 +354,14 @@ public class MetadataManager<T extends IHopMetadata> {
     serializer.save(metadata);
     serializer.delete(oldName);
 
+    // Notify listeners (auto-export, etc.) that metadata changed via rename
+    //
+    ExtensionPointHandler.callExtensionPoint(
+        HopGui.getInstance().getLog(),
+        variables,
+        HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
+        metadata);
+
     return true;
   }
 

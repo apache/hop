@@ -35,6 +35,32 @@ E.g. a `CRM` database connection is created in the project, using a number of va
 
 A project's metadata is stored in `{openvar}PROJECT_HOME{closevar}/metadata`, but can be overruled by setting the project's `metadata base folder {openvar}HOP_METADATA_FOLDER{closevar}` property in the project configuration dialog or directly in the `project-config.json` file.
 
+=== Auto-export metadata to a single JSON file
+
+Some integrations (for example Apache Airflow calling Hop Server, or Beam-style packaging) need the project metadata as a **single JSON file** rather than the per-type folder tree under `metadata/`.
+
+You can already create that file manually:
+
+* GUI: **Tools → Export metadata to JSON** (Beam plugin)
+* CLI: `hop-conf --project=<name> --export-metadata=<path/to/metadata.json>`
+
+Optionally, a project can keep that file up to date automatically. In the project properties dialog enable **Auto-export metadata** and set a filename (default `metadata.json`, relative to the project home). When enabled, Hop rewrites the file when:
+
+* the project is enabled / switched to, and
+* a metadata object is created, updated, or deleted in the GUI.
+
+The setting is stored in `project-config.json`:
+
+[source,json]
+----
+{
+  "autoExportMetadata" : true,
+  "autoExportMetadataFilename" : "metadata.json"
+}
+----
+
+Read-only projects never write the export file. Export failures are logged and do not block saving metadata.
+
 A basic project metadata folder will look similar to the one below:
 
 [source,bash]

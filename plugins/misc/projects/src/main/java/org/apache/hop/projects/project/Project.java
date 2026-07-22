@@ -85,6 +85,19 @@ public class Project extends ConfigFile implements IConfigFile {
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private boolean enforcingExecutionInHome;
 
+  /**
+   * When true, Hop writes a single-file JSON export of the project's metadata (connections, run
+   * configurations, etc.) whenever the project is enabled or metadata is created/updated/deleted.
+   * See {@link org.apache.hop.projects.util.ProjectsMetadataExporter}.
+   */
+  private boolean autoExportMetadata;
+
+  /**
+   * Target filename for auto-export, relative to the project home (or absolute). Empty means the
+   * default {@code metadata.json}.
+   */
+  private String autoExportMetadataFilename;
+
   private String parentProjectName;
   @JsonIgnore private MultiMetadataProvider metadataProvider;
   @JsonIgnore private List<Path> pipelinePaths;
@@ -98,6 +111,8 @@ public class Project extends ConfigFile implements IConfigFile {
     dataSetsCsvFolder = "${" + ProjectsUtil.VARIABLE_PROJECT_HOME + "}/datasets";
     unitTestsBasePath = "${" + ProjectsUtil.VARIABLE_PROJECT_HOME + "}";
     enforcingExecutionInHome = true;
+    autoExportMetadata = false;
+    autoExportMetadataFilename = "";
   }
 
   public Project(String configFilename) {
@@ -153,6 +168,8 @@ public class Project extends ConfigFile implements IConfigFile {
       this.unitTestsBasePath = project.unitTestsBasePath;
       this.dataSetsCsvFolder = project.dataSetsCsvFolder;
       this.enforcingExecutionInHome = project.enforcingExecutionInHome;
+      this.autoExportMetadata = project.autoExportMetadata;
+      this.autoExportMetadataFilename = project.autoExportMetadataFilename;
       this.configMap = project.configMap;
       this.parentProjectName = project.parentProjectName;
     } catch (Exception e) {

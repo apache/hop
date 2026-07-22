@@ -36,6 +36,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.gui.ProjectsGuiPlugin;
+import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -90,6 +91,8 @@ public class ProjectDialog extends Dialog {
   private Text wVersion;
 
   private TextVar wMetadataBaseFolder;
+  private Button wAutoExportMetadata;
+  private TextVar wAutoExportMetadataFilename;
   private TextVar wUnitTestsBasePath;
   private TextVar wDataSetCsvFolder;
   private Button wEnforceHomeExecution;
@@ -370,6 +373,46 @@ public class ProjectDialog extends Dialog {
     wMetadataBaseFolder.addModifyListener(e -> updateIVariables());
     lastControl = wMetadataBaseFolder;
 
+    Label wlAutoExportMetadata = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlAutoExportMetadata);
+    wlAutoExportMetadata.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.AutoExportMetadata"));
+    FormData fdlAutoExportMetadata = new FormData();
+    fdlAutoExportMetadata.left = new FormAttachment(0, 0);
+    fdlAutoExportMetadata.right = new FormAttachment(middle, 0);
+    fdlAutoExportMetadata.top = new FormAttachment(lastControl, margin);
+    wlAutoExportMetadata.setLayoutData(fdlAutoExportMetadata);
+    wAutoExportMetadata = new Button(comp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wAutoExportMetadata);
+    wAutoExportMetadata.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.AutoExportMetadata.Enable"));
+    FormData fdAutoExportMetadata = new FormData();
+    fdAutoExportMetadata.left = new FormAttachment(middle, margin);
+    fdAutoExportMetadata.right = new FormAttachment(99, 0);
+    fdAutoExportMetadata.top = new FormAttachment(wlAutoExportMetadata, 0, SWT.CENTER);
+    wAutoExportMetadata.setLayoutData(fdAutoExportMetadata);
+    wAutoExportMetadata.addListener(SWT.Selection, e -> updateAutoExportMetadataWidgets());
+    lastControl = wlAutoExportMetadata;
+
+    Label wlAutoExportMetadataFilename = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlAutoExportMetadataFilename);
+    wlAutoExportMetadataFilename.setText(
+        BaseMessages.getString(PKG, "ProjectDialog.Label.AutoExportMetadataFilename"));
+    FormData fdlAutoExportMetadataFilename = new FormData();
+    fdlAutoExportMetadataFilename.left = new FormAttachment(0, 0);
+    fdlAutoExportMetadataFilename.right = new FormAttachment(middle, 0);
+    fdlAutoExportMetadataFilename.top = new FormAttachment(lastControl, margin);
+    wlAutoExportMetadataFilename.setLayoutData(fdlAutoExportMetadataFilename);
+    wAutoExportMetadataFilename = new TextVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    PropsUi.setLook(wAutoExportMetadataFilename);
+    FormData fdAutoExportMetadataFilename = new FormData();
+    fdAutoExportMetadataFilename.left = new FormAttachment(middle, margin);
+    fdAutoExportMetadataFilename.right = new FormAttachment(99, 0);
+    fdAutoExportMetadataFilename.top =
+        new FormAttachment(wlAutoExportMetadataFilename, 0, SWT.CENTER);
+    wAutoExportMetadataFilename.setLayoutData(fdAutoExportMetadataFilename);
+    lastControl = wAutoExportMetadataFilename;
+
     Label wlUnitTestsBasePath = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlUnitTestsBasePath);
     wlUnitTestsBasePath.setText(
@@ -486,6 +529,7 @@ public class ProjectDialog extends Dialog {
 
     getData();
     updateReadOnlyWidgets();
+    updateAutoExportMetadataWidgets();
 
     comp.pack();
     scroll.setContent(comp);
@@ -528,11 +572,19 @@ public class ProjectDialog extends Dialog {
     wDepartment.setEnabled(editable);
     wVersion.setEnabled(editable);
     wMetadataBaseFolder.setEnabled(editable);
+    wAutoExportMetadata.setEnabled(editable);
     wUnitTestsBasePath.setEnabled(editable);
     wDataSetCsvFolder.setEnabled(editable);
     wEnforceHomeExecution.setEnabled(editable);
     wVariables.setEnabled(editable);
     wVariables.setReadonly(!editable);
+    updateAutoExportMetadataWidgets();
+  }
+
+  /** Filename is only meaningful when auto-export is enabled (and the project is not read-only). */
+  private void updateAutoExportMetadataWidgets() {
+    boolean editable = !wReadOnly.getSelection() && wAutoExportMetadata.getSelection();
+    wAutoExportMetadataFilename.setEnabled(editable);
   }
 
   private void browseHomeFolder(Event event) {
@@ -805,6 +857,12 @@ public class ProjectDialog extends Dialog {
     wDepartment.setText(Const.NVL(project.getDepartment(), ""));
     wVersion.setText(Const.NVL(project.getVersion(), ""));
     wMetadataBaseFolder.setText(Const.NVL(project.getMetadataBaseFolder(), ""));
+    wAutoExportMetadata.setSelection(project.isAutoExportMetadata());
+    String exportFilename = project.getAutoExportMetadataFilename();
+    if (Utils.isEmpty(exportFilename)) {
+      exportFilename = Defaults.DEFAULT_AUTO_EXPORT_METADATA_FILENAME;
+    }
+    wAutoExportMetadataFilename.setText(exportFilename);
     wUnitTestsBasePath.setText(Const.NVL(project.getUnitTestsBasePath(), ""));
     wDataSetCsvFolder.setText(Const.NVL(project.getDataSetsCsvFolder(), ""));
     wEnforceHomeExecution.setSelection(project.isEnforcingExecutionInHome());
@@ -850,6 +908,8 @@ public class ProjectDialog extends Dialog {
     project.setDepartment(wDepartment.getText());
     project.setVersion(wVersion.getText());
     project.setMetadataBaseFolder(wMetadataBaseFolder.getText());
+    project.setAutoExportMetadata(wAutoExportMetadata.getSelection());
+    project.setAutoExportMetadataFilename(wAutoExportMetadataFilename.getText());
     project.setUnitTestsBasePath(wUnitTestsBasePath.getText());
     project.setDataSetsCsvFolder(wDataSetCsvFolder.getText());
     project.setEnforcingExecutionInHome(wEnforceHomeExecution.getSelection());

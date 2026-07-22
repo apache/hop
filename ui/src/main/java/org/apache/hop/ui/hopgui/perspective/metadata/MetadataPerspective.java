@@ -31,6 +31,8 @@ import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
@@ -662,6 +664,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
               IHopMetadata metadata = serializer.load(name);
               metadata.setVirtualPath(Utils.isEmpty(newVirtualPath) ? "" : newVirtualPath);
               serializer.save(metadata);
+              ExtensionPointHandler.callExtensionPoint(
+                  hopGui.getLog(),
+                  hopGui.getVariables(),
+                  HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
+                  metadata);
               hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
               refresh();
             } catch (Exception e) {

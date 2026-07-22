@@ -89,6 +89,30 @@ public class ProjectTest {
   }
 
   @Test
+  public void testAutoExportMetadataSerialization() throws Exception {
+    File tempFile = Files.createTempFile("project-config-auto-export", ".json").toFile();
+    tempFile.deleteOnExit();
+
+    try {
+      Project project = new Project(tempFile.getAbsolutePath());
+      assertFalse(project.isAutoExportMetadata());
+      assertEquals("", project.getAutoExportMetadataFilename());
+
+      project.setAutoExportMetadata(true);
+      project.setAutoExportMetadataFilename("project-metadata.json");
+      project.saveToFile();
+
+      Project readProject = new Project(tempFile.getAbsolutePath());
+      readProject.readFromFile();
+
+      assertTrue(readProject.isAutoExportMetadata());
+      assertEquals("project-metadata.json", readProject.getAutoExportMetadataFilename());
+    } finally {
+      tempFile.delete();
+    }
+  }
+
+  @Test
   public void testParentProjectVariablesWhenNoParent() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-no-parent");
     Path home = tempRoot.resolve("child");
