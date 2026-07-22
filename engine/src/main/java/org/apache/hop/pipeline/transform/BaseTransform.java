@@ -252,6 +252,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /** The list of IRowListener interfaces */
   protected List<IRowListener> rowListeners;
 
+  /** The list of destination-aware IRowToListener interfaces (target hops / putRowTo) */
+  protected List<IRowToListener> rowToListeners;
+
   /**
    * Map of files that are generated or used by this transform. After execution, these can be added
    * to result. The entry to the map is the filename
@@ -428,6 +431,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     rowDistribution = transformMeta.getRowDistribution();
 
     rowListeners = new CopyOnWriteArrayList<>();
+    rowToListeners = new CopyOnWriteArrayList<>();
     resultFiles = new HashMap<>();
     resultFilesLock = new ReentrantReadWriteLock();
 
@@ -1422,9 +1426,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     }
 
-    // Do not call the row listeners for targeted rows.
-    // It can cause rows with varying layouts to arrive at the same listener without a way to keep
-    // them apart.
+    // Do not call IRowListener for targeted rows: mixed layouts can arrive without a way to keep
+    // them apart. Use IRowToListener instead — it includes the destination IRowSet.
+    //
+    for (IRowToListener listener : rowToListeners) {
+      listener.rowWrittenTo(rowMeta, row, rowSet);
+    }
 
     // Keep adding to terminator_rows buffer...
     if (terminator && terminatorRows != null) {
@@ -3278,6 +3285,21 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public List<IRowListener> getRowListeners() {
     return Collections.unmodifiableList(rowListeners);
+  }
+
+  @Override
+  public void addRowToListener(IRowToListener rowToListener) {
+    rowToListeners.add(rowToListener);
+  }
+
+  @Override
+  public void removeRowToListener(IRowToListener rowToListener) {
+    rowToListeners.remove(rowToListener);
+  }
+
+  @Override
+  public List<IRowToListener> getRowToListeners() {
+    return Collections.unmodifiableList(rowToListeners);
   }
 
   /**

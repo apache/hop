@@ -80,6 +80,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private IPipelineEngine<PipelineMeta> pipeline;
   private boolean slowTransformIndicatorEnabled;
   private Map<String, RowBuffer> outputRowsMap;
+
+  /** Hop key (origin\\tdestination) → sampled rows for target hops / putRowTo. */
+  private Map<String, RowBuffer> outputHopRowsMap;
+
   private Map<String, Object> stateMap;
   private boolean showingSelectedTransformMetrics = true;
 
@@ -131,6 +135,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     this.slowTransformIndicatorEnabled = slowTransformIndicatorEnabled;
 
     this.outputRowsMap = outputRowsMap;
+    this.outputHopRowsMap = null;
 
     transformLogMap = null;
 
@@ -737,6 +742,46 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
   }
 
+  /**
+   * Draw a data-preview icon on the hop near the source transform when hop-level samples exist. Key
+   * format matches UI hop sampling: {@code origin + "\t" + destination}.
+   */
+  private void drawHopOutputDataIndicator(
+      PipelineHopMeta pipelineHop,
+      TransformMeta fromTransform,
+      TransformMeta toTransform,
+      int x1,
+      int y1,
+      int x2,
+      int y2)
+      throws HopException {
+    if (Utils.isEmpty(outputHopRowsMap) || pipelineHop == null || fromTransform == null) {
+      return;
+    }
+    String hopKey = fromTransform.getName() + "\t" + toTransform.getName();
+    RowBuffer rowBuffer = outputHopRowsMap.get(hopKey);
+    if (rowBuffer == null || rowBuffer.isEmpty()) {
+      return;
+    }
+
+    // Place at ~30% of the hop length from the source transform
+    double hopDataPosition = 0.30;
+    int iconX = (int) (x1 + hopDataPosition * (x2 - x1)) - miniIconSize / 2;
+    int iconY = (int) (y1 + hopDataPosition * (y2 - y1)) - miniIconSize / 2;
+
+    gc.drawImage(EImage.DATA, iconX, iconY, magnification);
+    areaOwners.add(
+        new AreaOwner(
+            AreaType.HOP_OUTPUT_DATA,
+            iconX,
+            iconY,
+            miniIconSize,
+            miniIconSize,
+            offset,
+            pipelineHop,
+            rowBuffer));
+  }
+
   private void drawTextRightAligned(String txt, int x, int y) {
     int off = gc.textExtent(txt).x;
     x -= off;
@@ -1288,6 +1333,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           }
         }
       }
+
+      // Data preview icon near the source transform for hop-level samples (target hops, etc.)
+      //
+      drawHopOutputDataIndicator(pipelineHop, fs, ts, x1, y1, x2, y2);
     }
 
     PipelinePainterExtension extension =
@@ -1427,6 +1476,22 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
    */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
+  }
+
+  /**
+   * Gets outputHopRowsMap
+   *
+   * @return hop-keyed sample buffers
+   */
+  public Map<String, RowBuffer> getOutputHopRowsMap() {
+    return outputHopRowsMap;
+  }
+
+  /**
+   * @param outputHopRowsMap hop key → RowBuffer samples for target hops
+   */
+  public void setOutputHopRowsMap(Map<String, RowBuffer> outputHopRowsMap) {
+    this.outputHopRowsMap = outputHopRowsMap;
   }
 
   /**

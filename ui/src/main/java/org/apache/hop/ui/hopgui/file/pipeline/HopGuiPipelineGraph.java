@@ -439,6 +439,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private PipelineHopMeta clickedPipelineHop;
 
   @Getter @Setter protected Map<String, RowBuffer> outputRowsMap;
+
+  /** Hop key (origin\\tdestination) → sampled rows for target hops (Filter, Switch/Case, …). */
+  @Getter @Setter protected Map<String, RowBuffer> outputHopRowsMap;
+
   private boolean avoidContextDialog;
 
   public void setCurrentNote(NotePadMeta ni) {
@@ -812,6 +816,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           done = true;
           break;
 
+        case HOP_OUTPUT_DATA:
+          done = true;
+          break;
+
         case HOP_COPY_ICON:
           done = true;
           break;
@@ -1141,6 +1149,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             return;
           }
           break;
+        case HOP_OUTPUT_DATA:
+          if (showHopOutputData(areaOwner)) {
+            return;
+          }
+          break;
         case TRANSFORM_ICON:
           if (startHopTransform != null) {
             // Mouse up while drawing a hop candidate
@@ -1429,21 +1442,37 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return showTransformOutputData(dataTransform, rowBuffer);
   }
 
+  public boolean showHopOutputData(AreaOwner areaOwner) {
+    PipelineHopMeta hop = (PipelineHopMeta) areaOwner.getParent();
+    RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
+    if (hop == null || rowBuffer == null) {
+      return false;
+    }
+    String fromName = hop.getFromTransform() != null ? hop.getFromTransform().getName() : "?";
+    String toName = hop.getToTransform() != null ? hop.getToTransform().getName() : "?";
+    String hopLabel = fromName + " → " + toName;
+    return showOutputDataDialog(hopLabel, hopLabel, rowBuffer);
+  }
+
   private boolean showTransformOutputData(TransformMeta dataTransformMeta, RowBuffer rowBuffer) {
+    if (dataTransformMeta == null) {
+      return false;
+    }
+    return showOutputDataDialog(
+        dataTransformMeta.getName(), dataTransformMeta.getName(), rowBuffer);
+  }
+
+  private boolean showOutputDataDialog(String titleName, String messageName, RowBuffer rowBuffer) {
     if (rowBuffer != null) {
       synchronized (rowBuffer.getBuffer()) {
         if (!rowBuffer.isEmpty()) {
           try {
             String title =
                 BaseMessages.getString(
-                    PKG,
-                    "PipelineGraph.ViewOutput.OutputDialog.Header",
-                    dataTransformMeta.getName());
+                    PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", titleName);
             String message =
                 BaseMessages.getString(
-                    PKG,
-                    "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text",
-                    dataTransformMeta.getName());
+                    PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", messageName);
             String prefix = "";
 
             if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
@@ -3740,6 +3769,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             tipImage = GuiResource.getInstance().getImageData();
           }
           break;
+        case HOP_OUTPUT_DATA:
+          RowBuffer hopRowBuffer = (RowBuffer) areaOwner.getOwner();
+          if (hopRowBuffer != null && !hopRowBuffer.isEmpty()) {
+            PipelineHopMeta hopMeta = (PipelineHopMeta) areaOwner.getParent();
+            if (hopMeta != null
+                && hopMeta.getFromTransform() != null
+                && hopMeta.getToTransform() != null) {
+              tip.append(hopMeta.getFromTransform().getName())
+                  .append(" → ")
+                  .append(hopMeta.getToTransform().getName())
+                  .append(Const.CR);
+            }
+            tip.append("Available output rows: " + hopRowBuffer.size());
+            tipImage = GuiResource.getInstance().getImageData();
+          }
+          break;
         default:
           // For plugins...
           //
@@ -4030,6 +4075,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     context.slowTransformIndicatorEnabled = propsUi.isIndicateSlowPipelineTransformsEnabled();
     context.zoomFactor = propsUi.getZoomFactor();
     context.outputRowsMap = outputRowsMap;
+    context.outputHopRowsMap = outputHopRowsMap;
     context.drawingBorderAroundName = propsUi.isBorderDrawnAroundCanvasNames();
     context.mouseOverName = mouseOverName;
     context.stateMap = stateMap;
@@ -4090,6 +4136,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               stateMap);
 
       pipelinePainter.setMagnification((float) (magnification * PropsUi.getNativeZoomFactor()));
+      pipelinePainter.setOutputHopRowsMap(outputHopRowsMap);
       pipelinePainter.setTransformLogMap(transformLogMap);
       pipelinePainter.setStartHopTransform(startHopTransform);
       pipelinePainter.setEndHopLocation(endHopLocation);
@@ -5088,7 +5135,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private void addRowsSamplerToPipeline(IPipelineEngine<PipelineMeta> pipeline) {
     try {
       outputRowsMap = new HashMap<>();
-      PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap);
+      outputHopRowsMap = new HashMap<>();
+      PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap, outputHopRowsMap);
     } catch (Exception e) {
       // Ignore: run config not local or sample type not set
     }
@@ -5104,7 +5152,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return;
     }
     outputRowsMap = new HashMap<>();
-    PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap);
+    outputHopRowsMap = new HashMap<>();
+    PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap, outputHopRowsMap);
   }
 
   public void showSaveFileMessage() {
@@ -5429,8 +5478,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // wasn't open)
     Map<String, RowBuffer> existingBuffers =
         DrillDownGuiPlugin.getDataSnifferBuffersForPipeline(runningPipeline.getLogChannelId());
+    Map<String, RowBuffer> existingHopBuffers =
+        DrillDownGuiPlugin.getDataSnifferHopBuffersForPipeline(runningPipeline.getLogChannelId());
     if (existingBuffers != null) {
       outputRowsMap = existingBuffers;
+      outputHopRowsMap = existingHopBuffers != null ? existingHopBuffers : new HashMap<>();
     } else {
       addRowsSamplerToAttachedPipeline();
     }
