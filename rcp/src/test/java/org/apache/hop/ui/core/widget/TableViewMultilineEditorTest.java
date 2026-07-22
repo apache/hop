@@ -196,6 +196,70 @@ class TableViewMultilineEditorTest extends SwtBotTestBase {
         });
   }
 
+  /**
+   * Shift+Enter means "give me a line break" in both editors. The inline one cannot, so it hands
+   * over to the pop-out - which is also where Shift+Enter genuinely inserts the line.
+   */
+  @Test
+  void shiftEnterInTheInlineEditorOpensThePopOut() {
+    withTableView(
+        false,
+        (tableView, bot) -> {
+          editCell(tableView, SHORT_ROW, VALUE_COLUMN);
+          onUi(
+              () -> {
+                setInlineEditorText(tableView, "half typed");
+                return null;
+              });
+
+          Boolean doit = onUi(() -> pressEnter(findTextIn(tableView.table), SWT.SHIFT));
+
+          assertEquals(
+              Boolean.FALSE,
+              doit,
+              "Shift+Enter must not fall through to the commit-and-close path");
+          Text popOut = awaitPopOutText(bot);
+          assertNotNull(popOut, "Shift+Enter should open the multi-line editor");
+          assertEquals(
+              "half typed",
+              onUi(popOut::getText),
+              "the pop-out should continue the in-flight edit, not re-read the cell");
+        });
+  }
+
+  @Test
+  void plainEnterInTheInlineEditorStillCommitsWithoutExpanding() {
+    withTableView(
+        false,
+        (tableView, bot) -> {
+          editCell(tableView, SHORT_ROW, VALUE_COLUMN);
+          onUi(
+              () -> {
+                setInlineEditorText(tableView, "committed inline");
+                return null;
+              });
+
+          onUi(() -> pressEnter(findTextIn(tableView.table), SWT.NONE));
+
+          assertNull(awaitNoPopOut(bot), "a plain Enter should not expand the cell");
+          assertEquals("committed inline", cellValue(tableView, SHORT_ROW, VALUE_COLUMN));
+        });
+  }
+
+  @Test
+  void shiftEnterInAPasswordCellDoesNotOpenThePopOut() {
+    withTableView(
+        true,
+        (tableView, bot) -> {
+          editCell(tableView, SHORT_ROW, VALUE_COLUMN);
+
+          onUi(() -> pressEnter(findTextIn(tableView.table), SWT.SHIFT));
+
+          assertNull(
+              awaitNoPopOut(bot), "a password value must never be shown in the multi-line editor");
+        });
+  }
+
   @Test
   void escapeInThePopOutLeavesTheCellUntouched() {
     withTableView(
@@ -285,26 +349,40 @@ class TableViewMultilineEditorTest extends SwtBotTestBase {
 
   /**
    * The inline editor of a text cell lives in a holder composite. However the edit ends, that
-   * holder has to go with it - a leftover would sit on top of the table and swallow clicks.
+   * holder has to go - a leftover would sit on top of the table and swallow clicks - but it must
+   * survive the turn in which the editor closes.
+   *
+   * <p>That delay is what makes the expand icon work in Hop Web. Clicking it blurs the editor, and
+   * RWT hands the server the resulting focus-lost BEFORE the icon's own mouse-down. Disposing the
+   * holder synchronously there takes the icon with it, and RWT then drops the pending click, so the
+   * pop-out never opens.
    */
   @Test
-  void closingTheEditorLeavesNoHolderBehindOnTheTable() {
+  void theHolderOutlivesTheEditorByOneUiTurnAndIsThenDisposed() {
     withTableView(
         false,
         (tableView, bot) -> {
           editCell(tableView, SHORT_ROW, VALUE_COLUMN);
           assertNotNull(findExpandIcon(tableView), "precondition: the inline editor is open");
 
-          onUi(
-              () -> {
-                tableView.unEdit();
-                return null;
-              });
+          // Both in one syncExec: nothing may run in between, so this really is "right after".
+          int rightAfterClosing =
+              onUi(
+                  () -> {
+                    tableView.unEdit();
+                    return countCompositesOnTable(tableView);
+                  });
+          assertEquals(
+              1,
+              rightAfterClosing,
+              "the holder must still be alive so a pending expand click can still be delivered");
+
+          bot.sleep(500); // let the deferred disposal run
 
           assertEquals(
               0,
               (int) onUi(() -> countCompositesOnTable(tableView)),
-              "the inline editor's holder composite should be disposed with the editor");
+              "the holder should be gone once the event loop has turned");
         });
   }
 
@@ -356,15 +434,16 @@ class TableViewMultilineEditorTest extends SwtBotTestBase {
   }
 
   /**
-   * Sends Enter to the pop-out and reports whether the key was left for the Text to consume, i.e.
-   * whether it inserted a line break rather than committing.
+   * Sends Enter to a text widget and reports whether the key was left for it to consume - i.e.
+   * whether it inserted a line break rather than being taken over by a handler.
    */
-  private static Boolean pressEnter(Text popOut, int stateMask) {
+  private static Boolean pressEnter(Text text, int stateMask) {
     Event enter = new Event();
     enter.keyCode = SWT.CR;
+    enter.character = SWT.CR;
     enter.stateMask = stateMask;
     enter.doit = true;
-    popOut.notifyListeners(SWT.KeyDown, enter);
+    text.notifyListeners(SWT.KeyDown, enter);
     return enter.doit;
   }
 

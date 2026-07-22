@@ -1138,6 +1138,15 @@ public class TableView extends Composite {
         boolean right = false;
         boolean left = false;
 
+        // Shift+Enter asks for a line break, which a single-line editor cannot give. Hand the value
+        // to the multi-line pop-out instead - the same key that adds a line once you are in there.
+        if ((e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR || e.character == SWT.CR)
+            && (e.stateMask & SWT.SHIFT) != 0) {
+          e.doit = false;
+          expandActiveCell();
+          return;
+        }
+
         // "ENTER": close the text editor and copy the data over
         // We edit the data after moving to another cell, only if editNextCell =
         if (e.character == SWT.CR
@@ -1872,13 +1881,25 @@ public class TableView extends Composite {
     if (editorControl != null && !editorControl.isDisposed()) {
       editorControl.dispose();
     }
-    if (holder != null) {
-      if (!holder.isDisposed()) {
-        holder.dispose();
-      }
-      if (inlineEditorHolder == holder) {
-        inlineEditorHolder = null;
-      }
+    if (holder == null) {
+      return;
+    }
+    if (inlineEditorHolder == holder) {
+      inlineEditorHolder = null;
+    }
+    // The holder outlives the editor by one event-loop turn on purpose. Clicking the expand icon
+    // blurs the editor, and in Hop Web the resulting focus-lost is processed BEFORE the icon's own
+    // mouse-down: disposing the holder right here would take the icon down with it and RWT then
+    // drops the pending click, so the pop-out never opens. Deferring lets the click be delivered
+    // first. The holder is empty by then and goes away inside the same request / UI turn.
+    if (!holder.isDisposed()) {
+      holder.getDisplay().asyncExec(() -> disposeHolder(holder));
+    }
+  }
+
+  private static void disposeHolder(Composite holder) {
+    if (!holder.isDisposed()) {
+      holder.dispose();
     }
   }
 
@@ -1981,10 +2002,42 @@ public class TableView extends Composite {
   }
 
   /**
+   * Open the multi-line editor on the cell currently being edited, carrying over whatever stands in
+   * the inline editor. Silently does nothing for cells that have no pop-out (combo, button,
+   * password, read-only or disabled), so it is safe to wire to a key stroke that is not cell-aware.
+   */
+  private void expandActiveCell() {
+    if (readonly || !table.isEnabled() || !isEnabled() || columns.length == 0) {
+      return;
+    }
+    if (activeTableItem == null || activeTableItem.isDisposed()) {
+      return;
+    }
+    int rowNr = activeTableRow;
+    int colNr = activeTableColumn;
+    if (colNr < 1 || colNr - 1 >= columns.length || rowNr < 0 || rowNr >= table.getItemCount()) {
+      return;
+    }
+    ColumnInfo colinfo = columns[colNr - 1];
+    if (colinfo == null
+        || (colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT
+            && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
+        || colinfo.isReadOnly()
+        || colinfo.isPasswordField()) {
+      return;
+    }
+    if (colinfo.getDisabledListener() != null
+        && colinfo.getDisabledListener().isFieldDisabled(rowNr)) {
+      return;
+    }
+    editMultiline(activeTableItem, rowNr, colNr, colinfo);
+  }
+
+  /**
    * Opens a lightweight, non-modal multi-line editor anchored to the cell (the same floating-shell
    * idea as the Ctrl+Space variable helper). Handy for long values, SQL, JSON and multi-line
-   * content. Reached from the expand icon on the inline editor, and opened automatically for values
-   * that already contain line breaks.
+   * content. Reached from the expand icon on the inline editor or with Shift+Enter, and opened
+   * automatically for values that already contain line breaks.
    */
   private void editMultiline(TableItem row, int rowNr, int colNr, ColumnInfo colinfo) {
     // A pop-out is already open — don't stack a second one.
