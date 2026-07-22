@@ -27,14 +27,12 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -184,34 +182,10 @@ public class EnterTextDialog extends Dialog {
 
     enrich(this);
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            checkCancel(e);
-          }
-        });
-
     origText = text;
     getData();
 
-    // Set the size as well...
-    //
-    BaseTransformDialog.setSize(shell);
-
-    // Open the shell
-    //
-    shell.open();
-
-    // Handle the event loop until we're done with this shell...
-    //
-    Display display = shell.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return text;
   }

@@ -733,7 +733,18 @@ public class PropsUi extends Props {
     setProperty(METRICS_PANEL_SHOW_DATA_VOLUME_OUT, show ? YES : NO);
   }
 
+  @Deprecated(since = "2.19.0", forRemoval = true)
   public static void setLook(Widget widget) {
+    // Do nothing
+  }
+
+  @Deprecated(since = "2.19.0", forRemoval = true)
+  public static void setLook(final Widget widget, int style) {
+    // Do nothing
+  }
+
+  /** Set themes colors and font to the widget and all its children. */
+  public static void setTheme(final Widget widget) {
     int style = WIDGET_STYLE_DEFAULT;
     if (widget instanceof Table) {
       style = WIDGET_STYLE_TABLE;
@@ -755,31 +766,31 @@ public class PropsUi extends Props {
       }
     }
 
-    setLook(widget, style);
+    setTheme(widget, style);
 
     if (widget instanceof Composite composite) {
-      for (Control child : composite.getChildren()) {
-        setLook(child);
+      for (Control control : composite.getChildren()) {
+        setTheme(control);
       }
     }
   }
 
-  public static void setLook(final Widget widget, int style) {
+  public static void setTheme(final Widget widget, int style) {
     if (EnvironmentUtils.getInstance().isWeb()) {
-      setLookOnWeb(widget, style);
+      setThemeOnWeb(widget, style);
       return;
     }
     if (OsHelper.isWindows()) {
-      setLookOnWindows(widget, style);
+      setThemeOnWindows(widget, style);
     } else if (OsHelper.isMac()) {
-      setLookOnMac(widget, style);
+      setThemeOnMac(widget, style);
     } else {
-      setLookOnLinux(widget, style);
+      setThemeOnLinux(widget, style);
     }
   }
 
   /** Hop Web (RAP) specific look. Keeps web theme logic separate from OS-specific setLookOn*. */
-  protected static void setLookOnWeb(final Widget widget, int style) {
+  protected static void setThemeOnWeb(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = gui.getWidgetBackGroundColor();
@@ -891,7 +902,7 @@ public class PropsUi extends Props {
     }
   }
 
-  protected static void setLookOnWindows(final Widget widget, int style) {
+  protected static void setThemeOnWindows(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = gui.getWidgetBackGroundColor();
@@ -968,7 +979,7 @@ public class PropsUi extends Props {
     }
   }
 
-  protected static void setLookOnMac(final Widget widget, int style) {
+  protected static void setThemeOnMac(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = null;
@@ -1030,7 +1041,7 @@ public class PropsUi extends Props {
     }
   }
 
-  protected static void setLookOnLinux(final Widget widget, int style) {
+  protected static void setThemeOnLinux(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = GuiResource.getInstance().getWidgetBackGroundColor();

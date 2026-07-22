@@ -435,6 +435,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     tabItem.setControl(viewer.getControl());
     tabItem.setData(viewer);
 
+    PropsUi.setTheme(viewer.getControl());
+
     viewers.add(viewer);
 
     // Activate the perspective unless we are restoring tabs after a project switch
@@ -442,6 +444,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     if (!restoringTabs) {
       this.activate();
     }
+
+    // Set a theme for this control that changes dynamically
+    //
+    PropsUi.setTheme(tabItem.getControl());
 
     // Switch to the tab
     //

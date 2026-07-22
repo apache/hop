@@ -606,6 +606,8 @@ public class HopGui
       new WelcomeDialog().open();
     }
 
+    PropsUi.setTheme(shell);
+
     // On RAP, return here otherwise UIThread doesn't get terminated properly.
     if (EnvironmentUtils.getInstance().isWeb()) {
       return;

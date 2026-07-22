@@ -808,6 +808,8 @@ public abstract class BaseDialog extends Dialog {
     //
     addSpacesOnTabs(shell);
 
+    PropsUi.setTheme(shell);
+
     if (useStandardMinimumSize) {
       shell.setMinimumSize(650, 250);
     } else {

@@ -255,6 +255,8 @@ public class ShowMessageDialog extends Dialog {
     final String ok = button.getText();
     long startTime = new Date().getTime();
 
+    PropsUi.setTheme(shell);
+
     shell.open();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {

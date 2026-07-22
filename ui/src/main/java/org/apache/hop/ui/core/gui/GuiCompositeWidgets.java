@@ -203,7 +203,7 @@ public class GuiCompositeWidgets {
         // others
         int labelStyle = useNewLayout ? SWT.LEFT : (SWT.RIGHT | SWT.SINGLE);
         label = new Label(parent, labelStyle);
-        PropsUi.setLook(label);
+        PropsUi.setTheme(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
         if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
           label.setToolTipText(guiElements.getToolTip());
@@ -298,13 +298,13 @@ public class GuiCompositeWidgets {
     }
     if (guiElements.isVariablesEnabled()) {
       ComboVar comboVar = new ComboVar(variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      PropsUi.setLook(comboVar);
+      PropsUi.setTheme(comboVar);
       widgetsMap.put(guiElements.getId(), comboVar);
       comboVar.setItems(comboItems);
       control = comboVar;
     } else {
       Combo combo = new Combo(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT);
-      PropsUi.setLook(combo);
+      PropsUi.setTheme(combo);
       combo.setItems(comboItems);
       widgetsMap.put(guiElements.getId(), combo);
       control = combo;
@@ -362,7 +362,7 @@ public class GuiCompositeWidgets {
       boolean useNewLayout) {
 
     Button button = new Button(parent, SWT.PUSH);
-    PropsUi.setLook(button);
+    PropsUi.setTheme(button);
     button.setText(Const.NVL(guiElements.getLabel(), ""));
     if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
       button.setToolTipText(guiElements.getToolTip());
@@ -458,7 +458,7 @@ public class GuiCompositeWidgets {
       boolean useNewLayout) {
 
     Link link = new Link(parent, SWT.NONE);
-    PropsUi.setLook(link);
+    PropsUi.setTheme(link);
     link.setText(Const.NVL(guiElements.getLabel(), ""));
     if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
       link.setToolTipText(guiElements.getToolTip());
@@ -539,7 +539,7 @@ public class GuiCompositeWidgets {
       boolean useNewLayout) {
     Control control;
     Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
-    PropsUi.setLook(button);
+    PropsUi.setTheme(button);
     if (useNewLayout) {
       // New layout: label text on the checkbox itself
       button.setText(Const.NVL(guiElements.getLabel(), ""));
@@ -612,14 +612,14 @@ public class GuiCompositeWidgets {
         // PasswordTextVar never mirrors the field value in the tooltip (TextVar may on some
         // platforms when echo char is reported as '\\0' for PASSWORD fields).
         PasswordTextVar textVar = new PasswordTextVar(variables, parent, style, toolTip);
-        PropsUi.setLook(textVar);
+        PropsUi.setTheme(textVar);
         widgetsMap.put(guiElements.getId(), textVar);
         addModifyListener(textVar.getTextWidget(), guiElements.getId());
         control = textVar;
         text = textVar.getTextWidget();
       } else {
         TextVar textVar = new TextVar(variables, parent, style);
-        PropsUi.setLook(textVar);
+        PropsUi.setTheme(textVar);
         widgetsMap.put(guiElements.getId(), textVar);
         addModifyListener(textVar.getTextWidget(), guiElements.getId());
         control = textVar;
@@ -630,7 +630,7 @@ public class GuiCompositeWidgets {
         style |= SWT.PASSWORD;
       }
       text = new Text(parent, style);
-      PropsUi.setLook(text);
+      PropsUi.setTheme(text);
       widgetsMap.put(guiElements.getId(), text);
       addModifyListener(text, guiElements.getId());
       control = text;
@@ -1333,6 +1333,8 @@ public class GuiCompositeWidgets {
     scrolledComposite.setExpandVertical(true);
     scrolledComposite.setMinWidth(bounds.width);
     scrolledComposite.setMinHeight(bounds.height);
+
+    PropsUi.setTheme(scrolledComposite);
 
     return widgets;
   }

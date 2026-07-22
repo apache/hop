@@ -41,6 +41,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -57,7 +58,6 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -65,7 +65,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -276,23 +275,8 @@ public class DatabaseExplorerDialog extends Dialog {
             setTreeMenu();
           }
         });
-    shell.addListener(SWT.Close, e -> cancel());
 
-    // Prevent resizing below the complete control layout (notably right-side action buttons).
-    Point minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-    shell.setMinimumSize(minSize);
-    BaseTransformDialog.setSize(shell);
-
-    shell.open();
-
-    // Handle the event loop until we're done with this shell...
-    //
-    Display display = shell.getDisplay();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return tableName != null;
   }

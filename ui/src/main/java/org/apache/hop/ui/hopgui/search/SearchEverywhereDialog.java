@@ -220,6 +220,8 @@ public class SearchEverywhereDialog {
           dispose();
         });
 
+    PropsUi.setTheme(shell);
+
     updateShowAll();
     restoreSize();
 
