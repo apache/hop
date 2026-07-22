@@ -66,6 +66,14 @@ public final class ShortcutDisplayUtil {
   }
 
   /**
+   * Returns the display label of the ALT modifier for the current platform: "⌥" (Option) on macOS,
+   * "ALT" on Windows/Linux. Useful for hints like "ALT-Click to ...".
+   */
+  public static String getAltModifierDisplay() {
+    return Const.isOSX() ? "⌥" : "ALT";
+  }
+
+  /**
    * Converts an SWT key code to the display string used in the configuration panel (e.g. "⌫" for
    * Delete on macOS, "↑" for arrow up).
    */
