@@ -18,9 +18,11 @@
 package org.apache.hop.pipeline.engine;
 
 import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.IRowToListener;
 
 /**
  * An identifiable component of an execution engine {@link IPipelineEngine} In a pipeline engine
@@ -134,6 +136,25 @@ public interface IEngineComponent {
   void addRowListener(IRowListener rowListener);
 
   void removeRowListener(IRowListener rowListener);
+
+  /**
+   * Add a destination-aware row listener for rows written via target hops ({@code putRowTo}).
+   *
+   * @param rowToListener the listener to add
+   */
+  void addRowToListener(IRowToListener rowToListener);
+
+  /**
+   * Remove a destination-aware row listener.
+   *
+   * @param rowToListener the listener to remove
+   */
+  void removeRowToListener(IRowToListener rowToListener);
+
+  /**
+   * @return the installed destination-aware row listeners
+   */
+  List<IRowToListener> getRowToListeners();
 
   /**
    * Get the execution status of the component

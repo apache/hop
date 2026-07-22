@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowHandler;
 import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.IRowToListener;
 
 /**
  * Reading and writing rows from/to row sets is simpler in a Beam context since we're using a single
@@ -104,9 +105,10 @@ public class BeamRowHandler implements IRowHandler {
   @Override
   public void putRowTo(IRowMeta rowMeta, Object[] row, IRowSet rowSet)
       throws HopTransformException {
-    List<IRowListener> rowListeners = transform.getRowListeners();
-    for (IRowListener listener : rowListeners) {
-      listener.rowWrittenEvent(rowMeta, row);
+    // Destination-aware listeners (not IRowListener — mixed layouts need the target rowset)
+    List<IRowToListener> rowToListeners = transform.getRowToListeners();
+    for (IRowToListener listener : rowToListeners) {
+      listener.rowWrittenTo(rowMeta, row, rowSet);
     }
 
     rowSet.putRow(rowMeta, row);

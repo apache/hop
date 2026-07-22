@@ -63,6 +63,7 @@ public final class PipelineCanvasSvgRenderer {
     public boolean slowTransformIndicatorEnabled;
     public double zoomFactor;
     public Map<String, RowBuffer> outputRowsMap;
+    public Map<String, RowBuffer> outputHopRowsMap;
     public boolean drawingBorderAroundName;
     public String mouseOverName;
     public Map<String, Object> stateMap;
@@ -124,6 +125,7 @@ public final class PipelineCanvasSvgRenderer {
               ctx.stateMap);
 
       pipelinePainter.setMagnification(ctx.magnification);
+      pipelinePainter.setOutputHopRowsMap(ctx.outputHopRowsMap);
       pipelinePainter.setTransformLogMap(ctx.transformLogMap);
       pipelinePainter.setStartHopTransform(ctx.startHopTransform);
       pipelinePainter.setEndHopLocation(ctx.endHopLocation);

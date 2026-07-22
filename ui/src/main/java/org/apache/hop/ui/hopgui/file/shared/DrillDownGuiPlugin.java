@@ -86,6 +86,7 @@ public class DrillDownGuiPlugin {
     runningPipelines.clear();
     runningWorkflows.clear();
     dataSnifferBuffersByLogChannelId.clear();
+    dataSnifferHopBuffersByLogChannelId.clear();
   }
 
   /**
@@ -94,6 +95,13 @@ public class DrillDownGuiPlugin {
    * run's data is kept per execution (each run has its own logChannelId).
    */
   private static final Map<String, Map<String, RowBuffer>> dataSnifferBuffersByLogChannelId =
+      new ConcurrentHashMap<>();
+
+  /**
+   * Per-run hop-level sniffer buffers (logChannelId -> hop key -> RowBuffer) for target hops
+   * ({@code putRowTo}).
+   */
+  private static final Map<String, Map<String, RowBuffer>> dataSnifferHopBuffersByLogChannelId =
       new ConcurrentHashMap<>();
 
   /**
@@ -110,7 +118,10 @@ public class DrillDownGuiPlugin {
     Map<String, RowBuffer> buffers =
         dataSnifferBuffersByLogChannelId.computeIfAbsent(
             logChannelId, k -> new ConcurrentHashMap<>());
-    PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, buffers);
+    Map<String, RowBuffer> hopBuffers =
+        dataSnifferHopBuffersByLogChannelId.computeIfAbsent(
+            logChannelId, k -> new ConcurrentHashMap<>());
+    PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, buffers, hopBuffers);
   }
 
   /**
@@ -119,6 +130,16 @@ public class DrillDownGuiPlugin {
    */
   public static Map<String, RowBuffer> getDataSnifferBuffersForPipeline(String logChannelId) {
     return dataSnifferBuffersByLogChannelId.get(logChannelId);
+  }
+
+  /**
+   * Return hop-level data sniffer buffers for a pipeline run (if any).
+   *
+   * @param logChannelId pipeline log channel id
+   * @return hop key → RowBuffer, or null
+   */
+  public static Map<String, RowBuffer> getDataSnifferHopBuffersForPipeline(String logChannelId) {
+    return dataSnifferHopBuffersByLogChannelId.get(logChannelId);
   }
 
   // ==================== TRANSFORM CONTEXT ====================
