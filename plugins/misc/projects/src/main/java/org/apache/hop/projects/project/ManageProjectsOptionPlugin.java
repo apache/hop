@@ -18,9 +18,7 @@
 package org.apache.hop.projects.project;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -32,16 +30,15 @@ import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.util.ProjectsMetadataExporter;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
 
@@ -447,20 +444,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     String realFilename = variables.resolve(metadataJsonFilename);
     log.logBasic("Exporting project metadata to a single file: " + realFilename);
 
-    // This is the metadata to export
-    //
-    SerializableMetadataProvider metadataProvider =
-        new SerializableMetadataProvider(hasHopMetadataProvider.getMetadataProvider());
-    String jsonString = metadataProvider.toJson();
-
-    try {
-      try (OutputStream outputStream = HopVfs.getOutputStream(realFilename, false)) {
-        outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
-      }
-      log.logBasic("Metadata was exported successfully.");
-    } catch (Exception e) {
-      throw new HopException("There was an error exporting metadata to file: " + realFilename, e);
-    }
+    ProjectsMetadataExporter.exportToFile(
+        hasHopMetadataProvider.getMetadataProvider(), realFilename);
+    log.logBasic("Metadata was exported successfully.");
   }
 
   public void listActionTypes(
