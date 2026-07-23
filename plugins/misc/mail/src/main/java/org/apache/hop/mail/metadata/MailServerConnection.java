@@ -233,26 +233,27 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   public Session getSession(IVariables variables) {
     this.variables = variables;
+    String resolvedProtocol = resolve(protocol);
 
     // SMTP
-    if (protocol.equals("SMTP")) {
+    if (isSmtpProtocol(resolvedProtocol)) {
       // Send an e-mail...
       // create some properties and get the default Session
 
-      protocol = "smtp";
+      String smtpProtocol = getSmtpProtocol(resolvedProtocol);
       if (useSecureAuthentication) {
         if (useXOAuth2) {
           props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
         }
-        if (secureConnectionType.equals("TLS")) {
+        String resolvedSecureConnectionType = resolve(secureConnectionType);
+        if ("TLS".equalsIgnoreCase(resolvedSecureConnectionType)) {
           // Allow TLS authentication
           props.put("mail.smtp.starttls.enable", "true");
-        } else if (secureConnectionType.equals("TLS 1.2")) {
+        } else if ("TLS 1.2".equalsIgnoreCase(resolvedSecureConnectionType)) {
           // Allow TLS 1.2 authentication
           props.put("mail.smtp.starttls.enable", "true");
           props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         } else {
-          protocol = "smtps";
           // required to get rid of a SSL exception :
           // nested exception is:
           // javax.net.ssl.SSLException: Unsupported record version Unknown
@@ -265,13 +266,13 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
         }
       }
 
-      props.put(CONST_MAIL + protocol.toLowerCase() + ".host", variables.resolve(serverHost));
+      props.put(CONST_MAIL + smtpProtocol + ".host", variables.resolve(serverHost));
       if (!Utils.isEmpty(serverPort)) {
-        props.put(CONST_MAIL + protocol.toLowerCase() + ".port", variables.resolve(serverPort));
+        props.put(CONST_MAIL + smtpProtocol + ".port", variables.resolve(serverPort));
       }
 
       if (useAuthentication) {
-        props.put(CONST_MAIL + protocol + ".auth", "true");
+        props.put(CONST_MAIL + smtpProtocol + ".auth", "true");
       }
     } else {
       String protocolString = "";
@@ -282,17 +283,19 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
         props.put("mail.imap.sasl.authorizationid", proxyUsername);
       }
 
-      if (protocol.equals("POP3")) {
+      if ("POP3".equalsIgnoreCase(resolvedProtocol)) {
         props.setProperty("mail.pop3s.rsetbeforequit", "true");
         props.setProperty("mail.pop3.rsetbeforequit", "true");
-      } else if (protocol.equals("MBOX")) {
+      } else if ("MBOX".equalsIgnoreCase(resolvedProtocol)) {
         props.setProperty("mstor.mbox.metadataStrategy", "none"); // none|xml|yaml
         props.setProperty("mstor.cache.disabled", "true"); // prevent diskstore fail
       }
 
       protocolString =
-          (protocol.equals("POP3")) ? "pop3" : protocol.equals("MBOX") ? "mstor" : "imap";
-      if (useSecureAuthentication && !protocol.equals("MBOX")) {
+          ("POP3".equalsIgnoreCase(resolvedProtocol))
+              ? "pop3"
+              : "MBOX".equalsIgnoreCase(resolvedProtocol) ? "mstor" : "imap";
+      if (useSecureAuthentication && !"MBOX".equalsIgnoreCase(resolvedProtocol)) {
         // Supports IMAP/POP3 connection with SSL, the connection is established via SSL.
         props.setProperty(
             CONST_MAIL + protocolString + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
@@ -329,7 +332,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   // SMTP
   public Transport getTransport() throws MessagingException {
-    Transport transport = session.getTransport(protocol);
+    Transport transport = session.getTransport(getSmtpProtocol(resolve(protocol)));
     String authPass = getPassword(password);
 
     if (useAuthentication) {
@@ -354,31 +357,34 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   // IMAP, POP, MBOX
   public Store getStore() throws MessagingException {
-    if (useSecureAuthentication && !protocol.equals("MBOX")) {
+    String resolvedProtocol = resolve(protocol);
+    if (isSmtpProtocol(resolvedProtocol)
+        || (!"POP3".equalsIgnoreCase(resolvedProtocol)
+            && !"IMAP".equalsIgnoreCase(resolvedProtocol)
+            && !"MBOX".equalsIgnoreCase(resolvedProtocol))) {
+      throw new NoSuchProviderException("Unsupported mail store protocol: " + resolvedProtocol);
+    }
+
+    if (useSecureAuthentication && !"MBOX".equalsIgnoreCase(resolvedProtocol)) {
       URLName url =
           new URLName(
-              protocol,
+              resolvedProtocol,
               variables.resolve(serverHost),
               Integer.valueOf(variables.resolve(serverPort)),
               "",
               variables.resolve(username),
               variables.resolve(password));
 
-      switch (protocol) {
-        case "POP3":
-          store = new POP3SSLStore(session, url);
-          break;
-        case "IMAP":
-          store = new IMAPSSLStore(session, url);
-          break;
-        default:
-          break;
+      if ("POP3".equalsIgnoreCase(resolvedProtocol)) {
+        store = new POP3SSLStore(session, url);
+      } else {
+        store = new IMAPSSLStore(session, url);
       }
     } else {
-      if (protocol.equals("MBOX")) {
-        this.store = this.session.getStore(new URLName(protocol + ":" + serverHost));
+      if ("MBOX".equalsIgnoreCase(resolvedProtocol)) {
+        this.store = this.session.getStore(new URLName(resolvedProtocol + ":" + serverHost));
       } else {
-        this.store = this.session.getStore(protocol);
+        this.store = this.session.getStore(resolvedProtocol);
       }
     }
 
@@ -454,12 +460,39 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   public boolean testConnection(Session session) {
     try {
       this.session = session;
-      Store theStore = getStore();
-      theStore.connect();
+      if (isSmtpProtocol(resolve(protocol))) {
+        getTransport();
+      } else {
+        Store theStore = getStore();
+        theStore.connect();
+      }
       return true;
     } catch (MessagingException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private String resolve(String value) {
+    String resolvedValue = variables == null ? value : variables.resolve(value);
+    return Const.NVL(resolvedValue, "").trim();
+  }
+
+  private static boolean isSmtpProtocol(String value) {
+    return "SMTP".equalsIgnoreCase(value) || "SMTPS".equalsIgnoreCase(value);
+  }
+
+  private String getSmtpProtocol(String resolvedProtocol) {
+    if ("SMTPS".equalsIgnoreCase(resolvedProtocol)) {
+      return "smtps";
+    }
+    if (useSecureAuthentication) {
+      String resolvedSecureConnectionType = resolve(secureConnectionType);
+      if (!"TLS".equalsIgnoreCase(resolvedSecureConnectionType)
+          && !"TLS 1.2".equalsIgnoreCase(resolvedSecureConnectionType)) {
+        return "smtps";
+      }
+    }
+    return "smtp";
   }
 
   public String getPassword(String authPassword) {
