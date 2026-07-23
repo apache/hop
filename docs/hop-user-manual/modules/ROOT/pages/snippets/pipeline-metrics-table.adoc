@@ -35,5 +35,5 @@ The xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[
 |Buffers Output|Number of rows in the output buffer for this transform (can only higher than 0 during execution)
 |Duration|The execution duration for this transform
 |Speed|The execution speed in rows per second for this transform. This is close to the number of rows processed (written or output) by this transform divided by the duration (not exact because of rounding in the duration)
-|Status|The transform status; Running, Stopped, Finished,
+|Status|The transform status; one of Empty, Initializing, Running, Idle, Paused, Halting, Halted, Stopped, Finished or Disposed
 |===
