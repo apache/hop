@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -334,29 +335,40 @@ class LineageHubTest {
   }
 
   @Test
-  void shutdownDiscardsPendingEventsAndUnblocksSink() throws Exception {
+  void shutdownDeliversPendingEventsInsteadOfDroppingThem() throws Exception {
+    // Regression guard for lineage loss on shutdown: events still queued when the worker stops must
+    // be dispatched by shutdown(), not silently cleared. A short linger keeps the worker parked in
+    // poll() so the events are genuinely still queued when shutdown() is called.
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 1, 30_000L, Set.of());
-    Semaphore hold = new Semaphore(0);
+    Semaphore holdFirst = new Semaphore(0);
+    AtomicBoolean firstBatch = new AtomicBoolean(true);
     AtomicInteger acceptCount = new AtomicInteger();
     ILineageSink sink =
         batch -> {
-          acceptCount.addAndGet(batch.size());
-          try {
-            hold.acquire();
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+          // Park on the first event so the remaining events pile up on the queue while the worker
+          // is busy; release on interrupt so shutdown's worker-stop is not blocked.
+          if (firstBatch.compareAndSet(true, false)) {
+            try {
+              holdFirst.acquire();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
           }
+          acceptCount.addAndGet(batch.size());
         };
     LineageHub hub = LineageHub.newIsolatedForTesting(cfg, List.of(sink));
-    for (int i = 0; i < 4; i++) {
-      hub.emit(sampleEvent());
+    hub.emit(sampleEvent());
+    Thread.sleep(150); // worker pops event 1 and parks in the sink
+    for (int i = 0; i < 3; i++) {
+      hub.emit(sampleEvent()); // these queue up while the worker is parked
     }
-    Thread.sleep(150);
     long start = System.currentTimeMillis();
     hub.shutdown();
     long elapsed = System.currentTimeMillis() - start;
-    assertTrue(elapsed < 5_000, "shutdown took " + elapsed + "ms");
-    assertEquals(1, acceptCount.get());
+    assertTrue(elapsed < 10_000, "shutdown took " + elapsed + "ms");
+    // All four events are delivered: whatever the worker had not yet processed is drained by
+    // shutdown() on the caller's thread rather than being dropped.
+    assertEquals(4, acceptCount.get());
   }
 
   @Test
