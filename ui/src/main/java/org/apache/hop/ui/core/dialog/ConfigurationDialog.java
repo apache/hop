@@ -317,6 +317,8 @@ public abstract class ConfigurationDialog extends Dialog {
           false,
           false), // Preview size
     };
+    cVariables[0].setUsingVariables(true);
+    cVariables[1].setUsingVariables(true);
 
     int nrVariables =
         configuration.getVariablesMap() != null ? configuration.getVariablesMap().size() : 0;

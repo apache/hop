@@ -372,6 +372,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
               PKG, "PipelineRunConfigurationDialog.Variables.Column.Description"),
           ColumnInfo.COLUMN_TYPE_TEXT),
     };
+    columns[0].setUsingVariables(true);
+    columns[1].setUsingVariables(true);
 
     wVariables =
         new TableView(
