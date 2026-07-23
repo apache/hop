@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.transforms.formula.FormulaPoi;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellReference;
 
 public class FormulaParser {
 
@@ -78,7 +79,6 @@ public class FormulaParser {
 
   public CellValue getFormulaValue() throws HopValueException {
     String parsedFormula = formula;
-    int fieldIndex = 65;
     int colIndex = 0;
     Row row = evaluator.row();
 
@@ -93,7 +93,8 @@ public class FormulaParser {
     }
 
     for (String formulaField : formulaFieldList) {
-      char s = (char) fieldIndex;
+
+      String s = CellReference.convertNumToColString(colIndex);
       final Cell cell;
       if (row.getLastCellNum() <= colIndex) {
         cell = row.createCell(colIndex);
@@ -131,7 +132,6 @@ public class FormulaParser {
         }
       }
 
-      fieldIndex++;
       colIndex++;
     }
 
