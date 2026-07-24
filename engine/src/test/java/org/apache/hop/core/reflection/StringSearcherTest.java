@@ -16,68 +16,101 @@
  */
 package org.apache.hop.core.reflection;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 public class StringSearcherTest {
 
-  // TODO: Move Test
-  /* @Test
-  public void testSearchConditionCase() {
-    String dummyTransformName = "Output";
-    DummyMeta dummyMeta = new DummyMeta();
-    String dummyTransformPid = PluginRegistry.getInstance().getPluginId( TransformPluginType.class, dummyMeta );
-    TransformMeta dummyTransform = new TransformMeta( dummyTransformPid, dummyTransformname, dummyMeta );
+  /** A leaf metadata object holding a variable reference, e.g. a GetVariables field definition. */
+  public static class Field {
+    private String variableString;
 
-    List<StringSearchResult> stringList = new ArrayList<StringSearchResult>();
-    StringSearcher.findMetaData( dummyTransform, 0, stringList, dummyMeta, 0 );
-
-    int checkCount = 0;
-    String aResult = null;
-    // Check that it found a couple of fields and emits the values properly
-    for ( int i = 0; i < stringList.size(); i++ ) {
-      aResult = stringList.get( i ).toString();
-      if ( aResult.endsWith( "Dummy (transformId)" ) ) {
-        checkCount++;
-      } else if ( aResult.endsWith( "Output (name)" ) ) {
-        checkCount++;
-      }
-      if ( checkCount == 2 ) {
-        break;
-      }
+    public Field(String variableString) {
+      this.variableString = variableString;
     }
-    assertEquals( 2, checkCount );
 
-    FilterRowsMeta filterRowsMeta = new FilterRowsMeta();
-    Condition condition = new Condition();
-    condition.setNegated( false );
-    condition.setLeftValuename( "wibble_t" );
-    condition.setRightValuename( "wobble_s" );
-    condition.setFunction( org.apache.hop.core.Condition.FUNC_EQUAL );
-    filterRowsMeta.setDefault();
-    filterRowsMeta.setCondition( condition );
-
-    String filterRowsPluginPid = PluginRegistry.getInstance().getPluginId( TransformPluginType.class, filterRowsMeta );
-    TransformMeta filterRowsTransform = new TransformMeta( filterRowsPluginPid, "Filter Rows", filterRowsMeta );
-
-    stringList.clear();
-    StringSearcher.findMetaData( filterRowsTransform, 0, stringList, filterRowsMeta, 0 );
-
-    checkCount = 0;
-    for ( int i = 0; i < stringList.size(); i++ ) {
-      aResult = stringList.get( i ).toString();
-      if ( aResult.endsWith( "FilterRows (transformId)" ) ) {
-        checkCount++;
-      } else if ( aResult.endsWith( "Filter Rows (name)" ) ) {
-        checkCount++;
-      }
-      if ( checkCount == 2 ) {
-        break;
-      }
+    public String getVariableString() {
+      return variableString;
     }
-    assertEquals( 2, checkCount );
-  }*/
+  }
+
+  /** Metadata shape used before the @HopMetadataProperty migration: an array of objects. */
+  public static class ArrayHolder {
+    private Field[] fields;
+
+    public Field[] getFields() {
+      return fields;
+    }
+  }
+
+  /** Metadata shape used after the migration: a List of objects (issue #2481). */
+  public static class ListHolder {
+    private List<Field> fields;
+
+    public List<Field> getFields() {
+      return fields;
+    }
+  }
+
+  /** A List of plain strings must also have its elements discovered. */
+  public static class StringListHolder {
+    private List<String> values;
+
+    public List<String> getValues() {
+      return values;
+    }
+  }
+
+  private static boolean containsString(List<StringSearchResult> results, String expected) {
+    return results.stream().anyMatch(r -> expected.equals(r.getString()));
+  }
+
+  @Test
+  public void testFindMetaDataScansObjectArray() {
+    ArrayHolder holder = new ArrayHolder();
+    holder.fields = new Field[] {new Field("${VARIABLE_1}"), new Field("${VARIABLE_2}")};
+
+    List<StringSearchResult> results = new ArrayList<>();
+    StringSearcher.findMetaData(holder, 1, results, holder, holder);
+
+    assertTrue(containsString(results, "${VARIABLE_1}"), "array element 1 not found");
+    assertTrue(containsString(results, "${VARIABLE_2}"), "array element 2 not found");
+  }
+
+  /**
+   * Regression test for <a href="https://github.com/apache/hop/issues/2481">#2481</a>: variables
+   * nested in List-based metadata (the @HopMetadataProperty model most transforms migrated to) were
+   * no longer discovered, so Run Options no longer pre-populated them.
+   */
+  @Test
+  public void testFindMetaDataScansObjectList() {
+    ListHolder holder = new ListHolder();
+    holder.fields = new ArrayList<>();
+    holder.fields.add(new Field("${VARIABLE_1}"));
+    holder.fields.add(new Field("${VARIABLE_2}"));
+
+    List<StringSearchResult> results = new ArrayList<>();
+    StringSearcher.findMetaData(holder, 1, results, holder, holder);
+
+    assertTrue(containsString(results, "${VARIABLE_1}"), "list element 1 not found");
+    assertTrue(containsString(results, "${VARIABLE_2}"), "list element 2 not found");
+  }
+
+  @Test
+  public void testFindMetaDataScansStringList() {
+    StringListHolder holder = new StringListHolder();
+    holder.values = new ArrayList<>();
+    holder.values.add("${VARIABLE_1}");
+
+    List<StringSearchResult> results = new ArrayList<>();
+    StringSearcher.findMetaData(holder, 1, results, holder, holder);
+
+    assertTrue(containsString(results, "${VARIABLE_1}"), "string list element not found");
+  }
 }

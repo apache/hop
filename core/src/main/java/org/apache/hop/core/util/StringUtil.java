@@ -369,9 +369,31 @@ public class StringUtil {
 
   public static void getUsedVariables(
       String aString, List<String> list, boolean includeSystemVariables) {
+    // Include variable resolvers by default. This is what the encryption code relies on: a value
+    // like #{vault:hop/data/some-db:password} must be recognized as "contains variables" so it is
+    // not encrypted (see #7293).
+    getUsedVariables(aString, list, includeSystemVariables, true);
+  }
+
+  /**
+   * Collect the variables used in the given string.
+   *
+   * @param aString the string to scan
+   * @param list the list to add the used variable names to
+   * @param includeSystemVariables whether to include already-set system variables
+   * @param includeResolvers whether to also collect variable resolver references (the {@code
+   *     #{name:arguments}} syntax). These are not plain, user-settable variables, so callers that
+   *     build a list of variables to present to the user (e.g. the run options dialog) should pass
+   *     {@code false} to avoid polluting the list with resolver names and secret paths. Real {@code
+   *     ${...}} variables nested inside resolver arguments are still collected by the UNIX scan.
+   */
+  public static void getUsedVariables(
+      String aString, List<String> list, boolean includeSystemVariables, boolean includeResolvers) {
     getUsedVariables(aString, UNIX_OPEN, UNIX_CLOSE, list, includeSystemVariables);
     getUsedVariables(aString, WINDOWS_OPEN, WINDOWS_CLOSE, list, includeSystemVariables);
-    getUsedVariables(aString, RESOLVER_OPEN, RESOLVER_CLOSE, list, includeSystemVariables);
+    if (includeResolvers) {
+      getUsedVariables(aString, RESOLVER_OPEN, RESOLVER_CLOSE, list, includeSystemVariables);
+    }
   }
 
   public static String generateRandomString(
