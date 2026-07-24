@@ -17,21 +17,27 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.search.SearchMatcher;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -40,18 +46,34 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolTip;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
   private static final Class<?> PKG = ControlSpaceKeyAdapter.class;
+
+  /**
+   * Variable names matching one of these (case-insensitive) get their value masked in the popup.
+   */
+  private static final String[] SECRET_HINTS = {"password", "passwd", "secret", "token"};
+
+  private static final String MASKED_VALUE = "********";
 
   private final IGetCaretPosition getCaretPositionInterface;
 
@@ -116,222 +138,556 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     // CTRL-<SPACE> --> Insert a variable
     if (isHotKey(event)) {
       event.doit = false;
+      new VariablePopup().open();
+    }
+  }
 
+  /**
+   * The searchable, grouped variable picker shown on Ctrl/Cmd-Space. It replaces the old flat,
+   * unsearchable list: a search box (reusing the shared {@link SearchMatcher}), a tree of variables
+   * grouped by scope showing their resolved value, and a footer with the full value and description
+   * of the highlighted variable.
+   */
+  private final class VariablePopup {
+
+    private Shell shell;
+    private Text wSearch;
+    private Tree wTree;
+    private Label wDescription;
+
+    /** The smaller font the resolved value is drawn with under the variable name. */
+    private Font valueFont;
+
+    /**
+     * Two-line rows are painted by hand; that is not supported in Hop Web, which falls back to a
+     * two-column (name, value) layout.
+     */
+    private boolean ownerDrawn;
+
+    private final List<VarCandidate> candidates = buildCandidates(variables);
+    private final Map<TreeItem, VarCandidate> itemCandidates = new IdentityHashMap<>();
+    private final List<TreeItem> leafItems = new ArrayList<>();
+    private int position = -1;
+
+    void open() {
       // textField.setData(TRUE) indicates we have transitioned from the textbox to list mode...
-      // This will be set to false when the list selection has been processed
-      // and the list is being disposed of.
+      // This will be set to false when the selection has been processed and the popup is disposed.
       control.setData(Boolean.TRUE);
 
-      final int position;
       if (getCaretPositionInterface != null) {
         position = getCaretPositionInterface.getCaretPosition();
-      } else {
-        position = -1;
       }
 
-      // Drop down a list of variables...
-      //
       Rectangle bounds = control.getBounds();
       Point location;
       // StyledText is not supported in Hop Web
       if (!EnvironmentUtils.getInstance().isWeb() && control instanceof StyledText styledText) {
-        // Position the list under the caret
+        // Position the popup under the caret
         location = styledText.getLocationAtOffset(styledText.getCaretOffset());
         location.y += styledText.getLineHeight();
         location = styledText.toDisplay(location);
       } else {
-        // Position the list under the control
+        // Position the popup under the control
         location = GuiResource.calculateControlPosition(control);
         location.y += bounds.height;
       }
 
-      final Shell shell = new Shell(control.getShell(), SWT.NONE);
-      shell.setSize(bounds.width > 300 ? bounds.width : 300, 200);
-      shell.setLocation(location.x, location.y);
+      shell = new Shell(control.getShell(), SWT.NONE);
       shell.setLayout(new FormLayout());
-      final List list = new List(shell, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
-      PropsUi.setLook(list);
-      list.setLayoutData(new FormDataBuilder().fullSize().result());
-      list.setItems(getVariableNames(variables));
-      final ToolTip toolTip = new ToolTip(list.getShell(), SWT.BALLOON);
-      toolTip.setAutoHide(true);
+      int width = Math.max(bounds.width, (int) (PropsUi.getInstance().getZoomFactor() * 450));
+      int height = (int) (PropsUi.getInstance().getZoomFactor() * 360);
+      shell.setSize(width, height);
+      shell.setLocation(location.x, location.y);
 
-      // Double-click: picks the variable
-      list.addListener(
-          SWT.DefaultSelection,
-          e -> applyChanges(shell, list, control, position, insertTextInterface));
+      // Search box on top
+      wSearch =
+          new Text(
+              shell,
+              SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+      wSearch.setMessage(BaseMessages.getString(PKG, "ControlSpaceKeyAdapter.Search.Placeholder"));
+      PropsUi.setLook(wSearch);
+      FormData fdSearch = new FormData();
+      fdSearch.left = new FormAttachment(0, 0);
+      fdSearch.right = new FormAttachment(100, 0);
+      fdSearch.top = new FormAttachment(0, 0);
+      wSearch.setLayoutData(fdSearch);
 
-      // Select a variable name: display the value in a tool tip
-      list.addListener(
-          SWT.Selection,
-          e -> {
-            if (list.getSelectionCount() <= 0) {
-              return;
-            }
-            String name = list.getSelection()[0];
-            String value = variables.getVariable(name);
-            Rectangle shellBounds = shell.getBounds();
-            String message =
-                BaseMessages.getString(PKG, "TextVar.VariableValue.Message", name, value);
-            if (name.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
-              message += BaseMessages.getString(PKG, "TextVar.InternalVariable.Message");
-            }
-            toolTip.setText(message);
-            toolTip.setVisible(false);
-            toolTip.setLocation(shell.getLocation().x, shell.getLocation().y + shellBounds.height);
-            toolTip.setVisible(true);
-          });
+      ownerDrawn = !EnvironmentUtils.getInstance().isWeb();
 
-      // Enter key pressed: picks the variable
-      list.addListener(
-          SWT.KeyDown,
-          e -> {
-            if (e.keyCode == SWT.CR
-                && ((e.stateMask & SWT.CONTROL) == 0)
-                && ((e.stateMask & SWT.SHIFT) == 0)) {
-              applyChanges(shell, list, control, position, insertTextInterface);
-            }
-          });
+      // Description footer at the bottom
+      wDescription = new Label(shell, SWT.LEFT | SWT.WRAP);
+      PropsUi.setLook(wDescription);
+      FormData fdDescription = new FormData();
+      fdDescription.left = new FormAttachment(0, PropsUi.getMargin());
+      fdDescription.right = new FormAttachment(100, -PropsUi.getMargin());
+      fdDescription.bottom = new FormAttachment(100, 0);
+      fdDescription.top =
+          new FormAttachment(100, -(int) (PropsUi.getInstance().getZoomFactor() * 60));
+      wDescription.setLayoutData(fdDescription);
 
-      // Focus lost: close the list
-      list.addListener(
-          SWT.FocusOut,
-          e -> {
-            shell.dispose();
-            if (!control.isDisposed()) {
-              control.setData(Boolean.FALSE);
-            }
-          });
+      // A separator between the list and the value/description footer
+      Label wSeparator = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
+      FormData fdSeparator = new FormData();
+      fdSeparator.left = new FormAttachment(0, 0);
+      fdSeparator.right = new FormAttachment(100, 0);
+      fdSeparator.bottom = new FormAttachment(wDescription, -PropsUi.getMargin());
+      wSeparator.setLayoutData(fdSeparator);
+
+      // The smaller font used for the resolved value
+      FontData[] fontData = wSearch.getFont().getFontData();
+      valueFont =
+          new Font(
+              shell.getDisplay(),
+              fontData[0].getName(),
+              Math.max(8, fontData[0].getHeight() - 1),
+              SWT.NORMAL);
+
+      // The tree of variables in the middle
+      int treeStyle = SWT.SINGLE | SWT.FULL_SELECTION | SWT.V_SCROLL;
+      if (!ownerDrawn) {
+        treeStyle |= SWT.H_SCROLL;
+      }
+      wTree = new Tree(shell, treeStyle);
+      wTree.setHeaderVisible(false);
+      wTree.setLinesVisible(false);
+      PropsUi.setLook(wTree);
+      new TreeColumn(wTree, SWT.LEFT);
+      new TreeColumn(wTree, SWT.LEFT);
+      FormData fdTree = new FormData();
+      fdTree.left = new FormAttachment(0, 0);
+      fdTree.right = new FormAttachment(100, 0);
+      fdTree.top = new FormAttachment(wSearch, 0);
+      fdTree.bottom = new FormAttachment(wSeparator, 0);
+      wTree.setLayoutData(fdTree);
+
+      // Listeners
+      wSearch.addListener(SWT.Modify, e -> rebuild(wSearch.getText()));
+      wSearch.addListener(SWT.KeyDown, this::onSearchKey);
+      wTree.addListener(SWT.Selection, e -> syncSelectionFromTree());
+      wTree.addListener(SWT.DefaultSelection, e -> insertSelected());
+      wTree.addListener(SWT.Resize, e -> resizeColumns());
+      if (ownerDrawn) {
+        // Render each variable on two lines: name on top, resolved value smaller and muted below.
+        wTree.addListener(SWT.MeasureItem, this::onMeasureItem);
+        wTree.addListener(SWT.EraseItem, this::onEraseItem);
+        wTree.addListener(SWT.PaintItem, this::onPaintItem);
+      }
+      shell.addListener(SWT.Deactivate, e -> dispose());
+      shell.addListener(SWT.Traverse, this::onTraverse);
+
+      rebuild("");
 
       shell.open();
+      // The tree only has a real client area once it is laid out and shown.
+      resizeColumns();
+      wSearch.setFocus();
     }
-  }
 
-  private static void applyChanges(
-      Shell shell, List list, Control control, int position, IInsertText insertTextInterface) {
-    if (list.getSelection().length == 0) {
-      return;
-    }
-    String selection =
-        list.getSelection()[0].contains(Const.getDeprecatedPrefix())
-            ? list.getSelection()[0].replace(Const.getDeprecatedPrefix(), "")
-            : list.getSelection()[0];
-    String extra = "${" + selection + "}";
-    if (insertTextInterface != null) {
-      insertTextInterface.insertText(extra, position);
-    } else {
-      if (control.isDisposed()) {
+    /**
+     * When painting two-line rows a single full-width column is used; otherwise (Hop Web) the width
+     * is split between the variable name and its value.
+     */
+    private void resizeColumns() {
+      int available = wTree.getClientArea().width;
+      if (available <= 0) {
         return;
       }
+      if (ownerDrawn) {
+        wTree.getColumn(0).setWidth(available);
+        wTree.getColumn(1).setWidth(0);
+      } else {
+        int nameWidth = (int) (available * 0.45);
+        wTree.getColumn(0).setWidth(nameWidth);
+        wTree.getColumn(1).setWidth(available - nameWidth);
+      }
+    }
 
-      if (list.getSelectionCount() <= 0) {
+    /** Reserve room for two lines under each variable (name + value). */
+    private void onMeasureItem(Event event) {
+      if (!itemCandidates.containsKey((TreeItem) event.item)) {
+        return; // group header keeps the default single-line height
+      }
+      GC gc = event.gc;
+      gc.setFont(wTree.getFont());
+      int nameHeight = gc.getFontMetrics().getHeight();
+      gc.setFont(valueFont);
+      int valueHeight = gc.getFontMetrics().getHeight();
+      event.height = nameHeight + valueHeight + 4;
+    }
+
+    /** Suppress the default (single-line) text for leaves; we paint it ourselves. */
+    private void onEraseItem(Event event) {
+      if (itemCandidates.containsKey((TreeItem) event.item)) {
+        // Keep the background (including the selection highlight), drop the default foreground.
+        event.detail &= ~SWT.FOREGROUND;
+      }
+    }
+
+    /** Paint a variable on two lines: name on top, resolved value smaller and muted below. */
+    private void onPaintItem(Event event) {
+      if (event.index != 0) {
+        return; // everything is drawn in the first (full-width) column
+      }
+      VarCandidate candidate = itemCandidates.get((TreeItem) event.item);
+      if (candidate == null) {
+        return; // group header is painted by the default handler
+      }
+      GC gc = event.gc;
+      boolean selected = (event.detail & SWT.SELECTED) != 0;
+      Color nameColor;
+      Color valueColor;
+      if (selected) {
+        nameColor = wTree.getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT);
+        valueColor = nameColor;
+      } else {
+        nameColor =
+            candidate.category == VarCategory.DEPRECATED
+                ? GuiResource.getInstance().getColorDarkGray()
+                : wTree.getForeground();
+        valueColor = GuiResource.getInstance().getColorDarkGray();
+      }
+
+      int x = event.x + 2;
+      gc.setFont(wTree.getFont());
+      gc.setForeground(nameColor);
+      int nameHeight = gc.getFontMetrics().getHeight();
+      gc.drawText(candidate.name, x, event.y + 1, SWT.DRAW_TRANSPARENT);
+
+      gc.setFont(valueFont);
+      gc.setForeground(valueColor);
+      gc.drawText(candidate.displayValue, x, event.y + 1 + nameHeight, SWT.DRAW_TRANSPARENT);
+    }
+
+    /** Rebuild the tree for the given filter text, grouping the matches by scope. */
+    private void rebuild(String filter) {
+      wTree.setRedraw(false);
+      wTree.removeAll();
+      itemCandidates.clear();
+      leafItems.clear();
+
+      SearchMatcher matcher =
+          StringUtils.isEmpty(filter) ? null : new SearchMatcher(filter, false, false, true);
+      Color mutedColor = GuiResource.getInstance().getColorDarkGray();
+
+      // Bucket the matching candidates per category, keeping a score for ranking.
+      Map<VarCategory, List<Scored>> byCategory = new EnumMap<>(VarCategory.class);
+      for (VarCandidate candidate : candidates) {
+        double score = 1.0;
+        if (matcher != null) {
+          score = Math.max(matcher.score(candidate.name), matcher.score(candidate.rawValue));
+          if (score <= 0.0) {
+            continue;
+          }
+        }
+        byCategory
+            .computeIfAbsent(candidate.category, k -> new ArrayList<>())
+            .add(new Scored(candidate, score));
+      }
+
+      for (VarCategory category : VarCategory.values()) {
+        List<Scored> scoredList = byCategory.get(category);
+        if (scoredList == null || scoredList.isEmpty()) {
+          continue;
+        }
+        scoredList.sort(
+            Comparator.comparingDouble((Scored s) -> s.score)
+                .reversed()
+                .thenComparing(s -> s.candidate.name, String.CASE_INSENSITIVE_ORDER));
+
+        TreeItem groupItem = new TreeItem(wTree, SWT.NONE);
+        groupItem.setText(
+            0, BaseMessages.getString(PKG, category.messageKey) + "  (" + scoredList.size() + ")");
+        groupItem.setFont(GuiResource.getInstance().getFontBold());
+
+        for (Scored scored : scoredList) {
+          VarCandidate candidate = scored.candidate;
+          TreeItem item = new TreeItem(groupItem, SWT.NONE);
+          item.setText(new String[] {candidate.name, candidate.displayValue});
+          if (candidate.category == VarCategory.DEPRECATED) {
+            item.setForeground(mutedColor);
+          }
+          if (!ownerDrawn) {
+            // Two-column fallback: make the value column visually secondary.
+            item.setFont(1, valueFont);
+            item.setForeground(1, mutedColor);
+          }
+          itemCandidates.put(item, candidate);
+          leafItems.add(item);
+        }
+        groupItem.setExpanded(true);
+      }
+
+      wTree.setRedraw(true);
+
+      if (leafItems.isEmpty()) {
+        wDescription.setText(
+            BaseMessages.getString(PKG, "ControlSpaceKeyAdapter.NoResults", filter));
+      } else {
+        selectLeaf(0);
+      }
+    }
+
+    /** Move the selection to the leaf variable at the given index (clamped) and reveal it. */
+    private void selectLeaf(int index) {
+      if (leafItems.isEmpty()) {
         return;
       }
-      if (control instanceof Text text) {
-        text.insert(extra);
-      } else if (control instanceof CCombo combo) {
-        // We can't know the location of the cursor yet. All we can do is overwrite.
-        combo.setText(extra);
-      } else if (control instanceof StyledText styledText) {
-        styledText.insert(extra);
+      int clamped = Math.max(0, Math.min(index, leafItems.size() - 1));
+      TreeItem item = leafItems.get(clamped);
+      wTree.setSelection(item);
+      wTree.showSelection();
+      updateDescription(itemCandidates.get(item));
+    }
+
+    /** Keep the footer and the leaf cursor in step when the user clicks in the tree. */
+    private void syncSelectionFromTree() {
+      TreeItem[] selection = wTree.getSelection();
+      if (selection.length == 0) {
+        return;
+      }
+      VarCandidate candidate = itemCandidates.get(selection[0]);
+      if (candidate != null) {
+        updateDescription(candidate);
       }
     }
-    if (!shell.isDisposed()) {
-      shell.dispose();
-    }
-    if (!control.isDisposed()) {
-      control.setData(Boolean.FALSE);
-    }
-  }
 
-  public static String[] getVariableNames(IVariables variables) {
-    // Deprecated variables will be displayed with the suffix (deprecated).
-    String[] variableNames = variables.getVariableNames();
-    for (int i = 0; i < variableNames.length; i++) {
-      for (String deprecatedName : VariableRegistry.getInstance().getDeprecatedVariableNames()) {
-        if (variableNames[i].equals(deprecatedName)) {
-          variableNames[i] = variableNames[i] + Const.getDeprecatedPrefix();
-          break;
+    private void updateDescription(VarCandidate candidate) {
+      if (candidate == null) {
+        wDescription.setText("");
+        return;
+      }
+      StringBuilder message = new StringBuilder();
+      message.append("${").append(candidate.name).append("} = ").append(candidate.displayValue);
+      if (StringUtils.isNotEmpty(candidate.description)) {
+        message.append('\n').append(candidate.description);
+      }
+      if (candidate.name.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
+        message
+            .append('\n')
+            .append(BaseMessages.getString(PKG, "TextVar.InternalVariable.Message"));
+      }
+      wDescription.setText(message.toString());
+    }
+
+    private int currentLeafIndex() {
+      TreeItem[] selection = wTree.getSelection();
+      if (selection.length > 0) {
+        int index = leafItems.indexOf(selection[0]);
+        if (index >= 0) {
+          return index;
         }
       }
+      return 0;
     }
 
-    // Get the system properties to sort 'm at the back...
-    //
+    /** Drive the tree selection from the search box so the user never leaves the keyboard. */
+    private void onSearchKey(Event event) {
+      switch (event.keyCode) {
+        case SWT.ARROW_DOWN:
+          event.doit = false;
+          selectLeaf(currentLeafIndex() + 1);
+          break;
+        case SWT.ARROW_UP:
+          event.doit = false;
+          selectLeaf(currentLeafIndex() - 1);
+          break;
+        case SWT.PAGE_DOWN:
+          event.doit = false;
+          selectLeaf(currentLeafIndex() + 10);
+          break;
+        case SWT.PAGE_UP:
+          event.doit = false;
+          selectLeaf(currentLeafIndex() - 10);
+          break;
+        case SWT.CR, SWT.KEYPAD_CR:
+          event.doit = false;
+          insertSelected();
+          break;
+        default:
+          break;
+      }
+    }
+
+    private void onTraverse(Event event) {
+      if (event.detail == SWT.TRAVERSE_ESCAPE) {
+        event.doit = false;
+        dispose();
+      }
+    }
+
+    private void insertSelected() {
+      TreeItem[] selection = wTree.getSelection();
+      VarCandidate candidate = selection.length > 0 ? itemCandidates.get(selection[0]) : null;
+      if (candidate == null && !leafItems.isEmpty()) {
+        candidate = itemCandidates.get(leafItems.get(0));
+      }
+      if (candidate == null) {
+        dispose();
+        return;
+      }
+
+      String extra = "${" + candidate.name + "}";
+      if (insertTextInterface != null) {
+        insertTextInterface.insertText(extra, position);
+      } else if (!control.isDisposed()) {
+        if (control instanceof Text text) {
+          text.insert(extra);
+        } else if (control instanceof CCombo combo) {
+          // We can't know the location of the cursor yet. All we can do is overwrite.
+          combo.setText(extra);
+        } else if (control instanceof StyledText styledText) {
+          styledText.insert(extra);
+        }
+      }
+      dispose();
+    }
+
+    private void dispose() {
+      if (shell != null && !shell.isDisposed()) {
+        shell.dispose();
+      }
+      if (valueFont != null && !valueFont.isDisposed()) {
+        valueFont.dispose();
+      }
+      if (!control.isDisposed()) {
+        control.setData(Boolean.FALSE);
+      }
+    }
+  }
+
+  /** A single variable ready to be shown in the picker: name, resolved value, scope and help. */
+  static final class VarCandidate {
+    final String name;
+    final String rawValue;
+    final String displayValue;
+    final String description;
+    final VarCategory category;
+
+    VarCandidate(
+        String name,
+        String rawValue,
+        String displayValue,
+        String description,
+        VarCategory category) {
+      this.name = name;
+      this.rawValue = rawValue;
+      this.displayValue = displayValue;
+      this.description = description;
+      this.category = category;
+    }
+  }
+
+  private static final class Scored {
+    final VarCandidate candidate;
+    final double score;
+
+    Scored(VarCandidate candidate, double score) {
+      this.candidate = candidate;
+      this.score = score;
+    }
+  }
+
+  /** The scope groups shown as headers in the picker, in display order (deprecated sinks last). */
+  enum VarCategory {
+    PROJECT("ControlSpaceKeyAdapter.Category.Project"),
+    CUSTOM("ControlSpaceKeyAdapter.Category.Custom"),
+    INTERNAL("ControlSpaceKeyAdapter.Category.Internal"),
+    APPLICATION("ControlSpaceKeyAdapter.Category.Application"),
+    SYSTEM("ControlSpaceKeyAdapter.Category.System"),
+    DEPRECATED("ControlSpaceKeyAdapter.Category.Deprecated");
+
+    final String messageKey;
+
+    VarCategory(String messageKey) {
+      this.messageKey = messageKey;
+    }
+  }
+
+  /**
+   * Build the list of variables to show in the picker: resolves every value, masks secrets, looks
+   * up descriptions and assigns each variable to a scope group.
+   */
+  static List<VarCandidate> buildCandidates(IVariables variables) {
+    VariableRegistry registry = VariableRegistry.getInstance();
     Properties systemProperties = System.getProperties();
+    Set<String> deprecatedSet = new HashSet<>(registry.getDeprecatedVariableNames());
+    Set<String> systemSettings = registry.getVariableNames(VariableScope.SYSTEM);
+    Set<String> applicationSet =
+        registry.getVariableNames(VariableScope.APPLICATION, VariableScope.ENGINE);
 
-    // The internal Hop variables...
-    //
-    Set<String> hopVariablesSet = VariableRegistry.getInstance().getVariableNames();
-
-    // The Deprecated variables...
-    Set<String> deprecatedSet =
-        new HashSet<>(VariableRegistry.getInstance().getDeprecatedVariableNames());
-
-    // The Hop system settings variables
-    //
-    Set<String> hopSystemSettings =
-        VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM);
-
-    Map<String, String> pluginsPrefixesMap = new HashMap<>();
-
+    Map<String, String> pluginPrefixMap = new HashMap<>();
     try {
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.UI,
           variables,
           HopExtensionPoint.HopGuiGetControlSpaceSortOrderPrefix.name(),
-          pluginsPrefixesMap);
+          pluginPrefixMap);
     } catch (Exception e) {
       LogChannel.UI.logError(
           "Error calling extension point 'HopGuiGetControlSpaceSortOrderPrefix'", e);
     }
 
-    Arrays.sort(variableNames);
-    return variableNames;
+    List<VarCandidate> result = new ArrayList<>();
+    for (String name : variables.getVariableNames()) {
+      String rawValue = Const.NVL(variables.getVariable(name), "");
+      String displayValue = isSecret(name) ? MASKED_VALUE : rawValue;
+      DescribedVariable described = registry.findDescribedVariable(name);
+      String description = described == null ? null : described.getDescription();
+      VarCategory category =
+          categorize(
+              name,
+              deprecatedSet,
+              pluginPrefixMap.keySet(),
+              systemSettings,
+              applicationSet,
+              systemProperties);
+      result.add(new VarCandidate(name, rawValue, displayValue, description, category));
+    }
+    return result;
   }
 
   /**
-   * Get a prefix to steer sorting of variables. Please note that variables can appear in multiple
-   * sets so we check back to front.
-   *
-   * @param variableName The variable name to prefix
-   * @param systemProperties
-   * @param hopVariablesSet
-   * @param deprecatedSet
-   * @return a prefixed variable name
+   * Assign a variable to a scope group. Checked most-specific first: a deprecated variable is shown
+   * as deprecated even if it is also internal, and a plugin-contributed (project/environment)
+   * variable wins over the generic buckets.
    */
-  private static String addPrefix(
-      String variableName,
-      Properties systemProperties,
-      Set<String> hopVariablesSet,
+  static VarCategory categorize(
+      String name,
       Set<String> deprecatedSet,
-      Set<String> hopSystemSettings,
-      Map<String, String> pluginsPrefixesMap) {
-    String prefix = "300_";
-    String systemValue = systemProperties.getProperty(variableName);
-    if (systemValue != null) {
-      // var1 is a system property... push it to the very end..
-      prefix = "900_";
+      Set<String> pluginVariables,
+      Set<String> systemSettings,
+      Set<String> applicationSet,
+      Properties systemProperties) {
+    if (deprecatedSet.contains(name)) {
+      return VarCategory.DEPRECATED;
     }
-    if (hopVariablesSet.contains(variableName)) {
-      prefix = "800_";
+    if (pluginVariables.contains(name)) {
+      return VarCategory.PROJECT;
     }
-    if (hopSystemSettings.contains(variableName)) {
-      prefix = "700_";
+    if (name.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
+      return VarCategory.INTERNAL;
     }
-    if (deprecatedSet.contains(variableName)) {
-      prefix = "600_";
+    if (systemSettings.contains(name) || systemProperties.getProperty(name) != null) {
+      return VarCategory.SYSTEM;
     }
-    if (variableName.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
-      prefix = "500_";
+    if (applicationSet.contains(name)) {
+      return VarCategory.APPLICATION;
     }
-    // Finally allow plugins to override a sort order...
-    //
-    String pluginPrefix = pluginsPrefixesMap.get(variableName);
-    if (pluginPrefix != null) {
-      prefix = pluginPrefix;
+    return VarCategory.CUSTOM;
+  }
+
+  /** Whether a variable's value should be masked in the picker (looks like a credential). */
+  static boolean isSecret(String name) {
+    if (name == null) {
+      return false;
     }
-    return prefix;
+    String lower = name.toLowerCase();
+    for (String hint : SECRET_HINTS) {
+      if (lower.contains(hint)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public void setVariables(IVariables vars) {
