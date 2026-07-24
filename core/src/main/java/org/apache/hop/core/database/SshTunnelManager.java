@@ -32,6 +32,14 @@ import org.apache.hop.core.variables.IVariables;
 /** Manages SSH tunnels for database connections using JSch port forwarding. */
 public class SshTunnelManager {
 
+  /**
+   * Name of the variable that exposes the dynamically allocated local port of the SSH tunnel. It
+   * can be referenced from a manually specified JDBC URL (for example a complex Oracle TCPS
+   * descriptor) as <code>${sshTunnel.localPort}</code> to point the driver at the local end of the
+   * tunnel.
+   */
+  public static final String VARIABLE_SSH_TUNNEL_LOCAL_PORT = "sshTunnel.localPort";
+
   private Session session;
   private int localPort;
 

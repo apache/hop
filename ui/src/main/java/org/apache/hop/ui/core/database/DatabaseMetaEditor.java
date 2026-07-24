@@ -1007,6 +1007,18 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdSshTunnelPassphrase.left = new FormAttachment(middle, margin);
     fdSshTunnelPassphrase.right = new FormAttachment(100, 0);
     wSshTunnelPassphrase.setLayoutData(fdSshTunnelPassphrase);
+    lastControl = wSshTunnelPassphrase;
+
+    // Informational note about the ${sshTunnel.localPort} variable for manual JDBC URLs
+    Label wlSshTunnelLocalPortInfo = new Label(wSshTunnelComp, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(wlSshTunnelLocalPortInfo);
+    wlSshTunnelLocalPortInfo.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelLocalPortInfo"));
+    FormData fdlSshTunnelLocalPortInfo = new FormData();
+    fdlSshTunnelLocalPortInfo.top = new FormAttachment(lastControl, margin * 2);
+    fdlSshTunnelLocalPortInfo.left = new FormAttachment(middle, margin);
+    fdlSshTunnelLocalPortInfo.right = new FormAttachment(100, 0);
+    wlSshTunnelLocalPortInfo.setLayoutData(fdlSshTunnelLocalPortInfo);
 
     FormData fdSshTunnelComp = new FormData();
     fdSshTunnelComp.left = new FormAttachment(0, 0);

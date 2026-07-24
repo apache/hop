@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -112,6 +113,39 @@ class DatabaseSshTunnelTest {
     Field field = Database.class.getDeclaredField("sshTunnelManager");
     field.setAccessible(true);
     assertNull(field.get(db));
+  }
+
+  @Test
+  void testBuildSshTunnelUrlUsesManualUrlWithLocalPortVariable() throws Exception {
+    when(meta.getManualUrl())
+        .thenReturn(
+            "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=localhost)"
+                + "(PORT=${sshTunnel.localPort}))(CONNECT_DATA=(SID=XYZ)))");
+
+    Database db = new Database(log, variables, meta);
+
+    String url = db.buildSshTunnelUrl(54321);
+
+    assertEquals(
+        "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=localhost)"
+            + "(PORT=54321))(CONNECT_DATA=(SID=XYZ)))",
+        url);
+  }
+
+  @Test
+  void testBuildSshTunnelUrlFallsBackToDialectWhenNoManualUrl() throws Exception {
+    when(meta.getManualUrl()).thenReturn(null);
+    when(meta.getDatabaseName()).thenReturn("mydb");
+    IDatabase iDatabase = mock(IDatabase.class);
+    when(meta.getIDatabase()).thenReturn(iDatabase);
+    when(iDatabase.getURL("localhost", "54321", "mydb"))
+        .thenReturn("jdbc:mysql://localhost:54321/mydb");
+
+    Database db = new Database(log, variables, meta);
+
+    String url = db.buildSshTunnelUrl(54321);
+
+    assertEquals("jdbc:mysql://localhost:54321/mydb", url);
   }
 
   private Connection mockConnection() throws Exception {

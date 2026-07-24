@@ -214,6 +214,38 @@ jdbc:sqlserver://localhost:1433;" +
 |trustServerCertificate|true
 |===
 
+== SSH tunnel
+
+When a database is only reachable through a bastion (jump) host, Hop can open an SSH tunnel for you before connecting, without the need for a separate, externally managed tunnel. Enable this on the `SSH Tunnel` tab of the database connection dialog.
+
+With the tunnel enabled, the `Host Name` and `Port` on the `General` tab describe the *remote* database as seen from the SSH server. Hop opens an SSH session to the configured SSH host, forwards a dynamically allocated *local* port to that remote database, and then connects the JDBC driver to `localhost` on the forwarded port.
+
+[%header, width="90%", cols="1,3"]
+|===
+|Property|Description
+|Enable SSH tunnel|Open an SSH tunnel before connecting to the database.
+|SSH server host name|Host name or IP address of the SSH (bastion) server.
+|SSH server port|SSH server port, defaults to `22`.
+|SSH username|User name to authenticate on the SSH server.
+|SSH password|Password to authenticate on the SSH server (when not using a private key).
+|Use private key authentication|Authenticate with a private key file instead of a password.
+|Private key file|Path to the private key file used for authentication.
+|Passphrase|Optional passphrase protecting the private key.
+|===
+
+=== SSH tunnel with a manual JDBC URL
+
+Because the local port of the tunnel is allocated dynamically at runtime, you can't hard-code it into a link:#_advanced_properties[manual JDBC URL]. For connection strings that can't be expressed with the standard host/port/database template - for example an Oracle TCPS descriptor - Hop exposes the forwarded port through the `${sshTunnel.localPort}` variable.
+
+Set a manual URL that points at `localhost` and reference the variable for the port. Hop resolves it after the tunnel is established:
+
+[source]
+----
+jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=localhost)(PORT=${sshTunnel.localPort}))(CONNECT_DATA=(SID=XYZ)))
+----
+
+The `Host Name` and `Port` on the `General` tab still define the remote end of the tunnel; the manual URL only describes how the driver connects to the local end. When no manual URL is set, Hop builds the standard URL for the database type using `localhost` and the forwarded port automatically.
+
 == Connection and socket timeouts
 
 If a database host becomes unreachable at the wrong moment (for example a half-open TCP connection that is never answered), a transform can block indefinitely while it waits for the driver. This makes a pipeline appear to "hang" during initialization, even though the databases themselves are healthy.
