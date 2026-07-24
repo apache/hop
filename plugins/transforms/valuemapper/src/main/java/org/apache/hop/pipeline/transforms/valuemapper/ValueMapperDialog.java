@@ -273,6 +273,9 @@ public class ValueMapperDialog extends BaseTransformDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     if (input.getFieldToUse() != null) {
+      if (wFieldName.indexOf(input.getFieldToUse()) < 0) {
+        wFieldName.add(input.getFieldToUse());
+      }
       wFieldName.setText(input.getFieldToUse());
     }
     if (input.getTargetField() != null) {
