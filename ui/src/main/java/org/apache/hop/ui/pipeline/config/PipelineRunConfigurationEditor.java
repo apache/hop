@@ -360,18 +360,12 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     variablesLayout.marginHeight = 0;
     wVariablesComp.setLayout(variablesLayout);
 
-    ColumnInfo[] columns = {
-      new ColumnInfo(
-          BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Name"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
-      new ColumnInfo(
-          BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Value"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
-      new ColumnInfo(
-          BaseMessages.getString(
-              PKG, "PipelineRunConfigurationDialog.Variables.Column.Description"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
-    };
+    ColumnInfo[] columns =
+        createVariablesColumns(
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Name"),
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.Variables.Column.Value"),
+            BaseMessages.getString(
+                PKG, "PipelineRunConfigurationDialog.Variables.Column.Description"));
 
     wVariables =
         new TableView(
@@ -658,5 +652,21 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
     Arrays.sort(types, String.CASE_INSENSITIVE_ORDER);
     return types;
+  }
+
+  /**
+   * Builds the Variables table columns for a pipeline run configuration. Only the Value column
+   * enables the variable picker — names are literal keys and are resolved at runtime only for
+   * values (see {@code PipelineEngineFactory.applyVariableDefinitions}).
+   */
+  static ColumnInfo[] createVariablesColumns(
+      String nameTitle, String valueTitle, String descriptionTitle) {
+    ColumnInfo[] columns = {
+      new ColumnInfo(nameTitle, ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(valueTitle, ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(descriptionTitle, ColumnInfo.COLUMN_TYPE_TEXT),
+    };
+    columns[1].setUsingVariables(true);
+    return columns;
   }
 }
