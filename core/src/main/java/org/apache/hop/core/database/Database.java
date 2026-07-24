@@ -478,16 +478,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       if (databaseMeta.isSshTunnelEnabled() && !Utils.isEmpty(databaseMeta.getSshTunnelHost())) {
         sshTunnelManager = new SshTunnelManager();
         int localPort = sshTunnelManager.openTunnel(this, databaseMeta, log);
-
-        // Build URL using tunnel endpoint (localhost + forwarded port)
-        String tunnelUrl =
-            databaseMeta
-                .getIDatabase()
-                .getURL(
-                    "localhost",
-                    String.valueOf(localPort),
-                    resolve(databaseMeta.getDatabaseName()));
-        url = resolve(tunnelUrl);
+        url = buildSshTunnelUrl(localPort);
       } else {
         url = resolve(databaseMeta.getURL(this));
       }
@@ -547,6 +538,46 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       throw new HopDatabaseException(
           "Error connecting to database: (using class " + classname + ")", e);
     }
+  }
+
+  /**
+   * Builds the JDBC URL used to connect through an open SSH tunnel. The tunnel forwards a
+   * dynamically allocated local port to the remote database, so the URL always points at {@code
+   * localhost}.
+   *
+   * <p>When a manual JDBC URL is configured it is used as-is (it may reference {@code
+   * ${sshTunnel.localPort}} to inject the dynamically allocated port, for example inside a complex
+   * Oracle TCPS descriptor). Otherwise the standard URL is generated from the database dialect
+   * using {@code localhost} and the forwarded port. The port variable is resolved against a child
+   * variable space so it does not leak into the shared parent space.
+   *
+   * @param localPort the local port opened by the SSH tunnel
+   * @return the resolved JDBC URL pointing at the local end of the tunnel
+   * @throws HopDatabaseException if the standard URL cannot be generated
+   */
+  String buildSshTunnelUrl(int localPort) throws HopDatabaseException {
+    IVariables tunnelVariables = new Variables();
+    tunnelVariables.initializeFrom(this);
+    tunnelVariables.setVariable(
+        SshTunnelManager.VARIABLE_SSH_TUNNEL_LOCAL_PORT, String.valueOf(localPort));
+
+    String manualUrl = databaseMeta.getManualUrl();
+    if (!Utils.isEmpty(manualUrl)) {
+      // The manual URL points to the local end of the tunnel (localhost) and may reference
+      // ${sshTunnel.localPort} for the dynamically assigned port.
+      return tunnelVariables.resolve(manualUrl);
+    }
+
+    // Build the URL from the database dialect using the tunnel endpoint (localhost + forwarded
+    // port).
+    String tunnelUrl =
+        databaseMeta
+            .getIDatabase()
+            .getURL(
+                "localhost",
+                String.valueOf(localPort),
+                tunnelVariables.resolve(databaseMeta.getDatabaseName()));
+    return tunnelVariables.resolve(tunnelUrl);
   }
 
   /**
