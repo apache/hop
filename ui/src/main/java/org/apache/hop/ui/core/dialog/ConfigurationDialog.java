@@ -305,18 +305,10 @@ public abstract class ConfigurationDialog extends Dialog {
     variablesComposite.setLayout(new FormLayout());
     tbtmVariables.setControl(variablesComposite);
 
-    ColumnInfo[] cVariables = {
-      new ColumnInfo(
-          BaseMessages.getString(PKG, prefix + ".VariablesColumn.Argument"),
-          ColumnInfo.COLUMN_TYPE_TEXT,
-          false,
-          false), // TransformName
-      new ColumnInfo(
-          BaseMessages.getString(PKG, prefix + ".VariablesColumn.Value"),
-          ColumnInfo.COLUMN_TYPE_TEXT,
-          false,
-          false), // Preview size
-    };
+    ColumnInfo[] cVariables =
+        createVariablesColumns(
+            BaseMessages.getString(PKG, prefix + ".VariablesColumn.Argument"),
+            BaseMessages.getString(PKG, prefix + ".VariablesColumn.Value"));
 
     int nrVariables =
         configuration.getVariablesMap() != null ? configuration.getVariablesMap().size() : 0;
@@ -380,4 +372,17 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   protected abstract void optionsSectionControls();
+
+  /**
+   * Builds the Variables table columns for Run Options. Only the Value column enables the variable
+   * picker — names are literal keys and are not resolved at runtime.
+   */
+  static ColumnInfo[] createVariablesColumns(String nameTitle, String valueTitle) {
+    ColumnInfo[] columns = {
+      new ColumnInfo(nameTitle, ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+      new ColumnInfo(valueTitle, ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+    };
+    columns[1].setUsingVariables(true);
+    return columns;
+  }
 }
