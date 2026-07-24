@@ -511,6 +511,7 @@ under the License.
 ** xref:hop-server/async-web-service.adoc[Async Web Service]
 * xref:hop-rest/index.adoc[Hop REST Web Application]
 * xref:hop-tools/index.adoc[Hop Tools]
+** xref:hop-tools/hop-marketplace.adoc[hop marketplace]
 ** xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf]
 ** xref:hop-tools/hop-encrypt.adoc[hop-encrypt]
 ** xref:hop-tools/hop-gui.adoc[hop-gui]

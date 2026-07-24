@@ -1,0 +1,32 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Local Sonatype Nexus Repository OSS for Hop marketplace testing.
+# Usage: ./docker/marketplace-nexus/start.sh
+#
+services:
+  nexus:
+    image: sonatype/nexus3:3.76.1
+    container_name: hop-marketplace-nexus
+    ports:
+      - "8081:8081"
+    volumes:
+      - hop-nexus-data:/nexus-data
+    # Nexus needs a few GB free under the volume; reduce heap for laptops if needed
+    environment:
+      INSTALL4J_ADD_VM_PARAMS: "-Xms512m -Xmx1536m -XX:MaxDirectMemorySize=1g -Djava.util.prefs.userRoot=/nexus-data/javaprefs"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8081/service/rest/v1/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 120s
+
+volumes:
+  hop-nexus-data:

@@ -25,12 +25,20 @@ cd /D %~dp0
 REM Option to change the character set of the Windows Shell to show foreign characters
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
-set LIBSPATH=lib\core;lib\beam
-set CLASSPATH=lib\core\*;lib\beam\*;lib\spark-client\*;lib\swt\win64\*
+set LIBSPATH=lib\core
+set CLASSPATH=lib\core\*;lib\spark-client\*;lib\swt\win64\*
 
 REM Optional versioned Spark client pack
 if defined HOP_SPARK_CLIENT_VERSION if exist "lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\" (
   set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
+)
+
+REM Beam SDKs under optional plugin (plugins\engines\beam\lib-beam)
+if exist "plugins\engines\beam\lib-beam\" (
+  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\lib-beam\*
+)
+if exist "plugins\engines\beam\" (
+  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\*
 )
 
 

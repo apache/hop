@@ -81,16 +81,16 @@ Linux)
 
 
   if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
-    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/linux/arm64/*"
+    CLASSPATH="lib/core/*:lib/spark-client/*:lib/swt/linux/arm64/*"
   else
-    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/linux/$(uname -m)/*"
+    CLASSPATH="lib/core/*:lib/spark-client/*:lib/swt/linux/$(uname -m)/*"
   fi
   ;;
 Darwin)
   if "${_HOP_JAVA}" -XshowSettings:properties -version 2>&1 | grep -q "os.arch = aarch64"; then
-    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/osx/arm64/*"
+    CLASSPATH="lib/core/*:lib/spark-client/*:lib/swt/osx/arm64/*"
   else
-    CLASSPATH="lib/core/*:lib/beam/*:lib/spark-client/*:lib/swt/osx/x86_64/*"
+    CLASSPATH="lib/core/*:lib/spark-client/*:lib/swt/osx/x86_64/*"
   fi
   HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
   ;;
@@ -102,6 +102,17 @@ esac
 if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}" ]; then
   CLASSPATH=$(echo "${CLASSPATH}" | sed 's|lib/spark-client/\*||g')
   CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
+fi
+
+# Beam SDKs/runners live with the optional Beam plugin (not lib/beam).
+# Only on the system classpath when marketplace (or -Pbeam) has installed them.
+if [ -d "plugins/engines/beam/lib-beam" ]; then
+  CLASSPATH="${CLASSPATH}:plugins/engines/beam/lib-beam/*"
+fi
+if [ -d "plugins/engines/beam" ]; then
+  # Hop Beam plugin jars at the plugin root (exclude subdirs via non-recursive glob is fine for /*.jar intent;
+  # shell * includes jars and may pick non-jars; match historical lib/* style)
+  CLASSPATH="${CLASSPATH}:plugins/engines/beam/*"
 fi
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.config.HopConfig "$@"
 EXITCODE=$?

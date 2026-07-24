@@ -275,6 +275,16 @@ else
   echo "Skipping client unzip (CLIENT_UNZIP=${CLIENT_UNZIP}, using existing ${HOP_DIR})"
 fi
 
+# Optional plugins (Wave 1) are not in hop-client.zip; install from reactor zips for ITs.
+if [ -x "${REPO_ROOT}/tools/install-wave1-plugins.sh" ]; then
+  echo "Installing Wave 1 marketplace plugins into ${HOP_DIR} for integration tests"
+  "${REPO_ROOT}/tools/install-wave1-plugins.sh" "${HOP_DIR}" || {
+    echo "WARNING: install-wave1-plugins.sh reported errors; some ITs may fail if plugins are missing"
+  }
+else
+  echo "WARNING: tools/install-wave1-plugins.sh not found; optional plugins not installed into ${HOP_DIR}"
+fi
+
 # Versioned Spark client packs are not in the client zip. Re-materialise after unzip so
 # HOP_SPARK_CLIENT_VERSION=… finds lib/spark-clients/<ver>/ (includes spark-streaming, etc.).
 # Also copy the selected pack into lib/spark-client/ so the default driver classpath always
@@ -324,74 +334,108 @@ docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-
 # project that actually references the fat jar is about to run.
 BEAM_IMAGE_BUILT="false"
 
+write_surefire_skipped() {
+  local name="$1"
+  local reason="$2"
+  local report="${CURRENT_DIR}/../surefire-reports/surefile_${name}.xml"
+  mkdir -p "${CURRENT_DIR}/../surefire-reports"
+  cat >"${report}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="${name}" time="0" tests="1" errors="0" skipped="1" failures="0">
+<testcase name="project_disabled" time="0"><skipped message="${reason}"/></testcase>
+</testsuite>
+EOF
+}
+
+write_surefire_env_failure() {
+  local name="$1"
+  local detail="$2"
+  local report="${CURRENT_DIR}/../surefire-reports/surefile_${name}.xml"
+  mkdir -p "${CURRENT_DIR}/../surefire-reports"
+  cat >"${report}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="${name}" time="0" tests="1" errors="1" skipped="0" failures="0">
+<testcase name="environment_setup" time="1"><failure type="could not start">${detail}</failure><system-out><![CDATA[ ${detail} ]]></system-out><system-err><![CDATA[ ${detail} ]]></system-err></testcase>
+</testsuite>
+EOF
+}
+
 # Loop over project folders
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
-
-  if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
-    # If there is a file called disabled.txt the project is disabled
-    if [ ! -f "$d/disabled.txt" ]; then
-
-      PROJECT_NAME=$(basename $d)
-
-      echo "Project name: ${PROJECT_NAME}"
-      echo "project path: $d"
-      echo "docker compose path: ${DOCKER_FILES_DIR}"
-
-      # If this project references the Hop fat jar (Beam runners), make sure hop-beam-image exists.
-      # Built once per run, and only when such a project is actually enabled.
-      if [ "${BEAM_IMAGE_BUILT}" != "true" ] && grep -rqs "hop-fatjar.jar" "$d" 2>/dev/null; then
-        echo "Project ${PROJECT_NAME} needs the Hop fat jar; building hop-beam-image (once)."
-        if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
-          echo "Spark client pack for fat jar: ${HOP_SPARK_CLIENT_VERSION}"
-        fi
-        HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}" \
-          docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build \
-            --build-arg HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}"
-        EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml")
-        BEAM_IMAGE_BUILT="true"
-      fi
-
-      # Check if specific compose exists
-
-      if [ -n "${TEST_FILTER}" ]; then
-        echo "TEST_FILTER: ${TEST_FILTER}"
-      fi
-
-      if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
-        echo "Project compose exists."
-        EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
-        # Rebuild project images so SPARK_VERSION (and similar) build args take effect.
-        # hop_server also must rebuild: its hop-server service image (apache/hop:Development
-        # from docker/Dockerfile) otherwise stays cached and can miss client-side assembly
-        # plugins needed by remote-export ITs (main-0008/0009/0010).
-        if [ "${PROJECT_NAME}" = "spark" ]; then
-          echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
-            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
-        elif [ "${PROJECT_NAME}" = "hop_server" ]; then
-          echo "Rebuilding hop_server images so remote Hop Server matches current assemblies"
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
-            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit
-        else
-          PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
-            docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
-        fi
-      else
-        echo "Project compose does not exists."
-        PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
-          docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
-      fi
-    fi
+  if [[ "$d" == *"scripts/" ]] || [[ "$d" == *"surefire-reports/" ]] || [[ "$d" == *"hopweb/" ]]; then
+    continue
   fi
 
-  # Create final report
+  # Normalize project name from the folder we are iterating
+  PROJECT_NAME=$(basename "${d}")
+
+  # If there is a file called disabled.txt the project is disabled — do not pretend Docker failed
+  if [ -f "$d/disabled.txt" ]; then
+    echo "Project ${PROJECT_NAME} is disabled (disabled.txt present); skipping."
+    if [ "${SUREFIRE_REPORT}" = "true" ]; then
+      write_surefire_skipped "${PROJECT_NAME}" "Project disabled via disabled.txt"
+    fi
+    continue
+  fi
+
+  echo "Project name: ${PROJECT_NAME}"
+  echo "project path: $d"
+  echo "docker compose path: ${DOCKER_FILES_DIR}"
+
+  # If this project references the Hop fat jar (Beam runners), make sure hop-beam-image exists.
+  # Built once per run, and only when such a project is actually enabled.
+  if [ "${BEAM_IMAGE_BUILT}" != "true" ] && grep -rqs "hop-fatjar.jar" "$d" 2>/dev/null; then
+    echo "Project ${PROJECT_NAME} needs the Hop fat jar; building hop-beam-image (once)."
+    if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
+      echo "Spark client pack for fat jar: ${HOP_SPARK_CLIENT_VERSION}"
+    fi
+    HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}" \
+      docker compose -f ${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml build \
+        --build-arg HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION}"
+    EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-beam-base.yaml")
+    BEAM_IMAGE_BUILT="true"
+  fi
+
+  if [ -n "${TEST_FILTER}" ]; then
+    echo "TEST_FILTER: ${TEST_FILTER}"
+  fi
+
+  COMPOSE_EXIT=0
+  if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
+    echo "Project compose exists."
+    EXECUTED_COMPOSE_FILES=("${EXECUTED_COMPOSE_FILES[@]}" "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml")
+    # Rebuild project images so SPARK_VERSION (and similar) build args take effect.
+    # hop_server also must rebuild: its hop-server service image (apache/hop:Development
+    # from docker/Dockerfile) otherwise stays cached and can miss client-side assembly
+    # plugins needed by remote-export ITs (main-0008/0009/0010).
+    if [ "${PROJECT_NAME}" = "spark" ]; then
+      echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
+    elif [ "${PROJECT_NAME}" = "hop_server" ]; then
+      echo "Rebuilding hop_server images so remote Hop Server matches current assemblies"
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
+    else
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
+    fi
+  else
+    echo "Project compose does not exists."
+    PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+      docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit \
+      || COMPOSE_EXIT=$?
+  fi
+
+  # Create final report only when the project was actually run and no report was produced
   if [ "${SUREFIRE_REPORT}" = "true" ]; then
     if [ ! -f "${CURRENT_DIR}/../surefire-reports/surefile_${PROJECT_NAME}.xml" ]; then
-      echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-      echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}\" time=\"0\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-      echo "<testcase name=\"environment_setup\" time=\"1\"><failure type=\"could not start\"></failure><system-out><![CDATA[ Could not start docker environment ]]></system-out><system-err><![CDATA[ Could not start docker environment ]]></system-err></testcase>" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
-      echo "</testsuite>" >>"${CURRENT_DIR}"/../surefire-reports/surefile_${PROJECT_NAME}.xml
+      write_surefire_env_failure "${PROJECT_NAME}" \
+        "Could not start docker environment for ${PROJECT_NAME} (compose exit ${COMPOSE_EXIT}). Check docker compose logs above."
     fi
   fi
 done

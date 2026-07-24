@@ -35,6 +35,7 @@
         <module>git</module>
         <module>import</module>
         <module>mail</module>
+        <module>marketplace</module>
         <module>passwords</module>
         <module>projects</module>
         <module>py4j</module>

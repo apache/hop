@@ -61,18 +61,17 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
+        <!-- Slim Beam-related libs only: lib/spark-client + shared lib/core extras.
+             Beam SDKs/runners ship with the marketplace plugin under plugins/engines/beam/lib-beam.
+             Use -Pbeam to bake the full Beam plugin (+ lib-beam) into hop-client (IT / fat Beam builds). -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-engines-beam</artifactId>
             <version>${project.version}</version>
+            <classifier>libs</classifier>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engines-spark</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- hop-engines-spark is a marketplace-optional plugin (not bundled in the client). -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-ui</artifactId>
@@ -143,5 +142,26 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <!--
+      Opt-in Beam engine + SDKs in hop-client (plugins/engines/beam including lib-beam).
+      Analogous to HOP_SPARK_CLIENT_VERSION=native for Spark: default lean client has no Beam
+      runners on the classpath; use -Pbeam for IT / local full Beam installs.
+
+        ./mvnw -pl assemblies/client -am package -Pbeam
+    -->
+    <profiles>
+        <profile>
+            <id>beam</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-engines-beam</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>
