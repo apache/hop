@@ -52,6 +52,9 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
     setServiceAccountCredentials(variables, googleStorageMetadataType);
   }
 
+  // APPEND_CONTENT is required for append: without it commons-vfs2 rejects getOutputStream(true)
+  // with "does not support append mode". Append itself is emulated with composite objects, see
+  // ComposeAppendOutputStream.
   public static final Collection<Capability> capabilities =
       Set.of(
           Capability.CREATE,
@@ -63,7 +66,8 @@ public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
           Capability.LIST_CHILDREN,
           Capability.READ_CONTENT,
           Capability.URI,
-          Capability.WRITE_CONTENT);
+          Capability.WRITE_CONTENT,
+          Capability.APPEND_CONTENT);
 
   @Override
   public Collection<Capability> getCapabilities() {
