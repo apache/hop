@@ -2915,8 +2915,10 @@ public class PipelineMeta extends AbstractMeta
     List<String> varList = new ArrayList<>();
 
     // Look around in the strings, see what we find...
+    // Exclude variable resolvers (#{...}): their content is a resolver name plus a secret path, not
+    // a user-settable variable, so it shouldn't end up in the run options variable list.
     for (StringSearchResult result : stringList) {
-      StringUtil.getUsedVariables(result.getString(), varList, false);
+      StringUtil.getUsedVariables(result.getString(), varList, false, false);
     }
 
     return varList;

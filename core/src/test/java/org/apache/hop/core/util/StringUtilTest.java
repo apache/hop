@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.junit.jupiter.api.Test;
@@ -219,5 +221,38 @@ class StringUtilTest {
     assertEquals("/file/path", StringUtil.trimEnd("/file/path", '/'));
     assertEquals("", StringUtil.trimEnd("/", '/'));
     assertEquals("", StringUtil.trimEnd("///", '/'));
+  }
+
+  /** By default (and for the encryption path) resolvers count as "used variables". */
+  @Test
+  void testGetUsedVariablesIncludesResolversByDefault() {
+    List<String> list = new ArrayList<>();
+    StringUtil.getUsedVariables("#{vault:hop/data/some-db:password}", list, true);
+    assertTrue(
+        list.contains("vault:hop/data/some-db:password"),
+        "resolver reference should be collected by default");
+  }
+
+  /**
+   * The run options variable list excludes resolvers: a {@code #{...}} reference must not show up
+   * as a settable variable, but a real {@code ${...}} variable nested in the resolver arguments
+   * still must.
+   */
+  @Test
+  void testGetUsedVariablesExcludesResolvers() {
+    List<String> list = new ArrayList<>();
+    StringUtil.getUsedVariables("#{vault:${env}/data/some-db:password}", list, false, false);
+    assertFalse(
+        list.stream().anyMatch(v -> v.startsWith("vault:")),
+        "resolver reference should not be collected when includeResolvers=false");
+    assertTrue(list.contains("env"), "nested ${...} variable should still be collected");
+  }
+
+  @Test
+  void testGetUsedVariablesStillCollectsPlainVariables() {
+    List<String> list = new ArrayList<>();
+    StringUtil.getUsedVariables("${VARIABLE_1} and %%VARIABLE_2%%", list, false, false);
+    assertTrue(list.contains("VARIABLE_1"));
+    assertTrue(list.contains("VARIABLE_2"));
   }
 }
