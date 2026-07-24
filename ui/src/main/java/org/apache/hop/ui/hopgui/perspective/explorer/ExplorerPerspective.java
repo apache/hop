@@ -2980,6 +2980,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       id = CONTEXT_MENU_EXPAND_ALL,
       label = "i18n::ExplorerPerspective.Menu.ExpandAll",
       image = "ui/images/expand-all.svg")
+  @GuiKeyboardShortcut(control = true, key = '+')
+  @GuiOsxKeyboardShortcut(command = true, key = '+')
   public void expandAll() {
     tree.setRedraw(false); // Stop redraw until operation complete
     TreeItem[] selection = tree.getSelection();
@@ -3003,6 +3005,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       id = CONTEXT_MENU_COLLAPSE_ALL,
       label = "i18n::ExplorerPerspective.Menu.CollapseAll",
       image = "ui/images/collapse-all.svg")
+  @GuiKeyboardShortcut(control = true, key = '-')
+  @GuiOsxKeyboardShortcut(command = true, key = '-')
   public void collapsedAll() {
     tree.setRedraw(false); // Stop redraw until operation complete
     TreeItem[] selection = tree.getSelection();
