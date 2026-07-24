@@ -20,6 +20,7 @@ package org.apache.hop.vfs.gs;
 
 import com.google.api.gax.paging.Page;
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -42,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
@@ -342,12 +344,34 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new IOException("Object needs a path within the bucket");
     }
     Storage storage = getAbstractFileSystem().setupStorage();
+    String objectName = stripTrailingSlash(bucketPath);
+
+    if (bAppend) {
+      Blob current = storage.get(BlobId.of(bucketName, objectName));
+      if (current != null && current.getSize() != null && current.getSize() > 0) {
+        return openComposeAppendStream(storage, current, objectName);
+      }
+    }
+
     if (!hasObject()) {
-      this.blob =
-          storage.create(BlobInfo.newBuilder(bucket, stripTrailingSlash(bucketPath)).build());
+      this.blob = storage.create(BlobInfo.newBuilder(bucket, objectName).build());
     }
     getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
     return new WriteChannelOutputStream(storage.writer(blob));
+  }
+
+  /**
+   * Open a {@link ComposeAppendOutputStream} that streams the appended bytes into a throwaway
+   * temporary object next to the target and, on close, composes {@code target + temp} back onto the
+   * target. See <a href="https://cloud.google.com/storage/docs/composite-objects#appends">GCS
+   * appends</a>.
+   */
+  private OutputStream openComposeAppendStream(Storage storage, Blob current, String objectName) {
+    String tempName = objectName + ".hop-append-" + UUID.randomUUID() + ".tmp";
+    WriteChannel tempChannel = storage.writer(BlobInfo.newBuilder(bucketName, tempName).build());
+    getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
+    return new ComposeAppendOutputStream(
+        storage, bucketName, objectName, tempName, current.getGeneration(), tempChannel);
   }
 
   @Override
