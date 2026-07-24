@@ -2081,6 +2081,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       id = TOOLBAR_ITEM_EXPAND_ALL,
       toolTip = "i18n::MetadataPerspective.ToolbarElement.ExpandAll.Tooltip",
       image = "ui/images/expand-all.svg")
+  @GuiKeyboardShortcut(control = true, key = '+')
+  @GuiOsxKeyboardShortcut(command = true, key = '+')
   public void expandAll() {
     if (tree == null || tree.isDisposed()) {
       return;
@@ -2102,6 +2104,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       id = TOOLBAR_ITEM_COLLAPSE_ALL,
       toolTip = "i18n::MetadataPerspective.ToolbarElement.CollapseAll.Tooltip",
       image = "ui/images/collapse-all.svg")
+  @GuiKeyboardShortcut(control = true, key = '-')
+  @GuiOsxKeyboardShortcut(command = true, key = '-')
   public void collapseAll() {
     if (tree == null || tree.isDisposed()) {
       return;
