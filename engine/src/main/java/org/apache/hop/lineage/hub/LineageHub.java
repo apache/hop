@@ -124,7 +124,8 @@ public final class LineageHub {
       request.done.await(60, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      log.logError("Interrupted while flushing lineage queue", e);
+      log.logDebug(
+          "Lineage flush interrupted during shutdown; pending events will be drained on stop");
     }
   }
 
@@ -150,13 +151,47 @@ public final class LineageHub {
       }
     }
     worker = null;
+    drainRemaining();
     shutdownSinks();
-    BlockingQueue<Object> q = queue;
-    if (q != null) {
-      q.clear();
-    }
     sinksInitialized.set(false);
     sinks = List.of();
+  }
+
+  /**
+   * Synchronously dispatch any events still on the queue to the sinks, on the caller's thread.
+   * Best-effort: only meaningful after the worker has stopped, so no events are added concurrently.
+   */
+  private void drainRemaining() {
+    BlockingQueue<Object> q = queue;
+    if (q == null) {
+      return;
+    }
+    if (!sinksInitialized.get() || sinks.isEmpty()) {
+      q.clear();
+      return;
+    }
+    LineageConfiguration cfg = resolveConfig();
+    List<Object> pending = new ArrayList<>();
+    q.drainTo(pending);
+    List<LineageEvent> batch = new ArrayList<>();
+    for (Object o : pending) {
+      if (o instanceof FlushRequest fr) {
+        if (!batch.isEmpty()) {
+          dispatchBatch(batch);
+          batch.clear();
+        }
+        fr.done.countDown();
+      } else {
+        batch.add((LineageEvent) o);
+        if (batch.size() >= cfg.getBatchMax()) {
+          dispatchBatch(batch);
+          batch.clear();
+        }
+      }
+    }
+    if (!batch.isEmpty()) {
+      dispatchBatch(batch);
+    }
   }
 
   public long getDroppedEventCount() {
