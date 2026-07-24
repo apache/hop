@@ -157,8 +157,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private UserDefinedJavaClassMeta input;
   private UserDefinedJavaClassCodeSnippets snippitsHelper;
-
-  private static final GuiResource guiResource = GuiResource.getInstance();
+  private final GuiResource guiResource = GuiResource.getInstance();
 
   private TreeItem itemInput;
   private TreeItem itemInfo;
