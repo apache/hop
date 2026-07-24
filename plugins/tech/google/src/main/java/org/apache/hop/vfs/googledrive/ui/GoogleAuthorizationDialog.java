@@ -52,7 +52,6 @@ public class GoogleAuthorizationDialog extends Dialog {
   protected Display display;
 
   private static final int OPTIONS = SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM;
-  private static final Image LOGO = GuiResource.getInstance().getImageHopUi();
   private VerificationCodeReceiver receiver;
 
   public GoogleAuthorizationDialog(Shell shell, VerificationCodeReceiver receiver) {
@@ -61,7 +60,7 @@ public class GoogleAuthorizationDialog extends Dialog {
   }
 
   public void open(String url) {
-    createDialog("Google Drive", url, OPTIONS, LOGO);
+    createDialog("Google Drive", url, OPTIONS, GuiResource.getInstance().getImageHopUi());
     if (receiver != null) {
       ((CustomLocalServerReceiver) receiver).setUrl(url);
     }

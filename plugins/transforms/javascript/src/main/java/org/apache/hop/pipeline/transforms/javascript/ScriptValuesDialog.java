@@ -168,7 +168,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private TreeItem itemoutput;
 
-  private static final GuiResource guiresource = GuiResource.getInstance();
+  private final GuiResource guiresource = GuiResource.getInstance();
 
   private IRowMeta rowPrevTransformFields;
 
