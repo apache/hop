@@ -24,11 +24,11 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.AllFileSelector;
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSystemException;
@@ -482,10 +482,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           if (!children[i].getType().equals(FileType.FOLDER)) {
             boolean unzip = true;
 
-            // Match RegExp against the file name only (like other file actions). getPath() is the
-            // full path from the FS root, so patterns such as "daily_.*\\.zip" never matched.
-            String sourceMatchName = children[i].getName().getBaseName();
-
             Pattern patternSource = null;
 
             if (!Utils.isEmpty(realWildcardSource)) {
@@ -494,8 +490,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
             // First see if the file matches the regular expression!
             if (patternSource != null) {
-              Matcher matcher = patternSource.matcher(sourceMatchName);
-              unzip = matcher.matches();
+              unzip = matchesWildcard(patternSource, children[i]);
             }
             if (unzip) {
               if (!unzipFile(
@@ -672,13 +667,11 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
               // First see if the file matches the regular expression!
               //
               if (pattern != null) {
-                Matcher matcher = pattern.matcher(item.getName().getURI());
-                getIt = matcher.matches();
+                getIt = matchesWildcard(pattern, item);
               }
 
               if (patternexclude != null) {
-                Matcher matcherexclude = patternexclude.matcher(item.getName().getURI());
-                getItexclude = matcherexclude.matches();
+                getItexclude = matchesWildcard(patternexclude, item);
               }
 
               boolean take = takeThisFile(item, newFileName);
@@ -973,6 +966,20 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
 
     return retval;
+  }
+
+  /**
+   * Matches a compiled wildcard against a file. To stay consistent with the shared file readers
+   * ({@link org.apache.hop.core.fileinput.FileInputList}, used by Text File Input, Get File Names,
+   * ...) the pattern is tested against the file's base name, while also keeping the historical
+   * behavior of matching the full path/URI so that path-style patterns (those that include a
+   * directory prefix, as reported in issue #5943) keep working. A file matches when either form
+   * matches.
+   */
+  private static boolean matchesWildcard(Pattern pattern, FileObject file) {
+    FileName name = file.getName();
+    return pattern.matcher(name.getBaseName()).matches()
+        || pattern.matcher(name.getURI()).matches();
   }
 
   private boolean takeThisFile(FileObject sourceFile, String destinationFile)
