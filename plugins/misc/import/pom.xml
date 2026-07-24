@@ -28,4 +28,13 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Miscellaneous Import</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-generic</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 </project>

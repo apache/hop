@@ -467,6 +467,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
           }
 
           databaseMeta.getIDatabase().setAttributes(attributesMap);
+
+          // Kettle stores the JDBC connection string of a generic database connection in a
+          // CUSTOM_URL attribute, but Hop's GenericDatabaseMeta reads its URL from the manualUrl
+          // field. Map it across so the imported connection keeps its URL (#5383). The driver
+          // class is preserved automatically because both use the CUSTOM_DRIVER_CLASS attribute.
+          if ("GENERIC".equals(databaseType) && attributesMap.containsKey("CUSTOM_URL")) {
+            databaseMeta.getIDatabase().setManualUrl(attributesMap.get("CUSTOM_URL"));
+          }
+
           addDatabaseMeta(kettleFile.getName().getURI(), databaseMeta);
 
         } catch (Exception e) {
