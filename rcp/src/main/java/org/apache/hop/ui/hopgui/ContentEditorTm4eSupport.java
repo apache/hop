@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
@@ -53,6 +54,7 @@ final class ContentEditorTm4eSupport {
   private static final String SCOPE_XML = "text.xml";
   private static final String SCOPE_SQL = "source.sql";
   private static final String SCOPE_PYTHON = "source.python";
+  private static final String SCOPE_YAML = "source.yaml";
 
   /** Maps TM4E scope names to grammar resource filenames (classpath-relative to grammars/). */
   private static final Map<String, String> GRAMMAR_FILES =
@@ -60,7 +62,8 @@ final class ContentEditorTm4eSupport {
           SCOPE_JSON, "json.json",
           SCOPE_XML, "xml.json",
           SCOPE_SQL, "sql.json",
-          SCOPE_PYTHON, "python.json");
+          SCOPE_PYTHON, "python.json",
+          SCOPE_YAML, "yaml.json");
 
   // Same palette as before (light/dark) for consistency
   private static final RGB L_COMMENT = new RGB(128, 128, 128);
@@ -101,20 +104,18 @@ final class ContentEditorTm4eSupport {
 
   /** Returns the grammar scope name for the given language id, or null if not supported by TM4E. */
   static String scopeForLanguage(String languageId) {
-    if (languageId == null) return null;
-    switch (languageId.toLowerCase(java.util.Locale.ROOT)) {
-      case "json":
-        return SCOPE_JSON;
-      case "xml":
-        return SCOPE_XML;
-      case "sql":
-        return SCOPE_SQL;
-      case "python":
-      case "py":
-        return SCOPE_PYTHON;
-      default:
-        return null;
+    if (languageId == null) {
+      return null;
     }
+
+    return switch (languageId.toLowerCase(java.util.Locale.ROOT)) {
+      case "json" -> SCOPE_JSON;
+      case "xml" -> SCOPE_XML;
+      case "sql" -> SCOPE_SQL;
+      case "python", "py" -> SCOPE_PYTHON;
+      case "yaml", "yml" -> SCOPE_YAML;
+      default -> null;
+    };
   }
 
   /**
@@ -124,10 +125,14 @@ final class ContentEditorTm4eSupport {
   static org.eclipse.jface.text.source.SourceViewerConfiguration createConfiguration(
       String languageId, Display display) {
     String scopeName = scopeForLanguage(languageId);
-    if (scopeName == null) return null;
+    if (scopeName == null) {
+      return null;
+    }
     ContentEditorTm4eSupport support = new ContentEditorTm4eSupport(display);
     IGrammar grammar = support.getGrammar(scopeName);
-    if (grammar == null) return null;
+    if (grammar == null) {
+      return null;
+    }
     return ContentEditorTm4eSupport.createReconciler(support, grammar);
   }
 
@@ -210,7 +215,9 @@ final class ContentEditorTm4eSupport {
   }
 
   private RGB scopeToRgb(List<String> scopes) {
-    if (scopes == null || scopes.isEmpty()) return isDark() ? D_DEFAULT : L_DEFAULT;
+    if (scopes == null || scopes.isEmpty()) {
+      return isDark() ? D_DEFAULT : L_DEFAULT;
+    }
     String scope = String.join(" ", scopes);
     boolean dark = isDark();
 
@@ -219,33 +226,59 @@ final class ContentEditorTm4eSupport {
     }
 
     // Comments (all languages)
-    if (scope.contains("comment")) return dark ? D_COMMENT : L_COMMENT;
+    if (scope.contains("comment")) {
+      return dark ? D_COMMENT : L_COMMENT;
+    }
 
     // JSON keys: must be checked before "string" - VS Code uses "support.type.property-name.json"
-    if (scope.contains("support.type.property-name") || scope.contains("property-name"))
+    if (scope.contains("support.type.property-name") || scope.contains("property-name")) {
       return dark ? D_JSON_KEY : L_JSON_KEY;
+    }
 
-    // Strings (JSON: string.quoted.double; XML/SQL: string.quoted.*)
-    if (scope.contains("string")) return dark ? D_STRING : L_STRING;
+    // YAML keys: TextMate uses entity.name.tag.yaml (often with string.unquoted.*)
+    if (scope.contains("entity.name.tag.yaml")) {
+      return dark ? D_JSON_KEY : L_JSON_KEY;
+    }
+
+    // Strings (JSON: string.quoted.double; XML/SQL: string.quoted.*; YAML: string.*)
+    if (scope.contains("string")) {
+      return dark ? D_STRING : L_STRING;
+    }
 
     // Numbers and constants
-    if (scope.contains("constant.numeric") || scope.contains("number"))
+    if (scope.contains("constant.numeric") || scope.contains("number")) {
       return dark ? D_NUMBER : L_NUMBER;
-    if (scope.contains("constant.language")) return dark ? D_CONSTANT : L_CONSTANT;
-    if (scope.contains("constant.other")) return dark ? D_CONSTANT : L_CONSTANT;
+    }
+    if (scope.contains("constant.language")) {
+      return dark ? D_CONSTANT : L_CONSTANT;
+    }
+    if (scope.contains("constant.other")) {
+      return dark ? D_CONSTANT : L_CONSTANT;
+    }
 
     // Keywords (SQL, etc.)
     if (scope.contains("keyword")
         || scope.contains("support.function")
-        || scope.contains("support.type")) return dark ? D_KEYWORD : L_KEYWORD;
-    if (scope.contains("storage.type") || scope.contains("storage.modifier"))
+        || scope.contains("support.type")) {
       return dark ? D_KEYWORD : L_KEYWORD;
-    if (scope.contains("entity.name.function")) return dark ? D_KEYWORD : L_KEYWORD;
+    }
+    if (scope.contains("storage.type") || scope.contains("storage.modifier")) {
+      return dark ? D_KEYWORD : L_KEYWORD;
+    }
+    if (scope.contains("entity.name.function")) {
+      return dark ? D_KEYWORD : L_KEYWORD;
+    }
 
     // XML: <? ?> then tags then attribute names
-    if (scope.contains("meta.tag.preprocessor")) return dark ? D_XML_HEADER : L_XML_HEADER;
-    if (scope.contains("entity.name.tag") || scope.contains(".tag")) return dark ? D_TAG : L_TAG;
-    if (scope.contains("entity.other.attribute-name")) return dark ? D_JSON_KEY : L_JSON_KEY;
+    if (scope.contains("meta.tag.preprocessor")) {
+      return dark ? D_XML_HEADER : L_XML_HEADER;
+    }
+    if (scope.contains("entity.name.tag") || scope.contains(".tag")) {
+      return dark ? D_TAG : L_TAG;
+    }
+    if (scope.contains("entity.other.attribute-name")) {
+      return dark ? D_JSON_KEY : L_JSON_KEY;
+    }
 
     return dark ? D_DEFAULT : L_DEFAULT;
   }
@@ -356,7 +389,9 @@ final class ContentEditorTm4eSupport {
         int rangeEnd = Math.min(rangeOffset + rangeLength, len);
 
         for (int lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-          if (lineIndex >= MAX_LINES_TO_TOKENIZE) break;
+          if (lineIndex >= MAX_LINES_TO_TOKENIZE) {
+            break;
+          }
 
           String raw = lines[lineIndex];
           int rawLen = raw.length();
@@ -409,16 +444,6 @@ final class ContentEditorTm4eSupport {
       return result;
     }
 
-    private static final class ColoredToken {
-      final int offset;
-      final int length;
-      final org.eclipse.jface.text.TextAttribute attribute;
-
-      ColoredToken(int offset, int length, org.eclipse.jface.text.TextAttribute attribute) {
-        this.offset = offset;
-        this.length = length;
-        this.attribute = attribute;
-      }
-    }
+    private record ColoredToken(int offset, int length, TextAttribute attribute) {}
   }
 }
