@@ -1,0 +1,484 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How to package a third-party Hop plugin as a marketplace zip, declare Hop version and plugin dependencies, and publish releases to a private Nexus repository.
+[[MarketplacePublishPlugin]]
+= Publishing a Hop plugin to your own Maven repository
+
+This guide is for plugin authors who develop *outside* the Apache Hop repository (for example `../hop-data-vault`) and want to distribute their plugin through the Hop *marketplace*: users install a Maven GAV zip into their Hop client’s `plugins/` tree.
+
+It walks through:
+
+* Packaging a marketplace-compatible zip
+* Declaring which *Hop version* you require and which *other plugins* you depend on
+* Deploying to a private Sonatype Nexus (or any Maven 2 layout repository)
+* Automating a release for a *specific plugin version* with a script template
+
+Related reading:
+
+* xref:start-your-own-plugin.adoc[Creating your own plugin] — project skeleton and debugging
+* xref:plugin-development.adoc[Plugins Development] — plugin types and the registry
+* User manual: *Hop Marketplace* (`hop-tools/hop-marketplace.adoc`) — install, repos, hop-env apply/validate
+
+== Overview
+
+The marketplace downloads a zip from a Maven repository base URL using standard coordinates:
+
+[source,text]
+----
+{repoBase}/{groupId with dots as /}/{artifactId}/{version}/{artifactId}-{version}.zip
+----
+
+Example private Nexus (fictional):
+
+[source,text]
+----
+https://nexus.sandbox.example/repository/hop-plugins/
+  com/example/hop-data-vault/1.2.0/hop-data-vault-1.2.0.zip
+----
+
+End users configure that base URL as a marketplace repository, then install:
+
+[source,bash]
+----
+./hop marketplace repo add --id sandbox \
+  --url https://nexus.sandbox.example/repository/hop-plugins/
+./hop marketplace install com.example:hop-data-vault:1.2.0
+# restart Hop
+----
+
+Or declare the same GAV in a `hop-env.yaml` and run `hop marketplace apply -f …`.
+
+TIP: Apache Hop’s own optional plugins use `groupId` `org.apache.hop` and are published via the ASF release process. Third-party plugins should use *your* groupId (for example `com.example`).
+
+== Prerequisites
+
+* Java 21 and Maven 3.6.3+
+* A Hop version to *compile against* (Maven property, for example `hop.version=2.19.0`)
+* A Hop client for smoke-testing install (same major.minor line you support)
+* A Maven repository (Sonatype Nexus OSS/Pro, Artifactory, etc.):
+  ** Hosted Maven repository (releases and/or snapshots)
+  ** Prefer *anonymous read* for day-to-day installs; use a deploy user only for publish
+* Deploy credentials (`settings.xml` or `NEXUS_USER` / `NEXUS_PASSWORD`)
+
+For a local sandbox similar to Hop’s development stack, see `docker/marketplace-nexus/` in the Hop repository. Production teams usually run their own Nexus with corporate SSO and retention policies.
+
+== Project layout
+
+A typical standalone plugin project:
+
+[source,text]
+----
+hop-data-vault/
+  pom.xml                      # groupId / artifactId / version = YOUR plugin version
+  src/main/java/...
+  src/main/resources/
+    version.xml                # usually ${project.version}
+  src/assembly/assembly.xml    # builds the installable zip
+  dependencies.xml             # optional: other Hop plugins on disk (classloader)
+  scripts/release-to-nexus.sh  # release automation (see below)
+  README.md                    # supported Hop versions, install steps
+----
+
+Start from the remote-plugin skeleton described in xref:start-your-own-plugin.adoc[] if you do not already have a project.
+
+=== Zip layout (critical)
+
+The zip must expand *into a Hop install root* so files land under `plugins/…`:
+
+[source,text]
+----
+plugins/tech/data-vault/
+  hop-data-vault-1.2.0.jar
+  version.xml
+  lib/                    # third-party jars only (not hop-core/engine/ui)
+  dependencies.xml        # optional
+config/projects/samples/… # optional samples
+----
+
+Rules of thumb:
+
+* Use Maven assembly with `appendAssemblyId` *false* so the file is named `{artifactId}-{version}.zip` (marketplace expects that name on the repo path).
+* Put the plugin jar and its *runtime* third-party libraries under the plugin directory (often `lib/`).
+* *Do not* ship `hop-core`, `hop-engine`, or `hop-ui` jars — Hop already provides them.
+* Exclude jars already present in Hop’s `lib/core` when possible to avoid duplicates and classloader conflicts.
+
+Minimal assembly sketch (standalone project; adjust paths and artifactId):
+
+[source,xml]
+----
+<assembly>
+  <id>plugin</id>
+  <formats><format>zip</format></formats>
+  <baseDirectory>.</baseDirectory>
+  <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>${project.groupId}:${project.artifactId}:jar</include>
+      </includes>
+      <outputDirectory>plugins/tech/data-vault</outputDirectory>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <scope>runtime</scope>
+      <excludes>
+        <exclude>org.apache.hop:*</exclude>
+        <!-- exclude other jars already in Hop lib/core as needed -->
+      </excludes>
+      <outputDirectory>plugins/tech/data-vault/lib</outputDirectory>
+    </dependencySet>
+  </dependencySets>
+  <files>
+    <file>
+      <source>src/main/resources/version.xml</source>
+      <outputDirectory>plugins/tech/data-vault</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
+</assembly>
+----
+
+Apache Hop in-tree plugins use a shared component (`assemblies/shared/hop-plugin-libs.xml`) and `${hop.plugin.libdir}`; third-party projects usually inline the layout as above.
+
+== Plugin version vs Hop version
+
+These are *different* numbers. Mixing them up is the most common packaging mistake.
+
+[cols="1,2,3"]
+|===
+| Concept | Where you set it | What it means
+
+| *Plugin release version*
+| Maven `project.version` (for example `1.2.0`)
+| The version users install: `com.example:hop-data-vault:1.2.0`
+
+| *Hop compile version*
+| Maven property `hop.version` (for example `2.19.0`)
+| Hop APIs you compiled against (`hop-engine` *provided* dependency)
+
+| *Hop runtime expectation*
+| README, release notes, sample hop-env `hopVersion`
+| Which Hop clients you support at runtime
+|===
+
+=== Compile against Hop
+
+[source,xml]
+----
+<properties>
+  <hop.version>2.19.0</hop.version>
+</properties>
+
+<dependencies>
+  <dependency>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-engine</artifactId>
+    <version>${hop.version}</version>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-core</artifactId>
+    <version>${hop.version}</version>
+    <scope>provided</scope>
+  </dependency>
+  <!-- hop-ui if you ship dialogs -->
+</dependencies>
+----
+
+Resolve Hop artifacts from Maven Central (released versions) or your mirror of `org.apache.hop`.
+
+=== Runtime compatibility (document it)
+
+Today the marketplace *does not hard-enforce* a minimum Hop version from the plugin zip. Authors should:
+
+. State supported Hop versions in the plugin README (for example “requires Hop 2.19.x”).
+. Ship a sample hop-env that sets `hopVersion` to the Hop line you target (for optional Apache plugins installed alongside yours).
+. Optionally add a small machine-readable file inside the plugin folder (convention for future tooling), for example:
+
+[source,json]
+----
+{
+  "groupId": "com.example",
+  "artifactId": "hop-data-vault",
+  "version": "1.2.0",
+  "hopVersionMin": "2.19.0",
+  "hopVersionMax": "2.19.999",
+  "requiresPlugins": [
+    { "groupId": "org.apache.hop", "artifactId": "hop-tech-parquet", "version": "2.19.0" }
+  ]
+}
+----
+
+Hop does not read this file yet; it is useful for your own installers and as a future marketplace extension.
+
+*Versioning advice:*
+
+* Treat Hop *minor* (2.19, 2.20) as an API line; re-test when users move minors.
+* Bump your plugin *major* when you break APIs or require a new Hop minor.
+* Keep a simple matrix in your README:
+
+[cols="1,1,1"]
+|===
+| Plugin version | Built with Hop | Tested on Hop
+
+| 1.2.0 | 2.19.0 | 2.19.0–2.19.x
+| 1.3.0 | 2.20.0 | 2.20.x
+|===
+
+== Other plugin dependencies
+
+There are three different “dependency” stories.
+
+=== Classpath dependencies between installed plugins (`dependencies.xml`)
+
+After install, Hop’s plugin classloader can add jars from *sibling plugin folders* using a `dependencies.xml` next to your plugin jar (same pattern as some Apache plugins such as Beam).
+
+[source,xml]
+----
+<!-- plugins/tech/data-vault/dependencies.xml -->
+<dependencies>
+  <!-- Paths are relative to this plugin’s folder on disk -->
+  <folder>../../tech/parquet</folder>
+</dependencies>
+----
+
+Requirements:
+
+* The other plugin must already be installed under that path.
+* Paths must match the real layout under the Hop install’s `plugins/` tree.
+* This does *not* download anything; it only wires classloaders.
+
+=== Install-time dependencies (`hop-env.yaml`)
+
+Marketplace `apply` does *not* resolve a dependency graph. List every required plugin explicitly, *dependency plugins first*, then yours:
+
+[source,yaml]
+----
+version: "1.0"
+hopVersion: "2.19.0"
+repositories:
+  - id: sandbox
+    url: "https://nexus.sandbox.example/repository/hop-plugins/"
+  - id: asf
+    url: "https://repository.apache.org/content/groups/public/"
+plugins:
+  # Apache optional plugin your code needs on disk
+  - groupId: org.apache.hop
+    artifactId: hop-tech-parquet
+    version: "2.19.0"
+  # Your plugin
+  - groupId: com.example
+    artifactId: hop-data-vault
+    version: "1.2.0"
+----
+
+Document the same list in your README so users who install with a single `marketplace install` command know what else to install.
+
+=== Third-party Java libraries
+
+* Put them on the plugin classpath via assembly (`runtime` scope → plugin `lib/`).
+* Prefer versions compatible with jars already in Hop `lib/core`.
+* Check licenses before distributing binaries (https://www.apache.org/legal/resolved.html[ASF third-party policy] for Apache-hosted plugins; private plugins still need your own legal review).
+
+== Configure Maven and Nexus
+
+=== Server credentials
+
+In `~/.m2/settings.xml` (or CI secret injection):
+
+[source,xml]
+----
+<servers>
+  <server>
+    <id>sandbox-hop-plugins</id>
+    <username>${env.NEXUS_USER}</username>
+    <password>${env.NEXUS_PASSWORD}</password>
+  </server>
+</servers>
+----
+
+The `<id>` must match `repositoryId` / `distributionManagement` below.
+
+=== distributionManagement (optional if you only use deploy-file)
+
+[source,xml]
+----
+<distributionManagement>
+  <repository>
+    <id>sandbox-hop-plugins</id>
+    <url>https://nexus.sandbox.example/repository/hop-plugins/</url>
+  </repository>
+  <snapshotRepository>
+    <id>sandbox-hop-plugins</id>
+    <url>https://nexus.sandbox.example/repository/hop-plugins/</url>
+  </snapshotRepository>
+</distributionManagement>
+----
+
+=== Deploy the zip
+
+After `mvn package` produces `target/hop-data-vault-1.2.0.zip`:
+
+[source,bash]
+----
+mvn deploy:deploy-file \
+  -DgroupId=com.example \
+  -DartifactId=hop-data-vault \
+  -Dversion=1.2.0 \
+  -Dpackaging=zip \
+  -Dfile=target/hop-data-vault-1.2.0.zip \
+  -DrepositoryId=sandbox-hop-plugins \
+  -Durl=https://nexus.sandbox.example/repository/hop-plugins/ \
+  -DgeneratePom=true
+----
+
+If your Maven module is set up so the zip is attached with `appendAssemblyId=false` and packaging is wired for deploy, `mvn deploy` can replace deploy-file.
+
+Verify anonymous (or authenticated) download:
+
+[source,bash]
+----
+curl -sI \
+  "https://nexus.sandbox.example/repository/hop-plugins/com/example/hop-data-vault/1.2.0/hop-data-vault-1.2.0.zip" \
+  | head -1
+# Expect HTTP 200 (or 401 only if you require auth for install)
+----
+
+IMPORTANT: Prefer *anonymous read* for marketplace installs. Wrong Basic auth credentials can cause HTTP 401 even when anonymous would work. Deploy credentials should stay in CI, not in hop-config for every user.
+
+== Release script (specific plugin version)
+
+A copyable template lives in the Hop repository:
+
+`docs/hop-dev-manual/modules/ROOT/examples/marketplace/release-plugin-to-nexus.sh`
+
+Copy it into your plugin repo as `scripts/release-to-nexus.sh` and adjust defaults (`GROUP_ID`, `ARTIFACT_ID`, paths).
+
+=== What the script does
+
+. Requires a *plugin version* argument (for example `1.2.0`).
+. Optional `--hop-version 2.19.0` (compile/test against that Hop line).
+. Optional Nexus URL / repository id; credentials from env or Maven settings.
+. Runs `mvn clean verify` with `-Dhop.version=…`.
+. Packages the assembly zip.
+. Deploys the zip with `deploy:deploy-file`.
+. Prints end-user install commands.
+. Supports `--dry-run` and optional `git tag`.
+
+=== Example
+
+[source,bash]
+----
+export NEXUS_USER=ci-deploy
+export NEXUS_PASSWORD='…'
+export NEXUS_URL=https://nexus.sandbox.example/repository/hop-plugins/
+
+./scripts/release-to-nexus.sh 1.2.0 --hop-version 2.19.0
+
+# SNAPSHOT to the same (or snapshot) repo:
+./scripts/release-to-nexus.sh 1.3.0-SNAPSHOT --hop-version 2.19.0-SNAPSHOT
+----
+
+=== SNAPSHOT vs release
+
+* *Release* versions (`1.2.0`) should be immutable — do not redeploy over them.
+* *SNAPSHOT* versions can be redeployed; Nexus stores unique timestamps. Marketplace resolves SNAPSHOTs via `maven-metadata.xml` when needed.
+* Use separate Nexus repos or policies for snapshots vs releases if your ops team requires it.
+
+== End-user install on a sandbox Hop
+
+. Ensure Hop is the supported line (for example 2.19.x).
+. Add your repository (CLI or hop-config):
+
+[source,bash]
+----
+./hop marketplace repo add --id sandbox \
+  --url https://nexus.sandbox.example/repository/hop-plugins/
+# optional: make it primary if ASF/Central should not be tried first
+./hop marketplace repo set-primary sandbox
+----
+
+. Install:
+
+[source,bash]
+----
+./hop marketplace install com.example:hop-data-vault:1.2.0
+# or apply a hop-env that lists dependencies + your plugin
+./hop marketplace apply -f hop-env-data-vault.yaml
+----
+
+. Restart Hop so the plugin registry reloads.
+
+. Smoke-test: open a pipeline that uses your transform/action; check logs for classloader errors.
+
+=== Troubleshooting
+
+[cols="1,2"]
+|===
+| Symptom | Likely cause
+
+| HTTP 401 / 403
+| Repo requires auth, or *wrong* Basic auth is set (clear `HOP_MARKETPLACE_*` for anonymous repos)
+
+| HTTP 404
+| Wrong groupId/artifactId/version, or zip not named `{artifactId}-{version}.zip`
+
+| Install OK but plugin missing in GUI
+| Zip layout not under `plugins/…`, or restart not done
+
+| `NoClassDefFoundError` for another plugin
+| Missing `dependencies.xml` peer or peer not installed; fix hop-env order
+
+| API / method mismatch errors
+| Plugin built against a different Hop line than the running client
+|===
+
+== Author checklist
+
+* [ ] `hop.version` set for compile (`provided` hop-engine / hop-core)
+* [ ] Plugin `version` chosen for this release
+* [ ] Assembly zip expands under `plugins/…` with correct jar + `version.xml`
+* [ ] No hop-core / hop-engine / hop-ui jars inside the zip
+* [ ] Third-party libs reviewed (size, license, overlap with Hop)
+* [ ] Other plugins documented (`dependencies.xml` and/or hop-env list)
+* [ ] Nexus allows read for installs; deploy credentials only for CI
+* [ ] Smoke install into a clean Hop client matching the supported line
+* [ ] Release script run for this version; git tag if you use tags
+* [ ] README updated with install commands and Hop compatibility matrix
+
+== Limitations (current Hop marketplace)
+
+[cols="1,2,2"]
+|===
+| Need | Today | Possible later
+
+| Minimum Hop version enforcement
+| Document in README / hop-env only
+| Marketplace reads author metadata from the zip
+
+| Automatic install of dependent plugins
+| List them explicitly in hop-env / docs
+| Dependency graph resolution
+
+| Catalog search for private plugins
+| Users install by GAV or private `query` if you add to a registry
+| Configurable search API against your Nexus
+
+| Signing
+| Optional; use Nexus checksums
+| Document signing workflow if required by your org
+|===

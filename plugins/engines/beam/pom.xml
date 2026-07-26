@@ -1659,4 +1659,48 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <!--
+      Two zips:
+      - hop-engines-beam-${version}.zip : marketplace plugin (plugins/engines/beam + lib-beam SDKs)
+      - hop-engines-beam-${version}-libs.zip : slim client libs (lib/spark-client + shared lib/core extras)
+      Opt-in full Beam in hop-client: mvn … -Pbeam (assemblies/client)
+    -->
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assembly-beam-libs</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/assembly-libs.xml</descriptor>
+                            </descriptors>
+                            <descriptorSourceDirectory combine.self="override"></descriptorSourceDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>assembly_package</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                            <descriptorSourceDirectory combine.self="override"></descriptorSourceDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

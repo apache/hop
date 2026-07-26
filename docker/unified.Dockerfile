@@ -193,7 +193,7 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/config /build/hop-web-prepared/webapps/ROOT/ && \
     cp -r /build/assemblies/client/target/hop/plugins /build/hop-web-prepared/ && \
     cp -r /build/assemblies/client/target/hop/lib/jdbc/ /build/hop-web-prepared/jdbc-drivers && \
-    cp -r /build/assemblies/client/target/hop/lib/beam/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
+    if [ -d /build/assemblies/client/target/hop/plugins/engines/beam/lib-beam ]; then cp -r /build/assemblies/client/target/hop/plugins/engines/beam/lib-beam/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/; fi && \
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
