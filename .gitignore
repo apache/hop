@@ -83,3 +83,6 @@ screenshots/
 # Docker script leaving audit data
 docker/local-data/
 /docker/marketplace-nexus/.env
+
+# Jenkins-style local deploy output (verify-ci-snapshot-zips.sh)
+local-snapshots-dir/

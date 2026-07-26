@@ -323,7 +323,13 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <arguments>-P=-assemblies,-assembly -DskipTests</arguments>
+                    <!--
+                      Skip the assemblies/ reactor (hop-client, hop-web, … go to dist.apache.org).
+                      Keep the per-module "assembly" profile so plugin modules with
+                      src/assembly/assembly.xml attach marketplace-installable zips
+                      (artifactId-version.zip) for repository.apache.org / Maven Central.
+                    -->
+                    <arguments>-P=-assemblies -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -898,6 +904,11 @@
             <!--
            This profile is used to deploy all the artifacts in the
            'local-snapshots-dir' to Apache's SNAPSHOT repo.
+
+           Plugin zips under hop-plugins/** are intentionally included so the
+           marketplace can install SNAPSHOT optional plugins from
+           repository.apache.org (needed for ongoing marketplace testing).
+           hop-assemblies* products (client/web) stay excluded.
             -->
             <id>deploy-snapshots</id>
             <build>
@@ -908,15 +919,8 @@
                         <configuration>
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
-                            <excludes>**/hop-assemblies*/**</excludes>
-                            <excludes>hop-plugins/**.zip</excludes>
-                            <excludes>hop-core/**.zip</excludes>
-                            <excludes>hop-engine/**.zip</excludes>
-                            <excludes>hop-ui-rap/**.zip</excludes>
-                            <excludes>hop-ui-rcp/**.zip</excludes>
-                            <excludes>hop-rest/**.zip</excludes>
-                            <excludes>hop-ui/**.zip</excludes>
-                            <excludes>**/org.eclipse.tm4e.core/**</excludes>
+                            <!-- Comma-separated Ant patterns (single excludes element). -->
+                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,hop-rest/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>

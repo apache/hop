@@ -35,24 +35,35 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
     </dependencySets>
+    <!-- Optional legacy nested assembly zips only — never include build target/ trees
+         (those contain stale module zips and inflate the aggregate). -->
     <fileSets>
         <fileSet>
             <directory>databases</directory>
             <includes>
                 <include>**/*.zip</include>
             </includes>
+            <excludes>
+                <exclude>**/target/**</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>transforms</directory>
             <includes>
                 <include>**/*.zip</include>
             </includes>
+            <excludes>
+                <exclude>**/target/**</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>actions</directory>
             <includes>
                 <include>**/*.zip</include>
             </includes>
+            <excludes>
+                <exclude>**/target/**</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 </assembly>

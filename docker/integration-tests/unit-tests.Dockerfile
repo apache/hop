@@ -74,6 +74,10 @@ RUN apt-get update \
 
 COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop ${DEPLOYMENT_PATH}/hop
 
+# Wave 1 optional plugins (marketplace) — expect host to have run tools/install-wave1-plugins.sh
+# into assemblies/client/target/hop before this build (run-tests-docker.sh and Jenkins do this).
+# If a plugin is still missing at runtime, corresponding ITs will fail clearly.
+
 # Copy gcp key
 COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ${GCP_KEY_FILE} /tmp/google-key-apache-hop-it.json
 

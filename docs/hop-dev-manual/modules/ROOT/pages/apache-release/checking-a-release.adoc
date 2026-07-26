@@ -137,6 +137,46 @@ cd hop
 ./hop-gui.sh
 ----
 
+== Marketplace plugin zips (Nexus staging)
+
+Optional plugins install from Maven **zip** artifacts (not only jars). After
+`release:perform`, open the staging repository on
+https://repository.apache.org/#stagingRepositories[repository.apache.org] and
+confirm zips exist for marketplace-optional plugins, for example:
+
+----
+org/apache/hop/hop-tech-parquet/<version>/hop-tech-parquet-<version>.zip
+org/apache/hop/hop-engines-spark/<version>/hop-engines-spark-<version>.zip
+----
+
+The full optional list is in `plugins/misc/marketplace/.../optional-plugins.yaml`.
+
+Quick smoke (point marketplace at the **staging** repository URL as primary, then):
+
+[source,bash]
+----
+./hop marketplace install hop-tech-parquet:<version>
+# or apply a small env file / full-client-env.yaml against staging
+----
+
+From a Hop **source** checkout with a built hop-client, you can automate the same
+checks against local Nexus or an ASF staging URL:
+
+[source,bash]
+----
+# Local dummy staging (publish + verify all optional-plugins.yaml zips + install smoke)
+./docker/marketplace-nexus/start.sh
+export NEXUS_PASSWORD=hop-nexus-dev
+./docker/marketplace-nexus/dummy-staging.sh
+
+# Against an ASF staging repository (after release:perform):
+export NEXUS_REPO_URL='https://repository.apache.org/content/repositories/orgapachehop-XXXX/'
+./docker/marketplace-nexus/dummy-staging.sh --skip-publish
+----
+
+Do not use prune on a partial install. Restart Hop after install. Drop the staging
+repository if this was only a dry-run validation.
+
 == Extra checks
 
 You can also check for unwanted binary files on the checked out tag (note: this requires the .git folder to still be present)

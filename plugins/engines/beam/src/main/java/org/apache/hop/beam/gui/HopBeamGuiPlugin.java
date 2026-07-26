@@ -459,8 +459,9 @@ public class HopBeamGuiPlugin {
   }
 
   /**
-   * @param versionedPack when true, also skip {@code spark-*.jar} under {@code lib/beam} so Beam's
-   *     fixed Spark fragments cannot mix with an alternate client pack
+   * @param versionedPack when true, also skip {@code spark-*.jar} under Beam SDK folders ({@code
+   *     lib/beam} legacy or {@code plugins/engines/beam/lib-beam}) so Beam's fixed Spark fragments
+   *     cannot mix with an alternate client pack
    */
   private static void collectJarsExcludingSparkClientPacks(
       File dir, Set<File> jarFiles, boolean versionedPack) {
@@ -483,16 +484,30 @@ public class HopBeamGuiPlugin {
       if (child.isDirectory()) {
         collectJarsExcludingSparkClientPacks(child, jarFiles, versionedPack);
       } else if (child.isFile() && child.getName().endsWith(".jar")) {
-        // Versioned packs own all spark-* jars; drop Beam's spark fragments from lib/beam
+        // Versioned packs own all spark-* jars; drop Beam's spark fragments from lib-beam /
+        // lib/beam
         if (versionedPack
             && child.getName().startsWith("spark-")
             && parent != null
-            && "beam".equals(parent.getName())) {
+            && isBeamSdkJarFolder(parent)) {
           continue;
         }
         jarFiles.add(child);
       }
     }
+  }
+
+  /** True for legacy {@code lib/beam} or marketplace {@code …/beam/lib-beam}. */
+  static boolean isBeamSdkJarFolder(File folder) {
+    if (folder == null) {
+      return false;
+    }
+    String name = folder.getName();
+    if ("lib-beam".equals(name)) {
+      return true;
+    }
+    File parent = folder.getParentFile();
+    return "beam".equals(name) && parent != null && "lib".equals(parent.getName());
   }
 
   /**

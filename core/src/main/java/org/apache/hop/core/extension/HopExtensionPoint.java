@@ -145,6 +145,23 @@ public enum HopExtensionPoint {
 
   HopGuiProjectAfterEnabled("Called after a project is enabled in Hop GUI"),
 
+  /**
+   * Called after a project (and optional lifecycle environment) is enabled. Payload is {@link
+   * org.apache.hop.core.AttributesContext}: identity fields plus namespaced {@link
+   * org.apache.hop.core.IAttributes} groups for optional plugins (marketplace, resource checks, …).
+   * Thrown {@link org.apache.hop.core.exception.HopException} aborts enablement.
+   */
+  HopProjectEnvironmentAfterEnabled(
+      "Called after a project/lifecycle environment is enabled (AttributesContext)"),
+
+  /**
+   * Called when the lifecycle environment dialog builds its tab folder so optional plugins can
+   * contribute tabs. Payload is a GUI extension object (see ui module) that carries a mutable
+   * {@link org.apache.hop.core.AttributesContext}.
+   */
+  HopGuiLifecycleEnvironmentDialogTabs(
+      "Contribute tabs to the lifecycle environment dialog (AttributesContext)"),
+
   HopGuiGetControlSpaceSortOrderPrefix(
       "Gets a prefix to steer the sort order of variables when using CTRL-SPACE.  Defaults range from 900_ to 400_. Set prefixes in Map<String,String>"),
 

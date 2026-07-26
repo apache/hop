@@ -80,7 +80,7 @@ cp -r /tmp/hop-client/hop/lib/core/* $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/
 rm -f $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/hop-ui-rcp-*.jar
 
 # Step 5: Copy beam libraries
-cp -r /tmp/hop-client/hop/lib/beam/* $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/
+cp -r /tmp/hop-client/hop/plugins/engines/beam/lib-beam/* $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/
 
 # Step 6: Copy plugins
 cp -r /tmp/hop-client/hop/plugins $CATALINA_HOME/
@@ -200,7 +200,7 @@ sed -i '' 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}
 
 The `CLASSPATH` lines in the various scripts should look similar to the one below after editing: 
 
-`CLASSPATH="../../lib/*:WEB-INF/lib/*:lib/core/**:lib/beam/*:lib/swt/osx/arm64/*"`
+`CLASSPATH="../../lib/*:WEB-INF/lib/*:lib/core/**:plugins/engines/beam/lib-beam/*:lib/swt/osx/arm64/*"`
 
 Once the classpaths have been updated, make sure to make the scripts executable: 
 
