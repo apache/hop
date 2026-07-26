@@ -72,10 +72,11 @@ echo "Summary: ok=${ok} missing=${missing} (of ${#IDS[@]})"
 
 # Remind about wagon excludes (plugin zips are intentionally kept)
 echo
-echo "Jenkins Deploy stage uses -P deploy-snapshots wagon:upload from local-snapshots-dir."
-echo "Current excludes drop hop-assemblies* and core/engine/ui zips — not marketplace plugins."
-echo "After merge to main, confirm a zip on ASF snapshots, e.g.:"
-echo "  https://repository.apache.org/content/repositories/snapshots/org/apache/hop/hop-tech-parquet/"
+echo "Jenkins Deploy stage runs this script, then: mvn -B -P deploy-snapshots wagon:upload"
+echo "Profile excludes hop-assemblies* and core/engine/ui zips — marketplace plugin zips are kept."
+echo "After a green main Deploy, confirm a new unique SNAPSHOT zip on ASF, e.g.:"
+echo "  https://repository.apache.org/content/repositories/snapshots/org/apache/hop/hop-tech-parquet/2.19.0-SNAPSHOT/"
+echo "  https://repository.apache.org/content/repositories/snapshots/org/apache/hop/hop-engines-spark/2.19.0-SNAPSHOT/"
 
 if [[ "${missing}" -gt 0 ]]; then
   echo >&2

@@ -902,13 +902,16 @@
         </profile>
         <profile>
             <!--
-           This profile is used to deploy all the artifacts in the
-           'local-snapshots-dir' to Apache's SNAPSHOT repo.
+           Upload local-snapshots-dir (from Jenkins Test & Build altDeploymentRepository)
+           to Apache SNAPSHOTS via wagon.
 
-           Plugin zips under hop-plugins/** are intentionally included so the
-           marketplace can install SNAPSHOT optional plugins from
-           repository.apache.org (needed for ongoing marketplace testing).
-           hop-assemblies* products (client/web) stay excluded.
+           Marketplace: plugin type=zip artifacts (hop-tech-*, hop-engines-spark/beam,
+           hop-transform-*, …) are intentionally included so
+           `hop marketplace install` can resolve SNAPSHOTs from
+           repository.apache.org without a private Nexus.
+
+           Excluded: hop-assemblies* (client/web products) and non-plugin module zips
+           (core/engine/ui/rest). Paths are under Maven layout org/apache/hop/….
             -->
             <id>deploy-snapshots</id>
             <build>
@@ -916,11 +919,12 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>wagon-maven-plugin</artifactId>
+                        <version>2.0.2</version>
                         <configuration>
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
-                            <!-- Comma-separated Ant patterns (single excludes element). -->
-                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,hop-rest/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
+                            <!-- Comma-separated Ant patterns relative to fromDir. -->
+                            <excludes>**/hop-assemblies*/**,**/hop-core/**/*.zip,**/hop-engine/**/*.zip,**/hop-ui/**/*.zip,**/hop-ui-rap/**/*.zip,**/hop-ui-rcp/**/*.zip,**/hop-rest/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>

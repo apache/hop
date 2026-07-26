@@ -193,14 +193,19 @@ pipeline {
                   }
             }
         }
+        // Marketplace depends on this stage: plugin zips (spark, beam, parquet, …) from
+        // local-snapshots-dir are wagon-uploaded to ASF SNAPSHOTS so
+        // `hop marketplace install` works without a private Nexus.
         stage('Deploy'){
             when {
                 branch 'main'
                anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps{
-                echo 'Deploying'
-                sh 'mvn -X -P deploy-snapshots wagon:upload'
+                echo 'Verify marketplace plugin zips in local-snapshots-dir'
+                sh './tools/verify-ci-snapshot-zips.sh ./local-snapshots-dir'
+                echo 'Uploading SNAPSHOTs (incl. marketplace plugin zips) to ASF Nexus'
+                sh 'mvn -B -e -V -P deploy-snapshots wagon:upload'
             }
         }
 

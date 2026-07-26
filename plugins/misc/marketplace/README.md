@@ -380,15 +380,33 @@ https://repository.apache.org/content/groups/public/org/apache/hop/hop-tech-parq
 
 ### SNAPSHOT (CI)
 
-Jenkins on **main** does two steps (see `Jenkinsfile`):
+Jenkins on **main** (`Jenkinsfile`) publishes marketplace-installable plugin zips
+to ASF Nexus SNAPSHOTS:
 
-1. `mvn … -DaltDeploymentRepository=…::file:./local-snapshots-dir clean deploy`  
-   (full reactor: tests, assemblies, plugin zips)
-2. `mvn -P deploy-snapshots wagon:upload` → ASF snapshots  
-   (`repository.apache.org`). Plugin zips are **included**; hop-assemblies and
-   core/engine/ui zips stay excluded.
+1. **Test & Build** — `mvn … -DaltDeploymentRepository=…::file:./local-snapshots-dir clean deploy`  
+   Full reactor: jars + attached plugin zips land in `local-snapshots-dir` (Maven layout).
+2. **Deploy** (after Docker stages) —
+   - `./tools/verify-ci-snapshot-zips.sh ./local-snapshots-dir`  
+     Fails the job if any `optional-plugins.yaml` artifact lacks a `.zip` (spark, beam, parquet, …).
+   - `mvn -B -P deploy-snapshots wagon:upload`  
+     Uploads that tree to `repository.apache.org` snapshots (`apache.snapshots.https`).  
+     Plugin zips are **included**; hop-assemblies and core/engine/ui zips stay excluded.
 
-**Pre-merge confidence (does not need ASF credentials):**
+Example after a green main Deploy:
+
+```text
+https://repository.apache.org/content/repositories/snapshots/org/apache/hop/hop-tech-parquet/2.19.0-SNAPSHOT/
+https://repository.apache.org/content/repositories/snapshots/org/apache/hop/hop-engines-spark/2.19.0-SNAPSHOT/
+```
+
+Install from a lean client (ASF primary is the default):
+
+```bash
+./hop marketplace install hop-tech-parquet
+./hop marketplace install hop-engines-spark
+```
+
+**Pre-merge confidence (no ASF credentials needed):**
 
 ```bash
 # 1) Same deploy *layout* as Jenkins step 1 (skipTests optional on a laptop)
@@ -400,20 +418,14 @@ rm -rf local-snapshots-dir && mkdir local-snapshots-dir
 # 2) Every optional-plugins.yaml artifact must have a .zip in that tree
 ./tools/verify-ci-snapshot-zips.sh
 
-# Full CI flags (longer; needs xvfb for UI tests) — closer to Jenkins:
-# xvfb-run -a --server-args='-screen 0 1280x1024x24' ./mvnw -T 2 -U -B -e -fae -V \
-#   -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -DSkipTestContainers=true \
-#   -DaltDeploymentRepository=snapshot-repo::default::file:$(pwd)/local-snapshots-dir \
-#   clean deploy
+# wagon:upload only if ~/.m2/settings.xml has apache.snapshots.https
+# ./mvnw -B -P deploy-snapshots wagon:upload
 ```
 
-**After merge to apache/hop main:** wait for Jenkins Deploy green, then check e.g.
+IT/Docker still inject Wave 1 plugins from **local** `target/*.zip` via
+`install-wave1-plugins.sh` (offline); that does not replace ASF SNAPSHOT publish.
 
-`https://repository.apache.org/content/repositories/snapshots/org/apache/hop/hop-tech-parquet/`
-
-for a `.zip` under the SNAPSHOT folder. Private data-hopper deploys do **not** replace this check.
-
-Point marketplace at ASF snapshots when testing SNAPSHOT Hop builds from Apache CI.
+Private data-hopper deploys do **not** replace the ASF check.
 
 ### SNAPSHOT to a private Nexus (e.g. data-hopper)
 
