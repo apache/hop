@@ -48,6 +48,12 @@
       sql: "sql",
       python: "python",
       py: "python",
+      shell: "shell",
+      bash: "shell",
+      sh: "shell",
+      bat: "bat",
+      cmd: "bat",
+      batch: "bat",
       yaml: "yaml",
       yml: "yaml",
       properties: "ini"
