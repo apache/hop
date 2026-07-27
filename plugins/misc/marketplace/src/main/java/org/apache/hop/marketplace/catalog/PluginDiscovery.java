@@ -95,12 +95,14 @@ public final class PluginDiscovery {
           }
         } catch (Exception e) {
           if (log != null) {
-            log.logError(
-                "Marketplace discovery failed for repository '"
+            // Network/Nexus errors: keep listing other sources; full stack only when detailed.
+            log.logBasic(
+                "Marketplace discovery skipped for repository '"
                     + repo.getId()
                     + "': "
-                    + e.getMessage(),
-                e);
+                    + e.getMessage());
+            log.logDetailed(
+                "Marketplace discovery failure for repository '" + repo.getId() + "'", e);
           }
         }
       }
@@ -270,14 +272,26 @@ public final class PluginDiscovery {
     if (StringUtils.isNotBlank(repo.getCatalogUrl())) {
       live = RemotePluginCatalog.load(repo);
       live = RemotePluginCatalog.filter(live, repo, filter);
-    } else {
+    } else if (NexusRepositoryBrowser.isNexusBrowseUrl(repo.getUrl())) {
       live = NexusRepositoryBrowser.browse(repo, filter, log);
+    } else {
+      // ASF public / Maven Central: install-only layout; Apache optionals come from the bundled
+      // catalog. Optional definition plugins still surface for browse=true non-Nexus repos.
+      live = List.of();
+      if (log != null) {
+        log.logDetailed(
+            "Repository '"
+                + repo.getId()
+                + "' is not a Nexus browse URL; using definition plugin metadata only if present.");
+      }
     }
 
-    // If live listing failed empty but definition has explicit plugins, use those (not a cache —
+    // If live listing is empty but definition has explicit plugins, use those (not a cache —
     // author-supplied list in the YAML).
     if (live.isEmpty() && repo.getPlugins() != null && !repo.getPlugins().isEmpty()) {
-      return RemotePluginCatalog.filter(repo.getPlugins(), repo, filter);
+      List<OptionalPluginInfo> fromDef =
+          RemotePluginCatalog.filter(repo.getPlugins(), repo, filter);
+      return enrichWithDefinitionMetadata(fromDef, repo);
     }
 
     return enrichWithDefinitionMetadata(live, repo);
