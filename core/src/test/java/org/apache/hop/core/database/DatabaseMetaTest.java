@@ -179,6 +179,24 @@ class DatabaseMetaTest {
   }
 
   @Test
+  void quotesCatalogAndSchemaSeparately() {
+    when(iDatabase.getStartQuote()).thenReturn("\"");
+    when(iDatabase.getEndQuote()).thenReturn("\"");
+    when(iDatabase.isSupportsCatalogs()).thenReturn(true);
+    when(iDatabase.getSchemaTableCombination(anyString(), anyString()))
+        .thenAnswer(invocation -> invocation.getArgument(0) + "." + invocation.getArgument(1));
+
+    assertEquals(
+        "catalog.schema.sample",
+        databaseMeta.getQuotedSchemaTableCombination(variables, "catalog.schema", "sample"));
+
+    when(iDatabase.isQuoteAllFields()).thenReturn(true);
+    assertEquals(
+        "\"catalog\".\"schema\".\"sample\"",
+        databaseMeta.getQuotedSchemaTableCombination(variables, "catalog.schema", "sample"));
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   void testModifyingName() {
     DatabaseMeta meta = mock(DatabaseMeta.class);
