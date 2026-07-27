@@ -35,8 +35,10 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -69,7 +71,10 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         if (plugin == null) {
           continue;
         }
-        findGuiPluginInstance(pluginRegistry.getClassLoader(plugin), className, instanceId);
+        ClassLoader classLoader = pluginRegistry.getClassLoader(plugin);
+        if (canPreRegister(classLoader, className)) {
+          findGuiPluginInstance(classLoader, className, instanceId);
+        }
       } catch (Exception e) {
         LogChannel.UI.logDebug(
             "Could not pre-register shortcut plugin instance for "
@@ -77,6 +82,33 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
                 + ": "
                 + e.getMessage());
       }
+    }
+  }
+
+  /**
+   * A shortcut owner can only be pre-created when a fresh instance is harmless. Perspectives and
+   * SWT controls are created by their owner and register themselves with {@link
+   * org.apache.hop.ui.hopgui.HopGuiKeyHandler} when they do: creating one here would leave a
+   * second, never initialized copy behind which handles keys and menu items it has no widgets for.
+   * Anything without a public no-argument constructor is created by its owner as well.
+   *
+   * @param classLoader the class loader of the GUI plugin
+   * @param className the class owning one or more keyboard shortcuts
+   * @return true if an instance can safely be created up front
+   */
+  static boolean canPreRegister(ClassLoader classLoader, String className) {
+    try {
+      Class<?> guiPluginClass = classLoader.loadClass(className);
+      if (IHopPerspective.class.isAssignableFrom(guiPluginClass)
+          || Control.class.isAssignableFrom(guiPluginClass)) {
+        return false;
+      }
+      guiPluginClass.getConstructor();
+      return true;
+    } catch (Exception e) {
+      // Can't be loaded or has no default constructor: it's created together with its owner.
+      //
+      return false;
     }
   }
 

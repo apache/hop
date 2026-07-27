@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +63,18 @@ class DisabledPerspectivesTest {
     assertNull(perspective.getActiveEditor());
     assertTrue(perspective.getItems().isEmpty());
     assertFalse(perspective.remove(null));
+  }
+
+  /**
+   * The explorer perspective is reachable with Ctrl/Cmd-Shift-E from anywhere in HopGui, so an
+   * uninitialized instance ending up in the keyboard handler is enough to trigger this.
+   */
+  @Test
+  void aDisabledExplorerPerspectiveStaysInert() {
+    ExplorerPerspective perspective = new ExplorerPerspective();
+
+    assertFalse(perspective.isActive());
+    assertDoesNotThrow(perspective::activate);
   }
 
   @Test
