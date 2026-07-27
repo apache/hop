@@ -44,4 +44,23 @@ class ContentEditorTm4eSupportTest {
       assertTrue(in.read() >= 0, "python.json should not be empty");
     }
   }
+
+  @Test
+  void scopeForLanguage_yaml_returnsSourceYaml() {
+    assertEquals("source.yaml", ContentEditorTm4eSupport.scopeForLanguage("yaml"));
+  }
+
+  @Test
+  void scopeForLanguage_yml_returnsSourceYaml() {
+    assertEquals("source.yaml", ContentEditorTm4eSupport.scopeForLanguage("yml"));
+  }
+
+  @Test
+  void yamlGrammarResourceIsOnClasspath() throws Exception {
+    try (InputStream in =
+        ContentEditorTm4eSupport.class.getResourceAsStream("grammars/yaml.json")) {
+      assertNotNull(in, "grammars/yaml.json should be on the classpath");
+      assertTrue(in.read() >= 0, "yaml.json should not be empty");
+    }
+  }
 }
