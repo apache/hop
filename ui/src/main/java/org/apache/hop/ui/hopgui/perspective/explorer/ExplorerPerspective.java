@@ -337,7 +337,20 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'e', global = true)
   @Override
   public void activate() {
+    if (!isInitialized()) {
+      return;
+    }
     hopGui.setActivePerspective(this);
+  }
+
+  /**
+   * When this perspective is disabled (an exclusion in disabledGuiElements.xml) HopGui skips it
+   * while loading the perspectives, so initialize() never runs. The instance still exists because
+   * the @GuiPlugin class is instantiated to register the GUI elements it declares, leaving an
+   * instance without a HopGui or any widgets to work with.
+   */
+  private boolean isInitialized() {
+    return hopGui != null;
   }
 
   @Override
