@@ -55,6 +55,8 @@ final class ContentEditorTm4eSupport {
   private static final String SCOPE_SQL = "source.sql";
   private static final String SCOPE_PYTHON = "source.python";
   private static final String SCOPE_YAML = "source.yaml";
+  private static final String SCOPE_SHELL = "source.shell";
+  private static final String SCOPE_BATCH = "source.batchfile";
 
   /** Maps TM4E scope names to grammar resource filenames (classpath-relative to grammars/). */
   private static final Map<String, String> GRAMMAR_FILES =
@@ -63,7 +65,9 @@ final class ContentEditorTm4eSupport {
           SCOPE_XML, "xml.json",
           SCOPE_SQL, "sql.json",
           SCOPE_PYTHON, "python.json",
-          SCOPE_YAML, "yaml.json");
+          SCOPE_YAML, "yaml.json",
+          SCOPE_SHELL, "shell.json",
+          SCOPE_BATCH, "bat.json");
 
   // Same palette as before (light/dark) for consistency
   private static final RGB L_COMMENT = new RGB(128, 128, 128);
@@ -114,6 +118,8 @@ final class ContentEditorTm4eSupport {
       case "sql" -> SCOPE_SQL;
       case "python", "py" -> SCOPE_PYTHON;
       case "yaml", "yml" -> SCOPE_YAML;
+      case "shell", "bash", "sh" -> SCOPE_SHELL;
+      case "bat", "cmd", "batch" -> SCOPE_BATCH;
       default -> null;
     };
   }
@@ -268,6 +274,10 @@ final class ContentEditorTm4eSupport {
     if (scope.contains("entity.name.function")) {
       return dark ? D_KEYWORD : L_KEYWORD;
     }
+
+    // Variables ($VAR in shell, %VAR% in batch): VS Code renders these in the same light blue as
+    // JSON keys. Checked after string so interpolation inside a string stays string-colored.
+    if (scope.contains("variable")) return dark ? D_JSON_KEY : L_JSON_KEY;
 
     // XML: <? ?> then tags then attribute names
     if (scope.contains("meta.tag.preprocessor")) {

@@ -30,18 +30,18 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeC
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileType;
 
 @HopFileTypePlugin(
-    id = "ShellExplorerFileType",
-    name = "Shell File Type",
-    description = "Shell file handling in the explorer perspective",
+    id = "CmdExplorerFileType",
+    name = "Windows Command File Type",
+    description = "Windows command file handling in the explorer perspective",
     image = "ui/images/script.svg")
-public class ShellExplorerFileType extends BaseTextExplorerFileType<ShellExplorerFileTypeHandler> {
+public class CmdExplorerFileType extends BaseTextExplorerFileType<BatExplorerFileTypeHandler> {
 
-  public ShellExplorerFileType() {
+  public CmdExplorerFileType() {
     super(
-        "Shell Script",
-        ".sh",
-        new String[] {"*.sh"},
-        new String[] {"Shell scripts"},
+        "Command file",
+        ".cmd",
+        new String[] {"*.cmd", "*.CMD"},
+        new String[] {"Command files"},
         FileTypeCapabilities.getCapabilities(
             IHopFileType.CAPABILITY_SAVE,
             IHopFileType.CAPABILITY_SAVE_AS,
@@ -54,9 +54,9 @@ public class ShellExplorerFileType extends BaseTextExplorerFileType<ShellExplore
   }
 
   @Override
-  public ShellExplorerFileTypeHandler createFileTypeHandler(
+  public BatExplorerFileTypeHandler createFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file) {
-    return new ShellExplorerFileTypeHandler(hopGui, perspective, file);
+    return new BatExplorerFileTypeHandler(hopGui, perspective, file);
   }
 
   @Override

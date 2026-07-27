@@ -31,7 +31,8 @@ public final class RuleBasedSourceViewerConfiguration {
 
   /**
    * Creates a configuration for the given language. Uses TM4E when a grammar is available (json,
-   * xml, sql, python, yaml); otherwise returns a plain configuration with no syntax highlighting.
+   * xml, sql, python, yaml, shell, bat); otherwise returns a plain configuration with no syntax
+   * highlighting.
    *
    * @param languageId language id (e.g. "json", "xml", "sql", "yaml"), or null for plain text
    * @return configuration, never null
