@@ -93,6 +93,32 @@ When you browse for a file or directory in Hop Gui with a project active, paths 
 
 After creating an environment the user interface will switch to it.
 
+== System resource requirements
+
+Lifecycle environments can declare *system resource requirements* for the host where Hop runs. Open the environment properties dialog and select the *System resources* tab.
+
+image::projects-environment-system-resources.png[Lifecycle environment System resources tab,75%,align="left"]
+
+When the environment is enabled (Hop Gui, `hop-run -e`, `hop-server -e`, and other tools that call project enablement), Hop can check:
+
+* *Min JVM max memory (MiB)* — the JVM max heap (`Runtime.maxMemory()`, i.e. configured `-Xmx` capacity), not the currently allocated heap.
+* *Min CPU cores* — `Runtime.availableProcessors()`.
+* *Local folders (min free space)* — one or more local paths and a minimum free space in MiB (`File.getUsableSpace()`). Both the path and the min-free value support Hop variables and expanded number forms (via `Const.toLongExpanded`). Paths must resolve to local folders.
+
+Leave a field empty to skip that check.
+
+.On enable policy
+[cols="20%,80%",options="header"]
+|===
+|Value|Behavior
+|off|Do not check (default for Development / CI / CB and when purpose is unset).
+|warn|Log a failure report; in Hop Gui show a warning dialog. Environment enable continues.
+|enforce|Fail enabling the environment with a fatal error. Default for Production.
+|===
+
+If *On enable* is left unset, Hop derives a default from the environment *Purpose*: Production → enforce; Testing / Acceptance → warn; otherwise off.
+
+These checks run on the JVM that enables the environment. They do not validate remote Beam workers or other remote runtimes.
 
 == Switch between projects and environments
 
