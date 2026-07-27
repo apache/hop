@@ -221,6 +221,60 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   }
 
   /**
+   * Appends the configured matrix and query parameters (from the current row) to the given URL. The
+   * standalone request path applies these directly to the Jersey {@link WebTarget}; the REST
+   * connection path builds its target inside {@link
+   * org.apache.hop.metadata.rest.RestConnection#getInvocationBuilder}, so we bake the parameters
+   * into the URL here to keep both paths equivalent (issue #7621).
+   */
+  protected String appendMatrixAndQueryParams(String url, Object[] rowData) throws HopException {
+    if (!data.useMatrixParams && !data.useParams) {
+      return url;
+    }
+    UriBuilder builder = UriBuilder.fromUri(URI.create(url));
+    if (data.useMatrixParams) {
+      for (int i = 0; i < data.nrMatrixParams; i++) {
+        String value = data.inputRowMeta.getString(rowData, data.indexOfMatrixParamFields[i]);
+        if (isDebug()) {
+          logDebug(
+              BaseMessages.getString(
+                  PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[i], value));
+        }
+        builder =
+            builder.matrixParam(
+                data.matrixParamNames[i],
+                UriComponent.encode(value, UriComponent.Type.QUERY_PARAM));
+      }
+    }
+    if (data.useParams) {
+      for (int i = 0; i < data.nrParams; i++) {
+        String value = data.inputRowMeta.getString(rowData, data.indexOfParamFields[i]);
+        if (isDebug()) {
+          logDebug(
+              BaseMessages.getString(
+                  PKG, "Rest.Log.queryParameterValue", data.paramNames[i], value));
+        }
+        builder = builder.queryParam(data.paramNames[i], value);
+      }
+    }
+    return builder.build().toString();
+  }
+
+  /**
+   * Masks the value of security-sensitive headers so credentials are not written to the log when
+   * header values are logged at debug level.
+   */
+  private static String maskHeaderValue(String name, String value) {
+    if (name != null
+        && ("Authorization".equalsIgnoreCase(name)
+            || "Proxy-Authorization".equalsIgnoreCase(name)
+            || "Cookie".equalsIgnoreCase(name))) {
+      return "********";
+    }
+    return value;
+  }
+
+  /**
    * Executes a single REST exchange and bundles the deserialized pieces required for paging and row
    * assembly.
    */
@@ -249,13 +303,28 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     final long httpVolIn0 = dataVolumeIn != null ? dataVolumeIn : 0L;
     final long httpVolOut0 = dataVolumeOut != null ? dataVolumeOut : 0L;
     try {
-      if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", effectiveBase));
-      }
+      String requestUri = effectiveBase;
       if (!StringUtils.isEmpty(meta.getConnectionName())) {
+        // The connection builds its own Jersey target internally, so bake the matrix/query
+        // parameters into the URL and pass the timeouts through, to keep this path equivalent to
+        // the standalone path below (issue #7621).
+        requestUri = appendMatrixAndQueryParams(effectiveBase, rowData);
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "Rest.Log.UsingConnection", meta.getConnectionName(), NVL(baseUrl, "")));
+        }
         invocationBuilder =
-            connection.getInvocationBuilder(effectiveBase, data.realProxyHost, data.realProxyPort);
+            connection.getInvocationBuilder(
+                requestUri,
+                data.realProxyHost,
+                data.realProxyPort,
+                data.realConnectionTimeout,
+                data.realReadTimeout);
       } else {
+        if (isDetailed()) {
+          logDetailed(BaseMessages.getString(PKG, "Rest.Log.NoConnection"));
+        }
         ClientBuilder clientBuilder = createClientBuilder();
         clientBuilder
             .withConfig(data.config)
@@ -300,13 +369,20 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             webResource = webResource.queryParam(data.paramNames[i], value);
           }
         }
-        if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", webResource.getUri()));
-        }
         invocationBuilder = webResource.request();
+        requestUri = webResource.getUri().toString();
       }
       if (invocationBuilder == null) {
         throw new HopException("Invocation builder not initialized");
+      }
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(PKG, "Rest.Log.SendingRequest", data.method, requestUri));
+      }
+      if (isDebug()) {
+        logDebug(
+            BaseMessages.getString(
+                PKG, "Rest.Log.Timeouts", data.realConnectionTimeout, data.realReadTimeout));
       }
 
       MultivaluedMap<String, Object> headerMap = new MultivaluedHashMap<>();
@@ -317,6 +393,22 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         for (int i = 0; i < data.nrheader; i++) {
           String value = data.inputRowMeta.getString(rowData, data.indexOfHeaderFields[i]);
 
+          // Content-Length is a restricted header computed by the HTTP client when the request
+          // entity is buffered. Setting it manually throws "Content-Length already defined" on
+          // some connectors, so we ignore any user-supplied value and let the client manage it
+          // (issue #7621).
+          if ("Content-Length".equalsIgnoreCase(data.headerNames[i])) {
+            if (isDebug()) {
+              logDebug(
+                  BaseMessages.getString(
+                      PKG,
+                      "Rest.Log.HeaderValue",
+                      data.headerNames[i],
+                      maskHeaderValue(data.headerNames[i], value)));
+            }
+            continue;
+          }
+
           headerMap.putSingle(data.headerNames[i], value);
           if ("Content-Type".equals(data.headerNames[i])) {
             contentType = value;
@@ -326,7 +418,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           }
           if (isDebug()) {
             logDebug(
-                BaseMessages.getString(PKG, "Rest.Log.HeaderValue", data.headerNames[i], value));
+                BaseMessages.getString(
+                    PKG,
+                    "Rest.Log.HeaderValue",
+                    data.headerNames[i],
+                    maskHeaderValue(data.headerNames[i], value)));
           }
         }
       }
@@ -376,6 +472,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       final String finalEntityString = entityString;
       final String finalContentType = contentType;
 
+      if (isDebug()) {
+        logDebug(
+            BaseMessages.getString(
+                PKG,
+                "Rest.Log.RequestContentType",
+                contentType != null ? contentType : String.valueOf(data.mediaType)));
+      }
+
       startTime = System.currentTimeMillis();
       response =
           executeWithRetry(
@@ -394,6 +498,15 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       long responseTime = System.currentTimeMillis() - startTime;
 
       int status = response.getStatus();
+      if (isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "Rest.Log.ResponseCode", status));
+        logDetailed(BaseMessages.getString(PKG, "Rest.Log.ResponseTime", responseTime, requestUri));
+        if (status >= 400) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "Rest.Log.ResponseError", data.method, requestUri, status));
+        }
+      }
 
       if (response.hasEntity()) {
         response.bufferEntity();
@@ -442,6 +555,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
       trackResponseBytes(response, body);
+      if (isRowLevel()) {
+        logRowlevel(BaseMessages.getString(PKG, "Rest.Log.ResponseBody", body));
+      }
 
       MultivaluedMap<String, Object> headers = searchForHeaders(response);
       JSONObject json = new JSONObject();
@@ -1212,6 +1328,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   private Response executeRequest(
       Invocation.Builder invocationBuilder, String entityString, String contentType)
       throws HopException {
+    // A body-less POST/PUT/PATCH/DELETE must still carry a Content-Length header (issue #7621).
+    // The JDK HttpURLConnection connector used by the REST-connection path omits Content-Length for
+    // a null entity, whereas the standalone (Apache) connector sends Content-Length: 0. Normalizing
+    // a null body to an empty string makes both request paths send Content-Length consistently.
+    String body = entityString == null ? "" : entityString;
     try {
       switch (data.method) {
         case RestMeta.HTTP_METHOD_GET -> {
@@ -1222,9 +1343,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
               entityString,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
-            return invocationBuilder.post(Entity.entity(entityString, contentType));
+            return invocationBuilder.post(Entity.entity(body, contentType));
           } else {
-            return invocationBuilder.post(Entity.entity(entityString, data.mediaType));
+            return invocationBuilder.post(Entity.entity(body, data.mediaType));
           }
         }
         case RestMeta.HTTP_METHOD_PUT -> {
@@ -1232,9 +1353,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
               entityString,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
-            return invocationBuilder.put(Entity.entity(entityString, contentType));
+            return invocationBuilder.put(Entity.entity(body, contentType));
           } else {
-            return invocationBuilder.put(Entity.entity(entityString, data.mediaType));
+            return invocationBuilder.put(Entity.entity(body, data.mediaType));
           }
         }
         case RestMeta.HTTP_METHOD_DELETE -> {
@@ -1242,7 +1363,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
               entityString,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           Invocation invocation =
-              invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
+              invocationBuilder.build("DELETE", Entity.entity(body, data.mediaType));
           return invocation.invoke();
         }
         case RestMeta.HTTP_METHOD_HEAD -> {
@@ -1257,10 +1378,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.method(
-                RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, contentType));
+                RestMeta.HTTP_METHOD_PATCH, Entity.entity(body, contentType));
           } else {
             return invocationBuilder.method(
-                RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, data.mediaType));
+                RestMeta.HTTP_METHOD_PATCH, Entity.entity(body, data.mediaType));
           }
         }
         default ->

@@ -115,15 +115,16 @@ TIP: To figure out what Headers are required, you can use Postman and remove as 
 [options="header"]
 |===
 |Option|Description
-|Field|The field from incoming Hop stream that contains the header information. Add the header value field name to the Field column.
-|Name|The name of the outgoing Hop field from this transform. Add the header key field name to the Name column.
+|Header value field|The field from the incoming Hop stream that contains the header value
+|Header name|The HTTP header name sent to the REST API
 |===
 
-=== Parameters Tab
+=== Query Parameters Tab
 
-The Parameters tab enables you to add URL query parameters to POST, GET, PUT, DELETE, and PATCH requests.
+The Query Parameters tab enables you to add URL query parameters to POST, GET, PUT, DELETE, and PATCH requests.
+Query parameters are added to the end of the URL, e.g. `https://host/path?name1=value1&name2=value2`.
 Each row maps a field from the incoming Hop stream to a query parameter name.
-Click **Get fields** to populate the **Parameter field** list, then enter the parameter name expected by the API in **Parameter name**.
+Click **Get fields** to populate the **Query parameter value field** list, then enter the parameter name expected by the API in **Parameter name**.
 
 For example, if an incoming field named `search_value` contains `apache hop`, mapping it to the parameter name `q` adds `?q=apache+hop` to the request URL.
 Hop URL-encodes the parameter name and value.
@@ -131,21 +132,21 @@ Hop URL-encodes the parameter name and value.
 [options="header"]
 |===
 |Option|Description
-|Parameter field|The field from the incoming Hop stream that contains the parameter value
+|Parameter value field|The field from the incoming Hop stream that contains the parameter value
 |Parameter name|The query parameter name expected by the REST API
 |===
 
 === Matrix Parameters tab
 
 Use the Matrix Parameters tab to define matrix parameter values for POST, PUT, DELETE, and PATCH requests.
-Unlike query parameters, which follow a `?`, matrix parameters are appended to the URL path with a semicolon.
+Unlike query parameters, which follow a `?`, matrix parameters are appended to the URL path with a semicolon, e.g. `https://host/path;name1=value1;name2=value2`.
 For example, a matrix parameter named `language` with the value `en` produces a path such as `/resource;language=en`.
 
 [options="header"]
 |===
 |Option|Description
-|Parameter field|The field from the incoming Hop stream that contains the matrix parameter value
-|Parameter name|The matrix parameter name expected by the REST API
+|Matrix parameter value field|The field from the incoming Hop stream that contains the matrix parameter value
+|Matrix parameter name|The matrix parameter name expected by the REST API
 |===
 
 === Pagination tab

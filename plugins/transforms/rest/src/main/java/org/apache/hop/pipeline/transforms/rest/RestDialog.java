@@ -677,11 +677,12 @@ public class RestDialog extends BaseTransformDialog {
       int margin,
       CTabItem wMatrixParametersTab,
       Composite wMatrixParametersComp) {
-    wlMatrixParameters = new Label(wMatrixParametersComp, SWT.NONE);
-    wlMatrixParameters.setText(BaseMessages.getString(PKG, "RestDialog.Parameters.Label"));
+    wlMatrixParameters = new Label(wMatrixParametersComp, SWT.LEFT | SWT.WRAP);
+    wlMatrixParameters.setText(BaseMessages.getString(PKG, "RestDialog.MatrixParameters.Info"));
     PropsUi.setLook(wlMatrixParameters);
     FormData fdlMatrixParameters = new FormData();
     fdlMatrixParameters.left = new FormAttachment(0, 0);
+    fdlMatrixParameters.right = new FormAttachment(100, -margin);
     fdlMatrixParameters.top = new FormAttachment(wSpacer, margin);
     wlMatrixParameters.setLayoutData(fdlMatrixParameters);
 
@@ -697,12 +698,12 @@ public class RestDialog extends BaseTransformDialog {
     matrixParameterColumns =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.ParameterField"),
+              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.MatrixParameterValueField"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {""},
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.ParameterName"),
+              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.MatrixParameterName"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
@@ -742,11 +743,12 @@ public class RestDialog extends BaseTransformDialog {
 
   private void setupParameterTabContent(
       ModifyListener lsMod, int margin, CTabItem wParametersTab, Composite wParametersComp) {
-    wlParameters = new Label(wParametersComp, SWT.NONE);
-    wlParameters.setText(BaseMessages.getString(PKG, "RestDialog.Parameters.Label"));
+    wlParameters = new Label(wParametersComp, SWT.LEFT | SWT.WRAP);
+    wlParameters.setText(BaseMessages.getString(PKG, "RestDialog.Parameters.Info"));
     PropsUi.setLook(wlParameters);
     FormData fdlParameters = new FormData();
     fdlParameters.left = new FormAttachment(0, 0);
+    fdlParameters.right = new FormAttachment(100, -margin);
     fdlParameters.top = new FormAttachment(wSpacer, margin);
     wlParameters.setLayoutData(fdlParameters);
 
@@ -762,7 +764,7 @@ public class RestDialog extends BaseTransformDialog {
     queryParameterColumns =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.ParameterField"),
+              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.ParameterValueField"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {""},
               false),
@@ -817,12 +819,12 @@ public class RestDialog extends BaseTransformDialog {
     colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.Field"),
+              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.HeaderValueField"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {""},
               false),
           new ColumnInfo(
-              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.Name"),
+              BaseMessages.getString(PKG, "RestDialog.ColumnInfo.HeaderName"),
               ColumnInfo.COLUMN_TYPE_TEXT,
               false)
         };
