@@ -1082,8 +1082,20 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       }
     } else {
       return iDatabase.getSchemaTableCombination(
-          quoteField(variables.resolve(schemaName)), quoteField(variables.resolve(tableName)));
+          quoteSchema(variables.resolve(schemaName)), quoteField(variables.resolve(tableName)));
     }
+  }
+
+  private String quoteSchema(String schemaName) {
+    if (supportsCatalogs()) {
+      int separatorIndex = schemaName.indexOf('.');
+      if (separatorIndex > 0 && separatorIndex < schemaName.length() - 1) {
+        String catalogName = schemaName.substring(0, separatorIndex);
+        String schemaPart = schemaName.substring(separatorIndex + 1);
+        return quoteField(catalogName) + "." + quoteField(schemaPart);
+      }
+    }
+    return quoteField(schemaName);
   }
 
   public boolean isClob(IValueMeta v) {
