@@ -192,8 +192,30 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
 
   public Invocation.Builder getInvocationBuilder(String url, String proxyHost, Integer proxyPort)
       throws HopException {
+    return getInvocationBuilder(url, proxyHost, proxyPort, 0, 0);
+  }
+
+  /**
+   * Builds a Jersey invocation builder for the given URL. Connect/read timeouts (milliseconds, 0 =
+   * infinite) and proxy settings are applied so that requests made through a REST connection honour
+   * the same timeout, proxy and HTTP-compliance behaviour as the standalone REST transform path
+   * (issue #7621).
+   */
+  public Invocation.Builder getInvocationBuilder(
+      String url, String proxyHost, Integer proxyPort, int connectTimeout, int readTimeout)
+      throws HopException {
     builder = ClientBuilder.newBuilder();
     builder.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+    builder.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
+    // Only apply timeouts when configured (>= 0). Empty transform timeout fields resolve to -1,
+    // which Jersey rejects with "timeouts can't be negative"; leaving the property unset keeps
+    // Jersey's default (0 = infinite), matching the previous connection-path behaviour.
+    if (connectTimeout >= 0) {
+      builder.property(ClientProperties.CONNECT_TIMEOUT, connectTimeout);
+    }
+    if (readTimeout >= 0) {
+      builder.property(ClientProperties.READ_TIMEOUT, readTimeout);
+    }
     setProxyHost(proxyHost, proxyPort);
 
     // Configure SSL if needed (client cert, trust store, or ignore SSL)

@@ -67,6 +67,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -257,6 +258,134 @@ class RestCallRestTest {
       assertEquals("{\"id\":123}", outputRow[2]); // result field
       verify(builder, times(1)).post(any(Entity.class));
     }
+  }
+
+  @Test
+  void testCallRestPostWithoutBodySendsEmptyEntity() throws HopException {
+    // Issue #7621: a body-less POST must still produce a Content-Length header. The transform
+    // normalizes a null body to an empty string so the JDK connector used by the REST-connection
+    // path sends Content-Length: 0 instead of omitting it. Here we assert the transform posts a
+    // non-null, empty entity rather than a null one.
+    Response response = mock(Response.class);
+    when(response.getStatus()).thenReturn(200);
+    when(response.readEntity(String.class)).thenReturn("");
+    when(response.getHeaders()).thenReturn(new MultivaluedHashMap<>());
+
+    Invocation.Builder builder = mock(Invocation.Builder.class);
+    when(builder.post(any(Entity.class))).thenReturn(response);
+    when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+
+    WebTarget webTarget = mock(WebTarget.class);
+    when(webTarget.request()).thenReturn(builder);
+    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+
+    Client client = mock(Client.class);
+    when(client.target(anyString())).thenReturn(webTarget);
+
+    ClientBuilder clientBuilder = mock(ClientBuilder.class);
+    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
+    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
+    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
+    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
+    when(clientBuilder.build()).thenReturn(client);
+
+    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
+      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
+
+      TransformMeta transformMeta = new TransformMeta();
+      transformMeta.setName("TestRest");
+      PipelineMeta pipelineMeta = new PipelineMeta();
+      pipelineMeta.setName("TestRest");
+      pipelineMeta.addTransform(transformMeta);
+
+      RestMeta meta = new RestMeta();
+      meta.setMethod(RestMeta.HTTP_METHOD_POST);
+      meta.setUrl("http://example.com/api");
+      meta.setResultField(new ResultField());
+      meta.getResultField().setFieldName("result");
+
+      RestData data = new RestData();
+      data.config = new ClientConfig();
+      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+      data.method = RestMeta.HTTP_METHOD_POST;
+      data.realUrl = "http://example.com/api";
+      data.resultFieldName = "result";
+      data.useBody = false; // no body configured -> entityString is null
+
+      IRowMeta inputRowMeta = new RowMeta();
+      inputRowMeta.addValueMeta(new ValueMetaString("field1"));
+      data.inputRowMeta = inputRowMeta;
+
+      Rest rest =
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
+      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
+
+      Object[] outputRow = rest.callRest(new Object[] {"value1"});
+
+      assertNotNull(outputRow);
+      ArgumentCaptor<Entity> entityCaptor = ArgumentCaptor.forClass(Entity.class);
+      verify(builder, times(1)).post(entityCaptor.capture());
+      assertEquals("", entityCaptor.getValue().getEntity());
+    }
+  }
+
+  @Test
+  void testAppendMatrixAndQueryParamsBakesParamsIntoUrl() throws HopException {
+    // Issue #7621: the REST-connection path builds its target inside RestConnection, so the
+    // transform bakes the configured matrix/query parameters into the URL to stay equivalent to the
+    // standalone path. This verifies both parameter kinds end up on the resulting URL.
+    RestData data = new RestData();
+    data.useParams = true;
+    data.nrParams = 2;
+    data.paramNames = new String[] {"q", "lang"};
+    data.indexOfParamFields = new int[] {0, 1};
+    data.useMatrixParams = true;
+    data.nrMatrixParams = 1;
+    data.matrixParamNames = new String[] {"author"};
+    data.indexOfMatrixParamFields = new int[] {2};
+
+    IRowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("qField"));
+    inputRowMeta.addValueMeta(new ValueMetaString("langField"));
+    inputRowMeta.addValueMeta(new ValueMetaString("authorField"));
+    data.inputRowMeta = inputRowMeta;
+
+    TransformMeta transformMeta = new TransformMeta();
+    transformMeta.setName("TestRest");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("TestRest");
+    pipelineMeta.addTransform(transformMeta);
+
+    Rest rest =
+        new Rest(transformMeta, new RestMeta(), data, 0, pipelineMeta, new LocalPipelineEngine());
+
+    Object[] row = new Object[] {"search", "en", "shakespeare"};
+    String url = rest.appendMatrixAndQueryParams("http://example.com/api", row);
+
+    assertTrue(url.contains("q=search"), url);
+    assertTrue(url.contains("lang=en"), url);
+    assertTrue(url.contains("author=shakespeare"), url);
+  }
+
+  @Test
+  void testAppendMatrixAndQueryParamsNoParamsReturnsUrlUnchanged() throws HopException {
+    RestData data = new RestData();
+    data.useParams = false;
+    data.useMatrixParams = false;
+
+    TransformMeta transformMeta = new TransformMeta();
+    transformMeta.setName("TestRest");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("TestRest");
+    pipelineMeta.addTransform(transformMeta);
+
+    Rest rest =
+        new Rest(transformMeta, new RestMeta(), data, 0, pipelineMeta, new LocalPipelineEngine());
+
+    String url = "http://example.com/api?existing=1";
+    assertEquals(url, rest.appendMatrixAndQueryParams(url, new Object[] {}));
   }
 
   @Test
