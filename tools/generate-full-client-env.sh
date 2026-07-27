@@ -31,8 +31,13 @@ fi
 
 mkdir -p "$(dirname "${OUT}")"
 
-# Extract artifactIds (lines like "  - artifactId: hop-tech-parquet")
-mapfile -t ARTIFACTS < <(sed -n 's/^[[:space:]]*- artifactId:[[:space:]]*\(.*\)$/\1/p' "${REGISTRY}")
+# Extract artifactIds (lines like "  - artifactId: hop-tech-parquet").
+# Use a read loop instead of `mapfile` (bash 4+) so this also runs on
+# older bash configurations
+ARTIFACTS=()
+while IFS= read -r artifact; do
+  ARTIFACTS+=("${artifact}")
+done < <(sed -n 's/^[[:space:]]*- artifactId:[[:space:]]*\(.*\)$/\1/p' "${REGISTRY}")
 
 if [[ ${#ARTIFACTS[@]} -eq 0 ]]; then
   echo "No plugins found in ${REGISTRY}" >&2
