@@ -34,7 +34,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     name = "Windows Batch File Type",
     description = "Batch file handling in the explorer perspective",
     image = "ui/images/script.svg")
-public class BatExplorerFileType extends BaseTextExplorerFileType<TextExplorerFileTypeHandler> {
+public class BatExplorerFileType extends BaseTextExplorerFileType<BatExplorerFileTypeHandler> {
 
   public BatExplorerFileType() {
     super(
@@ -54,9 +54,9 @@ public class BatExplorerFileType extends BaseTextExplorerFileType<TextExplorerFi
   }
 
   @Override
-  public TextExplorerFileTypeHandler createFileTypeHandler(
+  public BatExplorerFileTypeHandler createFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file) {
-    return new TextExplorerFileTypeHandler(hopGui, perspective, file);
+    return new BatExplorerFileTypeHandler(hopGui, perspective, file);
   }
 
   @Override
