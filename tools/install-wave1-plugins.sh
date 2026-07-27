@@ -34,11 +34,17 @@ if [[ ! -x "${LIST_SCRIPT}" ]]; then
   chmod +x "${LIST_SCRIPT}" 2>/dev/null || true
 fi
 
-mapfile -t PLUGINS < <(HOP_VERSION="${VERSION}" "${LIST_SCRIPT}" --zips)
+# `mapfile` is a bash 4+ builtin and macOS still ships bash 3.2, where it aborts the whole
+# script under `set -e` and no plugin ever gets installed. Read the list portably instead.
+PLUGINS=()
+while IFS= read -r entry; do
+  [[ -n "${entry}" ]] && PLUGINS+=("${entry}")
+done < <(HOP_VERSION="${VERSION}" "${LIST_SCRIPT}" --zips)
 
 installed=0
 skipped=0
-for entry in "${PLUGINS[@]}"; do
+# bash 3.2 treats an empty array as unbound under `set -u`; expand defensively.
+for entry in ${PLUGINS[@]+"${PLUGINS[@]}"}; do
   id="${entry%%|*}"
   rel="${entry#*|}"
   zip="${ROOT}/${rel}"

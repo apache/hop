@@ -51,25 +51,59 @@
 
     <build>
         <plugins>
-            <!-- Generate full-client-env.yaml from optional-plugins.yaml (shipped at install root). -->
+            <!--
+              Generate full-client-env.yaml from optional-plugins.yaml (the single source of
+              truth) and ship it at the install root (see src/assembly/assembly.xml).
+              Uses maven-antrun-plugin (pure Java, no external shell) so the build stays
+              platform-agnostic. NOTE: the <echo> body below is intentionally flush-left —
+              Ant preserves leading whitespace verbatim, so do not indent those lines.
+            -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>generate-full-client-env</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>run</goal>
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <executable>bash</executable>
-                            <arguments>
-                                <argument>${maven.multiModuleProjectDirectory}/tools/generate-full-client-env.sh</argument>
-                                <argument>${project.version}</argument>
-                                <argument>${project.build.directory}/generated/full-client-env.yaml</argument>
-                            </arguments>
+                            <target>
+                                <mkdir dir="${project.build.directory}/generated"></mkdir>
+                                <!-- Keep only the '- artifactId:' entries, normalized to '  - artifactId: <id>'. -->
+                                <loadfile property="fullClientEnv.plugins" srcFile="${project.basedir}/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml">
+                                    <filterchain>
+                                        <linecontainsregexp>
+                                            <regexp pattern="^\s*-\s*artifactId:\s*\S"></regexp>
+                                        </linecontainsregexp>
+                                        <tokenfilter>
+                                            <replaceregex pattern="^\s*-\s*artifactId:\s*(.*?)\s*$" replace="  - artifactId: \1"></replaceregex>
+                                        </tokenfilter>
+                                    </filterchain>
+                                </loadfile>
+                                <fail message="No '- artifactId:' entries found in optional-plugins.yaml" unless="fullClientEnv.plugins"></fail>
+                                <echo encoding="UTF-8" file="${project.build.directory}/generated/full-client-env.yaml"># Generated from optional-plugins.yaml - do not edit by hand.
+# Rebuild the marketplace module to refresh (Maven generate-resources).
+#
+# Restores marketplace-optional plugins that used to ship in the fat hop-client.
+# From the Hop install directory (network required for ASF/Central or your mirror):
+#
+#   ./hop marketplace apply -f full-client-env.yaml
+#
+# Then restart Hop so the plugin registry reloads.
+# Do not use --prune unless you intend to remove other marketplace installs.
+#
+version: "1.0"
+hopVersion: "${project.version}"
+enforceOnRun: false
+# repositories omitted: uses hop-config defaults (ASF primary + Maven Central)
+plugins:
+${fullClientEnv.plugins}</echo>
+                                <!-- Normalize line endings so the output is byte-identical on every platform. -->
+                                <fixcrlf encoding="UTF-8" eol="lf" file="${project.build.directory}/generated/full-client-env.yaml"></fixcrlf>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

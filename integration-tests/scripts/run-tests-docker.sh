@@ -110,20 +110,30 @@ if [ -z "${GCP_KEY_FILE}" ]; then
   GCP_KEY_FILE="./docker/integration-tests/resource/dummyfile"
 fi
 
+GCP_KEY_PATH="${GCP_KEY_FILE}"
+case "${GCP_KEY_PATH}" in
+/*) ;;
+*)
+  if [ -f "$(cd "${CURRENT_DIR}/../.." && pwd)/${GCP_KEY_PATH#./}" ]; then
+    GCP_KEY_PATH="$(cd "${CURRENT_DIR}/../.." && pwd)/${GCP_KEY_PATH#./}"
+  fi
+  ;;
+esac
+
 # Detect a real Google Cloud service-account key. The dummy file is a license comment, not
 # JSON; spreadsheet Google Sheets ITs need a real key (Jenkins: credentials gcp-access-hop).
 # Require non-empty file + type=service_account + JSON-looking content so a corrupt/empty
 # secret still skips cleanly. When python3 is available, also require parseable JSON.
 SKIP_GOOGLE_SHEETS="false"
 GCP_KEY_OK="true"
-if [ ! -f "${GCP_KEY_FILE}" ] \
-  || [[ "${GCP_KEY_FILE}" == *dummyfile* ]] \
-  || [ ! -s "${GCP_KEY_FILE}" ] \
-  || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_FILE}" 2>/dev/null \
-  || ! grep -qE '\{' "${GCP_KEY_FILE}" 2>/dev/null; then
+if [ ! -f "${GCP_KEY_PATH}" ] \
+  || [[ "${GCP_KEY_PATH}" == *dummyfile* ]] \
+  || [ ! -s "${GCP_KEY_PATH}" ] \
+  || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_PATH}" 2>/dev/null \
+  || ! grep -qE '\{' "${GCP_KEY_PATH}" 2>/dev/null; then
   GCP_KEY_OK="false"
 elif command -v python3 >/dev/null 2>&1; then
-  if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "${GCP_KEY_FILE}" 2>/dev/null; then
+  if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "${GCP_KEY_PATH}" 2>/dev/null; then
     GCP_KEY_OK="false"
   fi
 fi

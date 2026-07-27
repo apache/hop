@@ -190,6 +190,35 @@ should_run_workflow() {
   return 1
 }
 
+# Emit one "STATUS<TAB>NAME<TAB>TIME" line per <testcase> in a surefire XML report.
+# The single-JVM suite runner records each test's outcome in that report rather than in this
+# script's loop, so it is the only place the per-test breakdown still exists.
+# Parsed with python3 (installed in the IT image) rather than grep/awk: every testcase embeds
+# its full workflow log in a CDATA section, and that log text can contain anything a line-based
+# parser would mistake for markup.
+parse_surefire_testcases() {
+  python3 - "$1" <<'PYTHON_PARSE_SUREFIRE' 2>/dev/null
+import sys
+import xml.etree.ElementTree as ET
+
+try:
+    root = ET.parse(sys.argv[1]).getroot()
+except Exception:
+    sys.exit(1)
+
+for testcase in root.iter("testcase"):
+    if testcase.find("failure") is not None:
+        status = "FAIL"
+    elif testcase.find("error") is not None:
+        status = "ERROR"
+    elif testcase.find("skipped") is not None:
+        status = "SKIP"
+    else:
+        status = "PASS"
+    print("%s\t%s\t%s" % (status, testcase.get("name", ""), testcase.get("time", "")))
+PYTHON_PARSE_SUREFIRE
+}
+
 # Set up a temporary folder
 export TMP_FOLDER=/tmp/hop-it-$$
 rm -rf "${TMP_FOLDER}"
@@ -312,9 +341,6 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
         if (($exit_code >= 1)); then
           errors_counter=1
           failures_counter=1
-          echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
-        else
-          echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
         fi
 
         echo ${SPACER}
@@ -334,6 +360,65 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
             echo "]]></system-out><system-err><![CDATA[" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             cat /tmp/test_output_err >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
             echo "]]></system-err></testcase></testsuite>" >>"${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml"
+          fi
+        fi
+
+        # Every main*.hwf ran inside one JVM, so this loop never saw the individual tests.
+        # Replay the per-test outcomes from the surefire report the suite just wrote, so the
+        # console keeps its per-test breakdown and the passed_tests/failed_tests overview files
+        # (printed at the end of run-tests-docker.sh) list test names rather than one project
+        # name. Runs after the fallback report above on purpose: a suite that died on startup
+        # then shows up here as a failed "suite_startup" test instead of vanishing.
+        SUITE_RESULTS="${TMP_FOLDER}/suite-results-${PROJECT_NAME}.tsv"
+        : >"${SUITE_RESULTS}"
+        if [ -f "${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml" ]; then
+          parse_surefire_testcases "${SUREFIRE_DIR}/surefile_${PROJECT_NAME}.xml" \
+            >"${SUITE_RESULTS}" || : >"${SUITE_RESULTS}"
+        fi
+
+        if [ -s "${SUITE_RESULTS}" ]; then
+          suite_passed=0
+          suite_failed=0
+          suite_skipped=0
+
+          echo ${SPACER}
+          echo "Test results: ${PROJECT_NAME}"
+          echo ${SPACER}
+
+          while IFS=$'\t' read -r tc_status tc_name tc_time; do
+            [ -z "${tc_name}" ] && continue
+            case "${tc_status}" in
+            PASS)
+              suite_passed=$((suite_passed + 1))
+              echo -e "\033[1;32mPASSED \033[0m ${tc_name} (${tc_time}s)"
+              echo "${tc_name}" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
+              ;;
+            SKIP)
+              suite_skipped=$((suite_skipped + 1))
+              echo -e "\033[1;93mSKIPPED\033[0m ${tc_name}"
+              ;;
+            *)
+              suite_failed=$((suite_failed + 1))
+              echo -e "\033[1;91mFAILED \033[0m ${tc_name} (${tc_time}s)"
+              echo "${tc_name}" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
+              ;;
+            esac
+          done <"${SUITE_RESULTS}"
+
+          echo ${SPACER}
+          echo "${PROJECT_NAME}: ${suite_passed} passed, ${suite_failed} failed, ${suite_skipped} skipped"
+
+          # A non-zero hop-run exit that no testcase accounts for (e.g. the suite aborted after
+          # the report was written) must still surface as a failure rather than an all-green list.
+          if (($exit_code >= 1)) && ((suite_failed == 0)); then
+            echo "${PROJECT_NAME} (suite exited ${exit_code})" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
+          fi
+        else
+          # No parseable report at all: fall back to a single project-level entry.
+          if (($exit_code >= 1)); then
+            echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/failed_tests
+          else
+            echo "${PROJECT_NAME}" >>"${CURRENT_DIR}"/../surefire-reports/passed_tests
           fi
         fi
 
