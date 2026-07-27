@@ -72,6 +72,9 @@ rules:
   contains: 'Integration Testing'
   addLabels: ['Integration Testing']
 - valueFor: 'Component'
+  contains: 'Marketplace'
+  addLabels: [ 'Marketplace' ]
+- valueFor: 'Component'
   contains: 'Metadata'
   addLabels: ['Metadata']
 - valueFor: 'Component'

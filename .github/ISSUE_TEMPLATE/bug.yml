@@ -103,6 +103,7 @@ body:
         - "Component: Import"
         - "Component: Infrastructure"
         - "Component: Integration Testing"
+        - "Component: Marketplace"
         - "Component: Metadata"
         - "Component: Neo4j"
         - "Component: Pipelines"
