@@ -61,31 +61,53 @@ RUN apt-get update \
   ttf-mscorefonts-installer \
   locales \
   && apt-get clean \
-  && mkdir ${VOLUME_MOUNT_POINT} \
-  && addgroup -gid ${JENKINS_GID} ${JENKINS_GROUP} \
-  && useradd -m  -d /home/${JENKINS_USER} -u ${JENKINS_UID} -g ${JENKINS_GROUP} ${JENKINS_USER} \
-  && chown ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH} \
-  && chown ${JENKINS_USER}:${JENKINS_GROUP} ${VOLUME_MOUNT_POINT} \
   && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen  \
   && locale-gen \
   # Install parquet-tools from Python
   && pip3 install parquet-tools
 
+# Create the container identity from the host UID/GID that run-tests-docker.sh passes in, so
+# writes into the bind-mounted integration-tests/ tree land as the workspace owner.
+# Those host IDs regularly collide with distro accounts — macOS hands over staff/20, but on
+# Ubuntu GID 20 is `dialout` and its own `staff` group sits at GID 50 — so reuse whatever
+# already holds the requested ID instead of failing the build. Ownership is applied
+# numerically everywhere below for the same reason: the group *name* may resolve to a
+# different GID than the one the host asked for.
+RUN set -eu; \
+  mkdir -p ${VOLUME_MOUNT_POINT}; \
+  if ! getent group "${JENKINS_GID}" >/dev/null; then \
+    groupadd -g "${JENKINS_GID}" "${JENKINS_GROUP}" 2>/dev/null \
+      || groupadd -g "${JENKINS_GID}" "hopgrp${JENKINS_GID}"; \
+  fi; \
+  if getent passwd "${JENKINS_UID}" >/dev/null; then \
+    existing_user="$(getent passwd "${JENKINS_UID}" | cut -d: -f1)"; \
+    if [ "${existing_user}" != "${JENKINS_USER}" ]; then \
+      usermod -l "${JENKINS_USER}" "${existing_user}"; \
+    fi; \
+    usermod -d "/home/${JENKINS_USER}" -g "${JENKINS_GID}" "${JENKINS_USER}"; \
+  elif getent passwd "${JENKINS_USER}" >/dev/null; then \
+    usermod -u "${JENKINS_UID}" -g "${JENKINS_GID}" -d "/home/${JENKINS_USER}" "${JENKINS_USER}"; \
+  else \
+    useradd -m -d "/home/${JENKINS_USER}" -u "${JENKINS_UID}" -g "${JENKINS_GID}" "${JENKINS_USER}"; \
+  fi; \
+  mkdir -p "/home/${JENKINS_USER}"; \
+  chown ${JENKINS_UID}:${JENKINS_GID} "/home/${JENKINS_USER}" ${DEPLOYMENT_PATH} ${VOLUME_MOUNT_POINT}
 
-COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop ${DEPLOYMENT_PATH}/hop
+
+COPY --chown=${JENKINS_UID}:${JENKINS_GID} ./assemblies/client/target/hop ${DEPLOYMENT_PATH}/hop
 
 # Wave 1 optional plugins (marketplace) — expect host to have run tools/install-wave1-plugins.sh
 # into assemblies/client/target/hop before this build (run-tests-docker.sh and Jenkins do this).
 # If a plugin is still missing at runtime, corresponding ITs will fail clearly.
 
 # Copy gcp key
-COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ${GCP_KEY_FILE} /tmp/google-key-apache-hop-it.json
+COPY --chown=${JENKINS_UID}:${JENKINS_GID} ${GCP_KEY_FILE} /tmp/google-key-apache-hop-it.json
 
 # Copy mail keystore
-COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./docker/integration-tests/resource/mail/conf/keystore /tmp
+COPY --chown=${JENKINS_UID}:${JENKINS_GID} ./docker/integration-tests/resource/mail/conf/keystore /tmp
 
 # Unzip and install in correct location
-RUN chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
+RUN chown -R ${JENKINS_UID}:${JENKINS_GID} ${DEPLOYMENT_PATH}/hop \
   && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh
 
 # make volume available so that hop pipeline and workflow files can be provided easily
