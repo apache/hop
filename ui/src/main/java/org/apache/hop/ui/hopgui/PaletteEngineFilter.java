@@ -18,9 +18,8 @@
 package org.apache.hop.ui.hopgui;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.LogChannel;
@@ -47,11 +46,11 @@ import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
  * <p>An empty stored value means "no filter" — the palette behaves exactly as it did before this
  * feature was introduced, preserving the new-user experience.
  *
- * <p>The local "Local" and remote "Remote" engines are grouped under a single {@link
- * #HOP_ENGINE_GROUP_ID Hop} entry: from a user's perspective they are the same engine surface (same
- * plugin compatibility, same transform palette) and splitting them in the combo adds noise. A
- * plugin is shown when <em>any</em> engine in the group accepts it, hidden only when <em>every</em>
- * member of the group says UNSUPPORTED.
+ * <p>The Hop engines — local "Local", remote "Remote" and the local single-threaded "LocalSingle" —
+ * are grouped under a single {@link #HOP_ENGINE_GROUP_ID Hop} entry: from a user's perspective they
+ * are the same engine surface (same plugin compatibility, same transform palette) and splitting
+ * them in the combo adds noise. A plugin is shown when <em>any</em> engine in the group accepts it,
+ * hidden only when <em>every</em> member of the group says UNSUPPORTED.
  */
 public final class PaletteEngineFilter {
 
@@ -67,35 +66,61 @@ public final class PaletteEngineFilter {
   public static final String NO_FILTER_LABEL = "All engines";
 
   /**
-   * Synthetic engine id used by the combo to represent the unified Hop-engine group (Local +
-   * Remote, both pipeline and workflow). Stored verbatim in {@code hop-config.json}; when the
+   * Synthetic engine id used by the combo to represent the unified Hop-engine group (Local, Remote
+   * and — on the pipeline side — LocalSingle). Stored verbatim in {@code hop-config.json}; when the
    * filter loads this value it expands into probes for every member of the group.
    */
   public static final String HOP_ENGINE_GROUP_ID = "Hop";
 
-  /** Engine plugin ids collapsed into the {@link #HOP_ENGINE_GROUP_ID Hop} group. */
-  private static final Set<String> HOP_PIPELINE_ENGINE_IDS = Set.of("Local", "Remote");
+  /**
+   * Pipeline engine plugin ids collapsed into the {@link #HOP_ENGINE_GROUP_ID Hop} group. The local
+   * single-threaded engine ("LocalSingle") supports the same transforms as the local and remote
+   * engines, so it shares their combo entry instead of getting one of its own.
+   */
+  private static final List<String> HOP_PIPELINE_ENGINE_IDS =
+      List.of("Local", "Remote", "LocalSingle");
 
-  private static final Set<String> HOP_WORKFLOW_ENGINE_IDS = Set.of("Local", "Remote");
+  /** Workflow counterpart — there is no single-threaded workflow engine. */
+  private static final List<String> HOP_WORKFLOW_ENGINE_IDS = List.of("Local", "Remote");
 
   private final String engineId;
+
+  /**
+   * The concrete engine ids the filter consults, parallel to {@link #probes} — a single id, or
+   * every member of the Hop group when {@link #HOP_ENGINE_GROUP_ID} is selected.
+   */
+  private final List<String> engineIds;
+
   private final List<EngineProbe> probes;
 
-  private PaletteEngineFilter(String engineId, List<EngineProbe> probes) {
+  private PaletteEngineFilter(String engineId, List<String> engineIds, List<EngineProbe> probes) {
     this.engineId = engineId;
+    this.engineIds = engineIds;
     this.probes = probes;
   }
 
   /** Reads the saved pipeline-design engine id and instantiates a probe for it. */
   public static PaletteEngineFilter forPipelineDesign() {
-    String engineId = StringUtils.trimToEmpty(getPipelineDesignEngineId());
-    return new PaletteEngineFilter(engineId, pipelineProbesFor(engineId));
+    return forPipelineEngineId(getPipelineDesignEngineId());
   }
 
   /** Reads the saved workflow-design engine id and instantiates a probe for it. */
   public static PaletteEngineFilter forWorkflowDesign() {
-    String engineId = StringUtils.trimToEmpty(getWorkflowDesignEngineId());
-    return new PaletteEngineFilter(engineId, workflowProbesFor(engineId));
+    return forWorkflowEngineId(getWorkflowDesignEngineId());
+  }
+
+  /** Filter for an explicit pipeline engine id, bypassing the persisted selection. */
+  static PaletteEngineFilter forPipelineEngineId(String engineId) {
+    String id = StringUtils.trimToEmpty(engineId);
+    List<String> ids = expandGroup(id, HOP_PIPELINE_ENGINE_IDS);
+    return new PaletteEngineFilter(id, ids, probesFor(ids, true));
+  }
+
+  /** Filter for an explicit workflow engine id, bypassing the persisted selection. */
+  static PaletteEngineFilter forWorkflowEngineId(String engineId) {
+    String id = StringUtils.trimToEmpty(engineId);
+    List<String> ids = expandGroup(id, HOP_WORKFLOW_ENGINE_IDS);
+    return new PaletteEngineFilter(id, ids, probesFor(ids, false));
   }
 
   /** True iff a non-empty engine id is stored — i.e. the palette should actually filter. */
@@ -117,12 +142,11 @@ public final class PaletteEngineFilter {
     if (!isActive() || plugin == null) {
       return true;
     }
-    List<String> ids = expandGroup(engineId, HOP_PIPELINE_ENGINE_IDS, HOP_WORKFLOW_ENGINE_IDS);
-    for (int i = 0; i < ids.size(); i++) {
+    for (int i = 0; i < engineIds.size(); i++) {
       EngineProbe probe = i < probes.size() ? probes.get(i) : null;
       EngineCompatibility verdict =
           EngineCompatibilityResolver.resolve(
-              plugin, ids.get(i), probe == null ? null : probe::supports);
+              plugin, engineIds.get(i), probe == null ? null : probe::supports);
       if (!verdict.isUnsupported()) {
         return true;
       }
@@ -209,7 +233,7 @@ public final class PaletteEngineFilter {
   }
 
   private static List<String> labelsFor(
-      Class<? extends IPluginType> pluginType, Set<String> hopGroupIds) {
+      Class<? extends IPluginType> pluginType, Collection<String> hopGroupIds) {
     List<String> labels = new ArrayList<>();
     labels.add(NO_FILTER_LABEL);
     try {
@@ -237,7 +261,7 @@ public final class PaletteEngineFilter {
   }
 
   private static String labelForId(
-      Class<? extends IPluginType> pluginType, String engineId, Set<String> hopGroupIds) {
+      Class<? extends IPluginType> pluginType, String engineId, Collection<String> hopGroupIds) {
     if (StringUtils.isEmpty(engineId)) {
       return NO_FILTER_LABEL;
     }
@@ -275,7 +299,7 @@ public final class PaletteEngineFilter {
     return "";
   }
 
-  private static boolean matchesAnyId(IPlugin plugin, Set<String> ids) {
+  private static boolean matchesAnyId(IPlugin plugin, Collection<String> ids) {
     if (plugin == null || plugin.getIds() == null) {
       return false;
     }
@@ -290,37 +314,26 @@ public final class PaletteEngineFilter {
   /**
    * Expands a (possibly group) engine id into the concrete plugin ids the filter must consult.
    * Single-engine values pass through unchanged; the synthetic {@link #HOP_ENGINE_GROUP_ID} fans
-   * out to the union of pipeline + workflow Hop ids so that one logical "Hop" filter covers both
-   * canvases that share this class.
+   * out to the Hop engines of the canvas being filtered. The pipeline and workflow sides are kept
+   * separate on purpose: probing an id that has no engine on this side (e.g. "LocalSingle" as a
+   * workflow engine) always yields UNKNOWN, and since the group is permissive that one member would
+   * make every plugin visible and silently disable the filter.
+   *
+   * <p>A bare group member stored in {@code hop-config.json} (from an older release where "Local",
+   * "Remote" or "LocalSingle" were separate combo entries) expands to the whole group too, so the
+   * filter matches the "Hop" label the combo shows for it.
    */
-  private static List<String> expandGroup(
-      String engineId, Set<String> hopPipelineIds, Set<String> hopWorkflowIds) {
-    if (HOP_ENGINE_GROUP_ID.equals(engineId)) {
-      Set<String> all = new LinkedHashSet<>();
-      all.addAll(hopPipelineIds);
-      all.addAll(hopWorkflowIds);
-      return new ArrayList<>(all);
+  private static List<String> expandGroup(String engineId, List<String> hopGroupIds) {
+    if (StringUtils.isEmpty(engineId)) {
+      return List.of();
+    }
+    if (HOP_ENGINE_GROUP_ID.equals(engineId) || hopGroupIds.contains(engineId)) {
+      return hopGroupIds;
     }
     return List.of(engineId);
   }
 
-  private static List<EngineProbe> pipelineProbesFor(String engineId) {
-    return probesFor(engineId, HOP_PIPELINE_ENGINE_IDS, HOP_WORKFLOW_ENGINE_IDS, true);
-  }
-
-  private static List<EngineProbe> workflowProbesFor(String engineId) {
-    return probesFor(engineId, HOP_PIPELINE_ENGINE_IDS, HOP_WORKFLOW_ENGINE_IDS, false);
-  }
-
-  private static List<EngineProbe> probesFor(
-      String engineId,
-      Set<String> hopPipelineIds,
-      Set<String> hopWorkflowIds,
-      boolean forPipeline) {
-    if (StringUtils.isEmpty(engineId)) {
-      return List.of();
-    }
-    List<String> ids = expandGroup(engineId, hopPipelineIds, hopWorkflowIds);
+  private static List<EngineProbe> probesFor(List<String> ids, boolean forPipeline) {
     List<EngineProbe> probes = new ArrayList<>(ids.size());
     for (String id : ids) {
       EngineProbe probe =
