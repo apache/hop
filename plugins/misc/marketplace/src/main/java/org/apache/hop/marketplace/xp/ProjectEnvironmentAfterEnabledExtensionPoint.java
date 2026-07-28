@@ -79,12 +79,24 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
       return;
     }
 
+    boolean explicitEnvFile = MarketplaceAttributes.hasExplicitEnvFile(context);
     Path envFile = resolveEnvFile(context, variables, hopHome);
     if (envFile == null) {
+      // No hop-env configured and none found: silent for old environments (issue #7656).
+      // Only complain when the user set envFile and the path is missing.
+      if (!explicitEnvFile) {
+        log.logDetailed(
+            "Marketplace environment check skipped (no envFile attribute and no hop-env.yaml) for '"
+                + Const.NVL(context.getEnvironmentName(), "")
+                + "'");
+        return;
+      }
       String msg =
           "Marketplace environment file not found for environment '"
               + Const.NVL(context.getEnvironmentName(), "")
-              + "'. Set marketplace attribute envFile or place hop-env.yaml under the project home.";
+              + "': "
+              + Const.NVL(MarketplaceAttributes.envFile(context), "")
+              + ". Fix marketplace attribute envFile or place hop-env.yaml under the project home.";
       if (MarketplaceAttributes.ON_ENABLE_ENFORCE.equals(onEnable)) {
         throw new HopException(msg);
       }

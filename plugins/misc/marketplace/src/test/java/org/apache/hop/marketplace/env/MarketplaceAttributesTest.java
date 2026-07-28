@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class MarketplaceAttributesTest {
 
   @Test
-  void purposeDefaults() {
+  void purposeDefaultsForUiOnly() {
     assertEquals(
         MarketplaceAttributes.ON_ENABLE_ENFORCE,
         MarketplaceAttributes.defaultOnEnableForPurpose("Production"));
@@ -45,15 +45,31 @@ class MarketplaceAttributesTest {
   }
 
   @Test
-  void explicitOverridesPurpose() {
+  void unsetOnEnableIsOffAtRuntimeEvenForProduction() {
+    // Old hop configs have no marketplace attributes — must not enforce (issue #7656)
+    AttributesContext ctx = new AttributesContext();
+    assertEquals(
+        MarketplaceAttributes.ON_ENABLE_OFF,
+        MarketplaceAttributes.resolveOnEnable(ctx, "Production"));
+    assertEquals(
+        MarketplaceAttributes.ON_ENABLE_OFF,
+        MarketplaceAttributes.resolveOnEnable(null, "Production"));
+    assertFalse(MarketplaceAttributes.hasExplicitEnvFile(ctx));
+  }
+
+  @Test
+  void explicitOverridesUnsetDefault() {
     AttributesContext ctx = new AttributesContext();
     ctx.setAttribute(
         MarketplaceAttributes.GROUP,
         MarketplaceAttributes.KEY_ON_ENABLE,
-        MarketplaceAttributes.ON_ENABLE_OFF);
+        MarketplaceAttributes.ON_ENABLE_ENFORCE);
     assertEquals(
-        MarketplaceAttributes.ON_ENABLE_OFF,
-        MarketplaceAttributes.resolveOnEnable(ctx, "Production"));
+        MarketplaceAttributes.ON_ENABLE_ENFORCE,
+        MarketplaceAttributes.resolveOnEnable(ctx, "Development"));
+    ctx.setAttribute(
+        MarketplaceAttributes.GROUP, MarketplaceAttributes.KEY_ENV_FILE, "/tmp/hop-env.yaml");
+    assertTrue(MarketplaceAttributes.hasExplicitEnvFile(ctx));
   }
 
   @Test
