@@ -61,6 +61,8 @@ Tools -> Options contains an option to specify whether you want or don't want gl
 .. image:icons/bookmark-add.svg[width="25px"]Add the selected file or folder as a bookmark
 .. image:icons/delete.svg[width="25px"]Remove the selected bookmark
 . **File/folder browser**: Browse your current file system, create folders and toggle hidden files and folders.
+When the dialog is used to open pipelines or workflows (`File -> Open`), you can select more than one file at once with `Ctrl` (`Cmd` on macOS) or `Shift`.
+All selected files are opened in their own tab.
 .. image:icons/folder-add.svg[width="25px"]Create folder
 .. image:icons/zipfile.svg[width="25px"]Drill into a selected archive (zip, jar, tar, tgz, tbz2) using VFS. Double-clicking an archive does the same; use *OK* if you need to select the archive file itself. Directory browsers also list these archives so you can open a folder inside a zip (for example a project home).
 .. image:icons/preview.svg[width="25px"]Show or hide hidden files and directories

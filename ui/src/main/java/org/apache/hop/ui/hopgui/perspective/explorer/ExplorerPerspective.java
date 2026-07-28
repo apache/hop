@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -628,7 +629,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
-    tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    tree = new Tree(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(SWT.DefaultSelection, this::openFile);
@@ -667,7 +668,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           TreeItem[] selection = tree.getSelection();
           TreeItemFolder tif =
               selection.length == 1 ? (TreeItemFolder) selection[0].getData() : null;
-          boolean openSupported = tif != null && (tif.folder || tif.fileType.supportsOpening());
+          // Opening works on the whole selection, everything else needs exactly one file.
+          //
+          boolean openSupported = isOpenSupported(selection);
           MenuItem openItem = menuWidgets.findMenuItem(CONTEXT_MENU_OPEN);
           if (openItem != null) {
             openItem.setEnabled(openSupported);
@@ -684,6 +687,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           MenuItem renameItem = menuWidgets.findMenuItem(CONTEXT_MENU_RENAME);
           if (renameItem != null) {
             renameItem.setEnabled(selection.length == 1);
+          }
+
+          MenuItem deleteItem = menuWidgets.findMenuItem(CONTEXT_MENU_DELETE);
+          if (deleteItem != null) {
+            deleteItem.setEnabled(selection.length == 1);
+          }
+
+          MenuItem createFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_CREATE_FOLDER);
+          if (createFolderItem != null) {
+            createFolderItem.setEnabled(selection.length == 1);
           }
 
           // Finding references is only meaningful for a single pipeline or workflow file.
@@ -735,19 +748,25 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           @Override
           public void dragStart(DragSourceEvent event) {
-            ExplorerFile file = getSelectedFile();
+            List<ExplorerFile> files = getSelectedFiles();
             String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
             // Avoid moving root folder, metadata folder or hidden file (like .git)
-            if (file == null
-                || file.getFilename().equals(rootFolder)
-                || file.getFilename().contains(metadataFolder)
-                || file.getName().startsWith(".")) {
+            if (files.isEmpty()) {
               event.doit = false;
               return;
             }
+            for (ExplorerFile file : files) {
+              if (file.getFilename().equals(rootFolder)
+                  || file.getFilename().contains(metadataFolder)
+                  || file.getName().startsWith(".")) {
+                event.doit = false;
+                return;
+              }
+            }
 
-            // Used by dragOver
-            dragFile = file.getFilename();
+            // Used by dragOver. The files are dragged from the same folder, so the first one is
+            // enough to keep them from being dropped onto their own parent.
+            dragFile = files.get(0).getFilename();
 
             // Set an explicit drag image to avoid macOS NPE in TreeDragSourceEffect when the
             // native side requests the default tree drag image (dragImageFromListener.handle null).
@@ -780,8 +799,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           @Override
           public void dragSetData(DragSourceEvent event) {
             if (fileTransfer.isSupportedType(event.dataType)) {
-              event.doit = true;
-              event.data = new String[] {getSelectedFile().getFilename()};
+              List<ExplorerFile> files = getSelectedFiles();
+              event.doit = !files.isEmpty();
+              event.data = files.stream().map(ExplorerFile::getFilename).toArray(String[]::new);
             }
           }
 
@@ -1000,6 +1020,23 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           refreshFolder(item, tif.path, childDepthForFolder(tif));
           tif.loaded = true;
         });
+  }
+
+  /** Every selected item needs to be openable before we offer to open the selection. */
+  private boolean isOpenSupported(TreeItem[] selection) {
+    if (selection == null || selection.length == 0) {
+      return false;
+    }
+    for (TreeItem item : selection) {
+      TreeItemFolder tif = (TreeItemFolder) item.getData();
+      if (tif == null || tif.fileType == null) {
+        return false;
+      }
+      if (!tif.folder && !tif.fileType.supportsOpening()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private void openFile(Event event) {
@@ -2544,6 +2581,22 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return null;
   }
 
+  /** All the files selected in the tree, in the order the tree shows them. */
+  public List<ExplorerFile> getSelectedFiles() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null) {
+      return Collections.emptyList();
+    }
+    List<ExplorerFile> files = new ArrayList<>();
+    for (TreeItem item : selection) {
+      TreeItemFolder tif = (TreeItemFolder) item.getData();
+      if (tif != null) {
+        files.add(new ExplorerFile(tif.name, tif.path, tif.fileType));
+      }
+    }
+    return files;
+  }
+
   public IHopFileTypeHandler findFileTypeHandlerByFilename(String filename) {
     if (filename != null) {
       for (TabItemHandler item : items) {
@@ -2889,7 +2942,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (selection == null || selection.length == 0) {
       return;
     }
-    openFile(selection[0]);
+    // Open every selected file. Selected folders simply expand or collapse.
+    //
+    for (TreeItem item : selection) {
+      openFile(item);
+    }
   }
 
   @GuiMenuElement(
@@ -2899,7 +2956,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       label = "i18n::ExplorerPerspective.Menu.OpenInExplorer")
   public void openFileInExplorer() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (selection == null || selection.length != 1) {
       return;
     }
 
@@ -2932,7 +2989,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   public void createFolder() {
 
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (selection == null || selection.length != 1) {
       return;
     }
     TreeItem item = selection[0];
@@ -3068,9 +3125,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
-    // Shortcut only fires when focus is in file explorer
+    // Shortcut only fires when focus is in file explorer.
+    // Deleting is deliberately limited to a single file: the confirmation (and the reference
+    // check behind it) is written for one file at a time.
+    //
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (selection == null || selection.length != 1) {
       return;
     }
 
@@ -3093,7 +3153,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void renameFile() {
     TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
+    if (selection == null || selection.length != 1) {
       return;
     }
     renameFile(selection[0]);
@@ -3106,12 +3166,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       label = "i18n::ExplorerPerspective.Menu.CopyName",
       separator = true)
   public void copyFileName() {
-    TreeItem[] selection = tree.getSelection();
-    if (selection == null || selection.length == 0) {
-      return;
-    }
-    TreeItemFolder folder = (TreeItemFolder) selection[0].getData();
-    GuiResource.getInstance().toClipboard(folder.name);
+    copyToClipboard(tif -> tif.name);
   }
 
   @GuiMenuElement(
@@ -3120,13 +3175,25 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       id = CONTEXT_MENU_COPY_PATH,
       label = "i18n::ExplorerPerspective.Menu.CopyPath")
   public void copyFilePath() {
+    copyToClipboard(tif -> tif.path);
+  }
+
+  /** Copy one line per selected file to the clipboard. */
+  private void copyToClipboard(Function<TreeItemFolder, String> valueGetter) {
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
       return;
     }
-
-    TreeItemFolder folder = (TreeItemFolder) selection[0].getData();
-    GuiResource.getInstance().toClipboard(folder.path);
+    List<String> values = new ArrayList<>();
+    for (TreeItem item : selection) {
+      TreeItemFolder tif = (TreeItemFolder) item.getData();
+      if (tif != null) {
+        values.add(valueGetter.apply(tif));
+      }
+    }
+    if (!values.isEmpty()) {
+      GuiResource.getInstance().toClipboard(String.join(Const.CR, values));
+    }
   }
 
   @GuiMenuElement(
