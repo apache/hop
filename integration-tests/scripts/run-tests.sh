@@ -136,6 +136,20 @@ if [ -z "${SKIP_GOOGLE_SHEETS}" ]; then
   SKIP_GOOGLE_SHEETS="false"
 fi
 
+# Double-check inside the container: the host may have a valid key while the file that actually
+# reaches the pipelines is still the placeholder (bad mount, stale image, ...). Deciding here, on
+# the file the transforms open, turns that into a clean skip instead of a Google credentials error.
+GCP_KEY_IN_CONTAINER="${GOOGLE_APPLICATION_CREDENTIALS:-/tmp/google-key-apache-hop-it.json}"
+if [ "${SKIP_GOOGLE_SHEETS}" != "true" ]; then
+  if [ ! -s "${GCP_KEY_IN_CONTAINER}" ] \
+    || ! grep -qE '"type"[[:space:]]*:[[:space:]]*"service_account"' "${GCP_KEY_IN_CONTAINER}" 2>/dev/null; then
+    echo "WARNING: ${GCP_KEY_IN_CONTAINER} is not a service-account JSON key even though the host"
+    echo "         reported a valid one (check the GCP_KEY_HOST_PATH mount in integration-tests-base.yaml)."
+    echo "         Skipping the Google Sheets integration tests."
+    SKIP_GOOGLE_SHEETS="true"
+  fi
+fi
+
 #set global variables
 SPACER="==========================================="
 

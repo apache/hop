@@ -30,7 +30,6 @@ ARG JENKINS_USER=hop
 ARG JENKINS_GROUP=hop
 ARG JENKINS_UID=1000
 ARG JENKINS_GID=1000
-ARG GCP_KEY_FILE=
 # Set system properties
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -100,8 +99,11 @@ COPY --chown=${JENKINS_UID}:${JENKINS_GID} ./assemblies/client/target/hop ${DEPL
 # into assemblies/client/target/hop before this build (run-tests-docker.sh and Jenkins do this).
 # If a plugin is still missing at runtime, corresponding ITs will fail clearly.
 
-# Copy gcp key
-COPY --chown=${JENKINS_UID}:${JENKINS_GID} ${GCP_KEY_FILE} /tmp/google-key-apache-hop-it.json
+# Placeholder GCP key. The real service-account JSON is never baked into the image: it is
+# bind-mounted over this path at run time (see integration-tests-base.yaml + run-tests-docker.sh),
+# so the image is identical whether it is built explicitly, implicitly by "compose up", or from
+# cache. Baking it in via a build-arg made the image content depend on how it got built.
+COPY --chown=${JENKINS_UID}:${JENKINS_GID} ./docker/integration-tests/resource/dummyfile /tmp/google-key-apache-hop-it.json
 
 # Copy mail keystore
 COPY --chown=${JENKINS_UID}:${JENKINS_GID} ./docker/integration-tests/resource/mail/conf/keystore /tmp
