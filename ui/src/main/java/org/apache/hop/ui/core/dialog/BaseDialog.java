@@ -363,6 +363,82 @@ public abstract class BaseDialog extends Dialog {
       String[] filterExtensions,
       String[] filterNames,
       boolean folderAndFile) {
+    String[] filenames =
+        presentFileDialog(
+            save,
+            shell,
+            textVar,
+            variables,
+            fileObject,
+            filterExtensions,
+            filterNames,
+            folderAndFile,
+            false);
+    return filenames.length == 0 ? null : filenames[0];
+  }
+
+  /**
+   * Open a File browser dialog in which the user can select more than one file. Selecting a single
+   * file simply results in an array with one element.
+   *
+   * @param shell the Shell to attach the dialog to
+   * @param variables IVariables to resolve variables in the dialog
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return the full paths of the selected files, empty when the dialog was cancelled
+   */
+  public static String[] presentMultiFileDialog(
+      Shell shell,
+      IVariables variables,
+      String[] filterExtensions,
+      String[] filterNames,
+      boolean folderAndFile) {
+    return presentMultiFileDialog(
+        shell, variables, null, filterExtensions, filterNames, folderAndFile);
+  }
+
+  /**
+   * Open a File browser dialog in which the user can select more than one file. Selecting a single
+   * file simply results in an array with one element.
+   *
+   * @param shell the Shell to attach the dialog to
+   * @param variables IVariables to resolve variables in the dialog
+   * @param fileObject the FileObject to navigate to
+   * @param filterExtensions String[] containing a list of extensions to filter on
+   * @param filterNames String[] names for the filterExtensions
+   * @param folderAndFile boolean to enable the dialog to open both files and folders
+   * @return the full paths of the selected files, empty when the dialog was cancelled
+   */
+  public static String[] presentMultiFileDialog(
+      Shell shell,
+      IVariables variables,
+      FileObject fileObject,
+      String[] filterExtensions,
+      String[] filterNames,
+      boolean folderAndFile) {
+    return presentFileDialog(
+        false,
+        shell,
+        null,
+        variables,
+        fileObject,
+        filterExtensions,
+        filterNames,
+        folderAndFile,
+        true);
+  }
+
+  private static String[] presentFileDialog(
+      boolean save,
+      Shell shell,
+      TextVar textVar,
+      IVariables variables,
+      FileObject fileObject,
+      String[] filterExtensions,
+      String[] filterNames,
+      boolean folderAndFile,
+      boolean multiSelection) {
 
     boolean useNativeFileDialog =
         HopGui.getInstance().getVariables().getVariableBoolean(HOP_USE_NATIVE_FILE_DIALOG, false);
@@ -370,7 +446,13 @@ public abstract class BaseDialog extends Dialog {
     IFileDialog dialog;
 
     if (useNativeFileDialog) {
-      FileDialog fileDialog = new FileDialog(shell, save ? SWT.SAVE : SWT.OPEN);
+      // The native dialog only accepts multiple files when it is created with SWT.MULTI.
+      //
+      int style = save ? SWT.SAVE : SWT.OPEN;
+      if (multiSelection) {
+        style |= SWT.MULTI;
+      }
+      FileDialog fileDialog = new FileDialog(shell, style);
       dialog = new NativeFileDialog(fileDialog);
     } else {
       HopVfsFileDialog vfsDialog =
@@ -459,6 +541,7 @@ public abstract class BaseDialog extends Dialog {
       dialog.setFilterExtensions(filterExtensions);
       dialog.setFilterNames(filterNames);
     }
+    dialog.setMultiSelection(multiSelection);
 
     AtomicBoolean doIt = new AtomicBoolean(true);
     try {
@@ -505,32 +588,47 @@ public abstract class BaseDialog extends Dialog {
       dialog.setFileName(variables.resolve(textVar.getText()));
     }
 
-    String filename = null;
-    if (!doIt.get() || dialog.open() != null) {
-      filename = buildFilename(dialog.getFilterPath(), dialog.getFileName());
+    if (doIt.get() && dialog.open() == null) {
+      // The dialog was cancelled
+      //
+      return new String[0];
+    }
+
+    // More than one file selected? Otherwise we simply have the one file the dialog reports.
+    //
+    String[] filenames = dialog.getFileNames();
+    if (filenames.length == 0) {
+      filenames = new String[] {buildFilename(dialog.getFilterPath(), dialog.getFileName())};
+    }
+
+    // Give plugins the chance to rewrite every selected filename, e.g. to make it relative to
+    // the project home. This is done per file since the extension point handles one at a time.
+    //
+    for (int i = 0; i < filenames.length; i++) {
       try {
         HopGuiFileOpenedExtension openedExtension =
-            new HopGuiFileOpenedExtension(dialog, variables, filename);
+            new HopGuiFileOpenedExtension(dialog, variables, filenames[i]);
         ExtensionPointHandler.callExtensionPoint(
             LogChannel.UI,
             variables,
             HopGuiExtensionPoint.HopGuiFileOpenedDialog.id,
             openedExtension);
         if (openedExtension.filename != null) {
-          filename = openedExtension.filename;
+          filenames[i] = openedExtension.filename;
         }
       } catch (Exception xe) {
         LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
       }
-
-      if (textVar != null) {
-        textVar.setText(filename);
-      }
     }
-    return filename;
+
+    if (textVar != null) {
+      textVar.setText(filenames[0]);
+    }
+
+    return filenames;
   }
 
-  private static String buildFilename(String filterPath, String fileName) {
+  static String buildFilename(String filterPath, String fileName) {
     if (StringUtils.isEmpty(filterPath)) {
       return fileName;
     }

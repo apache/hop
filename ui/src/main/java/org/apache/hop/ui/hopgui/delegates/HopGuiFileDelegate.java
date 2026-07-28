@@ -28,6 +28,7 @@ import java.util.Set;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
@@ -83,23 +84,54 @@ public class HopGuiFileDelegate {
 
   public void fileOpen() {
     try {
-      // Ask for the file name
+      // Ask for the file names
       // Check in the registry for extensions and names...
       //
       HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
 
-      String filename =
-          BaseDialog.presentFileDialog(
+      String[] filenames =
+          BaseDialog.presentMultiFileDialog(
               hopGui.getShell(),
+              hopGui.getVariables(),
               fileRegistry.getFilterExtensions(),
               fileRegistry.getFilterNames(),
               true);
-      if (filename == null) {
+      if (filenames.length == 0) {
         return;
       }
-      fileOpen(hopGui.getVariables().resolve(filename));
+      fileOpen(filenames);
     } catch (Exception e) {
       new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error opening file", e);
+    }
+  }
+
+  /**
+   * Open all the given files. The files that can't be opened are collected and reported once, so a
+   * single bad file doesn't stop the others from opening.
+   *
+   * @param filenames the files to open
+   */
+  public void fileOpen(String[] filenames) {
+    List<String> errors = new ArrayList<>();
+
+    for (int i = 0; i < filenames.length; i++) {
+      String filename = hopGui.getVariables().resolve(filenames[i]);
+      try {
+        // Only bring the perspective of the last file to the front: switching for every file in
+        // between simply flickers.
+        //
+        fileOpen(filename, i == filenames.length - 1);
+      } catch (Exception e) {
+        errors.add(filename + " : " + e.getMessage());
+        hopGui.getLog().logError("Error opening file '" + filename + "'", e);
+      }
+    }
+
+    if (!errors.isEmpty()) {
+      MessageBox messageBox = new MessageBox(hopGui.getActiveShell(), SWT.ICON_ERROR | SWT.OK);
+      messageBox.setText(CONST_ERROR);
+      messageBox.setMessage("Error opening file:" + Const.CR + String.join(Const.CR, errors));
+      messageBox.open();
     }
   }
 

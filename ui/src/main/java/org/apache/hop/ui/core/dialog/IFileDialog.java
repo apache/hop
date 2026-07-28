@@ -33,4 +33,26 @@ public interface IFileDialog {
   String open();
 
   void setFilterPath(String filterPath);
+
+  /**
+   * Allow the user to select more than one file. This needs to be set before the dialog is opened.
+   * Dialogs that can only ever select a single file simply ignore this.
+   *
+   * @param multiSelection true to allow selecting multiple files
+   */
+  default void setMultiSelection(boolean multiSelection) {
+    // Single-selection dialogs have nothing to do here.
+  }
+
+  /**
+   * The files that were selected, as full paths. This is only filled in when the dialog allows
+   * multi-selection and the user actually selected more than one file. In every other case an empty
+   * array is returned and {@link #getFileName()} (relative to {@link #getFilterPath()}) is the
+   * selection.
+   *
+   * @return the full paths of the selected files, never null
+   */
+  default String[] getFileNames() {
+    return new String[0];
+  }
 }
