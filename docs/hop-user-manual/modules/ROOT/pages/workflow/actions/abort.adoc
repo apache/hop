@@ -26,6 +26,9 @@ The `Abort workflow` action immediately stops (aborts) a running workflow.
 
 Use the abort action if you want to explicitly terminate a workflow and mark it as failed with an (optional) error message.
 
+The workflow is always marked as failed, whatever the action before the abort returned.
+A parent workflow calling this workflow will follow its failure hop.
+
 == Options
 
 [options="header"]
@@ -35,4 +38,7 @@ Use the abort action if you want to explicitly terminate a workflow and mark it 
 This name has to be unique in a single workflow.
 A workflow action can be placed several times on the canvas, however it will be the same workflow action.
 |Message|Message to add in log when aborting
+|Log level of the message|The log level to write the message with, `Error` by default.
+Lower the log level if you don't want the message to show up as an error in the log.
+This only changes the logging: the workflow is marked as failed either way.
 |===

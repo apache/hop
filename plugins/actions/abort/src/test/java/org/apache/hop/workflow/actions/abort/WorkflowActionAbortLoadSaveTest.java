@@ -17,8 +17,13 @@
 package org.apache.hop.workflow.actions.abort;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 
 class WorkflowActionAbortLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionAbort> {
@@ -30,18 +35,27 @@ class WorkflowActionAbortLoadSaveTest extends WorkflowActionLoadSaveTestSupport<
 
   @Override
   protected List<String> listAttributes() {
-    return Arrays.asList("messageAbort", "alwaysLogRows");
+    return Arrays.asList("messageAbort", "messageLogLevel");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
         "messageAbort", "getMessageAbort",
-        "alwaysLogRows", "isAlwaysLogRows");
+        "messageLogLevel", "getMessageLogLevel");
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
-    return toMap("messageAbort", "setMessageAbort", "alwaysLogRows", "setAlwaysLogRows");
+    return toMap(
+        "messageAbort", "setMessageAbort",
+        "messageLogLevel", "setMessageLogLevel");
+  }
+
+  @Override
+  protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
+    EnumSet<LogLevel> logLevels = EnumSet.allOf(LogLevel.class);
+    LogLevel random = (LogLevel) logLevels.toArray()[new Random().nextInt(logLevels.size())];
+    return toMap("messageLogLevel", new EnumLoadSaveValidator<>(random));
   }
 }
