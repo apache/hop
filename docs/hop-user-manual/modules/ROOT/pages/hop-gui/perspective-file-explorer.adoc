@@ -39,12 +39,12 @@ The file operations are available through a number of toolbar options:
 
 image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar items]
 
-* Open selected file: Use the right arrow or double-click to open a selected file. You can also open a file simply by double-clicking it. If this is a workflow or pipeline it will be opened in the xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestation] perspective. In all other cases the file will be opened in a new tab.
-* Create folder: Add a new folder.
+* Open selected file: Use the right arrow or double-click to open a selected file. You can also open a file simply by double-clicking it. If this is a workflow or pipeline it will be opened in the xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestation] perspective. In all other cases the file will be opened in a new tab. Select multiple files with `Ctrl` (`Cmd` on macOS) or `Shift` to open them all at once.
+* Create folder: Add a new folder. This works on a single selected folder.
 * Expand all folders: Display all nested folders in the directory tree.
 * Collapse all folders: Hide all nested folders in the directory tree.
-* Delete: Remove a selected file or folder.
-* Rename: Rename a file or folder.
+* Delete: Remove a selected file or folder. Only one file or folder at a time.
+* Rename: Rename a file or folder. Only one file or folder at a time.
 * Refresh: Refresh the file list.
 * Show or hide files: Show or hide files or directories.
 
