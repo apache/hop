@@ -22,13 +22,18 @@ services:
       context: ../../.
       dockerfile: docker/integration-tests/unit-tests.Dockerfile
       args:
-        - JENKINS_USER=jenkins
-        - JENKINS_UID=1000
-        - JENKINS_GROUP=jenkins
-        - JENKINS_GID=1000
-        - GCP_KEY_FILE=./docker/integration-tests/resource/dummyfile
+        # Exported by run-tests-docker.sh so that a rebuild triggered by "compose up --build"
+        # (hop_server, spark) creates the same container user as the up-front build. A mismatch
+        # makes the mounts below unreadable/unwritable for the container user.
+        - JENKINS_USER=${JENKINS_USER:-jenkins}
+        - JENKINS_UID=${JENKINS_UID:-1000}
+        - JENKINS_GROUP=${JENKINS_GROUP:-jenkins}
+        - JENKINS_GID=${JENKINS_GID:-1000}
     volumes:
       - ../../integration-tests/:/files
+      # Real GCP service-account JSON, staged by run-tests-docker.sh (GCP_KEY_FILE=...).
+      # Defaults to the checked-in placeholder, which makes the Google Sheets ITs skip.
+      - ${GCP_KEY_HOST_PATH:-./resource/dummyfile}:/tmp/google-key-apache-hop-it.json:ro
     environment:
       - FLASK_ENV=docker
       # Optional workflow basename filter (substring or glob). Set by run-tests-docker.sh.

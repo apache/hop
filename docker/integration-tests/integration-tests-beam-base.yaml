@@ -29,6 +29,9 @@ services:
         HOP_SPARK_CLIENT_VERSION: ${HOP_SPARK_CLIENT_VERSION:-}
     volumes:
       - ../../integration-tests/:/files
+      # Same GCP key mount as integration-tests-base.yaml: hop-beam-image is FROM hop-base-image,
+      # so it only carries the placeholder and needs the real key mounted in as well.
+      - ${GCP_KEY_HOST_PATH:-./resource/dummyfile}:/tmp/google-key-apache-hop-it.json:ro
     environment:
       - FLASK_ENV=docker
       # Keep driver Spark client pack in sync with the fat jar (empty = default pack)
