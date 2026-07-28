@@ -17,11 +17,16 @@
 
 package org.apache.hop.metadata.serializer.json;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -37,6 +42,7 @@ import org.apache.hop.metadata.serializer.json.person.interest.Music;
 import org.apache.hop.metadata.serializer.json.person.interest.Running;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link JsonMetadataSerializer} */
 class JsonMetadataSerializerTest {
@@ -84,5 +90,52 @@ class JsonMetadataSerializerTest {
     Person anotherPerson = personSerializer.load("Person");
 
     assertEquals(person, anotherPerson);
+  }
+
+  /**
+   * An object we can't load, for example because the plugin which created it isn't installed,
+   * shouldn't keep the other objects from being loaded. See also the "Unable to find the plugin"
+   * errors which prevented projects from being opened.
+   */
+  @Test
+  void testLoadAllIgnoresObjectsWeCantLoad(@TempDir Path folder) throws Exception {
+    JsonMetadataProvider provider =
+        new JsonMetadataProvider(
+            new HopTwoWayPasswordEncoder(),
+            folder.toString(),
+            Variables.getADefaultVariableSpace());
+
+    Occupation occupation = new Occupation("Occupation1", "Description of occupation1", 2001);
+    provider.getSerializer(Occupation.class).save(occupation);
+
+    IHopMetadataSerializer<Person> personSerializer = provider.getSerializer(Person.class);
+    personSerializer.save(
+        new Person(
+            "Person",
+            "51",
+            new Address("Street", "123", new City("12345", "McCity")),
+            new Music("Music", "Love Music"),
+            Arrays.asList(new Cooking("Cooking", "Cooking is great")),
+            new HashMap<>(),
+            occupation));
+
+    // Copy the person to a second file but with an interest which our object factory doesn't know.
+    // This is what happens when a plugin used to create an object isn't installed.
+    //
+    Path personFolder = folder.resolve("person");
+    String json = new String(Files.readAllBytes(personFolder.resolve("Person.json")), UTF_8);
+    Files.write(
+        personFolder.resolve("Gardener.json"),
+        json.replace("\"music\"", "\"gardening\"").getBytes(UTF_8));
+
+    // Loading all the objects simply skips the one we can't load...
+    //
+    List<Person> persons = personSerializer.loadAll();
+    assertEquals(1, persons.size());
+    assertEquals("Person", persons.get(0).getName());
+
+    // ... while loading it by name still reports the problem.
+    //
+    assertThrows(HopException.class, () -> personSerializer.load("Gardener"));
   }
 }

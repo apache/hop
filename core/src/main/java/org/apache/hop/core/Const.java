@@ -2803,6 +2803,26 @@ public class Const {
   }
 
   /**
+   * Digs up the message of the deepest cause of an error and puts it on a single line. Use it to
+   * explain a problem in a dialog or in a list of problems: Hop exception messages are nested and
+   * spread over several lines, and only the deepest one says what actually went wrong.
+   *
+   * @param aThrowable the error to explain
+   * @return the message of the root cause, or the name of its class if it doesn't have one
+   */
+  public static String getRootCauseMessage(Throwable aThrowable) {
+    Throwable rootCause = ExceptionUtils.getRootCause(aThrowable);
+    if (rootCause == null) {
+      rootCause = aThrowable;
+    }
+    String message = rootCause.getMessage();
+    if (StringUtils.isEmpty(message)) {
+      return rootCause.getClass().getSimpleName();
+    }
+    return message.replaceAll("\\s+", " ").trim();
+  }
+
+  /**
    * Create a valid filename using a name We remove all special characters, spaces, etc.
    *
    * @param name The name to use as a base for the filename
