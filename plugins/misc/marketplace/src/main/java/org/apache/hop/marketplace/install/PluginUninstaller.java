@@ -26,7 +26,10 @@ import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 
-/** Removes a marketplace-installed plugin using its receipt. Never touches core-protected paths. */
+/**
+ * Removes a marketplace-installed plugin using its receipt. Shared {@code lib/core} jars stay in
+ * place so other plugins (and the system classpath) keep working.
+ */
 public class PluginUninstaller {
 
   private final ILogChannel log;
@@ -46,11 +49,11 @@ public class PluginUninstaller {
               + "'. Only plugins installed via the marketplace can be uninstalled this way.");
     }
 
-    // Delete files deepest-first; skip protected paths (e.g. lib/core)
+    // Delete files deepest-first; leave shared lib/core jars (sticky, may be used by others)
     Set<Path> dirs = new HashSet<>();
     for (String relative : receipt.getPaths()) {
-      if (PluginInstaller.isProtectedPath(relative)) {
-        log.logBasic("Leaving protected path in place: " + relative);
+      if (PluginInstaller.isSharedCorePath(relative)) {
+        log.logBasic("Leaving shared lib/core path in place: " + relative);
         continue;
       }
       Path path = hopHome.resolve(relative);
