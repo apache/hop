@@ -45,6 +45,16 @@ public final class NexusRepositoryBrowser {
 
   private NexusRepositoryBrowser() {}
 
+  /**
+   * Whether {@code repositoryUrl} looks like a Sonatype Nexus 3 Maven base ({@code
+   * …/repository/&lt;name&gt;/}). Classic Maven group URLs (ASF public, Central) are not browsable
+   * this way — use the bundled Apache catalog and/or optional definition {@code plugins} metadata
+   * instead.
+   */
+  public static boolean isNexusBrowseUrl(String repositoryUrl) {
+    return StringUtils.isNotBlank(extractRepositoryName(repositoryUrl));
+  }
+
   public static List<OptionalPluginInfo> browse(
       MarketplaceRepository repository, String textFilter, ILogChannel log) throws HopException {
     if (repository == null || StringUtils.isBlank(repository.getUrl())) {
@@ -53,8 +63,15 @@ public final class NexusRepositoryBrowser {
     String repoName = extractRepositoryName(repository.getUrl());
     String nexusBase = extractNexusBase(repository.getUrl());
     if (StringUtils.isBlank(repoName) || StringUtils.isBlank(nexusBase)) {
-      throw new HopException(
-          "Cannot derive Nexus host/repository name from URL: " + repository.getUrl());
+      // ASF groups/public and Maven Central are install endpoints, not Nexus REST search.
+      if (log != null) {
+        log.logDetailed(
+            "Skipping Nexus zip browse for repository '"
+                + repository.getId()
+                + "' (URL is not a Nexus …/repository/<name>/ base): "
+                + repository.getUrl());
+      }
+      return List.of();
     }
 
     HttpClient client =
