@@ -214,8 +214,14 @@ public class LifecycleEnvironmentDialogTabsExtensionPoint
       return;
     }
     wEnvFile.setText(Const.NVL(MarketplaceAttributes.envFile(context), ""));
-    // Explicit attribute, or purpose-based default when unset (not written until save).
-    wOnEnable.setText(MarketplaceAttributes.resolveOnEnable(context, context.getPurpose()));
+    // Runtime uses OFF when unset; dialog suggests a purpose-based default until the user saves.
+    String storedOnEnable =
+        context.getAttribute(MarketplaceAttributes.GROUP, MarketplaceAttributes.KEY_ON_ENABLE);
+    if (StringUtils.isNotBlank(storedOnEnable)) {
+      wOnEnable.setText(storedOnEnable.trim());
+    } else {
+      wOnEnable.setText(MarketplaceAttributes.defaultOnEnableForPurpose(context.getPurpose()));
+    }
     wStrict.setSelection(MarketplaceAttributes.isStrict(context));
     wAutoApply.setSelection(MarketplaceAttributes.isAutoApply(context));
   }

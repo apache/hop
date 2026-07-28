@@ -51,7 +51,25 @@ public final class MarketplaceAttributes {
   private MarketplaceAttributes() {}
 
   /**
-   * Resolve on-enable policy from attributes, falling back to purpose-based defaults when unset.
+   * Resolve on-enable policy from attributes for <strong>runtime</strong> checks.
+   *
+   * <p>When {@link #KEY_ON_ENABLE} is unset (typical of pre-marketplace lifecycle environments),
+   * returns {@link #ON_ENABLE_OFF} so enabling a project/environment never fails solely because the
+   * marketplace plugin is present. Purpose-based suggestions are only for the UI via {@link
+   * #defaultOnEnableForPurpose(String)}.
+   */
+  public static String resolveOnEnable(IAttributes attributes, String purpose) {
+    String explicit = attributes != null ? attributes.getAttribute(GROUP, KEY_ON_ENABLE) : null;
+    if (StringUtils.isNotBlank(explicit)) {
+      return explicit.trim().toLowerCase();
+    }
+    // Missing attribute → opt-out (issue #7656: old hop configs must load silently)
+    return ON_ENABLE_OFF;
+  }
+
+  /**
+   * Suggested on-enable value when the user has not saved a marketplace choice yet (dialog defaults
+   * only — not used for runtime enforcement).
    *
    * <ul>
    *   <li>Production → enforce
@@ -59,14 +77,6 @@ public final class MarketplaceAttributes {
    *   <li>Development / CI / CB / other → off
    * </ul>
    */
-  public static String resolveOnEnable(IAttributes attributes, String purpose) {
-    String explicit = attributes != null ? attributes.getAttribute(GROUP, KEY_ON_ENABLE) : null;
-    if (StringUtils.isNotBlank(explicit)) {
-      return explicit.trim().toLowerCase();
-    }
-    return defaultOnEnableForPurpose(purpose);
-  }
-
   public static String defaultOnEnableForPurpose(String purpose) {
     if (StringUtils.isBlank(purpose)) {
       return ON_ENABLE_OFF;
@@ -79,6 +89,11 @@ public final class MarketplaceAttributes {
       return ON_ENABLE_WARN;
     }
     return ON_ENABLE_OFF;
+  }
+
+  /** True when the lifecycle environment has an explicit marketplace envFile attribute. */
+  public static boolean hasExplicitEnvFile(IAttributes attributes) {
+    return StringUtils.isNotBlank(envFile(attributes));
   }
 
   public static boolean isStrict(IAttributes attributes) {
