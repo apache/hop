@@ -40,4 +40,7 @@ services:
       - TEST_FILTER=${TEST_FILTER:-}
       # Skip Google Sheets ITs when no real service-account JSON key is provided.
       - SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS:-false}
+      # Run a project that carries a disabled.txt anyway. run-tests.sh honours the marker too, so
+      # the opt-in has to reach the container as well as the host script.
+      - INCLUDE_DISABLED=${INCLUDE_DISABLED:-false}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

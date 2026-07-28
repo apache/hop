@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -55,6 +56,7 @@ import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -441,15 +443,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         null);
 
     // Add listener to detect change
-    guiCompositeWidgets.setWidgetsListener(
-        new GuiCompositeWidgetsAdapter() {
-          @Override
-          public void widgetModified(
-              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-            setChanged();
-            updateDriverInfo();
-          }
-        });
+    guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
 
     addCompositeWidgetsUsernamePassword();
 
@@ -484,6 +478,51 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
+  }
+
+  /**
+   * The composite has a single listener slot, which this editor needs for its own change tracking.
+   * Database plugins that implement {@link IGuiPluginCompositeWidgetsListener} -- to enable, hide
+   * or otherwise adjust their own widgets -- are forwarded to from here; without this their
+   * callbacks would never fire.
+   */
+  private IGuiPluginCompositeWidgetsListener createWidgetsListener() {
+    return new GuiCompositeWidgetsAdapter() {
+      @Override
+      public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+        pluginWidgetsListener().ifPresent(listener -> listener.widgetsCreated(compositeWidgets));
+      }
+
+      @Override
+      public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
+        pluginWidgetsListener().ifPresent(listener -> listener.widgetsPopulated(compositeWidgets));
+      }
+
+      @Override
+      public void widgetModified(
+          GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+        setChanged();
+        updateDriverInfo();
+        pluginWidgetsListener()
+            .ifPresent(
+                listener -> listener.widgetModified(compositeWidgets, changedWidget, widgetId));
+      }
+
+      @Override
+      public void persistContents(GuiCompositeWidgets compositeWidgets) {
+        pluginWidgetsListener().ifPresent(listener -> listener.persistContents(compositeWidgets));
+      }
+    };
+  }
+
+  private Optional<IGuiPluginCompositeWidgetsListener> pluginWidgetsListener() {
+    DatabaseMeta databaseMeta = getMetadata();
+    if (databaseMeta == null) {
+      return Optional.empty();
+    }
+    return databaseMeta.getIDatabase() instanceof IGuiPluginCompositeWidgetsListener listener
+        ? Optional.of(listener)
+        : Optional.empty();
   }
 
   private void addCompositeWidgetsUsernamePassword() {
@@ -553,15 +592,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
         null);
-    guiCompositeWidgets.setWidgetsListener(
-        new GuiCompositeWidgetsAdapter() {
-          @Override
-          public void widgetModified(
-              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-            setChanged();
-            updateDriverInfo();
-          }
-        });
+    guiCompositeWidgets.setWidgetsListener(createWidgetsListener());
     addCompositeWidgetsUsernamePassword();
 
     // Put the data back
@@ -1123,6 +1154,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         databaseMeta.getIDatabase(),
         wDatabaseSpecificComp,
         DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+
+    // The widgets now hold the values of this connection, so a database plugin can adjust which of
+    // its own widgets apply.
+    //
+    pluginWidgetsListener().ifPresent(listener -> listener.widgetsPopulated(guiCompositeWidgets));
 
     if (wManualUrl != null) {
       wManualUrl.setText(Const.NVL(databaseMeta.getManualUrl(), ""));

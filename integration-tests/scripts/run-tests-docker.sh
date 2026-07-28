@@ -22,6 +22,30 @@ CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 DOCKER_FILES_DIR="$(cd ${CURRENT_DIR}/../../docker/integration-tests/ && pwd)"
 EXECUTED_COMPOSE_FILES=("${DOCKER_FILES_DIR}/integration-tests-base.yaml")
 
+# Opt-in switch for projects carrying a disabled.txt. Those are skipped by default because they
+# need something the normal run should not pay for - a huge image, credentials, an external
+# service. Accepts "true" for all of them, or a comma separated list of project names so the full
+# suite can pull in one heavy project without also enabling every other disabled one.
+#   INCLUDE_DISABLED=oracle          run everything, plus oracle
+#   INCLUDE_DISABLED=oracle,vertica  run everything, plus those two
+#   INCLUDE_DISABLED=true            run everything, including every disabled project
+INCLUDE_DISABLED="${INCLUDE_DISABLED:-false}"
+
+# Whether a project carrying a disabled.txt should run anyway.
+is_included() {
+  case "${INCLUDE_DISABLED}" in
+  true | TRUE | True) return 0 ;;
+  "" | false | FALSE | False) return 1 ;;
+  *) ;;
+  esac
+  for included in ${INCLUDE_DISABLED//,/ }; do
+    if [ "${included}" = "$1" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 for ARGUMENT in "$@"; do
 
   # Quote so glob characters in values (e.g. TEST_FILTER='*0077*') are preserved.
@@ -43,6 +67,7 @@ for ARGUMENT in "$@"; do
   HADOOP_VERSION) HADOOP_VERSION=${VALUE} ;;
   SPARK_BASE_URL) SPARK_BASE_URL=${VALUE} ;;
   HOP_SPARK_CLIENT_VERSION) HOP_SPARK_CLIENT_VERSION=${VALUE} ;;
+  INCLUDE_DISABLED) INCLUDE_DISABLED=${VALUE} ;;
   *) ;;
   esac
 
@@ -62,6 +87,8 @@ if [ -z "${SPARK_BASE_URL}" ]; then
 fi
 # Optional: match driver + fat-jar Spark client pack to a cluster minor (see tools/spark-client-pack)
 export SPARK_VERSION HADOOP_VERSION SPARK_BASE_URL
+# The compose files hand this to the test container: run-tests.sh honours disabled.txt too.
+export INCLUDE_DISABLED
 export HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION:-}"
 
 if [ -z "${PROJECT_NAME}" ]; then
@@ -216,7 +243,7 @@ fi
 
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
-    if [ -d "$d" ] && [ ! -f "$d/disabled.txt" ]; then
+    if [ -d "$d" ] && { [ ! -f "$d/disabled.txt" ] || is_included "$(basename "$d")"; }; then
       # Project root: MDI target_file=…-injected.hpl writes here.
       chmod a+rwx "$d" 2>/dev/null || true
 
@@ -404,9 +431,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   # Normalize project name from the folder we are iterating
   PROJECT_NAME=$(basename "${d}")
 
-  # If there is a file called disabled.txt the project is disabled — do not pretend Docker failed
-  if [ -f "$d/disabled.txt" ]; then
+  # If there is a file called disabled.txt the project is disabled — do not pretend Docker failed.
+  # INCLUDE_DISABLED runs it anyway, which is how an opt-in project gets run: "true" for the one
+  # named by PROJECT_NAME, or a comma separated list to add projects to a full suite run.
+  if [ -f "$d/disabled.txt" ] && ! is_included "${PROJECT_NAME}"; then
     echo "Project ${PROJECT_NAME} is disabled (disabled.txt present); skipping."
+    echo "  Run it anyway with: ${BASH_SOURCE[0]##*/} PROJECT_NAME=${PROJECT_NAME} INCLUDE_DISABLED=true"
     if [ "${SUREFIRE_REPORT}" = "true" ]; then
       write_surefire_skipped "${PROJECT_NAME}" "Project disabled via disabled.txt"
     fi

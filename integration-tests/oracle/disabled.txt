@@ -1,0 +1,41 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+This project is opt-in and is skipped by the normal integration test run.
+
+The Oracle Free image is about 9.5GB unpacked and creating the database takes several minutes,
+which is far more than the rest of the suite costs on a pull request.
+
+Run it with:
+
+    ./integration-tests/scripts/run-tests-docker.sh PROJECT_NAME=oracle INCLUDE_DISABLED=true KEEP_IMAGES=true
+
+KEEP_IMAGES=true matters here. Without it the run ends with "docker compose down --rmi all" and
+throws the image away, so the next run downloads all 9.5GB again. The first run is slow whatever
+you do: the image has to come down and the database creates itself from scratch.
+
+To add this project to a full suite run rather than running it on its own, name it instead of
+using "true", so the other disabled projects stay disabled:
+
+    ./integration-tests/scripts/run-tests-docker.sh INCLUDE_DISABLED=oracle KEEP_IMAGES=true
+
+The image is pulled from Oracle's container registry under the Oracle Free Use Terms and
+Conditions. It pulls anonymously - no docker login and no license token - which is why the Free
+edition is used and not Enterprise; a 403 or an authorization error means something is pointing at
+database/enterprise, which does need an Oracle account and accepted license terms. Nothing from
+the image is redistributed and the JDBC driver is downloaded on demand, never bundled. See
+docker/integration-tests/integration-tests-oracle.yaml for the rest of the setup.

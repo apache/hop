@@ -37,16 +37,77 @@ Check xref:database/databases.adoc#_options[Options] in the Relational Database 
 
 == Creating connections
 
-There are 4 ways to create a connection to an Oracle database in Apache Hop:
+The *Connect using* option decides how the database name is read.
+Fields that cannot do anything for the option you pick are hidden, so the dialog only ever shows what applies to the connection in front of you.
 
-* If you have a SID, use this (old) format: `jdbc:oracle:thin:@hostname:PORT:SID`. +
-Put the SID with `:` prefix in the database name
+[cols="2*",options="header"]
+|===
+| Connect using | Database name holds
+|AUTOMATIC | A SID, unless the name starts with `/` (service name) or `:` (SID), or unless hostname and port are both empty, in which case the name is taken to be a full TNS descriptor. This is the default, and is what Hop has always done.
+|SID | A SID: `jdbc:oracle:thin:@hostname:port:SID`
+|SERVICE_NAME | A service name: `jdbc:oracle:thin:@//hostname:port/servicename`
+|TNS_ALIAS | An alias from a `tnsnames.ora` file: `jdbc:oracle:thin:@alias`. Set *TNS_ADMIN directory* to the folder holding the file.
+|DESCRIPTOR | A complete TNS descriptor, used verbatim. Use this for RAC address lists and failover descriptors.
+|===
 
-* If you have a service name, use this (newer) format: `jdbc:oracle:thin:@//HOSTNAME:PORT/SERVICENAME`. +
-Put the service name with `/` prefix in the database name
+`TNS_ALIAS` and `DESCRIPTOR` carry their own address and protocol, so the hostname, port and *Use TLS (TCPS)* fields disappear for those two: there is nothing left for them to decide.
+The TLS credentials stay, because a `tnsnames.ora` entry or a descriptor can perfectly well name `protocol=tcps` and its certificates still have to reach the driver.
 
-* If you want to use TNS format: `jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=host) (PORT=port)) (CONNECT_DATA=(SERVICE_NAME=service_name))`. +
-Put the TNS description in the database name and leave the hostname and port empty.
+With `AUTOMATIC` the `/` and `:` markers still apply, so existing connections keep working untouched.
+Once you pick a type explicitly the marker is redundant and is stripped if you leave it in.
 
-* If you want to use a specific TNS_ADMIN, you providing the path for tnsnames.ora through TNS_ADMIN property: `jdbc:oracle:thin:@mydb.mydomain?TNS_ADMIN=C:\\Temp\\tns` +
-Use manual connection url (not the options tab because Apache Hop does not pass options in the url for Oracle). 
+TIP: *TNS_ADMIN directory* replaces the older trick of putting `?TNS_ADMIN=...` in a manual URL.
+Hop passes it as the `oracle.net.tns_admin` connection property, so it applies whichever connection type you use -- including a manually entered URL.
+
+== TLS (TCPS) connections
+
+Tick *Use TLS (TCPS)* to connect over TCPS.
+Hop then builds the long connect descriptor, because the short `host:port:sid` form has nowhere to put a protocol:
+
+[source]
+----
+jdbc:oracle:thin:@(description=(address=(protocol=tcps)(host=<host>)(port=<port>))(connect_data=(service_name=<service>)))
+----
+
+The conventional TCPS port is 2484, which is used when you leave the port empty.
+A TNS alias and a hand written descriptor are left alone: their protocol comes from `tnsnames.ora` or from the descriptor itself, which is why picking either of those connection types takes the checkbox away.
+
+`AUTOMATIC` is the one place where the checkbox stays on screen without being able to change the URL.
+When the database name holds a full descriptor -- hostname and port both left empty -- the protocol written into that descriptor wins, so ticking *Use TLS (TCPS)* still passes the credentials below to the driver but leaves the URL untouched.
+Picking `DESCRIPTOR` explicitly makes that visible, because the checkbox then disappears.
+
+*TLS credentials* selects where the driver takes its certificates from:
+
+* `NONE` -- the server certificate is validated against the JVM's default trust store, and the server does not ask the client for one.
+* `WALLET` -- an Oracle Wallet directory holding `cwallet.sso` or `ewallet.p12`. Set *Wallet password* only for a password protected (PKCS12) wallet.
+* `JKS` -- Java KeyStore files. The *KeyStore* pair is only needed when the server asks the client to authenticate (mutual TLS); the *TrustStore* pair alone is enough for one-way TLS.
+
+Wallet and JKS are deliberately exclusive: the driver gives the wallet location precedence over the keystore properties, so offering both at once would let half of what you filled in be ignored silently.
+
+*Match server certificate DN* is on by default and is what stops an impostor from presenting a valid certificate for some other host.
+Only switch it off if you know why. Fill in *Server certificate DN* when the certificate carries a name the driver cannot derive from the service, for example `CN=db.example.com,O=Example`.
+
+NOTE: Reading an Oracle Wallet needs `oraclepki.jar` beside the driver: the SSO keystore type a `cwallet.sso` uses lives there, not in `ojdbc`, and without it the connection fails with `ORA-17957 ... SSO KeyStore not available`.
+`hop driver install oracle` fetches it alongside the driver. If you installed the driver by hand, add a matching `oraclepki` version yourself.
+
+All of these settings are passed to the driver as JDBC connection properties rather than being written into the URL, so they apply to every connection type and to a manually entered URL as well.
+An entry on the *Options* tab always overrides the value computed here, which is the escape hatch if you need a property Hop does not expose.
+
+== Connecting to an Autonomous Database
+
+Download the wallet first: in the OCI console open your database and choose `Database connection`, then `Download wallet`.
+Unzip it somewhere Hop can read.
+Besides the wallet itself the zip holds a `tnsnames.ora` and a `sqlnet.ora`, and both are doing work in what follows.
+
+`tnsnames.ora` carries one alias per service level -- `mydb_high`, `mydb_medium` and `mydb_low`, plus `mydb_tp` and `mydb_tpurgent` on a transaction processing database.
+They all reach the same database and differ only in how much parallelism and how much priority a session gets, so pick by the shape of the work: `_low` for many small queries, `_high` for a few large ones.
+
+There are two ways to connect, and the first is simpler unless you have a reason to avoid `tnsnames.ora`:
+
+* Set *TNS_ADMIN directory* to the unzipped folder and pick `TNS_ALIAS`, with the alias as the database name.
+Nothing else is needed: the `sqlnet.ora` in that folder points at the wallet sitting next to it, so *Wallet directory* can stay empty and *TLS credentials* can stay on `NONE`.
+* Or bypass `tnsnames.ora` entirely: paste the connect string for the alias into the manual URL field, set *TLS credentials* to `WALLET` and point *Wallet directory* at the unzipped folder.
+Use this when the file is awkward to distribute -- a container image or a Hop Server where shipping a folder is more trouble than carrying the string in the connection.
+
+Either way, an Autonomous Database wallet is an auto-login (`cwallet.sso`) one, so the connection needs `oraclepki.jar` beside the driver.
+See the note in <<_tls_tcps_connections,TLS (TCPS) connections>> above; `hop driver install oracle` takes care of it.

@@ -23,6 +23,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -631,6 +632,22 @@ public interface IDatabase extends Cloneable {
    *     Properties object.
    */
   boolean isSupportsOptionsInURL();
+
+  /**
+   * JDBC connection properties contributed by the database plugin itself, on top of the extra
+   * options the user entered on the Options tab.
+   *
+   * <p>This is the hook for plugin-specific settings that have to reach the driver as properties
+   * rather than as part of the URL: TLS key stores, wallet locations and the like. The user's own
+   * extra options are applied <em>after</em> these, so an explicit entry on the Options tab always
+   * wins over a value computed here.
+   *
+   * @param variables the variables to resolve the values with
+   * @return the properties to add to the connection, never {@code null}
+   */
+  default Properties getConnectionProperties(IVariables variables) {
+    return new Properties();
+  }
 
   /**
    * @return extra help text on the supported options on the selected database platform.
