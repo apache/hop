@@ -46,10 +46,10 @@ import org.apache.hop.workflow.action.IAction;
 @Action(
     id = "SnowflakeWarehouseManager",
     image = "snowflake-whm.svg",
-    name = "Action.Name",
-    description = "Action.Description",
+    name = "i18n::Action.Name",
+    description = "i18n::Action.Description",
     keywords = "snowflake,warehouse,resume,suspend,manage",
-    categoryDescription = "Category.Description",
+    categoryDescription = "i18n::Category.Description",
     documentationUrl = "/workflow/actions/snowflake-whm.html")
 public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String MANAGEMENT_ACTION = "managementAction";

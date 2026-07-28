@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "AvroFileInput",
-    name = "Avro File Input",
+    name = "Avro file input",
     description = "Reads file serialized in the Apache Avro file format",
     image = "avro_input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
