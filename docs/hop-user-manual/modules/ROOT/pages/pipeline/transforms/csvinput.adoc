@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The CSV File Input transform reads data from a delimited file.
+:description: The CSV file input transform reads data from a delimited file.
 
-= image:transforms/icons/textfileinput.svg[CSV File Input transform Icon, role="image-doc-icon"] CSV File Input
+= image:transforms/icons/textfileinput.svg[CSV file input transform Icon, role="image-doc-icon"] CSV file input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The CSV File Input transform reads data from a delimited file. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
+The CSV file input transform reads data from a delimited file. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
 The `ignore manual fields` ignores any fields manually defined in the transform's field layout, and only uses the layout specified in the xref:metadata-types/static-schema-definition.adoc[Schema Definition].
 

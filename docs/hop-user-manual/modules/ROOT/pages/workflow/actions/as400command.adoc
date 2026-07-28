@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The AS/400 Command action executes an AS/400 CL Command.
+:description: The AS/400 command action executes an AS/400 CL Command.
 
-= AS/400 Command
+= AS/400 command
 
 == Description
 
-The `AS/400 Command` action executes an AS/400 CL Command.
+The `AS/400 command` action executes an AS/400 CL Command.
 
 == Options
 

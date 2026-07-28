@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: Spark Lake Table Merge runs MERGE INTO against Delta Lake or Apache Iceberg tables on the native Spark pipeline engine.
+:description: Spark lake table merge runs MERGE INTO against Delta Lake or Apache Iceberg tables on the native Spark pipeline engine.
 
-= image:transforms/icons/spark-lake-table-merge.svg[Spark Lake Table Merge transform Icon, role="image-doc-icon"] Spark Lake Table Merge
+= image:transforms/icons/spark-lake-table-merge.svg[Spark lake table merge transform Icon, role="image-doc-icon"] Spark lake table merge
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-*Spark Lake Table Merge* applies a Spark SQL `MERGE INTO` against a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] target table on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+*Spark lake table merge* applies a Spark SQL `MERGE INTO` against a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] target table on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
 
 The **single main-stream upstream hop** is the merge **source**. The transform builds (or accepts) MERGE SQL, executes it as a Spark action, and registers an empty leaf Dataset.
 
@@ -115,5 +115,5 @@ Useful for multi-table CDC/upsert templates where merge keys and target tables v
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input]

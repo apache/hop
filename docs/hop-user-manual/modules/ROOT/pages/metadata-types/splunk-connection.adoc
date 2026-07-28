@@ -28,7 +28,7 @@ Describes a Splunk connection.
 
 == Related Plugins
 
-* xref:pipeline/transforms/splunkinput.adoc[Splunk Input]
+* xref:pipeline/transforms/splunkinput.adoc[Splunk input]
 
 == Options
 

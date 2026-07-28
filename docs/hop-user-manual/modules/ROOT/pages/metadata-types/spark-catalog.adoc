@@ -145,6 +145,6 @@ Export project metadata JSON that includes every Spark Catalog entry referenced 
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]

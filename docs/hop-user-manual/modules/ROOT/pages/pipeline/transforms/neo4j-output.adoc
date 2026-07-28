@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Neo4j Output transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
+:description: The Neo4j output transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
 
-= image:transforms/icons/neo4j_output.svg[Neo4j Output transform Icon, role="image-doc-icon"] Neo4j Output
+= image:transforms/icons/neo4j_output.svg[Neo4j output transform Icon, role="image-doc-icon"] Neo4j output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Neo4j Output transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
+The Neo4j output transform allows you to do high performance updates in one node, two nodes or two nodes and a relationship.
 
 The transform generates the required Cypher statements with accompanying parameters.
 
@@ -56,7 +56,7 @@ A label will not be used for the node if the label is null or empty.
 
 == Array Properties
 
-The Neo4j Output transform supports Array type properties for nodes and relationships. 
+The Neo4j output transform supports Array type properties for nodes and relationships. 
 When a property is configured with type "Array", the transform will parse the input string 
 value and convert it to a Neo4j array.
 

@@ -77,7 +77,7 @@ For example `{openvar}PROJECT_HOME{closevar}/mapping.hpl` will be changed to `{o
 This means that it will try to use a relative path to the parent file.
 
 If you have are using data files then those file names will be renamed as well.
-For example, you might be reading a file called `{openvar}PROJECT_HOME{closevar}/files/bigfile.csv` in a `CSV File Input` transform.
+For example, you might be reading a file called `{openvar}PROJECT_HOME{closevar}/files/bigfile.csv` in a `CSV file input` transform.
 During the export the referenced filename will be changed to `{openvar}DATA_PATH_1{closevar}/bigfile.csv`.
 For every folder that is referenced a new variable will be defined and set in the execution configuration.
 By default, the path set for this variable will be the same as on the executing (local) machine.

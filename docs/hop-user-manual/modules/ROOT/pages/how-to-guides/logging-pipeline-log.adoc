@@ -58,15 +58,15 @@ TIP: pipeline logging will apply to any pipeline you run in the current project.
 
 image:how-to-guides/logging-pipeline-log/pipeline-log-selection.png[Pipeline log selection, width="65%"]
 
-== Step 2: Create a new pipeline with the Pipeline Logging transform
+== Step 2: Create a new pipeline with the Pipeline logging transform
 
 To create the pipeline you can go to the perspective area or by clicking on the New button in the New Pipeline Log dialog. Then, choose a folder and a name for the pipeline.
 
-A new pipeline is automatically created with a Pipeline Logging transform connected to a xref:pipeline/transforms/dummy.adoc[Dummy transform] (Save logging here).
+A new pipeline is automatically created with a Pipeline logging transform connected to a xref:pipeline/transforms/dummy.adoc[Dummy transform] (Save logging here).
 
 image:how-to-guides/logging-pipeline-log/pipeline-log.jpg[pipeline log, width="45%"]
 
-Now it’s time to configure the Pipeline Logging transform. This configuration is very simple, open the transform and set your values as in the following example:
+Now it’s time to configure the Pipeline logging transform. This configuration is very simple, open the transform and set your values as in the following example:
 
 image:how-to-guides/logging-pipeline-log/pipeline-logging-transform.jpg[Pipeline logging transform, width="45%"]
 

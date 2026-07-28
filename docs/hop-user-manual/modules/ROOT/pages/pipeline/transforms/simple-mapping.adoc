@@ -40,7 +40,7 @@ The Simple Mapping transform allows you to re-use a series of transforms in the 
 |===
 
 Think of it as a re-usable function in programming – you pass some data into the function and it returns data back.
-In the Simple Mapping transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping Input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform to retrieve rows of data from, as well as parameters to pass to the mapping.
+In the Simple Mapping transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping output] transform to retrieve rows of data from, as well as parameters to pass to the mapping.
 
 Use this transform if you find yourself repeating the same logic multiple times over several different pipelines.
 
@@ -53,9 +53,9 @@ The options are fairly self-explanatory:
 This pipeline is executed separately and is considered a separate entity.
 It is always executed with a standard local Hop pipeline run configuration since that is currently the only one capable of streaming data into and out of transforms.
 * Parameters tab: specify the parameters you want to pass to the mapping pipeline
-* Input tab: specify which fields to pass to the xref:pipeline/transforms/mapping-input.adoc[Mapping Input] transform in the mapping.
+* Input tab: specify which fields to pass to the xref:pipeline/transforms/mapping-input.adoc[Mapping input] transform in the mapping.
 You can map (hence the name) field names.
-* Output tab: specify how to rename output fields retrieved from the xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform.
+* Output tab: specify how to rename output fields retrieved from the xref:pipeline/transforms/mapping-output.adoc[Mapping output] transform.
 
 == Sample
 

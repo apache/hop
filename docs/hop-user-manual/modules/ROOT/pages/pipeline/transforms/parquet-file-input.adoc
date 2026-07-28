@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Parquet File Input transform reads (primitive) values from an Apache Parquet file.
+:description: The Parquet file input transform reads (primitive) values from an Apache Parquet file.
 
-= image:transforms/icons/parquet_input.svg[Parquet File Input transform Icon, role="image-doc-icon"] Parquet File Input
+= image:transforms/icons/parquet_input.svg[Parquet file input transform Icon, role="image-doc-icon"] Parquet file input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Parquet File Input transform reads (primitive) values from an Apache Parquet file.
+The Parquet file input transform reads (primitive) values from an Apache Parquet file.
 
 For more information on this see: http://parquet.apache.org/[Apache Parquet].
 

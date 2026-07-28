@@ -22,7 +22,7 @@ under the License.
 
 = Native Spark on Databricks
 
-This page captures practical lessons for running **Hop native Spark** pipelines on a **Databricks** workspace via the xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] **Deploy & run** path (`MainSpark` JAR task).
+This page captures practical lessons for running **Hop native Spark** pipelines on a **Databricks** workspace via the xref:workflow/actions/databricks-job-run.adoc[Databricks job run] **Deploy & run** path (`MainSpark` JAR task).
 
 It is not a full Databricks admin guide. It focuses on what usually goes wrong when connecting Hop to Free / trial / serverless-oriented workspaces versus a **classic-cluster-capable** (e.g. Premium) workspace suitable for Spark 4.1 and modern Java.
 
@@ -34,7 +34,7 @@ xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with 
 A minimal Hop project for this path typically includes:
 
 * A small pipeline to run on the cluster (e.g. generate rows → random UUID → dummy)
-* A workflow with **Databricks Job Run** (Deploy & run) and optional **Databricks Job Wait**
+* A workflow with **Databricks job run** (Deploy & run) and optional **Databricks job wait**
 * A `work/` folder with the **native-provided** fat jar
 * Metadata: Databricks Connection, Native Spark pipeline run configuration
 * Optionally (for remote execution history from the laptop GUI): Databricks VFS Connection, **Caching File** execution information location on a UC Volume, and an environment config with `DATABRICKS_HOST` / `DATABRICKS_TOKEN` — see <<exec-info-on-volume>>
@@ -57,14 +57,14 @@ When mode is **Deploy & run**, the Job Run action:
   * main class: `org.apache.hop.spark.run.MainSpark`
   * parameters: classic positional `pipeline`, `metadata`, `runConfig` — or named `--Hop*` args when a project package and/or env file is present
 . Calls `jobs/run-now` and optionally waits for completion (or fire-and-forget +
-  xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait]).
+  xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait]).
 
 Credentials come from xref:metadata-types/databricks-connection.adoc[Databricks Connection]
 metadata (workspace host + personal access token). That is **not** the
 xref:database/databases/databricks.adoc[Databricks JDBC] SQL warehouse connection.
 
 .Deploy & run dialog: connection, fat jar / pipeline paths, UC Volume upload base, classic `new_cluster` (e.g. DBR `18.2.x-scala2.13`, AWS `i3.xlarge`)
-image::pipeline/spark/databricks-workflow-deploy-to-databricks.png[Databricks Job Run dialog: Deploy and run with fat jar, pipeline, Volume base path, and new_cluster settings,width=90%]
+image::pipeline/spark/databricks-workflow-deploy-to-databricks.png[Databricks job run dialog: Deploy and run with fat jar, pipeline, Volume base path, and new_cluster settings,width=90%]
 
 == Workspace and tier: classic clusters vs serverless
 
@@ -419,7 +419,7 @@ image::pipeline/spark/databricks-jobs-pipelines-hello-databricks-memory-usage-4g
 
 Plan timeouts accordingly:
 
-* On **Databricks Job Run** (wait mode) or **Databricks Job Wait**, set **timeout** high enough for **jar upload (first time) + cluster start + pipeline run** — e.g. **3600s** (1 hour), not a few minutes.
+* On **Databricks job run** (wait mode) or **Databricks job wait**, set **timeout** high enough for **jar upload (first time) + cluster start + pipeline run** — e.g. **3600s** (1 hour), not a few minutes.
 * Prefer fire-and-forget + Job Wait if you do not want the workflow action to hold a long poll in one step.
 * **Existing all-purpose cluster** (already Running) avoids most of this wait; **`new_cluster`** always pays the cold-start cost each run.
 
@@ -681,8 +681,8 @@ Databricks does **not** expose a standard content MD5/SHA for volume files compa
 
 == Related
 
-* xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
-* xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait]
+* xref:workflow/actions/databricks-job-run.adoc[Databricks job run]
+* xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait]
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
 * xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection]
 * xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS]

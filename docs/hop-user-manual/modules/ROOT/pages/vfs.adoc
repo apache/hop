@@ -31,7 +31,7 @@ Like the standard file systems each has its own unique name scheme which you can
 
 [IMPORTANT]
 ====
-**Native Spark** Dataset I/O (*Spark File Input/Output*, Lake Table PATH) does *not* use Hop VFS.
+**Native Spark** Dataset I/O (*Spark file input/output*, Lake Table PATH) does *not* use Hop VFS.
 Those transforms expect **Spark/Hadoop URIs** (for example `s3a://`, `hdfs://`, `file:///`), which are a different dialect from Hop schemes such as `s3://` or named MinIO connections.
 See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
 ====

@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Kafka Consumer transform pulls data from a Kafka topic.
+:description: The Kafka consumer transform pulls data from a Kafka topic.
 
-= image:transforms/icons/KafkaConsumerInput.svg[Kafka Consumer transform Icon, role="image-doc-icon"] Kafka Consumer
+= image:transforms/icons/KafkaConsumerInput.svg[Kafka consumer transform Icon, role="image-doc-icon"] Kafka consumer
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Kafka Consumer transform pulls streaming data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
+The Kafka consumer transform pulls streaming data from Kafka. It runs a sub-pipeline that executes according to message batch size or duration, letting you process a continuous stream of records in near-real-time.
 
 This sub-pipeline must start with an Injector transform.
 
@@ -40,7 +40,7 @@ Kafka scales topic consumption by distributing partitions among a consumer group
 
 A consumer group is a set of consumers sharing a common group identifier.
 
-By default the Kafka Consumer transform continuously ingests streaming data.
+By default the Kafka consumer transform continuously ingests streaming data.
 To stop after the topic has been drained, enable *Stop when idle* on the Batch tab (with an optional max idle time).
 You can also use the Abort transform in your parent or sub-pipeline to stop consuming records for other conditions.
 
@@ -81,10 +81,10 @@ For example, you can run the parent pipeline on a timed schedule, drain a topic 
 |Bootstrap servers|Comma separated list of bootstrap servers in a Kafka cluster
 |Topics|Enter the name of each Kafka topic from which you want to consume streaming data (messages).
 |Consumer group|Enter the name of the group of which you want this consumer to be a member.
-Each Kafka Consumer transform will start a single thread for consuming. If left empty, it will be defaulted to _Apache Hop_.
+Each Kafka consumer transform will start a single thread for consuming. If left empty, it will be defaulted to _Apache Hop_.
 
 When part of a consumer group, each consumer is assigned a subset of the partitions from topics it has subscribed to, which locks those partitions.
-Each instance of a Kafka Consumer transform will only run a single consumer thread.
+Each instance of a Kafka consumer transform will only run a single consumer thread.
 |===
 
 === Batch

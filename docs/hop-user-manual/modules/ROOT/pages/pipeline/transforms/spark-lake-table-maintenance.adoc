@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: Spark Lake Table Maintenance runs OPTIMIZE, VACUUM, expire snapshots, and related operations on Delta Lake or Apache Iceberg tables.
+:description: Spark lake table maintenance runs OPTIMIZE, VACUUM, expire snapshots, and related operations on Delta Lake or Apache Iceberg tables.
 
-= image:transforms/icons/spark-lake-table-maintenance.svg[Spark Lake Table Maintenance transform Icon, role="image-doc-icon"] Spark Lake Table Maintenance
+= image:transforms/icons/spark-lake-table-maintenance.svg[Spark lake table maintenance transform Icon, role="image-doc-icon"] Spark lake table maintenance
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-*Spark Lake Table Maintenance* runs operational SQL / procedures against a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine]: compaction (OPTIMIZE / rewrite data files), vacuum, expire snapshots, rewrite manifests, or conditional deletes.
+*Spark lake table maintenance* runs operational SQL / procedures against a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine]: compaction (OPTIMIZE / rewrite data files), vacuum, expire snapshots, rewrite manifests, or conditional deletes.
 
 It is a **zero-input** action sink (no hop required). Destructive operations require an explicit acknowledgement.
 
@@ -136,5 +136,5 @@ Injecting pipelines can drive fleet-wide OPTIMIZE/VACUUM across many tables; sti
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
-* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge]

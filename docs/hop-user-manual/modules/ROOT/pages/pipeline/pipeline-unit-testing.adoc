@@ -195,7 +195,7 @@ image::pipeline-unit-testing-bypass-transform.png[Unit Test - Bypass transform,w
 
 === Run unit tests in a workflow
 
-There is a workflow action called "Run Pipeline Unit Tests" which can execute all defined unit tests of a certain type.
+There is a workflow action called "Run pipeline unit tests" which can execute all defined unit tests of a certain type.
 The output of the transform can be stored in any format or location with regular Hop transforms.
 Execute the workflow through hop-run, in a scheduler or through a CI/CD pipeline in e.g. Jenkins.
 

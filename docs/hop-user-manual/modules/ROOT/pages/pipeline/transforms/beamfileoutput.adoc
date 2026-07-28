@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Beam File Output transform writes files using a file definition with the Beam execution engine.
+:description: The Beam file output transform writes files using a file definition with the Beam execution engine.
 
-= image:transforms/icons/beam-output.svg[Beam Output Icon, role="image-doc-icon"] Beam File Output
+= image:transforms/icons/beam-output.svg[Beam Output Icon, role="image-doc-icon"] Beam file output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Beam File Output transform writes files using a file definition with the Beam execution engine.
+The Beam file output transform writes files using a file definition with the Beam execution engine.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -49,7 +49,7 @@ The Beam File Output transform writes files using a file definition with the Bea
 |File prefix|Text which has to precede the file name.
 |File suffix|Text which has to succeed the file name.
 |Windowed writes?|Writes a file per window.
-Use together with the Beam Window transform.
+Use together with the Beam window transform.
 |File definition to use|The file definition to use stored in a metastore.
 |Edit|Edits an existing file definition.
 |New|Creates a new file definition.

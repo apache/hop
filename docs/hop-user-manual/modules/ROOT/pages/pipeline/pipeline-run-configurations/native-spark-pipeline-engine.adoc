@@ -157,21 +157,21 @@ xref:pipeline/spark/getting-started-with-native-spark.adoc#limitations-and-desig
 
 Use a xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam] engine instead.
 
-* xref:pipeline/transforms/beambigqueryinput.adoc[BigQuery Input]
-* xref:pipeline/transforms/beambigqueryoutput.adoc[BigQuery Output]
-* xref:pipeline/transforms/beambigtableinput.adoc[Beam Bigtable Input]
-* xref:pipeline/transforms/beambigtableoutput.adoc[Beam Bigtable Output]
-* xref:pipeline/transforms/beamfileinput.adoc[Beam File Input]
-* xref:pipeline/transforms/beamfileoutput.adoc[Beam File Output]
-* xref:pipeline/transforms/beamgcppublisher.adoc[Beam GCP Pub/Sub : Publish]
-* xref:pipeline/transforms/beamgcpsubscriber.adoc[Beam GCP Pub/Sub : Subscribe]
+* xref:pipeline/transforms/beambigqueryinput.adoc[BigQuery input]
+* xref:pipeline/transforms/beambigqueryoutput.adoc[BigQuery output]
+* xref:pipeline/transforms/beambigtableinput.adoc[Beam Bigtable input]
+* xref:pipeline/transforms/beambigtableoutput.adoc[Beam Bigtable output]
+* xref:pipeline/transforms/beamfileinput.adoc[Beam file input]
+* xref:pipeline/transforms/beamfileoutput.adoc[Beam file output]
+* xref:pipeline/transforms/beamgcppublisher.adoc[Beam GCP Pub/Sub: publish]
+* xref:pipeline/transforms/beamgcpsubscriber.adoc[Beam GCP Pub/Sub: subscribe]
 * xref:pipeline/transforms/beamhivecataloginput.adoc[Beam Hive Catalog Input]
-* xref:pipeline/transforms/beamkafkaconsume.adoc[Beam Kafka Consume]
-* xref:pipeline/transforms/beamkafkaproduce.adoc[Beam Kafka Produce]
-* xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis Consume]
-* xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis Produce]
-* xref:pipeline/transforms/beamtimestamp.adoc[Beam Timestamp]
-* xref:pipeline/transforms/beamwindow.adoc[Beam Window]
+* xref:pipeline/transforms/beamkafkaconsume.adoc[Beam Kafka consume]
+* xref:pipeline/transforms/beamkafkaproduce.adoc[Beam Kafka produce]
+* xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis consume]
+* xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis produce]
+* xref:pipeline/transforms/beamtimestamp.adoc[Beam timestamp]
+* xref:pipeline/transforms/beamwindow.adoc[Beam window]
 
 ==== Barriers, stream ordering, and merge-style transforms
 
@@ -186,8 +186,8 @@ These rely on waiting for other transforms, full-stream ordering, or multi-strea
 * xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
 * xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
 * xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge]
-* xref:pipeline/transforms/sortedschemamerge.adoc[Sorted Schema Merge]
-* xref:pipeline/transforms/streamschemamerge.adoc[Stream Schema Merge]
+* xref:pipeline/transforms/sortedschemamerge.adoc[Sorted schema merge]
+* xref:pipeline/transforms/streamschemamerge.adoc[Stream schema merge]
 
 ==== Sorted aggregation and hash-set unique
 
@@ -205,11 +205,11 @@ Result-row and result-file hops, injectors, and metadata injection are not suppo
 * xref:pipeline/transforms/injector.adoc[Injector]
 * xref:pipeline/transforms/metainject.adoc[Metadata Injection]
 * xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe]
-* xref:pipeline/transforms/repeatfields.adoc[Repeat Fields]
+* xref:pipeline/transforms/repeatfields.adoc[Repeat fields]
 
 ==== Other
 
-* xref:pipeline/transforms/kafkaconsumer.adoc[Kafka Consumer] — no native Spark structured-streaming / Kafka Dataset I/O; use Beam Kafka transforms on a Beam engine for Kafka pipelines
+* xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer] — no native Spark structured-streaming / Kafka Dataset I/O; use Beam Kafka transforms on a Beam engine for Kafka pipelines
 
 === Related
 

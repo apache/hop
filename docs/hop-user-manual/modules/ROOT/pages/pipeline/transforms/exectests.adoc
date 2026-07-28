@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Execute Unit Tests transform fetches and executes the available unit tests for the current project.
+:description: The Execute unit tests transform fetches and executes the available unit tests for the current project.
 
-= image:transforms/icons/executetests.svg[Execute Unit Tests transform Icon, role="image-doc-icon"] Execute Unit Tests
+= image:transforms/icons/executetests.svg[Execute unit tests transform Icon, role="image-doc-icon"] Execute unit tests
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Execute Unit Tests transform fetches and executes the available xref:pipeline/pipeline-unit-testing.adoc[unit tests] for the current project.
+The Execute unit tests transform fetches and executes the available xref:pipeline/pipeline-unit-testing.adoc[unit tests] for the current project.
 
 |
 == Supported Engines

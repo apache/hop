@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: Spark Lake Table Input reads Delta Lake or Apache Iceberg tables on the native Spark pipeline engine, with optional time travel and projection.
+:description: Spark lake table input reads Delta Lake or Apache Iceberg tables on the native Spark pipeline engine, with optional time travel and projection.
 
-= image:transforms/icons/spark-lake-table-input.svg[Spark Lake Table Input transform Icon, role="image-doc-icon"] Spark Lake Table Input
+= image:transforms/icons/spark-lake-table-input.svg[Spark lake table input transform Icon, role="image-doc-icon"] Spark lake table input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-*Spark Lake Table Input* reads an open table format table (https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg]) as a Spark SQL `Dataset` on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+*Spark lake table input* reads an open table format table (https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg]) as a Spark SQL `Dataset` on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
 
 It supports **PATH** and **TABLE** identifiers, optional field projection, and **time travel** by version/snapshot or timestamp.
 
@@ -84,7 +84,7 @@ NOTE: *Spark* here means Hop’s **native** Spark pipeline engine only (not Beam
 |Optional Spark read options as `key=value` lines (advanced).
 
 |Fields
-|Optional projection. When empty, all columns are returned. When set, columns are selected/cast by name (same idea as Spark File Input with a schema).
+|Optional projection. When empty, all columns are returned. When set, columns are selected/cast by name (same idea as Spark file input with a schema).
 |===
 
 == Time travel
@@ -120,11 +120,11 @@ Typical pattern: template pipeline with Lake Table Input; injecting pipeline sup
 
 == Notes
 
-* Prefer Lake Table Input over *Spark File Input* for `delta` / `iceberg` so session extensions, `hop_iceberg` PATH catalog, and probes stay consistent.
+* Prefer Lake Table Input over *Spark file input* for `delta` / `iceberg` so session extensions, `hop_iceberg` PATH catalog, and probes stay consistent.
 * See the xref:pipeline/spark/lakehouse.adoc[lakehouse guide] for packaging, PATH vs TABLE, and troubleshooting.
 
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
 * xref:metadata-types/spark-catalog.adoc[Spark Catalog]

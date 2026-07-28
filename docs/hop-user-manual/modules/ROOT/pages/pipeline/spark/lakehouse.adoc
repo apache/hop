@@ -24,7 +24,7 @@ under the License.
 
 This guide covers **Delta Lake** and **Apache Iceberg** support on Hop’s xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine] (Spark *4.1.x*, no Beam).
 
-It assumes you already have a working *Native Spark* pipeline run configuration (`local[*]` or cluster `spark-submit`). Classic file formats (CSV, Parquet, JSON, ORC, text) stay on *Spark File Input* / *Spark File Output*. Lakehouse work uses dedicated **Lake Table** transforms.
+It assumes you already have a working *Native Spark* pipeline run configuration (`local[*]` or cluster `spark-submit`). Classic file formats (CSV, Parquet, JSON, ORC, text) stay on *Spark file input* / *Spark file output*. Lakehouse work uses dedicated **Lake Table** transforms.
 
 == What you get
 
@@ -32,7 +32,7 @@ It assumes you already have a working *Native Spark* pipeline run configuration 
 |===
 | Capability | How
 
-| Read / write ACID tables | xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
+| Read / write ACID tables | xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] / xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
 
 | Path-based tables | Identifier mode **PATH** (local, HDFS, object-store URIs Spark can open)
 
@@ -40,9 +40,9 @@ It assumes you already have a working *Native Spark* pipeline run configuration 
 
 | Time travel | Version / snapshot id or timestamp on Input
 
-| Upsert | xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] (`MERGE INTO`)
+| Upsert | xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] (`MERGE INTO`)
 
-| Compaction / vacuum / expire | xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance]
+| Compaction / vacuum / expire | xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
 |===
 
 *Not in scope:* Hudi; Beam Spark lakehouse.
@@ -225,19 +225,19 @@ IMPORTANT: Delta PATH I/O on Spark 4.1 + Delta 4.3 **requires DeltaCatalog**, no
 
 All four live under the **Big Data** category and are **native Spark only** (not Beam Spark, not the local Hop engine).
 
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input] — read, optional projection, time travel
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output] — append / overwrite / …; **default save mode is ErrorIfExists**
-* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] — single upstream hop is the source; target is PATH or TABLE
-* xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance] — zero-input action (OPTIMIZE, VACUUM, expire, …)
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input] — read, optional projection, time travel
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output] — append / overwrite / …; **default save mode is ErrorIfExists**
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] — single upstream hop is the source; target is PATH or TABLE
+* xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance] — zero-input action (OPTIMIZE, VACUUM, expire, …)
 
-Writes, merges, and maintenance run as Spark **actions** during graph materialisation and register empty leaf Datasets so a later engine `count()` does not re-execute them (same contract as *Spark File Output*).
+Writes, merges, and maintenance run as Spark **actions** during graph materialisation and register empty leaf Datasets so a later engine `count()` does not re-execute them (same contract as *Spark file output*).
 
 === Topology rules
 
 * **Output / Merge** need exactly one main-stream upstream hop (the data to write or the MERGE source).
 * **Maintenance** is a zero-input sink — no hop required.
 * Prefer a single Lake Table Output / Merge / Maintenance leaf per branch; avoid graphs that would re-trigger the same ACID action.
-* Do not use *Spark File Output* with format `delta` / `iceberg` — use Lake Table transforms so session plan, probes, and SQL identifiers stay consistent.
+* Do not use *Spark file output* with format `delta` / `iceberg` — use Lake Table transforms so session plan, probes, and SQL identifiers stay consistent.
 
 === Metadata injection (MDI)
 
@@ -249,12 +249,12 @@ Injection keys are documented on each transform page. Shared identity keys: `FOR
 
 . Install Delta jars (see above) and restart Hop.
 . Create a *Native Spark* run configuration (`local[*]`).
-. Pipeline: *Row Generator* (or *Spark File Input*) → *Spark Lake Table Output*
+. Pipeline: *Row Generator* (or *Spark file input*) → *Spark lake table output*
  ** Format: `delta`
  ** Identifier mode: `PATH`
  ** Table path: e.g. `${PROJECT_HOME}/output/delta-orders`
  ** Save mode: `Overwrite` for a first write (default is *ErrorIfExists*)
-. Second pipeline or hop: *Spark Lake Table Input* on the same path → *Spark File Output* or preview.
+. Second pipeline or hop: *Spark lake table input* on the same path → *Spark file output* or preview.
 . Run with the native Spark run configuration.
 
 === Time travel sketch
@@ -263,7 +263,7 @@ Write twice with *Overwrite*, then set Input **Time travel** to `VERSION` and **
 
 === MERGE sketch
 
-*Spark File Input* / generator → *Spark Lake Table Merge*:
+*Spark file input* / generator → *Spark lake table merge*:
 
 * Target: PATH or TABLE of an existing Delta/Iceberg table
 * Merge condition: e.g. `t.id = s.id` (`t` = target, `s` = source)
@@ -271,7 +271,7 @@ Write twice with *Overwrite*, then set Input **Time travel** to `VERSION` and **
 
 === Maintenance sketch
 
-Standalone *Spark Lake Table Maintenance*:
+Standalone *Spark lake table maintenance*:
 
 * Operation `OPTIMIZE` (safe compaction)
 * For `VACUUM` / `EXPIRE_SNAPSHOTS` / `DELETE_WHERE`: set retention / WHERE as required and tick **Acknowledge destructive**
@@ -306,9 +306,9 @@ Standalone *Spark Lake Table Maintenance*:
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine]
 * xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine]
 * xref:metadata-types/spark-catalog.adoc[Spark Catalog]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input]
-* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark Lake Table Output]
-* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge]
-* xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark Lake Table Maintenance]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input]
+* xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge]
+* xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
 * Developer notes and spike findings: `plugins/engines/spark/README.md` in the Hop source tree
 * Integration tests: `integration-tests/lakehouse` (Delta) and `integration-tests/iceberg` (Iceberg) in the Hop source tree

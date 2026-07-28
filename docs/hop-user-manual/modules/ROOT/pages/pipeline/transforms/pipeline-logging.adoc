@@ -20,7 +20,7 @@ under the License.
 :openvar: ${
 :closevar: }
 
-= image:icons/pipeline-log.svg[Pipeline logging transform Icon, role="image-doc-icon"] Pipeline Logging
+= image:icons/pipeline-log.svg[Pipeline logging transform Icon, role="image-doc-icon"] Pipeline logging
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
@@ -66,7 +66,7 @@ The transform requires very little configuration, but provides a lot of informat
 [%header, width="90%", cols="1,1,5"]
 |===
 |Fieldname|Type|Description
-3+|**Pipeline Logging Fields**
+3+|**Pipeline logging Fields**
 |loggingDate|Date|the date and time this pipeline was executed
 |loggingPhase|String|the phase this pipeline is in at the time of logging (e.g. 'end')
 |pipelineName|String|the logged pipeline name

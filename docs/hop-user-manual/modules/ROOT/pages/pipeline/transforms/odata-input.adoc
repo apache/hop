@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The OData Input transform retrieves data from OData V2 and V4 service endpoints.
+:description: The OData input transform retrieves data from OData V2 and V4 service endpoints.
 
-= image:transforms/icons/odata.svg[OData Input transform Icon, role="image-doc-icon"] OData Input
+= image:transforms/icons/odata.svg[OData input transform Icon, role="image-doc-icon"] OData input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The OData Input transform enables you to query OData (Open Data Protocol) services. OData is an OASIS standard that defines a set of best practices for building and consuming RESTful APIs. For more information, visit the official link:https://www.odata.org/[OData Documentation].
+The OData input transform enables you to query OData (Open Data Protocol) services. OData is an OASIS standard that defines a set of best practices for building and consuming RESTful APIs. For more information, visit the official link:https://www.odata.org/[OData Documentation].
 
 This transform performs GET requests against OData Entity Sets, maps JSON properties to Apache Hop rows, and automatically handles relative pagination using standard `@odata.nextLink` (OData V4) and `__next` (OData V2) metadata attributes.
 
@@ -46,7 +46,7 @@ This transform performs GET requests against OData Entity Sets, maps JSON proper
 
 The Connection tab allows you to configure the service endpoint and optional credentials.
 
-image::transforms/odata-input-connection-tab.png[OData Input Connection Tab, align="center"]
+image::transforms/odata-input-connection-tab.png[OData input Connection Tab, align="center"]
 
 [options="header"]
 |===
@@ -68,7 +68,7 @@ image::transforms/odata-input-connection-tab.png[OData Input Connection Tab, ali
 
 The OData Query tab allows you to configure filtering, ordering, and field selection properties.
 
-image::transforms/odata-input-query-tab.png[OData Input Query Tab, align="center"]
+image::transforms/odata-input-query-tab.png[OData input Query Tab, align="center"]
 
 [options="header"]
 |===
@@ -84,7 +84,7 @@ image::transforms/odata-input-query-tab.png[OData Input Query Tab, align="center
 
 The Fields tab defines how properties in the returned OData JSON response map to Apache Hop row fields.
 
-image::transforms/odata-input-fields-tab.png[OData Input Fields Tab, align="center"]
+image::transforms/odata-input-fields-tab.png[OData input Fields Tab, align="center"]
 
 [options="header"]
 |===

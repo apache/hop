@@ -16,18 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Kafka Producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
+:description: The Kafka producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
 
-= image:transforms/icons/KafkaProducerOutput.svg[Kafka Producer transform Icon, role="image-doc-icon"] Kafka Producer
+= image:transforms/icons/KafkaProducerOutput.svg[Kafka producer transform Icon, role="image-doc-icon"] Kafka producer
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Kafka Producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
+The Kafka producer transform allows you to publish messages in near-real-time across worker nodes where multiple, subscribed members have access.
 
-A Kafka Producer transform publishes a stream of records to one Kafka topic.
+A Kafka producer transform publishes a stream of records to one Kafka topic.
 
 |
 == Supported Engines

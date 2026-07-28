@@ -16,20 +16,20 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The XML Output (Advanced) transform builds hierarchical XML from input rows, with optional write-to-file, XML-as-field output, splits, and XSD generation.
+:description: The XML output (Advanced) transform builds hierarchical XML from input rows, with optional write-to-file, XML-as-field output, splits, and XSD generation.
 
-= image:transforms/icons/AXO.svg[XML Output (Advanced) transform Icon, role="image-doc-icon"] XML Output (Advanced)
+= image:transforms/icons/AXO.svg[XML output (Advanced) transform Icon, role="image-doc-icon"] XML output (Advanced)
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The XML Output (Advanced) transform builds XML from input rows using a hierarchical, user-defined tree. You can *write to file*, *append the document as a string field* (for use by a later transform), or *both*. File-oriented options apply only when a file is written.
+The XML output (Advanced) transform builds XML from input rows using a hierarchical, user-defined tree. You can *write to file*, *append the document as a string field* (for use by a later transform), or *both*. File-oriented options apply only when a file is written.
 
 The XML tree is a recursive structure of elements, attributes and document-fragment nodes. Exactly one element in the tree must be marked as the row-*loop*: each input row produces one occurrence of that element with its full subtree. Optionally, ancestors of the loop can be marked as *group-by*: consecutive input rows that share the same group key are emitted under a single occurrence of the group element.
 
-This transform complements the simpler `XML Output` transform. Use `XML Output` for a flat document of repeating rows; use `XML Output (Advanced)` when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces, schema generation).
+This transform complements the simpler `XML Output` transform. Use `XML Output` for a flat document of repeating rows; use `XML output (Advanced)` when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces, schema generation).
 
 |
 == Supported Engines
@@ -121,12 +121,12 @@ The XML Tree tab is the visual designer for the output structure. The left pane 
 |Loop|Marks this element as the row-loop element. Exactly one element must carry the flag.
 |Group-by|Marks this element as a group-by ancestor of the loop. Consecutive rows with equal `Mapped field` values share a single occurrence.
 |Force create|Output this node even when the value is `null` (uses the default value when set).
-|Remove outer wrapper (duplicate parent tag)|For `DocumentFragment` nodes only: when the fragment's root element repeats the parent element name, strip that outer wrapper so the inner XML is inserted without a duplicated wrapper (for example when feeding XML from an upstream XML Output (Advanced) into a child fragment node).
+|Remove outer wrapper (duplicate parent tag)|For `DocumentFragment` nodes only: when the fragment's root element repeats the parent element name, strip that outer wrapper so the inner XML is inserted without a duplicated wrapper (for example when feeding XML from an upstream XML output (Advanced) into a child fragment node).
 |===
 
 == Chaining and output-to-field
 
-When *Output* is *Output XML as field* or *both*, the transform adds the configured *XML output field* to the stream for each completed document (or each split). A second XML Output (Advanced) transform can map that field with a *DocumentFragment* node. Use *Remove outer wrapper* on the fragment if the inner XML already has a root tag that would duplicate the parent element in the target tree.
+When *Output* is *Output XML as field* or *both*, the transform adds the configured *XML output field* to the stream for each completed document (or each split). A second XML output (Advanced) transform can map that field with a *DocumentFragment* node. Use *Remove outer wrapper* on the fragment if the inner XML already has a root tag that would duplicate the parent element in the target tree.
 
 == Group-by behaviour
 

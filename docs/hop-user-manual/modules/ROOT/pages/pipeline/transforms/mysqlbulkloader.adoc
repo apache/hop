@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The MySql Bulk Loader transform uses the copy command to load data as opposed to sending individual insert statements
+:description: The MySQL bulk loader transform uses the copy command to load data as opposed to sending individual insert statements
 
-= image:transforms/icons/mysqlbulkloader.svg[MySql Bulk loader transform Icon, role="image-doc-icon"] MySql Bulk Loader
+= image:transforms/icons/mysqlbulkloader.svg[MySQL bulk loader transform Icon, role="image-doc-icon"] MySQL bulk loader
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The MySql Bulk Loader transform uses the copy command to load data as opposed to sending individual insert statements.
+The MySQL bulk loader transform uses the copy command to load data as opposed to sending individual insert statements.
 
 It will create a local file which will then be loaded using the `LOAD DATA` command. More information https://dev.mysql.com/doc/refman/9.2/en/load-data.html[here]
 |

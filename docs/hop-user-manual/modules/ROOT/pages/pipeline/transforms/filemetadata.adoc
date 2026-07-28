@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The File Metadata transform scans a file to determine its metadata structure or layout.
+:description: The File metadata transform scans a file to determine its metadata structure or layout.
 
-= image:transforms/icons/filemetadata.svg[File Metadata transform Icon, role="image-doc-icon"] File Metadata
+= image:transforms/icons/filemetadata.svg[File metadata transform Icon, role="image-doc-icon"] File metadata
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The File Metadata transform scans a file to determine its metadata structure or layout.
+The File metadata transform scans a file to determine its metadata structure or layout.
 
 Use this transforms in situations where you need to read a structured text file (e.g. CSV, TSV) when you don't know the exact layout in advance.
 
