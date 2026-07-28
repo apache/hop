@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.abort;
 
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -28,12 +29,9 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
@@ -47,7 +45,7 @@ public class ActionAbortDialog extends ActionDialog {
 
   private TextVar wMessageAbort;
 
-  private Button wAlwaysLogRows;
+  private Combo wMessageLogLevel;
 
   public ActionAbortDialog(
       Shell parent, ActionAbort action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -86,26 +84,28 @@ public class ActionAbortDialog extends ActionDialog {
     fdMessageAbort.right = new FormAttachment(100, 0);
     wMessageAbort.setLayoutData(fdMessageAbort);
 
-    SelectionListener slMod =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        };
-    // Always log rows
-    wAlwaysLogRows = new Button(shell, SWT.CHECK);
-    wAlwaysLogRows.setSelection(true);
-    PropsUi.setLook(wAlwaysLogRows);
-    wAlwaysLogRows.setText(BaseMessages.getString(PKG, "ActionAbortDialog.AlwaysLogRows.Label"));
-    wAlwaysLogRows.setToolTipText(
-        BaseMessages.getString(PKG, "ActionAbortDialog.AlwaysLogRows.Tooltip"));
-    wAlwaysLogRows.addSelectionListener(slMod);
-    FormData fdAlwaysLogRows = new FormData();
-    fdAlwaysLogRows.left = new FormAttachment(middle, 0);
-    fdAlwaysLogRows.top = new FormAttachment(wMessageAbort, margin);
-    fdAlwaysLogRows.right = new FormAttachment(100, 0);
-    wAlwaysLogRows.setLayoutData(fdAlwaysLogRows);
+    // Log level of the message
+    Label wlMessageLogLevel = new Label(shell, SWT.RIGHT);
+    wlMessageLogLevel.setText(
+        BaseMessages.getString(PKG, "ActionAbortDialog.MessageLogLevels.Label"));
+    PropsUi.setLook(wlMessageLogLevel);
+    FormData fdlMessageLogLevel = new FormData();
+    fdlMessageLogLevel.left = new FormAttachment(0, 0);
+    fdlMessageLogLevel.right = new FormAttachment(middle, -margin);
+    fdlMessageLogLevel.top = new FormAttachment(wMessageAbort, margin);
+    wlMessageLogLevel.setLayoutData(fdlMessageLogLevel);
+
+    wMessageLogLevel = new Combo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wMessageLogLevel.setItems(LogLevel.getLogLevelDescriptions());
+    PropsUi.setLook(wMessageLogLevel);
+    wMessageLogLevel.setToolTipText(
+        BaseMessages.getString(PKG, "ActionAbortDialog.MessageLogLevels.Tooltip"));
+    wMessageLogLevel.addModifyListener(e -> action.setChanged());
+    FormData fdMessageLogLevel = new FormData();
+    fdMessageLogLevel.left = new FormAttachment(middle, 0);
+    fdMessageLogLevel.top = new FormAttachment(wlMessageLogLevel, 0, SWT.CENTER);
+    fdMessageLogLevel.right = new FormAttachment(100, 0);
+    wMessageLogLevel.setLayoutData(fdMessageLogLevel);
 
     getData();
     focusActionName();
@@ -128,7 +128,7 @@ public class ActionAbortDialog extends ActionDialog {
     if (action.getMessageAbort() != null) {
       wMessageAbort.setText(action.getMessageAbort());
     }
-    wAlwaysLogRows.setSelection(action.isAlwaysLogRows());
+    wMessageLogLevel.select(action.getMessageLogLevel().getLevel());
   }
 
   private void cancel() {
@@ -147,7 +147,9 @@ public class ActionAbortDialog extends ActionDialog {
     }
     action.setName(wName.getText());
     action.setMessageAbort(wMessageAbort.getText());
-    action.setAlwaysLogRows(wAlwaysLogRows.getSelection());
+    if (wMessageLogLevel.getSelectionIndex() != -1) {
+      action.setMessageLogLevel(LogLevel.values()[wMessageLogLevel.getSelectionIndex()]);
+    }
     dispose();
   }
 }
