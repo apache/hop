@@ -34,7 +34,10 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -82,7 +85,32 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     List<String> names = listObjectNames();
     Collections.sort(names);
     for (String name : names) {
-      list.add(load(name));
+      try {
+        T t = load(name);
+        if (t != null) {
+          list.add(t);
+        }
+      } catch (Exception e) {
+        // One object we can't load (a missing plugin, corrupt JSON, ...) shouldn't keep all the
+        // other objects of this type from being loaded.  Log the problem and skip the object.
+        // Loading the object by name still reports the error to whoever really needs it.
+        //
+        String message =
+            "Error loading metadata object '"
+                + name
+                + "' of type "
+                + managedClass.getSimpleName()
+                + " from folder '"
+                + baseFolder
+                + "'.  The object is ignored.";
+        if (HopLogStore.isInitialized()) {
+          LogChannel.GENERAL.logError(message, e);
+        } else {
+          // Serializers are also used before any logging is available.
+          //
+          System.err.println(message + Const.CR + Const.getStackTracker(e));
+        }
+      }
     }
     return list;
   }

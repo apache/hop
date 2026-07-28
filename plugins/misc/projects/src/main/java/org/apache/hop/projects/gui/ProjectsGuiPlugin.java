@@ -51,6 +51,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
@@ -60,6 +61,8 @@ import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -305,6 +308,11 @@ public class ProjectsGuiPlugin {
 
       // Reset VFS filesystem to load additional configurations
       HopVfs.reset();
+
+      // Finally, warn about metadata elements in this project which we can't load.
+      // They're ignored so the project itself opens just fine.
+      //
+      reportUnloadableMetadata(hopGui);
     } catch (Exception e) {
       MissingProjectInfo missing = extractMissingProjectInfo(e);
       if (missing != null) {
@@ -323,6 +331,74 @@ public class ProjectsGuiPlugin {
       }
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);
     }
+  }
+
+  /**
+   * Metadata elements which can't be loaded (a missing plugin, invalid JSON, ...) are ignored when
+   * we load a project. We check for those here and show one dialog listing all of them so the user
+   * knows which elements are not available and why.
+   *
+   * @param hopGui the Hop GUI instance with the metadata provider of the project
+   */
+  private static void reportUnloadableMetadata(HopGui hopGui) {
+    List<String> problems = new ArrayList<>();
+
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+    for (Class<IHopMetadata> metadataClass : metadataProvider.getMetadataClasses()) {
+      try {
+        IHopMetadataSerializer<IHopMetadata> serializer =
+            metadataProvider.getSerializer(metadataClass);
+        HopMetadata annotation = metadataClass.getAnnotation(HopMetadata.class);
+        String typeName =
+            annotation == null
+                ? metadataClass.getSimpleName()
+                : TranslateUtil.translate(annotation.name(), metadataClass);
+
+        for (String name : serializer.listObjectNames()) {
+          try {
+            serializer.load(name);
+          } catch (Exception e) {
+            hopGui
+                .getLog()
+                .logError("Error loading " + typeName + " metadata element '" + name + "'", e);
+            problems.add(
+                "  - "
+                    + typeName
+                    + " : "
+                    + name
+                    + Const.CR
+                    + "      "
+                    + Const.getRootCauseMessage(e)
+                    + Const.CR);
+          }
+        }
+      } catch (Exception e) {
+        // Checking for problems shouldn't cause any of its own: just log it and move on.
+        //
+        hopGui
+            .getLog()
+            .logError("Error checking metadata elements of type " + metadataClass.getName(), e);
+      }
+    }
+
+    if (problems.isEmpty()) {
+      return;
+    }
+
+    StringBuilder message =
+        new StringBuilder(
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.MetadataNotLoaded.Dialog.Message"));
+    message.append(Const.CR).append(Const.CR);
+    problems.forEach(message::append);
+    message
+        .append(Const.CR)
+        .append(BaseMessages.getString(PKG, "ProjectGuiPlugin.MetadataNotLoaded.Dialog.Hint"));
+
+    MessageBox box = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.MetadataNotLoaded.Dialog.Header"));
+    box.setMessage(message.toString());
+    box.setMinimumSize(500, -1);
+    box.open();
   }
 
   /** Result when the failure is due to a project home folder that does not exist. */
