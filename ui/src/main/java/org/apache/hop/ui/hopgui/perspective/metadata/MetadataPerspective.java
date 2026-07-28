@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -45,6 +46,7 @@ import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.IAuditManager;
@@ -58,6 +60,8 @@ import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.refactor.MetadataObjectReference;
 import org.apache.hop.metadata.refactor.MetadataReferenceFinder;
 import org.apache.hop.metadata.refactor.MetadataReferenceResult;
+import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -193,13 +197,31 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   /** A category header node grouping several metadata types. */
   public static final String CATEGORY = "Category";
 
+  /** The header node collecting everything in the project we can't load. */
+  public static final String UNKNOWN_CATEGORY = "UnknownCategory";
+
+  /** A type node under {@link #UNKNOWN_CATEGORY}: one metadata folder on disk. */
+  public static final String UNKNOWN_TYPE = "UnknownType";
+
+  /** An element under {@link #UNKNOWN_TYPE}: one JSON file we can't turn into a metadata object. */
+  public static final String UNKNOWN_FILE = "UnknownFile";
+
   public static final String VIRTUAL_PATH = "virtualPath";
   public static final String ERROR = "Error";
+
+  /** The full filename of the JSON file behind an {@link #UNKNOWN_FILE} node. */
+  private static final String KEY_FILENAME = "filename";
+
+  /** The reason why an {@link #UNKNOWN_FILE} node can't be loaded. */
+  private static final String KEY_REASON = "reason";
 
   /** Icons for the "show empty types" toggle button (icon reflects the action it will perform). */
   private static final String IMAGE_SHOW_ALL = "ui/images/show-all.svg";
 
   private static final String IMAGE_SHOW_SELECTED = "ui/images/show-selected.svg";
+
+  /** Icon for the "Unknown" category and the metadata elements we can't load. */
+  private static final String IMAGE_UNKNOWN = "ui/images/warning.svg";
 
   private static final int FILTER_DEBOUNCE_MS = 250;
 
@@ -226,6 +248,13 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * In-memory view of all metadata types and their items; loaded once per {@link #reloadModel()}.
    */
   private final List<MetadataTypeModel> typeModels = new ArrayList<>();
+
+  /**
+   * Everything in the project's metadata folders which we can't load, keyed by metadata type: JSON
+   * files of a type no installed plugin provides and elements of a known type which fail to load,
+   * usually because the plugin they were created with is missing. Loaded by {@link #reloadModel()}.
+   */
+  private final List<UnknownTypeModel> unknownTypeModels = new ArrayList<>();
 
   /** Stable node ids whose default expand state has been seeded into TreeMemory this session. */
   private final Set<String> treeStateSeeded = new HashSet<>();
@@ -404,8 +433,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         SWT.DefaultSelection,
         event -> {
           TreeItem treeItem = tree.getSelection()[0];
-          if (treeItem != null && FILE.equals(treeItem.getData(KEY_TYPE))) {
+          if (treeItem == null) {
+            return;
+          }
+          if (FILE.equals(treeItem.getData(KEY_TYPE))) {
             onEditMetadata();
+          } else if (UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
+            // There's no editor for an element we can't load: explain why instead.
+            onUnknownMetadataDetails();
           }
         });
 
@@ -473,6 +508,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                     GuiResource.getInstance().getImage("ui/images/search.svg", 16, 16));
                 menuItem.addListener(SWT.Selection, e -> onFindReferences());
 
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.OpenFile"));
+                menuItem.addListener(SWT.Selection, e -> onOpenMetadataFile());
+
                 new MenuItem(menu, SWT.SEPARATOR);
 
                 menuItem = new MenuItem(menu, SWT.POP_UP);
@@ -482,12 +521,31 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
                 new MenuItem(menu, SWT.SEPARATOR);
                 break;
+              case UNKNOWN_FILE:
+                // An element we can't load: all we can do is explain, show and remove it.
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(
+                    BaseMessages.getString(PKG, "MetadataPerspective.Menu.ShowDetails"));
+                menuItem.setImage(GuiResource.getInstance().getImageInfo());
+                menuItem.addListener(SWT.Selection, e -> onUnknownMetadataDetails());
+
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.OpenFile"));
+                menuItem.addListener(SWT.Selection, e -> onOpenMetadataFile());
+
+                new MenuItem(menu, SWT.SEPARATOR);
+
+                menuItem = new MenuItem(menu, SWT.POP_UP);
+                menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Delete"));
+                menuItem.setImage(GuiResource.getInstance().getImageDelete());
+                menuItem.addListener(SWT.Selection, e -> onDeleteUnknownMetadata());
+                break;
               default:
                 break;
             }
 
-            // Help is not meaningful on a category header.
-            if (!CATEGORY.equals(treeItem.getData(KEY_TYPE))) {
+            // Help is not meaningful on a category header or on anything we can't load.
+            if (!CATEGORY.equals(treeItem.getData(KEY_TYPE)) && !isUnknownNode(treeItem)) {
               menuItem = new MenuItem(menu, SWT.POP_UP);
               menuItem.setText(BaseMessages.getString(PKG, "MetadataPerspective.Menu.Help"));
               menuItem.setImage(GuiResource.getInstance().getImageHelp());
@@ -497,6 +555,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
             // Let plugins contribute extra items for a selected metadata item.
             if (FILE.equals(treeItem.getData(KEY_TYPE))) {
               appendPluginContextMenuItems(menu);
+            }
+
+            // Nodes without any action (an unknown category or type header) get no popup at all.
+            if (menu.getItemCount() == 0) {
+              menu.dispose();
+              return;
             }
 
             tree.setMenu(menu);
@@ -524,6 +588,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     // Drag and drop: reorganize within tree (same type only) and drag to canvas to open
     createTreeDragSource(tree);
     createTreeDropTarget(tree);
+  }
+
+  /** True for the "Unknown" category and everything below it: metadata we can't load. */
+  private static boolean isUnknownNode(TreeItem item) {
+    String nodeType = (String) item.getData(KEY_TYPE);
+    return UNKNOWN_CATEGORY.equals(nodeType)
+        || UNKNOWN_TYPE.equals(nodeType)
+        || UNKNOWN_FILE.equals(nodeType);
   }
 
   /**
@@ -620,8 +692,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
             }
             TreeItem targetItem = (TreeItem) event.item;
             String targetType = (String) targetItem.getData(KEY_TYPE);
-            // Only allow drop on folder or on class root (MetadataItem); not on another file
-            if (FILE.equals(targetType)) {
+            // Only allow drop on folder or on class root (MetadataItem); not on another file and
+            // not on the "Unknown" category, which isn't a place to move metadata to.
+            if (FILE.equals(targetType) || isUnknownNode(targetItem)) {
               event.detail = DND.DROP_NONE;
               event.feedback = DND.FEEDBACK_NONE;
               return;
@@ -1286,6 +1359,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     TreeItem item = tree.getSelection()[0];
     if (item != null) {
       if (item.getParentItem() == null) return;
+      // Elements we can't load have no metadata object to rename.
+      if (isUnknownNode(item)) {
+        return;
+      }
       String objectKey = (String) item.getParentItem().getData();
       String objectName = item.getText(0);
 
@@ -1816,6 +1893,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       onDeleteFolder();
       return;
     }
+    // Elements we can't load are deleted as plain files: there's no object to load or reference.
+    if (UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
+      onDeleteUnknownMetadata();
+      return;
+    }
     if (!FILE.equals(treeItem.getData(KEY_TYPE))) {
       return;
     }
@@ -1878,6 +1960,160 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       hopGui.getEventsHandler().fire(HopGuiEvents.MetadataDeleted.name());
     } catch (Exception e) {
       new ErrorDialog(getShell(), ERROR, "Error delete metadata", e);
+    }
+  }
+
+  /**
+   * Deletes the selected element we can't load. There is no metadata object to load, so no
+   * references can be looked up either: after confirmation we simply delete the JSON file.
+   */
+  public void onDeleteUnknownMetadata() {
+    if (tree.getSelectionCount() != 1) {
+      return;
+    }
+    TreeItem treeItem = tree.getSelection()[0];
+    if (!UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
+      return;
+    }
+    String name = treeItem.getText(0);
+    String filename = (String) treeItem.getData(KEY_FILENAME);
+    if (Utils.isEmpty(filename)) {
+      showFileNotFound(name);
+      return;
+    }
+
+    MessageBox confirmBox = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    confirmBox.setText(BaseMessages.getString(PKG, "MetadataPerspective.DeleteMetadata.Title"));
+    confirmBox.setMessage(
+        BaseMessages.getString(
+            PKG,
+            "MetadataPerspective.DeleteUnknownMetadata.Confirm",
+            name,
+            toDisplayPath(filename, hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME))));
+    if ((confirmBox.open() & SWT.YES) == 0) {
+      return;
+    }
+
+    try {
+      FileObject file = HopVfs.getFileObject(filename);
+      FileObject typeFolder = file.getParent();
+      if (!file.delete()) {
+        throw new HopException("The file couldn't be deleted");
+      }
+      deleteEmptyOrphanFolder((String) treeItem.getData(), typeFolder);
+
+      refresh();
+      updateSelection();
+      hopGui.getEventsHandler().fire(HopGuiEvents.MetadataDeleted.name());
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          ERROR,
+          BaseMessages.getString(
+              PKG, "MetadataPerspective.DeleteUnknownMetadata.Error.Message", filename),
+          e);
+    }
+  }
+
+  /**
+   * Removes the metadata folder of a type no plugin provides once its last element is deleted, so
+   * cleaning up after a missing plugin doesn't leave an empty folder behind. Folders of known types
+   * are left alone: they are in use. Failing to clean up is logged, never shown.
+   *
+   * @param typeKey the metadata type key (the folder name)
+   * @param typeFolder the folder holding the elements of that type
+   */
+  private void deleteEmptyOrphanFolder(String typeKey, FileObject typeFolder) {
+    if (PluginRegistry.getInstance().findPluginWithId(MetadataPluginType.class, typeKey) != null) {
+      return;
+    }
+    try {
+      if (typeFolder.exists() && typeFolder.getChildren().length == 0) {
+        typeFolder.delete();
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error deleting empty metadata folder " + typeFolder.getName(), e);
+    }
+  }
+
+  /** Tells the user we don't know which file holds a metadata element. */
+  private void showFileNotFound(String name) {
+    MessageBox box = new MessageBox(getShell(), SWT.OK | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "MetadataPerspective.OpenFile.NotFound.Header"));
+    box.setMessage(
+        BaseMessages.getString(PKG, "MetadataPerspective.OpenFile.NotFound.Message", name));
+    box.open();
+  }
+
+  /** Shows the file and the error behind the selected element we can't load. */
+  public void onUnknownMetadataDetails() {
+    if (tree.getSelectionCount() != 1) {
+      return;
+    }
+    TreeItem treeItem = tree.getSelection()[0];
+    if (!UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
+      return;
+    }
+    String name = treeItem.getText(0);
+    String filename = Const.NVL((String) treeItem.getData(KEY_FILENAME), "");
+    String reason = Const.NVL((String) treeItem.getData(KEY_REASON), "");
+
+    new DetailsDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "MetadataPerspective.UnknownDetails.Title", name),
+            GuiResource.getInstance().getImageHop(),
+            BaseMessages.getString(PKG, "MetadataPerspective.UnknownDetails.Message", name),
+            BaseMessages.getString(PKG, "MetadataPerspective.UnknownDetails.File")
+                + Const.CR
+                + toDisplayPath(filename, hopGui.getVariables().resolve(Const.VAR_PROJECT_HOME))
+                + Const.CR
+                + Const.CR
+                + BaseMessages.getString(PKG, "MetadataPerspective.UnknownDetails.Error")
+                + Const.CR
+                + reason)
+        .open();
+  }
+
+  /**
+   * Opens the JSON file behind the selected metadata element in a text editor. Works for regular
+   * elements as well as for the ones we can't load, which is often the only way to see what a
+   * broken element contains.
+   */
+  public void onOpenMetadataFile() {
+    if (tree.getSelectionCount() != 1) {
+      return;
+    }
+    TreeItem treeItem = tree.getSelection()[0];
+    String nodeType = (String) treeItem.getData(KEY_TYPE);
+
+    String filename;
+    if (UNKNOWN_FILE.equals(nodeType)) {
+      filename = (String) treeItem.getData(KEY_FILENAME);
+    } else if (FILE.equals(nodeType)) {
+      filename = findMetadataFilename(getObjectKey(treeItem), treeItem.getText(0));
+    } else {
+      return;
+    }
+
+    if (Utils.isEmpty(filename)) {
+      showFileNotFound(treeItem.getText(0));
+      return;
+    }
+
+    try {
+      if (hopGui.fileDelegate.fileOpen(filename) != null) {
+        // The file opens in a tab of the Explorer perspective, so let's go there.  Opening a file
+        // only switches perspective by itself for the file types a perspective claims as its own
+        // and a JSON file isn't one of those.
+        //
+        ExplorerPerspective.getInstance().activate();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          ERROR,
+          BaseMessages.getString(PKG, "MetadataPerspective.OpenFile.Error.Message", filename),
+          e);
     }
   }
 
@@ -2154,6 +2390,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    */
   private void reloadModel() {
     typeModels.clear();
+    unknownTypeModels.clear();
+    // Metadata types and elements we can't load, keyed by metadata type, filled in below.
+    Map<String, UnknownTypeModel> unknownByKey = new LinkedHashMap<>();
+    Set<String> knownKeys = new HashSet<>();
     try {
       IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
       for (Class<IHopMetadata> metadataClass : metadataProvider.getMetadataClasses()) {
@@ -2170,6 +2410,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 annotation.image(),
                 metadataClass);
 
+        knownKeys.add(annotation.key());
+
         IHopMetadataSerializer<IHopMetadata> serializer =
             metadataProvider.getSerializer(metadataClass);
         List<String> names = serializer.listObjectNames();
@@ -2178,14 +2420,36 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           String virtualPath;
           try {
             virtualPath = Const.NVL(serializer.load(name).getVirtualPath(), "");
-          } catch (HopException e) {
-            // Ignore missing/corrupt metadata items
-            LogChannel.GENERAL.logError("Error loading metadata object:" + name);
+          } catch (Exception e) {
+            // We can't load this one: a missing plugin, corrupt JSON, ... .  Rather than hiding it,
+            // we list it under the "Unknown" category where it can be inspected and deleted.
+            //
+            LogChannel.GENERAL.logError("Error loading metadata object:" + name, e);
+            unknownByKey
+                .computeIfAbsent(
+                    annotation.key(), key -> new UnknownTypeModel(key, typeModel.typeName))
+                .items
+                .add(
+                    new UnknownItemModel(
+                        name,
+                        findMetadataFilename(annotation.key(), name),
+                        Const.getRootCauseMessage(e)));
             continue;
           }
           typeModel.items.add(new MetadataItemModel(name, virtualPath));
         }
         typeModels.add(typeModel);
+      }
+
+      // Metadata folders for which no plugin provides the type at all: without a metadata class
+      // there's no serializer, so these are invisible unless we go and look for them ourselves.
+      //
+      collectOrphanMetadataFolders(metadataProvider, knownKeys, unknownByKey);
+
+      unknownTypeModels.addAll(unknownByKey.values());
+      unknownTypeModels.sort(Comparator.comparing(unknownType -> unknownType.typeName));
+      for (UnknownTypeModel unknownType : unknownTypeModels) {
+        unknownType.items.sort(Comparator.comparing(item -> item.name));
       }
       // Attach explicitly-created (persisted) virtual folders so empty ones survive
       // refresh/restart.
@@ -2199,6 +2463,82 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           BaseMessages.getString(PKG, "MetadataPerspective.RefreshMetadata.Error.Message"),
           e);
     }
+  }
+
+  /**
+   * Looks for metadata folders in the project which no installed plugin claims: every JSON file in
+   * such a folder is an element we can't load, so they are collected as unknown elements of an
+   * unknown type. Anything we can't read here is logged and skipped: this is a best-effort scan.
+   *
+   * @param metadataProvider the provider(s) of the project
+   * @param knownKeys the metadata type keys provided by the installed plugins
+   * @param unknownByKey collects the unknown elements, keyed by metadata type
+   */
+  private void collectOrphanMetadataFolders(
+      IHopMetadataProvider metadataProvider,
+      Set<String> knownKeys,
+      Map<String, UnknownTypeModel> unknownByKey) {
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(metadataProvider)) {
+      try {
+        FileObject baseFolder = HopVfs.getFileObject(jsonProvider.getBaseFolder());
+        if (!baseFolder.exists()) {
+          continue;
+        }
+        for (FileObject typeFolder : baseFolder.getChildren()) {
+          String key = typeFolder.getName().getBaseName();
+          if (!typeFolder.isFolder() || knownKeys.contains(key)) {
+            continue;
+          }
+          String reason =
+              BaseMessages.getString(PKG, "MetadataPerspective.Unknown.NoPluginForType", key);
+          UnknownTypeModel unknownType =
+              unknownByKey.computeIfAbsent(key, k -> new UnknownTypeModel(k, k));
+          for (FileObject jsonFile : HopVfs.findFiles(typeFolder, "json", false)) {
+            String name = jsonFile.getName().getBaseName().replaceAll("\\.json$", "");
+            // The same element can live in a parent project as well: like anywhere else the first
+            // provider which has it wins, so we don't list it twice.
+            if (unknownType.items.stream().noneMatch(item -> item.name.equals(name))) {
+              unknownType.items.add(
+                  new UnknownItemModel(name, HopVfs.getFilename(jsonFile), reason));
+            }
+          }
+        }
+      } catch (Exception e) {
+        LogChannel.UI.logError(
+            "Error looking for unknown metadata in folder " + jsonProvider.getBaseFolder(), e);
+      }
+    }
+  }
+
+  /** The JSON (file based) providers behind the given provider, which can be a multi-provider. */
+  private static List<JsonMetadataProvider> getJsonProviders(IHopMetadataProvider provider) {
+    List<JsonMetadataProvider> jsonProviders = new ArrayList<>();
+    if (provider instanceof MultiMetadataProvider multiProvider) {
+      for (IHopMetadataProvider childProvider : multiProvider.getProviders()) {
+        jsonProviders.addAll(getJsonProviders(childProvider));
+      }
+    } else if (provider instanceof JsonMetadataProvider jsonProvider) {
+      jsonProviders.add(jsonProvider);
+    }
+    return jsonProviders;
+  }
+
+  /**
+   * The file behind a metadata element: {@code <base folder>/<type key>/<name>.json} in the first
+   * provider which has it. Returns null if no file was found (or the metadata isn't file based).
+   */
+  private String findMetadataFilename(String typeKey, String name) {
+    for (JsonMetadataProvider jsonProvider : getJsonProviders(hopGui.getMetadataProvider())) {
+      String filename = jsonProvider.getBaseFolder() + "/" + typeKey + "/" + name + ".json";
+      try {
+        if (HopVfs.fileExists(filename)) {
+          return filename;
+        }
+      } catch (Exception e) {
+        LogChannel.UI.logError("Error checking metadata file " + filename, e);
+      }
+    }
+    return null;
   }
 
   /**
@@ -2446,6 +2786,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         }
       }
 
+      // Everything we can't load goes into its own category at the bottom of the tree.
+      //
+      totalMatches += buildUnknownCategory(filtering);
+
       updateResultCount(filtering, totalMatches);
 
       TreeUtil.setOptimalWidthOnColumns(tree);
@@ -2493,6 +2837,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           + item.getData(VIRTUAL_PATH)
           + "\t"
           + item.getText(0);
+    }
+    if (UNKNOWN_CATEGORY.equals(type)) {
+      return "UC";
+    }
+    if (UNKNOWN_TYPE.equals(type)) {
+      return "UT\t" + item.getData();
+    }
+    if (UNKNOWN_FILE.equals(type)) {
+      return "UI\t" + item.getData() + "\t" + item.getText(0);
     }
     return null;
   }
@@ -2604,6 +2957,73 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   }
 
   /**
+   * Builds the "Unknown" category at the bottom of the tree: the metadata elements in the project
+   * which we can't load, grouped by their metadata type. Nothing is rendered when there are none.
+   *
+   * @param filtering true if a search filter is active
+   * @return the number of elements shown (to be counted as search matches)
+   */
+  private int buildUnknownCategory(boolean filtering) {
+    if (unknownTypeModels.isEmpty()) {
+      return 0;
+    }
+    int shownCount = 0;
+    TreeItem categoryItem = null;
+
+    for (UnknownTypeModel unknownType : unknownTypeModels) {
+      boolean typeMatches =
+          filtering && (contains(unknownType.typeName) || contains(unknownType.key));
+      List<UnknownItemModel> shownItems;
+      if (!filtering || typeMatches) {
+        shownItems = unknownType.items;
+      } else {
+        shownItems = new ArrayList<>();
+        for (UnknownItemModel item : unknownType.items) {
+          if (contains(item.name)) {
+            shownItems.add(item);
+          }
+        }
+      }
+      if (filtering && shownItems.isEmpty()) {
+        continue;
+      }
+      shownCount += shownItems.size();
+
+      if (categoryItem == null) {
+        categoryItem = new TreeItem(tree, SWT.NONE);
+        categoryItem.setText(
+            BaseMessages.getString(PKG, "MetadataPerspective.Category.Unknown.Label"));
+        categoryItem.setImage(
+            GuiResource.getInstance()
+                .getImage(IMAGE_UNKNOWN, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+        categoryItem.setData(UNKNOWN_CATEGORY);
+        categoryItem.setData(KEY_TYPE, UNKNOWN_CATEGORY);
+        categoryItem.setData(VIRTUAL_PATH, "");
+      }
+
+      TreeItem typeItem = new TreeItem(categoryItem, SWT.NONE);
+      typeItem.setText(0, unknownType.typeName + " (" + shownItems.size() + ")");
+      typeItem.setImage(
+          GuiResource.getInstance()
+              .getImage(IMAGE_UNKNOWN, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+      typeItem.setData(unknownType.key);
+      typeItem.setData(KEY_TYPE, UNKNOWN_TYPE);
+      typeItem.setData(VIRTUAL_PATH, "");
+
+      for (UnknownItemModel item : shownItems) {
+        TreeItem fileItem = new TreeItem(typeItem, SWT.NONE);
+        fileItem.setText(0, item.name);
+        fileItem.setData(unknownType.key);
+        fileItem.setData(KEY_TYPE, UNKNOWN_FILE);
+        fileItem.setData(VIRTUAL_PATH, "");
+        fileItem.setData(KEY_FILENAME, item.filename);
+        fileItem.setData(KEY_REASON, item.reason);
+      }
+    }
+    return shownCount;
+  }
+
+  /**
    * Ensures the folder chain for {@code virtualPath} exists under {@code typeItem}, creating folder
    * nodes as needed, and returns the deepest folder node (or {@code typeItem} for an empty path).
    */
@@ -2655,6 +3075,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     if (FOLDER.equals(type)) {
       return new String[] {"F", (String) item.getData(), (String) item.getData(VIRTUAL_PATH)};
     }
+    if (UNKNOWN_CATEGORY.equals(type)) {
+      return new String[] {"UC"};
+    }
+    if (UNKNOWN_TYPE.equals(type)) {
+      return new String[] {"UT", (String) item.getData()};
+    }
     return null;
   }
 
@@ -2672,9 +3098,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         // While searching, expand everything so matches are visible (not recorded as a choice).
         item.setExpanded(true);
       } else {
-        // Categories expand by default; types and folders collapse by default. Seed each
-        // default-expanded node once per session so the default holds until the user changes it.
-        boolean defaultExpanded = "C".equals(path[0]);
+        // Categories (including the "Unknown" one) expand by default; types and folders collapse
+        // by default. Seed each default-expanded node once per session so the default holds until
+        // the user changes it.
+        boolean defaultExpanded = "C".equals(path[0]) || "UC".equals(path[0]);
         if (defaultExpanded && treeStateSeeded.add(String.join(" ", path))) {
           TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, path, true);
         }
@@ -2759,6 +3186,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
     boolean isMetadataSelected = false;
     boolean isFolderSelected = false;
+    boolean isUnknownSelected = false;
     boolean canCreateHere = false;
 
     if (tree.getSelectionCount() > 0) {
@@ -2766,6 +3194,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       String nodeType = (String) treeItem.getData(KEY_TYPE);
       isMetadataSelected = FILE.equals(nodeType);
       isFolderSelected = FOLDER.equals(nodeType);
+      // An element we can't load can only be deleted.
+      isUnknownSelected = UNKNOWN_FILE.equals(nodeType);
       // The context "New" applies to a type, folder or file (all resolve to a type key), but not
       // to a category header or a plain label.
       canCreateHere = getObjectKey(treeItem) != null;
@@ -2775,7 +3205,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, isMetadataSelected || isFolderSelected);
+    toolBarWidgets.enableToolbarItem(
+        TOOLBAR_ITEM_DELETE, isMetadataSelected || isFolderSelected || isUnknownSelected);
   }
 
   @Override
@@ -3031,6 +3462,35 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     private MetadataItemModel(String name, String virtualPath) {
       this.name = name;
       this.virtualPath = virtualPath;
+    }
+  }
+
+  /**
+   * One metadata folder on disk holding elements we can't load: either no installed plugin provides
+   * the type at all (there's not even a serializer for it, and {@code typeName} is the folder name)
+   * or the type is known but some of its elements fail to load.
+   */
+  private static final class UnknownTypeModel {
+    private final String key;
+    private final String typeName;
+    private final List<UnknownItemModel> items = new ArrayList<>();
+
+    private UnknownTypeModel(String key, String typeName) {
+      this.key = key;
+      this.typeName = typeName;
+    }
+  }
+
+  /** A single metadata file we can't load: its name, where it lives and what's wrong with it. */
+  private static final class UnknownItemModel {
+    private final String name;
+    private final String filename;
+    private final String reason;
+
+    private UnknownItemModel(String name, String filename, String reason) {
+      this.name = name;
+      this.filename = filename;
+      this.reason = reason;
     }
   }
 }
