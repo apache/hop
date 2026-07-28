@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
 class BeamBQOutputDialogTest extends SwtBotTestBase {
 
   private static final String TRANSFORM_NAME = "BigQuery Output";
-  private static final String DIALOG_TITLE = "BigQuery Output";
+  private static final String DIALOG_TITLE = "BigQuery output";
   // The dialog renders the three flag rows as separate Label + Button(CHECK) pairs — the buttons
   // themselves carry no text. Address them by creation index instead of label.
   private static final int CHECK_CREATE = 0;
@@ -113,7 +113,7 @@ class BeamBQOutputDialogTest extends SwtBotTestBase {
   private static PipelineMeta pipelineWith(BeamBQOutputMeta meta) {
     String pluginId = PluginRegistry.getInstance().getPluginId(TransformPluginType.class, meta);
     assertNotNull(
-        pluginId, "BigQuery Output transform plugin must be registered via HopEnvironment.init()");
+        pluginId, "BigQuery output transform plugin must be registered via HopEnvironment.init()");
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.addTransform(new TransformMeta(pluginId, TRANSFORM_NAME, meta));
     return pipelineMeta;
