@@ -44,8 +44,14 @@ import org.eclipse.swt.SWT;
 
 /**
  * When a project lifecycle environment is enabled, optionally validate (or apply) the marketplace
- * hop-env file against the local install. Settings come from {@link AttributesContext} group {@link
- * MarketplaceAttributes#GROUP} — no dependency on the Projects plugin classes.
+ * hop-env file against the local install.
+ *
+ * <p><strong>Hop GUI:</strong> this extension <em>never</em> throws. Missing config, missing
+ * hop-env, parse errors, and drift only log (and optionally show a warning dialog). Blocking enable
+ * would trap users out of their environment with no GUI recovery path (issue #7656).
+ *
+ * <p><strong>Non-GUI:</strong> {@code onEnable=enforce} may still throw so automation can hard-fail
+ * (prefer {@code hop marketplace validate} / hop-run checks for CI).
  */
 @ExtensionPoint(
     id = "MarketplaceProjectEnvironmentAfterEnabled",
@@ -58,16 +64,45 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, AttributesContext context)
       throws HopException {
+    // Outer guard: never let marketplace break environment enable in the GUI.
+    try {
+      runCheck(log, variables, context);
+    } catch (Exception e) {
+      if (isGuiRuntime()) {
+        if (log != null) {
+          log.logError(
+              "Marketplace environment check failed but environment enable continues: "
+                  + e.getMessage(),
+              e);
+        }
+        warnGui(
+            "Marketplace check failed",
+            "The marketplace could not validate hop-env for this environment.\n\n"
+                + Const.NVL(e.getMessage(), e.getClass().getSimpleName())
+                + "\n\nThe environment was still enabled.");
+        return;
+      }
+      if (e instanceof HopException he) {
+        throw he;
+      }
+      throw new HopException("Marketplace environment check failed", e);
+    }
+  }
+
+  private void runCheck(ILogChannel log, IVariables variables, AttributesContext context)
+      throws Exception {
     if (context == null) {
       return;
     }
 
     String onEnable = MarketplaceAttributes.resolveOnEnable(context, context.getPurpose());
     if (MarketplaceAttributes.ON_ENABLE_OFF.equals(onEnable)) {
-      log.logDetailed(
-          "Marketplace environment check skipped (onEnable=off) for environment '"
-              + Const.NVL(context.getEnvironmentName(), "")
-              + "'");
+      if (log != null) {
+        log.logDetailed(
+            "Marketplace environment check skipped (onEnable=off) for environment '"
+                + Const.NVL(context.getEnvironmentName(), "")
+                + "'");
+      }
       return;
     }
 
@@ -75,83 +110,133 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
     try {
       hopHome = HopHome.resolve();
     } catch (HopException e) {
-      log.logDetailed("Marketplace environment check skipped: Hop home not resolved");
+      if (log != null) {
+        log.logDetailed("Marketplace environment check skipped: Hop home not resolved");
+      }
       return;
     }
 
+    boolean explicitEnvFile = MarketplaceAttributes.hasExplicitEnvFile(context);
     Path envFile = resolveEnvFile(context, variables, hopHome);
     if (envFile == null) {
+      // No hop-env configured and none found: silent skip (issue #7656).
+      if (!explicitEnvFile) {
+        if (log != null) {
+          log.logDetailed(
+              "Marketplace environment check skipped (no envFile attribute and no hop-env.yaml) for '"
+                  + Const.NVL(context.getEnvironmentName(), "")
+                  + "'");
+        }
+        return;
+      }
       String msg =
           "Marketplace environment file not found for environment '"
               + Const.NVL(context.getEnvironmentName(), "")
-              + "'. Set marketplace attribute envFile or place hop-env.yaml under the project home.";
-      if (MarketplaceAttributes.ON_ENABLE_ENFORCE.equals(onEnable)) {
+              + "': "
+              + Const.NVL(MarketplaceAttributes.envFile(context), "")
+              + ". Fix marketplace attribute envFile or place hop-env.yaml under the project home.";
+      // GUI: never block open — warn only. Non-GUI enforce may throw.
+      if (MarketplaceAttributes.ON_ENABLE_ENFORCE.equals(onEnable) && !isGuiRuntime()) {
         throw new HopException(msg);
       }
-      log.logBasic(msg);
+      if (log != null) {
+        log.logBasic(msg);
+      }
+      if (isGuiRuntime()) {
+        warnGui("Marketplace environment file missing", msg);
+      }
       return;
     }
 
-    try {
-      MarketplaceConfig config = MarketplaceConfig.load();
-      HopEnvironmentSpec env = HopEnvironmentLoader.load(envFile);
-      EnvironmentApplier applier = new EnvironmentApplier(log, hopHome, config);
-      EnvironmentDrift drift = applier.validate(env);
+    MarketplaceConfig config = MarketplaceConfig.load();
+    HopEnvironmentSpec env = HopEnvironmentLoader.load(envFile);
+    EnvironmentApplier applier = new EnvironmentApplier(log, hopHome, config);
+    EnvironmentDrift drift = applier.validate(env);
 
-      if (MarketplaceAttributes.isStrict(context)) {
-        populateExtraPlugins(hopHome, env, drift);
-      }
+    if (MarketplaceAttributes.isStrict(context)) {
+      populateExtraPlugins(hopHome, env, drift);
+    }
 
-      boolean hard =
-          !drift.getMissingPlugins().isEmpty()
-              || !drift.getVersionMismatches().isEmpty()
-              || !drift.getMissingDependencies().isEmpty()
-              || (MarketplaceAttributes.isStrict(context)
-                  && !drift.getExtraMarketplacePlugins().isEmpty());
+    boolean hard =
+        !drift.getMissingPlugins().isEmpty()
+            || !drift.getVersionMismatches().isEmpty()
+            || !drift.getMissingDependencies().isEmpty()
+            || (MarketplaceAttributes.isStrict(context)
+                && !drift.getExtraMarketplacePlugins().isEmpty());
 
-      if (!hard) {
+    if (!hard) {
+      if (log != null) {
         log.logBasic("Marketplace environment file " + envFile + " matches local install.");
-        return;
       }
+      return;
+    }
 
-      String report =
-          "Environment drift for '"
-              + Const.NVL(context.getEnvironmentName(), "")
-              + "' against "
-              + envFile
-              + ":\n"
-              + drift.formatReport()
-              + "Run 'hop marketplace apply -f "
-              + envFile
-              + "' to fix your environment.";
+    String report =
+        "Environment drift for '"
+            + Const.NVL(context.getEnvironmentName(), "")
+            + "' against "
+            + envFile
+            + ":\n"
+            + drift.formatReport()
+            + "Run 'hop marketplace apply -f "
+            + envFile
+            + "' to fix your environment.";
 
-      if (MarketplaceAttributes.isAutoApply(context) && config.isEnabled()) {
+    if (MarketplaceAttributes.isAutoApply(context) && config.isEnabled()) {
+      if (log != null) {
         log.logBasic("Auto-applying marketplace environment file " + envFile);
+      }
+      try {
         applier.apply(env, false);
-        return;
-      }
-
-      if (MarketplaceAttributes.ON_ENABLE_ENFORCE.equals(onEnable)) {
-        throw new HopException("FATAL: " + report);
-      }
-
-      // warn
-      log.logError(report);
-      if ("GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
-        try {
-          MessageBox box =
-              new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_WARNING);
-          box.setText("Marketplace environment drift");
-          box.setMessage(report);
-          box.open();
-        } catch (Exception e) {
-          // headless or shell unavailable
+      } catch (Exception applyEx) {
+        // Auto-apply must not strand the GUI without an open environment.
+        if (isGuiRuntime()) {
+          if (log != null) {
+            log.logError("Marketplace auto-apply failed; environment remains enabled", applyEx);
+          }
+          warnGui(
+              "Marketplace auto-apply failed",
+              report
+                  + "\n\nAuto-apply error: "
+                  + Const.NVL(applyEx.getMessage(), applyEx.getClass().getSimpleName())
+                  + "\n\nThe environment was still enabled.");
+          return;
         }
+        throw applyEx;
       }
-    } catch (HopException e) {
-      throw e;
+      return;
+    }
+
+    if (MarketplaceAttributes.ON_ENABLE_ENFORCE.equals(onEnable) && !isGuiRuntime()) {
+      throw new HopException("FATAL: " + report);
+    }
+
+    // warn (and in GUI always warn-only, even if onEnable was enforce)
+    if (log != null) {
+      log.logError(report);
+      if (MarketplaceAttributes.ON_ENABLE_ENFORCE.equals(onEnable) && isGuiRuntime()) {
+        log.logBasic(
+            "Marketplace onEnable=enforce is treated as warn in Hop GUI so environments can always"
+                + " be opened. Use hop-run / marketplace validate for hard fail.");
+      }
+    }
+    if (isGuiRuntime()) {
+      warnGui("Marketplace environment drift", report);
+    }
+  }
+
+  static boolean isGuiRuntime() {
+    return "GUI".equalsIgnoreCase(Const.getHopPlatformRuntime());
+  }
+
+  private static void warnGui(String title, String message) {
+    try {
+      MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_WARNING);
+      box.setText(title);
+      box.setMessage(message);
+      box.open();
     } catch (Exception e) {
-      throw new HopException("Failed to validate marketplace environment file " + envFile, e);
+      // headless or shell unavailable
     }
   }
 
