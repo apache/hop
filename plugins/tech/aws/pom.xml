@@ -30,6 +30,7 @@
 
     <properties>
         <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
+        <hop.jdbc.driver1>com.amazon.redshift:redshift-jdbc42</hop.jdbc.driver1>
     </properties>
 
     <dependencyManagement>
@@ -52,12 +53,22 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- AWS SDK v2: S3, SNS, SQS (aligned with Beam 2.71.0) -->
+        <dependency>
+            <groupId>com.amazon.redshift</groupId>
+            <artifactId>redshift-jdbc42</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
             <version>${aws-java-sdk.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -69,7 +80,7 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sns</artifactId>
             <version>${aws-java-sdk.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -81,17 +92,6 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sqs</artifactId>
             <version>${aws-java-sdk.version}</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.amazon.redshift</groupId>
-            <artifactId>redshift-jdbc42</artifactId>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

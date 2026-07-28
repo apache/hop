@@ -1559,4 +1559,195 @@
         </dependency>
 
     </dependencies>
+
+    <!--
+        The default build ships the "lean" client: heavy plugins are published to the
+        marketplace instead (see plugins/misc/marketplace/.../optional-plugins.yaml) so the
+        release artifacts stay under the ASF 850MB package limit.
+
+        The "full" profile adds every marketplace-optional plugin back in, producing a
+        distribution that contains all plugins. Use it to validate library routing, i.e.
+        which jars are shared through lib/core versus which stay plugin-private, since
+        that can only be judged against a tree where every plugin is present:
+
+            ./mvnw -pl assemblies/client -am package -Pfull
+
+        This profile is a development and verification aid; it is not a release artifact
+        and it deliberately exceeds the size limit enforced by tools/check-assembly-size.sh.
+    -->
+    <profiles>
+        <profile>
+            <id>full</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-engines-spark</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-misc-documentation</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-misc-import</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-misc-mail</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-misc-py4j</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-misc-rest</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-arrow</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-avro</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-aws</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-azure</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-cassandra</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-databricks</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-dropbox</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-elastic</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-google</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-minio</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-mongodb</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-neo4j</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-opensearch</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-parquet</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-salesforce</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-drools</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-edi2xml</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-fake</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-script</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-stanfordnlp</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-tika</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-vcard</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
