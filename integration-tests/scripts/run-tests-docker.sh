@@ -100,6 +100,10 @@ if [ -z "${JENKINS_GID}" ]; then
   JENKINS_GID="$(id -g 2>/dev/null || echo 1000)"
 fi
 
+# Exported so the compose files pick the same identity up when they (re)build the image
+# themselves, e.g. the "up --build" runs for hop_server and spark.
+export JENKINS_USER JENKINS_UID JENKINS_GROUP JENKINS_GID
+
 echo "Integration-test container identity: user=${JENKINS_USER} uid=${JENKINS_UID} group=${JENKINS_GROUP} gid=${JENKINS_GID}"
 
 if [ -z "${SUREFIRE_REPORT}" ]; then
@@ -145,6 +149,21 @@ else
 fi
 export SKIP_GOOGLE_SHEETS
 echo "SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS}"
+
+# The key is bind-mounted into the container at run time (integration-tests-base.yaml) instead of
+# baked into the image, so the containers always see the file this script validated above.
+# Compose needs an absolute path here: relative values would resolve against the compose file dir.
+if [ "${GCP_KEY_OK}" = "true" ]; then
+  GCP_KEY_HOST_PATH="${GCP_KEY_PATH}"
+  case "${GCP_KEY_HOST_PATH}" in
+  /*) ;;
+  *) GCP_KEY_HOST_PATH="$(pwd)/${GCP_KEY_HOST_PATH#./}" ;;
+  esac
+else
+  GCP_KEY_HOST_PATH="$(cd "${CURRENT_DIR}/../.." && pwd)/docker/integration-tests/resource/dummyfile"
+fi
+export GCP_KEY_HOST_PATH
+echo "GCP_KEY_HOST_PATH=${GCP_KEY_HOST_PATH}"
 
 if [ -z "${HOP_OPTIONS}" ] ; then 
   HOP_OPTIONS="${HOP_OPTIONS} -Djavax.net.ssl.keyStore=./docker/integration-tests/resource/keystore.jks -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.trustStore=./docker/integration-tests/resource/mail/conf/keystore "
@@ -336,8 +355,13 @@ if [ -n "${HOP_SPARK_CLIENT_VERSION}" ]; then
   docker rmi hop-base-image 2>/dev/null || true
 fi
 
-# Build base image only once (must run AFTER pack materialise so jars are in the image)
-docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
+# Build base image only once (must run AFTER pack materialise so jars are in the image).
+# Bail out on failure: "docker compose up" would otherwise silently rebuild hop-base-image from the
+# compose file defaults, hiding the real build error behind confusing test failures.
+if ! docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID}; then
+  echo "ERROR: could not build hop-base-image; aborting integration tests" >&2
+  exit 1
+fi
 
 # The Hop fat jar (needed only by the Beam runners: spark/flink/gcp) is expensive to build, so it
 # lives in a separate image (hop-beam-image) that we build lazily and only once, the first time a
