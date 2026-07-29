@@ -32,6 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -645,7 +646,7 @@ public class ODataInputDialog extends BaseTransformDialog {
           String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
           javax.xml.parsers.DocumentBuilderFactory factory =
-              javax.xml.parsers.DocumentBuilderFactory.newInstance();
+              XmlParserFactoryProducer.createSecureDocBuilderFactory();
           factory.setNamespaceAware(true);
           javax.xml.parsers.DocumentBuilder db = factory.newDocumentBuilder();
           org.w3c.dom.Document doc =

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -98,7 +99,7 @@ public class RemoteHopServer {
 
   public static final String PROTOCOL_HTTP = "http";
   public static final String PROTOCOL_HTTPS = "https";
-  private static final Random RANDOM = new Random();
+  private static final Random RANDOM = new SecureRandom();
   private static final String STRING_HOP_SERVER = "Hop Server";
 
   private static final String CONST_NAME = "/?name=";

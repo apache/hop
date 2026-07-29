@@ -165,4 +165,37 @@ class BaseHttpServletTest {
     when(response.getWriter()).thenReturn(pw);
     assertNotNull(servlet.getSafeWriter(response));
   }
+
+  private String staticPathFor(String requestUri, String contextPath) {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRequestURI()).thenReturn(requestUri);
+    return servlet.getStaticPath(request, contextPath);
+  }
+
+  @Test
+  void getStaticPathIsRootBasedForARootDeployment() {
+    assertEquals("/static", staticPathFor("/hop-server/status", "/hop-server/status"));
+  }
+
+  @Test
+  void getStaticPathKeepsTheDeploymentPrefix() {
+    assertEquals(
+        "/hop/ui/static", staticPathFor("/hop/ui/hop-server/status", "/hop-server/status"));
+  }
+
+  @Test
+  void getStaticPathHandlesAMissingRequestUri() {
+    assertEquals("/static", staticPathFor(null, "/hop-server/status"));
+  }
+
+  @Test
+  void getStaticPathDropsAPrefixThatIsNotAPlainPath() {
+    // The request URI is client controlled: a prefix that could break out of an HTML attribute
+    // must never make it into the response.
+    assertEquals(
+        "/static",
+        staticPathFor("/\"><script>alert(1)</script>/hop-server/status", "/hop-server/status"));
+    assertEquals("/static", staticPathFor("/a b/hop-server/status", "/hop-server/status"));
+    assertEquals("/static", staticPathFor("/a'x/hop-server/status", "/hop-server/status"));
+  }
 }
