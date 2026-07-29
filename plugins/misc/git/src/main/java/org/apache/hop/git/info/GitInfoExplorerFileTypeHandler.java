@@ -18,6 +18,7 @@
 
 package org.apache.hop.git.info;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -432,12 +433,8 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
 
-    InputStream xmlStreamOld = null;
-    InputStream xmlStreamNew = null;
-
-    try {
-      xmlStreamOld = git.open(filename, commitIdOld);
-      xmlStreamNew = git.open(filename, commitIdNew);
+    try (InputStream xmlStreamOld = git.open(filename, commitIdOld);
+        InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       PipelineMeta pipelineMetaOld =
           new PipelineMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
@@ -474,17 +471,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       //
       HopGui.getExplorerPerspective().addPipeline(pipelineMetaOld);
       HopGui.getExplorerPerspective().addPipeline(pipelineMetaNew);
-    } finally {
-      try {
-        if (xmlStreamOld != null) {
-          xmlStreamOld.close();
-        }
-        if (xmlStreamNew != null) {
-          xmlStreamNew.close();
-        }
-      } catch (Exception e) {
-        LogChannel.UI.logError("Error closing XML file after reading", e);
-      }
+    } catch (IOException e) {
+      // only reachable from the implicit close() calls above
+      LogChannel.UI.logError("Error closing XML file after reading", e);
     }
   }
 
@@ -493,12 +482,8 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
 
-    InputStream xmlStreamOld = null;
-    InputStream xmlStreamNew = null;
-
-    try {
-      xmlStreamOld = git.open(filename, commitIdOld);
-      xmlStreamNew = git.open(filename, commitIdNew);
+    try (InputStream xmlStreamOld = git.open(filename, commitIdOld);
+        InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       WorkflowMeta workflowMetaOld =
           new WorkflowMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
@@ -536,17 +521,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       HopGui.getExplorerPerspective().addWorkflow(workflowMetaOld);
       HopGui.getExplorerPerspective().addWorkflow(workflowMetaNew);
       HopGui.getExplorerPerspective().activate();
-    } finally {
-      try {
-        if (xmlStreamOld != null) {
-          xmlStreamOld.close();
-        }
-        if (xmlStreamNew != null) {
-          xmlStreamNew.close();
-        }
-      } catch (Exception e) {
-        LogChannel.UI.logError("Error closing XML file after reading", e);
-      }
+    } catch (IOException e) {
+      // only reachable from the implicit close() calls above
+      LogChannel.UI.logError("Error closing XML file after reading", e);
     }
   }
 

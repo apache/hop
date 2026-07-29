@@ -122,6 +122,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
     return compressionProvider;
   }
 
+  @SuppressWarnings("java:S2095") // the stream is owned by the transform and closed in closeFile()
   public void initFileStreamWriter(String filename) throws HopException {
     data.writer = null;
     try {

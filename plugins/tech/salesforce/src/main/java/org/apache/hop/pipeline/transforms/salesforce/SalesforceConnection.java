@@ -1357,6 +1357,7 @@ public class SalesforceConnection {
     return sw.toString();
   }
 
+  @SuppressWarnings("javabugs:S2259") // getChildren() only returns null for a null object
   private JSONObject buildJSONSObject(SObject sobject) {
     JSONObject jsonObject = new JSONObject();
     for (XmlObject element : getChildren(sobject)) {

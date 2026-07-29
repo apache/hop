@@ -355,44 +355,45 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
         // First export the workflow...
         //
-        FileObject tempFile = HopVfs.createTempFile("pipelineExport", HopVfs.Suffix.ZIP);
+        try (FileObject tempFile = HopVfs.createTempFile("pipelineExport", HopVfs.Suffix.ZIP)) {
 
-        // The executionConfiguration should not include external references here because all the
-        // resources should be
-        // retrieved from the exported zip file
-        // TODO: Serialize metadata objects to JSON and include it in the zip file
-        //
-        PipelineExecutionConfiguration clonedConfiguration =
-            (PipelineExecutionConfiguration) executionConfiguration.clone();
-        TopLevelResource topLevelResource =
-            ResourceUtil.serializeResourceExportInterface(
-                tempFile.getName().toString(),
-                pipelineMeta,
-                this,
-                metadataProvider,
-                clonedConfiguration,
-                CONFIGURATION_IN_EXPORT_FILENAME,
-                remotePipelineRunConfiguration.getNamedResourcesSourceFolder(),
-                remotePipelineRunConfiguration.getNamedResourcesTargetFolder(),
-                executionConfiguration.getVariablesMap());
+          // The executionConfiguration should not include external references here because all the
+          // resources should be
+          // retrieved from the exported zip file
+          // TODO: Serialize metadata objects to JSON and include it in the zip file
+          //
+          PipelineExecutionConfiguration clonedConfiguration =
+              (PipelineExecutionConfiguration) executionConfiguration.clone();
+          TopLevelResource topLevelResource =
+              ResourceUtil.serializeResourceExportInterface(
+                  tempFile.getName().toString(),
+                  pipelineMeta,
+                  this,
+                  metadataProvider,
+                  clonedConfiguration,
+                  CONFIGURATION_IN_EXPORT_FILENAME,
+                  remotePipelineRunConfiguration.getNamedResourcesSourceFolder(),
+                  remotePipelineRunConfiguration.getNamedResourcesTargetFolder(),
+                  executionConfiguration.getVariablesMap());
 
-        // Send the zip file over to the hop server...
-        //
-        String result =
-            hopServer.sendExport(
-                this,
-                topLevelResource.getArchiveName(),
-                RegisterPackageServlet.TYPE_PIPELINE,
-                topLevelResource.getBaseResourceName());
-        WebResult webResult = WebResult.fromXmlString(result);
-        if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
-          String message = cleanupMessage(webResult.getMessage());
-          throw new HopException(
-              "There was an error passing the exported pipeline to the remote server: "
-                  + Const.CR
-                  + message);
+          // Send the zip file over to the hop server...
+          //
+          String result =
+              hopServer.sendExport(
+                  this,
+                  topLevelResource.getArchiveName(),
+                  RegisterPackageServlet.TYPE_PIPELINE,
+                  topLevelResource.getBaseResourceName());
+          WebResult webResult = WebResult.fromXmlString(result);
+          if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
+            String message = cleanupMessage(webResult.getMessage());
+            throw new HopException(
+                "There was an error passing the exported pipeline to the remote server: "
+                    + Const.CR
+                    + message);
+          }
+          containerId = webResult.getId();
         }
-        containerId = webResult.getId();
       } else {
 
         // Now send it off to the remote server...

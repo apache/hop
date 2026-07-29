@@ -203,7 +203,7 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       remarks.add(cr);
     } finally {
       if (db != null) {
-        db.disconnect();
+        db.close();
       }
     }
 
@@ -264,7 +264,7 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
       }
     } finally {
       if (db != null) {
-        db.disconnect();
+        db.close();
       }
     }
 

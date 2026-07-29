@@ -125,7 +125,8 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     changed = action.hasChanged();
 
     // Connection line
-    wConnection = addConnectionLine(shell, wSpacer, action.getDatabase(), lsMod);
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wSpacer, databaseMeta, lsMod);
 
     // Schema name line
     wlSchemaName = new Label(shell, SWT.RIGHT);
@@ -594,9 +595,7 @@ public class ActionEvalTableContentDialog extends ActionDialog {
   public void getData() {
     wName.setText(Const.NVL(action.getName(), ""));
 
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
-    }
+    wConnection.setText(Const.NVL(action.getConnection(), ""));
 
     if (action.getSchemaname() != null) {
       wSchemaName.setText(action.getSchemaname());

@@ -53,6 +53,7 @@ class HopWebDavFileSystem extends AbstractFileSystem {
     return new HopWebDavFileObject(logical, this, delegate);
   }
 
+  @SuppressWarnings("java:S2095") // the provider is only used to reach protected factory methods
   @Override
   protected void addCapabilities(Collection<Capability> caps) {
     caps.addAll(new Webdav4FileProvider().getCapabilities());

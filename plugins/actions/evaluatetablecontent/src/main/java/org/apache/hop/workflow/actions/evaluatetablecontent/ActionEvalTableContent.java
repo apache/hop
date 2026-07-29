@@ -185,6 +185,12 @@ public class ActionEvalTableContent extends ActionBase {
     return successConditionsDesc[i];
   }
 
+  public void setConnection(String connection) {
+    this.connection = connection;
+    // Invalidate the resolved connection, it's looked up again lazily.
+    this.databaseMeta = null;
+  }
+
   public DatabaseMeta getDatabase() {
     if (databaseMeta != null) {
       return databaseMeta;

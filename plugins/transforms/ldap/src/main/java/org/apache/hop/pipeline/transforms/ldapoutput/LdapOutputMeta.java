@@ -309,6 +309,9 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     if (fields == null) {
       allocate(update != null ? update.length : 0);
     }
+    if (update == null) {
+      return;
+    }
     for (int i = 0; i < update.length; i++) {
       if (i < fields.size()) {
         fields.get(i).setUpdate(update[i]);
@@ -435,6 +438,9 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     if (fields == null) {
       allocate(updateStream != null ? updateStream.length : 0);
     }
+    if (updateStream == null) {
+      return;
+    }
     for (int i = 0; i < updateStream.length; i++) {
       if (i < fields.size()) {
         fields.get(i).setUpdateStream(updateStream[i]);
@@ -458,6 +464,9 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   public void setUpdateLookup(String[] updateLookup) {
     if (fields == null) {
       allocate(updateLookup != null ? updateLookup.length : 0);
+    }
+    if (updateLookup == null) {
+      return;
     }
     for (int i = 0; i < updateLookup.length; i++) {
       if (i < fields.size()) {

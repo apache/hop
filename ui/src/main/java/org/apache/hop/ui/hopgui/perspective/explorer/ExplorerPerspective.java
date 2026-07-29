@@ -1767,6 +1767,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /** Change the file name of an open tab */
+  @SuppressWarnings("javabugs:S2259") // callers always pass an open file type handler
   protected void changeFilename(IHopFileTypeHandler fileTypeHandler, String newFilename) {
     String oldFilename = fileTypeHandler.getFilename();
     hopGui.fileRefreshDelegate.remove(oldFilename);
@@ -2523,6 +2524,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the paths are non-null in the fallback branch
   private boolean isDescendant(String parentPath, String childPath) {
     if (parentPath == null || childPath == null) {
       return false;

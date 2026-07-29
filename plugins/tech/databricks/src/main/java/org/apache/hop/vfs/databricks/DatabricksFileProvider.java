@@ -75,6 +75,7 @@ public class DatabricksFileProvider extends AbstractOriginatingFileProvider {
     return CAPABILITIES;
   }
 
+  @SuppressWarnings("java:S2095") // the client is owned by the returned file system
   @Override
   protected FileSystem doCreateFileSystem(FileName rootName, FileSystemOptions fileSystemOptions)
       throws FileSystemException {

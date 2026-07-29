@@ -495,6 +495,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   }
 
   /** Calculates line coordinates from center to center. */
+  @SuppressWarnings("javabugs:S2259") // hops are only drawn when both actions are set
   protected void drawLine(WorkflowHopMeta workflowHop, boolean isCandidate) throws HopException {
     int[] line = getLine(workflowHop.getFromAction(), workflowHop.getToAction());
 

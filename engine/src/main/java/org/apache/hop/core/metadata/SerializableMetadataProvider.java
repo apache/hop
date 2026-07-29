@@ -105,13 +105,13 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
   public SerializableMetadataProvider(String storeJson) throws HopException {
     this();
     this.description = "Serializable metadata provider (source is JSON)";
+    JsonFactory jsonFactory = new JsonFactory();
     try {
 
       try (ByteArrayInputStream inputStream =
-          new ByteArrayInputStream(storeJson.getBytes(StandardCharsets.UTF_8))) {
-
-        JsonFactory jsonFactory = new JsonFactory();
-        com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser(inputStream);
+              new ByteArrayInputStream(storeJson.getBytes(StandardCharsets.UTF_8));
+          com.fasterxml.jackson.core.JsonParser jsonParser =
+              jsonFactory.createParser(inputStream)) {
 
         // Loop over the classes until there's no more left
         //

@@ -219,6 +219,7 @@ public class TeraFastMeta extends BaseTransformMeta<ITransform, ITransformData> 
    * @return the database.
    * @throws HopException if an error occurs.
    */
+  @SuppressWarnings("java:S2095") // the connected database is handed to the caller, which closes it
   public Database connectToDatabase(IVariables variables) throws HopException {
     DatabaseMeta databaseMeta =
         getParentTransformMeta().getParentPipelineMeta().findDatabase(connectionName, variables);

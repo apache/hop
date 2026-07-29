@@ -209,6 +209,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     return true;
   }
 
+  @SuppressWarnings("java:S2095") // disconnectService() is called in the finally block below
   @Override
   public Result execute(final Result result, int nr) throws HopException {
 
@@ -322,7 +323,16 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
             variables.resolve(user),
             Utils.resolvePassword(this, password),
             proxyServer);
-    system.connectService(AS400.COMMAND);
+    try {
+      system.connectService(AS400.COMMAND);
+    } finally {
+      try {
+        // This is only a connection test, so release the service again
+        system.disconnectService(AS400.COMMAND);
+      } catch (Exception e) {
+        // Ignore
+      }
+    }
 
     return true;
   }

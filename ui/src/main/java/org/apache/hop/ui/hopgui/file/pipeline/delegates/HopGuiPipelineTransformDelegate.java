@@ -298,6 +298,7 @@ public class HopGuiPipelineTransformDelegate {
    * @param rename Rename this transform?
    * @return The newly created TransformMeta object.
    */
+  @SuppressWarnings("java:S2095") // the stream is closed in the finally block below
   public TransformMeta newTransform(
       PipelineMeta pipelineMeta,
       String id,

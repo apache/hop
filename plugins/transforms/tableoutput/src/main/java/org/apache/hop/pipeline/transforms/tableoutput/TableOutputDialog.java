@@ -1215,7 +1215,7 @@ public class TableOutputDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "TableOutputDialog.ErrorGettingSchemas"),
             e);
       } finally {
-        database.disconnect();
+        database.close();
       }
     }
   }

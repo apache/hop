@@ -277,8 +277,9 @@ public class MainSpark {
   }
 
   private static void failAndExit(Exception e) {
+    // The Spark driver collects stderr: this runs before/around Hop logging, so write it directly.
     System.err.println("Error running native Spark pipeline: " + e.getMessage());
-    e.printStackTrace();
+    System.err.println(Const.getStackTracker(e));
     if (shouldAvoidSystemExitOnSuccess()) {
       // System.exit(1) is also trapped on Databricks; rethrow so the driver reports failure.
       if (e instanceof RuntimeException re) {

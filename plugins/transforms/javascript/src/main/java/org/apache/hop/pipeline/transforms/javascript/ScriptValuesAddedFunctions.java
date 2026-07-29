@@ -550,53 +550,45 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static Object fireToDB(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
 
-    Object oRC = new Object();
-    if (argList.length == 2) {
-      try {
-        Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
-        ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
-        String strDBName = Context.toString(argList[0]);
-        String strSql = Context.toString(argList[1]);
-        DatabaseMeta databaseMeta =
-            DatabaseMeta.findDatabase(scm.getPipelineMeta().getDatabases(), strDBName);
-        if (databaseMeta == null) {
-          throw Context.reportRuntimeError("Database connection not found: " + strDBName);
-        }
-
-        // TODO: figure out how to set variables on the connection?
-        //
-        Database db = new Database(scm, Variables.getADefaultVariableSpace(), databaseMeta);
-        db.setQueryLimit(0);
-        try {
-          db.connect();
-
-          ResultSet rs = db.openQuery(strSql);
-          ResultSetMetaData resultSetMetaData = rs.getMetaData();
-          int columnCount = resultSetMetaData.getColumnCount();
-          if (rs != null) {
-            List<Object[]> list = new ArrayList<>();
-            while (rs.next()) {
-              Object[] objRow = new Object[columnCount];
-              for (int i = 0; i < columnCount; i++) {
-                objRow[i] = rs.getObject(i + 1);
-              }
-              list.add(objRow);
-            }
-            Object[][] resultArr = new Object[list.size()][];
-            list.toArray(resultArr);
-            db.disconnect();
-            return resultArr;
-          }
-        } catch (Exception er) {
-          throw Context.reportRuntimeError(er.toString());
-        }
-      } catch (Exception e) {
-        throw Context.reportRuntimeError(e.toString());
-      }
-    } else {
+    if (argList.length != 2) {
       throw Context.reportRuntimeError("The function call fireToDB requires 2 arguments.");
     }
-    return oRC;
+    try {
+      Object scmO = actualObject.get(CONST_TRANSFORM, actualObject);
+      ScriptValues scm = (ScriptValues) Context.jsToJava(scmO, ScriptValues.class);
+      String strDBName = Context.toString(argList[0]);
+      String strSql = Context.toString(argList[1]);
+      DatabaseMeta databaseMeta =
+          DatabaseMeta.findDatabase(scm.getPipelineMeta().getDatabases(), strDBName);
+      if (databaseMeta == null) {
+        throw Context.reportRuntimeError("Database connection not found: " + strDBName);
+      }
+
+      // TODO: figure out how to set variables on the connection?
+      //
+      try (Database db = new Database(scm, Variables.getADefaultVariableSpace(), databaseMeta)) {
+        db.setQueryLimit(0);
+        db.connect();
+
+        try (ResultSet rs = db.openQuery(strSql)) {
+          ResultSetMetaData resultSetMetaData = rs.getMetaData();
+          int columnCount = resultSetMetaData.getColumnCount();
+          List<Object[]> list = new ArrayList<>();
+          while (rs.next()) {
+            Object[] objRow = new Object[columnCount];
+            for (int i = 0; i < columnCount; i++) {
+              objRow[i] = rs.getObject(i + 1);
+            }
+            list.add(objRow);
+          }
+          Object[][] resultArr = new Object[list.size()][];
+          list.toArray(resultArr);
+          return resultArr;
+        }
+      }
+    } catch (Exception e) {
+      throw Context.reportRuntimeError(e.toString());
+    }
   }
 
   public static Object dateDiff(

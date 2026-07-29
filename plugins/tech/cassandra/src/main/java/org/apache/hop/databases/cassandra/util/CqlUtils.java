@@ -79,6 +79,7 @@ public class CqlUtils {
     }
   };
 
+  @SuppressWarnings("javabugs:S2259") // clean() only returns null for a null expression
   private static ArrayList<Selector> getSelectors(String selectExpression, boolean isCql3) {
     ArrayList<Selector> sList = new ArrayList<>();
     selectExpression = clean(selectExpression);
