@@ -49,12 +49,13 @@ class PluginInstallerTest {
   }
 
   @Test
-  void protectedPaths() {
-    assertFalse(PluginInstaller.isProtectedPath("lib/beam/foo.jar"));
-    assertFalse(PluginInstaller.isProtectedPath("plugins/engines/beam/lib-beam/x.jar"));
-    assertTrue(PluginInstaller.isProtectedPath("lib/core/bar.jar"));
-    assertFalse(PluginInstaller.isProtectedPath("plugins/engines/beam/hop.jar"));
-    assertFalse(PluginInstaller.isProtectedPath("plugins/tech/parquet/lib/x.jar"));
+  void sharedCorePaths() {
+    assertFalse(PluginInstaller.isSharedCorePath("lib/beam/foo.jar"));
+    assertFalse(PluginInstaller.isSharedCorePath("plugins/engines/beam/lib-beam/x.jar"));
+    assertTrue(PluginInstaller.isSharedCorePath("lib/core/bar.jar"));
+    assertTrue(PluginInstaller.isSharedCorePath("lib/core"));
+    assertFalse(PluginInstaller.isSharedCorePath("plugins/engines/beam/hop.jar"));
+    assertFalse(PluginInstaller.isSharedCorePath("plugins/tech/parquet/lib/x.jar"));
   }
 
   @Test
@@ -93,14 +94,18 @@ class PluginInstallerTest {
       assertTrue(
           Files.isRegularFile(
               hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json")));
-      // protected path from zip must not be written
-      assertFalse(Files.exists(hopHome.resolve("lib/core/evil.jar")));
+      // provided-scope jars land under lib/core and must be installed (system classpath)
+      Path sharedJar = hopHome.resolve("lib/core/shared.jar");
+      assertTrue(Files.isRegularFile(sharedJar));
+      assertEquals("shared-lib", Files.readString(sharedJar));
 
       new PluginUninstaller(log, hopHome).uninstall("hop-test-plugin");
       assertFalse(Files.exists(pluginJar));
       assertFalse(
           Files.exists(
               hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json")));
+      // lib/core is sticky: left in place so other plugins can share it
+      assertTrue(Files.isRegularFile(sharedJar));
     } finally {
       server.stop(0);
     }
@@ -208,9 +213,10 @@ class PluginInstallerTest {
       zos.putNextEntry(new ZipEntry("plugins/tech/test/version.xml"));
       zos.write("<version>1.0.0</version>".getBytes(StandardCharsets.UTF_8));
       zos.closeEntry();
-      // Should be ignored on activate
-      zos.putNextEntry(new ZipEntry("lib/core/evil.jar"));
-      zos.write("nope".getBytes(StandardCharsets.UTF_8));
+      // Shared system-classpath jar (assembly provided → lib/core); must install, sticky on
+      // uninstall
+      zos.putNextEntry(new ZipEntry("lib/core/shared.jar"));
+      zos.write("shared-lib".getBytes(StandardCharsets.UTF_8));
       zos.closeEntry();
     }
     return bos.toByteArray();

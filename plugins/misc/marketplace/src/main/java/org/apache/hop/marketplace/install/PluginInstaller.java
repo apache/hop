@@ -224,17 +224,23 @@ public class PluginInstaller {
     Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(artifactId);
     try {
       for (String relative : relativePaths) {
-        // Never overwrite core beam libraries from a marketplace zip
-        if (isProtectedPath(relative)) {
-          log.logBasic("Skipping protected path from marketplace package: " + relative);
-          continue;
-        }
         Path from = stageRoot.resolve(relative);
         Path to = hopHome.resolve(relative);
         if (Files.isDirectory(from)) {
           Files.createDirectories(to);
         } else if (Files.isRegularFile(from)) {
           Files.createDirectories(to.getParent());
+          // Shared classpath jars (Maven provided → lib/core). Install them so marketplace
+          // packages match the full client assembly; warn when replacing different content.
+          if (isSharedCorePath(relative)
+              && Files.isRegularFile(to)
+              && Files.mismatch(from, to) != -1L) {
+            log.logBasic(
+                "Replacing shared lib/core jar with different content from "
+                    + artifactId
+                    + ": "
+                    + relative);
+          }
           Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
         }
       }
@@ -244,10 +250,11 @@ public class PluginInstaller {
   }
 
   /**
-   * Core install paths marketplace zips must not overwrite. Beam SDKs live under the Beam plugin
-   * ({@code plugins/engines/beam/lib-beam}) and are installed/uninstalled with that plugin.
+   * Paths under {@code lib/core/} hold shared system-classpath jars (plugin assembly {@code
+   * provided} scope). Marketplace <strong>installs</strong> these jars so optional plugins work the
+   * same as the full client; uninstall never removes them (sticky shared libraries).
    */
-  static boolean isProtectedPath(String relative) {
+  static boolean isSharedCorePath(String relative) {
     String normalized = relative.replace('\\', '/');
     return normalized.equals("lib/core") || normalized.startsWith("lib/core/");
   }
