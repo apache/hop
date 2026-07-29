@@ -378,7 +378,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
     setShellImage(shell);
 
-    if (transformMeta.isDeprecated()) {
+    if (transformMeta != null && transformMeta.isDeprecated()) {
       addDeprecation();
     }
   }

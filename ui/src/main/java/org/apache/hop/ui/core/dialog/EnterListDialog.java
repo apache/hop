@@ -383,6 +383,7 @@ public class EnterListDialog extends Dialog {
     return returnValues;
   }
 
+  @SuppressWarnings("javabugs:S2259") // the input array is supplied by the constructor
   public void getData() {
     if (!opened) {
       return;

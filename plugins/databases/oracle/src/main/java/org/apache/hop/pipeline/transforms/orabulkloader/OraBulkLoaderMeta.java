@@ -512,7 +512,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       errorMessage = BaseMessages.getString(PKG, "OraBulkLoaderMeta.CheckResult.InvalidConnection");
@@ -572,8 +572,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
         }
 
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta);
-          try {
+          try (Database db = new Database(loggingObject, variables, databaseMeta)) {
             db.connect();
 
             String schemaTable =
@@ -690,7 +689,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
         throw new HopException(
             BaseMessages.getString(PKG, "OraBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        database.disconnect();
+        database.close();
       }
     } else {
       throw new HopException(

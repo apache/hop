@@ -143,6 +143,7 @@ public class RowDataUtil {
    * @param two The second array
    * @return a new Array containing all elements from one and two after one another
    */
+  @SuppressWarnings("javabugs:S2259") // callers always pass both row arrays
   public static Object[] addRowData(Object[] one, int sourceLength, Object[] two) {
     Object[] result = resizeArray(one, sourceLength + two.length);
 

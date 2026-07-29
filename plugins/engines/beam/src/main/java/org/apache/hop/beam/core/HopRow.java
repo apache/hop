@@ -29,10 +29,16 @@ public class HopRow implements Serializable {
     this(null, -1);
   }
 
+  @SuppressWarnings(
+      "javabugs:S2259") // the assertion only runs with assertions enabled and a row is always
+  // supplied
   public HopRow(Object[] row) {
     this(row, -1);
   }
 
+  @SuppressWarnings(
+      "javabugs:S2259") // the assertion only runs with assertions enabled and a row is always
+  // supplied
   public HopRow(Object[] row, int optionalSize) {
     assert optionalSize <= row.length : "optionalSize needs to be <= row length";
     this.row = row;

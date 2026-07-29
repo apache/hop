@@ -724,7 +724,7 @@ public class CrateDBBulkLoaderMeta
                   transformMeta);
           remarks.add(cr);
         } finally {
-          db.disconnect();
+          db.close();
         }
       } else {
         CheckResult cr =
@@ -839,7 +839,7 @@ public class CrateDBBulkLoaderMeta
                 BaseMessages.getString(
                     PKG, "CrateDBBulkLoaderMeta.Error.ErrorConnecting", dbe.getMessage()));
           } finally {
-            db.disconnect();
+            db.close();
           }
         } else {
           retval.setError(BaseMessages.getString(PKG, "CrateDBBulkLoaderMeta.Error.NoTable"));
@@ -887,7 +887,7 @@ public class CrateDBBulkLoaderMeta
         throw new HopException(
             BaseMessages.getString(PKG, "CrateDBBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(

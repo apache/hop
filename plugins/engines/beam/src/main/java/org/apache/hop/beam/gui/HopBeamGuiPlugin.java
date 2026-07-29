@@ -432,6 +432,7 @@ public class HopBeamGuiPlugin {
    * Resolve which Spark client pack version to use. Explicit argument wins, then system property
    * {@code HOP_SPARK_CLIENT_VERSION}, then env of the same name.
    */
+  @SuppressWarnings("javabugs:S2259") // guarded by StringUtils.isNotBlank
   public static String resolveSparkClientVersion(String explicitVersion) {
     if (StringUtils.isNotBlank(explicitVersion)) {
       return explicitVersion.trim();

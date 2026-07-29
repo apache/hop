@@ -1035,6 +1035,7 @@ public class HopGui
     return display;
   }
 
+  @SuppressWarnings("java:S2095") // the stream backs System.out/err for the lifetime of the process
   private static void setupConsoleLogging() {
     boolean doConsoleRedirect = !Boolean.getBoolean("HopUi.Console.Redirect.Disabled");
     if (doConsoleRedirect) {

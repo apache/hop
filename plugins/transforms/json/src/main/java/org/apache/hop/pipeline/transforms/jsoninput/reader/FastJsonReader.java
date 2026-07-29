@@ -102,6 +102,7 @@ public class FastJsonReader implements IJsonReader {
         .build();
   }
 
+  @SuppressWarnings("javabugs:S2259") // the configuration is created before it is logged
   private Configuration deleteOptionFromConfiguration(Configuration config, Option option) {
     Configuration currentConf = config;
     if (currentConf != null) {

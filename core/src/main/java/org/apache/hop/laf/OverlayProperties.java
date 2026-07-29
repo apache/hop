@@ -19,6 +19,7 @@ package org.apache.hop.laf;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serial;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -75,7 +76,9 @@ public class OverlayProperties extends Properties implements IPropertyHandler {
       return false;
     }
     clear();
-    load(url.openStream());
+    try (InputStream inputStream = url.openStream()) {
+      load(inputStream);
+    }
     return true;
   }
 

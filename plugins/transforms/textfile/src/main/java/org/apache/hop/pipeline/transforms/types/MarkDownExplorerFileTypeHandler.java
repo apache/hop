@@ -27,6 +27,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.core.util.TempFileUtil;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -283,7 +284,7 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
                 HopGui.getInstance().getActiveShell(), "Markdown preview", fullHtml);
         dialog.open();
       } else {
-        File tempFile = File.createTempFile("markdown_preview_", ".html");
+        File tempFile = TempFileUtil.createTempFileObject("markdown_preview_", ".html");
         tempFile.deleteOnExit();
         try (OutputStream outputStream = new FileOutputStream(tempFile)) {
           outputStream.write(fullHtml.getBytes(StandardCharsets.UTF_8));

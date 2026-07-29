@@ -252,6 +252,7 @@ public class MailConnectionMeta {
     return afterGetIMAPDesc[i];
   }
 
+  @SuppressWarnings("javabugs:S6466") // the desc array is a non-empty constant
   public static String getValueImapListDesc(int i) {
     if (i < 0 || i >= valueIMAPListDesc.length) {
       return valueIMAPListDesc[0];

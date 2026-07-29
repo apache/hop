@@ -1227,7 +1227,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "OraBulkLoaderDialog.ErrorGettingSchemas"),
             e);
       } finally {
-        database.disconnect();
+        database.close();
       }
     }
   }

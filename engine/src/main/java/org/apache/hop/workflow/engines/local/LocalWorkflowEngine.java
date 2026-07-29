@@ -273,6 +273,13 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
           executionInfoLocation = location.clone();
 
           IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+          if (iLocation == null) {
+            log.logError(
+                "Execution information location '"
+                    + locationName
+                    + "' has no location plugin configured (non-fatal)");
+            return;
+          }
           // Initialize the location with this workflow's variable space (includes inherited parent
           // pipeline variables after WorkflowExecutor.initializeFrom). This is when
           // ${EXECUTIONS_INFORMATION_FOLDER} / ${HOP_DATA} must resolve.

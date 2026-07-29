@@ -493,36 +493,37 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if (remoteWorkflowRunConfiguration.isExportingResources()) {
         // First export the workflow...
         //
-        FileObject tempFile =
-            HopVfs.createTempFile("workflowExport", ".zip", System.getProperty("java.io.tmpdir"));
+        try (FileObject tempFile =
+            HopVfs.createTempFile("workflowExport", ".zip", System.getProperty("java.io.tmpdir"))) {
 
-        TopLevelResource topLevelResource =
-            ResourceUtil.serializeResourceExportInterface(
-                tempFile.getName().toString(),
-                workflowMeta,
-                this,
-                metadataProvider,
-                executionConfiguration,
-                CONFIGURATION_IN_EXPORT_FILENAME,
-                remoteWorkflowRunConfiguration.getNamedResourcesSourceFolder(),
-                remoteWorkflowRunConfiguration.getNamedResourcesTargetFolder(),
-                executionConfiguration.getVariablesMap());
+          TopLevelResource topLevelResource =
+              ResourceUtil.serializeResourceExportInterface(
+                  tempFile.getName().toString(),
+                  workflowMeta,
+                  this,
+                  metadataProvider,
+                  executionConfiguration,
+                  CONFIGURATION_IN_EXPORT_FILENAME,
+                  remoteWorkflowRunConfiguration.getNamedResourcesSourceFolder(),
+                  remoteWorkflowRunConfiguration.getNamedResourcesTargetFolder(),
+                  executionConfiguration.getVariablesMap());
 
-        // Send the zip file over to the hop server...
-        String result =
-            hopServer.sendExport(
-                this,
-                topLevelResource.getArchiveName(),
-                RegisterPackageServlet.TYPE_WORKFLOW,
-                topLevelResource.getBaseResourceName());
-        WebResult webResult = WebResult.fromXmlString(result);
-        if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
-          throw new HopException(
-              "There was an error passing the exported workflow to the remote server: "
-                  + Const.CR
-                  + webResult.getMessage());
+          // Send the zip file over to the hop server...
+          String result =
+              hopServer.sendExport(
+                  this,
+                  topLevelResource.getArchiveName(),
+                  RegisterPackageServlet.TYPE_WORKFLOW,
+                  topLevelResource.getBaseResourceName());
+          WebResult webResult = WebResult.fromXmlString(result);
+          if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
+            throw new HopException(
+                "There was an error passing the exported workflow to the remote server: "
+                    + Const.CR
+                    + webResult.getMessage());
+          }
+          containerId = webResult.getId();
         }
-        containerId = webResult.getId();
       } else {
         String xml =
             new WorkflowConfiguration(workflowMeta, executionConfiguration, metadataProvider)

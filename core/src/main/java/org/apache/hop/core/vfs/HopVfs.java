@@ -128,6 +128,7 @@ public class HopVfs {
    * @return A new standard file system manager
    * @throws HopException
    */
+  @SuppressWarnings("java:S2095") // the file system manager is a process-wide singleton
   private static DefaultFileSystemManager createFileSystemManager() throws HopException {
     try {
       DefaultFileSystemManager fsm = new DefaultFileSystemManager();

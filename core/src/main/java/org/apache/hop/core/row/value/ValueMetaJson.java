@@ -171,6 +171,10 @@ public class ValueMetaJson extends ValueMetaBase {
     if (kindA != kindB) {
       return Integer.compare(kindA, kindB);
     }
+    // A Java null and a JSON null both classify as kind 0, so they can reach this point
+    if (a == null || b == null) {
+      return 0;
+    }
 
     return switch (a.getNodeType()) {
       case NULL, MISSING -> 0;

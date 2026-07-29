@@ -811,7 +811,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "CombinationLookupDialog.ErrorGettingSchemas"),
             e);
       } finally {
-        database.disconnect();
+        database.close();
       }
     }
   }

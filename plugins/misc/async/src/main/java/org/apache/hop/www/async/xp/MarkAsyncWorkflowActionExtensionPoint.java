@@ -37,6 +37,7 @@ import org.apache.hop.www.async.Defaults;
     description = "Before the execution of an action, pass service to workflow data map")
 public class MarkAsyncWorkflowActionExtensionPoint
     implements IExtensionPoint<WorkflowExecutionExtension> {
+  @SuppressWarnings("javabugs:S2259") // a running workflow always has a metadata provider
   @Override
   public void callExtensionPoint(
       ILogChannel iLogChannel, IVariables iVariables, WorkflowExecutionExtension ext)

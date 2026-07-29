@@ -35,6 +35,7 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.TempFileUtil;
 import org.apache.hop.databricks.client.DatabricksFilesClient;
 import org.apache.hop.databricks.client.DirectoryEntry;
 import org.apache.hop.databricks.client.RestDatabricksFilesClient;
@@ -234,7 +235,7 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
               + " from logical path: "
               + getName().getPath());
     }
-    Path temp = Files.createTempFile("hop-dbx-vfs-", ".bin");
+    Path temp = TempFileUtil.createTempFile("hop-dbx-vfs-", ".bin");
     OutputStream fileOut = Files.newOutputStream(temp);
     return new FilterOutputStream(fileOut) {
       private boolean closed;
@@ -378,7 +379,7 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
     if (sourcePath.equals(destPath)) {
       return;
     }
-    Path temp = Files.createTempFile("hop-dbx-rename-", ".bin");
+    Path temp = TempFileUtil.createTempFile("hop-dbx-rename-", ".bin");
     try {
       try (InputStream in = client().openInputStream(sourcePath)) {
         Files.copy(in, temp, StandardCopyOption.REPLACE_EXISTING);

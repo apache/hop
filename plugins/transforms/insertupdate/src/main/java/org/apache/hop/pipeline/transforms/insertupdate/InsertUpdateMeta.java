@@ -427,7 +427,9 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
               transformMeta);
       remarks.add(cr);
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.close();
+      }
     }
 
     // See if we have input streams leading to this transform!
@@ -525,8 +527,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
           RowMetaUtils.getRowMetaForUpdate(prev, keyLookup, keyStream, updateLookup, updateStream);
 
       if (!Utils.isEmpty(insertUpdateLookupField.getTableName())) {
-        Database db = new Database(loggingObject, variables, databaseMeta);
-        try {
+        try (Database db = new Database(loggingObject, variables, databaseMeta)) {
           db.connect();
 
           String schemaTable =

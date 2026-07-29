@@ -356,7 +356,7 @@ public class MonetDbBulkLoaderMeta
                 transformMeta);
         remarks.add(cr);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       cr =
@@ -490,7 +490,7 @@ public class MonetDbBulkLoaderMeta
                 BaseMessages.getString(PKG, "MonetDBBulkLoaderMeta.GetSQL.ErrorOccurred")
                     + e.getMessage());
           } finally {
-            db.disconnect();
+            db.close();
             MonetDBDatabaseMeta.safeModeLocal.remove();
           }
         } else {
@@ -581,7 +581,7 @@ public class MonetDbBulkLoaderMeta
         throw new HopException(
             BaseMessages.getString(PKG, "MonetDBBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(
@@ -609,7 +609,7 @@ public class MonetDbBulkLoaderMeta
       throw new HopException(e);
     } finally {
       if (db != null) {
-        db.disconnect();
+        db.close();
       }
     }
   }

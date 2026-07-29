@@ -238,7 +238,8 @@ public class ActionMeta
   public String getTypeDesc() {
     IPlugin plugin =
         PluginRegistry.getInstance().findPluginWithId(ActionPluginType.class, action.getPluginId());
-    return plugin.getDescription();
+    // The plugin is not registered when the workflow references an action that is not installed
+    return plugin == null ? action.getPluginId() : plugin.getDescription();
   }
 
   @Override
@@ -271,6 +272,7 @@ public class ActionMeta
     setChanged(true);
   }
 
+  @SuppressWarnings("javabugs:S2259") // the action is set by every constructor
   @Override
   public void setChanged(boolean ch) {
     action.setChanged(ch);
@@ -366,6 +368,7 @@ public class ActionMeta
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the action is set by every constructor
   public void setName(String name) {
     action.setName(name);
   }
@@ -378,6 +381,7 @@ public class ActionMeta
     return parentWorkflowMeta;
   }
 
+  @SuppressWarnings("javabugs:S2259") // the action is set by every constructor
   public void setParentWorkflowMeta(WorkflowMeta parentWorkflowMeta) {
     this.parentWorkflowMeta = parentWorkflowMeta;
     this.action.setParentWorkflowMeta(parentWorkflowMeta);
