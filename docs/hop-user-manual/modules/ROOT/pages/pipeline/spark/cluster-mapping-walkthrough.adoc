@@ -129,7 +129,7 @@ Compose mounts:
 If you used a non-default `DIST_DIR` in `prepare-dist.sh`, set both `HOP_DIST_DIR` and `HOP_DATA_HOST_DIR=${HOP_DIST_DIR}/hop-data` for compose.
 
 * Master UI: http://localhost:8080 (two workers should register).  
-* Images use the existing `docker/integration-tests/spark` Dockerfiles with **`SPARK_VERSION=4.1.2`** (override with env if needed).  
+* Images use the existing `docker/integration-tests/spark` Dockerfiles with **`SPARK_VERSION=4.1.3`** (override with env if needed).  
 * After a run you can inspect **on the host** without `docker exec`, for example:
 
 [source,bash]

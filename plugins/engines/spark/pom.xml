@@ -31,25 +31,29 @@
     <description>Native Apache Spark 4.x pipeline engine for Hop (issue #7486)</description>
 
     <properties>
-        <!-- Lakehouse connectors shipped in default engines-spark assembly under lib/{delta,iceberg}.
-             Artifact suffix _4.1_2.13 = Spark 4.1 / Scala 2.13, not product version. -->
         <delta.version>4.3.1</delta.version>
-        <!-- Matches Spark 4.1.2 parent; needed for local[*] unit tests only -->
         <hadoop.client.version>3.4.2</hadoop.client.version>
-        <!-- Do not stage Jackson into plugins/engines/spark/lib (Hop parent CL has it).
-             Dual ObjectMapper classes under HopURLClassLoader break HopJson on local[*]. -->
         <hop.pluginlib.exclude1>jackson-core</hop.pluginlib.exclude1>
         <hop.pluginlib.exclude2>jackson-databind</hop.pluginlib.exclude2>
         <hop.pluginlib.exclude3>jackson-annotations</hop.pluginlib.exclude3>
         <iceberg.version>1.11.0</iceberg.version>
-        <!-- Staged jar freeze list for docs / verification (not a second install path). -->
         <lakehouse.connectors.dir>${project.basedir}/target/lakehouse-connectors</lakehouse.connectors.dir>
         <scala.binary.version>2.13</scala.binary.version>
-        <!-- Pin Spark 4.1.x independently of Beam's Spark 3.x dependency -->
-        <spark.version>4.1.2</spark.version>
-        <!-- Spark major.minor used in Delta/Iceberg Maven artifact names (4.1 from 4.1.2). -->
+        <spark.version>4.1.3</spark.version>
         <spark.version.prefix>4.1</spark.version.prefix>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Spark MetricsServlet / Jetty needs servlet API (SingleThreadModel → use 5.0) -->
@@ -69,15 +73,6 @@
             <artifactId>hadoop-client-runtime</artifactId>
             <version>${hadoop.client.version}</version>
         </dependency>
-
-        <!-- Spark 4.1 — packaged under plugins/engines/spark/lib for local[*].
-             Hadoop client + Log4j MUST stay on the plugin classpath: Spark 4 looks up
-             org.apache.spark.sql.classic.SparkSession reflectively and fails with
-             "Cannot find a SparkSession implementation on the Classpath" when those
-             transitive classes are missing (ClassNotFoundException is swallowed).
-             slf4j is provided by Hop; keep it excluded to avoid dual bindings.
-             Jackson core is also provided by Hop lib/core — dual copies under the plugin
-             classloader cause LinkageError on HopJson.newMapper() (sampling). -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>

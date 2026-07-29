@@ -67,7 +67,7 @@ The *native* engine skips Beam entirely:
 |Beam pipelines on Spark (batch *and* streaming)
 
 |Spark line
-|https://spark.apache.org/docs/4.1.2/[4.1.x] (Scala 2.13)
+|https://spark.apache.org/docs/4.1.3/[4.1.x] (Scala 2.13)
 |3.5.x (Scala 2.12; see Beam support matrix)
 
 |Programming model
@@ -115,7 +115,7 @@ You still design pipelines *visually* in Hop. Spark’s role is the distributed 
 ====
 *Java:* Hop requires *Java 21* for the GUI, `hop-run`, and the fat jar executed on the Spark driver/executors. Your Spark cluster must also run a JVM that can load that bytecode (Java 21).
 
-*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.2* in the Hop source tree, Scala *2.13*). For `local[*]` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
+*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.3* in the Hop source tree, Scala *2.13*). For `local[*]` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
 ====
 
 [options="header",cols="1,1,2,2"]
