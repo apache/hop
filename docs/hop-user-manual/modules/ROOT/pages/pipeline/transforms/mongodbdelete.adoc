@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The MongoDB Delete transform enables you to delete documents or records from a collection within MongoDB.
+:description: The MongoDB delete transform enables you to delete documents or records from a collection within MongoDB.
 
-= image:transforms/icons/mongodb-delete.svg[MongoDB Delete transform Icon, role="image-doc-icon"] MongoDB Delete
+= image:transforms/icons/mongodb-delete.svg[MongoDB delete transform Icon, role="image-doc-icon"] MongoDB delete
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The MongoDB Delete transform enables you to delete http://docs.mongodb.org/manual/reference/glossary/[documents^] or http://docs.mongodb.org/manual/reference/glossary/[records] from a collection within MongoDB.
+The MongoDB delete transform enables you to delete http://docs.mongodb.org/manual/reference/glossary/[documents^] or http://docs.mongodb.org/manual/reference/glossary/[records] from a collection within MongoDB.
 
 For additional information about MongoDB, see the MongoDB http://www.mongodb.org/[documentation].
 
@@ -52,7 +52,7 @@ Transform name : Specify the unique name of the MongoDB Input transform in the p
 
 |===
 |Field|Description
-|MongoDB connection|the xref:metadata-types/mongodb-connection.adoc[ MongoDB connection] to use for the MongoDB Delete transform.
+|MongoDB connection|the xref:metadata-types/mongodb-connection.adoc[ MongoDB connection] to use for the MongoDB delete transform.
 |Collection
 |Name of the collection to delete data from.
 Click Get collections to populate the drop-down menu with a list of collections within the database.

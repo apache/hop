@@ -33,7 +33,7 @@ import org.neo4j.driver.Session;
 
 @Action(
     id = "NEO4J_INDEX",
-    name = "Neo4j Index",
+    name = "Neo4j index",
     description = "Create or delete indexes in a Neo4j database",
     image = "neo4j_index.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",

@@ -32,7 +32,7 @@ import org.neo4j.driver.Session;
 
 @Action(
     id = "NEO4J_CONSTRAINT",
-    name = "Neo4j Constraint",
+    name = "Neo4j constraint",
     description = "Create or delete constraints in a Neo4j database",
     image = "neo4j_constraint.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",

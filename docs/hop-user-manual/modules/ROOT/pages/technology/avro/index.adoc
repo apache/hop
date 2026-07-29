@@ -29,10 +29,10 @@ First and foremost we support Avro as a data type called "Avro Record".  It simp
 
 == Pipeline Transforms
 
-* xref:pipeline/transforms/avro-decode.adoc[Avro Decode]: This allows you to extract Hop values from an Avro Record data type.
-* xref:pipeline/transforms/avro-encode.adoc[Avro Encode]: This allows you to extract Hop values from an Avro Record data type.
+* xref:pipeline/transforms/avro-decode.adoc[Avro decode]: This allows you to extract Hop values from an Avro Record data type.
+* xref:pipeline/transforms/avro-encode.adoc[Avro encode]: This allows you to extract Hop values from an Avro Record data type.
 
-== Kafka Producer transforms
+== Kafka producer transforms
 
 If you want to send or receive Avro records using the Hop Kafka transforms it's important to set a few options:
 

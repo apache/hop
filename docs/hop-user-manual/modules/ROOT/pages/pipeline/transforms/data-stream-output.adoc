@@ -16,14 +16,14 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Data Stream Output transform writes to an IPC Data Stream.
+:description: The Data stream output transform writes to an IPC Data Stream.
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The **Data Stream Output** transform writes rows from a Hop pipeline to a configured xref:/metadata-types/data-stream/data-stream.adoc[Data Stream].
+The **Data stream output** transform writes rows from a Hop pipeline to a configured xref:/metadata-types/data-stream/data-stream.adoc[Data Stream].
 
 It supports all available Data Stream implementations (Arrow File Stream, Arrow Random Access File, and Arrow Flight).
 

@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Schema Mapping transform maps fields from an incoming stream over a specified Schema Definition.
+:description: The Schema mapping transform maps fields from an incoming stream over a specified Schema Definition.
 
-= image:transforms/icons/schemamapping.svg[Schema Mapping transform Icon, role="image-doc-icon"] Schema Mapping
+= image:transforms/icons/schemamapping.svg[Schema mapping transform Icon, role="image-doc-icon"] Schema mapping
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Schema Mapping transform maps fields from an incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition
+The Schema mapping transform maps fields from an incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition
 
 |
 == Supported Engines
@@ -40,7 +40,7 @@ The Schema Mapping transform maps fields from an incoming stream over a specifie
 !===
 |===
 
-Schema mapping is a useful mapping transform to precede transforms like xref:pipeline/transforms/textfileoutput.adoc[Text File Output] or xref:pipeline/transforms/excelwriter.adoc[Excel Writer] when we decide to refer to a xref:metadata-types/static-schema-definition.adoc[Schema Definition] to map the output layout of the file. By preceding these transforms with the Schema Mapping, the incoming stream will be already setup according to the expected output layout definition.
+Schema mapping is a useful mapping transform to precede transforms like xref:pipeline/transforms/textfileoutput.adoc[Text File Output] or xref:pipeline/transforms/excelwriter.adoc[Excel Writer] when we decide to refer to a xref:metadata-types/static-schema-definition.adoc[Schema Definition] to map the output layout of the file. By preceding these transforms with the Schema mapping, the incoming stream will be already setup according to the expected output layout definition.
 
 == Options
 

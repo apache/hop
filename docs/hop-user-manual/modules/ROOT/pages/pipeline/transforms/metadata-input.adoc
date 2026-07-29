@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Metadata Input transform gives you access to the Hop Metadata items in the current project.
+:description: The Metadata input transform gives you access to the Hop Metadata items in the current project.
 
-= image:transforms/icons/metadata.svg[Metadata Input transform Icon, role="image-doc-icon"] Metadata Input
+= image:transforms/icons/metadata.svg[Metadata input transform Icon, role="image-doc-icon"] Metadata input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Metadata Input transform gives you access to the Hop Metadata items in the current project.
+The Metadata input transform gives you access to the Hop Metadata items in the current project.
 
 It outputs all the metadata objects of all types unless one or more types are filtered.
 

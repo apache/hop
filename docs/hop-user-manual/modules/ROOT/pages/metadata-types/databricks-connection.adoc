@@ -16,7 +16,7 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
-:description: Databricks Connection metadata for the Jobs / workspace REST API (PAT), used by Databricks Job Run actions.
+:description: Databricks Connection metadata for the Jobs / workspace REST API (PAT), used by Databricks job run actions.
 
 = Databricks Connection
 
@@ -25,7 +25,7 @@ under the License.
 *Databricks Connection* stores workspace credentials for the **Databricks Jobs / workspace REST API**.
 It is **not** the same as the xref:database/databases/databricks.adoc[Databricks JDBC] relational connection (SQL warehouse).
 
-Use this metadata type when orchestrating jobs from Hop (for example the upcoming **Databricks Job Run** workflow action) or when testing Jobs API access from the connection editor.
+Use this metadata type when orchestrating jobs from Hop (for example the upcoming **Databricks job run** workflow action) or when testing Jobs API access from the connection editor.
 
 == Options
 
@@ -72,7 +72,7 @@ See xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS].
 * xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection] — named scheme for Volumes / Workspace
 * xref:vfs/databricks-vfs.adoc[Databricks Volumes / Workspace VFS]
 * xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — Deploy & run, classic clusters, Volumes
-* xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] — trigger and wait for Jobs API runs
+* xref:workflow/actions/databricks-job-run.adoc[Databricks job run] — trigger and wait for Jobs API runs
 * xref:database/databases/databricks.adoc[Databricks database (JDBC)] — SQL warehouse access
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark pipeline engine] — fat jar / MainSpark on cluster
 * xref:metadata-types/spark-catalog.adoc[Spark Catalog] — Unity Catalog templates for lakehouse TABLE mode

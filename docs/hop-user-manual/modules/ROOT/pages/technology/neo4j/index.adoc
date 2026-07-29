@@ -48,19 +48,19 @@ The path you get is the exact path that was followed from for example the "grand
 == Workflow Actions
 
 * xref:workflow/actions/neo4j-checkconnections.adoc[Neo4j Check Connection]: check a connection to a Neo4j database
-* xref:workflow/actions/neo4j-cypherscript.adoc[Neo4j Cypher Script]: execute a Cypher script or query
-* xref:workflow/actions/neo4j-index.adoc[Neo4j Index]: Create or drop Neo4j indexes
-* xref:workflow/actions/neo4j-constraint.adoc[Neo4j Constraint]: Create or drop Neo4j constraints
+* xref:workflow/actions/neo4j-cypherscript.adoc[Neo4j Cypher script]: execute a Cypher script or query
+* xref:workflow/actions/neo4j-index.adoc[Neo4j index]: Create or drop Neo4j indexes
+* xref:workflow/actions/neo4j-constraint.adoc[Neo4j constraint]: Create or drop Neo4j constraints
 
 == Pipeline Transforms
 
 * xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher]: execute a Cypher query on a Neo4j database using parameter info from input fields
-* xref:pipeline/transforms/neo4j-gencsv.adoc[Neo4j Generate CSVs]: Generate CSV files for nodes and relationships to be used with neo4j-import
+* xref:pipeline/transforms/neo4j-gencsv.adoc[Neo4j generate CSVs]: Generate CSV files for nodes and relationships to be used with neo4j-import
 * xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Log Info]: Queries the Neo4j logging graph for execution info
-* xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j Graph Output]: Writes to a Neo4j graph using an input fields mapping.
-* xref:pipeline/transforms/neo4j-import.adoc[Neo4j Import]: Runs a Neo4j import command using the provided CSV files
-* xref:pipeline/transforms/neo4j-output.adoc[Neo4j Output]: Write nodes and/or relationships to a Neo4j graph
-* xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j Split Graph]: Splits the nodes and relationships of a Neo4j graph
+* xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j graph output]: Writes to a Neo4j graph using an input fields mapping.
+* xref:pipeline/transforms/neo4j-import.adoc[Neo4j import]: Runs a Neo4j import command using the provided CSV files
+* xref:pipeline/transforms/neo4j-output.adoc[Neo4j output]: Write nodes and/or relationships to a Neo4j graph
+* xref:pipeline/transforms/neo4j-split-graph.adoc[Neo4j split graph]: Splits the nodes and relationships of a Neo4j graph
 
 == Examples
 

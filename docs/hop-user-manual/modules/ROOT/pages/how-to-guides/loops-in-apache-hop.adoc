@@ -210,9 +210,9 @@ This rowset will contain any filename that was copied to the results by the chil
 
 This rowset mimics the input for the workflow executor transform.
 
-== Repeat and End Repeat actions
+== Repeat and End repeat actions
 
-In addition to the workflow and pipeline executor transforms, the xref:workflow/actions/repeat.adoc[Repeat^] and xref:workflow/actions/repeat-end.adoc[End Repeat^] actions let you build loops from a workflow.
+In addition to the workflow and pipeline executor transforms, the xref:workflow/actions/repeat.adoc[Repeat^] and xref:workflow/actions/repeat-end.adoc[End repeat] actions let you build loops from a workflow.
 
 The repeat action in itself is pretty simple: it requires a workflow or pipeline and the run configuration to use.
 

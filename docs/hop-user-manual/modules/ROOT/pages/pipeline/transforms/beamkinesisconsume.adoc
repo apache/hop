@@ -16,9 +16,9 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Beam Kinesis Consume transform consumes records from a Kinesis stream using the Beam pipeline execution engine.
+:description: The Beam Kinesis consume transform consumes records from a Kinesis stream using the Beam pipeline execution engine.
 
-= image:transforms/icons/beam-kinesis-consume.svg[Beam Kinesis Consume Icon, role="image-doc-icon"] Beam Kinesis Consume
+= image:transforms/icons/beam-kinesis-consume.svg[Beam Kinesis consume Icon, role="image-doc-icon"] Beam Kinesis consume
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===

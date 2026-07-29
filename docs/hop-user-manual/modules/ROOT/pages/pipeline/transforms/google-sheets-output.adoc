@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Google Sheets Output transform writes data to a Google Sheets worksheets.
+:description: The Google Sheets output transform writes data to a Google Sheets worksheets.
 
-= image:transforms/icons/google-sheets-output.svg[Google Sheets Output transform Icon, role="image-doc-icon"] Google Sheets Output
+= image:transforms/icons/google-sheets-output.svg[Google Sheets output transform Icon, role="image-doc-icon"] Google Sheets output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Google Sheets Output transform writes data to a Google Sheets worksheets.
+The Google Sheets output transform writes data to a Google Sheets worksheets.
 
 This transform requires a Google service account (JSON file) and a Google Cloud project with the Google Drive and Google Sheets API enabled.
 

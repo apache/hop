@@ -87,5 +87,5 @@ CREATE TABLE ddlTest
 
 == Hop Metadata
 
-If you want to re-use field level metadata you can consider using the xref:pipeline/transforms/metadata-input.adoc[Metadata Input] transform.  For example, you can get access to the JSON of xref:metadata-types/beam-file-definition.adoc[Beam File Definition] or xref:metadata-types/static-schema-definition.adoc[Static Schema Definition] elements.  You can then use the xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform to parse the metadata and extract the 4 fields you need.
+If you want to re-use field level metadata you can consider using the xref:pipeline/transforms/metadata-input.adoc[Metadata input] transform.  For example, you can get access to the JSON of xref:metadata-types/beam-file-definition.adoc[Beam File Definition] or xref:metadata-types/static-schema-definition.adoc[Static Schema Definition] elements.  You can then use the xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform to parse the metadata and extract the 4 fields you need.
 

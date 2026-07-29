@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Detect Language transform examine text to identify the language.
+:description: The Detect language transform examine text to identify the language.
 
-= image:transforms/icons/detectlanguage.svg[Detect Language transform Icon, role="image-doc-icon"] Detect Language
+= image:transforms/icons/detectlanguage.svg[Detect language transform Icon, role="image-doc-icon"] Detect language
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Detect Language transform examine text to identify the language.
+The Detect language transform examine text to identify the language.
 
 https://github.com/pemistahl/lingua?tab=readme-ov-file#3-which-languages-are-supported[list of supported languages]
 

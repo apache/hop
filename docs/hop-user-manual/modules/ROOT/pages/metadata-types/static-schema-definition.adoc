@@ -37,7 +37,7 @@ Transforms:
 * xref:pipeline/transforms/csvinput.adoc[CSV Input]
 * xref:pipeline/transforms/excelinput.adoc[Excel Input]
 * xref:pipeline/transforms/excelwriter.adoc[Excel Writer]
-* xref:pipeline/transforms/schemamapping.adoc[Schema Mapping]
+* xref:pipeline/transforms/schemamapping.adoc[Schema mapping]
 
 == Options
 

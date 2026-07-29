@@ -21,14 +21,14 @@ under the License.
 :openvar: {
 :closevar: }
 
-= image:transforms/icons/repeatfields.svg[Repeat Fields Icon, role="image-doc-icon"] Repeat Fields
+= image:transforms/icons/repeatfields.svg[Repeat fields Icon, role="image-doc-icon"] Repeat fields
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Repeat Fields transform is solving a few common problems:
+The Repeat fields transform is solving a few common problems:
 
 * Repeat a field value from the previous row, if the value is null on the current row: this commonly happens when
 reading data from merged cells in a spreadsheet.  In that scenario only the first row is filled in for the merged cell

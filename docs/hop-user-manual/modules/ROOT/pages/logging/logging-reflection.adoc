@@ -51,21 +51,21 @@ When disabled, every pipeline will be logged with the exclusion of logging and d
 
 |Pipeline executed to capture logging
 |The filename of the pipeline which will get executed every time a pipeline is executed.
-You can hit the `new` button and it will create a sample pipeline for you containing the `Pipeline Logging` transform which will give you all the possible logging information about your pipelines.
+You can hit the `new` button and it will create a sample pipeline for you containing the `Pipeline logging` transform which will give you all the possible logging information about your pipelines.
 
 |Execute at the start of a pipeline?
 |Execute right before a pipeline starts.
-The loggingPhase field of the `Pipeline Logging` transform will contain `start` at this time.
+The loggingPhase field of the `Pipeline logging` transform will contain `start` at this time.
 Please note that there will not be any transform execution information yet during this phase.
 
 |Execute at the end of a pipeline?
 |Execute after the pipeline finished execution.
-The loggingPhase field of the `Pipeline Logging` transform will contain `end` at this time.
+The loggingPhase field of the `Pipeline logging` transform will contain `end` at this time.
 
 |Execute periodically during execution?
 |Enable this flag if you want to be kept apprised of long-running pipelines.
 The logging pipeline specified above will be called at regular intervals.
-The loggingPhase field of the `Pipeline Logging` transform will contain `interval` at this time.
+The loggingPhase field of the `Pipeline logging` transform will contain `interval` at this time.
 
 |Interval in seconds
 |The interval of the period execution of the logging pipeline
@@ -73,7 +73,7 @@ The loggingPhase field of the `Pipeline Logging` transform will contain `interva
 
 === Transform
 
-The `Pipeline Logging` transform only has one option at this time:
+The `Pipeline logging` transform only has one option at this time:
 
 * Also log transform details : besides information about a running pipeline it will give you a series of fields detailed below per running or finished transform copy.
 
@@ -236,20 +236,20 @@ When disabled, every workflow execution will be logged.
 
 |Pipeline executed to capture logging
 |The filename of the pipeline which will get executed every time a workflow is executed.
-You can hit the `new` button and it will create a sample pipeline for you containing the `Workflow Logging` transform which will give you all the possible logging information about your workflows.
+You can hit the `new` button and it will create a sample pipeline for you containing the `Workflow logging` transform which will give you all the possible logging information about your workflows.
 
 |Execute at the start of a workflow?
 |Execute right before a workflow starts.
-The loggingPhase field of the `Workflow Logging` transform will contain `start` at this time.
+The loggingPhase field of the `Workflow logging` transform will contain `start` at this time.
 
 |Execute at the end of a workflow?
 |Execute after the workflow finished execution.
-The loggingPhase field of the `Workflow Logging` transform will contain `end` at this time.
+The loggingPhase field of the `Workflow logging` transform will contain `end` at this time.
 
 |Execute periodically during execution?
 |Enable this flag if you want to be kept apprised of long-running workflows.
 The logging pipeline specified above will be called at regular intervals.
-The loggingPhase field of the `Workflow Logging` transform will contain `interval` at this time.
+The loggingPhase field of the `Workflow logging` transform will contain `interval` at this time.
 
 |Interval in seconds
 |The interval of the period execution of the logging pipeline
@@ -257,7 +257,7 @@ The loggingPhase field of the `Workflow Logging` transform will contain `interva
 
 === Transform
 
-The `Workflow Logging` transform only has one option at this time:
+The `Workflow logging` transform only has one option at this time:
 
 * Also log action details : besides information about a running workflow it will give you a series of fields detailed below per running or finished action.
 

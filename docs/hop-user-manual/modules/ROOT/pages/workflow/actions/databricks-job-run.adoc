@@ -16,13 +16,13 @@ under the License.
 ////
 :imagesdir: ../../../assets/images/
 :page-pagination:
-:description: Databricks Job Run workflow action — run or submit Jobs API work and wait for completion.
+:description: Databricks job run workflow action — run or submit Jobs API work and wait for completion.
 
-= Databricks Job Run
+= Databricks job run
 
 == Description
 
-The **Databricks Job Run** action triggers a job on a Databricks workspace via the Jobs REST API and can wait until the run finishes. It stores Job ID, Run ID, and status in workflow variables for downstream actions.
+The **Databricks job run** action triggers a job on a Databricks workspace via the Jobs REST API and can wait until the run finishes. It stores Job ID, Run ID, and status in workflow variables for downstream actions.
 
 Use a xref:metadata-types/databricks-connection.adoc[Databricks Connection] (workspace host + personal access token). This is **not** the JDBC SQL warehouse connection.
 
@@ -52,7 +52,7 @@ Use a xref:metadata-types/databricks-connection.adoc[Databricks Connection] (wor
 |Polls `jobs/runs/get` until the run is terminal (`SUCCESS`, `FAILED`, …) or **Timeout** is reached (0 = no limit).
 
 |Fire and forget
-|Returns as soon as the run is accepted; does not poll. Pair with xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait] later in the workflow (using `${DatabricksRunId}`).
+|Returns as soon as the run is accepted; does not poll. Pair with xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait] later in the workflow (using `${DatabricksRunId}`).
 |===
 
 If the parent workflow is stopped while waiting, the action attempts to cancel the Databricks run.
@@ -167,7 +167,7 @@ Default variable names (configurable on the **Run** tab):
 
 * xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — workspace tiers, classic vs serverless, UC Volumes, Deploy & run checklist
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
-* xref:workflow/actions/databricks-job-wait.adoc[Databricks Job Wait] — poll a run after fire-and-forget
+* xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait] — poll a run after fire-and-forget
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark] — fat jar / MainSpark for JAR tasks on the cluster
 * xref:database/databases/databricks.adoc[Databricks JDBC] — SQL warehouse (different use case)
 

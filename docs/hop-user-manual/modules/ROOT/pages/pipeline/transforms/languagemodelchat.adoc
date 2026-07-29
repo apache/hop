@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Language Model Chat transforms Allows you to interact with various language models such as OpenAI, Anthropic, Hugging Face, Mistral and Ollama
+:description: The Language model chat transforms Allows you to interact with various language models such as OpenAI, Anthropic, Hugging Face, Mistral and Ollama
 
-= image:transforms/icons/languagemodelchat.svg[Language Model Chat transform Icon, role="image-doc-icon"] Language Model Chat
+= image:transforms/icons/languagemodelchat.svg[Language model chat transform Icon, role="image-doc-icon"] Language model chat
 
 [%noheader,cols="3a,1a",role="table-no-borders" ]
 |===
 |
 == Description
 
-The Language Model Chat transform, using LangChain4j, enables seamless interaction with a variety of language models endpoints, including OpenAI, Anthropic, Hugging Face, Mistral, and Ollama. This transform provides a unified interface, allowing to integrate and configure different models effortlessly within the same pipeline.
+The Language model chat transform, using LangChain4j, enables seamless interaction with a variety of language models endpoints, including OpenAI, Anthropic, Hugging Face, Mistral, and Ollama. This transform provides a unified interface, allowing to integrate and configure different models effortlessly within the same pipeline.
 
 Additionally, the transform supports the application of some prompt engineering techniques to refine model interactions and achieve more contextually relevant responses. See ``Basic Prompt Engineering Techniques`` below for some examples.
 
@@ -86,7 +86,7 @@ The following parameters are applicable to all language model selections.
 
 === Model-Specific Options
 
-Below is a table detailing parameters specific to individual language model APIs that are currently supported with the Language Model Chat transform plugin.
+Below is a table detailing parameters specific to individual language model APIs that are currently supported with the Language model chat transform plugin.
 
 [cols="2,1,1,1,1,1", options="header"]
 |===

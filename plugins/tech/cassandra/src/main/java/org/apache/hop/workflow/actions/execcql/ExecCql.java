@@ -49,7 +49,7 @@ import org.apache.hop.workflow.action.IAction;
 
 @Action(
     id = "CASSANDRA_EXEC_CQL",
-    name = "Cassandra Execute CQL",
+    name = "Cassandra execute CQL",
     description = "Execute CQL statements against a Cassandra cluster",
     image = "Cassandra_logo.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",

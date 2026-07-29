@@ -69,7 +69,7 @@ Deploy & run still supports classic DBFS as a fallback upload API when you use a
 
 [IMPORTANT]
 ====
-**Native Spark does not use Hop VFS** for Dataset I/O (*Spark File Input/Output*, Lake Table PATH).
+**Native Spark does not use Hop VFS** for Dataset I/O (*Spark file input/output*, Lake Table PATH).
 Those transforms need **Spark/Hadoop URIs** on the cluster (`/Volumes/…`, `s3a://…`, `abfs://…`, …), not named schemes such as `db-volume:///…`.
 The same rule as the general xref:vfs.adoc[Virtual File Systems] overview and
 xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems on native Spark].
@@ -105,5 +105,5 @@ If root path is left empty, every URI must include the full `/Volumes/…` or `/
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
 * xref:pipeline/spark/databricks.adoc[Native Spark on Databricks] — artifact storage, Files API vs DBFS, xref:pipeline/spark/databricks.adoc#exec-info-on-volume[execution information on a Volume]
 * xref:metadata-types/execution-information-location.adoc[Execution Information Location]
-* xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run]
+* xref:workflow/actions/databricks-job-run.adoc[Databricks job run]
 * xref:vfs.adoc[Virtual File Systems overview]

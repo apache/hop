@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The SAS Input transform reads files in sas7bdat format created by SAS software (SAS Institute, Inc.).
+:description: The SAS input transform reads files in sas7bdat format created by SAS software (SAS Institute, Inc.).
 
-= image:transforms/icons/sas.svg[SAS Input transform Icon, role="image-doc-icon"] SAS Input
+= image:transforms/icons/sas.svg[SAS input transform Icon, role="image-doc-icon"] SAS input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The SAS Input transform reads files in sas7bdat format created by SAS software (SAS Institute, Inc.).
+The SAS input transform reads files in sas7bdat format created by SAS software (SAS Institute, Inc.).
 
 The functionality is backed by the https://github.com/epam/parso[Parso java library].
 

@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Beam Kafka Consume transform consumes records from a Kafka cluster using the Beam execution engine.
+:description: The Beam Kafka consume transform consumes records from a Kafka cluster using the Beam execution engine.
 
-= image:transforms/icons/beam-kafka-input.svg[Beam Kafka Consume Icon, role="image-doc-icon"] Beam Kafka Consume
+= image:transforms/icons/beam-kafka-input.svg[Beam Kafka consume Icon, role="image-doc-icon"] Beam Kafka consume
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Beam Kafka Consume transform link:https://kafka.apache.org/23/javadoc/index.html?org/apache/kafka/clients/consumer/KafkaConsumer.html[consumes] records from a Kafka cluster using the Beam execution engine.
+The Beam Kafka consume transform link:https://kafka.apache.org/23/javadoc/index.html?org/apache/kafka/clients/consumer/KafkaConsumer.html[consumes] records from a Kafka cluster using the Beam execution engine.
 
 |
 == Supported Engines
@@ -42,7 +42,7 @@ The Beam Kafka Consume transform link:https://kafka.apache.org/23/javadoc/index.
 
 == Limitations
 
-The main limitation of the Kafka Consumer is that it currently only supports reading Strings as keys and String and Avro Record as values.
+The main limitation of the Kafka consumer is that it currently only supports reading Strings as keys and String and Avro Record as values.
 
 == Options
 
