@@ -62,15 +62,17 @@ public class HopGuiWorkflowClipboardDelegate {
     this.log = hopGui.getLog();
   }
 
-  public void toClipboard(String clipText) {
+  public boolean toClipboard(String clipText) {
     try {
       GuiResource.getInstance().toClipboard(clipText);
+      return true;
     } catch (Throwable e) {
       new ErrorDialog(
           hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title"),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message"),
           e);
+      return false;
     }
   }
 
@@ -300,10 +302,10 @@ public class HopGuiWorkflowClipboardDelegate {
     return uniqueName;
   }
 
-  public void copySelected(
+  public boolean copySelected(
       WorkflowMeta workflowMeta, List<ActionMeta> actions, List<NotePadMeta> notes) {
     if (actions == null || actions.isEmpty() && notes.isEmpty()) {
-      return;
+      return false;
     }
 
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
@@ -341,9 +343,10 @@ public class HopGuiWorkflowClipboardDelegate {
 
       xml.append(XmlHandler.closeTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
 
-      toClipboard(xml.toString());
+      return toClipboard(xml.toString());
     } catch (Exception ex) {
       new ErrorDialog(hopGui.getActiveShell(), "Error", "Error encoding to XML", ex);
+      return false;
     }
   }
 
