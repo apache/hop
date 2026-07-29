@@ -210,6 +210,53 @@ The *Preview* button opens a dialog where you set how many rows to fetch and a *
 |Replace variables in script?|Enable to substitute variables (e.g., `{openvar}param{closevar}`) in your SQL before execution.
 |Insert data from transform|Select a transform to use its fields as input for `?` parameters in a prepared statement.
 |Execute for each row?|Runs the SQL query once for each incoming row, using that row’s values as parameters. Only applies when “Insert data from transform” is enabled. Useful for row-specific lookups, but may be slower on large datasets.
-|Limit size|Number of rows to return. `0` means no limit.
+|Limit size|Maximum number of rows to return from the query. `0` means no limit. See <<limit-size-vs-sql-limit,Limit size vs. SQL LIMIT>> below.
 |===
+
+[#limit-size-vs-sql-limit]
+== Limit size vs. SQL LIMIT
+
+There are two different ways to restrict how many rows Table Input returns. They are not equivalent.
+
+=== Limit size (client-side, JDBC)
+
+The *Limit size* option is applied through the JDBC API (`Statement#setMaxRows` / `PreparedStatement#setMaxRows`) after the statement is created. Hop does *not* rewrite your SQL to add a database-specific `LIMIT`, `TOP`, or `ROWNUM` clause for this option.
+
+That means:
+
+- Enforcement depends on the JDBC driver and database.
+- When the driver honors `setMaxRows`, excess rows are typically dropped on the *client* side (the database may still produce a larger result set before the driver stops returning rows).
+- Some drivers and engines do *not* implement `setMaxRows` reliably, or ignore it. This is common with certain *Generic* connections and query engines (for example *Dremio*). In those cases, *Limit size* may have no effect even when set to a positive value.
+- A few database types in Hop explicitly report that they do not support `setMaxRows` (for example Redshift). For those, *Limit size* is not applied via JDBC.
+
+When you run the same pipeline under a *Pipeline Executor* (or any setup that uses different connections or SQL per iteration), a limit that works on one connection may be ignored on another if the second connection’s driver does not honor `setMaxRows`.
+
+=== SQL LIMIT (server-side)
+
+For a limit that the database applies while executing the query, put the dialect’s limit syntax in the SQL itself, for example:
+
+[source,sql]
+----
+SELECT col_a, col_b
+FROM my_table
+WHERE status = 'ACTIVE'
+LIMIT 100;
+----
+
+Other dialects use different syntax (`TOP`, `FETCH FIRST`, `ROWNUM`, and so on). Use what your database supports.
+
+Server-side limiting is usually preferable when you need a reliable cap, better performance on large tables, or when you use a *Generic* connection / engine that may ignore JDBC `setMaxRows`.
+
+=== Recommendation
+
+[cols="1,2",options="header"]
+|===
+|Goal|Prefer
+
+|Quick, approximate row cap with a well-behaved JDBC driver| *Limit size* in the transform
+|Reliable, portable, or performance-sensitive limit| `LIMIT` / dialect equivalent *in the SQL*
+|Generic connection, Dremio, or any driver that ignores `setMaxRows`| Always use a SQL limit clause
+|===
+
+NOTE: You can combine both: keep a SQL `LIMIT` for server-side control, and optionally set *Limit size* as an additional client-side safety net where the driver supports it.
 
