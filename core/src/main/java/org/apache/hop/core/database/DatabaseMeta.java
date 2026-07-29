@@ -666,7 +666,14 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *     values expanded
    */
   public Properties getConnectionProperties(IVariables variables) {
-    Properties properties = new Properties();
+    // Start from whatever the database plugin itself contributes (TLS key stores, wallet
+    // locations, ...). The user's extra options are applied on top, so an explicit entry on the
+    // Options tab always overrides a computed value.
+    //
+    Properties properties = iDatabase.getConnectionProperties(variables);
+    if (properties == null) {
+      properties = new Properties();
+    }
 
     Map<String, String> map = getExtraOptionsMap();
     for (String option : map.keySet()) {

@@ -278,9 +278,12 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
   if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]] && [[ "$d" != *"hopweb/" ]]; then
 
-    # If there is a file called disabled.txt the project is disabled
+    # If there is a file called disabled.txt the project is disabled, unless the run explicitly
+    # opted in with INCLUDE_DISABLED=true (see run-tests-docker.sh).
     #
-    if [ ! -f "$d/disabled.txt" ]; then
+    if [ ! -f "$d/disabled.txt" ] \
+      || [ "${INCLUDE_DISABLED:-false}" = "true" ] \
+      || [[ ",${INCLUDE_DISABLED:-}," == *",$(basename "$d"),"* ]]; then
 
       #set test variables
       start_time=$SECONDS

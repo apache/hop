@@ -19,10 +19,13 @@ package org.apache.hop.ui.core.gui;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -73,6 +76,12 @@ public class GuiCompositeWidgets {
 
   @Getter @Setter private Map<String, Control> widgetsMap;
 
+  /**
+   * The extra control some elements put on the right of their widget, currently the Browse button
+   * of a FILENAME or FOLDER element. Kept so {@link #setWidgetsHidden} can hide a whole row.
+   */
+  @Getter private Map<String, Control> actionWidgetsMap;
+
   private int nrItems;
 
   @Getter @Setter private IGuiPluginCompositeWidgetsListener compositeWidgetsListener;
@@ -84,6 +93,18 @@ public class GuiCompositeWidgets {
 
   /** Parent GUI element id of the last {@link #createCompositeWidgets} call. */
   private String widgetsParentGuiElementId;
+
+  /** Layout flavour of the last {@link #createCompositeWidgets} call, needed to re-hang rows. */
+  private boolean widgetsUseNewLayout;
+
+  /** The control the first row was hung below, null when it is the top of the composite. */
+  private Control widgetsFirstLastControl;
+
+  /**
+   * The {@link FormData#height} a row had before {@link #setWidgetsHidden} collapsed it, so that
+   * showing it again restores the size it was created with rather than a default one.
+   */
+  private final Map<Control, Integer> collapsedHeights = new HashMap<>();
 
   public GuiCompositeWidgets(IVariables variables) {
     this(variables, 0);
@@ -100,6 +121,7 @@ public class GuiCompositeWidgets {
     this.variables = variables;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
+    actionWidgetsMap = new HashMap<>();
     compositeWidgetsListener = null;
   }
 
@@ -138,10 +160,12 @@ public class GuiCompositeWidgets {
 
     this.widgetsParentComposite = parent;
     this.widgetsParentGuiElementId = parentGuiElementId;
+    this.widgetsFirstLastControl = lastControl;
 
     // Loop over the GUI elements, create and remember the widgets...
     //
     boolean useNewLayout = isConfigPlugin(sourceData.getClass());
+    this.widgetsUseNewLayout = useNewLayout;
     addCompositeWidgets(sourceData, parent, guiElements, lastControl, useNewLayout);
 
     if (compositeWidgetsListener != null) {
@@ -161,6 +185,172 @@ public class GuiCompositeWidgets {
    */
   private boolean isConfigPlugin(Class<?> clazz) {
     return clazz.isAnnotationPresent(ConfigPlugin.class);
+  }
+
+  /**
+   * Hide the given widgets and close the gap they leave behind.
+   *
+   * <p>The rows sit in a {@link FormLayout} chain where each one hangs below the previous one, so
+   * simply making a row invisible would leave a hole in the middle of the dialog. This re-hangs
+   * every visible row on the last row that is still visible, then lays the composite out again.
+   *
+   * <p>The hidden rows are collapsed onto that same row rather than left where they were. {@link
+   * FormLayout} takes no notice of visibility -- it lays out and measures invisible controls
+   * exactly like visible ones -- so a hidden row that kept its original attachments would go on
+   * reserving its height, and the composite would grow by every row it hides instead of shrinking.
+   *
+   * <p>Call this from {@link IGuiPluginCompositeWidgetsListener} when a plugin has options that
+   * only apply to some of its settings, to keep the ones that cannot do anything out of the way.
+   *
+   * @param sourceData the object the widgets were created for
+   * @param hiddenIds ids of the GUI elements to hide; every other element is made visible again
+   */
+  public void setWidgetsHidden(Object sourceData, Set<String> hiddenIds) {
+    if (sourceData == null
+        || widgetsParentComposite == null
+        || widgetsParentComposite.isDisposed()) {
+      return;
+    }
+    GuiElements root =
+        GuiRegistry.getInstance()
+            .findGuiElements(sourceData.getClass().getName(), widgetsParentGuiElementId);
+    if (root == null) {
+      return;
+    }
+
+    List<GuiElements> children = new ArrayList<>(root.getChildren());
+    Collections.sort(children);
+
+    Control lastVisible = widgetsFirstLastControl;
+    Set<String> handled = new HashSet<>();
+    for (GuiElements element : children) {
+      if (element.isIgnored() || element.getId() == null) {
+        continue;
+      }
+      // The registry appends without checking for duplicates, so an element can be in here more
+      // than once if the GUI plugins were scanned twice. There is only ever one widget per id, and
+      // hanging it below itself on a second pass would make the layout circular.
+      //
+      if (!handled.add(element.getId())) {
+        continue;
+      }
+      Control label = labelsMap.get(element.getId());
+      Control widget = widgetsMap.get(element.getId());
+      Control action = actionWidgetsMap.get(element.getId());
+      boolean hidden = hiddenIds.contains(element.getId());
+
+      setControlVisible(label, !hidden);
+      setControlVisible(widget, !hidden);
+      setControlVisible(action, !hidden);
+
+      if (hidden) {
+        collapseRow(lastVisible, label, widget, action);
+        continue;
+      }
+
+      restoreRowHeight(label);
+      restoreRowHeight(widget);
+      restoreRowHeight(action);
+
+      if (widget == null || widget.isDisposed()) {
+        continue;
+      }
+      reattachRow(element, label, widget, action, lastVisible);
+      lastVisible = widget;
+    }
+
+    widgetsParentComposite.layout(true, true);
+
+    // The composite itself has changed height, so whatever it sits in has to reflow as well.
+    //
+    Composite grandParent = widgetsParentComposite.getParent();
+    if (grandParent != null && !grandParent.isDisposed()) {
+      grandParent.layout(true, true);
+    }
+  }
+
+  private void setControlVisible(Control control, boolean visible) {
+    if (control != null && !control.isDisposed()) {
+      control.setVisible(visible);
+    }
+  }
+
+  /**
+   * Park a hidden row on the last row that is still visible and take its height away, so that it
+   * ends exactly where that row ends and adds nothing to the composite.
+   *
+   * <p>Zeroing the height is what does the work; the attachment only keeps the row from being
+   * measured against a control that may itself have moved. The height it had is remembered so
+   * {@link #restoreRowHeight} can put it back -- a multi-line TEXT element sizes itself to its line
+   * count, and losing that would leave a one-line box behind when the row comes back.
+   */
+  private void collapseRow(Control lastVisible, Control... controls) {
+    for (Control control : controls) {
+      if (control == null
+          || control.isDisposed()
+          || !(control.getLayoutData() instanceof FormData formData)) {
+        continue;
+      }
+      collapsedHeights.putIfAbsent(control, formData.height);
+      formData.height = 0;
+      formData.top =
+          lastVisible == null ? new FormAttachment(0, 0) : new FormAttachment(lastVisible, 0);
+    }
+  }
+
+  /** Give a row back the height {@link #collapseRow} took from it. */
+  private void restoreRowHeight(Control control) {
+    if (control == null || control.isDisposed()) {
+      return;
+    }
+    Integer height = collapsedHeights.remove(control);
+    if (height != null && control.getLayoutData() instanceof FormData formData) {
+      formData.height = height;
+    }
+  }
+
+  /**
+   * Re-point the top attachments of one row at {@code lastVisible}, mirroring what the layout
+   * methods do at creation time. Only the top attachment changes: left, right and any explicit
+   * height stay as they were.
+   */
+  private void reattachRow(
+      GuiElements element, Control label, Control widget, Control action, Control lastVisible) {
+
+    int extraVerticalMargin =
+        lastVisible instanceof Button ? (int) (3 * PropsUi.getInstance().getZoomFactor()) : 0;
+
+    if (label != null && !label.isDisposed() && label.getLayoutData() instanceof FormData fdLabel) {
+      fdLabel.top =
+          lastVisible == null
+              ? new FormAttachment(0, PropsUi.getMargin())
+              : new FormAttachment(lastVisible, PropsUi.getMargin() + extraVerticalMargin);
+    }
+
+    if (widget.getLayoutData() instanceof FormData fdWidget) {
+      boolean centeredOnLabel =
+          !widgetsUseNewLayout
+              && element.getType() == GuiElementType.CHECKBOX
+              && lastVisible != null
+              && label != null
+              && !label.isDisposed();
+      if (centeredOnLabel) {
+        fdWidget.top = new FormAttachment(label, 0, SWT.CENTER);
+      } else if (lastVisible == null) {
+        fdWidget.top = new FormAttachment(0, PropsUi.getMargin());
+      } else {
+        fdWidget.top = new FormAttachment(lastVisible, PropsUi.getMargin());
+      }
+    }
+
+    if (action != null
+        && !action.isDisposed()
+        && action.getLayoutData() instanceof FormData fdAction) {
+      fdAction.top =
+          lastVisible == null
+              ? new FormAttachment(0, PropsUi.getMargin())
+              : new FormAttachment(lastVisible, PropsUi.getMargin());
+    }
   }
 
   private Control addCompositeWidgets(
@@ -584,12 +774,14 @@ public class GuiCompositeWidgets {
         Button wbBrowse = new Button(parent, SWT.PUSH);
         wbBrowse.setText(BaseMessages.getString("System.Button.Browse"));
         layoutControlOnRight(lastControl, wbBrowse, label, useNewLayout);
+        actionWidgetsMap.put(guiElements.getId(), wbBrowse);
         actionControl = wbBrowse;
         break;
       case FOLDER:
         wbBrowse = new Button(parent, SWT.PUSH);
         wbBrowse.setText(BaseMessages.getString("System.Button.Browse"));
         layoutControlOnRight(lastControl, wbBrowse, label, useNewLayout);
+        actionWidgetsMap.put(guiElements.getId(), wbBrowse);
         actionControl = wbBrowse;
         break;
       default:
@@ -1077,6 +1269,28 @@ public class GuiCompositeWidgets {
     getWidgetsData(sourceData, guiElements);
   }
 
+  /**
+   * Whether a value of {@code valueClass} can be handed to a setter parameter of {@code
+   * parameterType}. {@link Class#isAssignableFrom} alone is not enough: a checkbox produces a
+   * {@link Boolean} for a {@code boolean} parameter, and reflection accepts that through unboxing.
+   */
+  private boolean isAssignable(Class<?> parameterType, Class<?> valueClass) {
+    if (parameterType.isAssignableFrom(valueClass)) {
+      return true;
+    }
+    if (!parameterType.isPrimitive()) {
+      return false;
+    }
+    return (parameterType == boolean.class && valueClass == Boolean.class)
+        || (parameterType == int.class && valueClass == Integer.class)
+        || (parameterType == long.class && valueClass == Long.class)
+        || (parameterType == double.class && valueClass == Double.class)
+        || (parameterType == float.class && valueClass == Float.class)
+        || (parameterType == short.class && valueClass == Short.class)
+        || (parameterType == byte.class && valueClass == Byte.class)
+        || (parameterType == char.class && valueClass == Character.class);
+  }
+
   private void getWidgetsData(Object sourceData, GuiElements guiElements) {
     if (guiElements.isIgnored()) {
       return;
@@ -1148,29 +1362,100 @@ public class GuiCompositeWidgets {
         // Set the value on the source data object
         //
         try {
-          Class<?> fieldClass = guiElements.getFieldClass();
-          if (fieldClass.isEnum()) {
-            // set enum value
-            //
-            Class<Enum> enumClass = (Class<Enum>) fieldClass;
+          // Resolve the setter first: its parameter type is the authority on what this value has
+          // to be. The field class the registry captured at scan time is NOT - a plugin class can
+          // be loaded by more than one classloader, and an enum constant resolved against the
+          // wrong one has the right name but is a different type, which reflection rejects with a
+          // bare "argument type mismatch".
+          //
+          Method setter =
+              new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
+                  .getWriteMethod();
+          if (setter == null) {
+            LogChannel.UI.logError(
+                "No setter found for field '"
+                    + guiElements.getFieldName()
+                    + "', value not applied");
+            return;
+          }
 
-            // Look up the value as an enum...
-            //
-            if (value != null) {
-              value = Enum.valueOf(enumClass, value.toString());
+          Class<?> parameterType = setter.getParameterTypes()[0];
+
+          if (parameterType.isEnum()) {
+            String constantName = value == null ? null : value.toString();
+            if (StringUtils.isEmpty(constantName)) {
+              // Nothing picked yet. A combo reads back as empty while the dialog is still being
+              // populated, and setText() on one widget sends us here for every other one. Writing
+              // that over the object would discard the value we are about to display.
+              //
+              LogChannel.UI.logDebug(
+                  "Enum field '"
+                      + guiElements.getFieldName()
+                      + "' read back as empty, keeping the current value");
+              return;
+            }
+            try {
+              value = Enum.valueOf((Class<Enum>) parameterType, constantName);
+            } catch (IllegalArgumentException e) {
+              LogChannel.UI.logDebug(
+                  "Ignoring value '"
+                      + constantName
+                      + "' for field '"
+                      + guiElements.getFieldName()
+                      + "': not a constant of "
+                      + parameterType.getName());
+              return;
             }
           }
-          new PropertyDescriptor(guiElements.getFieldName(), sourceData.getClass())
-              .getWriteMethod()
-              .invoke(sourceData, value);
+
+          // A widget that has not produced a value yet leaves this null, and a null against a
+          // primitive setter fails with a bare "argument type mismatch" that names neither the
+          // field nor the cause. Leave the object alone instead: the value is about to be set
+          // properly, and overwriting it here is how a saved setting silently reverts to its
+          // default.
+          //
+          if (value == null && parameterType.isPrimitive()) {
+            // Never expected: a widget of a primitive-backed field always yields a value. Logged
+            // at error level rather than debug precisely because it means a setting did not get
+            // applied, which is otherwise invisible.
+            //
+            LogChannel.UI.logError(
+                "Skipping field '"
+                    + guiElements.getFieldName()
+                    + "': no value from widget '"
+                    + guiElements.getId()
+                    + "' for primitive "
+                    + parameterType.getName());
+            return;
+          }
+
+          if (value != null && !isAssignable(parameterType, value.getClass())) {
+            LogChannel.UI.logError(
+                "Value of type "
+                    + value.getClass().getName()
+                    + " does not fit setter "
+                    + setter.getName()
+                    + "("
+                    + parameterType.getName()
+                    + ") for field '"
+                    + guiElements.getFieldName()
+                    + "' (widget '"
+                    + guiElements.getId()
+                    + "'), value not applied");
+            return;
+          }
+
+          setter.invoke(sourceData, value);
 
         } catch (Exception e) {
           LogChannel.UI.logError(
               "Unable to set value '"
                   + value
-                  + "'on field: '"
+                  + "' on field: '"
                   + guiElements.getFieldName()
-                  + "' : "
+                  + "' (widget '"
+                  + guiElements.getId()
+                  + "') : "
                   + e.getMessage());
           e.printStackTrace();
         }
