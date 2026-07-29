@@ -235,6 +235,7 @@ Do not hardcode plugin lists elsewhere. Everything below reads this registry:
 | `full-client-env.yaml` | Generated from this registry during the marketplace build (Maven `generate-resources`) |
 | Local publish to Nexus/Artifactory | `docker/marketplace-nexus/publish-marketplace-plugins.sh` |
 | Unpack zips into an install (IT images) | `tools/install-wave1-plugins.sh` via `tools/list-marketplace-plugins.sh` |
+| Docker images | `docker/build-hop-images.sh --with-optional-plugins` runs `tools/install-wave1-plugins.sh` inside the builder stage |
 
 Each entry needs at least:
 

@@ -117,6 +117,23 @@ COPY ./docker/resources/ /build/docker/resources/
 # These will be extracted and prepared in Stage 3
 
 ################################################################################
+# Stage 2b': Fast Builder + marketplace-optional plugins
+################################################################################
+# Same as builder-fast, plus everything Stage 3 needs to install the optional ("Wave 1")
+# plugins from the local reactor output: the helper scripts, the registry they read, and the
+# plugin zips themselves. Docker COPY flattens globs, so the zips land in a single directory
+# and Stage 3 resolves them by file name through HOP_PLUGIN_ZIP_DIR.
+#
+# This is a separate flavor on purpose: the zip glob fails the build when nothing matches, and
+# a plain "fast" build must not start requiring plugins/**/target/*.zip to be present.
+FROM builder-fast AS builder-fast-plugins
+
+COPY ./tools/ /build/tools/
+COPY ./plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml \
+     /build/plugins/misc/marketplace/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml
+COPY ./plugins/*/*/target/*.zip /build/optional-plugin-zips/
+
+################################################################################
 # Stage 2c: Builder Selector
 ################################################################################
 # This stage selects which builder to use based on BUILDER_TYPE build arg
@@ -172,16 +189,49 @@ RUN echo "=== Extracting assemblies ===" && \
         echo "WARNING: Plugins assembly not found, will use built plugins directly"; \
     fi
 
+# Step 1b: Install the marketplace-optional ("Wave 1") plugins into the extracted client
+#
+# These plugins are released to Maven but deliberately kept out of hop-client.zip, so they are
+# absent from the images unless requested. The list is read from optional-plugins.yaml, the same
+# source of truth Jenkins and the integration tests use (tools/install-wave1-plugins.sh).
+#
+# Note: the Beam engine is one of these plugins and it owns the --generate-fat-jar option, so the
+# dataflow and web-beam targets require this to be enabled (build-hop-images.sh does that for you).
+#
+# Works with both builders: "full" resolves the zips from the reactor it just built, "fast" from
+# the flat directory it copied out of the local plugins/**/target/ folders (HOP_PLUGIN_ZIP_DIR).
+ARG INCLUDE_OPTIONAL_PLUGINS=false
+RUN if [ "${INCLUDE_OPTIONAL_PLUGINS}" = "true" ]; then \
+        echo "=== Installing marketplace-optional plugins ===" && \
+        if [ ! -f /build/tools/install-wave1-plugins.sh ]; then \
+            echo "ERROR: tools/install-wave1-plugins.sh is not present in this builder." && \
+            exit 1; \
+        fi && \
+        HOP_VERSION="$(ls /build/assemblies/client/target/hop-client-*.zip | head -1 | sed -e 's#.*/hop-client-##' -e 's#\.zip$##')" && \
+        echo "Hop version: ${HOP_VERSION}" && \
+        export HOP_VERSION && \
+        export HOP_PLUGIN_ZIP_DIR=/build/optional-plugin-zips && \
+        bash /build/tools/install-wave1-plugins.sh /build/assemblies/client/target/hop; \
+    else \
+        echo "=== Skipping marketplace-optional plugins (INCLUDE_OPTIONAL_PLUGINS=false) ==="; \
+    fi
+
 # Step 2: Generate fat jar for dataflow template (only if needed)
 ARG SKIP_FAT_JAR=false
 RUN if [ "${SKIP_FAT_JAR}" = "false" ]; then \
         echo "=== Generating fat jar ===" && \
-        if [ -f /build/assemblies/client/target/hop/hop-conf.sh ]; then \
-            /build/assemblies/client/target/hop/hop-conf.sh \
-            --generate-fat-jar=/tmp/hop-fatjar.jar; \
-        else \
+        if [ ! -f /build/assemblies/client/target/hop/hop-conf.sh ]; then \
             echo "ERROR: hop-conf.sh not found" && exit 1; \
-        fi; \
+        fi && \
+        # --generate-fat-jar is contributed by the Beam engine plugin, which is marketplace-optional.
+        # Without it hop-conf silently produces nothing usable, so fail loudly instead.
+        if [ ! -d /build/assemblies/client/target/hop/plugins/engines/beam ]; then \
+            echo "ERROR: the Beam engine plugin is missing, so the fat jar cannot be generated." && \
+            echo "       Rebuild with --with-optional-plugins (INCLUDE_OPTIONAL_PLUGINS=true)." && \
+            exit 1; \
+        fi && \
+        /build/assemblies/client/target/hop/hop-conf.sh \
+        --generate-fat-jar=/tmp/hop-fatjar.jar; \
     else \
         echo "=== Skipping fat jar generation (not needed) ===" && \
         touch /tmp/hop-fatjar.jar; \
