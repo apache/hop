@@ -17,8 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
@@ -153,6 +156,11 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
             logDebug(e.getMessage());
             return false;
           } else {
+            logError("Error reading row from database result set: " + e.getMessage());
+            if (isDebug()) {
+              logDebug(Const.getStackTracker(e));
+            }
+            setErrors(1);
             throw e;
           }
         }
@@ -242,13 +250,33 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     if (isDetailed()) {
       logDetailed("SQL query : " + sql);
     }
-    if (parametersMeta.isEmpty()) {
-      data.rs = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
-    } else {
-      data.rs = data.db.openQuery(sql, parametersMeta, parameters, ResultSet.FETCH_FORWARD, false);
+
+    try {
+      if (parametersMeta.isEmpty()) {
+        data.rs = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
+      } else {
+        data.rs =
+            data.db.openQuery(sql, parametersMeta, parameters, ResultSet.FETCH_FORWARD, false);
+      }
+    } catch (HopDatabaseException ex) {
+      Throwable root = ex.getCause();
+      if (root instanceof SQLException) {
+        logError(
+            "SQL query failed. Please verify the SQL syntax and referenced tables/columns: "
+                + ex.getMessage());
+      } else {
+        logError("Failed to execute query: " + ex.getMessage());
+      }
+      if (isDebug()) {
+        logDebug(Const.getStackTracker(ex));
+      }
+      setErrors(1);
+      stopAll();
+      return false;
     }
+
     if (data.rs == null) {
-      logError("Couldn't open Query [" + sql + "]");
+      logError("Couldn't open Query. Please verify the SQL syntax: " + sql);
       setErrors(1);
       stopAll();
       success = false;
@@ -264,12 +292,29 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       }
 
       // Get the first row...
-      data.thisRow = data.db.getRow(data.rs);
-      if (data.thisRow != null) {
-        incrementLinesInput();
-        data.nextRow = data.db.getRow(data.rs);
-        if (data.nextRow != null) {
+      try {
+        data.thisRow = data.db.getRow(data.rs);
+        if (data.thisRow != null) {
           incrementLinesInput();
+          data.nextRow = data.db.getRow(data.rs);
+          if (data.nextRow != null) {
+            incrementLinesInput();
+          }
+        }
+      } catch (HopDatabaseException ex) {
+        logError("Error reading rows from query result: " + ex.getMessage());
+        if (isDebug()) {
+          logDebug(Const.getStackTracker(ex));
+        }
+        setErrors(1);
+        stopAll();
+        return false;
+      }
+
+      if (isRowLevel()) {
+        logRowlevel("SQL statement executed: " + sql);
+        if (data.rowMeta != null) {
+          logRowlevel("Columns returned: " + Arrays.toString(data.rowMeta.getFieldNames()));
         }
       }
     }
@@ -284,7 +329,10 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     try {
       closePreviousQuery();
     } catch (HopException e) {
-      logError("Unexpected error closing query : " + e.toString());
+      logError("Unexpected error closing query: " + e.getMessage());
+      if (isDebug()) {
+        logDebug(Const.getStackTracker(e));
+      }
       setErrors(1);
       stopAll();
     } finally {
@@ -339,6 +387,14 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       }
 
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      if (databaseMeta == null) {
+        logError(
+            "Relational database connection '"
+                + meta.getConnection()
+                + "' not found. Please verify the connection name in the transform configuration.");
+        setErrors(1);
+        return false;
+      }
 
       data.db = new Database(this, this, databaseMeta);
       data.db.setQueryLimit(Const.toIntExpanded(resolve(meta.getRowLimit()), 0));
@@ -364,9 +420,39 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
           logDetailed("Connected to database...");
         }
 
+        if (isDebug()) {
+          logDebug(
+              "Database connection details - hostname: "
+                  + databaseMeta.getHostname()
+                  + ", port: "
+                  + databaseMeta.getPort()
+                  + ", database: "
+                  + databaseMeta.getDatabaseName());
+        }
+
         return true;
       } catch (HopException e) {
-        logError("An error occurred, processing will be stopped: " + e.getMessage());
+        Throwable root = e.getCause();
+        if (root instanceof UnknownHostException) {
+          logError(
+              "Database hostname could not be resolved. Please verify the hostname in the connection settings: "
+                  + e.getMessage());
+        } else if (root instanceof ConnectException) {
+          logError(
+              "Unable to connect to the database server. Please verify the hostname, port, and that the server is running: "
+                  + e.getMessage());
+        } else if (root instanceof SQLException) {
+          logError(
+              "Database connection failed. Please verify the connection credentials and database name: "
+                  + e.getMessage());
+        } else {
+          logError(
+              "An error occurred while connecting to the database, processing will be stopped: "
+                  + e.getMessage());
+        }
+        if (isDebug()) {
+          logDebug(Const.getStackTracker(e));
+        }
         setErrors(1);
         stopAll();
       }
