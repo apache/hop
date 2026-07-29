@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Graph Output transform lets you map input fields automatically to a graph model.
 
-= image:transforms/icons/neo4j_graph_output.svg[Neo4j Graph Output transform Icon, role="image-doc-icon"] Neo4j Graph Output
+= image:transforms/icons/neo4j_graph_output.svg[Neo4j graph output transform Icon, role="image-doc-icon"] Neo4j graph output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
@@ -57,7 +57,7 @@ These will not merge on these nodes, nor will it create or update relationships 
 == Execution tips
 
 * Make sure that every node primary key has an index.
-Use the provided button in the graph model editor to generate the Neo4j Index and Constraint actions which will handle this for you.
+Use the provided button in the graph model editor to generate the Neo4j index and Constraint actions which will handle this for you.
 
 == Notable options
 
@@ -73,7 +73,7 @@ Use the provided button in the graph model editor to generate the Neo4j Index an
 |Validate against model?|validate the data against the model.
 This will check if indexes are created for a field that is flagged as primary/indexed, see if a property flagged as mandatory is available when a node is updated and so on.
 Uniqueness is best validated by a constraint on the property.
-Use the provided button to generate the "Neo4j Constraint" action.
+Use the provided button to generate the "Neo4j constraint" action.
 |Allow out of order updates?|If out of order updates are allowed, this transform generates unwind statements.
 Otherwise, standard batch updates are used.
 The updates are grouped per distinct generated cypher statement.

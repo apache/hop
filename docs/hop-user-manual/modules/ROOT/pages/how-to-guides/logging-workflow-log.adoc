@@ -60,16 +60,16 @@ TIP: workflow logging will apply to any workflow you run in the current project.
 
 image:how-to-guides/logging-workflow-log/workflow-log-selection.png[workflow log selection, width="65%"]
 
-== Step 2: Create a new pipeline with the Workflow Logging transform
+== Step 2: Create a new pipeline with the Workflow logging transform
 
 To create the pipeline you can go to the perspective area or by clicking on the New button in the New Workflow Log dialog. Then, choose a folder and a name for the pipeline.
 
-A new pipeline is automatically created with a xref:pipeline/transforms/workflow-logging.adoc[Workflow Logging] transform connected to a xref:pipeline/transforms/dummy.adoc[Dummy] transform (Save logging here).
+A new pipeline is automatically created with a xref:pipeline/transforms/workflow-logging.adoc[Workflow logging] transform connected to a xref:pipeline/transforms/dummy.adoc[Dummy] transform (Save logging here).
 
 
 image:how-to-guides/logging-workflow-log/workflow-logging.jpg[workflow logging pipeline, width="45%"]
 
-Now it’s time to configure the Workflow Logging transform. This configuration is very simple, open the transform and set your values as in the following example:
+Now it’s time to configure the Workflow logging transform. This configuration is very simple, open the transform and set your values as in the following example:
 
 image:how-to-guides/logging-workflow-log/config-workflow-logging.jpg[configure workflow loggin, width="45%"]
 

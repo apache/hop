@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Neo4j Split Graph transforms splits the nodes and relationships of a graph data type.
+:description: The Neo4j split graph transforms splits the nodes and relationships of a graph data type.
 
-= image:transforms/icons/neo4j_split.svg[Neo4j Split Graph transform Icon, role="image-doc-icon"] Neo4j Split Graph
+= image:transforms/icons/neo4j_split.svg[Neo4j split graph transform Icon, role="image-doc-icon"] Neo4j split graph
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Neo4j Split Graph transforms splits the nodes and relationships of a graph data type.
+The Neo4j split graph transforms splits the nodes and relationships of a graph data type.
 
 |
 == Supported Engines
@@ -45,7 +45,7 @@ The Neo4j Split Graph transforms splits the nodes and relationships of a graph d
 [options="header"]
 |===
 |Option|Default|Description
-|Transform name|Neo4j Split Graph|the name to use for this transform in the pipeline
+|Transform name|Neo4j split graph|the name to use for this transform in the pipeline
 |Graph field|graph|the graph field in the pipeline
 |Type output field (Node/Relationship)|type|the field that will contain the type of field (Node or Relationship)
 |ID outputfield|id|the output field to write the ID to

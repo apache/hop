@@ -33,7 +33,7 @@ import org.neo4j.driver.TransactionCallback;
 
 @Action(
     id = "NEO4J_CYPHER_SCRIPT",
-    name = "Neo4j Cypher Script",
+    name = "Neo4j Cypher script",
     description = "Execute a Neo4j Cypher script",
     image = "neo4j_cypher.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",

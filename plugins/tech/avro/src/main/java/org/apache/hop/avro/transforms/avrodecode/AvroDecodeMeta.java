@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "AvroDecode",
-    name = "Avro Decode",
+    name = "Avro decode",
     description = "Decodes Avro data types into Hop fields",
     image = "avro_decode.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",

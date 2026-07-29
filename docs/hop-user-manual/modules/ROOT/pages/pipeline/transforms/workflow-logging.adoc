@@ -28,7 +28,7 @@ under the License.
 |
 == Description
 
-The Workflow Logging transform receives its input from a xref:metadata-types/workflow-log.adoc[Workflow Log] metadata item.
+The Workflow logging transform receives its input from a xref:metadata-types/workflow-log.adoc[Workflow Log] metadata item.
 
 The transform requires very little configuration, but provides a lot of information.
 
@@ -66,7 +66,7 @@ The transform requires very little configuration, but provides a lot of informat
 [%header, width="90%", cols="1,1,5"]
 |===
  |Fieldname|Type|Description
-3+|**Workflow Logging Fields**
+3+|**Workflow logging Fields**
 |loggingDate|Date|the date and time this workflow was executed
 |loggingPhase|String|the phase this workflow is in at the time of logging (e.g. 'end')
 |workflowName|String|the logged workflow name

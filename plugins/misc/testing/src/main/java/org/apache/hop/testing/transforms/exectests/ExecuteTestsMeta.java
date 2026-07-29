@@ -30,7 +30,7 @@ import org.apache.hop.testing.UnitTestResult;
 @Transform(
     id = "ExecuteTests",
     description = "Execute Unit Tests",
-    name = "Execute Unit Tests",
+    name = "Execute unit tests",
     image = "executetests.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::ExecuteTestsMeta.keyword",

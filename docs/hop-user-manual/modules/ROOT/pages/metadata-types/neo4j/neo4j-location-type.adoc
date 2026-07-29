@@ -28,7 +28,7 @@ With this location type you can store execution information in a xref:technology
 
 * *Neo4j connection*: the name of the xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j connection] to store the information in.
 * *Button 'Show indexes DDL'*: This displays the CREATE INDEX statements that you want to execute on the Neo4j connection to make sure performance is and remains good when writing and reading information.
-* *Button 'Copy a Neo4j Index action to clipboard'*: This copies the Neo4j Index action to the clipboard so that you can just copy this in a workflow.  It will make sure that the right indexes are created (if needed) to have great performance when using the execution information location.
+* *Button 'Copy a Neo4j index action to clipboard'*: This copies the Neo4j index action to the clipboard so that you can just copy this in a workflow.  It will make sure that the right indexes are created (if needed) to have great performance when using the execution information location.
 
 == Graph model
 

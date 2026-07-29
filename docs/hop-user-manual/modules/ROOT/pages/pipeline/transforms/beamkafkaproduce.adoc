@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Beam Kafka Produce transform publishes records to a Kafka cluster using the Beam execution engine.
+:description: The Beam Kafka produce transform publishes records to a Kafka cluster using the Beam execution engine.
 
-= image:transforms/icons/beam-kafka-output.svg[Beam Kafka Produce Icon, role="image-doc-icon"] Beam Kafka Produce
+= image:transforms/icons/beam-kafka-output.svg[Beam Kafka produce Icon, role="image-doc-icon"] Beam Kafka produce
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Beam Kafka Produce transform link:https://kafka.apache.org/25/javadoc/index.html?org/apache/kafka/clients/producer/KafkaProducer.html[publishes] records to a Kafka cluster using the Beam execution engine.
+The Beam Kafka produce transform link:https://kafka.apache.org/25/javadoc/index.html?org/apache/kafka/clients/producer/KafkaProducer.html[publishes] records to a Kafka cluster using the Beam execution engine.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -41,7 +41,7 @@ The Beam Kafka Produce transform link:https://kafka.apache.org/25/javadoc/index.
 
 == Limitations
 
-The main limitation of the Kafka Producer is that it currently only supports writing or producing Strings as keys and String and Avro Record as values.
+The main limitation of the Kafka producer is that it currently only supports writing or producing Strings as keys and String and Avro Record as values.
 
 == Options
 

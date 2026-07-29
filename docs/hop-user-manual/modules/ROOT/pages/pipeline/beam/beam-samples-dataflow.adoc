@@ -86,7 +86,7 @@ image:beam/run-samples/hop-dataflow-run-config-variables.png[Dataflow Run Config
 
 You now have everything in place to run your first pipeline in Google Dataflow. Go back to the data orchestration perspective and open beam/pipelines/switch-case.hpl from the samples project.
 
-The Beam File Input and Beam File output transforms at the start of the pipeline are special Beam transforms. Both point to Beam File Definitions that you can find in the metadata perspective. The only thing these transforms do is specify a file layout and a path (the ${openvar}DATA_DIR${closevar} variable you changed earlier) where Dataflow can find the input files to read from and output files to write to. The rest of this pipeline is Just Another Pipeline.
+The Beam file input and Beam file output transforms at the start of the pipeline are special Beam transforms. Both point to Beam File Definitions that you can find in the metadata perspective. The only thing these transforms do is specify a file layout and a path (the ${openvar}DATA_DIR${closevar} variable you changed earlier) where Dataflow can find the input files to read from and output files to write to. The rest of this pipeline is Just Another Pipeline.
 
 image:beam/run-samples/hop-switch-case.png[Switch-case Beam sample pipeline, width="45%"]
 

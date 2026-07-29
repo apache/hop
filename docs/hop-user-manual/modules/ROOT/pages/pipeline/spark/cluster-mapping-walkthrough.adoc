@@ -302,7 +302,7 @@ Host data under `/tmp/spark-demo-dist/hop-data` is left in place so you can keep
 |Workers cannot open mapping file
 |Confirm logs mention distributing the package / `SparkFiles`. Scale workers ≥ 1 and ensure submit used `--HopProjectPackage`.
 
-|Spark File Input path not found
+|Spark file input path not found
 |`HOP_DATA` must be the **shared** volume path (`file:///data/hop-data`). Do not point Dataset paths at package `PROJECT_HOME`.
 
 |ClassNotFoundException / wrong Spark

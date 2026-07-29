@@ -56,7 +56,7 @@ Transforms:
 * xref:pipeline/transforms/execsqlrow.adoc[Execute SQL Row]
 * xref:pipeline/transforms/insertupdate.adoc[Insert/Update]
 * xref:pipeline/transforms/orabulkloader.adoc[Oracle Bulk Loader]
-* xref:pipeline/transforms/postgresbulkloader.adoc[PostgreSQL Bulk Loader]
+* xref:pipeline/transforms/postgresbulkloader.adoc[PostgreSQL bulk loader]
 * xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize After Merge]
 * xref:pipeline/transforms/tablecompare.adoc[Table Compare]
 * xref:pipeline/transforms/tableexists.adoc[Table Exists]

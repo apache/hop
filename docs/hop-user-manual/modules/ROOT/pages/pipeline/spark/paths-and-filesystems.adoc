@@ -44,7 +44,7 @@ Apache Hop uses *two different path languages*. They look similar (both use `sch
 
 [IMPORTANT]
 ====
-A path that opens in the Hop *File* dialog (Hop VFS) is *not* automatically valid for *Spark File Input*.
+A path that opens in the Hop *File* dialog (Hop VFS) is *not* automatically valid for *Spark file input*.
 Spark never calls `HopVfs` for Dataset `load` / `save`. The engine only resolves Hop variables, then hands the string to Spark.
 ====
 
@@ -56,7 +56,7 @@ For the full list of Hop VFS schemes, see xref:vfs.adoc[Virtual File Systems].
 |===
 |Feature |Path dialect |Notes
 
-|Spark File Input / Spark File Output
+|Spark file input / Spark file output
 |**Spark URI**
 |`spark.read…load(path)` / `df.write…save(path)`
 
@@ -118,7 +118,7 @@ For the full list of Hop VFS schemes, see xref:vfs.adoc[Virtual File Systems].
 
 Hop’s xref:metadata-types/minio-connection.adoc[Minio Connection] metadata registers the **connection name** as a VFS scheme (for example connection `minio` → `minio:///demo/…`). That path works with classic Hop transforms and the file dialog.
 
-On **Spark File Input/Output** and **Lake PATH**:
+On **Spark file input/output** and **Lake PATH**:
 
 . Put objects under a URI Spark’s S3A client can open, typically `s3a://bucket/prefix/…`.
 . Point S3A at your endpoint with run-configuration *Spark config* lines, for example:
@@ -224,7 +224,7 @@ Databricks Deploy & run auto-export uses the same rules (reads `spark-package.js
   [--HopConfigFile=/path/cluster-env.json]
 ----
 
-**Databricks Deploy & run:** the xref:workflow/actions/databricks-job-run.adoc[Databricks Job Run] action can **upload** this package (export from `PROJECT_HOME` or an existing zip) and an optional environment config file to the Volume base path, then pass the same named MainSpark arguments on the JAR task. Enable **Upload Spark project package** on the action when the pipeline needs nested definitions.
+**Databricks Deploy & run:** the xref:workflow/actions/databricks-job-run.adoc[Databricks job run] action can **upload** this package (export from `PROJECT_HOME` or an existing zip) and an optional environment config file to the Volume base path, then pass the same named MainSpark arguments on the JAR task. Enable **Upload Spark project package** on the action when the pipeline needs nested definitions.
 
 On Databricks, packages under **`/Volumes/…`** (or `/dbfs/…`) are treated as **cluster-shared**: Hop does **not** call `SparkContext.addFile` for them. Executors open the same Volume path (UC FUSE mount). That avoids failures such as `Failed to fetch spark://…/files/hop-spark-package.zip` / `Stream '/files/…' was not found` when the driver cannot serve SparkFiles to job-cluster workers.
 
@@ -245,7 +245,7 @@ Variables:
 With a project package, **`PROJECT_HOME` is the extracted definition tree**, not your object-store data root.
 
 * Nested mappings: `$\{PROJECT_HOME\}/mappings/…` ✅
-* Spark File Input data: use `HOP_DATA`, `OUTPUT_ROOT`, or explicit `s3a://…` / `hdfs://…` — **not** `$\{PROJECT_HOME\}/files/…` unless those files are small resources inside the package and you accept local extract paths.
+* Spark file input data: use `HOP_DATA`, `OUTPUT_ROOT`, or explicit `s3a://…` / `hdfs://…` — **not** `$\{PROJECT_HOME\}/files/…` unless those files are small resources inside the package and you accept local extract paths.
 
 The path scheme map (`s3=s3a`) is independent: it rewrites Dataset schemes only.
 ====
@@ -254,7 +254,7 @@ Limitations: Workflow Executor and dynamic Pipeline Executor filenames remain ex
 
 === Path scheme map (run configuration)
 
-The Native Spark pipeline run configuration includes an optional **Path scheme map** field: multi-line `from=to` entries applied **only** to *Spark File Input/Output* and *Lake Table PATH* URIs after variable resolution (not to classic Hop VFS / mapPartitions paths).
+The Native Spark pipeline run configuration includes an optional **Path scheme map** field: multi-line `from=to` entries applied **only** to *Spark file input/output* and *Lake Table PATH* URIs after variable resolution (not to classic Hop VFS / mapPartitions paths).
 
 Example:
 
@@ -299,7 +299,7 @@ See xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started w
 
 . **Spark File / Lake path fields** → use **Spark URIs** (`file:///`, `hdfs://`, `s3a://`, `abfs://`, …).
 . **Classic Hop file transforms** (even on the Spark engine) → use **Hop VFS URIs** and ensure plugins/credentials exist on executors.
-. Prefer *Spark File Output* for large distributed writes; classic Text File Output is for POCs and needs unique names per partition (`${Internal.Transform.ID}`).
+. Prefer *Spark file output* for large distributed writes; classic Text File Output is for POCs and needs unique names per partition (`${Internal.Transform.ID}`).
 . Do not assume `s3://` means the same thing in Hop and Spark — in Hop docs for object storage on Spark, **`s3a://` is canonical**.
 
 == Related pages

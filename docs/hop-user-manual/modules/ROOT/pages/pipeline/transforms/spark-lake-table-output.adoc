@@ -16,18 +16,18 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: Spark Lake Table Output writes Delta Lake or Apache Iceberg tables on the native Spark pipeline engine with ACID commit semantics.
+:description: Spark lake table output writes Delta Lake or Apache Iceberg tables on the native Spark pipeline engine with ACID commit semantics.
 
-= image:transforms/icons/spark-lake-table-output.svg[Spark Lake Table Output transform Icon, role="image-doc-icon"] Spark Lake Table Output
+= image:transforms/icons/spark-lake-table-output.svg[Spark lake table output transform Icon, role="image-doc-icon"] Spark lake table output
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-*Spark Lake Table Output* writes the incoming Spark `Dataset` to a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table using table-format commit semantics on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+*Spark lake table output* writes the incoming Spark `Dataset` to a https://delta.io/[Delta Lake] or https://iceberg.apache.org/[Apache Iceberg] table using table-format commit semantics on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
 
-Unlike *Spark File Output* (classic file formats), the **default save mode is ErrorIfExists** so ACID tables are not overwritten by accident.
+Unlike *Spark file output* (classic file formats), the **default save mode is ErrorIfExists** so ACID tables are not overwritten by accident.
 
 This transform is **native Spark only**. Connectors ship with the native Spark plugin; see xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine].
 
@@ -103,11 +103,11 @@ Use this with a template write path when landing many tables (different paths/id
 == Notes
 
 * Requires exactly one main-stream upstream hop (the data to write).
-* For upserts, use xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge] instead of Overwrite.
+* For upserts, use xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge] instead of Overwrite.
 * Packaging, session conf, and troubleshooting: xref:pipeline/spark/lakehouse.adoc[lakehouse guide].
 
 == Related pages
 
 * xref:pipeline/spark/lakehouse.adoc[Lakehouse tables on the native Spark engine]
-* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark Lake Table Input]
-* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark Lake Table Merge]
+* xref:pipeline/transforms/spark-lake-table-input.adoc[Spark lake table input]
+* xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge]

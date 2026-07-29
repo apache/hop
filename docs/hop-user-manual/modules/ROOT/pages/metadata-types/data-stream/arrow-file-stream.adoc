@@ -105,7 +105,7 @@ with open("from_python.arrow", "wb") as f:
 print("✅ Wrote from_python.arrow in Arrow IPC Streaming Format")
 ----
 
-This file can then be read using the xref:pipeline/transforms/data-stream-input.adoc[Data Stream Input] transform and a xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow file stream] data stream type.
+This file can then be read using the xref:pipeline/transforms/data-stream-input.adoc[Data stream input] transform and a xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow file stream] data stream type.
 
 === Read a stream file
 
@@ -141,4 +141,4 @@ with pa.memory_map(file_path, 'r') as source:
 
 ----
 
-You can generate the `.arrow` stream file with the xref:pipeline/transforms/data-stream-output.adoc[Data Stream Output] transform and the xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow file stream] data stream type.
+You can generate the `.arrow` stream file with the xref:pipeline/transforms/data-stream-output.adoc[Data stream output] transform and the xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow file stream] data stream type.

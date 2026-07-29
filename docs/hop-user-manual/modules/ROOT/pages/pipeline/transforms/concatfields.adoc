@@ -16,16 +16,16 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Concat Fields transform concatenates multiple fields into one target field. The fields can be separated by a separator and an enclosure.
+:description: The Concat fields transform concatenates multiple fields into one target field. The fields can be separated by a separator and an enclosure.
 
-= image:transforms/icons/concatfields.svg[Concat Fields transform Icon, role="image-doc-icon"] Concat Fields
+= image:transforms/icons/concatfields.svg[Concat fields transform Icon, role="image-doc-icon"] Concat fields
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Concat Fields transform concatenates multiple fields into one target field. Type in a target field name which always creates a new field. You can optionally use a Separator field or Enclosure between fields and add the fields or free text you would like to concatenate in order.
+The Concat fields transform concatenates multiple fields into one target field. Type in a target field name which always creates a new field. You can optionally use a Separator field or Enclosure between fields and add the fields or free text you would like to concatenate in order.
 
 |
 == Supported Engines

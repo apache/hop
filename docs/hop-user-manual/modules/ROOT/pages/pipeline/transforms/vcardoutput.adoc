@@ -113,5 +113,5 @@ You can use this transform with xref:pipeline/transforms/metainject.adoc[ETL Met
 == See also
 
 * xref:pipeline/transforms/vcardinput.adoc[vCard Input]
-* xref:pipeline/transforms/enhancedjsonoutput.adoc[Enhanced JSON Output]
+* xref:pipeline/transforms/enhancedjsonoutput.adoc[Enhanced JSON output]
 * xref:pipeline/transforms/textfileoutput.adoc[Text File Output]

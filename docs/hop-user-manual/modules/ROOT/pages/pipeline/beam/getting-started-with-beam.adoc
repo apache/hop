@@ -230,7 +230,7 @@ A better way to deal with this problem is NOT to insist on creating a single fil
 
 |Row batching with non-Beam transforms
 |A lot of target databases like to receive rows in batches of records.
-So if you have a transform like for example `Table Output` or `Neo4j Output` you might see that performance is not that great.
+So if you have a transform like for example `Table Output` or `Neo4j output` you might see that performance is not that great.
 This is because by default the https://beam.apache.org/documentation/runtime/model/[Beam programming model] is designed to stream rows of data through a pipeline in `bundles` and the Hop API only knows about a single record at once.
 For these transforms you can include *`BATCH`* in the number of copies string of a transform click on the transform and select `Number of copies` in the Hop GUI).
 For these flagged transforms you can then specify 2 parameters in your Beam pipeline run configurations.
