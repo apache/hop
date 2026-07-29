@@ -337,26 +337,26 @@ public class GitPerspective implements IHopPerspective {
     PropsUi.setLook(wSearchText);
 
     // Create a composite with toolbar and tree for the border
-    //    Composite composite = new Composite(treeComposite, SWT.BORDER);
-    //    composite.setLayout(new FormLayout());
-    //    composite.setLayoutData(FormDataBuilder.builder().top(wSearchText,
+    // Composite composite = new Composite(treeComposite, SWT.BORDER);
+    // composite.setLayout(new FormLayout());
+    // composite.setLayoutData(FormDataBuilder.builder().top(wSearchText,
     // PropsUi.getMargin()).bottom().fullWidth().result());
-    //    PropsUi.setLook(composite);
+    // PropsUi.setLook(composite);
 
     // Create toolbar
     //
-    //    IToolbarContainer toolBarContainer =
-    //        ToolbarFacade.createToolbarContainer(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    // IToolbarContainer toolBarContainer =
+    // ToolbarFacade.createToolbarContainer(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     //
-    //    refToolBarWidgets = new GuiToolbarWidgets();
-    //    refToolBarWidgets.registerGuiPluginObject(this);
-    //    refToolBarWidgets.createToolbarWidgets(toolBarContainer,
+    // refToolBarWidgets = new GuiToolbarWidgets();
+    // refToolBarWidgets.registerGuiPluginObject(this);
+    // refToolBarWidgets.createToolbarWidgets(toolBarContainer,
     // GUI_PLUGIN_REF_TOOLBAR_PARENT_ID);
     //
-    //    wRefToolBar = toolBarContainer.getControl();
-    //    wRefToolBar.setLayoutData(FormDataBuilder.builder().fullWidth().top().result());
-    //    wRefToolBar.pack();
-    //    PropsUi.setLook(wRefToolBar, Props.WIDGET_STYLE_TOOLBAR);
+    // wRefToolBar = toolBarContainer.getControl();
+    // wRefToolBar.setLayoutData(FormDataBuilder.builder().fullWidth().top().result());
+    // wRefToolBar.pack();
+    // PropsUi.setLook(wRefToolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     wRefTree = new Tree(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     wRefTree.setHeaderVisible(false);
@@ -620,7 +620,13 @@ public class GitPerspective implements IHopPerspective {
       }
       return isCommitInCurrentBranch(uiGit.getGit().getRepository(), commit.getId());
     } catch (MissingObjectException e) {
-      // Object id not present in the currently open repository (e.g. after project switch)
+      // Commit not in the local object store: expected (e.g. after a fetch/refresh), so log at
+      // debug level and report it's not in the branch.
+      LogChannel.UI.logDebug(
+          "Commit "
+              + commit.getId().getName()
+              + " is not present in the local object store while checking the current branch: "
+              + e.getMessage());
       return false;
     } catch (Exception e) {
       LogChannel.UI.logError("Error checking if commit is in current branch", e);

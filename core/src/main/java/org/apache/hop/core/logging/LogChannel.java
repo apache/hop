@@ -144,12 +144,24 @@ public class LogChannel implements ILogChannel {
   }
 
   public void println(ILogMessage message, Throwable e, LogLevel channelLogLevel) {
-    println(message, channelLogLevel);
-
-    String stackTrace = Const.getStackTracker(e);
-    LogMessage traceMessage =
-        new LogMessage(stackTrace, message.getLogChannelId(), LogLevel.ERROR, simplified);
-    println(traceMessage, channelLogLevel);
+    if (message instanceof LogMessage logMessage) {
+      if (e != null) {
+        // Pre-render the trace (bounded memory), attach the throwable for SLF4J, and bump to ERROR.
+        logMessage.setStackTrace(Const.getStackTracker(e));
+        logMessage.setThrowable(e);
+        logMessage.setLevel(LogLevel.ERROR);
+      }
+      println(message, channelLogLevel);
+      // Release the throwable so the buffered event doesn't retain the exception graph.
+      logMessage.setThrowable(null);
+    } else {
+      // Non-standard ILogMessage can't carry a throwable: fall back to the legacy two-event path.
+      println(message, channelLogLevel);
+      String stackTrace = Const.getStackTracker(e);
+      LogMessage traceMessage =
+          new LogMessage(stackTrace, message.getLogChannelId(), LogLevel.ERROR, simplified);
+      println(traceMessage, channelLogLevel);
+    }
   }
 
   public void logWithLevel(String s, LogLevel logMessageLevel) {
