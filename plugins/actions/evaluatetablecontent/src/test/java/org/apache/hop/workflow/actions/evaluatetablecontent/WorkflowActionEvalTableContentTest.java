@@ -19,6 +19,8 @@ package org.apache.hop.workflow.actions.evaluatetablecontent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -216,5 +218,28 @@ class WorkflowActionEvalTableContentTest {
 
     assertFalse(res.isResult(), "Eval number of rows should fail");
     assertEquals(1, res.getNrErrors(), "Apparently there should be an error");
+  }
+
+  @Test
+  void testConnectionNameIsKept() {
+    // The connection name is the persisted property: it has to survive without a metadata
+    // provider being available to resolve it into a DatabaseMeta.
+    String connectionName = "my-connection";
+    action.setDatabaseMeta(null);
+    action.setConnection(connectionName);
+
+    assertEquals(connectionName, action.getConnection());
+    assertNull(action.getDatabase(), "Without a metadata provider nothing can be resolved");
+    assertEquals(
+        connectionName, action.getConnection(), "Resolving must not clear the connection name");
+  }
+
+  @Test
+  void testSetConnectionInvalidatesResolvedDatabase() {
+    assertNotNull(action.getDatabase());
+
+    action.setConnection("another-connection");
+
+    assertNull(action.getDatabase(), "The previously resolved connection has to be discarded");
   }
 }
