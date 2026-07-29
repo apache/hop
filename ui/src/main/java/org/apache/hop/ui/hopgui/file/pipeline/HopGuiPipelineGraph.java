@@ -6044,8 +6044,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(command = true, key = 'x')
   @Override
   public void cutSelectedToClipboard() {
-    pipelineClipboardDelegate.copySelected(
-        pipelineMeta, pipelineMeta.getSelectedTransforms(), pipelineMeta.getSelectedNotes());
+    if (!pipelineClipboardDelegate.copySelected(
+        pipelineMeta, pipelineMeta.getSelectedTransforms(), pipelineMeta.getSelectedNotes())) {
+      return;
+    }
     pipelineTransformDelegate.delTransforms(pipelineMeta, pipelineMeta.getSelectedTransforms());
     notePadDelegate.deleteNotes(pipelineMeta, pipelineMeta.getSelectedNotes());
   }
