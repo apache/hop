@@ -24,10 +24,12 @@ import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -39,6 +41,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -51,6 +54,7 @@ public class EnterValueDialog extends Dialog {
   private CCombo wValueType;
 
   private Text wInputString;
+  private TextVar wInputStringVar;
 
   private CCombo wFormat;
 
@@ -69,12 +73,20 @@ public class EnterValueDialog extends Dialog {
   private Object valueData;
 
   private boolean modalDialog;
+  private final IVariables variables;
+  private String inputString;
 
   public EnterValueDialog(Shell parent, int style, IValueMeta value, Object data) {
+    this(parent, style, value, data, null);
+  }
+
+  public EnterValueDialog(
+      Shell parent, int style, IValueMeta value, Object data, IVariables variables) {
     super(parent, style);
     this.props = PropsUi.getInstance();
     this.valueMeta = value;
     this.valueData = data;
+    this.variables = variables;
   }
 
   public ValueMetaAndData open() {
@@ -129,13 +141,21 @@ public class EnterValueDialog extends Dialog {
     fdlInputString.right = new FormAttachment(middle, -margin);
     fdlInputString.top = new FormAttachment(wValueType, margin);
     wlInputString.setLayoutData(fdlInputString);
-    wInputString = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wInputString);
+    Control inputControl;
+    if (variables == null) {
+      wInputString = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      PropsUi.setLook(wInputString);
+      inputControl = wInputString;
+    } else {
+      wInputStringVar = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+      PropsUi.setLook(wInputStringVar);
+      inputControl = wInputStringVar;
+    }
     FormData fdInputString = new FormData();
     fdInputString.left = new FormAttachment(middle, 0);
     fdInputString.top = new FormAttachment(wValueType, margin);
     fdInputString.right = new FormAttachment(100, -margin);
-    wInputString.setLayoutData(fdInputString);
+    inputControl.setLayoutData(fdInputString);
 
     // Format mask
     Label wlFormat = new Label(shell, SWT.RIGHT);
@@ -144,14 +164,14 @@ public class EnterValueDialog extends Dialog {
     FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment(0, 0);
     fdlFormat.right = new FormAttachment(middle, -margin);
-    fdlFormat.top = new FormAttachment(wInputString, margin);
+    fdlFormat.top = new FormAttachment(inputControl, margin);
     wlFormat.setLayoutData(fdlFormat);
     wFormat = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFormat);
     FormData fdFormat = new FormData();
     fdFormat.left = new FormAttachment(middle, 0);
     fdFormat.right = new FormAttachment(100, -margin);
-    fdFormat.top = new FormAttachment(wInputString, margin);
+    fdFormat.top = new FormAttachment(inputControl, margin);
     wFormat.setLayoutData(fdFormat);
 
     // Length line
@@ -207,7 +227,7 @@ public class EnterValueDialog extends Dialog {
     // If the user changes data type or if we type a text, we set the default mask for the type
     // We also set the list of possible masks in the wFormat
     //
-    wInputString.addFocusListener(
+    addInputFocusListener(
         new FocusListener() {
           @Override
           public void focusGained(FocusEvent focusEvent) {
@@ -245,12 +265,12 @@ public class EnterValueDialog extends Dialog {
     int formatIndex = wFormat.getSelectionIndex();
     String formatString = formatIndex >= 0 ? wFormat.getItem(formatIndex) : "";
     int type = ValueMetaFactory.getIdForValueMeta(wValueType.getText());
-    String string = wInputString.getText();
+    String string = getInputText();
 
     // remove white spaces if not a string field
     if ((type != IValueMeta.TYPE_STRING) && (string.startsWith(" ") || string.endsWith(" "))) {
       string = Const.trim(string);
-      wInputString.setText(string);
+      setInputText(string);
     }
     switch (type) {
       case IValueMeta.TYPE_INTEGER:
@@ -307,11 +327,11 @@ public class EnterValueDialog extends Dialog {
       if (valueData != null) {
         String value = valueMeta.getString(valueData);
         if (value != null) {
-          wInputString.setText(value);
+          setInputText(value);
         }
       }
     } catch (HopValueException e) {
-      wInputString.setText(valueMeta.toString());
+      setInputText(valueMeta.toString());
     }
     setFormats();
 
@@ -334,8 +354,7 @@ public class EnterValueDialog extends Dialog {
 
     setFormats();
 
-    wInputString.setFocus();
-    wInputString.selectAll();
+    focusInput();
   }
 
   private void cancel() {
@@ -347,7 +366,8 @@ public class EnterValueDialog extends Dialog {
   private ValueMetaAndData getValue(String valuename) throws HopValueException {
     try {
       int valtype = ValueMetaFactory.getIdForValueMeta(wValueType.getText());
-      ValueMetaAndData val = new ValueMetaAndData(valuename, wInputString.getText());
+      String valueText = variables == null ? getInputText() : variables.resolve(getInputText());
+      ValueMetaAndData val = new ValueMetaAndData(valuename, valueText);
 
       IValueMeta valueMeta = ValueMetaFactory.cloneValueMeta(val.getValueMeta(), valtype);
       Object valueData = val.getValueData();
@@ -373,6 +393,7 @@ public class EnterValueDialog extends Dialog {
 
   private void ok() {
     try {
+      inputString = getInputText();
       valueMetaAndData = getValue(valueMeta.getName()); // Keep the same name...
       dispose();
     } catch (HopValueException e) {
@@ -396,6 +417,40 @@ public class EnterValueDialog extends Dialog {
       mb.open();
     } catch (HopValueException e) {
       new ErrorDialog(shell, "Error", "There was an error during data type conversion: ", e);
+    }
+  }
+
+  public String getInputString() {
+    return inputString;
+  }
+
+  private String getInputText() {
+    return wInputStringVar == null ? wInputString.getText() : wInputStringVar.getText();
+  }
+
+  private void setInputText(String text) {
+    if (wInputStringVar == null) {
+      wInputString.setText(text);
+    } else {
+      wInputStringVar.setText(text);
+    }
+  }
+
+  private void addInputFocusListener(FocusListener listener) {
+    if (wInputStringVar == null) {
+      wInputString.addFocusListener(listener);
+    } else {
+      wInputStringVar.addFocusListener(listener);
+    }
+  }
+
+  private void focusInput() {
+    if (wInputStringVar == null) {
+      wInputString.setFocus();
+      wInputString.selectAll();
+    } else {
+      wInputStringVar.setFocus();
+      wInputStringVar.selectAll();
     }
   }
 
