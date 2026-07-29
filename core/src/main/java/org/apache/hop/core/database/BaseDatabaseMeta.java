@@ -114,6 +114,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public static final String ID_PASSWORD_WIDGET = "password-widget";
 
   // Standard UI element IDs that can be excluded from database editors
+  public static final String ELEMENT_ID_HOSTNAME = "hostname";
+  public static final String ELEMENT_ID_PORT = "port";
   public static final String ELEMENT_ID_DATABASE_NAME = "databaseName";
   public static final String ELEMENT_ID_MANUAL_URL = "manualUrl";
   public static final String ELEMENT_ID_USERNAME = "username";
@@ -134,7 +136,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   @HopMetadataProperty
   @GuiWidgetElement(
-      id = "hostname",
+      id = ELEMENT_ID_HOSTNAME,
       order = "01",
       label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.ServerHostname",
       type = GuiElementType.TEXT,
@@ -144,7 +146,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   @HopMetadataProperty
   @GuiWidgetElement(
-      id = "port",
+      id = ELEMENT_ID_PORT,
       order = "02",
       label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.PortNumber",
       type = GuiElementType.TEXT,

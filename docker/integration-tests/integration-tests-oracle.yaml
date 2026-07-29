@@ -1,0 +1,86 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Oracle connection tests, including the TLS (TCPS) and wallet options.
+#
+# This project is opt-in (integration-tests/oracle/disabled.txt): the image is ~9.5GB unpacked and
+# creating the database takes minutes, which is far more than the rest of the suite costs. Run it
+# with run-tests-docker.sh PROJECT_NAME=oracle INCLUDE_DISABLED=true KEEP_IMAGES=true, see that
+# disabled.txt for why KEEP_IMAGES matters.
+#
+# The image comes from Oracle's container registry under the Oracle Free Use Terms and Conditions.
+# It pulls anonymously - no docker login and no license token - which is why the Free edition is
+# used here and not Enterprise. Nothing from it is redistributed: it is pulled at test time, the
+# same way the suite already uses the SQL Server, Neo4j Enterprise and Vertica images. The JDBC
+# driver is likewise downloaded on demand (HOP_DRIVERS_DOWNLOAD below), never bundled.
+services:
+  integration_test_oracle:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      oracle:
+        condition: service_healthy
+    links:
+      - oracle
+    environment:
+      - HOP_DRIVERS_DOWNLOAD=oracle
+      - ORACLE_HOST=oracle
+      - ORACLE_PORT=1521
+      - ORACLE_TCPS_PORT=2484
+      - ORACLE_SERVICE=FREEPDB1
+      - ORACLE_SID=FREE
+      - ORACLE_USER=hop
+      - ORACLE_PASSWORD=hop_password
+      # The client wallet the Oracle container generated, holding cwallet.sso plus a tnsnames.ora
+      # with a TCPS alias. Read-only: the tests must not be able to alter what they connect with.
+      - ORACLE_WALLET_DIR=/opt/oracle-data/clientWallet/FREE
+    volumes:
+      - oracle-data:/opt/oracle-data:ro
+
+  oracle:
+    image: container-registry.oracle.com/database/free:latest
+    # The certificate CN follows this name, and the tests keep server DN matching switched on, so
+    # it has to match the host the tests connect to.
+    hostname: oracle
+    environment:
+      - ORACLE_PWD=HopIntegrationTest_1
+      - TCPS_PORT=2484
+      - TCPS_HOSTNAME=oracle
+      - APP_USER=hop
+      - APP_USER_PASSWORD=hop_password
+    ports:
+      - "1521"
+      - "2484"
+    volumes:
+      # oradata is oracle-owned in the image, so the named volume inherits that ownership and the
+      # database can write to it. It is also where configTcps.sh puts the client wallet, which is
+      # how the wallet reaches the test container.
+      - oracle-data:/opt/oracle/oradata
+      - ./resource/oracle/oracle-entrypoint.sh:/opt/oracle/hop-entrypoint.sh:ro
+    command: [ "/bin/bash", "-c", "/opt/oracle/hop-entrypoint.sh" ]
+    healthcheck:
+      # Both conditions matter: the stock check only knows about the database, and the tests also
+      # need the wallet that the entrypoint writes afterwards.
+      test: [ "CMD-SHELL", "[ -f /opt/oracle/oradata/.hop-it-ready ] && \"$$ORACLE_BASE/$$CHECK_DB_FILE\" >/dev/null || exit 1" ]
+      interval: 20s
+      timeout: 15s
+      retries: 60
+      start_period: 300s
+
+volumes:
+  oracle-data:

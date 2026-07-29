@@ -107,7 +107,33 @@ public class DriverInstallCommand implements Callable<Integer> {
     boolean sameVersionInTarget =
         existing.stream()
             .anyMatch(p -> p.folder().equals(target) && p.version().equals(installVersion));
-    if (sameVersionInTarget && !force) {
+
+    // The driver alone is not enough when it needs companions: an install that stopped at the
+    // driver (or predates the companion being declared) leaves the driver looking present while
+    // the runtime still fails. Oracle wallets are the case in point - without oraclepki the
+    // connection dies with "SSO KeyStore not available".
+    //
+    boolean companionsMissing =
+        driver.getDownload().toCompanionCoordinates(installVersion).stream()
+            .anyMatch(
+                coordinate -> {
+                  String[] parts = coordinate.split(":");
+                  String companionArtifact = parts.length >= 2 ? parts[1] : null;
+                  return companionArtifact != null
+                      && DriverInstaller.findInstalled(companionArtifact).stream()
+                          .noneMatch(p -> p.folder().equals(target));
+                });
+    if (companionsMissing && sameVersionInTarget && !force) {
+      System.out.println(
+          driver.getName()
+              + " "
+              + installVersion
+              + " is installed in "
+              + target
+              + " but a companion artifact it needs is missing; installing that now.");
+    }
+
+    if (sameVersionInTarget && !companionsMissing && !force) {
       System.out.println(
           driver.getName() + " " + installVersion + " is already installed in " + target + ".");
       System.out.println("Use --force to download and re-install it.");
