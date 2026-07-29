@@ -216,6 +216,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the run configuration is set before the engine is prepared
   @Override
   public void prepareExecution() throws HopException {
     try {
@@ -552,6 +553,13 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     executionInfoLocation = location.clone();
     executionInfoClosed = false;
     IExecutionInfoLocation iLocation = executionInfoLocation.getExecutionInfoLocation();
+    if (iLocation == null) {
+      logChannel.logError(
+          "Execution information location '"
+              + locationName
+              + "' has no location plugin configured");
+      return;
+    }
     iLocation.initialize(this, metadataProvider);
     logChannel.logBasic(
         "Using execution information location '"

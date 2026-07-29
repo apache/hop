@@ -1877,6 +1877,7 @@ public class TableView extends Composite {
   }
 
   /** Variant for call sites that captured the editor and its holder before going asynchronous. */
+  @SuppressWarnings("javabugs:S2259") // the holder is created before it is deferred for disposal
   private void disposeInlineEditor(Control editorControl, Composite holder) {
     if (editorControl != null && !editorControl.isDisposed()) {
       editorControl.dispose();
@@ -2486,6 +2487,10 @@ public class TableView extends Composite {
     // Grab the strings on that line...
     String[] strfrom = getItemText(rowfrom);
     String[] strto = getItemText(rowto);
+    if (strfrom == null || strto == null) {
+      // One of the rows is already disposed, nothing to move
+      return;
+    }
 
     // Copy the content
     for (int i = 0; i < strfrom.length; i++) {

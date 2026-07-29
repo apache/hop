@@ -293,6 +293,7 @@ public class PluginRegistry {
    * @return The instantiated class
    * @throws HopPluginException In case there was a loading problem.
    */
+  @SuppressWarnings("javabugs:S2259") // callers always pass a registered plugin
   public Object loadClass(IPlugin plugin) throws HopPluginException {
     return loadClass(plugin, plugin.getMainType());
   }
@@ -800,6 +801,7 @@ public class PluginRegistry {
    * @return the name of the class
    * @throws HopPluginException In case there is something wrong
    */
+  @SuppressWarnings("javabugs:S2259") // callers always pass a registered plugin
   public <T> T getClass(IPlugin plugin, String className) throws HopPluginException {
     try {
       if (plugin.isNativePlugin()) {

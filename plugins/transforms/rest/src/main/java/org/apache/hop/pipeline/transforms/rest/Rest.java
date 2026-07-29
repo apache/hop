@@ -77,6 +77,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageHttpIoEmitter;
 import org.apache.hop.lineage.model.HttpDirection;
@@ -1105,8 +1106,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   }
 
   private DocumentBuilderFactory documentBuilderFactory() throws Exception {
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    DocumentBuilderFactory dbf = XmlParserFactoryProducer.createSecureDocBuilderFactory();
     dbf.setNamespaceAware(true);
     return dbf;
   }

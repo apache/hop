@@ -564,7 +564,7 @@ public class VerticaBulkLoaderMeta
                   transformMeta);
           remarks.add(cr);
         } finally {
-          db.disconnect();
+          db.close();
         }
       } else {
         CheckResult cr =
@@ -679,7 +679,7 @@ public class VerticaBulkLoaderMeta
                 BaseMessages.getString(
                     PKG, "VerticaBulkLoaderMeta.Error.ErrorConnecting", dbe.getMessage()));
           } finally {
-            db.disconnect();
+            db.close();
           }
         } else {
           retval.setError(BaseMessages.getString(PKG, "VerticaBulkLoaderMeta.Error.NoTable"));
@@ -727,7 +727,7 @@ public class VerticaBulkLoaderMeta
         throw new HopException(
             BaseMessages.getString(PKG, "VerticaBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(

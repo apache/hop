@@ -550,7 +550,7 @@ public class TableInputDialog extends BaseTransformDialog {
                       + e.getMessage());
               mb.open();
             } finally {
-              db.disconnect();
+              db.close();
             }
             break;
           default:

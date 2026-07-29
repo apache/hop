@@ -2881,6 +2881,7 @@ public abstract class Pipeline
    *
    * @return the logging hierarchy
    */
+  @SuppressWarnings("javabugs:S2259") // the log channel id is never null here
   public List<LoggingHierarchy> getLoggingHierarchy() {
     List<LoggingHierarchy> hierarchy = new ArrayList<>();
     List<String> childIds = LoggingRegistry.getInstance().getLogChannelChildren(getLogChannelId());

@@ -472,45 +472,45 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
   }
 
   private RunReportResponse getReportResponse() {
-    BetaAnalyticsDataClient analyticsData = null;
-    try {
-      InputStream inputStream = new FileInputStream(keyFilename.getText());
+    try (InputStream inputStream = new FileInputStream(keyFilename.getText())) {
       Credentials credentials = ServiceAccountCredentials.fromStream(inputStream);
 
       BetaAnalyticsDataSettings settings =
           BetaAnalyticsDataSettings.newHttpJsonBuilder()
               .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
               .build();
-      analyticsData = BetaAnalyticsDataClient.create(settings);
+
+      try (BetaAnalyticsDataClient analyticsData = BetaAnalyticsDataClient.create(settings)) {
+        List<Dimension> dimensionList = new ArrayList<>();
+        String dimensionString = wQuDimensions.getText();
+        for (String dimension : dimensionString.split(",")) {
+          dimensionList.add(Dimension.newBuilder().setName(dimension).build());
+        }
+        List<Metric> metricList = new ArrayList<>();
+        String metricsString = wQuMetrics.getText();
+        for (String metric : metricsString.split(",")) {
+          metricList.add(Metric.newBuilder().setName(metric).build());
+        }
+        RunReportRequest request =
+            RunReportRequest.newBuilder()
+                .setProperty("properties/" + wGaPropertyId.getText())
+                .addAllDimensions(dimensionList)
+                .addAllMetrics(metricList)
+                .addDateRanges(
+                    DateRange.newBuilder()
+                        .setStartDate(wQuStartDate.getText())
+                        .setEndDate(wQuEndDate.getText()))
+                .build();
+        return analyticsData.runReport(request);
+      }
     } catch (IOException e) {
       new ErrorDialog(
           shell,
           "Error creating connection",
           "Error reading key file or creating Google Analytics connection",
           e);
+      return null;
     }
-
-    List<Dimension> dimensionList = new ArrayList<>();
-    String dimensionString = wQuDimensions.getText();
-    for (String dimension : dimensionString.split(",")) {
-      dimensionList.add(Dimension.newBuilder().setName(dimension).build());
-    }
-    List<Metric> metricList = new ArrayList<>();
-    String metricsString = wQuMetrics.getText();
-    for (String metric : metricsString.split(",")) {
-      metricList.add(Metric.newBuilder().setName(metric).build());
-    }
-    RunReportRequest request =
-        RunReportRequest.newBuilder()
-            .setProperty("properties/" + wGaPropertyId.getText())
-            .addAllDimensions(dimensionList)
-            .addAllMetrics(metricList)
-            .addDateRanges(
-                DateRange.newBuilder()
-                    .setStartDate(wQuStartDate.getText())
-                    .setEndDate(wQuEndDate.getText()))
-            .build();
-    return analyticsData.runReport(request);
   }
 
   // Visible for testing
@@ -519,8 +519,10 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     getTableView().removeAll();
 
     RunReportResponse response = getReportResponse();
-    List<DimensionHeader> dimensionHeaders = response.getDimensionHeadersList();
-    List<MetricHeader> metricHeaders = response.getMetricHeadersList();
+    List<DimensionHeader> dimensionHeaders =
+        response == null ? List.of() : response.getDimensionHeadersList();
+    List<MetricHeader> metricHeaders =
+        response == null ? List.of() : response.getMetricHeadersList();
 
     if (response == null || dimensionHeaders.isEmpty() || metricHeaders.isEmpty()) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);

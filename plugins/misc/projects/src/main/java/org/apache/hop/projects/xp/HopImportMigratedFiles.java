@@ -64,6 +64,9 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      throw new HopException("Unable to find project '" + projectName + "'");
+    }
     String projectHome = HopVfs.getFileObject(projectConfig.getProjectHome()).getName().getURI();
 
     try {

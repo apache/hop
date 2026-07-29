@@ -38,6 +38,8 @@ import org.apache.hop.neo4j.shared.NeoConnection;
     extensionPointId = "HopEnvironmentAfterInit",
     description = "Register the Neo4j metadata plugin classes")
 public class RegisterMetadataObjectsExtensionPoint implements IExtensionPoint<PluginRegistry> {
+  @SuppressWarnings(
+      "javabugs:S2259") // this extension point is only invoked when its own plugin is registered
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, PluginRegistry pluginRegistry) throws HopException {

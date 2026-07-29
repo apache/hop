@@ -212,6 +212,8 @@ public class TransformPartitioningMeta implements Cloneable {
     return methodCodes[methodType];
   }
 
+  @SuppressWarnings(
+      "javabugs:S2259") // a partitioner is set whenever the method is PARTITIONING_METHOD_SPECIAL
   public String getMethodDescription() {
     if (methodType != PARTITIONING_METHOD_SPECIAL) {
       return methodDescriptions[methodType];

@@ -561,7 +561,6 @@ public class GPG {
    */
   private void createTempFile(String content) throws HopException {
     this.tmpFile = null;
-    FileWriter fw;
 
     try {
       this.tmpFile = File.createTempFile("GnuPG", null);
@@ -572,11 +571,9 @@ public class GPG {
       throw new HopException(BaseMessages.getString(PKG, "GPG.ErrorCreatingTempFile"), e);
     }
 
-    try {
-      fw = new FileWriter(this.tmpFile);
+    try (FileWriter fw = new FileWriter(this.tmpFile)) {
       fw.write(content);
       fw.flush();
-      fw.close();
     } catch (Exception e) {
       // delete our file:
       deleteTempFile();

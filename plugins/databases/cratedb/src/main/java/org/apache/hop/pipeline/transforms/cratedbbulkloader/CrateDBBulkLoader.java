@@ -167,31 +167,31 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
           } else {
             String copyStmt = buildCopyStatementSqlString();
             Connection conn = data.db.getConnection();
-            Statement stmt = conn.createStatement();
-            final ResultSet resultSet = stmt.executeQuery(copyStmt);
             int errorCount = 0;
-            while (resultSet.next()) {
-              String node = resultSet.getString("node");
-              String uri = resultSet.getString("uri");
-              int successCount = resultSet.getInt("success_count");
-              errorCount = resultSet.getInt("error_count");
-              String errors = resultSet.getString("errors");
-              logError(
-                  "Node: "
-                      + node
-                      + " URI: "
-                      + uri
-                      + " Success Count: "
-                      + successCount
-                      + " Error Count: "
-                      + errorCount
-                      + " Errors: "
-                      + errors);
-              incrementLinesOutput(successCount);
-              incrementLinesRejected(errorCount);
+            try (Statement stmt = conn.createStatement();
+                ResultSet resultSet = stmt.executeQuery(copyStmt)) {
+              while (resultSet.next()) {
+                String node = resultSet.getString("node");
+                String uri = resultSet.getString("uri");
+                int successCount = resultSet.getInt("success_count");
+                errorCount = resultSet.getInt("error_count");
+                String errors = resultSet.getString("errors");
+                logError(
+                    "Node: "
+                        + node
+                        + " URI: "
+                        + uri
+                        + " Success Count: "
+                        + successCount
+                        + " Error Count: "
+                        + errorCount
+                        + " Errors: "
+                        + errors);
+                incrementLinesOutput(successCount);
+                incrementLinesRejected(errorCount);
+              }
+              conn.commit();
             }
-            conn.commit();
-            stmt.close();
             conn.close();
             if (errorCount > 0) {
               throw new HopException(

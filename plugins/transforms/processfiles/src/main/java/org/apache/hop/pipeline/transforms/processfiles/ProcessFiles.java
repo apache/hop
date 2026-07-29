@@ -438,6 +438,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the source file is resolved before the operation runs
   private void processDeleteOperation(String sourceFilename) throws Exception {
     if (meta.simulate) {
       if (isDetailed()) {

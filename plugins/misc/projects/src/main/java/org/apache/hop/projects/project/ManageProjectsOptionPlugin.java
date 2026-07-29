@@ -456,6 +456,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       IHasHopMetadataProvider hasHopMetadataProvider)
       throws HopException {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      throw new HopException("Unable to find project '" + projectName + "'");
+    }
     Project project = projectConfig.loadProject(variables);
     ProjectsUtil.enableProject(
         log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
@@ -482,6 +485,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       IHasHopMetadataProvider hasHopMetadataProvider)
       throws HopException {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      throw new HopException("Unable to find project '" + projectName + "'");
+    }
     Project project = projectConfig.loadProject(variables);
     ProjectsUtil.enableProject(
         log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);
@@ -522,6 +528,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
           IllegalAccessException,
           IOException {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      throw new HopException("Unable to find project '" + projectName + "'");
+    }
     Project project = projectConfig.loadProject(variables);
     ProjectsUtil.enableProject(
         log, projectName, project, variables, new ArrayList<>(), null, hasHopMetadataProvider);

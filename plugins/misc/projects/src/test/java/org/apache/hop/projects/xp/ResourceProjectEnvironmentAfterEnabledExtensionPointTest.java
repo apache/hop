@@ -23,10 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import org.apache.hop.core.AttributesContext;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.resources.ResourceAttributes;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ResourceProjectEnvironmentAfterEnabledExtensionPointTest {
@@ -34,6 +37,31 @@ class ResourceProjectEnvironmentAfterEnabledExtensionPointTest {
   private final ResourceProjectEnvironmentAfterEnabledExtensionPoint xp =
       new ResourceProjectEnvironmentAfterEnabledExtensionPoint();
   private final ILogChannel log = mock(ILogChannel.class);
+
+  private String platformRuntime;
+
+  /**
+   * The warn path reports through a modal dialog when it believes it is running in the GUI, and
+   * {@link Const#getHopPlatformRuntime()} reads a system property that the {@code HopGui}
+   * constructor sets and nobody clears. A UI test earlier in this JVM (surefire reuses one fork per
+   * module) therefore leaves every later test looking like the GUI, and {@code MessageBox.open()}
+   * blocks on its own event loop until somebody clicks OK. The dialog is not what these tests are
+   * about, so pin the runtime for the duration.
+   */
+  @BeforeEach
+  void hideTheRuntimeFromLeakedGuiState() {
+    platformRuntime = System.getProperty(Const.HOP_PLATFORM_RUNTIME);
+    System.clearProperty(Const.HOP_PLATFORM_RUNTIME);
+  }
+
+  @AfterEach
+  void restorePlatformRuntime() {
+    if (platformRuntime == null) {
+      System.clearProperty(Const.HOP_PLATFORM_RUNTIME);
+    } else {
+      System.setProperty(Const.HOP_PLATFORM_RUNTIME, platformRuntime);
+    }
+  }
 
   @Test
   void offSkipsCheckEvenWithImpossibleThresholds() {

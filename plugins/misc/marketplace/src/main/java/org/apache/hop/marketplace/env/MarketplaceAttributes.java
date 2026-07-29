@@ -58,6 +58,7 @@ public final class MarketplaceAttributes {
    * marketplace plugin is present. Purpose-based suggestions are only for the UI via {@link
    * #defaultOnEnableForPurpose(String)}.
    */
+  @SuppressWarnings("javabugs:S2259") // guarded by StringUtils.isNotBlank
   public static String resolveOnEnable(IAttributes attributes, String purpose) {
     String explicit = attributes != null ? attributes.getAttribute(GROUP, KEY_ON_ENABLE) : null;
     if (StringUtils.isNotBlank(explicit)) {

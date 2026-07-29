@@ -341,7 +341,9 @@ public class ExecSqlRowMeta extends BaseTransformMeta<ExecSqlRow, ExecSqlRowData
               transformMeta);
       remarks.add(cr);
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.close();
+      }
     }
 
     if (input.length > 0) {

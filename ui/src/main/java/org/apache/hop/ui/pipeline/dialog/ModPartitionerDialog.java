@@ -171,7 +171,7 @@ public class ModPartitionerDialog extends BaseTransformDialog {
   private void setShellImage(Shell shell) {
     IPlugin plugin =
         PluginRegistry.getInstance().getPlugin(PartitionerPluginType.class, partitioner.getId());
-    if (!Utils.isEmpty(plugin.getDocumentationUrl())) {
+    if (plugin != null && !Utils.isEmpty(plugin.getDocumentationUrl())) {
       HelpUtils.createHelpButton(shell, plugin);
     }
 

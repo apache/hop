@@ -348,7 +348,7 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
                 transformMeta);
         remarks.add(cr);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       cr =

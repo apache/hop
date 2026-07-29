@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hc.core5.http.ContentType;
@@ -40,9 +41,16 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.owasp.encoder.Encode;
 
 public class BaseHttpServlet extends HttpServlet {
   @Serial protected static final long serialVersionUID = -1348342810327662788L;
+
+  /**
+   * A deployment root prefix is a plain URL path: a servlet container context path and/or a reverse
+   * proxy prefix. Anything else in the request URI is not ours to reflect back.
+   */
+  private static final Pattern SAFE_ROOT_PATH = Pattern.compile("[\\w/.~-]*");
 
   @Setter @Getter protected PipelineMap pipelineMap;
 
@@ -74,6 +82,10 @@ public class BaseHttpServlet extends HttpServlet {
    * (served on the root Jetty context) and the Hop Web war (unpacked to the war root), so this
    * resolves correctly in every deployment - including behind a reverse proxy - without a
    * Jetty-vs-servlet-container branch.
+   *
+   * <p>The prefix is taken from the (client controlled) request URI, so anything that is not a
+   * plain path is dropped and the result is HTML encoded: the return value is meant to be written
+   * into an HTML attribute and must never be able to break out of it.
    */
   protected String getStaticPath(HttpServletRequest request, String contextPath) {
     String requestUri = request.getRequestURI();
@@ -84,7 +96,10 @@ public class BaseHttpServlet extends HttpServlet {
         root = requestUri.substring(0, index);
       }
     }
-    return root + StatusServletUtils.STATIC_PATH;
+    if (!SAFE_ROOT_PATH.matcher(root).matches()) {
+      root = "";
+    }
+    return Encode.forHtml(root + StatusServletUtils.STATIC_PATH);
   }
 
   public BaseHttpServlet() {}

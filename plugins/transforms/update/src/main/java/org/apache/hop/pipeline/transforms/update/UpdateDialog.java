@@ -1039,7 +1039,7 @@ public class UpdateDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "UpdateDialog.ErrorGettingSchemas"),
             e);
       } finally {
-        database.disconnect();
+        database.close();
       }
     }
   }

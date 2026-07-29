@@ -638,7 +638,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
                       + e.getMessage());
               mb.open();
             } finally {
-              db.disconnect();
+              db.close();
             }
             break;
           default:

@@ -420,6 +420,7 @@ public class ActionMysqlBulkLoad extends ActionBase {
     return returnString;
   }
 
+  @SuppressWarnings("javabugs:S2259") // the reference is only built for a resolved connection
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {

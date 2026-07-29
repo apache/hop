@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.eclipse.swt.SWT;
@@ -50,6 +51,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.mockito.Mockito;
 
 /**
  * Anything in Hop that carries an id can be switched off with an {@code <exclusion>} for that id in
@@ -76,11 +78,13 @@ import org.junit.jupiter.api.TestFactory;
  * plugins are disabled by simply not being registered and are never looked up by id, so there is
  * nothing to break.
  *
- * <p>A container that cannot be built at all in a test JVM (no public no-arg constructor, class not
- * on the classpath, a widget that needs a live back end, ...) is <em>skipped, with the reason</em>
- * rather than failed: each is first built with nothing disabled, and only if that baseline works do
- * the disable cases have to hold. That keeps a failure here meaning one thing - disabling this
- * element broke something.
+ * <p>A container that cannot be built at all in a test JVM (class not on the classpath, a widget
+ * that needs a live back end, ...) is <em>skipped, with the reason</em> rather than failed: each is
+ * first built with nothing disabled, and only if that baseline works do the disable cases have to
+ * hold. That keeps a failure here meaning one thing - disabling this element broke something. A gui
+ * plugin object that merely has no no-arg constructor is not such a case for a toolbar, which
+ * stands it in with a mock rather than give up on the toolbar - see {@link
+ * #toolbarSourceObject(String)}.
  */
 public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
 
@@ -311,12 +315,11 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
   /**
    * Builds the toolbar the way a perspective or dialog does, minus the disabled item.
    *
-   * <p>The owning object is registered first, exactly as the application does it. That object is
-   * not decoration: Hop looks the gui plugin class up for every item, and a combo item asks it for
-   * its values ({@code getZoomLevels()} and friends). So a toolbar whose owner is a live UI object
-   * that cannot be constructed in a test JVM - HopGuiPipelineGraph, TableView, the execution
-   * viewers - cannot be built the way the application builds it, and is skipped with that as the
-   * reason rather than built half-way while Hop logs an error per item.
+   * <p>The objects the toolbar calls back into are registered first, exactly as the application
+   * does it. They are not decoration: Hop looks the gui plugin class up for every item, and a combo
+   * item asks it for its values ({@code getZoomLevels()} and friends). All of them have to be
+   * resolvable here, not only the owner - items can be contributed to a root by more than one
+   * class.
    */
   private void buildToolbar(String owner, String root, String disabledItemId) {
     ensureDisplay();
@@ -326,29 +329,79 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
 
     Shell shell = new Shell(display);
     shell.setLayout(new FormLayout());
+    GuiToolbarWidgets widgets = new GuiToolbarWidgets();
     try {
       if (disabled != null) {
         items.remove(disabledItemId);
       }
 
-      // Hop resolves the gui plugin class of every item that is left on the toolbar - to ask it for
-      // an image, for its combo values - so all of them have to be constructible here, not only the
-      // owner. Items can be contributed to a root by more than one class.
+      // The owner, the way a perspective or dialog registers itself before it builds its toolbar.
+      // Under its declared name, not the object's own: a stand-in below is a subclass.
+      //
+      widgets.registerGuiPluginObject(owner, toolbarSourceObject(owner));
+
+      // The classes that only contribute an item are resolved per item, and Hop constructs and
+      // caches those itself. Pre-registering them is what keeps that from happening for a class
+      // that has no no-arg constructor.
       //
       for (GuiToolbarItem item : items.values()) {
-        newSourceObject(item.getListenerClass());
+        registerToolbarObject(widgets, item.getListenerClass());
       }
 
       IToolbarContainer container =
           ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-      GuiToolbarWidgets widgets = new GuiToolbarWidgets();
-      widgets.registerGuiPluginObject(newSourceObject(owner));
       widgets.createToolbarWidgets(container, root);
     } finally {
       if (disabled != null) {
         items.put(disabledItemId, disabled);
       }
+      // Drops every object registered above: the registry is a singleton shared with every other
+      // case.
+      //
+      widgets.dispose();
       disposeQuietly(shell);
+    }
+  }
+
+  /**
+   * Registers the object Hop hands to this toolbar's callbacks for {@code className}, under that
+   * class's own name and this toolbar's instance id - which is exactly where {@code
+   * BaseGuiWidgets.findGuiPluginInstance} looks before it falls back to constructing one itself.
+   */
+  private void registerToolbarObject(GuiToolbarWidgets widgets, String className) {
+    GuiRegistry.getInstance()
+        .registerGuiPluginObject(
+            HopGui.getInstance().getId(),
+            className,
+            widgets.getInstanceId(),
+            toolbarSourceObject(className));
+  }
+
+  /**
+   * The object the toolbar callbacks get for {@code className}: the real thing where that can be
+   * had, a mock of the same class where it cannot.
+   *
+   * <p>The live UI objects that own Hop's busiest toolbars - HopGuiPipelineGraph,
+   * HopGuiWorkflowGraph, TableView, the execution viewers, the log and grid delegates - take a
+   * parent composite and a running HopGui in their constructors and cannot be built in a test JVM.
+   * Standing in for them is what makes their toolbars testable at all; the alternative is to skip
+   * them, which asserts nothing about the several dozen items that sit on them.
+   *
+   * <p>The stand-in is only as good as it needs to be for the question this harness asks - does
+   * removing an item break the build of the toolbar around it. Hop resolves the instance to ask it
+   * for combo values and to pass it to the static image and filter callbacks, and a mock answers
+   * those with empty defaults instead of real ones. Anything that depends on the real values of
+   * those callbacks is out of scope here and belongs in a test of that toolbar itself.
+   */
+  private Object toolbarSourceObject(String className) {
+    // Not on this module's classpath is still a genuine "cannot build this at all", and travels on
+    // as one.
+    //
+    Class<?> sourceClass = loadSourceClass(className);
+    try {
+      return newSourceObject(sourceClass);
+    } catch (CompositeBuildException e) {
+      return Mockito.mock(sourceClass);
     }
   }
 
@@ -385,9 +438,20 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
   }
 
   private Object newSourceObject(String className) {
-    try {
-      Class<?> sourceClass = Class.forName(className, true, getClass().getClassLoader());
+    return newSourceObject(loadSourceClass(className));
+  }
 
+  /** The class itself, or a {@link CompositeBuildException} when it is not on this classpath. */
+  private Class<?> loadSourceClass(String className) {
+    try {
+      return Class.forName(className, true, getClass().getClassLoader());
+    } catch (ReflectiveOperationException e) {
+      throw new CompositeBuildException(e);
+    }
+  }
+
+  private Object newSourceObject(Class<?> sourceClass) {
+    try {
       // The config plugins hand out an instance filled in from the configuration, and that is the
       // one the config dialog builds its widgets around. A bare constructor would leave their
       // Boolean fields null, and the composite blows up on unboxing before we get to test anything.
@@ -405,8 +469,8 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
       }
       return sourceClass.getConstructor().newInstance();
     } catch (ReflectiveOperationException e) {
-      // No usable constructor, or the class is not on this module's classpath. The baseline build
-      // hits this first, so the composite ends up skipped rather than failed.
+      // No usable constructor. For a composite the baseline build hits this first, so it ends up
+      // skipped rather than failed; a toolbar stands the object in with a mock instead.
       //
       throw new CompositeBuildException(e);
     }

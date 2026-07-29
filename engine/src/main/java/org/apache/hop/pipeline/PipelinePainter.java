@@ -1054,6 +1054,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return new Point(xpos, ypos);
   }
 
+  @SuppressWarnings("javabugs:S2259") // drawHop() only calls this with both transforms set
   private void drawLine(
       TransformMeta from, TransformMeta to, PipelineHopMeta hop, boolean isCandidate)
       throws HopException {

@@ -705,7 +705,7 @@ public class RedshiftBulkLoaderMeta
                   transformMeta);
           remarks.add(cr);
         } finally {
-          db.disconnect();
+          db.close();
         }
       } else {
         CheckResult cr =
@@ -820,7 +820,7 @@ public class RedshiftBulkLoaderMeta
                 BaseMessages.getString(
                     PKG, "RedshiftBulkLoaderMeta.Error.ErrorConnecting", dbe.getMessage()));
           } finally {
-            db.disconnect();
+            db.close();
           }
         } else {
           retval.setError(BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Error.NoTable"));
@@ -868,7 +868,7 @@ public class RedshiftBulkLoaderMeta
         throw new HopException(
             BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(

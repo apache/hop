@@ -181,6 +181,8 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     jobs.incrementAndGet();
   }
 
+  @SuppressWarnings(
+      "javabugs:S2259") // the probabilities come from the map's own keys and are never null
   private void cacheIndexPositions() throws HopException {
     if (data.indexOfCorpusField < 0) {
       data.indexOfCorpusField = data.previousRowMeta.indexOfValue(meta.getCorpusField());
@@ -212,6 +214,8 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     }
   }
 
+  @SuppressWarnings(
+      "javabugs:S2259") // the probabilities come from the map's own keys and are never null
   private void processSync(String corpus, Object[] inputRow) throws HopTransformException {
     SortedMap<Language, Double> confidenceValues = detector.computeLanguageConfidenceValues(corpus);
     Language detectedLanguage = UNKNOWN;

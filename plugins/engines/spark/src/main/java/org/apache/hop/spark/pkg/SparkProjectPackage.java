@@ -236,6 +236,7 @@ public final class SparkProjectPackage {
    *       URI
    * </ol>
    */
+  @SuppressWarnings("javabugs:S2259") // guarded by StringUtils.isNotEmpty
   public static java.util.List<String> listPackagePathsForMaterialize(IVariables variables) {
     java.util.LinkedHashSet<String> ordered = new java.util.LinkedHashSet<>();
     if (variables == null) {
@@ -442,6 +443,7 @@ public final class SparkProjectPackage {
    * java.io.tmpdir}. Returning {@code /Volumes/…} directly looks like a local file on the driver
    * ({@link File#isFile()} is true) but {@code addFile} of that path fails on Databricks executors.
    */
+  @SuppressWarnings("javabugs:S2259") // the URI is resolved and non-null at this point
   public static String ensureLocalPackageFile(String packageUri) throws HopException {
     if (StringUtils.isEmpty(packageUri)) {
       throw new HopException("Spark project package URI is empty");

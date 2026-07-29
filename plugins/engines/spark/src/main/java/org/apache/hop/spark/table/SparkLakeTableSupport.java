@@ -109,6 +109,7 @@ public final class SparkLakeTableSupport {
    * Spark SQL multi-part identifier for an Iceberg path-based table under the hop path catalog:
    * {@code hop_iceberg.`file:///path/to/table`}.
    */
+  @SuppressWarnings("javabugs:S2259") // toTableLocationUri() never returns null for a resolved path
   public static String icebergPathSqlIdentifier(String path) {
     String uri = toTableLocationUri(path);
     // Escape any backticks in the URI (unlikely) by doubling them for Spark SQL quoting

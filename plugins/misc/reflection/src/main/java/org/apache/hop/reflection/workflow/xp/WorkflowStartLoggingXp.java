@@ -46,6 +46,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     extensionPointId = "WorkflowStart",
     description = "At the start of a workflow, handle any Workflow Log metadata objects")
 public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
+  @SuppressWarnings("javabugs:S2259") // a running workflow always has a metadata provider
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)

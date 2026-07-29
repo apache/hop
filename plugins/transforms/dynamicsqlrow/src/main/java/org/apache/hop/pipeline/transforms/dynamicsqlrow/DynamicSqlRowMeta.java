@@ -187,10 +187,11 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
           v.setOrigin(name);
         }
         row.addRowMeta(add);
-        db.disconnect();
       } catch (HopDatabaseException dbe) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "DynamicSQLRowMeta.Exception.ErrorObtainingFields"), dbe);
+      } finally {
+        db.close();
       }
     }
   }

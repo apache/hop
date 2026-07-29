@@ -433,6 +433,7 @@ public class TransformMeta
         .copy(this);
   }
 
+  @SuppressWarnings("javabugs:S2259") // the copy factory only returns null for a null source
   public synchronized void replaceMeta(TransformMeta transformMeta) {
     // Use the copy factory to replace metadata with proper state preservation
     TransformMeta copy =

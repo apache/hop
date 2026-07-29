@@ -464,6 +464,7 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
     return new int[] {x1, y1, x2, y2};
   }
 
+  @SuppressWarnings("javabugs:S2259") // callers pass a line from getLine() with non-null endpoints
   protected void drawArrow(EImage arrow, int[] line, H hop, Object startObject, Object endObject)
       throws HopException {
     Point screenFrom = real2screen(line[0], line[1]);

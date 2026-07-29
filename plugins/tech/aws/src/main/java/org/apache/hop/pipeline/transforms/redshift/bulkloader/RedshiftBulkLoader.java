@@ -114,10 +114,10 @@ public class RedshiftBulkLoader
           closeFile();
           String copyStmt = buildCopyStatementSqlString();
           Connection conn = data.db.getConnection();
-          Statement stmt = conn.createStatement();
-          stmt.executeUpdate(copyStmt);
-          conn.commit();
-          stmt.close();
+          try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(copyStmt);
+            conn.commit();
+          }
           conn.close();
         } catch (SQLException sqle) {
           setErrors(1);
