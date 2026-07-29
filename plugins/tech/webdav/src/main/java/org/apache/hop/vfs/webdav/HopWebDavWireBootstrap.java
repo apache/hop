@@ -50,6 +50,7 @@ final class HopWebDavWireBootstrap {
 
   /** Subclass to access {@link Webdav4FileProvider} protected HTTP factory methods. */
   private static final class HttpWire extends Webdav4FileProvider {
+    @SuppressWarnings("java:S2095") // the provider is only used to reach protected factory methods
     static Webdav4FileSystem create(
         GenericFileName wireRoot,
         FileSystemOptions opts,
@@ -64,6 +65,7 @@ final class HopWebDavWireBootstrap {
   }
 
   private static final class HttpsWire extends Webdav4sFileProvider {
+    @SuppressWarnings("java:S2095") // the provider is only used to reach protected factory methods
     static Webdav4FileSystem create(
         GenericFileName wireRoot,
         FileSystemOptions opts,

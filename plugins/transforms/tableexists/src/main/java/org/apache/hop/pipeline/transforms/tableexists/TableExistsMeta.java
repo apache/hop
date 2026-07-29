@@ -224,7 +224,9 @@ public class TableExistsMeta extends BaseTransformMeta<TableExists, TableExistsD
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } finally {
-      database.disconnect();
+      if (database != null) {
+        database.close();
+      }
     }
   }
 

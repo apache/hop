@@ -221,6 +221,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
    * @return The default run configuration or null if none is specified.
    * @throws HopException
    */
+  @SuppressWarnings("javabugs:S2259") // a metadata provider is always set up before this is called
   public static final PipelineRunConfiguration findDefault(IHopMetadataProvider metadataProvider)
       throws HopException {
     for (PipelineRunConfiguration runConfiguration :

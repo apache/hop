@@ -322,10 +322,11 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
           v.setOrigin(name);
         }
         row.addRowMeta(add);
-        db.disconnect();
       } catch (HopDatabaseException dbe) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.ErrorObtainingFields"), dbe);
+      } finally {
+        db.close();
       }
     }
   }
@@ -461,7 +462,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       errorMessage = BaseMessages.getString(PKG, "DatabaseJoinMeta.CheckResult.InvalidConnection");
@@ -520,7 +521,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
             BaseMessages.getString(PKG, "DatabaseJoinMeta.Log.DatabaseErrorOccurred")
                 + dbe.getMessage());
       } finally {
-        db.disconnect();
+        db.close();
       }
     }
     return fields;

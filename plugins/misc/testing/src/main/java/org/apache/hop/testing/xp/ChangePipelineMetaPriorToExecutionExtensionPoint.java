@@ -44,6 +44,7 @@ import org.apache.hop.testing.util.DataSetConst;
 public class ChangePipelineMetaPriorToExecutionExtensionPoint
     implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
+  @SuppressWarnings("javabugs:S2259") // a running pipeline always has a metadata provider
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline)

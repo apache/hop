@@ -58,6 +58,7 @@ public class OraBulkDataOutput {
     this.recTerm = recTerm;
   }
 
+  @SuppressWarnings("java:S2095") // the stream is owned by this class and closed in close()
   public void open(IVariables variables, Process sqlldrProcess) throws HopException {
     String loadMethod = meta.getLoadMethod();
     try {

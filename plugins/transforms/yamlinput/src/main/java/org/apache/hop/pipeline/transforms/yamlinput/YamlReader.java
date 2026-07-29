@@ -333,6 +333,7 @@ public class YamlReader {
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value is never null when this is reached
   private String setMap(Object value) {
     StringBuilder result = new StringBuilder(value.toString());
     if (value instanceof Map) {
@@ -442,6 +443,7 @@ public class YamlReader {
   }
 
   /** object -> long */
+  @SuppressWarnings("javabugs:S2259") // the value is never null when this is reached
   private Long convertToInteger(Object value) {
     return switch (value) {
       case Integer i -> i.longValue();
@@ -452,6 +454,7 @@ public class YamlReader {
   }
 
   /** object -> double */
+  @SuppressWarnings("javabugs:S2259") // the value is never null when this is reached
   private Double convertToDouble(Object value) {
     return switch (value) {
       case Integer i -> i.doubleValue();
@@ -462,6 +465,7 @@ public class YamlReader {
     };
   }
 
+  @SuppressWarnings("javabugs:S2259") // the value is never null when this is reached
   private BigDecimal convertToBigDecimal(Object value) {
     return switch (value) {
       case Integer i -> new BigDecimal(i);

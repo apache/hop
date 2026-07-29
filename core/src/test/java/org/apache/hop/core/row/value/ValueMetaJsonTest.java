@@ -150,6 +150,35 @@ class ValueMetaJsonTest {
   }
 
   @Test
+  void testJsonCompareWithAbsentValues() throws Exception {
+    ValueMetaJson vm = new ValueMetaJson("j");
+
+    // A Java null and a JSON null classify as the same kind, so they compare equal
+    assertEquals(0, vm.typeCompare(null, null));
+    assertEquals(0, vm.typeCompare(null, NullNode.getInstance()));
+    assertEquals(0, vm.typeCompare(NullNode.getInstance(), null));
+
+    // ... but an absent value still sorts before any real content
+    assertTrue(vm.typeCompare(null, TextNode.valueOf("a")) < 0);
+    assertTrue(vm.typeCompare(TextNode.valueOf("a"), null) > 0);
+  }
+
+  @Test
+  void testJsonCompareWithNullIndexEntry() throws Exception {
+    // Indexed storage hands the comparator a null node when the dictionary entry is null: the
+    // index itself is non-null, so the null checks in ValueMetaBase.compare() do not catch it.
+    ValueMetaJson idx = new ValueMetaJson("j");
+    idx.setStorageType(IValueMeta.STORAGE_TYPE_INDEXED);
+    idx.setIndex(new Object[] {null, NullNode.getInstance(), TextNode.valueOf("a")});
+
+    assertEquals(0, idx.typeCompare(0, 0));
+    assertEquals(0, idx.typeCompare(0, 1));
+    assertEquals(0, idx.typeCompare(1, 0));
+    assertTrue(idx.typeCompare(0, 2) < 0);
+    assertTrue(idx.typeCompare(2, 0) > 0);
+  }
+
+  @Test
   void testBinaryCompare() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
     JsonNode a = BinaryNode.valueOf(new byte[] {(byte) 0xFF}); // 255

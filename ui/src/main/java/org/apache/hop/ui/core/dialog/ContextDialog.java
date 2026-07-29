@@ -1110,6 +1110,9 @@ public class ContextDialog extends Dialog {
   }
 
   private void updateToolbar() {
+    if (toolBarWidgets == null) {
+      return;
+    }
     Button categoriesCheckBox = getCategoriesCheckBox();
     boolean categoriesEnabled = categoriesCheckBox != null && categoriesCheckBox.getSelection();
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_COLLAPSE_ALL, categoriesEnabled);

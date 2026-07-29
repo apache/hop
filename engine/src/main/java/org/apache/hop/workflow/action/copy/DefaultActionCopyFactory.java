@@ -90,6 +90,7 @@ public class DefaultActionCopyFactory implements IActionCopyFactory {
     return copy(source, CopyContext.DEFAULT);
   }
 
+  @SuppressWarnings("javabugs:S2259") // the public overload always supplies a context
   @Override
   public IAction copy(IAction source, CopyContext context) {
     if (source == null) {

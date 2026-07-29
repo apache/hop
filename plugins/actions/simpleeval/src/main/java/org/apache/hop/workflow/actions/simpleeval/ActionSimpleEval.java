@@ -343,6 +343,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     return this.successWhenVarSet;
   }
 
+  @SuppressWarnings("javabugs:S2259") // convertStringToBoolean handles a null value
   @Override
   public Result execute(Result previousResult, int nr) throws HopException {
     Result result = previousResult;

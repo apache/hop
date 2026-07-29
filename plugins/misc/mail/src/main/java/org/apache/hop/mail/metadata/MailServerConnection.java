@@ -1303,6 +1303,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   }
 
   /** builder smtp properties */
+  @SuppressWarnings("javabugs:S2259") // the protocol is set by every constructor
   private void buildSmtpProps() {
     String proto = protocol.toLowerCase();
 

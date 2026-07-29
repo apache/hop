@@ -219,7 +219,8 @@ public abstract class ActionBase
   public String getTypeDesc() {
     IPlugin plugin =
         PluginRegistry.getInstance().findPluginWithId(ActionPluginType.class, pluginId);
-    return plugin.getDescription();
+    // The plugin is not registered when the workflow references an action that is not installed
+    return plugin == null ? pluginId : plugin.getDescription();
   }
 
   /**

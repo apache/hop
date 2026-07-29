@@ -91,6 +91,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     }
   }
 
+  @SuppressWarnings("javabugs:S2259") // exactly one of cursor and pipeSample is set above
   private List<MongoField> getMongoFields(
       String collection,
       String query,

@@ -372,7 +372,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
                   transformMeta);
           remarks.add(cr);
         } finally {
-          db.disconnect();
+          db.close();
         }
       } else {
         CheckResult cr =
@@ -389,7 +389,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
       CheckResult cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
       remarks.add(cr);
     } finally {
-      db.disconnect();
+      if (db != null) {
+        db.close();
+      }
     }
 
     // See if we have input streams leading to this transform!
@@ -503,7 +505,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
                   BaseMessages.getString(
                       PKG, "SQLFileOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
             } finally {
-              db.disconnect();
+              db.close();
             }
           } else {
             retVal.setError(
@@ -551,7 +553,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
         throw new HopException(
             BaseMessages.getString(PKG, "SQLFileOutputMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(

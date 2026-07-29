@@ -568,7 +568,7 @@ public class DeleteDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "DeleteDialog.ErrorGettingSchemas"),
             e);
       } finally {
-        database.disconnect();
+        database.close();
       }
     }
   }

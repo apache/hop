@@ -310,7 +310,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
                 transformMeta);
         remarks.add(cr);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       cr =

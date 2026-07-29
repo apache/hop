@@ -113,13 +113,17 @@ public class GraphNodeData {
 
     id = (String) jNode.get("id");
     JSONArray jLabels = (JSONArray) jNode.get("labels");
-    for (Object jLabel : jLabels) {
-      labels.add((String) jLabel);
+    if (jLabels != null) {
+      for (Object jLabel : jLabels) {
+        labels.add((String) jLabel);
+      }
     }
 
     JSONArray jProperties = (JSONArray) jNode.get("properties");
-    for (Object jProperty : jProperties) {
-      properties.add(new GraphPropertyData((JSONObject) jProperty));
+    if (jProperties != null) {
+      for (Object jProperty : jProperties) {
+        properties.add(new GraphPropertyData((JSONObject) jProperty));
+      }
     }
 
     propertySetId = (String) jNode.get("property_set");

@@ -1028,12 +1028,8 @@ public class GitGuiPlugin
       throws HopException {
     HopGui hopGui = HopGui.getInstance();
 
-    InputStream xmlStreamOld = null;
-    InputStream xmlStreamNew = null;
-
-    try {
-      xmlStreamOld = git.open(filename, commitIdOld);
-      xmlStreamNew = git.open(filename, commitIdNew);
+    try (InputStream xmlStreamOld = git.open(filename, commitIdOld);
+        InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       PipelineMeta pipelineMetaOld =
           new PipelineMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
@@ -1072,17 +1068,9 @@ public class GitGuiPlugin
       perspective.addPipeline(pipelineMetaOld);
       perspective.addPipeline(pipelineMetaNew);
       perspective.activate();
-    } finally {
-      try {
-        if (xmlStreamOld != null) {
-          xmlStreamOld.close();
-        }
-        if (xmlStreamNew != null) {
-          xmlStreamNew.close();
-        }
-      } catch (Exception e) {
-        LogChannel.UI.logError("Error closing XML file after reading", e);
-      }
+    } catch (IOException e) {
+      // only reachable from the implicit close() calls above
+      LogChannel.UI.logError("Error closing XML file after reading", e);
     }
   }
 
@@ -1090,12 +1078,8 @@ public class GitGuiPlugin
       throws HopException {
     HopGui hopGui = HopGui.getInstance();
 
-    InputStream xmlStreamOld = null;
-    InputStream xmlStreamNew = null;
-
-    try {
-      xmlStreamOld = git.open(filename, commitIdOld);
-      xmlStreamNew = git.open(filename, commitIdNew);
+    try (InputStream xmlStreamOld = git.open(filename, commitIdOld);
+        InputStream xmlStreamNew = git.open(filename, commitIdNew)) {
 
       WorkflowMeta workflowMetaOld =
           new WorkflowMeta(xmlStreamOld, hopGui.getMetadataProvider(), hopGui.getVariables());
@@ -1134,17 +1118,9 @@ public class GitGuiPlugin
       perspective.addWorkflow(workflowMetaOld);
       perspective.addWorkflow(workflowMetaNew);
       perspective.activate();
-    } finally {
-      try {
-        if (xmlStreamOld != null) {
-          xmlStreamOld.close();
-        }
-        if (xmlStreamNew != null) {
-          xmlStreamNew.close();
-        }
-      } catch (Exception e) {
-        LogChannel.UI.logError("Error closing XML file after reading", e);
-      }
+    } catch (IOException e) {
+      // only reachable from the implicit close() calls above
+      LogChannel.UI.logError("Error closing XML file after reading", e);
     }
   }
 }

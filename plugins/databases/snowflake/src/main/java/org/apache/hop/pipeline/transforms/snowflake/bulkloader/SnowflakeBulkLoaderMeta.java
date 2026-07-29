@@ -925,7 +925,7 @@ public class SnowflakeBulkLoaderMeta
         throw new HopException(
             BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.Exception.ErrorGettingFields"), e);
       } finally {
-        db.disconnect();
+        db.close();
       }
     } else {
       throw new HopException(
@@ -1110,7 +1110,7 @@ public class SnowflakeBulkLoaderMeta
                 BaseMessages.getString(
                     PKG, "TableOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
           } finally {
-            db.disconnect();
+            db.close();
           }
         } else {
           retval.setError(BaseMessages.getString(PKG, "TableOutputMeta.Error.NoTable"));
