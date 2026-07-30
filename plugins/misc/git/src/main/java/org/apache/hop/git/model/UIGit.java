@@ -29,12 +29,14 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +66,7 @@ import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.RevertCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -123,6 +126,9 @@ public class UIGit extends VCS {
           "Authentication is required but no CredentialsProvider has been registered";
   public static final String CONST_NOT_AUTHORIZED = "not authorized";
   public static final String CONST_DIALOG_ERROR = "Dialog.Error";
+  public static final String CONST_MERGE_FAILED_HEADER = "UIGit.Dialog.MergeFailed.Header";
+  public static final String CONST_MERGE_FAILED_LOCAL_CHANGES =
+      "UIGit.Dialog.MergeFailed.LocalChanges.Message";
 
   static {
     /**
@@ -1077,27 +1083,144 @@ public class UIGit extends VCS {
     try {
       ObjectId obj = git.getRepository().resolve(value);
       MergeResult result = git.merge().include(obj).setStrategy(mergeStrategy).call();
-      if (result.getMergeStatus().isSuccessful()) {
-        return true;
-      } else {
-        // TODO: get rid of message box
+      if (result.getMergeStatus() == MergeStatus.ALREADY_UP_TO_DATE) {
+        // The merge succeeded but did nothing. That is surprising to anyone with work in progress,
+        // so point out that staged or modified files are not part of a branch yet.
         //
         showMessageBox(
-            BaseMessages.getString(PKG, CONST_DIALOG_ERROR), result.getMergeStatus().toString());
-        if (result.getMergeStatus() == MergeStatus.CONFLICTING) {
-          Map<String, int[][]> conflicts = result.getConflicts();
-          for (String path : conflicts.keySet()) {
-            checkout(path, Constants.HEAD, CONST_OURS);
-            checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), CONST_THEIRS);
-          }
-          return true;
+            BaseMessages.getString(PKG, "UIGit.Dialog.NothingToMerge.Header"),
+            BaseMessages.getString(
+                PKG,
+                "UIGit.Dialog.NothingToMerge.Message",
+                value,
+                getBranch(),
+                getUncommittedChangesBlock()));
+        return false;
+      }
+      if (result.getMergeStatus().isSuccessful()) {
+        return true;
+      }
+
+      boolean conflicting = result.getMergeStatus() == MergeStatus.CONFLICTING;
+      if (conflicting) {
+        Map<String, int[][]> conflicts = result.getConflicts();
+        for (String path : conflicts.keySet()) {
+          checkout(path, Constants.HEAD, CONST_OURS);
+          checkout(path, getExpandedName(value, VCS.TYPE_BRANCH), CONST_THEIRS);
         }
       }
+
+      // TODO: get rid of message box
+      //
+      showMessageBox(
+          BaseMessages.getString(PKG, CONST_MERGE_FAILED_HEADER),
+          getMergeFailureMessage(value, result));
+
+      return conflicting;
+    } catch (CheckoutConflictException e) {
+      // A fast-forward merge never starts when local changes are in the way. Explain that instead
+      // of showing a stack trace.
+      //
+      showMessageBox(
+          BaseMessages.getString(PKG, CONST_MERGE_FAILED_HEADER),
+          BaseMessages.getString(
+              PKG,
+              CONST_MERGE_FAILED_LOCAL_CHANGES,
+              value,
+              getBranch(),
+              getPathList(e.getConflictingPaths())));
       return false;
     } catch (Exception e) {
       throw new HopException(
           "Error merging branch '" + value + "' with strategy '" + mergeStrategy + "'", e);
     }
+  }
+
+  /**
+   * JGit only reports a terse status like "Failed" or "Conflicting". Turn that into an explanation
+   * the user can act on: which files are in the way and what to do about them.
+   *
+   * @param value the branch, tag or commit that was merged in
+   * @param result the unsuccessful merge result
+   * @return a message describing the failure and how to recover from it
+   */
+  private String getMergeFailureMessage(String value, MergeResult result) {
+    String currentBranch = getBranch();
+    switch (result.getMergeStatus()) {
+      case FAILED:
+        return getLocalChangesMessage(
+            value,
+            currentBranch,
+            result.getFailingPaths() == null ? null : result.getFailingPaths().keySet(),
+            result);
+      case CHECKOUT_CONFLICT:
+        return getLocalChangesMessage(value, currentBranch, result.getCheckoutConflicts(), result);
+      case CONFLICTING:
+        return BaseMessages.getString(
+            PKG,
+            "UIGit.Dialog.MergeFailed.Conflicting.Message",
+            value,
+            currentBranch,
+            getPathList(result.getConflicts() == null ? Set.of() : result.getConflicts().keySet()));
+      case ABORTED:
+        return BaseMessages.getString(
+            PKG, "UIGit.Dialog.MergeFailed.Aborted.Message", value, currentBranch);
+      default:
+        return getGenericMessage(value, currentBranch, result);
+    }
+  }
+
+  /**
+   * Local changes are in the way. Naming them is the whole point of the message, so fall back on
+   * the plain status when JGit did not tell us which files those are.
+   */
+  private String getLocalChangesMessage(
+      String value, String currentBranch, Collection<String> paths, MergeResult result) {
+    if (paths == null || paths.isEmpty()) {
+      return getGenericMessage(value, currentBranch, result);
+    }
+    return BaseMessages.getString(
+        PKG, CONST_MERGE_FAILED_LOCAL_CHANGES, value, currentBranch, getPathList(paths));
+  }
+
+  private String getGenericMessage(String value, String currentBranch, MergeResult result) {
+    return BaseMessages.getString(
+        PKG,
+        "UIGit.Dialog.MergeFailed.Generic.Message",
+        value,
+        currentBranch,
+        result.getMergeStatus().toString());
+  }
+
+  /**
+   * Nothing to merge usually means the work is still sitting in the index or the working tree
+   * instead of on the branch. List those files so the user can see where their changes are.
+   *
+   * @return the uncommitted changes to mention, or an empty string when the working tree is clean
+   */
+  private String getUncommittedChangesBlock() {
+    try {
+      Status status = git.status().call();
+      if (!status.hasUncommittedChanges()) {
+        return "";
+      }
+      Set<String> paths = new TreeSet<>();
+      paths.addAll(status.getAdded());
+      paths.addAll(status.getChanged());
+      paths.addAll(status.getRemoved());
+      paths.addAll(status.getModified());
+      paths.addAll(status.getMissing());
+      return BaseMessages.getString(
+          PKG, "UIGit.Dialog.NothingToMerge.UncommittedChanges.Label", getPathList(paths));
+    } catch (NoWorkTreeException | GitAPIException e) {
+      return "";
+    }
+  }
+
+  private String getPathList(Collection<String> paths) {
+    StringBuilder list = new StringBuilder();
+    paths.forEach(path -> list.append(" - ").append(path).append(Const.CR));
+    return list.toString();
   }
 
   private boolean hasUncommittedChanges() {
