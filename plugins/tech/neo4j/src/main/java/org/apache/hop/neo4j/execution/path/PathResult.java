@@ -229,7 +229,10 @@ public class PathResult {
     cmd.append("   , p=shortestpath((top)-[:EXECUTES*]-(err)) ").append(Const.CR);
     cmd.append("WHERE top.registrationDate IS NOT NULL ").append(Const.CR);
     cmd.append("  AND err.errors > 0 ").append(Const.CR);
-    cmd.append("  AND size((err)-[:EXECUTES]->())=0 ").append(Const.CR);
+    // Only keep the leaf executions: Neo4j 5 no longer supports size() on a pattern expression,
+    // a pattern predicate is the equivalent and works on Neo4j 4 and 5 alike.
+    //
+    cmd.append("  AND NOT (err)-[:EXECUTES]->() ").append(Const.CR);
 
     // Now link the metadata...
     //

@@ -367,6 +367,10 @@ public class WorkflowLoggingExtensionPoint
                             + ", e.loggingText = $loggingText "
                             + ", e.comment = $comment "
                             + ", e.reason = $reason "
+                            // Without the error count a failed action never shows up in the
+                            // error path of the Neo4j perspective. See issue #7662.
+                            //
+                            + ", e.errors = $errors "
                             + ", e.linesRead = $linesRead "
                             + ", e.linesWritten = $linesWritten "
                             + ", e.linesInput = $linesInput "
