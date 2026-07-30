@@ -32,6 +32,7 @@ import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 import org.apache.hop.marketplace.command.MarketplaceCommand;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
+import org.apache.hop.marketplace.install.IInstallListener;
 import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
@@ -101,16 +102,37 @@ public class EnvironmentApplier {
    * Install missing plugins/deps; optionally prune marketplace plugins not listed in the env file.
    */
   public void apply(HopEnvironmentSpec env, boolean prune) throws HopException {
+    apply(env, prune, IInstallListener.NONE);
+  }
+
+  /**
+   * @param listener receives per-artifact and byte-level progress across the whole batch, and can
+   *     cancel between chunks. Pass {@link IInstallListener#NONE} for headless callers.
+   */
+  public void apply(HopEnvironmentSpec env, boolean prune, IInstallListener listener)
+      throws HopException {
+    IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
     MarketplaceConfig config = configFromEnv(env);
     String defaultVersion = resolveEnvVersion(env);
     PluginInstaller installer = new PluginInstaller(log, hopHome, config);
     installer.activateAllPending();
 
+    // Every reference is one batch item, satisfied ones included: they complete instantly and keep
+    // the bar monotonic, which is friendlier than a total that shrinks as we discover what is
+    // already present.
+    int totalItems = nullSafe(env.getPlugins()).size() + nullSafe(env.getDependencies()).size();
+    int itemIndex = 0;
+
     Set<String> desiredArtifacts = new HashSet<>();
     for (HopEnvironmentSpec.PluginRef ref : nullSafe(env.getPlugins())) {
       if (StringUtils.isBlank(ref.getArtifactId())) {
+        itemIndex++;
         continue;
       }
+      if (progress.isCancelled()) {
+        throw new HopException("Applying the environment was cancelled");
+      }
+      progress.item(ref.getArtifactId(), itemIndex++, totalItems);
       desiredArtifacts.add(ref.getArtifactId());
       String groupId =
           StringUtils.isNotBlank(ref.getGroupId()) ? ref.getGroupId() : config.getGroupId();
@@ -126,7 +148,7 @@ public class EnvironmentApplier {
       if (needsInstall) {
         MavenCoordinates coords = new MavenCoordinates(groupId, ref.getArtifactId(), version);
         log.logBasic("Applying environment: installing " + coords.gav());
-        installer.install(coords, true);
+        installer.install(coords, true, null, null, progress);
       } else {
         log.logBasic("Applying environment: " + ref.getArtifactId() + " already satisfied");
       }
@@ -134,8 +156,13 @@ public class EnvironmentApplier {
 
     for (HopEnvironmentSpec.DependencyRef dep : nullSafe(env.getDependencies())) {
       if (StringUtils.isAnyBlank(dep.getGroupId(), dep.getArtifactId(), dep.getVersion())) {
+        itemIndex++;
         continue;
       }
+      if (progress.isCancelled()) {
+        throw new HopException("Applying the environment was cancelled");
+      }
+      progress.item(dep.getArtifactId(), itemIndex++, totalItems);
       String target = StringUtils.defaultIfBlank(dep.getTarget(), "lib/jdbc");
       Path dir = hopHome.resolve(target);
       Path jar = dir.resolve(dep.getArtifactId() + "-" + dep.getVersion() + ".jar");
@@ -157,10 +184,12 @@ public class EnvironmentApplier {
               + coords.version()
               + ".jar";
       log.logBasic("Downloading dependency " + coords.gav() + " → " + target);
+      progress.phase(IInstallListener.Phase.DOWNLOAD, target);
       try {
         Files.createDirectories(dir);
         new MavenRepositoryClient(log)
-            .downloadArtifact(config.primaryRepository(), relativePath, coords.gav(), jar);
+            .downloadArtifact(
+                config.primaryRepository(), relativePath, coords.gav(), jar, progress);
       } catch (IOException e) {
         throw new HopException("Failed to install dependency " + coords.gav(), e);
       }
