@@ -338,4 +338,25 @@ class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     assertEquals(firstResult, rows.get(0)[0], "Wrong first result");
     assertEquals(lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0], "Wrong last result");
   }
+
+  @Test
+  void testSheetRegexResolvedFromVariable() throws Exception {
+    meta.setSpreadSheetType(SpreadSheetType.SAX_POI);
+    meta.setStartsWithHeader(true);
+    setFields(new ExcelInputField("COL", -1, -1));
+
+    ExcelInputMeta.EISheet sheet = new ExcelInputMeta.EISheet();
+    sheet.setName("${SHEET_NAME_REGEX}");
+    sheet.setRegex(true);
+    meta.getSheets().add(sheet);
+
+    init("pdi-17765.xlsx");
+    transform.setVariable("SHEET_NAME_REGEX", "Sheet[12]");
+    process();
+
+    checkErrors();
+    assertEquals(40, rows.size(), "Wrong row count");
+    assertEquals("1.0", rows.get(0)[0], "Wrong first result");
+    assertEquals("101.0", rows.get(rows.size() - 1)[0], "Wrong last result");
+  }
 }

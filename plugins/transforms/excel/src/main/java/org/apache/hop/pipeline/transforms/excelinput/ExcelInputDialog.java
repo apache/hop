@@ -489,6 +489,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "ExcelInputDialog.SheetName.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    shinfo[0].setUsingVariables(true);
     shinfo[1] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ExcelInputDialog.StartRow.Column"),
