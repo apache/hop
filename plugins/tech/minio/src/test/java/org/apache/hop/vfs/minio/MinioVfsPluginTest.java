@@ -19,6 +19,7 @@ package org.apache.hop.vfs.minio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -50,9 +51,10 @@ class MinioVfsPluginTest {
 
   @Test
   void testGetProvider() {
-    FileProvider provider = plugin.getProvider();
-    assertNotNull(provider, "Provider should not be null");
-    assertTrue(provider instanceof MinioFileProvider, "Provider should be MinioFileProvider");
+    // There are no fixed schemes, so there is nothing to register a provider under. Handing one
+    // over anyway leaves it unreachable and unclosed on the file system manager :
+    // "DefaultFilesystemManager.close: not all components are closed".
+    assertNull(plugin.getProvider(), "MinIO has no fixed scheme, so it has no fixed provider");
   }
 
   @Test
@@ -79,17 +81,6 @@ class MinioVfsPluginTest {
     Map<String, FileProvider> providers = plugin.getProviders(variables);
 
     assertNotNull(providers, "Providers map should not be null");
-  }
-
-  @Test
-  void testMultipleGetProviderCalls() {
-    FileProvider provider1 = plugin.getProvider();
-    FileProvider provider2 = plugin.getProvider();
-
-    assertNotNull(provider1, "First provider should not be null");
-    assertNotNull(provider2, "Second provider should not be null");
-    assertTrue(provider1 instanceof MinioFileProvider, "Should be MinioFileProvider");
-    assertTrue(provider2 instanceof MinioFileProvider, "Should be MinioFileProvider");
   }
 
   @Test
@@ -120,15 +111,6 @@ class MinioVfsPluginTest {
 
     // Should not throw exception, even if metadata provider fails
     assertNotNull(providers, "Should handle errors and return empty map");
-  }
-
-  @Test
-  void testProviderCreation() {
-    // Test that provider is properly created each time
-    FileProvider provider = plugin.getProvider();
-
-    assertNotNull(provider, "Provider should be created");
-    assertTrue(provider instanceof MinioFileProvider, "Should create MinioFileProvider");
   }
 
   @Test

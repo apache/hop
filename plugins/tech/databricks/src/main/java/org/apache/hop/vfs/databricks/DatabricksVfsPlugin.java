@@ -50,7 +50,7 @@ public class DatabricksVfsPlugin implements IVfs {
 
   @Override
   public FileProvider getProvider() {
-    return new DatabricksFileProvider();
+    return null;
   }
 
   @Override
