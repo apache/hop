@@ -48,6 +48,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionLogPanel;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -60,7 +61,6 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 
 @Getter
 @Setter
@@ -84,7 +84,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
   protected SashForm sash;
   protected CTabFolder tabFolder;
 
-  protected Text loggingText;
+  protected ExecutionLogPanel executionLogPanel;
 
   protected Point lastClick;
 
@@ -319,14 +319,16 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
           iLocation.getExecutionStateLoggingText(
               execution.getId(), props.getMaxExecutionLoggingTextSize());
 
-      loggingText.setText(Const.NVL(shownLogText, ""));
-
-      // Scroll to the bottom
-      loggingText.setSelection(loggingText.getCharCount());
+      if (executionLogPanel != null) {
+        executionLogPanel.setRawLoggingText(Const.NVL(shownLogText, ""));
+      }
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error refreshing logging text", e);
     } finally {
       getShell().setCursor(null);
+      if (busyCursor != null && !busyCursor.isDisposed()) {
+        busyCursor.dispose();
+      }
     }
   }
 

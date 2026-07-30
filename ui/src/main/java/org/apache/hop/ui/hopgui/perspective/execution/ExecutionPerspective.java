@@ -307,18 +307,67 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   @Override
   public void clearSearchFilters() {
     filterText = "";
-    if (toolBarWidgets != null) {
-      ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-      if (item != null && !item.isDisposed()) {
-        org.eclipse.swt.widgets.Control control = item.getControl();
-        if (control != null && !control.isDisposed() && control instanceof Text text) {
-          text.setText("");
-        }
-      }
-    }
+    setFilterTextOnToolbar("");
     if (hopGui != null && hopGui.isActivePerspective(this)) {
       refresh();
     }
+  }
+
+  /**
+   * Read the free-text filter from the toolbar into {@link #filterText}. Treats the placeholder
+   * label as empty. Does not modify the widget.
+   */
+  private void syncFilterTextFromToolbar() {
+    if (toolBarWidgets == null) {
+      return;
+    }
+    Text text = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
+    if (text == null) {
+      return;
+    }
+    String value = Const.NVL(text.getText(), "").trim();
+    if (FILTER_NAME_DATE_ID.equals(value)) {
+      value = "";
+    }
+    this.filterText = value;
+  }
+
+  private void setFilterTextOnToolbar(String value) {
+    Text text = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
+    if (text != null) {
+      text.setText(Const.NVL(value, ""));
+    }
+  }
+
+  private Text getToolbarText(String id) {
+    if (toolBarWidgets == null) {
+      return null;
+    }
+    Control control = toolBarWidgets.getControlForMenu(id);
+    if (control instanceof Text text && !text.isDisposed()) {
+      return text;
+    }
+    // Desktop fallback: SEPARATOR ToolItem holding the Text
+    ToolItem item = toolBarWidgets.findToolItem(id);
+    if (item != null && !item.isDisposed() && item.getControl() instanceof Text text) {
+      return text;
+    }
+    return null;
+  }
+
+  private Combo getToolbarCombo(String id) {
+    if (toolBarWidgets == null) {
+      return null;
+    }
+    Control control = toolBarWidgets.getControlForMenu(id);
+    if (control instanceof Combo combo && !combo.isDisposed()) {
+      return combo;
+    }
+    ToolItem item = toolBarWidgets.findToolItem(id);
+    if (item != null && !item.isDisposed() && item.getControl() instanceof Combo combo) {
+      return combo;
+    }
+    return null;
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {
@@ -354,6 +403,21 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+
+    // Ensure Enter in the free-text filter applies the filter (GTK toolbar Text often does not
+    // fire DefaultSelection). GuiToolbarWidgets also wires this; keep a local handler as a
+    // fallback when the toolbar listener instance mapping is incomplete.
+    Text filterTextWidget = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
+    if (filterTextWidget != null && !filterTextWidget.isDisposed()) {
+      filterTextWidget.addListener(
+          SWT.KeyDown,
+          event -> {
+            if (event.keyCode == SWT.CR || event.keyCode == SWT.KEYPAD_CR) {
+              selectTextFilter();
+              event.doit = false;
+            }
+          });
+    }
 
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
@@ -704,23 +768,14 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       }
     }
 
-    // Time filter
-    item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_TIME_FILTER);
-    if (item != null && !item.isDisposed()) {
-      org.eclipse.swt.widgets.Control control = item.getControl();
-      if (control != null && !control.isDisposed() && control instanceof Combo) {
-        ((Combo) control).setText(timeFilter.getDescription());
-      }
+    // Time filter combo (safe to push model → widget)
+    Combo timeCombo = getToolbarCombo(TOOLBAR_ITEM_TIME_FILTER);
+    if (timeCombo != null) {
+      timeCombo.setText(timeFilter.getDescription());
     }
 
-    // Filter string
-    item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    if (item != null && !item.isDisposed()) {
-      org.eclipse.swt.widgets.Control control = item.getControl();
-      if (control != null && !control.isDisposed() && control instanceof Text) {
-        ((Text) control).setText(Const.NVL(filterText, ""));
-      }
-    }
+    // Do not overwrite the free-text filter box here: the user may have typed text that is not
+    // yet committed via Enter. refresh() always syncs model ← widget instead.
 
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
     if (activeHandler != null) {
@@ -768,6 +823,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     if (!isInitialized() || !hopGui.isActivePerspective(this)) {
       return;
     }
+
+    // Always pick up whatever is currently in the filter box (including text typed without Enter).
+    syncFilterTextFromToolbar();
 
     Cursor busyCursor = getBusyCursor();
 
@@ -1026,8 +1084,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       comboValuesMethod = "getLastPeriodDescriptions",
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.TimeFilter.Tooltip")
   public void selectTimeFilter() {
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_TIME_FILTER);
-    if (item == null || !(item.getControl() instanceof Combo combo)) {
+    Combo combo = getToolbarCombo(TOOLBAR_ITEM_TIME_FILTER);
+    if (combo == null) {
       return;
     }
     this.timeFilter = LastPeriod.lookupDescription(combo.getText());
@@ -1051,13 +1109,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     this.onlyShowingFailed = false;
     this.filterText = "";
 
+    // Clear the box (empty, not the placeholder string as a real filter value).
     // The filter box itself can be switched off in disabledGuiElements.xml while this button is
     // not, in which case there is no box to clear.
-    //
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    if (item != null && item.getControl() instanceof Text text) {
-      text.setText(FILTER_NAME_DATE_ID);
-    }
+    setFilterTextOnToolbar("");
 
     // Update the icon && apply the filter
     updateGui();
@@ -1071,11 +1126,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       type = GuiToolbarElementType.TEXT,
       defaultText = FILTER_NAME_DATE_ID)
   public void selectTextFilter() {
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    if (item == null || !(item.getControl() instanceof Text text)) {
-      return;
-    }
-    this.filterText = text.getText();
+    syncFilterTextFromToolbar();
 
     // Update the icon && apply the filter
     updateGui();
@@ -1606,10 +1657,15 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       onlyShowingWorkflows = toolbarState.extractBoolean(AUDIT_ONLY_WORKFLOWS, false);
       onlyShowingPipelines = toolbarState.extractBoolean(AUDIT_ONLY_PIPELINES, false);
       filterText = toolbarState.extractString(AUDIT_FILTER_TEXT, "");
+      if (FILTER_NAME_DATE_ID.equals(filterText)) {
+        filterText = "";
+      }
       String timeFilterName = toolbarState.extractString(AUDIT_TIME_FILTER, "");
       timeFilter = IEnumHasCode.lookupCode(LastPeriod.class, timeFilterName, LastPeriod.ONE_HOUR);
       String activeKey = toolbarState.extractString(AUDIT_ACTIVE_TAB, "");
 
+      // Restore filter text onto the widget before updateGui/refresh (updateGui does not write it).
+      setFilterTextOnToolbar(filterText);
       updateGui();
       refresh();
 

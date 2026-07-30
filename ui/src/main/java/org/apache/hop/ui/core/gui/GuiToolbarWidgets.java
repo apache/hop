@@ -349,7 +349,35 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     Listener listener = getListener(toolbarItem);
     text.addListener(SWT.Selection, listener);
     text.addListener(SWT.DefaultSelection, listener);
+    addTextEnterKeyListener(text, listener);
     widgetsMap.put(toolbarItem.getId(), text);
+  }
+
+  /**
+   * Fire the toolbar action when the user presses Enter in a single-line text field. Needed because
+   * {@link SWT#DefaultSelection} is not consistently delivered for Text widgets embedded in a
+   * toolbar on all platforms (notably GTK).
+   */
+  private static void addTextEnterKeyListener(Text text, Listener listener) {
+    if (text == null || listener == null) {
+      return;
+    }
+    text.addListener(
+        SWT.KeyDown,
+        event -> {
+          if (event.keyCode == SWT.CR || event.keyCode == SWT.KEYPAD_CR) {
+            listener.handleEvent(event);
+            event.doit = false;
+          }
+        });
+    text.addListener(
+        SWT.Traverse,
+        event -> {
+          if (event.detail == SWT.TRAVERSE_RETURN) {
+            listener.handleEvent(event);
+            event.doit = false;
+          }
+        });
   }
 
   private void addWebToolbarCheckbox(GuiToolbarItem toolbarItem, Composite parent) {
@@ -510,6 +538,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     Listener listener = getListener(toolbarItem);
     text.addListener(SWT.Selection, listener);
     text.addListener(SWT.DefaultSelection, listener);
+    // On Linux/GTK, DefaultSelection is unreliable for Text controls hosted in a ToolBar
+    // SEPARATOR. Explicit CR / KEYPAD_CR ensures Enter applies the filter (e.g. Execution
+    // perspective).
+    addTextEnterKeyListener(text, listener);
     toolItemMap.put(toolbarItem.getId(), textSeparator);
     widgetsMap.put(toolbarItem.getId(), text);
     PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
