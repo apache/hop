@@ -742,6 +742,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-binaryfileoutput</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-blockingtransform</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -749,12 +755,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-blockuntiltransformsfinish</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-binaryfileoutput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
