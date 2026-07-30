@@ -53,6 +53,7 @@ import org.apache.hop.git.info.GitInfoExplorerFileTypeHandler;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
+import org.apache.hop.git.util.FileTypeUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -1065,7 +1066,7 @@ public class GitGuiPlugin
       pipelineMetaOld.setName(
           String.format(
               CONST_S_S_S,
-              pipelineMetaOld.getName(),
+              FileTypeUtils.getDiffName(filename, pipelineMetaOld.getName()),
               git.getShortenedName(commitIdOld),
               git.getShortenedName(commitIdNew)));
       pipelineMetaOld.setNameSynchronizedWithFilename(false);
@@ -1073,7 +1074,7 @@ public class GitGuiPlugin
       pipelineMetaNew.setName(
           String.format(
               CONST_S_S_S,
-              pipelineMetaNew.getName(),
+              FileTypeUtils.getDiffName(filename, pipelineMetaNew.getName()),
               git.getShortenedName(commitIdNew),
               git.getShortenedName(commitIdOld)));
       pipelineMetaNew.setNameSynchronizedWithFilename(false);
@@ -1125,7 +1126,7 @@ public class GitGuiPlugin
       workflowMetaOld.setName(
           String.format(
               CONST_S_S_S,
-              workflowMetaOld.getName(),
+              FileTypeUtils.getDiffName(filename, workflowMetaOld.getName()),
               git.getShortenedName(commitIdOld),
               git.getShortenedName(commitIdNew)));
       workflowMetaOld.setNameSynchronizedWithFilename(false);
@@ -1133,7 +1134,7 @@ public class GitGuiPlugin
       workflowMetaNew.setName(
           String.format(
               CONST_S_S_S,
-              workflowMetaNew.getName(),
+              FileTypeUtils.getDiffName(filename, workflowMetaNew.getName()),
               git.getShortenedName(commitIdNew),
               git.getShortenedName(commitIdOld)));
       workflowMetaNew.setNameSynchronizedWithFilename(false);
