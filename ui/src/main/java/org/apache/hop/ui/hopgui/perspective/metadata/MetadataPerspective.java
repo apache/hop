@@ -3322,7 +3322,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     MetadataEditor<?> editor = (MetadataEditor<?>) tabItem.getData();
 
     boolean isRemoved = remove(editor);
-    if (isRemoved) {
+    // Skip during bulk close (project/environment switch): the open-files list was saved before
+    // closeAllFiles; writing here would overwrite it with whatever is left (issue #7692).
+    //
+    if (isRemoved && !hopGui.fileDelegate.isClosing()) {
       hopGui.auditDelegate.writeLastOpenFiles();
     }
     if (!isRemoved && event != null) {
