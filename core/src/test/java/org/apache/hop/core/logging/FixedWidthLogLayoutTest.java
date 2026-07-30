@@ -16,30 +16,13 @@
  */
 package org.apache.hop.core.logging;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-/** Test for {@link HopLogLayout}. */
-class HopLogLayoutTest {
-
-  @Test
-  void testFormat() {
-    LogMessage mcg =
-        new LogMessage("Log message for {0}", "Channel 01", new String[] {"Test"}, LogLevel.DEBUG);
-
-    HopLoggingEvent event = new HopLoggingEvent(mcg, 0, LogLevel.BASIC);
-    HopLogLayout layout = new HopLogLayout();
-
-    final String formattedMsg = layout.format(event);
-
-    assertEquals(
-        "Log message for Test",
-        formattedMsg.substring(formattedMsg.indexOf('-') + 2),
-        "The log message must be formatted and not contain placeholders.");
-  }
+/** Test for {@link FixedWidthLogLayout}. */
+class FixedWidthLogLayoutTest {
 
   @Test
   void testFormatRendersAttachedThrowable() {
@@ -47,12 +30,12 @@ class HopLogLayoutTest {
     message.setThrowable(new IllegalStateException("kaboom"));
 
     HopLoggingEvent event = new HopLoggingEvent(message, 0, LogLevel.ERROR);
-    final String formatted = new HopLogLayout().format(event);
+    final String formatted = new FixedWidthLogLayout().format(event);
 
     assertTrue(formatted.contains("Boom"), "The message text must be present.");
     assertTrue(
         formatted.contains("IllegalStateException"),
-        "The attached throwable's stack trace must be rendered for console/file output.");
+        "The attached throwable's stack trace must be rendered for the GUI log browser.");
     assertTrue(formatted.contains("kaboom"), "The throwable message must be rendered.");
   }
 
@@ -61,7 +44,7 @@ class HopLogLayoutTest {
     LogMessage message = new LogMessage("No error here", "Channel 01", LogLevel.BASIC);
 
     HopLoggingEvent event = new HopLoggingEvent(message, 0, LogLevel.BASIC);
-    final String formatted = new HopLogLayout().format(event);
+    final String formatted = new FixedWidthLogLayout().format(event);
 
     assertFalse(
         formatted.contains("\tat "),

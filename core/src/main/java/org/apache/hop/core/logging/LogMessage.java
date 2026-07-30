@@ -33,6 +33,8 @@ public class LogMessage implements ILogMessage {
   private LogLevel level;
   private String copy;
   private boolean simplified;
+  private Throwable throwable;
+  private String stackTrace;
 
   /** Backward compatibility : no registry used, just log the subject as part of the message */
   public LogMessage(String subject, LogLevel level) {
@@ -214,5 +216,38 @@ public class LogMessage implements ILogMessage {
    */
   public void setSimplified(boolean simplified) {
     this.simplified = simplified;
+  }
+
+  @Override
+  public Throwable getThrowable() {
+    return throwable;
+  }
+
+  public void setThrowable(Throwable throwable) {
+    this.throwable = throwable;
+  }
+
+  /**
+   * Returns the pre-rendered trace if set, else renders it from the throwable, else {@code null}.
+   */
+  public String getStackTrace() {
+    if (stackTrace != null) {
+      return stackTrace;
+    }
+    if (throwable != null) {
+      return Const.getStackTracker(throwable);
+    }
+    return null;
+  }
+
+  public void setStackTrace(String stackTrace) {
+    this.stackTrace = stackTrace;
+  }
+
+  /**
+   * @param level the log level to set
+   */
+  public void setLevel(LogLevel level) {
+    this.level = level;
   }
 }
