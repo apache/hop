@@ -60,7 +60,10 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
       if (loggingObject == null) {
         // this can happen if logObject has been discarded while log events are still in flight.
         logToLogger(
-            hopLogger, message.getLevel(), message.getSubject() + " " + message.getMessage());
+            hopLogger,
+            message.getLevel(),
+            message.getSubject() + " " + message.getMessage(),
+            message.getThrowable());
       } else if (loggingObject.getObjectType() == PIPELINE
           || loggingObject.getObjectType() == TRANSFORM
           || loggingObject.getObjectType() == DATABASE) {
@@ -77,7 +80,19 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
   private void logToLogger(
       Logger logger, LogLevel logLevel, ILoggingObject loggingObject, LogMessage message) {
     logToLogger(
-        logger, logLevel, "[" + getDetailedSubject(loggingObject) + "]  " + message.getMessage());
+        logger,
+        logLevel,
+        "[" + getDetailedSubject(loggingObject) + "]  " + message.getMessage(),
+        message.getThrowable());
+  }
+
+  private void logToLogger(Logger logger, LogLevel logLevel, String message, Throwable throwable) {
+    if (throwable == null) {
+      logToLogger(logger, logLevel, message);
+      return;
+    }
+
+    logger.error(message, throwable);
   }
 
   private void logToLogger(Logger logger, LogLevel logLevel, String message) {
