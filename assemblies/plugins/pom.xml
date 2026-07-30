@@ -634,6 +634,12 @@
         <!-- marketplace optional: hop-misc-documentation -->
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-execution-database</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-git</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
