@@ -26,6 +26,7 @@ import static org.apache.hop.git.HopDiff.REMOVED;
 import static org.apache.hop.git.HopDiff.UNCHANGED;
 import static org.apache.hop.git.HopDiff.compareActions;
 import static org.apache.hop.git.HopDiff.compareTransforms;
+import static org.apache.hop.git.HopDiff.getPipelineHopName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -42,6 +43,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMeta;
 import org.apache.hop.pipeline.transforms.checksum.CheckSumMeta;
 import org.apache.hop.pipeline.transforms.csvinput.CsvInputMeta;
@@ -82,41 +84,87 @@ class HopDiffTest {
     metadataProvider = new MemoryMetadataProvider();
   }
 
+  private PipelineMeta loadPipeline(String name) throws Exception {
+    try (InputStream xmlStream = new FileInputStream(new File("src/test/resources/" + name))) {
+      return new PipelineMeta(xmlStream, metadataProvider, Variables.getADefaultVariableSpace());
+    }
+  }
+
+  private WorkflowMeta loadWorkflow(String name) throws Exception {
+    try (InputStream xmlStream = new FileInputStream(new File("src/test/resources/" + name))) {
+      return new WorkflowMeta(xmlStream, metadataProvider, new Variables());
+    }
+  }
+
   @Test
   void diffPipelineTest() throws Exception {
-    File file = new File("src/test/resources/r1.hpl");
-    InputStream xmlStream = new FileInputStream(file);
-    PipelineMeta pipelineMeta1 =
-        new PipelineMeta(xmlStream, metadataProvider, Variables.getADefaultVariableSpace());
+    PipelineMeta pipelineMeta1 = loadPipeline("r1.hpl");
+    PipelineMeta pipelineMeta2 = loadPipeline("r2.hpl");
 
-    File file2 = new File("src/test/resources/r2.hpl");
-    InputStream xmlStream2 = new FileInputStream(file2);
-    PipelineMeta pipelineMeta2 =
-        new PipelineMeta(xmlStream2, metadataProvider, Variables.getADefaultVariableSpace());
-
-    PipelineMeta resultForward = compareTransforms(pipelineMeta1, pipelineMeta2, true);
-    PipelineMeta resultBackward = compareTransforms(pipelineMeta2, pipelineMeta1, false);
+    PipelineMeta resultForward = compareTransforms(pipelineMeta1, pipelineMeta2, true, false);
+    PipelineMeta resultBackward = compareTransforms(pipelineMeta2, pipelineMeta1, false, false);
     assertEquals(CHANGED, resultForward.getTransform(0).getAttribute(ATTR_GIT, ATTR_STATUS));
     assertEquals(UNCHANGED, resultForward.getTransform(1).getAttribute(ATTR_GIT, ATTR_STATUS));
     assertEquals(REMOVED, resultForward.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
     assertEquals(ADDED, resultBackward.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
   }
 
+  /** The same pipeline with one transform dragged elsewhere, and nothing else touched. */
+  private PipelineMeta movedPipeline() throws Exception {
+    PipelineMeta pipelineMeta = loadPipeline("r1.hpl");
+    TransformMeta transform = pipelineMeta.getTransform(0);
+    transform.setLocation(transform.getLocation().x + 64, transform.getLocation().y + 32);
+    return pipelineMeta;
+  }
+
+  @Test
+  void movedTransformIsChangedWithoutTheOption() throws Exception {
+    PipelineMeta result = compareTransforms(loadPipeline("r1.hpl"), movedPipeline(), true, false);
+
+    assertEquals(CHANGED, result.getTransform(0).getAttribute(ATTR_GIT, ATTR_STATUS));
+  }
+
+  @Test
+  void movedTransformIsUnchangedWithTheOption() throws Exception {
+    PipelineMeta result = compareTransforms(loadPipeline("r1.hpl"), movedPipeline(), true, true);
+
+    assertEquals(UNCHANGED, result.getTransform(0).getAttribute(ATTR_GIT, ATTR_STATUS));
+  }
+
   @Test
   void diffWorkflowTest() throws Exception {
-    File file = new File("src/test/resources/r1.hwf");
-    InputStream xmlStream = new FileInputStream(file);
-    WorkflowMeta jobMeta = new WorkflowMeta(xmlStream, metadataProvider, new Variables());
+    WorkflowMeta jobMeta = loadWorkflow("r1.hwf");
+    WorkflowMeta jobMeta2 = loadWorkflow("r2.hwf");
 
-    File file2 = new File("src/test/resources/r2.hwf");
-    InputStream xmlStream2 = new FileInputStream(file2);
-    WorkflowMeta jobMeta2 = new WorkflowMeta(xmlStream2, metadataProvider, new Variables());
-
-    jobMeta = compareActions(jobMeta, jobMeta2, true);
-    jobMeta2 = compareActions(jobMeta2, jobMeta, false);
+    jobMeta = compareActions(jobMeta, jobMeta2, true, false);
+    jobMeta2 = compareActions(jobMeta2, jobMeta, false, false);
     assertEquals(CHANGED, jobMeta.getAction(0).getAttribute(ATTR_GIT, ATTR_STATUS));
     assertEquals(UNCHANGED, jobMeta.getAction(1).getAttribute(ATTR_GIT, ATTR_STATUS));
     assertEquals(REMOVED, jobMeta.getAction(2).getAttribute(ATTR_GIT, ATTR_STATUS));
     assertEquals(ADDED, jobMeta2.getAction(2).getAttribute(ATTR_GIT, ATTR_STATUS));
+  }
+
+  /** START only moved between r1 and r2, so it is unchanged once the position is left out. */
+  @Test
+  void diffWorkflowIgnoringPositionTest() throws Exception {
+    WorkflowMeta jobMeta = loadWorkflow("r1.hwf");
+    WorkflowMeta jobMeta2 = loadWorkflow("r2.hwf");
+
+    jobMeta = compareActions(jobMeta, jobMeta2, true, true);
+    jobMeta2 = compareActions(jobMeta2, jobMeta, false, true);
+    assertEquals("START", jobMeta.getAction(0).getName());
+    assertEquals(UNCHANGED, jobMeta.getAction(0).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(UNCHANGED, jobMeta.getAction(1).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(REMOVED, jobMeta.getAction(2).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(ADDED, jobMeta2.getAction(2).getAttribute(ATTR_GIT, ATTR_STATUS));
+  }
+
+  /** The name has to name both ends, otherwise hops sharing a source transform collide. */
+  @Test
+  void pipelineHopNameTest() throws Exception {
+    PipelineMeta pipelineMeta = loadPipeline("r1.hpl");
+
+    assertEquals(
+        "CSV file input - Add a checksum", getPipelineHopName(pipelineMeta.getPipelineHop(0)));
   }
 }
