@@ -509,9 +509,10 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
     for (ExcelInputMeta.EISheet sheet : meta.getSheets()) {
       if (sheet.isRegex()) {
-        logBasic("Sheet regex pattern: [" + sheet.getName() + "]");
+        String sheetNameRegex = resolve(sheet.getName());
+        logBasic("Sheet regex pattern: [" + sheetNameRegex + "]");
         try {
-          Pattern pattern = Pattern.compile(sheet.getName());
+          Pattern pattern = Pattern.compile(sheetNameRegex);
           for (String sheetName : allSheetNames) {
             if (pattern.matcher(sheetName).matches()) {
               logBasic("  -> matched: [" + sheetName + "]");
@@ -523,7 +524,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         } catch (PatternSyntaxException e) {
           logError(
               BaseMessages.getString(
-                  PKG, "ExcelInput.Error.InvalidSheetRegex", sheet.getName(), e.getMessage()));
+                  PKG, "ExcelInput.Error.InvalidSheetRegex", sheetNameRegex, e.getMessage()));
         }
       } else {
         logBasic("Sheet exact name: [" + sheet.getName() + "]");
