@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -130,6 +131,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
   private ArrayList<Condition> parents;
   private IRowMeta fields;
+  private IVariables variables;
 
   private int maxFieldLength;
 
@@ -144,12 +146,18 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   private Menu mPop;
 
   public ConditionEditor(Composite composite, int arg1, Condition co, IRowMeta inputFields) {
+    this(composite, arg1, co, inputFields, null);
+  }
+
+  public ConditionEditor(
+      Composite composite, int arg1, Condition co, IRowMeta inputFields, IVariables variables) {
     super(composite, arg1 | SWT.NO_BACKGROUND | SWT.V_SCROLL | SWT.H_SCROLL);
 
     widget = this;
 
     this.activeCondition = co;
     this.fields = inputFields;
+    this.variables = variables;
 
     imageAdd = GuiResource.getInstance().getImage("ui/images/add.svg");
 
@@ -352,7 +360,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                     }
                     EnterValueDialog evd =
                         new EnterValueDialog(
-                            shell, SWT.NONE, v.createValueMeta(), v.createValueData());
+                            shell, SWT.NONE, v.createValueMeta(), v.createValueData(), variables);
                     evd.setModalDialog(
                         true); // To keep the condition editor from being closed with a value dialog
                     // still
@@ -360,7 +368,11 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                     ValueMetaAndData newval = evd.open();
                     if (newval != null) {
                       activeCondition.setRightValueName(null);
-                      activeCondition.setRightValue(new Condition.CValue(newval));
+                      Condition.CValue newValue = new Condition.CValue(newval);
+                      if (evd.getInputString() != null) {
+                        newValue.setText(evd.getInputString());
+                      }
+                      activeCondition.setRightValue(newValue);
                       setModified();
                     }
                     widget.redraw();
