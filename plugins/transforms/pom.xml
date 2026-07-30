@@ -33,6 +33,7 @@
         <module>addsequence</module>
         <module>analyticquery</module>
         <module>append</module>
+        <module>binaryfileoutput</module>
         <module>blockingtransform</module>
         <module>blockuntiltransformsfinish</module>
         <module>calculator</module>

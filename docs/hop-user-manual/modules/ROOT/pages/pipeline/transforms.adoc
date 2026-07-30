@@ -49,6 +49,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/beamfileoutput.adoc[Beam file output]
 * xref:pipeline/transforms/beamkafkaconsume.adoc[Beam Kafka consume]
 * xref:pipeline/transforms/beamkafkaproduce.adoc[Beam Kafka produce]
+* xref:pipeline/transforms/binaryfileoutput.adoc[Binary File Output]
 * xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis consume]
 * xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis produce]
 * xref:pipeline/transforms/beamtimestamp.adoc[Beam timestamp]

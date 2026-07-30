@@ -95,6 +95,7 @@ under the License.
 *** xref:pipeline/transforms/beamgcpsubscriber.adoc[Beam GCP Pub/Sub: subscribe]
 *** xref:pipeline/transforms/beamkafkaconsume.adoc[Beam Kafka consume]
 *** xref:pipeline/transforms/beamkafkaproduce.adoc[Beam Kafka produce]
+*** xref:pipeline/transforms/binaryfileoutput.adoc[Binary File Output]
 *** xref:pipeline/transforms/beamkinesisconsume.adoc[Beam Kinesis consume]
 *** xref:pipeline/transforms/beamkinesisproduce.adoc[Beam Kinesis produce]
 *** xref:pipeline/transforms/beamtimestamp.adoc[Beam timestamp]
