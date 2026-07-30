@@ -60,6 +60,7 @@ image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
 * The Get variables button may not always work, so enter variables manually.
 * The JavaScript transform runs better with less whitespace and less line continuations, especially when using GraphQL. Avoid multi-line expressions or statements.
 * Ensure you select the correct Type for the outgoing JavaScript fields.
+* Large integers (more than about 15–16 significant digits) can change when they pass through the JavaScript transform. This is caused by JavaScript’s internal floating-point number representation, not by Hop rounding. See <<numeric-values, Numeric values>> below.
 
 == Examples
 E.g. JavasScript to create 4 new fields:
@@ -197,7 +198,7 @@ Fields must be added to the rows in the same order to keep the structure of the 
 
 To add a field, define it as var in the Javascript pane, and add it as a field in the Fields table.
 
-=== Numeric values
+=== [[numeric-values]]Numeric values
 
 Most values that are assigned in JavaScript are floating point values by default, even if you think you have assigned an integer value. If you are having trouble using == or switch/case on values that you know are integers, use the following constructs:
 
@@ -217,6 +218,33 @@ default:
  strvalueswitch = "five";
 }
 ----
+
+==== Loss of precision for large integers
+
+IMPORTANT: JavaScript numbers are always stored as double-precision floating-point values (IEEE 754). That is a limitation of the language (and of the Rhino engine Hop uses), not a bug in the transform.
+
+A double can represent integers exactly only up to `2^53 - 1` (`Number.MAX_SAFE_INTEGER` = `9007199254740991`), which is about 15–16 significant digits. Hop Integer fields are 64-bit (`long`) and can hold larger values. When such a value is passed into JavaScript—even if you only assign it to another variable, log it, or convert it to a string—the engine converts it through a floating-point number. Converting back to Integer (Integer → Double → Integer) can change the least significant digits.
+
+For example:
+
+|===
+|Input Integer |Value after JavaScript
+
+|`1234567890123456` (16 digits)
+|`1234567890123456` (unchanged)
+
+|`12345678901234567` (17 digits)
+|`12345678901234568` (last digit changed)
+
+|`20231213084852358` (17 digits)
+|`20231213084852360` (last digits changed)
+|===
+
+Workarounds when you need full integer precision:
+
+* Keep large identifiers (order numbers, keys, barcodes, and similar) as *String* fields and avoid treating them as numbers in JavaScript.
+* Prefer non-script transforms (Calculator, Formula, Select Values, and so on) for numeric work when possible.
+* If you must use script for very large numbers, use the *Script* transform (Groovy or another engine that supports arbitrary-precision types) instead of the JavaScript transform, or pass values as strings and only convert them outside JavaScript.
 
 === Filter Rows
 
