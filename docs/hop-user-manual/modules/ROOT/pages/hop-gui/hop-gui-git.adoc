@@ -93,6 +93,10 @@ image::hop-gui/git-visual-diff.png[Git visual diff,width="65%"]
 A transform or action that was only moved on the canvas is not marked as changed.
 Uncheck "Ignore position in the visual diff" in the configuration options below to have a move count as a change again.
 
+A transform or action that was renamed is marked as changed, rather than as one that was removed and another that was added.
+The hops around it are left alone.
+This is recognised as long as the rename is all that happened to it, a move aside: renaming and editing in the same commit still shows up as a removal plus an addition, because there is nothing left to recognise it by.
+
 == Git Configuration options
 
 There are a few global configuration options available for the git GUI plugin.

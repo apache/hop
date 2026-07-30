@@ -443,12 +443,21 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
       boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      Map<String, String> renamed =
+          HopDiff.detectTransformRenames(pipelineMetaOld, pipelineMetaNew);
+      Map<String, String> renamedBack =
+          HopDiff.detectTransformRenames(pipelineMetaNew, pipelineMetaOld);
+
       pipelineMetaOld =
-          HopDiff.compareTransforms(pipelineMetaOld, pipelineMetaNew, true, ignorePosition);
-      pipelineMetaOld = HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true);
+          HopDiff.compareTransforms(
+              pipelineMetaOld, pipelineMetaNew, true, ignorePosition, renamed);
+      pipelineMetaOld =
+          HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true, renamed);
       pipelineMetaNew =
-          HopDiff.compareTransforms(pipelineMetaNew, pipelineMetaOld, false, ignorePosition);
-      pipelineMetaNew = HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false);
+          HopDiff.compareTransforms(
+              pipelineMetaNew, pipelineMetaOld, false, ignorePosition, renamedBack);
+      pipelineMetaNew =
+          HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false, renamedBack);
 
       pipelineMetaOld.setPipelineVersion(CONST_GIT + commitIdOld);
       pipelineMetaNew.setPipelineVersion(CONST_GIT + commitIdNew);
@@ -495,12 +504,19 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
       boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      Map<String, String> renamed = HopDiff.detectActionRenames(workflowMetaOld, workflowMetaNew);
+      Map<String, String> renamedBack =
+          HopDiff.detectActionRenames(workflowMetaNew, workflowMetaOld);
+
       workflowMetaOld =
-          HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true, ignorePosition);
-      workflowMetaOld = HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true);
+          HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true, ignorePosition, renamed);
+      workflowMetaOld =
+          HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true, renamed);
       workflowMetaNew =
-          HopDiff.compareActions(workflowMetaNew, workflowMetaOld, false, ignorePosition);
-      workflowMetaNew = HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false);
+          HopDiff.compareActions(
+              workflowMetaNew, workflowMetaOld, false, ignorePosition, renamedBack);
+      workflowMetaNew =
+          HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false, renamedBack);
 
       workflowMetaOld.setWorkflowVersion(CONST_GIT + commitIdOld);
       workflowMetaNew.setWorkflowVersion(CONST_GIT + commitIdNew);
