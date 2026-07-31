@@ -54,6 +54,7 @@ class ScriptValuesMetaTest {
     // See if after all that we still have the correct data
     //
     assertEquals("2", meta.getOptimizationLevel());
+    assertEquals("ES6", meta.getLanguageVersion());
 
     // The scripts
     assertEquals(3, meta.getJsScripts().size());

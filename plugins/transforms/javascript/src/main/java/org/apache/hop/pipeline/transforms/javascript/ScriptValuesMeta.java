@@ -63,6 +63,9 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
 
   public static final String OPTIMIZATION_LEVEL_DEFAULT = "9";
 
+  /** Default ECMAScript language level code ({@link ScriptValuesEcmaVersion#DEFAULT_CODE}). */
+  public static final String LANGUAGE_VERSION_DEFAULT = ScriptValuesEcmaVersion.DEFAULT_CODE;
+
   @Getter
   @Setter
   public static class ScriptField {
@@ -135,11 +138,22 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
       injectionKeyDescription = "ScriptValuesMod.Injection.OPTIMIZATION_LEVEL")
   private String optimizationLevel;
 
+  /**
+   * Rhino ECMAScript language level code (see {@link ScriptValuesEcmaVersion}). Empty or missing
+   * values use {@link #LANGUAGE_VERSION_DEFAULT} (ES6), matching Rhino's current engine default.
+   */
+  @HopMetadataProperty(
+      key = "languageVersion",
+      injectionKey = "LANGUAGE_VERSION",
+      injectionKeyDescription = "ScriptValuesMod.Injection.LANGUAGE_VERSION")
+  private String languageVersion;
+
   public ScriptValuesMeta() {
     super();
     jsScripts = new ArrayList<>();
     scriptFields = new ArrayList<>();
     optimizationLevel = OPTIMIZATION_LEVEL_DEFAULT;
+    languageVersion = LANGUAGE_VERSION_DEFAULT;
 
     ScriptValuesScript script = new ScriptValuesScript();
     script.setType(ScriptValuesScript.TRANSFORM_SCRIPT);
@@ -152,6 +166,7 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
   public ScriptValuesMeta(ScriptValuesMeta m) {
     this();
     this.optimizationLevel = m.optimizationLevel;
+    this.languageVersion = m.languageVersion;
     m.jsScripts.forEach(s -> this.jsScripts.add(new ScriptValuesScript(s)));
     m.scriptFields.forEach(f -> scriptFields.add(new ScriptField(f)));
   }
@@ -248,6 +263,12 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
 
     jsContext = ContextFactory.getGlobal().enterContext();
     jsScope = jsContext.initStandardObjects(null, false);
+    try {
+      ScriptValuesEcmaVersion.apply(jsContext, variables.resolve(languageVersion));
+    } catch (HopException e) {
+      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta);
+      remarks.add(cr);
+    }
     try {
       jsContext.setOptimizationLevel(Integer.parseInt(variables.resolve(optimizationLevel)));
     } catch (NumberFormatException nfe) {
