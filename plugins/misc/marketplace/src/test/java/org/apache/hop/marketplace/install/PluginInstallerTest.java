@@ -63,6 +63,21 @@ class PluginInstallerTest {
   }
 
   @Test
+  void skipSharedCoreCopyRules() {
+    // Missing target: always install (covers Azure / first-time shared deps, #7666)
+    assertFalse(PluginInstaller.skipSharedCoreCopy(false, null, false));
+    assertFalse(PluginInstaller.skipSharedCoreCopy(false, null, true));
+
+    // Identical content: always skip (Windows classpath locks + unnecessary I/O)
+    assertTrue(PluginInstaller.skipSharedCoreCopy(true, -1L, false));
+    assertTrue(PluginInstaller.skipSharedCoreCopy(true, -1L, true));
+
+    // Different content: skip only on Windows
+    assertFalse(PluginInstaller.skipSharedCoreCopy(true, 0L, false));
+    assertTrue(PluginInstaller.skipSharedCoreCopy(true, 0L, true));
+  }
+
+  @Test
   void installAndUninstallFromLocalHttpRepo() throws Exception {
     byte[] zipBytes = buildPluginZip();
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
@@ -110,6 +125,88 @@ class PluginInstallerTest {
               hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json")));
       // lib/core is sticky: left in place so other plugins can share it
       assertTrue(Files.isRegularFile(sharedJar));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void installSkipsIdenticalPreexistingSharedCoreJar() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    String path = "/org/apache/hop/hop-test-plugin/1.0.0/hop-test-plugin-1.0.0.zip";
+    server.createContext(
+        path,
+        exchange -> {
+          exchange.getResponseHeaders().add("Content-Type", "application/zip");
+          exchange.sendResponseHeaders(200, zipBytes.length);
+          exchange.getResponseBody().write(zipBytes);
+          exchange.close();
+        });
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-identical-core");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      // Simulate slim client already shipping the same shared jar (e.g. avro on Windows)
+      Path sharedJar = hopHome.resolve("lib/core/shared.jar");
+      Files.createDirectories(sharedJar.getParent());
+      Files.writeString(sharedJar, "shared-lib");
+
+      MarketplaceConfig config = new MarketplaceConfig();
+      config.getRepositories().clear();
+      MarketplaceRepository local =
+          new MarketplaceRepository("local", "http://127.0.0.1:" + port + "/", true);
+      config.getRepositories().add(local);
+
+      new PluginInstaller(new LogChannel("test"), hopHome, config)
+          .install(new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"), true);
+
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertEquals("shared-lib", Files.readString(sharedJar));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void installHandlesPreexistingDifferentSharedCoreJar() throws Exception {
+    byte[] zipBytes = buildPluginZip();
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    String path = "/org/apache/hop/hop-test-plugin/1.0.0/hop-test-plugin-1.0.0.zip";
+    server.createContext(
+        path,
+        exchange -> {
+          exchange.getResponseHeaders().add("Content-Type", "application/zip");
+          exchange.sendResponseHeaders(200, zipBytes.length);
+          exchange.getResponseBody().write(zipBytes);
+          exchange.close();
+        });
+    server.start();
+    try {
+      int port = server.getAddress().getPort();
+      Path hopHome = tempDir.resolve("hop-different-core");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      Path sharedJar = hopHome.resolve("lib/core/shared.jar");
+      Files.createDirectories(sharedJar.getParent());
+      Files.writeString(sharedJar, "old-shared-lib");
+
+      MarketplaceConfig config = new MarketplaceConfig();
+      config.getRepositories().clear();
+      MarketplaceRepository local =
+          new MarketplaceRepository("local", "http://127.0.0.1:" + port + "/", true);
+      config.getRepositories().add(local);
+
+      new PluginInstaller(new LogChannel("test"), hopHome, config)
+          .install(new MavenCoordinates("org.apache.hop", "hop-test-plugin", "1.0.0"), true);
+
+      // Plugin tree always activates; shared core replace depends on OS (#7717).
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      if (org.apache.hop.core.Const.isWindows()) {
+        assertEquals("old-shared-lib", Files.readString(sharedJar));
+      } else {
+        assertEquals("shared-lib", Files.readString(sharedJar));
+      }
     } finally {
       server.stop(0);
     }
