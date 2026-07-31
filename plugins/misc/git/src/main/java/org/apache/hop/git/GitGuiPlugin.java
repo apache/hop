@@ -292,10 +292,14 @@ public class GitGuiPlugin
       image = "pull.svg")
   public void gitPull() {
     try {
-      if (git.pull()) {
-        // Refresh the explorer file, refs and commit history
-        GitPerspective.getInstance().refresh(true);
+      boolean merged = git.pull();
 
+      // Refresh the explorer file, refs and commit history. A pull fetches the remote refs even
+      // when there was nothing to merge into the current branch.
+      //
+      GitPerspective.getInstance().refresh(true);
+
+      if (merged) {
         MessageBox pullSuccessful =
             new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_INFORMATION);
         pullSuccessful.setText(
