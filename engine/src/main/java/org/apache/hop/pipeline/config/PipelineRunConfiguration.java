@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -31,6 +32,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 
 @HopMetadata(
     key = "pipeline-run-configuration",
@@ -232,5 +234,27 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     }
 
     return null;
+  }
+
+  /**
+   * Clear the default flag on every pipeline run configuration except the one named {@code
+   * keepName}, and save those updates. Ensures at most one default after the named configuration is
+   * saved as default.
+   *
+   * @param metadataProvider the metadata provider
+   * @param keepName name of the run configuration that should remain (or become) the default
+   * @throws HopException if metadata cannot be loaded or saved
+   */
+  public static void clearDefaultFlagFromOthers(
+      IHopMetadataProvider metadataProvider, String keepName) throws HopException {
+    IHopMetadataSerializer<PipelineRunConfiguration> serializer =
+        metadataProvider.getSerializer(PipelineRunConfiguration.class);
+    for (PipelineRunConfiguration runConfiguration : serializer.loadAll()) {
+      if (runConfiguration.isDefaultSelection()
+          && !Objects.equals(runConfiguration.getName(), keepName)) {
+        runConfiguration.setDefaultSelection(false);
+        serializer.save(runConfiguration);
+      }
+    }
   }
 }
