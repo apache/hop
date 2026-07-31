@@ -243,7 +243,8 @@ public class DrillDownGuiPlugin {
    */
   private void findRunningChildAndOpen(
       Object parentEngine, String childName, Display display, HopGui hopGui) {
-    new Thread(
+    Thread.ofVirtual()
+        .start(
             () -> {
               try {
                 for (int i = 0; i < 50; i++) {
@@ -268,11 +269,12 @@ public class DrillDownGuiPlugin {
                   Thread.sleep(100);
                 }
                 display.asyncExec(() -> showNoRunningExecution(hopGui));
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
               } catch (Exception e) {
                 // Ignore
               }
-            })
-        .start();
+            });
   }
 
   /**

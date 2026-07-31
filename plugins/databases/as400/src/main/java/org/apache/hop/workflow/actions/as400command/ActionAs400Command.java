@@ -317,20 +317,21 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
         this.getProxyServer(variables.resolve(proxyHost), variables.resolve(proxyPort));
 
     // Create an AS400 object
-    AS400 system =
+    try (AS400 system =
         new AS400(
             variables.resolve(server),
             variables.resolve(user),
             Utils.resolvePassword(this, password),
-            proxyServer);
-    try {
-      system.connectService(AS400.COMMAND);
-    } finally {
+            proxyServer)) {
       try {
-        // This is only a connection test, so release the service again
-        system.disconnectService(AS400.COMMAND);
-      } catch (Exception e) {
-        // Ignore
+        system.connectService(AS400.COMMAND);
+      } finally {
+        try {
+          // This is only a connection test, so release the service again
+          system.disconnectService(AS400.COMMAND);
+        } catch (Exception e) {
+          // Ignore
+        }
       }
     }
 

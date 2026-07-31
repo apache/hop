@@ -135,6 +135,8 @@ public final class PipelineRowSamplerHelper {
     if (meta == null) {
       return;
     }
+    // Created once per pipeline start and shared by all the row listeners below
+    @SuppressWarnings("java:S2119")
     final Random random = new Random();
     // Per-key counters for Random sampling (transform name or hop key)
     final Map<String, AtomicInteger> rowCounters = new ConcurrentHashMap<>();

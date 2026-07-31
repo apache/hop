@@ -283,50 +283,49 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
           e);
     }
 
-    Database db = new Database(loggingObject, variables, databaseMeta);
-    databases = new Database[] {db}; // Keep track of this one for cancelQuery
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+      databases = new Database[] {db}; // Keep track of this one for cancelQuery
 
-    // Which fields are parameters?
-    // info[0] comes from the database connection.
-    //
-    IRowMeta param = getParameterRow(row);
-
-    // First try without connecting to the database... (can be S L O W)
-    // See if it's in the cache...
-    //
-    IRowMeta add = null;
-    try {
-      add = db.getQueryFields(variables.resolve(sql), true, param, new Object[param.size()]);
-    } catch (HopDatabaseException dbe) {
-      throw new HopTransformException(
-          BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.UnableToDetermineQueryFields")
-              + Const.CR
-              + sql,
-          dbe);
-    }
-
-    if (add != null) { // Cache hit, just return it this...
-      for (int i = 0; i < add.size(); i++) {
-        IValueMeta v = add.getValueMeta(i);
-        v.setOrigin(name);
-      }
-      row.addRowMeta(add);
-    } else {
-      // No cache hit, connect to the database, do it the hard way...
+      // Which fields are parameters?
+      // info[0] comes from the database connection.
       //
+      IRowMeta param = getParameterRow(row);
+
+      // First try without connecting to the database... (can be S L O W)
+      // See if it's in the cache...
+      //
+      IRowMeta add = null;
       try {
-        db.connect();
         add = db.getQueryFields(variables.resolve(sql), true, param, new Object[param.size()]);
+      } catch (HopDatabaseException dbe) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.UnableToDetermineQueryFields")
+                + Const.CR
+                + sql,
+            dbe);
+      }
+
+      if (add != null) { // Cache hit, just return it this...
         for (int i = 0; i < add.size(); i++) {
           IValueMeta v = add.getValueMeta(i);
           v.setOrigin(name);
         }
         row.addRowMeta(add);
-      } catch (HopDatabaseException dbe) {
-        throw new HopTransformException(
-            BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.ErrorObtainingFields"), dbe);
-      } finally {
-        db.close();
+      } else {
+        // No cache hit, connect to the database, do it the hard way...
+        //
+        try {
+          db.connect();
+          add = db.getQueryFields(variables.resolve(sql), true, param, new Object[param.size()]);
+          for (int i = 0; i < add.size(); i++) {
+            IValueMeta v = add.getValueMeta(i);
+            v.setOrigin(name);
+          }
+          row.addRowMeta(add);
+        } catch (HopDatabaseException dbe) {
+          throw new HopTransformException(
+              BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.ErrorObtainingFields"), dbe);
+        }
       }
     }
   }

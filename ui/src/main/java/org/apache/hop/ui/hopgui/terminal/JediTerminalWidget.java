@@ -340,7 +340,8 @@ public class JediTerminalWidget implements ITerminalWidget {
       jediTermWidget.start();
 
       // Request focus after terminal initialization
-      new Thread(
+      Thread.ofVirtual()
+          .start(
               () -> {
                 try {
                   Thread.sleep(100);
@@ -359,8 +360,7 @@ public class JediTerminalWidget implements ITerminalWidget {
                 } catch (Exception e) {
                   log.logDebug("Error requesting initial AWT focus: " + e.getMessage());
                 }
-              })
-          .start();
+              });
 
     } catch (Exception e) {
       log.logError("Error starting JediTerm shell process", e);

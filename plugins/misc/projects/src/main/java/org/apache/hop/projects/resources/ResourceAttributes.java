@@ -68,6 +68,8 @@ public final class ResourceAttributes {
    *   <li>Development / CI / CB / other → off
    * </ul>
    */
+  // False positive: StringUtils.isNotBlank() is false for null, so 'explicit' can't be null here
+  @SuppressWarnings("javabugs:S2259")
   public static String resolveOnEnable(IAttributes attributes, String purpose) {
     String explicit = attributes != null ? attributes.getAttribute(GROUP, KEY_ON_ENABLE) : null;
     if (StringUtils.isNotBlank(explicit)) {

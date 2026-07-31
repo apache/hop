@@ -136,12 +136,12 @@ class RemoteWorkflowEngineTest {
     engine.setMetadataProvider(metadataProvider);
     engine.setVariable("RUN_CONFIG", "remote");
 
+    WorkflowRunConfiguration runConfiguration =
+        metadataProvider.getSerializer(WorkflowRunConfiguration.class).load("remote");
+
     HopException e =
         assertThrows(
-            HopException.class,
-            () ->
-                engine.validateRunConfigurationChain(
-                    metadataProvider.getSerializer(WorkflowRunConfiguration.class).load("remote")));
+            HopException.class, () -> engine.validateRunConfigurationChain(runConfiguration));
 
     assertTrue(e.getMessage().contains("remote -> remote"), "The chain should be reported: " + e);
   }
