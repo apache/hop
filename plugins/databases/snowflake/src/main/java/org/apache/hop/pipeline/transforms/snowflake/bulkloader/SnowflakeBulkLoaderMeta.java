@@ -123,6 +123,24 @@ public class SnowflakeBulkLoaderMeta
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String targetTable;
 
+  /** Truncate the target table before loading */
+  @HopMetadataProperty(
+      key = "truncate",
+      injectionKey = "TRUNCATE_TABLE",
+      injectionKeyDescription = "SnowflakeBulkLoader.Injection.TruncateTable.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
+  private boolean truncateTable;
+
+  /**
+   * When truncate is enabled, only truncate if at least one input row is received. When false,
+   * truncate even when the input stream is empty.
+   */
+  @HopMetadataProperty(
+      key = "only_when_have_rows",
+      injectionKey = "ONLY_WHEN_HAVE_ROWS",
+      injectionKeyDescription = "SnowflakeBulkLoader.Injection.OnlyWhenHaveRows.Field")
+  private boolean onlyWhenHaveRows;
+
   /** The location type (user, table, internal_stage) */
   @HopMetadataProperty(key = "location_type", injectionKeyDescription = "")
   private String locationType;
@@ -264,6 +282,38 @@ public class SnowflakeBulkLoaderMeta
    */
   public void setTargetTable(String targetTable) {
     this.targetTable = targetTable;
+  }
+
+  /**
+   * @return true if the target table should be truncated before loading
+   */
+  public boolean isTruncateTable() {
+    return truncateTable;
+  }
+
+  /**
+   * Set whether the target table should be truncated before loading
+   *
+   * @param truncateTable true/false
+   */
+  public void setTruncateTable(boolean truncateTable) {
+    this.truncateTable = truncateTable;
+  }
+
+  /**
+   * @return true if truncate should only run when input rows are received
+   */
+  public boolean isOnlyWhenHaveRows() {
+    return onlyWhenHaveRows;
+  }
+
+  /**
+   * Set whether truncate should only run when input rows are received
+   *
+   * @param onlyWhenHaveRows true/false
+   */
+  public void setOnlyWhenHaveRows(boolean onlyWhenHaveRows) {
+    this.onlyWhenHaveRows = onlyWhenHaveRows;
   }
 
   /**
@@ -719,6 +769,8 @@ public class SnowflakeBulkLoaderMeta
     workDirectory = "${java.io.tmpdir}";
     onError = ON_ERROR_CODES[ON_ERROR_ABORT];
     removeFiles = true;
+    truncateTable = false;
+    onlyWhenHaveRows = false;
 
     dataType = DATA_TYPE_CODES[DATA_TYPE_CSV];
     trimWhitespace = false;

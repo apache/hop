@@ -41,6 +41,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -79,8 +80,27 @@ public class SnowflakeBulkLoader
 
     Object[] row = getRow(); // This also waits for a row to be finished.
 
-    if (row != null && first) {
+    if (row == null) {
+      // no more input to be expected...
+      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
+        truncateTable();
+      }
+      // Only close/load when files were written; empty input has nothing to bulk load
+      if (data.oneFileOpened) {
+        closeFile();
+        loadDatabase();
+      }
+      setOutputDone();
+      return false;
+    }
+
+    if (first) {
       first = false;
+
+      if (meta.isTruncateTable()) {
+        truncateTable();
+      }
+
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -142,8 +162,7 @@ public class SnowflakeBulkLoader
     }
 
     // Create a new split?
-    if ((row != null
-        && data.outputCount > 0
+    if ((data.outputCount > 0
         && Const.toIntExpanded(resolve(meta.getSplitSize()), 0) > 0
         && (data.outputCount % Const.toIntExpanded(resolve(meta.getSplitSize()), 0)) == 0)) {
 
@@ -152,14 +171,6 @@ public class SnowflakeBulkLoader
 
       // Not finished: open another file...
       openNewFile(buildFilename());
-    }
-
-    if (row == null) {
-      // no more input to be expected...
-      closeFile();
-      loadDatabase();
-      setOutputDone();
-      return false;
     }
 
     writeRowToFile(data.outputRowMeta, row);
@@ -172,6 +183,18 @@ public class SnowflakeBulkLoader
     }
 
     return true;
+  }
+
+  /**
+   * Truncates the target table when the option is enabled. Only the first transform copy (or a
+   * partitioned copy) performs the truncate to avoid races with concurrent copies.
+   *
+   * @throws HopDatabaseException if the truncate fails
+   */
+  void truncateTable() throws HopDatabaseException {
+    if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
+      data.db.truncateTable(resolve(meta.getTargetSchema()), resolve(meta.getTargetTable()));
+    }
   }
 
   /**

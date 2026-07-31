@@ -121,6 +121,14 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
   private TextVar wTable;
 
+  // Truncate table line
+  private Label wlTruncate;
+  private Button wTruncate;
+
+  // Truncate only when have rows (only meaningful when truncate is enabled)
+  private Label wlOnlyWhenHaveRows;
+  private Button wOnlyWhenHaveRows;
+
   // Location Type line
 
   private CCombo wLocationType;
@@ -386,6 +394,61 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
           }
         });
 
+    // Truncate table (master switch). "Truncate on first row" only applies when this is enabled.
+    wlTruncate = new Label(wLoaderComp, SWT.RIGHT);
+    wlTruncate.setText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.TruncateTable.Label"));
+    wlTruncate.setToolTipText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.TruncateTable.Tooltip"));
+    PropsUi.setLook(wlTruncate);
+    FormData fdlTruncate = new FormData();
+    fdlTruncate.left = new FormAttachment(0, 0);
+    fdlTruncate.top = new FormAttachment(wTable, margin);
+    fdlTruncate.right = new FormAttachment(middle, -margin);
+    wlTruncate.setLayoutData(fdlTruncate);
+
+    wTruncate = new Button(wLoaderComp, SWT.CHECK);
+    wTruncate.setToolTipText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.TruncateTable.Tooltip"));
+    PropsUi.setLook(wTruncate);
+    FormData fdTruncate = new FormData();
+    fdTruncate.left = new FormAttachment(middle, 0);
+    fdTruncate.top = new FormAttachment(wlTruncate, 0, SWT.CENTER);
+    fdTruncate.right = new FormAttachment(100, 0);
+    wTruncate.setLayoutData(fdTruncate);
+    wTruncate.addSelectionListener(bMod);
+    wTruncate.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setFlags();
+          }
+        });
+
+    // Truncate only when have rows (qualifier for Truncate table)
+    wlOnlyWhenHaveRows = new Label(wLoaderComp, SWT.RIGHT);
+    wlOnlyWhenHaveRows.setText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.OnlyWhenHaveRows.Label"));
+    wlOnlyWhenHaveRows.setToolTipText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.OnlyWhenHaveRows.Tooltip"));
+    PropsUi.setLook(wlOnlyWhenHaveRows);
+    FormData fdlOnlyWhenHaveRows = new FormData();
+    fdlOnlyWhenHaveRows.left = new FormAttachment(0, 0);
+    fdlOnlyWhenHaveRows.top = new FormAttachment(wlTruncate, margin);
+    fdlOnlyWhenHaveRows.right = new FormAttachment(middle, -margin);
+    wlOnlyWhenHaveRows.setLayoutData(fdlOnlyWhenHaveRows);
+
+    wOnlyWhenHaveRows = new Button(wLoaderComp, SWT.CHECK);
+    wOnlyWhenHaveRows.setToolTipText(
+        BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.OnlyWhenHaveRows.Tooltip"));
+    PropsUi.setLook(wOnlyWhenHaveRows);
+    FormData fdOnlyWhenHaveRows = new FormData();
+    fdOnlyWhenHaveRows.left = new FormAttachment(middle, 0);
+    fdOnlyWhenHaveRows.top = new FormAttachment(wlOnlyWhenHaveRows, 0, SWT.CENTER);
+    fdOnlyWhenHaveRows.right = new FormAttachment(100, 0);
+    wOnlyWhenHaveRows.setLayoutData(fdOnlyWhenHaveRows);
+    wOnlyWhenHaveRows.addSelectionListener(bMod);
+
     // Location Type line
     //
     Label wlLocationType = new Label(wLoaderComp, SWT.RIGHT);
@@ -396,7 +459,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlLocationType);
     FormData fdlLocationType = new FormData();
     fdlLocationType.left = new FormAttachment(0, 0);
-    fdlLocationType.top = new FormAttachment(wTable, margin);
+    fdlLocationType.top = new FormAttachment(wlOnlyWhenHaveRows, margin);
     fdlLocationType.right = new FormAttachment(middle, -margin);
     wlLocationType.setLayoutData(fdlLocationType);
 
@@ -407,7 +470,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wLocationType.addSelectionListener(lsFlags);
     FormData fdLocationType = new FormData();
     fdLocationType.left = new FormAttachment(middle, 0);
-    fdLocationType.top = new FormAttachment(wTable, margin);
+    fdLocationType.top = new FormAttachment(wlOnlyWhenHaveRows, margin);
     fdLocationType.right = new FormAttachment(100, 0);
     wLocationType.setLayoutData(fdLocationType);
     for (String locationType : LOCATION_TYPE_COMBO) {
@@ -1123,6 +1186,9 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
       wTable.setText(input.getTargetTable());
     }
 
+    wTruncate.setSelection(input.isTruncateTable());
+    wOnlyWhenHaveRows.setSelection(input.isOnlyWhenHaveRows());
+
     if (input.getLocationType() != null) {
       wLocationType.setText(LOCATION_TYPE_COMBO[input.getLocationTypeId()]);
     }
@@ -1208,6 +1274,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     sbl.setConnection(wConnection.getText());
     sbl.setTargetSchema(wSchema.getText());
     sbl.setTargetTable(wTable.getText());
+    sbl.setTruncateTable(wTruncate.getSelection());
+    sbl.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
     sbl.setLocationTypeById(wLocationType.getSelectionIndex());
     sbl.setStageName(wStageName.getText());
     sbl.setWorkDirectory(wWorkDirectory.getText());
@@ -1542,6 +1610,14 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
   /** Enable and disable fields based on selection changes */
   private void setFlags() {
+    /////////////////////////////////
+    // Truncate
+    ////////////////////////////////
+    // Second option only applies when truncate is enabled (same as Table Output)
+    boolean truncateEnabled = wTruncate.getSelection();
+    wlOnlyWhenHaveRows.setEnabled(truncateEnabled);
+    wOnlyWhenHaveRows.setEnabled(truncateEnabled);
+
     /////////////////////////////////
     // On Error
     ////////////////////////////////
