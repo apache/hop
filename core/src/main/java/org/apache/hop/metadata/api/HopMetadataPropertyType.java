@@ -95,6 +95,9 @@ public enum HopMetadataPropertyType {
   // STATIC SCHEMA
   STATIC_SCHEMA_DEFINITION,
 
+  // NAMING
+  NAMING_SCHEME,
+
   // VFS
   VFS_GCP_CONNECTION,
   VFS_AZURE_CONNECTION,
