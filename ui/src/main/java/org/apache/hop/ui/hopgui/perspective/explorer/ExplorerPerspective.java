@@ -398,6 +398,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
 
     // Refresh the file explorer when a project is activated or updated.
+    // applyRestoredState() only rebuilds the editor split layout when the editor is empty, so it
+    // is safe after enableHopGuiProject has already reopened tabs (issue #7692).
     //
     hopGui
         .getEventsHandler()
@@ -2142,7 +2144,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       removeHandlerAndDisposeTab(tabItem);
       isRemoved = true;
     }
-    if (isRemoved) {
+    // Skip during bulk close (project/environment switch): writeLastOpenFiles was already called
+    // before closeAllFiles; writing here would persist an empty open-files list (issue #7692).
+    //
+    if (isRemoved && !hopGui.fileDelegate.isClosing()) {
       hopGui.auditDelegate.writeLastOpenFiles();
     }
     if (!isRemoved && event != null) {

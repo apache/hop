@@ -82,8 +82,26 @@ public class HopGuiAuditDelegate {
       return;
     }
 
-    String namespace = HopNamespace.getNamespace();
+    // Prevent per-file writeLastOpenFiles() calls (from fileOpenWithType) from rewriting the
+    // audit list mid-restore. Same flag used at Hop GUI startup.
+    //
+    boolean previousReOpening = hopGui.isReOpeningFiles();
+    hopGui.setReOpeningFiles(true);
+    try {
+      openLastFilesInternal();
+    } finally {
+      hopGui.setReOpeningFiles(previousReOpening);
+    }
 
+    // Persist the actual open set once restore is finished (failed opens are omitted).
+    // Only when we were not already inside a broader re-open block.
+    //
+    if (!previousReOpening) {
+      writeLastOpenFiles();
+    }
+  }
+
+  private void openLastFilesInternal() {
     // Collect files that fail to open
     List<String> failedFiles = new ArrayList<>();
 
@@ -301,6 +319,13 @@ public class HopGuiAuditDelegate {
     // Things get chaotic otherwise.
     //
     if (hopGui.isReOpeningFiles()) {
+      return;
+    }
+    // Bulk close (project/environment switch, File → Close All) empties tabs first, then may call
+    // writeLastOpenFiles from closeTab handlers. Writing then would overwrite the list we just
+    // saved for reopen (issue #7692).
+    //
+    if (hopGui.fileDelegate != null && hopGui.fileDelegate.isClosing()) {
       return;
     }
     if (!hopGui.getProps().openLastFile()) {
