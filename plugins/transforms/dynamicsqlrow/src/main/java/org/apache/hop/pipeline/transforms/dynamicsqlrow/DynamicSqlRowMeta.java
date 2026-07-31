@@ -150,48 +150,47 @@ public class DynamicSqlRowMeta extends BaseTransformMeta<DynamicSqlRow, DynamicS
       return;
     }
 
-    Database db = new Database(loggingObject, variables, databaseMeta);
-    // Keep track of this one for cancelQuery
-    databases = new Database[] {db};
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+      // Keep track of this one for cancelQuery
+      databases = new Database[] {db};
 
-    // First try without connecting to the database... (can be S L O W)
-    // See if it's in the cache...
-    IRowMeta add = null;
-    String realSql = sql;
-    if (replaceVariables) {
-      realSql = variables.resolve(realSql);
-    }
-    try {
-      add = db.getQueryFields(realSql, false);
-    } catch (HopDatabaseException dbe) {
-      throw new HopTransformException(
-          BaseMessages.getString(PKG, "DynamicSQLRowMeta.Exception.UnableToDetermineQueryFields")
-              + Const.CR
-              + sql,
-          dbe);
-    }
-    // Cache hit, just return it this...
-    if (add != null) {
-      for (int i = 0; i < add.size(); i++) {
-        IValueMeta v = add.getValueMeta(i);
-        v.setOrigin(name);
+      // First try without connecting to the database... (can be S L O W)
+      // See if it's in the cache...
+      IRowMeta add = null;
+      String realSql = sql;
+      if (replaceVariables) {
+        realSql = variables.resolve(realSql);
       }
-      row.addRowMeta(add);
-    } else {
-      // No cache hit, connect to the database, do it the hard way...
       try {
-        db.connect();
         add = db.getQueryFields(realSql, false);
+      } catch (HopDatabaseException dbe) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "DynamicSQLRowMeta.Exception.UnableToDetermineQueryFields")
+                + Const.CR
+                + sql,
+            dbe);
+      }
+      // Cache hit, just return it this...
+      if (add != null) {
         for (int i = 0; i < add.size(); i++) {
           IValueMeta v = add.getValueMeta(i);
           v.setOrigin(name);
         }
         row.addRowMeta(add);
-      } catch (HopDatabaseException dbe) {
-        throw new HopTransformException(
-            BaseMessages.getString(PKG, "DynamicSQLRowMeta.Exception.ErrorObtainingFields"), dbe);
-      } finally {
-        db.close();
+      } else {
+        // No cache hit, connect to the database, do it the hard way...
+        try {
+          db.connect();
+          add = db.getQueryFields(realSql, false);
+          for (int i = 0; i < add.size(); i++) {
+            IValueMeta v = add.getValueMeta(i);
+            v.setOrigin(name);
+          }
+          row.addRowMeta(add);
+        } catch (HopDatabaseException dbe) {
+          throw new HopTransformException(
+              BaseMessages.getString(PKG, "DynamicSQLRowMeta.Exception.ErrorObtainingFields"), dbe);
+        }
       }
     }
   }

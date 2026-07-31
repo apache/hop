@@ -1807,7 +1807,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private void updateClosedFileIfNameSynchronized(FileObject targetFile) {
     try {
       String filename = HopVfs.getFilename(targetFile);
-      String extension = filename.substring(filename.lastIndexOf('.'));
+      int dotIndex = filename.lastIndexOf('.');
+      if (dotIndex < 0) {
+        // No extension: not a pipeline or workflow file
+        return;
+      }
+      String extension = filename.substring(dotIndex);
 
       // Check if it's a pipeline or workflow file
       if (".hpl".equalsIgnoreCase(extension)) {
@@ -2575,6 +2580,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    * @return The selected explorer file or null if nothing is selected
    */
   public ExplorerFile getSelectedFile() {
+    if (tree == null) {
+      // The perspective was never initialized, there's nothing to select
+      return null;
+    }
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
       return null;

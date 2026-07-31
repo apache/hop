@@ -778,6 +778,8 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
   private void generatePKCEParameters() {
     try {
       // Generate code verifier (43-128 characters, URL-safe)
+      // Created once per OAuth authorization flow, reuse would gain us nothing
+      @SuppressWarnings("java:S2119")
       SecureRandom secureRandom = new SecureRandom();
       byte[] randomBytes = new byte[32];
       secureRandom.nextBytes(randomBytes);

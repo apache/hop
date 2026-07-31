@@ -1204,6 +1204,8 @@ public class ActionMailDialog extends ActionDialog {
                   IMAGES_FILE_TYPES,
                   true);
           if (filename != null) {
+            // Created once per image the user picks, reuse would gain us nothing
+            @SuppressWarnings("java:S2119")
             Random random = new Random();
             wContentID.setText(Long.toString(Math.abs(random.nextLong()), 32));
           }

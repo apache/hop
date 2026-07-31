@@ -56,6 +56,7 @@ public class TempFileUtil {
    * @return the path of the newly created file
    * @throws IOException in case the file could not be created
    */
+  @SuppressWarnings("java:S5443") // the permissions below are exactly what makes this safe
   public static Path createTempFile(String prefix, String suffix) throws IOException {
     if (POSIX) {
       return Files.createTempFile(prefix, suffix, OWNER_ONLY);

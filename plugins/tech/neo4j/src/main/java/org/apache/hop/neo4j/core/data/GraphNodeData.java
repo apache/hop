@@ -110,6 +110,7 @@ public class GraphNodeData {
   }
 
   public GraphNodeData(JSONObject jNode) {
+    this();
 
     id = (String) jNode.get("id");
     JSONArray jLabels = (JSONArray) jNode.get("labels");
