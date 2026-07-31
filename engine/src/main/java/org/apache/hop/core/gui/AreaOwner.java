@@ -31,6 +31,9 @@ public class AreaOwner {
     /** The note pad area. */
     NOTE(true),
 
+    /** A hyperlink region inside a Markdown note. */
+    NOTE_LINK(true),
+
     /** The transformation partitioning area. */
     TRANSFORM_PARTITIONING(false),
     /** The transformation icon area. */

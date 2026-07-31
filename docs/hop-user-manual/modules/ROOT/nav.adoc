@@ -29,6 +29,7 @@ under the License.
 * xref:hop-gui/index.adoc[Hop Gui]
 ** xref:hop-gui/file-dialog.adoc[File Dialog]
 ** xref:hop-gui/hop-gui-popup-dialog.adoc[Popup Dialog]
+** xref:hop-gui/notes.adoc[Notes on pipelines and workflows]
 ** xref:hop-gui/perspectives.adoc[Perspectives]
 ** xref:hop-gui/hop-gui-git.adoc[Working with git]
 ** xref:hop-gui/shortcuts.adoc[Keyboard Shortcuts]
