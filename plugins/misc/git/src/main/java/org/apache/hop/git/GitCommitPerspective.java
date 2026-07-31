@@ -67,6 +67,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -117,7 +118,7 @@ public class GitCommitPerspective implements IHopPerspective {
   private Control wToolBar;
   private Tree wTree;
   private Text wMessage;
-  private CLabel wError;
+  private CLabel wStatus;
   private Button wAmend;
   private Button wCommit;
   private Button wCommitAndPush;
@@ -297,16 +298,15 @@ public class GitCommitPerspective implements IHopPerspective {
     wCommitAndPush.addListener(SWT.Selection, event -> commitFiles(true));
     PropsUi.setLook(wCommitAndPush);
 
-    wError = new CLabel(composite, SWT.NONE);
-    wError.setImage(GuiResource.getInstance().getImageError());
-    wError.setLayoutData(
+    wStatus = new CLabel(composite, SWT.NONE);
+    wStatus.setLayoutData(
         FormDataBuilder.builder()
             .bottom()
             .left(wCommitAndPush, ConstUi.MEDIUM_MARGIN)
             .right()
             .result());
-    wError.setVisible(false);
-    PropsUi.setLook(wError);
+    wStatus.setVisible(false);
+    PropsUi.setLook(wStatus);
 
     wMessage = new Text(composite, SWT.BORDER | SWT.MULTI);
     wMessage.setLayoutData(
@@ -329,24 +329,32 @@ public class GitCommitPerspective implements IHopPerspective {
   @GuiKeyboardShortcut(control = true, key = 'k', global = true)
   @GuiOsxKeyboardShortcut(command = true, key = 'k', global = true)
   public void selectAllStaged() {
-    TreeItem stagedRootItem = this.getStagedRootItem();
-    if (stagedRootItem != null) {
-      stagedRootItem.setChecked(true);
-      for (TreeItem item : stagedRootItem.getItems()) {
-        item.setChecked(true);
-      }
-    }
-
-    TreeItem unstagedRootItem = this.getUnstagedRootItem();
-    if (unstagedRootItem != null) {
-      unstagedRootItem.setChecked(false);
-      for (TreeItem item : unstagedRootItem.getItems()) {
-        item.setChecked(false);
-      }
-    }
+    checkStagedFiles();
 
     wMessage.selectAll();
     wMessage.setFocus();
+  }
+
+  /**
+   * Check the staged files and uncheck the unstaged ones. Staged files are the ones that go into
+   * the next commit, so they are what the commit buttons act on by default.
+   */
+  private void checkStagedFiles() {
+    if (wTree == null || wTree.isDisposed() || wTree.getItemCount() < 2) {
+      return;
+    }
+
+    TreeItem stagedRootItem = this.getStagedRootItem();
+    stagedRootItem.setChecked(stagedRootItem.getItemCount() > 0);
+    for (TreeItem item : stagedRootItem.getItems()) {
+      item.setChecked(true);
+    }
+
+    TreeItem unstagedRootItem = this.getUnstagedRootItem();
+    unstagedRootItem.setChecked(false);
+    for (TreeItem item : unstagedRootItem.getItems()) {
+      item.setChecked(false);
+    }
   }
 
   protected void retrieveState() {
@@ -710,10 +718,18 @@ public class GitCommitPerspective implements IHopPerspective {
       List<UIFile> filesToIgnore =
           this.getSelectedFiles(getStagedRootItem().getItems(), new ArrayList<>(), false);
 
-      // No files to commit
+      // No files to commit. Selecting a row in the tree only highlights it, so tell the user to
+      // check the box when there are files listed but none of them are checked.
+      //
       if (filesToCommit.isEmpty()) {
-        wError.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.NoFilesToCommit.Message"));
-        wError.setVisible(true);
+        boolean treeHasFiles = !filesToIgnore.isEmpty() || !getUncheckedFiles().isEmpty();
+        showStatus(
+            GuiResource.getInstance().getImageError(),
+            BaseMessages.getString(
+                PKG,
+                treeHasFiles
+                    ? "GitCommitPerspective.Error.NoFilesChecked.Message"
+                    : "GitGuiPlugin.Dialog.NoFilesToCommit.Message"));
         return;
       }
 
@@ -737,6 +753,7 @@ public class GitCommitPerspective implements IHopPerspective {
 
       // Commit selected files
       uiGit.commit(authorName, message, amend);
+      String commitId = uiGit.getCommitId(Constants.HEAD);
 
       // Restore unselected staged files
       if (!filesToIgnore.isEmpty()) {
@@ -755,9 +772,10 @@ public class GitCommitPerspective implements IHopPerspective {
 
       wAmend.setSelection(false);
 
+      boolean pushed = false;
       if (push) {
         try {
-          uiGit.push();
+          pushed = uiGit.push();
         } catch (Exception e) {
           new ErrorDialog(
               HopGui.getInstance().getShell(),
@@ -766,6 +784,19 @@ public class GitCommitPerspective implements IHopPerspective {
               e);
         }
       }
+
+      // Confirm what happened. The status stays until the next thing the user does, no dialog to
+      // click away. It goes last: refreshing the tree clears the status line.
+      //
+      showStatus(
+          GuiResource.getInstance().getImageSuccess(),
+          BaseMessages.getString(
+              PKG,
+              pushed
+                  ? "GitCommitPerspective.Status.CommittedAndPushed.Message"
+                  : "GitCommitPerspective.Status.Committed.Message",
+              Integer.toString(filesToCommit.size()),
+              getCommitIdLabel(commitId)));
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
@@ -773,6 +804,27 @@ public class GitCommitPerspective implements IHopPerspective {
           BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitError.Message"),
           e);
     }
+  }
+
+  /**
+   * Show a line of feedback next to the commit buttons. It is wiped by the next {@link
+   * #updateGui()} so it lives exactly as long as the user's next action.
+   */
+  private void showStatus(Image image, String message) {
+    wStatus.setImage(image);
+    wStatus.setText(message);
+    wStatus.setVisible(true);
+  }
+
+  /**
+   * The short commit id to append to the status, or nothing at all if git did not hand one back.
+   */
+  private String getCommitIdLabel(String commitId) {
+    if (commitId == null || commitId.length() < 7) {
+      return "";
+    }
+    return BaseMessages.getString(
+        PKG, "GitCommitPerspective.Status.CommitId.Label", commitId.substring(0, 7));
   }
 
   private TreeItem getStagedRootItem() {
@@ -810,6 +862,13 @@ public class GitCommitPerspective implements IHopPerspective {
     return getSelectedFiles(getUnstagedRootItem().getItems(), new ArrayList<>(), true);
   }
 
+  protected List<UIFile> getUncheckedFiles() {
+    if (wTree == null || wTree.isDisposed()) {
+      return List.of();
+    }
+    return getSelectedFiles(wTree.getItems(), new ArrayList<>(), false);
+  }
+
   protected List<UIFile> getSelectedFiles(TreeItem[] items, List<UIFile> files, boolean selected) {
     for (TreeItem item : items) {
       if ((item.getData() instanceof UIFile file) && item.getChecked() == selected) {
@@ -833,7 +892,7 @@ public class GitCommitPerspective implements IHopPerspective {
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RESTORE, !getSelectedStagedFiles().isEmpty());
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, !getSelectedFiles().isEmpty());
 
-    wError.setVisible(false);
+    wStatus.setVisible(false);
     wCommit.setEnabled(commitEnabled);
     wCommitAndPush.setEnabled(commitEnabled);
   }
@@ -904,6 +963,10 @@ public class GitCommitPerspective implements IHopPerspective {
 
         stagedItem.setExpanded(true);
         untrackedItem.setExpanded(true);
+
+        // Start from the staged files, the way a "git commit" would
+        //
+        checkStagedFiles();
       }
       wTree.setRedraw(true);
 
