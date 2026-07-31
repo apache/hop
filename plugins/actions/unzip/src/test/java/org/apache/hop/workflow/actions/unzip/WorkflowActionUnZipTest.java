@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.vfs2.FileContent;
@@ -199,6 +200,46 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
   }
 
   /**
+   * Issue #2235: the zip VFS filesystem must be released once after all entries are processed, not
+   * once per entry. Closing it per entry re-parses the zip central directory for every file and is
+   * catastrophic on archives with hundreds of thousands of small files.
+   */
+  @Test
+  void unzipReleasesZipFileSystemOncePerArchive() throws Exception {
+    final int entryCount = 50;
+
+    File workDir = Files.createTempDirectory("unzip2235").toFile();
+    workDir.deleteOnExit();
+    File zipFile = new File(workDir, "many-entries.zip");
+    File targetDir = new File(workDir, "extract");
+    createZipWithManySmallEntries(zipFile, entryCount);
+
+    AtomicInteger releaseCount = new AtomicInteger();
+    ActionUnZip action =
+        new ActionUnZip() {
+          @Override
+          void releaseZipFileSystem(FileObject zipFileObject) {
+            releaseCount.incrementAndGet();
+            super.releaseZipFileSystem(zipFileObject);
+          }
+        };
+
+    Result result = runUnzipSingleFile(action, zipFile, targetDir, FileExistsEnum.OVERWRITE);
+
+    assertEquals(0, result.getNrErrors(), "The action should not report errors");
+    assertTrue(result.getResult(), "The action should succeed");
+    assertEquals(
+        entryCount,
+        countFiles(targetDir),
+        "All " + entryCount + " entries should have been extracted");
+    assertEquals(
+        1,
+        releaseCount.get(),
+        "Zip filesystem must be released exactly once per archive (issue #2235); "
+            + "releasing per entry re-parses the central directory for every file");
+  }
+
+  /**
    * Builds a temp folder with two {@code geoip_*.zip} archives, each holding one distinct entry.
    */
   private static File createGeoipArchiveFolder() throws java.io.IOException {
@@ -236,6 +277,29 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
     return action.execute(new Result(), 0);
   }
 
+  /** Configures and runs the unzip action on a single archive file. */
+  private static Result runUnzipSingleFile(
+      File zipFile, File targetDir, FileExistsEnum ifFileExist) {
+    return runUnzipSingleFile(new ActionUnZip(), zipFile, targetDir, ifFileExist);
+  }
+
+  private static Result runUnzipSingleFile(
+      ActionUnZip action, File zipFile, File targetDir, FileExistsEnum ifFileExist) {
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    workflow.setStopped(false);
+
+    workflow.getWorkflowMeta().addAction(new ActionMeta(action));
+    action.setParentWorkflow(workflow);
+    action.setParentWorkflowMeta(workflow.getWorkflowMeta());
+
+    action.setZipFilename(zipFile.getPath());
+    action.setSourceDirectory(targetDir.getPath());
+    action.setCreateFolder(true);
+    action.setIfFileExist(ifFileExist);
+
+    return action.execute(new Result(), 0);
+  }
+
   /** Creates a zip file containing the given text entries. */
   private static void createZipWithEntries(File zipFile, String[] entryNames, String[] contents)
       throws java.io.IOException {
@@ -247,5 +311,28 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
         zos.closeEntry();
       }
     }
+  }
+
+  /**
+   * Creates a zip with many tiny entries (same shape as SEC EDGAR bulk zips: lots of small files).
+   * Compression level 0 keeps archive creation cheap in unit tests.
+   */
+  private static void createZipWithManySmallEntries(File zipFile, int entryCount)
+      throws java.io.IOException {
+    byte[] payload = "{\"a\":1}".getBytes(StandardCharsets.UTF_8);
+    try (OutputStream fos = new FileOutputStream(zipFile);
+        ZipOutputStream zos = new ZipOutputStream(fos)) {
+      zos.setLevel(0);
+      for (int i = 0; i < entryCount; i++) {
+        zos.putNextEntry(new ZipEntry(String.format("f%06d.json", i)));
+        zos.write(payload);
+        zos.closeEntry();
+      }
+    }
+  }
+
+  private static int countFiles(File dir) {
+    File[] children = dir.listFiles(File::isFile);
+    return children == null ? 0 : children.length;
   }
 }
