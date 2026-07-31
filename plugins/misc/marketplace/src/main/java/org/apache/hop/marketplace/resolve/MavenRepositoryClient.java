@@ -19,6 +19,7 @@ package org.apache.hop.marketplace.resolve;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -26,7 +27,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -40,6 +40,12 @@ import org.apache.hop.marketplace.config.MarketplaceRepository;
 
 /** Downloads Maven layout artifacts over HTTP(S), with optional Basic authentication. */
 public class MavenRepositoryClient {
+
+  /**
+   * Read chunk for the download loop. Small enough that cancel feels immediate on a slow link,
+   * large enough not to add syscall overhead on a fast one.
+   */
+  private static final int TRANSFER_BUFFER_SIZE = 64 * 1024;
 
   private static final Pattern SNAPSHOT_ZIP_VALUE =
       Pattern.compile(
@@ -70,10 +76,19 @@ public class MavenRepositoryClient {
   public Path downloadZip(
       MarketplaceRepository repository, MavenCoordinates coordinates, Path targetFile)
       throws HopException {
+    return downloadZip(repository, coordinates, targetFile, ITransferListener.NONE);
+  }
+
+  public Path downloadZip(
+      MarketplaceRepository repository,
+      MavenCoordinates coordinates,
+      Path targetFile,
+      ITransferListener listener)
+      throws HopException {
     String base = repository.normalizedUrl();
     String relative = resolveZipRelativePath(repository, coordinates);
     String url = base + relative;
-    return download(url, repository, coordinates.gav(), targetFile);
+    return download(url, repository, coordinates.gav(), targetFile, listener);
   }
 
   /**
@@ -130,9 +145,19 @@ public class MavenRepositoryClient {
   public void downloadArtifact(
       MarketplaceRepository repository, String relativePath, String label, Path targetFile)
       throws HopException {
+    downloadArtifact(repository, relativePath, label, targetFile, ITransferListener.NONE);
+  }
+
+  public void downloadArtifact(
+      MarketplaceRepository repository,
+      String relativePath,
+      String label,
+      Path targetFile,
+      ITransferListener listener)
+      throws HopException {
     String base = repository.normalizedUrl();
     String url = base + (relativePath.startsWith("/") ? relativePath.substring(1) : relativePath);
-    download(url, repository, label, targetFile);
+    download(url, repository, label, targetFile, listener);
   }
 
   /**
@@ -238,9 +263,15 @@ public class MavenRepositoryClient {
     }
   }
 
-  private Path download(String url, MarketplaceRepository repository, String label, Path targetFile)
+  private Path download(
+      String url,
+      MarketplaceRepository repository,
+      String label,
+      Path targetFile,
+      ITransferListener listener)
       throws HopException {
     log.logBasic("Downloading " + label + " from " + url);
+    ITransferListener progress = listener == null ? ITransferListener.NONE : listener;
     try {
       Files.createDirectories(targetFile.getParent());
       HttpRequest.Builder builder =
@@ -255,16 +286,74 @@ public class MavenRepositoryClient {
         throw new HopException(
             "HTTP " + response.statusCode() + " downloading " + label + " from " + url);
       }
-      try (InputStream in = response.body()) {
-        Files.copy(in, targetFile, StandardCopyOption.REPLACE_EXISTING);
-      }
-      log.logBasic("Downloaded " + targetFile + " (" + Files.size(targetFile) + " bytes)");
+      long totalBytes = contentLength(response);
+      progress.started(label, totalBytes);
+      long written = copyWithProgress(response.body(), targetFile, totalBytes, progress);
+      log.logBasic("Downloaded " + targetFile + " (" + written + " bytes)");
       return targetFile;
     } catch (IOException | InterruptedException e) {
       if (e instanceof InterruptedException) {
         Thread.currentThread().interrupt();
       }
+      deleteQuietly(targetFile);
       throw new HopException("Failed to download " + label + " from " + url, e);
+    } catch (HopException e) {
+      // Cancelled or rejected mid-transfer: never leave a truncated zip behind for the unzip step.
+      deleteQuietly(targetFile);
+      throw e;
+    }
+  }
+
+  /**
+   * Stream the response body to {@code targetFile}, reporting every chunk so the caller can move a
+   * progress bar, and honouring cancellation between chunks.
+   *
+   * <p>This is why {@code Files.copy(in, target)} is not used: it consumes the whole stream in one
+   * call, leaving no hook for progress or cancel.
+   *
+   * @return the number of bytes written
+   */
+  private static long copyWithProgress(
+      InputStream body, Path targetFile, long totalBytes, ITransferListener listener)
+      throws IOException, HopException {
+    byte[] buffer = new byte[TRANSFER_BUFFER_SIZE];
+    long written = 0;
+    try (InputStream in = body;
+        OutputStream out = Files.newOutputStream(targetFile)) {
+      int read;
+      while ((read = in.read(buffer)) != -1) {
+        if (listener.isCancelled()) {
+          throw new HopException("Download cancelled");
+        }
+        out.write(buffer, 0, read);
+        written += read;
+        listener.transferred(written, totalBytes);
+      }
+    }
+    // One last callback carrying the exact byte count. A throttling listener must let this one
+    // through rather than coalesce it away, or its bar freezes just short of the total.
+    listener.transferred(written, totalBytes);
+    return written;
+  }
+
+  /**
+   * Size of the body from {@code Content-Length}, or -1 when the server does not say — chunked
+   * transfer encoding, or a compressed response whose header describes the encoded length rather
+   * than the file. Callers must treat -1 as "show an indeterminate bar", not as an error.
+   */
+  private static long contentLength(HttpResponse<InputStream> response) {
+    if (response.headers().firstValue("content-encoding").isPresent()) {
+      // Content-Length then counts encoded bytes, which would not match what we write to disk.
+      return -1L;
+    }
+    return response.headers().firstValueAsLong("content-length").orElse(-1L);
+  }
+
+  private void deleteQuietly(Path file) {
+    try {
+      Files.deleteIfExists(file);
+    } catch (IOException e) {
+      log.logDetailed("Unable to remove partial download " + file + ": " + e.getMessage());
     }
   }
 
