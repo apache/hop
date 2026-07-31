@@ -60,6 +60,7 @@ public final class WorkflowCanvasSvgRenderer {
     public double zoomFactor;
     public boolean drawingBorderAroundName;
     public String mouseOverName;
+    public org.apache.hop.core.gui.markdown.NoteLinkHit mouseOverNoteLink;
     public float magnification;
     public float screenMagnification;
     public ActionMeta startHopAction;
@@ -110,7 +111,9 @@ public final class WorkflowCanvasSvgRenderer {
               ctx.drawingBorderAroundName,
               ctx.mouseOverName);
 
+      org.apache.hop.core.gui.NotePadStyle.setDarkMode(ctx.darkMode);
       workflowPainter.setMagnification(ctx.magnification);
+      workflowPainter.setMouseOverNoteLink(ctx.mouseOverNoteLink);
       workflowPainter.setStartHopAction(ctx.startHopAction);
       workflowPainter.setEndHopLocation(ctx.endHopLocation);
       workflowPainter.setEndHopAction(ctx.endHopAction);

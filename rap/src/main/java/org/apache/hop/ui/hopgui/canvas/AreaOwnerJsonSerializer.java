@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Rectangle;
+import org.apache.hop.core.gui.markdown.NoteLinkHit;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -79,6 +80,16 @@ public final class AreaOwnerJsonSerializer {
     if (owner instanceof NotePadMeta notePadMeta) {
       json.add("kind", "note");
       json.add("note", notePadMeta.getNote());
+      json.add("markdown", notePadMeta.isMarkdown());
+      if (notePadMeta.getNoteType() != null) {
+        json.add("noteType", notePadMeta.getNoteType().getCode());
+      }
+      return json;
+    }
+    if (owner instanceof NoteLinkHit linkHit) {
+      json.add("kind", "noteLink");
+      json.add("label", linkHit.label());
+      json.add("target", linkHit.target());
       return json;
     }
     if (owner instanceof String label) {

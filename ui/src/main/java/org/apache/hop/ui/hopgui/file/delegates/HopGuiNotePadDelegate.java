@@ -42,6 +42,11 @@ public class HopGuiNotePadDelegate {
     this.props = PropsUi.getInstance();
   }
 
+  /** Default note width in canvas units (300 × native zoom). */
+  public static int defaultNoteWidth() {
+    return (int) Math.round(ConstUi.NOTE_DEFAULT_WIDTH * PropsUi.getNativeZoomFactor());
+  }
+
   public void deleteNotes(AbstractMeta meta, List<NotePadMeta> notes) {
     if (Utils.isEmpty(notes)) {
       return; // Nothing to do
@@ -72,7 +77,8 @@ public class HopGuiNotePadDelegate {
 
   public void newNote(IVariables variables, AbstractMeta meta, int x, int y) {
     String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NoteEditor.Title");
-    NotePadDialog dialog = new NotePadDialog(variables, hopGui.getShell(), title);
+    NotePadDialog dialog =
+        new NotePadDialog(variables, hopGui.getShell(), title, meta.getFilename());
     NotePadMeta note = dialog.open();
     if (note != null) {
       NotePadMeta newNote =
@@ -95,8 +101,10 @@ public class HopGuiNotePadDelegate {
               note.getBorderColorRed(),
               note.getBorderColorGreen(),
               note.getBorderColorBlue());
-      // Apply grid snapping to ensure correct initial size
-      PropsUi.setSize(newNote, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE);
+      newNote.setMarkdown(note.isMarkdown());
+      newNote.setNoteType(note.getNoteType());
+      // Apply grid snapping; default width is readable for Markdown wrapping
+      PropsUi.setSize(newNote, defaultNoteWidth(), ConstUi.NOTE_MIN_SIZE);
       meta.addNote(newNote);
       hopGui.undoDelegate.addUndoNew(
           meta, new NotePadMeta[] {newNote}, new int[] {meta.indexOfNote(newNote)});

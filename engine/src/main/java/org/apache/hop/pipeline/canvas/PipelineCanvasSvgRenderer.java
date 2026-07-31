@@ -24,9 +24,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.CanvasSvgRenderResult;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.NotePadStyle;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.SvgGc;
+import org.apache.hop.core.gui.markdown.NoteLinkHit;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.svg.SvgFile;
@@ -66,6 +68,7 @@ public final class PipelineCanvasSvgRenderer {
     public Map<String, RowBuffer> outputHopRowsMap;
     public boolean drawingBorderAroundName;
     public String mouseOverName;
+    public NoteLinkHit mouseOverNoteLink;
     public Map<String, Object> stateMap;
     public float magnification;
     public float screenMagnification;
@@ -124,7 +127,9 @@ public final class PipelineCanvasSvgRenderer {
               ctx.mouseOverName,
               ctx.stateMap);
 
+      NotePadStyle.setDarkMode(ctx.darkMode);
       pipelinePainter.setMagnification(ctx.magnification);
+      pipelinePainter.setMouseOverNoteLink(ctx.mouseOverNoteLink);
       pipelinePainter.setOutputHopRowsMap(ctx.outputHopRowsMap);
       pipelinePainter.setTransformLogMap(ctx.transformLogMap);
       pipelinePainter.setStartHopTransform(ctx.startHopTransform);

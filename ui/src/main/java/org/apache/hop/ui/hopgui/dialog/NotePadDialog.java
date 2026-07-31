@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.NotePadType;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -59,11 +60,25 @@ public class NotePadDialog extends Dialog {
 
   private StyledTextComp wDesc;
 
+  private Button wMarkdown;
+
+  private Button wPreview;
+
+  private CCombo wNoteType;
+
+  private Label wlNoteType;
+
+  private Label wlMarkdownHint;
+
   private Shell shell;
   private String title;
   private PropsUi props;
 
   private CTabFolder wNoteFolder;
+
+  private CTabItem wNoteFontTab;
+
+  private Composite wNoteFontComp;
 
   private CCombo wFontName;
 
@@ -93,8 +108,16 @@ public class NotePadDialog extends Dialog {
 
   private IVariables variables;
 
+  /** Host pipeline/workflow filename for resolving relative Markdown image paths in preview. */
+  private String baseFilename;
+
   /** Dialog to allow someone to show or enter a text in variable width font */
   public NotePadDialog(IVariables variables, Shell parent, String title, NotePadMeta nMeta) {
+    this(variables, parent, title, nMeta, null);
+  }
+
+  public NotePadDialog(
+      IVariables variables, Shell parent, String title, NotePadMeta nMeta, String baseFilename) {
     super(parent, SWT.NONE);
     props = PropsUi.getInstance();
     this.title = title;
@@ -102,10 +125,15 @@ public class NotePadDialog extends Dialog {
       notePadMeta = nMeta;
     }
     this.variables = variables;
+    this.baseFilename = baseFilename;
   }
 
   public NotePadDialog(IVariables variables, Shell parent, String title) {
-    this(variables, parent, title, null);
+    this(variables, parent, title, null, null);
+  }
+
+  public NotePadDialog(IVariables variables, Shell parent, String title, String baseFilename) {
+    this(variables, parent, title, null, baseFilename);
   }
 
   public NotePadMeta open() {
@@ -135,6 +163,18 @@ public class NotePadDialog extends Dialog {
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
+    // Help (Markdown notes) — bottom-left, same placement as transform/action dialogs
+    Button wHelp = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wHelp);
+    wHelp.setImage(GuiResource.getInstance().getImageHelp());
+    wHelp.setText(BaseMessages.getString(PKG, "NotePadDialog.Help.Button"));
+    wHelp.setToolTipText(BaseMessages.getString(PKG, "NotePadDialog.Markdown.Help.Tooltip"));
+    FormData fdHelp = new FormData();
+    fdHelp.left = new FormAttachment(0, 0);
+    fdHelp.bottom = new FormAttachment(100, 0);
+    wHelp.setLayoutData(fdHelp);
+    wHelp.addListener(SWT.Selection, e -> MarkdownNoteHelp.show(shell));
+
     wNoteFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wNoteFolder, Props.WIDGET_STYLE_TAB);
 
@@ -152,13 +192,83 @@ public class NotePadDialog extends Dialog {
     fileLayout.marginHeight = 3;
     wNoteContentComp.setLayout(fileLayout);
 
-    // From transform line
+    // Render as Markdown
+    wMarkdown = new Button(wNoteContentComp, SWT.CHECK);
+    wMarkdown.setText(BaseMessages.getString(PKG, "NotePadDialog.Markdown.Label"));
+    wMarkdown.setToolTipText(BaseMessages.getString(PKG, "NotePadDialog.Markdown.Tooltip"));
+    PropsUi.setLook(wMarkdown);
+    FormData fdMarkdown = new FormData();
+    fdMarkdown.left = new FormAttachment(0, 0);
+    fdMarkdown.top = new FormAttachment(0, margin);
+    wMarkdown.setLayoutData(fdMarkdown);
+    wMarkdown.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            updateMarkdownUiState();
+            refreshTextNote();
+          }
+        });
+
+    wPreview = new Button(wNoteContentComp, SWT.PUSH);
+    wPreview.setText(BaseMessages.getString(PKG, "NotePadDialog.Markdown.Preview.Button"));
+    wPreview.setToolTipText(BaseMessages.getString(PKG, "NotePadDialog.Markdown.Preview.Tooltip"));
+    PropsUi.setLook(wPreview);
+    FormData fdPreview = new FormData();
+    fdPreview.right = new FormAttachment(100, 0);
+    fdPreview.top = new FormAttachment(0, margin);
+    wPreview.setLayoutData(fdPreview);
+    wPreview.addListener(
+        SWT.Selection,
+        e -> MarkdownNotePreview.show(shell, wDesc.getText(), variables, baseFilename));
+
+    FormData fdMarkdownRight = new FormData();
+    fdMarkdownRight.left = new FormAttachment(0, 0);
+    fdMarkdownRight.top = new FormAttachment(0, margin);
+    fdMarkdownRight.right = new FormAttachment(wPreview, -margin);
+    wMarkdown.setLayoutData(fdMarkdownRight);
+
+    wlMarkdownHint = new Label(wNoteContentComp, SWT.LEFT | SWT.WRAP);
+    wlMarkdownHint.setText(BaseMessages.getString(PKG, "NotePadDialog.Markdown.Hint"));
+    PropsUi.setLook(wlMarkdownHint);
+    FormData fdlHint = new FormData();
+    fdlHint.left = new FormAttachment(0, 0);
+    fdlHint.top = new FormAttachment(wMarkdown, margin);
+    fdlHint.right = new FormAttachment(100, 0);
+    wlMarkdownHint.setLayoutData(fdlHint);
+
+    // Note type (Markdown mode only — system-owned styling)
+    wlNoteType = new Label(wNoteContentComp, SWT.RIGHT);
+    wlNoteType.setText(BaseMessages.getString(PKG, "NotePadDialog.NoteType.Label"));
+    PropsUi.setLook(wlNoteType);
+    FormData fdlNoteType = new FormData();
+    fdlNoteType.left = new FormAttachment(0, 0);
+    fdlNoteType.top = new FormAttachment(wlMarkdownHint, margin);
+    wlNoteType.setLayoutData(fdlNoteType);
+    wNoteType = new CCombo(wNoteContentComp, SWT.BORDER | SWT.READ_ONLY);
+    wNoteType.setItems(NotePadType.getDescriptions());
+    wNoteType.setToolTipText(BaseMessages.getString(PKG, "NotePadDialog.NoteType.Tooltip"));
+    PropsUi.setLook(wNoteType);
+    FormData fdNoteType = new FormData();
+    fdNoteType.left = new FormAttachment(wlNoteType, margin);
+    fdNoteType.top = new FormAttachment(wlMarkdownHint, margin);
+    fdNoteType.right = new FormAttachment(100, 0);
+    wNoteType.setLayoutData(fdNoteType);
+    wNoteType.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            refreshTextNote();
+          }
+        });
+
+    // Note body
     Label wlDesc = new Label(wNoteContentComp, SWT.NONE);
     wlDesc.setText(BaseMessages.getString(PKG, "NotePadDialog.ContentTab.Note.Label"));
     PropsUi.setLook(wlDesc);
     FormData fdlDesc = new FormData();
     fdlDesc.left = new FormAttachment(0, 0);
-    fdlDesc.top = new FormAttachment(0, margin);
+    fdlDesc.top = new FormAttachment(wNoteType, margin);
     wlDesc.setLayoutData(fdlDesc);
     wDesc =
         new StyledTextComp(
@@ -167,6 +277,11 @@ public class NotePadDialog extends Dialog {
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 
     wDesc.setText("");
+    // Standard widget look (theme-aware). Do not paint note fill/font colors into the editor —
+    // those are canvas-only and break dark mode. Use a fixed-width font for Markdown source.
+    PropsUi.setLook(wDesc);
+    PropsUi.setLook(wDesc.getTextWidget());
+    wDesc.setFont(GuiResource.getInstance().getFontFixed());
     FormData fdDesc = new FormData();
     fdDesc.left = new FormAttachment(0, 0);
     fdDesc.top = new FormAttachment(wlDesc, margin);
@@ -190,10 +305,10 @@ public class NotePadDialog extends Dialog {
     // ////////////////////////
     // START OF NOTE FONT TAB///
     // /
-    CTabItem wNoteFontTab = new CTabItem(wNoteFolder, SWT.NONE);
+    wNoteFontTab = new CTabItem(wNoteFolder, SWT.NONE);
     wNoteFontTab.setFont(GuiResource.getInstance().getFontDefault());
     wNoteFontTab.setText(BaseMessages.getString(PKG, "NotePadDialog.Font.Label"));
-    Composite wNoteFontComp = new Composite(wNoteFolder, SWT.NONE);
+    wNoteFontComp = new Composite(wNoteFolder, SWT.NONE);
     PropsUi.setLook(wNoteFontComp);
 
     FormLayout notefontLayout = new FormLayout();
@@ -498,6 +613,10 @@ public class NotePadDialog extends Dialog {
 
     if (notePadMeta != null) {
       wDesc.setText(Const.NVL(notePadMeta.getNote(), ""));
+      wMarkdown.setSelection(notePadMeta.isMarkdown());
+      NotePadType type =
+          notePadMeta.getNoteType() != null ? notePadMeta.getNoteType() : NotePadType.GENERAL;
+      wNoteType.setText(type.getDescription());
       wFontName.setText(
           notePadMeta.getFontName() == null
               ? props.getNoteFont().getName()
@@ -530,6 +649,8 @@ public class NotePadDialog extends Dialog {
                   notePadMeta.getBorderColorGreen(),
                   notePadMeta.getBorderColorBlue()));
     } else {
+      wMarkdown.setSelection(true);
+      wNoteType.setText(NotePadType.GENERAL.getDescription());
       wFontName.setText(props.getNoteFont().getName());
       wFontSize.setSelection(props.getNoteFont().getHeight());
       wFontBold.setSelection(false);
@@ -561,11 +682,41 @@ public class NotePadDialog extends Dialog {
     wBackGroundColor.setBackground(bgColor);
     wBorderColor.setBackground(borderColor);
 
+    updateMarkdownUiState();
+
     wNoteFolder.setSelection(0);
     wDesc.setFocus();
     wDesc.setSelection(wDesc.getText().length());
 
     refreshTextNote();
+  }
+
+  private void updateMarkdownUiState() {
+    boolean markdown = wMarkdown.getSelection();
+    wlNoteType.setEnabled(markdown);
+    wNoteType.setEnabled(markdown);
+    if (wPreview != null && !wPreview.isDisposed()) {
+      wPreview.setEnabled(markdown);
+    }
+    if (wlMarkdownHint != null && !wlMarkdownHint.isDisposed()) {
+      wlMarkdownHint.setEnabled(markdown);
+    }
+    // Font & style are system-owned in Markdown mode
+    if (wNoteFontComp != null && !wNoteFontComp.isDisposed()) {
+      setEnabledRecursive(wNoteFontComp, !markdown);
+    }
+  }
+
+  private void setEnabledRecursive(Control control, boolean enabled) {
+    if (control == null || control.isDisposed()) {
+      return;
+    }
+    control.setEnabled(enabled);
+    if (control instanceof Composite composite) {
+      for (Control child : composite.getChildren()) {
+        setEnabledRecursive(child, enabled);
+      }
+    }
   }
 
   private void cancel() {
@@ -581,6 +732,8 @@ public class NotePadDialog extends Dialog {
     if (wDesc.getText() != null) {
       notePadMeta.setNote(wDesc.getText());
     }
+    notePadMeta.setMarkdown(wMarkdown.getSelection());
+    notePadMeta.setNoteType(NotePadType.lookupDescription(wNoteType.getText()));
     if (wFontName.getText() != null) {
       notePadMeta.setFontName(wFontName.getText());
     }
@@ -647,26 +800,23 @@ public class NotePadDialog extends Dialog {
   }
 
   private void refreshTextNote() {
-    int swt = SWT.NORMAL;
-    if (wFontBold.getSelection()) {
-      swt = SWT.BOLD;
+    // Editor text area always keeps a fixed-width font and standard theme colors (no note
+    // fill/foreground). Preview of canvas font/colors is only via the color swatches below.
+    if (font != null && !font.isDisposed()) {
+      font.dispose();
+      font = null;
     }
-    if (wFontItalic.getSelection()) {
-      swt = swt | SWT.ITALIC;
-    }
-    // dispose of old font only after setting it on wDesc
-    Font oldFont = font;
-    font = new Font(shell.getDisplay(), wFontName.getText(), wFontSize.getSelection(), swt);
-    wDesc.setFont(font);
-    if (oldFont != null && !oldFont.isDisposed()) {
-      oldFont.dispose();
-    }
-    for (Control control : wDesc.getChildren()) {
-      control.setBackground(bgColor);
-    }
+    wDesc.setFont(GuiResource.getInstance().getFontFixed());
 
-    wFontColor.setBackground(fontColor);
-    wBackGroundColor.setBackground(bgColor);
-    wBorderColor.setBackground(borderColor);
+    // Update color swatches on the Font & style tab only (not the note body editor)
+    if (fontColor != null && !fontColor.isDisposed()) {
+      wFontColor.setBackground(fontColor);
+    }
+    if (bgColor != null && !bgColor.isDisposed()) {
+      wBackGroundColor.setBackground(bgColor);
+    }
+    if (borderColor != null && !borderColor.isDisposed()) {
+      wBorderColor.setBackground(borderColor);
+    }
   }
 }

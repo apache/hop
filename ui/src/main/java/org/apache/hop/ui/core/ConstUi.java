@@ -53,6 +53,12 @@ public class ConstUi {
   /** The minimal size of a note on a graphical view (width &amp; height) */
   public static final int NOTE_MIN_SIZE = 20;
 
+  /**
+   * Default logical width for a new note (before multiplying by {@code
+   * PropsUi.getNativeZoomFactor()}).
+   */
+  public static final int NOTE_DEFAULT_WIDTH = 300;
+
   /** Offset between pointer and tooltip position. */
   public static final int TOOLTIP_OFFSET = 5;
 

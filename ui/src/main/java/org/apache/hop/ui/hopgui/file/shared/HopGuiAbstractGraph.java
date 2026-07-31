@@ -29,6 +29,7 @@ import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.SnapAllignDistribute;
+import org.apache.hop.core.gui.markdown.NoteLinkHit;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.variables.IVariables;
@@ -40,6 +41,7 @@ import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -67,6 +69,9 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   protected Resize resize;
   protected HopToolTip toolTip;
   protected String mouseOverName;
+
+  /** Hovered Markdown note hyperlink (for underline emphasis and hand cursor). */
+  protected NoteLinkHit mouseOverNoteLink;
 
   /**
    * This is a state map which can be used by plugins to render extra states on top of pipelines and
@@ -519,6 +524,32 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
       return true;
     }
     return false;
+  }
+
+  /**
+   * Updates {@link #mouseOverNoteLink} for Markdown note hyperlink hover feedback.
+   *
+   * @return true when the hovered link changed and the canvas should redraw
+   */
+  protected boolean applyMouseOverNoteLinkHover(
+      AreaOwner areaOwner, boolean interactionInProgress) {
+    NoteLinkHit next = null;
+    if (!interactionInProgress && areaOwner != null) {
+      next = HopGuiNoteLinkSupport.linkHitFrom(areaOwner);
+    }
+    if (!HopGuiNoteLinkSupport.noteLinksEqual(mouseOverNoteLink, next)) {
+      mouseOverNoteLink = next;
+      return true;
+    }
+    return false;
+  }
+
+  public NoteLinkHit getMouseOverNoteLink() {
+    return mouseOverNoteLink;
+  }
+
+  public void setMouseOverNoteLink(NoteLinkHit mouseOverNoteLink) {
+    this.mouseOverNoteLink = mouseOverNoteLink;
   }
 
   /** Resize direction */
