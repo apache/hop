@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
@@ -258,22 +259,58 @@ public class PluginInstaller {
           Files.createDirectories(to);
         } else if (Files.isRegularFile(from)) {
           Files.createDirectories(to.getParent());
-          // Shared classpath jars (Maven provided → lib/core). Install them so marketplace
-          // packages match the full client assembly; warn when replacing different content.
-          if (isSharedCorePath(relative)
-              && Files.isRegularFile(to)
-              && Files.mismatch(from, to) != -1L) {
-            log.logBasic(
-                "Replacing shared lib/core jar with different content from "
-                    + artifactId
-                    + ": "
-                    + relative);
+          if (isSharedCorePath(relative)) {
+            activateSharedCoreJar(artifactId, relative, from, to);
+          } else {
+            Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
           }
-          Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
         }
       }
     } catch (IOException e) {
       throw new HopException("Failed to activate staged plugin " + artifactId, e);
+    }
+  }
+
+  /**
+   * Install shared classpath jars (Maven provided → {@code lib/core}). Missing jars are always
+   * copied. Existing jars that match the staged content are skipped. On Windows, existing jars are
+   * never overwritten (the running JVM locks {@code lib/core/*} on the system classpath). On other
+   * platforms, different content is replaced when possible; copy failures are logged and skipped so
+   * the rest of the plugin still activates.
+   */
+  private void activateSharedCoreJar(String artifactId, String relative, Path from, Path to)
+      throws IOException {
+    boolean targetExists = Files.isRegularFile(to);
+    Long mismatch = targetExists ? Files.mismatch(from, to) : null;
+
+    if (skipSharedCoreCopy(targetExists, mismatch, Const.isWindows())) {
+      if (targetExists && mismatch != null && mismatch != -1L) {
+        log.logBasic(
+            "Leaving existing shared lib/core jar in place (Windows locks system classpath jars): "
+                + relative
+                + " from "
+                + artifactId
+                + ". Content differs from the package; stop Hop and replace manually if needed.");
+      }
+      return;
+    }
+
+    if (targetExists && mismatch != null && mismatch != -1L) {
+      log.logBasic(
+          "Replacing shared lib/core jar with different content from "
+              + artifactId
+              + ": "
+              + relative);
+    }
+    try {
+      Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      // File in use (Windows), antivirus, etc. — do not fail the whole plugin install.
+      log.logError(
+          "Could not write shared lib/core jar (file in use?): "
+              + relative
+              + " — leaving existing file. "
+              + e.getMessage());
     }
   }
 
@@ -285,6 +322,31 @@ public class PluginInstaller {
   static boolean isSharedCorePath(String relative) {
     String normalized = relative.replace('\\', '/');
     return normalized.equals("lib/core") || normalized.startsWith("lib/core/");
+  }
+
+  /**
+   * Whether activation should skip copying a staged lib/core file onto an existing target.
+   *
+   * <ul>
+   *   <li>Missing target → never skip (install new shared jars; see #7666).
+   *   <li>Identical content → always skip (avoids Windows lock failures when re-shipping the same
+   *       jar, e.g. avro).
+   *   <li>Different content on Windows → skip (cannot overwrite locked classpath jars).
+   *   <li>Different content elsewhere → do not skip (try replace).
+   * </ul>
+   *
+   * @param targetExists whether the destination file already exists
+   * @param mismatch result of {@link Files#mismatch} when the target exists; ignored when missing
+   * @param windows whether the host is Windows
+   */
+  static boolean skipSharedCoreCopy(boolean targetExists, Long mismatch, boolean windows) {
+    if (!targetExists) {
+      return false;
+    }
+    if (mismatch != null && mismatch == -1L) {
+      return true;
+    }
+    return windows;
   }
 
   private List<String> unzipAllowedEntries(Path zipFile, Path stageRoot)
