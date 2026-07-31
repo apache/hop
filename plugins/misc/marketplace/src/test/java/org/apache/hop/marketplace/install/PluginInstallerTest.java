@@ -55,7 +55,7 @@ class PluginInstallerTest {
   @Test
   void sharedCorePaths() {
     assertFalse(PluginInstaller.isSharedCorePath("lib/beam/foo.jar"));
-    assertFalse(PluginInstaller.isSharedCorePath("plugins/engines/beam/lib-beam/x.jar"));
+    assertFalse(PluginInstaller.isSharedCorePath("plugins/engines/beam/hop-engines-beam.jar"));
     assertTrue(PluginInstaller.isSharedCorePath("lib/core/bar.jar"));
     assertTrue(PluginInstaller.isSharedCorePath("lib/core"));
     assertFalse(PluginInstaller.isSharedCorePath("plugins/engines/beam/hop.jar"));

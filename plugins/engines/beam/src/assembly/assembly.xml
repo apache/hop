@@ -18,7 +18,6 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <!-- Marketplace plugin: Hop Beam jar + Beam SDKs under lib-beam (runners etc.). -->
     <id>plugin</id>
     <formats>
         <format>zip</format>
@@ -51,9 +50,41 @@
             </includes>
             <outputDirectory>plugins/engines/beam</outputDirectory>
         </dependencySet>
-    </dependencySets>
 
-    <componentDescriptors>
-        <componentDescriptor>${project.basedir}/src/assembly/assembly-beam-runtime.xml</componentDescriptor>
-    </componentDescriptors>
+        <!-- Default Spark client pack. Kept in its own folder so HOP_SPARK_CLIENT_VERSION can
+             swap it for a versioned pack under lib/spark-clients/<version>/ (materialised with
+             tools/spark-client-pack) without touching the rest of the installation. -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <includes>
+                <include>org.apache.spark:spark-core_2.12:jar</include>
+                <include>org.apache.spark:spark-streaming_2.12:jar</include>
+                <include>org.apache.spark:spark-launcher_2.12:jar</include>
+                <include>org.apache.spark:spark-kvstore_2.12:jar</include>
+                <include>org.apache.spark:spark-network-common_2.12:jar</include>
+                <include>org.apache.spark:spark-network-shuffle_2.12:jar</include>
+                <include>org.apache.spark:spark-unsafe_2.12:jar</include>
+                <include>org.apache.spark:spark-tags_2.12:jar</include>
+            </includes>
+            <outputDirectory>lib/spark-client</outputDirectory>
+        </dependencySet>
+
+        <!-- Beam SDKs, runners and everything they need - the former lib/beam -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <excludes>
+                <exclude>org.apache.spark:spark-core_2.12</exclude>
+                <exclude>org.apache.spark:spark-streaming_2.12</exclude>
+                <exclude>org.apache.spark:spark-launcher_2.12</exclude>
+                <exclude>org.apache.spark:spark-kvstore_2.12</exclude>
+                <exclude>org.apache.spark:spark-network-common_2.12</exclude>
+                <exclude>org.apache.spark:spark-network-shuffle_2.12</exclude>
+                <exclude>org.apache.spark:spark-unsafe_2.12</exclude>
+                <exclude>org.apache.spark:spark-tags_2.12</exclude>
+            </excludes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
+    </dependencySets>
 </assembly>

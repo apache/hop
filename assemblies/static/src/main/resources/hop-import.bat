@@ -30,13 +30,6 @@ if defined HOP_SPARK_CLIENT_VERSION if exist "lib\spark-clients\%HOP_SPARK_CLIEN
   set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
 )
 
-REM Beam SDKs under optional plugin (plugins\engines\beam\lib-beam)
-if exist "plugins\engines\beam\lib-beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\lib-beam\*
-)
-if exist "plugins\engines\beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\*
-)
 
 
 

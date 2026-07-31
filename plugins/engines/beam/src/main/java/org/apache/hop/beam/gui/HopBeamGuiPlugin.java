@@ -461,7 +461,7 @@ public class HopBeamGuiPlugin {
 
   /**
    * @param versionedPack when true, also skip {@code spark-*.jar} under Beam SDK folders ({@code
-   *     lib/beam} legacy or {@code plugins/engines/beam/lib-beam}) so Beam's fixed Spark fragments
+   *     lib/beam} legacy or {@code plugins/engines/beam/lib}) so Beam's fixed Spark fragments
    *     cannot mix with an alternate client pack
    */
   private static void collectJarsExcludingSparkClientPacks(
@@ -485,7 +485,7 @@ public class HopBeamGuiPlugin {
       if (child.isDirectory()) {
         collectJarsExcludingSparkClientPacks(child, jarFiles, versionedPack);
       } else if (child.isFile() && child.getName().endsWith(".jar")) {
-        // Versioned packs own all spark-* jars; drop Beam's spark fragments from lib-beam /
+        // Versioned packs own all spark-* jars; drop Beam's spark fragments from the plugin /
         // lib/beam
         if (versionedPack
             && child.getName().startsWith("spark-")
@@ -498,7 +498,12 @@ public class HopBeamGuiPlugin {
     }
   }
 
-  /** True for legacy {@code lib/beam} or marketplace {@code …/beam/lib-beam}. */
+  /**
+   * True for the Beam SDK folder of older layouts: the top-level {@code lib/beam} before Beam
+   * became a marketplace plugin, and {@code plugins/engines/beam/lib-beam} in between. Current
+   * installs put the Beam SDKs in {@code lib/core}, where the generic spark-* guard below already
+   * covers them.
+   */
   static boolean isBeamSdkJarFolder(File folder) {
     if (folder == null) {
       return false;
