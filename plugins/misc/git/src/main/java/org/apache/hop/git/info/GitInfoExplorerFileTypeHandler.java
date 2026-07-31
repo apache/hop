@@ -39,6 +39,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.git.GitGuiPlugin;
 import org.apache.hop.git.HopDiff;
+import org.apache.hop.git.config.GitConfigSingleton;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
@@ -441,9 +442,12 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       PipelineMeta pipelineMetaNew =
           new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
-      pipelineMetaOld = HopDiff.compareTransforms(pipelineMetaOld, pipelineMetaNew, true);
+      boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      pipelineMetaOld =
+          HopDiff.compareTransforms(pipelineMetaOld, pipelineMetaNew, true, ignorePosition);
       pipelineMetaOld = HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true);
-      pipelineMetaNew = HopDiff.compareTransforms(pipelineMetaNew, pipelineMetaOld, false);
+      pipelineMetaNew =
+          HopDiff.compareTransforms(pipelineMetaNew, pipelineMetaOld, false, ignorePosition);
       pipelineMetaNew = HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false);
 
       pipelineMetaOld.setPipelineVersion(CONST_GIT + commitIdOld);
@@ -490,9 +494,12 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       WorkflowMeta workflowMetaNew =
           new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
-      workflowMetaOld = HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true);
+      boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      workflowMetaOld =
+          HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true, ignorePosition);
       workflowMetaOld = HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true);
-      workflowMetaNew = HopDiff.compareActions(workflowMetaNew, workflowMetaOld, false);
+      workflowMetaNew =
+          HopDiff.compareActions(workflowMetaNew, workflowMetaOld, false, ignorePosition);
       workflowMetaNew = HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false);
 
       workflowMetaOld.setWorkflowVersion(CONST_GIT + commitIdOld);

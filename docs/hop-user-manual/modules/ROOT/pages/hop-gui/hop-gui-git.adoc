@@ -90,6 +90,9 @@ Hop will show an additional icon in the upper right corner of the action or tran
 
 image::hop-gui/git-visual-diff.png[Git visual diff,width="65%"]
 
+A transform or action that was only moved on the canvas is not marked as changed.
+Uncheck "Ignore position in the visual diff" in the configuration options below to have a move count as a change again.
+
 == Git Configuration options
 
 There are a few global configuration options available for the git GUI plugin.
@@ -100,4 +103,6 @@ You can find these in the configuration perspective under the "Plugins" tab and 
 |Option|Description
 |Enable the git plugin|If disabled the plugin will be loaded but will not try to detect a git repository in the project folder.
 |Search parent folders for git repository|this option will search for a git repository (`.git/config` file detection) not just in the project folder but also in all parent folders. Please note that enabling this option can lead to the git plugin having to consider large amounts of files not always associated with the Hop project you're working with.  For this reason the option is disabled by default.
+|Fetch remote changes automatically|Fetches remote updates in the background every 20 minutes.
+|Ignore position in the visual diff|Keeps the position of transforms and actions out of the comparison, so one that was only moved is not reported as changed. Enabled by default.
 |===
