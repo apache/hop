@@ -29,11 +29,6 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Detect Language</name>
 
-    <properties>
-        <hop.pluginlib.exclude1>lingua</hop.pluginlib.exclude1>
-        <hop.pluginlib.exclude2>fastutil</hop.pluginlib.exclude2>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

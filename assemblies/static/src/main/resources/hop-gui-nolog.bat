@@ -27,13 +27,6 @@ if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 set LIBSPATH=lib\core
 set CLASSPATH=lib\core\*;lib\swt\win64\*
 
-REM Beam SDKs under optional plugin (plugins\engines\beam\lib-beam)
-if exist "plugins\engines\beam\lib-beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\lib-beam\*
-)
-if exist "plugins\engines\beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\*
-)
 
 set _temphelp=0
 if [%1]==[help] set _temphelp=1
