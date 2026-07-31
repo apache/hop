@@ -49,6 +49,19 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
 
   @HopMetadataProperty private String note;
 
+  /**
+   * When true, {@link #note} is CommonMark/GFM Markdown and visual style comes from {@link
+   * #noteType} via system styling (user font/color fields are ignored while painting).
+   */
+  @HopMetadataProperty private boolean markdown = true;
+
+  /**
+   * Semantic note type used when {@link #markdown} is true. Determines system-owned colors and
+   * accent icon.
+   */
+  @HopMetadataProperty(key = "notetype", storeWithCode = true)
+  private NotePadType noteType = NotePadType.GENERAL;
+
   @HopMetadataProperty(key = "fontname")
   private String fontName;
 
@@ -180,6 +193,8 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
         n.borderColorRed,
         n.borderColorGreen,
         n.borderColorBlue);
+    this.markdown = n.markdown;
+    this.noteType = n.noteType != null ? n.noteType : NotePadType.GENERAL;
   }
 
   public NotePadMeta(Node nodePadNode) throws HopXmlException {

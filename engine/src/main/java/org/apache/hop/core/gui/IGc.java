@@ -104,6 +104,12 @@ public interface IGc {
 
   void setFont(EFont font);
 
+  /**
+   * Point size of the font currently selected on this graphics context, or {@code -1} if unknown.
+   * Used to match Markdown note body text to {@link EFont#GRAPH} transform/action labels.
+   */
+  int getFontHeight();
+
   Point textExtent(String text);
 
   Point getDeviceBounds();
@@ -133,6 +139,12 @@ public interface IGc {
       float magnification,
       double angle)
       throws HopException;
+
+  /**
+   * Draw a file-backed image (PNG/JPEG/GIF/SVG via VFS path) at the given size in the current
+   * transform space. Returns {@code false} if the image could not be loaded or drawn.
+   */
+  boolean drawFileImage(String path, int x, int y, int width, int height);
 
   void drawLine(int x, int y, int x2, int y2);
 

@@ -326,6 +326,24 @@ public class SwtGc implements IGc {
       case GRAPH:
         gc.setFont(GuiResource.getInstance().getFontGraph());
         break;
+      case GRAPH_BOLD:
+        {
+          // Bold variant of the canvas graph font (same point size as transform/action names)
+          org.eclipse.swt.graphics.Font graph = GuiResource.getInstance().getFontGraph();
+          org.eclipse.swt.graphics.FontData fd = graph.getFontData()[0];
+          org.eclipse.swt.graphics.Font bold =
+              new org.eclipse.swt.graphics.Font(
+                  gc.getDevice(), fd.getName(), fd.getHeight(), fd.getStyle() | SWT.BOLD);
+          int index = fonts.indexOf(bold);
+          if (index < 0) {
+            fonts.add(bold);
+          } else {
+            bold.dispose();
+            bold = fonts.get(index);
+          }
+          gc.setFont(bold);
+        }
+        break;
       case NOTE:
         gc.setFont(GuiResource.getInstance().getFontNote());
         break;
@@ -338,6 +356,19 @@ public class SwtGc implements IGc {
       default:
         break;
     }
+  }
+
+  @Override
+  public int getFontHeight() {
+    org.eclipse.swt.graphics.Font current = gc.getFont();
+    if (current == null || current.isDisposed()) {
+      return -1;
+    }
+    org.eclipse.swt.graphics.FontData[] data = current.getFontData();
+    if (data == null || data.length == 0) {
+      return -1;
+    }
+    return data[0].getHeight();
   }
 
   @Override
@@ -500,6 +531,31 @@ public class SwtGc implements IGc {
       Image img = imageSvg.getAsBitmapForSize(gc.getDevice(), magnifiedWidth, magnifiedHeight);
       Rectangle bounds = img.getBounds();
       gc.drawImage(img, 0, 0, bounds.width, bounds.height, x, y, desiredWidth, desiredHeight);
+    }
+  }
+
+  @Override
+  public boolean drawFileImage(String path, int x, int y, int width, int height) {
+    if (path == null || path.isEmpty() || width <= 0 || height <= 0) {
+      return false;
+    }
+    try {
+      if (org.apache.hop.core.gui.markdown.NoteImageSupport.isSvgPath(path)) {
+        drawImage(new SvgFile(path, getClass().getClassLoader()), x, y, width, height, 1.0f, 0);
+        return true;
+      }
+      try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(path)) {
+        org.eclipse.swt.graphics.ImageData data = new org.eclipse.swt.graphics.ImageData(in);
+        Image img = new Image(gc.getDevice(), data);
+        try {
+          gc.drawImage(img, 0, 0, data.width, data.height, x, y, width, height);
+        } finally {
+          img.dispose();
+        }
+        return true;
+      }
+    } catch (Exception e) {
+      return false;
     }
   }
 

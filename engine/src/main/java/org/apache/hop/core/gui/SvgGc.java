@@ -475,6 +475,12 @@ public class SvgGc implements IGc {
   }
 
   @Override
+  public int getFontHeight() {
+    Font current = gc.getFont();
+    return current != null ? current.getSize() : -1;
+  }
+
+  @Override
   public void setForeground(EColor color) {
     gc.setColor(getColor(color));
   }
@@ -712,6 +718,30 @@ public class SvgGc implements IGc {
 
     if (svgFile != null) { // Draw the icon!
       drawImage(svgFile, x + xOffset, y + yOffset, iconSize, iconSize, magnification, 0);
+    }
+  }
+
+  @Override
+  public boolean drawFileImage(String path, int x, int y, int width, int height) {
+    if (path == null || path.isEmpty() || width <= 0 || height <= 0) {
+      return false;
+    }
+    try {
+      String lower = path.toLowerCase(java.util.Locale.ROOT);
+      if (lower.endsWith(".svg") || lower.contains(".svg?")) {
+        drawImage(new SvgFile(path, getClass().getClassLoader()), x, y, width, height, 1.0f, 0);
+        return true;
+      }
+      try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(path)) {
+        java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(in);
+        if (image == null) {
+          return false;
+        }
+        gc.drawImage(image, x, y, width, height, null);
+        return true;
+      }
+    } catch (Exception e) {
+      return false;
     }
   }
 
