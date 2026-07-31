@@ -128,6 +128,10 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
           if (IValueMeta.TYPE_TIMESTAMP == fieldValueMeta.getType()) {
             java.sql.Timestamp timestamp =
                 ((ValueMetaTimestamp) fieldValueMeta).getTimestamp(fieldData);
+            if (timestamp == null) {
+              throw new HopException(
+                  "Timestamp field contains a null value, this can't be used to set a timestamp on a bounded/unbounded collection of data");
+            }
             instant = new Instant(timestamp.toInstant());
           } else {
             Date date = fieldValueMeta.getDate(fieldData);

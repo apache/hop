@@ -262,12 +262,9 @@ public class OdsExcelWriter {
   }
 
   public void closeOutputFile(ExcelWriterWorkbookDefinition fileDefinition) throws HopException {
-    OutputStream out = null;
-    CountingOutputStream countingOut = null;
-    try {
-      countingOut =
-          new CountingOutputStream(HopVfs.getOutputStream(fileDefinition.getFile(), false));
-      out = new BufferedOutputStream(countingOut);
+    try (CountingOutputStream countingOut =
+            new CountingOutputStream(HopVfs.getOutputStream(fileDefinition.getFile(), false));
+        OutputStream out = new BufferedOutputStream(countingOut)) {
 
       if (meta.isFooterEnabled()) {
         writeHeader(fileDefinition, fileDefinition.getPosX(), fileDefinition.getPosY());
@@ -285,23 +282,18 @@ public class OdsExcelWriter {
       if (meta.isForceFormulaRecalculation()) {
         OdsFormulaHelper.prepareForRecalculation(document);
       }
-      document.save(out);
-      document.close();
-    } catch (Exception e) {
-      throw new HopException(e);
-    } finally {
-      if (out != null) {
-        try {
-          out.flush();
-          if (countingOut != null) {
-            long written = countingOut.getCount();
-            transform.recordBytesWritten(written, fileDefinition.getFile());
-          }
-          out.close();
-        } catch (Exception e) {
-          throw new HopException("Error closing ODS file " + fileDefinition.getFile(), e);
-        }
+      try {
+        document.save(out);
+      } finally {
+        document.close();
       }
+
+      // Flush before reading the byte count, the stream is closed by the resource block
+      //
+      out.flush();
+      transform.recordBytesWritten(countingOut.getCount(), fileDefinition.getFile());
+    } catch (Exception e) {
+      throw new HopException("Error closing ODS file " + fileDefinition.getFile(), e);
     }
   }
 

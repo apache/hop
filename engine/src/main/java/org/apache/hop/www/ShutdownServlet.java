@@ -31,6 +31,9 @@ public class ShutdownServlet extends BaseHttpServlet {
   /** Delay before the shutdown is performed, to give the servlet time to respond. */
   private static final long SHUTDOWN_DELAY_MS = 2000L;
 
+  // Hop runs its own embedded server, not a managed JEE container. The timer below is what lets
+  // this servlet answer the request before the server it runs on is taken down.
+  @SuppressWarnings("java:S2654")
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {

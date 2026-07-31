@@ -61,6 +61,7 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  @SuppressWarnings("java:S1313") // the driver version is not an IP address
   public DriverDownload getDriverDownload() {
     return DriverDownload.builder()
         .mavenCoordinate("org.xerial:sqlite-jdbc")
