@@ -78,6 +78,19 @@ public final class PluginDiscovery {
     if (config != null && config.getRepositories() != null) {
       for (MarketplaceRepository repo : config.getRepositories()) {
         if (repo == null || !repo.isEnabled() || !repo.isBrowse()) {
+          // A catalogUrl with browse=false lists nothing at all, which otherwise looks
+          // identical to an unreachable catalog: no entries, no error.
+          if (repo != null
+              && repo.isEnabled()
+              && !repo.isBrowse()
+              && StringUtils.isNotBlank(repo.getCatalogUrl())
+              && log != null) {
+            log.logBasic(
+                "Repository '"
+                    + repo.getId()
+                    + "' has a catalogUrl but browse=false, so its plugins are not listed."
+                    + " Set browse=true to include them.");
+          }
           continue;
         }
         if (StringUtils.isNotBlank(repoId) && !repoId.equals(repo.getId())) {
@@ -272,6 +285,9 @@ public final class PluginDiscovery {
     if (StringUtils.isNotBlank(repo.getCatalogUrl())) {
       live = RemotePluginCatalog.load(repo);
       live = RemotePluginCatalog.filter(live, repo, filter);
+    } else if (MarketplaceRepository.BROWSER_FORGEJO.equals(repo.effectiveBrowserType())) {
+      // Checked before the Nexus guard: a Forgejo registry URL has no /repository/ segment.
+      live = ForgejoRepositoryBrowser.browse(repo, filter, log);
     } else if (NexusRepositoryBrowser.isNexusBrowseUrl(repo.getUrl())) {
       live = NexusRepositoryBrowser.browse(repo, filter, log);
     } else {

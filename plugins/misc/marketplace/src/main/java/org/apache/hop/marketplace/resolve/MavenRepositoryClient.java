@@ -20,22 +20,20 @@ package org.apache.hop.marketplace.resolve;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.marketplace.config.MarketplaceHttp;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 
 /** Downloads Maven layout artifacts over HTTP(S), with optional Basic authentication. */
@@ -85,10 +83,38 @@ public class MavenRepositoryClient {
       Path targetFile,
       ITransferListener listener)
       throws HopException {
-    String base = repository.normalizedUrl();
-    String relative = resolveZipRelativePath(repository, coordinates);
-    String url = base + relative;
+    String url;
+    if (StringUtils.isNotBlank(repository.getUrlTemplate())) {
+      // Non-Maven host (release assets, static files): no layout, no metadata lookup.
+      url = expandUrlTemplate(repository.getUrlTemplate(), coordinates);
+    } else {
+      url = repository.normalizedUrl() + resolveZipRelativePath(repository, coordinates);
+    }
     return download(url, repository, coordinates.gav(), targetFile, listener);
+  }
+
+  /**
+   * Expand a repository {@code urlTemplate} for one artifact. Supported placeholders: {@code
+   * ${groupId}}, {@code ${groupPath}}, {@code ${artifactId}} and {@code ${version}}.
+   */
+  static String expandUrlTemplate(String template, MavenCoordinates coordinates)
+      throws HopException {
+    if (StringUtils.isBlank(template)) {
+      throw new HopException("Repository urlTemplate is empty");
+    }
+    String expanded =
+        template
+            .replace("${groupId}", coordinates.groupId())
+            .replace("${groupPath}", coordinates.groupId().replace('.', '/'))
+            .replace("${artifactId}", coordinates.artifactId())
+            .replace("${version}", coordinates.version());
+    if (expanded.contains("${")) {
+      throw new HopException(
+          "Unresolved placeholder in urlTemplate '"
+              + template
+              + "'. Supported: ${groupId}, ${groupPath}, ${artifactId}, ${version}");
+    }
+    return expanded;
   }
 
   /**
@@ -242,11 +268,13 @@ public class MavenRepositoryClient {
 
   private String getText(String url, MarketplaceRepository repository) throws HopException {
     try {
-      HttpRequest.Builder builder =
-          HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofMinutes(2)).GET();
-      applyBasicAuth(builder, repository);
       HttpResponse<String> response =
-          httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+          MarketplaceHttp.send(
+              httpClient,
+              url,
+              Duration.ofMinutes(2),
+              repository,
+              HttpResponse.BodyHandlers.ofString());
       if (response.statusCode() == 401 || response.statusCode() == 403) {
         throw new HopException(authFailureMessage(response.statusCode(), url, repository));
       }
@@ -274,11 +302,13 @@ public class MavenRepositoryClient {
     ITransferListener progress = listener == null ? ITransferListener.NONE : listener;
     try {
       Files.createDirectories(targetFile.getParent());
-      HttpRequest.Builder builder =
-          HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofMinutes(30)).GET();
-      applyBasicAuth(builder, repository);
       HttpResponse<InputStream> response =
-          httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+          MarketplaceHttp.send(
+              httpClient,
+              url,
+              Duration.ofMinutes(30),
+              repository,
+              HttpResponse.BodyHandlers.ofInputStream());
       if (response.statusCode() == 401 || response.statusCode() == 403) {
         throw new HopException(authFailureMessage(response.statusCode(), url, repository));
       }
@@ -358,17 +388,7 @@ public class MavenRepositoryClient {
   }
 
   static void applyBasicAuth(HttpRequest.Builder builder, MarketplaceRepository repository) {
-    if (repository == null || !repository.hasCredentials()) {
-      return;
-    }
-    String user = repository.effectiveUsername();
-    String pass = repository.effectivePassword();
-    if (StringUtils.isAnyBlank(user, pass)) {
-      return;
-    }
-    String token =
-        Base64.getEncoder().encodeToString((user + ":" + pass).getBytes(StandardCharsets.UTF_8));
-    builder.header("Authorization", "Basic " + token);
+    MarketplaceHttp.applyAuth(builder, repository);
   }
 
   private static String authFailureMessage(

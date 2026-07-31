@@ -17,15 +17,8 @@
 
 package org.apache.hop.marketplace.catalog;
 
-import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.marketplace.config.MarketplaceHttp;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.resolve.SnapshotVersions;
 
@@ -74,11 +68,7 @@ public final class NexusRepositoryBrowser {
       return List.of();
     }
 
-    HttpClient client =
-        HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(30))
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .build();
+    HttpClient client = MarketplaceHttp.newClient();
 
     // One row per groupId:artifactId — keep the latest plugin version (not every unique SNAPSHOT).
     Map<String, OptionalPluginInfo> byGa = new LinkedHashMap<>();
@@ -228,39 +218,15 @@ public final class NexusRepositoryBrowser {
 
   private static String getText(HttpClient client, String url, MarketplaceRepository repository)
       throws HopException {
-    try {
-      HttpRequest.Builder b =
-          HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(60)).GET();
-      if (repository.hasCredentials()) {
-        String token =
-            Base64.getEncoder()
-                .encodeToString(
-                    (repository.effectiveUsername() + ":" + repository.effectivePassword())
-                        .getBytes(StandardCharsets.UTF_8));
-        b.header("Authorization", "Basic " + token);
-      }
-      HttpResponse<String> response = client.send(b.build(), HttpResponse.BodyHandlers.ofString());
-      if (response.statusCode() < 200 || response.statusCode() >= 300) {
-        throw new HopException("Nexus search failed HTTP " + response.statusCode() + " for " + url);
-      }
-      return response.body();
-    } catch (HopException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new HopException("Nexus search failed for " + url, e);
-    }
+    return MarketplaceHttp.getText(client, url, repository, "Nexus search");
   }
 
   private static String enc(String s) {
-    return URLEncoder.encode(s, StandardCharsets.UTF_8);
+    return MarketplaceHttp.enc(s);
   }
 
   private static String str(Object o) {
-    if (o == null) {
-      return null;
-    }
-    String s = String.valueOf(o).trim();
-    return s.isEmpty() ? null : s;
+    return MarketplaceHttp.str(o);
   }
 
   static String mavenPath(String group, String artifact, String version) {

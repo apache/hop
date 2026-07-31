@@ -20,9 +20,6 @@ package org.apache.hop.marketplace.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -75,24 +72,31 @@ public final class MarketplaceRepositoryDefinition {
     return load(Path.of(s));
   }
 
+  /**
+   * Download and parse a shared repository definition.
+   *
+   * <p>No repository entry exists yet at import time, so credentials can only come from the
+   * environment; a bare repository resolves exactly those. Without this, a definition published in
+   * a private repository could not be imported by URL at all.
+   */
   public static MarketplaceRepository loadFromHttp(String url) throws HopException {
     try {
-      HttpClient client =
-          HttpClient.newBuilder()
-              .connectTimeout(Duration.ofSeconds(30))
-              .followRedirects(HttpClient.Redirect.NORMAL)
-              .build();
-      HttpRequest request =
-          HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(60)).GET().build();
+      MarketplaceRepository credentials = new MarketplaceRepository("import", url);
       HttpResponse<InputStream> response =
-          client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+          MarketplaceHttp.send(
+              MarketplaceHttp.newClient(),
+              url,
+              Duration.ofSeconds(60),
+              credentials,
+              HttpResponse.BodyHandlers.ofInputStream());
       if (response.statusCode() < 200 || response.statusCode() >= 300) {
         throw new HopException(
             "Unable to download repository definition from "
                 + url
                 + " (HTTP "
                 + response.statusCode()
-                + ")");
+                + ")"
+                + MarketplaceHttp.authHint(response.statusCode(), credentials));
       }
       try (InputStream in = response.body()) {
         return parse(in, url);
@@ -100,6 +104,9 @@ public final class MarketplaceRepositoryDefinition {
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
+      if (e instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
+      }
       throw new HopException("Unable to download repository definition from " + url, e);
     }
   }
@@ -157,6 +164,11 @@ public final class MarketplaceRepositoryDefinition {
     }
     repo.setBrowse(boolVal(map.get("browse"), false));
     repo.setCatalogUrl(stringVal(map.get("catalogUrl")));
+    repo.setUrlTemplate(stringVal(map.get("urlTemplate")));
+    String browserType = stringVal(map.get("browserType"));
+    if (StringUtils.isNotBlank(browserType)) {
+      repo.setBrowserType(browserType);
+    }
     repo.setSearchQuery(stringVal(map.get("searchQuery")));
     repo.setIncludeSnapshots(boolVal(map.get("includeSnapshots"), true));
     repo.setGroupIdFilter(stringVal(map.get("groupIdFilter")));
@@ -257,6 +269,14 @@ public final class MarketplaceRepositoryDefinition {
     if (StringUtils.isNotBlank(repo.getCatalogUrl())) {
       root.put("catalogUrl", repo.getCatalogUrl());
     }
+    if (StringUtils.isNotBlank(repo.getUrlTemplate())) {
+      root.put("urlTemplate", repo.getUrlTemplate());
+    }
+    // Only export an explicit choice; auto-detection is the default and stays implicit.
+    if (StringUtils.isNotBlank(repo.getBrowserType())
+        && !MarketplaceRepository.BROWSER_AUTO.equalsIgnoreCase(repo.getBrowserType())) {
+      root.put("browserType", repo.getBrowserType());
+    }
     if (StringUtils.isNotBlank(repo.getSearchQuery())) {
       root.put("searchQuery", repo.getSearchQuery());
     }
@@ -342,6 +362,8 @@ public final class MarketplaceRepositoryDefinition {
       }
       existing.setBrowse(imported.isBrowse());
       existing.setCatalogUrl(imported.getCatalogUrl());
+      existing.setBrowserType(imported.getBrowserType());
+      existing.setUrlTemplate(imported.getUrlTemplate());
       existing.setSearchQuery(imported.getSearchQuery());
       existing.setIncludeSnapshots(imported.isIncludeSnapshots());
       existing.setGroupIdFilter(imported.getGroupIdFilter());
