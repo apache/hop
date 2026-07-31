@@ -461,6 +461,50 @@ class PipelineMetaTest {
   }
 
   @Test
+  void testSetInternalHopVariablesWithFilename() {
+    // Issue #2430: Internal.Pipeline.Filename.Directory / .Name / Internal.Pipeline.Name
+    // must be populated when a filename is set (design-time and runtime API path).
+    PipelineMeta meta = new PipelineMeta();
+    meta.setNameSynchronizedWithFilename(true);
+    meta.setFilename("/tmp/parameters_and_variables/0007-internal-pipeline-variables.hpl");
+
+    IVariables vars = new Variables();
+    meta.setInternalHopVariables(vars);
+
+    assertEquals(
+        "0007-internal-pipeline-variables.hpl",
+        vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME));
+    assertEquals(
+        "0007-internal-pipeline-variables",
+        vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_NAME));
+    assertNotNull(vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY));
+    assertFalse(vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY).isEmpty());
+    assertTrue(
+        vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY)
+            .contains("parameters_and_variables"));
+    assertEquals(
+        vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY),
+        vars.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+  }
+
+  @Test
+  void testSetInternalHopVariablesWithoutFilename() {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setNameSynchronizedWithFilename(false);
+    meta.setName("unsaved-pipeline");
+    meta.setFilename(null);
+
+    IVariables vars = new Variables();
+    vars.setVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "parent-folder");
+    meta.setInternalHopVariables(vars);
+
+    assertEquals("", vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME));
+    assertEquals("", vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY));
+    assertEquals("unsaved-pipeline", vars.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_NAME));
+    assertEquals("parent-folder", vars.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+  }
+
+  @Test
   void testSetInternalEntryCurrentDirectoryWithFilename() {
     PipelineMeta pipelineMetaTest = new PipelineMeta();
     pipelineMetaTest.setFilename("hasFilename");
