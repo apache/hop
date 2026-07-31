@@ -20,6 +20,7 @@ package org.apache.hop.git;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -38,10 +39,36 @@ public class HopDiff {
   public static final String REMOVED = "DELETE";
   public static final String ADDED = "INSERT";
 
+  /**
+   * The location of a transform or an action, as written by TransformMeta and ActionMeta. Only
+   * those two write an xloc/yloc pair, so this does not reach into what a plugin serialized.
+   */
+  private static final Pattern POSITION_TAGS =
+      Pattern.compile("[ \\t]*<(xloc|yloc)>.*?</\\1>\\r?\\n?");
+
   private HopDiff() {}
 
+  /**
+   * Drop the position from serialized XML so that a transform or action which was only dragged
+   * somewhere else does not read as modified. The surrounding GUI tag is left in place: it is
+   * identical on both sides once the coordinates are gone.
+   */
+  private static String removePosition(String xml) {
+    return POSITION_TAGS.matcher(xml).replaceAll("");
+  }
+
+  private static boolean sameXml(String xml1, String xml2, boolean ignorePosition) {
+    if (ignorePosition) {
+      return removePosition(xml1).equals(removePosition(xml2));
+    }
+    return xml1.equals(xml2);
+  }
+
   public static PipelineMeta compareTransforms(
-      PipelineMeta pipelineMeta1, PipelineMeta pipelineMeta2, boolean isForward) {
+      PipelineMeta pipelineMeta1,
+      PipelineMeta pipelineMeta2,
+      boolean isForward,
+      boolean ignorePosition) {
     pipelineMeta1
         .getTransforms()
         .forEach(
@@ -58,7 +85,7 @@ public class HopDiff {
                   // AttributeMap("Git") cannot affect the XML comparison
                   tmp = transform.getAttributesMap().remove(ATTR_GIT);
                   tmp2 = transform2.get().getAttributesMap().remove(ATTR_GIT);
-                  if (transform.getXml().equals(transform2.get().getXml())) {
+                  if (sameXml(transform.getXml(), transform2.get().getXml(), ignorePosition)) {
                     status = UNCHANGED;
                   } else {
                     status = CHANGED;
@@ -119,7 +146,7 @@ public class HopDiff {
       name += from.getName();
     }
     name += " - ";
-    TransformMeta to = hopMeta.getFromTransform();
+    TransformMeta to = hopMeta.getToTransform();
     if (to != null) {
       name += to.getName();
     }
@@ -127,7 +154,10 @@ public class HopDiff {
   }
 
   public static WorkflowMeta compareActions(
-      WorkflowMeta workflowMeta1, WorkflowMeta workflowMeta2, boolean isForward) {
+      WorkflowMeta workflowMeta1,
+      WorkflowMeta workflowMeta2,
+      boolean isForward,
+      boolean ignorePosition) {
     workflowMeta1
         .getActions()
         .forEach(
@@ -143,7 +173,7 @@ public class HopDiff {
                 // AttributeMap("Git") cannot affect the XML comparison
                 tmp = je.getAttributesMap().remove(ATTR_GIT);
                 tmp2 = je2.get().getAttributesMap().remove(ATTR_GIT);
-                if (je.getXml().equals(je2.get().getXml())) {
+                if (sameXml(je.getXml(), je2.get().getXml(), ignorePosition)) {
                   status = UNCHANGED;
                 } else {
                   status = CHANGED;
