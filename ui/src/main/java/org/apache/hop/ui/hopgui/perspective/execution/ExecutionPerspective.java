@@ -1474,7 +1474,13 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     tabItem.dispose();
 
     if (isRemoved) {
-      hopGui.auditDelegate.writeLastOpenFiles();
+      // Skip during bulk close (project/environment switch or closeAllTabs): the open-files list
+      // was saved before closeAllFiles; writing here would overwrite it with empty tabs after
+      // pipelines/workflows were already closed (issue #7692).
+      //
+      if (!closingAllTabs && !hopGui.fileDelegate.isClosing()) {
+        hopGui.auditDelegate.writeLastOpenFiles();
+      }
       // Keep the per-project open-tabs audit in sync when the user closes a single tab.
       // Skip during closeAllTabs so a prior saveState() for project switch is not wiped.
       //
