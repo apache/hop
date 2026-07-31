@@ -823,7 +823,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     refreshStatus();
     refreshMetrics();
     refreshTransformData();
-    setFocus();
+    redraw();
   }
 
   @GuiToolbarElement(
