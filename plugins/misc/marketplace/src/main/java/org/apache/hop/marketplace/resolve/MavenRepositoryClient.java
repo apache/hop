@@ -330,8 +330,8 @@ public class MavenRepositoryClient {
         listener.transferred(written, totalBytes);
       }
     }
-    // One last callback carrying the exact byte count. A throttling listener may still coalesce it
-    // away, which is harmless — the caller reports the next phase right after, moving the bar on.
+    // One last callback carrying the exact byte count. A throttling listener must let this one
+    // through rather than coalesce it away, or its bar freezes just short of the total.
     listener.transferred(written, totalBytes);
     return written;
   }

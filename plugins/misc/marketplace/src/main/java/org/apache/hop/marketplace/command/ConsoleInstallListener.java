@@ -64,6 +64,10 @@ public class ConsoleInstallListener implements IInstallListener {
   private int openLineWidth;
 
   private long lastUpdateMs;
+
+  /** Set once the full-bar frame has been drawn, so a repeated final callback is not redrawn. */
+  private boolean transferFinished;
+
   private long transferStartMs;
   private long windowStartMs;
   private long windowStartBytes;
@@ -133,6 +137,7 @@ public class ConsoleInstallListener implements IInstallListener {
     windowStartBytes = 0L;
     speedBytesPerSec = 0L;
     lastUpdateMs = 0L;
+    transferFinished = false;
     milestone(
         totalBytes < 0
             ? "Downloading: " + label
@@ -141,16 +146,24 @@ public class ConsoleInstallListener implements IInstallListener {
 
   @Override
   public void transferred(long bytesSoFar, long totalBytes) {
-    if (!interactive) {
+    if (!interactive || transferFinished) {
       return;
     }
     long now = clock.millis();
-    if (now - lastUpdateMs < UPDATE_INTERVAL_MS) {
+    // The last chunk must never be throttled away: it is what turns the bar into a full 100%, and
+    // it closes the line so the next log statement does not land on top of it. Everything else is
+    // subject to the redraw floor.
+    boolean finished = totalBytes > 0 && bytesSoFar >= totalBytes;
+    if (!finished && now - lastUpdateMs < UPDATE_INTERVAL_MS) {
       return;
     }
     lastUpdateMs = now;
     updateSpeed(now, bytesSoFar);
     redraw(progressLine(bytesSoFar, totalBytes));
+    if (finished) {
+      transferFinished = true;
+      endLine();
+    }
   }
 
   /** Call when the work has finished so the in-place bar line is closed off. */

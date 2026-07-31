@@ -135,6 +135,47 @@ class ConsoleInstallListenerTest {
   }
 
   @Test
+  void theFinalChunkIsNeverThrottledAway() {
+    Capture capture = new Capture();
+    FakeClock clock = new FakeClock();
+    ConsoleInstallListener listener =
+        new ConsoleInstallListener(capture.stream, true, ASCII, clock::millis);
+    listener.started("plugin", 10_000L);
+
+    clock.now += 1000;
+    listener.transferred(9_700L, 10_000L);
+    // Arrives inside the redraw floor, but a bar left at 97% would be the last thing the user sees.
+    clock.now += 1;
+    listener.transferred(10_000L, 10_000L);
+
+    String output = capture.text();
+    assertTrue(
+        output.contains("[########################] 100%"), "bar should finish full: " + output);
+    assertTrue(
+        output.endsWith(System.lineSeparator()), "the bar line should be closed: [" + output + "]");
+  }
+
+  @Test
+  void aRepeatedFinalChunkIsNotDrawnTwice() {
+    Capture capture = new Capture();
+    FakeClock clock = new FakeClock();
+    ConsoleInstallListener listener =
+        new ConsoleInstallListener(capture.stream, true, ASCII, clock::millis);
+    listener.started("plugin", 10_000L);
+
+    clock.now += 1000;
+    // The downloader reports the last chunk, then repeats the exact byte count once the stream
+    // closes. Only one full-bar line may reach the terminal.
+    listener.transferred(10_000L, 10_000L);
+    clock.now += 1000;
+    listener.transferred(10_000L, 10_000L);
+    listener.complete();
+
+    long frames = capture.text().chars().filter(c -> c == '\r').count();
+    assertEquals(1, frames, "the closing frame should be drawn once: " + capture.text());
+  }
+
+  @Test
   void redirectedOutputGetsMilestonesButNoBarFrames() {
     Capture capture = new Capture();
     FakeClock clock = new FakeClock();
