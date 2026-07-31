@@ -102,19 +102,45 @@ public class PluginInstaller {
       String forceRepoId,
       String preferredRepoId)
       throws HopException {
+    return install(
+        coordinates, activateImmediately, forceRepoId, preferredRepoId, IInstallListener.NONE);
+  }
+
+  /**
+   * @param listener receives phase changes and download byte counts, and can cancel the install
+   *     between chunks. Pass {@link IInstallListener#NONE} for headless callers.
+   */
+  public InstallReceipt install(
+      MavenCoordinates coordinates,
+      boolean activateImmediately,
+      String forceRepoId,
+      String preferredRepoId,
+      IInstallListener listener)
+      throws HopException {
+    IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
     Path downloadDir = hopHome.resolve(STAGING_DIR).resolve(".download");
     Path zipFile =
         downloadDir.resolve(coordinates.artifactId() + "-" + coordinates.version() + ".zip");
     try {
+      progress.phase(IInstallListener.Phase.RESOLVE, coordinates.gav());
       List<MarketplaceRepository> repos = resolveRepositories(forceRepoId, preferredRepoId);
       MarketplaceRepository used = null;
       List<String> errors = new ArrayList<>();
       for (MarketplaceRepository repo : repos) {
+        if (progress.isCancelled()) {
+          throw new HopException("Install of " + coordinates.gav() + " was cancelled");
+        }
         try {
-          client.downloadZip(repo, coordinates, zipFile);
+          progress.phase(IInstallListener.Phase.DOWNLOAD, repo.displayName());
+          client.downloadZip(repo, coordinates, zipFile, progress);
           used = repo;
           break;
         } catch (HopException e) {
+          // A cancel is a user decision, not a repository failure — do not fall through to the
+          // next repository and start the whole download again.
+          if (progress.isCancelled()) {
+            throw e;
+          }
           errors.add(
               repo.getId()
                   + " @ "
@@ -132,6 +158,7 @@ public class PluginInstaller {
                 + String.join("\n  - ", errors));
       }
 
+      progress.phase(IInstallListener.Phase.UNZIP, coordinates.artifactId());
       Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId());
       deleteRecursive(stageRoot);
       Files.createDirectories(stageRoot);
@@ -149,6 +176,7 @@ public class PluginInstaller {
       writeReceipt(receipt);
 
       if (activateImmediately) {
+        progress.phase(IInstallListener.Phase.ACTIVATE, coordinates.artifactId());
         activateStaged(coordinates.artifactId(), relativePaths);
         receipt.setPendingActivation(false);
         writeReceipt(receipt);

@@ -17,6 +17,7 @@
 
 package org.apache.hop.marketplace.gui;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,11 +25,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
@@ -48,6 +51,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -1049,20 +1053,69 @@ public class HopEnvironmentDialog extends Dialog {
         return;
       }
       HopEnvironmentSpec env = HopEnvironmentLoader.load(currentPath);
-      new EnvironmentApplier(log, hopHome, live).apply(env, prune);
+      if (!runApply(env, live, prune)) {
+        notifyStatus(BaseMessages.getString(PKG, "MarketplaceDialog.Status.Cancelled"));
+        return;
+      }
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Done.Header"));
       box.setMessage(
           BaseMessages.getString(
               PKG, "MarketplaceDialog.Apply.Done.Message", currentPath.toString()));
       box.open();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      showApplyError(e);
     } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "HopEnvironmentDialog.Error.Header"),
-          BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Error"),
-          e);
+      showApplyError(e);
     }
+  }
+
+  private void showApplyError(Exception e) {
+    // ProgressMonitorDialog wraps the real failure; unwrap so the dialog shows the cause.
+    Throwable cause =
+        e instanceof InvocationTargetException ite && ite.getCause() != null ? ite.getCause() : e;
+    new ErrorDialog(
+        shell,
+        BaseMessages.getString(PKG, "HopEnvironmentDialog.Error.Header"),
+        BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Error"),
+        cause);
+  }
+
+  /**
+   * Apply the environment on a worker thread behind a cancellable progress dialog. This path can
+   * install many plugins and download many jars, so running it inline froze the GUI for minutes.
+   *
+   * @return true when the environment was applied, false when the user cancelled
+   */
+  private boolean runApply(HopEnvironmentSpec env, MarketplaceConfig live, boolean prune)
+      throws InvocationTargetException, InterruptedException {
+    EnvironmentApplier applier = new EnvironmentApplier(log, hopHome, live);
+    AtomicBoolean cancelled = new AtomicBoolean(false);
+
+    IRunnableWithProgress operation =
+        monitor -> {
+          ProgressMonitorInstallListener listener = new ProgressMonitorInstallListener(monitor);
+          // No item name up front: apply() names each artifact via IInstallListener.item().
+          listener.begin(BaseMessages.getString(PKG, "MarketplaceDialog.Progress.Applying"), null);
+          try {
+            applier.apply(env, prune, listener);
+          } catch (Exception e) {
+            if (!monitor.isCanceled()) {
+              // Throw WITHOUT calling monitor.done(): done() disposes the progress shell and ends
+              // ProgressMonitorDialog's pump loop before it can observe the exception, which would
+              // report a failed apply as a success. Catching Exception rather than HopException
+              // keeps a RuntimeException from killing the worker and hanging the dialog.
+              throw new InvocationTargetException(e, e.getMessage());
+            }
+            cancelled.set(true);
+          }
+          listener.complete();
+          monitor.done();
+        };
+
+    new ProgressMonitorDialog(shell).run(true, operation);
+    return !cancelled.get();
   }
 
   private void populateExtraPlugins(HopEnvironmentSpec env, EnvironmentDrift drift)
