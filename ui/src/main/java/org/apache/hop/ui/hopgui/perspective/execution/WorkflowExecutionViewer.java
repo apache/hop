@@ -595,12 +595,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     super.zoomFitToScreen();
   }
 
-  @Override
-  protected Point getArea() {
-    org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
-    return new Point(rect.width, rect.height);
-  }
-
   public void drawWorkflowImage(GC swtGc, int width, int height, float magnificationFactor) {
 
     IGc gc = new SwtGc(swtGc, width, height, iconSize);
@@ -719,7 +713,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public void refresh() {
     refreshStatus();
     refreshActionData();
-    setFocus();
+    redraw();
   }
 
   @GuiToolbarElement(
