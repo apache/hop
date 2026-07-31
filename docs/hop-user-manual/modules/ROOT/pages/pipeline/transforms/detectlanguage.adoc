@@ -51,6 +51,15 @@ https://github.com/pemistahl/lingua?tab=readme-ov-file#3-which-languages-are-sup
 This name must be unique throughout the pipeline.
 |===
 
-NOTE: The dependencies for this transform are not included in the application to make this work you need to include following files in the /plugins/transforms/detectlanguage/lib folder +
-- https://repo1.maven.org/maven2/com/github/pemistahl/lingua/1.2.2/lingua-1.2.2.jar[Lingua] +
-- https://repo1.maven.org/maven2/it/unimi/dsi/fastutil/8.5.15/fastutil-8.5.15.jar[Fastutil] +
+== Installation
+
+This transform is not part of the default Hop client.
+Install it from the Marketplace perspective in Hop Gui (Detect language, category Transforms), or with the xref:hop-tools/hop-marketplace.adoc[marketplace command line]:
+
+[source,bash]
+----
+./hop marketplace install hop-transform-detectlanguage
+----
+
+The https://github.com/pemistahl/lingua[Lingua] language models and https://fastutil.di.unimi.it/[fastutil] are bundled with the plugin, so no jars have to be downloaded by hand.
+Because the language models are large, the plugin is around 100MB in size.

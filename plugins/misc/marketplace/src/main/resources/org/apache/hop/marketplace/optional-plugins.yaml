@@ -44,6 +44,12 @@ plugins:
     description: Scripting transform with embedded language runtimes.
     installPath: plugins/transforms/script
     modulePath: plugins/transforms/script
+  - artifactId: hop-transform-detectlanguage
+    name: Detect language
+    category: Transforms
+    description: Detect the language of a text field; includes the Lingua language models.
+    installPath: plugins/transforms/detectlanguage
+    modulePath: plugins/transforms/detectlanguage
   - artifactId: hop-transform-tika
     name: Apache Tika
     category: Transforms
