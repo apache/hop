@@ -268,6 +268,49 @@ class WorkflowMetaTest {
   }
 
   @Test
+  void testSetInternalHopVariablesWithFilename() {
+    // Issue #2430: Internal.Workflow.Filename.Folder / .Name / Internal.Workflow.Name
+    // must be populated when a filename is set (design-time and runtime API path).
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setNameSynchronizedWithFilename(true);
+    meta.setFilename("/tmp/parameters_and_variables/0007-internal-variables.hwf");
+
+    IVariables vars = new Variables();
+    meta.setInternalHopVariables(vars);
+
+    assertEquals(
+        "0007-internal-variables.hwf",
+        vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME));
+    assertEquals(
+        "0007-internal-variables", vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_NAME));
+    assertNotNull(vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER));
+    assertFalse(vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER).isEmpty());
+    assertTrue(
+        vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER)
+            .contains("parameters_and_variables"));
+    assertEquals(
+        vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER),
+        vars.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+  }
+
+  @Test
+  void testSetInternalHopVariablesWithoutFilename() {
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setNameSynchronizedWithFilename(false);
+    meta.setName("unsaved-workflow");
+    meta.setFilename(null);
+
+    IVariables vars = new Variables();
+    vars.setVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "parent-folder");
+    meta.setInternalHopVariables(vars);
+
+    assertEquals("", vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME));
+    assertEquals("", vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER));
+    assertEquals("unsaved-workflow", vars.getVariable(Const.INTERNAL_VARIABLE_WORKFLOW_NAME));
+    assertEquals("parent-folder", vars.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+  }
+
+  @Test
   void testSetInternalEntryCurrentDirectoryWithFilename() {
     WorkflowMeta workflowMetaTest = new WorkflowMeta();
     workflowMetaTest.setFilename("hasFilename");
