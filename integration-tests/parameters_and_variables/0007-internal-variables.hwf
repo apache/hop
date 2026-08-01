@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>0007-internal-variables</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description/>
+  <description>Issue #2430: verify internal workflow variables are set with expected values at runtime</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -50,7 +50,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>${Internal.Entry.Current.Folder}</name>
+      <name>Internal.Entry.Current.Folder is set</name>
       <description/>
       <type>SIMPLE_EVAL</type>
       <attributes/>
@@ -73,7 +73,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>${Internal.Workflow.Filename.Name}</name>
+      <name>Internal.Workflow.Filename.Name equals file</name>
       <description/>
       <type>SIMPLE_EVAL</type>
       <attributes/>
@@ -82,13 +82,13 @@ limitations under the License.
       <variablename>Internal.Workflow.Filename.Name</variablename>
       <fieldtype>string</fieldtype>
       <mask/>
-      <comparevalue/>
+      <comparevalue>0007-internal-variables.hwf</comparevalue>
       <minvalue/>
       <maxvalue/>
       <successcondition>equal</successcondition>
       <successnumbercondition>equal</successnumbercondition>
       <successbooleancondition>false</successbooleancondition>
-      <successwhenvarset>Y</successwhenvarset>
+      <successwhenvarset>N</successwhenvarset>
       <parallel>N</parallel>
       <nr>0</nr>
       <xloc>544</xloc>
@@ -96,7 +96,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>${Internal.Workflow.Name}</name>
+      <name>Internal.Workflow.Name equals basename</name>
       <description/>
       <type>SIMPLE_EVAL</type>
       <attributes/>
@@ -105,13 +105,13 @@ limitations under the License.
       <variablename>Internal.Workflow.Name</variablename>
       <fieldtype>string</fieldtype>
       <mask/>
-      <comparevalue/>
+      <comparevalue>0007-internal-variables</comparevalue>
       <minvalue/>
       <maxvalue/>
       <successcondition>equal</successcondition>
       <successnumbercondition>equal</successnumbercondition>
       <successbooleancondition>false</successbooleancondition>
-      <successwhenvarset>Y</successwhenvarset>
+      <successwhenvarset>N</successwhenvarset>
       <parallel>N</parallel>
       <nr>0</nr>
       <xloc>336</xloc>
@@ -119,7 +119,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>${Internal.Workflow.Filename.Folder}</name>
+      <name>Internal.Workflow.Filename.Folder is set</name>
       <description/>
       <type>SIMPLE_EVAL</type>
       <attributes/>
@@ -141,11 +141,34 @@ limitations under the License.
       <yloc>192</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>Internal.Workflow.Filename.Folder contains project dir</name>
+      <description>Folder must contain the parameters_and_variables project directory name (VFS URI form)</description>
+      <type>SIMPLE_EVAL</type>
+      <attributes/>
+      <valuetype>variable</valuetype>
+      <fieldname/>
+      <variablename>Internal.Workflow.Filename.Folder</variablename>
+      <fieldtype>string</fieldtype>
+      <mask/>
+      <comparevalue>parameters_and_variables</comparevalue>
+      <minvalue/>
+      <maxvalue/>
+      <successcondition>contains</successcondition>
+      <successnumbercondition>equal</successnumbercondition>
+      <successbooleancondition>false</successbooleancondition>
+      <successwhenvarset>N</successwhenvarset>
+      <parallel>N</parallel>
+      <nr>0</nr>
+      <xloc>752</xloc>
+      <yloc>192</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
       <from>Start</from>
-      <to>${Internal.Entry.Current.Folder}</to>
+      <to>Internal.Entry.Current.Folder is set</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -153,8 +176,8 @@ limitations under the License.
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>${Internal.Entry.Current.Folder}</from>
-      <to>${Internal.Workflow.Filename.Name}</to>
+      <from>Internal.Entry.Current.Folder is set</from>
+      <to>Internal.Workflow.Filename.Name equals file</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -162,8 +185,8 @@ limitations under the License.
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>${Internal.Workflow.Filename.Name}</from>
-      <to>${Internal.Workflow.Name}</to>
+      <from>Internal.Workflow.Filename.Name equals file</from>
+      <to>Internal.Workflow.Name equals basename</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -171,8 +194,17 @@ limitations under the License.
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>${Internal.Workflow.Name}</from>
-      <to>${Internal.Workflow.Filename.Folder}</to>
+      <from>Internal.Workflow.Name equals basename</from>
+      <to>Internal.Workflow.Filename.Folder is set</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Internal.Workflow.Filename.Folder is set</from>
+      <to>Internal.Workflow.Filename.Folder contains project dir</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>

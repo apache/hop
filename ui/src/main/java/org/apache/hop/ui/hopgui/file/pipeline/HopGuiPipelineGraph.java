@@ -166,6 +166,7 @@ import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineHopContext;
@@ -782,6 +783,29 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     boolean done = false;
 
+    // Markdown note hyperlink: open target and do not start note drag/select.
+    // MOD1 (Ctrl / Cmd on macOS) + click edits the note instead of following the link.
+    if (areaOwner != null
+        && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE_LINK
+        && event.button == 1) {
+      if (control) {
+        var linkHit = HopGuiNoteLinkSupport.linkHitFrom(areaOwner);
+        if (linkHit != null && linkHit.note() != null) {
+          editNote(linkHit.note());
+          avoidContextDialog = true;
+          return;
+        }
+      } else if (HopGuiNoteLinkSupport.followLink(
+          hopGui,
+          variables,
+          pipelineMeta.getFilename(),
+          HopGuiNoteLinkSupport.linkHitFrom(areaOwner))) {
+        avoidContextDialog = true;
+        done = true;
+        return;
+      }
+    }
+
     // Layer 1: Click on an area owner except note (else if a note is present in the background,
     // you cannot click the hop link).
     if (areaOwner != null && areaOwner.getAreaType() != null) {
@@ -946,41 +970,48 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         && areaOwner != null
         && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
       currentNotePad = (NotePadMeta) areaOwner.getOwner();
-      selectedNotes = pipelineMeta.getSelectedNotes();
-      selectedNote = currentNotePad;
-      // Track that a note was selected
-      pipelineGridDelegate.onPipelineSelectionChanged();
-      Point loc = currentNotePad.getLocation();
+      // MOD1 (Ctrl / Cmd on macOS) + left click: edit the note
+      if (control && event.button == 1) {
+        editNote(currentNotePad);
+        avoidContextDialog = true;
+        done = true;
+      } else {
+        selectedNotes = pipelineMeta.getSelectedNotes();
+        selectedNote = currentNotePad;
+        // Track that a note was selected
+        pipelineGridDelegate.onPipelineSelectionChanged();
+        Point loc = currentNotePad.getLocation();
 
-      previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
+        previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
 
-      noteOffset = new Point(real.x - loc.x, real.y - loc.y);
+        noteOffset = new Point(real.x - loc.x, real.y - loc.y);
 
-      resize = this.getResize(areaOwner.getArea(), real);
+        resize = this.getResize(areaOwner.getArea(), real);
 
-      // For web environment, set canvas mode for visual feedback
-      if (EnvironmentUtils.getInstance().isWeb()) {
-        if (resize != null) {
-          canvas.setData("mode", "resize");
-          canvas.setData("resizeDirection", resize.name());
-        } else {
-          canvas.setData("mode", "drag");
-          dragSelection = true;
+        // For web environment, set canvas mode for visual feedback
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          if (resize != null) {
+            canvas.setData("mode", "resize");
+            canvas.setData("resizeDirection", resize.name());
+          } else {
+            canvas.setData("mode", "drag");
+            dragSelection = true;
+          }
+          // Force immediate sync of mode and resize direction to client
+          redraw();
         }
-        // Force immediate sync of mode and resize direction to client
-        redraw();
+
+        // Keep the original area of the resizing note
+        resizeArea =
+            new Rectangle(
+                currentNotePad.getLocation().x,
+                currentNotePad.getLocation().y,
+                currentNotePad.getWidth(),
+                currentNotePad.getHeight());
+
+        updateGui();
+        done = true;
       }
-
-      // Keep the original area of the resizing note
-      resizeArea =
-          new Rectangle(
-              currentNotePad.getLocation().x,
-              currentNotePad.getLocation().y,
-              currentNotePad.getWidth(),
-              currentNotePad.getHeight());
-
-      updateGui();
-      done = true;
     }
 
     // Layer 4: Click on the background of the graph
@@ -1727,6 +1758,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (applyMouseOverNameHover(areaOwner, interactionInProgress)) {
       doRedraw = true;
     }
+    if (applyMouseOverNoteLinkHover(areaOwner, interactionInProgress)) {
+      doRedraw = true;
+    }
 
     //
     // Commit to drag mode only after pointer moves past threshold while primary button is still
@@ -1916,8 +1950,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if (resizeOver != null) {
         setCursor(getDisplay().getSystemCursor(resizeOver.getCursor()));
       }
-      // Change cursor when the mouse is on a hop or an area that support hovering
-      else if ((areaOwner != null
+      // Change cursor when the mouse is on a hop, note link, or an area that support hovering
+      else if (mouseOverNoteLink != null
+          || (areaOwner != null
               && areaOwner.getAreaType() != null
               && areaOwner.getAreaType().isSupportHover())
           || this.findPipelineHop(real.x, real.y) != null) {
@@ -3459,7 +3494,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void newNote(HopGuiPipelineContext context) {
     selectionRegion = null;
     String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NoteEditor.Title");
-    NotePadDialog dd = new NotePadDialog(variables, hopShell(), title);
+    NotePadDialog dd = new NotePadDialog(variables, hopShell(), title, pipelineMeta.getFilename());
     NotePadMeta n = dd.open();
     if (n != null) {
       NotePadMeta npi =
@@ -3482,8 +3517,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               n.getBorderColorRed(),
               n.getBorderColorGreen(),
               n.getBorderColorBlue());
-      // Apply grid snapping to ensure correct initial size
-      PropsUi.setSize(npi, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE);
+      npi.setMarkdown(n.isMarkdown());
+      npi.setNoteType(n.getNoteType());
+      // Apply grid snapping; default width is readable for Markdown wrapping
+      PropsUi.setSize(npi, HopGuiNotePadDelegate.defaultNoteWidth(), ConstUi.NOTE_MIN_SIZE);
       pipelineMeta.addNote(npi);
       hopGui.undoDelegate.addUndoNew(
           pipelineMeta, new NotePadMeta[] {npi}, new int[] {pipelineMeta.indexOfNote(npi)});
@@ -3625,6 +3662,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       AreaType areaType = areaOwner.getAreaType();
       switch (areaType) {
+        case NOTE_LINK:
+          String noteLinkTip =
+              HopGuiNoteLinkSupport.tooltipFor(HopGuiNoteLinkSupport.linkHitFrom(areaOwner));
+          if (noteLinkTip != null) {
+            tip.append(noteLinkTip);
+          }
+          break;
         case TRANSFORM_PARTITIONING:
           TransformMeta transform = (TransformMeta) areaOwner.getParent();
           tip.append("Transform partitioning:")
@@ -4078,6 +4122,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     context.outputHopRowsMap = outputHopRowsMap;
     context.drawingBorderAroundName = propsUi.isBorderDrawnAroundCanvasNames();
     context.mouseOverName = mouseOverName;
+    context.mouseOverNoteLink = mouseOverNoteLink;
     context.stateMap = stateMap;
     context.magnification = (float) (magnification * PropsUi.getNativeZoomFactor());
     context.screenMagnification = magnification;
@@ -4099,6 +4144,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     context.darkMode = propsUi.isDarkMode();
     context.contrastingColorStrings =
         propsUi.isDarkMode() ? propsUi.getContrastingColorStrings() : null;
+    org.apache.hop.core.gui.NotePadStyle.setDarkMode(propsUi.isDarkMode());
     return context;
   }
 
@@ -4106,6 +4152,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     IGc gc = new SwtGc(swtGc, width, height, iconSize);
     try {
       PropsUi propsUi = PropsUi.getInstance();
+      org.apache.hop.core.gui.NotePadStyle.setDarkMode(propsUi.isDarkMode());
 
       // Can we determine the maximum while drawing?
       //
@@ -4136,6 +4183,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               stateMap);
 
       pipelinePainter.setMagnification((float) (magnification * PropsUi.getNativeZoomFactor()));
+      pipelinePainter.setMouseOverNoteLink(mouseOverNoteLink);
       pipelinePainter.setOutputHopRowsMap(outputHopRowsMap);
       pipelinePainter.setTransformLogMap(transformLogMap);
       pipelinePainter.setStartHopTransform(startHopTransform);
@@ -4197,12 +4245,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     NotePadMeta before = ni.clone();
 
     String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.EditNote.Title");
-    NotePadDialog dd = new NotePadDialog(variables, hopShell(), title, ni);
+    NotePadDialog dd =
+        new NotePadDialog(variables, hopShell(), title, ni, pipelineMeta.getFilename());
     NotePadMeta n = dd.open();
 
     if (n != null) {
       ni.setChanged();
       ni.setNote(n.getNote());
+      ni.setMarkdown(n.isMarkdown());
+      ni.setNoteType(n.getNoteType());
       ni.setFontName(n.getFontName());
       ni.setFontSize(n.getFontSize());
       ni.setFontBold(n.isFontBold());

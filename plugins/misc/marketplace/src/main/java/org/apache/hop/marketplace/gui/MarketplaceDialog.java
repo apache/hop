@@ -17,11 +17,15 @@
 
 package org.apache.hop.marketplace.gui;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
@@ -41,6 +45,7 @@ import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -51,7 +56,6 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -69,6 +73,19 @@ public class MarketplaceDialog extends Dialog {
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
 
+  /** Quiet period after the last keystroke before the search box triggers a discovery call. */
+  private static final int SEARCH_DEBOUNCE_MS = 350;
+
+  /** Why the plugin table is being reloaded, which decides how the wait is presented. */
+  private enum RefreshReason {
+    /** Refresh button — the user is waiting, so show a cancellable progress dialog. */
+    USER_REFRESH,
+    /** Search box — background query, "Searching…" in the status line, no modal. */
+    SEARCH,
+    /** Dialog open, or after an install/uninstall — background query, status line untouched. */
+    AFTER_CHANGE
+  }
+
   private final PropsUi props;
   private final ILogChannel log = new LogChannel("Marketplace");
 
@@ -79,6 +96,12 @@ public class MarketplaceDialog extends Dialog {
   private Path hopHome;
   private MarketplaceConfig config;
   private MarketplaceRepositoriesPanel repositoriesPanel;
+
+  /** Incremented per discovery request so a slow, superseded answer can be discarded. */
+  private int queryGeneration;
+
+  private boolean searchPending;
+  private long searchRequestedAt;
 
   public MarketplaceDialog(Shell parent) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
@@ -154,7 +177,7 @@ public class MarketplaceDialog extends Dialog {
           }
         });
 
-    refreshTable(false);
+    refreshTable(RefreshReason.AFTER_CHANGE);
 
     BaseTransformDialog.setSize(shell);
     shell.open();
@@ -188,7 +211,7 @@ public class MarketplaceDialog extends Dialog {
 
     Button wRefresh = new Button(comp, SWT.PUSH);
     wRefresh.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Refresh"));
-    wRefresh.addListener(SWT.Selection, e -> refreshTable(true));
+    wRefresh.addListener(SWT.Selection, e -> refreshTable(RefreshReason.USER_REFRESH));
 
     BaseTransformDialog.positionBottomButtons(
         comp, new Button[] {wInstall, wUninstall, wRefresh}, PropsUi.getMargin(), null);
@@ -219,7 +242,7 @@ public class MarketplaceDialog extends Dialog {
     fdSearch.top = new FormAttachment(wlSearch, 0, SWT.CENTER);
     fdSearch.right = new FormAttachment(wClearSearch, -PropsUi.getMargin());
     wSearch.setLayoutData(fdSearch);
-    wSearch.addListener(SWT.Modify, e -> refreshTable(false));
+    wSearch.addListener(SWT.Modify, e -> scheduleSearch());
 
     Label wSearchSep = new Label(comp, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSearchSep = new FormData();
@@ -353,70 +376,175 @@ public class MarketplaceDialog extends Dialog {
   /**
    * Reload the plugins list.
    *
-   * @param userRefresh when true (Refresh button), prompt to save dirty repositories and show a
-   *     wait cursor; search filter updates pass false.
+   * <p>Discovery is a live Nexus search over every browse-enabled repository, so it never runs on
+   * the UI thread: {@link RefreshReason#USER_REFRESH} gets a cancellable progress dialog, the other
+   * reasons run quietly in the background and repopulate the table when they land.
    */
-  private void refreshTable(boolean userRefresh) {
-    if (userRefresh && !ensureRepositoriesSavedForRefresh()) {
+  private void refreshTable(RefreshReason reason) {
+    if (reason == RefreshReason.USER_REFRESH && !ensureRepositoriesSavedForRefresh()) {
       return;
     }
+    // Keep shared in-memory config (after optional save/discard). Do not reload from disk on
+    // every search keystroke — that would drop unsaved repository edits.
+    if (repositoriesPanel != null) {
+      config = repositoriesPanel.getConfig();
+    }
+    // Filter only when more than 2 characters are typed (same as explorer/metadata search).
+    String searchText = wSearch != null ? wSearch.getText() : "";
+    String filter = searchText != null && searchText.trim().length() > 2 ? searchText.trim() : null;
+    MarketplaceConfig snapshot = config;
 
-    Cursor waitCursor = null;
-    if (userRefresh && shell != null && !shell.isDisposed()) {
-      waitCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
-      shell.setCursor(waitCursor);
+    if (reason == RefreshReason.USER_REFRESH) {
+      queryWithProgress(filter, snapshot);
+    } else {
+      queryInBackground(filter, snapshot, reason == RefreshReason.SEARCH);
     }
+  }
+
+  /** Refresh button: modal, cancellable, because the user explicitly asked and is waiting. */
+  private void queryWithProgress(String filter, MarketplaceConfig snapshot) {
+    List<OptionalPluginInfo> found = new ArrayList<>();
+    IRunnableWithProgress operation =
+        monitor -> {
+          // Discovery cannot report intermediate progress, so this is a one-step task: the bar
+          // shows "busy", the label says what for.
+          monitor.beginTask(BaseMessages.getString(PKG, "MarketplaceDialog.Progress.Searching"), 1);
+          try {
+            found.addAll(PluginDiscovery.query(filter, null, snapshot, log));
+          } catch (Exception e) {
+            // No monitor.done() before throwing — see the note in runInstall().
+            throw new InvocationTargetException(e, e.getMessage());
+          }
+          monitor.worked(1);
+          monitor.done();
+        };
     try {
-      // Keep shared in-memory config (after optional save/discard). Do not reload from disk on
-      // every search keystroke — that would drop unsaved repository edits.
-      if (repositoriesPanel != null) {
-        config = repositoriesPanel.getConfig();
-      }
-      wTable.table.removeAll();
-      // Filter only when more than 2 characters are typed (same as explorer/metadata search).
-      String searchText = wSearch != null ? wSearch.getText() : "";
-      String filter =
-          searchText != null && searchText.trim().length() > 2 ? searchText.trim() : null;
-      // Apache optional catalog + live list from every browse=true repository
-      List<OptionalPluginInfo> plugins = PluginDiscovery.query(filter, null, config, log);
-      for (OptionalPluginInfo info : plugins) {
-        // Column 0 is the (hidden) index column; data columns are 1-based.
-        TableItem item = new TableItem(wTable.table, SWT.NONE);
-        String name = Const.NVL(info.getName(), info.getArtifactId());
-        item.setText(1, Const.NVL(name, ""));
-        item.setText(2, Const.NVL(info.getVersion(), ""));
-        item.setText(3, Const.NVL(info.getArtifactId(), ""));
-        item.setText(4, Const.NVL(info.getCategory(), ""));
-        item.setText(5, repositoryDisplayName(info.getSource()));
-        boolean onDisk = OptionalPluginCatalog.isInstalledOnDisk(hopHome, info);
-        InstallReceipt receipt = null;
-        try {
-          receipt = PluginInstaller.readReceipt(hopHome, info.getArtifactId());
-        } catch (Exception e) {
-          log.logError("Unable to read receipt for " + info.getArtifactId(), e);
-        }
-        String status;
-        if (onDisk && receipt != null) {
-          status =
-              BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
-                  + " ("
-                  + receipt.getVersion()
-                  + ")";
-        } else if (onDisk) {
-          status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.Present");
-        } else {
-          status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.NotInstalled");
-        }
-        item.setText(6, status);
-        item.setText(7, Const.NVL(info.getDescription(), ""));
-        item.setData(info);
-      }
-      wTable.optimizeTableView();
-    } finally {
-      if (userRefresh && shell != null && !shell.isDisposed()) {
-        shell.setCursor(null);
-      }
+      new ProgressMonitorDialog(shell).run(true, operation);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return;
+    } catch (InvocationTargetException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+          BaseMessages.getString(PKG, "MarketplaceDialog.Refresh.Error"),
+          e.getCause() == null ? e : e.getCause());
+      return;
     }
+    populateTable(found);
+  }
+
+  /**
+   * Search box and post-install refreshes: a modal dialog per keystroke would be worse than the
+   * freeze it replaces, so query on a worker thread and swap the rows in when the answer arrives.
+   *
+   * <p>Results from a superseded query are dropped — with typing debounced there is rarely more
+   * than one in flight, but a slow repository could still finish after a newer query.
+   */
+  private void queryInBackground(String filter, MarketplaceConfig snapshot, boolean showSearching) {
+    Display display = shell.getDisplay();
+    final int generation = ++queryGeneration;
+    if (showSearching && wStatus != null && !wStatus.isDisposed()) {
+      wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Progress.Searching"));
+    }
+    Thread worker =
+        new Thread(
+            () -> {
+              List<OptionalPluginInfo> found;
+              try {
+                found = PluginDiscovery.query(filter, null, snapshot, log);
+              } catch (Exception e) {
+                log.logError("Marketplace discovery failed", e);
+                found = List.of();
+              }
+              List<OptionalPluginInfo> result = found;
+              display.asyncExec(
+                  () -> {
+                    // Stale answer, or the dialog closed while we were waiting on the network.
+                    if (generation != queryGeneration || shell.isDisposed()) {
+                      return;
+                    }
+                    populateTable(result);
+                    if (showSearching && !wStatus.isDisposed()) {
+                      wStatus.setText(
+                          BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+                    }
+                  });
+            },
+            "Hop-Marketplace-Discovery");
+    worker.setDaemon(true);
+    worker.start();
+  }
+
+  /** Fill the table from discovery results. UI thread only. */
+  private void populateTable(List<OptionalPluginInfo> plugins) {
+    wTable.table.removeAll();
+    for (OptionalPluginInfo info : plugins) {
+      // Column 0 is the (hidden) index column; data columns are 1-based.
+      TableItem item = new TableItem(wTable.table, SWT.NONE);
+      String name = Const.NVL(info.getName(), info.getArtifactId());
+      item.setText(1, Const.NVL(name, ""));
+      item.setText(2, Const.NVL(info.getVersion(), ""));
+      item.setText(3, Const.NVL(info.getArtifactId(), ""));
+      item.setText(4, Const.NVL(info.getCategory(), ""));
+      item.setText(5, repositoryDisplayName(info.getSource()));
+      boolean onDisk = OptionalPluginCatalog.isInstalledOnDisk(hopHome, info);
+      InstallReceipt receipt = null;
+      try {
+        receipt = PluginInstaller.readReceipt(hopHome, info.getArtifactId());
+      } catch (Exception e) {
+        log.logError("Unable to read receipt for " + info.getArtifactId(), e);
+      }
+      String status;
+      if (onDisk && receipt != null) {
+        status =
+            BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
+                + " ("
+                + receipt.getVersion()
+                + ")";
+      } else if (onDisk) {
+        status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.Present");
+      } else {
+        status = BaseMessages.getString(PKG, "MarketplaceDialog.Status.NotInstalled");
+      }
+      item.setText(6, status);
+      item.setText(7, Const.NVL(info.getDescription(), ""));
+      item.setData(info);
+    }
+    wTable.optimizeTableView();
+  }
+
+  /**
+   * Coalesce keystrokes into one discovery call. Without this, every character typed in the search
+   * box fires a full Nexus search (paged, 60s per request) against every repository.
+   */
+  private void scheduleSearch() {
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
+    searchRequestedAt = System.currentTimeMillis();
+    if (searchPending) {
+      return;
+    }
+    searchPending = true;
+    shell.getDisplay().timerExec(SEARCH_DEBOUNCE_MS, this::fireDebouncedSearch);
+  }
+
+  private void fireDebouncedSearch() {
+    if (shell == null || shell.isDisposed()) {
+      searchPending = false;
+      return;
+    }
+    long quietFor = System.currentTimeMillis() - searchRequestedAt;
+    if (quietFor < SEARCH_DEBOUNCE_MS) {
+      // Still typing — check again once the remaining quiet period has elapsed.
+      shell
+          .getDisplay()
+          .timerExec((int) (SEARCH_DEBOUNCE_MS - quietFor), this::fireDebouncedSearch);
+      return;
+    }
+    searchPending = false;
+    refreshTable(RefreshReason.SEARCH);
   }
 
   /**
@@ -524,24 +652,86 @@ public class MarketplaceDialog extends Dialog {
           StringUtils.isNotBlank(info.getSource()) && !"apache".equalsIgnoreCase(info.getSource())
               ? info.getSource()
               : null;
+      // Same name the table shows, not the Maven coordinate.
+      String displayName = Const.NVL(info.getName(), info.getArtifactId());
       wStatus.setText(
           BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installing", coords.gav()));
       shell.update();
-      new PluginInstaller(log, hopHome, config).install(coords, true, null, preferredRepo);
+      if (!runInstall(coords, preferredRepo, displayName)) {
+        // Cancelled by the user — no success popup, and the table still reflects reality.
+        refreshTable(RefreshReason.AFTER_CHANGE);
+        wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.Cancelled"));
+        return;
+      }
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Install.Done.Header"));
       box.setMessage(
           BaseMessages.getString(PKG, "MarketplaceDialog.Install.Done.Message", coords.gav()));
       box.open();
-      refreshTable(false);
+      refreshTable(RefreshReason.AFTER_CHANGE);
       wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      showInstallError(info, e);
     } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
-          BaseMessages.getString(PKG, "MarketplaceDialog.Install.Error", info.getArtifactId()),
-          e);
+      showInstallError(info, e);
     }
+  }
+
+  private void showInstallError(OptionalPluginInfo info, Exception e) {
+    // ProgressMonitorDialog wraps the real failure; unwrap so the dialog shows the cause.
+    Throwable cause =
+        e instanceof InvocationTargetException ite && ite.getCause() != null ? ite.getCause() : e;
+    new ErrorDialog(
+        shell,
+        BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+        BaseMessages.getString(PKG, "MarketplaceDialog.Install.Error", info.getArtifactId()),
+        cause);
+  }
+
+  /**
+   * Download and install on a worker thread behind a cancellable progress dialog, so the UI keeps
+   * repainting and the user can see the zip arrive.
+   *
+   * <p>{@link ProgressMonitorDialog#run(boolean, IRunnableWithProgress)} pumps the event loop until
+   * the work finishes and only then returns, so everything after the call is back on the UI thread
+   * and needs no marshalling.
+   *
+   * @return true when the plugin was installed, false when the user cancelled
+   * @throws InvocationTargetException wrapping whatever the install failed with
+   */
+  private boolean runInstall(MavenCoordinates coords, String preferredRepo, String displayName)
+      throws InvocationTargetException, InterruptedException {
+    PluginInstaller installer = new PluginInstaller(log, hopHome, config);
+    AtomicBoolean cancelled = new AtomicBoolean(false);
+    ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+
+    IRunnableWithProgress operation =
+        monitor -> {
+          ProgressMonitorInstallListener listener = new ProgressMonitorInstallListener(monitor);
+          listener.begin(
+              BaseMessages.getString(PKG, "MarketplaceDialog.Progress.Installing", displayName),
+              displayName);
+          try {
+            installer.install(coords, true, null, preferredRepo, listener);
+          } catch (Exception e) {
+            if (!monitor.isCanceled()) {
+              // Throw WITHOUT calling monitor.done(). done() disposes the progress shell, which
+              // ends ProgressMonitorDialog's pump loop before it has a chance to observe this
+              // exception — a failed install would then be reported as a success. Leaving the shell
+              // up lets the pump see the exception and rethrow it. Catching Exception (not just
+              // HopException) is what keeps a RuntimeException from killing the worker thread
+              // silently and hanging the dialog forever.
+              throw new InvocationTargetException(e, e.getMessage());
+            }
+            cancelled.set(true);
+          }
+          listener.complete();
+          monitor.done();
+        };
+
+    dialog.run(true, operation);
+    return !cancelled.get();
   }
 
   private void uninstallSelected() {
@@ -569,7 +759,7 @@ public class MarketplaceDialog extends Dialog {
         return;
       }
       new PluginUninstaller(log, hopHome).uninstall(info.getArtifactId());
-      refreshTable(false);
+      refreshTable(RefreshReason.AFTER_CHANGE);
       wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
     } catch (Exception e) {
       new ErrorDialog(

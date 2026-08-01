@@ -30,6 +30,13 @@
     <name>Hop Plugins Transforms Stanford Simple NLP</name>
 
     <properties>
+        <!-- These are compiled against but must never be shipped: stanford-corenlp is GPLv3, xom is
+             LGPL 2.1 and AppleJavaExtensions carries Apple's own license, all ASF category X.
+             Users download stanford-corenlp (and the language model of their choice) themselves,
+             see the "Stanford NLP" page in the user manual. -->
+        <hop.pluginlib.exclude1>stanford-corenlp</hop.pluginlib.exclude1>
+        <hop.pluginlib.exclude2>xom</hop.pluginlib.exclude2>
+        <hop.pluginlib.exclude3>AppleJavaExtensions</hop.pluginlib.exclude3>
         <stanford-corenlp.version>4.5.10</stanford-corenlp.version>
     </properties>
 

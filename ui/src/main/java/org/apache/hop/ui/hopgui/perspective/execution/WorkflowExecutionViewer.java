@@ -103,7 +103,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.w3c.dom.Node;
 
 @GuiPlugin(name = "i18n::WorkflowExecutionViewer.Name")
@@ -474,10 +473,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     logTab.setImage(GuiResource.getInstance().getImageShowLog());
     logTab.setText(BaseMessages.getString(PKG, "WorkflowExecutionViewer.LogTab.Title"));
 
-    loggingText = new Text(tabFolder, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
-    PropsUi.setLook(loggingText);
-
-    logTab.setControl(loggingText);
+    executionLogPanel = new ExecutionLogPanel();
+    logTab.setControl(executionLogPanel.create(tabFolder));
 
     // When the logging tab comes into focus, re-load the logging text
     //
@@ -593,12 +590,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   @Override
   public void zoomFitToScreen() {
     super.zoomFitToScreen();
-  }
-
-  @Override
-  protected Point getArea() {
-    org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
-    return new Point(rect.width, rect.height);
   }
 
   public void drawWorkflowImage(GC swtGc, int width, int height, float magnificationFactor) {
@@ -719,7 +710,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public void refresh() {
     refreshStatus();
     refreshActionData();
-    setFocus();
+    redraw();
   }
 
   @GuiToolbarElement(

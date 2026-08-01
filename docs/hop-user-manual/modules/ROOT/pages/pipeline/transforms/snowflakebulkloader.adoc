@@ -51,6 +51,8 @@ The Snowflake bulk loader transform utilizes the Snowflake Copy command to load 
 - **Connection**: The database connection to use when bulk loading
 - **Schema**: (Optional) The schema containing the table being loaded.
 - **Table name**: The name of the table being loaded.
+- **Truncate table**: (Y/N) Empty the target table before loading. This is the master switch for truncate.
+- **Only when rows are received**: (Y/N) Only used when **Truncate table** is checked. If checked, truncate only when at least one input row arrives. If unchecked, always truncate (including when the input is empty).
 - **Staging location type**: The type of Snowflake stage to use to store the files.
 * **User Location**: Uses the user's home directory to store the files being loaded.
 * **Table Location**: Uses the table's internal stage to store the files being loaded.

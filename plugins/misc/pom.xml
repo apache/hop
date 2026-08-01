@@ -32,6 +32,7 @@
         <module>async</module>
         <module>debug</module>
         <module>documentation</module>
+        <module>execution-database</module>
         <module>git</module>
         <module>import</module>
         <module>mail</module>

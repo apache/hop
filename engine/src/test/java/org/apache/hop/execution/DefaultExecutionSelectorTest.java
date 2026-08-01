@@ -125,4 +125,26 @@ class DefaultExecutionSelectorTest {
     assertTrue(selector.isSelected(execution(UUID.randomUUID().toString(), null, new Date())));
     assertFalse(selector.isSelected(execution(UUID.randomUUID().toString(), null, daysAgo(1))));
   }
+
+  @Test
+  void nullNameAndIdDoNotThrowAndStillMatchOnOtherFields() {
+    Execution execution = new Execution();
+    execution.setId(null);
+    execution.setName(null);
+    execution.setExecutionType(ExecutionType.Pipeline);
+    execution.setExecutionStartDate(new Date());
+    // Free-text match against start date string is still possible; empty name/id must not NPE.
+    DefaultExecutionSelector selector = selectorWithFilter("no-such-substring-xyz");
+    assertFalse(selector.isSelected(execution));
+  }
+
+  @Test
+  void nullNameStillMatchesIdSubstring() {
+    Execution execution = new Execution();
+    execution.setId("abc-pipeline-id");
+    execution.setName(null);
+    execution.setExecutionType(ExecutionType.Pipeline);
+    execution.setExecutionStartDate(new Date());
+    assertTrue(selectorWithFilter("pipeline-id").isSelected(execution));
+  }
 }

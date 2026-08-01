@@ -1,0 +1,71 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Binary File Output transform writes a binary field to a file. The filename is taken from an input field so each row can write a different file.
+
+= image:transforms/icons/binaryfileoutput.svg[Binary File Output transform Icon, role="image-doc-icon"] Binary File Output
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Binary File Output transform writes raw binary content from a stream field to a file.
+
+Use this transform when you need a byte-for-byte write of BLOB/binary data, for example:
+
+* Exporting a database BLOB column to individual files
+* Saving content loaded with xref:pipeline/transforms/loadfileinput.adoc[Load file content in memory]
+* Writing binary payloads received from HTTP/REST transforms
+
+The target filename is read from an input field, so every row can be written to a different file.
+
+TIP: Prefer this transform over xref:pipeline/transforms/textfileoutput.adoc[Text File Output] for binary data. Text File Output applies text encoding and formatting and can corrupt raw bytes.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:check_mark.svg[Supported, 24]
+!Native Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Spark! image:question_mark.svg[Maybe Supported, 24]
+!Beam Flink! image:question_mark.svg[Maybe Supported, 24]
+!Beam Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform. This name has to be unique in a single pipeline.
+|Binary field|The input field that contains the binary content to write. A Binary data type is preferred.
+|Filename field|The input field that contains the target filename (local path or VFS URI) for the current row.
+|Create parent folder|Create the parent folder of the target file when it does not exist.
+|Overwrite existing file|Overwrite the target file when it already exists. When disabled, an existing file causes an error for that row.
+|Add filename to result|Add written filenames to the list of result filenames that can be used by the next workflow action.
+|===
+
+== Notes
+
+* Null binary content fails the row (or is sent to the error hop when error handling is configured).
+* An empty binary value (`0` bytes) writes an empty file.
+* No character encoding is applied: bytes are written exactly as stored in the field.
+* Supports transform error handling so failed rows can be routed without stopping the pipeline.

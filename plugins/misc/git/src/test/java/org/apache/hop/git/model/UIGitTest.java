@@ -29,6 +29,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.InputStream;
@@ -48,12 +49,14 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class UIGitTest extends RepositoryTestCase {
   private Git git;
@@ -509,6 +512,100 @@ public class UIGitTest extends RepositoryTestCase {
     success = uiGit.cloneRepo(file.getPath(), "fakeURL");
     assertFalse(success);
     assertFalse(file.exists());
+  }
+
+  @Test
+  public void testMergeBranchWithUncommittedChangesExplainsWhatToDo() throws Exception {
+    initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+
+    // Let master move on as well, so merging develop is a real merge and not a fast-forward
+    //
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Other.txt", "Hello master");
+    git.add().addFilepattern("Other.txt").call();
+    git.commit().setMessage("master commit").call();
+
+    // Leave an uncommitted change in the file the merge needs to touch
+    //
+    writeTrashFile("Test.txt", "Uncommitted work");
+
+    assertFalse(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    assertMergeFailureExplained();
+  }
+
+  @Test
+  public void testFastForwardMergeWithUncommittedChangesExplainsWhatToDo() throws Exception {
+    initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+
+    // Master is untouched, so merging develop fast-forwards. The checkout of Test.txt can't happen
+    // while it holds uncommitted changes.
+    //
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Test.txt", "Uncommitted work");
+
+    assertFalse(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    assertMergeFailureExplained();
+  }
+
+  @Test
+  public void testMergeBranchWithStagedButUncommittedWorkIsNotReportedAsSuccess() throws Exception {
+    initialCommit();
+
+    // Stage a file on the branch but never commit it, so the branch holds no commits of its own
+    //
+    git.branchCreate().setName("test-branch").call();
+    git.checkout().setName("test-branch").call();
+    writeTrashFile("bogus-pipeline.hpl", "not committed");
+    git.add().addFilepattern("bogus-pipeline.hpl").call();
+
+    git.checkout().setName(Constants.MASTER).call();
+
+    // There is nothing to merge, so this is not a successful merge
+    //
+    assertFalse(uiGit.mergeBranch("test-branch", MergeStrategy.RECURSIVE));
+
+    ArgumentCaptor<String> message = ArgumentCaptor.forClass(String.class);
+    verify(uiGit).showMessageBox(anyString(), message.capture());
+
+    assertTrue(message.getValue(), message.getValue().contains("is already up to date with"));
+    assertTrue(message.getValue(), message.getValue().contains("You have uncommitted changes"));
+    assertTrue(message.getValue(), message.getValue().contains("bogus-pipeline.hpl"));
+  }
+
+  @Test
+  public void testMergeBranchUpToDateWithCleanWorkingTreeDoesNotMentionUncommittedChanges()
+      throws Exception {
+    initialCommit();
+    git.branchCreate().setName("test-branch").call();
+
+    assertFalse(uiGit.mergeBranch("test-branch", MergeStrategy.RECURSIVE));
+
+    ArgumentCaptor<String> message = ArgumentCaptor.forClass(String.class);
+    verify(uiGit).showMessageBox(anyString(), message.capture());
+
+    assertTrue(message.getValue(), message.getValue().contains("is already up to date with"));
+    assertFalse(message.getValue().contains("You have uncommitted changes"));
+  }
+
+  /** The user needs to know which file is in the way and how to get past it. */
+  private void assertMergeFailureExplained() {
+    ArgumentCaptor<String> message = ArgumentCaptor.forClass(String.class);
+    verify(uiGit).showMessageBox(anyString(), message.capture());
+
+    assertTrue(message.getValue(), message.getValue().contains("Test.txt"));
+    assertTrue(
+        message.getValue(),
+        message.getValue().contains("Please commit or revert your changes before you merge"));
+  }
+
+  private void commitOnBranch(String branch, String file, String content) throws Exception {
+    git.branchCreate().setName(branch).call();
+    git.checkout().setName(branch).call();
+    writeTrashFile(file, content);
+    git.add().addFilepattern(file).call();
+    git.commit().setMessage(branch + " commit").call();
   }
 
   private RevCommit initialCommit() throws Exception {

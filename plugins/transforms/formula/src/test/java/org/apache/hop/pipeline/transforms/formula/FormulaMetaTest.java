@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.formula;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,6 +56,25 @@ class FormulaMetaTest {
 
     FormulaMeta copy = new FormulaMeta(formulaMeta);
     assertEquals(formulaMeta.getFormulas(), copy.getFormulas());
+  }
+
+  @Test
+  void testCloneIsDeep() {
+    List<FormulaMetaFunction> formulas = new ArrayList<>();
+    formulas.add(new FormulaMetaFunction("test", "1+1", 1, 10, 2, "", false));
+    formulaMeta.setFormulas(formulas);
+
+    // This is what the transform dialog does when snapshotting the "before" state: the snapshot
+    // must survive the dialog clearing and repopulating the live list, otherwise the change goes
+    // unnoticed and the pipeline can't be saved.
+    FormulaMeta before = formulaMeta.clone();
+
+    formulaMeta.getFormulas().clear();
+    formulaMeta.getFormulas().add(new FormulaMetaFunction("test", "2+2", 1, 10, 2, "", false));
+
+    assertEquals(1, before.getFormulas().size());
+    assertEquals("1+1", before.getFormulas().get(0).getFormula());
+    assertNotEquals(formulaMeta.getFormulas(), before.getFormulas());
   }
 
   @Test

@@ -104,16 +104,6 @@ if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK
   CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
 fi
 
-# Beam SDKs/runners live with the optional Beam plugin (not lib/beam).
-# Only on the system classpath when marketplace (or -Pbeam) has installed them.
-if [ -d "plugins/engines/beam/lib-beam" ]; then
-  CLASSPATH="${CLASSPATH}:plugins/engines/beam/lib-beam/*"
-fi
-if [ -d "plugins/engines/beam" ]; then
-  # Hop Beam plugin jars at the plugin root (exclude subdirs via non-recursive glob is fine for /*.jar intent;
-  # shell * includes jars and may pick non-jars; match historical lib/* style)
-  CLASSPATH="${CLASSPATH}:plugins/engines/beam/*"
-fi
 "${_HOP_JAVA}" ${HOP_OPTIONS} -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.run.HopRun "$@"
 EXITCODE=$?
 

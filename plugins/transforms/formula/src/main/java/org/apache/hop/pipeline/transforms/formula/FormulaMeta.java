@@ -59,7 +59,15 @@ public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
   }
 
   public FormulaMeta(FormulaMeta m) {
-    this.formulas = m.formulas;
+    this();
+    for (FormulaMetaFunction formula : m.formulas) {
+      this.formulas.add(new FormulaMetaFunction(formula));
+    }
+  }
+
+  @Override
+  public FormulaMeta clone() {
+    return new FormulaMeta(this);
   }
 
   @Override

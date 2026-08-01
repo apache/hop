@@ -173,6 +173,11 @@ public class ProjectsGuiPlugin {
       //
       ExecutionPerspective.getInstance().saveState();
 
+      // Save explorer layout (split panes, panel visibility) while tabs are still open so the
+      // restored layout matches what the user had before the switch (issue #7692 / #6708).
+      //
+      ExplorerPerspective.getInstance().saveExplorerStateOnShutdown();
+
       // Close's all (including execution information tabs)
       //
       hopGui.fileDelegate.closeAllFiles();
@@ -182,10 +187,6 @@ public class ProjectsGuiPlugin {
       if (hopGui.getTerminalPanel() != null) {
         hopGui.getTerminalPanel().clearAllTerminals();
       }
-
-      // Save explorer perspective state for the current project before switching namespace
-      //
-      ExplorerPerspective.getInstance().saveExplorerStateOnShutdown();
 
       // This is called only in Hop GUI so we want to start with a new set of variables
       // It avoids variables from one project showing up in another
@@ -224,19 +225,6 @@ public class ProjectsGuiPlugin {
         }
       }
 
-      // We need to change the currently set variables in the newly loaded files
-      //
-      hopGui.setVariables(variables);
-
-      // Re-open last open files for the namespace
-      hopGui.getDisplay().asyncExec(() -> hopGui.auditDelegate.openLastFiles());
-
-      // Restore terminal tabs for the new project (per-project terminals)
-      //
-      if (hopGui.getTerminalPanel() != null && hopGui.getProps().openLastFile()) {
-        hopGui.getDisplay().asyncExec(() -> hopGui.getTerminalPanel().restoreTerminals());
-      }
-
       // Clear last used, fill it with something useful.
       //
       IVariables hopGuiVariables = Variables.getADefaultVariableSpace();
@@ -246,6 +234,18 @@ public class ProjectsGuiPlugin {
         if (!variable.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
           hopGuiVariables.setVariable(variable, value);
         }
+      }
+
+      // Re-open last open files for the namespace after HopGui variables are final.
+      // Run synchronously so tabs are restored before ProjectActivated listeners refresh the
+      // explorer layout (async restore raced with layout apply after #6708, issue #7692).
+      //
+      hopGui.auditDelegate.openLastFiles();
+
+      // Restore terminal tabs for the new project (per-project terminals)
+      //
+      if (hopGui.getTerminalPanel() != null && hopGui.getProps().openLastFile()) {
+        hopGui.getTerminalPanel().restoreTerminals();
       }
 
       // Refresh the currently active file

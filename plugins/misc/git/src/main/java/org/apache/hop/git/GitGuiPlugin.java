@@ -53,6 +53,7 @@ import org.apache.hop.git.info.GitInfoExplorerFileTypeHandler;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
+import org.apache.hop.git.util.FileTypeUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -292,10 +293,14 @@ public class GitGuiPlugin
       image = "pull.svg")
   public void gitPull() {
     try {
-      if (git.pull()) {
-        // Refresh the explorer file, refs and commit history
-        GitPerspective.getInstance().refresh(true);
+      boolean merged = git.pull();
 
+      // Refresh the explorer file, refs and commit history. A pull fetches the remote refs even
+      // when there was nothing to merge into the current branch.
+      //
+      GitPerspective.getInstance().refresh(true);
+
+      if (merged) {
         MessageBox pullSuccessful =
             new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_INFORMATION);
         pullSuccessful.setText(
@@ -1036,10 +1041,22 @@ public class GitGuiPlugin
       PipelineMeta pipelineMetaNew =
           new PipelineMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
-      pipelineMetaOld = HopDiff.compareTransforms(pipelineMetaOld, pipelineMetaNew, true);
-      pipelineMetaOld = HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true);
-      pipelineMetaNew = HopDiff.compareTransforms(pipelineMetaNew, pipelineMetaOld, false);
-      pipelineMetaNew = HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false);
+      boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      Map<String, String> renamed =
+          HopDiff.detectTransformRenames(pipelineMetaOld, pipelineMetaNew);
+      Map<String, String> renamedBack =
+          HopDiff.detectTransformRenames(pipelineMetaNew, pipelineMetaOld);
+
+      pipelineMetaOld =
+          HopDiff.compareTransforms(
+              pipelineMetaOld, pipelineMetaNew, true, ignorePosition, renamed);
+      pipelineMetaOld =
+          HopDiff.comparePipelineHops(pipelineMetaOld, pipelineMetaNew, true, renamed);
+      pipelineMetaNew =
+          HopDiff.compareTransforms(
+              pipelineMetaNew, pipelineMetaOld, false, ignorePosition, renamedBack);
+      pipelineMetaNew =
+          HopDiff.comparePipelineHops(pipelineMetaNew, pipelineMetaOld, false, renamedBack);
 
       pipelineMetaOld.setPipelineVersion(CONST_GIT + commitIdOld);
       pipelineMetaNew.setPipelineVersion(CONST_GIT + commitIdNew);
@@ -1049,7 +1066,7 @@ public class GitGuiPlugin
       pipelineMetaOld.setName(
           String.format(
               CONST_S_S_S,
-              pipelineMetaOld.getName(),
+              FileTypeUtils.getDiffName(filename, pipelineMetaOld.getName()),
               git.getShortenedName(commitIdOld),
               git.getShortenedName(commitIdNew)));
       pipelineMetaOld.setNameSynchronizedWithFilename(false);
@@ -1057,7 +1074,7 @@ public class GitGuiPlugin
       pipelineMetaNew.setName(
           String.format(
               CONST_S_S_S,
-              pipelineMetaNew.getName(),
+              FileTypeUtils.getDiffName(filename, pipelineMetaNew.getName()),
               git.getShortenedName(commitIdNew),
               git.getShortenedName(commitIdOld)));
       pipelineMetaNew.setNameSynchronizedWithFilename(false);
@@ -1086,10 +1103,20 @@ public class GitGuiPlugin
       WorkflowMeta workflowMetaNew =
           new WorkflowMeta(xmlStreamNew, hopGui.getMetadataProvider(), hopGui.getVariables());
 
-      workflowMetaOld = HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true);
-      workflowMetaOld = HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true);
-      workflowMetaNew = HopDiff.compareActions(workflowMetaNew, workflowMetaOld, false);
-      workflowMetaNew = HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false);
+      boolean ignorePosition = GitConfigSingleton.getConfig().isIgnoringPositionInDiff();
+      Map<String, String> renamed = HopDiff.detectActionRenames(workflowMetaOld, workflowMetaNew);
+      Map<String, String> renamedBack =
+          HopDiff.detectActionRenames(workflowMetaNew, workflowMetaOld);
+
+      workflowMetaOld =
+          HopDiff.compareActions(workflowMetaOld, workflowMetaNew, true, ignorePosition, renamed);
+      workflowMetaOld =
+          HopDiff.compareWorkflowHops(workflowMetaOld, workflowMetaNew, true, renamed);
+      workflowMetaNew =
+          HopDiff.compareActions(
+              workflowMetaNew, workflowMetaOld, false, ignorePosition, renamedBack);
+      workflowMetaNew =
+          HopDiff.compareWorkflowHops(workflowMetaNew, workflowMetaOld, false, renamedBack);
 
       workflowMetaOld.setWorkflowVersion(CONST_GIT + commitIdOld);
       workflowMetaNew.setWorkflowVersion(CONST_GIT + commitIdNew);
@@ -1099,7 +1126,7 @@ public class GitGuiPlugin
       workflowMetaOld.setName(
           String.format(
               CONST_S_S_S,
-              workflowMetaOld.getName(),
+              FileTypeUtils.getDiffName(filename, workflowMetaOld.getName()),
               git.getShortenedName(commitIdOld),
               git.getShortenedName(commitIdNew)));
       workflowMetaOld.setNameSynchronizedWithFilename(false);
@@ -1107,7 +1134,7 @@ public class GitGuiPlugin
       workflowMetaNew.setName(
           String.format(
               CONST_S_S_S,
-              workflowMetaNew.getName(),
+              FileTypeUtils.getDiffName(filename, workflowMetaNew.getName()),
               git.getShortenedName(commitIdNew),
               git.getShortenedName(commitIdOld)));
       workflowMetaNew.setNameSynchronizedWithFilename(false);

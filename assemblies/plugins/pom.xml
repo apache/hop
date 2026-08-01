@@ -634,6 +634,12 @@
         <!-- marketplace optional: hop-misc-documentation -->
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-execution-database</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-git</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -738,6 +744,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-append</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-binaryfileoutput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -897,12 +909,7 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-detectlanguage</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
+        <!-- marketplace optional: hop-transform-detectlanguage -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-detectlastrow</artifactId>
@@ -1709,6 +1716,12 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-salesforce</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-transform-detectlanguage</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>

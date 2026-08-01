@@ -17,13 +17,10 @@
 
 package org.apache.hop.parquet.transforms.input;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
@@ -120,14 +117,8 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
     try {
       FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename), variables);
 
-      long size = fileObject.getContent().getSize();
-      InputStream inputStream = HopVfs.getInputStream(fileObject);
+      ParquetStream inputFile = new ParquetStream(fileObject, filename);
 
-      // Reads the whole file into memory...
-      //
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream((int) size);
-      IOUtils.copy(inputStream, outputStream);
-      ParquetStream inputFile = new ParquetStream(outputStream.toByteArray(), filename);
       // Empty list of fields to retrieve: we still grab the schema
       //
       ParquetReadSupport readSupport = new ParquetReadSupport(new ArrayList<>());

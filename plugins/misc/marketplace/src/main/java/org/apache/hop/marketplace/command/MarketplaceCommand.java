@@ -181,9 +181,16 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         } else if (!coordinate.trim().equals(gav.artifactId()) || !coordinate.contains(":")) {
           System.out.println("Resolved " + coordinate + " → " + gav.gav());
         }
-        InstallReceipt receipt =
-            new PluginInstaller(log, hopHome, config)
-                .install(gav, true, repoId, target.preferredRepoId());
+        ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
+        InstallReceipt receipt;
+        try {
+          receipt =
+              new PluginInstaller(log, hopHome, config)
+                  .install(gav, true, repoId, target.preferredRepoId(), progress);
+        } finally {
+          // Close off the in-place bar line so what follows starts on a fresh row.
+          progress.complete();
+        }
         System.out.println(
             "Plugin "
                 + gav.gav()
@@ -413,7 +420,13 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         Path hopHome = HopHome.resolve();
         Path envPath = Path.of(file).toAbsolutePath().normalize();
         HopEnvironmentSpec env = HopEnvironmentLoader.load(envPath);
-        new EnvironmentApplier(log, hopHome, config).apply(env, prune);
+        ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
+        try {
+          new EnvironmentApplier(log, hopHome, config).apply(env, prune, progress);
+        } finally {
+          // Close off the in-place bar line so what follows starts on a fresh row.
+          progress.complete();
+        }
         System.out.println(
             "Environment applied from "
                 + envPath

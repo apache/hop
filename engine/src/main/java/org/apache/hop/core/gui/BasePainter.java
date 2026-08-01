@@ -17,19 +17,25 @@
 
 package org.apache.hop.core.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.NotePadType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.IGc.EColor;
 import org.apache.hop.core.gui.IGc.EFont;
 import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.IGc.ELineStyle;
+import org.apache.hop.core.gui.markdown.MarkdownNoteRenderer;
+import org.apache.hop.core.gui.markdown.MarkdownNoteRenderer.PositionedLink;
+import org.apache.hop.core.gui.markdown.NoteLinkHit;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -80,6 +86,12 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
   protected Rectangle graphPort;
   protected Rectangle viewPort;
   protected String mouseOverName;
+
+  /** Hovered Markdown note hyperlink (for underline emphasis). */
+  protected NoteLinkHit mouseOverNoteLink;
+
+  private static final int NOTE_ICON_SIZE = 16;
+  private static final int NOTE_ICON_TEXT_GAP = 6;
 
   /**
    * When true, draw the origin boundary (dashed lines, hatching, and label). Should be set from the
@@ -158,6 +170,10 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
       return new Point(20, 20); // Empty note
     }
 
+    if (note.isMarkdown()) {
+      return calculateMarkdownMinimumSize(note);
+    }
+
     int fontHeight;
     if (note.getFontSize() > 0) {
       fontHeight = note.getFontSize();
@@ -177,7 +193,80 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
     return size;
   }
 
+  /**
+   * Base font size for Markdown notes on the canvas. Reads the actual point size of {@link
+   * EFont#GRAPH} (transform/action name font) so body text matches graph labels exactly under the
+   * same canvas magnification. Falls back to note-font / zoom when the GC cannot report size.
+   *
+   * <p>Do not clamp this value upward: on HiDPI the graph font is intentionally only a few points
+   * after zoom compensation.
+   */
+  private int markdownBaseFontSize() {
+    gc.setFont(EFont.GRAPH);
+    int graphHeight = gc.getFontHeight();
+    if (graphHeight > 0) {
+      return graphHeight;
+    }
+    // Fallback: same compensation plain notes use (height / zoomFactor)
+    int raw = noteFontHeight > 0 ? noteFontHeight : 10;
+    double z = zoomFactor > 0 ? zoomFactor : 1.0;
+    return Math.max(1, (int) Math.round(raw / z));
+  }
+
+  /** Host pipeline/workflow filename for resolving relative Markdown image paths. */
+  private String noteImageBaseFilename() {
+    if (subject instanceof AbstractMeta meta) {
+      return meta.getFilename();
+    }
+    return null;
+  }
+
+  /**
+   * Minimum size for Markdown notes used by resize handles.
+   *
+   * <p>Width is a small fixed floor so the user can shrink the note and reflow text. (Using the
+   * full laid-out content width as minimum prevented narrowing.) Height is measured by wrapping at
+   * the current note width so vertical space tracks reflow.
+   */
+  private Point calculateMarkdownMinimumSize(NotePadMeta note) {
+    int margin = Const.NOTE_MARGIN;
+    NotePadType type = note.getNoteType() != null ? note.getNoteType() : NotePadType.GENERAL;
+    int textIndent = NotePadStyle.icon(type) != null ? NOTE_ICON_SIZE + NOTE_ICON_TEXT_GAP : 0;
+
+    // Allow narrowing well below default note width; content reflows (wraps) instead.
+    final int minContentWidth = 40;
+    int minWidth = 2 * margin + textIndent + minContentWidth;
+
+    float savedMag = magnification;
+    gc.setTransform(0.0f, 0.0f, 1.0f);
+    try {
+      int availableContent =
+          note.getWidth() > 0
+              ? Math.max(minContentWidth, note.getWidth() - 2 * margin - textIndent)
+              : minContentWidth;
+      MarkdownNoteRenderer.LayoutResult layout =
+          MarkdownNoteRenderer.measure(
+              gc,
+              note,
+              Const.NVL(noteFontName, "Sans"),
+              markdownBaseFontSize(),
+              availableContent,
+              noteImageBaseFilename(),
+              variables);
+      int contentH =
+          Math.max(NotePadStyle.icon(type) != null ? NOTE_ICON_SIZE : 0, layout.height());
+      return new Point(minWidth, 2 * margin + contentH);
+    } finally {
+      gc.setTransform((float) offset.x, (float) offset.y, savedMag);
+    }
+  }
+
   protected void drawNote(NotePadMeta noteMeta) {
+    if (noteMeta.isMarkdown()) {
+      drawMarkdownNote(noteMeta);
+      return;
+    }
+
     if (noteMeta.isSelected()) {
       gc.setLineWidth(2);
     } else {
@@ -239,6 +328,95 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
             offset,
             subject,
             noteMeta));
+  }
+
+  private void drawMarkdownNote(NotePadMeta noteMeta) {
+    NotePadType type =
+        noteMeta.getNoteType() != null ? noteMeta.getNoteType() : NotePadType.GENERAL;
+    NotePadStyle.RgbColor bg = NotePadStyle.backgroundColor(type);
+    NotePadStyle.RgbColor border = NotePadStyle.borderColor(type);
+
+    Point minimumSize = calculateMinimumSize(noteMeta);
+    noteMeta.setMinimumWidth(minimumSize.x);
+    noteMeta.setMinimumHeight(minimumSize.y);
+
+    Point loc = noteMeta.getLocation();
+    Point notePos = real2screen(loc.x, loc.y);
+
+    int width = noteMeta.width;
+    int height = noteMeta.height;
+    if (minimumSize.x > width) {
+      width = minimumSize.x;
+    }
+    if (minimumSize.y > height) {
+      height = minimumSize.y;
+    }
+    Rectangle noteShape = new Rectangle(notePos.x, notePos.y, width, height);
+    int radius = (int) Math.round(zoomFactor * 8);
+
+    gc.setBackground(bg.red(), bg.green(), bg.blue());
+    gc.setForeground(border.red(), border.green(), border.blue());
+    gc.setLineWidth(NotePadStyle.borderWidth(type, noteMeta.isSelected()));
+    gc.fillRoundRectangle(
+        noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius);
+    gc.drawRoundRectangle(
+        noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius);
+    gc.setLineWidth(1);
+
+    areaOwners.add(
+        new AreaOwner(
+            AreaType.NOTE,
+            noteShape.x,
+            noteShape.y,
+            noteShape.width,
+            noteShape.height,
+            offset,
+            subject,
+            noteMeta));
+
+    int contentX = noteShape.x + Const.NOTE_MARGIN;
+    int contentY = noteShape.y + Const.NOTE_MARGIN;
+    int textX = contentX;
+    int textY = contentY;
+
+    EImage icon = NotePadStyle.icon(type);
+    if (icon != null) {
+      try {
+        gc.drawImage(icon, contentX, contentY, 1.0f);
+      } catch (Exception ignored) {
+        // optional decoration
+      }
+      textX = contentX + NOTE_ICON_SIZE + NOTE_ICON_TEXT_GAP;
+    }
+
+    int contentWidth = Math.max(20, noteShape.width - Const.NOTE_MARGIN - (textX - noteShape.x));
+    List<PositionedLink> positionedLinks = new ArrayList<>();
+    MarkdownNoteRenderer.paintWithLinkBounds(
+        gc,
+        noteMeta,
+        Const.NVL(noteFontName, "Sans"),
+        markdownBaseFontSize(),
+        textX,
+        textY,
+        contentWidth,
+        mouseOverNoteLink,
+        positionedLinks,
+        noteImageBaseFilename(),
+        variables);
+
+    for (PositionedLink pl : positionedLinks) {
+      int pad = 1;
+      areaOwners.add(
+          new AreaOwner(
+              AreaType.NOTE_LINK,
+              pl.x() - pad,
+              pl.y() - pad,
+              pl.width() + 2 * pad,
+              pl.height() + 2 * pad,
+              offset,
+              noteMeta,
+              pl.hit()));
+    }
   }
 
   protected Point real2screen(int x, int y) {

@@ -17,11 +17,9 @@
 
 package org.apache.hop.parquet.transforms.input;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -118,13 +116,8 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
           // optional lineage
         }
       }
-      data.inputStream = HopVfs.getInputStream(fileObject);
 
-      // Reads the whole file into memory...
-      //
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream((int) size);
-      IOUtils.copy(data.inputStream, outputStream);
-      ParquetStream inputFile = new ParquetStream(outputStream.toByteArray(), filename);
+      ParquetStream inputFile = new ParquetStream(fileObject, filename);
 
       ParquetReadSupport readSupport = new ParquetReadSupport(fields);
       data.reader = new ParquetReaderBuilder<>(readSupport, inputFile).build();
@@ -146,10 +139,12 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
   }
 
   public void closeFile() {
-    if (!data.readerClosed && data.reader != null && data.inputStream != null) {
+    if (!data.readerClosed && data.reader != null) {
       try {
         data.reader.close();
-        data.inputStream.close();
+        if (data.parquetStream != null) {
+          data.parquetStream.close();
+        }
       } catch (IOException e) {
         logError("Unable to properly close parquet reader!");
       }

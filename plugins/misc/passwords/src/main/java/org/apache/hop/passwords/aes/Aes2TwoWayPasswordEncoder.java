@@ -52,6 +52,9 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
   public static final String AES_PREFIX = "AES2 ";
   public static final String AES_ALGORITHM = "AES/GCM/NoPadding";
 
+  /** {@link SecureRandom} is thread safe, seeding it once per encoded password is wasteful. */
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
   private SecretKeySpec secretKeySpec;
 
   @Override
@@ -103,8 +106,7 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
 
     // Generate a new, unique 12-byte IV for this encryption
     byte[] iv = new byte[12];
-    SecureRandom secureRandom = new SecureRandom();
-    secureRandom.nextBytes(iv);
+    SECURE_RANDOM.nextBytes(iv);
 
     // Initialize a new Cipher with the unique IV
     GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);

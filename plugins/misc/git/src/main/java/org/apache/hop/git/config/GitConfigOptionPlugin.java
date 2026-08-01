@@ -54,6 +54,8 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
   private static final String WIDGET_ID_GIT_SEARCH_PARENT_FOLDERS =
       "10010-git-search-parent-folders";
   private static final String WIDGET_ID_GIT_FETCH_AUTOMATIC = "10020-git-fetch-automatic";
+  private static final String WIDGET_ID_GIT_IGNORE_POSITION_IN_DIFF =
+      "10030-git-ignore-position-in-diff";
 
   @GuiWidgetElement(
       id = WIDGET_ID_GIT_ENABLE,
@@ -83,12 +85,24 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       toolTip = "i18n::GitConfig.FetchAutomatic.Tooltip")
   private Boolean fetchAutomatic;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_GIT_IGNORE_POSITION_IN_DIFF,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::GitConfig.IgnorePositionInDiff.Message",
+      toolTip = "i18n::GitConfig.IgnorePositionInDiff.Tooltip")
+  @CommandLine.Option(
+      names = {"--git-gui-diff-ignore-position"},
+      description = "Do not mark a moved transform or action as changed in the visual diff")
+  private Boolean ignoringPositionInDiff;
+
   public static GitConfigOptionPlugin getInstance() {
     GitConfigOptionPlugin instance = new GitConfigOptionPlugin();
     GitConfig config = GitConfigSingleton.getConfig();
     instance.gitEnabled = config.isEnabled();
     instance.searchingParentFolders = config.isSearchingParentFolders();
     instance.fetchAutomatic = config.isFetchAutomatic();
+    instance.ignoringPositionInDiff = config.isIgnoringPositionInDiff();
     return instance;
   }
 
@@ -120,6 +134,15 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
       }
       if (fetchAutomatic != null) {
         config.setFetchAutomatic(fetchAutomatic);
+        changed = true;
+      }
+      if (ignoringPositionInDiff != null) {
+        config.setIgnoringPositionInDiff(ignoringPositionInDiff);
+        if (ignoringPositionInDiff) {
+          log.logBasic("The visual diff ignores the position of transforms and actions.");
+        } else {
+          log.logBasic("The visual diff marks a moved transform or action as changed.");
+        }
         changed = true;
       }
 
@@ -166,6 +189,10 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
         case WIDGET_ID_GIT_FETCH_AUTOMATIC:
           fetchAutomatic = ((Button) control).getSelection();
           GitConfigSingleton.getConfig().setFetchAutomatic(fetchAutomatic);
+          break;
+        case WIDGET_ID_GIT_IGNORE_POSITION_IN_DIFF:
+          ignoringPositionInDiff = ((Button) control).getSelection();
+          GitConfigSingleton.getConfig().setIgnoringPositionInDiff(ignoringPositionInDiff);
           break;
         default:
           break;

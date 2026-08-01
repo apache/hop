@@ -91,6 +91,30 @@ With this location type you can store execution information in a xref:technology
 
 The Elastic location type stores information in an Elastic index.  See the xref:metadata-types/elastic-location-type.adoc[Elastic location type]
 
+=== Caching Database location
+
+Like the Caching File location, execution information is aggregated in memory and then persisted as one document per pipeline or workflow.
+Instead of writing JSON files, this location stores the same JSON payload in a **single relational table**, together with a small set of filter columns so the Execution Information perspective can query efficiently without parsing the CLOB on every list request.
+
+This deliberately avoids the old multi-table 3NF logging schema used in Kettle: one table, dialect-agnostic DDL generated from Hop's database layer, and no per-dialect schema maintenance for nested execution details.
+
+Options:
+
+* *Relational database connection*: the Hop relational connection to use
+* *Schema name (optional)*: optional schema for the table
+* *Table name*: defaults to `hop_executions`
+* *Persistence delay*: maximum time to wait before persisting dirty cache entries (ms)
+* *Maximum cache age*: maximum time to keep an entry in memory without read/write (ms)
+* *Show table and indexes DDL*: generates dialect-specific `CREATE TABLE` and `CREATE INDEX` statements for the selected connection (does not execute them). Run the DDL on your database before writing execution information.
+
+Table layout (logical):
+
+* Primary key `id` (log channel / execution id)
+* Filter columns: `name`, `execution_type`, `parent_id`, `registration_date`, `execution_start_date`, `execution_end_date`, `failed`, `status_description`, `duration_ms`
+* `json`: full `CacheEntry` JSON (execution, state, children, samples, logging text, …)
+
+Indexes are recommended on the filter columns used by the GUI (start date, name, type, failed, parent id, status). Use the **Show table and indexes DDL** button to obtain statements for your database dialect.
+
 === Cleanup
 
 If you want to automate removal of execution information from your graph database you can use a pipeline or workflow to do so.  

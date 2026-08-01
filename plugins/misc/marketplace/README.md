@@ -76,6 +76,12 @@ Coordinates:
 
 After install or uninstall, **restart Hop** so the plugin registry reloads.
 
+Shared jars under `lib/core/` (Maven `provided` scope from plugin zips) are installed so
+optional plugins match the full client classpath. Uninstall leaves them in place (sticky).
+On **Windows**, existing `lib/core` jars are never overwritten while Hop is running — the
+JVM locks those files on the system classpath. Identical content is skipped on all platforms;
+missing jars are still installed.
+
 ### hop-env.yaml
 
 See `config/projects/samples/marketplace/hop-env.example.yaml` (after install) or
