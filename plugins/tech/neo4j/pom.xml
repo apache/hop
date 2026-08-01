@@ -29,7 +29,7 @@
     <name>Hop Plugins Technology Neo4j</name>
 
     <properties>
-        <neo4j.driver.version>5.15.0</neo4j.driver.version>
+        <neo4j.driver.version>6.2.0</neo4j.driver.version>
         <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
@@ -46,21 +46,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- The "-all" artifact shades Netty and Reactor under
+             org.neo4j.driver.internal.shaded, so the driver is independent of the
+             Netty and Reactor versions shipped in lib/core. -->
         <dependency>
             <groupId>org.neo4j.driver</groupId>
-            <artifactId>neo4j-java-driver</artifactId>
+            <artifactId>neo4j-java-driver-all</artifactId>
             <version>${neo4j.driver.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.reactivestreams</groupId>

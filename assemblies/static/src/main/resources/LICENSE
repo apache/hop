@@ -1828,7 +1828,7 @@ This product bundles mxdump 0.14, which is available under a
 This product bundles native-protocol 1.5.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles neo4j-java-driver 5.15.0, which is available under a
+This product bundles neo4j-java-driver-all 6.2.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles netty-all 4.2.15.Final, which is available under a
