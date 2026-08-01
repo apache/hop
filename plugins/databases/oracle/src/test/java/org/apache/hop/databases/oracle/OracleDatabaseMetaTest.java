@@ -245,7 +245,7 @@ class OracleDatabaseMetaTest {
 
   @Test
   void testOverriddenSqlStatements() {
-    assertEquals(" WHERE ROWNUM <= 5", nativeMeta.getLimitClause(5));
+    assertEquals(" FETCH FIRST 5 ROWS ONLY", nativeMeta.getLimitClause(5));
     String reusedFieldsQuery = "SELECT * FROM FOO WHERE 1=0";
     assertEquals(reusedFieldsQuery, nativeMeta.getSqlQueryFields("FOO"));
     assertEquals(reusedFieldsQuery, nativeMeta.getSqlTableExists("FOO"));
