@@ -43,6 +43,7 @@
         <module>neo4j</module>
         <module>opensearch</module>
         <module>parquet</module>
+        <module>redis</module>
         <module>salesforce</module>
         <module>vault</module>
         <module>webdav</module>

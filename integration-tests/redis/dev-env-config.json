@@ -1,0 +1,14 @@
+{
+  "variables": [
+    {
+      "name": "REDIS_HOSTNAME",
+      "value": "redis",
+      "description": "Redis hostname on the docker integration-test network"
+    },
+    {
+      "name": "REDIS_PORT",
+      "value": "6379",
+      "description": "Redis port"
+    }
+  ]
+}

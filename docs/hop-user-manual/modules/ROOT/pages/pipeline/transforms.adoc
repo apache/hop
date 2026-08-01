@@ -181,6 +181,8 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/propertyinput.adoc[Properties file Input]
 * xref:pipeline/transforms/propertyoutput.adoc[Properties file Output]
 * xref:pipeline/transforms/redshift-bulkloader.adoc[Redshift Bulk Loader]
+* xref:pipeline/transforms/redis-input.adoc[Redis Input]
+* xref:pipeline/transforms/redis-output.adoc[Redis Output]
 * xref:pipeline/transforms/regexeval.adoc[Regex Evaluation]
 * xref:pipeline/transforms/replacestring.adoc[Replace in String]
 * xref:pipeline/transforms/reservoirsampling.adoc[Reservoir Sampling]
