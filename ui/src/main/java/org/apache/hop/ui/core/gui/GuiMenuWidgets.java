@@ -365,7 +365,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     boolean hasCapability =
         handler != null ? handler.hasCapability(permission) : fileType.hasCapability(permission);
     boolean enable = hasCapability && active;
-    if (menuItem != null && enable != menuItem.isEnabled()) {
+    if (menuItem != null && !menuItem.isDisposed() && enable != menuItem.isEnabled()) {
       menuItem.setEnabled(enable);
     }
     menuEnabledMap.put(id, enable);
