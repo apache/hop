@@ -21,10 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.Test;
 
 class RedisCodecsTest {
@@ -42,8 +45,8 @@ class RedisCodecsTest {
     byte[] encoded = codec.encode(Map.of("a", 1));
     Object decoded = codec.decode(encoded);
     assertNotNull(decoded);
-    assertEquals(true, decoded.toString().contains("\"a\""));
-    assertEquals(true, decoded.toString().contains("1"));
+    assertTrue(decoded.toString().contains("\"a\""));
+    assertTrue(decoded.toString().contains("1"));
   }
 
   @Test
@@ -83,5 +86,37 @@ class RedisCodecsTest {
     assertInstanceOf(RedisCodecs.JsonCodec.class, codecs.value());
     assertInstanceOf(RedisCodecs.ByteCodec.class, codecs.hashKey());
     assertInstanceOf(RedisCodecs.JavaObjectCodec.class, codecs.hashValue());
+  }
+
+  @Test
+  void ofNullTypesDefaultsToStringCodecs() {
+    RedisCodecs codecs = RedisCodecs.of(null, null, null, null);
+    assertInstanceOf(RedisCodecs.StringCodec.class, codecs.key());
+    assertInstanceOf(RedisCodecs.StringCodec.class, codecs.value());
+    assertInstanceOf(RedisCodecs.StringCodec.class, codecs.hashKey());
+    assertInstanceOf(RedisCodecs.StringCodec.class, codecs.hashValue());
+  }
+
+  @Test
+  void stringCodecEncodesNullAsEmptyBytes() throws Exception {
+    RedisValueCodec codec = RedisCodecs.create(RedisCodecType.STRING);
+    assertArrayEquals(new byte[0], codec.encode(null));
+    assertEquals("", codec.decode(new byte[0]));
+  }
+
+  @Test
+  void byteCodecAcceptsValidBase64() throws Exception {
+    RedisValueCodec codec = RedisCodecs.create(RedisCodecType.BYTE);
+    byte[] raw = new byte[] {1, 2, 3};
+    String b64 = Base64.getEncoder().encodeToString(raw);
+    assertTrue(b64.length() >= 4 && b64.length() % 4 == 0);
+    assertArrayEquals(raw, codec.encode(b64));
+  }
+
+  @Test
+  void jsonDecodeInvalidBytesThrows() {
+    RedisValueCodec codec = RedisCodecs.create(RedisCodecType.JSON);
+    assertThrows(
+        HopException.class, () -> codec.decode("not-json".getBytes(StandardCharsets.UTF_8)));
   }
 }

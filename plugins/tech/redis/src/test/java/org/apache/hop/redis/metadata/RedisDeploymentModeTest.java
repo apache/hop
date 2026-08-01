@@ -41,5 +41,7 @@ class RedisDeploymentModeTest {
     assertEquals(RedisDeploymentMode.CLUSTER, RedisDeploymentMode.fromCode("CLUSTER"));
     assertEquals(RedisDeploymentMode.STANDALONE, RedisDeploymentMode.fromCode(null));
     assertEquals(RedisDeploymentMode.STANDALONE, RedisDeploymentMode.fromCode("nope"));
+    // blank string is not treated as null by fromCode (trim + valueOf fails → STANDALONE)
+    assertEquals(RedisDeploymentMode.STANDALONE, RedisDeploymentMode.fromCode("   "));
   }
 }

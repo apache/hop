@@ -327,7 +327,9 @@ public final class RedisClientFactory {
 
   static int countCoveredSlots(Partitions partitions) {
     BitSet covered = new BitSet(CLUSTER_SLOT_COUNT);
-    for (RedisClusterNode node : partitions) {
+    // Use getPartitions(): for-each on Partitions reads nodeReadView, which stays empty
+    // until updateCache() — addPartition() only invalidates the cache.
+    for (RedisClusterNode node : partitions.getPartitions()) {
       if (node == null || isUnusableClusterNode(node)) {
         continue;
       }
@@ -353,7 +355,7 @@ public final class RedisClientFactory {
       return "(null)";
     }
     List<String> parts = new ArrayList<>();
-    for (RedisClusterNode node : partitions) {
+    for (RedisClusterNode node : partitions.getPartitions()) {
       if (node == null) {
         continue;
       }
