@@ -243,7 +243,8 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/config /build/hop-web-prepared/webapps/ROOT/ && \
     cp -r /build/assemblies/client/target/hop/plugins /build/hop-web-prepared/ && \
     cp -r /build/assemblies/client/target/hop/lib/jdbc/ /build/hop-web-prepared/jdbc-drivers && \
-    if [ -d /build/assemblies/client/target/hop/plugins/engines/beam/lib-beam ]; then cp -r /build/assemblies/client/target/hop/plugins/engines/beam/lib-beam/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/; fi && \
+    # Beam SDKs unpack under lib/core when the marketplace Beam plugin is installed (#7721/#7722).
+    # Legacy plugins/engines/beam/lib-beam is no longer produced; do not require it (apache/hop#7748).
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \

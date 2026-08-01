@@ -74,10 +74,13 @@ RUN groupadd -r hop -g ${HOP_GID} \
     && mkdir "${HOP_AUDIT_FOLDER}"
 
 # Copy resources
+# lib/core includes Beam SDKs when the Beam marketplace plugin is installed into the client
+# (e.g. tools/install-wave1-plugins.sh). Do not COPY plugins/engines/beam/lib-beam: that path
+# was removed in #7721 / #7722 (SDKs now unpack under lib/core). An unconditional COPY fails
+# docker buildx when the directory is missing (apache/hop#7748).
 COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
 COPY ./assemblies/client/target/hop/config "${CATALINA_HOME}"/webapps/ROOT/config
 COPY ./assemblies/client/target/hop/lib/core "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib
-COPY ./assemblies/client/target/hop/plugins/engines/beam/lib-beam "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib
 COPY ./assemblies/client/target/hop/plugins "${CATALINA_HOME}"/plugins
 COPY ./assemblies/client/target/hop/lib/jdbc/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/

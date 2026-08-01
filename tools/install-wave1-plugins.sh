@@ -67,4 +67,4 @@ for entry in ${PLUGINS[@]+"${PLUGINS[@]}"}; do
 done
 
 echo "Marketplace plugins: installed=${installed} skipped=${skipped} into ${INSTALL_DIR}"
-# Note: beam plugin zip includes lib-beam (Beam SDKs).
+# Note: the Beam plugin zip unpacks SDKs into lib/core (and Spark client jars into lib/spark-client).
