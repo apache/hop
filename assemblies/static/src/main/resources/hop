@@ -108,8 +108,9 @@ if [ -n "${HOP_SPARK_CLIENT_VERSION:-}" ] && [ -d "lib/spark-clients/${HOP_SPARK
   CLASSPATH="${CLASSPATH}:lib/spark-clients/${HOP_SPARK_CLIENT_VERSION}/*"
 fi
 
-# Beam SDKs/runners live with the optional Beam plugin (not lib/beam).
-# Only on the system classpath when marketplace (or -Pbeam) has installed them.
+# Beam plugin jar (and any legacy lib-beam/ tree). Current marketplace packaging (#7721/#7722)
+# unpacks Beam SDKs into lib/core (already on CLASSPATH above); lib-beam is kept only for older
+# installs that still have that layout.
 if [ -d "plugins/engines/beam/lib-beam" ]; then
   CLASSPATH="${CLASSPATH}:plugins/engines/beam/lib-beam/*"
 fi
