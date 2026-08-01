@@ -125,13 +125,15 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
     }
 
     switch (structure) {
-      case STRING, SET, LIST -> {
+      case STRING:
+      case SET:
+      case LIST:
         data.setValueFieldIndex(getInputRowMeta().indexOfValue(meta.getValueField()));
         if (data.getValueFieldIndex() < 0) {
           throw new HopException("Unable to find value field '" + meta.getValueField() + "'");
         }
-      }
-      case HASH -> {
+        break;
+      case HASH:
         data.setHashKeyFieldIndex(getInputRowMeta().indexOfValue(meta.getHashKeyField()));
         data.setHashValueFieldIndex(getInputRowMeta().indexOfValue(meta.getHashValueField()));
         if (data.getHashKeyFieldIndex() < 0) {
@@ -141,7 +143,9 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
           throw new HopException(
               "Unable to find hash value field '" + meta.getHashValueField() + "'");
         }
-      }
+        break;
+      default:
+        break;
     }
   }
 
@@ -229,23 +233,34 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
         meta.getDataStructure() == null ? RedisDataStructure.STRING : meta.getDataStructure();
 
     switch (structure) {
-      case STRING -> {
-        byte[] valueBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
-        commands.setValue(keyBytes, valueBytes);
-      }
-      case HASH -> {
-        byte[] fieldBytes = data.getCodecs().hashKey().encode(row[data.getHashKeyFieldIndex()]);
-        byte[] valueBytes = data.getCodecs().hashValue().encode(row[data.getHashValueFieldIndex()]);
-        commands.hashSet(keyBytes, fieldBytes, valueBytes);
-      }
-      case SET -> {
-        byte[] memberBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
-        commands.setAdd(keyBytes, memberBytes);
-      }
-      case LIST -> {
-        byte[] elementBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
-        pushList(commands, keyBytes, elementBytes);
-      }
+      case STRING:
+        {
+          byte[] valueBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
+          commands.setValue(keyBytes, valueBytes);
+          break;
+        }
+      case HASH:
+        {
+          byte[] fieldBytes = data.getCodecs().hashKey().encode(row[data.getHashKeyFieldIndex()]);
+          byte[] valueBytes =
+              data.getCodecs().hashValue().encode(row[data.getHashValueFieldIndex()]);
+          commands.hashSet(keyBytes, fieldBytes, valueBytes);
+          break;
+        }
+      case SET:
+        {
+          byte[] memberBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
+          commands.setAdd(keyBytes, memberBytes);
+          break;
+        }
+      case LIST:
+        {
+          byte[] elementBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
+          pushList(commands, keyBytes, elementBytes);
+          break;
+        }
+      default:
+        break;
     }
 
     expireIfNeeded(commands, keyBytes);
@@ -266,39 +281,43 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
       byte[] valueBytes = mapping.getValueCodec().encode(row[mapping.getStreamFieldIndex()]);
 
       switch (mapping.getStructure()) {
-        case STRING -> {
+        case STRING:
           commands.setValue(keyBytes, valueBytes);
           expireIfNeeded(commands, keyBytes, mapping.getTtlSeconds());
-        }
-        case HASH -> {
-          Object hashKeyObj =
-              mapping.getHashKeyFieldIndex() >= 0
-                  ? row[mapping.getHashKeyFieldIndex()]
-                  : resolve(mapping.getHashKeyLiteral());
-          byte[] hashKeyBytes = mapping.getHashKeyCodec().encode(hashKeyObj);
-          KeyRef keyRef = new KeyRef(keyBytes);
-          hashBatches.computeIfAbsent(keyRef, k -> new HashMap<>()).put(hashKeyBytes, valueBytes);
-          if (mapping.getTtlSeconds() != null) {
-            hashTtls.merge(keyRef, mapping.getTtlSeconds(), Math::max);
+          break;
+        case HASH:
+          {
+            Object hashKeyObj =
+                mapping.getHashKeyFieldIndex() >= 0
+                    ? row[mapping.getHashKeyFieldIndex()]
+                    : resolve(mapping.getHashKeyLiteral());
+            byte[] hashKeyBytes = mapping.getHashKeyCodec().encode(hashKeyObj);
+            KeyRef keyRef = new KeyRef(keyBytes);
+            hashBatches.computeIfAbsent(keyRef, k -> new HashMap<>()).put(hashKeyBytes, valueBytes);
+            if (mapping.getTtlSeconds() != null) {
+              hashTtls.merge(keyRef, mapping.getTtlSeconds(), Math::max);
+            }
+            break;
           }
-        }
-        case SET -> {
+        case SET:
           commands.setAdd(keyBytes, valueBytes);
           expireIfNeeded(commands, keyBytes, mapping.getTtlSeconds());
-        }
-        case LIST -> {
+          break;
+        case LIST:
           // List push direction is not configured in STREAM_FIELDS yet; default RPUSH
           commands.listRightPush(keyBytes, valueBytes);
           expireIfNeeded(commands, keyBytes, mapping.getTtlSeconds());
-        }
+          break;
+        default:
+          break;
       }
     }
 
     for (Map.Entry<KeyRef, Map<byte[], byte[]>> entry : hashBatches.entrySet()) {
-      if (entry.getKey() instanceof KeyRef(byte[] keyBytes)) {
-        commands.hashSet(keyBytes, entry.getValue());
-        expireIfNeeded(commands, keyBytes, hashTtls.get(entry.getKey()));
-      }
+      KeyRef keyRef = entry.getKey();
+      byte[] keyBytes = keyRef.bytes();
+      commands.hashSet(keyBytes, entry.getValue());
+      expireIfNeeded(commands, keyBytes, hashTtls.get(keyRef));
     }
   }
 
@@ -340,7 +359,11 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
       if (this == o) {
         return true;
       }
-      return o instanceof KeyRef(byte[] otherBytes) && Arrays.equals(bytes, otherBytes);
+      if (!(o instanceof KeyRef)) {
+        return false;
+      }
+      KeyRef other = (KeyRef) o;
+      return Arrays.equals(bytes, other.bytes);
     }
 
     @Override

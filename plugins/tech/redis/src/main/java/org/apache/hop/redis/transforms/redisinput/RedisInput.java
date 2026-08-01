@@ -180,30 +180,36 @@ public class RedisInput extends BaseTransform<RedisInputMeta, RedisInputData> {
 
   private Object readValue(IRedisCommands commands, Mapping mapping, Object[] row, byte[] keyBytes)
       throws Exception {
-    return switch (mapping.getStructure()) {
-      case STRING -> {
-        byte[] value = commands.getValue(keyBytes);
-        yield value == null ? null : mapping.getValueCodec().decode(value);
-      }
-      case HASH -> {
-        Object hashObj =
-            mapping.getHashFieldIndex() >= 0
-                ? row[mapping.getHashFieldIndex()]
-                : resolve(mapping.getHashFieldLiteral());
-        byte[] fieldBytes = mapping.getHashFieldCodec().encode(hashObj);
-        byte[] value = commands.hashGet(keyBytes, fieldBytes);
-        yield value == null ? null : mapping.getValueCodec().decode(value);
-      }
-      case SET -> {
-        Set<byte[]> members = commands.setMembers(keyBytes);
-        yield toJsonArray(members == null ? List.of() : new ArrayList<>(members), mapping);
-      }
-      case LIST -> {
-        List<byte[]> elements =
-            commands.listRange(keyBytes, mapping.getListStart(), mapping.getListStop());
-        yield toJsonArray(elements == null ? List.of() : elements, mapping);
-      }
-    };
+    switch (mapping.getStructure()) {
+      case STRING:
+        {
+          byte[] value = commands.getValue(keyBytes);
+          return value == null ? null : mapping.getValueCodec().decode(value);
+        }
+      case HASH:
+        {
+          Object hashObj =
+              mapping.getHashFieldIndex() >= 0
+                  ? row[mapping.getHashFieldIndex()]
+                  : resolve(mapping.getHashFieldLiteral());
+          byte[] fieldBytes = mapping.getHashFieldCodec().encode(hashObj);
+          byte[] value = commands.hashGet(keyBytes, fieldBytes);
+          return value == null ? null : mapping.getValueCodec().decode(value);
+        }
+      case SET:
+        {
+          Set<byte[]> members = commands.setMembers(keyBytes);
+          return toJsonArray(members == null ? List.of() : new ArrayList<>(members), mapping);
+        }
+      case LIST:
+        {
+          List<byte[]> elements =
+              commands.listRange(keyBytes, mapping.getListStart(), mapping.getListStop());
+          return toJsonArray(elements == null ? List.of() : elements, mapping);
+        }
+      default:
+        throw new HopException("Unsupported Redis data structure: " + mapping.getStructure());
+    }
   }
 
   /**

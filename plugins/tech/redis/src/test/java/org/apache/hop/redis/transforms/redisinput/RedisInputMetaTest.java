@@ -75,9 +75,10 @@ class RedisInputMetaTest {
 
     @Override
     public boolean validateTestObject(RedisInputField testObject, Object actual) {
-      if (!(actual instanceof RedisInputField other)) {
+      if (!(actual instanceof RedisInputField)) {
         return false;
       }
+      RedisInputField other = (RedisInputField) actual;
       return Objects.equals(testObject.getRedisKey(), other.getRedisKey())
           && testObject.getRedisKeyCodec() == other.getRedisKeyCodec()
           && testObject.getDataStructure() == other.getDataStructure()

@@ -68,12 +68,15 @@ public final class RedisClientFactory {
     String password = Utils.resolvePassword(variables, connection.getPassword());
     boolean useSsl = connection.isUseSsl();
 
-    return switch (mode) {
-      case STANDALONE ->
-          createStandalone(connection, variables, timeout, username, password, useSsl);
-      case SENTINEL -> createSentinel(connection, variables, timeout, username, password, useSsl);
-      case CLUSTER -> createCluster(connection, variables, timeout, username, password, useSsl);
-    };
+    switch (mode) {
+      case SENTINEL:
+        return createSentinel(connection, variables, timeout, username, password, useSsl);
+      case CLUSTER:
+        return createCluster(connection, variables, timeout, username, password, useSsl);
+      case STANDALONE:
+      default:
+        return createStandalone(connection, variables, timeout, username, password, useSsl);
+    }
   }
 
   private static RedisClientSession createStandalone(

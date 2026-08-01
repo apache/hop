@@ -18,9 +18,7 @@
 package org.apache.hop.redis.transforms.redisoutput;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -355,59 +353,39 @@ public class RedisOutputDialog extends BaseTransformDialog {
 
   private void layoutLabeledCombo(
       LabeledCombo labeledCombo, int leftPercent, int rightPercent, ModifyListener lsMod) {
-    labeledCombo.label().setText(labeledCombo.labelText());
-    PropsUi.setLook(labeledCombo.label());
+    labeledCombo.fieldLabel.setText(labeledCombo.labelText);
+    PropsUi.setLook(labeledCombo.fieldLabel);
     FormData fdl = new FormData();
     fdl.left = new FormAttachment(leftPercent, leftPercent == 0 ? 0 : margin);
     fdl.top = new FormAttachment(0, 0);
     fdl.width = 260;
-    labeledCombo.label().setLayoutData(fdl);
+    labeledCombo.fieldLabel.setLayoutData(fdl);
 
-    labeledCombo.combo().setItems(labeledCombo.items());
-    PropsUi.setLook(labeledCombo.combo());
+    labeledCombo.combo.setItems(labeledCombo.items);
+    PropsUi.setLook(labeledCombo.combo);
     FormData fd = new FormData();
-    fd.left = new FormAttachment(labeledCombo.label(), margin);
+    fd.left = new FormAttachment(labeledCombo.fieldLabel, margin);
     fd.right = new FormAttachment(rightPercent, rightPercent == 100 ? 0 : -margin);
-    fd.top = new FormAttachment(labeledCombo.label(), 0, SWT.CENTER);
-    labeledCombo.combo().setLayoutData(fd);
-    labeledCombo.combo().addModifyListener(lsMod);
+    fd.top = new FormAttachment(labeledCombo.fieldLabel, 0, SWT.CENTER);
+    labeledCombo.combo.setLayoutData(fd);
+    labeledCombo.combo.addModifyListener(lsMod);
   }
 
-  private record LabeledCombo(String labelText, Label label, CCombo combo, String[] items) {
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      return o
-              instanceof
-              LabeledCombo(
-                  String otherLabelText,
-                  Label otherLabel,
-                  CCombo otherCombo,
-                  String[] otherItems)
-          && Objects.equals(labelText, otherLabelText)
-          && Objects.equals(label, otherLabel)
-          && Objects.equals(combo, otherCombo)
-          && Arrays.equals(items, otherItems);
-    }
+  /**
+   * Simple holder for a label + combo pair. Kept as a plain class (not a record) so Checkstyle 9.3
+   * used by the project can parse this source file.
+   */
+  private static final class LabeledCombo {
+    private final String labelText;
+    private final Label fieldLabel;
+    private final CCombo combo;
+    private final String[] items;
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(labelText, label, combo, Arrays.hashCode(items));
-    }
-
-    @Override
-    public String toString() {
-      return "LabeledCombo[labelText="
-          + labelText
-          + ", label="
-          + label
-          + ", combo="
-          + combo
-          + ", items="
-          + Arrays.toString(items)
-          + "]";
+    private LabeledCombo(String labelText, Label fieldLabel, CCombo combo, String[] items) {
+      this.labelText = labelText;
+      this.fieldLabel = fieldLabel;
+      this.combo = combo;
+      this.items = items;
     }
   }
 

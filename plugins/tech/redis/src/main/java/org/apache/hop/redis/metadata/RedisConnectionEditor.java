@@ -256,8 +256,8 @@ public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
   private RedisDeploymentMode readDeploymentMode() {
     Control control =
         connectionWidgets.getWidgetsMap().get(RedisConnection.WIDGET_ID_DEPLOYMENT_MODE);
-    if (control instanceof Combo combo) {
-      return RedisDeploymentMode.fromCode(combo.getText());
+    if (control instanceof Combo) {
+      return RedisDeploymentMode.fromCode(((Combo) control).getText());
     }
     RedisDeploymentMode mode = getMetadata().getDeploymentMode();
     return mode == null ? RedisDeploymentMode.STANDALONE : mode;

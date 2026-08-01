@@ -84,12 +84,17 @@ public final class RedisCodecs {
 
   public static RedisValueCodec create(RedisCodecType type) {
     RedisCodecType resolved = type == null ? RedisCodecType.STRING : type;
-    return switch (resolved) {
-      case STRING -> new StringCodec();
-      case JSON -> new JsonCodec();
-      case JAVA_OBJECT -> new JavaObjectCodec();
-      case BYTE -> new ByteCodec();
-    };
+    switch (resolved) {
+      case JSON:
+        return new JsonCodec();
+      case JAVA_OBJECT:
+        return new JavaObjectCodec();
+      case BYTE:
+        return new ByteCodec();
+      case STRING:
+      default:
+        return new StringCodec();
+    }
   }
 
   static final class StringCodec implements RedisValueCodec {
@@ -98,8 +103,8 @@ public final class RedisCodecs {
       if (value == null) {
         return new byte[0];
       }
-      if (value instanceof byte[] bytes) {
-        return bytes;
+      if (value instanceof byte[]) {
+        return (byte[]) value;
       }
       return String.valueOf(value).getBytes(StandardCharsets.UTF_8);
     }
@@ -117,14 +122,17 @@ public final class RedisCodecs {
     @Override
     public byte[] encode(Object value) throws HopException {
       try {
-        return switch (value) {
-          case null -> null;
-          case byte[] bytes -> bytes;
-          case String string ->
-              // Treat as JSON text already
-              string.getBytes(StandardCharsets.UTF_8);
-          default -> OBJECT_MAPPER.writeValueAsBytes(value);
-        };
+        if (value == null) {
+          return null;
+        }
+        if (value instanceof byte[]) {
+          return (byte[]) value;
+        }
+        if (value instanceof String) {
+          // Treat as JSON text already
+          return ((String) value).getBytes(StandardCharsets.UTF_8);
+        }
+        return OBJECT_MAPPER.writeValueAsBytes(value);
       } catch (JsonProcessingException e) {
         throw new HopException(e);
       }
@@ -154,8 +162,8 @@ public final class RedisCodecs {
       if (value == null) {
         return new byte[0];
       }
-      if (value instanceof byte[] bytes) {
-        return bytes;
+      if (value instanceof byte[]) {
+        return (byte[]) value;
       }
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -189,21 +197,15 @@ public final class RedisCodecs {
 
     @Override
     public byte[] encode(Object value) {
-      switch (value) {
-        case null -> {
-          return new byte[0];
-        }
-        case byte[] bytes -> {
-          return bytes;
-        }
-
-          // Numbers are stored as UTF-8 decimal text (not Base64 — "12" is valid Base64 for 0xD7).
-        case Number number -> {
-          return String.valueOf(value).getBytes(StandardCharsets.UTF_8);
-        }
-        default -> {
-          // ignore code
-        }
+      if (value == null) {
+        return new byte[0];
+      }
+      if (value instanceof byte[]) {
+        return (byte[]) value;
+      }
+      // Numbers are stored as UTF-8 decimal text (not Base64 — "12" is valid Base64 for 0xD7).
+      if (value instanceof Number) {
+        return String.valueOf(value).getBytes(StandardCharsets.UTF_8);
       }
       String text = String.valueOf(value);
       if (looksLikeBase64(text)) {

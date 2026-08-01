@@ -107,9 +107,10 @@ class RedisOutputMetaTest {
 
     @Override
     public boolean validateTestObject(RedisOutputField testObject, Object actual) {
-      if (!(actual instanceof RedisOutputField other)) {
+      if (!(actual instanceof RedisOutputField)) {
         return false;
       }
+      RedisOutputField other = (RedisOutputField) actual;
       return Objects.equals(testObject.getStreamField(), other.getStreamField())
           && testObject.getDataStructure() == other.getDataStructure()
           && Objects.equals(testObject.getKey(), other.getKey())
