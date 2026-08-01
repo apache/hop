@@ -18,6 +18,9 @@
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
@@ -31,6 +34,8 @@ class KafkaProducerOutputMetaTest {
 
     assertEquals("${KAFKA_SERVER}", meta.getDirectBootstrapServers());
     assertEquals("${KAFKA_TOPIC}", meta.getTopic());
+    assertTrue(meta.isTopicInField());
+    assertEquals("topic", meta.getTopicField());
     assertEquals("Hop", meta.getClientId());
     assertEquals("id", meta.getKeyField());
     assertEquals("json", meta.getMessageField());
@@ -38,5 +43,29 @@ class KafkaProducerOutputMetaTest {
     assertEquals("compression.type", meta.getOptions().getFirst().getProperty());
     assertEquals("none", meta.getOptions().getFirst().getValue());
     assertEquals("ssl.truststore.password", meta.getOptions().getLast().getProperty());
+  }
+
+  @Test
+  void testTopicInFieldDefaultsToOff() {
+    // Pipelines saved before the topic-from-field option existed carry no topicInField
+    // element, so the default has to keep using the fixed topic name.
+    KafkaProducerOutputMeta meta = new KafkaProducerOutputMeta();
+
+    assertFalse(meta.isTopicInField());
+    assertNull(meta.getTopicField());
+  }
+
+  @Test
+  void testCopyConstructorCopiesTopicFromFieldSettings() {
+    KafkaProducerOutputMeta meta = new KafkaProducerOutputMeta();
+    meta.setTopic("fallback");
+    meta.setTopicInField(true);
+    meta.setTopicField("topic");
+
+    KafkaProducerOutputMeta copy = new KafkaProducerOutputMeta(meta);
+
+    assertEquals("fallback", copy.getTopic());
+    assertTrue(copy.isTopicInField());
+    assertEquals("topic", copy.getTopicField());
   }
 }
