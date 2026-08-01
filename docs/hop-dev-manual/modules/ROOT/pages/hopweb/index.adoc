@@ -74,22 +74,21 @@ unzip -o assemblies/client/target/hop-client-*.zip -d /tmp/hop-client/
 cp -r /tmp/hop-client/hop/config $CATALINA_HOME/webapps/ROOT/
 
 # Step 4: Copy core libraries
+# lib/core already includes Beam SDKs when the Beam marketplace plugin is installed into the
+# client (plugins/engines/beam/lib-beam is a legacy path and is no longer created).
 cp -r /tmp/hop-client/hop/lib/core/* $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/
 
 # Step 4b: Remove RCP jar (RCP is for desktop GUI, not web)
 rm -f $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/hop-ui-rcp-*.jar
 
-# Step 5: Copy beam libraries
-cp -r /tmp/hop-client/hop/plugins/engines/beam/lib-beam/* $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/
-
-# Step 6: Copy plugins
+# Step 5: Copy plugins
 cp -r /tmp/hop-client/hop/plugins $CATALINA_HOME/
 
-# Step 7: Copy JDBC drivers
+# Step 6: Copy JDBC drivers
 mkdir -p $CATALINA_HOME/jdbc-drivers
 cp -r /tmp/hop-client/hop/lib/jdbc/* $CATALINA_HOME/jdbc-drivers/
 
-# Step 8: Cleanup
+# Step 7: Cleanup
 rm -rf /tmp/hop-client
 ----
 
@@ -200,7 +199,7 @@ sed -i '' 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}
 
 The `CLASSPATH` lines in the various scripts should look similar to the one below after editing: 
 
-`CLASSPATH="../../lib/*:WEB-INF/lib/*:lib/core/**:plugins/engines/beam/lib-beam/*:lib/swt/osx/arm64/*"`
+`CLASSPATH="../../lib/*:WEB-INF/lib/*:lib/core/**:lib/swt/osx/arm64/*"`
 
 Once the classpaths have been updated, make sure to make the scripts executable: 
 

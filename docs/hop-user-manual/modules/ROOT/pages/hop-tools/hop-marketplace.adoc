@@ -46,7 +46,7 @@ cd /path/to/hop
 * Do *NOT* pass `--prune` unless you also want other marketplace installs removed.
 * `full-client-env.yaml` is generated at build time from marketplace plugin source file `optional-plugins.yaml` (source of truth).
 
-Beam SDKs/runners live under `plugins/engines/beam/lib-beam` (installed with the Beam plugin), not under `lib/beam`. Launch scripts add that folder to the classpath only when it exists. Developers who want Beam baked into a local hop-client build can use Maven profile `-Pbeam` (for example `./mvnw -pl assemblies/client -am package -Pbeam`).
+Beam SDKs/runners install with the Beam marketplace plugin into top-level `lib/core` (and Spark client jars into `lib/spark-client`). The older `plugins/engines/beam/lib-beam` layout is no longer produced. Developers who want Beam baked into a local hop-client build can use Maven profile `-Pbeam` (for example `./mvnw -pl assemblies/client -am package -Pbeam`).
 
 == Defaults
 
@@ -364,7 +364,7 @@ plugins:
   - groupId: org.apache.hop    # optional; default org.apache.hop
     artifactId: hop-engines-spark
     version: "2.19.0"
-  # Beam engine plugin only (Beam SDKs ship under plugins/engines/beam/lib-beam with the plugin):
+  # Beam engine plugin only (Beam SDKs unpack into lib/core with the plugin):
   # - artifactId: hop-engines-beam
   #   version: "2.19.0"
 
