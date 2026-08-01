@@ -1,0 +1,4 @@
+redis_key,redis_value
+hop:it:user:1,Alice
+hop:it:user:2,Bob
+hop:it:user:3,Carol

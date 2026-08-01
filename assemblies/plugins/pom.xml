@@ -709,6 +709,7 @@
         <!-- marketplace optional: hop-tech-neo4j -->
         <!-- marketplace optional: hop-tech-opensearch -->
         <!-- marketplace optional: hop-tech-parquet -->
+        <!-- marketplace optional: hop-tech-redis -->
         <!-- marketplace optional: hop-tech-salesforce -->
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -1703,6 +1704,12 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-parquet</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-redis</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>

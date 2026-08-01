@@ -137,6 +137,12 @@ plugins:
     description: MongoDB
     installPath: plugins/tech/mongodb
     modulePath: plugins/tech/mongodb
+  - artifactId: hop-tech-redis
+    name: Redis
+    category: Technology
+    description: Redis connection and STRING/HASH/SET/LIST input/output transforms
+    installPath: plugins/tech/redis
+    modulePath: plugins/tech/redis
   - artifactId: hop-tech-elastic
     name: Elastic
     category: Technology

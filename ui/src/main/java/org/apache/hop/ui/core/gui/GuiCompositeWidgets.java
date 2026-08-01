@@ -993,7 +993,11 @@ public class GuiCompositeWidgets {
         // Old layout: control on right side, next to label
         fdControl.left = new FormAttachment(props.getMiddlePct(), 0);
         if (rightControl == null) {
-          fdControl.right = new FormAttachment(100, 0);
+          // Do not stretch checkboxes across the remaining width — on some platforms a
+          // full-width SWT.CHECK looks like an empty push button next to the label.
+          if (!checkBox) {
+            fdControl.right = new FormAttachment(100, 0);
+          }
         } else {
           fdControl.right = new FormAttachment(rightControl, -5);
         }
