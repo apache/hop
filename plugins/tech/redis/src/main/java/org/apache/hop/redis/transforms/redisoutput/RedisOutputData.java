@@ -17,6 +17,8 @@
 
 package org.apache.hop.redis.transforms.redisoutput;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -25,37 +27,41 @@ import org.apache.hop.redis.codec.RedisCodecs;
 import org.apache.hop.redis.codec.RedisValueCodec;
 import org.apache.hop.redis.transforms.RedisDataStructure;
 
+@Getter
+@Setter
 public class RedisOutputData extends BaseTransformData implements ITransformData {
-  public IRowMeta outputRowMeta;
-  public RedisClientSession session;
-  public RedisCodecs codecs;
-  public int keyFieldIndex = -1;
-  public int valueFieldIndex = -1;
-  public int hashKeyFieldIndex = -1;
-  public int hashValueFieldIndex = -1;
-  public Long ttlSeconds;
+  private IRowMeta outputRowMeta;
+  private RedisClientSession session;
+  private RedisCodecs codecs;
+  private int keyFieldIndex = -1;
+  private int valueFieldIndex = -1;
+  private int hashKeyFieldIndex = -1;
+  private int hashValueFieldIndex = -1;
+  private Long ttlSeconds;
 
   /** Prepared STREAM_FIELDS mappings. */
-  public StreamMapping[] streamMappings;
+  private StreamMapping[] streamMappings;
 
+  @Getter
+  @Setter
   public static final class StreamMapping {
-    public RedisDataStructure structure;
-    public int streamFieldIndex;
+    private RedisDataStructure structure;
+    private int streamFieldIndex;
 
     /** Index of key stream field, or -1 when {@link #keyLiteral} is used. */
-    public int keyFieldIndex = -1;
+    private int keyFieldIndex = -1;
 
-    public String keyLiteral;
-    public RedisValueCodec keyCodec;
+    private String keyLiteral;
+    private RedisValueCodec keyCodec;
 
     /** Index of hash-key stream field, or -1 when literal / N/A. */
-    public int hashKeyFieldIndex = -1;
+    private int hashKeyFieldIndex = -1;
 
-    public String hashKeyLiteral;
-    public RedisValueCodec hashKeyCodec;
-    public RedisValueCodec valueCodec;
+    private String hashKeyLiteral;
+    private RedisValueCodec hashKeyCodec;
+    private RedisValueCodec valueCodec;
 
     /** Per-row TTL; null means no expire. */
-    public Long ttlSeconds;
+    private Long ttlSeconds;
   }
 }

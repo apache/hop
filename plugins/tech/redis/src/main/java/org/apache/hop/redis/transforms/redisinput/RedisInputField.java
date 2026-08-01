@@ -17,6 +17,8 @@
 
 package org.apache.hop.redis.transforms.redisinput;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.redis.codec.RedisCodecType;
@@ -28,6 +30,8 @@ import org.apache.hop.redis.transforms.RedisDataStructure;
  * <p>Supports STRING ({@code GET}), HASH ({@code HGET} only), SET ({@code SMEMBERS} as JSON array),
  * and LIST ({@code LRANGE} as JSON array). HGETALL and SISMEMBER are not supported.
  */
+@Getter
+@Setter
 public class RedisInputField implements Cloneable {
 
   /** Redis key: stream field name or literal / variable text. */
@@ -89,77 +93,5 @@ public class RedisInputField implements Cloneable {
 
   public String resolveListStop() {
     return StringUtils.isEmpty(listStop) ? "-1" : listStop;
-  }
-
-  public String getRedisKey() {
-    return redisKey;
-  }
-
-  public void setRedisKey(String redisKey) {
-    this.redisKey = redisKey;
-  }
-
-  public RedisCodecType getRedisKeyCodec() {
-    return redisKeyCodec;
-  }
-
-  public void setRedisKeyCodec(RedisCodecType redisKeyCodec) {
-    this.redisKeyCodec = redisKeyCodec;
-  }
-
-  public RedisDataStructure getDataStructure() {
-    return dataStructure;
-  }
-
-  public void setDataStructure(RedisDataStructure dataStructure) {
-    this.dataStructure = dataStructure;
-  }
-
-  public String getHashField() {
-    return hashField;
-  }
-
-  public void setHashField(String hashField) {
-    this.hashField = hashField;
-  }
-
-  public RedisCodecType getHashFieldCodec() {
-    return hashFieldCodec;
-  }
-
-  public void setHashFieldCodec(RedisCodecType hashFieldCodec) {
-    this.hashFieldCodec = hashFieldCodec;
-  }
-
-  public String getValueField() {
-    return valueField;
-  }
-
-  public void setValueField(String valueField) {
-    this.valueField = valueField;
-  }
-
-  public RedisCodecType getValueCodec() {
-    return valueCodec;
-  }
-
-  public void setValueCodec(RedisCodecType valueCodec) {
-    this.valueCodec = valueCodec;
-  }
-
-  public String getListStart() {
-    return listStart;
-  }
-
-  public void setListStart(String listStart) {
-    this.listStart = listStart;
-  }
-
-  public String getListStop() {
-    return listStop;
-  }
-
-  public void setListStop(String listStop) {
-    this.listStop = listStop;
   }
 }

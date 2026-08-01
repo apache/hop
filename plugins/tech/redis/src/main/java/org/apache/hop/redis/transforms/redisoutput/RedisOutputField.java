@@ -17,6 +17,8 @@
 
 package org.apache.hop.redis.transforms.redisoutput;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.redis.codec.RedisCodecType;
@@ -28,6 +30,8 @@ import org.apache.hop.redis.transforms.RedisDataStructure;
  * <p>Required: stream field, key, key codec, value codec (defaults STRING). Hash key / hash key
  * codec apply only when data structure is HASH.
  */
+@Getter
+@Setter
 public class RedisOutputField implements Cloneable {
 
   @HopMetadataProperty(key = "stream_field")
@@ -104,77 +108,5 @@ public class RedisOutputField implements Cloneable {
   /** Resolved hash field name (literal / field name). Empty when not set. */
   public String resolveHashKey() {
     return hashKey;
-  }
-
-  public String getStreamField() {
-    return streamField;
-  }
-
-  public void setStreamField(String streamField) {
-    this.streamField = streamField;
-  }
-
-  public RedisDataStructure getDataStructure() {
-    return dataStructure;
-  }
-
-  public void setDataStructure(RedisDataStructure dataStructure) {
-    this.dataStructure = dataStructure;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  public void setKey(String key) {
-    this.key = key;
-  }
-
-  public RedisCodecType getKeyCodec() {
-    return keyCodec;
-  }
-
-  public void setKeyCodec(RedisCodecType keyCodec) {
-    this.keyCodec = keyCodec;
-  }
-
-  public String getHashKey() {
-    return hashKey;
-  }
-
-  public void setHashKey(String hashKey) {
-    this.hashKey = hashKey;
-  }
-
-  public RedisCodecType getHashKeyCodec() {
-    return hashKeyCodec;
-  }
-
-  public void setHashKeyCodec(RedisCodecType hashKeyCodec) {
-    this.hashKeyCodec = hashKeyCodec;
-  }
-
-  public RedisCodecType getValueCodec() {
-    return valueCodec;
-  }
-
-  public void setValueCodec(RedisCodecType valueCodec) {
-    this.valueCodec = valueCodec;
-  }
-
-  public String getTtlSeconds() {
-    return ttlSeconds;
-  }
-
-  public void setTtlSeconds(String ttlSeconds) {
-    this.ttlSeconds = ttlSeconds;
-  }
-
-  public String getRedisName() {
-    return redisName;
-  }
-
-  public void setRedisName(String redisName) {
-    this.redisName = redisName;
   }
 }

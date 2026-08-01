@@ -19,6 +19,8 @@ package org.apache.hop.redis.transforms.redisoutput;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -27,6 +29,8 @@ import org.apache.hop.redis.codec.RedisCodecType;
 import org.apache.hop.redis.transforms.RedisDataStructure;
 import org.apache.hop.redis.transforms.RedisListPushDirection;
 
+@Getter
+@Setter
 @Transform(
     id = "RedisOutput",
     image = "redis-output.svg",
@@ -101,114 +105,7 @@ public class RedisOutputMeta extends BaseTransformMeta<RedisOutput, RedisOutputD
     fields = new ArrayList<>();
   }
 
-  public String getConnectionName() {
-    return connectionName;
-  }
-
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
-  }
-
-  public RedisOutputWriteMode getWriteMode() {
-    return writeMode;
-  }
-
-  public void setWriteMode(RedisOutputWriteMode writeMode) {
-    this.writeMode = writeMode;
-  }
-
-  public RedisDataStructure getDataStructure() {
-    return dataStructure;
-  }
-
-  public void setDataStructure(RedisDataStructure dataStructure) {
-    this.dataStructure = dataStructure;
-  }
-
-  public RedisCodecType getKeyCodec() {
-    return keyCodec;
-  }
-
-  public void setKeyCodec(RedisCodecType keyCodec) {
-    this.keyCodec = keyCodec;
-  }
-
-  public RedisCodecType getValueCodec() {
-    return valueCodec;
-  }
-
-  public void setValueCodec(RedisCodecType valueCodec) {
-    this.valueCodec = valueCodec;
-  }
-
-  public RedisCodecType getHashKeyCodec() {
-    return hashKeyCodec;
-  }
-
-  public void setHashKeyCodec(RedisCodecType hashKeyCodec) {
-    this.hashKeyCodec = hashKeyCodec;
-  }
-
-  public RedisCodecType getHashValueCodec() {
-    return hashValueCodec;
-  }
-
-  public void setHashValueCodec(RedisCodecType hashValueCodec) {
-    this.hashValueCodec = hashValueCodec;
-  }
-
-  public String getKeyField() {
-    return keyField;
-  }
-
-  public void setKeyField(String keyField) {
-    this.keyField = keyField;
-  }
-
-  public String getValueField() {
-    return valueField;
-  }
-
-  public void setValueField(String valueField) {
-    this.valueField = valueField;
-  }
-
-  public String getHashKeyField() {
-    return hashKeyField;
-  }
-
-  public void setHashKeyField(String hashKeyField) {
-    this.hashKeyField = hashKeyField;
-  }
-
-  public String getHashValueField() {
-    return hashValueField;
-  }
-
-  public void setHashValueField(String hashValueField) {
-    this.hashValueField = hashValueField;
-  }
-
-  public String getTtlSeconds() {
-    return ttlSeconds;
-  }
-
-  public void setTtlSeconds(String ttlSeconds) {
-    this.ttlSeconds = ttlSeconds;
-  }
-
-  public RedisListPushDirection getListPushDirection() {
-    return listPushDirection;
-  }
-
-  public void setListPushDirection(RedisListPushDirection listPushDirection) {
-    this.listPushDirection = listPushDirection;
-  }
-
-  public List<RedisOutputField> getFields() {
-    return fields;
-  }
-
+  /** Null-safe setter kept explicitly so empty metadata never leaves {@code fields} null. */
   public void setFields(List<RedisOutputField> fields) {
     this.fields = fields == null ? new ArrayList<>() : fields;
   }

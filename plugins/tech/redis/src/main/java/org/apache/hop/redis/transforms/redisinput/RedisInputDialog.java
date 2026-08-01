@@ -59,7 +59,6 @@ public class RedisInputDialog extends BaseTransformDialog {
   private final RedisInputMeta input;
 
   private MetaSelectionLine<RedisConnection> wConnection;
-  private Label wlFields;
   private TableView wFields;
 
   public RedisInputDialog(
@@ -130,7 +129,7 @@ public class RedisInputDialog extends BaseTransformDialog {
     wConnection.addModifyListener(lsMod);
     Control last = wConnection;
 
-    wlFields = new Label(wComposite, SWT.LEFT);
+    Label wlFields = new Label(wComposite, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "RedisInputDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();

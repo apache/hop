@@ -27,6 +27,7 @@ import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopException;
 
 /**
@@ -179,17 +180,30 @@ public final class RedisCodecs {
   }
 
   static final class ByteCodec implements RedisValueCodec {
+
+    /**
+     * Alphabet + optional end padding. Length multiple-of-4 is checked separately so short values
+     * like {@code "12"} or {@code "age"} stay UTF-8 text.
+     */
+    private static final Pattern BASE64_PATTERN = Pattern.compile("^[A-Za-z0-9+/]*={0,2}$");
+
     @Override
     public byte[] encode(Object value) {
-      if (value == null) {
-        return new byte[0];
-      }
-      if (value instanceof byte[] bytes) {
-        return bytes;
-      }
-      // Numbers are stored as UTF-8 decimal text (not Base64 — "12" is valid Base64 for 0xD7).
-      if (value instanceof Number) {
-        return String.valueOf(value).getBytes(StandardCharsets.UTF_8);
+      switch (value) {
+        case null -> {
+          return new byte[0];
+        }
+        case byte[] bytes -> {
+          return bytes;
+        }
+
+          // Numbers are stored as UTF-8 decimal text (not Base64 — "12" is valid Base64 for 0xD7).
+        case Number number -> {
+          return String.valueOf(value).getBytes(StandardCharsets.UTF_8);
+        }
+        default -> {
+          // ignore code
+        }
       }
       String text = String.valueOf(value);
       if (looksLikeBase64(text)) {
@@ -213,36 +227,7 @@ public final class RedisCodecs {
      */
     static boolean looksLikeBase64(String text) {
       int len = text.length();
-      if (len < 4 || len % 4 != 0) {
-        return false;
-      }
-      for (int i = 0; i < len; i++) {
-        char c = text.charAt(i);
-        boolean ok =
-            (c >= 'A' && c <= 'Z')
-                || (c >= 'a' && c <= 'z')
-                || (c >= '0' && c <= '9')
-                || c == '+'
-                || c == '/'
-                || c == '=';
-        if (!ok) {
-          return false;
-        }
-      }
-      // padding only at end
-      int pad = 0;
-      if (text.charAt(len - 1) == '=') {
-        pad++;
-        if (text.charAt(len - 2) == '=') {
-          pad++;
-        }
-      }
-      for (int i = 0; i < len - pad; i++) {
-        if (text.charAt(i) == '=') {
-          return false;
-        }
-      }
-      return pad <= 2;
+      return len >= 4 && len % 4 == 0 && BASE64_PATTERN.matcher(text).matches();
     }
   }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.redis.transforms;
 
+/** Support redis data structure */
 public enum RedisDataStructure {
   STRING,
   HASH,

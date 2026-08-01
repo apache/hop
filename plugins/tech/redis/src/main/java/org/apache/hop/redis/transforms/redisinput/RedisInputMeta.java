@@ -19,6 +19,8 @@ package org.apache.hop.redis.transforms.redisinput;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
@@ -34,6 +36,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.redis.codec.RedisCodecType;
 import org.apache.hop.redis.transforms.RedisDataStructure;
 
+@Getter
+@Setter
 @Transform(
     id = "RedisInput",
     image = "redis-input.svg",
@@ -91,21 +95,5 @@ public class RedisInputMeta extends BaseTransformMeta<RedisInput, RedisInputData
         inputRowMeta.addValueMeta(meta);
       }
     }
-  }
-
-  public String getConnectionName() {
-    return connectionName;
-  }
-
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
-  }
-
-  public List<RedisInputField> getFields() {
-    return fields;
-  }
-
-  public void setFields(List<RedisInputField> fields) {
-    this.fields = fields;
   }
 }

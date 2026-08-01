@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -44,6 +45,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+/** redis connection editor */
+@SuppressWarnings("java:S2160")
 public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
 
   private static final Class<?> PKG = RedisConnection.class;
@@ -60,6 +63,8 @@ public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
   private GuiCompositeWidgets poolWidgets;
   private Group gConnection;
   private Group gPool;
+  private ScrolledComposite wScrolled;
+  private Composite wContent;
 
   public RedisConnectionEditor(
       HopGui hopGui, MetadataManager<RedisConnection> manager, RedisConnection metadata) {
@@ -97,25 +102,26 @@ public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    ScrolledComposite scrolled = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
+    // Vertical scroll only: multi-line node lists must not force a horizontal bar via pack().
+    wScrolled = new ScrolledComposite(parent, SWT.V_SCROLL);
     FormData fdScrolled = new FormData();
     fdScrolled.left = new FormAttachment(0, 0);
     fdScrolled.right = new FormAttachment(100, 0);
     fdScrolled.top = new FormAttachment(spacer, 15);
     fdScrolled.bottom = new FormAttachment(100, 0);
-    scrolled.setLayoutData(fdScrolled);
-    scrolled.setExpandHorizontal(true);
-    scrolled.setExpandVertical(true);
+    wScrolled.setLayoutData(fdScrolled);
+    wScrolled.setExpandHorizontal(true);
+    wScrolled.setExpandVertical(true);
 
-    Composite content = new Composite(scrolled, SWT.NONE);
-    PropsUi.setLook(content);
+    wContent = new Composite(wScrolled, SWT.NONE);
+    PropsUi.setLook(wContent);
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 0;
     contentLayout.marginHeight = 0;
-    content.setLayout(contentLayout);
-    scrolled.setContent(content);
+    wContent.setLayout(contentLayout);
+    wScrolled.setContent(wContent);
 
-    gConnection = new Group(content, SWT.SHADOW_ETCHED_IN);
+    gConnection = new Group(wContent, SWT.SHADOW_ETCHED_IN);
     PropsUi.setLook(gConnection);
     gConnection.setText(BaseMessages.getString(PKG, "RedisConnectionEditor.ConnectionGroup.Label"));
     FormLayout connectionLayout = new FormLayout();
@@ -132,7 +138,7 @@ public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
     connectionWidgets.createCompositeWidgets(
         getMetadata(), null, gConnection, CONNECTION_WIDGET_ID, null);
 
-    gPool = new Group(content, SWT.SHADOW_ETCHED_IN);
+    gPool = new Group(wContent, SWT.SHADOW_ETCHED_IN);
     PropsUi.setLook(gPool);
     gPool.setText(BaseMessages.getString(PKG, "RedisConnectionEditor.PoolGroup.Label"));
     FormLayout poolLayout = new FormLayout();
@@ -148,10 +154,7 @@ public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
     poolWidgets = new GuiCompositeWidgets(manager.getVariables());
     poolWidgets.createCompositeWidgets(getMetadata(), null, gPool, POOL_WIDGET_ID, null);
 
-    content.pack();
-    Rectangle bounds = content.getBounds();
-    scrolled.setMinWidth(bounds.width);
-    scrolled.setMinHeight(bounds.height);
+    wScrolled.addListener(SWT.Resize, e -> relayoutScrolledContent());
 
     setWidgetsContent();
     updateVisibility();
@@ -221,16 +224,27 @@ public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
     if (gConnection != null && !gConnection.isDisposed()) {
       gConnection.layout(true, true);
     }
-    if (gPool != null && !gPool.isDisposed() && gPool.getParent() != null) {
-      Composite content = gPool.getParent();
-      content.layout(true, true);
-      content.pack();
-      if (content.getParent() instanceof ScrolledComposite scrolled) {
-        Rectangle bounds = content.getBounds();
-        scrolled.setMinWidth(bounds.width);
-        scrolled.setMinHeight(bounds.height);
-      }
+    if (gPool != null && !gPool.isDisposed()) {
+      gPool.layout(true, true);
     }
+    relayoutScrolledContent();
+  }
+
+  /**
+   * Size the scrolled content to the client width so multi-line node fields (long host:port lines)
+   * do not create a horizontal scrollbar between the name field and the button bar.
+   */
+  private void relayoutScrolledContent() {
+    if (wScrolled == null || wScrolled.isDisposed() || wContent == null || wContent.isDisposed()) {
+      return;
+    }
+    wContent.layout(true, true);
+    Rectangle client = wScrolled.getClientArea();
+    int width = Math.max(client.width, 1);
+    Point size = wContent.computeSize(width, SWT.DEFAULT);
+    wScrolled.setMinWidth(width);
+    wScrolled.setMinHeight(size.y);
+    wContent.setSize(width, size.y);
   }
 
   private void hideUnless(Set<String> hidden, boolean applies, String... widgetIds) {
@@ -265,7 +279,11 @@ public class RedisConnectionEditor extends MetadataEditor<RedisConnection> {
       meta.test(manager.getVariables());
       MessageBox box = new MessageBox(parent.getShell(), SWT.ICON_INFORMATION | SWT.OK);
       box.setText("Success!");
-      box.setMessage("Connected successfully (PING → PONG)!");
+      box.setMessage(
+          "Connected successfully (PING → PONG)!"
+              + (meta.getDeploymentMode() == RedisDeploymentMode.CLUSTER
+                  ? " Cluster topology and slot routing were also verified."
+                  : ""));
       box.open();
     } catch (Exception e) {
       new ErrorDialog(parent.getShell(), "Error", "We couldn't connect using this information", e);

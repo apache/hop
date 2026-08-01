@@ -17,6 +17,8 @@
 
 package org.apache.hop.redis.metadata;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -31,7 +33,11 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.redis.client.RedisClientFactory;
 import org.apache.hop.redis.client.RedisClientSession;
 
+/** redis connection */
+@Getter
+@Setter
 @GuiPlugin
+@SuppressWarnings("java:S2160")
 @HopMetadata(
     key = "redis-connection",
     name = "i18n::RedisConnection.name",
@@ -112,19 +118,21 @@ public class RedisConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty
   @GuiWidgetElement(
       id = WIDGET_ID_SENTINEL_NODES,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.MULTI_LINE_TEXT,
       parentId = RedisConnectionEditor.CONNECTION_WIDGET_ID,
       label = "i18n::RedisMetadata.SentinelNodes.Label",
-      toolTip = "i18n::RedisMetadata.SentinelNodes.ToolTip")
+      toolTip = "i18n::RedisMetadata.SentinelNodes.ToolTip",
+      multiLineTextHeight = 4)
   private String sentinelNodes;
 
   @HopMetadataProperty
   @GuiWidgetElement(
       id = WIDGET_ID_CLUSTER_NODES,
-      type = GuiElementType.TEXT,
+      type = GuiElementType.MULTI_LINE_TEXT,
       parentId = RedisConnectionEditor.CONNECTION_WIDGET_ID,
       label = "i18n::RedisMetadata.ClusterNodes.Label",
-      toolTip = "i18n::RedisMetadata.ClusterNodes.ToolTip")
+      toolTip = "i18n::RedisMetadata.ClusterNodes.ToolTip",
+      multiLineTextHeight = 6)
   private String clusterNodes;
 
   @HopMetadataProperty
@@ -232,10 +240,11 @@ public class RedisConnection extends HopMetadataBase implements IHopMetadata {
   }
 
   /**
-   * Test this connection with a Redis PING.
+   * Test this connection with a Redis PING. For CLUSTER, {@link RedisClientFactory} also refreshes
+   * topology and verifies hash-slot routing before returning.
    *
    * @param variables variables for resolving connection fields
-   * @throws HopException if the connection or PING fails
+   * @throws HopException if the connection, topology, or PING fails
    */
   public void test(IVariables variables) throws HopException {
     try (RedisClientSession session = RedisClientFactory.create(this, variables)) {
@@ -244,133 +253,5 @@ public class RedisConnection extends HopMetadataBase implements IHopMetadata {
         throw new HopException("Unexpected Redis PING response: " + pong);
       }
     }
-  }
-
-  public RedisDeploymentMode getDeploymentMode() {
-    return deploymentMode;
-  }
-
-  public void setDeploymentMode(RedisDeploymentMode deploymentMode) {
-    this.deploymentMode = deploymentMode;
-  }
-
-  public String getHostname() {
-    return hostname;
-  }
-
-  public void setHostname(String hostname) {
-    this.hostname = hostname;
-  }
-
-  public String getPort() {
-    return port;
-  }
-
-  public void setPort(String port) {
-    this.port = port;
-  }
-
-  public String getDatabase() {
-    return database;
-  }
-
-  public void setDatabase(String database) {
-    this.database = database;
-  }
-
-  public String getMasterName() {
-    return masterName;
-  }
-
-  public void setMasterName(String masterName) {
-    this.masterName = masterName;
-  }
-
-  public String getSentinelNodes() {
-    return sentinelNodes;
-  }
-
-  public void setSentinelNodes(String sentinelNodes) {
-    this.sentinelNodes = sentinelNodes;
-  }
-
-  public String getClusterNodes() {
-    return clusterNodes;
-  }
-
-  public void setClusterNodes(String clusterNodes) {
-    this.clusterNodes = clusterNodes;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public boolean isUseSsl() {
-    return useSsl;
-  }
-
-  public void setUseSsl(boolean useSsl) {
-    this.useSsl = useSsl;
-  }
-
-  public String getTimeoutMs() {
-    return timeoutMs;
-  }
-
-  public void setTimeoutMs(String timeoutMs) {
-    this.timeoutMs = timeoutMs;
-  }
-
-  public boolean isEnablePooling() {
-    return enablePooling;
-  }
-
-  public void setEnablePooling(boolean enablePooling) {
-    this.enablePooling = enablePooling;
-  }
-
-  public String getPoolMaxTotal() {
-    return poolMaxTotal;
-  }
-
-  public void setPoolMaxTotal(String poolMaxTotal) {
-    this.poolMaxTotal = poolMaxTotal;
-  }
-
-  public String getPoolMaxIdle() {
-    return poolMaxIdle;
-  }
-
-  public void setPoolMaxIdle(String poolMaxIdle) {
-    this.poolMaxIdle = poolMaxIdle;
-  }
-
-  public String getPoolMinIdle() {
-    return poolMinIdle;
-  }
-
-  public void setPoolMinIdle(String poolMinIdle) {
-    this.poolMinIdle = poolMinIdle;
-  }
-
-  public String getPoolMaxWaitMs() {
-    return poolMaxWaitMs;
-  }
-
-  public void setPoolMaxWaitMs(String poolMaxWaitMs) {
-    this.poolMaxWaitMs = poolMaxWaitMs;
   }
 }

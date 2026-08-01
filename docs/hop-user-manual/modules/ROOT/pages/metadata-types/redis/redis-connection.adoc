@@ -51,10 +51,10 @@ The editor is split into two groups:
 |Sentinel master name. Visible only in Sentinel mode.
 
 |Sentinel nodes
-|Comma-separated `host:port` list of Sentinel nodes. Visible only in Sentinel mode.
+|Sentinel nodes as `host:port`, one per line (comma or semicolon also accepted). Visible only in Sentinel mode. Multi-line text field.
 
 |Cluster nodes
-|Comma-separated `host:port` list of Cluster nodes. Visible only in Cluster mode.
+|Cluster seed nodes as `host:port`, one per line (comma or semicolon also accepted). Visible only in Cluster mode. Multi-line text field.
 
 |Username / Password
 |Optional ACL credentials

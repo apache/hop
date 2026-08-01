@@ -18,7 +18,9 @@
 package org.apache.hop.redis.transforms.redisoutput;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -79,23 +81,16 @@ public class RedisOutputDialog extends BaseTransformDialog {
   private CCombo wValueField;
   private CCombo wValueCodec;
   private TextVar wTtlSeconds;
-  private Label wlDataStructure;
-  private Label wlKeyField;
-  private Label wlKeyCodec;
-  private Label wlHashKeyField;
-  private Label wlHashKeyCodec;
+
   private Label wlListPushDirection;
-  private Label wlValueField;
-  private Label wlValueCodec;
-  private Label wlTtl;
+
   private Composite wKeyRow;
   private Composite wHashKeyRow;
   private Composite wValueRow;
-  private Composite wTtlRow;
 
   // STREAM_FIELDS page
   private Composite wStreamPage;
-  private Label wlStreamFields;
+
   private TableView wFields;
 
   private Composite wModeStack;
@@ -172,12 +167,13 @@ public class RedisOutputDialog extends BaseTransformDialog {
     wConnection.addModifyListener(lsMod);
     Control last = wConnection;
 
+    wWriteMode = new CCombo(wComposite, SWT.BORDER | SWT.READ_ONLY);
     last =
         addLabeledCombo(
             wComposite,
             last,
             BaseMessages.getString(PKG, "RedisOutputDialog.WriteMode.Label"),
-            wWriteMode = new CCombo(wComposite, SWT.BORDER | SWT.READ_ONLY),
+            wWriteMode,
             RedisOutputWriteMode.getNames(),
             lsMod,
             null);
@@ -214,19 +210,27 @@ public class RedisOutputDialog extends BaseTransformDialog {
   }
 
   private void buildKeyValuePage(ModifyListener lsMod, String[] fieldNames) {
+    Label wlValueCodec;
+    Composite wTtlRow;
+    Label wlTtl;
+    Label wlKeyCodec;
+    Label wlHashKeyCodec;
+    Label wlHashKeyField;
+    Label wlKeyField;
     wKeyValuePage = new Composite(wModeStack, SWT.NONE);
     PropsUi.setLook(wKeyValuePage);
     wKeyValuePage.setLayout(new FormLayout());
 
     // Data structure — full width
+    wDataStructure = new CCombo(wKeyValuePage, SWT.BORDER | SWT.READ_ONLY);
     addLabeledCombo(
         wKeyValuePage,
         null,
         BaseMessages.getString(PKG, "RedisOutputDialog.DataStructure.Label"),
-        wDataStructure = new CCombo(wKeyValuePage, SWT.BORDER | SWT.READ_ONLY),
+        wDataStructure,
         RedisDataStructure.getNames(),
         lsMod,
-        wlDataStructure = new Label(wKeyValuePage, SWT.RIGHT));
+        new Label(wKeyValuePage, SWT.RIGHT));
     wDataStructure.addListener(SWT.Selection, e -> updateKeyValueStructureVisibility());
 
     // key field | codec
@@ -270,7 +274,7 @@ public class RedisOutputDialog extends BaseTransformDialog {
     // value field | value codec
     wValueRow = createRowComposite(wKeyValuePage, wHashKeyRow);
     wValueField = new CCombo(wValueRow, SWT.BORDER);
-    wlValueField = new Label(wValueRow, SWT.RIGHT);
+    Label wlValueField = new Label(wValueRow, SWT.RIGHT);
     wValueCodec = new CCombo(wValueRow, SWT.BORDER | SWT.READ_ONLY);
     wlValueCodec = new Label(wValueRow, SWT.RIGHT);
     addPairToRow(
@@ -369,9 +373,46 @@ public class RedisOutputDialog extends BaseTransformDialog {
     labeledCombo.combo().addModifyListener(lsMod);
   }
 
-  private record LabeledCombo(String labelText, Label label, CCombo combo, String[] items) {}
+  private record LabeledCombo(String labelText, Label label, CCombo combo, String[] items) {
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      return o
+              instanceof
+              LabeledCombo(
+                  String otherLabelText,
+                  Label otherLabel,
+                  CCombo otherCombo,
+                  String[] otherItems)
+          && Objects.equals(labelText, otherLabelText)
+          && Objects.equals(label, otherLabel)
+          && Objects.equals(combo, otherCombo)
+          && Arrays.equals(items, otherItems);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(labelText, label, combo, Arrays.hashCode(items));
+    }
+
+    @Override
+    public String toString() {
+      return "LabeledCombo[labelText="
+          + labelText
+          + ", label="
+          + label
+          + ", combo="
+          + combo
+          + ", items="
+          + Arrays.toString(items)
+          + "]";
+    }
+  }
 
   private void buildStreamPage(ModifyListener lsMod, String[] fieldNames) {
+    Label wlStreamFields;
     wStreamPage = new Composite(wModeStack, SWT.NONE);
     PropsUi.setLook(wStreamPage);
     wStreamPage.setLayout(new FormLayout());

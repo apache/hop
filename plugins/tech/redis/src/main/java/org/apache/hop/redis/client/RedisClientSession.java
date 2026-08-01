@@ -90,7 +90,7 @@ public final class RedisClientSession implements AutoCloseable {
   @SuppressWarnings("unchecked")
   public void close() {
     try {
-      if (pool != null && connection != null) {
+      if (pool != null) {
         try {
           pool.returnObject(connection);
         } finally {
@@ -99,18 +99,10 @@ public final class RedisClientSession implements AutoCloseable {
       } else if (connection != null) {
         connection.close();
       }
-    } catch (Exception e) {
-      try {
-        if (connection != null) {
-          connection.close();
-        }
-      } catch (Exception ignored) {
-        // ignore secondary close failures
-      }
+    } catch (Exception ignored) {
+      // best-effort close; client shutdown still runs below
     } finally {
-      if (client != null) {
-        client.shutdown();
-      }
+      client.shutdown();
     }
   }
 }

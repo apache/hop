@@ -36,6 +36,7 @@ import org.apache.hop.redis.metadata.RedisConnection;
 import org.apache.hop.redis.transforms.RedisDataStructure;
 import org.apache.hop.redis.transforms.RedisListPushDirection;
 import org.apache.hop.redis.transforms.redisoutput.RedisOutputData.StreamMapping;
+import org.jspecify.annotations.NonNull;
 
 public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData> {
 
@@ -71,7 +72,7 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
         writeKeyValue(row);
       }
 
-      putRow(data.outputRowMeta, row);
+      putRow(data.getOutputRowMeta(), row);
       return true;
     } catch (Exception e) {
       throw new HopException("Error writing to Redis", e);
@@ -79,7 +80,7 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
   }
 
   private void initFirst() throws HopException {
-    data.outputRowMeta = getInputRowMeta().clone();
+    data.setOutputRowMeta(getInputRowMeta().clone());
 
     if (StringUtils.isEmpty(meta.getConnectionName())) {
       throw new HopException("A Redis connection name is required");
@@ -90,13 +91,13 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
     if (connection == null) {
       throw new HopException("Redis connection '" + meta.getConnectionName() + "' not found");
     }
-    data.session = RedisClientFactory.create(connection, this);
-    data.codecs =
+    data.setSession(RedisClientFactory.create(connection, this));
+    data.setCodecs(
         RedisCodecs.of(
             meta.getKeyCodec(),
             meta.getValueCodec(),
             meta.getHashKeyCodec(),
-            meta.getHashValueCodec());
+            meta.getHashValueCodec()));
 
     RedisOutputWriteMode writeMode =
         meta.getWriteMode() == null ? RedisOutputWriteMode.KEY_VALUE : meta.getWriteMode();
@@ -111,32 +112,32 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
       if (StringUtils.isNotEmpty(ttl)) {
         long ttlSeconds = Const.toLong(ttl, 0L);
         if (ttlSeconds > 0) {
-          data.ttlSeconds = ttlSeconds;
+          data.setTtlSeconds(ttlSeconds);
         }
       }
     }
   }
 
   private void initKeyValue(RedisDataStructure structure) throws HopException {
-    data.keyFieldIndex = getInputRowMeta().indexOfValue(meta.getKeyField());
-    if (data.keyFieldIndex < 0) {
+    data.setKeyFieldIndex(getInputRowMeta().indexOfValue(meta.getKeyField()));
+    if (data.getKeyFieldIndex() < 0) {
       throw new HopException("Unable to find key field '" + meta.getKeyField() + "'");
     }
 
     switch (structure) {
       case STRING, SET, LIST -> {
-        data.valueFieldIndex = getInputRowMeta().indexOfValue(meta.getValueField());
-        if (data.valueFieldIndex < 0) {
+        data.setValueFieldIndex(getInputRowMeta().indexOfValue(meta.getValueField()));
+        if (data.getValueFieldIndex() < 0) {
           throw new HopException("Unable to find value field '" + meta.getValueField() + "'");
         }
       }
       case HASH -> {
-        data.hashKeyFieldIndex = getInputRowMeta().indexOfValue(meta.getHashKeyField());
-        data.hashValueFieldIndex = getInputRowMeta().indexOfValue(meta.getHashValueField());
-        if (data.hashKeyFieldIndex < 0) {
+        data.setHashKeyFieldIndex(getInputRowMeta().indexOfValue(meta.getHashKeyField()));
+        data.setHashValueFieldIndex(getInputRowMeta().indexOfValue(meta.getHashValueField()));
+        if (data.getHashKeyFieldIndex() < 0) {
           throw new HopException("Unable to find hash key field '" + meta.getHashKeyField() + "'");
         }
-        if (data.hashValueFieldIndex < 0) {
+        if (data.getHashValueFieldIndex() < 0) {
           throw new HopException(
               "Unable to find hash value field '" + meta.getHashValueField() + "'");
         }
@@ -150,52 +151,66 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
       throw new HopException("At least one stream field is required in STREAM_FIELDS mode");
     }
 
-    data.streamMappings = new StreamMapping[fields.size()];
+    StreamMapping[] streamMappings = new StreamMapping[fields.size()];
     for (int i = 0; i < fields.size(); i++) {
-      RedisOutputField field = fields.get(i);
-      int rowNum = i + 1;
-      if (StringUtils.isEmpty(field.getStreamField())) {
-        throw new HopException("Stream field is required for mapping row " + rowNum);
-      }
-      int streamIndex = getInputRowMeta().indexOfValue(field.getStreamField());
-      if (streamIndex < 0) {
-        throw new HopException("Unable to find stream field '" + field.getStreamField() + "'");
-      }
+      streamMappings[i] = buildStreamMapping(fields.get(i), i + 1);
+    }
+    data.setStreamMappings(streamMappings);
+  }
 
-      String keyExpr = field.resolveKey();
-      if (StringUtils.isEmpty(keyExpr)) {
-        throw new HopException("Key is required for mapping row " + rowNum);
-      }
+  private StreamMapping buildStreamMapping(RedisOutputField field, int rowNum) throws HopException {
+    int streamIndex = requireStreamFieldIndex(field, rowNum);
+    String keyExpr = field.resolveKey();
+    if (StringUtils.isEmpty(keyExpr)) {
+      throw new HopException("Key is required for mapping row " + rowNum);
+    }
 
-      StreamMapping mapping = new StreamMapping();
-      mapping.structure = field.resolveDataStructure();
-      mapping.streamFieldIndex = streamIndex;
-      mapping.keyCodec = RedisCodecs.create(field.getKeyCodec());
-      mapping.valueCodec = RedisCodecs.create(field.getValueCodec());
+    StreamMapping mapping = new StreamMapping();
+    mapping.setStructure(field.resolveDataStructure());
+    mapping.setStreamFieldIndex(streamIndex);
+    mapping.setKeyCodec(RedisCodecs.create(field.getKeyCodec()));
+    mapping.setValueCodec(RedisCodecs.create(field.getValueCodec()));
+    bindKeyExpression(mapping, keyExpr);
+    configureHashMapping(mapping, field, rowNum);
+    mapping.setTtlSeconds(resolveTtlSeconds(field.getTtlSeconds()));
+    return mapping;
+  }
 
-      int keyIndex = getInputRowMeta().indexOfValue(keyExpr);
-      if (keyIndex >= 0) {
-        mapping.keyFieldIndex = keyIndex;
-      } else {
-        mapping.keyLiteral = keyExpr;
-      }
+  private int requireStreamFieldIndex(RedisOutputField field, int rowNum) throws HopException {
+    if (StringUtils.isEmpty(field.getStreamField())) {
+      throw new HopException("Stream field is required for mapping row " + rowNum);
+    }
+    int streamIndex = getInputRowMeta().indexOfValue(field.getStreamField());
+    if (streamIndex < 0) {
+      throw new HopException("Unable to find stream field '" + field.getStreamField() + "'");
+    }
+    return streamIndex;
+  }
 
-      if (mapping.structure == RedisDataStructure.HASH) {
-        String hashKeyExpr = field.resolveHashKey();
-        if (StringUtils.isEmpty(hashKeyExpr)) {
-          throw new HopException("Hash key is required for HASH mapping row " + rowNum);
-        }
-        mapping.hashKeyCodec = RedisCodecs.create(field.getHashKeyCodec());
-        int hashKeyIndex = getInputRowMeta().indexOfValue(hashKeyExpr);
-        if (hashKeyIndex >= 0) {
-          mapping.hashKeyFieldIndex = hashKeyIndex;
-        } else {
-          mapping.hashKeyLiteral = hashKeyExpr;
-        }
-      }
+  private void bindKeyExpression(StreamMapping mapping, String keyExpr) {
+    int keyIndex = getInputRowMeta().indexOfValue(keyExpr);
+    if (keyIndex >= 0) {
+      mapping.setKeyFieldIndex(keyIndex);
+    } else {
+      mapping.setKeyLiteral(keyExpr);
+    }
+  }
 
-      mapping.ttlSeconds = resolveTtlSeconds(field.getTtlSeconds());
-      data.streamMappings[i] = mapping;
+  private void configureHashMapping(StreamMapping mapping, RedisOutputField field, int rowNum)
+      throws HopException {
+    if (mapping.getStructure() != RedisDataStructure.HASH) {
+      return;
+    }
+    String hashKeyExpr = field.resolveHashKey();
+    if (StringUtils.isEmpty(hashKeyExpr)) {
+      throw new HopException("Hash key is required for HASH mapping row " + rowNum);
+    }
+    mapping.setHashKeyCodec(RedisCodecs.create(field.getHashKeyCodec()));
+    int hashKeyIndex = getInputRowMeta().indexOfValue(hashKeyExpr);
+    if (hashKeyIndex >= 0) {
+      mapping.setHashKeyFieldIndex(hashKeyIndex);
+    } else {
+      mapping.setHashKeyLiteral(hashKeyExpr);
     }
   }
 
@@ -208,27 +223,27 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
   }
 
   private void writeKeyValue(Object[] row) throws Exception {
-    IRedisCommands commands = data.session.getCommands();
-    byte[] keyBytes = data.codecs.key().encode(row[data.keyFieldIndex]);
+    IRedisCommands commands = data.getSession().getCommands();
+    byte[] keyBytes = data.getCodecs().key().encode(row[data.getKeyFieldIndex()]);
     RedisDataStructure structure =
         meta.getDataStructure() == null ? RedisDataStructure.STRING : meta.getDataStructure();
 
     switch (structure) {
       case STRING -> {
-        byte[] valueBytes = data.codecs.value().encode(row[data.valueFieldIndex]);
+        byte[] valueBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
         commands.setValue(keyBytes, valueBytes);
       }
       case HASH -> {
-        byte[] fieldBytes = data.codecs.hashKey().encode(row[data.hashKeyFieldIndex]);
-        byte[] valueBytes = data.codecs.hashValue().encode(row[data.hashValueFieldIndex]);
+        byte[] fieldBytes = data.getCodecs().hashKey().encode(row[data.getHashKeyFieldIndex()]);
+        byte[] valueBytes = data.getCodecs().hashValue().encode(row[data.getHashValueFieldIndex()]);
         commands.hashSet(keyBytes, fieldBytes, valueBytes);
       }
       case SET -> {
-        byte[] memberBytes = data.codecs.value().encode(row[data.valueFieldIndex]);
+        byte[] memberBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
         commands.setAdd(keyBytes, memberBytes);
       }
       case LIST -> {
-        byte[] elementBytes = data.codecs.value().encode(row[data.valueFieldIndex]);
+        byte[] elementBytes = data.getCodecs().value().encode(row[data.getValueFieldIndex()]);
         pushList(commands, keyBytes, elementBytes);
       }
     }
@@ -237,49 +252,53 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
   }
 
   private void writeStreamFields(Object[] row) throws Exception {
-    IRedisCommands commands = data.session.getCommands();
+    IRedisCommands commands = data.getSession().getCommands();
     // Batch HASH fields that share the same Redis key within this pipeline row
     Map<KeyRef, Map<byte[], byte[]>> hashBatches = new HashMap<>();
     Map<KeyRef, Long> hashTtls = new HashMap<>();
 
-    for (StreamMapping mapping : data.streamMappings) {
+    for (StreamMapping mapping : data.getStreamMappings()) {
       Object keyObj =
-          mapping.keyFieldIndex >= 0 ? row[mapping.keyFieldIndex] : resolve(mapping.keyLiteral);
-      byte[] keyBytes = mapping.keyCodec.encode(keyObj);
-      byte[] valueBytes = mapping.valueCodec.encode(row[mapping.streamFieldIndex]);
+          mapping.getKeyFieldIndex() >= 0
+              ? row[mapping.getKeyFieldIndex()]
+              : resolve(mapping.getKeyLiteral());
+      byte[] keyBytes = mapping.getKeyCodec().encode(keyObj);
+      byte[] valueBytes = mapping.getValueCodec().encode(row[mapping.getStreamFieldIndex()]);
 
-      switch (mapping.structure) {
+      switch (mapping.getStructure()) {
         case STRING -> {
           commands.setValue(keyBytes, valueBytes);
-          expireIfNeeded(commands, keyBytes, mapping.ttlSeconds);
+          expireIfNeeded(commands, keyBytes, mapping.getTtlSeconds());
         }
         case HASH -> {
           Object hashKeyObj =
-              mapping.hashKeyFieldIndex >= 0
-                  ? row[mapping.hashKeyFieldIndex]
-                  : resolve(mapping.hashKeyLiteral);
-          byte[] hashKeyBytes = mapping.hashKeyCodec.encode(hashKeyObj);
+              mapping.getHashKeyFieldIndex() >= 0
+                  ? row[mapping.getHashKeyFieldIndex()]
+                  : resolve(mapping.getHashKeyLiteral());
+          byte[] hashKeyBytes = mapping.getHashKeyCodec().encode(hashKeyObj);
           KeyRef keyRef = new KeyRef(keyBytes);
           hashBatches.computeIfAbsent(keyRef, k -> new HashMap<>()).put(hashKeyBytes, valueBytes);
-          if (mapping.ttlSeconds != null) {
-            hashTtls.merge(keyRef, mapping.ttlSeconds, Math::max);
+          if (mapping.getTtlSeconds() != null) {
+            hashTtls.merge(keyRef, mapping.getTtlSeconds(), Math::max);
           }
         }
         case SET -> {
           commands.setAdd(keyBytes, valueBytes);
-          expireIfNeeded(commands, keyBytes, mapping.ttlSeconds);
+          expireIfNeeded(commands, keyBytes, mapping.getTtlSeconds());
         }
         case LIST -> {
           // List push direction is not configured in STREAM_FIELDS yet; default RPUSH
           commands.listRightPush(keyBytes, valueBytes);
-          expireIfNeeded(commands, keyBytes, mapping.ttlSeconds);
+          expireIfNeeded(commands, keyBytes, mapping.getTtlSeconds());
         }
       }
     }
 
     for (Map.Entry<KeyRef, Map<byte[], byte[]>> entry : hashBatches.entrySet()) {
-      commands.hashSet(entry.getKey().bytes, entry.getValue());
-      expireIfNeeded(commands, entry.getKey().bytes, hashTtls.get(entry.getKey()));
+      if (entry.getKey() instanceof KeyRef(byte[] keyBytes)) {
+        commands.hashSet(keyBytes, entry.getValue());
+        expireIfNeeded(commands, keyBytes, hashTtls.get(entry.getKey()));
+      }
     }
   }
 
@@ -296,7 +315,7 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
   }
 
   private void expireIfNeeded(IRedisCommands commands, byte[] keyBytes) {
-    expireIfNeeded(commands, keyBytes, data.ttlSeconds);
+    expireIfNeeded(commands, keyBytes, data.getTtlSeconds());
   }
 
   private void expireIfNeeded(IRedisCommands commands, byte[] keyBytes, Long ttlSeconds) {
@@ -307,29 +326,31 @@ public class RedisOutput extends BaseTransform<RedisOutputMeta, RedisOutputData>
 
   @Override
   public void dispose() {
-    if (data.session != null) {
-      data.session.close();
-      data.session = null;
+    if (data.getSession() != null) {
+      data.getSession().close();
+      data.setSession(null);
     }
     super.dispose();
   }
 
-  /** Wrapper so HASH batches can group by key bytes. */
+  /** Wrapper so HASH batches can group by key bytes (content equality, not reference). */
   private record KeyRef(byte[] bytes) {
     @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
       }
-      if (!(o instanceof KeyRef other)) {
-        return false;
-      }
-      return Arrays.equals(bytes, other.bytes);
+      return o instanceof KeyRef(byte[] otherBytes) && Arrays.equals(bytes, otherBytes);
     }
 
     @Override
     public int hashCode() {
       return Arrays.hashCode(bytes);
+    }
+
+    @Override
+    public @NonNull String toString() {
+      return "KeyRef" + Arrays.toString(bytes);
     }
   }
 }

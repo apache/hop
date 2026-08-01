@@ -17,6 +17,8 @@
 
 package org.apache.hop.redis.transforms.redisinput;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -24,31 +26,35 @@ import org.apache.hop.redis.client.RedisClientSession;
 import org.apache.hop.redis.codec.RedisValueCodec;
 import org.apache.hop.redis.transforms.RedisDataStructure;
 
+@Getter
+@Setter
 public class RedisInputData extends BaseTransformData implements ITransformData {
-  public IRowMeta outputRowMeta;
-  public RedisClientSession session;
-  public Mapping[] mappings;
+  private IRowMeta outputRowMeta;
+  private RedisClientSession session;
+  private Mapping[] mappings;
 
   /** Index in the output row where the first mapping value is written. */
-  public int firstValueIndex;
+  private int firstValueIndex;
 
+  @Getter
+  @Setter
   public static final class Mapping {
-    public RedisDataStructure structure;
+    private RedisDataStructure structure;
 
     /** Index of Redis-key stream field, or -1 when {@link #keyLiteral} is used. */
-    public int keyFieldIndex = -1;
+    private int keyFieldIndex = -1;
 
-    public String keyLiteral;
-    public RedisValueCodec keyCodec;
+    private String keyLiteral;
+    private RedisValueCodec keyCodec;
 
     /** Index of hash-field stream field, or -1 when literal / N/A. */
-    public int hashFieldIndex = -1;
+    private int hashFieldIndex = -1;
 
-    public String hashFieldLiteral;
-    public RedisValueCodec hashFieldCodec;
-    public RedisValueCodec valueCodec;
-    public int valueOutputIndex;
-    public long listStart;
-    public long listStop;
+    private String hashFieldLiteral;
+    private RedisValueCodec hashFieldCodec;
+    private RedisValueCodec valueCodec;
+    private int valueOutputIndex;
+    private long listStart;
+    private long listStop;
   }
 }

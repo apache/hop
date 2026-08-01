@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.redis.client.IRedisCommands;
 import org.apache.hop.redis.client.RedisClientFactory;
+import org.apache.hop.redis.client.RedisClientSession;
 import org.apache.hop.redis.codec.RedisCodecs;
 import org.apache.hop.redis.metadata.RedisConnection;
 import org.apache.hop.redis.transforms.RedisDataStructure;
@@ -69,17 +70,19 @@ public class RedisInput extends BaseTransform<RedisInputMeta, RedisInputData> {
         initFirst();
       }
 
-      IRedisCommands commands = data.session.getCommands();
-      Object[] output = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
+      IRedisCommands commands = data.getSession().getCommands();
+      Object[] output = RowDataUtil.createResizedCopy(row, data.getOutputRowMeta().size());
 
-      for (Mapping mapping : data.mappings) {
+      for (Mapping mapping : data.getMappings()) {
         Object keyObj =
-            mapping.keyFieldIndex >= 0 ? row[mapping.keyFieldIndex] : resolve(mapping.keyLiteral);
-        byte[] keyBytes = mapping.keyCodec.encode(keyObj);
-        output[mapping.valueOutputIndex] = readValue(commands, mapping, row, keyBytes);
+            mapping.getKeyFieldIndex() >= 0
+                ? row[mapping.getKeyFieldIndex()]
+                : resolve(mapping.getKeyLiteral());
+        byte[] keyBytes = mapping.getKeyCodec().encode(keyObj);
+        output[mapping.getValueOutputIndex()] = readValue(commands, mapping, row, keyBytes);
       }
 
-      putRow(data.outputRowMeta, output);
+      putRow(data.getOutputRowMeta(), output);
       return true;
     } catch (Exception e) {
       throw new HopException("Error reading from Redis", e);
@@ -87,10 +90,14 @@ public class RedisInput extends BaseTransform<RedisInputMeta, RedisInputData> {
   }
 
   private void initFirst() throws HopException {
-    data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-    data.firstValueIndex = getInputRowMeta().size();
+    data.setOutputRowMeta(getInputRowMeta().clone());
+    meta.getFields(data.getOutputRowMeta(), getTransformName(), null, null, this, metadataProvider);
+    data.setFirstValueIndex(getInputRowMeta().size());
+    data.setSession(openSession());
+    data.setMappings(buildMappings());
+  }
 
+  private RedisClientSession openSession() throws HopException {
     if (StringUtils.isEmpty(meta.getConnectionName())) {
       throw new HopException("A Redis connection name is required");
     }
@@ -100,85 +107,100 @@ public class RedisInput extends BaseTransform<RedisInputMeta, RedisInputData> {
     if (connection == null) {
       throw new HopException("Redis connection '" + meta.getConnectionName() + "' not found");
     }
-    data.session = RedisClientFactory.create(connection, this);
+    return RedisClientFactory.create(connection, this);
+  }
 
+  private Mapping[] buildMappings() throws HopException {
     List<RedisInputField> fields = meta.getFields();
     if (fields == null || fields.isEmpty()) {
       throw new HopException("At least one field mapping is required");
     }
 
-    data.mappings = new Mapping[fields.size()];
-    int valueSlot = 0;
+    Mapping[] mappings = new Mapping[fields.size()];
     for (int i = 0; i < fields.size(); i++) {
-      RedisInputField field = fields.get(i);
-      int rowNum = i + 1;
-      if (StringUtils.isEmpty(field.getRedisKey())) {
-        throw new HopException("Redis key is required for mapping row " + rowNum);
-      }
-      if (StringUtils.isEmpty(field.getValueField())) {
-        throw new HopException("Value field is required for mapping row " + rowNum);
-      }
-
-      Mapping mapping = new Mapping();
-      mapping.structure = field.resolveDataStructure();
-      mapping.keyCodec = RedisCodecs.create(field.getRedisKeyCodec());
-      mapping.valueCodec = RedisCodecs.create(field.getValueCodec());
-      mapping.valueOutputIndex = data.firstValueIndex + valueSlot;
-      valueSlot++;
-
-      String keyExpr = field.getRedisKey();
-      int keyIndex = getInputRowMeta().indexOfValue(keyExpr);
-      if (keyIndex >= 0) {
-        mapping.keyFieldIndex = keyIndex;
-      } else {
-        mapping.keyLiteral = keyExpr;
-      }
-
-      if (mapping.structure == RedisDataStructure.HASH) {
-        if (StringUtils.isEmpty(field.getHashField())) {
-          throw new HopException("Hash field is required for HASH mapping row " + rowNum);
-        }
-        mapping.hashFieldCodec = RedisCodecs.create(field.getHashFieldCodec());
-        String hashExpr = field.getHashField();
-        int hashIndex = getInputRowMeta().indexOfValue(hashExpr);
-        if (hashIndex >= 0) {
-          mapping.hashFieldIndex = hashIndex;
-        } else {
-          mapping.hashFieldLiteral = hashExpr;
-        }
-      }
-
-      if (mapping.structure == RedisDataStructure.LIST) {
-        mapping.listStart = Const.toLong(resolve(field.resolveListStart()), 0L);
-        mapping.listStop = Const.toLong(resolve(field.resolveListStop()), -1L);
-      }
-
-      data.mappings[i] = mapping;
+      mappings[i] = buildMapping(fields.get(i), i + 1, data.getFirstValueIndex() + i);
     }
+    return mappings;
+  }
+
+  private Mapping buildMapping(RedisInputField field, int rowNum, int valueOutputIndex)
+      throws HopException {
+    if (StringUtils.isEmpty(field.getRedisKey())) {
+      throw new HopException("Redis key is required for mapping row " + rowNum);
+    }
+    if (StringUtils.isEmpty(field.getValueField())) {
+      throw new HopException("Value field is required for mapping row " + rowNum);
+    }
+
+    Mapping mapping = new Mapping();
+    mapping.setStructure(field.resolveDataStructure());
+    mapping.setKeyCodec(RedisCodecs.create(field.getRedisKeyCodec()));
+    mapping.setValueCodec(RedisCodecs.create(field.getValueCodec()));
+    mapping.setValueOutputIndex(valueOutputIndex);
+    bindKeyExpression(mapping, field.getRedisKey());
+    configureHashMapping(mapping, field, rowNum);
+    configureListMapping(mapping, field);
+    return mapping;
+  }
+
+  private void bindKeyExpression(Mapping mapping, String keyExpr) {
+    int keyIndex = getInputRowMeta().indexOfValue(keyExpr);
+    if (keyIndex >= 0) {
+      mapping.setKeyFieldIndex(keyIndex);
+    } else {
+      mapping.setKeyLiteral(keyExpr);
+    }
+  }
+
+  private void configureHashMapping(Mapping mapping, RedisInputField field, int rowNum)
+      throws HopException {
+    if (mapping.getStructure() != RedisDataStructure.HASH) {
+      return;
+    }
+    if (StringUtils.isEmpty(field.getHashField())) {
+      throw new HopException("Hash field is required for HASH mapping row " + rowNum);
+    }
+    mapping.setHashFieldCodec(RedisCodecs.create(field.getHashFieldCodec()));
+    String hashExpr = field.getHashField();
+    int hashIndex = getInputRowMeta().indexOfValue(hashExpr);
+    if (hashIndex >= 0) {
+      mapping.setHashFieldIndex(hashIndex);
+    } else {
+      mapping.setHashFieldLiteral(hashExpr);
+    }
+  }
+
+  private void configureListMapping(Mapping mapping, RedisInputField field) {
+    if (mapping.getStructure() != RedisDataStructure.LIST) {
+      return;
+    }
+    mapping.setListStart(Const.toLong(resolve(field.resolveListStart()), 0L));
+    mapping.setListStop(Const.toLong(resolve(field.resolveListStop()), -1L));
   }
 
   private Object readValue(IRedisCommands commands, Mapping mapping, Object[] row, byte[] keyBytes)
       throws Exception {
-    return switch (mapping.structure) {
+    return switch (mapping.getStructure()) {
       case STRING -> {
         byte[] value = commands.getValue(keyBytes);
-        yield value == null ? null : mapping.valueCodec.decode(value);
+        yield value == null ? null : mapping.getValueCodec().decode(value);
       }
       case HASH -> {
         Object hashObj =
-            mapping.hashFieldIndex >= 0
-                ? row[mapping.hashFieldIndex]
-                : resolve(mapping.hashFieldLiteral);
-        byte[] fieldBytes = mapping.hashFieldCodec.encode(hashObj);
+            mapping.getHashFieldIndex() >= 0
+                ? row[mapping.getHashFieldIndex()]
+                : resolve(mapping.getHashFieldLiteral());
+        byte[] fieldBytes = mapping.getHashFieldCodec().encode(hashObj);
         byte[] value = commands.hashGet(keyBytes, fieldBytes);
-        yield value == null ? null : mapping.valueCodec.decode(value);
+        yield value == null ? null : mapping.getValueCodec().decode(value);
       }
       case SET -> {
         Set<byte[]> members = commands.setMembers(keyBytes);
         yield toJsonArray(members == null ? List.of() : new ArrayList<>(members), mapping);
       }
       case LIST -> {
-        List<byte[]> elements = commands.listRange(keyBytes, mapping.listStart, mapping.listStop);
+        List<byte[]> elements =
+            commands.listRange(keyBytes, mapping.getListStart(), mapping.getListStop());
         yield toJsonArray(elements == null ? List.of() : elements, mapping);
       }
     };
@@ -196,7 +218,7 @@ public class RedisInput extends BaseTransform<RedisInputMeta, RedisInputData> {
         decoded.add(null);
         continue;
       }
-      decoded.add(toJsonArrayElement(mapping.valueCodec.decode(raw)));
+      decoded.add(toJsonArrayElement(mapping.getValueCodec().decode(raw)));
     }
     return OBJECT_MAPPER.writeValueAsString(decoded);
   }
@@ -227,9 +249,9 @@ public class RedisInput extends BaseTransform<RedisInputMeta, RedisInputData> {
 
   @Override
   public void dispose() {
-    if (data.session != null) {
-      data.session.close();
-      data.session = null;
+    if (data.getSession() != null) {
+      data.getSession().close();
+      data.setSession(null);
     }
     super.dispose();
   }
