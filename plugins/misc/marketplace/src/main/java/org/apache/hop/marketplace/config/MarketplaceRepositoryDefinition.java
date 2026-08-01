@@ -347,11 +347,92 @@ public final class MarketplaceRepositoryDefinition {
       existing.setGroupIdFilter(imported.getGroupIdFilter());
       existing.setHomepage(imported.getHomepage());
       existing.setDescription(imported.getDescription());
-      if (imported.getPlugins() != null) {
-        existing.setPlugins(new ArrayList<>(imported.getPlugins()));
+      // Multiple per-plugin YAMLs may share one repository id (e.g. community Nexus).
+      // Merge plugin metadata by G:A; empty import must not wipe existing entries.
+      if (imported.getPlugins() != null && !imported.getPlugins().isEmpty()) {
+        existing.setPlugins(mergePlugins(existing.getPlugins(), imported.getPlugins()));
       }
       config.ensureValidPrimary();
     }
+  }
+
+  /**
+   * Merge plugin metadata lists for same-id repository import.
+   *
+   * <p>Existing entries not present in {@code imported} are kept. Imported entries with a matching
+   * G:A (or artifactId when groupId is missing on either side) replace the prior entry so re-import
+   * refreshes version and display fields. New G:A values are appended. Order: prior plugins first,
+   * then newly appended imports.
+   */
+  static List<OptionalPluginInfo> mergePlugins(
+      List<OptionalPluginInfo> existing, List<OptionalPluginInfo> imported) {
+    List<OptionalPluginInfo> result = new ArrayList<>();
+    if (existing != null) {
+      for (OptionalPluginInfo p : existing) {
+        if (p != null && StringUtils.isNotBlank(p.getArtifactId())) {
+          result.add(p);
+        }
+      }
+    }
+    if (imported == null || imported.isEmpty()) {
+      return result;
+    }
+    for (OptionalPluginInfo incoming : imported) {
+      if (incoming == null || StringUtils.isBlank(incoming.getArtifactId())) {
+        continue;
+      }
+      int idx = indexOfMatchingPlugin(result, incoming);
+      if (idx >= 0) {
+        result.set(idx, incoming);
+      } else {
+        result.add(incoming);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Find an existing plugin that should be updated by {@code candidate}: prefer groupId+artifactId,
+   * fall back to artifactId alone when either side lacks groupId.
+   */
+  static int indexOfMatchingPlugin(List<OptionalPluginInfo> plugins, OptionalPluginInfo candidate) {
+    if (plugins == null || candidate == null || StringUtils.isBlank(candidate.getArtifactId())) {
+      return -1;
+    }
+    String candArt = candidate.getArtifactId().toLowerCase(Locale.ROOT);
+    String candGa = pluginGaKey(candidate);
+    boolean candHasGroup = StringUtils.isNotBlank(candidate.getGroupId());
+
+    for (int i = 0; i < plugins.size(); i++) {
+      OptionalPluginInfo p = plugins.get(i);
+      if (p == null || StringUtils.isBlank(p.getArtifactId())) {
+        continue;
+      }
+      if (!candArt.equals(p.getArtifactId().toLowerCase(Locale.ROOT))) {
+        continue;
+      }
+      boolean pHasGroup = StringUtils.isNotBlank(p.getGroupId());
+      if (candHasGroup && pHasGroup) {
+        if (candGa.equals(pluginGaKey(p))) {
+          return i;
+        }
+        // Same artifactId, different groupId → distinct plugins
+        continue;
+      }
+      // One or both sides lack groupId: treat as the same plugin
+      return i;
+    }
+    return -1;
+  }
+
+  /** Lowercase {@code groupId:artifactId}; blank groupId becomes empty prefix. */
+  static String pluginGaKey(OptionalPluginInfo info) {
+    if (info == null || StringUtils.isBlank(info.getArtifactId())) {
+      return "";
+    }
+    String g =
+        StringUtils.isNotBlank(info.getGroupId()) ? info.getGroupId().toLowerCase(Locale.ROOT) : "";
+    return g + ":" + info.getArtifactId().toLowerCase(Locale.ROOT);
   }
 
   private static String stringVal(Object o) {

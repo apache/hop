@@ -211,8 +211,15 @@ Three steps:
 - Bundled Apache optional plugins: **version = running Hop version** (not absolute latest on ASF)
 - Every enabled repo with **`browse: true`**: live Nexus search for `*.zip` (one row per artifact, latest plugin version, last updated)
 - Optional YAML `plugins:` metadata **enriches** names/categories and can set:
-  - `minHopVersion` / `maxHopVersion` — hide if this Hop is outside the range (e.g. datavault needs ≥ 2.18.1)
+  - `minHopVersion` / `maxHopVersion` — hide if this Hop is outside the range (e.g. datavault needs ≥ 2.18.1). A running `x.y.z-SNAPSHOT` counts as the `x.y.z` line (so `2.19.0-SNAPSHOT` fulfills `minHopVersion: 2.19.0`)
   - `version` — optional pin of the plugin artifact; otherwise latest from browse
+
+**Shared repository id (multi-plugin community Nexus)**
+
+Several projects may publish their own `hop-marketplace-repo.yaml` with the **same** `id`
+and Nexus `url` (each listing only its own plugin under `plugins:`). Import merges
+plugin metadata by `groupId` + `artifactId` into one hop-config entry — later imports
+do not wipe earlier plugins. Re-importing the same G:A refreshes that entry’s fields.
 
 GUI **Plugins** tab uses the same discovery as `query`.
 
