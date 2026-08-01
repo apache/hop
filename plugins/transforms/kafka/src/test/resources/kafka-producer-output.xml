@@ -18,6 +18,8 @@
 <transform>
     <directBootstrapServers>${KAFKA_SERVER}</directBootstrapServers>
     <topic>${KAFKA_TOPIC}</topic>
+    <topicInField>Y</topicInField>
+    <topicField>topic</topicField>
     <clientId>Hop</clientId>
     <keyField>id</keyField>
     <messageField>json</messageField>
