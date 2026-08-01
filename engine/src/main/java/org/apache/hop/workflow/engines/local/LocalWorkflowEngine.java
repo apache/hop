@@ -61,6 +61,12 @@ import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
     description = "Executes your workflow locally")
 public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<WorkflowMeta> {
 
+  /**
+   * Must stay in sync with {@code org.apache.hop.spark.util.SparkConst#VAR_TRANSFORM_OWNER_ID}.
+   * Engine cannot depend on the spark plugin.
+   */
+  static final String VAR_SPARK_TRANSFORM_OWNER_ID = "Internal.Spark.TransformOwnerId";
+
   private ExecutionInfoLocation executionInfoLocation;
   private Timer executionInfoTimer;
 
@@ -325,25 +331,43 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
    * When this workflow is nested under a Native Spark mapPartitions transform (Workflow Executor),
    * the parent transform is registered under a synthetic id {@code pipelineId|name|copy}. Rebind so
    * the execution perspective can drill down from that transform node.
+   *
+   * <p>Uses {@link IVariables#getVariable(String)} (not {@link IVariables#resolve(String)}):
+   * resolve only substitutes {@code ${...}} tokens and returns a bare name unchanged, which would
+   * always overwrite parentId with the literal variable name (issue #7743).
    */
-  private void rebindSparkTransformOwnerParent(Execution execution) {
+  /** Package-private for unit tests. */
+  void rebindSparkTransformOwnerParent(Execution execution) {
     if (execution == null) {
       return;
     }
-    String sparkOwner = resolve("Internal.Spark.TransformOwnerId");
+    String sparkOwner = sparkTransformOwnerId(this);
     if (StringUtils.isNotEmpty(sparkOwner)) {
       execution.setParentId(sparkOwner);
     }
   }
 
-  private void rebindSparkTransformOwnerParent(ExecutionState state) {
+  /** Package-private for unit tests. */
+  void rebindSparkTransformOwnerParent(ExecutionState state) {
     if (state == null) {
       return;
     }
-    String sparkOwner = resolve("Internal.Spark.TransformOwnerId");
+    String sparkOwner = sparkTransformOwnerId(this);
     if (StringUtils.isNotEmpty(sparkOwner)) {
       state.setParentId(sparkOwner);
     }
+  }
+
+  /**
+   * Returns the Spark transform owner id when set on the variable space; otherwise null.
+   *
+   * <p>Package-private for unit tests.
+   */
+  static String sparkTransformOwnerId(IVariables variables) {
+    if (variables == null) {
+      return null;
+    }
+    return variables.getVariable(VAR_SPARK_TRANSFORM_OWNER_ID);
   }
 
   public void startExecutionInfoTimer() {
