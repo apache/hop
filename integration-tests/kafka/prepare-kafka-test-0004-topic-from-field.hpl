@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>prepare-kafka-test-0004-topic-from-field</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Publishes two rows through a single Kafka Producer, each carrying its own target topic in a field.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/08/01 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/08/01 12:00:00.000</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Rows with topics</from>
+      <to>Kafka Producer</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Rows with topics</name>
+    <type>DataGrid</type>
+    <description>Two messages destined for two different topics</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>hop-test-topic-a</item>
+        <item>Hello topic A!</item>
+      </line>
+      <line>
+        <item>hop-test-topic-b</item>
+        <item>Hello topic B!</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>target_topic</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>field</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Kafka Producer</name>
+    <type>KafkaProducerOutput</type>
+    <description>Routes each row to the topic named in the target_topic field</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directBootstrapServers>${BOOTSTRAP_SERVERS}</directBootstrapServers>
+    <topic>hop-test-unused-fallback</topic>
+    <topicInField>Y</topicInField>
+    <topicField>target_topic</topicField>
+    <clientId/>
+    <keyField/>
+    <messageField>field</messageField>
+    <advancedConfig>
+      <option property="compression.type" value="none"/>
+      <option property="ssl.key.password" value=""/>
+      <option property="ssl.keystore.location" value=""/>
+      <option property="ssl.keystore.password" value=""/>
+      <option property="ssl.truststore.location" value=""/>
+      <option property="ssl.truststore.password" value=""/>
+    </advancedConfig>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
