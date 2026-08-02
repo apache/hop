@@ -25,6 +25,7 @@ import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchableAnalyserPlugin;
+import org.apache.hop.ui.hopgui.search.config.SearchLimits;
 
 @SearchableAnalyserPlugin(
     id = "TextFileContentSearchableAnalyser",
@@ -49,11 +50,31 @@ public class TextFileContentSearchableAnalyser extends BaseSearchableAnalyser<Te
       return results;
     }
 
-    String[] lines = content.split("\\R", -1);
-    for (int i = 0; i < lines.length; i++) {
-      String line = lines[i];
-      String lineNumber = String.valueOf(i + 1);
-      matchProperty(searchable, results, searchQuery, "line " + lineNumber, line, lineNumber);
+    int maxMatches = SearchLimits.fromConfig().getMaxMatchesPerFile();
+
+    // Stream line-by-line without allocating a full String[] for huge files.
+    int lineNumber = 0;
+    int start = 0;
+    final int length = content.length();
+    while (start <= length) {
+      int end = content.indexOf('\n', start);
+      if (end < 0) {
+        end = length;
+      }
+      String line = content.substring(start, end);
+      if (!line.isEmpty() && line.charAt(line.length() - 1) == '\r') {
+        line = line.substring(0, line.length() - 1);
+      }
+      lineNumber++;
+      matchProperty(
+          searchable, results, searchQuery, "line " + lineNumber, line, String.valueOf(lineNumber));
+      if (results.size() >= maxMatches) {
+        break;
+      }
+      if (end == length) {
+        break;
+      }
+      start = end + 1;
     }
 
     return results;

@@ -29,12 +29,18 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.SearchQuery;
 import org.apache.hop.core.search.SearchResult;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchHelper.SearchObjectGroup;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchHelper.SearchSection;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchHelper.SearchTypeGroup;
+import org.apache.hop.ui.hopgui.search.config.SearchAnalysisResult;
+import org.apache.hop.ui.hopgui.search.config.SearchConfig;
+import org.apache.hop.ui.hopgui.search.config.SearchConfigSingleton;
+import org.apache.hop.ui.hopgui.search.config.SearchLimits;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for the two-tier grouping that both search windows render. */
@@ -221,5 +227,91 @@ class HopGuiSearchHelperTest {
     ISearchable open = pipeline("loader", "/p/loader.hpl");
     assertTrue(HopGuiSearchHelper.isNameMatch(nameMatch(open)));
     assertFalse(HopGuiSearchHelper.isNameMatch(fieldMatch(open, "Table input", "select 1")));
+  }
+
+  @Test
+  void analyseLimitedSkipsTextContentForShortQueryButKeepsNameMatches() {
+    StringBuilder csv = new StringBuilder();
+    for (int i = 0; i < 50; i++) {
+      csv.append("address line ").append(i).append('\n');
+    }
+    ISearchable text = textFile("addresses.csv", "/p/addresses.csv");
+    when(text.getSearchableObject())
+        .thenReturn(new TextFileContent("/p/addresses.csv", csv.toString()));
+    when(text.getName()).thenReturn("addresses.csv");
+
+    Map<Class<ISearchableAnalyser>, ISearchableAnalyser> analysers = textFileAnalysers();
+
+    SearchConfig config = new SearchConfig();
+    config.setMinContentQueryLength("3");
+    config.setMaxResults("500");
+    SearchLimits limits = SearchLimits.fromConfig(config);
+
+    SearchAnalysisResult shortQuery =
+        HopGuiSearchHelper.analyseRankedLimited(
+            List.of(text),
+            new SearchQuery("a", false, false),
+            analysers,
+            true,
+            limits,
+            source(text, 1));
+    assertTrue(shortQuery.isContentSearchSkipped());
+    // Name "addresses.csv" still matches "a"
+    assertFalse(shortQuery.getResults().isEmpty());
+    assertTrue(shortQuery.getResults().stream().allMatch(HopGuiSearchHelper::isNameMatch));
+
+    SearchAnalysisResult longQuery =
+        HopGuiSearchHelper.analyseRankedLimited(
+            List.of(text),
+            new SearchQuery("address", false, false),
+            analysers,
+            true,
+            limits,
+            source(text, 1));
+    assertFalse(longQuery.isContentSearchSkipped());
+    assertTrue(longQuery.getResults().size() > 1);
+  }
+
+  @Test
+  void analyseLimitedRespectsGlobalMaxResults() {
+    StringBuilder csv = new StringBuilder();
+    for (int i = 0; i < 200; i++) {
+      csv.append("address ").append(i).append('\n');
+    }
+    ISearchable text = textFile("data.csv", "/p/data.csv");
+    when(text.getSearchableObject()).thenReturn(new TextFileContent("/p/data.csv", csv.toString()));
+
+    Map<Class<ISearchableAnalyser>, ISearchableAnalyser> analysers = textFileAnalysers();
+
+    SearchConfig config = new SearchConfig();
+    config.setMinContentQueryLength("1");
+    config.setMaxResults("15");
+    config.setMaxMatchesPerFile("100");
+    SearchLimits limits = SearchLimits.fromConfig(config);
+
+    // Temporarily raise per-file cap via config used by the analyser
+    SearchConfigSingleton.setConfigForTesting(config);
+    try {
+      SearchAnalysisResult analysis =
+          HopGuiSearchHelper.analyseRankedLimited(
+              List.of(text),
+              new SearchQuery("address", false, false),
+              analysers,
+              false,
+              limits,
+              source(text, 1));
+      assertTrue(analysis.isTruncated() || analysis.getResults().size() <= 15);
+      assertTrue(analysis.getResults().size() <= 15);
+    } finally {
+      SearchConfigSingleton.setConfigForTesting(new SearchConfig());
+    }
+  }
+
+  /** Analyser map keys are searchable object classes (not analyser classes). */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static Map<Class<ISearchableAnalyser>, ISearchableAnalyser> textFileAnalysers() {
+    Map analysers = new HashMap();
+    analysers.put(TextFileContent.class, new TextFileContentSearchableAnalyser());
+    return analysers;
   }
 }

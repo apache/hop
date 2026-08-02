@@ -45,6 +45,24 @@ class TextFileContentSearchableAnalyserTest {
   }
 
   @Test
+  void capsMatchesPerFileAtConfiguredLimit() {
+    StringBuilder content = new StringBuilder();
+    for (int i = 0; i < 100; i++) {
+      content.append("line with address ").append(i).append('\n');
+    }
+    TextFileContent file = new TextFileContent("/project/data.csv", content.toString());
+    ISearchable<TextFileContent> searchable =
+        new HopGuiTextFileSearchable("test", "CSV File", file);
+
+    TextFileContentSearchableAnalyser analyser = new TextFileContentSearchableAnalyser();
+    List<ISearchResult> results =
+        analyser.search(searchable, new SearchQuery("address", false, false));
+
+    // Default max matches per file is 20 — must not report all 100 synthetic lines.
+    assertEquals(20, results.size());
+  }
+
+  @Test
   void emptyContentReturnsNoResults() {
     TextFileContent content = new TextFileContent("/project/empty.txt", "");
     ISearchable<TextFileContent> searchable =

@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
@@ -35,6 +38,8 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.search.config.SearchAnalysisResult;
+import org.apache.hop.ui.hopgui.search.config.SearchLimits;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
 import org.eclipse.swt.SWT;
@@ -70,9 +75,6 @@ public class SearchEverywhereDialog {
 
   private static final Class<?> PKG = SearchEverywhereDialog.class; // i18n
 
-  /** Debounce in ms between a keystroke and running the (potentially expensive) search. */
-  private static final int SEARCH_DELAY_MS = 250;
-
   /**
    * Maximum number of results shown per group in the popup; the full set lives in the perspective.
    */
@@ -101,6 +103,7 @@ public class SearchEverywhereDialog {
   private Combo wSearch;
   private Button wCaseSensitive;
   private Button wRegEx;
+  private Button wSettings;
   private Tree wTree;
   private TreeColumn nameColumn;
   private TreeColumn detailColumn;
@@ -109,6 +112,16 @@ public class SearchEverywhereDialog {
   private Color detailColor;
   private final Runnable searchRunnable = this::runSearch;
   private int fullResultCount;
+  private SearchAnalysisResult lastAnalysis = SearchAnalysisResult.empty();
+
+  private final AtomicInteger searchGeneration = new AtomicInteger();
+  private final ExecutorService searchExecutor =
+      Executors.newSingleThreadExecutor(
+          r -> {
+            Thread t = new Thread(r, "hop-gui-search");
+            t.setDaemon(true);
+            return t;
+          });
 
   public SearchEverywhereDialog(Shell parent, HopGui hopGui) {
     this.parent = parent;
@@ -131,10 +144,10 @@ public class SearchEverywhereDialog {
 
     int margin = PropsUi.getMargin();
 
-    // --- Search bar: text field + case / regex toggles ---
+    // --- Search bar: text field + case / regex toggles + settings ---
     Composite searchBar = new Composite(shell, SWT.NONE);
     PropsUi.setLook(searchBar);
-    GridLayout gridLayout = new GridLayout(3, false);
+    GridLayout gridLayout = new GridLayout(4, false);
     gridLayout.marginWidth = 0;
     gridLayout.horizontalSpacing = margin;
     searchBar.setLayout(gridLayout);
@@ -158,11 +171,25 @@ public class SearchEverywhereDialog {
     wCaseSensitive.setToolTipText(
         BaseMessages.getString(PKG, "SearchEverywhereDialog.CaseSensitive.Tooltip"));
     PropsUi.setLook(wCaseSensitive);
+    wCaseSensitive.addListener(SWT.Selection, e -> scheduleSearch());
 
     wRegEx = new Button(searchBar, SWT.CHECK);
     wRegEx.setText(BaseMessages.getString(PKG, "SearchEverywhereDialog.RegEx.Label"));
     wRegEx.setToolTipText(BaseMessages.getString(PKG, "SearchEverywhereDialog.RegEx.Tooltip"));
     PropsUi.setLook(wRegEx);
+    wRegEx.addListener(SWT.Selection, e -> scheduleSearch());
+
+    wSettings = new Button(searchBar, SWT.PUSH);
+    PropsUi.setLook(wSettings);
+    Image gear = GuiResource.getInstance().getImage("ui/images/gear.svg", 16, 16);
+    if (gear != null) {
+      wSettings.setImage(gear);
+    } else {
+      wSettings.setText("…");
+    }
+    wSettings.setToolTipText(
+        BaseMessages.getString(PKG, "SearchEverywhereDialog.Settings.Tooltip"));
+    wSettings.addListener(SWT.Selection, e -> openSettings());
 
     // --- Footer: hint + "show all" handoff to the search perspective ---
     wShowAll = new Link(shell, SWT.NONE);
@@ -201,7 +228,7 @@ public class SearchEverywhereDialog {
     wTree.addListener(SWT.MouseDoubleClick, e -> openSelected());
 
     // All keyboard handling lives on the search field so focus never leaves it.
-    wSearch.addListener(SWT.Modify, e -> scheduleSearch());
+    wSearch.addListener(SWT.Modify, e -> onSearchModified());
     wSearch.addListener(SWT.KeyDown, this::handleSearchKey);
 
     // Close on Escape or via the window close button (both persist the window size).
@@ -232,6 +259,29 @@ public class SearchEverywhereDialog {
         display.sleep();
       }
     }
+  }
+
+  private void onSearchModified() {
+    SearchLimits limits = SearchLimits.fromConfig();
+    if (!limits.isSearchAsYouType()) {
+      return;
+    }
+    scheduleSearch();
+  }
+
+  private void openSettings() {
+    boolean saved = new SearchSettingsDialog(shell, hopGui).open();
+    if (saved) {
+      // Size / include-text-file settings may change what is loadable.
+      invalidateCache();
+      scheduleSearch();
+    }
+  }
+
+  private void invalidateCache() {
+    cachedSearchables = null;
+    cachedAnalysers = null;
+    sourceByKey.clear();
   }
 
   /** Restore the previously remembered size/position, or center a sensible default. */
@@ -291,9 +341,13 @@ public class SearchEverywhereDialog {
   }
 
   private void scheduleSearch() {
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
     Display display = shell.getDisplay();
     display.timerExec(-1, searchRunnable);
-    display.timerExec(SEARCH_DELAY_MS, searchRunnable);
+    int delay = SearchLimits.fromConfig().getDebounceMs();
+    display.timerExec(delay, searchRunnable);
   }
 
   private void handleSearchKey(Event event) {
@@ -309,7 +363,10 @@ public class SearchEverywhereDialog {
       case SWT.CR:
       case SWT.KEYPAD_CR:
         event.doit = false;
-        openSelected();
+        // Enter always runs a search immediately (even when search-as-you-type is off).
+        Display display = shell.getDisplay();
+        display.timerExec(-1, searchRunnable);
+        runSearch();
         break;
       default:
         // let the keystroke reach the text field
@@ -366,7 +423,7 @@ public class SearchEverywhereDialog {
    * de-duplicating objects that several locations report (e.g. metadata and variables are listed by
    * both the GUI and the project location). Subsequent keystrokes only re-match against this cache.
    */
-  private void ensureLoaded() {
+  private synchronized void ensureLoaded() {
     if (cachedSearchables != null) {
       return;
     }
@@ -391,39 +448,74 @@ public class SearchEverywhereDialog {
     if (shell == null || shell.isDisposed()) {
       return;
     }
-    wTree.removeAll();
-    fullResultCount = 0;
 
     String searchString = wSearch.getText();
     if (Utils.isEmpty(searchString)) {
+      searchGeneration.incrementAndGet();
+      wTree.removeAll();
+      fullResultCount = 0;
+      lastAnalysis = SearchAnalysisResult.empty();
       updateShowAll();
       return;
     }
 
-    ensureLoaded();
+    final boolean caseSensitive = wCaseSensitive.getSelection();
+    final boolean regExp = wRegEx.getSelection();
+    final SearchLimits limits = SearchLimits.fromConfig();
+    final int generation = searchGeneration.incrementAndGet();
+    final Display display = shell.getDisplay();
 
-    boolean caseSensitive = wCaseSensitive.getSelection();
-    boolean regExp = wRegEx.getSelection();
-    SearchQuery query = new SearchQuery(searchString, caseSensitive, regExp);
+    wTree.removeAll();
+    fullResultCount = 0;
+    updateShowAllSearching();
 
-    // The searchables were enumerated once when the popup opened; here we only run the cheap
-    // in-memory analyser matching against that cached set. Errors are logged (not shown in a modal
-    // dialog) since this runs on every debounced keystroke.
-    List<ISearchResult> results;
-    try {
-      results = HopGuiSearchHelper.analyseRanked(cachedSearchables, query, cachedAnalysers, true);
-    } catch (Exception e) {
-      hopGui.getLog().logError("Error while searching", e);
-      results = new ArrayList<>();
-    }
+    searchExecutor.execute(
+        () -> {
+          try {
+            ensureLoaded();
+            SearchQuery query = new SearchQuery(searchString, caseSensitive, regExp);
+            SearchAnalysisResult analysis =
+                HopGuiSearchHelper.analyseRankedLimited(
+                    cachedSearchables, query, cachedAnalysers, true, limits, sourceByKey);
+            display.asyncExec(
+                () -> {
+                  if (generation != searchGeneration.get() || shell == null || shell.isDisposed()) {
+                    return;
+                  }
+                  paintResults(analysis, searchString, regExp, caseSensitive, limits);
+                });
+          } catch (Exception e) {
+            hopGui.getLog().logError("Error while searching", e);
+            display.asyncExec(
+                () -> {
+                  if (generation != searchGeneration.get() || shell == null || shell.isDisposed()) {
+                    return;
+                  }
+                  lastAnalysis = SearchAnalysisResult.empty();
+                  updateShowAll();
+                });
+          }
+        });
+  }
 
-    // Render the two-tier tree: section (Open/Project) -> type -> object -> the matches inside it.
+  private void paintResults(
+      SearchAnalysisResult analysis,
+      String searchString,
+      boolean regExp,
+      boolean caseSensitive,
+      SearchLimits limits) {
+    lastAnalysis = analysis;
+    wTree.removeAll();
+    fullResultCount = 0;
+
     String searchTerm = regExp ? null : searchString;
     for (HopGuiSearchHelper.SearchSection section :
-        HopGuiSearchHelper.groupResults(results, sourceByKey)) {
+        HopGuiSearchHelper.groupResults(analysis.getResults(), sourceByKey)) {
       addSection(section, searchTerm);
     }
-    addCommandGroup(searchString, caseSensitive);
+    if (!analysis.isTruncated()) {
+      addCommandGroup(searchString, caseSensitive, limits);
+    }
 
     selectFirstLeaf();
     updateShowAll();
@@ -485,7 +577,7 @@ public class SearchEverywhereDialog {
         : HopGuiSearchHelper.sanitizePath(detail, hopGui.getVariables());
   }
 
-  private void addCommandGroup(String searchString, boolean caseSensitive) {
+  private void addCommandGroup(String searchString, boolean caseSensitive, SearchLimits limits) {
     GuiMenuWidgets menuWidgets = hopGui.getMainMenuWidgets();
     if (menuWidgets == null) {
       return;
@@ -557,11 +649,37 @@ public class SearchEverywhereDialog {
     }
   }
 
+  private void updateShowAllSearching() {
+    wShowAll.setText(BaseMessages.getString(PKG, "SearchEverywhereDialog.Searching.Label"));
+    wShowAll.requestLayout();
+  }
+
   private void updateShowAll() {
     if (fullResultCount > 0) {
+      String base =
+          BaseMessages.getString(
+              PKG, "SearchEverywhereDialog.ShowAll.Label", Integer.toString(fullResultCount));
+      if (lastAnalysis.isTruncated()) {
+        base = base + " — " + BaseMessages.getString(PKG, "SearchEverywhereDialog.Status.Capped");
+      } else if (lastAnalysis.isContentSearchSkipped()) {
+        base =
+            base
+                + " — "
+                + BaseMessages.getString(
+                    PKG,
+                    "SearchEverywhereDialog.Status.MinLength",
+                    Integer.toString(SearchLimits.fromConfig().getMinContentQueryLength()));
+      }
+      wShowAll.setText(base);
+    } else if (lastAnalysis.isContentSearchSkipped()
+        && wSearch != null
+        && !wSearch.isDisposed()
+        && !Utils.isEmpty(wSearch.getText())) {
       wShowAll.setText(
           BaseMessages.getString(
-              PKG, "SearchEverywhereDialog.ShowAll.Label", Integer.toString(fullResultCount)));
+              PKG,
+              "SearchEverywhereDialog.Status.MinLengthOnly",
+              Integer.toString(SearchLimits.fromConfig().getMinContentQueryLength())));
     } else {
       wShowAll.setText(BaseMessages.getString(PKG, "SearchEverywhereDialog.Hint.Label"));
     }
@@ -667,6 +785,8 @@ public class SearchEverywhereDialog {
   }
 
   private void dispose() {
+    searchGeneration.incrementAndGet();
+    searchExecutor.shutdownNow();
     if (shell != null && !shell.isDisposed()) {
       // Remember the size and position for next time.
       props.setScreen(new WindowProperty(shell));
