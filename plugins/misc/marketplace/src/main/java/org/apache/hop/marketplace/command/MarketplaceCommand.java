@@ -718,7 +718,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       name = "import",
       description =
           "Import a hop-marketplace-repo.yaml (or URL) into hop-config.json. Upserts by repository"
-              + " id.")
+              + " id; merges plugin metadata when the id already exists.")
   static class RepoImportCommand extends MarketplaceSubCommand {
     @Parameters(
         index = "0",
