@@ -51,11 +51,33 @@ class VersionCompatTest {
   }
 
   @Test
+  void minHopVersionSnapshotMatchesSameReleaseLine() {
+    OptionalPluginInfo info = new OptionalPluginInfo();
+    info.setArtifactId("hop-pentaho-reporting-output");
+    info.setMinHopVersion("2.19.0");
+    // Developers on 2.19.0-SNAPSHOT are on the 2.19.0 line
+    assertTrue(VersionCompat.isCompatibleWithHop(info, "2.19.0-SNAPSHOT"));
+    assertTrue(VersionCompat.isCompatibleWithHop(info, "2.19.0"));
+    assertTrue(VersionCompat.isCompatibleWithHop(info, "2.19.1-SNAPSHOT"));
+    assertFalse(VersionCompat.isCompatibleWithHop(info, "2.18.0-SNAPSHOT"));
+    assertFalse(VersionCompat.isCompatibleWithHop(info, "2.18.1"));
+  }
+
+  @Test
   void maxHopVersionFilter() {
     OptionalPluginInfo info = new OptionalPluginInfo();
     info.setMaxHopVersion("2.19.0");
     assertTrue(VersionCompat.isCompatibleWithHop(info, "2.18.0"));
+    assertTrue(VersionCompat.isCompatibleWithHop(info, "2.19.0-SNAPSHOT"));
     assertFalse(VersionCompat.isCompatibleWithHop(info, "2.20.0"));
+    assertFalse(VersionCompat.isCompatibleWithHop(info, "2.20.0-SNAPSHOT"));
+  }
+
+  @Test
+  void compareStillRanksSnapshotBelowRelease() {
+    // Artifact ordering (latest / preferable) must keep SNAPSHOT < same-base release
+    assertTrue(VersionCompat.compare("2.19.0-SNAPSHOT", "2.19.0") < 0);
+    assertTrue(VersionCompat.compare("2.19.0", "2.19.0-SNAPSHOT") > 0);
   }
 
   @Test
