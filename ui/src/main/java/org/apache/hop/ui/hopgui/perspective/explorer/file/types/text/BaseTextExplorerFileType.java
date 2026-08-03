@@ -36,6 +36,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
 import org.apache.hop.ui.hopgui.search.HopGuiTextFileSearchable;
 import org.apache.hop.ui.hopgui.search.TextFileContent;
+import org.apache.hop.ui.hopgui.search.config.SearchLimits;
 
 public abstract class BaseTextExplorerFileType<T extends BaseTextExplorerFileTypeHandler>
     extends BaseExplorerFileType<T> {
@@ -72,6 +73,13 @@ public abstract class BaseTextExplorerFileType<T extends BaseTextExplorerFileTyp
       FileObject fileObject = HopVfs.getFileObject(filename, variables);
       if (!fileObject.exists()) {
         throw new HopException("File '" + filename + "' doesn't exist");
+      }
+      // Never load very large data files into GUI search (million-row CSV/JSON, …).
+      // Users should use dedicated tools for those. Limit is configurable under Search options.
+      long fileSize = fileObject.getContent().getSize();
+      long maxBytes = SearchLimits.fromConfig().getMaxTextFileSizeBytes();
+      if (maxBytes > 0 && fileSize > maxBytes) {
+        return null;
       }
       String text;
       try (InputStream inputStream = HopVfs.getInputStream(fileObject)) {

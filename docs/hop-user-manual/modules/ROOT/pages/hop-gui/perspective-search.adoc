@@ -15,18 +15,104 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images
+:description: Search pipelines, workflows, metadata, variables, text files and menu actions from Hop Gui with Search Everywhere, optional safety limits, and a full results panel.
 
-= Search Perspective
+= Search
 
 Icon: image:icons/search.svg[width="24px"]
 
+Keyboard shortcut: `CTRL-F` (macOS: `Cmd-F`)
+
+Menu: *Edit → Find*
+
 == Description
-The Search perspective allows you to search through all metadata in your Hop projects.
-This not only includes workflows and actions, pipelines and transforms, but any other metadata type known to Hop.
 
-The search options are the location (all objects in Hop Gui or only the current project), and whether the search string is case sensitive (default: case insensitive) or the search string is a regular expression (default: false).
+Hop Gui search finds matches across your open files, project files (pipelines, workflows, and other searchable types), metadata, variables, and global menu actions.
 
-The result table shows the type, name, filename, location, matching text and description.
-Use the 'Open' button at the bottom of the perspective to jump directly to the selected metadata object (e.g. open a transform in a pipeline).
+Search is available as a quick *Search Everywhere* popup and as a fuller results view in the bottom dock (*Show all results*).
 
-TIP: The xref:hop-tools/hop-search.adoc[hop-search] tool provides the same functionality as the Search Perspective through the command line instead of in a GUI.
+TIP: For large or batch searches from a terminal (including remote SSH sessions), use the xref:hop-tools/hop-search.adoc[hop-search] command-line tool. It is better suited to huge hit lists than the GUI.
+
+== Search Everywhere popup
+
+Open search with `CTRL-F` or *Edit → Find*. Type in the search field to filter results (search-as-you-type can be turned off in settings).
+
+* *Aa* — case-sensitive matching
+* `.*` — treat the query as a regular expression
+* image:icons/gear.svg[width="16px"] — open *Search settings* (limits and options; see below)
+
+Results are grouped by *Open files* and *Project files*, then by type (Pipeline, Workflow, metadata type, and so on). Use the arrow keys to move, *Enter* to open the selection, and *Escape* to close the popup.
+
+*Show all results* hands the same query to a search tab in the bottom dock for deeper browsing (details panel, open selected item).
+
+=== What is searched
+
+|===
+|Scope |Notes
+
+|Open files
+|Pipelines, workflows and text files open in Hop Gui tabs
+
+|Project files
+|Registered searchable file types under the project home (pipelines, workflows, SQL, XML, YAML, CSV, JSON, and similar), subject to size and options below
+
+|Metadata and variables
+|Connections, run configurations, variables, and other metadata known to Hop
+
+|Actions
+|Enabled main-menu commands whose labels match the query
+|===
+
+Object *names* are always considered. *Content* matching (including line-level hits in text files) only runs when the query is long enough (default: 3 characters), so short prefixes while typing do not flood the UI with data-file matches.
+
+== Search settings
+
+Open the gear on the Search Everywhere bar (or on the results panel toolbar), or configure the same options under the xref:hop-gui/perspective-configuration.adoc[Configuration] perspective → *Plugin* options → *Search*.
+
+image::hop-gui/search-options-dialog.png[Search settings dialog,width="80%"]
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option |Description |Default
+
+|Min. characters for content
+|Minimum query length before field and text-file *content* is searched. Names still match for shorter queries.
+|`3`
+
+|Maximum results
+|Hard cap on how many results Hop Gui builds for one search. Further matches are not collected so the UI stays responsive.
+|`500`
+
+|Max. matches per text file
+|Stop scanning a single text file after this many matching lines.
+|`20`
+
+|Max. text file size (MB)
+|Skip text files larger than this size for content search. Million-row CSV/JSON files should be searched with dedicated tools or xref:hop-tools/hop-search.adoc[hop-search], not loaded into Hop Gui.
+|`1`
+
+|Search-as-you-type delay (ms)
+|How long to wait after the last keystroke before running a live search.
+|`300`
+
+|Include project text files (CSV, JSON, …)
+|When enabled, project text files are content-searched (within size and match limits). Open text files remain eligible either way. Disable to focus on pipelines, workflows and metadata.
+|yes
+
+|Search as you type
+|When enabled, search runs automatically after the delay above. *Enter* always runs a search immediately.
+|yes
+|===
+
+Settings are stored in the Hop configuration (`hop-config.json`) under the `search` key and apply to both the popup and the results panel.
+
+== Full results panel
+
+From *Show all results*, or when Hop Gui opens a search tab for references, the bottom dock shows a toolbar (query, case/regex, refresh, settings), a grouped results tree, and a details side panel. Select a hit and use *Open* to jump to the matching object.
+
+Refresh reloads searchable objects from disk and open tabs after you change project files outside Hop Gui.
+
+== Related
+
+* xref:hop-tools/hop-search.adoc[hop-search] — CLI search for projects and environments
+* xref:hop-gui/perspective-configuration.adoc[Configuration perspective] — other Hop Gui options
