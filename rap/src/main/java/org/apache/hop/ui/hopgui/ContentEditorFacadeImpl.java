@@ -80,9 +80,11 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
       remoteObject.setHandler(widget.getOperationHandler());
       remoteObject.listen("contentChanged", true);
+      remoteObject.listen("focusChanged", true);
       host.addListener(
           SWT.Dispose,
           event -> {
+            widget.clearFocus();
             try {
               remoteObject.destroy();
             } catch (Exception ignored) {
@@ -142,6 +144,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
     private final Composite root;
     private final RemoteObject remoteObject;
+    private final Display display;
     private volatile String cachedContent = "";
     private final java.util.List<ModifyListener> modifyListeners = new CopyOnWriteArrayList<>();
     private boolean suppressModify;
@@ -152,11 +155,16 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
         Composite root, Composite host, RemoteObject remoteObject, String languageId) {
       this.root = root;
       this.remoteObject = remoteObject;
+      this.display = host.getDisplay();
       this.languageId = languageId != null ? languageId : "";
       this.operationHandler =
           new AbstractOperationHandler() {
             @Override
             public void handleNotify(String event, JsonObject properties) {
+              if ("focusChanged".equals(event) && properties.get("focused") != null) {
+                setFocus(properties.get("focused").asBoolean());
+                return;
+              }
               if (!"contentChanged".equals(event) || properties.get("content") == null) {
                 return;
               }
@@ -187,6 +195,22 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
               }
             }
           };
+    }
+
+    private void setFocus(boolean focused) {
+      if (display == null || display.isDisposed()) {
+        return;
+      }
+      Object focusedEditor = display.getData(HopGui.TEXT_EDITOR_FOCUS_DATA);
+      if (focused) {
+        display.setData(HopGui.TEXT_EDITOR_FOCUS_DATA, this);
+      } else if (focusedEditor == this) {
+        display.setData(HopGui.TEXT_EDITOR_FOCUS_DATA, null);
+      }
+    }
+
+    void clearFocus() {
+      setFocus(false);
     }
 
     AbstractOperationHandler getOperationHandler() {

@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public class HopWebEntryPoint extends AbstractEntryPoint {
+
+  private static final Set<String> NATIVE_TEXT_EDITING_SHORTCUTS =
+      Set.of("CTRL+C", "CTRL+V", "CTRL+X");
 
   /** Audit group/type/name for Hop Web theme preference (per-user in audit folder). */
   public static final String AUDIT_GROUP_HOP_WEB = "hop-web";
@@ -129,9 +133,9 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // CANCEL_KEYS prevents the browser from handling these shortcuts
     // Note: CTRL automatically maps to Command key on Mac
     Display display = parent.getDisplay();
-    String[] allShortcuts = buildKeyboardShortcuts();
-    display.setData(RWT.ACTIVE_KEYS, allShortcuts);
-    display.setData(RWT.CANCEL_KEYS, allShortcuts);
+    String[] activeShortcuts = buildKeyboardShortcuts();
+    display.setData(RWT.ACTIVE_KEYS, activeShortcuts);
+    display.setData(RWT.CANCEL_KEYS, buildCancelledKeyboardShortcuts(activeShortcuts));
 
     // Transferring Widget Data for client-side canvas drawing instructions
     WidgetUtil.registerDataKeys("props");
@@ -339,6 +343,13 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     return shortcuts.toArray(new String[0]);
   }
 
+  static String[] buildCancelledKeyboardShortcuts(String[] activeShortcuts) {
+    return Arrays.stream(activeShortcuts)
+        .filter(shortcut -> !NATIVE_TEXT_EDITING_SHORTCUTS.contains(shortcut))
+        .distinct()
+        .toArray(String[]::new);
+  }
+
   /**
    * Convert a KeyboardShortcut to RAP format for ACTIVE_KEYS / CANCEL_KEYS. RAP only supports CTRL,
    * ALT, SHIFT (not META), so we use CTRL+ for all command/control shortcuts; on Mac the browser
@@ -347,7 +358,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
    * @param shortcut The keyboard shortcut to convert
    * @return RAP format string (e.g., "CTRL+C", "ALT+SHIFT+F1") or null if invalid
    */
-  private String convertToRapFormat(KeyboardShortcut shortcut) {
+  String convertToRapFormat(KeyboardShortcut shortcut) {
     if (shortcut.getKeyCode() == 0) {
       return null;
     }
