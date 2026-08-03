@@ -1624,6 +1624,28 @@ public class ValueMetaBase implements IValueMeta {
     }
   }
 
+  /**
+   * Converts a double into a BigDecimal that does not carry a negative scale.
+   *
+   * <p>{@link BigDecimal#valueOf(double)} is built from {@link Double#toString(double)}, which
+   * switches to scientific notation from 10<sup>7</sup> onwards. The resulting string "5.54874E7"
+   * parses into an unscaled value of 554874 with a scale of -2, and it is that negative scale which
+   * makes {@link BigDecimal#toString()} render the value as "5.54874E+7" again. Every consumer that
+   * serializes the value through toString() - JDBC drivers that inline statement parameters, {@link
+   * #writeBigNumber(java.io.DataOutputStream, BigDecimal)} and {@link #getDataXml(Object)} - then
+   * emits scientific notation for a value that started out as plain digits.
+   *
+   * <p>Rescaling to zero is exact whenever the scale is negative, so the numeric value is left
+   * untouched and no rounding can occur.
+   *
+   * @param number the double to convert
+   * @return the value as a BigDecimal, rescaled to zero when the scale would be negative
+   */
+  protected static BigDecimal convertDoubleToBigNumber(double number) {
+    BigDecimal bigDecimal = BigDecimal.valueOf(number);
+    return bigDecimal.scale() < 0 ? bigDecimal.setScale(0) : bigDecimal;
+  }
+
   protected synchronized BigDecimal convertStringToBigNumber(String string)
       throws HopValueException {
     string = Const.trimToType(string, getTrimType()); // see if trimming needs
@@ -1658,7 +1680,7 @@ public class ValueMetaBase implements IValueMeta {
       //            If the Number is not a BigDecimal.
       //
       if (number instanceof Double) {
-        return BigDecimal.valueOf(number.doubleValue());
+        return convertDoubleToBigNumber(number.doubleValue());
       } else if (number instanceof Long) {
         return BigDecimal.valueOf(number.longValue());
       }
@@ -2605,11 +2627,11 @@ public class ValueMetaBase implements IValueMeta {
           };
         case TYPE_NUMBER:
           return switch (storageType) {
-            case STORAGE_TYPE_NORMAL -> BigDecimal.valueOf((Double) object);
+            case STORAGE_TYPE_NORMAL -> convertDoubleToBigNumber((Double) object);
             case STORAGE_TYPE_BINARY_STRING ->
-                BigDecimal.valueOf((Double) convertBinaryStringToNativeType((byte[]) object));
+                convertDoubleToBigNumber((Double) convertBinaryStringToNativeType((byte[]) object));
             case STORAGE_TYPE_INDEXED ->
-                BigDecimal.valueOf((Double) index[((Integer) object).intValue()]);
+                convertDoubleToBigNumber((Double) index[((Integer) object).intValue()]);
             default ->
                 throw new HopValueException(
                     this
