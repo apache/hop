@@ -907,7 +907,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     boolean error = false;
     ResultSummary summary = result.consume();
     for (Notification notification : summary.notifications()) {
-      logError(notification.title() + " (" + notification.severity() + ")");
+      logError(notification.title() + " (" + notification.rawSeverityLevel().orElse("") + ")");
       logError(
           notification.code()
               + " : "
