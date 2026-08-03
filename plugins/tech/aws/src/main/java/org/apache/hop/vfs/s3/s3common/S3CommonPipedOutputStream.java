@@ -51,7 +51,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
 
   private static final Class<?> PKG = S3CommonPipedOutputStream.class;
 
-  private static final int DEFAULT_PART_SIZE = 5 * 1024 * 1024;
+  public static final int DEFAULT_PART_SIZE = 5 * 1024 * 1024;
 
   private final ThreadPoolExecutor executor =
       (ThreadPoolExecutor)

@@ -15,26 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.hop.vfs.s3.s3.vfs;
+package org.apache.hop.vfs.s3.s3common;
 
-import java.io.OutputStream;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.provider.AbstractFileName;
-import org.apache.hop.vfs.s3.s3common.S3CommonFileObject;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class S3FileObject extends S3CommonFileObject {
+import org.apache.commons.vfs2.Capability;
+import org.junit.jupiter.api.Test;
 
-  public S3FileObject(final AbstractFileName name, final S3FileSystem fileSystem) {
-    super(name, fileSystem);
-  }
+class S3CommonFileProviderCapabilitiesTest {
 
-  @Override
-  public void doDelete() throws FileSystemException {
-    super.doDelete();
-  }
-
-  @Override
-  public OutputStream doGetOutputStream(boolean bAppend) throws Exception {
-    return createOutputStream(bAppend, ((S3FileSystem) this.fileSystem).getPartSize());
+  /**
+   * commons-vfs2 rejects {@code getOutputStream(true)} with "does not support append mode" unless
+   * the file system advertises {@link Capability#APPEND_CONTENT}. Append is emulated with a
+   * multipart upload (see {@link S3AppendOutputStream}), so the capability must be present or every
+   * append is blocked before reaching the provider.
+   */
+  @Test
+  void appendContentIsAdvertised() {
+    assertTrue(
+        S3CommonFileProvider.capabilities.contains(Capability.APPEND_CONTENT),
+        "S3 VFS must advertise APPEND_CONTENT so commons-vfs2 allows append mode");
   }
 }
