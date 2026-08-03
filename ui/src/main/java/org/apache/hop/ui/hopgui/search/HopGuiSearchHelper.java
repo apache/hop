@@ -47,6 +47,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
+import org.apache.hop.ui.hopgui.search.config.SearchAnalysisResult;
+import org.apache.hop.ui.hopgui.search.config.SearchLimits;
 import org.apache.hop.workflow.WorkflowMeta;
 
 /**
@@ -134,17 +136,60 @@ public final class HopGuiSearchHelper {
       Collection<ISearchable> searchables,
       ISearchQuery query,
       Map<Class<ISearchableAnalyser>, ISearchableAnalyser> analyserMap) {
+    return analyseLimited(searchables, query, analyserMap, null, null).getResults();
+  }
+
+  /**
+   * Like {@link #analyse} with GUI safety limits: global result cap, optional skip of project text
+   * files, and skip of text-file content when the query is shorter than the configured minimum.
+   *
+   * @param sourceByKey location indexes from {@link #enumerateAll}; used to keep open text files
+   *     when project text files are excluded; may be null
+   */
+  public static SearchAnalysisResult analyseLimited(
+      Collection<ISearchable> searchables,
+      ISearchQuery query,
+      Map<Class<ISearchableAnalyser>, ISearchableAnalyser> analyserMap,
+      SearchLimits limits,
+      Map<String, Integer> sourceByKey) {
+    SearchLimits effective = limits == null ? SearchLimits.defaults() : limits;
+    boolean contentAllowed = effective.allowsContentSearch(query.getSearchString());
+    boolean projectTextExcluded = !effective.isIncludeProjectTextFiles();
+    boolean truncated = false;
+
     List<ISearchResult> results = new ArrayList<>();
     for (ISearchable searchable : searchables) {
+      if (results.size() >= effective.getMaxResults()) {
+        truncated = true;
+        break;
+      }
       Object object = searchable.getSearchableObject();
-      if (object != null) {
-        ISearchableAnalyser searchableAnalyser = analyserMap.get(object.getClass());
-        if (searchableAnalyser != null) {
-          results.addAll(searchableAnalyser.search(searchable, query));
+      if (object == null) {
+        continue;
+      }
+      if (object instanceof TextFileContent) {
+        if (!contentAllowed) {
+          continue;
+        }
+        if (projectTextExcluded && !isOpenObject(searchable, sourceByKey)) {
+          continue;
         }
       }
+      ISearchableAnalyser searchableAnalyser = analyserMap.get(object.getClass());
+      if (searchableAnalyser == null) {
+        continue;
+      }
+      List<ISearchResult> found = searchableAnalyser.search(searchable, query);
+      for (ISearchResult result : found) {
+        if (results.size() >= effective.getMaxResults()) {
+          truncated = true;
+          break;
+        }
+        results.add(result);
+      }
     }
-    return results;
+    return new SearchAnalysisResult(
+        results, truncated, !contentAllowed, projectTextExcluded && contentAllowed);
   }
 
   /**
@@ -164,7 +209,26 @@ public final class HopGuiSearchHelper {
       ISearchQuery query,
       Map<Class<ISearchableAnalyser>, ISearchableAnalyser> analyserMap,
       boolean fuzzyNames) {
-    List<ISearchResult> results = new ArrayList<>(analyse(searchables, query, analyserMap));
+    return analyseRankedLimited(searchables, query, analyserMap, fuzzyNames, null, null)
+        .getResults();
+  }
+
+  /**
+   * Ranked analysis with GUI safety limits. Name matching always runs; text-file content is gated
+   * by {@link SearchLimits}.
+   */
+  public static SearchAnalysisResult analyseRankedLimited(
+      Collection<ISearchable> searchables,
+      ISearchQuery query,
+      Map<Class<ISearchableAnalyser>, ISearchableAnalyser> analyserMap,
+      boolean fuzzyNames,
+      SearchLimits limits,
+      Map<String, Integer> sourceByKey) {
+    SearchLimits effective = limits == null ? SearchLimits.defaults() : limits;
+    SearchAnalysisResult analysed =
+        analyseLimited(searchables, query, analyserMap, effective, sourceByKey);
+    List<ISearchResult> results = new ArrayList<>(analysed.getResults());
+    boolean truncated = analysed.isTruncated();
 
     SearchMatcher nameMatcher =
         new SearchMatcher(query.getSearchString(), query.isCaseSensitive(), query.isRegEx(), true);
@@ -175,6 +239,10 @@ public final class HopGuiSearchHelper {
         covered.add(searchableKey(result.getMatchingSearchable()));
       }
       for (ISearchable searchable : searchables) {
+        if (results.size() >= effective.getMaxResults()) {
+          truncated = true;
+          break;
+        }
         String name = searchable.getName();
         if (name != null
             && covered.add(searchableKey(searchable))
@@ -190,7 +258,11 @@ public final class HopGuiSearchHelper {
       relevance.put(result, relevance(result, nameMatcher));
     }
     results.sort((a, b) -> Double.compare(relevance.get(b), relevance.get(a)));
-    return results;
+    return new SearchAnalysisResult(
+        results,
+        truncated,
+        analysed.isContentSearchSkipped(),
+        analysed.isProjectTextFilesExcluded());
   }
 
   /**
@@ -281,6 +353,9 @@ public final class HopGuiSearchHelper {
     if (object instanceof PipelineMeta
         || object instanceof WorkflowMeta
         || object instanceof TextFileContent) {
+      if (sourceByKey == null) {
+        return false;
+      }
       Integer source = sourceByKey.get(searchableKey(searchable));
       return source != null && source == 0;
     }
