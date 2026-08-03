@@ -75,6 +75,7 @@
       return new hop.MonacoEditor(properties);
     },
     destructor: function(widget) {
+      widget._notifyFocus(false);
       widget._destroyed = true;
       if (widget._retryId) { clearInterval(widget._retryId); widget._retryId = null; }
       if (widget._debounceId) { clearTimeout(widget._debounceId); widget._debounceId = null; }
@@ -87,7 +88,7 @@
       }
     },
     properties: [ "content", "language", "readOnly", "theme" ],
-    events: [ "contentChanged" ]
+    events: [ "contentChanged", "focusChanged" ]
   });
 
   rwt.define("hop");
@@ -162,6 +163,17 @@
       }
     },
 
+    _notifyFocus: function(focused) {
+      try {
+        var remote = rap.getRemoteObject(this);
+        if (remote) {
+          remote.notify("focusChanged", { focused: focused });
+        }
+      } catch (e) {
+        console.warn("MonacoEditor: failed to notify focus", e);
+      }
+    },
+
     _scheduleNotify: function() {
       var self = this;
       if (self._debounceId) clearTimeout(self._debounceId);
@@ -229,7 +241,12 @@
           self._scheduleNotify();
         });
 
+        self._editor.onDidFocusEditorWidget(function() {
+          self._notifyFocus(true);
+        });
+
         self._editor.onDidBlurEditorWidget(function() {
+          self._notifyFocus(false);
           if (self._debounceId) {
             clearTimeout(self._debounceId);
             self._debounceId = null;

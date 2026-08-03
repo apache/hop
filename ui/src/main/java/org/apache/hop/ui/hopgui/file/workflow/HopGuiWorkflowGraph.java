@@ -2473,8 +2473,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(command = true, key = 'x')
   @Override
   public void cutSelectedToClipboard() {
-    workflowClipboardDelegate.copySelected(
-        workflowMeta, workflowMeta.getSelectedActions(), workflowMeta.getSelectedNotes());
+    if (!workflowClipboardDelegate.copySelected(
+        workflowMeta, workflowMeta.getSelectedActions(), workflowMeta.getSelectedNotes())) {
+      return;
+    }
     deleteSelected();
   }
 

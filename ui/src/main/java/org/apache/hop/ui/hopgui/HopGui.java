@@ -21,7 +21,6 @@ import static org.apache.hop.core.Const.getDocUrl;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -163,6 +162,8 @@ import org.eclipse.swt.widgets.ToolItem;
 public class HopGui
     implements IActionContextHandlersProvider, ISearchableProvider, IHasHopMetadataProvider {
   private static final Class<?> PKG = HopGui.class;
+
+  public static final String TEXT_EDITOR_FOCUS_DATA = HopGui.class.getName() + ".textEditorFocus";
 
   // The main Menu IDs
   public static final String ID_MAIN_MENU = "HopGui-Menu";
@@ -1318,11 +1319,9 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'c')
   @GuiOsxKeyboardShortcut(command = true, key = 'c')
   public void menuEditCopySelected() {
-    Control focusControl = display.getFocusControl();
-    if (isStyledTextControl(focusControl)) {
-      if (getStyledTextSelectionCount(focusControl) > 0) {
-        return;
-      }
+    if (TextEditingControlUtil.isTextEditingControl(display.getFocusControl())
+        || isWebTextEditorFocused()) {
+      return;
     }
 
     // Otherwise, delegate to the active file type handler (pipeline/workflow)
@@ -1338,9 +1337,8 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'v')
   @GuiOsxKeyboardShortcut(command = true, key = 'v')
   public void menuEditPaste() {
-    Control focusControl = display.getFocusControl();
-    if (isStyledTextControl(focusControl)) {
-      // Terminal handles paste internally
+    if (TextEditingControlUtil.isTextEditingControl(display.getFocusControl())
+        || isWebTextEditorFocused()) {
       return;
     }
 
@@ -1357,32 +1355,16 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'x')
   @GuiOsxKeyboardShortcut(command = true, key = 'x')
   public void menuEditCutSelected() {
+    if (TextEditingControlUtil.isTextEditingControl(display.getFocusControl())
+        || isWebTextEditorFocused()) {
+      return;
+    }
+
     getActiveFileTypeHandler().cutSelectedToClipboard();
   }
 
-  /**
-   * Returns true if the control is a StyledText. Uses class name so RAP (Hop Web) does not load
-   * org.eclipse.swt.custom.StyledText, which is not available in RAP.
-   */
-  private static boolean isStyledTextControl(Control control) {
-    return control != null
-        && "org.eclipse.swt.custom.StyledText".equals(control.getClass().getName());
-  }
-
-  /**
-   * Returns getSelectionCount() for a StyledText control, or 0. Uses reflection so StyledText is
-   * not loaded on RAP.
-   */
-  private static int getStyledTextSelectionCount(Control control) {
-    if (!isStyledTextControl(control)) {
-      return 0;
-    }
-    try {
-      Method m = control.getClass().getMethod("getSelectionCount");
-      return ((Number) m.invoke(control)).intValue();
-    } catch (Exception e) {
-      return 0;
-    }
+  private boolean isWebTextEditorFocused() {
+    return display.getData(TEXT_EDITOR_FOCUS_DATA) != null;
   }
 
   @GuiMenuElement(

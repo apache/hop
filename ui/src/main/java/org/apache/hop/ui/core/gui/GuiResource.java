@@ -39,8 +39,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.HopWebUrlHelper;
+import org.apache.hop.ui.hopgui.IHopWebUrlUpdater;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -275,6 +278,8 @@ public class GuiResource {
    * put it in a separate singleton just for this one member.
    */
   private Clipboard clipboard;
+
+  private final WebClipboard webClipboard = new WebClipboard();
 
   protected GuiResource() {
     this(Display.getCurrent());
@@ -1162,12 +1167,26 @@ public class GuiResource {
       return;
     }
 
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      IHopWebUrlUpdater urlUpdater = HopWebUrlHelper.getUrlUpdater();
+      try {
+        webClipboard.write(cliptext, urlUpdater == null ? null : urlUpdater::copyToClipboard);
+      } catch (Exception e) {
+        log.logDebug("Unable to copy text to the browser clipboard", e);
+      }
+      return;
+    }
+
     getNewClipboard();
     TextTransfer tran = TextTransfer.getInstance();
     clipboard.setContents(new String[] {cliptext}, new Transfer[] {tran});
   }
 
   public String fromClipboard() {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return webClipboard.read();
+    }
+
     getNewClipboard();
     TextTransfer tran = TextTransfer.getInstance();
 
