@@ -56,6 +56,21 @@ You can set the following system environment variables:
 * `AWS_ACCESS_KEY_ID` : set it to your AWS access key
 * `AWS_SECRET_ACCESS_KEY` : set it to your secret access key
 
+== S3-compatible services
+
+Storage services that implement the S3 API can be used through this plugin as well.
+Create an **S3 Connection** metadata item and fill in the following options:
+
+* `Endpoint URL` : the endpoint of the service, for example `https://s3.example-region.example.com`.
+Leave this empty for Amazon S3, where the endpoint is derived from the region.
+* `Path-style access` : check this when the service expects the bucket in the path (`endpoint/bucketName`) instead of in the hostname (`bucketName.endpoint`).
+This option is only applied when an endpoint URL is set.
+
+The name of the connection is registered as a VFS scheme of its own, so a connection named `storage` gives you paths like `storage://bucketName/path/to/file.csv`.
+
+This works with Amazon S3 and with S3-compatible services such as Backblaze B2, Cloudflare R2 and MinIO.
+Check the documentation of your service for the endpoint to use and for whether path-style access is required.
+
 == Part size
 
 You can set the default part size for new files on S3 by setting the following variable:
