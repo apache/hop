@@ -595,11 +595,11 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       boolean error = false;
       ResultSummary summary = result.consume();
       for (Notification notification : summary.notifications()) {
-        if ("WARNING".equalsIgnoreCase(notification.severity())) {
+        if (notification.rawSeverityLevel().filter("WARNING"::equalsIgnoreCase).isPresent()) {
           // Log it
           if (isBasic()) {
             logBasic(
-                notification.severity()
+                notification.rawSeverityLevel().orElse("")
                     + " : "
                     + notification.title()
                     + " : "
@@ -612,7 +612,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         } else {
           // This is an error
           //
-          logError(notification.severity() + " : " + notification.title());
+          logError(notification.rawSeverityLevel().orElse("") + " : " + notification.title());
           logError(
               notification.code()
                   + " : "
