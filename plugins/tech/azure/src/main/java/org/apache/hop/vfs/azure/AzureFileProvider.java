@@ -49,6 +49,9 @@ import org.apache.hop.vfs.azure.metadatatype.AzureMetadataType;
 
 public class AzureFileProvider extends AbstractOriginatingFileProvider {
 
+  // APPEND_CONTENT is required for append: without it commons-vfs2 rejects getOutputStream(true)
+  // with "does not support append mode". Data Lake Gen2 appends natively, see
+  // DataLakeAppendOutputStream.
   public static final Collection<Capability> capabilities =
       Collections.unmodifiableCollection(
           Arrays.asList(
@@ -61,7 +64,8 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
               Capability.LIST_CHILDREN,
               Capability.READ_CONTENT,
               Capability.URI,
-              Capability.WRITE_CONTENT));
+              Capability.WRITE_CONTENT,
+              Capability.APPEND_CONTENT));
 
   public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
       new UserAuthenticationData.Type[] {
