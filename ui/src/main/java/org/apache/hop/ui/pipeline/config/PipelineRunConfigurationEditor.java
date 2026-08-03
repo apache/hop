@@ -530,6 +530,13 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   public void save() throws HopException {
     changeWorkingEngineConfiguration(runConfiguration);
 
+    // Make this the exclusive default when the default flag is set (issue #2753).
+    getWidgetsContent(getMetadata());
+    if (getMetadata().isDefaultSelection()) {
+      PipelineRunConfiguration.clearDefaultFlagFromOthers(
+          manager.getMetadataProvider(), getMetadata().getName());
+    }
+
     super.save();
   }
 
