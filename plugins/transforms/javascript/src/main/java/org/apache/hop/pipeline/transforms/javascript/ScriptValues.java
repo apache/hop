@@ -183,8 +183,22 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         }
       }
 
-      // set the optimization level
+      // set language version and optimization level
       data.context = ContextFactory.getGlobal().enterContext();
+
+      try {
+        String languageVersionAsString = resolve(meta.getLanguageVersion());
+        ScriptValuesEcmaVersion languageVersion =
+            ScriptValuesEcmaVersion.fromCode(languageVersionAsString);
+        languageVersion.applyTo(data.context);
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ScriptValuesMod.LanguageVersion.Level", languageVersion.getCode()));
+        }
+      } catch (HopException e) {
+        throw new HopTransformException(e.getMessage(), e);
+      }
 
       try {
         String optimizationLevelAsString = resolve(meta.getOptimizationLevel());

@@ -50,6 +50,7 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.HopTree;
 import org.apache.hop.ui.core.widget.JavaScriptStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -162,6 +163,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private final ScriptValuesMeta input;
   private ScriptValuesHelp scVHelp;
+  private ComboVar wLanguageVersion;
   private TextVar wOptimizationLevel;
 
   private TreeItem iteminput;
@@ -292,6 +294,30 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     wOptimizationLevel.setLayoutData(fdOptimizationLevel);
     wOptimizationLevel.addModifyListener(lsMod);
 
+    // ECMAScript language level (Rhino)
+    //
+    Label wlLanguageVersion = new Label(wTop, SWT.NONE);
+    wlLanguageVersion.setText(
+        BaseMessages.getString(PKG, "ScriptValuesDialogMod.LanguageVersion.Label"));
+    PropsUi.setLook(wlLanguageVersion);
+    FormData fdlLanguageVersion = new FormData();
+    fdlLanguageVersion.left = new FormAttachment(wTree, margin);
+    fdlLanguageVersion.bottom = new FormAttachment(wOptimizationLevel, -margin);
+    wlLanguageVersion.setLayoutData(fdlLanguageVersion);
+
+    wLanguageVersion = new ComboVar(variables, wTop, SWT.BORDER | SWT.READ_ONLY);
+    wLanguageVersion.setEditable(true);
+    wLanguageVersion.setItems(ScriptValuesEcmaVersion.getDescriptions());
+    wLanguageVersion.setToolTipText(
+        BaseMessages.getString(PKG, "ScriptValuesDialogMod.LanguageVersion.Tooltip"));
+    PropsUi.setLook(wLanguageVersion);
+    FormData fdLanguageVersion = new FormData();
+    fdLanguageVersion.left = new FormAttachment(wlLanguageVersion, margin);
+    fdLanguageVersion.top = new FormAttachment(wlLanguageVersion, 0, SWT.CENTER);
+    fdLanguageVersion.right = new FormAttachment(100, margin);
+    wLanguageVersion.setLayoutData(fdLanguageVersion);
+    wLanguageVersion.addModifyListener(lsMod);
+
     // The position just above that and below the script...
     //
     wlPosition = new Label(wTop, SWT.LEFT);
@@ -300,7 +326,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(wTree, margin);
     fdlPosition.right = new FormAttachment(100, 0);
-    fdlPosition.bottom = new FormAttachment(wOptimizationLevel, -margin);
+    fdlPosition.bottom = new FormAttachment(wLanguageVersion, -margin);
     wlPosition.setLayoutData(fdlPosition);
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
@@ -764,6 +790,19 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       wOptimizationLevel.setText(ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT);
     }
 
+    try {
+      ScriptValuesEcmaVersion languageVersion =
+          ScriptValuesEcmaVersion.fromCode(input.getLanguageVersion());
+      wLanguageVersion.setText(languageVersion.getDescription());
+    } catch (HopException e) {
+      // Keep the raw value so the user can correct it (or use a variable)
+      if (!Utils.isEmpty(input.getLanguageVersion())) {
+        wLanguageVersion.setText(input.getLanguageVersion().trim());
+      } else {
+        wLanguageVersion.setText(ScriptValuesEcmaVersion.ES6.getDescription());
+      }
+    }
+
     for (int i = 0; i < input.getScriptFields().size(); i++) {
       ScriptValuesMeta.ScriptField field = input.getScriptFields().get(i);
       if (!Utils.isEmpty(field.getName())) {
@@ -866,6 +905,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private void getInfo(ScriptValuesMeta meta) {
     meta.setOptimizationLevel(wOptimizationLevel.getText());
+    meta.setLanguageVersion(
+        ScriptValuesEcmaVersion.codeFromDescription(wLanguageVersion.getText()));
 
     meta.getScriptFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {
@@ -1146,6 +1187,15 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     jscx = ContextFactory.getGlobal().enterContext();
     jscx.setOptimizationLevel(-1);
+    try {
+      ScriptValuesEcmaVersion.apply(
+          jscx,
+          variables.resolve(
+              ScriptValuesEcmaVersion.codeFromDescription(wLanguageVersion.getText())));
+    } catch (HopException e) {
+      testException = e;
+      retval = false;
+    }
     jsscope = jscx.initStandardObjects(null, false);
 
     // Adding the existing Scripts to the Context
@@ -1851,6 +1901,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       int lineno,
       Object securityDomain) {
     CompilerEnvirons evn = new CompilerEnvirons();
+    evn.initFromContext(cx);
     evn.setOptimizationLevel(-1);
     evn.setGeneratingSource(true);
     evn.setGenerateDebugInfo(true);
