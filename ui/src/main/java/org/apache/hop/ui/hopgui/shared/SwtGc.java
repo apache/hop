@@ -19,6 +19,8 @@ package org.apache.hop.ui.hopgui.shared;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
@@ -35,6 +37,7 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -42,8 +45,22 @@ import org.eclipse.swt.graphics.LineAttributes;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.widgets.Display;
 
 public class SwtGc implements IGc {
+
+  /**
+   * Cached {@link SwtUniversalImageSvg} instances used by {@link #drawImage(SvgFile, int, int, int,
+   * int, float, double)}. Without this cache, every canvas paint creates a new universal image (and
+   * its SWT {@link Image} bitmaps) that is never disposed — a severe handle leak on large graphs
+   * (e.g. Data Vault models with many table icons redrawn while dragging).
+   *
+   * <p>Keyed by SVG filename and dark-mode flag so theme changes get a correct rendering.
+   */
+  private static final Map<String, SwtUniversalImage> SVG_IMAGE_CACHE = new ConcurrentHashMap<>();
+
+  private static final Object SVG_CACHE_HOOK_LOCK = new Object();
+  private static volatile boolean svgCacheDisposeHookRegistered;
 
   protected Color background;
 
@@ -108,6 +125,15 @@ public class SwtGc implements IGc {
     this.hopDefault = GuiResource.getInstance().getColorHopDefault();
     this.hopTrue = GuiResource.getInstance().getColorHopTrue();
     this.deprecated = GuiResource.getInstance().getColorDeprecated();
+  }
+
+  /**
+   * Underlying SWT graphics context. Callers must not dispose it; ownership stays with the canvas
+   * paint event (or the double-buffer image GC). Useful for painting shared/cached {@link Image}
+   * bitmaps without going through {@link #drawImage(SvgFile, int, int, int, int, float, double)}.
+   */
+  public GC getNativeGc() {
+    return gc;
   }
 
   @Override
@@ -508,10 +534,7 @@ public class SwtGc implements IGc {
       float magnification,
       double angle)
       throws HopException {
-    //
-    SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
-    SwtUniversalImageSvg imageSvg =
-        new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()));
+    SwtUniversalImage imageSvg = getCachedSvgImage(svgFile);
 
     int magnifiedWidth = Math.round(desiredWidth * magnification);
     int magnifiedHeight = Math.round(desiredHeight * magnification);
@@ -531,6 +554,44 @@ public class SwtGc implements IGc {
       Image img = imageSvg.getAsBitmapForSize(gc.getDevice(), magnifiedWidth, magnifiedHeight);
       Rectangle bounds = img.getBounds();
       gc.drawImage(img, 0, 0, bounds.width, bounds.height, x, y, desiredWidth, desiredHeight);
+    }
+  }
+
+  /**
+   * Returns a process-wide cached {@link SwtUniversalImage} for the given SVG file. Callers must
+   * not dispose the returned instance.
+   */
+  private SwtUniversalImage getCachedSvgImage(SvgFile svgFile) throws HopException {
+    SvgCacheEntry cacheEntry = SvgCache.loadSvg(svgFile);
+    boolean darkMode = PropsUi.getInstance().isDarkMode();
+    String cacheKey = svgFile.getFilename() + (darkMode ? "|dark" : "|light");
+    ensureSvgImageCacheDisposeHook(gc.getDevice());
+    return SVG_IMAGE_CACHE.computeIfAbsent(
+        cacheKey,
+        key -> new SwtUniversalImageSvg(new SvgImage(cacheEntry.getSvgDocument()), false));
+  }
+
+  private static void ensureSvgImageCacheDisposeHook(Device device) {
+    if (svgCacheDisposeHookRegistered || !(device instanceof Display display)) {
+      return;
+    }
+    synchronized (SVG_CACHE_HOOK_LOCK) {
+      if (svgCacheDisposeHookRegistered) {
+        return;
+      }
+      display.addListener(
+          SWT.Dispose,
+          event -> {
+            for (SwtUniversalImage image : SVG_IMAGE_CACHE.values()) {
+              try {
+                image.dispose();
+              } catch (Exception ignored) {
+                // best-effort cleanup at display shutdown
+              }
+            }
+            SVG_IMAGE_CACHE.clear();
+          });
+      svgCacheDisposeHookRegistered = true;
     }
   }
 
