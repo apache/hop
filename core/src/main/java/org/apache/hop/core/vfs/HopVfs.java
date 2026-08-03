@@ -29,7 +29,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.CacheStrategy;
 import org.apache.commons.vfs2.FileContent;
@@ -47,6 +46,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
@@ -59,66 +59,152 @@ public class HopVfs {
 
   public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
+  /** The one and only file system manager. */
   private static DefaultFileSystemManager fsm;
-  private static DefaultFileSystemManager extendedFsm;
 
-  private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+  /**
+   * The variables used to bootstrap the metadata driven providers (the named VFS connections).
+   * They're only needed while those providers are being registered, not to resolve individual
+   * files.
+   */
+  private static IVariables bootstrapVariables;
 
-  public static DefaultFileSystemManager getFileSystemManager() {
-    lock.readLock().lock();
-    try {
-      if (fsm == null) {
-        try {
-          fsm = createFileSystemManager();
-          fsm.init();
-        } catch (Exception e) {
-          throw new HopRuntimeException("Error initializing file system manager : ", e);
-        }
-      }
-      return fsm;
-    } finally {
-      lock.readLock().unlock();
+  /** Set once the metadata driven providers have been registered on {@link #fsm}. */
+  private static boolean namedProvidersRegistered;
+
+  /**
+   * Guards against re-entrant registration: reading the VFS connection metadata resolves files
+   * through this very class.
+   */
+  private static boolean registeringNamedProviders;
+
+  /**
+   * Set the variables to look up the metadata driven VFS providers (the named VFS connections)
+   * with. Call this when a project is loaded: its variables are what point at the metadata holding
+   * those connections. The named connections of that project are registered the next time the file
+   * system manager is used.
+   *
+   * @param variables the variables to bootstrap the VFS providers with
+   */
+  public static synchronized void setBootstrapVariables(IVariables variables) {
+    if (variables == bootstrapVariables) {
+      return;
+    }
+    bootstrapVariables = variables;
+
+    // Connections of a previous project are registered on the manager and there's no unregistering
+    // them, so start over. Nothing registered yet means we can keep the manager as it is: phase 2
+    // simply runs with these variables the next time around.
+    //
+    if (namedProvidersRegistered) {
+      reset();
     }
   }
 
-  public static DefaultFileSystemManager getFileSystemManager(IVariables variables) {
-    lock.readLock().lock();
-    try {
-      if (extendedFsm == null) {
-        try {
-          extendedFsm = createFileSystemManager();
-          // Here are extra VFS plugins to register
-          //
-          PluginRegistry registry = PluginRegistry.getInstance();
-          List<IPlugin> plugins = registry.getPlugins(VfsPluginType.class);
-          for (IPlugin plugin : plugins) {
-            IVfs iVfs = registry.loadClass(plugin, IVfs.class);
-            try {
-              Map<String, FileProvider> fileProviderMap = iVfs.getProviders(variables);
-              if (fileProviderMap != null) {
-                for (Map.Entry<String, FileProvider> entry : fileProviderMap.entrySet()) {
-                  extendedFsm.addProvider(entry.getKey(), entry.getValue());
-                }
-              }
-            } catch (Exception e) {
-              throw new HopException(
-                  "Error registering provider for VFS plugin "
-                      + plugin.getIds()[0]
-                      + " : "
-                      + plugin.getName()
-                      + " : ",
-                  e);
-            }
-          }
+  /**
+   * Get the file system manager. There is only one: it knows both the fixed schemes (file, zip, s3,
+   * ...) and the schemes of the named VFS connections in the metadata.
+   *
+   * @return the file system manager
+   */
+  public static synchronized DefaultFileSystemManager getFileSystemManager() {
+    if (fsm == null) {
+      try {
+        // Phase 1 : the standard schemes and the fixed schemes of the VFS plugins.
+        //
+        DefaultFileSystemManager manager = createFileSystemManager();
+        manager.init();
 
-          extendedFsm.init();
-        } catch (Exception e) {
-          throw new HopRuntimeException("Error initializing file system manager : ", e);
-        }
+        // Publish before phase 2 : registering the metadata driven providers below reads the
+        // metadata, and reading metadata resolves files through this very manager.
+        //
+        fsm = manager;
+      } catch (Exception e) {
+        throw new HopRuntimeException("Error initializing file system manager : ", e);
       }
-      return extendedFsm;
-    } finally {
-      lock.readLock().unlock();
+    }
+
+    // Phase 2 : the providers of the named VFS connections in the metadata. Only once a project
+    // handed us its variables: they're what points us at the metadata holding those connections,
+    // and what the providers resolve their credentials with. Everything resolving files before
+    // that (reading the configuration, loading the images of the GUI) wants a local file and is
+    // served by phase 1 alone.
+    //
+    if (bootstrapVariables != null && !namedProvidersRegistered && !registeringNamedProviders) {
+      // Set before anything else: registering reads metadata, which resolves files, which lands
+      // right back here.
+      //
+      registeringNamedProviders = true;
+      try {
+        registerNamedProviders(fsm, bootstrapVariables);
+      } finally {
+        registeringNamedProviders = false;
+        namedProvidersRegistered = true;
+      }
+    }
+
+    return fsm;
+  }
+
+  /**
+   * @param variables the variables to bootstrap the metadata driven providers with, in case nothing
+   *     did that yet
+   * @return the one and only file system manager
+   * @see #getFileSystemManager()
+   */
+  public static synchronized DefaultFileSystemManager getFileSystemManager(IVariables variables) {
+    bootstrapWith(variables);
+    return getFileSystemManager();
+  }
+
+  /**
+   * Remember the variables to bootstrap the metadata driven providers with, for as long as nothing
+   * bootstrapped them yet. These are the first variables we get to see, so the named connections
+   * are looked up in the metadata they point at, the next time the manager is used. An explicit
+   * {@link #setBootstrapVariables(IVariables)} always wins.
+   */
+  private static synchronized void bootstrapWith(IVariables variables) {
+    if (variables != null && bootstrapVariables == null) {
+      bootstrapVariables = variables;
+    }
+  }
+
+  /**
+   * Register a provider for every named VFS connection in the metadata. A connection which can't be
+   * registered is skipped: a single bad connection should never take the whole file system manager
+   * down with it.
+   */
+  private static void registerNamedProviders(
+      DefaultFileSystemManager manager, IVariables variables) {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    for (IPlugin plugin : registry.getPlugins(VfsPluginType.class)) {
+      try {
+        IVfs iVfs = registry.loadClass(plugin, IVfs.class);
+        Map<String, FileProvider> fileProviderMap = iVfs.getProviders(variables);
+        if (fileProviderMap == null) {
+          continue;
+        }
+        for (Map.Entry<String, FileProvider> entry : fileProviderMap.entrySet()) {
+          String scheme = entry.getKey();
+          if (manager.hasProvider(scheme)) {
+            LogChannel.GENERAL.logError(
+                "The VFS connection '"
+                    + scheme
+                    + "' of plugin "
+                    + plugin.getIds()[0]
+                    + " is ignored: a provider is already registered for that scheme.");
+            continue;
+          }
+          manager.addProvider(scheme, entry.getValue());
+        }
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError(
+            "Error registering provider for VFS plugin "
+                + plugin.getIds()[0]
+                + " : "
+                + plugin.getName(),
+            e);
+      }
     }
   }
 
@@ -182,7 +268,15 @@ public class HopVfs {
       for (IPlugin plugin : plugins) {
         IVfs iVfs = registry.loadClass(plugin, IVfs.class);
         try {
-          fsm.addProvider(iVfs.getUrlSchemes(), iVfs.getProvider());
+          String[] urlSchemes = iVfs.getUrlSchemes();
+          FileProvider provider = iVfs.getProvider();
+
+          // Skip plugins with no fixed scheme (Minio, Databricks): a provider the manager has no
+          // scheme for is never reached, and never closed. Phase 2 registers those by name.
+          if (urlSchemes == null || urlSchemes.length == 0 || provider == null) {
+            continue;
+          }
+          fsm.addProvider(urlSchemes, provider);
         } catch (Exception e) {
           throw new HopException(
               "Error registering provider for VFS plugin "
@@ -199,100 +293,59 @@ public class HopVfs {
     }
   }
 
-  public static synchronized FileObject getFileObject(String vfsFilename, IVariables variables)
+  /**
+   * @param vfsFilename the name of the file to resolve
+   * @param variables the variables to bootstrap the metadata driven providers with, in case nothing
+   *     did that yet. They play no role in resolving the file itself.
+   * @return the file object
+   * @see #getFileObject(String)
+   */
+  public static FileObject getFileObject(String vfsFilename, IVariables variables)
       throws HopFileException {
-    lock.readLock().lock();
-    try {
-      DefaultFileSystemManager fsManager = getFileSystemManager(variables);
-
-      try {
-        // We have one problem with VFS: if the file is in a subdirectory of the current one:
-        // somedir/somefile
-        // In that case, VFS doesn't parse the file correctly.
-        // We need to put file: in front of it to make it work.
-        // However, how are we going to verify this?
-        //
-        // We are going to see if the filename starts with one of the known protocols like file:
-        // zip: ram: smb: jar: etc.
-        // If not, we are going to assume it's a file.
-        //
-        boolean relativeFilename = true;
-        String[] initialSchemes = fsManager.getSchemes();
-
-        relativeFilename = checkForScheme(initialSchemes, relativeFilename, vfsFilename);
-
-        String filename;
-        if (vfsFilename.startsWith("\\\\")) {
-          File file = new File(vfsFilename);
-          filename = file.toURI().toString();
-        } else {
-          if (relativeFilename) {
-            File file = new File(vfsFilename);
-            filename = file.getAbsolutePath();
-          } else {
-            filename = vfsFilename;
-          }
-        }
-
-        return fsManager.resolveFile(filename);
-      } catch (Exception e) {
-        throw new HopFileException(
-            "Unable to get VFS File object for filename '"
-                + cleanseFilename(vfsFilename)
-                + "' : "
-                + e.getMessage(),
-            e);
-      }
-    } finally {
-      lock.readLock().unlock();
-    }
+    bootstrapWith(variables);
+    return getFileObject(vfsFilename);
   }
 
   public static synchronized FileObject getFileObject(String vfsFilename) throws HopFileException {
-    lock.readLock().lock();
+    DefaultFileSystemManager fsManager = getFileSystemManager();
+
     try {
-      DefaultFileSystemManager fsManager = getFileSystemManager();
+      // We have one problem with VFS: if the file is in a subdirectory of the current one:
+      // somedir/somefile
+      // In that case, VFS doesn't parse the file correctly.
+      // We need to put file: in front of it to make it work.
+      // However, how are we going to verify this?
+      //
+      // We are going to see if the filename starts with one of the known protocols like file:
+      // zip: ram: smb: jar: etc.
+      // If not, we are going to assume it's a file.
+      //
+      boolean relativeFilename = true;
+      String[] initialSchemes = fsManager.getSchemes();
 
-      try {
-        // We have one problem with VFS: if the file is in a subdirectory of the current one:
-        // somedir/somefile
-        // In that case, VFS doesn't parse the file correctly.
-        // We need to put file: in front of it to make it work.
-        // However, how are we going to verify this?
-        //
-        // We are going to see if the filename starts with one of the known protocols like file:
-        // zip: ram: smb: jar: etc.
-        // If not, we are going to assume it's a file.
-        //
-        boolean relativeFilename = true;
-        String[] initialSchemes = fsManager.getSchemes();
+      relativeFilename = checkForScheme(initialSchemes, relativeFilename, vfsFilename);
 
-        relativeFilename = checkForScheme(initialSchemes, relativeFilename, vfsFilename);
-
-        String filename;
-        if (vfsFilename.startsWith("\\\\")) {
+      String filename;
+      if (vfsFilename.startsWith("\\\\")) {
+        File file = new File(vfsFilename);
+        filename = file.toURI().toString();
+      } else {
+        if (relativeFilename) {
           File file = new File(vfsFilename);
-          filename = file.toURI().toString();
+          filename = file.getAbsolutePath();
         } else {
-          if (relativeFilename) {
-            File file = new File(vfsFilename);
-            filename = file.getAbsolutePath();
-          } else {
-            filename = vfsFilename;
-          }
+          filename = vfsFilename;
         }
-
-        return fsManager.resolveFile(filename);
-      } catch (Exception e) {
-        throw new HopFileException(
-            "Unable to get VFS File object for filename '"
-                + cleanseFilename(vfsFilename)
-                + "' : "
-                + e.getMessage(),
-            e);
       }
-    } finally {
-      lock.readLock().unlock();
+
+      return fsManager.resolveFile(filename);
+    } catch (Exception e) {
+      throw new HopFileException(
+          "Unable to get VFS File object for filename '"
+              + cleanseFilename(vfsFilename)
+              + "' : "
+              + e.getMessage(),
+          e);
     }
   }
 
@@ -362,23 +415,13 @@ public class HopVfs {
     }
   }
 
+  /**
+   * @see #fileExists(String)
+   */
   public static boolean fileExists(String vfsFilename, IVariables variables)
       throws HopFileException {
-    FileObject fileObject = null;
-    try {
-      fileObject = getFileObject(vfsFilename, variables);
-      return fileObject.exists();
-    } catch (IOException e) {
-      throw new HopFileException(e);
-    } finally {
-      if (fileObject != null) {
-        try {
-          fileObject.close();
-        } catch (Exception e) {
-          /* Ignore */
-        }
-      }
-    }
+    bootstrapWith(variables);
+    return fileExists(vfsFilename);
   }
 
   public static boolean isLocalFileSystem(String path) {
@@ -405,15 +448,13 @@ public class HopVfs {
     }
   }
 
+  /**
+   * @see #getInputStream(String)
+   */
   public static InputStream getInputStream(String vfsFilename, IVariables variables)
       throws HopFileException {
-    try {
-      FileObject fileObject = getFileObject(vfsFilename, variables);
-
-      return getInputStream(fileObject);
-    } catch (IOException e) {
-      throw new HopFileException(e);
-    }
+    bootstrapWith(variables);
+    return getInputStream(vfsFilename);
   }
 
   public static OutputStream getOutputStream(FileObject fileObject, boolean append)
@@ -453,14 +494,13 @@ public class HopVfs {
     }
   }
 
+  /**
+   * @see #getOutputStream(String, boolean)
+   */
   public static OutputStream getOutputStream(
       String vfsFilename, boolean append, IVariables variables) throws HopFileException {
-    try {
-      FileObject fileObject = getFileObject(vfsFilename, variables);
-      return getOutputStream(fileObject, append);
-    } catch (IOException e) {
-      throw new HopFileException(e);
-    }
+    bootstrapWith(variables);
+    return getOutputStream(vfsFilename, append);
   }
 
   public static OutputStream getOutputStream(String vfsFilename, boolean append)
@@ -519,19 +559,12 @@ public class HopVfs {
     return friendlyName;
   }
 
+  /**
+   * @see #getFriendlyURI(String)
+   */
   public static String getFriendlyURI(String filename, IVariables variables) {
-    if (filename == null) {
-      return null;
-    }
-    String friendlyName;
-    try {
-      friendlyName = getFriendlyURI(HopVfs.getFileObject(filename, variables));
-    } catch (Exception e) {
-      // unable to get a friendly name from VFS object.
-      // Cleanse name of pwd before returning
-      friendlyName = cleanseFilename(filename);
-    }
-    return friendlyName;
+    bootstrapWith(variables);
+    return getFriendlyURI(filename);
   }
 
   public static String getFriendlyURI(FileObject fileObject) {
@@ -593,40 +626,17 @@ public class HopVfs {
    * @param prefix - file name
    * @param suffix - file extension
    * @param directory - directory where file will be created
+   * @param variables the variables to bootstrap the metadata driven providers with, in case nothing
+   *     did that yet
    * @return FileObject
    * @throws HopFileException
+   * @see #createTempFile(String, String, String)
    */
-  public static synchronized FileObject createTempFile(
+  public static FileObject createTempFile(
       String prefix, String suffix, String directory, IVariables variables)
       throws HopFileException {
-    try {
-      FileObject fileObject;
-      do {
-        // Temporary files are always stored locally.
-        // No other schemes besides file:// make sense
-        //
-        String baseUrl;
-        if (directory.contains("://")) {
-          baseUrl = directory;
-        } else {
-          File directoryFile = new File(directory);
-          baseUrl = "file://" + directoryFile.getAbsolutePath();
-        }
-
-        // Build temporary file name using UUID to ensure uniqueness. Old mechanism would fail using
-        // Sort Rows (for example)
-        // when there multiple nodes with multiple JVMs on each node. In this case, the temp file
-        // names would end up being
-        // duplicated which would cause the sort to fail.
-        //
-        String filename = baseUrl + "/" + prefix + "_" + UUID.randomUUID() + suffix;
-
-        fileObject = getFileObject(filename, variables);
-      } while (fileObject.exists());
-      return fileObject;
-    } catch (IOException e) {
-      throw new HopFileException(e);
-    }
+    bootstrapWith(variables);
+    return createTempFile(prefix, suffix, directory);
   }
 
   public static Comparator<FileObject> getComparator() {
@@ -645,24 +655,30 @@ public class HopVfs {
    * @return boolean
    */
   public static boolean startsWithScheme(String vfsFileName, IVariables variables) {
-    lock.readLock().lock();
-    try {
+    bootstrapWith(variables);
+    return startsWithScheme(vfsFileName);
+  }
 
-      DefaultFileSystemManager fsManager = getFileSystemManager(variables);
+  /**
+   * Check if filename starts with one of the known protocols like file: zip: ram: smb: jar: etc. If
+   * yes, return true otherwise return false
+   *
+   * @param vfsFileName
+   * @return boolean
+   */
+  public static boolean startsWithScheme(String vfsFileName) {
+    DefaultFileSystemManager fsManager = getFileSystemManager();
 
-      boolean found = false;
-      String[] schemes = fsManager.getSchemes();
-      for (String scheme : schemes) {
-        if (vfsFileName.startsWith(scheme + ":")) {
-          found = true;
-          break;
-        }
+    boolean found = false;
+    String[] schemes = fsManager.getSchemes();
+    for (String scheme : schemes) {
+      if (vfsFileName.startsWith(scheme + ":")) {
+        found = true;
+        break;
       }
-
-      return found;
-    } finally {
-      lock.readLock().unlock();
     }
+
+    return found;
   }
 
   /**
@@ -728,23 +744,25 @@ public class HopVfs {
   /**
    * @see StandardFileSystemManager#freeUnusedResources()
    */
-  public static void freeUnusedResources() {
+  public static synchronized void freeUnusedResources() {
     if (fsm != null) {
       fsm.freeUnusedResources();
     }
   }
 
-  public static void reset() {
+  /**
+   * Drop the file system manager so it's rebuilt, providers of the named VFS connections included,
+   * the next time it's used. The bootstrap variables are kept: use {@link
+   * #setBootstrapVariables(IVariables)} to change those.
+   */
+  public static synchronized void reset() {
     if (fsm != null) {
       fsm.freeUnusedResources();
       fsm.close();
       fsm = null;
     }
-    if (extendedFsm != null) {
-      extendedFsm.freeUnusedResources();
-      extendedFsm.close();
-      extendedFsm = null;
-    }
+    namedProvidersRegistered = false;
+    registeringNamedProviders = false;
   }
 
   public enum Suffix {
