@@ -155,6 +155,12 @@ plugins:
     description: OpenSearch
     installPath: plugins/tech/opensearch
     modulePath: plugins/tech/opensearch
+  - artifactId: hop-tech-openlineage
+    name: OpenLineage
+    category: Technology
+    description: OpenLineage lineage sink — emit run, file and warehouse (column-level) lineage to Marquez or any OpenLineage endpoint.
+    installPath: plugins/tech/openlineage
+    modulePath: plugins/tech/openlineage
   - artifactId: hop-tech-salesforce
     name: SaleForce
     category: Technology

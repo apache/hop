@@ -28,7 +28,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -41,6 +43,8 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
+import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -258,6 +262,20 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
       if (first) {
         first = false;
 
+        DatabaseMeta lineageDb =
+            LineageRelationalIoEmitter.lineageConnection(
+                this, getPipelineMeta(), meta.getConnection());
+        LineageRelationalIoEmitter.emitTransformRelationalWrite(
+            this,
+            lineageDb,
+            lineageDb == null ? null : resolve(lineageDb.getDatabaseName()),
+            resolve(meta.getSchemaName()),
+            resolve(meta.getTableName()),
+            getInputRowMeta(),
+            buildWriteColumns(),
+            true,
+            null);
+
         // Cache field indexes.
         //
         data.keynrs = new int[meta.getFields().size()];
@@ -320,6 +338,16 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
       setOutputDone(); // signal end to receiver(s)
       return false;
     }
+  }
+
+  /** Per-column provenance: each loaded column mapped to its stream field and origin transform. */
+  private List<RelationalWriteColumn> buildWriteColumns() {
+    List<RelationalWriteColumn> columns = new ArrayList<>();
+    for (MySqlBulkLoaderMeta.Field field : meta.getFields()) {
+      LineageRelationalIoEmitter.addWriteColumn(
+          columns, getInputRowMeta(), field.getFieldTable(), field.getFieldStream());
+    }
+    return columns;
   }
 
   private void closeOutput() throws Exception {

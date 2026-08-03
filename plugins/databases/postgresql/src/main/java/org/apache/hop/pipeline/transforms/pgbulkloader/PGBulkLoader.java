@@ -32,6 +32,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -44,6 +45,9 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
+import org.apache.hop.lineage.model.RelationalLifecycle;
+import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -237,6 +241,23 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       if (first) {
         first = false;
 
+        DatabaseMeta lineageDb =
+            LineageRelationalIoEmitter.lineageConnection(
+                this, getPipelineMeta(), meta.getConnection());
+        LineageRelationalIoEmitter.emitTransformRelationalWrite(
+            this,
+            lineageDb,
+            lineageDb == null ? null : resolve(lineageDb.getDatabaseName()),
+            resolve(meta.getSchemaName()),
+            resolve(meta.getTableName()),
+            getInputRowMeta(),
+            buildWriteColumns(),
+            PGBulkLoaderMeta.ACTION_TRUNCATE.equalsIgnoreCase(resolve(meta.getLoadAction()))
+                ? RelationalLifecycle.OVERWRITE
+                : null,
+            true,
+            null);
+
         // Cache field indexes.
         //
         data.keynrs = new int[meta.getMappings().size()];
@@ -280,6 +301,17 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       return null;
     }
     return (bool ? "t" : "f").getBytes(charset);
+  }
+
+  /** Per-column provenance: each loaded column mapped to its stream field and origin transform. */
+  @VisibleForTesting
+  List<RelationalWriteColumn> buildWriteColumns() {
+    List<RelationalWriteColumn> columns = new ArrayList<>();
+    for (PGBulkLoaderMappingMeta mapping : meta.getMappings()) {
+      LineageRelationalIoEmitter.addWriteColumn(
+          columns, getInputRowMeta(), mapping.getFieldTable(), mapping.getFieldStream());
+    }
+    return columns;
   }
 
   private void writeRowToPostgres(IRowMeta rowMeta, Object[] r) throws HopException {

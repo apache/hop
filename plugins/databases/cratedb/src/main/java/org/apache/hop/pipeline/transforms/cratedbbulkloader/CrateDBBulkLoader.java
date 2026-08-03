@@ -45,6 +45,9 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
+import org.apache.hop.lineage.model.RelationalLifecycle;
+import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -219,6 +222,19 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
 
     if (first) {
       first = false;
+
+      LineageRelationalIoEmitter.emitTransformRelationalWrite(
+          this,
+          data.databaseMeta,
+          data.databaseMeta == null ? null : resolve(data.databaseMeta.getDatabaseName()),
+          resolve(meta.getSchemaName()),
+          resolve(meta.getTableName()),
+          getInputRowMeta(),
+          buildWriteColumns(),
+          meta.isTruncateTable() ? RelationalLifecycle.OVERWRITE : null,
+          true,
+          null);
+
       if (meta.isStreamToS3Csv()) {
 
         data.fieldnrs = new HashMap<>();
@@ -275,6 +291,22 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     putRow(getInputRowMeta().clone(), r);
 
     return true;
+  }
+
+  /**
+   * Per-column provenance: each loaded column mapped to its stream field and origin transform. When
+   * fields are not explicitly specified the whole input row is written 1:1.
+   */
+  private List<RelationalWriteColumn> buildWriteColumns() {
+    if (!meta.specifyFields()) {
+      return LineageRelationalIoEmitter.writeColumnsFromRow(getInputRowMeta());
+    }
+    List<RelationalWriteColumn> columns = new ArrayList<>();
+    for (CrateDBBulkLoaderField field : meta.getFields()) {
+      LineageRelationalIoEmitter.addWriteColumn(
+          columns, getInputRowMeta(), field.getDatabaseField(), field.getStreamField());
+    }
+    return columns;
   }
 
   private void incrementLinesRejected(int count) {

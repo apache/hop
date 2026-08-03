@@ -1,0 +1,19 @@
+{
+  "variables" : [ {
+    "name" : "MARQUEZ_API",
+    "value" : "http://marquez:5000",
+    "description" : "Base URL of the Marquez OpenLineage collector (see the docker compose yml file)"
+  }, {
+    "name" : "OPENLINEAGE_NAMESPACE",
+    "value" : "hop",
+    "description" : "The OpenLineage job namespace the sink emits under"
+  }, {
+    "name" : "WAREHOUSE_NAMESPACE",
+    "value" : "postgres://postgres:5432",
+    "description" : "OpenLineage dataset namespace for the warehouse Postgres (host:port of the 'postgres' compose service); the warehouse-lineage validate pipeline asserts this namespace exists in Marquez"
+  }, {
+    "name" : "WAREHOUSE_NAMESPACE_ENCODED",
+    "value" : "postgres%3A%2F%2Fpostgres%3A5432",
+    "description" : "URL-encoded WAREHOUSE_NAMESPACE, used in the Marquez datasets REST path by the column-lineage validate pipeline (0006)"
+  } ]
+}

@@ -1,0 +1,104 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+services:
+  integration_test_openlineage:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      marquez:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    links:
+      - marquez
+      - postgres
+    environment:
+      # Enable the in-engine lineage hub and select the OpenLineage sink.
+      - HOP_LINEAGE_ENABLED=Y
+      - HOP_LINEAGE_SINK_IDS=openlineage
+      - HOP_LINEAGE_OPENLINEAGE_URL=http://marquez:5000/api/v1/lineage
+      - HOP_LINEAGE_OPENLINEAGE_NAMESPACE=hop
+      # Parse Table Input / Execute SQL statements to recover their source/target tables.
+      - HOP_LINEAGE_OPENLINEAGE_SQL_PARSE=Y
+      # The sink drops events by default so lineage can never slow a pipeline down. These tests
+      # assert on what reached Marquez, so they need delivery to be lossless: wait for buffer
+      # capacity instead, and allow a slow (emulated) Marquez plenty of time to catch up.
+      - HOP_LINEAGE_OPENLINEAGE_OVERFLOW_POLICY=BLOCK
+      - HOP_LINEAGE_OPENLINEAGE_ENQUEUE_TIMEOUT_MS=60000
+
+  # "Warehouse" Postgres that the test pipelines read from and write to. Its host:port
+  # ("postgres":5432) is what the warehouse dataset namespace is keyed on
+  # (postgres://postgres:5432), so it must match run-tests.sh's POSTGRES_HOST default.
+  postgres:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=hop_user
+      - POSTGRES_PASSWORD=hop_password
+      - POSTGRES_DB=hop_database
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U hop_user -d hop_database" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      # Seeds public.orders_source and creates public.orders_target on first init.
+      - ./openlineage-warehouse-startup.sql:/docker-entrypoint-initdb.d/01-warehouse.sql:ro
+
+  marquez-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=marquez
+      - POSTGRES_PASSWORD=marquez
+      - POSTGRES_DB=marquez
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U marquez -d marquez" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  marquez:
+    image: marquezproject/marquez:latest
+    # Marquez only publishes a linux/amd64 image; pin it so the platform is explicit
+    # (runs under emulation on arm64 hosts such as Apple Silicon).
+    platform: linux/amd64
+    ports:
+      - "5000"
+      - "5001"
+    environment:
+      - MARQUEZ_PORT=5000
+      - MARQUEZ_ADMIN_PORT=5001
+      - POSTGRES_HOST=marquez-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=marquez
+      - POSTGRES_USER=marquez
+      - POSTGRES_PASSWORD=marquez
+      # Marquez enables an OpenSearch-backed search by default; disable it so no
+      # extra search backend is required for the lineage integration test.
+      - SEARCH_ENABLED=false
+    depends_on:
+      marquez-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:5001/healthcheck || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s

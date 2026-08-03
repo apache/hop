@@ -37,6 +37,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -290,6 +291,11 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
           valueMeta.setOrigin(getTransformName());
         }
       }
+
+      // Lineage: the SQL's source tables are recovered by the sink (parsed); the return row meta
+      // gives the read column schema.
+      LineageRelationalIoEmitter.emitTransformRelationalRead(
+          this, data.db.getDatabaseMeta(), sql, null, data.rowMeta, true, null);
 
       // Get the first row...
       try {

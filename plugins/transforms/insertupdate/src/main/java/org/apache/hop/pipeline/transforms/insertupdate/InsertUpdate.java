@@ -31,6 +31,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
+import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -196,6 +198,17 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
       first = false;
       DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
+      LineageRelationalIoEmitter.emitTransformRelationalWrite(
+          this,
+          databaseMeta,
+          databaseMeta == null ? null : resolve(databaseMeta.getDatabaseName()),
+          resolve(meta.getSchemaName()),
+          resolve(meta.getTableName()),
+          getInputRowMeta(),
+          buildWriteColumns(),
+          true,
+          null);
+
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -347,6 +360,28 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
     }
 
     return true;
+  }
+
+  /**
+   * Per-column provenance for the target table: the key columns and the updated value columns, each
+   * mapped to its input stream field and origin transform for column-level lineage.
+   */
+  private List<RelationalWriteColumn> buildWriteColumns() {
+    IRowMeta inputRowMeta = getInputRowMeta();
+    List<RelationalWriteColumn> columns = new ArrayList<>();
+    InsertUpdateLookupField lookup = meta.getInsertUpdateLookupField();
+    if (inputRowMeta == null || lookup == null) {
+      return columns;
+    }
+    for (InsertUpdateKeyField key : lookup.getLookupKeys()) {
+      LineageRelationalIoEmitter.addWriteColumn(
+          columns, inputRowMeta, key.getKeyLookup(), key.getKeyStream());
+    }
+    for (InsertUpdateValue value : lookup.getValueFields()) {
+      LineageRelationalIoEmitter.addWriteColumn(
+          columns, inputRowMeta, value.getUpdateLookup(), value.getUpdateStream());
+    }
+    return columns;
   }
 
   public void setLookup(IRowMeta rowMeta) throws HopDatabaseException {
