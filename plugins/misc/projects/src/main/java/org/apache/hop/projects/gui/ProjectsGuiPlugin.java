@@ -708,12 +708,69 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  private boolean askAboutProjectRefresh(HopGui hopGui) {
+  private static boolean askAboutProjectRefresh(HopGui hopGui) {
     MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
     box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ReloadProject.Dialog.Header"));
     box.setMessage(BaseMessages.getString(PKG, "ProjectGuiPlugin.ReloadProject.Dialog.Message"));
     int answer = box.open();
     return (answer & SWT.YES) != 0;
+  }
+
+  /**
+   * Called after system (described) variables were saved in the configuration perspective. Offers
+   * to reload the active project so open files, metadata and layered project/environment variables
+   * pick up the new hop-config values without a full GUI restart (issue #2293).
+   */
+  public static void reloadAfterSystemVariablesSaved() {
+    if (!ProjectsConfigSingleton.getConfig().isEnabled()) {
+      return;
+    }
+
+    HopGui hopGui = HopGui.getInstance();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+
+    String projectName = HopNamespace.getNamespace();
+    if (StringUtils.isEmpty(projectName) || HopGui.DEFAULT_HOP_GUI_NAMESPACE.equals(projectName)) {
+      // Fall back to the toolbar label when namespace is not a real project.
+      //
+      if (hopGui.getStatusToolbarWidgets() != null) {
+        projectName = hopGui.getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
+      }
+    }
+    if (StringUtils.isEmpty(projectName)) {
+      return;
+    }
+
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      return;
+    }
+
+    if (!askAboutProjectRefresh(hopGui)) {
+      return;
+    }
+
+    try {
+      String environmentName = null;
+      if (hopGui.getStatusToolbarWidgets() != null) {
+        environmentName =
+            hopGui.getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT);
+      }
+      LifecycleEnvironment environment =
+          StringUtils.isNotEmpty(environmentName) ? config.findEnvironment(environmentName) : null;
+
+      Project project = projectConfig.loadProject(hopGui.getVariables());
+      if (project != null) {
+        enableHopGuiProject(projectName, project, environment);
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          hopGui.getActiveShell(),
+          BaseMessages.getString(PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Header"),
+          BaseMessages.getString(
+              PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Message", projectName),
+          e);
+    }
   }
 
   @GuiToolbarElement(
