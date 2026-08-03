@@ -502,6 +502,10 @@ public abstract class AbstractMeta
       default:
         break;
     }
+    // Skip entries that were rejected (e.g. empty selection / length mismatch)
+    if (ta.getType() == ChangeAction.ActionType.None) {
+      return;
+    }
     undo.add(ta);
     undoPosition++;
 
