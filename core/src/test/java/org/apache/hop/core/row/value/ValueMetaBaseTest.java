@@ -444,6 +444,112 @@ class ValueMetaBaseTest {
   }
 
   @Test
+  void testGetBigNumberFromNumberKeepsPlainNotation() throws HopValueException {
+    // BigDecimal.valueOf(55487400.0) is built from Double.toString(), which returns "5.54874E7".
+    // The resulting BigDecimal has an unscaled value of 554874 and a scale of -2, so rendering it
+    // with toString() yields "5.54874E+7" rather than "55487400".
+    ValueMetaBase valueMeta = new ValueMetaNumber("float53");
+
+    BigDecimal bigNumber = valueMeta.getBigNumber(55487400.0d);
+
+    assertEquals(0, bigNumber.compareTo(new BigDecimal("55487400")));
+    assertTrue(bigNumber.scale() >= 0, "unexpected negative scale: " + bigNumber.scale());
+    assertEquals("55487400", bigNumber.toString());
+  }
+
+  @Test
+  void testGetBigNumberFromNumberKeepsPlainNotationAcrossMagnitudes() throws HopValueException {
+    ValueMetaBase valueMeta = new ValueMetaNumber("float53");
+    double[] values = {1.0e7, 5.54874e7, 1.23456789e8, 1.5e10, 9.007199254740992e15, -5.54874e7};
+
+    for (double value : values) {
+      BigDecimal bigNumber = valueMeta.getBigNumber(value);
+
+      assertTrue(bigNumber.scale() >= 0, "negative scale for " + value + ": " + bigNumber.scale());
+      assertEquals(
+          bigNumber.toPlainString(), bigNumber.toString(), "scientific notation for " + value);
+      assertEquals(0, bigNumber.compareTo(BigDecimal.valueOf(value)), "value changed for " + value);
+    }
+  }
+
+  @Test
+  void testGetBigNumberFromNumberLeavesNonNegativeScalesUntouched() throws HopValueException {
+    // Values that already convert to a non-negative scale must keep the exact BigDecimal they
+    // produced before, scale included. BigDecimal.equals() is scale sensitive, so this pins that
+    // down rather than only comparing numeric values.
+    ValueMetaBase valueMeta = new ValueMetaNumber("number");
+    double[] values = {0.0, 0.1, 123.45, 1.0e-7, 55487400.5};
+
+    for (double value : values) {
+      assertEquals(BigDecimal.valueOf(value), valueMeta.getBigNumber(value), "changed " + value);
+    }
+  }
+
+  @Test
+  void testConvertNumberToBigNumberKeepsPlainNotation() throws HopValueException {
+    // The metadata change a Select Values transform performs when a Number field is turned into a
+    // BigNumber field.
+    IValueMeta source = new ValueMetaNumber("float53");
+    IValueMeta target = new ValueMetaBigNumber("decimal");
+
+    BigDecimal converted = (BigDecimal) target.convertData(source, 55487400.0d);
+
+    assertEquals("55487400", converted.toString());
+  }
+
+  @Test
+  void testGetBigNumberFromStringKeepsPlainNotation() throws HopValueException {
+    ValueMetaBase valueMeta = new ValueMetaString("float53");
+
+    BigDecimal bigNumber = valueMeta.getBigNumber("55487400");
+
+    assertTrue(bigNumber.scale() >= 0, "unexpected negative scale: " + bigNumber.scale());
+    assertEquals(0, bigNumber.compareTo(new BigDecimal("55487400")));
+  }
+
+  @Test
+  void testWriteBigNumberConvertedFromNumberUsesPlainNotation() throws Exception {
+    // writeBigNumber() serializes with BigDecimal.toString(), so a negative scale would put
+    // scientific notation on the wire as well.
+    BigDecimal bigNumber = new ValueMetaNumber("float53").getBigNumber(55487400.0d);
+    ValueMetaBase valueMeta = new ValueMetaBigNumber("decimal");
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try (DataOutputStream outputStream = new DataOutputStream(out)) {
+      valueMeta.writeData(outputStream, bigNumber);
+    }
+
+    BigDecimal restored;
+    try (DataInputStream inputStream =
+        new DataInputStream(new ByteArrayInputStream(out.toByteArray()))) {
+      restored = (BigDecimal) valueMeta.readData(inputStream);
+    }
+
+    // readBigNumber() keeps whatever scale was written, so a plain result proves a plain wire form.
+    assertEquals("55487400", restored.toString());
+  }
+
+  @Test
+  void testGetDataXmlForBigNumberConvertedFromNumberUsesPlainNotation() throws Exception {
+    BigDecimal bigNumber = new ValueMetaNumber("float53").getBigNumber(55487400.0d);
+    ValueMetaBase valueMeta = new ValueMetaBigNumber("decimal");
+
+    String xml = valueMeta.getDataXml(bigNumber);
+
+    assertTrue(xml.contains("55487400"), xml);
+    assertFalse(xml.contains("E+"), xml);
+  }
+
+  @Test
+  void testConvertNumberToStringDoesNotUseScientificNotation() throws HopValueException {
+    // Guards the string conversion path, which formats through DecimalFormat and was already
+    // correct, against a regression from the BigDecimal change.
+    assertFalse(new ValueMetaNumber("float53").getString(55487400.0d).contains("E"));
+    assertFalse(
+        new ValueMetaBigNumber("decimal").getString(new BigDecimal("5.54874E+7")).contains("E"));
+  }
+
+  @Test
   void testGetIntegerThrowsHopValueException() {
     ValueMetaBase valueMeta = new ValueMetaInteger();
     assertThrows(HopValueException.class, () -> valueMeta.getInteger("1234567890"));
