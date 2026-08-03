@@ -29,7 +29,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +58,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
@@ -201,8 +204,7 @@ class S3FileObjectTest {
             any(software.amazon.awssdk.core.sync.RequestBody.class)))
         .thenReturn(uploadPartResponse);
 
-    assertNotNull(s3FileObjectBucketSpy.doGetOutputStream(false));
-    OutputStream out = s3FileObjectBucketSpy.doGetOutputStream(true);
+    OutputStream out = s3FileObjectBucketSpy.doGetOutputStream(false);
     assertNotNull(out);
     out.write(new byte[1024 * 1024 * 6]); // 6MB
     out.close();
@@ -212,6 +214,44 @@ class S3FileObjectTest {
             any(software.amazon.awssdk.services.s3.model.UploadPartRequest.class),
             any(software.amazon.awssdk.core.sync.RequestBody.class));
     verify(s3ClientMock, atMost(1))
+        .completeMultipartUpload(
+            any(software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest.class));
+  }
+
+  /**
+   * Appending to an existing object must not truncate it: the object is rebuilt as existing +
+   * appended through a multipart upload rather than overwritten, see {@link
+   * org.apache.hop.vfs.s3.s3common.S3AppendOutputStream}.
+   */
+  @Test
+  void testDoGetOutputStreamAppendsToExistingObject() throws Exception {
+    when(s3ClientMock.createMultipartUpload(any(CreateMultipartUploadRequest.class)))
+        .thenReturn(CreateMultipartUploadResponse.builder().uploadId("foo").build());
+    when(s3ClientMock.uploadPart(
+            any(software.amazon.awssdk.services.s3.model.UploadPartRequest.class),
+            any(software.amazon.awssdk.core.sync.RequestBody.class)))
+        .thenReturn(UploadPartResponse.builder().eTag("etag").build());
+    // The existing object is well under the 5MB minimum part size, so it is read back and the
+    // appended bytes are written behind it.
+    when(s3ClientMock.getObjectAsBytes(any(GetObjectRequest.class)))
+        .thenReturn(
+            ResponseBytes.fromByteArray(
+                GetObjectResponse.builder().build(), "existing;".getBytes(StandardCharsets.UTF_8)));
+
+    OutputStream out = s3FileObjectFileSpy.doGetOutputStream(true);
+    assertNotNull(out);
+    out.write("appended".getBytes(StandardCharsets.UTF_8));
+    out.close();
+
+    ArgumentCaptor<software.amazon.awssdk.core.sync.RequestBody> body =
+        ArgumentCaptor.forClass(software.amazon.awssdk.core.sync.RequestBody.class);
+    verify(s3ClientMock)
+        .uploadPart(
+            any(software.amazon.awssdk.services.s3.model.UploadPartRequest.class), body.capture());
+    ByteArrayOutputStream uploaded = new ByteArrayOutputStream();
+    body.getValue().contentStreamProvider().newStream().transferTo(uploaded);
+    assertEquals("existing;appended", uploaded.toString(StandardCharsets.UTF_8));
+    verify(s3ClientMock)
         .completeMultipartUpload(
             any(software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest.class));
   }

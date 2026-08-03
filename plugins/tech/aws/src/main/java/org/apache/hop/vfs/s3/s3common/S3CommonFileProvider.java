@@ -42,7 +42,11 @@ public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvid
     return defaultOptions;
   }
 
-  /** The provider's capabilities. */
+  /**
+   * The provider's capabilities. APPEND_CONTENT is required for append: without it commons-vfs2
+   * rejects getOutputStream(true) with "does not support append mode". S3 has no append operation,
+   * so append itself is emulated with a multipart upload, see {@link S3AppendOutputStream}.
+   */
   protected static final Collection<Capability> capabilities =
       Collections.unmodifiableCollection(
           Arrays.asList(
@@ -54,6 +58,7 @@ public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvid
               Capability.READ_CONTENT,
               Capability.URI,
               Capability.WRITE_CONTENT,
+              Capability.APPEND_CONTENT,
               Capability.GET_LAST_MODIFIED,
               Capability.RANDOM_ACCESS_READ));
 
