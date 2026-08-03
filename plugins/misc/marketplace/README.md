@@ -184,6 +184,26 @@ export HOP_MARKETPLACE_USERNAME=reader
 export HOP_MARKETPLACE_PASSWORD='…'
 ```
 
+Credentials resolve most-specific first:
+
+1. `username` / `password` on the repository entry
+2. `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD` — per repository, id upper-cased
+   with non-alphanumerics as `_` (`local-nexus` → `HOP_MARKETPLACE_LOCAL_NEXUS_*`)
+3. `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD` — all repositories
+
+Use the scoped form when more than one private repository is configured; the
+global pair cannot express two different tokens.
+
+The global pair is offered to **every** repository, including public ones, and
+ASF/Central answer unknown credentials with 401 rather than ignoring them. So a
+request that fails with 401/403 using credentials that came *only* from the
+environment is retried once anonymously. Credentials set on the repository entry
+are deliberate and are never dropped this way — those failures surface as-is.
+
+Credentials also apply to `marketplace repo import <https URL>`, so a shared
+definition can live in a private repository. There is no repository entry yet at
+that point, so only the environment variables above are used.
+
 ## GUI
 
 Hop GUI → **Tools → Marketplace…**, or the main toolbar icon after **Save As…**
@@ -209,7 +229,7 @@ Three steps:
 **How listing works**
 
 - Bundled Apache optional plugins: **version = running Hop version** (not absolute latest on ASF)
-- Every enabled repo with **`browse: true`**: live Nexus search for `*.zip` (one row per artifact, latest plugin version, last updated)
+- Every enabled repo with **`browse: true`**: live repository search for `*.zip` (one row per artifact, latest plugin version, last updated)
 - Optional YAML `plugins:` metadata **enriches** names/categories and can set:
   - `minHopVersion` / `maxHopVersion` — hide if this Hop is outside the range (e.g. datavault needs ≥ 2.18.1). A running `x.y.z-SNAPSHOT` counts as the `x.y.z` line (so `2.19.0-SNAPSHOT` fulfills `minHopVersion: 2.19.0`)
   - `version` — optional pin of the plugin artifact; otherwise latest from browse
@@ -224,6 +244,53 @@ do not wipe earlier plugins. Re-importing the same G:A refreshes that entry’s 
 GUI **Plugins** tab uses the same discovery as `query`.
 
 Sample: `src/main/samples/hop-marketplace-repo.community.example.yaml`
+
+**Which browse API** — set per repository with `browserType`:
+
+| Value | Endpoint | Use for |
+|-------|----------|---------|
+| `auto` (default) | detected from the URL | anything |
+| `nexus` | `/service/rest/v1/search` | Sonatype Nexus 3 |
+| `forgejo` | `/api/v1/packages/{owner}` | Forgejo / Gitea package registry |
+
+`auto` picks `forgejo` when the URL contains `/api/packages/`, else `nexus`.
+Forgejo lists packages named `groupId:artifactId`; a second call per version
+confirms a plugin zip exists, so library jars are not offered as installs.
+Downloads never use this setting — they are plain Maven layout, which works
+against both.
+
+```yaml
+id: acme
+url: https://forge.example.org/api/packages/acme/maven
+browse: true
+browserType: forgejo   # or omit and let auto detect it
+groupIdFilter: com.acme.hop
+```
+
+A private Forgejo registry needs credentials (owner name as username, an access
+token as password) via `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`.
+
+Serving a `catalogUrl` YAML instead skips the registry API altogether and works
+against any static host. The catalog is fetched with the repository's Basic
+credentials when configured, so it may live in a private repository.
+
+**Non-Maven hosts** — set `urlTemplate` when plugin zips are served from
+something that is not a Maven repository (git release assets, a static file
+host, a CDN). It replaces layout resolution for downloads:
+
+```yaml
+id: acme
+urlTemplate: https://forge.example.org/acme/dist/releases/download/v${version}/${artifactId}-${version}.zip
+catalogUrl: https://forge.example.org/acme/dist/releases/download/v2026.09/catalog.yaml
+browse: false
+```
+
+Placeholders: `${groupId}`, `${groupPath}` (dots → slashes), `${artifactId}`,
+`${version}`. An unknown placeholder is an error rather than a silent 404.
+
+Such a host has no Maven metadata, so versions must be exact — pair `urlTemplate`
+with a `catalogUrl` that pins them. SNAPSHOT resolution does not apply, and
+`browse` cannot list release assets.
 
 **Environment file** path + **Browse…** / **Edit…** / **Validate** / **Apply** manage
 declarative `hop-env.yaml` files. **Edit…** opens a tabbed editor (General,

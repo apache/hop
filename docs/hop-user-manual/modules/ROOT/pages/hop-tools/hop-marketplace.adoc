@@ -440,7 +440,44 @@ A longer sample ships with the marketplace plugin sources (`plugins/misc/marketp
 
 == Enterprise / air-gapped
 
-Point marketplace repositories at your internal Nexus or Artifactory mirror of `org.apache.hop` plugin zips. Prefer anonymous read where possible; for private repos set Basic auth on the repository entry (in hop-config or in hop-env `repositories`) or use `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`. Wrong credentials can cause HTTP 401 even when anonymous access would work.
+Point marketplace repositories at your internal Nexus or Artifactory mirror of `org.apache.hop` plugin zips. Prefer anonymous read where possible; for private repos set Basic auth on the repository entry (in hop-config or in hop-env `repositories`) or use `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`.
+
+Credentials are resolved most-specific first:
+
+. `username` / `password` on the repository entry
+. `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`, where `<ID>` is the repository id upper-cased with non-alphanumeric characters replaced by `_` (repository `local-nexus` reads `HOP_MARKETPLACE_LOCAL_NEXUS_USERNAME`)
+. `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`, applying to every repository
+
+Use the repository-scoped variables when more than one private repository is configured, since the global pair cannot express two different tokens.
+
+Because the global variables are offered to every repository — including public ones such as the ASF repository and Maven Central, which reject unknown credentials with HTTP 401 instead of ignoring them — a request that fails with 401 or 403 using credentials that came _only_ from the environment is retried once anonymously. Credentials configured on the repository entry are treated as deliberate and are never dropped, so those failures are reported as-is.
+
+The same credentials apply to `hop marketplace repo import <https URL>`, so a shared repository definition can be hosted in a private repository. No repository entry exists at import time, so only the environment variables are available there.
+
+Installing works against any Maven repository, because downloads use plain Maven layout. Listing plugins (`browse: true`) needs a repository-manager API, and those differ per product. Set `browserType` on the repository to choose:
+
+[options="header"]
+|===
+|Value|Endpoint used|Repository manager
+|`auto` (default)|detected from the URL|any of the below
+|`nexus`|`/service/rest/v1/search`|Sonatype Nexus 3
+|`forgejo`|`/api/v1/packages/{owner}`|Forgejo, Gitea
+|===
+
+`auto` selects `forgejo` for URLs containing `/api/packages/` (for example `https://forge.example.org/api/packages/acme/maven`) and `nexus` otherwise. On Forgejo, packages are named `groupId:artifactId` and each candidate version is checked for a plugin zip, so plain library jars are not listed as installable.
+
+For a repository manager with no supported search API, publish a catalog YAML and set `catalogUrl` on the repository instead — discovery then reads that file and never calls a registry API. The catalog is fetched with the repository's Basic credentials when they are configured, so it can live in a private repository.
+
+Plugin zips do not have to be served from a Maven repository at all. Set `urlTemplate` on the repository when they come from git release assets, a static file host, or a CDN:
+
+[source,yaml]
+----
+urlTemplate: https://forge.example.org/acme/dist/releases/download/v${version}/${artifactId}-${version}.zip
+----
+
+Supported placeholders are `${groupId}`, `${groupPath}` (groupId with dots replaced by slashes), `${artifactId}` and `${version}`; an unrecognised placeholder is reported as an error instead of producing a confusing 404. When `urlTemplate` is set, the repository `url` is not used for plugin downloads.
+
+Such a host serves no Maven metadata, so versions must be exact: combine `urlTemplate` with a `catalogUrl` that pins each version. SNAPSHOT resolution does not apply, and live browsing cannot list release assets.
 
 == For plugin authors
 
