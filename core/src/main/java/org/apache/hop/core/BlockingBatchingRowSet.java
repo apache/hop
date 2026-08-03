@@ -55,8 +55,8 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRo
 
     // create a fixed sized queue for max performance
     //
-    putArray = new ArrayBlockingQueue<>(BATCHSIZE, true);
-    getArray = new ArrayBlockingQueue<>(BATCHSIZE, true);
+    putArray = new ArrayBlockingQueue<>(BATCHSIZE, false);
+    getArray = new ArrayBlockingQueue<>(BATCHSIZE, false);
 
     size = maxSize / BATCHSIZE; // each buffer's size
     Object[][] buffer;
