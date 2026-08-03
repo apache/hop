@@ -43,6 +43,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -498,12 +499,55 @@ public class MarketplaceRepositoriesPanel {
     fdCatalog.right = new FormAttachment(100, 0);
     wCatalog.setLayoutData(fdCatalog);
 
+    Label wlUrlTemplate = new Label(general, SWT.RIGHT);
+    PropsUi.setLook(wlUrlTemplate);
+    wlUrlTemplate.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.UrlTemplate"));
+    FormData fdlUrlTemplate = new FormData();
+    fdlUrlTemplate.left = new FormAttachment(0, 0);
+    fdlUrlTemplate.top = new FormAttachment(wCatalog, margin);
+    fdlUrlTemplate.right = new FormAttachment(middle, -margin);
+    wlUrlTemplate.setLayoutData(fdlUrlTemplate);
+    Text wUrlTemplate = new Text(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wUrlTemplate);
+    wUrlTemplate.setToolTipText(
+        BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.UrlTemplate.Tooltip"));
+    wUrlTemplate.setText(Const.NVL(repo.getUrlTemplate(), ""));
+    FormData fdUrlTemplate = new FormData();
+    fdUrlTemplate.left = new FormAttachment(middle, margin);
+    fdUrlTemplate.top = new FormAttachment(wlUrlTemplate, 0, SWT.CENTER);
+    fdUrlTemplate.right = new FormAttachment(100, 0);
+    wUrlTemplate.setLayoutData(fdUrlTemplate);
+
+    Label wlBrowserType = new Label(general, SWT.RIGHT);
+    PropsUi.setLook(wlBrowserType);
+    wlBrowserType.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.BrowserType"));
+    FormData fdlBrowserType = new FormData();
+    fdlBrowserType.left = new FormAttachment(0, 0);
+    fdlBrowserType.top = new FormAttachment(wUrlTemplate, margin);
+    fdlBrowserType.right = new FormAttachment(middle, -margin);
+    wlBrowserType.setLayoutData(fdlBrowserType);
+    Combo wBrowserType = new Combo(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wBrowserType);
+    wBrowserType.setToolTipText(
+        BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.BrowserType.Tooltip"));
+    wBrowserType.setItems(
+        MarketplaceRepository.BROWSER_AUTO,
+        MarketplaceRepository.BROWSER_NEXUS,
+        MarketplaceRepository.BROWSER_FORGEJO);
+    wBrowserType.setText(
+        Const.NVL(repo.getBrowserType(), MarketplaceRepository.BROWSER_AUTO).toLowerCase());
+    FormData fdBrowserType = new FormData();
+    fdBrowserType.left = new FormAttachment(middle, margin);
+    fdBrowserType.top = new FormAttachment(wlBrowserType, 0, SWT.CENTER);
+    fdBrowserType.right = new FormAttachment(100, 0);
+    wBrowserType.setLayoutData(fdBrowserType);
+
     Label wlSearch = new Label(general, SWT.RIGHT);
     PropsUi.setLook(wlSearch);
     wlSearch.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.SearchQuery"));
     FormData fdlSearch = new FormData();
     fdlSearch.left = new FormAttachment(0, 0);
-    fdlSearch.top = new FormAttachment(wCatalog, margin);
+    fdlSearch.top = new FormAttachment(wBrowserType, margin);
     fdlSearch.right = new FormAttachment(middle, -margin);
     wlSearch.setLayoutData(fdlSearch);
     Text wSearch = new Text(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -688,6 +732,10 @@ public class MarketplaceRepositoriesPanel {
           repo.setPrimary(wPrimary.getSelection());
           repo.setBrowse(wBrowse.getSelection());
           repo.setCatalogUrl(StringUtils.trimToNull(wCatalog.getText()));
+          repo.setUrlTemplate(StringUtils.trimToNull(wUrlTemplate.getText()));
+          repo.setBrowserType(
+              StringUtils.defaultIfBlank(
+                  wBrowserType.getText().trim(), MarketplaceRepository.BROWSER_AUTO));
           repo.setSearchQuery(StringUtils.trimToNull(wSearch.getText()));
           repo.setGroupIdFilter(StringUtils.trimToNull(wGroup.getText()));
           repo.setIncludeSnapshots(wSnapshots.getSelection());
