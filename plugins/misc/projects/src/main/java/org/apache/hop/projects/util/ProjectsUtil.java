@@ -133,6 +133,12 @@ public class ProjectsUtil {
       project.setMetadataProvider(metadataProvider);
     }
 
+    // The named VFS connections live in the metadata of this project, so hand HopVfs the variables
+    // to find them with. This also resets the file system manager: the providers of the previous
+    // project are gone and those of this one are registered the next time VFS is used.
+    //
+    HopVfs.setBootstrapVariables(variables);
+
     // We store the project in the namespace singleton (used mainly in the GUI)
     //
     HopNamespace.setNamespace(projectName);
