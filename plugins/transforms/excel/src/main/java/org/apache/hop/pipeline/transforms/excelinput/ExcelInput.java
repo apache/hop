@@ -40,6 +40,7 @@ import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
@@ -646,7 +647,11 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
         data.workbook =
             WorkbookFactory.getWorkbook(
-                meta.getSpreadSheetType(), data.filename, meta.getEncoding(), variables);
+                meta.getSpreadSheetType(),
+                data.filename,
+                meta.getEncoding(),
+                Utils.resolvePassword(variables, meta.getPassword()),
+                variables);
 
         data.errorHandler.handleFile(data.file);
         // Start at the first sheet again...
