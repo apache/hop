@@ -143,7 +143,7 @@ public class OdsExcelWriter {
         document = OdfSpreadsheetDocument.loadDocument(inputStream);
       }
 
-      ResolvedTable resolved = resolveTable(document);
+      ResolvedTable resolved = resolveTable(document, appendingToSheet);
       OdfTable table = resolved.table();
       if (resolved.newlyCreated()) {
         appendingToSheet = false;
@@ -502,13 +502,16 @@ public class OdsExcelWriter {
     }
   }
 
-  private ResolvedTable resolveTable(OdfSpreadsheetDocument document) throws Exception {
+  private ResolvedTable resolveTable(OdfSpreadsheetDocument document, boolean appendingToSheet)
+      throws Exception {
     String existingActiveTable = OdsTableHelper.getActiveTableName(document);
     int replacingTableAt = -1;
     boolean newlyCreated = false;
 
     OdfTable table = document.getTableByName(data.realSheetname);
-    if (table != null && data.createNewSheet) {
+    // "If sheet exists in output file" only applies to a pre-existing output file: a file that was
+    // just created from a template still has to hand us the template table. See issue #6520.
+    if (table != null && data.createNewSheet && appendingToSheet) {
       replacingTableAt = OdsTableHelper.getTableIndex(document, data.realSheetname);
       removeTable(document, table);
       table = null;
