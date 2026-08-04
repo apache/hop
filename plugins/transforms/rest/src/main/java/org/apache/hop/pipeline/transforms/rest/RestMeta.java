@@ -28,6 +28,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -304,7 +305,12 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     if (!Utils.isEmpty(resultField.getFieldName())) {
-      IValueMeta v = new ValueMetaString(variables.resolve(resultField.getFieldName()));
+      // A binary result carries the response bytes verbatim; decoding them to a String would
+      // corrupt any non-text payload (issue #3746).
+      IValueMeta v =
+          resultField.isBinary()
+              ? new ValueMetaBinary(variables.resolve(resultField.getFieldName()))
+              : new ValueMetaString(variables.resolve(resultField.getFieldName()));
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }

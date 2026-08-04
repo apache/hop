@@ -49,6 +49,15 @@ services:
       - "80"
     volumes:
       - ./resource/http/echo/echo.conf:/etc/nginx/nginx.conf:ro
+    # The binary payload served at /binary is written at start-up rather than checked in: the
+    # repository holds no binary files. These bytes are deliberately not valid UTF-8, so any
+    # charset round-trip on the way out or back corrupts them (issue #3746).
+    command:
+      - sh
+      - -c
+      - |
+        printf '\211PNG\r\n\032\n\377\330\303(\000\001' > /usr/share/nginx/binary.dat
+        exec nginx -g 'daemon off;'
 
   tomcat:
     user: root

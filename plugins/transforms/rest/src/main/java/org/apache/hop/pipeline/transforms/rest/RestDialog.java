@@ -80,6 +80,8 @@ public class RestDialog extends BaseTransformDialog {
 
   private TextVar wResult;
 
+  private Button wResultBinary;
+
   private TextVar wResultCode;
 
   private TableView wFields;
@@ -1221,14 +1223,14 @@ public class RestDialog extends BaseTransformDialog {
     FormData fdlResultCode = new FormData();
     fdlResultCode.left = new FormAttachment(0, 0);
     fdlResultCode.right = new FormAttachment(middle, -margin);
-    fdlResultCode.top = new FormAttachment(wResult, margin);
+    fdlResultCode.top = new FormAttachment(wResultBinary, margin);
     wlResultCode.setLayoutData(fdlResultCode);
     wResultCode = new TextVar(variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wResultCode);
     wResultCode.addModifyListener(lsMod);
     FormData fdResultCode = new FormData();
     fdResultCode.left = new FormAttachment(middle, 0);
-    fdResultCode.top = new FormAttachment(wResult, margin);
+    fdResultCode.top = new FormAttachment(wResultBinary, margin);
     fdResultCode.right = new FormAttachment(100, -margin);
     wResultCode.setLayoutData(fdResultCode);
   }
@@ -1252,6 +1254,33 @@ public class RestDialog extends BaseTransformDialog {
     fdResult.top = new FormAttachment(gSettings, margin);
     fdResult.right = new FormAttachment(100, -margin);
     wResult.setLayoutData(fdResult);
+
+    // Binary result line (issue #3746): a text response is decoded to a String, which corrupts a
+    // file, an image or anything else that is not text.
+    Label wlResultBinary = new Label(gOutputFields, SWT.RIGHT);
+    wlResultBinary.setText(BaseMessages.getString(PKG, "RestDialog.ResultBinary.Label"));
+    wlResultBinary.setToolTipText(BaseMessages.getString(PKG, "RestDialog.ResultBinary.Tooltip"));
+    PropsUi.setLook(wlResultBinary);
+    FormData fdlResultBinary = new FormData();
+    fdlResultBinary.left = new FormAttachment(0, 0);
+    fdlResultBinary.right = new FormAttachment(middle, -margin);
+    fdlResultBinary.top = new FormAttachment(wResult, margin);
+    wlResultBinary.setLayoutData(fdlResultBinary);
+    wResultBinary = new Button(gOutputFields, SWT.CHECK);
+    wResultBinary.setToolTipText(BaseMessages.getString(PKG, "RestDialog.ResultBinary.Tooltip"));
+    PropsUi.setLook(wResultBinary);
+    FormData fdResultBinary = new FormData();
+    fdResultBinary.left = new FormAttachment(middle, 0);
+    fdResultBinary.top = new FormAttachment(wlResultBinary, 0, SWT.CENTER);
+    fdResultBinary.right = new FormAttachment(100, -margin);
+    wResultBinary.setLayoutData(fdResultBinary);
+    wResultBinary.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
   }
 
   private Group setupOutputFieldGroup(Composite wGeneralComp) {
@@ -1648,6 +1677,7 @@ public class RestDialog extends BaseTransformDialog {
     if (input.getResultField().getFieldName() != null) {
       wResult.setText(input.getResultField().getFieldName());
     }
+    wResultBinary.setSelection(input.getResultField().isBinary());
     if (input.getResultField().getCode() != null) {
       wResultCode.setText(input.getResultField().getCode());
     }
@@ -1796,6 +1826,7 @@ public class RestDialog extends BaseTransformDialog {
     input.setUrlInField(wUrlInField.getSelection());
     input.setBodyField(wBody.getText());
     input.getResultField().setFieldName(wResult.getText());
+    input.getResultField().setBinary(wResultBinary.getSelection());
     input.getResultField().setCode(wResultCode.getText());
     input.getResultField().setResponseTime(wResponseTime.getText());
     input.getResultField().setResponseHeader(wResponseHeader.getText());

@@ -73,6 +73,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
@@ -121,6 +122,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    */
   protected static final class RestExchangeResult {
     final String body;
+
+    /**
+     * Raw response body, set instead of {@link #body} when the result field is Binary (issue
+     * #3746). Paging is rejected in that case, so paging only ever reads {@link #body}.
+     */
+    final byte[] bodyBytes;
+
     final int status;
     final long responseTimeMs;
     final String headerJson;
@@ -131,12 +139,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
     RestExchangeResult(
         String body,
+        byte[] bodyBytes,
         int status,
         long responseTimeMs,
         String headerJson,
         MultivaluedMap<String, Object> headers,
         String requestUrl) {
       this.body = body;
+      this.bodyBytes = bodyBytes;
       this.status = status;
       this.responseTimeMs = responseTimeMs;
       this.headerJson = headerJson;
@@ -463,28 +473,49 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
 
-      String entityString = null;
+      // The request entity is either a String or a byte[]. A Binary body field is passed on as raw
+      // bytes: routing it through getString() decodes it with a charset and Jersey then re-encodes
+      // it, which mangles every byte that is not valid in that charset (issue #3746).
+      Object entity = null;
       if (data.useBody) {
-        entityString = NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
-        if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entityString));
+        if (data.binaryBody) {
+          entity = data.inputRowMeta.getBinary(rowData, data.indexOfBodyField);
+          if (isDebug()) {
+            logDebug(
+                BaseMessages.getString(
+                    PKG,
+                    "Rest.Log.BinaryBodyValue",
+                    entity == null ? 0 : ((byte[]) entity).length));
+          }
+        } else {
+          entity = NVL(data.inputRowMeta.getString(rowData, data.indexOfBodyField), null);
+          if (isDebug()) {
+            logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entity));
+          }
         }
       }
       if (pagingBodyParams != null && !pagingBodyParams.isEmpty()) {
-        String contentTypeForMerge = contentType;
-        if (Utils.isEmpty(contentTypeForMerge) && data.mediaType != null) {
-          contentTypeForMerge = data.mediaType.toString();
-        }
-        entityString =
-            PagingBodyMerge.merge(NVL(entityString, ""), pagingBodyParams, contentTypeForMerge);
-        if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entityString));
+        if (data.binaryBody) {
+          // Merging paging parameters means rewriting the body as JSON or form data, which cannot
+          // be done to an opaque byte payload. Send the bytes unchanged and say so.
+          logBasic(BaseMessages.getString(PKG, "Rest.Log.PagingBodyParamsIgnoredForBinaryBody"));
+        } else {
+          String contentTypeForMerge = contentType;
+          if (Utils.isEmpty(contentTypeForMerge) && data.mediaType != null) {
+            contentTypeForMerge = data.mediaType.toString();
+          }
+          entity =
+              PagingBodyMerge.merge(
+                  NVL((String) entity, ""), pagingBodyParams, contentTypeForMerge);
+          if (isDebug()) {
+            logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entity));
+          }
         }
       }
 
       invocationBuilder.headers(headerMap);
       final Invocation.Builder finalInvocationBuilder = invocationBuilder;
-      final String finalEntityString = entityString;
+      final Object finalEntity = entity;
       final String finalContentType = contentType;
 
       if (isDebug()) {
@@ -500,8 +531,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           executeWithRetry(
               () -> {
                 try {
-                  return executeRequest(
-                      finalInvocationBuilder, finalEntityString, finalContentType);
+                  return executeRequest(finalInvocationBuilder, finalEntity, finalContentType);
                 } catch (HopException e) {
                   throw new HopRuntimeException(e);
                 }
@@ -525,6 +555,27 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       if (response.hasEntity()) {
         response.bufferEntity();
+      }
+
+      // A binary result skips String decoding entirely: the bytes go into the row untouched.
+      if (data.binaryResult) {
+        byte[] bodyBytes = readResponseBytes(response, effectiveBase);
+        trackResponseBytes(response, bodyBytes);
+        if (isRowLevel()) {
+          logRowlevel(
+              BaseMessages.getString(
+                  PKG, "Rest.Log.BinaryResponseBody", bodyBytes == null ? 0 : bodyBytes.length));
+        }
+        MultivaluedMap<String, Object> binaryHeaders = searchForHeaders(response);
+        emitHttpLineage(httpLineageT0, httpVolIn0, httpVolOut0, status, true, null);
+        return new RestExchangeResult(
+            null,
+            bodyBytes,
+            status,
+            responseTime,
+            buildHeaderJson(binaryHeaders),
+            binaryHeaders,
+            effectiveBase);
       }
 
       String body;
@@ -575,21 +626,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       MultivaluedMap<String, Object> headers = searchForHeaders(response);
-      JSONObject json = new JSONObject();
-      for (Map.Entry<String, List<Object>> entry : headers.entrySet()) {
-        String name = entry.getKey();
-        List<Object> value = entry.getValue();
-        if (value.size() > 1) {
-          json.put(name, value);
-        } else {
-          json.put(name, value.get(0));
-        }
-      }
-      String headerString = json.toJSONString();
+      String headerString = buildHeaderJson(headers);
 
       emitHttpLineage(httpLineageT0, httpVolIn0, httpVolOut0, status, true, null);
       return new RestExchangeResult(
-          body, status, responseTime, headerString, headers, effectiveBase);
+          body, null, status, responseTime, headerString, headers, effectiveBase);
     } catch (Exception e) {
       emitHttpLineage(httpLineageT0, httpVolIn0, httpVolOut0, null, false, e.getMessage());
       throw new HopException(
@@ -599,6 +640,57 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       if (client != null) {
         client.close();
       }
+    }
+  }
+
+  /** Serializes the response headers to the JSON string exposed by the response-header field. */
+  private String buildHeaderJson(MultivaluedMap<String, Object> headers) {
+    JSONObject json = new JSONObject();
+    for (Map.Entry<String, List<Object>> entry : headers.entrySet()) {
+      String name = entry.getKey();
+      List<Object> value = entry.getValue();
+      if (value.size() > 1) {
+        json.put(name, value);
+      } else {
+        json.put(name, value.get(0));
+      }
+    }
+    return json.toJSONString();
+  }
+
+  /**
+   * Reads the response body as raw bytes for a binary result field (issue #3746). Both request
+   * paths land here: the entity is buffered before this point, so it does not matter whether the
+   * Apache 5 or the JDK connector produced it.
+   */
+  private byte[] readResponseBytes(Response response, String requestUri) throws HopException {
+    if (!response.hasEntity()) {
+      return new byte[0];
+    }
+    try {
+      return response.readEntity(byte[].class);
+    } catch (Exception ex) {
+      // Same fallback the String path uses: go to the raw stream when the entity provider balks,
+      // for instance on a malformed or duplicated Content-Type header.
+      try (InputStream stream = response.readEntity(InputStream.class)) {
+        return stream == null ? new byte[0] : stream.readAllBytes();
+      } catch (Exception ioEx) {
+        if (isDetailed()) {
+          logDetailed("Unable to read response entity as bytes", ioEx);
+        }
+        throw new HopException(
+            BaseMessages.getString(PKG, "Rest.Error.CanNotReadResponse", requestUri), ex);
+      }
+    }
+  }
+
+  private void trackResponseBytes(Response response, byte[] body) {
+    long responseBytes = response.getLength();
+    if (responseBytes < 0 && body != null) {
+      responseBytes = body.length;
+    }
+    if (responseBytes > 0) {
+      dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + responseBytes;
     }
   }
 
@@ -613,7 +705,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     String headerString = exchange.headerJson;
 
     if (!Utils.isEmpty(data.resultFieldName)) {
-      newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, body);
+      // The Binary result field carries the bytes as they arrived (issue #3746).
+      newRow =
+          RowDataUtil.addValueData(
+              newRow, returnFieldsOffset, data.binaryResult ? exchange.bodyBytes : body);
       returnFieldsOffset++;
     }
     if (!Utils.isEmpty(data.resultCodeFieldName)) {
@@ -1050,7 +1145,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     for (String sliceBody : chunks) {
       RestExchangeResult slice =
           new RestExchangeResult(
-              sliceBody, ex.status, ex.responseTimeMs, ex.headerJson, ex.headers, ex.requestUrl);
+              sliceBody,
+              null,
+              ex.status,
+              ex.responseTimeMs,
+              ex.headerJson,
+              ex.headers,
+              ex.requestUrl);
       putRow(data.outputRowMeta, assembleResultRow(rowTemplate.clone(), slice));
       emitted++;
     }
@@ -1339,14 +1440,21 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     return capped / 2 + jitter;
   }
 
+  /**
+   * Issues the request. The entity is either a String or a byte[]; Jersey selects its message body
+   * writer from the runtime type, and the byte[] writer copies the array to the wire untouched, so
+   * a binary body survives on both the standalone and the REST-connection path (issue #3746).
+   */
   private Response executeRequest(
-      Invocation.Builder invocationBuilder, String entityString, String contentType)
-      throws HopException {
+      Invocation.Builder invocationBuilder, Object entity, String contentType) throws HopException {
     // A body-less POST/PUT/PATCH/DELETE must still carry a Content-Length header (issue #7621).
     // The JDK HttpURLConnection connector used by the REST-connection path omits Content-Length for
     // a null entity, whereas the standalone (Apache) connector sends Content-Length: 0. Normalizing
-    // a null body to an empty string makes both request paths send Content-Length consistently.
-    String body = entityString == null ? "" : entityString;
+    // a null body to an empty entity makes both request paths send Content-Length consistently.
+    Object body = entity;
+    if (body == null) {
+      body = data.binaryBody ? new byte[0] : "";
+    }
     try {
       switch (data.method) {
         case RestMeta.HTTP_METHOD_GET -> {
@@ -1354,7 +1462,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
         case RestMeta.HTTP_METHOD_POST -> {
           trackRequestBytes(
-              entityString,
+              body,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.post(Entity.entity(body, contentType));
@@ -1364,7 +1472,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
         case RestMeta.HTTP_METHOD_PUT -> {
           trackRequestBytes(
-              entityString,
+              body,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.put(Entity.entity(body, contentType));
@@ -1374,7 +1482,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
         case RestMeta.HTTP_METHOD_DELETE -> {
           trackRequestBytes(
-              entityString,
+              body,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           Invocation invocation =
               invocationBuilder.build("DELETE", Entity.entity(body, data.mediaType));
@@ -1388,7 +1496,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
         case RestMeta.HTTP_METHOD_PATCH -> {
           trackRequestBytes(
-              entityString,
+              body,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.method(
@@ -1408,7 +1516,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           // The body is sent the same way DELETE does it: a null body is normalized to "" above,
           // so a body-less custom verb still carries Content-Length: 0.
           trackRequestBytes(
-              entityString,
+              body,
               contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.method(data.method, Entity.entity(body, contentType));
@@ -1447,6 +1555,20 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             System.currentTimeMillis() - startedAt,
             success,
             message));
+  }
+
+  /**
+   * Counts the request payload for lineage. A byte[] entity is measured directly: re-encoding it
+   * through a charset would report the wrong size as well as corrupt it (issue #3746).
+   */
+  private void trackRequestBytes(Object entity, Charset charset) {
+    if (entity instanceof byte[] bytes) {
+      if (bytes.length > 0) {
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + bytes.length;
+      }
+      return;
+    }
+    trackRequestBytes((String) entity, charset);
   }
 
   private void trackRequestBytes(String entityString, Charset charset) {
@@ -1708,6 +1830,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
                 BaseMessages.getString(PKG, CONST_REST_EXCEPTION_ERROR_FINDING_FIELD, field));
           }
           data.useBody = true;
+          // Keyed off the declared type, not the storage type: Hop's lazy conversion gives plain
+          // String fields a binary storage type, and those must keep going through getString().
+          data.binaryBody =
+              data.inputRowMeta.getValueMeta(data.indexOfBodyField).getType()
+                  == IValueMeta.TYPE_BINARY;
+          if (data.binaryBody && isDetailed()) {
+            logDetailed(BaseMessages.getString(PKG, "Rest.Log.BinaryBodyField", field));
+          }
         }
       }
     } // end if first
@@ -1774,6 +1904,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.resultCodeFieldName = resolve(meta.getResultField().getCode());
       data.resultResponseFieldName = resolve(meta.getResultField().getResponseTime());
       data.resultHeaderFieldName = resolve(meta.getResultField().getResponseHeader());
+      data.binaryResult = meta.getResultField().isBinary();
+
+      // Paging needs to read the response body as text to find the next page token, split the
+      // result or follow a Link header. None of that is possible on an opaque byte payload.
+      if (data.binaryResult && meta.isPaginationEnabled()) {
+        logError(BaseMessages.getString(PKG, "Rest.Error.BinaryResultWithPagination"));
+        return false;
+      }
 
       data.realConnectionTimeout = Const.toInt(resolve(meta.getConnectionTimeout()), -1);
       data.realReadTimeout = Const.toInt(resolve(meta.getReadTimeout()), -1);

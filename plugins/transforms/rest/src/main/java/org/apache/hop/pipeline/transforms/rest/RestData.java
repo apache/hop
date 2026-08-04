@@ -93,6 +93,12 @@ public class RestData extends BaseTransformData implements ITransformData {
   /** Index of body field */
   public int indexOfBodyField;
 
+  /** The body field is of type Binary, so its bytes are sent verbatim (issue #3746) */
+  public boolean binaryBody;
+
+  /** The result field is of type Binary, so the response bytes are kept verbatim (issue #3746) */
+  public boolean binaryResult;
+
   /** trust store */
   public String trustStoreFile;
 
