@@ -175,13 +175,6 @@ public final class OpenLineageEventMapper {
     LineageContext ctx = event.getContext();
     ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
 
-    // A finished pipeline run's column-lineage correlation state is no longer needed.
-    if (ctx != null
-        && ctx.getSubjectType() == LineageSubjectType.PIPELINE
-        && (eventType == EventType.COMPLETE || eventType == EventType.FAIL)) {
-      columnLineageCorrelator.clearRun(ctx.getLogChannelId());
-    }
-
     OpenLineage.JobBuilder jobBuilder =
         ol.newJobBuilder().namespace(namespace).name(resolveJobName(ctx));
     if (ctx != null

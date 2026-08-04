@@ -41,8 +41,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.lineage.hub.LineageHub;
-import org.apache.hop.lineage.model.RelationalLifecycle;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -144,8 +142,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           }
         }
       }
-
-      emitRelationalLineage();
     }
 
     try {
@@ -167,64 +163,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     }
 
     return true;
-  }
-
-  /**
-   * Emits a {@code RELATIONAL_IO} write observation for the fixed target table so lineage sinks
-   * (e.g. OpenLineage) can record this pipeline as a producer of it. The per-row dynamic table-name
-   * mode ({@link TableOutputMeta#isTableNameInField()}) is emitted separately on dispose (see
-   * {@link #emitDynamicRelationalLineage()}) once all distinct targets are known.
-   */
-  private void emitRelationalLineage() {
-    if (meta.isTableNameInField()) {
-      return;
-    }
-    String database =
-        data.databaseMeta == null ? null : resolve(data.databaseMeta.getDatabaseName());
-    LineageRelationalIoEmitter.emitTransformRelationalWrite(
-        this,
-        data.databaseMeta,
-        database,
-        resolve(meta.getSchemaName()),
-        resolve(meta.getTableName()),
-        data.insertRowMeta,
-        buildWriteColumns(),
-        meta.isTruncateTable() ? RelationalLifecycle.OVERWRITE : null,
-        true,
-        null);
-  }
-
-  /**
-   * Maps each written column to its input stream field and the transform that produced that field
-   * ({@link IValueMeta#getOrigin()}), so a sink can trace target columns back to their source
-   * columns for column-level lineage. Returns an empty list (no column lineage) if the row shape is
-   * unavailable.
-   */
-  @VisibleForTesting
-  List<RelationalWriteColumn> buildWriteColumns() {
-    IRowMeta inputRowMeta = getInputRowMeta();
-    if (inputRowMeta == null) {
-      return List.of();
-    }
-    List<RelationalWriteColumn> columns = new ArrayList<>();
-    if (meta.isSpecifyFields()) {
-      for (TableOutputField field : meta.getFields()) {
-        String streamField = field.getFieldStream();
-        String targetColumn =
-            Utils.isEmpty(field.getFieldDatabase()) ? streamField : field.getFieldDatabase();
-        IValueMeta valueMeta = inputRowMeta.searchValueMeta(streamField);
-        columns.add(
-            new RelationalWriteColumn(
-                targetColumn, streamField, valueMeta != null ? valueMeta.getOrigin() : null));
-      }
-    } else {
-      for (IValueMeta valueMeta : inputRowMeta.getValueMetaList()) {
-        columns.add(
-            new RelationalWriteColumn(
-                valueMeta.getName(), valueMeta.getName(), valueMeta.getOrigin()));
-      }
-    }
-    return columns;
   }
 
   /**

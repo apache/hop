@@ -18,106 +18,55 @@
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
-import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.hop.lineage.LineageMetadataWalker;
+import org.apache.hop.lineage.LineageMetadataWalker.ColumnMapping;
+import org.apache.hop.lineage.LineageMetadataWalker.Declaration;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.junit.jupiter.api.Test;
 
 /**
- * Covers the per-column provenance the PostgreSQL bulk loader contributes to lineage. The bulk
- * loaders are the case where the target columns come from an explicit mapping rather than from the
- * stream, so target and stream names differ and the mapping has to be carried through.
+ * Checks the relational lineage the PostgreSQL bulk loader declares on its metadata, including the
+ * load action that makes the write replace the table's contents rather than add to them.
  */
 class PGBulkLoaderLineageTest {
 
-  private TransformMockHelper<PGBulkLoaderMeta, PGBulkLoaderData> mockHelper;
-  private PGBulkLoaderMeta meta;
-  private PGBulkLoader transform;
-
-  @BeforeEach
-  void setUp() {
-    mockHelper =
-        new TransformMockHelper<>(
-            "PostgreSQL bulk loader", PGBulkLoaderMeta.class, PGBulkLoaderData.class);
-    when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
-        .thenReturn(mockHelper.iLogChannel);
-    meta = mockHelper.iTransformMeta;
-    transform =
-        spy(
-            new PGBulkLoader(
-                mockHelper.transformMeta,
-                meta,
-                mockHelper.iTransformData,
-                0,
-                mockHelper.pipelineMeta,
-                mockHelper.pipeline));
-  }
-
-  @AfterEach
-  void tearDown() {
-    mockHelper.cleanUp();
+  private static PGBulkLoaderMeta meta(String loadAction) {
+    PGBulkLoaderMeta meta = new PGBulkLoaderMeta();
+    meta.setConnection("warehouse");
+    meta.setSchemaName("staging");
+    meta.setTableName("orders");
+    meta.setLoadAction(loadAction);
+    meta.setMappings(List.of(new PGBulkLoaderMappingMeta("order_id", "id", null)));
+    return meta;
   }
 
   @Test
-  void buildWriteColumns_carriesTheMappingAndTheOriginTransform() {
-    when(meta.getMappings())
-        .thenReturn(
-            List.of(
-                new PGBulkLoaderMappingMeta("order_id", "id", null),
-                new PGBulkLoaderMappingMeta("order_amount", "amount", null)));
-    doReturn(rowMeta("Read orders_source", "id", "amount")).when(transform).getInputRowMeta();
+  void declaresAWriteToTheTargetTable() {
+    Declaration declaration = LineageMetadataWalker.read(meta("INSERT"));
 
-    List<RelationalWriteColumn> columns = transform.buildWriteColumns();
-
-    assertEquals(2, columns.size());
-    assertEquals("order_id", columns.get(0).getTargetColumn());
-    assertEquals("id", columns.get(0).getStreamField());
-    assertEquals("Read orders_source", columns.get(0).getOriginTransform());
-    assertEquals("order_amount", columns.get(1).getTargetColumn());
-    assertEquals("amount", columns.get(1).getStreamField());
+    assertNotNull(declaration, "PGBulkLoader should declare relational lineage");
+    assertEquals(RelationalIoOperation.WRITE, declaration.operation());
+    assertEquals("warehouse", declaration.connectionName());
+    assertEquals("staging", declaration.schemaName());
+    assertEquals("orders", declaration.tableName());
+    assertTrue(declaration.isUsable());
   }
 
   @Test
-  void buildWriteColumns_leavesOriginUnsetForUnresolvableStreamFields() {
-    when(meta.getMappings())
-        .thenReturn(List.of(new PGBulkLoaderMappingMeta("order_id", "not_in_stream", null)));
-    doReturn(rowMeta("Read orders_source", "id")).when(transform).getInputRowMeta();
-
-    List<RelationalWriteColumn> columns = transform.buildWriteColumns();
-
-    assertEquals(1, columns.size());
-    assertNull(columns.get(0).getOriginTransform());
+  void mapsTheStreamFieldToTheTableColumnAndNotTheOtherWayRound() {
+    assertEquals(
+        List.of(new ColumnMapping("order_id", "id")),
+        LineageMetadataWalker.read(meta("INSERT")).columns());
   }
 
   @Test
-  void buildWriteColumns_isEmptyWithoutAnInputRowShape() {
-    when(meta.getMappings())
-        .thenReturn(List.of(new PGBulkLoaderMappingMeta("order_id", "id", null)));
-    doReturn(null).when(transform).getInputRowMeta();
-
-    assertTrue(transform.buildWriteColumns().isEmpty());
-  }
-
-  private static IRowMeta rowMeta(String origin, String... fields) {
-    RowMeta rowMeta = new RowMeta();
-    for (String field : fields) {
-      ValueMetaString valueMeta = new ValueMetaString(field);
-      valueMeta.setOrigin(origin);
-      rowMeta.addValueMeta(valueMeta);
-    }
-    return rowMeta;
+  void onlyATruncatingLoadActionIsAnOverwrite() {
+    assertFalse(LineageMetadataWalker.read(meta("INSERT")).overwrite());
+    assertTrue(LineageMetadataWalker.read(meta("TRUNCATE")).overwrite());
   }
 }

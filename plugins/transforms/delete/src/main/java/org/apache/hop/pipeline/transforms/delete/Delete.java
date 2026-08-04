@@ -29,7 +29,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -108,15 +107,6 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> {
               this, meta.getLookup().getSchemaName(), meta.getLookup().getTableName());
 
       // Lineage: the table is affected, but a delete produces no columns — so no column schema.
-      LineageRelationalIoEmitter.emitTransformRelationalDelete(
-          this,
-          databaseMeta,
-          resolve(databaseMeta.getDatabaseName()),
-          resolve(meta.getLookup().getSchemaName()),
-          resolve(meta.getLookup().getTableName()),
-          true,
-          null);
-
       // lookup the values!
       if (isDetailed()) {
         logDetailed(

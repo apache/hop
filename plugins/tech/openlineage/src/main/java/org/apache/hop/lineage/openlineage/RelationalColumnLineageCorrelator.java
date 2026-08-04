@@ -18,6 +18,7 @@
 package org.apache.hop.lineage.openlineage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +41,19 @@ import org.apache.hop.lineage.model.RelationalWriteColumn;
  * registered read (a computed field, a join without a resolvable source, …) yields no lineage
  * rather than a guess.
  *
- * <p>State is held per pipeline run and dropped by {@link #clearRun(String)} when the run finishes,
- * so memory is bounded by concurrently running pipelines.
+ * <p>State is held per pipeline run in a bounded least-recently-used map. It is deliberately not
+ * dropped when the run reports COMPLETE: a transform emits its relational I/O when it finishes, and
+ * that can reach the sink after the pipeline's own completion event, so clearing on completion
+ * silently cost those writes their column lineage. Eviction by age instead of by run lifecycle
+ * keeps memory bounded without depending on the order events happen to arrive in.
  */
 final class RelationalColumnLineageCorrelator {
+
+  /**
+   * How many pipeline runs to keep read state for. Well above any realistic number of concurrently
+   * running pipelines, and small enough that the retained mappings stay negligible.
+   */
+  static final int MAX_RUNS = 128;
 
   /** What a single read exposes: how each stream field maps back to a source table column. */
   private static final class ReadInfo {
@@ -76,7 +86,20 @@ final class RelationalColumnLineageCorrelator {
     }
   }
 
-  private final Map<String, Map<String, ReadInfo>> readsByRun = new ConcurrentHashMap<>();
+  /** Least-recently-used run state, oldest run evicted once {@link #MAX_RUNS} is exceeded. */
+  private static final class RunCache extends LinkedHashMap<String, Map<String, ReadInfo>> {
+    RunCache() {
+      super(16, 0.75f, true);
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<String, Map<String, ReadInfo>> eldest) {
+      return size() > MAX_RUNS;
+    }
+  }
+
+  private final Map<String, Map<String, ReadInfo>> readsByRun =
+      Collections.synchronizedMap(new RunCache());
 
   /**
    * Registers a read's per-field source columns under its run and transform. No-op when the run,
@@ -126,12 +149,5 @@ final class RelationalColumnLineageCorrelator {
       edges.add(new RelationalSqlParser.ColumnEdge(column.getTargetColumn(), List.of(source)));
     }
     return edges;
-  }
-
-  /** Drops all state for a finished pipeline run. */
-  void clearRun(String runId) {
-    if (!Utils.isEmpty(runId)) {
-      readsByRun.remove(runId);
-    }
   }
 }

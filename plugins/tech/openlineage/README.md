@@ -129,18 +129,25 @@ pipeline run in Marquez.
 and action run events point at their workflow run, so per-transform jobs attach to the pipeline run
 in the lineage graph instead of appearing as disconnected jobs.
 
-### Transforms that emit `RELATIONAL_IO`
+### Which transforms produce `RELATIONAL_IO`
+
+Transforms do not emit these events themselves. A transform's metadata **declares** its table access
+via `@RelationalLineage` plus the `RDBMS_*` property annotations, and the engine derives the event
+when the transform finishes (see the *Lineage* page of the developer manual). Covered today:
 
 | Transform | Operation | Notes |
 |-----------|-----------|-------|
-| Table Output | write | Known target; `OVERWRITE` lifecycle when truncating. Per-row dynamic table names are collected and emitted on dispose (capped, and only when lineage is enabled) |
+| Table Output | write | `OVERWRITE` lifecycle when truncating. Per-row dynamic table names are reported by the transform itself, since no annotation can describe them |
+| Insert/Update, Update | write | Key columns + updated value columns |
+| Delete | delete | Affected table only — a delete produces no columns, so no schema facet |
+| Combination Lookup/Update | write | Key columns; the generated technical key has no stream source and is omitted |
+| Dimension Lookup/Update | write | Natural keys + attribute columns; generated columns (technical key, version, validity dates) are omitted |
+| PostgreSQL, MySQL, Oracle, Vertica, CrateDB, MonetDB, Redshift, Snowflake bulk loaders | write | Explicit field mapping; `OVERWRITE` where the loader truncates or replaces |
 | Table Input | read | Source tables recovered by parsing the `SELECT` |
 | Execute SQL | exec | Source and target tables recovered by parsing the statement |
-| Insert/Update, Update | write | Key columns + updated value columns as column provenance |
-| Delete | delete | Affected table only — a delete produces no columns, so no schema facet |
-| Combination Lookup/Update | write | Key columns; the generated technical key has no stream source |
-| Dimension Lookup/Update | write | Natural keys + argument-bound attributes; generated columns (technical key, version, validity dates) have no stream source |
-| PostgreSQL, MySQL, Oracle, Vertica, CrateDB, MonetDB bulk loaders | write | Explicit field mapping as column provenance; `OVERWRITE` lifecycle where the loader truncates or replaces |
+
+Adding a database transform to this list is a matter of annotating its metadata; there is no
+emission code to write.
 
 ### Dataset identity
 

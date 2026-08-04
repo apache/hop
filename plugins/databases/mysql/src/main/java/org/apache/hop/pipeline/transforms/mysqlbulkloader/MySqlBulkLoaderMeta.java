@@ -37,7 +37,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -58,19 +61,24 @@ import org.w3c.dom.Node;
     classLoaderGroup = "mysql-db")
 @Getter
 @Setter
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySqlBulkLoaderData> {
   private static final Class<?> PKG = MySqlBulkLoaderMeta.class;
 
-  @HopMetadataProperty(key = "schema")
+  @HopMetadataProperty(
+      key = "schema",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
-  @HopMetadataProperty(key = "table")
+  @HopMetadataProperty(key = "table", hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   @HopMetadataProperty(key = "fifo_file_name")
   private String fifoFileName;
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(key = "field", groupKey = "fields")
@@ -479,10 +487,14 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
   @Setter
   public static final class Field {
 
-    @HopMetadataProperty(key = "stream_name")
+    @HopMetadataProperty(
+        key = "stream_name",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
     private String fieldTable;
 
-    @HopMetadataProperty(key = "field_name")
+    @HopMetadataProperty(
+        key = "field_name",
+        hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
     private String fieldStream;
 
     @HopMetadataProperty(key = "field_format_ok", storeWithCode = true)

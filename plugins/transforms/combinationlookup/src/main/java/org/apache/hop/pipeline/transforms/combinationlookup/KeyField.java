@@ -25,12 +25,13 @@ public class KeyField {
   @HopMetadataProperty(
       injectionKey = "KEY_FIELD",
       injectionKeyDescription = "CombinationLookup.Injection.KEY_FIELD",
-      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   String name;
 
   @HopMetadataProperty(
       injectionKey = "KEY_LOOKUP",
-      injectionKeyDescription = "CombinationLookup.Injection.KEY_LOOKUP")
+      injectionKeyDescription = "CombinationLookup.Injection.KEY_LOOKUP",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   String lookup;
 
   public KeyField() {}

@@ -109,16 +109,41 @@ class RelationalColumnLineageCorrelatorTest {
     assertEquals("id", edges.get(0).outputField());
   }
 
+  // A transform emits its relational I/O when it finishes, which can reach the sink after the
+  // pipeline's own completion event. Read state therefore has to outlive the run completing,
+  // otherwise every such write silently loses its column lineage.
   @Test
-  void clearRunDropsState() {
+  void readStateOutlivesTheRunItBelongsTo() {
     RelationalColumnLineageCorrelator correlator = new RelationalColumnLineageCorrelator();
     correlator.registerRead("run1", "Read source", List.of(edge("id", "id")), List.of(SOURCE));
-    correlator.clearRun("run1");
 
-    assertTrue(
+    // Whatever else happens to the run, a late write still correlates.
+    for (int i = 0; i < 5; i++) {
+      assertEquals(
+          1,
+          correlator
+              .correlate("run1", List.of(new RelationalWriteColumn("id", "id", "Read source")))
+              .size());
+    }
+  }
+
+  // Memory is bounded by evicting the least recently used run rather than by the run lifecycle.
+  @Test
+  void theLeastRecentlyUsedRunIsEvictedOnceTheCacheIsFull() {
+    RelationalColumnLineageCorrelator correlator = new RelationalColumnLineageCorrelator();
+    correlator.registerRead("oldest", "Read source", List.of(edge("id", "id")), List.of(SOURCE));
+    for (int i = 0; i < RelationalColumnLineageCorrelator.MAX_RUNS; i++) {
+      correlator.registerRead("run" + i, "Read source", List.of(edge("id", "id")), List.of(SOURCE));
+    }
+
+    List<RelationalWriteColumn> write =
+        List.of(new RelationalWriteColumn("id", "id", "Read source"));
+    assertTrue(correlator.correlate("oldest", write).isEmpty());
+    assertEquals(
+        1,
         correlator
-            .correlate("run1", List.of(new RelationalWriteColumn("id", "id", "Read source")))
-            .isEmpty());
+            .correlate("run" + (RelationalColumnLineageCorrelator.MAX_RUNS - 1), write)
+            .size());
   }
 
   @Test

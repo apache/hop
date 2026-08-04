@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0002-openlineage-warehouse</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Runs a pipeline that reads and writes a Postgres table with the lineage hub enabled, so the openlineage sink delivers WAREHOUSE_IO datasets to Marquez, waits for asynchronous delivery and Marquez ingestion, then validates that the warehouse dataset namespace (postgres://postgres:5432) exists in Marquez.</description>
+  <description>Runs a pipeline that reads and writes a Postgres table with the lineage hub enabled, so the openlineage sink delivers WAREHOUSE_IO datasets to Marquez, waits for asynchronous delivery and Marquez ingestion, then validates that the warehouse dataset namespace (postgres://postgres:5432) exists in Marquez and that both targets carry a columnLineage facet: orders_target written by Table Output, and orders_daily written by Execute SQL. Each target is asserted individually - a namespace-wide check passes as soon as any one dataset has column lineage, which hid orders_target losing its own.</description>
   <extended_description/>
   <workflow_version/>
   <workflow_status>0</workflow_status>
@@ -146,11 +146,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0006-openlineage-columnlineage-validate.hpl</name>
+      <name>validate orders_target</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0006-openlineage-columnlineage-validate.hpl</filename>
+      <filename>${PROJECT_HOME}/0011-openlineage-dataset-columnlineage-validate.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -167,9 +167,47 @@ limitations under the License.
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>TARGET_DATASET</name>
+          <stream_name/>
+          <value>hop_database.public.orders_target</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <xloc>736</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>validate orders_daily</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0011-openlineage-dataset-columnlineage-validate.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>TARGET_DATASET</name>
+          <stream_name/>
+          <value>hop_database.public.orders_daily</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>848</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -205,7 +243,14 @@ limitations under the License.
     </hop>
     <hop>
       <from>0004-openlineage-warehouse-validate.hpl</from>
-      <to>0006-openlineage-columnlineage-validate.hpl</to>
+      <to>validate orders_target</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>validate orders_target</from>
+      <to>validate orders_daily</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

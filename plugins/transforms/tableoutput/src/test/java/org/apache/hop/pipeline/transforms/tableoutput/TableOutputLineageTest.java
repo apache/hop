@@ -19,20 +19,16 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.lineage.hub.LineageHub;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +37,9 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 /**
- * Covers the lineage observation Table Output contributes: the per-column provenance it hands to a
- * sink, and the bookkeeping it does on the per-row path for the dynamic table-name mode.
+ * Covers the one piece of relational lineage Table Output still owns: the per-row bookkeeping for
+ * the dynamic table-name mode. Everything static — the target table and its column mapping — is
+ * declared on the metadata and derived by {@code LineageMetadataWalker}.
  */
 class TableOutputLineageTest {
 
@@ -73,67 +70,6 @@ class TableOutputLineageTest {
   @AfterEach
   void tearDown() {
     mockHelper.cleanUp();
-  }
-
-  /**
-   * With an explicit field mapping, each target column records the stream field it came from and
-   * the transform that produced that field — the hook a sink follows back to the source column.
-   */
-  @Test
-  void buildWriteColumns_mapsStreamFieldsToTargetColumnsWithOrigin() {
-    when(meta.isSpecifyFields()).thenReturn(true);
-    when(meta.getFields())
-        .thenReturn(
-            List.of(
-                new TableOutputField("order_id", "id"),
-                new TableOutputField("order_amount", "amount")));
-    doReturn(rowMeta("Read orders_source", "id", "amount")).when(transform).getInputRowMeta();
-
-    List<RelationalWriteColumn> columns = transform.buildWriteColumns();
-
-    assertEquals(2, columns.size());
-    assertEquals("order_id", columns.get(0).getTargetColumn());
-    assertEquals("id", columns.get(0).getStreamField());
-    assertEquals("Read orders_source", columns.get(0).getOriginTransform());
-    assertEquals("order_amount", columns.get(1).getTargetColumn());
-    assertEquals("amount", columns.get(1).getStreamField());
-  }
-
-  /**
-   * Without an explicit mapping the whole input row is written 1:1, so names match on both sides.
-   */
-  @Test
-  void buildWriteColumns_mapsWholeRowWhenFieldsAreNotSpecified() {
-    when(meta.isSpecifyFields()).thenReturn(false);
-    doReturn(rowMeta("Read orders_source", "id", "amount")).when(transform).getInputRowMeta();
-
-    List<RelationalWriteColumn> columns = transform.buildWriteColumns();
-
-    assertEquals(2, columns.size());
-    assertEquals("id", columns.get(0).getTargetColumn());
-    assertEquals("id", columns.get(0).getStreamField());
-    assertEquals("Read orders_source", columns.get(0).getOriginTransform());
-  }
-
-  /** A target column with no matching stream field still maps, just without a resolvable origin. */
-  @Test
-  void buildWriteColumns_leavesOriginUnsetForUnresolvableStreamFields() {
-    when(meta.isSpecifyFields()).thenReturn(true);
-    when(meta.getFields()).thenReturn(List.of(new TableOutputField("order_id", "not_in_stream")));
-    doReturn(rowMeta("Read orders_source", "id")).when(transform).getInputRowMeta();
-
-    List<RelationalWriteColumn> columns = transform.buildWriteColumns();
-
-    assertEquals(1, columns.size());
-    assertEquals("order_id", columns.get(0).getTargetColumn());
-    assertNull(columns.get(0).getOriginTransform());
-  }
-
-  /** No input row shape means no column lineage — never a failure. */
-  @Test
-  void buildWriteColumns_isEmptyWithoutAnInputRowShape() {
-    doReturn(null).when(transform).getInputRowMeta();
-    assertTrue(transform.buildWriteColumns().isEmpty());
   }
 
   /**

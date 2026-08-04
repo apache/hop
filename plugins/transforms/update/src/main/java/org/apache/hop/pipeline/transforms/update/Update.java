@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.update;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -32,8 +31,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.lineage.LineageRelationalIoEmitter;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -228,17 +225,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           databaseMeta.getQuotedSchemaTableCombination(
               this, meta.getLookupField().getSchemaName(), meta.getLookupField().getTableName());
 
-      LineageRelationalIoEmitter.emitTransformRelationalWrite(
-          this,
-          databaseMeta,
-          resolve(databaseMeta.getDatabaseName()),
-          resolve(meta.getLookupField().getSchemaName()),
-          resolve(meta.getLookupField().getTableName()),
-          getInputRowMeta(),
-          buildWriteColumns(),
-          true,
-          null);
-
       // lookup the values!
       if (isDetailed()) {
         logDetailed(
@@ -370,28 +356,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     }
 
     return true;
-  }
-
-  /**
-   * Per-column provenance for the target table: the key columns and the updated value columns, each
-   * mapped to its input stream field and origin transform for column-level lineage.
-   */
-  private List<RelationalWriteColumn> buildWriteColumns() {
-    IRowMeta inputRowMeta = getInputRowMeta();
-    List<RelationalWriteColumn> columns = new ArrayList<>();
-    UpdateLookupField lookup = meta.getLookupField();
-    if (inputRowMeta == null || lookup == null) {
-      return columns;
-    }
-    for (UpdateKeyField key : lookup.getLookupKeys()) {
-      LineageRelationalIoEmitter.addWriteColumn(
-          columns, inputRowMeta, key.getKeyLookup(), key.getKeyStream());
-    }
-    for (UpdateField field : lookup.getUpdateFields()) {
-      LineageRelationalIoEmitter.addWriteColumn(
-          columns, inputRowMeta, field.getUpdateLookup(), field.getUpdateStream());
-    }
-    return columns;
   }
 
   public void setLookup(IRowMeta rowMeta) throws HopDatabaseException {

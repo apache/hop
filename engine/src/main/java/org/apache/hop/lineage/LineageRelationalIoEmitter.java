@@ -344,6 +344,76 @@ public final class LineageRelationalIoEmitter {
   }
 
   /**
+   * Emits the relational lineage a transform declares on its metadata, combining the static
+   * declaration read by {@link LineageMetadataWalker} with the facts only available at runtime:
+   * resolved variables, the connection the name refers to, the row shape, and the transform that
+   * produced each stream field.
+   *
+   * <p>This is the path taken for every transform annotated {@link
+   * org.apache.hop.lineage.api.RelationalLineage}, so a transform declares its table access once
+   * and emits nothing itself. A no-op when the transform declares nothing, when the declaration
+   * cannot produce a dataset identity, or when the target table is only known per row — the
+   * transform reports those targets itself.
+   *
+   * @param transform the transform being observed (must not be null)
+   * @param success whether the transform completed without error
+   */
+  public static void emitDeclaredRelationalIo(ITransform transform, boolean success) {
+    if (transform == null) {
+      return;
+    }
+    try {
+      LineageMetadataWalker.Declaration declared = LineageMetadataWalker.read(transform.getMeta());
+      if (declared == null || !declared.isUsable()) {
+        return;
+      }
+      DatabaseMeta databaseMeta =
+          lineageConnection(
+              transform, pipelineMetaOf(transform), transform.resolve(declared.connectionName()));
+      if (databaseMeta == null) {
+        return;
+      }
+      String catalog = transform.resolve(databaseMeta.getDatabaseName());
+      String schema = transform.resolve(declared.schemaName());
+      String table = transform.resolve(declared.tableName());
+      IRowMeta inputRowMeta = LineageTransformSchemaEmitter.resolveInputRowMetaRuntime(transform);
+
+      if (declared.operation() == RelationalIoOperation.DELETE) {
+        // A delete affects the table but produces no columns of its own.
+        emitTransformRelationalDelete(
+            transform, databaseMeta, catalog, schema, table, success, null);
+        return;
+      }
+
+      List<RelationalWriteColumn> columns = new ArrayList<>();
+      for (LineageMetadataWalker.ColumnMapping mapping : declared.columns()) {
+        addWriteColumn(
+            columns,
+            inputRowMeta,
+            transform.resolve(mapping.targetColumn()),
+            transform.resolve(mapping.streamField()));
+      }
+      // No declared mapping means the whole input row is written 1:1 under its own names.
+      if (columns.isEmpty()) {
+        columns = writeColumnsFromRow(inputRowMeta);
+      }
+      emitTransformRelationalWrite(
+          transform,
+          databaseMeta,
+          catalog,
+          schema,
+          table,
+          inputRowMeta,
+          columns,
+          declared.overwrite() ? RelationalLifecycle.OVERWRITE : null,
+          success,
+          null);
+    } catch (Exception e) {
+      logLineageFailure(transform, e);
+    }
+  }
+
+  /**
    * Resolves a named connection for lineage without letting a lookup failure reach the transform.
    * Transforms that do not otherwise hold a {@link DatabaseMeta} at emit time (the bulk loaders,
    * which open a native client rather than a JDBC connection) use this instead of calling {@code
@@ -360,6 +430,15 @@ public final class LineageRelationalIoEmitter {
       return meta.findDatabase(connectionName, transform);
     } catch (Exception e) {
       logLineageFailure(transform, e);
+      return null;
+    }
+  }
+
+  /** The pipeline a transform belongs to, or null when it cannot be reached. */
+  private static AbstractMeta pipelineMetaOf(ITransform transform) {
+    try {
+      return transform.getPipeline() == null ? null : transform.getPipeline().getPipelineMeta();
+    } catch (Exception e) {
       return null;
     }
   }

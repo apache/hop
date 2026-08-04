@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -51,9 +50,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.lineage.LineageRelationalIoEmitter;
-import org.apache.hop.lineage.model.RelationalLifecycle;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -554,21 +550,6 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         if (first) {
           first = false;
 
-          DatabaseMeta lineageDb =
-              LineageRelationalIoEmitter.lineageConnection(
-                  this, getPipelineMeta(), meta.getConnection());
-          LineageRelationalIoEmitter.emitTransformRelationalWrite(
-              this,
-              lineageDb,
-              lineageDb == null ? null : resolve(lineageDb.getDatabaseName()),
-              resolve(meta.getSchemaName()),
-              resolve(meta.getTableName()),
-              getInputRowMeta(),
-              buildWriteColumns(),
-              replacesTargetContents() ? RelationalLifecycle.OVERWRITE : null,
-              true,
-              null);
-
           String recTerm = Const.CR;
           if (!Utils.isEmpty(meta.getAltRecordTerm())) {
             recTerm = substituteRecordTerminator(meta.getAltRecordTerm());
@@ -596,27 +577,6 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
     }
 
     return true;
-  }
-
-  /** Per-column provenance: each loaded column mapped to its stream field and origin transform. */
-  private List<RelationalWriteColumn> buildWriteColumns() {
-    List<RelationalWriteColumn> columns = new ArrayList<>();
-    for (OraBulkLoaderMappingMeta mapping : meta.getMappings()) {
-      LineageRelationalIoEmitter.addWriteColumn(
-          columns, getInputRowMeta(), mapping.getFieldTable(), mapping.getFieldStream());
-    }
-    return columns;
-  }
-
-  /**
-   * Whether the configured load action leaves the target holding only this load's rows — sqlldr
-   * {@code TRUNCATE} empties the table and {@code REPLACE} deletes its rows first, both of which
-   * make the load an overwrite rather than an append.
-   */
-  private boolean replacesTargetContents() {
-    String action = resolve(meta.getLoadAction());
-    return OraBulkLoaderMeta.ACTION_TRUNCATE.equalsIgnoreCase(action)
-        || OraBulkLoaderMeta.ACTION_REPLACE.equalsIgnoreCase(action);
   }
 
   protected void verifyDatabaseConnection() throws HopException {

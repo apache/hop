@@ -47,9 +47,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.lineage.LineageRelationalIoEmitter;
-import org.apache.hop.lineage.model.RelationalLifecycle;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -100,21 +97,6 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     if (first) {
 
       first = false;
-
-      DatabaseMeta lineageDb =
-          LineageRelationalIoEmitter.lineageConnection(
-              this, getPipelineMeta(), meta.getConnection());
-      LineageRelationalIoEmitter.emitTransformRelationalWrite(
-          this,
-          lineageDb,
-          lineageDb == null ? null : resolve(lineageDb.getDatabaseName()),
-          resolve(meta.getSchemaName()),
-          resolve(meta.getTableName()),
-          getInputRowMeta(),
-          buildWriteColumns(),
-          meta.isTruncateTable() ? RelationalLifecycle.OVERWRITE : null,
-          true,
-          null);
 
       if (meta.isTruncateTable()) {
         truncateTable();
@@ -308,22 +290,6 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     } catch (IOException exception) {
       throw new HopException(exception);
     }
-  }
-
-  /**
-   * Per-column provenance: each loaded column mapped to its stream field and origin transform. When
-   * fields are not explicitly specified the whole input row is written 1:1.
-   */
-  private List<RelationalWriteColumn> buildWriteColumns() {
-    if (!meta.specifyFields()) {
-      return LineageRelationalIoEmitter.writeColumnsFromRow(getInputRowMeta());
-    }
-    List<RelationalWriteColumn> columns = new ArrayList<>();
-    for (VerticaBulkLoaderField field : meta.getFields()) {
-      LineageRelationalIoEmitter.addWriteColumn(
-          columns, getInputRowMeta(), field.getFieldDatabase(), field.getFieldStream());
-    }
-    return columns;
   }
 
   private ColumnSpec getColumnSpecFromField(

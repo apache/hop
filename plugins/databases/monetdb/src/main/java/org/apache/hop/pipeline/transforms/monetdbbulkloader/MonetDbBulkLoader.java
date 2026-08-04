@@ -17,7 +17,6 @@
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -36,9 +35,6 @@ import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.monetdb.MonetDBDatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.lineage.LineageRelationalIoEmitter;
-import org.apache.hop.lineage.model.RelationalLifecycle;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -164,21 +160,6 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       if (first) {
         first = false;
 
-        DatabaseMeta lineageDb =
-            LineageRelationalIoEmitter.lineageConnection(
-                this, getPipelineMeta(), meta.getDbConnectionName());
-        LineageRelationalIoEmitter.emitTransformRelationalWrite(
-            this,
-            lineageDb,
-            lineageDb == null ? null : resolve(lineageDb.getDatabaseName()),
-            resolve(meta.getSchemaName()),
-            resolve(meta.getTableName()),
-            getInputRowMeta(),
-            buildWriteColumns(),
-            meta.isTruncate() ? RelationalLifecycle.OVERWRITE : null,
-            true,
-            null);
-
         // Cache field indexes.
         //
         data.keynrs = new int[meta.getFields().size()];
@@ -203,16 +184,6 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       setOutputDone(); // signal end to receiver(s)
       return false;
     }
-  }
-
-  /** Per-column provenance: each loaded column mapped to its stream field and origin transform. */
-  private List<RelationalWriteColumn> buildWriteColumns() {
-    List<RelationalWriteColumn> columns = new ArrayList<>();
-    for (MonetDbBulkLoaderMeta.MonetDbField field : meta.getFields()) {
-      LineageRelationalIoEmitter.addWriteColumn(
-          columns, getInputRowMeta(), field.getFieldTable(), field.getFieldStream());
-    }
-    return columns;
   }
 
   protected void writeRowToMonetDB(IRowMeta rowMeta, Object[] r, DatabaseMeta dm)

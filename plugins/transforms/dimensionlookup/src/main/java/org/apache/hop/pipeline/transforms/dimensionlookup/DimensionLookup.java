@@ -52,8 +52,6 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.lineage.LineageRelationalIoEmitter;
-import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -101,17 +99,6 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         data.schemaTable =
             data.databaseMeta.getQuotedSchemaTableCombination(
                 this, data.realSchemaName, data.realTableName);
-
-        LineageRelationalIoEmitter.emitTransformRelationalWrite(
-            this,
-            data.databaseMeta,
-            resolve(data.databaseMeta.getDatabaseName()),
-            data.realSchemaName,
-            data.realTableName,
-            getInputRowMeta(),
-            buildWriteColumns(),
-            true,
-            null);
 
         data.inputRowMeta = getInputRowMeta().clone();
         data.outputRowMeta = getInputRowMeta().clone();
@@ -273,39 +260,6 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     }
 
     return true;
-  }
-
-  /**
-   * Per-column provenance for the dimension write: the natural-key columns and the argument-bound
-   * dimension attribute columns, each mapped to its input stream field and origin transform.
-   * Generated columns — the technical key, version and validity dates — have no stream source and
-   * so carry no column lineage.
-   *
-   * <p>Deliberately does not propagate {@link HopTransformException}: resolving the field types is
-   * only needed for the lineage observation, so a failure yields the columns resolved so far rather
-   * than failing the dimension load.
-   */
-  private List<RelationalWriteColumn> buildWriteColumns() {
-    List<RelationalWriteColumn> columns = new ArrayList<>();
-    DimensionLookupMeta.DLFields fields = meta.getFields();
-    if (fields == null) {
-      return columns;
-    }
-    for (DimensionLookupMeta.DLKey key : fields.getKeys()) {
-      LineageRelationalIoEmitter.addWriteColumn(
-          columns, getInputRowMeta(), key.getLookup(), key.getName());
-    }
-    try {
-      for (DimensionLookupMeta.DLField field : fields.getFields()) {
-        if (isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
-          LineageRelationalIoEmitter.addWriteColumn(
-              columns, getInputRowMeta(), field.getLookup(), field.getName());
-        }
-      }
-    } catch (HopTransformException e) {
-      logDebug("Dimension column lineage incomplete: " + e.getMessage());
-    }
-    return columns;
   }
 
   public boolean isLookupOrUpdateTypeWithArgument(final boolean update, final DLField field)

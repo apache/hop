@@ -36,6 +36,8 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -55,6 +57,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     isIncludeJdbcDrivers = true,
     classLoaderGroup = "vertica5",
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class VerticaBulkLoaderMeta
     extends BaseTransformMeta<VerticaBulkLoader, VerticaBulkLoaderData> {
   private static final Class<?> PKG = VerticaBulkLoaderMeta.class;

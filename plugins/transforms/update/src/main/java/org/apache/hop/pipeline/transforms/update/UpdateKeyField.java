@@ -19,20 +19,23 @@ package org.apache.hop.pipeline.transforms.update;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class UpdateKeyField {
   /** which field in input stream to compare with? */
   @HopMetadataProperty(
       key = "name",
       injectionKeyDescription = "UpdateMeta.Injection.KeyStream",
-      injectionKey = "KEY_STREAM")
+      injectionKey = "KEY_STREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String keyStream;
 
   /** field in table */
   @HopMetadataProperty(
       key = "field",
       injectionKeyDescription = "UpdateMeta.Injection.KeyLookup",
-      injectionKey = "KEY_LOOKUP")
+      injectionKey = "KEY_LOOKUP",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String keyLookup;
 
   /** Comparator: =, <>, BETWEEN, ... */
