@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -26,6 +27,10 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.provider.local.LocalFile;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
@@ -33,7 +38,14 @@ import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.poifs.crypt.Decryptor;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.filesystem.FileMagic;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 
@@ -42,6 +54,8 @@ import org.apache.poi.xssf.eventusermodel.XSSFReader;
  * Does not open XLS.
  */
 public class StaxPoiWorkbook implements IKWorkbook {
+
+  private static final Class<?> PKG = ExcelInputMeta.class; // for i18n purposes
 
   private static final String RELATION_NS_URI =
       "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
@@ -69,24 +83,99 @@ public class StaxPoiWorkbook implements IKWorkbook {
 
   public StaxPoiWorkbook(String filename, String encoding, IVariables variables)
       throws HopException {
+    this(filename, encoding, null, variables);
+  }
+
+  public StaxPoiWorkbook(String filename, String encoding, String password, IVariables variables)
+      throws HopException {
     this();
     try {
-      try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
-        opcpkg = OPCPackage.open(inputStream);
-        openFile(opcpkg, encoding);
+      if (StringUtils.isEmpty(password)) {
+        try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
+          opcpkg = OPCPackage.open(inputStream);
+        }
+      } else {
+        opcpkg = openEncrypted(filename, password, variables);
       }
+      openFile(opcpkg, encoding);
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException(e);
     }
   }
 
   public StaxPoiWorkbook(InputStream inputStream, String encoding) throws HopException {
+    this(inputStream, encoding, null);
+  }
+
+  public StaxPoiWorkbook(InputStream inputStream, String encoding, String password)
+      throws HopException {
     this();
     try {
-      opcpkg = OPCPackage.open(inputStream);
+      if (StringUtils.isEmpty(password)) {
+        opcpkg = OPCPackage.open(inputStream);
+      } else {
+        opcpkg = decrypt(inputStream, password);
+      }
       openFile(opcpkg, encoding);
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException(e);
+    }
+  }
+
+  /**
+   * Open an encrypted workbook. POI has to decrypt the complete package before we can pull sheets
+   * out of it, so unlike the plain path this buffers the workbook instead of streaming it straight
+   * from the file. Local files are handed to POI as a file to at least avoid buffering the
+   * encrypted container as well.
+   */
+  private OPCPackage openEncrypted(String filename, String password, IVariables variables)
+      throws Exception {
+    FileObject fileObject = HopVfs.getFileObject(filename, variables);
+    if (fileObject instanceof LocalFile) {
+      File excelFile = new File(HopVfs.getFilename(fileObject));
+      if (FileMagic.valueOf(excelFile) != FileMagic.OLE2) {
+        // Not an encrypted file after all, no need to pay for decryption
+        return OPCPackage.open(excelFile, PackageAccess.READ);
+      }
+      try (POIFSFileSystem fs = new POIFSFileSystem(excelFile, true)) {
+        return decrypt(fs, password, filename);
+      }
+    }
+    try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
+      return decrypt(inputStream, password, filename);
+    }
+  }
+
+  private OPCPackage decrypt(InputStream inputStream, String password) throws Exception {
+    return decrypt(inputStream, password, null);
+  }
+
+  private OPCPackage decrypt(InputStream inputStream, String password, String filename)
+      throws Exception {
+    InputStream checkedStream = FileMagic.prepareToCheckMagic(inputStream);
+    if (FileMagic.valueOf(checkedStream) != FileMagic.OLE2) {
+      // Not an encrypted file after all, no need to pay for decryption
+      return OPCPackage.open(checkedStream);
+    }
+    try (POIFSFileSystem fs = new POIFSFileSystem(checkedStream)) {
+      return decrypt(fs, password, filename);
+    }
+  }
+
+  private OPCPackage decrypt(POIFSFileSystem fs, String password, String filename)
+      throws Exception {
+    Decryptor decryptor = Decryptor.getInstance(new EncryptionInfo(fs));
+    if (!decryptor.verifyPassword(password)) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "ExcelInput.Exception.IncorrectPassword", Const.NVL(filename, "")));
+    }
+    try (InputStream decrypted = decryptor.getDataStream(fs)) {
+      return OPCPackage.open(decrypted);
     }
   }
 

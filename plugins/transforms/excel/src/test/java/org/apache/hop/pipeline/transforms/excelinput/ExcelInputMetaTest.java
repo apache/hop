@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ class ExcelInputMetaTest {
     assertEquals("file2.xls", meta.getFiles().get(1).getName());
     assertEquals(1, meta.getSheets().size());
     assertEquals(4, meta.getFields().size());
+    assertEquals("s3cr3t", meta.getPassword());
+    // the password is never written out in clear text
+    assertTrue(meta.getXml().contains("<password>Encrypted "));
   }
 
   @Test
