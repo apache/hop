@@ -193,6 +193,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   protected volatile Long dataVolumeOut;
 
+  /**
+   * Whether {@link Const#HOP_METRIC_DATA_VOLUME} byte counting is on. Resolved once in {@link
+   * #init()} rather than per row: it is a configuration flag, so looking it up in the variable map
+   * on every row is pointless work on the hottest path in the engine.
+   */
+  private boolean dataVolumeMetricEnabled;
+
   private boolean distributed;
 
   private final IRowDistribution rowDistribution;
@@ -497,6 +504,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(copyNr));
+
+    dataVolumeMetricEnabled =
+        Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"));
 
     // See if fields and types are not null when running.
     // Since this is expensive we're only going to enable it when safe mode checking is on.
@@ -889,7 +899,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolume() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolume;
@@ -910,7 +920,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       if (getPipeline() == null) {
         return;
       }
-      if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+      if (!dataVolumeMetricEnabled) {
         return;
       }
       Long size = RowMeta.getRowSizeEstimateFromRow(row);
@@ -936,7 +946,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolumeIn() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolumeIn;
@@ -950,7 +960,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolumeOut() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolumeOut;

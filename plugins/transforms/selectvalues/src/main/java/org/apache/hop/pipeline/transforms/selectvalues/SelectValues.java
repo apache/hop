@@ -44,6 +44,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> {
 
   private static final Class<?> PKG = SelectValuesMeta.class;
+
+  /** Constant name of the "none" value meta type; resolving it hits the plugin registry. */
+  private static final String NONE_TYPE_NAME =
+      ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE);
+
   public static final String CONST_SELECT_VALUES_LOG_COULD_NOT_FIND_FIELD =
       "SelectValues.Log.CouldNotFindField";
 
@@ -92,6 +97,29 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
           stopAll();
           return null;
         }
+      }
+
+      // Work out once which fields cloneValueData() can actually copy. It only returns a new
+      // object for normally-stored Date and Binary values; anything else hands back the same
+      // reference, so the row loop can assign it straight across. Unknown types keep cloning so
+      // the exception cloneValueData() raises for them is still raised.
+      //
+      data.needsClone = new boolean[data.fieldnrs.length];
+      for (int i = 0; i < data.fieldnrs.length; i++) {
+        IValueMeta valueMeta = rowMeta.getValueMeta(data.fieldnrs[i]);
+        data.needsClone[i] =
+            valueMeta != null
+                && valueMeta.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL
+                && switch (valueMeta.getType()) {
+                  case IValueMeta.TYPE_STRING,
+                          IValueMeta.TYPE_NUMBER,
+                          IValueMeta.TYPE_INTEGER,
+                          IValueMeta.TYPE_BOOLEAN,
+                          IValueMeta.TYPE_BIGNUMBER,
+                          IValueMeta.TYPE_SERIALIZABLE ->
+                      false;
+                  default -> true;
+                };
       }
 
       // Check for doubles in the selected fields... AFTER renaming!!
@@ -161,22 +189,21 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
 
     // Get the field values
     //
-    for (int idx : data.fieldnrs) {
+    int rowMetaSize = rowMeta.size();
+    for (int i = 0; i < data.fieldnrs.length; i++) {
+      int idx = data.fieldnrs[i];
       // Normally this can't happen, except when streams are mixed with different
       // number of fields.
       //
-      if (idx < rowMeta.size()) {
-        IValueMeta valueMeta = rowMeta.getValueMeta(idx);
-
-        // TODO: Clone might be a 'bit' expensive as it is only needed in case you want to copy a
-        // single field to 2 or
-        // more target fields.
-        // And even then it is only required for the last n-1 target fields.
-        // Perhaps we can consider the requirements for cloning at init(), store it in a boolean[]
-        // and just consider
-        // this at runtime
-        //
-        outputData[outputIndex++] = valueMeta.cloneValueData(rowData[idx]);
+      if (idx < rowMetaSize) {
+        // Cloning only produces a new object for normally-stored Date and Binary values; for every
+        // other type cloneValueData() hands back the same reference. data.needsClone was worked out
+        // once from the input row meta, so the common types skip both the value meta lookup and the
+        // virtual call here.
+        outputData[outputIndex++] =
+            data.needsClone[i]
+                ? rowMeta.getValueMeta(idx).cloneValueData(rowData[idx])
+                : rowData[idx];
       } else {
         if (isDetailed()) {
           logDetailed(
@@ -368,8 +395,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
                 .equals(storageTypeCodes[IValueMeta.STORAGE_TYPE_NORMAL])) {
           rowData[index] = fromMeta.convertBinaryStringToNativeType((byte[]) rowData[index]);
         }
-        if (meta.getSelectOption().getMeta().get(i).getType()
-                != ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE)
+        if (meta.getSelectOption().getMeta().get(i).getType() != NONE_TYPE_NAME
             && fromMeta.getType() != toMeta.getType()) {
           rowData[index] = toMeta.convertData(fromMeta, rowData[index]);
         }
