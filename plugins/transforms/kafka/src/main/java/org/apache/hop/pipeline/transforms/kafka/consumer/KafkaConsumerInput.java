@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -50,6 +54,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 
 /** Consume messages from a Kafka topic */
 public class KafkaConsumerInput
@@ -410,14 +416,51 @@ public class KafkaConsumerInput
 
     Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
+    // Only fields carrying an output name are on the row, in the order KafkaConsumerInputMeta
+    // adds them, so each value is placed conditionally rather than at a fixed index.
     int index = 0;
-    rowData[index++] = record.key();
-    rowData[index++] = record.value();
-    rowData[index++] = record.topic();
-    rowData[index++] = (long) record.partition();
-    rowData[index++] = record.offset();
-    rowData[index] = record.timestamp();
+    index = putIfNamed(rowData, index, meta.getKeyField(), record.key());
+    index = putIfNamed(rowData, index, meta.getMessageField(), record.value());
+    index = putIfNamed(rowData, index, meta.getTopicField(), record.topic());
+    index = putIfNamed(rowData, index, meta.getPartitionField(), (long) record.partition());
+    index = putIfNamed(rowData, index, meta.getOffsetField(), record.offset());
+    index = putIfNamed(rowData, index, meta.getTimestampField(), record.timestamp());
+    putIfNamed(rowData, index, meta.getHeadersField(), headersAsJson(record.headers()));
 
     return rowData;
+  }
+
+  /**
+   * Writes a value at the given index only when the field contributes a column, and reports the
+   * next free index. A field with an empty output name is skipped by {@code
+   * KafkaConsumerInputMeta.getRowMeta}, so writing it here would shift every later column.
+   */
+  private int putIfNamed(Object[] rowData, int index, KafkaConsumerField field, Object value) {
+    if (field == null || StringUtils.isEmpty(field.getOutputName()) || index >= rowData.length) {
+      return index;
+    }
+    rowData[index] = value;
+    return index + 1;
+  }
+
+  /**
+   * Renders record headers as a JSON array of {@code {"name":..,"value":..}} objects, preserving
+   * order and repeated names. Header values are bytes on the wire and are decoded as UTF-8; a null
+   * value is rendered as JSON null.
+   */
+  static String headersAsJson(Headers headers) {
+    ArrayNode array = JsonNodeFactory.instance.arrayNode();
+    if (headers != null) {
+      for (Header header : headers) {
+        ObjectNode node = array.addObject();
+        node.put("name", header.key());
+        if (header.value() == null) {
+          node.putNull("value");
+        } else {
+          node.put("value", new String(header.value(), StandardCharsets.UTF_8));
+        }
+      }
+    }
+    return array.toString();
   }
 }
