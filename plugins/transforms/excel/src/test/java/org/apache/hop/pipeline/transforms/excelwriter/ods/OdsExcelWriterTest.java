@@ -27,6 +27,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.HopEnvironment;
@@ -134,7 +136,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"alpha", 42L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       assertEquals("name", getCellText(table, 0, 0));
       assertEquals("count", getCellText(table, 1, 0));
@@ -165,7 +168,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"second", 2L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       assertEquals("name", getCellText(table, 0, 0));
       assertEquals("first", getCellText(table, 0, 1));
@@ -198,7 +202,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"styled-value", 1L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       OdfTableCell writtenCell = table.getCellByPosition(0, 0);
       OdfTableCell referenceCell = table.getCellByPosition(1, 0);
@@ -240,7 +245,8 @@ class OdsExcelWriterTest {
         new Object[] {"Hop", "https://hop.apache.org", "A note", "Tester"});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       OdfTableCell cell = table.getCellByPosition(0, 0);
       TextAElement link =
@@ -280,7 +286,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {12.3});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       OdfTableCell cell = table.getCellByPosition(0, 0);
       assertEquals("12.30", cell.getDisplayText());
@@ -318,7 +325,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {10.0, 20.0, "=A1+B1"});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       OdfTableCell formulaCell = table.getCellByPosition(2, 0);
       assertEquals("of:=.[A1]+.[B1]", formulaCell.getFormula());
@@ -350,7 +358,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"inserted", 2L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       assertEquals("inserted", getCellText(table, 0, 0));
       assertEquals("existing", getCellText(table, 0, 1));
@@ -387,7 +396,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"row-data", 5L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable outputTable = document.getTableByName(SHEET_NAME);
       assertNotNull(outputTable);
       assertEquals("row-data", getCellText(outputTable, 0, 0));
@@ -436,7 +446,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"alpha", 1L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       assertNotNull(table);
       assertEquals("TEMPLATE_MARKER", getCellText(table, 0, 0));
@@ -467,7 +478,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"active", 1L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       assertEquals(SHEET_NAME, OdsTableHelper.getActiveTableName(document));
     }
   }
@@ -484,7 +496,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"much-longer-value", 2L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       assertTrue(table.getColumnByIndex(0).isOptimalWidth());
       assertTrue(table.getColumnByIndex(1).isOptimalWidth());
@@ -504,7 +517,8 @@ class OdsExcelWriterTest {
     transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"locked", 1L});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       assertTrue(table.getOdfElement().getTableProtectedAttribute());
       assertEquals(

@@ -25,6 +25,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -176,7 +178,8 @@ class OdsExcelWriterIntegrationTest {
         new Object[] {"Gamma", 30L, "=A4+B4", "https://example.com", ""});
     transform.closeFiles();
 
-    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+    try (InputStream input = Files.newInputStream(outputFile.toPath());
+        OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(input)) {
       OdfTable table = document.getTableByName(SHEET_NAME);
       assertNotNull(table);
       assertEquals(SHEET_NAME, OdsTableHelper.getActiveTableName(document));
