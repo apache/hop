@@ -36,6 +36,7 @@ Compatibility with Kettle/PDI was never a goal for Apache Hop, but since a lot o
 * connections in jobs and transformations are extracted and converted to Hop relational database connection metadata objects
 * import jobs, transformations and other files into a Hop project (selected or bootstrapped in specified folder)
 * repository references are extracted and converted to file references
+* SFTPPut steps: the server, credentials and proxy settings of the step are extracted into an *SFTP Connection* metadata object, and the transform is pointed at it by name. Steps talking to the same server share one connection.
 
 == Known limitations
 

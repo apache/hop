@@ -28,10 +28,14 @@
     <artifactId>hop-action-ftp</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugins Actions Get/Put/Delete a file with FTP/SFTP</name>
+    <name>Hop Plugins Actions Get/Put/Delete a file with FTP</name>
 
     <properties>
         <commons-net-version>3.12.0</commons-net-version>
+        <!-- The FTP delete action talks SFTP through the client of the SFTP technology plugin. It
+             sees it through the shared "sftp" class loader group, so the jar must not be copied
+             into lib/core on top of that. -->
+        <hop.libcore.exclude1>org.apache.hop:hop-tech-sftp</hop.libcore.exclude1>
     </properties>
 
     <dependencyManagement>
@@ -48,14 +52,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.mwiede</groupId>
-            <artifactId>jsch</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
             <version>${commons-net-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- The FTP delete action can talk SFTP as well: it uses the SFTP client of the SFTP
+             technology plugin.  Both plugins share the "sftp" class loader group at runtime. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-sftp</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
