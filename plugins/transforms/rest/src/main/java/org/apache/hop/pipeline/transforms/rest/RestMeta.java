@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
@@ -99,6 +101,20 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
         HTTP_METHOD_OPTIONS,
         HTTP_METHOD_PATCH
       };
+
+  /**
+   * Well-known methods that never carry a request body. Any other method — including a custom verb
+   * such as LIST or PURGE (issue #4770) — is allowed to send one.
+   */
+  private static final Set<String> BODY_LESS_METHODS =
+      Set.of(HTTP_METHOD_GET, HTTP_METHOD_HEAD, HTTP_METHOD_OPTIONS);
+
+  /** Well-known methods that take no query or matrix parameters. */
+  private static final Set<String> PARAMETER_LESS_METHODS =
+      Set.of(HTTP_METHOD_HEAD, HTTP_METHOD_OPTIONS);
+
+  /** A valid HTTP method token, per RFC 9110 §5.6.2 (a {@code token} production). */
+  private static final Pattern HTTP_METHOD_TOKEN = Pattern.compile("[!#$%&'*+\\-.^_`|~0-9A-Za-z]+");
 
   /** The default timeout until a connection is established (milliseconds) */
   public static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
@@ -416,20 +432,46 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     if (Utils.isEmpty(method)) {
       return false;
     }
-    return (method.equals(HTTP_METHOD_POST)
-        || method.equals(HTTP_METHOD_PUT)
-        || method.equals(HTTP_METHOD_PATCH)
-        || method.equals(HTTP_METHOD_DELETE));
+    return !BODY_LESS_METHODS.contains(method);
   }
 
   public static boolean isActiveParameters(String method) {
     if (Utils.isEmpty(method)) {
       return false;
     }
-    return (method.equals(HTTP_METHOD_GET)
-        || method.equals(HTTP_METHOD_POST)
-        || method.equals(HTTP_METHOD_PUT)
-        || method.equals(HTTP_METHOD_PATCH)
-        || method.equals(HTTP_METHOD_DELETE));
+    return !PARAMETER_LESS_METHODS.contains(method);
+  }
+
+  /**
+   * Canonicalizes a method for use on the wire: trims it, and upper-cases it only when it names one
+   * of the well-known verbs. HTTP method tokens are case-sensitive, so a custom verb is passed
+   * through exactly as the user typed it.
+   *
+   * @param method the raw method, possibly null
+   * @return the canonicalized method, or null if the input was null
+   */
+  public static String normalizeMethod(String method) {
+    if (method == null) {
+      return null;
+    }
+    String trimmed = method.trim();
+    for (String known : HTTP_METHODS) {
+      if (known.equalsIgnoreCase(trimmed)) {
+        return known;
+      }
+    }
+    return trimmed;
+  }
+
+  /**
+   * Checks that a method is a valid HTTP method token as defined by RFC 9110 §5.6.2. This is
+   * enforced because the method can come straight from an input field: a value containing spaces or
+   * CR/LF would otherwise be spliced into the request line.
+   *
+   * @param method the method to validate
+   * @return true if the method is a usable HTTP method token
+   */
+  public static boolean isValidMethodToken(String method) {
+    return method != null && HTTP_METHOD_TOKEN.matcher(method).matches();
   }
 }

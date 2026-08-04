@@ -323,6 +323,49 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
+  void testCustomMethodsAllowBodyAndParameters() {
+    // Issue #4770: a custom verb must not have Body / Parameters greyed out, since we have no way
+    // of knowing that it does not take them.
+    assertTrue(RestMeta.isActiveBody("LIST"));
+    assertTrue(RestMeta.isActiveBody("PURGE"));
+    assertTrue(RestMeta.isActiveBody("PROPFIND"));
+
+    assertTrue(RestMeta.isActiveParameters("LIST"));
+    assertTrue(RestMeta.isActiveParameters("PURGE"));
+
+    // Variables are not resolved at dialog time, so they must not be treated as body-less either.
+    assertTrue(RestMeta.isActiveBody("${HTTP_METHOD}"));
+    assertTrue(RestMeta.isActiveParameters("${HTTP_METHOD}"));
+  }
+
+  @Test
+  void testNormalizeMethod() {
+    assertNull(RestMeta.normalizeMethod(null));
+
+    // Well-known verbs get canonicalized...
+    assertEquals(RestMeta.HTTP_METHOD_GET, RestMeta.normalizeMethod("  get "));
+    assertEquals(RestMeta.HTTP_METHOD_PATCH, RestMeta.normalizeMethod("Patch"));
+
+    // ...but a custom verb keeps its case, because HTTP method tokens are case-sensitive.
+    assertEquals("List", RestMeta.normalizeMethod(" List "));
+    assertEquals("PURGE", RestMeta.normalizeMethod("PURGE"));
+  }
+
+  @Test
+  void testIsValidMethodToken() {
+    assertTrue(RestMeta.isValidMethodToken("LIST"));
+    assertTrue(RestMeta.isValidMethodToken("M-SEARCH"));
+    assertTrue(RestMeta.isValidMethodToken("X_custom.verb!"));
+
+    assertFalse(RestMeta.isValidMethodToken(null));
+    assertFalse(RestMeta.isValidMethodToken(""));
+    // These would be spliced into the request line if we let them through.
+    assertFalse(RestMeta.isValidMethodToken("GET /admin HTTP/1.1"));
+    assertFalse(RestMeta.isValidMethodToken("GET\r\nX-Injected: 1"));
+    assertFalse(RestMeta.isValidMethodToken("GET("));
+  }
+
+  @Test
   void testClone() {
     RestMeta meta = new RestMeta();
     meta.setUrl("http://example.com");

@@ -189,11 +189,25 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
 
     if (meta.isDynamicMethod()) {
-      data.method = data.inputRowMeta.getString(rowData, data.indexOfMethod);
-      if (Utils.isEmpty(data.method)) {
-        throw new HopException(BaseMessages.getString(PKG, "Rest.Error.MethodMissing"));
-      }
+      data.method = checkMethod(data.inputRowMeta.getString(rowData, data.indexOfMethod));
     }
+  }
+
+  /**
+   * Canonicalizes an HTTP method and rejects anything that is not a valid method token. Custom
+   * verbs are allowed through (issue #4770), but a value carrying spaces or CR/LF is not: the
+   * method may come straight from an input field, and such a value would be spliced into the
+   * request line.
+   */
+  private String checkMethod(String rawMethod) throws HopException {
+    String httpMethod = RestMeta.normalizeMethod(rawMethod);
+    if (Utils.isEmpty(httpMethod)) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.MethodMissing"));
+    }
+    if (!RestMeta.isValidMethodToken(httpMethod)) {
+      throw new HopException(BaseMessages.getString(PKG, "Rest.Error.InvalidMethod", httpMethod));
+    }
+    return httpMethod;
   }
 
   /** Whether paging can run without degrading back to legacy single-call semantics. */
@@ -1384,9 +1398,24 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
                 RestMeta.HTTP_METHOD_PATCH, Entity.entity(body, data.mediaType));
           }
         }
-        default ->
-            throw new HopException(
-                BaseMessages.getString(PKG, "Rest.Error.UnknownMethod", data.method));
+        default -> {
+          // Any other verb — LIST, PURGE, PROPFIND, ... — is passed through verbatim (issue
+          // #4770). Jersey accepts an arbitrary method token: the Apache 5 connector used by the
+          // standalone path writes it straight into the request line, while the JDK
+          // HttpURLConnection connector used by the REST-connection path gets there via
+          // SET_METHOD_WORKAROUND, which is why the Hop launch scripts pass
+          // --add-opens java.base/java.net=ALL-UNNAMED.
+          // The body is sent the same way DELETE does it: a null body is normalized to "" above,
+          // so a body-less custom verb still carries Content-Length: 0.
+          trackRequestBytes(
+              entityString,
+              contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
+          if (null != contentType) {
+            return invocationBuilder.method(data.method, Entity.entity(body, contentType));
+          } else {
+            return invocationBuilder.method(data.method, Entity.entity(body, data.mediaType));
+          }
+        }
       }
     } catch (Exception e) {
       throw new HopException("Request could not be processed", e);
@@ -1757,9 +1786,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getHttpPassword()));
 
       if (!meta.isDynamicMethod()) {
-        data.method = resolve(meta.getMethod());
-        if (Utils.isEmpty(data.method)) {
-          logError(BaseMessages.getString(PKG, "Rest.Error.MethodMissing"));
+        try {
+          data.method = checkMethod(resolve(meta.getMethod()));
+        } catch (HopException e) {
+          logError(e.getMessage());
           return false;
         }
       }

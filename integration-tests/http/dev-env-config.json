@@ -6,6 +6,11 @@
       "description" : "hostname of http container"
     },
     {
+      "name" : "ECHO_HOSTNAME",
+      "value" : "httpecho",
+      "description" : "hostname of the container that echoes back the HTTP method it received"
+    },
+    {
       "name" : "CASTLEMOCK_HOSTNAME",
       "value" : "castlemock",
       "description" : "hostname for the CastleMock service"

@@ -26,6 +26,7 @@ services:
       - ./resource/http/mtls/nginx-configs:/opt/hop/tests/mtls/nginx:ro
     depends_on:
       - http
+      - httpecho
       - tomcat
       - castlemock
       - mtls_test
@@ -38,6 +39,16 @@ services:
     hostname: http
     ports:
       - "80"
+
+  # Answers any HTTP method with the method name, so the custom-method tests can assert on the
+  # verb the server actually received. httpbin routes only the well-known verbs.
+  httpecho:
+    image: nginx:alpine
+    hostname: httpecho
+    ports:
+      - "80"
+    volumes:
+      - ./resource/http/echo/echo.conf:/etc/nginx/nginx.conf:ro
 
   tomcat:
     user: root

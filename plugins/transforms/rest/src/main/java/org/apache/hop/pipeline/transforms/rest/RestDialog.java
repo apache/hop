@@ -463,6 +463,7 @@ public class RestDialog extends BaseTransformDialog {
     activateTrustStoreFields();
     activatePaginationTab();
     setMethod();
+    wMethod.addModifyListener(e -> setMethod());
     input.setChanged(changed);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
