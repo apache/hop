@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.io.Files;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,7 +58,10 @@ import org.apache.hop.utils.TestUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -266,6 +271,101 @@ class ExcelWriterTransformTest {
 
     verify(dataMock.currentWorkbookDefinition.getSheet(), times(1)).createRow(1);
     verify(dataMock.currentWorkbookDefinition.getSheet()).getRow(1);
+  }
+
+  /**
+   * Issue #6520: with "Replace with new sheet" the sheet coming from the template file was removed
+   * right after the template was copied into place, so the template sheet could no longer be found.
+   */
+  @Test
+  void testTemplateSheetSurvivesReplaceWithNewSheet() throws Exception {
+
+    String path = Files.createTempDir().getAbsolutePath() + File.separator + "template_sheet.xlsx";
+
+    dataMock.createNewFile = true;
+    // "If sheet exists in output file" = "Replace with new sheet"
+    dataMock.createNewSheet = true;
+    dataMock.realTemplateFileName =
+        getClass().getResource("template_with_formatting.xlsx").getFile();
+    // the output sheet carries the same name as the template sheet
+    dataMock.realSheetname = "TicketData";
+    dataMock.realTemplateSheetName = "TicketData";
+
+    when(transform.buildFilename(0)).thenReturn(path);
+    when(metaMock.getFile().getExtension()).thenReturn(XLSX);
+    when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
+    when(metaMock.getTemplate().isTemplateSheetEnabled()).thenReturn(true);
+    when(metaMock.isHeaderEnabled()).thenReturn(false);
+
+    transform.prepareNextOutputFile(any(Object[].class));
+
+    Sheet sheet = dataMock.currentWorkbookDefinition.getSheet();
+    assertNotNull(sheet);
+    assertEquals("TicketData", sheet.getSheetName());
+  }
+
+  /**
+   * Issue #6520: the same removal silently dropped the content and formatting of the template sheet
+   * when only a template file (no template sheet) was used.
+   */
+  @Test
+  void testTemplateContentPreservedWithReplaceWithNewSheet() throws Exception {
+
+    String path = Files.createTempDir().getAbsolutePath() + File.separator + "template_file.xlsx";
+    String templateFileName = getClass().getResource("template_with_formatting.xlsx").getFile();
+
+    int templateRows;
+    try (Workbook template = WorkbookFactory.create(new File(templateFileName))) {
+      templateRows = template.getSheet("TicketData").getPhysicalNumberOfRows();
+    }
+    assertTrue(templateRows > 0);
+
+    dataMock.createNewFile = true;
+    dataMock.createNewSheet = true;
+    dataMock.realTemplateFileName = templateFileName;
+    dataMock.realSheetname = "TicketData";
+
+    when(transform.buildFilename(0)).thenReturn(path);
+    when(metaMock.getFile().getExtension()).thenReturn(XLSX);
+    when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
+    when(metaMock.getTemplate().isTemplateSheetEnabled()).thenReturn(false);
+    when(metaMock.isHeaderEnabled()).thenReturn(false);
+
+    transform.prepareNextOutputFile(any(Object[].class));
+
+    Sheet sheet = dataMock.currentWorkbookDefinition.getSheet();
+    assertEquals(templateRows, sheet.getPhysicalNumberOfRows());
+  }
+
+  /**
+   * "Replace with new sheet" must keep working for a sheet that already exists in a re-used output
+   * file: only then is there something to replace.
+   */
+  @Test
+  void testExistingSheetInReusedFileIsStillReplaced() throws Exception {
+
+    File outputFile =
+        new File(Files.createTempDir().getAbsolutePath() + File.separator + "existing.xlsx");
+    try (Workbook existing = new XSSFWorkbook()) {
+      Sheet sheet = existing.createSheet("TicketData");
+      sheet.createRow(0).createCell(0).setCellValue("stale");
+      try (OutputStream out = new FileOutputStream(outputFile)) {
+        existing.write(out);
+      }
+    }
+
+    dataMock.createNewFile = false;
+    dataMock.createNewSheet = true;
+    dataMock.realSheetname = "TicketData";
+
+    when(transform.buildFilename(0)).thenReturn(outputFile.getAbsolutePath());
+    when(metaMock.getFile().getExtension()).thenReturn(XLSX);
+    when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(false);
+    when(metaMock.isHeaderEnabled()).thenReturn(false);
+
+    transform.prepareNextOutputFile(any(Object[].class));
+
+    assertEquals(0, dataMock.currentWorkbookDefinition.getSheet().getPhysicalNumberOfRows());
   }
 
   @Test

@@ -405,6 +405,45 @@ class OdsExcelWriterTest {
     }
   }
 
+  /**
+   * Issue #6520: with "Replace with new sheet" the table coming from the template file was dropped,
+   * losing the template content and hiding the template sheet from the clone step.
+   */
+  @Test
+  void testTemplateTableSurvivesReplaceWithNewSheet() throws Exception {
+    File templateFile = new File(tempDir, "marker-template.ods");
+    try (OdfSpreadsheetDocument template = OdfSpreadsheetDocument.newSpreadsheetDocument()) {
+      OdfTable templateTable = template.getTableList().get(0);
+      // the template table carries the same name as the output sheet
+      templateTable.setTableName(SHEET_NAME);
+      templateTable.getCellByPosition(0, 0).setStringValue("TEMPLATE_MARKER");
+      template.save(templateFile);
+    }
+
+    File outputFile = new File(tempDir, "marker-output.ods");
+    doReturn(outputFile.getAbsolutePath()).when(transform).buildFilename(0);
+    meta.setHeaderEnabled(false);
+    meta.setStartingCell("A3");
+    meta.getTemplate().setTemplateEnabled(true);
+    meta.getTemplate().setTemplateFileName(templateFile.getAbsolutePath());
+    data.realTemplateFileName = templateFile.getAbsolutePath();
+
+    assertTrue(transform.init());
+    // "If sheet exists in output file" = "Replace with new sheet"
+    assertTrue(data.createNewSheet);
+
+    transform.prepareNextOutputFile(new Object[] {"alpha", 1L});
+    transform.writeNextLine(data.currentWorkbookDefinition, new Object[] {"alpha", 1L});
+    transform.closeFiles();
+
+    try (OdfSpreadsheetDocument document = OdfSpreadsheetDocument.loadDocument(outputFile)) {
+      OdfTable table = document.getTableByName(SHEET_NAME);
+      assertNotNull(table);
+      assertEquals("TEMPLATE_MARKER", getCellText(table, 0, 0));
+      assertEquals("alpha", getCellText(table, 0, 2));
+    }
+  }
+
   @Test
   void testMakeActiveSheet() throws Exception {
     File outputFile = new File(tempDir, "active.ods");

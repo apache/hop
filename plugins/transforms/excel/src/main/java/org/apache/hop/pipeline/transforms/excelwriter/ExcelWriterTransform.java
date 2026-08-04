@@ -954,7 +954,10 @@ public class ExcelWriterTransform
       int existingActiveSheetIndex = wb.getActiveSheetIndex();
       int replacingSheetAt = -1;
 
-      if (wb.getSheet(data.realSheetname) != null && data.createNewSheet) {
+      // "If sheet exists in output file" only applies to a pre-existing output file. When the file
+      // was just created (from a template or from scratch) there is nothing to replace: dropping
+      // the sheet here would throw away the template sheet we are about to use. See issue #6520.
+      if (wb.getSheet(data.realSheetname) != null && data.createNewSheet && appendingToSheet) {
         // sheet exists, replace or reuse as indicated by user
         replacingSheetAt = wb.getSheetIndex(wb.getSheet(data.realSheetname));
         wb.removeSheetAt(replacingSheetAt);
