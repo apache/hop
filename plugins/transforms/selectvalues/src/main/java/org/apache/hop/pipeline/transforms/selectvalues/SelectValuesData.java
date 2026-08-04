@@ -25,6 +25,16 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class SelectValuesData extends BaseTransformData implements ITransformData {
 
   public int[] fieldnrs;
+
+  /**
+   * Per selected field: whether {@link
+   * org.apache.hop.core.row.IValueMeta#cloneValueData(java.lang.Object)} can actually hand back a
+   * different object. It only does so for normally-stored Date and Binary values; every other type
+   * returns the same reference. Deciding this once lets the row loop skip both the value meta
+   * lookup and the virtual call for the common types.
+   */
+  public boolean[] needsClone;
+
   public int[] extraFieldnrs;
   public int[] removenrs;
   public int[] metanrs;

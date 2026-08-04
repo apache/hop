@@ -444,13 +444,15 @@ public class TextFileInputUtils {
                       "" + rowNr);
 
               if (info.getErrorHandling().isErrorIgnored()) {
-                log.logDetailed(
-                    fname,
-                    BaseMessages.getString(PKG, "TextFileInput.Log.Warning")
-                        + ": "
-                        + message
-                        + " : "
-                        + e.getMessage());
+                if (log.isDetailed()) {
+                  log.logDetailed(
+                      fname,
+                      BaseMessages.getString(PKG, "TextFileInput.Log.Warning")
+                          + ": "
+                          + message
+                          + " : "
+                          + e.getMessage());
+                }
 
                 value = null;
 
@@ -817,10 +819,15 @@ public class TextFileInputUtils {
           }
 
           // replace the escaped escape with escape...
-          containsEscapedEscape = pol.contains(inf.getEscapeCharacter() + inf.getEscapeCharacter());
+          // Without an escape character there is nothing to unescape: escapeCharacter is then the
+          // empty string and String.contains("") is always true, which would send every field of
+          // every row through a no-op regex replace.
+          String escapeCharacter = inf.getEscapeCharacter();
+          containsEscapedEscape =
+              !Utils.isEmpty(escapeCharacter) && pol.contains(escapeCharacter + escapeCharacter);
           if (containsEscapedEscape) {
-            String replace = inf.getEscapeCharacter() + inf.getEscapeCharacter();
-            String replaceWith = inf.getEscapeCharacter();
+            String replace = escapeCharacter + escapeCharacter;
+            String replaceWith = escapeCharacter;
 
             pol = Const.replace(pol, replace, replaceWith);
           }
