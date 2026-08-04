@@ -26,7 +26,9 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerField;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaHeaders;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
 
 public class KafkaProducerOutput
     extends BaseTransform<KafkaProducerOutputMeta, KafkaProducerOutputData> {
@@ -84,6 +86,17 @@ public class KafkaProducerOutput
         data.topic = resolve(meta.getTopic());
       }
 
+      data.headersFieldIndex = -1;
+      String headersField = resolve(meta.getHeadersField());
+      if (StringUtils.isNotEmpty(headersField)) {
+        data.headersFieldIndex = getInputRowMeta().indexOfValue(headersField);
+        if (data.headersFieldIndex < 0) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "KafkaProducerOutput.Error.HeadersFieldNotFound", headersField));
+        }
+      }
+
       data.kafkaProducer =
           kafkaFactory.producer(
               meta,
@@ -100,13 +113,18 @@ public class KafkaProducerOutput
       return false;
     }
     String topic = resolveTopic(r);
+    Iterable<Header> headers = resolveHeaders(r);
 
     ProducerRecord<Object, Object> producerRecord;
     // allow for null keys
     if (data.keyFieldIndex < 0
         || getInputRowMeta().isNull(r, data.keyFieldIndex)
         || StringUtils.isEmpty(r[data.keyFieldIndex].toString())) {
-      producerRecord = new ProducerRecord<>(topic, r[data.messageFieldIndex]);
+      // Explicit casts pick the (topic, partition, timestamp, key, value, headers) constructor;
+      // bare nulls leave it ambiguous against the shorter overloads.
+      producerRecord =
+          new ProducerRecord<>(
+              topic, (Integer) null, (Long) null, null, r[data.messageFieldIndex], headers);
     } else {
 
       Object nativeObject =
@@ -116,7 +134,12 @@ public class KafkaProducerOutput
 
       producerRecord =
           new ProducerRecord<>(
-              topic, getInputRowMeta().getString(r, data.keyFieldIndex), nativeObject);
+              topic,
+              (Integer) null,
+              (Long) null,
+              getInputRowMeta().getString(r, data.keyFieldIndex),
+              nativeObject,
+              headers);
     }
 
     data.kafkaProducer.send(producerRecord);
@@ -155,6 +178,27 @@ public class KafkaProducerOutput
               getLinesRead()));
     }
     return topic;
+  }
+
+  /**
+   * Reads the record headers for a row from the configured field, which holds the same JSON array
+   * of {@code {"name":..,"value":..}} objects the Kafka Consumer produces, so headers survive a
+   * consume-then-produce round trip.
+   *
+   * @param r the current input row
+   * @return the headers to attach, or null when no headers field is configured or the value is
+   *     empty
+   * @throws HopException if the field does not hold a usable headers document
+   */
+  private Iterable<Header> resolveHeaders(Object[] r) throws HopException {
+    if (data.headersFieldIndex < 0) {
+      return null;
+    }
+    String json = getInputRowMeta().getString(r, data.headersFieldIndex);
+    if (StringUtils.isBlank(json)) {
+      return null;
+    }
+    return KafkaHeaders.fromJson(json);
   }
 
   @Override

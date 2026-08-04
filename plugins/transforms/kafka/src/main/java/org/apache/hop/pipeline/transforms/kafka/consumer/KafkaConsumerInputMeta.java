@@ -308,7 +308,8 @@ public class KafkaConsumerInputMeta
             getTopicField(),
             getPartitionField(),
             getOffsetField(),
-            getTimestampField()));
+            getTimestampField(),
+            getHeadersField()));
   }
 
   @Override

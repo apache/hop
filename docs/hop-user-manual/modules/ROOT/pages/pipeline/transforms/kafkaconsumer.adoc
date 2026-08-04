@@ -134,8 +134,14 @@ You cannot have more consumers than the number of partitions.
 * **offset**: A sequential ID number assigned by Kafka to each record.
 It uniquely identifies each record within the partition.
 * **timestamp**: The time the message is received on the server.
+* **headers**: The record headers, as a JSON array of `{"name":..,"value":..}` objects.
+An array is used rather than a JSON object because Kafka keeps headers ordered and allows the same name to appear more than once.
+This value can be fed straight into the _Headers field_ of the Kafka Producer transform to pass headers through unchanged.
 
-|Output name|The _Output name_ can be mapped to subscriber and member requirements.
+|Output name a|The _Output name_ can be mapped to subscriber and member requirements.
+
+Leave the output name empty to keep that field off the output row.
+**headers** ships with an empty output name, so pipelines created before header support produce the same rows as before; give it a name to start reading headers.
 |Type a|The Type field defines the data format for streaming the record.
 You must choose the same data type that produced the records.
 This field applies to the ‘key’ and ‘message’ input names.
