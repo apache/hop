@@ -17,22 +17,34 @@
 
 package org.apache.hop.workflow.actions.missing;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IMissingPlugin;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
 
-public class MissingAction extends ActionBase implements IAction {
+/**
+ * Stands in for an action whose plugin isn't installed. It keeps the XML of the original action
+ * untouched so that opening and saving the workflow doesn't destroy the configuration of that
+ * action.
+ */
+public class MissingAction extends ActionBase implements IAction, IMissingPlugin {
 
   /** Action unique identifier" */
   public static final String ID = "MISSING";
 
   private final String missingPluginId;
+
+  @Getter @Setter private List<String> preservedXml = new ArrayList<>();
 
   public MissingAction() {
     this(null, null);
@@ -42,6 +54,13 @@ public class MissingAction extends ActionBase implements IAction {
     super(name, "");
     setPluginId(ID);
     this.missingPluginId = missingPluginId;
+  }
+
+  @Override
+  public Object clone() {
+    MissingAction clone = (MissingAction) super.clone();
+    clone.setPreservedXml(new ArrayList<>(preservedXml));
+    return clone;
   }
 
   @Override

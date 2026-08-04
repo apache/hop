@@ -44,6 +44,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHasName;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IMissingPlugin;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
@@ -186,34 +188,43 @@ public class TransformMeta
 
   public String getXml() throws HopException {
 
-    StringBuilder xml = new StringBuilder(200);
+    StringBuilder body = new StringBuilder(200);
 
-    xml.append("  ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
-    xml.append("    ").append(XmlHandler.addTagValue("name", getName()));
-    xml.append("    ").append(XmlHandler.addTagValue("type", getTransformPluginId()));
-    xml.append("    ").append(XmlHandler.addTagValue("description", description));
-    xml.append("    ").append(XmlHandler.addTagValue("distribute", distributes));
-    xml.append("    ")
+    body.append("    ").append(XmlHandler.addTagValue("name", getName()));
+    body.append("    ").append(XmlHandler.addTagValue("type", getTransformPluginId()));
+    body.append("    ").append(XmlHandler.addTagValue("description", description));
+    body.append("    ").append(XmlHandler.addTagValue("distribute", distributes));
+    body.append("    ")
         .append(
             XmlHandler.addTagValue(
                 "custom_distribution", rowDistribution == null ? null : rowDistribution.getCode()));
-    xml.append("    ").append(XmlHandler.addTagValue("copies", copiesString));
+    body.append("    ").append(XmlHandler.addTagValue("copies", copiesString));
 
-    xml.append(transformPartitioningMeta.getXml());
+    body.append(transformPartitioningMeta.getXml());
     if (targetTransformPartitioningMeta != null) {
-      xml.append(XmlHandler.openTag(CONST_TARGET_TRANSFORM_PARTITIONING))
+      body.append(XmlHandler.openTag(CONST_TARGET_TRANSFORM_PARTITIONING))
           .append(targetTransformPartitioningMeta.getXml())
           .append(XmlHandler.closeTag(CONST_TARGET_TRANSFORM_PARTITIONING));
     }
 
-    xml.append(transform.getXml());
+    body.append(transform.getXml());
 
-    xml.append(AttributesUtil.getAttributesXml(attributesMap));
+    body.append(AttributesUtil.getAttributesXml(attributesMap));
 
-    xml.append("    ").append(XmlHandler.openTag("GUI")).append(Const.CR);
-    xml.append("      ").append(XmlHandler.addTagValue("xloc", location.x));
-    xml.append("      ").append(XmlHandler.addTagValue("yloc", location.y));
-    xml.append("    ").append(XmlHandler.closeTag("GUI")).append(Const.CR);
+    body.append("    ").append(XmlHandler.openTag("GUI")).append(Const.CR);
+    body.append("      ").append(XmlHandler.addTagValue("xloc", location.x));
+    body.append("      ").append(XmlHandler.addTagValue("yloc", location.y));
+    body.append("    ").append(XmlHandler.closeTag("GUI")).append(Const.CR);
+
+    // The settings of a transform whose plugin isn't installed are written back out untouched.
+    //
+    if (transform instanceof IMissingPlugin missingPlugin) {
+      body.append(XmlMetadataUtil.getPreservedMissingPluginXml(missingPlugin, body.toString()));
+    }
+
+    StringBuilder xml = new StringBuilder(body.length() + 100);
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+    xml.append(body);
     xml.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR).append(Const.CR);
 
     return xml.toString();
@@ -239,7 +250,12 @@ public class TransformMeta
           registry.findPluginWithId(TransformPluginType.class, transformPluginId, true);
 
       if (transformPlugin == null) {
-        setTransform(new Missing(name, transformPluginId));
+        // The plugin isn't installed: keep the XML of the transform so that saving the pipeline
+        // doesn't throw away its configuration.
+        //
+        Missing missing = new Missing(name, transformPluginId);
+        XmlMetadataUtil.preserveMissingPluginXml(missing, transformNode);
+        setTransform(missing);
       } else {
         setTransform((ITransformMeta) registry.loadClass(transformPlugin));
       }

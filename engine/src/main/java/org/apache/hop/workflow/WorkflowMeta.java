@@ -453,6 +453,7 @@ public class WorkflowMeta extends AbstractMeta
    * that need to be set. This is happening here.
    */
   public void lookupReferencesAfterLoading() {
+    missingActions = null;
     for (ActionMeta actionMeta : workflowActions) {
       IAction action = actionMeta.getAction();
 
@@ -460,6 +461,12 @@ public class WorkflowMeta extends AbstractMeta
       // This is rarely used, for example in getTableFields.getTableFields()
       //
       action.setParentWorkflowMeta(this);
+
+      // Keep track of the actions whose plugin isn't installed so we can warn about them.
+      //
+      if (action instanceof MissingAction missingAction) {
+        addMissingAction(missingAction);
+      }
     }
   }
 
