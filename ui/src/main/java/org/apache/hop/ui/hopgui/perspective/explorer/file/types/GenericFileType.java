@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -77,20 +77,12 @@ public class GenericFileType implements IHopFileType {
   }
 
   /**
-   * See if this is a generic file
-   *
-   * @param filename The filename
-   * @param checkContent True if we want to look inside the file content
-   * @return
-   * @throws HopException
+   * Catch-all for files that no specialized type claimed. Must not touch VFS: this type is last in
+   * the explorer list and used to be invoked with a full {@code isFile()} probe per unmatched path.
    */
   @Override
   public boolean isHandledBy(String filename, boolean checkContent) throws HopException {
-    try {
-      return HopVfs.getFileObject(filename).isFile();
-    } catch (Exception e) {
-      throw new HopException("Error seeing if file '" + filename + "' is a generic file", e);
-    }
+    return !Utils.isEmpty(filename);
   }
 
   @Override
