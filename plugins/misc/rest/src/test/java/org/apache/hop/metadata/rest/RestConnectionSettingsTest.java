@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
@@ -31,6 +33,8 @@ import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.rest.client.RestAuthType;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.metadata.rest.client.RestClientSettings;
 import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -57,6 +61,22 @@ class RestConnectionSettingsTest {
     RestConnection connection = new RestConnection(new Variables());
     connection.setBaseUrl("https://api.example.com");
     return connection;
+  }
+
+  @Test
+  void aConnectionStoredWithTheRemovedCertificateAuthTypeStillSendsNoAuthHeader() throws Exception {
+    // "Certificate" used to be offered as an authentication type but never contributed anything:
+    // mTLS comes from the keystore fields and applies whatever the auth type says. Now that the
+    // option is gone, such a connection has to keep behaving exactly as it always did.
+    RestConnection connection =
+        fromJson("{\"base_url\":\"https://api.example.com\",\"auth_type\":\"Certificate\"}");
+
+    RestClientSettings settings = connection.createClientSettings();
+
+    assertEquals(RestAuthType.NONE, settings.getAuthType());
+    Map<String, String> headers = new LinkedHashMap<>();
+    new RestAuthenticator(settings).applyRequestHeaders(headers, "https://api.example.com/x");
+    assertTrue(headers.isEmpty(), "an unknown auth type must not invent a header");
   }
 
   private static RestConnection fromJson(String json) throws Exception {

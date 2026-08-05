@@ -59,7 +59,17 @@ import org.eclipse.swt.widgets.Text;
  */
 public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private static final Class<?> PKG = RestConnectionEditor.class;
+
+  /**
+   * No longer offered as an authentication type: mTLS is a property of the TLS handshake, not of
+   * the Authorization header, and it is configured by the client certificate fields in the SSL
+   * section. Listing it here made it look mutually exclusive with Basic/Bearer/API key, when in
+   * fact a client certificate combines with any of them — and selecting it configured nothing at
+   * all, because RestConnection only ever reads the keystore settings. Kept as a constant so a
+   * connection stored with this value can still be recognised and migrated on load.
+   */
   public static final String CERTIFICATE = "Certificate";
+
   public static final String API_KEY = "API Key";
   public static final String NO_AUTH = "No Auth";
   public static final String BASIC = "Basic";
@@ -71,7 +81,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wBaseUrl;
   private TextVar wTestUrl;
   private ComboVar wAuthType;
-  private static final String[] AUTH_TYPES = {NO_AUTH, API_KEY, BASIC, BEARER, CERTIFICATE};
+  private static final String[] AUTH_TYPES = {NO_AUTH, API_KEY, BASIC, BEARER};
 
   private Composite wAuthComp;
 
@@ -230,8 +240,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
             addBasicAuthFields();
           } else if (wAuthType.getText().equals(BEARER)) {
             addBearerFields();
-          } else if (wAuthType.getText().equals(CERTIFICATE)) {
-            addCertificateFields();
           }
         });
 
@@ -240,7 +248,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdAuthSComp = new FormData();
     fdAuthSComp.top = new FormAttachment(wAuthType, margin);
     fdAuthSComp.left = new FormAttachment(0, 0);
-    fdAuthSComp.right = new FormAttachment(95, 0);
+    fdAuthSComp.right = new FormAttachment(100, 0);
     fdAuthSComp.bottom = new FormAttachment(95, 0);
     wsAuthComp.setLayoutData(fdAuthSComp);
 
@@ -423,13 +431,23 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlClientCertLabel.top = new FormAttachment(wlClientCert, margin);
     wlClientCertLabel.setLayoutData(fdlClientCertLabel);
 
+    Label wlClientCertInfo = new Label(gSSLTrustStore, SWT.LEFT | SWT.WRAP);
+    wlClientCertInfo.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.ClientCertificate.Info"));
+    PropsUi.setLook(wlClientCertInfo);
+    FormData fdlClientCertInfo = new FormData();
+    fdlClientCertInfo.left = new FormAttachment(0, 0);
+    fdlClientCertInfo.right = new FormAttachment(100, -margin);
+    fdlClientCertInfo.top = new FormAttachment(wlClientCertLabel, margin);
+    wlClientCertInfo.setLayoutData(fdlClientCertInfo);
+
     // KeyStore file
     Label wlKeyStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
     wlKeyStoreFile.setText(BaseMessages.getString(PKG, "RestConnectionEditor.KeyStoreFile.Label"));
     PropsUi.setLook(wlKeyStoreFile);
     FormData fdlKeyStoreFile = new FormData();
     fdlKeyStoreFile.left = new FormAttachment(0, 0);
-    fdlKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    fdlKeyStoreFile.top = new FormAttachment(wlClientCertInfo, margin);
     fdlKeyStoreFile.right = new FormAttachment(middle, -margin);
     wlKeyStoreFile.setLayoutData(fdlKeyStoreFile);
 
@@ -438,7 +456,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wbKeyStoreFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbKeyStoreFile = new FormData();
     fdbKeyStoreFile.right = new FormAttachment(100, 0);
-    fdbKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    fdbKeyStoreFile.top = new FormAttachment(wlClientCertInfo, margin);
     wbKeyStoreFile.setLayoutData(fdbKeyStoreFile);
 
     wbKeyStoreFile.addListener(
@@ -998,44 +1016,47 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
     fdUsername.left = new FormAttachment(middle, 0);
-    fdUsername.right = new FormAttachment(95, margin);
+    fdUsername.right = new FormAttachment(95, 0);
     wUsername.setLayoutData(fdUsername);
-    lastControl = wlUsername;
+    lastControl = wUsername;
 
     Label wlPassword = new Label(wAuthComp, SWT.RIGHT);
+    PropsUi.setLook(wlPassword);
     wlPassword.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Password"));
-    FormData fdlPassword = new FormData();
-    fdlPassword.top = new FormAttachment(lastControl, margin);
-    fdlPassword.left = new FormAttachment(0, 0);
-    fdlPassword.right = new FormAttachment(middle, -margin);
-    wlPassword.setLayoutData(fdlPassword);
 
     wPassword = new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
-    fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
+    fdPassword.top = new FormAttachment(lastControl, margin);
     fdPassword.left = new FormAttachment(middle, 0);
     fdPassword.right = new FormAttachment(95, 0);
     wPassword.setLayoutData(fdPassword);
 
+    FormData fdlPassword = new FormData();
+    fdlPassword.top = new FormAttachment(wPassword, 0, SWT.CENTER);
+    fdlPassword.left = new FormAttachment(0, 0);
+    fdlPassword.right = new FormAttachment(middle, -margin);
+    wlPassword.setLayoutData(fdlPassword);
+
     Label wlPreemptive = new Label(wAuthComp, SWT.RIGHT);
     wlPreemptive.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Preemptive"));
     PropsUi.setLook(wlPreemptive);
-    FormData fdlPreemptive = new FormData();
-    fdlPreemptive.top = new FormAttachment(wPassword, margin);
-    fdlPreemptive.left = new FormAttachment(0, 0);
-    fdlPreemptive.right = new FormAttachment(middle, -margin);
-    wlPreemptive.setLayoutData(fdlPreemptive);
 
     wPreemptiveBasicAuth = new Button(wAuthComp, SWT.CHECK);
     PropsUi.setLook(wPreemptiveBasicAuth);
     wPreemptiveBasicAuth.setToolTipText(
         BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Preemptive.Tooltip"));
     FormData fdPreemptive = new FormData();
-    fdPreemptive.top = new FormAttachment(wlPreemptive, 0, SWT.CENTER);
+    fdPreemptive.top = new FormAttachment(wPassword, margin);
     fdPreemptive.left = new FormAttachment(middle, 0);
     fdPreemptive.right = new FormAttachment(95, 0);
     wPreemptiveBasicAuth.setLayoutData(fdPreemptive);
+
+    FormData fdlPreemptive = new FormData();
+    fdlPreemptive.top = new FormAttachment(wPreemptiveBasicAuth, 0, SWT.CENTER);
+    fdlPreemptive.left = new FormAttachment(0, 0);
+    fdlPreemptive.right = new FormAttachment(middle, -margin);
+    wlPreemptive.setLayoutData(fdlPreemptive);
     wPreemptiveBasicAuth.setSelection(metadata.isPreemptiveBasicAuth());
     wPreemptiveBasicAuth.addListener(SWT.Selection, e -> markChangedIfUserEdit());
 
@@ -1091,60 +1112,49 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wAuthorizationName.setLayoutData(fdAuthorizationName);
     lastControl = wAuthorizationName;
 
+    // Field chained to the field above, label centred on it - see addBasicAuthFields().
     Label wlAuthorizationPrefix = new Label(wAuthComp, SWT.RIGHT);
     PropsUi.setLook(wlAuthorizationPrefix);
     wlAuthorizationPrefix.setText(
         BaseMessages.getString(PKG, "RestConnectionEditor.API.AuthorizationPrefix"));
-    FormData fdlAuthorizationPrefix = new FormData();
-    fdlAuthorizationPrefix.top = new FormAttachment(lastControl, margin);
-    fdlAuthorizationPrefix.left = new FormAttachment(0, 0);
-    fdlAuthorizationPrefix.right = new FormAttachment(middle, -margin);
-    wlAuthorizationPrefix.setLayoutData(fdlAuthorizationPrefix);
 
     wAuthorizationPrefix = new TextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationPrefix);
     FormData fdAuthorizationPrefix = new FormData();
-    fdAuthorizationPrefix.top = new FormAttachment(wlAuthorizationPrefix, 0, SWT.CENTER);
+    fdAuthorizationPrefix.top = new FormAttachment(lastControl, margin);
     fdAuthorizationPrefix.left = new FormAttachment(middle, 0);
     fdAuthorizationPrefix.right = new FormAttachment(95, 0);
     wAuthorizationPrefix.setLayoutData(fdAuthorizationPrefix);
+
+    FormData fdlAuthorizationPrefix = new FormData();
+    fdlAuthorizationPrefix.top = new FormAttachment(wAuthorizationPrefix, 0, SWT.CENTER);
+    fdlAuthorizationPrefix.left = new FormAttachment(0, 0);
+    fdlAuthorizationPrefix.right = new FormAttachment(middle, -margin);
+    wlAuthorizationPrefix.setLayoutData(fdlAuthorizationPrefix);
     lastControl = wAuthorizationPrefix;
 
     Label wlAuthorizationValue = new Label(wAuthComp, SWT.RIGHT);
     PropsUi.setLook(wlAuthorizationValue);
     wlAuthorizationValue.setText(
         BaseMessages.getString(PKG, "RestConnectionEditor.API.AuthorizationValue"));
-    FormData fdlAuthorizationValue = new FormData();
-    fdlAuthorizationValue.top = new FormAttachment(lastControl, margin);
-    fdlAuthorizationValue.left = new FormAttachment(0, 0);
-    fdlAuthorizationValue.right = new FormAttachment(middle, -margin);
-    wlAuthorizationValue.setLayoutData(fdlAuthorizationValue);
+
     wAuthorizationValue =
         new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationValue);
     FormData fdAuthorizationValue = new FormData();
-    fdAuthorizationValue.top = new FormAttachment(wlAuthorizationValue, 0, SWT.CENTER);
+    fdAuthorizationValue.top = new FormAttachment(lastControl, margin);
     fdAuthorizationValue.left = new FormAttachment(middle, 0);
     fdAuthorizationValue.right = new FormAttachment(95, 0);
     wAuthorizationValue.setLayoutData(fdAuthorizationValue);
 
+    FormData fdlAuthorizationValue = new FormData();
+    fdlAuthorizationValue.top = new FormAttachment(wAuthorizationValue, 0, SWT.CENTER);
+    fdlAuthorizationValue.left = new FormAttachment(0, 0);
+    fdlAuthorizationValue.right = new FormAttachment(middle, -margin);
+    wlAuthorizationValue.setLayoutData(fdlAuthorizationValue);
+
     Control[] controls = {wAuthorizationName, wAuthorizationPrefix, wAuthorizationValue};
     enableControls(controls);
-    refreshAuthLayout();
-  }
-
-  private void addCertificateFields() {
-    clearAuthComp();
-
-    Label wlInfo = new Label(wAuthComp, SWT.LEFT | SWT.WRAP);
-    wlInfo.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Certificate.Info"));
-    PropsUi.setLook(wlInfo);
-    FormData fdlInfo = new FormData();
-    fdlInfo.top = new FormAttachment(0, margin);
-    fdlInfo.left = new FormAttachment(0, 0);
-    fdlInfo.right = new FormAttachment(100, 0);
-    wlInfo.setLayoutData(fdlInfo);
-
     refreshAuthLayout();
   }
 
@@ -1287,7 +1297,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wProxyPassword.setText(Const.NVL(metadata.getProxyPassword(), ""));
       wNonProxyHosts.setText(Const.NVL(metadata.getNonProxyHosts(), ""));
 
-      if (StringUtils.isEmpty(metadata.getAuthType())) {
+      if (StringUtils.isEmpty(metadata.getAuthType())
+          || CERTIFICATE.equals(metadata.getAuthType())) {
         metadata.setAuthType(NO_AUTH);
         wAuthType.select(0);
       } else {
@@ -1313,7 +1324,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
           wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
         }
-        case CERTIFICATE -> addCertificateFields();
         default -> {
           // ignore
         }

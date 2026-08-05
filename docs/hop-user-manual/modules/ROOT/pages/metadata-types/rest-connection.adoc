@@ -25,7 +25,14 @@ image:icons/rest.svg[]
 
 A REST connection is a connection to a REST api that can be reused from transforms like the xref:pipeline/transforms/rest.adoc[REST client].
 
-The REST connection is a generic purpose metadata item. A transform or action that uses a REST connection can override its properties when required.
+The REST connection is a generic purpose metadata item.
+
+[IMPORTANT]
+====
+When a REST client transform selects a REST connection, the connection supplies the *whole* client: proxy, authentication, SSL/TLS and timeouts. The transform's own fields for those settings are no longer read, and the transform dialog greys them out.
+
+Their values are kept, so clearing the connection brings them back, and `init()` logs which of them it ignored. What the transform still contributes per request is the path, the HTTP method, headers, query and matrix parameters, and the body.
+====
 
 == Related Plugins
 
@@ -51,10 +58,17 @@ Use environment variables or Hop variables (for example `{openvar}PROJECT_HOME{c
 |Type |Fields |Description
 |No Auth|—|No authentication headers are generated. Useful for public endpoints or when a downstream transform sets headers manually.
 |API Key|Authorization header name, Authorization prefix (optional), Authorization value|Adds a header such as `Authorization: Bearer <token>` or any other custom header. Prefix is concatenated with the value when present.
-|Basic|Username, Password|Registers HTTP Basic authentication with the Jersey client. Passwords can be stored encrypted.
+|Basic|Username, Password, Preemptive|Sends HTTP Basic credentials. Passwords can be stored encrypted. See **Preemptive authentication** below.
 |Bearer|Bearer token|Adds an `Authorization: Bearer <token>` header automatically.
-|Certificate|Configured through the SSL / Client Certificate options below|Enables mutual TLS (mTLS) by loading the specified key store.
 |===
+
+NOTE: Mutual TLS (mTLS) is not an authentication type. A client certificate is presented during the TLS handshake rather than in the `Authorization` header, so it is configured in **SSL and client certificates** below and can be combined with any of the types above.
+
+=== Preemptive authentication
+
+With **Preemptive** selected (the default), Basic credentials are sent on the first request. With it cleared, Hop sends the request without credentials, waits for a `401` challenge, and then repeats the request with the `Authorization` header.
+
+Preemptive is the right choice for almost every API, and it is what Hop has always done. Clear it only for a server that requires the challenge round trip. Note that an API answering an unauthenticated request with anything other than `401` — a `403`, or a `200` carrying an error body — will never receive the credentials at all.
 
 == SSL and client certificates
 
@@ -73,6 +87,25 @@ Use environment variables or Hop variables (for example `{openvar}PROJECT_HOME{c
 
 Use the `Test` button to validate the selected authentication method and SSL settings against the test or base URL. The dialog resolves variables before running the test so it matches pipeline execution.
 
+== Advanced
+
+The **Advanced** tab holds the timeouts and the proxy the connection uses.
+
+[options="header"]
+|===
+|Option |Description
+|Connect timeout (ms)|How long to wait for the connection to be established. Leave empty for no timeout.
+|Read timeout (ms)|How long to wait for response data. Leave empty for no timeout.
+|Proxy scheme|`http` or `https`. Defaults to `http`. Use `https` when the proxy itself is reached over TLS.
+|Proxy host|Host name of the proxy. Leave empty to connect directly.
+|Proxy port|Port of the proxy. Defaults to `8080` for `http` and `443` for `https`.
+|Proxy username|Username for a proxy that requires authentication. Leave empty for an open proxy.
+|Proxy password|Password for the proxy user. Supports encrypted values.
+|Bypass proxy for|Hosts to reach directly instead of through the proxy, in JDK `http.nonProxyHosts` syntax: entries separated by `+\|+`, `,` or `;`, each optionally using `+*+` as a wildcard (for example `+localhost\|*.internal.example.com+`).
+|===
+
+The bypass list is evaluated for every request, so it still works on a REST client transform whose target host changes from row to row.
+
 == Pagination
 
 The **Pagination** tab defines how the xref:pipeline/transforms/rest.adoc[REST client] transform advances through paged API responses when pagination is enabled on the transform.
@@ -83,12 +116,14 @@ Pagination is configured on the connection; the REST client reads these settings
 |===
 |Option |Description
 |Pagination strategy|How Hop obtains the next page. See the strategies below. Default is `NONE`.
-|Page / cursor query parameter name|Query parameter name for `PAGE_NUMBER` or `CURSOR` paging (for example `page` or `cursor`). Ignored by `OFFSET_LIMIT` and `LINK_HEADER`.
+|Page / cursor parameter name|Query parameter name for `PAGE_NUMBER` or `CURSOR` (for example `page`, `cursor`), body field name for `BODY_CURSOR`, or request header name for `HEADER_CURSOR`. Ignored by `OFFSET_LIMIT`, `LINK_HEADER` and `BODY_NEXT_URL`.
 |Offset query parameter name|Query parameter for the starting index in `OFFSET_LIMIT` paging. Defaults to `offset` when blank.
-|Limit query parameter name|Query parameter for the batch size in `OFFSET_LIMIT` paging. Defaults to `limit` when blank.
-|Default batch size|Page size sent with `OFFSET_LIMIT` paging. When `0`, Hop falls back to an internal default (100).
-|Cursor JsonPath|JsonPath expression against a JSON response body to read the next cursor token (`CURSOR` + JSON application type).
-|Cursor XPath|XPath expression against an XML response body to read the next cursor token (`CURSOR` + XML application type).
+|Limit / batch size parameter name|Parameter for the batch size, used by `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. Defaults to `limit` when blank.
+|Default batch size|Page size sent with `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. When `0`, Hop falls back to an internal default (100).
+|Cursor JsonPath|JsonPath expression against a JSON response body to read the next cursor token, for every cursor strategy.
+|Cursor XPath|XPath expression against an XML response body to read the next cursor token, for every cursor strategy.
+|Next page URL JsonPath|JsonPath expression that reads the next page URL out of a JSON response body (`BODY_NEXT_URL`).
+|Next page URL XPath|XPath expression that reads the next page URL out of an XML response body (`BODY_NEXT_URL`).
 |===
 
 === Pagination strategies
@@ -101,9 +136,12 @@ Pagination is configured on the connection; the REST client reads these settings
 |`OFFSET_LIMIT`|Adds offset/limit (or custom-named) query parameters. After each successful non-empty page, the offset increases by the batch size. An empty page ends the loop.
 |`PAGE_NUMBER`|Adds a page query parameter starting at `1` and increments it after each successful non-empty page. An empty page ends the loop.
 |`CURSOR`|Adds a cursor query parameter on follow-up requests. The token is extracted from the previous response with JsonPath (JSON) or XPath (XML). An empty page or missing next token ends the loop.
+|`BODY_CURSOR`|Merges the cursor and batch size into the request body of a `POST`, `PUT` or `PATCH` (JSON or form url-encoded, following the application type). On a `GET` they are sent as query parameters instead, because HTTP clients do not send a `GET` body. The loop ends when the next cursor is empty — not when a page is empty, since APIs of this shape (Slack, for example) can return sparse pages while still advertising a next cursor.
+|`HEADER_CURSOR`|Sends the cursor as a request header rather than a parameter. The next token is read from the body as with `CURSOR`, and an empty token ends the loop.
+|`BODY_NEXT_URL`|Reads an absolute next-page URL out of the response body with JsonPath or XPath and requests it as-is on the next iteration. Same loop semantics as `LINK_HEADER`, including the cycle guard.
 |===
 
-TIP: For `LINK_HEADER`, the path on the REST client transform is still relative to `Base URL` on the first request. Subsequent requests use the absolute URL from the `next` link as returned by the API.
+TIP: For `LINK_HEADER` and `BODY_NEXT_URL`, the path on the REST client transform is still relative to `Base URL` on the first request. Subsequent requests use the absolute URL the API returned.
 
 == Samples
 

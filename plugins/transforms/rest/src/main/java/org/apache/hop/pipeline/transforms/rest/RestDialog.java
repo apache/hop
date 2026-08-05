@@ -344,8 +344,8 @@ public class RestDialog extends BaseTransformDialog {
 
     Group gSSLTrustStore = setupTrustoreGroup(wSSLComp);
 
-    Button wbTrustStoreFile = setupTrustStoreFileLine(lsMod, middle, margin, gSSLTrustStore);
-    setupTrustStorePwdLine(lsMod, middle, margin, gSSLTrustStore, wbTrustStoreFile);
+    setupTrustStoreFileLine(lsMod, middle, margin, gSSLTrustStore);
+    setupTrustStorePwdLine(lsMod, middle, margin, gSSLTrustStore);
     setupIgnoreSslLine(middle, margin, gSSLTrustStore);
 
     FormData fdSSLTrustStore = new FormData();
@@ -577,32 +577,46 @@ public class RestDialog extends BaseTransformDialog {
     pl.marginHeight = PropsUi.getFormMargin();
     wRetryComp.setLayout(pl);
 
+    int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+
     // Retry Times
     Label wlRetryTimes = new Label(wRetryComp, SWT.RIGHT);
     wlRetryTimes.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Times"));
     PropsUi.setLook(wlRetryTimes);
-    wlRetryTimes.setLayoutData(FormDataBuilder.builder().top(0, 5).left().width(300).build());
+    FormData fdlRetryTimes = new FormData();
+    fdlRetryTimes.top = new FormAttachment(0, margin);
+    fdlRetryTimes.left = new FormAttachment(0, 0);
+    fdlRetryTimes.right = new FormAttachment(middle, -margin);
+    wlRetryTimes.setLayoutData(fdlRetryTimes);
 
     wRetryTimes = new TextVar(variables, wRetryComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wRetryTimes);
-    wRetryTimes.setLayoutData(
-        FormDataBuilder.builder().top(0, 5).left(wlRetryTimes, 5).right(100, 0).build());
+    FormData fdRetryTimes = new FormData();
+    fdRetryTimes.top = new FormAttachment(wlRetryTimes, 0, SWT.CENTER);
+    fdRetryTimes.left = new FormAttachment(middle, 0);
+    fdRetryTimes.right = new FormAttachment(100, 0);
+    wRetryTimes.setLayoutData(fdRetryTimes);
 
-    // Retry Delay (ms)
     Label wlRetryDelay = new Label(wRetryComp, SWT.RIGHT);
     wlRetryDelay.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Delay"));
     PropsUi.setLook(wlRetryDelay);
-    wlRetryDelay.setLayoutData(
-        FormDataBuilder.builder().top(wlRetryTimes, 5).left().width(300).build());
 
     wRetryDelay = new TextVar(variables, wRetryComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wRetryDelay);
-    wRetryDelay.setLayoutData(
-        FormDataBuilder.builder().top(wRetryTimes, 5).left(wlRetryDelay, 5).right(100, 0).build());
+    FormData fdRetryDelay = new FormData();
+    fdRetryDelay.top = new FormAttachment(wRetryTimes, margin);
+    fdRetryDelay.left = new FormAttachment(middle, 0);
+    fdRetryDelay.right = new FormAttachment(100, 0);
+    wRetryDelay.setLayoutData(fdRetryDelay);
 
-    // Status Codes table (left)
-    retryResponseCodeLeft(wRetryComp, wlRetryDelay, lsMod);
-    // HTTP Methods table (right)
+    FormData fdlRetryDelay = new FormData();
+    fdlRetryDelay.top = new FormAttachment(wRetryDelay, 0, SWT.CENTER);
+    fdlRetryDelay.left = new FormAttachment(0, 0);
+    fdlRetryDelay.right = new FormAttachment(middle, -margin);
+    wlRetryDelay.setLayoutData(fdlRetryDelay);
+
+    retryResponseCodeLeft(wRetryComp, wRetryDelay, lsMod);
     retryRequestMethodRight(wRetryComp, wRetryDelay, lsMod);
 
     wRetryComp.setLayoutData(
@@ -954,29 +968,31 @@ public class RestDialog extends BaseTransformDialog {
   }
 
   private void setupTrustStorePwdLine(
-      ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore, Button wbTrustStoreFile) {
+      ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore) {
     // TrustStorePassword line
     wlTrustStorePassword = new Label(gSSLTrustStore, SWT.RIGHT);
     wlTrustStorePassword.setText(
         BaseMessages.getString(PKG, "RestDialog.TrustStorePassword.Label"));
     PropsUi.setLook(wlTrustStorePassword);
-    FormData fdlTrustStorePassword = new FormData();
-    fdlTrustStorePassword.left = new FormAttachment(0, 0);
-    fdlTrustStorePassword.top = new FormAttachment(wbTrustStoreFile, margin);
-    fdlTrustStorePassword.right = new FormAttachment(middle, -margin);
-    wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
     wTrustStorePassword =
         new PasswordTextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTrustStorePassword);
     wTrustStorePassword.addModifyListener(lsMod);
+
     FormData fdTrustStorePassword = new FormData();
     fdTrustStorePassword.left = new FormAttachment(middle, 0);
-    fdTrustStorePassword.top = new FormAttachment(wbTrustStoreFile, margin);
+    fdTrustStorePassword.top = new FormAttachment(wTrustStoreFile, margin);
     fdTrustStorePassword.right = new FormAttachment(100, 0);
     wTrustStorePassword.setLayoutData(fdTrustStorePassword);
+
+    FormData fdlTrustStorePassword = new FormData();
+    fdlTrustStorePassword.left = new FormAttachment(0, 0);
+    fdlTrustStorePassword.top = new FormAttachment(wTrustStorePassword, 0, SWT.CENTER);
+    fdlTrustStorePassword.right = new FormAttachment(middle, -margin);
+    wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
   }
 
-  private Button setupTrustStoreFileLine(
+  private void setupTrustStoreFileLine(
       ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore) {
     // TrustStoreFile line
     wlTrustStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
@@ -993,7 +1009,7 @@ public class RestDialog extends BaseTransformDialog {
     wbTrustStoreFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTrustStoreFile = new FormData();
     fdbTrustStoreFile.right = new FormAttachment(100, 0);
-    fdbTrustStoreFile.top = new FormAttachment(0, 0);
+    fdbTrustStoreFile.top = new FormAttachment(0, margin);
     wbTrustStoreFile.setLayoutData(fdbTrustStoreFile);
 
     wbTrustStoreFile.addListener(
@@ -1015,7 +1031,6 @@ public class RestDialog extends BaseTransformDialog {
     fdTrustStoreFile.top = new FormAttachment(0, margin);
     fdTrustStoreFile.right = new FormAttachment(wbTrustStoreFile, -margin);
     wTrustStoreFile.setLayoutData(fdTrustStoreFile);
-    return wbTrustStoreFile;
   }
 
   private Group setupTrustoreGroup(Composite wSSLComp) {
