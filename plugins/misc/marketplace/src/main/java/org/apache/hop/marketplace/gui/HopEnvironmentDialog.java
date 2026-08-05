@@ -156,7 +156,7 @@ public class HopEnvironmentDialog extends Dialog {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
     PropsUi.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setImage(GuiResource.getInstance().getImageClientEnvironment());
     updateTitle();
 
     FormLayout formLayout = new FormLayout();
@@ -194,6 +194,7 @@ public class HopEnvironmentDialog extends Dialog {
     fdNew.left = new FormAttachment(0, 0);
     fdNew.top = new FormAttachment(0, 0);
     wNew.setLayoutData(fdNew);
+    PropsUi.setLook(wNew);
 
     Button wOpen = new Button(parent, SWT.PUSH);
     wOpen.setText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Button.Open"));
@@ -202,6 +203,7 @@ public class HopEnvironmentDialog extends Dialog {
     fdOpen.left = new FormAttachment(wNew, PropsUi.getMargin());
     fdOpen.top = new FormAttachment(0, 0);
     wOpen.setLayoutData(fdOpen);
+    PropsUi.setLook(wOpen);
 
     Button wSave = new Button(parent, SWT.PUSH);
     wSave.setText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Button.Save"));
@@ -210,6 +212,7 @@ public class HopEnvironmentDialog extends Dialog {
     fdSave.left = new FormAttachment(wOpen, PropsUi.getMargin());
     fdSave.top = new FormAttachment(0, 0);
     wSave.setLayoutData(fdSave);
+    PropsUi.setLook(wSave);
 
     Button wSaveAs = new Button(parent, SWT.PUSH);
     wSaveAs.setText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Button.SaveAs"));
@@ -218,6 +221,7 @@ public class HopEnvironmentDialog extends Dialog {
     fdSaveAs.left = new FormAttachment(wSave, PropsUi.getMargin());
     fdSaveAs.top = new FormAttachment(0, 0);
     wSaveAs.setLayoutData(fdSaveAs);
+    PropsUi.setLook(wSaveAs);
 
     wFileCombo = new Combo(parent, SWT.DROP_DOWN | SWT.BORDER);
     PropsUi.setLook(wFileCombo);
@@ -374,7 +378,7 @@ public class HopEnvironmentDialog extends Dialog {
   private void createRepositoriesTab(CTabFolder folder) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
     tab.setText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Tab.Repositories"));
-    tab.setImage(GuiResource.getInstance().getImageServer());
+    tab.setImage(GuiResource.getInstance().getImageRepository());
     Composite comp = new Composite(folder, SWT.NONE);
     PropsUi.setLook(comp);
     FormLayout layout = new FormLayout();
@@ -499,7 +503,7 @@ public class HopEnvironmentDialog extends Dialog {
   private void createDependenciesTab(CTabFolder folder) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
     tab.setText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Tab.Dependencies"));
-    tab.setImage(GuiResource.getInstance().getImageLabel());
+    tab.setImage(GuiResource.getInstance().getImageDependence());
     Composite comp = new Composite(folder, SWT.NONE);
     PropsUi.setLook(comp);
     FormLayout layout = new FormLayout();
