@@ -29,9 +29,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -48,7 +48,6 @@ import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
 import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
-import org.glassfish.jersey.client.ClientConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,8 +79,7 @@ class RestProcessRowTest {
     meta.setResultField(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
 
     Rest rest =
         new Rest(
@@ -116,8 +114,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_GET;
     data.realUrl = "http://example.com/api";
 
@@ -168,8 +165,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_GET;
 
     Rest rest =
@@ -216,8 +212,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.realUrl = "http://example.com";
 
     Rest rest =
@@ -268,8 +263,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_POST;
     data.realUrl = "http://example.com";
 
@@ -321,8 +315,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_GET;
     data.realUrl = "http://example.com";
 
@@ -374,8 +367,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_GET;
     data.realUrl = "http://example.com";
 
@@ -423,8 +415,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(new ResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_POST;
     data.realUrl = "http://example.com";
 
@@ -475,8 +466,7 @@ class RestProcessRowTest {
     when(mockHelper.iTransformMeta.getResultField()).thenReturn(meta.getResultField());
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_GET;
     data.realUrl = "http://example.com";
     data.resultFieldName = "result";
@@ -547,8 +537,7 @@ class RestProcessRowTest {
     sourceMeta.setParentPipelineMeta(pipelineMeta);
 
     RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+    data.mediaType = ContentType.APPLICATION_JSON;
     data.method = RestMeta.HTTP_METHOD_GET;
     data.realUrl = "https://example.com";
 

@@ -17,13 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
-import jakarta.ws.rs.core.MediaType;
-import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
 @SuppressWarnings("java:S1104")
 public class RestData extends BaseTransformData implements ITransformData {
@@ -104,13 +102,14 @@ public class RestData extends BaseTransformData implements ITransformData {
 
   public String trustStorePassword;
 
-  public ClientConfig config;
+  /**
+   * The HTTP client for this transform copy. Built once on first use and closed on dispose: a
+   * client owns a connection pool, so building one per row means a fresh TCP and TLS handshake for
+   * every single row.
+   */
+  public CloseableHttpClient client;
 
-  public HttpAuthenticationFeature basicAuthentication;
-
-  public MediaType mediaType;
-
-  public SSLContext sslContext;
+  public ContentType mediaType;
 
   public RestData() {
     super();
@@ -129,10 +128,7 @@ public class RestData extends BaseTransformData implements ITransformData {
     this.method = null;
     this.indexOfBodyField = -1;
     this.indexOfMethod = -1;
-    this.config = null;
     this.trustStoreFile = null;
     this.trustStorePassword = null;
-    this.basicAuthentication = null;
-    this.sslContext = null;
   }
 }

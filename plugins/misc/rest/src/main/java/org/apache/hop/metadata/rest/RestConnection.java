@@ -17,18 +17,14 @@
 
 package org.apache.hop.metadata.rest;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
@@ -37,6 +33,11 @@ import javax.net.ssl.X509TrustManager;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -50,9 +51,10 @@ import org.apache.hop.metadata.api.HopMetadataCategory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.apache.hop.metadata.rest.client.RestAuthType;
+import org.apache.hop.metadata.rest.client.RestAuthenticator;
+import org.apache.hop.metadata.rest.client.RestClientFactory;
+import org.apache.hop.metadata.rest.client.RestClientSettings;
 
 @Getter
 @Setter
@@ -73,8 +75,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   public static final String BEARER = "Bearer";
 
   private IVariables variables;
-  private ClientBuilder builder;
-  private Client client;
+
   private transient ILogChannel log;
 
   private ILogChannel getLog() {
@@ -99,6 +100,39 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "ignoreSsl")
   private boolean ignoreSsl;
 
+  /** Connect timeout in milliseconds. Empty leaves it unlimited. */
+  @HopMetadataProperty(key = "connect_timeout")
+  private String connectTimeout;
+
+  /** Read timeout in milliseconds. Empty leaves it unlimited. */
+  @HopMetadataProperty(key = "read_timeout")
+  private String readTimeout;
+
+  /** Scheme used to reach the proxy itself, not the target. Empty means {@code http}. */
+  @HopMetadataProperty(key = "proxy_scheme")
+  private String proxyScheme;
+
+  @HopMetadataProperty(key = "proxy_host")
+  private String proxyHost;
+
+  /** Proxy port. Empty defaults to 8080 for an http proxy and 443 for an https one. */
+  @HopMetadataProperty(key = "proxy_port")
+  private String proxyPort;
+
+  @HopMetadataProperty(key = "proxy_username")
+  private String proxyUsername;
+
+  @HopMetadataProperty(key = "proxy_password", password = true)
+  private String proxyPassword;
+
+  /**
+   * Hosts that bypass the proxy, in JDK {@code http.nonProxyHosts} syntax: entries separated by
+   * {@code |} (commas and semicolons work too), each optionally using {@code *} as a wildcard, for
+   * example {@code localhost|127.*|*.internal.example.com}.
+   */
+  @HopMetadataProperty(key = "non_proxy_hosts")
+  private String nonProxyHosts;
+
   @HopMetadataProperty(key = "auth_type")
   private String authType;
 
@@ -108,6 +142,18 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty(key = "password", password = true)
   private String password;
+
+  /**
+   * Wait for a 401 challenge before sending the Basic credentials, rather than sending them on the
+   * first request.
+   *
+   * <p>Stored inverted on purpose. Deserialization sets an absent boolean key to false rather than
+   * leaving a field initializer alone, so a connection saved before this option existed loads as
+   * {@code false} — which has to mean preemptive, because that is what every REST call has always
+   * done. Read it through {@link #isPreemptiveBasicAuth()}.
+   */
+  @HopMetadataProperty(key = "non_preemptive_basic_auth")
+  private boolean nonPreemptiveBasicAuth;
 
   // Bearer auth
   @HopMetadataProperty(key = "bearer_token", password = true)
@@ -186,43 +232,47 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     this.variables = variables;
   }
 
-  public Invocation.Builder getInvocationBuilder(String url) throws HopException {
-    return getInvocationBuilder(url, null, 8080);
-  }
-
-  public Invocation.Builder getInvocationBuilder(String url, String proxyHost, Integer proxyPort)
-      throws HopException {
-    return getInvocationBuilder(url, proxyHost, proxyPort, 0, 0);
-  }
-
   /**
-   * Builds a Jersey invocation builder for the given URL. Connect/read timeouts (milliseconds, 0 =
-   * infinite) and proxy settings are applied so that requests made through a REST connection honour
-   * the same timeout, proxy and HTTP-compliance behaviour as the standalone REST transform path
-   * (issue #7621).
+   * Translates this connection into the resolved settings needed to build an HTTP client. A
+   * connection describes the whole client on its own: a transform that selects one contributes
+   * nothing but the request.
+   *
+   * <p>The caller owns the resulting client: build one per transform copy with {@link
+   * org.apache.hop.metadata.rest.client.RestClientFactory} and close it when the transform is
+   * disposed, rather than one per request.
    */
-  public Invocation.Builder getInvocationBuilder(
-      String url, String proxyHost, Integer proxyPort, int connectTimeout, int readTimeout)
-      throws HopException {
-    builder = ClientBuilder.newBuilder();
-    builder.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
-    builder.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
-    // Only apply timeouts when configured (>= 0). Empty transform timeout fields resolve to -1,
-    // which Jersey rejects with "timeouts can't be negative"; leaving the property unset keeps
-    // Jersey's default (0 = infinite), matching the previous connection-path behaviour.
-    if (connectTimeout >= 0) {
-      builder.property(ClientProperties.CONNECT_TIMEOUT, connectTimeout);
+  public RestClientSettings createClientSettings() throws HopException {
+    normalizeAuthType();
+
+    RestClientSettings settings = new RestClientSettings();
+
+    // Only apply a timeout that is actually configured. An empty field resolves to -1, and Jersey
+    // rejects a negative timeout; leaving the property unset keeps its default of 0 (infinite).
+    int resolvedConnectTimeout = Const.toInt(resolve(connectTimeout), -1);
+    if (resolvedConnectTimeout >= 0) {
+      settings.setConnectTimeout(resolvedConnectTimeout);
     }
-    if (readTimeout >= 0) {
-      builder.property(ClientProperties.READ_TIMEOUT, readTimeout);
+    int resolvedReadTimeout = Const.toInt(resolve(readTimeout), -1);
+    if (resolvedReadTimeout >= 0) {
+      settings.setReadTimeout(resolvedReadTimeout);
     }
-    setProxyHost(proxyHost, proxyPort);
+
+    if (!Utils.isEmpty(proxyHost)) {
+      settings.setProxyScheme(resolve(proxyScheme));
+      settings.setProxyHost(resolve(proxyHost));
+      int resolvedProxyPort = Const.toInt(resolve(proxyPort), -1);
+      if (resolvedProxyPort > 0) {
+        settings.setProxyPort(resolvedProxyPort);
+      }
+      settings.setProxyUsername(resolve(proxyUsername));
+      settings.setProxyPassword(Encr.decryptPasswordOptionallyEncrypted(resolve(proxyPassword)));
+      settings.setNonProxyHosts(resolve(nonProxyHosts));
+    }
 
     // Configure SSL if needed (client cert, trust store, or ignore SSL)
     if (needsSslConfiguration()) {
       try {
-        // Build SSL context
-        javax.net.ssl.SSLContext sslContext = buildSslContext();
+        settings.setSslContext(buildSslContext());
         getLog()
             .logDetailed(
                 "SSL context built. ignoreSsl="
@@ -232,28 +282,53 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
                     + ", keyStoreFile="
                     + Const.NVL(keyStoreFile, "<empty>"));
 
-        // Apply SSL context to client builder
-        builder = builder.sslContext(sslContext);
-
         // Set hostname verifier if ignoring SSL or using custom truststore
         if (ignoreSsl || !Utils.isEmpty(trustStoreFile)) {
           getLog().logDetailed("Enabling permissive hostname verifier.");
-          builder = builder.hostnameVerifier((hostname, session) -> true);
+          settings.setPermissiveHostnameVerifier(true);
         }
-
-        // Don't use Apache connector - default connector properly respects SSL context
-
       } catch (Exception e) {
         throw new HopException("Error configuring SSL for REST connection", e);
       }
     }
 
-    client = builder.build();
+    // The credentials are bound to this connection's own base URL: a REST transform taking its URL
+    // from an input field must not hand them to whatever host a row happens to name.
+    settings.setAuthOrigin(resolve(baseUrl));
+    if (isBasicAuthConfigured()) {
+      settings.setAuthType(RestAuthType.BASIC);
+      settings.setBasicUsername(resolve(username));
+      settings.setBasicPassword(Encr.decryptPasswordOptionallyEncrypted(resolve(password)));
+      settings.setBasicPreemptive(isPreemptiveBasicAuth());
+    } else if (authTypeEquals(BEARER)) {
+      settings.setAuthType(RestAuthType.BEARER);
+      settings.setBearerToken(Encr.decryptPasswordOptionallyEncrypted(resolve(bearerToken)));
+    } else if (authTypeEquals(API_KEY)) {
+      settings.setAuthType(RestAuthType.API_KEY);
+      settings.setApiKeyHeaderName(resolve(authorizationHeaderName));
+      settings.setApiKeyHeaderPrefix(resolve(authorizationPrefix));
+      settings.setApiKeyHeaderValue(
+          Encr.decryptPasswordOptionallyEncrypted(resolve(authorizationHeaderValue)));
+    }
+    return settings;
+  }
 
-    WebTarget target = client.target(url);
-    Invocation.Builder invocationBuilder = target.request();
+  /**
+   * Applies this connection's authentication to the headers of one request.
+   *
+   * <p>The credentials are scoped to {@code url} rather than to the connection's base URL: this is
+   * a one-shot call against an explicitly named URL, so asking for it is consent to authenticate
+   * against it. Origin scoping exists for the transform's per-row path, where one client serves a
+   * URL that changes underneath it.
+   */
+  public void applyAuthentication(Map<String, String> headers, String url) throws HopException {
+    RestClientSettings settings = createClientSettings();
+    settings.setAuthOrigin(url);
+    new RestAuthenticator(settings).applyRequestHeaders(headers, url);
+  }
 
-    // backwards compatibility with early version of this metadata type.
+  /** Backwards compatibility with early versions of this metadata type. */
+  private void normalizeAuthType() {
     if (StringUtils.isEmpty(authType)) {
       if (!StringUtils.isEmpty(authorizationHeaderName)
           && !StringUtils.isEmpty(authorizationHeaderValue)) {
@@ -262,101 +337,21 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
         authType = "No Auth";
       }
     }
-
-    if (authTypeEquals(BASIC) && !StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
-      client.register(
-          HttpAuthenticationFeature.basic(
-              resolve(username), Encr.decryptPasswordOptionallyEncrypted(resolve(password))));
-      target = client.target(url);
-      invocationBuilder = target.request();
-    } else {
-      applyBearerAndApiKeyHeaders(invocationBuilder, null);
-    }
-    return invocationBuilder;
   }
 
-  /**
-   * Applies API-key or Bearer auth to outbound headers (when {@code outboundHeaders} is non-null)
-   * or to {@code Invocation.Builder} via successive {@link Invocation.Builder#header} calls (when
-   * {@code outboundHeaders} is null). Skips when credentials are already on the map ({@code
-   * Authorization}, or the configured API-key header name). Intended for merging into maps before
-   * {@link Invocation.Builder#headers(javax.ws.rs.core.MultivaluedMap)}, which replaces Jersey's
-   * prior headers.
-   */
-  public void applyBearerAndApiKeyHeaders(
-      Invocation.Builder invocationBuilder, MultivaluedMap<String, Object> outboundHeaders) {
-    if (invocationBuilder == null || !supportsBearerOrApiKeyAuthHeaders()) {
-      return;
-    }
-    if (authHeadersAlreadyProvidedFromMap(outboundHeaders)) {
-      return;
-    }
-
-    MultivaluedMap<String, Object> authOnly =
-        outboundHeaders != null ? outboundHeaders : new MultivaluedHashMap<>();
-
-    if (authTypeEquals(API_KEY)) {
-      String headerName = resolve(authorizationHeaderName);
-      String headerValue =
-          Encr.decryptPasswordOptionallyEncrypted(resolve(authorizationHeaderValue));
-      if (Utils.isEmpty(headerName) || Utils.isEmpty(headerValue)) {
-        return;
-      }
-      if (!StringUtils.isEmpty(resolve(authorizationPrefix))) {
-        authOnly.putSingle(headerName, resolve(authorizationPrefix) + " " + headerValue);
-      } else {
-        authOnly.putSingle(headerName, headerValue);
-      }
-    } else if (authTypeEquals(BEARER)) {
-      String token = Encr.decryptPasswordOptionallyEncrypted(resolve(bearerToken));
-      if (Utils.isEmpty(token)) {
-        return;
-      }
-      authOnly.putSingle(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-    }
-
-    if (outboundHeaders == null) {
-      authOnly.forEach(
-          (name, values) -> {
-            for (Object val : values) {
-              invocationBuilder.header(name, val);
-            }
-          });
-    }
+  private boolean isBasicAuthConfigured() {
+    return authTypeEquals(BASIC)
+        && !StringUtils.isEmpty(username)
+        && !StringUtils.isEmpty(password);
   }
 
-  /** True when this connection may add Bearer / API-key style headers before a request runs. */
-  private boolean supportsBearerOrApiKeyAuthHeaders() {
-    return authType != null && (authTypeEquals(API_KEY) || authTypeEquals(BEARER));
+  /** Whether Basic credentials go out on the first request. See {@link #nonPreemptiveBasicAuth}. */
+  public boolean isPreemptiveBasicAuth() {
+    return !nonPreemptiveBasicAuth;
   }
 
-  /**
-   * When merging into an outbound header map, skip adding connection auth if the map already
-   * supplies credentials: {@code Authorization}, or the connection's API-key header name (rows
-   * win).
-   */
-  private boolean authHeadersAlreadyProvidedFromMap(
-      MultivaluedMap<String, Object> outboundHeaders) {
-    if (outboundHeaders == null || outboundHeaders.isEmpty()) {
-      return false;
-    }
-    for (String key : outboundHeaders.keySet()) {
-      if (key == null) {
-        continue;
-      }
-      if ("Authorization".equalsIgnoreCase(key) && nonEmptyHeaderValue(outboundHeaders, key)) {
-        return true;
-      }
-      if (authTypeEquals(API_KEY)) {
-        String configuredName = resolve(authorizationHeaderName);
-        if (!Utils.isEmpty(configuredName)
-            && configuredName.equalsIgnoreCase(key)
-            && nonEmptyHeaderValue(outboundHeaders, key)) {
-          return true;
-        }
-      }
-    }
-    return false;
+  public void setPreemptiveBasicAuth(boolean preemptiveBasicAuth) {
+    this.nonPreemptiveBasicAuth = !preemptiveBasicAuth;
   }
 
   private boolean authTypeEquals(String canonicalLabel) {
@@ -365,52 +360,36 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
         && authType.trim().equalsIgnoreCase(canonicalLabel.trim());
   }
 
-  private static boolean nonEmptyHeaderValue(MultivaluedMap<String, Object> headers, String key) {
-    Object o = headers.getFirst(key);
-    return o != null && !Utils.isEmpty(o.toString().trim());
-  }
-
-  private void setProxyHost(String proxyHost, Integer proxyPort) {
-    if (!Utils.isEmpty(proxyHost) && proxyPort != null) {
-      builder =
-          builder.property(ClientProperties.PROXY_URI, "http://" + proxyHost + ":" + proxyPort);
-    }
-  }
-
+  /** Performs a GET against the URL with this connection's authentication, returning the body. */
   public String getResponse(String url) throws HopException {
-    return getResponseFromUrl(url).readEntity(String.class);
-  }
+    RestClientSettings settings = createClientSettings();
+    Map<String, String> headers = new LinkedHashMap<>();
+    applyAuthentication(headers, url);
 
-  public Response getResponseFromUrl(String url) throws HopException {
-    Response response = getInvocationBuilder(url).get();
+    HttpUriRequestBase request = new HttpUriRequestBase("GET", URI.create(url));
+    headers.forEach(request::addHeader);
 
-    if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-      throw new HopException("Error connecting to " + testUrl + ": " + response.getStatus());
+    try (CloseableHttpClient httpClient = RestClientFactory.createClient(settings)) {
+      return httpClient.execute(
+          request,
+          response -> {
+            if (response.getCode() != HttpStatus.SC_OK) {
+              throw new IOException("Error connecting to " + url + ": " + response.getCode());
+            }
+            HttpEntity entity = response.getEntity();
+            return entity == null ? "" : EntityUtils.toString(entity);
+          });
+    } catch (Exception e) {
+      throw new HopException("Error connecting to " + url, e);
     }
-    return response;
   }
 
   /**
-   * Verifies connectivity using {@link #testUrl}. Mirrors the outbound header sequence used by the
-   * REST transform ({@link jakarta.ws.rs.client.Invocation.Builder#headers}: merge Bearer / API-key
-   * headers into the map before applying it); that avoids misleading green tests where only {@link
-   * jakarta.ws.rs.client.Invocation.Builder#header} ran and pagination later replaced headers
-   * without auth.
+   * Verifies connectivity using {@link #testUrl}. It goes through the same authenticator as a real
+   * request, so a green test cannot mean anything other than that the credentials work.
    */
   public void testConnection() throws HopException {
-    String url = resolve(testUrl);
-    Invocation.Builder invocationBuilder = getInvocationBuilder(url);
-    if (supportsBearerOrApiKeyAuthHeaders()) {
-      MultivaluedHashMap<String, Object> outbound = new MultivaluedHashMap<>();
-      applyBearerAndApiKeyHeaders(invocationBuilder, outbound);
-      invocationBuilder.headers(outbound);
-    }
-    Response response = invocationBuilder.get();
-    response.close();
-  }
-
-  public void disconnect() {
-    client.close();
+    getResponse(resolve(testUrl));
   }
 
   public RestConnection() {}
@@ -478,8 +457,10 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
    * @throws Exception if SSL configuration fails
    */
   private javax.net.ssl.SSLContext buildSslContext() throws Exception {
-    // Build SSL context - use "SSL" not "TLS" for better compatibility
-    javax.net.ssl.SSLContext sslContext = javax.net.ssl.SSLContext.getInstance("SSL");
+    // "TLS" negotiates the best protocol the JVM and the server agree on. It used to ask for "SSL"
+    // here, which on a modern JVM resolves to the same TLS implementation but reads as a request
+    // for a protocol family that has been insecure for a decade.
+    javax.net.ssl.SSLContext sslContext = javax.net.ssl.SSLContext.getInstance("TLS");
 
     // Load trust managers (for server certificate validation)
     // This will return trust-all managers if ignoreSsl=true

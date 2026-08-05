@@ -1,0 +1,10 @@
+{
+  "name": "paging-cursor",
+  "pagination_type": "CURSOR",
+  "page_param_name": "cursor",
+  "cursor_json_path": "$.next",
+  "auth_type": "No Auth",
+  "base_url": "http://${PAGING_HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false
+}

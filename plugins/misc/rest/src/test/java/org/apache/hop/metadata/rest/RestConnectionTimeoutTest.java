@@ -21,22 +21,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.sun.net.httpserver.HttpServer;
-import jakarta.ws.rs.ProcessingException;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.Response;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.rest.client.RestClientFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Regression test for issue #7621: the connect/read timeouts configured on the REST transform must
- * be honoured when the request goes through a REST connection. Before the fix {@link
- * RestConnection#getInvocationBuilder} never set {@code CONNECT_TIMEOUT}/{@code READ_TIMEOUT}, so a
- * slow or hung server would block the pipeline indefinitely on the connection path.
+ * be honoured when the request goes through a REST connection. Before the fix the connection built
+ * its own client and never set the connect or read timeout, so a slow or hung server would block
+ * the pipeline indefinitely on the connection path.
  */
 class RestConnectionTimeoutTest {
 
@@ -95,24 +100,37 @@ class RestConnectionTimeoutTest {
     RestConnection connection = new RestConnection(new Variables());
 
     // connectTimeout 2000 ms, readTimeout 300 ms — the server withholds the response for 1500 ms,
-    // so the read must time out (a ProcessingException wrapping a SocketTimeoutException).
-    Invocation.Builder invocationBuilder =
-        connection.getInvocationBuilder(url, null, 8080, 2000, 300);
+    // so the read must time out.
+    connection.setConnectTimeout("2000");
+    connection.setReadTimeout("300");
 
-    assertThrows(ProcessingException.class, () -> invocationBuilder.get(String.class));
+    assertThrows(SocketTimeoutException.class, () -> execute(connection, "GET", url, null));
   }
 
   @Test
   void negativeTimeoutsAreIgnored() throws Exception {
     RestConnection connection = new RestConnection(new Variables());
 
-    // Empty transform timeout fields resolve to -1; the connection must not pass a negative timeout
-    // to Jersey (which throws "timeouts can't be negative"). The request should simply succeed.
-    Invocation.Builder invocationBuilder =
-        connection.getInvocationBuilder(fastUrl, null, 8080, -1, -1);
+    // Empty timeout fields resolve to -1; the connection must leave the timeout unset rather than
+    // pass a negative one through. The request should simply succeed.
+    assertEquals("ok", execute(connection, "GET", fastUrl, null));
+  }
 
-    try (Response response = invocationBuilder.get()) {
-      assertEquals(200, response.getStatus());
+  /** Issues one request on a client built from the connection, returning the body. */
+  private static String execute(RestConnection connection, String method, String url, String body)
+      throws Exception {
+    try (CloseableHttpClient client =
+        RestClientFactory.createClient(connection.createClientSettings())) {
+      HttpUriRequestBase request = new HttpUriRequestBase(method, URI.create(url));
+      if (body != null) {
+        request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
+      }
+      return client.execute(
+          request,
+          response -> {
+            assertEquals(200, response.getCode());
+            return EntityUtils.toString(response.getEntity());
+          });
     }
   }
 }

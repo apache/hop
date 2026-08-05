@@ -100,6 +100,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private PasswordTextVar wKeyPassword;
   private TextVar wCertificateAlias;
 
+  private Button wPreemptiveBasicAuth;
+
+  private TextVar wConnectTimeout;
+  private TextVar wReadTimeout;
+  private ComboVar wProxyScheme;
+  private TextVar wProxyHost;
+  private TextVar wProxyPort;
+  private TextVar wProxyUsername;
+  private TextVar wProxyPassword;
+  private TextVar wNonProxyHosts;
+
   private ComboVar wPaginationType;
   private TextVar wPageParamName;
   private TextVar wOffsetParamName;
@@ -541,6 +552,20 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     gSSLTrustStore.setLayoutData(fdSSLTrustStore);
     // end SSL group
 
+    CTabItem wAdvancedTabItem = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTabItem.setFont(GuiResource.getInstance().getFontDefault());
+    wAdvancedTabItem.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Tab.Advanced.Title"));
+
+    Composite wAdvInner = new Composite(wTabFolder, SWT.NONE);
+    FormLayout advLayout = new FormLayout();
+    advLayout.marginWidth = PropsUi.getFormMargin();
+    advLayout.marginHeight = PropsUi.getFormMargin();
+    wAdvInner.setLayout(advLayout);
+    PropsUi.setLook(wAdvInner);
+    buildAdvancedWidgets(wAdvInner);
+    wAdvancedTabItem.setControl(wAdvInner);
+
     CTabItem wPaginationTabItem = new CTabItem(wTabFolder, SWT.NONE);
     wPaginationTabItem.setFont(GuiResource.getInstance().getFontDefault());
     wPaginationTabItem.setText(
@@ -577,6 +602,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wKeyStoreType,
       wKeyPassword,
       wCertificateAlias,
+      wConnectTimeout,
+      wReadTimeout,
+      wProxyScheme,
+      wProxyHost,
+      wProxyPort,
+      wProxyUsername,
+      wProxyPassword,
+      wNonProxyHosts,
       wPaginationType,
       wPageParamName,
       wOffsetParamName,
@@ -588,6 +621,100 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wNextPageUrlXPath
     };
     enableControls(controls);
+  }
+
+  /** Builds the timeout and proxy settings on the dedicated Advanced tab. */
+  private void buildAdvancedWidgets(Composite p) {
+    Group gTimeouts = new Group(p, SWT.SHADOW_ETCHED_IN);
+    gTimeouts.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Timeouts.Group.Label"));
+    PropsUi.setLook(gTimeouts);
+    FormLayout timeoutLayout = new FormLayout();
+    timeoutLayout.marginWidth = PropsUi.getFormMargin();
+    timeoutLayout.marginHeight = PropsUi.getFormMargin();
+    gTimeouts.setLayout(timeoutLayout);
+    FormData fdTimeouts = new FormData();
+    fdTimeouts.left = new FormAttachment(0, margin);
+    fdTimeouts.right = new FormAttachment(100, -margin);
+    fdTimeouts.top = new FormAttachment(0, margin);
+    gTimeouts.setLayoutData(fdTimeouts);
+
+    wConnectTimeout =
+        addLabelledField(gTimeouts, null, "RestConnectionEditor.ConnectTimeout.Label", false);
+    wReadTimeout =
+        addLabelledField(
+            gTimeouts, wConnectTimeout, "RestConnectionEditor.ReadTimeout.Label", false);
+
+    Group gProxy = new Group(p, SWT.SHADOW_ETCHED_IN);
+    gProxy.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Proxy.Group.Label"));
+    PropsUi.setLook(gProxy);
+    FormLayout proxyLayout = new FormLayout();
+    proxyLayout.marginWidth = PropsUi.getFormMargin();
+    proxyLayout.marginHeight = PropsUi.getFormMargin();
+    gProxy.setLayout(proxyLayout);
+    FormData fdProxy = new FormData();
+    fdProxy.left = new FormAttachment(0, margin);
+    fdProxy.right = new FormAttachment(100, -margin);
+    fdProxy.top = new FormAttachment(gTimeouts, margin);
+    gProxy.setLayoutData(fdProxy);
+
+    Label wlProxyScheme = new Label(gProxy, SWT.RIGHT);
+    wlProxyScheme.setText(BaseMessages.getString(PKG, "RestConnectionEditor.ProxyScheme.Label"));
+    PropsUi.setLook(wlProxyScheme);
+    FormData fdlProxyScheme = new FormData();
+    fdlProxyScheme.top = new FormAttachment(0, margin);
+    fdlProxyScheme.left = new FormAttachment(0, margin);
+    fdlProxyScheme.right = new FormAttachment(middle, -margin);
+    wlProxyScheme.setLayoutData(fdlProxyScheme);
+
+    wProxyScheme = new ComboVar(variables, gProxy, SWT.BORDER);
+    PropsUi.setLook(wProxyScheme);
+    wProxyScheme.setItems(new String[] {"http", "https"});
+    FormData fdProxyScheme = new FormData();
+    fdProxyScheme.top = new FormAttachment(wlProxyScheme, 0, SWT.CENTER);
+    fdProxyScheme.left = new FormAttachment(middle, margin);
+    fdProxyScheme.right = new FormAttachment(100, -margin);
+    wProxyScheme.setLayoutData(fdProxyScheme);
+    wProxyScheme.addListener(SWT.Modify, e -> markChangedIfUserEdit());
+
+    wProxyHost =
+        addLabelledField(gProxy, wProxyScheme, "RestConnectionEditor.ProxyHost.Label", false);
+    wProxyPort =
+        addLabelledField(gProxy, wProxyHost, "RestConnectionEditor.ProxyPort.Label", false);
+    wProxyUsername =
+        addLabelledField(gProxy, wProxyPort, "RestConnectionEditor.ProxyUsername.Label", false);
+    wProxyPassword =
+        addLabelledField(gProxy, wProxyUsername, "RestConnectionEditor.ProxyPassword.Label", true);
+    wNonProxyHosts =
+        addLabelledField(gProxy, wProxyPassword, "RestConnectionEditor.NonProxyHosts.Label", false);
+  }
+
+  /**
+   * Adds a label and an entry field below {@code above}, or at the top of {@code parent} when that
+   * is null. Returns the field so it can anchor the next one.
+   */
+  private TextVar addLabelledField(
+      Composite parent, Control above, String labelKey, boolean password) {
+    Label label = new Label(parent, SWT.RIGHT);
+    label.setText(BaseMessages.getString(PKG, labelKey));
+    PropsUi.setLook(label);
+    FormData fdLabel = new FormData();
+    fdLabel.top = above == null ? new FormAttachment(0, margin) : new FormAttachment(above, margin);
+    fdLabel.left = new FormAttachment(0, margin);
+    fdLabel.right = new FormAttachment(middle, -margin);
+    label.setLayoutData(fdLabel);
+
+    TextVar field =
+        password
+            ? new PasswordTextVar(variables, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            : new TextVar(variables, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(field);
+    FormData fdField = new FormData();
+    fdField.top = new FormAttachment(label, 0, SWT.CENTER);
+    fdField.left = new FormAttachment(middle, margin);
+    fdField.right = new FormAttachment(100, -margin);
+    field.setLayoutData(fdField);
+    field.addListener(SWT.Modify, e -> markChangedIfUserEdit());
+    return field;
   }
 
   /** Builds paging settings on the dedicated Pagination tab. */
@@ -891,6 +1018,27 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdPassword.right = new FormAttachment(95, 0);
     wPassword.setLayoutData(fdPassword);
 
+    Label wlPreemptive = new Label(wAuthComp, SWT.RIGHT);
+    wlPreemptive.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Preemptive"));
+    PropsUi.setLook(wlPreemptive);
+    FormData fdlPreemptive = new FormData();
+    fdlPreemptive.top = new FormAttachment(wPassword, margin);
+    fdlPreemptive.left = new FormAttachment(0, 0);
+    fdlPreemptive.right = new FormAttachment(middle, -margin);
+    wlPreemptive.setLayoutData(fdlPreemptive);
+
+    wPreemptiveBasicAuth = new Button(wAuthComp, SWT.CHECK);
+    PropsUi.setLook(wPreemptiveBasicAuth);
+    wPreemptiveBasicAuth.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Preemptive.Tooltip"));
+    FormData fdPreemptive = new FormData();
+    fdPreemptive.top = new FormAttachment(wlPreemptive, 0, SWT.CENTER);
+    fdPreemptive.left = new FormAttachment(middle, 0);
+    fdPreemptive.right = new FormAttachment(95, 0);
+    wPreemptiveBasicAuth.setLayoutData(fdPreemptive);
+    wPreemptiveBasicAuth.setSelection(metadata.isPreemptiveBasicAuth());
+    wPreemptiveBasicAuth.addListener(SWT.Selection, e -> markChangedIfUserEdit());
+
     Control[] controls = {wUsername, wPassword};
     enableControls(controls);
     refreshAuthLayout();
@@ -1130,6 +1278,15 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wKeyPassword.setText(Const.NVL(metadata.getKeyPassword(), ""));
       wCertificateAlias.setText(Const.NVL(metadata.getCertificateAlias(), ""));
 
+      wConnectTimeout.setText(Const.NVL(metadata.getConnectTimeout(), ""));
+      wReadTimeout.setText(Const.NVL(metadata.getReadTimeout(), ""));
+      wProxyScheme.setText(Const.NVL(metadata.getProxyScheme(), ""));
+      wProxyHost.setText(Const.NVL(metadata.getProxyHost(), ""));
+      wProxyPort.setText(Const.NVL(metadata.getProxyPort(), ""));
+      wProxyUsername.setText(Const.NVL(metadata.getProxyUsername(), ""));
+      wProxyPassword.setText(Const.NVL(metadata.getProxyPassword(), ""));
+      wNonProxyHosts.setText(Const.NVL(metadata.getNonProxyHosts(), ""));
+
       if (StringUtils.isEmpty(metadata.getAuthType())) {
         metadata.setAuthType(NO_AUTH);
         wAuthType.select(0);
@@ -1204,10 +1361,22 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setKeyPassword(wKeyPassword.getText());
     connection.setCertificateAlias(wCertificateAlias.getText());
 
+    connection.setConnectTimeout(wConnectTimeout.getText());
+    connection.setReadTimeout(wReadTimeout.getText());
+    connection.setProxyScheme(wProxyScheme.getText());
+    connection.setProxyHost(wProxyHost.getText());
+    connection.setProxyPort(wProxyPort.getText());
+    connection.setProxyUsername(wProxyUsername.getText());
+    connection.setProxyPassword(wProxyPassword.getText());
+    connection.setNonProxyHosts(wNonProxyHosts.getText());
+
     connection.setAuthType(wAuthType.getText());
     if (wAuthType.getText().equals(BASIC)) {
       connection.setUsername(wUsername.getText());
       connection.setPassword(wPassword.getText());
+      if (wPreemptiveBasicAuth != null && !wPreemptiveBasicAuth.isDisposed()) {
+        connection.setPreemptiveBasicAuth(wPreemptiveBasicAuth.getSelection());
+      }
     } else if (wAuthType.getText().equals(BEARER)) {
       connection.setBearerToken(wBearerValue.getText());
     } else if (wAuthType.getText().equals(API_KEY)) {

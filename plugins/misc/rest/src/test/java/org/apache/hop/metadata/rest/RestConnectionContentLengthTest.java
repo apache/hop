@@ -20,15 +20,18 @@ package org.apache.hop.metadata.rest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.sun.net.httpserver.HttpServer;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.rest.client.RestClientFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,12 +40,12 @@ import org.junit.jupiter.api.Test;
  * Regression test for issue #7621: a POST issued through a REST connection must send a {@code
  * Content-Length} header, just like the standalone URL path does.
  *
- * <p>The connection path uses Jersey's default (JDK {@code HttpURLConnection}) connector. That
- * connector omits {@code Content-Length} for a {@code null} request entity, but sends {@code
+ * <p>A connector omits {@code Content-Length} for a {@code null} request entity, but sends {@code
  * Content-Length: 0} for an empty (non-null) entity. {@code Rest.executeRequest} therefore
- * normalizes a null body to an empty string; this test locks in the connector behaviour that fix
- * relies on: an empty-body POST through a connection carries {@code Content-Length} and is not sent
- * with chunked transfer encoding.
+ * normalizes a null body to an empty string; this test locks in the behaviour that fix relies on:
+ * an empty-body POST through a connection carries {@code Content-Length} and is not sent with
+ * chunked transfer encoding. Buffered request entities are what keep this true on the Apache 5
+ * connector the connection now uses.
  */
 class RestConnectionContentLengthTest {
 
@@ -87,12 +90,24 @@ class RestConnectionContentLengthTest {
   void emptyBodyPostThroughConnectionSendsContentLength() throws Exception {
     RestConnection connection = new RestConnection(new Variables());
 
-    Invocation.Builder invocationBuilder = connection.getInvocationBuilder(url);
-    try (Response response =
-        invocationBuilder.post(Entity.entity("", MediaType.APPLICATION_JSON_TYPE))) {
+    assertEquals("content-length=0;chunked=false", execute(connection, "POST", url, ""));
+  }
 
-      assertEquals(200, response.getStatus());
-      assertEquals("content-length=0;chunked=false", response.readEntity(String.class));
+  /** Issues one request on a client built from the connection, returning the body. */
+  private static String execute(RestConnection connection, String method, String url, String body)
+      throws Exception {
+    try (CloseableHttpClient client =
+        RestClientFactory.createClient(connection.createClientSettings())) {
+      HttpUriRequestBase request = new HttpUriRequestBase(method, URI.create(url));
+      if (body != null) {
+        request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
+      }
+      return client.execute(
+          request,
+          response -> {
+            assertEquals(200, response.getCode());
+            return EntityUtils.toString(response.getEntity());
+          });
     }
   }
 }

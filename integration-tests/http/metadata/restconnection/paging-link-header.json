@@ -1,0 +1,8 @@
+{
+  "name": "paging-link-header",
+  "pagination_type": "LINK_HEADER",
+  "auth_type": "No Auth",
+  "base_url": "http://${PAGING_HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false
+}

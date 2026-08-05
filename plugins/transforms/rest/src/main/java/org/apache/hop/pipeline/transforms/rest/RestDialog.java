@@ -464,6 +464,7 @@ public class RestDialog extends BaseTransformDialog {
     activateMethodInfield();
     activateTrustStoreFields();
     activatePaginationTab();
+    activateConnectionSupersededFields();
     setMethod();
     wMethod.addModifyListener(e -> setMethod());
     input.setChanged(changed);
@@ -905,14 +906,51 @@ public class RestDialog extends BaseTransformDialog {
   }
 
   private void activateTrustStoreFields() {
-    // trust store file(label/text/browse)
-    wlTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
-    wTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
-    wbTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
+    if (wIgnoreSsl == null || wIgnoreSsl.isDisposed()) {
+      // The connection selection line is built — and fires its listener while filling in its
+      // items — before the SSL group exists. open() runs the activation again once every widget
+      // is in place, so there is nothing to do yet.
+      return;
+    }
+    boolean editable = !wIgnoreSsl.getSelection() && !hasConnection();
 
-    // trust store password(label/text)
-    wlTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
-    wTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
+    setEnabled(
+        editable,
+        // trust store file(label/text/browse)
+        wlTrustStoreFile,
+        wTrustStoreFile,
+        wbTrustStoreFile,
+        // trust store password(label/text)
+        wlTrustStorePassword,
+        wTrustStorePassword);
+  }
+
+  private boolean hasConnection() {
+    return wSelectionLine != null
+        && !wSelectionLine.isDisposed()
+        && !Utils.isEmpty(wSelectionLine.getText());
+  }
+
+  /**
+   * A selected REST connection supplies the whole client, so the transform's own proxy,
+   * authentication, SSL and timeout fields stop being read. Grey them out rather than leave them
+   * looking as though they still do something. The values are kept: deselecting the connection
+   * brings them back.
+   */
+  private void activateConnectionSupersededFields() {
+    boolean editable = !hasConnection();
+
+    setEnabled(editable, wProxyHost, wProxyPort, wHttpLogin, wHttpPassword, wPreemptive);
+    setEnabled(editable, wConnectionTimeout, wReadTimeout, wIgnoreSsl);
+    activateTrustStoreFields();
+  }
+
+  private static void setEnabled(boolean enabled, Control... controls) {
+    for (Control control : controls) {
+      if (control != null && !control.isDisposed()) {
+        control.setEnabled(enabled);
+      }
+    }
   }
 
   private void setupTrustStorePwdLine(
@@ -1498,11 +1536,13 @@ public class RestDialog extends BaseTransformDialog {
         e -> {
           input.setChanged(true);
           activatePaginationTab();
+          activateConnectionSupersededFields();
         });
     wSelectionLine.addModifyListener(
         e -> {
           input.setChanged(true);
           activatePaginationTab();
+          activateConnectionSupersededFields();
         });
     try {
       wSelectionLine.fillItems();
