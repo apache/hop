@@ -203,6 +203,26 @@ When a split path is configured but a page yields no matching elements, Hop fail
 
 TIP: GitHub's public REST API requires a `User-Agent` header. Add it on the **Headers** tab (or use a Bearer token on the connection for higher rate limits). A `401` response with `No Auth` usually means an invalid `Authorization` header was sent (for example an unresolved `{openvar}GH_TOKEN{closevar}` placeholder).
 
+== Logging
+
+At **Detailed** log level the transform logs each request as one literal block — request line, headers, body — rather than only the scattered per-header and per-parameter lines:
+
+[source]
+----
+Request sent (credentials masked):
+POST /api/things?q=hop
+Host: example.com
+Content-Type: application/json; charset=UTF-8
+X-Trace: abc123
+Accept: application/json
+
+{"name":"hop"}
+----
+
+The block is built from the request that is actually sent, so it also shows what Hop adds for you: the `Authorization` header an attached xref:metadata-types/rest-connection.adoc[REST connection] contributes, `Accept`, `Content-Type`, and a paging cursor header. None of those appear anywhere else in the log.
+
+`Authorization`, `Proxy-Authorization` and `Cookie` values are masked, because logs travel — into tickets, into CI output. A request body longer than 4096 characters is truncated, and a binary body is summarised as its length rather than decoded.
+
 == Samples
 
 link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/transforms/rest-client-github-releases-loop.hpl[rest-client-github-releases-loop.hpl] — lists `apache/hop` GitHub releases via `LINK_HEADER` pagination (`per_page=5`), splits `+$[*]+`, and parses fields with a JSON Input transform. Connection metadata: link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/metadata/restconnection/github-releases.json[github-releases.json] (in the REST transform samples project).

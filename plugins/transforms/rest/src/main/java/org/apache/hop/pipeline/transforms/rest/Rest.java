@@ -363,10 +363,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       // One request for both paths. The connection used to build its own target internally, which
       // is why the matrix and query parameters had to be baked into the URL beforehand (#7621).
       String requestUri = buildRequestUri(effectiveBase, rowData);
-      if (isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(PKG, "Rest.Log.SendingRequest", data.method, requestUri));
-      }
       if (isDebug()) {
         logDebug(
             BaseMessages.getString(
@@ -1427,10 +1423,76 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
                 ? new ByteArrayEntity(bytes, type)
                 : new StringEntity((String) body, type));
       }
+
+      if (isDetailed()) {
+        logDetailed(describeRequest(request, body));
+      }
+
       return data.client.execute(request, Rest::materialize);
     } catch (Exception e) {
       throw new HopException("Request could not be processed", e);
     }
+  }
+
+  /**
+   * Renders the request the way a browser console or Postman would: the request line, every header,
+   * then the body. The per-header and per-parameter lines elsewhere in this class say what was
+   * configured; this says what actually goes out, in one block you can read or paste. It replaces
+   * the one-line "Sending [method] request to [url]" that used to be logged here, which this is a
+   * superset of.
+   *
+   * <p>It is built from the {@code HttpUriRequestBase} rather than from the transform's own fields,
+   * so it also shows the headers Hop adds for you — the {@code Authorization} an attached REST
+   * connection contributes, {@code Accept}, {@code Content-Type}, a paging cursor header — none of
+   * which appear anywhere else in the log.
+   *
+   * <p>Credentials are masked. Debug logging routinely ends up in tickets and CI output, and a
+   * verbatim dump of an {@code Authorization} header is a credential leak.
+   */
+  /** Enough to read a request by, without pouring a multi-megabyte upload into the log per row. */
+  private static final int MAX_LOGGED_BODY_CHARS = 4096;
+
+  private String describeRequest(HttpUriRequestBase request, Object body) {
+    StringBuilder text = new StringBuilder(256);
+    text.append(BaseMessages.getString(PKG, "Rest.Log.FullRequest")).append(Const.CR);
+    text.append(request.getMethod()).append(' ').append(request.getRequestUri()).append(Const.CR);
+
+    // Host and Content-Type never appear in getHeaders(): the client derives the first from the
+    // route and the second from the entity, both at send time. Leaving them out would make this a
+    // misleading picture of the request rather than a faithful one.
+    if (request.getAuthority() != null) {
+      text.append("Host: ").append(request.getAuthority().toString()).append(Const.CR);
+    }
+    HttpEntity requestEntity = request.getEntity();
+    if (requestEntity != null && requestEntity.getContentType() != null) {
+      text.append("Content-Type: ").append(requestEntity.getContentType()).append(Const.CR);
+    }
+
+    for (Header header : request.getHeaders()) {
+      text.append(header.getName())
+          .append(": ")
+          .append(maskHeaderValue(header.getName(), header.getValue()))
+          .append(Const.CR);
+    }
+
+    if (RestMeta.isActiveBody(data.method)) {
+      text.append(Const.CR);
+      if (body instanceof byte[] bytes) {
+        // Binary bodies are not text and must not be decoded just to be logged (issue #3746).
+        text.append(BaseMessages.getString(PKG, "Rest.Log.FullRequest.BinaryBody", bytes.length));
+      } else {
+        String text0 = String.valueOf(body);
+        if (text0.length() > MAX_LOGGED_BODY_CHARS) {
+          text.append(text0, 0, MAX_LOGGED_BODY_CHARS)
+              .append(
+                  BaseMessages.getString(
+                      PKG, "Rest.Log.FullRequest.BodyTruncated", text0.length()));
+        } else {
+          text.append(text0);
+        }
+      }
+    }
+    return text.toString();
   }
 
   private void emitHttpLineage(
