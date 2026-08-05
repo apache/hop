@@ -55,6 +55,7 @@ import org.apache.hop.metadata.rest.client.RestAuthType;
 import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.metadata.rest.client.RestClientFactory;
 import org.apache.hop.metadata.rest.client.RestClientSettings;
+import org.apache.hop.metadata.rest.client.RestOAuth2Grant;
 
 @Getter
 @Setter
@@ -73,6 +74,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   public static final String BASIC = "Basic";
   public static final String API_KEY = "API Key";
   public static final String BEARER = "Bearer";
+  public static final String OAUTH2 = "OAuth 2";
 
   private IVariables variables;
 
@@ -170,6 +172,35 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   private String authorizationHeaderValue;
 
   // Client certificate (KeyStore) fields
+  // ---------------------------------------------------------------- OAuth 2 (issue #6595)
+
+  @HopMetadataProperty(key = "oauth2_token_url")
+  private String oauth2TokenUrl;
+
+  @HopMetadataProperty(key = "oauth2_grant")
+  private RestOAuth2Grant oauth2Grant = RestOAuth2Grant.CLIENT_CREDENTIALS;
+
+  @HopMetadataProperty(key = "oauth2_client_id")
+  private String oauth2ClientId;
+
+  @HopMetadataProperty(key = "oauth2_client_secret", password = true)
+  private String oauth2ClientSecret;
+
+  @HopMetadataProperty(key = "oauth2_refresh_token", password = true)
+  private String oauth2RefreshToken;
+
+  @HopMetadataProperty(key = "oauth2_scope")
+  private String oauth2Scope;
+
+  @HopMetadataProperty(key = "oauth2_credentials_in_body")
+  private boolean oauth2CredentialsInBody;
+
+  @HopMetadataProperty(key = "oauth2_authorization_url")
+  private String oauth2AuthorizationUrl;
+
+  @HopMetadataProperty(key = "oauth2_redirect_uri")
+  private String oauth2RedirectUri;
+
   @HopMetadataProperty(key = "keyStoreFile")
   private String keyStoreFile;
 
@@ -303,6 +334,20 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     } else if (authTypeEquals(BEARER)) {
       settings.setAuthType(RestAuthType.BEARER);
       settings.setBearerToken(Encr.decryptPasswordOptionallyEncrypted(resolve(bearerToken)));
+    } else if (authTypeEquals(OAUTH2)) {
+      settings.setAuthType(RestAuthType.OAUTH2);
+      settings.setOauth2TokenUrl(resolve(oauth2TokenUrl));
+      settings.setOauth2Grant(
+          oauth2Grant == null ? RestOAuth2Grant.CLIENT_CREDENTIALS : oauth2Grant);
+      settings.setOauth2ClientId(resolve(oauth2ClientId));
+      settings.setOauth2ClientSecret(
+          Encr.decryptPasswordOptionallyEncrypted(resolve(oauth2ClientSecret)));
+      settings.setOauth2RefreshToken(
+          Encr.decryptPasswordOptionallyEncrypted(resolve(oauth2RefreshToken)));
+      settings.setOauth2Scope(resolve(oauth2Scope));
+      settings.setOauth2CredentialsInBody(oauth2CredentialsInBody);
+      settings.setOauth2AuthorizationUrl(resolve(oauth2AuthorizationUrl));
+      settings.setOauth2RedirectUri(resolve(oauth2RedirectUri));
     } else if (authTypeEquals(API_KEY)) {
       settings.setAuthType(RestAuthType.API_KEY);
       settings.setApiKeyHeaderName(resolve(authorizationHeaderName));

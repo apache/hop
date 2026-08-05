@@ -18,17 +18,28 @@
 package org.apache.hop.metadata.rest.client;
 
 /**
- * How a REST call authenticates. The REST connection stores this as a label; the REST transform's
- * own fields imply it (credentials present means Basic).
+ * The OAuth 2 grants a REST connection can use (issue #6595). Both are usable without a browser,
+ * which is what a pipeline needs.
+ *
+ * <p>Authorization Code is deliberately absent: it requires an interactive redirect, so headless it
+ * could only ever consume a refresh token obtained elsewhere — which is what {@link #REFRESH_TOKEN}
+ * already does.
  */
-public enum RestAuthType {
-  NONE,
-  BASIC,
-  BEARER,
-  API_KEY,
+public enum RestOAuth2Grant {
+  /** Machine-to-machine: the client id and secret are the credentials. */
+  CLIENT_CREDENTIALS("client_credentials"),
 
-  /**
-   * OAuth 2: a token is fetched from a token endpoint and sent as a Bearer header (issue #6595).
-   */
-  OAUTH2
+  /** Exchanges a long-lived refresh token, obtained once interactively, for access tokens. */
+  REFRESH_TOKEN("refresh_token");
+
+  private final String wireName;
+
+  RestOAuth2Grant(String wireName) {
+    this.wireName = wireName;
+  }
+
+  /** The value sent as {@code grant_type}. */
+  public String getWireName() {
+    return wireName;
+  }
 }

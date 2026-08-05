@@ -218,6 +218,30 @@ class RestProxyRoutingTest {
     assertEquals(1, originRequests.size());
   }
 
+  @Test
+  void theOauth2TokenRequestAlsoGoesThroughTheProxy() throws Exception {
+    // The token fetch is a separate HTTP call, and one that is easy to make with a default client
+    // by accident. If it skipped the proxy, an OAuth connection would fail behind a corporate
+    // proxy while the API call it authorises would have worked — a confusing way to fail.
+    RestClientSettings settings = proxySettings();
+    settings.setAuthType(RestAuthType.OAUTH2);
+    settings.setOauth2TokenUrl(originUrl("127.0.0.1") + "/token");
+    settings.setOauth2ClientId("id");
+    settings.setOauth2ClientSecret("secret");
+
+    // The stub proxy answers everything itself, so the token response is not valid JSON; the point
+    // is only whether the request took the proxy route at all.
+    RestOAuth2TokenProvider.clearCache();
+    try {
+      RestOAuth2TokenProvider.getAccessToken(settings);
+    } catch (Exception expected) {
+      // The stub proxy does not speak OAuth.
+    }
+
+    assertEquals(1, proxiedRequests.size(), "the token request must take the proxy route");
+    assertTrue(proxiedRequests.get(0).endsWith("/token"), proxiedRequests.get(0));
+  }
+
   private void handleProxyRequest(HttpExchange exchange) throws IOException {
     String authorization = exchange.getRequestHeaders().getFirst("Proxy-Authorization");
     if (proxyRequiresAuth && authorization == null) {

@@ -60,6 +60,7 @@ Use environment variables or Hop variables (for example `{openvar}PROJECT_HOME{c
 |API Key|Authorization header name, Authorization prefix (optional), Authorization value|Adds a header such as `Authorization: Bearer <token>` or any other custom header. Prefix is concatenated with the value when present.
 |Basic|Username, Password, Preemptive|Sends HTTP Basic credentials. Passwords can be stored encrypted. See **Preemptive authentication** below.
 |Bearer|Bearer token|Adds an `Authorization: Bearer <token>` header automatically.
+|OAuth 2|Token URL, Grant type, Client ID, Client secret, Refresh token, Scope|Fetches an access token from the token endpoint and sends it as a Bearer header. See **OAuth 2** below.
 |===
 
 NOTE: Mutual TLS (mTLS) is not an authentication type. A client certificate is presented during the TLS handshake rather than in the `Authorization` header, so it is configured in **SSL and client certificates** below and can be combined with any of the types above.
@@ -86,6 +87,51 @@ Preemptive is the right choice for almost every API, and it is what Hop has alwa
 |===
 
 Use the `Test` button to validate the selected authentication method and SSL settings against the test or base URL. The dialog resolves variables before running the test so it matches pipeline execution.
+
+=== OAuth 2
+
+Hop obtains the access token itself, so an OAuth-protected API needs no scripting to sign or refresh anything.
+
+[options="header"]
+|===
+|Option |Description
+|Token URL|The token endpoint, for example `https://login.example.com/oauth2/token`.
+|Grant type|`CLIENT_CREDENTIALS` for machine-to-machine access, where the client ID and secret are the credentials. `REFRESH_TOKEN` to exchange a long-lived refresh token, obtained once interactively, for access tokens.
+|Client ID / Client secret|The registered client credentials. The secret is stored encrypted.
+|Refresh token|Only for the `REFRESH_TOKEN` grant. Stored encrypted.
+|Scope|Optional, space separated.
+|Send credentials in body|Controls where the client *secret* travels. By default it goes in a Basic `Authorization` header, which RFC 6749 §2.3.1 requires every server to accept; tick this for a server that only accepts it in the form body. The client *ID* is always sent in the body as well, whichever setting you choose — RFC 6749 §4.1.3 lists it as a body parameter and Microsoft Entra ID rejects a request without it (`AADSTS900144`) even when the header carries the same value.
+|===
+
+[options="header"]
+|===
+|Option |Description
+|Authorization URL|The authorization endpoint, used only by **Authorize** below. A pipeline never visits it.
+|Redirect URI|Where the authorization server sends the browser back. It must match one registered with the provider.
+|Authorize...|Runs the consent flow once, at design time. See below.
+|===
+
+==== Authorize
+
+`CLIENT_CREDENTIALS` needs no human. When the API instead requires a user to consent, click **Authorize...**:
+
+. Hop builds an authorization URL with PKCE (RFC 7636) and shows it. **Open in browser** launches it.
+. Approve the request. The browser lands on your redirect URI with a `code=` parameter in the address bar.
+. Copy that code and paste it back into the dialog.
+
+Hop exchanges the code for tokens, fills in the **Refresh token** field and switches the grant to `REFRESH_TOKEN`. Save the connection, and pipelines run unattended from then on — the browser step happens once, not per run.
+
+The exchange goes through the connection's proxy and TLS settings like every other request, so authorizing from behind a corporate proxy works.
+
+NOTE: If the provider returns no refresh token, Hop reports it rather than appearing to succeed — a connection that silently kept only an access token would work until it expired and then need a human again. Providers need to be asked for offline access explicitly: put `offline_access` in **Scope**, alongside the scopes for the API itself. On Microsoft Entra ID that means, for example, `offline_access api://your-app/Default_scope`. The error message shows the scope the server actually granted, which is the quickest way to see that it is missing.
+
+A code is pasted rather than captured by a local listener: Hop cannot assume it may bind a port, and most providers only accept redirect URIs registered with them in advance.
+
+**Tokens are cached and shared.** A transform running several copies would otherwise request a token per copy, and token endpoints are commonly rate-limited — some providers also invalidate the previous token whenever they issue one, so the copies would knock each other offline. The cache is keyed on the token URL, client ID, grant and scope, so connections that share those share a token.
+
+Hop refreshes 30 seconds before the `expires_in` the server reported, to absorb clock skew; if the server reports no expiry, the token is treated as lasting five minutes.
+
+The token request goes out through the same client as the API call, so it uses the connection's proxy, TLS settings and timeouts.
 
 == Advanced
 

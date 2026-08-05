@@ -27,6 +27,8 @@ import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 
 /**
@@ -54,6 +56,7 @@ public class RestAuthenticator {
    * @param headers the outbound header map, modified in place
    * @param requestUri the URI this request is going to
    */
+  @SuppressWarnings("java:S1130") // The OAuth branch really can fail; the others cannot.
   public void applyRequestHeaders(Map<String, String> headers, String requestUri) {
     if (headers == null || !targetMatchesOrigin(requestUri)) {
       return;
@@ -62,6 +65,7 @@ public class RestAuthenticator {
       case BASIC -> applyBasic(headers);
       case BEARER -> applyBearer(headers);
       case API_KEY -> applyApiKey(headers);
+      case OAUTH2 -> applyOAuth2(headers);
       case NONE -> {
         // Nothing to add.
       }
@@ -102,6 +106,23 @@ public class RestAuthenticator {
   private static UsernamePasswordCredentials credentials(String username, String password) {
     return new UsernamePasswordCredentials(
         Utils.isEmpty(username) ? "" : username, (password == null ? "" : password).toCharArray());
+  }
+
+  /**
+   * Fetches (or reuses) an access token and sends it as a Bearer header. Unlike the other schemes
+   * this one talks to the network, so it can fail; a token that cannot be obtained is an error
+   * rather than a request sent unauthenticated, which would only produce a confusing 401 later.
+   */
+  private void applyOAuth2(Map<String, String> headers) {
+    if (headerAlreadySupplied(headers, HttpHeaders.AUTHORIZATION)) {
+      return;
+    }
+    try {
+      headers.put(
+          HttpHeaders.AUTHORIZATION, "Bearer " + RestOAuth2TokenProvider.getAccessToken(settings));
+    } catch (HopException e) {
+      throw new HopRuntimeException(e);
+    }
   }
 
   private void applyBasic(Map<String, String> headers) {

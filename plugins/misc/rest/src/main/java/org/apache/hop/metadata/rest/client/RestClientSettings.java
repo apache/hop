@@ -99,4 +99,39 @@ public class RestClientSettings {
 
   /** Plain-text API key: decrypt before setting this. */
   private String apiKeyHeaderValue;
+
+  // ---------------------------------------------------------------- OAuth 2 (issue #6595)
+
+  /** The token endpoint an access token is fetched from. */
+  private String oauth2TokenUrl;
+
+  /** Which grant to use. Never {@code null} in practice; defaults to client credentials. */
+  private RestOAuth2Grant oauth2Grant = RestOAuth2Grant.CLIENT_CREDENTIALS;
+
+  private String oauth2ClientId;
+
+  /** Plain-text client secret: decrypt before setting this. */
+  private String oauth2ClientSecret;
+
+  /** Plain-text refresh token: decrypt before setting this. Used by the refresh_token grant. */
+  private String oauth2RefreshToken;
+
+  /** Optional space-separated scopes. */
+  private String oauth2Scope;
+
+  /**
+   * Send the client id and secret in the request body instead of an Authorization header. RFC 6749
+   * §2.3.1 requires servers to accept the header and only permits the body form, so the header is
+   * the default; this exists for the servers that accept nothing else.
+   */
+  private boolean oauth2CredentialsInBody;
+
+  /**
+   * The authorization endpoint, used only by the editor's Authorize button. A pipeline never visits
+   * it: the interactive consent happens once, at design time, and leaves behind a refresh token.
+   */
+  private String oauth2AuthorizationUrl;
+
+  /** Where the authorization server sends the browser back with the code. */
+  private String oauth2RedirectUri;
 }
