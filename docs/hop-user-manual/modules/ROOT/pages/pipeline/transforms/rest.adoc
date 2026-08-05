@@ -67,7 +67,7 @@ The General tab is where you enter basic connection information for accessing a 
 |URL|Indicates the path to a resource
 |Accept URL from field|Designates the path to a resource is defined from a field
 |URL field name|Indicates the field from which the path to a resource is defined
-|HTTP method|Indicates how the transform interacts with a resource---options are either GET, PUT, DELETE, POST, HEAD, or OPTIONS
+|HTTP method|Indicates how the transform interacts with a resource. The list offers GET, POST, PUT, DELETE, HEAD, OPTIONS and PATCH. A verb outside that list (`LIST`, `PURGE`, …) is sent as-is when it comes from a field — see **Get Method from field**.
 |Get Method from field|Designates the GET method is defined from a field
 |Method fieldname|Indicates the field from which the GET method is defined
 |Body field|Contains the request body for POST, PUT, and DELETE methods. Body field only accepts a previous field, not a hard coded value.
@@ -75,9 +75,13 @@ The General tab is where you enter basic connection information for accessing a 
 |Connection timeout|Indicates the timeout until a connection is established (milliseconds)
 |Read timeout|Indicates the timeout for waiting for reading data (milliseconds)
 |Result fieldname|Designates the name of the result output field
+|Binary result|Returns the response body as binary instead of decoding it to a String. Use this for images, files and other non-text payloads: decoding those with a charset and re-encoding them replaces every invalid byte with U+FFFD and silently corrupts the content.
 |HTTP status code fieldname|Designates the name of the HTTP status code field
 |Response time (milliseconds) fieldname|Designates the name of the response time field
+|Response header fieldname|Designates the name of a field receiving the response headers as a JSON object.
 |===
+
+NOTE: A **Body field** of type Binary is sent as raw bytes rather than being converted to a String, for the same reason as **Binary result** above.
 
 === Authentication Tab
 
@@ -90,10 +94,12 @@ TIP: Hop allows using NULL parameters/variables for both the HTTP Login and HTTP
 |Option|Description
 |HTTP Login|Indicates the username required to access a resource
 |HTTP Password|Indicates the password associated with the provided HTTP Login username
-|Preemptive|Option to send the authentication credentials before a server gives an unauthorized response. Currently always true, due to https://github.com/apache/hop/issues/4196[bug #4196].
+|Preemptive|Sends the credentials with the first request instead of waiting for a `401` challenge. Selected by default, which is what this transform has always done. Clear it only for a server that requires the challenge round trip: an API that answers an unauthenticated request with a `403`, or a `200` carrying an error body, never receives the credentials at all.
 |Proxy Host|Indicates the name of a proxy host
 |Proxy Port|Indicates the port number of a proxy host
 |===
+
+NOTE: These fields are only used when no xref:metadata-types/rest-connection.adoc[REST connection] is selected. A selected connection supplies the authentication, proxy, SSL and timeout settings for the whole client, and this tab is greyed out.
 
 === SSL Tab
 
@@ -102,9 +108,12 @@ The SSL tab is where you provide authentication details for accessing a resource
 [options="header"]
 |===
 |Option|Description
+|Ignore SSL certificate verification|Trusts every certificate and accepts any host name. Use this only against development or test servers; it removes the protection TLS provides.
 |Truststore file|Indicates the location of a truststore file
 |Truststore password|Indicates the password associated with the provided truststore file
 |===
+
+NOTE: As with the Authentication tab, these fields are ignored when a xref:metadata-types/rest-connection.adoc[REST connection] is selected — the connection's SSL settings apply instead.
 
 === Headers Tab
 
@@ -121,7 +130,7 @@ TIP: To figure out what Headers are required, you can use Postman and remove as 
 
 === Query Parameters Tab
 
-The Query Parameters tab enables you to add URL query parameters to POST, GET, PUT, DELETE, and PATCH requests.
+The Query Parameters tab enables you to add URL query parameters. They apply to every method except HEAD and OPTIONS.
 Query parameters are added to the end of the URL, e.g. `https://host/path?name1=value1&name2=value2`.
 Each row maps a field from the incoming Hop stream to a query parameter name.
 Click **Get fields** to populate the **Query parameter value field** list, then enter the parameter name expected by the API in **Parameter name**.
@@ -138,9 +147,10 @@ Hop URL-encodes the parameter name and value.
 
 === Matrix Parameters tab
 
-Use the Matrix Parameters tab to define matrix parameter values for POST, PUT, DELETE, and PATCH requests.
+Use the Matrix Parameters tab to define matrix parameter values. They apply to every method except HEAD and OPTIONS — including GET, which is where they are most often used.
 Unlike query parameters, which follow a `?`, matrix parameters are appended to the URL path with a semicolon, e.g. `https://host/path;name1=value1;name2=value2`.
 For example, a matrix parameter named `language` with the value `en` produces a path such as `/resource;language=en`.
+Values are percent-encoded for a path segment, so a space becomes `%20` rather than `+`, which in a path would mean a literal plus sign.
 
 [options="header"]
 |===
@@ -148,6 +158,55 @@ For example, a matrix parameter named `language` with the value `en` produces a 
 |Matrix parameter value field|The field from the incoming Hop stream that contains the matrix parameter value
 |Matrix parameter name|The matrix parameter name expected by the REST API
 |===
+
+=== Streaming result tab
+
+Normally the transform reads the whole response body, then produces one row from it. That is wrong for two kinds of endpoint: an export larger than memory, and a feed that never ends. With **Source is streaming**, rows are emitted as the response arrives.
+
+[options="header"]
+|===
+|Option|Description
+|Source is streaming|Emit one row per record while the response is still being received, instead of buffering the whole body first.
+|Record format|`NDJSON` — one record per line, what bulk-export APIs generally serve (`application/x-ndjson`). `SSE` — WHATWG `text/event-stream`, where a blank line ends a record and its value is the joined `data:` fields.
+|Event name field|SSE only. Optional output field carrying the event's `event:` type. Leave empty and no column is added.
+|Event ID field|SSE only. Optional output field carrying the event's `id:`. The value persists until the server sends a new one, which is what the spec means by "last event ID" — the point a consumer would resume from.
+|===
+
+The record itself always stays in **Result fieldname**, rather than being wrapped in an envelope alongside its metadata. A payload that is already JSON can therefore go straight into a xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform with no unwrapping, and pipelines that do not care about the framing are unaffected. The `retry:` field is not exposed: it tells a client how long to wait before reconnecting, and Hop does not reconnect.
+
+Each record becomes one row, in the **Result fieldname** field. The status code, response time and response headers repeat on every row, since they belong to the one response all the records came from.
+
+[IMPORTANT]
+====
+Streaming reads the body once, as it arrives, so it cannot be combined with anything that needs the whole body at once. The transform refuses these rather than ignoring them:
+
+* **Pagination** — finding the next page means re-reading a response, and following it means re-requesting.
+* **A binary result field**.
+* **A result split path** — a JsonPath or XPath over a complete document.
+
+Two other consequences worth knowing: the connection stays checked out for as long as the stream runs, and a request cannot be **retried** once rows have gone downstream, so the Retry Option tab does not apply to the streamed part of a response.
+====
+
+=== Retry Option tab
+
+Retries a request whose response carries one of the configured status codes. Useful for the transient ones — `429 Too Many Requests`, `502`, `503`, `504` — where repeating the same call is likely to succeed.
+
+[options="header"]
+|===
+|Option|Description
+|Retry times|How many *additional* attempts to make after the first one fails. `0` (the default) means no retry.
+|Retry delay(ms)|Base delay before the first retry, `200` by default. Successive retries back off exponentially with jitter (`delay × 2^attempt`, halved and randomised), capped at 30 seconds.
+|Retry HTTP status codes|The response codes that trigger a retry. A code that is not listed is returned to the pipeline as-is.
+|Retry HTTP methods|The methods eligible for retry. Leave a method out to never retry it — which is what you want for a non-idempotent `POST`.
+|===
+
+[IMPORTANT]
+====
+Two things about this tab are easy to get wrong:
+
+* **Both lists have to be populated.** If the method of the request is not in **Retry HTTP methods**, the request is issued once and no retry logic runs at all, whatever the status codes say.
+* **Exhausting the retries fails the transform.** When the last attempt still returns a retryable status, the transform raises an error rather than passing the response downstream. Configure error handling on the transform if you would rather route those rows.
+====
 
 === Pagination tab
 
@@ -158,7 +217,7 @@ Use this tab to loop over paged REST APIs. Paging behaviour (Link header, offset
 |Option|Description
 |Enable pagination loop for incoming rows|When enabled and the REST connection uses a non-`NONE` pagination strategy, Hop performs multiple HTTP requests per input row until the API has no more pages or a safeguard limit is reached. When disabled, or when the connection pagination strategy is `NONE`, Hop performs a single request (legacy behaviour).
 |Maximum page requests per input row|Hard cap on HTTP iterations per input row while following link headers, cursors, offsets, or page numbers. Leave blank or `0` to use the built-in safeguard (default 256).
-|Optional result split JsonPath/XPath|When set and **Application type** is JSON or XML, Hop emits one output row per JsonPath or XPath match instead of one row with the full response body. Typical for top-level arrays (`$[*]`) or nested collections (`$.results[*]`). Supports `{openvar}VAR{closevar}` and `%%VAR%%` substitution. This field does not apply Hop's `$[HH]` hexadecimal byte decoding, so bracketed JsonPath selectors (for example `$[*]`) are preserved.
+|Optional result split JsonPath/XPath|When set and **Application type** is JSON or XML, Hop emits one output row per JsonPath or XPath match instead of one row with the full response body. Typical for top-level arrays (`+$[*]+`) or nested collections (`+$.results[*]+`). Supports `{openvar}VAR{closevar}` and `%%VAR%%` substitution. This field does not apply Hop's `$[HH]` hexadecimal byte decoding, so bracketed JsonPath selectors (for example `+$[*]+`) are preserved.
 |===
 
 Paging stops when:
@@ -172,6 +231,26 @@ When a split path is configured but a page yields no matching elements, Hop fail
 
 TIP: GitHub's public REST API requires a `User-Agent` header. Add it on the **Headers** tab (or use a Bearer token on the connection for higher rate limits). A `401` response with `No Auth` usually means an invalid `Authorization` header was sent (for example an unresolved `{openvar}GH_TOKEN{closevar}` placeholder).
 
+== Logging
+
+At **Detailed** log level the transform logs each request as one literal block — request line, headers, body — rather than only the scattered per-header and per-parameter lines:
+
+[source]
+----
+Request sent (credentials masked):
+POST /api/things?q=hop
+Host: example.com
+Content-Type: application/json; charset=UTF-8
+X-Trace: abc123
+Accept: application/json
+
+{"name":"hop"}
+----
+
+The block is built from the request that is actually sent, so it also shows what Hop adds for you: the `Authorization` header an attached xref:metadata-types/rest-connection.adoc[REST connection] contributes, `Accept`, `Content-Type`, and a paging cursor header. None of those appear anywhere else in the log.
+
+`Authorization`, `Proxy-Authorization` and `Cookie` values are masked, because logs travel — into tickets, into CI output. A request body longer than 4096 characters is truncated, and a binary body is summarised as its length rather than decoded.
+
 == Samples
 
-link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/transforms/rest-client-github-releases-loop.hpl[rest-client-github-releases-loop.hpl] — lists `apache/hop` GitHub releases via `LINK_HEADER` pagination (`per_page=5`), splits `$[*]`, and parses fields with a JSON Input transform. Connection metadata: link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/metadata/restconnection/github-releases.json[github-releases.json] (in the REST transform samples project).
+link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/transforms/rest-client-github-releases-loop.hpl[rest-client-github-releases-loop.hpl] — lists `apache/hop` GitHub releases via `LINK_HEADER` pagination (`per_page=5`), splits `+$[*]+`, and parses fields with a JSON Input transform. Connection metadata: link:https://github.com/apache/hop/blob/main/plugins/transforms/rest/src/main/samples/metadata/restconnection/github-releases.json[github-releases.json] (in the REST transform samples project).
