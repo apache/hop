@@ -742,8 +742,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                   hopGui.getVariables(),
                   HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
                   metadata);
+              // Listener on MetadataChanged refreshes the tree once.
               hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
-              refresh();
             } catch (Exception e) {
               new ErrorDialog(
                   getShell(),
@@ -760,7 +760,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     try {
       MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
       manager.editWithEditor(name);
-      hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+      // Opening an editor is not a store change — do not fire MetadataChanged (issue #7791).
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -1331,8 +1331,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         try {
           MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
           manager.editWithEditor(objectName);
-
-          hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+          // Opening an editor is not a store change — do not fire MetadataChanged (issue #7791).
         } catch (Exception e) {
           new ErrorDialog(getShell(), ERROR, "Error editing metadata", e);
         }
@@ -2286,7 +2285,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
     if (editor == null || !isInitialized()) return;
 
-    // Update TabItem
+    // Update TabItem title and dirty font only. Do not reload the metadata tree here:
+    // that is expensive on large projects and dirty ≠ a persisted store change (issue #7791).
+    // Tree content is refreshed via MetadataChanged after save/delete/rename/etc.
     //
     for (CTabItem item : tabFolder.getItems()) {
       if (editor.equals(item.getData())) {
@@ -2296,10 +2297,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         break;
       }
     }
-
-    // Update TreeItem
-    //
-    this.refresh();
 
     // Update HOP GUI menu and toolbar...
     //
@@ -2384,9 +2381,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /**
    * Loads the metadata model from disk into memory: one {@link MetadataTypeModel} per metadata type
-   * with its items (name + virtual path). This is the only place that reads metadata objects from
-   * the provider, so search filtering (handled entirely by {@link #renderTree()}) never touches
-   * disk.
+   * with its items (name + virtual path via {@link IHopMetadataSerializer#readVirtualPath(String)},
+   * not a full object load). Search filtering (handled entirely by {@link #renderTree()}) never
+   * touches disk.
    */
   private void reloadModel() {
     typeModels.clear();
@@ -2419,7 +2416,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         for (String name : names) {
           String virtualPath;
           try {
-            virtualPath = Const.NVL(serializer.load(name).getVirtualPath(), "");
+            // Cheap path: name + virtualPath only (JSON peeks a single field). Avoid full
+            // serializer.load() for every object on each tree refresh (issue #7791).
+            virtualPath = Const.NVL(serializer.readVirtualPath(name), "");
           } catch (Exception e) {
             // We can't load this one: a missing plugin, corrupt JSON, ... .  Rather than hiding it,
             // we list it under the "Unknown" category where it can be inspected and deleted.
