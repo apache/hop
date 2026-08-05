@@ -1,0 +1,9 @@
+{
+  "name": "no-proxy-isolated",
+  "auth_type": "No Auth",
+  "base_url": "http://${PROXY_ONLY_HOST}",
+  "test_url": "",
+  "ignoreSsl": false,
+  "connect_timeout": "5000",
+  "read_timeout": "5000"
+}

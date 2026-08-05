@@ -21,8 +21,14 @@ import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.rest.client.RestClientSettings;
+import org.apache.hop.metadata.rest.client.RestOAuth2Grant;
+import org.apache.hop.metadata.rest.client.RestOAuth2Pkce;
+import org.apache.hop.metadata.rest.client.RestOAuth2TokenProvider;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -34,6 +40,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -49,6 +56,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -59,19 +67,29 @@ import org.eclipse.swt.widgets.Text;
  */
 public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private static final Class<?> PKG = RestConnectionEditor.class;
+
+  /**
+   * No longer offered as an authentication type: mTLS is a property of the TLS handshake, not of
+   * the Authorization header, and it is configured by the client certificate fields in the SSL
+   * section. Listing it here made it look mutually exclusive with Basic/Bearer/API key, when in
+   * fact a client certificate combines with any of them — and selecting it configured nothing at
+   * all, because RestConnection only ever reads the keystore settings. Kept as a constant so a
+   * connection stored with this value can still be recognised and migrated on load.
+   */
   public static final String CERTIFICATE = "Certificate";
+
   public static final String API_KEY = "API Key";
   public static final String NO_AUTH = "No Auth";
   public static final String BASIC = "Basic";
   public static final String BEARER = "Bearer";
-  public static final String EMPTY_TAG = "<empty>";
+  public static final String OAUTH2 = "OAuth 2";
 
   private Text wName;
 
   private TextVar wBaseUrl;
   private TextVar wTestUrl;
   private ComboVar wAuthType;
-  private static final String[] AUTH_TYPES = {NO_AUTH, API_KEY, BASIC, BEARER, CERTIFICATE};
+  private static final String[] AUTH_TYPES = {NO_AUTH, API_KEY, BASIC, BEARER, OAUTH2};
 
   private Composite wAuthComp;
 
@@ -99,6 +117,27 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private ComboVar wKeyStoreType;
   private PasswordTextVar wKeyPassword;
   private TextVar wCertificateAlias;
+
+  private Button wPreemptiveBasicAuth;
+  private TextVar wOauth2TokenUrl;
+  private ComboVar wOauth2Grant;
+  private TextVar wOauth2ClientId;
+  private PasswordTextVar wOauth2ClientSecret;
+  private PasswordTextVar wOauth2RefreshToken;
+  private TextVar wOauth2Scope;
+  private Button wOauth2CredentialsInBody;
+  private TextVar wOauth2AuthorizationUrl;
+  private TextVar wOauth2RedirectUri;
+  private Button wOauth2Authorize;
+
+  private TextVar wConnectTimeout;
+  private TextVar wReadTimeout;
+  private ComboVar wProxyScheme;
+  private TextVar wProxyHost;
+  private TextVar wProxyPort;
+  private TextVar wProxyUsername;
+  private TextVar wProxyPassword;
+  private TextVar wNonProxyHosts;
 
   private ComboVar wPaginationType;
   private TextVar wPageParamName;
@@ -219,8 +258,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
             addBasicAuthFields();
           } else if (wAuthType.getText().equals(BEARER)) {
             addBearerFields();
-          } else if (wAuthType.getText().equals(CERTIFICATE)) {
-            addCertificateFields();
+          } else if (wAuthType.getText().equals(OAUTH2)) {
+            addOAuth2Fields();
           }
         });
 
@@ -229,7 +268,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdAuthSComp = new FormData();
     fdAuthSComp.top = new FormAttachment(wAuthType, margin);
     fdAuthSComp.left = new FormAttachment(0, 0);
-    fdAuthSComp.right = new FormAttachment(95, 0);
+    fdAuthSComp.right = new FormAttachment(100, 0);
     fdAuthSComp.bottom = new FormAttachment(95, 0);
     wsAuthComp.setLayoutData(fdAuthSComp);
 
@@ -412,13 +451,23 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlClientCertLabel.top = new FormAttachment(wlClientCert, margin);
     wlClientCertLabel.setLayoutData(fdlClientCertLabel);
 
+    Label wlClientCertInfo = new Label(gSSLTrustStore, SWT.LEFT | SWT.WRAP);
+    wlClientCertInfo.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.ClientCertificate.Info"));
+    PropsUi.setLook(wlClientCertInfo);
+    FormData fdlClientCertInfo = new FormData();
+    fdlClientCertInfo.left = new FormAttachment(0, 0);
+    fdlClientCertInfo.right = new FormAttachment(100, -margin);
+    fdlClientCertInfo.top = new FormAttachment(wlClientCertLabel, margin);
+    wlClientCertInfo.setLayoutData(fdlClientCertInfo);
+
     // KeyStore file
     Label wlKeyStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
     wlKeyStoreFile.setText(BaseMessages.getString(PKG, "RestConnectionEditor.KeyStoreFile.Label"));
     PropsUi.setLook(wlKeyStoreFile);
     FormData fdlKeyStoreFile = new FormData();
     fdlKeyStoreFile.left = new FormAttachment(0, 0);
-    fdlKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    fdlKeyStoreFile.top = new FormAttachment(wlClientCertInfo, margin);
     fdlKeyStoreFile.right = new FormAttachment(middle, -margin);
     wlKeyStoreFile.setLayoutData(fdlKeyStoreFile);
 
@@ -427,7 +476,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wbKeyStoreFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbKeyStoreFile = new FormData();
     fdbKeyStoreFile.right = new FormAttachment(100, 0);
-    fdbKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    fdbKeyStoreFile.top = new FormAttachment(wlClientCertInfo, margin);
     wbKeyStoreFile.setLayoutData(fdbKeyStoreFile);
 
     wbKeyStoreFile.addListener(
@@ -448,7 +497,9 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     PropsUi.setLook(wKeyStoreFile);
     FormData fdKeyStoreFile = new FormData();
     fdKeyStoreFile.left = new FormAttachment(middle, 0);
-    fdKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    // The same anchor as this row's label and Browse button. Left on the section heading it sat on
+    // the explanatory line above, with the text of that line running behind it.
+    fdKeyStoreFile.top = new FormAttachment(wlClientCertInfo, margin);
     fdKeyStoreFile.right = new FormAttachment(wbKeyStoreFile, -margin);
     wKeyStoreFile.setLayoutData(fdKeyStoreFile);
 
@@ -541,6 +592,20 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     gSSLTrustStore.setLayoutData(fdSSLTrustStore);
     // end SSL group
 
+    CTabItem wAdvancedTabItem = new CTabItem(wTabFolder, SWT.NONE);
+    wAdvancedTabItem.setFont(GuiResource.getInstance().getFontDefault());
+    wAdvancedTabItem.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Tab.Advanced.Title"));
+
+    Composite wAdvInner = new Composite(wTabFolder, SWT.NONE);
+    FormLayout advLayout = new FormLayout();
+    advLayout.marginWidth = PropsUi.getFormMargin();
+    advLayout.marginHeight = PropsUi.getFormMargin();
+    wAdvInner.setLayout(advLayout);
+    PropsUi.setLook(wAdvInner);
+    buildAdvancedWidgets(wAdvInner);
+    wAdvancedTabItem.setControl(wAdvInner);
+
     CTabItem wPaginationTabItem = new CTabItem(wTabFolder, SWT.NONE);
     wPaginationTabItem.setFont(GuiResource.getInstance().getFontDefault());
     wPaginationTabItem.setText(
@@ -577,6 +642,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wKeyStoreType,
       wKeyPassword,
       wCertificateAlias,
+      wConnectTimeout,
+      wReadTimeout,
+      wProxyScheme,
+      wProxyHost,
+      wProxyPort,
+      wProxyUsername,
+      wProxyPassword,
+      wNonProxyHosts,
       wPaginationType,
       wPageParamName,
       wOffsetParamName,
@@ -588,6 +661,100 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wNextPageUrlXPath
     };
     enableControls(controls);
+  }
+
+  /** Builds the timeout and proxy settings on the dedicated Advanced tab. */
+  private void buildAdvancedWidgets(Composite p) {
+    Group gTimeouts = new Group(p, SWT.SHADOW_ETCHED_IN);
+    gTimeouts.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Timeouts.Group.Label"));
+    PropsUi.setLook(gTimeouts);
+    FormLayout timeoutLayout = new FormLayout();
+    timeoutLayout.marginWidth = PropsUi.getFormMargin();
+    timeoutLayout.marginHeight = PropsUi.getFormMargin();
+    gTimeouts.setLayout(timeoutLayout);
+    FormData fdTimeouts = new FormData();
+    fdTimeouts.left = new FormAttachment(0, margin);
+    fdTimeouts.right = new FormAttachment(100, -margin);
+    fdTimeouts.top = new FormAttachment(0, margin);
+    gTimeouts.setLayoutData(fdTimeouts);
+
+    wConnectTimeout =
+        addLabelledField(gTimeouts, null, "RestConnectionEditor.ConnectTimeout.Label", false);
+    wReadTimeout =
+        addLabelledField(
+            gTimeouts, wConnectTimeout, "RestConnectionEditor.ReadTimeout.Label", false);
+
+    Group gProxy = new Group(p, SWT.SHADOW_ETCHED_IN);
+    gProxy.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Proxy.Group.Label"));
+    PropsUi.setLook(gProxy);
+    FormLayout proxyLayout = new FormLayout();
+    proxyLayout.marginWidth = PropsUi.getFormMargin();
+    proxyLayout.marginHeight = PropsUi.getFormMargin();
+    gProxy.setLayout(proxyLayout);
+    FormData fdProxy = new FormData();
+    fdProxy.left = new FormAttachment(0, margin);
+    fdProxy.right = new FormAttachment(100, -margin);
+    fdProxy.top = new FormAttachment(gTimeouts, margin);
+    gProxy.setLayoutData(fdProxy);
+
+    Label wlProxyScheme = new Label(gProxy, SWT.RIGHT);
+    wlProxyScheme.setText(BaseMessages.getString(PKG, "RestConnectionEditor.ProxyScheme.Label"));
+    PropsUi.setLook(wlProxyScheme);
+    FormData fdlProxyScheme = new FormData();
+    fdlProxyScheme.top = new FormAttachment(0, margin);
+    fdlProxyScheme.left = new FormAttachment(0, margin);
+    fdlProxyScheme.right = new FormAttachment(middle, -margin);
+    wlProxyScheme.setLayoutData(fdlProxyScheme);
+
+    wProxyScheme = new ComboVar(variables, gProxy, SWT.BORDER);
+    PropsUi.setLook(wProxyScheme);
+    wProxyScheme.setItems(new String[] {"http", "https"});
+    FormData fdProxyScheme = new FormData();
+    fdProxyScheme.top = new FormAttachment(wlProxyScheme, 0, SWT.CENTER);
+    fdProxyScheme.left = new FormAttachment(middle, margin);
+    fdProxyScheme.right = new FormAttachment(100, -margin);
+    wProxyScheme.setLayoutData(fdProxyScheme);
+    wProxyScheme.addListener(SWT.Modify, e -> markChangedIfUserEdit());
+
+    wProxyHost =
+        addLabelledField(gProxy, wProxyScheme, "RestConnectionEditor.ProxyHost.Label", false);
+    wProxyPort =
+        addLabelledField(gProxy, wProxyHost, "RestConnectionEditor.ProxyPort.Label", false);
+    wProxyUsername =
+        addLabelledField(gProxy, wProxyPort, "RestConnectionEditor.ProxyUsername.Label", false);
+    wProxyPassword =
+        addLabelledField(gProxy, wProxyUsername, "RestConnectionEditor.ProxyPassword.Label", true);
+    wNonProxyHosts =
+        addLabelledField(gProxy, wProxyPassword, "RestConnectionEditor.NonProxyHosts.Label", false);
+  }
+
+  /**
+   * Adds a label and an entry field below {@code above}, or at the top of {@code parent} when that
+   * is null. Returns the field so it can anchor the next one.
+   */
+  private TextVar addLabelledField(
+      Composite parent, Control above, String labelKey, boolean password) {
+    Label label = new Label(parent, SWT.RIGHT);
+    label.setText(BaseMessages.getString(PKG, labelKey));
+    PropsUi.setLook(label);
+    FormData fdLabel = new FormData();
+    fdLabel.top = above == null ? new FormAttachment(0, margin) : new FormAttachment(above, margin);
+    fdLabel.left = new FormAttachment(0, margin);
+    fdLabel.right = new FormAttachment(middle, -margin);
+    label.setLayoutData(fdLabel);
+
+    TextVar field =
+        password
+            ? new PasswordTextVar(variables, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            : new TextVar(variables, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(field);
+    FormData fdField = new FormData();
+    fdField.top = new FormAttachment(label, 0, SWT.CENTER);
+    fdField.left = new FormAttachment(middle, margin);
+    fdField.right = new FormAttachment(100, -margin);
+    field.setLayoutData(fdField);
+    field.addListener(SWT.Modify, e -> markChangedIfUserEdit());
+    return field;
   }
 
   /** Builds paging settings on the dedicated Pagination tab. */
@@ -871,29 +1038,293 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
     fdUsername.left = new FormAttachment(middle, 0);
-    fdUsername.right = new FormAttachment(95, margin);
+    fdUsername.right = new FormAttachment(95, 0);
     wUsername.setLayoutData(fdUsername);
-    lastControl = wlUsername;
+    lastControl = wUsername;
 
     Label wlPassword = new Label(wAuthComp, SWT.RIGHT);
+    PropsUi.setLook(wlPassword);
     wlPassword.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Password"));
-    FormData fdlPassword = new FormData();
-    fdlPassword.top = new FormAttachment(lastControl, margin);
-    fdlPassword.left = new FormAttachment(0, 0);
-    fdlPassword.right = new FormAttachment(middle, -margin);
-    wlPassword.setLayoutData(fdlPassword);
 
     wPassword = new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
-    fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
+    fdPassword.top = new FormAttachment(lastControl, margin);
     fdPassword.left = new FormAttachment(middle, 0);
     fdPassword.right = new FormAttachment(95, 0);
     wPassword.setLayoutData(fdPassword);
 
+    FormData fdlPassword = new FormData();
+    fdlPassword.top = new FormAttachment(wPassword, 0, SWT.CENTER);
+    fdlPassword.left = new FormAttachment(0, 0);
+    fdlPassword.right = new FormAttachment(middle, -margin);
+    wlPassword.setLayoutData(fdlPassword);
+
+    Label wlPreemptive = new Label(wAuthComp, SWT.RIGHT);
+    wlPreemptive.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Preemptive"));
+    PropsUi.setLook(wlPreemptive);
+
+    wPreemptiveBasicAuth = new Button(wAuthComp, SWT.CHECK);
+    PropsUi.setLook(wPreemptiveBasicAuth);
+    wPreemptiveBasicAuth.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Preemptive.Tooltip"));
+    FormData fdPreemptive = new FormData();
+    fdPreemptive.top = new FormAttachment(wPassword, margin);
+    fdPreemptive.left = new FormAttachment(middle, 0);
+    fdPreemptive.right = new FormAttachment(95, 0);
+    wPreemptiveBasicAuth.setLayoutData(fdPreemptive);
+
+    FormData fdlPreemptive = new FormData();
+    fdlPreemptive.top = new FormAttachment(wPreemptiveBasicAuth, 0, SWT.CENTER);
+    fdlPreemptive.left = new FormAttachment(0, 0);
+    fdlPreemptive.right = new FormAttachment(middle, -margin);
+    wlPreemptive.setLayoutData(fdlPreemptive);
+    wPreemptiveBasicAuth.setSelection(metadata.isPreemptiveBasicAuth());
+    wPreemptiveBasicAuth.addListener(SWT.Selection, e -> markChangedIfUserEdit());
+
     Control[] controls = {wUsername, wPassword};
     enableControls(controls);
     refreshAuthLayout();
+  }
+
+  /** Six rows, same field-to-field chaining as the other panes. */
+  /**
+   * Reads top to bottom the way the flow runs: describe the client, then authorize, then the
+   * refresh token that authorizing produced. The token sits below the button because that is where
+   * it comes from — putting it above would suggest it is something you are expected to supply.
+   */
+  private void addOAuth2Fields() {
+    clearAuthComp();
+
+    wOauth2TokenUrl = (TextVar) oauthRow("RestConnectionEditor.OAuth2.TokenUrl", null, false);
+    wOauth2AuthorizationUrl =
+        (TextVar) oauthRow("RestConnectionEditor.OAuth2.AuthorizationUrl", wOauth2TokenUrl, false);
+    wOauth2RedirectUri =
+        (TextVar)
+            oauthRow("RestConnectionEditor.OAuth2.RedirectUri", wOauth2AuthorizationUrl, false);
+
+    wOauth2Grant = new ComboVar(variables, wAuthComp, SWT.READ_ONLY | SWT.BORDER);
+    wOauth2Grant.setItems(
+        new String[] {
+          RestOAuth2Grant.CLIENT_CREDENTIALS.name(), RestOAuth2Grant.REFRESH_TOKEN.name()
+        });
+    layoutOauthRow("RestConnectionEditor.OAuth2.Grant", wOauth2Grant, wOauth2RedirectUri);
+
+    wOauth2ClientId =
+        (TextVar) oauthRow("RestConnectionEditor.OAuth2.ClientId", wOauth2Grant, false);
+    wOauth2ClientSecret =
+        (PasswordTextVar)
+            oauthRow("RestConnectionEditor.OAuth2.ClientSecret", wOauth2ClientId, true);
+    wOauth2Scope =
+        (TextVar) oauthRow("RestConnectionEditor.OAuth2.Scope", wOauth2ClientSecret, false);
+
+    // Checkbox row: chained to the field above, label centred on it, like every other row here.
+    Label wlInBody = new Label(wAuthComp, SWT.RIGHT);
+    wlInBody.setText(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.CredentialsInBody"));
+    PropsUi.setLook(wlInBody);
+    wOauth2CredentialsInBody = new Button(wAuthComp, SWT.CHECK);
+    PropsUi.setLook(wOauth2CredentialsInBody);
+    wOauth2CredentialsInBody.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.CredentialsInBody.Tooltip"));
+    FormData fdInBody = new FormData();
+    fdInBody.top = new FormAttachment(wOauth2Scope, margin);
+    fdInBody.left = new FormAttachment(middle, 0);
+    wOauth2CredentialsInBody.setLayoutData(fdInBody);
+    FormData fdlInBody = new FormData();
+    fdlInBody.top = new FormAttachment(wOauth2CredentialsInBody, 0, SWT.CENTER);
+    fdlInBody.left = new FormAttachment(0, 0);
+    fdlInBody.right = new FormAttachment(middle, -margin);
+    wlInBody.setLayoutData(fdlInBody);
+    wOauth2CredentialsInBody.addListener(SWT.Selection, e -> markChangedIfUserEdit());
+
+    wOauth2Authorize = new Button(wAuthComp, SWT.PUSH);
+    wOauth2Authorize.setText(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.Authorize"));
+    wOauth2Authorize.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.Authorize.Tooltip"));
+    PropsUi.setLook(wOauth2Authorize);
+    FormData fdAuthorize = new FormData();
+    fdAuthorize.top = new FormAttachment(wOauth2CredentialsInBody, margin * 2);
+    fdAuthorize.left = new FormAttachment(middle, 0);
+    wOauth2Authorize.setLayoutData(fdAuthorize);
+    wOauth2Authorize.addListener(SWT.Selection, e -> authorizeOAuth2());
+
+    // Below the button: this is what authorizing hands back.
+    wOauth2RefreshToken =
+        (PasswordTextVar)
+            oauthRow("RestConnectionEditor.OAuth2.RefreshToken", wOauth2Authorize, true);
+
+    enableControls(new Control[] {wOauth2TokenUrl, wOauth2ClientId, wOauth2ClientSecret});
+    refreshAuthLayout();
+  }
+
+  /**
+   * The interactive half of OAuth 2 (issue #6595): send the user to the authorization server, take
+   * the code they bring back, and exchange it for a refresh token that pipelines can then use
+   * unattended. Consent happens once, here, rather than on every run.
+   */
+  private void authorizeOAuth2() {
+    try {
+      RestConnection scratch = new RestConnection(hopGui.getVariables());
+      getWidgetsContent(scratch);
+      RestClientSettings settings = scratch.createClientSettings();
+
+      RestOAuth2Pkce pkce = RestOAuth2Pkce.generate();
+      String authorizationUrl = pkce.authorizationUrl(settings, false);
+
+      String code = promptForAuthorizationCode(authorizationUrl);
+      if (code == null) {
+        return; // cancelled
+      }
+
+      RestOAuth2TokenProvider.AuthorizationResult result =
+          RestOAuth2TokenProvider.exchangeAuthorizationCode(settings, code, pkce.codeVerifier());
+
+      // The refresh token is the durable half; switching the grant means the connection is ready
+      // to run without anyone visiting a browser again.
+      wOauth2RefreshToken.setText(Const.NVL(result.refreshToken(), ""));
+      wOauth2Grant.setText(RestOAuth2Grant.REFRESH_TOKEN.name());
+      markChangedIfUserEdit();
+
+      MessageBox done = new MessageBox(getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      done.setText(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.Authorized.Title"));
+      done.setMessage(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.Authorized"));
+      done.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.AuthorizeFailed.Title"),
+          BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.AuthorizeFailed"),
+          e);
+    }
+  }
+
+  /**
+   * Shows the authorization URL, offers to open it, and takes the code back. A pasted code rather
+   * than a loopback listener: Hop cannot assume it may bind a port, and many providers only allow
+   * redirect URIs that were registered with them in advance.
+   *
+   * @return the code, or {@code null} if the user cancelled
+   */
+  private String promptForAuthorizationCode(String authorizationUrl) {
+    Shell dialog = new Shell(getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
+    dialog.setText(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.Authorize.Title"));
+    dialog.setLayout(new FormLayout());
+    PropsUi.setLook(dialog);
+
+    Label wlInfo = new Label(dialog, SWT.WRAP);
+    wlInfo.setText(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.Authorize.Info"));
+    PropsUi.setLook(wlInfo);
+    FormData fdlInfo = new FormData();
+    fdlInfo.top = new FormAttachment(0, margin);
+    fdlInfo.left = new FormAttachment(0, margin);
+    fdlInfo.right = new FormAttachment(100, -margin);
+    wlInfo.setLayoutData(fdlInfo);
+
+    Text wUrl = new Text(dialog, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+    wUrl.setText(authorizationUrl);
+    wUrl.setEditable(false);
+    PropsUi.setLook(wUrl);
+    FormData fdUrl = new FormData();
+    fdUrl.top = new FormAttachment(wlInfo, margin);
+    fdUrl.left = new FormAttachment(0, margin);
+    fdUrl.right = new FormAttachment(100, -margin);
+    fdUrl.height = 80;
+    wUrl.setLayoutData(fdUrl);
+
+    Button wOpen = new Button(dialog, SWT.PUSH);
+    wOpen.setText(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.OpenBrowser"));
+    PropsUi.setLook(wOpen);
+    FormData fdOpen = new FormData();
+    fdOpen.top = new FormAttachment(wUrl, margin);
+    fdOpen.left = new FormAttachment(0, margin);
+    wOpen.setLayoutData(fdOpen);
+    wOpen.addListener(SWT.Selection, e -> openInBrowser(authorizationUrl));
+
+    Label wlCode = new Label(dialog, SWT.LEFT);
+    wlCode.setText(BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.Code"));
+    PropsUi.setLook(wlCode);
+    FormData fdlCode = new FormData();
+    fdlCode.top = new FormAttachment(wOpen, margin * 2);
+    fdlCode.left = new FormAttachment(0, margin);
+    wlCode.setLayoutData(fdlCode);
+
+    Text wCode = new Text(dialog, SWT.SINGLE | SWT.BORDER);
+    PropsUi.setLook(wCode);
+    FormData fdCode = new FormData();
+    fdCode.top = new FormAttachment(wlCode, margin);
+    fdCode.left = new FormAttachment(0, margin);
+    fdCode.right = new FormAttachment(100, -margin);
+    wCode.setLayoutData(fdCode);
+
+    Button wOk = new Button(dialog, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    Button wCancel = new Button(dialog, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    BaseTransformDialog.positionBottomButtons(dialog, new Button[] {wOk, wCancel}, margin, wCode);
+
+    String[] answer = new String[1];
+    wOk.addListener(
+        SWT.Selection,
+        e -> {
+          answer[0] = wCode.getText();
+          dialog.dispose();
+        });
+    wCancel.addListener(SWT.Selection, e -> dialog.dispose());
+
+    dialog.setSize(650, 380);
+    dialog.open();
+    while (!dialog.isDisposed()) {
+      if (!getShell().getDisplay().readAndDispatch()) {
+        getShell().getDisplay().sleep();
+      }
+    }
+    return Utils.isEmpty(answer[0]) ? null : answer[0];
+  }
+
+  /** Hands the URL to the desktop's browser. */
+  private void openInBrowser(String url) {
+    try {
+      // Program.launch handles the per-platform detail SWT already knows about, so there is no
+      // need for the os.name switch and Runtime.exec that this would otherwise take.
+      if (!org.eclipse.swt.program.Program.launch(url)) {
+        throw new HopException("No application is registered to open a URL on this system");
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.AuthorizeFailed.Title"),
+          BaseMessages.getString(PKG, "RestConnectionEditor.OAuth2.OpenBrowserFailed"),
+          e);
+    }
+  }
+
+  /** One labelled row in the OAuth pane, chained under the control above it. */
+  private Control oauthRow(String labelKey, Control above, boolean secret) {
+    Control field =
+        secret
+            ? new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            : new TextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(field);
+    layoutOauthRow(labelKey, field, above);
+    return field;
+  }
+
+  private void layoutOauthRow(String labelKey, Control field, Control above) {
+    Label label = new Label(wAuthComp, SWT.RIGHT);
+    label.setText(BaseMessages.getString(PKG, labelKey));
+    PropsUi.setLook(label);
+
+    FormData fdField = new FormData();
+    fdField.top = above == null ? new FormAttachment(0, margin) : new FormAttachment(above, margin);
+    fdField.left = new FormAttachment(middle, 0);
+    fdField.right = new FormAttachment(95, 0);
+    field.setLayoutData(fdField);
+
+    FormData fdLabel = new FormData();
+    fdLabel.top = new FormAttachment(field, 0, SWT.CENTER);
+    fdLabel.left = new FormAttachment(0, 0);
+    fdLabel.right = new FormAttachment(middle, -margin);
+    label.setLayoutData(fdLabel);
   }
 
   private void addBearerFields() {
@@ -943,60 +1374,49 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wAuthorizationName.setLayoutData(fdAuthorizationName);
     lastControl = wAuthorizationName;
 
+    // Field chained to the field above, label centred on it - see addBasicAuthFields().
     Label wlAuthorizationPrefix = new Label(wAuthComp, SWT.RIGHT);
     PropsUi.setLook(wlAuthorizationPrefix);
     wlAuthorizationPrefix.setText(
         BaseMessages.getString(PKG, "RestConnectionEditor.API.AuthorizationPrefix"));
-    FormData fdlAuthorizationPrefix = new FormData();
-    fdlAuthorizationPrefix.top = new FormAttachment(lastControl, margin);
-    fdlAuthorizationPrefix.left = new FormAttachment(0, 0);
-    fdlAuthorizationPrefix.right = new FormAttachment(middle, -margin);
-    wlAuthorizationPrefix.setLayoutData(fdlAuthorizationPrefix);
 
     wAuthorizationPrefix = new TextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationPrefix);
     FormData fdAuthorizationPrefix = new FormData();
-    fdAuthorizationPrefix.top = new FormAttachment(wlAuthorizationPrefix, 0, SWT.CENTER);
+    fdAuthorizationPrefix.top = new FormAttachment(lastControl, margin);
     fdAuthorizationPrefix.left = new FormAttachment(middle, 0);
     fdAuthorizationPrefix.right = new FormAttachment(95, 0);
     wAuthorizationPrefix.setLayoutData(fdAuthorizationPrefix);
+
+    FormData fdlAuthorizationPrefix = new FormData();
+    fdlAuthorizationPrefix.top = new FormAttachment(wAuthorizationPrefix, 0, SWT.CENTER);
+    fdlAuthorizationPrefix.left = new FormAttachment(0, 0);
+    fdlAuthorizationPrefix.right = new FormAttachment(middle, -margin);
+    wlAuthorizationPrefix.setLayoutData(fdlAuthorizationPrefix);
     lastControl = wAuthorizationPrefix;
 
     Label wlAuthorizationValue = new Label(wAuthComp, SWT.RIGHT);
     PropsUi.setLook(wlAuthorizationValue);
     wlAuthorizationValue.setText(
         BaseMessages.getString(PKG, "RestConnectionEditor.API.AuthorizationValue"));
-    FormData fdlAuthorizationValue = new FormData();
-    fdlAuthorizationValue.top = new FormAttachment(lastControl, margin);
-    fdlAuthorizationValue.left = new FormAttachment(0, 0);
-    fdlAuthorizationValue.right = new FormAttachment(middle, -margin);
-    wlAuthorizationValue.setLayoutData(fdlAuthorizationValue);
+
     wAuthorizationValue =
         new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthorizationValue);
     FormData fdAuthorizationValue = new FormData();
-    fdAuthorizationValue.top = new FormAttachment(wlAuthorizationValue, 0, SWT.CENTER);
+    fdAuthorizationValue.top = new FormAttachment(lastControl, margin);
     fdAuthorizationValue.left = new FormAttachment(middle, 0);
     fdAuthorizationValue.right = new FormAttachment(95, 0);
     wAuthorizationValue.setLayoutData(fdAuthorizationValue);
 
+    FormData fdlAuthorizationValue = new FormData();
+    fdlAuthorizationValue.top = new FormAttachment(wAuthorizationValue, 0, SWT.CENTER);
+    fdlAuthorizationValue.left = new FormAttachment(0, 0);
+    fdlAuthorizationValue.right = new FormAttachment(middle, -margin);
+    wlAuthorizationValue.setLayoutData(fdlAuthorizationValue);
+
     Control[] controls = {wAuthorizationName, wAuthorizationPrefix, wAuthorizationValue};
     enableControls(controls);
-    refreshAuthLayout();
-  }
-
-  private void addCertificateFields() {
-    clearAuthComp();
-
-    Label wlInfo = new Label(wAuthComp, SWT.LEFT | SWT.WRAP);
-    wlInfo.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Certificate.Info"));
-    PropsUi.setLook(wlInfo);
-    FormData fdlInfo = new FormData();
-    fdlInfo.top = new FormAttachment(0, margin);
-    fdlInfo.left = new FormAttachment(0, 0);
-    fdlInfo.right = new FormAttachment(100, 0);
-    wlInfo.setLayoutData(fdlInfo);
-
     refreshAuthLayout();
   }
 
@@ -1012,94 +1432,44 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private void test() {
     IVariables vars = hopGui.getVariables();
     RestConnection restConnection = new RestConnection(vars);
-    restConnection.setName(wName.getText());
-    if (StringUtils.isEmpty(wTestUrl.getText())) {
-      restConnection.setTestUrl(wBaseUrl.getText());
-    } else {
-      restConnection.setTestUrl(wTestUrl.getText());
+
+    // The same widget-to-metadata copy the editor uses when saving. This used to be a second,
+    // hand-written copy of a subset of the fields, which meant the test button quietly ignored the
+    // proxy, the timeouts and the preemptive setting: a connection that only works through a proxy
+    // reported a failure, and one whose proxy was wrong reported success. Anything added to the
+    // editor from now on is covered here for free.
+    getWidgetsContent(restConnection);
+
+    if (StringUtils.isEmpty(restConnection.getTestUrl())) {
+      restConnection.setTestUrl(restConnection.getBaseUrl());
     }
-    restConnection.setBaseUrl(wBaseUrl.getText());
-
-    // SSL/TLS configuration
-    restConnection.setTrustStoreFile(wTrustStoreFile.getText());
-    restConnection.setTrustStorePassword(wTrustStorePassword.getText());
-    restConnection.setIgnoreSsl(wIgnoreSsl.getSelection());
-    restConnection.setKeyStoreFile(wKeyStoreFile.getText());
-    restConnection.setKeyStorePassword(wKeyStorePassword.getText());
-    restConnection.setKeyStoreType(wKeyStoreType.getText());
-    restConnection.setKeyPassword(wKeyPassword.getText());
-    restConnection.setCertificateAlias(wCertificateAlias.getText());
-
-    // Authentication configuration
-    restConnection.setAuthType(wAuthType.getText());
-    if (wAuthType.getText().equals(NO_AUTH)) {
-      // nothing required
-    } else if (wAuthType.getText().equals(BASIC)) {
-      restConnection.setUsername(wUsername.getText());
-      restConnection.setPassword(wPassword.getText());
-    } else if (wAuthType.getText().equals(BEARER)) {
-      restConnection.setBearerToken(wBearerValue.getText());
-    } else if (wAuthType.getText().equals(API_KEY)) {
-      restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
-      restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
-      restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
-    }
-
-    // remove this temporary debug dialog when the SSL configuration issue is resolved.
-    String resolvedTestUrl = vars.resolve(restConnection.getTestUrl());
-    String responsePreview;
-    try {
-      responsePreview = restConnection.getResponse(resolvedTestUrl);
-      if (responsePreview != null && responsePreview.length() > 500) {
-        responsePreview = responsePreview.substring(0, 500) + "... (truncated)";
-      }
-    } catch (Exception e) {
-      responsePreview = "<error retrieving response: " + Const.NVL(e.getMessage(), "unknown") + ">";
-    }
-
-    String debugSummary =
-        "ignoreSsl = "
-            + restConnection.isIgnoreSsl()
-            + "\ntrustStore (raw) = "
-            + Const.NVL(restConnection.getTrustStoreFile(), EMPTY_TAG)
-            + "\ntrustStore (resolved) = "
-            + (StringUtils.isEmpty(restConnection.getTrustStoreFile())
-                ? EMPTY_TAG
-                : vars.resolve(restConnection.getTrustStoreFile()))
-            + "\nkeyStore (raw) = "
-            + Const.NVL(restConnection.getKeyStoreFile(), EMPTY_TAG)
-            + "\nkeyStore (resolved) = "
-            + (StringUtils.isEmpty(restConnection.getKeyStoreFile())
-                ? EMPTY_TAG
-                : vars.resolve(restConnection.getKeyStoreFile()))
-            + "\nkeyStore type = "
-            + Const.NVL(restConnection.getKeyStoreType(), EMPTY_TAG)
-            + "\nkey password set = "
-            + (!StringUtils.isEmpty(restConnection.getKeyPassword()))
-            + "\nauthType = "
-            + Const.NVL(restConnection.getAuthType(), EMPTY_TAG)
-            + "\ntest URL (resolved) = "
-            + resolvedTestUrl
-            + "\nresponse preview = "
-            + Const.NVL(responsePreview, "<null>");
-    MessageBox debugBox = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-    debugBox.setText("REST Connection Test - Debug Info");
-    debugBox.setMessage(debugSummary + "\n\nClick OK to continue the test.");
-    debugBox.open();
 
     try {
       restConnection.testConnection();
-      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK);
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
       box.setText("OK");
       String message =
           BaseMessages.getString(PKG, "RestConnectionEditor.ConnectionTestSuccess") + Const.CR;
       message += Const.CR;
-      message += "URL : " + restConnection.getTestUrl();
+      message += "URL : " + vars.resolve(restConnection.getTestUrl());
+      if (!StringUtils.isEmpty(restConnection.getProxyHost())) {
+        message += Const.CR;
+        message +=
+            "Proxy : "
+                + vars.resolve(Const.NVL(restConnection.getProxyScheme(), "http"))
+                + "://"
+                + vars.resolve(restConnection.getProxyHost())
+                + ":"
+                + vars.resolve(Const.NVL(restConnection.getProxyPort(), ""));
+      }
       box.setMessage(message);
       box.open();
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error connecting to REST URL : " + wTestUrl.getText(), e);
+          hopGui.getShell(),
+          "Error",
+          "Error connecting to REST URL : " + vars.resolve(restConnection.getTestUrl()),
+          e);
     }
   }
 
@@ -1130,7 +1500,17 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wKeyPassword.setText(Const.NVL(metadata.getKeyPassword(), ""));
       wCertificateAlias.setText(Const.NVL(metadata.getCertificateAlias(), ""));
 
-      if (StringUtils.isEmpty(metadata.getAuthType())) {
+      wConnectTimeout.setText(Const.NVL(metadata.getConnectTimeout(), ""));
+      wReadTimeout.setText(Const.NVL(metadata.getReadTimeout(), ""));
+      wProxyScheme.setText(Const.NVL(metadata.getProxyScheme(), ""));
+      wProxyHost.setText(Const.NVL(metadata.getProxyHost(), ""));
+      wProxyPort.setText(Const.NVL(metadata.getProxyPort(), ""));
+      wProxyUsername.setText(Const.NVL(metadata.getProxyUsername(), ""));
+      wProxyPassword.setText(Const.NVL(metadata.getProxyPassword(), ""));
+      wNonProxyHosts.setText(Const.NVL(metadata.getNonProxyHosts(), ""));
+
+      if (StringUtils.isEmpty(metadata.getAuthType())
+          || CERTIFICATE.equals(metadata.getAuthType())) {
         metadata.setAuthType(NO_AUTH);
         wAuthType.select(0);
       } else {
@@ -1141,10 +1521,29 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           addBasicAuthFields();
           wUsername.setText(Const.NVL(metadata.getUsername(), ""));
           wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+          // Loaded here as well as when the pane is built: the pane only reads the metadata
+          // because addBasicAuthFields() happens to rebuild it from scratch every time, which is
+          // not something the rest of this method relies on.
+          wPreemptiveBasicAuth.setSelection(metadata.isPreemptiveBasicAuth());
         }
         case BEARER -> {
           addBearerFields();
           wBearerValue.setText(metadata.getBearerToken());
+        }
+        case OAUTH2 -> {
+          addOAuth2Fields();
+          wOauth2TokenUrl.setText(Const.NVL(metadata.getOauth2TokenUrl(), ""));
+          wOauth2Grant.setText(
+              metadata.getOauth2Grant() == null
+                  ? RestOAuth2Grant.CLIENT_CREDENTIALS.name()
+                  : metadata.getOauth2Grant().name());
+          wOauth2ClientId.setText(Const.NVL(metadata.getOauth2ClientId(), ""));
+          wOauth2ClientSecret.setText(Const.NVL(metadata.getOauth2ClientSecret(), ""));
+          wOauth2RefreshToken.setText(Const.NVL(metadata.getOauth2RefreshToken(), ""));
+          wOauth2Scope.setText(Const.NVL(metadata.getOauth2Scope(), ""));
+          wOauth2CredentialsInBody.setSelection(metadata.isOauth2CredentialsInBody());
+          wOauth2AuthorizationUrl.setText(Const.NVL(metadata.getOauth2AuthorizationUrl(), ""));
+          wOauth2RedirectUri.setText(Const.NVL(metadata.getOauth2RedirectUri(), ""));
         }
         case API_KEY -> {
           addApiKeyFields();
@@ -1152,7 +1551,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
           wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
         }
-        case CERTIFICATE -> addCertificateFields();
         default -> {
           // ignore
         }
@@ -1204,12 +1602,38 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setKeyPassword(wKeyPassword.getText());
     connection.setCertificateAlias(wCertificateAlias.getText());
 
+    connection.setConnectTimeout(wConnectTimeout.getText());
+    connection.setReadTimeout(wReadTimeout.getText());
+    connection.setProxyScheme(wProxyScheme.getText());
+    connection.setProxyHost(wProxyHost.getText());
+    connection.setProxyPort(wProxyPort.getText());
+    connection.setProxyUsername(wProxyUsername.getText());
+    connection.setProxyPassword(wProxyPassword.getText());
+    connection.setNonProxyHosts(wNonProxyHosts.getText());
+
     connection.setAuthType(wAuthType.getText());
     if (wAuthType.getText().equals(BASIC)) {
       connection.setUsername(wUsername.getText());
       connection.setPassword(wPassword.getText());
+      if (wPreemptiveBasicAuth != null && !wPreemptiveBasicAuth.isDisposed()) {
+        connection.setPreemptiveBasicAuth(wPreemptiveBasicAuth.getSelection());
+      }
     } else if (wAuthType.getText().equals(BEARER)) {
       connection.setBearerToken(wBearerValue.getText());
+    } else if (wAuthType.getText().equals(OAUTH2)) {
+      connection.setOauth2TokenUrl(wOauth2TokenUrl.getText());
+      try {
+        connection.setOauth2Grant(RestOAuth2Grant.valueOf(wOauth2Grant.getText()));
+      } catch (IllegalArgumentException ex) {
+        connection.setOauth2Grant(RestOAuth2Grant.CLIENT_CREDENTIALS);
+      }
+      connection.setOauth2ClientId(wOauth2ClientId.getText());
+      connection.setOauth2ClientSecret(wOauth2ClientSecret.getText());
+      connection.setOauth2RefreshToken(wOauth2RefreshToken.getText());
+      connection.setOauth2Scope(wOauth2Scope.getText());
+      connection.setOauth2CredentialsInBody(wOauth2CredentialsInBody.getSelection());
+      connection.setOauth2AuthorizationUrl(wOauth2AuthorizationUrl.getText());
+      connection.setOauth2RedirectUri(wOauth2RedirectUri.getText());
     } else if (wAuthType.getText().equals(API_KEY)) {
       connection.setAuthorizationHeaderName(wAuthorizationName.getText());
       connection.setAuthorizationPrefix(wAuthorizationPrefix.getText());

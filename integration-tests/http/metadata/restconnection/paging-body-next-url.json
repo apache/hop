@@ -1,0 +1,9 @@
+{
+  "name": "paging-body-next-url",
+  "pagination_type": "BODY_NEXT_URL",
+  "next_page_url_json_path": "$.next_url",
+  "auth_type": "No Auth",
+  "base_url": "http://${PAGING_HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false
+}

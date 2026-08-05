@@ -1,29 +1,84 @@
 {
-  "variables" : [
+  "variables": [
     {
-      "name" : "HOSTNAME",
-      "value" : "http",
-      "description" : "hostname of http container"
+      "name": "HOSTNAME",
+      "value": "http",
+      "description": "hostname of http container"
     },
     {
-      "name" : "CASTLEMOCK_HOSTNAME",
-      "value" : "castlemock",
-      "description" : "hostname for the CastleMock service"
+      "name": "ECHO_HOSTNAME",
+      "value": "httpecho",
+      "description": "hostname of the container that echoes back the HTTP method it received"
     },
     {
-      "name" : "MTLS_HOST",
-      "value" : "mtls_test",
-      "description" : ""
+      "name": "PAGING_HOSTNAME",
+      "value": "paging",
+      "description": "hostname of the paginating API used by the pagination tests"
     },
     {
-      "name" : "MTLS_PASS",
-      "value" : "hop123",
-      "description" : ""
+      "name": "SSE_HOSTNAME",
+      "value": "httpsse",
+      "description": "go-httpbin instance, used for the Server-Sent Events tests"
     },
     {
-      "name" : "MTLS_PORT",
-      "value" : "443",
-      "description" : ""
+      "name": "CASTLEMOCK_HOSTNAME",
+      "value": "castlemock",
+      "description": "hostname for the CastleMock service"
+    },
+    {
+      "name": "PROXY_HOST",
+      "value": "proxy",
+      "description": "hostname of the squid forward proxy"
+    },
+    {
+      "name": "PROXY_PORT",
+      "value": "3128",
+      "description": "squid port that accepts anyone"
+    },
+    {
+      "name": "PROXY_AUTH_PORT",
+      "value": "3129",
+      "description": "squid port that demands Basic credentials"
+    },
+    {
+      "name": "PROXY_ONLY_HOST",
+      "value": "proxied-origin",
+      "description": "origin on the internal network, reachable only through the proxy"
+    },
+    {
+      "name": "HTTPS_HOST",
+      "value": "tomcat",
+      "description": "hostname of the TLS test server"
+    },
+    {
+      "name": "HTTPS_PORT",
+      "value": "8080",
+      "description": "TLS port of the tomcat service - its server.xml puts https on 8080"
+    },
+    {
+      "name": "PROXY_USER",
+      "value": "hopproxy",
+      "description": "username for the authenticating squid port"
+    },
+    {
+      "name": "PROXY_PASS",
+      "value": "hopproxypass",
+      "description": "password for the authenticating squid port"
+    },
+    {
+      "name": "MTLS_HOST",
+      "value": "mtls_test",
+      "description": ""
+    },
+    {
+      "name": "MTLS_PASS",
+      "value": "hop123",
+      "description": ""
+    },
+    {
+      "name": "MTLS_PORT",
+      "value": "443",
+      "description": ""
     }
   ]
 }

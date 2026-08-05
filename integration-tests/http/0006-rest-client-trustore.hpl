@@ -125,7 +125,6 @@ limitations under the License.
     <httpPassword>Encrypted </httpPassword>
     <proxyHost/>
     <proxyPort/>
-    <preemptive>N</preemptive>
     <trustStoreFile>${PROJECT_HOME}/files/.keystore</trustStoreFile>
     <trustStorePassword>Encrypted 2be98afc86aa7f2e4a811af7ed997a6ce</trustStorePassword>
     <ignoreSsl>N</ignoreSsl>
@@ -170,7 +169,6 @@ limitations under the License.
     <httpPassword>Encrypted </httpPassword>
     <proxyHost/>
     <proxyPort/>
-    <preemptive>N</preemptive>
     <trustStoreFile/>
     <trustStorePassword>Encrypted </trustStorePassword>
     <ignoreSsl>N</ignoreSsl>
@@ -215,7 +213,6 @@ limitations under the License.
     <httpPassword>Encrypted </httpPassword>
     <proxyHost/>
     <proxyPort/>
-    <preemptive>N</preemptive>
     <trustStoreFile/>
     <trustStorePassword>Encrypted </trustStorePassword>
     <ignoreSsl>Y</ignoreSsl>

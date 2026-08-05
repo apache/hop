@@ -255,7 +255,6 @@ limitations under the License.
     <methodFieldName/>
     <parameters>
 </parameters>
-    <preemptive>N</preemptive>
     <proxyHost/>
     <proxyPort/>
     <readTimeout/>
