@@ -76,6 +76,14 @@ public class RestData extends BaseTransformData implements ITransformData {
   public String resultResponseFieldName;
   public String resultHeaderFieldName;
 
+  /**
+   * Whether this transform has an incoming hop. When it does not, it is a starting point: a GET or
+   * a POST against a fixed endpoint is meaningful on its own, so the request is made exactly once
+   * rather than never. Zero rows arriving *through* a hop is a different thing — something upstream
+   * decided there was nothing to do — and still produces no request.
+   */
+  public boolean readsRows;
+
   /** Flag set headers */
   public boolean useHeaders;
 

@@ -74,6 +74,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
@@ -624,6 +625,35 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
     }
     return json.toJSONString();
+  }
+
+  /**
+   * Every option that takes its value from an incoming field needs an incoming field. Without a hop
+   * there is nothing to read them from, so say which option is the problem rather than let the
+   * field lookup fail later with "error finding field".
+   */
+  private void rejectFieldDrivenOptionsWithoutInput() throws HopException {
+    if (data.readsRows) {
+      return;
+    }
+    String option = null;
+    if (meta.isUrlInField()) {
+      option = "Accept URL from field";
+    } else if (meta.isDynamicMethod()) {
+      option = "Get Method from field";
+    } else if (!Utils.isEmpty(meta.getBodyField())) {
+      option = "Body field";
+    } else if (!Utils.isEmpty(meta.getHeaderFields())) {
+      option = "Headers";
+    } else if (!Utils.isEmpty(meta.getParameterFields())) {
+      option = "Query parameters";
+    } else if (!Utils.isEmpty(meta.getMatrixParameterFields())) {
+      option = "Matrix parameters";
+    }
+    if (option != null) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Exception.FieldOptionWithoutInput", option));
+    }
   }
 
   protected Object[] assembleResultRow(Object[] baseRowMaybeNull, RestExchangeResult exchange)
@@ -1647,16 +1677,26 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   @Override
   public boolean processRow() throws HopException {
 
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
+    Object[] r;
 
-    if (r == null) {
-      // no more input to be expected...
-      setOutputDone();
-      return false;
+    if (data.readsRows) {
+      r = getRow(); // Get row from input rowset & set row busy!
+      if (r == null) {
+        // no more input to be expected...
+        setOutputDone();
+        return false;
+      }
+    } else {
+      // No incoming hop: the transform is a starting point, so it makes its request once against
+      // an empty row rather than not at all.
+      r = RowDataUtil.allocateRowData(0);
+      incrementLinesRead();
     }
+
     if (first) {
       first = false;
-      data.inputRowMeta = getInputRowMeta();
+      data.inputRowMeta = data.readsRows ? getInputRowMeta() : new RowMeta();
+      rejectFieldDrivenOptionsWithoutInput();
       data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -1814,8 +1854,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
       if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, null, "Rest001");
+        putError(data.inputRowMeta, r, 1, errorMessage, null, "Rest001");
       }
+    }
+
+    if (!data.readsRows) {
+      // One request, one output row, done.
+      setOutputDone();
+      return false;
     }
     return true;
   }
@@ -1824,6 +1870,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   public boolean init() {
 
     if (super.init()) {
+
+      // Decided from the pipeline layout rather than from what arrives at runtime: a hop that
+      // happens to carry zero rows must stay a no-op, while no hop at all means this transform
+      // starts the work itself.
+      data.readsRows = !Utils.isEmpty(getPipelineMeta().findPreviousTransforms(getTransformMeta()));
 
       // use the information from the selection line if we have one.
       data.connectionName = resolve(meta.getConnectionName());
