@@ -28,6 +28,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -61,6 +62,21 @@ public abstract class TextComposite extends Composite {
 
   public void addLineStyleListener(String scriptEngine) {
     throw new UnsupportedOperationException("Cannot specify a script engine");
+  }
+
+  /**
+   * Highlight a range of the text with the given colors. Implementations backed by a plain Text
+   * widget (Hop Web) can't style text, so this is a no-op by default. Callers must not reference
+   * {@code org.eclipse.swt.custom.StyledText} themselves: that class doesn't exist under RAP and
+   * naming it in a signature breaks the reflection done at GUI plugin registration time.
+   *
+   * @param start offset of the first character to style
+   * @param length number of characters to style
+   * @param background background color, null to leave unchanged
+   * @param foreground foreground color, null to leave unchanged
+   */
+  public void setStyleRange(int start, int length, Color background, Color foreground) {
+    // No styling support by default.
   }
 
   /**

@@ -28,6 +28,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.highlight.JavaHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleListener;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.KeyAdapter;
@@ -155,6 +156,20 @@ public class StyledTextVar extends TextComposite {
   @Override
   public void insert(String strInsert) {
     wText.insert(strInsert);
+  }
+
+  @Override
+  public void setStyleRange(int start, int length, Color background, Color foreground) {
+    if (wText.isDisposed() || length <= 0) {
+      return;
+    }
+    StyleRange range = new StyleRange();
+    range.start = start;
+    range.length = length;
+    range.background = background;
+    range.foreground = foreground;
+    range.fontStyle = SWT.NORMAL;
+    wText.setStyleRange(range);
   }
 
   @Override
