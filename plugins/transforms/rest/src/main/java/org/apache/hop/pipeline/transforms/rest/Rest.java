@@ -23,9 +23,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
@@ -135,6 +137,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
     /** Effective request URL for this exchange (after paging merge), used for Link-header dedup. */
     final String requestUrl;
+
+    /** SSE framing for this record, when streaming and the user asked for it. */
+    String eventName;
+
+    String eventId;
 
     RestExchangeResult(
         String body,
@@ -411,7 +418,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
 
-      if (!acceptHeaderProvided && data.mediaType != null) {
+      if (!acceptHeaderProvided
+          && data.streaming
+          && data.streamingFormat == RestStreamingFormat.SSE) {
+        // An event-stream endpoint is entitled to answer something else, or nothing, when asked
+        // for application/json. The user can still override this on the Headers tab.
+        headerMap.put("Accept", "text/event-stream");
+      } else if (!acceptHeaderProvided && data.mediaType != null) {
         headerMap.put("Accept", data.mediaType.getMimeType());
       }
 
@@ -485,7 +498,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           executeWithRetry(
               () -> {
                 try {
-                  return executeRequest(finalRequestUri, headerMap, finalEntity, finalContentType);
+                  return executeRequest(
+                      finalRequestUri, headerMap, finalEntity, finalContentType, rowData);
                 } catch (HopException e) {
                   throw new HopRuntimeException(e);
                 }
@@ -608,6 +622,188 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
   }
 
+  /**
+   * Reads a streaming response, emitting one row per record as it arrives (issue #2746).
+   *
+   * <p>The whole point is not to hold the body: a bulk export can be larger than memory, and an
+   * event feed never ends at all. The connection stays checked out for as long as the stream runs,
+   * which is the trade this option makes.
+   *
+   * @return a summary exchange carrying the status and headers; its body is empty because the
+   *     records have already gone downstream
+   */
+  private HttpExchange streamRecords(
+      ClassicHttpResponse response, Object[] rowData, HttpUriRequestBase request)
+      throws IOException {
+    Map<String, List<String>> headers = new LinkedHashMap<>();
+    for (Header header : response.getHeaders()) {
+      headers.computeIfAbsent(header.getName(), k -> new ArrayList<>()).add(header.getValue());
+    }
+    int status = response.getCode();
+    HttpEntity entity = response.getEntity();
+
+    if (status < 200 || status >= 300) {
+      // Not a silent zero-row success: without this the transform finishes green on a 401, a 404
+      // or a 500, and there is nothing anywhere to say what happened.
+      String body = "";
+      if (entity != null) {
+        try {
+          body = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+        } catch (Exception ignored) {
+          // Nothing readable; the status alone still has to surface.
+        }
+      }
+      throw new IOException(
+          "The streaming request failed with status "
+              + status
+              + (body.isBlank()
+                  ? ""
+                  : ": " + (body.length() > 500 ? body.substring(0, 500) + "..." : body)));
+    }
+
+    if (entity != null) {
+      ContentType type = null;
+      try {
+        type = entity.getContentType() == null ? null : ContentType.parse(entity.getContentType());
+      } catch (Exception ignored) {
+        // Malformed Content-Type: fall back to UTF-8 below.
+      }
+      String headerJson = buildHeaderJson(headers);
+      try (BufferedReader reader =
+          new BufferedReader(new InputStreamReader(entity.getContent(), resolveCharset(type)))) {
+        if (data.streamingFormat == RestStreamingFormat.SSE) {
+          readServerSentEvents(reader, rowData, status, headers, headerJson, request);
+        } else {
+          readNewlineDelimited(reader, rowData, status, headers, headerJson, request);
+        }
+      }
+    }
+    return new HttpExchange(status, new byte[0], headers, null);
+  }
+
+  /** One record per non-blank line. */
+  private void readNewlineDelimited(
+      BufferedReader reader,
+      Object[] rowData,
+      int status,
+      Map<String, List<String>> headers,
+      String headerJson,
+      HttpUriRequestBase request)
+      throws IOException {
+    String line;
+    while ((line = reader.readLine()) != null) {
+      if (isStopped()) {
+        abortStreaming(request);
+        return;
+      }
+      if (!line.isBlank()) {
+        emitStreamedRecord(line, rowData, status, headers, headerJson, null, null);
+      }
+    }
+  }
+
+  /**
+   * WHATWG {@code text/event-stream}: a blank line ends an event, and the record is the joined
+   * {@code data:} fields. The framing fields ({@code event}, {@code id}, {@code retry}) and comment
+   * lines are skipped so that what lands in the row is the payload.
+   */
+  private void readServerSentEvents(
+      BufferedReader reader,
+      Object[] rowData,
+      int status,
+      Map<String, List<String>> headers,
+      String headerJson,
+      HttpUriRequestBase request)
+      throws IOException {
+    StringBuilder event = new StringBuilder();
+    String eventName = null;
+    String eventId = null;
+    String line;
+    while ((line = reader.readLine()) != null) {
+      if (isStopped()) {
+        abortStreaming(request);
+        return;
+      }
+      if (line.isEmpty()) {
+        if (event.length() > 0) {
+          emitStreamedRecord(
+              event.toString(), rowData, status, headers, headerJson, eventName, eventId);
+          event.setLength(0);
+          eventName = null;
+        }
+        // The id deliberately persists: the spec calls it the "last event ID", the point a
+        // consumer would resume from. Only the type and the data reset per event.
+        continue;
+      }
+      if (line.startsWith(":")) {
+        continue; // a comment line, not a field
+      }
+      String field = line;
+      String value = "";
+      int colon = line.indexOf(':');
+      if (colon >= 0) {
+        field = line.substring(0, colon);
+        value = line.substring(colon + 1);
+        if (value.startsWith(" ")) {
+          // The spec strips exactly one leading space after the colon.
+          value = value.substring(1);
+        }
+      }
+      switch (field) {
+        case "data" -> {
+          if (event.length() > 0) {
+            event.append('\n');
+          }
+          event.append(value);
+        }
+        case "event" -> eventName = value;
+        case "id" -> eventId = value;
+        default -> {
+          // "retry" tells a client how long to wait before reconnecting. Hop does not reconnect,
+          // so it would only ever be a column holding the same number. Ignored on purpose.
+        }
+      }
+    }
+    if (event.length() > 0) {
+      // A final event with no trailing blank line still counts.
+      emitStreamedRecord(
+          event.toString(), rowData, status, headers, headerJson, eventName, eventId);
+    }
+  }
+
+  /**
+   * Ends a stream the pipeline no longer wants. Simply returning from the read loop is not enough:
+   * the client then tries to drain whatever is left of the entity so the connection can be reused,
+   * and on a feed that never ends that never returns — the transform sits in "Halting" forever.
+   * Aborting discards the connection instead.
+   */
+  private void abortStreaming(HttpUriRequestBase request) {
+    if (request != null) {
+      request.abort();
+    }
+  }
+
+  private void emitStreamedRecord(
+      String record,
+      Object[] rowData,
+      int status,
+      Map<String, List<String>> headers,
+      String headerJson,
+      String eventName,
+      String eventId)
+      throws IOException {
+    RestExchangeResult exchange =
+        new RestExchangeResult(record, null, status, 0L, headerJson, headers, data.realUrl);
+    exchange.eventName = eventName;
+    exchange.eventId = eventId;
+    try {
+      Object[] outputRow = assembleResultRow(rowData == null ? null : rowData.clone(), exchange);
+      putRow(data.outputRowMeta, outputRow);
+    } catch (HopException e) {
+      throw new IOException("Unable to emit a streamed record", e);
+    }
+  }
+
   /** Serializes the response headers to the JSON string exposed by the response-header field. */
   private String buildHeaderJson(Map<String, List<String>> headers) {
     JSONObject json = new JSONObject();
@@ -621,6 +817,31 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
     }
     return json.toJSONString();
+  }
+
+  /**
+   * Streaming reads the body once, as it arrives, which rules out the options that need the whole
+   * body in hand. Saying so here beats a confusing empty result or a silently ignored setting.
+   */
+  private void rejectUnsupportedStreamingCombinations() throws HopException {
+    if (!data.streaming) {
+      return;
+    }
+    String conflict = null;
+    if (supportsPaging()) {
+      // Paging re-reads a response to find the next page, and re-requests; a consumed stream
+      // cannot give either.
+      conflict = "pagination";
+    } else if (data.binaryResult) {
+      conflict = "a binary result field";
+    } else if (!Utils.isEmpty(meta.getResultSplitPath())) {
+      // The split path is a JsonPath or XPath over a complete document.
+      conflict = "a result split path";
+    }
+    if (conflict != null) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Exception.StreamingConflict", conflict));
+    }
   }
 
   /**
@@ -679,6 +900,18 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
     if (!Utils.isEmpty(data.resultHeaderFieldName)) {
       newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, headerString);
+      returnFieldsOffset++;
+    }
+
+    // Same order as RestMeta.getFields declares them, or the values land in the wrong columns.
+    if (data.streaming) {
+      if (!Utils.isEmpty(data.streamingEventNameField)) {
+        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, exchange.eventName);
+        returnFieldsOffset++;
+      }
+      if (!Utils.isEmpty(data.streamingEventIdField)) {
+        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, exchange.eventId);
+      }
     }
     return newRow;
   }
@@ -693,6 +926,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     RestExchangeResult exchange =
         invokeRestExchange(
             rowData, null, new LinkedHashMap<>(), new LinkedHashMap<>(), new LinkedHashMap<>());
+    if (data.streaming) {
+      // The rows went downstream as the response arrived; there is no summary row to add here.
+      return null;
+    }
     return assembleResultRow(rowData == null ? null : rowData.clone(), exchange);
   }
 
@@ -1406,7 +1643,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
    * straight into the request line, so LIST, PURGE, PROPFIND and friends need nothing special.
    */
   private HttpExchange executeRequest(
-      String requestUri, Map<String, String> headers, Object entity, String contentType)
+      String requestUri,
+      Map<String, String> headers,
+      Object entity,
+      String contentType,
+      Object[] rowData)
       throws HopException {
     // A body-less POST/PUT/PATCH/DELETE must still carry a Content-Length header (issue #7621),
     // so a null body becomes an empty entity rather than no entity at all.
@@ -1428,6 +1669,20 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         logDetailed(describeRequest(request, body));
       }
 
+      if (data.streaming) {
+        // Rows are emitted from inside the response handler, while the connection is still open.
+        try {
+          return data.client.execute(
+              request, response -> streamRecords(response, rowData, request));
+        } catch (Exception e) {
+          if (isStopped()) {
+            // The abort below is how a stop actually takes effect, and it surfaces here as a
+            // failure. Expected, not an error: report what was read and let the transform end.
+            return new HttpExchange(0, new byte[0], new LinkedHashMap<>(), null);
+          }
+          throw e;
+        }
+      }
       return data.client.execute(request, Rest::materialize);
     } catch (Exception e) {
       throw new HopException("Request could not be processed", e);
@@ -1759,6 +2014,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       first = false;
       data.inputRowMeta = data.readsRows ? getInputRowMeta() : new RowMeta();
       rejectFieldDrivenOptionsWithoutInput();
+      rejectUnsupportedStreamingCombinations();
       data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -1895,7 +2151,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
                   + "(needs a REST connection with a non-NONE pagination type). Using legacy single-request behaviour.");
         }
         Object[] outputRowData = callRest(r);
-        putRow(data.outputRowMeta, outputRowData);
+        if (outputRowData != null) {
+          // Null means the rows were already emitted while the response streamed in.
+          putRow(data.outputRowMeta, outputRowData);
+        }
       }
       if (checkFeedback(getLinesRead()) && isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "Rest.LineNumber") + getLinesRead());
@@ -1960,6 +2219,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.resultResponseFieldName = resolve(meta.getResultField().getResponseTime());
       data.resultHeaderFieldName = resolve(meta.getResultField().getResponseHeader());
       data.binaryResult = meta.getResultField().isBinary();
+      data.streaming = meta.isStreamingEnabled();
+      data.streamingFormat =
+          meta.getStreamingFormat() == null
+              ? RestStreamingFormat.NDJSON
+              : meta.getStreamingFormat();
+      data.streamingEventNameField = resolve(meta.getStreamingEventNameField());
+      data.streamingEventIdField = resolve(meta.getStreamingEventIdField());
 
       // Paging needs to read the response body as text to find the next page token, split the
       // result or follow a Link header. None of that is possible on an opaque byte payload.

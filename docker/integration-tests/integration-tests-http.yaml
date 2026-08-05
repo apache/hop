@@ -39,6 +39,7 @@ services:
       - mtls_test
       - proxy
       - paging
+      - httpsse
     environment:
       HOP_MTLS_CERTS_DIR: /opt/hop/tests/mtls/certs
       HOP_MTLS_BASE_URL: https://mtls_test:443
@@ -46,6 +47,17 @@ services:
   http:
     image: kennethreitz/httpbin
     hostname: http
+
+  # go-httpbin alongside the original rather than replacing it, for the Server-Sent Events tests:
+  # the image above has no /sse route. Swapping wholesale is a separate job - go-httpbin returns
+  # headers and query args as JSON arrays, and it decodes request bodies as text, which destroys
+  # the binary round-trip that tests 0026/0027 exist to prove (issue #3746).
+  # PORT=80 so it is addressed the same way as everything else here.
+  httpsse:
+    image: mccutchen/go-httpbin:v2.15.0
+    hostname: httpsse
+    environment:
+      PORT: "80"
 
   # Answers any HTTP method with the method name, so the custom-method tests can assert on the
   # verb the server actually received. httpbin routes only the well-known verbs.

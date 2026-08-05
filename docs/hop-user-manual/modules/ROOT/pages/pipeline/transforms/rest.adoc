@@ -159,6 +159,34 @@ Values are percent-encoded for a path segment, so a space becomes `%20` rather t
 |Matrix parameter name|The matrix parameter name expected by the REST API
 |===
 
+=== Streaming result tab
+
+Normally the transform reads the whole response body, then produces one row from it. That is wrong for two kinds of endpoint: an export larger than memory, and a feed that never ends. With **Source is streaming**, rows are emitted as the response arrives.
+
+[options="header"]
+|===
+|Option|Description
+|Source is streaming|Emit one row per record while the response is still being received, instead of buffering the whole body first.
+|Record format|`NDJSON` — one record per line, what bulk-export APIs generally serve (`application/x-ndjson`). `SSE` — WHATWG `text/event-stream`, where a blank line ends a record and its value is the joined `data:` fields.
+|Event name field|SSE only. Optional output field carrying the event's `event:` type. Leave empty and no column is added.
+|Event ID field|SSE only. Optional output field carrying the event's `id:`. The value persists until the server sends a new one, which is what the spec means by "last event ID" — the point a consumer would resume from.
+|===
+
+The record itself always stays in **Result fieldname**, rather than being wrapped in an envelope alongside its metadata. A payload that is already JSON can therefore go straight into a xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform with no unwrapping, and pipelines that do not care about the framing are unaffected. The `retry:` field is not exposed: it tells a client how long to wait before reconnecting, and Hop does not reconnect.
+
+Each record becomes one row, in the **Result fieldname** field. The status code, response time and response headers repeat on every row, since they belong to the one response all the records came from.
+
+[IMPORTANT]
+====
+Streaming reads the body once, as it arrives, so it cannot be combined with anything that needs the whole body at once. The transform refuses these rather than ignoring them:
+
+* **Pagination** — finding the next page means re-reading a response, and following it means re-requesting.
+* **A binary result field**.
+* **A result split path** — a JsonPath or XPath over a complete document.
+
+Two other consequences worth knowing: the connection stays checked out for as long as the stream runs, and a request cannot be **retried** once rows have gone downstream, so the Retry Option tab does not apply to the streamed part of a response.
+====
+
 === Retry Option tab
 
 Retries a request whose response carries one of the configured status codes. Useful for the transient ones — `429 Too Many Requests`, `502`, `503`, `504` — where repeating the same call is likely to succeed.

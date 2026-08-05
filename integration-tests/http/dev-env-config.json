@@ -16,6 +16,11 @@
       "description": "hostname of the paginating API used by the pagination tests"
     },
     {
+      "name": "SSE_HOSTNAME",
+      "value": "httpsse",
+      "description": "go-httpbin instance, used for the Server-Sent Events tests"
+    },
+    {
       "name": "CASTLEMOCK_HOSTNAME",
       "value": "castlemock",
       "description": "hostname for the CastleMock service"

@@ -264,6 +264,30 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "resultSplitPath", injectionKey = "RESULT_SPLIT_PATH")
   private String resultSplitPath;
 
+  /**
+   * Emit a row per record as the response arrives, instead of reading the whole body first (issue
+   * #2746). For a response that is very large, or one that never ends, buffering it is either
+   * wasteful or fatal.
+   */
+  @HopMetadataProperty(key = "streamingEnabled", injectionKey = "STREAMING_ENABLED")
+  private boolean streamingEnabled;
+
+  @HopMetadataProperty(key = "streamingFormat", injectionKey = "STREAMING_FORMAT")
+  private RestStreamingFormat streamingFormat = RestStreamingFormat.NDJSON;
+
+  /**
+   * Optional output field for the SSE {@code event:} type. Named like every other optional output
+   * on this transform: leave it empty and the column is not added at all. The record itself stays
+   * in the result field rather than being wrapped in an envelope, so a payload that is already JSON
+   * can go straight into a JSON Input transform without being unwrapped first.
+   */
+  @HopMetadataProperty(key = "streamingEventNameField", injectionKey = "STREAMING_EVENT_NAME_FIELD")
+  private String streamingEventNameField;
+
+  /** Optional output field for the SSE {@code id:} of each event. */
+  @HopMetadataProperty(key = "streamingEventIdField", injectionKey = "STREAMING_EVENT_ID_FIELD")
+  private String streamingEventIdField;
+
   public RestMeta() {
     super(); // allocate BaseTransformMeta
     headerFields = new ArrayList<>();
@@ -309,6 +333,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.paginationEnabled = false;
     this.maxPagesLoops = RestConst.DEFAULT_MAX_PAGES_LOOPS;
     this.resultSplitPath = null;
+    this.streamingEnabled = false;
+    this.streamingFormat = RestStreamingFormat.NDJSON;
   }
 
   @Override
@@ -345,6 +371,22 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       IValueMeta v = new ValueMetaString(headerFieldName);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
+    }
+
+    // Only when streaming: without it these would be columns that are always null.
+    if (streamingEnabled) {
+      String eventNameField = variables.resolve(streamingEventNameField);
+      if (!Utils.isEmpty(eventNameField)) {
+        IValueMeta v = new ValueMetaString(eventNameField);
+        v.setOrigin(name);
+        inputRowMeta.addValueMeta(v);
+      }
+      String eventIdField = variables.resolve(streamingEventIdField);
+      if (!Utils.isEmpty(eventIdField)) {
+        IValueMeta v = new ValueMetaString(eventIdField);
+        v.setOrigin(name);
+        inputRowMeta.addValueMeta(v);
+      }
     }
   }
 

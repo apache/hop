@@ -84,6 +84,16 @@ public class RestData extends BaseTransformData implements ITransformData {
    */
   public boolean readsRows;
 
+  /** Emit a row per record as the response streams in, rather than buffering the whole body. */
+  public boolean streaming;
+
+  public RestStreamingFormat streamingFormat;
+
+  /** Optional output field names for the SSE event type and id. Empty means "no such column". */
+  public String streamingEventNameField;
+
+  public String streamingEventIdField;
+
   /** Flag set headers */
   public boolean useHeaders;
 

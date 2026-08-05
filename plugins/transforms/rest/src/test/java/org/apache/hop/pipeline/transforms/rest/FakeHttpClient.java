@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,6 +32,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.message.BasicHeader;
@@ -71,6 +73,49 @@ public final class FakeHttpClient {
       throw new IllegalStateException("Unable to stub the HTTP client", e);
     }
     return client;
+  }
+
+  /**
+   * A client whose response never ends, standing in for an event feed. Draining it would block
+   * forever, which is exactly the condition the stop handling has to survive.
+   */
+  public static CloseableHttpClient endlessNdjson() {
+    CloseableHttpClient client = mock(CloseableHttpClient.class);
+    try {
+      when(client.execute(any(ClassicHttpRequest.class), any(HttpClientResponseHandler.class)))
+          .thenAnswer(
+              invocation -> {
+                CAPTURED.set(invocation.getArgument(0));
+                HttpClientResponseHandler<?> handler = invocation.getArgument(1);
+                ClassicHttpResponse response = mock(ClassicHttpResponse.class);
+                when(response.getCode()).thenReturn(200);
+                when(response.getHeaders()).thenReturn(new Header[0]);
+                HttpEntity entity = mock(HttpEntity.class);
+                when(entity.getContentType()).thenReturn("application/x-ndjson");
+                when(entity.getContent()).thenReturn(new EndlessJsonStream());
+                when(response.getEntity()).thenReturn(entity);
+                return handler.handleResponse(response);
+              });
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to stub the HTTP client", e);
+    }
+    return client;
+  }
+
+  /** Emits {"id":n} lines for ever. */
+  private static final class EndlessJsonStream extends InputStream {
+    private byte[] current = new byte[0];
+    private int offset;
+    private int id;
+
+    @Override
+    public int read() {
+      if (offset >= current.length) {
+        current = ("{\"id\":" + id++ + "}\n").getBytes(StandardCharsets.UTF_8);
+        offset = 0;
+      }
+      return current[offset++] & 0xFF;
+    }
   }
 
   /** The most recent request the transform issued, for assertions. */

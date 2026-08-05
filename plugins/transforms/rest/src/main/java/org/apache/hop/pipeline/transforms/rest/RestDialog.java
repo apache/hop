@@ -56,6 +56,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -157,6 +158,12 @@ public class RestDialog extends BaseTransformDialog {
   private MetaSelectionLine wSelectionLine;
 
   /** retry */
+  private Button wStreamingEnabled;
+
+  private Combo wStreamingFormat;
+  private TextVar wStreamingEventName;
+  private TextVar wStreamingEventId;
+
   private TextVar wRetryTimes;
 
   private TextVar wRetryDelay;
@@ -440,6 +447,7 @@ public class RestDialog extends BaseTransformDialog {
     addPaginationTabItem(wTabFolder, lsMod);
 
     addRetryTabItem(wTabFolder, lsMod);
+    addStreamingTabItem(wTabFolder, lsMod);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
@@ -563,6 +571,151 @@ public class RestDialog extends BaseTransformDialog {
     wResultSplitPath.setLayoutData(fdSplitTxt);
 
     paginationTab.setControl(wPagComp);
+  }
+
+  /** Issue #2746: emit rows while the response is still arriving. */
+  private void addStreamingTabItem(CTabFolder wTabFolder, ModifyListener lsMod) {
+    int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+
+    CTabItem streamingTab = new CTabItem(wTabFolder, SWT.NONE);
+    streamingTab.setFont(GuiResource.getInstance().getFontDefault());
+    streamingTab.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Streaming.Title"));
+
+    Composite wStreamingComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wStreamingComp);
+    FormLayout layout = new FormLayout();
+    layout.marginWidth = PropsUi.getFormMargin();
+    layout.marginHeight = PropsUi.getFormMargin();
+    wStreamingComp.setLayout(layout);
+
+    Label wlStreamingEnabled = new Label(wStreamingComp, SWT.RIGHT);
+    wlStreamingEnabled.setText(BaseMessages.getString(PKG, "RestDialog.Streaming.Enabled.Label"));
+    PropsUi.setLook(wlStreamingEnabled);
+
+    wStreamingEnabled = new Button(wStreamingComp, SWT.CHECK);
+    PropsUi.setLook(wStreamingEnabled);
+    wStreamingEnabled.setToolTipText(
+        BaseMessages.getString(PKG, "RestDialog.Streaming.Enabled.Tooltip"));
+    FormData fdStreamingEnabled = new FormData();
+    fdStreamingEnabled.top = new FormAttachment(0, margin);
+    fdStreamingEnabled.left = new FormAttachment(middle, 0);
+    wStreamingEnabled.setLayoutData(fdStreamingEnabled);
+    // Label centred on its control, field chained to the field above: the geometry the rest of
+    // this dialog uses.
+    FormData fdlStreamingEnabled = new FormData();
+    fdlStreamingEnabled.top = new FormAttachment(wStreamingEnabled, 0, SWT.CENTER);
+    fdlStreamingEnabled.left = new FormAttachment(0, 0);
+    fdlStreamingEnabled.right = new FormAttachment(middle, -margin);
+    wlStreamingEnabled.setLayoutData(fdlStreamingEnabled);
+    wStreamingEnabled.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged();
+          activateStreamingFields();
+        });
+
+    Label wlStreamingFormat = new Label(wStreamingComp, SWT.RIGHT);
+    wlStreamingFormat.setText(BaseMessages.getString(PKG, "RestDialog.Streaming.Format.Label"));
+    PropsUi.setLook(wlStreamingFormat);
+
+    wStreamingFormat = new Combo(wStreamingComp, SWT.BORDER | SWT.READ_ONLY);
+    wStreamingFormat.setItems(
+        new String[] {RestStreamingFormat.NDJSON.name(), RestStreamingFormat.SSE.name()});
+    wStreamingFormat.setToolTipText(
+        BaseMessages.getString(PKG, "RestDialog.Streaming.Format.Tooltip"));
+    PropsUi.setLook(wStreamingFormat);
+    wStreamingFormat.addModifyListener(lsMod);
+    wStreamingFormat.addListener(SWT.Modify, e -> activateStreamingFields());
+    FormData fdStreamingFormat = new FormData();
+    fdStreamingFormat.top = new FormAttachment(wStreamingEnabled, margin);
+    fdStreamingFormat.left = new FormAttachment(middle, 0);
+    fdStreamingFormat.right = new FormAttachment(100, 0);
+    wStreamingFormat.setLayoutData(fdStreamingFormat);
+    FormData fdlStreamingFormat = new FormData();
+    fdlStreamingFormat.top = new FormAttachment(wStreamingFormat, 0, SWT.CENTER);
+    fdlStreamingFormat.left = new FormAttachment(0, 0);
+    fdlStreamingFormat.right = new FormAttachment(middle, -margin);
+    wlStreamingFormat.setLayoutData(fdlStreamingFormat);
+
+    wStreamingEventName =
+        streamingFieldRow(
+            wStreamingComp,
+            "RestDialog.Streaming.EventNameField.Label",
+            "RestDialog.Streaming.EventNameField.Tooltip",
+            wStreamingFormat,
+            lsMod,
+            middle,
+            margin);
+    wStreamingEventId =
+        streamingFieldRow(
+            wStreamingComp,
+            "RestDialog.Streaming.EventIdField.Label",
+            "RestDialog.Streaming.EventIdField.Tooltip",
+            wStreamingEventName,
+            lsMod,
+            middle,
+            margin);
+
+    Label wlStreamingInfo = new Label(wStreamingComp, SWT.LEFT | SWT.WRAP);
+    wlStreamingInfo.setText(BaseMessages.getString(PKG, "RestDialog.Streaming.Info"));
+    PropsUi.setLook(wlStreamingInfo);
+    FormData fdlStreamingInfo = new FormData();
+    fdlStreamingInfo.top = new FormAttachment(wStreamingEventId, margin * 2);
+    fdlStreamingInfo.left = new FormAttachment(0, 0);
+    fdlStreamingInfo.right = new FormAttachment(100, -margin);
+    wlStreamingInfo.setLayoutData(fdlStreamingInfo);
+
+    FormData fdStreamingComp = new FormData();
+    fdStreamingComp.left = new FormAttachment(0, 0);
+    fdStreamingComp.top = new FormAttachment(0, 0);
+    fdStreamingComp.right = new FormAttachment(100, 0);
+    fdStreamingComp.bottom = new FormAttachment(100, 0);
+    wStreamingComp.setLayoutData(fdStreamingComp);
+    wStreamingComp.layout();
+    streamingTab.setControl(wStreamingComp);
+  }
+
+  /** One optional output-field row on the streaming tab. */
+  private TextVar streamingFieldRow(
+      Composite parent,
+      String labelKey,
+      String tooltipKey,
+      Control above,
+      ModifyListener lsMod,
+      int middle,
+      int margin) {
+    Label label = new Label(parent, SWT.RIGHT);
+    label.setText(BaseMessages.getString(PKG, labelKey));
+    PropsUi.setLook(label);
+
+    TextVar field = new TextVar(variables, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(field);
+    field.setToolTipText(BaseMessages.getString(PKG, tooltipKey));
+    field.addModifyListener(lsMod);
+    FormData fdField = new FormData();
+    fdField.top = new FormAttachment(above, margin);
+    fdField.left = new FormAttachment(middle, 0);
+    fdField.right = new FormAttachment(100, 0);
+    field.setLayoutData(fdField);
+
+    FormData fdLabel = new FormData();
+    fdLabel.top = new FormAttachment(field, 0, SWT.CENTER);
+    fdLabel.left = new FormAttachment(0, 0);
+    fdLabel.right = new FormAttachment(middle, -margin);
+    label.setLayoutData(fdLabel);
+    return field;
+  }
+
+  /**
+   * The format and the event fields only mean anything once streaming is on, and the event fields
+   * only for SSE - NDJSON records carry no framing to map.
+   */
+  private void activateStreamingFields() {
+    boolean streaming = wStreamingEnabled != null && wStreamingEnabled.getSelection();
+    setEnabled(streaming, wStreamingFormat);
+    boolean sse = streaming && RestStreamingFormat.SSE.name().equals(wStreamingFormat.getText());
+    setEnabled(sse, wStreamingEventName, wStreamingEventId);
   }
 
   private void addRetryTabItem(CTabFolder wTabFolder, ModifyListener lsMod) {
@@ -1758,6 +1911,15 @@ public class RestDialog extends BaseTransformDialog {
       wProxyPort.setText(input.getProxyPort());
     }
     wPreemptive.setSelection(input.isPreemptive());
+    wStreamingEnabled.setSelection(input.isStreamingEnabled());
+    wStreamingEventName.setText(Const.NVL(input.getStreamingEventNameField(), ""));
+    wStreamingEventId.setText(Const.NVL(input.getStreamingEventIdField(), ""));
+    wStreamingFormat.setText(
+        (input.getStreamingFormat() == null
+                ? RestStreamingFormat.NDJSON
+                : input.getStreamingFormat())
+            .name());
+    activateStreamingFields();
 
     if (input.getTrustStoreFile() != null) {
       wTrustStoreFile.setText(input.getTrustStoreFile());
@@ -1892,6 +2054,14 @@ public class RestDialog extends BaseTransformDialog {
     input.setProxyHost(wProxyHost.getText());
     input.setProxyPort(wProxyPort.getText());
     input.setPreemptive(wPreemptive.getSelection());
+    input.setStreamingEnabled(wStreamingEnabled.getSelection());
+    try {
+      input.setStreamingFormat(RestStreamingFormat.valueOf(wStreamingFormat.getText()));
+    } catch (IllegalArgumentException ex) {
+      input.setStreamingFormat(RestStreamingFormat.NDJSON);
+    }
+    input.setStreamingEventNameField(wStreamingEventName.getText());
+    input.setStreamingEventIdField(wStreamingEventId.getText());
 
     input.setTrustStoreFile(wTrustStoreFile.getText());
     input.setTrustStorePassword(wTrustStorePassword.getText());
