@@ -40,13 +40,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.vfs.sftp.client.FileItem;
+import org.apache.hop.vfs.sftp.client.SftpClient;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.actions.sftp.FileItem;
-import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.apache.hop.workflow.actions.util.IFtpConnection;
 
@@ -58,7 +58,8 @@ import org.apache.hop.workflow.actions.util.IFtpConnection;
     image = "FTPDelete.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
     keywords = "i18n::ActionFtpDelete.keyword",
-    documentationUrl = "/workflow/actions/ftpdelete.html")
+    documentationUrl = "/workflow/actions/ftpdelete.html",
+    classLoaderGroup = "sftp")
 @Getter
 @Setter
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, IFtpConnection {

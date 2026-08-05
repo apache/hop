@@ -65,7 +65,8 @@ import org.apache.hop.workflow.actions.util.IFtpConnection;
     image = "FTPPut.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
     keywords = "i18n::ActionFtpPut.keyword",
-    documentationUrl = "/workflow/actions/ftpput.html")
+    documentationUrl = "/workflow/actions/ftpput.html",
+    classLoaderGroup = "sftp")
 @EqualsAndHashCode(callSuper = false)
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpPut.class;

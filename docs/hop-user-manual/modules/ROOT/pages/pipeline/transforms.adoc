@@ -206,6 +206,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/setvalueconstant.adoc[Set field value to a constant]
 * xref:pipeline/transforms/setvaluefield.adoc[Set field Value to a field]
 * xref:pipeline/transforms/setvariable.adoc[Set Variables]
+* xref:pipeline/transforms/sftpput.adoc[SFTP Put]
 * xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping]
 * xref:pipeline/transforms/snowflakebulkloader.adoc[Snowflake bulk loader]
 * xref:pipeline/transforms/sort.adoc[Sort Rows]
