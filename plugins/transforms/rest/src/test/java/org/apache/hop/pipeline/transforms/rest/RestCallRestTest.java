@@ -132,7 +132,10 @@ class RestCallRestTest {
     "http://example.com/, http://example.com/",
     "http://example.com/api, http://example.com/api",
     "http://example.com/api/, http://example.com/api/",
-    "http://example.com/api?x=1, http://example.com/api?x=1"
+    "http://example.com/api?x=1, http://example.com/api?x=1",
+    "http://example.com/api?q=%22hop%22, http://example.com/api?q=%22hop%22",
+    "http://example.com/api?f=name%20eq%20%27hop%27, http://example.com/api?f=name%20eq%20%27hop%27",
+    "http://example.com/path%20with%20space/x, http://example.com/path%20with%20space/x"
   })
   void testTheConfiguredUrlIsSentUnaltered(String configured, String expected) throws HopException {
     RestMeta meta = new RestMeta();

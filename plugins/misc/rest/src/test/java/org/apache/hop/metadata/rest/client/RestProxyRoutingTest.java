@@ -32,7 +32,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,6 +71,17 @@ class RestProxyRoutingTest {
 
   /** Set before building a client to make the stub proxy demand Basic authentication. */
   private volatile boolean proxyRequiresAuth;
+
+  @BeforeAll
+  static void initPasswordEncoder() throws Exception {
+    // The connection decrypts its proxy password through Encr on the way to the client settings.
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            HopTwoWayPasswordEncoder.class.getName(),
+            TwoWayPasswordEncoderPluginType.class,
+            TwoWayPasswordEncoderPlugin.class);
+    Encr.init("Hop");
+  }
 
   @BeforeEach
   void startServers() throws IOException {
@@ -163,6 +182,40 @@ class RestProxyRoutingTest {
     assertEquals(FROM_ORIGIN, get(settings, originUrl("localhost")));
 
     assertTrue(proxyCredentials.isEmpty(), "the proxy was not involved at all");
+  }
+
+  @Test
+  void theConnectionTestRequestGoesThroughTheProxy() throws Exception {
+    // What the editor's Test button ends up calling. It used to build its own RestConnection from
+    // a hand-picked subset of the widgets that left the proxy out, so a connection reachable only
+    // through a proxy tested as broken while running fine in a pipeline. The button now reuses the
+    // same widget copy as saving; this pins the half below it — that the connection's own request
+    // path really does honour the proxy.
+    RestConnection connection = new RestConnection(new Variables());
+    connection.setBaseUrl(originUrl("127.0.0.1"));
+    connection.setTestUrl(originUrl("127.0.0.1"));
+    connection.setProxyHost("localhost");
+    connection.setProxyPort(Integer.toString(proxy.getAddress().getPort()));
+
+    connection.testConnection();
+
+    assertEquals(1, proxiedRequests.size(), "the test request must take the proxy route");
+    assertTrue(originRequests.isEmpty(), "the origin must not have been contacted directly");
+  }
+
+  @Test
+  void theConnectionTestHonoursTheProxyBypassList() throws Exception {
+    RestConnection connection = new RestConnection(new Variables());
+    connection.setBaseUrl(originUrl("localhost"));
+    connection.setTestUrl(originUrl("localhost"));
+    connection.setProxyHost("localhost");
+    connection.setProxyPort(Integer.toString(proxy.getAddress().getPort()));
+    connection.setNonProxyHosts("localhost");
+
+    connection.testConnection();
+
+    assertTrue(proxiedRequests.isEmpty(), "a bypassed host must not go through the proxy");
+    assertEquals(1, originRequests.size());
   }
 
   private void handleProxyRequest(HttpExchange exchange) throws IOException {

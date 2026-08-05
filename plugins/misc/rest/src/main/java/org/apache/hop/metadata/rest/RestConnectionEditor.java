@@ -74,7 +74,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   public static final String NO_AUTH = "No Auth";
   public static final String BASIC = "Basic";
   public static final String BEARER = "Bearer";
-  public static final String EMPTY_TAG = "<empty>";
 
   private Text wName;
 
@@ -1170,94 +1169,44 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private void test() {
     IVariables vars = hopGui.getVariables();
     RestConnection restConnection = new RestConnection(vars);
-    restConnection.setName(wName.getText());
-    if (StringUtils.isEmpty(wTestUrl.getText())) {
-      restConnection.setTestUrl(wBaseUrl.getText());
-    } else {
-      restConnection.setTestUrl(wTestUrl.getText());
+
+    // The same widget-to-metadata copy the editor uses when saving. This used to be a second,
+    // hand-written copy of a subset of the fields, which meant the test button quietly ignored the
+    // proxy, the timeouts and the preemptive setting: a connection that only works through a proxy
+    // reported a failure, and one whose proxy was wrong reported success. Anything added to the
+    // editor from now on is covered here for free.
+    getWidgetsContent(restConnection);
+
+    if (StringUtils.isEmpty(restConnection.getTestUrl())) {
+      restConnection.setTestUrl(restConnection.getBaseUrl());
     }
-    restConnection.setBaseUrl(wBaseUrl.getText());
-
-    // SSL/TLS configuration
-    restConnection.setTrustStoreFile(wTrustStoreFile.getText());
-    restConnection.setTrustStorePassword(wTrustStorePassword.getText());
-    restConnection.setIgnoreSsl(wIgnoreSsl.getSelection());
-    restConnection.setKeyStoreFile(wKeyStoreFile.getText());
-    restConnection.setKeyStorePassword(wKeyStorePassword.getText());
-    restConnection.setKeyStoreType(wKeyStoreType.getText());
-    restConnection.setKeyPassword(wKeyPassword.getText());
-    restConnection.setCertificateAlias(wCertificateAlias.getText());
-
-    // Authentication configuration
-    restConnection.setAuthType(wAuthType.getText());
-    if (wAuthType.getText().equals(NO_AUTH)) {
-      // nothing required
-    } else if (wAuthType.getText().equals(BASIC)) {
-      restConnection.setUsername(wUsername.getText());
-      restConnection.setPassword(wPassword.getText());
-    } else if (wAuthType.getText().equals(BEARER)) {
-      restConnection.setBearerToken(wBearerValue.getText());
-    } else if (wAuthType.getText().equals(API_KEY)) {
-      restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
-      restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
-      restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
-    }
-
-    // remove this temporary debug dialog when the SSL configuration issue is resolved.
-    String resolvedTestUrl = vars.resolve(restConnection.getTestUrl());
-    String responsePreview;
-    try {
-      responsePreview = restConnection.getResponse(resolvedTestUrl);
-      if (responsePreview != null && responsePreview.length() > 500) {
-        responsePreview = responsePreview.substring(0, 500) + "... (truncated)";
-      }
-    } catch (Exception e) {
-      responsePreview = "<error retrieving response: " + Const.NVL(e.getMessage(), "unknown") + ">";
-    }
-
-    String debugSummary =
-        "ignoreSsl = "
-            + restConnection.isIgnoreSsl()
-            + "\ntrustStore (raw) = "
-            + Const.NVL(restConnection.getTrustStoreFile(), EMPTY_TAG)
-            + "\ntrustStore (resolved) = "
-            + (StringUtils.isEmpty(restConnection.getTrustStoreFile())
-                ? EMPTY_TAG
-                : vars.resolve(restConnection.getTrustStoreFile()))
-            + "\nkeyStore (raw) = "
-            + Const.NVL(restConnection.getKeyStoreFile(), EMPTY_TAG)
-            + "\nkeyStore (resolved) = "
-            + (StringUtils.isEmpty(restConnection.getKeyStoreFile())
-                ? EMPTY_TAG
-                : vars.resolve(restConnection.getKeyStoreFile()))
-            + "\nkeyStore type = "
-            + Const.NVL(restConnection.getKeyStoreType(), EMPTY_TAG)
-            + "\nkey password set = "
-            + (!StringUtils.isEmpty(restConnection.getKeyPassword()))
-            + "\nauthType = "
-            + Const.NVL(restConnection.getAuthType(), EMPTY_TAG)
-            + "\ntest URL (resolved) = "
-            + resolvedTestUrl
-            + "\nresponse preview = "
-            + Const.NVL(responsePreview, "<null>");
-    MessageBox debugBox = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-    debugBox.setText("REST Connection Test - Debug Info");
-    debugBox.setMessage(debugSummary + "\n\nClick OK to continue the test.");
-    debugBox.open();
 
     try {
       restConnection.testConnection();
-      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK);
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
       box.setText("OK");
       String message =
           BaseMessages.getString(PKG, "RestConnectionEditor.ConnectionTestSuccess") + Const.CR;
       message += Const.CR;
-      message += "URL : " + restConnection.getTestUrl();
+      message += "URL : " + vars.resolve(restConnection.getTestUrl());
+      if (!StringUtils.isEmpty(restConnection.getProxyHost())) {
+        message += Const.CR;
+        message +=
+            "Proxy : "
+                + vars.resolve(Const.NVL(restConnection.getProxyScheme(), "http"))
+                + "://"
+                + vars.resolve(restConnection.getProxyHost())
+                + ":"
+                + vars.resolve(Const.NVL(restConnection.getProxyPort(), ""));
+      }
       box.setMessage(message);
       box.open();
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(), "Error", "Error connecting to REST URL : " + wTestUrl.getText(), e);
+          hopGui.getShell(),
+          "Error",
+          "Error connecting to REST URL : " + vars.resolve(restConnection.getTestUrl()),
+          e);
     }
   }
 
