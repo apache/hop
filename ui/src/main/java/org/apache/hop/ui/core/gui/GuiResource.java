@@ -199,6 +199,7 @@ public class GuiResource {
   @Getter private Image imageAddAbove;
   @Getter private Image imageAddBelow;
   @Getter private Image imageAddSingle;
+  @Getter private Image imageClientEnvironment;
   @Getter private Image imageCalendar;
   @Getter private Image imageCancel;
   @Getter private Image imageCatalog;
@@ -210,6 +211,7 @@ public class GuiResource {
   @Getter private Image imageCopy;
   @Getter private Image imageCut;
   @Getter private Image imageDelete;
+  @Getter private Image imageDependence;
   @Getter private Image imageDown;
   @Getter private Image imageDuplicate;
   @Getter private Image imageEmpty;
@@ -226,6 +228,7 @@ public class GuiResource {
   @Getter private Image imageMinimizePanel;
   @Getter private Image imageDetachPanel;
   @Getter private Image imageDockPanel;
+  @Getter private Image imageMarketplace;
   @Getter private Image imageNavigateBack;
   @Getter private Image imageNavigateForward;
   @Getter private Image imageNavigateUp;
@@ -242,6 +245,7 @@ public class GuiResource {
   @Getter private Image imageRemoveAll;
   @Getter private Image imageRemoveSingle;
   @Getter private Image imageRename;
+  @Getter private Image imageRepository;
   @Getter private Image imageResetOption;
   @Getter private Image imageRotateLeft;
   @Getter private Image imageRotateRight;
@@ -507,6 +511,7 @@ public class GuiResource {
     disposeImage(imageAddAbove);
     disposeImage(imageAddBelow);
     disposeImage(imageAddSingle);
+    disposeImage(imageClientEnvironment);
     disposeImage(imageCalendar);
     disposeImage(imageCancel);
     disposeImage(imageCatalog);
@@ -518,6 +523,7 @@ public class GuiResource {
     disposeImage(imageCopy);
     disposeImage(imageCut);
     disposeImage(imageDelete);
+    disposeImage(imageDependence);
     disposeImage(imageDown);
     disposeImage(imageDuplicate);
     disposeImage(imageFunction);
@@ -528,6 +534,7 @@ public class GuiResource {
     disposeImage(imageHome);
     disposeImage(imageLabel);
     disposeImage(imageLocation);
+    disposeImage(imageMarketplace);
     disposeImage(imageMaximizePanel);
     disposeImage(imageMinimizePanel);
     disposeImage(imageNavigateBack);
@@ -543,6 +550,7 @@ public class GuiResource {
     disposeImage(imageRemoveAll);
     disposeImage(imageRemoveSingle);
     disposeImage(imageRename);
+    disposeImage(imageRepository);
     disposeImage(imageResetOption);
     disposeImage(imageRotateLeft);
     disposeImage(imageRotateRight);
@@ -739,6 +747,8 @@ public class GuiResource {
     imageAddBelow =
         loadAsResource(display, "ui/images/add-item-below.svg", ConstUi.SMALL_ICON_SIZE);
     imageAddSingle = loadAsResource(display, "ui/images/add_single.svg", ConstUi.SMALL_ICON_SIZE);
+    imageClientEnvironment =
+        loadAsResource(display, "ui/images/client-environment.svg", ConstUi.SMALL_ICON_SIZE);
     imageCalendar = loadAsResource(display, "ui/images/calendar.svg", ConstUi.SMALL_ICON_SIZE);
     imageCatalog = loadAsResource(display, "ui/images/catalog.svg", ConstUi.SMALL_ICON_SIZE);
     imageCheck = loadAsResource(display, "ui/images/check.svg", ConstUi.SMALL_ICON_SIZE);
@@ -748,13 +758,15 @@ public class GuiResource {
     imageCancel = loadAsResource(display, "ui/images/cancel.svg", ConstUi.SMALL_ICON_SIZE);
     imageCopy = loadAsResource(display, "ui/images/copy.svg", ConstUi.SMALL_ICON_SIZE);
     imageCut = loadAsResource(display, "ui/images/cut.svg", ConstUi.SMALL_ICON_SIZE);
+    imageDependence = loadAsResource(display, "ui/images/dependence.svg", ConstUi.SMALL_ICON_SIZE);
     imageDuplicate = loadAsResource(display, "ui/images/duplicate.svg", ConstUi.SMALL_ICON_SIZE);
     imagePaste = loadAsResource(display, "ui/images/paste.svg", ConstUi.SMALL_ICON_SIZE);
     imageExpandAll = loadAsResource(display, "ui/images/expand-all.svg", ConstUi.SMALL_ICON_SIZE);
     imageLabel = loadAsResource(display, "ui/images/label.svg", ConstUi.SMALL_ICON_SIZE);
     imageFunction = loadAsResource(display, "ui/images/function.svg", ConstUi.SMALL_ICON_SIZE);
     imageKeyboard = loadAsResource(display, "ui/images/keyboard.svg", ConstUi.SMALL_ICON_SIZE);
-
+    imageMarketplace =
+        loadAsResource(display, "ui/images/marketplace.svg", ConstUi.SMALL_ICON_SIZE);
     imageNavigateBack =
         loadAsResource(display, "ui/images/navigate-back.svg", ConstUi.SMALL_ICON_SIZE);
     imageNavigateForward =
@@ -782,6 +794,7 @@ public class GuiResource {
     imageRemoveSingle =
         loadAsResource(display, "ui/images/remove_single.svg", ConstUi.SMALL_ICON_SIZE);
     imageRename = loadAsResource(display, "ui/images/rename.svg", ConstUi.SMALL_ICON_SIZE);
+    imageRepository = loadAsResource(display, "ui/images/repository.svg", ConstUi.SMALL_ICON_SIZE);
     imageResetOption =
         loadAsResource(display, "ui/images/reset_option.svg", ConstUi.SMALL_ICON_SIZE);
     imageRotateLeft = loadAsResource(display, "ui/images/rotate-left.svg", ConstUi.SMALL_ICON_SIZE);

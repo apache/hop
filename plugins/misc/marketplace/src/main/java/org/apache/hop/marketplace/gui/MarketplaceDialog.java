@@ -112,7 +112,7 @@ public class MarketplaceDialog extends Dialog {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
     PropsUi.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setImage(GuiResource.getInstance().getImageMarketplace());
     shell.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Shell.Title"));
 
     FormLayout formLayout = new FormLayout();
@@ -312,7 +312,7 @@ public class MarketplaceDialog extends Dialog {
   private void createEnvironmentTab(CTabFolder folder) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
     tab.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Tab.Environment"));
-    tab.setImage(GuiResource.getInstance().getImageFile());
+    tab.setImage(GuiResource.getInstance().getImageClientEnvironment());
     Composite comp = new Composite(folder, SWT.NONE);
     PropsUi.setLook(comp);
     FormLayout layout = new FormLayout();
@@ -353,7 +353,7 @@ public class MarketplaceDialog extends Dialog {
   private void createRepositoriesTab(CTabFolder folder) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
     tab.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Tab.Repositories"));
-    tab.setImage(GuiResource.getInstance().getImageServer());
+    tab.setImage(GuiResource.getInstance().getImageRepository());
     Composite comp = new Composite(folder, SWT.NONE);
     PropsUi.setLook(comp);
     FormLayout layout = new FormLayout();
