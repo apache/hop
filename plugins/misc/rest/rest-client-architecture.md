@@ -128,6 +128,23 @@ request — `CLIENT` policy performs no check at all when the verifier is null, 
 `DefaultHostnameVerifier` is always installed explicitly when the user has not asked for a
 permissive one.
 
+## Preemptive Basic authentication (issue #4196)
+
+Basic credentials either go out on the first request, or wait for a 401 challenge and answer
+that. `RestAuthenticator` decides: preemptive writes the `Authorization` header itself,
+challenge-response leaves it to the credentials provider on the client.
+
+Both sides now expose the choice, and both store it as `non_preemptive_basic_auth` — inverted,
+for the reason in the notes below.
+
+The transform's old `preemptive` key was **removed rather than read**. It was serialized and had
+a checkbox, but nothing ever consumed it, so every pipeline ever saved carries
+`<preemptive>N</preemptive>`: the default of a control that did nothing, not a decision anyone
+made. Honouring that value on upgrade would have switched every existing pipeline to
+challenge-response and broken every server that answers an unauthenticated request with anything
+other than a 401 — silently, at runtime. Dropping the key instead means an old file loses a value
+that never meant anything and keeps the behaviour it has always had.
+
 ## Precedence
 
 When a REST connection is selected it supplies **everything** about the client. The
@@ -144,9 +161,10 @@ connection later — they are simply not read, and `init()` logs which ones it i
 
 ## Backwards compatibility
 
-* No `@HopMetadataProperty` key in `RestMeta` or `RestConnection` is renamed, removed or
-  given new semantics. That includes `preemptive`, which is serialized but has never
-  been read by anything.
+* One `@HopMetadataProperty` key has been removed: `RestMeta.preemptive`, in phase 7. Nothing
+  ever read it, so no pipeline loses behaviour — see *Preemptive Basic authentication* above.
+  Deserialization ignores an element with no matching property, so files still carrying it load
+  without complaint. No other key is renamed, removed or given new semantics.
 * New connection properties are additive with empty defaults, so old XML loads unchanged.
 * `RestConnection.getInvocationBuilder` (all three overloads) is **gone**, along with
   `buildInvocationBuilder`, `getResponseFromUrl` and `disconnect`. They exposed JAX-RS types
@@ -165,6 +183,7 @@ connection later — they are simply not read, and `init()` logs which ones it i
 | 4 | proxy, timeouts and preemptive on the connection; route planner instead of `PROXY_URI` | **done** |
 | 5 | delete `RestData.config` / `sslContext`; disable superseded dialog fields | **done** |
 | 6 | drop Jersey entirely; HttpClient 5 directly on both paths | **done** |
+| 7 | wire preemptive Basic on the transform too; drop the dead `preemptive` key (#4196) | **done** |
 
 `RestData` no longer carries client configuration at all: `config`, `sslContext` and
 `basicAuthentication` are gone. What it holds now is per-row request state and the client
@@ -211,6 +230,16 @@ itself.
 * **An empty timeout field on the transform** now leaves the timeout unset rather than
   passing `-1` through. Both mean no timeout; they are simply the same thing now.
 
+## What phase 7 changed for users
+
+* **The transform's "use preemptive authentication" checkbox works.** It was drawn and saved but
+  never read, so Basic credentials always went out on the first request whatever it said
+  (issue #4196). Unticking it now gives genuine challenge-response: an unauthenticated request
+  first, then the credentials in answer to the 401.
+* **Existing pipelines are unaffected.** The checkbox now defaults to ticked, which is what every
+  pipeline has always done; the old stored value is discarded rather than honoured, because it
+  was never a choice anyone made.
+
 ## What phase 6 changed for users
 
 * **Underscore host names work everywhere**, on both paths — over TLS as well, which needed
@@ -236,19 +265,12 @@ itself.
 * **Basic auth was never non-preemptive.** `HttpAuthenticationFeature.basic()` and
   `basicBuilder()` both resolve to `Mode.BASIC_PREEMPTIVE`, so the two paths always behaved
   identically here.
-* **`RestMeta.preemptive` is still unwired, deliberately.** The field is serialized and has
-  a checkbox in `RestDialog`, but nothing has ever read it, so every saved pipeline carries
-  `<preemptive>N</preemptive>` — the default of a control that did nothing. Honouring it
-  literally would switch every existing pipeline from preemptive to challenge-response and
-  break any server that does not issue a 401 challenge. The capability exists and is used by
-  the connection; deciding what the transform's checkbox should mean, and what to do about
-  the pipelines that already have it unticked, is a product decision rather than a
-  refactoring one.
 * **An absent boolean does not keep its field initializer.** Metadata deserialization sets a
   boolean whose key is missing to `false`, so `private boolean x = true;` does not survive a
-  load. `RestConnection.nonPreemptiveBasicAuth` is therefore stored inverted, so that a
-  connection saved before the option existed loads as preemptive — what it always did.
-  Anything added later that must default to true needs the same treatment.
+  load. Both `RestConnection.nonPreemptiveBasicAuth` and `RestMeta.nonPreemptiveBasicAuth` are
+  therefore stored inverted, so that anything saved before the option existed loads as
+  preemptive — what it always did. Anything added later that must default to true needs the
+  same treatment.
 * **The `Content-Length` skip is still there.** A user-supplied `Content-Length` is
   dropped rather than sent, because the client computes it from the buffered entity and
   rejects a second one.

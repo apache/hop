@@ -150,8 +150,22 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "httpPassword", injectionKey = "HTTP_PASSWORD", password = true)
   private String httpPassword;
 
-  @HopMetadataProperty(key = "preemptive", injectionKey = "PREEMPTIVE")
-  private boolean preemptive;
+  /**
+   * Stored inverted, so that "not stored" means preemptive. Issue #4196: the old {@code preemptive}
+   * key was serialized and had a checkbox, but nothing ever read it — the credentials always went
+   * out on the first request. Every pipeline ever saved therefore carries {@code
+   * <preemptive>N</preemptive>}, the default of a control that did nothing, rather than a choice
+   * anyone made. Reading that key now would flip all of them to challenge-response and break every
+   * server that answers an unauthenticated request with something other than a 401.
+   *
+   * <p>So the old key is gone rather than repurposed: an existing pipeline loses a value that never
+   * meant anything and keeps the behaviour it has always had. Read this through {@link
+   * #isPreemptive()}.
+   */
+  @HopMetadataProperty(
+      key = "non_preemptive_basic_auth",
+      injectionKey = "NON_PREEMPTIVE_BASIC_AUTH")
+  private boolean nonPreemptiveBasicAuth;
 
   @HopMetadataProperty(key = "bodyField", injectionKey = "BODY_FIELD")
   private String bodyField;
@@ -278,7 +292,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.method = HTTP_METHOD_GET;
     this.dynamicMethod = false;
     this.methodFieldName = null;
-    this.preemptive = false;
+    // A new transform authenticates preemptively, which is what this transform has always done.
+    this.nonPreemptiveBasicAuth = false;
     this.trustStoreFile = null;
     this.trustStorePassword = null;
     this.applicationType = APPLICATION_TYPE_TEXT_PLAIN;
@@ -432,6 +447,19 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  /**
+   * Whether Basic credentials go out on the first request rather than waiting for a 401 challenge.
+   * This is the form the dialog and the transform work in; the metadata stores its opposite, see
+   * {@link #nonPreemptiveBasicAuth}.
+   */
+  public boolean isPreemptive() {
+    return !nonPreemptiveBasicAuth;
+  }
+
+  public void setPreemptive(boolean preemptive) {
+    this.nonPreemptiveBasicAuth = !preemptive;
   }
 
   public static boolean isActiveBody(String method) {

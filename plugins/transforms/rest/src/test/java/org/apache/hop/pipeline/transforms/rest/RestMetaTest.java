@@ -88,7 +88,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
             "proxyPort",
             "httpLogin",
             "httpPassword",
-            "preemptive",
+            "nonPreemptiveBasicAuth",
             "bodyField",
             "method",
             "dynamicMethod",
@@ -112,7 +112,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     getterMap.put("proxyPort", "getProxyPort");
     getterMap.put("httpLogin", "getHttpLogin");
     getterMap.put("httpPassword", "getHttpPassword");
-    getterMap.put("preemptive", "isPreemptive");
+    getterMap.put("nonPreemptiveBasicAuth", "isNonPreemptiveBasicAuth");
     getterMap.put("bodyField", "getBodyField");
     getterMap.put("method", "getMethod");
     getterMap.put("dynamicMethod", "isDynamicMethod");
@@ -136,7 +136,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     setterMap.put("proxyPort", "setProxyPort");
     setterMap.put("httpLogin", "setHttpLogin");
     setterMap.put("httpPassword", "setHttpPassword");
-    setterMap.put("preemptive", "setPreemptive");
+    setterMap.put("nonPreemptiveBasicAuth", "setNonPreemptiveBasicAuth");
     setterMap.put("bodyField", "setBodyField");
     setterMap.put("method", "setMethod");
     setterMap.put("dynamicMethod", "setDynamicMethod");
@@ -395,7 +395,9 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     assertEquals(RestMeta.HTTP_METHOD_GET, meta.getMethod());
     assertFalse(meta.isDynamicMethod());
     assertNull(meta.getMethodFieldName());
-    assertFalse(meta.isPreemptive());
+    // Issue #4196: preemptive is what this transform has always done, so it is the default.
+    assertTrue(meta.isPreemptive());
+    assertFalse(meta.isNonPreemptiveBasicAuth());
     assertNull(meta.getTrustStoreFile());
     assertNull(meta.getTrustStorePassword());
     assertEquals(RestMeta.APPLICATION_TYPE_TEXT_PLAIN, meta.getApplicationType());

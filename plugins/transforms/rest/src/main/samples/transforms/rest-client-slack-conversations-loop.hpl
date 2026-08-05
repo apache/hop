@@ -130,7 +130,6 @@ Split path $.channels[*] emits one row per channel. maxPagesLoops=10 is a safegu
     <url>/api/conversations.list</url>
     <urlInField>N</urlInField>
     <httpPassword>Encrypted </httpPassword>
-    <preemptive>N</preemptive>
     <method>POST</method>
     <dynamicMethod>N</dynamicMethod>
     <trustStorePassword>Encrypted </trustStorePassword>

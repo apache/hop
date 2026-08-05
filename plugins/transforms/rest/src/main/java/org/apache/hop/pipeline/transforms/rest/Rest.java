@@ -1554,10 +1554,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       settings.setAuthType(RestAuthType.BASIC);
       settings.setBasicUsername(data.realHttpLogin);
       settings.setBasicPassword(data.realHttpPassword);
-      // RestMeta.preemptive is serialized and has a checkbox in the dialog, but has never been
-      // read: the credentials have always gone out on the first request. Honouring the field would
-      // switch every existing pipeline to challenge-response, so it stays unwired for now.
-      settings.setBasicPreemptive(true);
+      settings.setBasicPreemptive(meta.isPreemptive());
       // Only a static URL gives an origin to bind the credentials to. With the URL coming from an
       // input field and no base URL, there is nothing to check against, and the credentials go to
       // whatever host the row names — which is what this transform has always done.

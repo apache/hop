@@ -140,7 +140,6 @@ limitations under the License.
     <paginationEnabled>Y</paginationEnabled>
     <parameters>
 </parameters>
-    <preemptive>N</preemptive>
     <proxyHost/>
     <proxyPort/>
     <readTimeout/>

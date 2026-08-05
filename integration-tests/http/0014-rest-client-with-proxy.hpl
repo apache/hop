@@ -129,7 +129,6 @@ limitations under the License.
     <httpPassword>Encrypted </httpPassword>
     <proxyHost>${PROXY_HOST}</proxyHost>
     <proxyPort>${PROXY_PORT}</proxyPort>
-    <preemptive>N</preemptive>
     <trustStoreFile/>
     <trustStorePassword>Encrypted </trustStorePassword>
     <ignoreSsl>N</ignoreSsl>

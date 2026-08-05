@@ -88,7 +88,6 @@ limitations under the License.
     <method>DELETE</method>
     <parameters>
 </parameters>
-    <preemptive>N</preemptive>
     <result>
 </result>
     <trustStorePassword>Encrypted </trustStorePassword>
@@ -124,7 +123,6 @@ limitations under the License.
     <method>GET</method>
     <parameters>
 </parameters>
-    <preemptive>N</preemptive>
     <result>
       <code>getCode</code>
       <name>getResponse</name>
@@ -215,7 +213,6 @@ limitations under the License.
     <method>PUT</method>
     <parameters>
 </parameters>
-    <preemptive>N</preemptive>
     <result>
       <code>code</code>
       <name>response</name>

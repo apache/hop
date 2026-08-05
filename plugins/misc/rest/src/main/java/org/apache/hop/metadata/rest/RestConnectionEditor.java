@@ -1298,6 +1298,10 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           addBasicAuthFields();
           wUsername.setText(Const.NVL(metadata.getUsername(), ""));
           wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+          // Loaded here as well as when the pane is built: the pane only reads the metadata
+          // because addBasicAuthFields() happens to rebuild it from scratch every time, which is
+          // not something the rest of this method relies on.
+          wPreemptiveBasicAuth.setSelection(metadata.isPreemptiveBasicAuth());
         }
         case BEARER -> {
           addBearerFields();
