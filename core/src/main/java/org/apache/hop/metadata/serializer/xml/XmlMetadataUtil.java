@@ -35,6 +35,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.EmptyStringEncoder;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -47,9 +48,11 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IIntCodeConverter;
+import org.apache.hop.metadata.api.IMissingPlugin;
 import org.apache.hop.metadata.api.IStringEncoder;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class XmlMetadataUtil {
 
@@ -80,22 +83,129 @@ public class XmlMetadataUtil {
       HopMetadataObject metadataObject, Node node, String pluginId) {
     String factoryName = metadataObject.objectFactory().getName();
     String name = node != null ? XmlHandler.getTagValue(node, "name") : null;
+    Object placeholder = null;
     try {
       if (FQN_TRANSFORM_FACTORY.equals(factoryName)) {
         Class<?> c = Class.forName("org.apache.hop.pipeline.transforms.missing.Missing");
-        return c.getDeclaredConstructor(String.class, String.class)
-            .newInstance(Const.NVL(name, ""), pluginId);
-      }
-      if (FQN_ACTION_FACTORY.equals(factoryName)) {
+        placeholder =
+            c.getDeclaredConstructor(String.class, String.class)
+                .newInstance(Const.NVL(name, ""), pluginId);
+      } else if (FQN_ACTION_FACTORY.equals(factoryName)) {
         Class<?> c = Class.forName("org.apache.hop.workflow.actions.missing.MissingAction");
         String actionName = (name == null || name.isEmpty()) ? null : name;
-        return c.getDeclaredConstructor(String.class, String.class)
-            .newInstance(actionName, pluginId);
+        placeholder =
+            c.getDeclaredConstructor(String.class, String.class).newInstance(actionName, pluginId);
       }
     } catch (Exception ignored) {
       return null;
     }
-    return null;
+    if (placeholder instanceof IMissingPlugin missingPlugin) {
+      preserveMissingPluginXml(missingPlugin, node);
+    }
+    return placeholder;
+  }
+
+  /**
+   * Remember the XML of the object a missing plugin placeholder stands in for. Without this the
+   * settings of the missing plugin are lost the first time the file is saved.
+   *
+   * @param missingPlugin the placeholder to store the XML in
+   * @param node the XML node of the object the placeholder replaces
+   */
+  public static void preserveMissingPluginXml(IMissingPlugin missingPlugin, Node node) {
+    if (node == null) {
+      return;
+    }
+    List<String> preservedXml = new ArrayList<>();
+    NodeList children = node.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node child = children.item(i);
+      if (child.getNodeType() != Node.ELEMENT_NODE) {
+        continue;
+      }
+      try {
+        preservedXml.add(XmlHandler.formatNode(child));
+      } catch (HopXmlException e) {
+        // Preserving is best effort: warn but keep loading the file.
+        //
+        LogChannel.GENERAL.logError(
+            "Unable to preserve the XML of missing plugin "
+                + missingPlugin.getMissingPluginId()
+                + ", the settings of element "
+                + child.getNodeName()
+                + " will be lost when this file is saved",
+            e);
+      }
+    }
+    missingPlugin.setPreservedXml(preservedXml);
+  }
+
+  /**
+   * Get the preserved XML of a missing plugin placeholder, leaving out the elements which the
+   * object containing the placeholder has serialized itself.
+   *
+   * @param missingPlugin the placeholder holding the preserved XML
+   * @param serializedXml the XML which was serialized for the containing object so far
+   * @return the XML of the missing plugin, ready to be appended to the containing object's XML
+   * @throws HopException in case the XML serialized so far can't be parsed
+   */
+  public static String getPreservedMissingPluginXml(
+      IMissingPlugin missingPlugin, String serializedXml) throws HopException {
+    List<String> preservedXml = missingPlugin.getPreservedXml();
+    if (preservedXml == null || preservedXml.isEmpty()) {
+      return "";
+    }
+    Set<String> serializedTags = getTopLevelTags(serializedXml);
+    StringBuilder xml = new StringBuilder();
+    for (String elementXml : preservedXml) {
+      String tag = getRootTag(elementXml);
+      // Whatever the containing object serialized itself takes precedence: it knows about renames,
+      // moves on the canvas and so on. Everything else belonged to the missing plugin.
+      //
+      if (tag != null && !serializedTags.contains(tag)) {
+        xml.append(elementXml).append(Const.CR);
+      }
+    }
+    return xml.toString();
+  }
+
+  /** The names of the elements at the top level of an XML fragment. */
+  private static Set<String> getTopLevelTags(String xml) throws HopException {
+    Set<String> tags = new HashSet<>();
+    if (StringUtils.isBlank(xml)) {
+      return tags;
+    }
+    Node wrapper;
+    try {
+      wrapper = XmlHandler.wrapLoadXmlString(xml);
+    } catch (HopXmlException e) {
+      throw new HopException("Unable to parse the XML serialized so far: " + xml, e);
+    }
+    NodeList children = wrapper.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node child = children.item(i);
+      if (child.getNodeType() == Node.ELEMENT_NODE) {
+        tags.add(child.getNodeName());
+      }
+    }
+    return tags;
+  }
+
+  /** The name of the root element of the given XML, without parsing it. */
+  private static String getRootTag(String xml) {
+    int start = xml.indexOf('<');
+    if (start < 0) {
+      return null;
+    }
+    int end = start + 1;
+    while (end < xml.length() && !Character.isWhitespace(xml.charAt(end))) {
+      char c = xml.charAt(end);
+      if (c == '>' || c == '/') {
+        break;
+      }
+      end++;
+    }
+    return end > start + 1 ? xml.substring(start + 1, end) : null;
   }
 
   /**
@@ -181,6 +291,7 @@ public class XmlMetadataUtil {
     //
     List<Field> fields =
         ReflectionUtil.findAllFields(objectClass, new MetadataPropertyKeyFunction(), false);
+    IMissingPlugin missingPlugin = null;
     for (Field field : fields) {
       // Is this field appropriate to be considered for serialization?
       // We check it with the method below.
@@ -202,7 +313,15 @@ public class XmlMetadataUtil {
 
         // Add the field value to the XML
         //
-        serializeFieldValueToXml(parentObject, field, isBoolean, property, xml, tag, groupKey);
+        Object value =
+            serializeFieldValueToXml(parentObject, field, isBoolean, property, xml, tag, groupKey);
+
+        // A placeholder for a plugin which isn't installed carries the XML of the object it
+        // replaces. We write it back out below, once we know what was serialized here.
+        //
+        if (value instanceof IMissingPlugin plugin) {
+          missingPlugin = plugin;
+        }
       }
     }
 
@@ -225,6 +344,14 @@ public class XmlMetadataUtil {
       xml.append(
           serializeObjectToXml(
               object, methodProperty, methodProperty.groupKey(), methodProperty.key()));
+    }
+
+    // Write back the settings of a plugin which isn't installed. Everything this object serialized
+    // itself wins, the rest of the original XML is written out untouched.
+    //
+    if (missingPlugin != null) {
+      int bodyStart = wrapper == null ? 0 : XmlHandler.openTag(wrapper.tag()).length();
+      xml.append(getPreservedMissingPluginXml(missingPlugin, xml.substring(bodyStart)));
     }
 
     if (wrapper != null) {
@@ -259,7 +386,12 @@ public class XmlMetadataUtil {
     return result;
   }
 
-  private static void serializeFieldValueToXml(
+  /**
+   * Serialize the value of the given field to XML.
+   *
+   * @return the value of the field which was serialized (or null)
+   */
+  private static Object serializeFieldValueToXml(
       Object parentObject,
       Field field,
       boolean isBoolean,
@@ -285,6 +417,7 @@ public class XmlMetadataUtil {
         xml.append(serializeObjectToXml(value, property, groupKey, tag));
       }
     }
+    return value;
   }
 
   private static Class<? extends IIntCodeConverter> getIntCodeConverter(
