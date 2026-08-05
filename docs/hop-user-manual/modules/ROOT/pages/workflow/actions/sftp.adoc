@@ -37,6 +37,9 @@ TIP: If you run into a `Algorithm Negotiation Fail` error when connecting to you
 |===
 |Option|Description
 |Action name|The name of the workflow action.
+|SFTP connection|An xref:metadata-types/sftp-connection.adoc[SFTP Connection] in the project metadata.
+When one is selected, the server, credentials, compression and proxy settings below come from that connection and are disabled here.
+Leave it empty to configure the server in this action.
 |SFTP-server name / IP|The name of the SFTP server or the IP address
 |Port|The TCP port to use.
 This is usually 22

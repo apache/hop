@@ -25,6 +25,7 @@ services:
 
   sftp-server:
     image: atmoz/sftp:latest
+    hostname: sftp-server
     ports:
       - 2222:22
     command: foo:pass:::upload

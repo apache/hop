@@ -1,0 +1,95 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Register a named SFTP server for use in Hop VFS paths, in the SFTP Put transform and in the SFTP actions.
+
+= SFTP Connection
+
+== Description
+
+This metadata type registers a **named** SFTP server in your project.
+Hop exposes each connection under the **connection name** as a VFS scheme, so you reference files with:
+
+`+myConnectionName:///path/on/the/server+`
+
+That works in every transform, action and file dialog which accepts a file name: Text file input and output, Get file names, Copy files, and so on.
+The xref:pipeline/transforms/sftpput.adoc[SFTP Put] transform and the xref:workflow/actions/sftpput.adoc[Put a file with SFTP] and xref:workflow/actions/sftp.adoc[Get a file with SFTP] actions can point at a connection by name instead of carrying their own copy of the server settings.
+
+The server, the credentials and the session settings live in this metadata object and are applied through VFS - they are **not** part of the file paths you write.
+
+NOTE: Every field supports variables. Passwords and passphrases are stored encrypted in the metadata.
+
+TIP: Rename a connection and Hop offers to update the pipelines and workflows referring to it.
+
+== Options
+
+=== Server
+
+[options="header"]
+|===
+|Option |Description
+|Connection name| Name of this connection. It doubles as the URI scheme in paths (`+name:///...+`), so it can only hold the characters a URI scheme allows: start with a letter, followed by letters, digits, `+`, `-` or `.`
+|Description| Optional longer description
+|Server name or IP address| The host running the SSH server
+|Server port| The TCP port of the SSH server, usually 22
+|User name| The user to log in as
+|Password| The password to log in with. Leave it empty when you authenticate with a private key only
+|===
+
+=== Authentication
+
+[options="header"]
+|===
+|Option |Description
+|Use a private key| Authenticate with a private key instead of (or on top of) a password
+|Private key file| The private key, in PEM format. The file is read through VFS, so it doesn't have to sit on the local file system. For PuTTY based keys, use PuTTYgen to convert the file into OpenSSH format
+|Key passphrase| The passphrase of the private key, when it has one
+|Strict host key checking| `no` (the default), `yes` or `ask`. With `yes` the host key of the server has to be in the known hosts file below
+|Known hosts file| The `known_hosts` file to check the host key against
+|Load the OpenSSH configuration| Read the OpenSSH configuration of the user running Hop (`~/.ssh/config`)
+|Preferred authentications| The authentication methods to offer, in order. For example `publickey,keyboard-interactive,password`
+|Key exchange algorithms| The key exchange algorithms to offer, for example `diffie-hellman-group14-sha256`. Leave it empty for the defaults of the SSH library
+|===
+
+=== Advanced
+
+[options="header"]
+|===
+|Option |Description
+|Compression| `none` (the default) or `zlib`
+|Paths are relative to the home directory| When enabled, a path is resolved against the home directory of the user. When disabled (the default), a path is an absolute path on the server, which is what the remote folder fields of the SFTP transform and actions expect
+|File name encoding| The encoding of the file names on the server. Empty means UTF-8
+|Don't open an exec channel| Skip the exec channel Hop opens to read POSIX permissions. Servers which only allow the sftp subsystem need this
+|Connection timeout (ms)| How long to wait for the connection to be established. Empty means wait forever
+|Session timeout (ms)| How long to wait on an idle session. Empty means wait forever
+|Proxy type| `HTTP`, `SOCKS5` or `STREAM`, empty for a direct connection
+|Proxy command| The command a `STREAM` proxy runs, for example `nc %h %p`
+|Proxy host| The host name or IP address of the proxy server
+|Proxy port| The port of the proxy server
+|Proxy user name| The user to log into the proxy server as
+|Proxy password| The password of the proxy user
+|===
+
+Use **Test connection** to log in with the settings on screen, without saving first.
+
+== Tips
+
+* Give timeouts a value in production. Without them a stalled connection makes a pipeline wait forever.
+* To check a connection, open any file dialog and browse `+YourConnectionName:///+`.
+* Pick a **Connection name** which doesn't clash with the https://commons.apache.org/proper/commons-vfs/filesystems.html[built-in VFS schemes] (`file`, `ftp`, `sftp`, `http`, ...) or with other registered connections (`s3`, `azure`, `gs`, ...). Hop logs an error and skips a connection whose name is already taken.
+* The plain `+sftp://user:password@server/path+` syntax keeps working. A named connection keeps the credentials out of your pipelines and lets you point at another server per environment.

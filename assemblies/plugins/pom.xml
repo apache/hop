@@ -711,6 +711,14 @@
         <!-- marketplace optional: hop-tech-parquet -->
         <!-- marketplace optional: hop-tech-redis -->
         <!-- marketplace optional: hop-tech-salesforce -->
+        <!-- Also listed in the marketplace catalog (optional-plugins.yaml) so slim
+             distributions can install it, but it ships with the client. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-sftp</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-vault</artifactId>

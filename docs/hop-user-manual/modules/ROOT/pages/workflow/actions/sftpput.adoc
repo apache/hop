@@ -38,6 +38,9 @@ TIP: If you run into a `Algorithm Negotiation Fail` error when connecting to you
 |Workflow action name|The name of the workflow action.
 *Note*: This name has to be unique in a single workflow.
 A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|SFTP connection|An xref:metadata-types/sftp-connection.adoc[SFTP Connection] in the project metadata.
+When one is selected, the server, credentials, compression and proxy settings below come from that connection and are disabled here.
+Leave it empty to configure the server in this action.
 |SFTP-server name (IP)|The name of the SFTP server or the IP address.
 |SFTP port|The TCP port to use.
 This is usually 22.

@@ -64,6 +64,8 @@ integration-tests/mdi/files/jsonoutput-mdi-test_0.json
 integration-tests/mdi/output/
 integration-tests/http/files/http-action-output
 integration-tests/http/output/
+# SFTP tests download and move files into output/ while they run
+integration-tests/sftp/output/
 integration-tests/spreadsheet/files/sample-file-append.xlsx
 integration-tests/spreadsheet/files/sample-file-append-test.xlsx
 integration-tests/spark-native/output
