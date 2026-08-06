@@ -1020,12 +1020,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // go away.
       //
       if (startHopTransform != null) {
-        canvas.setData("mode", "null");
-        canvas.setData(START_HOP_NODE, null);
-        startHopTransform = null;
-        endHopLocation = null;
-        candidate = null;
-        lastClick = null;
+        cancelHopCandidate();
         avoidContextDialog = true;
         redraw();
         return;
@@ -1169,6 +1164,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         updateGui();
         return;
       }
+    }
+
+    // A hop candidate released anywhere but on a transform is abandoned. Cancel it here: nothing
+    // below completes it, so without this the canvas keeps drawing a hop nobody is drawing any
+    // more and the next click still works on a half-finished gesture.
+    //
+    if (startHopTransform != null && pipelineMeta.getTransform(real.x, real.y, iconSize) == null) {
+      cancelHopCandidate();
+      lastButton = 0;
+      redraw();
+      return;
     }
 
     // Special cases...
@@ -1399,6 +1405,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (avoidContextDialog) {
       avoidContextDialog = false;
       selectionRegion = null;
+      lastButton = 0;
       return;
     }
 
@@ -2600,8 +2607,27 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return canvas != null && !canvas.isDisposed() && canvas.setFocus();
   }
 
+  /**
+   * Drop the hop that was being drawn. Every field the gesture touched goes back to its initial
+   * value, including the transform the mouse went down on: a stale one makes the next mouse-up look
+   * like a click on that transform.
+   */
+  private void cancelHopCandidate() {
+    canvas.setData("mode", "null");
+    canvas.setData(START_HOP_NODE, null);
+    startHopTransform = null;
+    endHopTransform = null;
+    endHopLocation = null;
+    candidate = null;
+    candidateHopType = null;
+    startErrorHopTransform = false;
+    forbiddenTransform = null;
+    currentTransform = null;
+  }
+
   public void clearSettings() {
     selectedTransform = null;
+    currentTransform = null;
     forbiddenTransform = null;
     selectedNote = null;
     selectedTransforms = null;
