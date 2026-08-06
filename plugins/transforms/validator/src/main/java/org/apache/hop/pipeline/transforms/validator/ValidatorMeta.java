@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -91,6 +92,16 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
       injectionKeyDescription = "Validator.Injection.SUPPRESS_LOG_FAILED_DATA")
   private boolean suppressingLogFailedData;
 
+  /**
+   * When true, no log line is written for every rejected row. Error rows are still sent to the
+   * error handling hop. Defaults to false so existing pipelines keep logging every rejected row.
+   */
+  @HopMetadataProperty(
+      key = "suppress_error_log",
+      injectionKey = "SUPPRESS_ERROR_LOG",
+      injectionKeyDescription = "Validator.Injection.SUPPRESS_ERROR_LOG")
+  private boolean suppressingErrorLog;
+
   /** The standard new validation stream */
   @Getter @Setter
   private static IStream newValidation =
@@ -112,6 +123,7 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
     this.concatenatingErrors = m.concatenatingErrors;
     this.concatenationSeparator = m.concatenationSeparator;
     this.suppressingLogFailedData = m.suppressingLogFailedData;
+    this.suppressingErrorLog = m.suppressingErrorLog;
   }
 
   @Override
@@ -163,6 +175,44 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
               BaseMessages.getString(PKG, "ValidatorMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);
+    }
+
+    checkInfoTransformsReachEveryCopy(remarks, pipelineMeta, transformMeta, variables);
+  }
+
+  /**
+   * Every copy of this transform builds its own list of allowed values, so the transforms
+   * delivering those values have to copy their rows to all the copies instead of distributing them.
+   * Report that at design time as well, the transform refuses to start otherwise.
+   */
+  private void checkInfoTransformsReachEveryCopy(
+      List remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IVariables variables) {
+    if (pipelineMeta == null
+        || transformMeta.isPartitioned()
+        || transformMeta.getCopies(variables) <= 1) {
+      return;
+    }
+
+    for (Validation validation : validations) {
+      if (!validation.isSourcingValues()
+          || StringUtils.isEmpty(validation.getSourcingTransformName())) {
+        continue;
+      }
+      TransformMeta sourceTransform =
+          pipelineMeta.findTransform(validation.getSourcingTransformName());
+      if (sourceTransform != null && sourceTransform.isDistributes()) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG,
+                    "Validator.Exception.InfoTransformIsDistributing",
+                    sourceTransform.getName(),
+                    transformMeta.getName(),
+                    Integer.toString(transformMeta.getCopies(variables)),
+                    Const.NVL(validation.getName(), validation.getFieldName())),
+                transformMeta));
+      }
     }
   }
 

@@ -60,6 +60,12 @@ Once you select a validation on the left hand side of the dialog you can specify
 |Output one row, concatenate errors with a separator
 |If this is enabled error codes and descriptions are concatenated with the specified separator string.
 
+|Do not log failed validation data
+|When enabled, the failed field and row values are left out of the validation error messages and shown as `?` instead. The error messages themselves are still logged and error rows are still sent to the error handling hop.
+
+|Do not log a line for every rejected row
+|When enabled, the transform no longer writes an error line to the log for every row it rejects. Error rows are still sent to the error handling hop. On streams where a large share of the rows is rejected, writing that log line costs considerably more than the validation itself, so enabling this option can speed up such pipelines by an order of magnitude.
+
 |Validation description
 |Optionally you can describe what you're testing for here.
 
