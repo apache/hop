@@ -534,6 +534,32 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testModifiedFilesAreUnstagedUntilTheyAreAdded() throws Exception {
+    File file = writeTrashFile("Test.txt", "Hello world");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("initial commit").call();
+
+    // A change in the working tree is not staged, only "git add" stages it
+    FileUtils.writeStringToFile(file, "Change", StandardCharsets.UTF_8);
+
+    List<UIFile> unstaged = uiGit.getUnstagedFiles();
+    assertEquals(1, unstaged.size());
+    assertEquals("Test.txt", unstaged.get(0).getName());
+    assertEquals(ChangeType.MODIFY, unstaged.get(0).getChangeType());
+    assertFalse(unstaged.get(0).isStaged());
+    assertTrue(uiGit.getStagedFiles().isEmpty());
+
+    uiGit.add("Test.txt");
+
+    List<UIFile> staged = uiGit.getStagedFiles();
+    assertEquals(1, staged.size());
+    assertEquals("Test.txt", staged.get(0).getName());
+    assertEquals(ChangeType.MODIFY, staged.get(0).getChangeType());
+    assertTrue(staged.get(0).isStaged());
+    assertTrue(uiGit.getUnstagedFiles().isEmpty());
+  }
+
+  @Test
   public void testGetUntrackedPathFiles() throws Exception {
     File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
     writeTrashFile("folder/Ignored.txt", "Ignored");

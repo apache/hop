@@ -444,6 +444,8 @@ public class UIGit extends VCS {
     }
     status.getUntracked().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
     status.getConflicting().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
+    // Changed in the working tree but not staged: "git add" is what stages these
+    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
     status.getMissing().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, false)));
     return files;
   }
@@ -457,9 +459,9 @@ public class UIGit extends VCS {
       e.printStackTrace();
       return files;
     }
+    // Only what is in the index: working tree changes are reported by getUnstagedFiles()
     status.getAdded().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, true)));
     status.getChanged().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
-    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
     status.getRemoved().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, true)));
     return files;
   }

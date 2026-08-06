@@ -930,6 +930,8 @@ public class GitGuiPlugin
   @Override
   public void beforeRefresh() {
     refreshChangedFiles();
+    // The git state of the files determines which operations are available
+    enableButtons();
   }
 
   @Override
@@ -942,23 +944,30 @@ public class GitGuiPlugin
     boolean isGit = git != null;
     boolean isSelected = isGit && getSelectedFile() != null;
 
-    // Revert restores files from HEAD and unstages new files: it needs something which isn't
-    // simply untracked. Clean deletes untracked files, so it needs the opposite.
+    // Only offer the git operations which make sense for what is selected:
     //
+    // - Add stages what isn't staged yet
+    // - Commit needs any change at all, staged or not
+    // - Revert restores files from HEAD and unstages new files, so it needs something which isn't
+    //   simply untracked
+    // - Clean deletes untracked files, so it needs the opposite of revert
+    //
+    boolean canAdd = isSelected && selectionContains(file -> !file.isStaged());
+    boolean canCommit = isSelected && selectionContains(file -> true);
     boolean canRevert = isSelected && selectionContains(file -> !isUntracked(file));
     boolean canClean = isSelected && selectionContains(GitGuiPlugin::isUntracked);
 
     GuiToolbarWidgets toolBarWidgets = ExplorerPerspective.getInstance().getToolBarWidgets();
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_GIT_INFO, isGit);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ADD, isSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ADD, canAdd);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_REVERT, canRevert);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CLEAN, canClean);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_COMMIT, isSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_COMMIT, canCommit);
 
     GuiMenuWidgets menuWidgets = ExplorerPerspective.getInstance().getMenuWidgets();
     menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_INFO, isGit);
-    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_ADD, isSelected);
-    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_COMMIT, isSelected);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_ADD, canAdd);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_COMMIT, canCommit);
     menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_REVERT, canRevert);
     menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_CLEAN, canClean);
 
