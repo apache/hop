@@ -211,6 +211,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-ContextMenu-10060-ExpandAll";
   public static final String CONTEXT_MENU_COLLAPSE_ALL =
       "ExplorerPerspective-ContextMenu-10070-CollapseAll";
+  public static final String CONTEXT_MENU_REFRESH_FOLDER =
+      "ExplorerPerspective-ContextMenu-10080-RefreshFolder";
   public static final String CONTEXT_MENU_OPEN = "ExplorerPerspective-ContextMenu-10100-Open";
   public static final String CONTEXT_MENU_OPEN_AS_TEXT =
       "ExplorerPerspective-ContextMenu-10101-OpenAsText";
@@ -768,6 +770,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             createFolderItem.setEnabled(selection.length == 1);
           }
 
+          MenuItem refreshFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_REFRESH_FOLDER);
+          if (refreshFolderItem != null) {
+            // Scoped refresh needs a single selection so lastSelectedFolderPath is meaningful.
+            refreshFolderItem.setEnabled(selection.length == 1 && tif != null);
+          }
+
           // Finding references is only meaningful for a single pipeline or workflow file.
           //
           MenuItem findReferencesItem = menuWidgets.findMenuItem(CONTEXT_MENU_FIND_REFERENCES);
@@ -1064,7 +1072,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** Depth passed to {@link #refreshFolder} when loading children of {@code tif}. */
   private int childDepthForFolder(TreeItemFolder tif) {
-    return tif.path.equals(rootFolder) ? 0 : tif.depth + 1;
+    return ExplorerPathUtils.pathsEqual(tif.path, rootFolder) ? 0 : tif.depth + 1;
   }
 
   /**
@@ -2623,7 +2631,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   private boolean selectInTree(TreeItem item, String filename) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
-    if (tif != null && tif.path.equals(filename)) {
+    if (tif != null && ExplorerPathUtils.pathsEqual(tif.path, filename)) {
       tree.setSelection(tif.treeItem);
       tree.showItem(tif.treeItem);
       return true;
@@ -3171,6 +3179,31 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     tree.setRedraw(true);
   }
 
+  /**
+   * Context menu: refresh only the selected folder (or the parent of a selected file). Cheaper than
+   * toolbar F5 full rebuild; use when you know which folder changed.
+   */
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_REFRESH_FOLDER,
+      label = "i18n::ExplorerPerspective.Menu.RefreshFolder",
+      image = "ui/images/refresh.svg",
+      separator = true)
+  public void refreshFolderFromMenu() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length != 1) {
+      return;
+    }
+    TreeItemFolder tif = (TreeItemFolder) selection[0].getData();
+    if (tif == null) {
+      return;
+    }
+    // Ensure lastSelectedFolderPath matches the context-clicked item
+    recordSelectedFolderPath(tif, selection[0]);
+    refreshSelectedFolder();
+  }
+
   public void expandCollapse(TreeItem item, boolean expand) {
     if (item == null || item.isDisposed()) {
       return;
@@ -3383,22 +3416,29 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
   }
 
+  /**
+   * Hard-refresh the explorer tree (toolbar / F5).
+   *
+   * <p>Always rebuilds from disk so files and folders created outside the current selection (for
+   * example by a running pipeline) become visible. Clears the filter index and re-lists folders via
+   * VFS with an explicit {@link FileObject#refresh()} so cached children do not hide new entries.
+   * Expand/collapse state is restored from {@link TreeMemory}.
+   *
+   * <p>For a cheaper single-folder update use {@link #refreshSelectedFolder()} (context menu).
+   */
   public void refresh() {
     determineRootFolderName(hopGui);
-    // Structural refresh invalidates the filter index
+    // Structural refresh invalidates the filter index and discards lazy tree snapshots
     treeModel.clear();
     if (!Utils.isEmpty(filterText)) {
-      // F5 / structural refresh while filtering: update git status, then re-index once
+      // F5 while filtering: update git status, then re-index the full project once
       for (IExplorerRefreshListener listener : refreshListeners) {
         listener.beforeRefresh();
       }
       applyFilterFromModel();
       return;
     }
-    if (!Utils.isEmpty(lastSelectedFolderPath) && isUnderCurrentRoot(lastSelectedFolderPath)) {
-      refreshSelectedFolder();
-      return;
-    }
+    // Always full rebuild — scoped refresh left only for context menu / internal ops
     refreshEntireTree();
   }
 
@@ -3523,14 +3563,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   private void loadModelChildren(ExplorerTreeModel.Node parent, String metadataFolderName)
       throws Exception {
-    FileObject fileObject = HopVfs.getFileObject(parent.getPath());
     FileObject[] children;
     try {
-      children = fileObject.getChildren();
+      children = listChildrenFresh(parent.getPath());
     } catch (Exception e) {
       return;
     }
-    if (children == null || children.length == 0) {
+    if (children.length == 0) {
       return;
     }
 
@@ -3635,13 +3674,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (Utils.isEmpty(path) || Utils.isEmpty(rootFolder)) {
       return false;
     }
-    if (path.equals(rootFolder)) {
+    if (ExplorerPathUtils.pathsEqual(path, rootFolder)) {
       return true;
     }
     return isDescendant(rootFolder, path);
   }
 
-  /** Refresh only the last selected folder, keeping the rest of the tree intact. */
+  /**
+   * Refresh only the last selected folder, keeping the rest of the tree intact. Used by the context
+   * menu and by internal operations (delete parent fix-up); toolbar F5 uses {@link #refresh()}.
+   */
   private void refreshSelectedFolder() {
     String folderPath = lastSelectedFolderPath;
     if (Utils.isEmpty(folderPath)
@@ -3759,7 +3801,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    */
   private void updateLastSelectedFolderAfterDelete(TreeItem treeItem) {
     TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
-    if (tif == null || !tif.path.equals(lastSelectedFolderPath)) {
+    if (tif == null || !ExplorerPathUtils.pathsEqual(tif.path, lastSelectedFolderPath)) {
       return;
     }
 
@@ -3804,7 +3846,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   private String getParentFolderPath(String path) {
-    if (Utils.isEmpty(path) || path.equals(rootFolder)) {
+    if (Utils.isEmpty(path) || ExplorerPathUtils.pathsEqual(path, rootFolder)) {
       return null;
     }
 
@@ -3978,6 +4020,24 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return emptyFileType;
   }
 
+  /**
+   * Resolve a folder and force a VFS re-list so external creates (pipelines, other processes) are
+   * visible. Commons VFS caches children on {@link FileObject} until {@link FileObject#refresh()}.
+   */
+  private FileObject[] listChildrenFresh(String path) throws Exception {
+    FileObject folder = HopVfs.getFileObject(path);
+    try {
+      folder.refresh();
+    } catch (Exception e) {
+      // Still attempt to list; some providers throw on refresh for missing/imaginary files
+      if (hopGui != null && hopGui.getLog() != null) {
+        hopGui.getLog().logDebug("VFS refresh failed for '" + path + "': " + e.getMessage());
+      }
+    }
+    FileObject[] children = folder.getChildren();
+    return children != null ? children : new FileObject[0];
+  }
+
   private void refreshFolder(TreeItem item, String path, int depth) {
 
     try {
@@ -3987,9 +4047,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         child.dispose();
       }
 
-      FileObject fileObject = HopVfs.getFileObject(path);
-      FileObject[] children = fileObject.getChildren();
-      if (children == null || children.length == 0) {
+      FileObject[] children = listChildrenFresh(path);
+      if (children.length == 0) {
         return;
       }
 
@@ -4361,7 +4420,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   private TreeItem locateTreeItem(TreeItem item, String path) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
-    if (tif != null && tif.path.equals(path)) {
+    if (tif != null && ExplorerPathUtils.pathsEqual(tif.path, path)) {
       return item;
     }
 
@@ -4381,7 +4440,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   private TreeItem findTreeItem(TreeItem item, String filename) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
-    if (tif != null && tif.path.equals(filename)) {
+    if (tif != null && ExplorerPathUtils.pathsEqual(tif.path, filename)) {
       return tif.treeItem;
     }
     for (TreeItem child : item.getItems()) {

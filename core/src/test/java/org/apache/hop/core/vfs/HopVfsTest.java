@@ -17,11 +17,14 @@
 
 package org.apache.hop.core.vfs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
@@ -95,6 +98,40 @@ class HopVfsTest {
     assertNotNull(fileObject);
     try (OutputStream outputStream = fileObject.getContent().getOutputStream()) {
       outputStream.write("Test-content".getBytes());
+    }
+  }
+
+  /**
+   * Commons VFS caches directory children until {@link FileObject#refresh()}. Explorer hard-refresh
+   * relies on an explicit refresh before re-listing so externally created files appear (issue
+   * #7797).
+   */
+  @Test
+  void testRefreshClearsChildrenCacheForExternalCreates() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-children-");
+    try {
+      FileObject folder = HopVfs.getFileObject(dir.toAbsolutePath().toString());
+      assertEquals(0, folder.getChildren().length);
+
+      // Create a file outside this FileObject graph (same as a pipeline writing to disk)
+      Files.writeString(dir.resolve("external.txt"), "created outside VFS");
+
+      // Cached children may still look empty until refresh
+      folder.refresh();
+      FileObject[] children = folder.getChildren();
+      assertEquals(1, children.length);
+      assertEquals("external.txt", children[0].getName().getBaseName());
+    } finally {
+      Files.walk(dir)
+          .sorted((a, b) -> b.compareTo(a))
+          .forEach(
+              p -> {
+                try {
+                  Files.deleteIfExists(p);
+                } catch (Exception ignored) {
+                  // best-effort cleanup
+                }
+              });
     }
   }
 }
