@@ -51,6 +51,7 @@ class ParquetOutputMetaTest {
     assertFalse(meta.isFilenameIncludingDate());
     assertFalse(meta.isFilenameIncludingTime());
     assertFalse(meta.isFilenameIncludingDateTime());
+    assertTrue(meta.isFilenameCompressionBeforeExtension());
     assertTrue(meta.getFields().isEmpty());
   }
 
@@ -60,6 +61,7 @@ class ParquetOutputMetaTest {
     original.setFilenameBase("/tmp/output");
     original.setFilenameExtension("pq");
     original.setFilenameIncludingDate(true);
+    original.setFilenameCompressionBeforeExtension(true);
     original.setCompressionCodec(CompressionCodecName.SNAPPY);
     original.setVersion(ParquetVersion.Version1);
     original.setFields(List.of(new ParquetField("id", "id_out")));
@@ -68,6 +70,7 @@ class ParquetOutputMetaTest {
     assertEquals("/tmp/output", copy.getFilenameBase());
     assertEquals("pq", copy.getFilenameExtension());
     assertTrue(copy.isFilenameIncludingDate());
+    assertTrue(copy.isFilenameCompressionBeforeExtension());
     assertEquals(CompressionCodecName.SNAPPY, copy.getCompressionCodec());
     assertEquals(ParquetVersion.Version1, copy.getVersion());
     assertEquals(1, copy.getFields().size());
@@ -87,6 +90,7 @@ class ParquetOutputMetaTest {
     meta.setFilenameIncludingSplitNr(false);
     meta.setFileSplitSize("500");
     meta.setFilenameCreatingParentFolders(false);
+    meta.setFilenameCompressionBeforeExtension(true);
     meta.setCompressionCodec(CompressionCodecName.GZIP);
     meta.setVersion(ParquetVersion.Version1);
     meta.setRowGroupSize("1024");
@@ -122,6 +126,9 @@ class ParquetOutputMetaTest {
     assertEquals(expected.getFileSplitSize(), actual.getFileSplitSize());
     assertEquals(
         expected.isFilenameCreatingParentFolders(), actual.isFilenameCreatingParentFolders());
+    assertEquals(
+        expected.isFilenameCompressionBeforeExtension(),
+        actual.isFilenameCompressionBeforeExtension());
     assertEquals(expected.getCompressionCodec(), actual.getCompressionCodec());
     assertEquals(expected.getVersion(), actual.getVersion());
     assertEquals(expected.getRowGroupSize(), actual.getRowGroupSize());

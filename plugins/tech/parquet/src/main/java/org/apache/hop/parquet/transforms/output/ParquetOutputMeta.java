@@ -65,6 +65,15 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
   @HopMetadataProperty(key = "filename_create_parent_folders")
   private boolean filenameCreatingParentFolders;
 
+  /**
+   * When true, the compression codec extension is placed before the file extension (e.g.
+   * file.snappy.parquet). When false, it is appended after the file extension (e.g.
+   * file.parquet.snappy). New transforms default to true; pipelines loaded without this property
+   * keep false for backward compatibility.
+   */
+  @HopMetadataProperty(key = "filename_compression_before_extension")
+  private boolean filenameCompressionBeforeExtension;
+
   @HopMetadataProperty(key = "compression_codec")
   private CompressionCodecName compressionCodec;
 
@@ -94,6 +103,7 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     filenameIncludingCopyNr = true;
     filenameIncludingSplitNr = true;
     filenameCreatingParentFolders = true;
+    filenameCompressionBeforeExtension = true;
     fileSplitSize = "1000000";
   }
 
@@ -108,6 +118,7 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     this.filenameIncludingSplitNr = m.filenameIncludingSplitNr;
     this.fileSplitSize = m.fileSplitSize;
     this.filenameCreatingParentFolders = m.filenameCreatingParentFolders;
+    this.filenameCompressionBeforeExtension = m.filenameCompressionBeforeExtension;
     this.compressionCodec = m.compressionCodec;
     this.version = m.version;
     this.rowGroupSize = m.rowGroupSize;
@@ -274,6 +285,22 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
    */
   public void setFilenameCreatingParentFolders(boolean filenameCreatingParentFolders) {
     this.filenameCreatingParentFolders = filenameCreatingParentFolders;
+  }
+
+  /**
+   * Gets filenameCompressionBeforeExtension
+   *
+   * @return value of filenameCompressionBeforeExtension
+   */
+  public boolean isFilenameCompressionBeforeExtension() {
+    return filenameCompressionBeforeExtension;
+  }
+
+  /**
+   * @param filenameCompressionBeforeExtension The filenameCompressionBeforeExtension to set
+   */
+  public void setFilenameCompressionBeforeExtension(boolean filenameCompressionBeforeExtension) {
+    this.filenameCompressionBeforeExtension = filenameCompressionBeforeExtension;
   }
 
   /**
