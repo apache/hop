@@ -1238,10 +1238,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // Flip selection when control is pressed!
           if (control) {
             selectedTransform.flipSelected();
-            // Track that a transform selection changed (if it's now selected)
-            if (selectedTransform.isSelected()) {
-              pipelineGridDelegate.onPipelineSelectionChanged();
-            }
+            // Track the selection change: also when the transform was just de-selected, otherwise
+            // the "show only selected transforms" filter keeps showing the previous selection.
+            pipelineGridDelegate.onPipelineSelectionChanged();
           } else {
             singleClick = true;
             singleClickType = SingleClickType.Transform;
@@ -1327,10 +1326,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             // Flip selection when control is pressed!
             if (control) {
               selectedNote.flipSelected();
-              // Track that a note selection changed (if it's now selected)
-              if (selectedNote.isSelected()) {
-                pipelineGridDelegate.onPipelineSelectionChanged();
-              }
+              // Track the selection change in both directions (select and de-select).
+              pipelineGridDelegate.onPipelineSelectionChanged();
             } else {
               // single click on a note: ask what needs to happen...
               //
@@ -6069,6 +6066,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void selectAll() {
     pipelineMeta.selectAll();
+    pipelineGridDelegate.onPipelineSelectionChanged();
     updateGui();
   }
 
