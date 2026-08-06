@@ -483,31 +483,43 @@ public class TextFileInputDialog extends BaseTransformDialog
     checkCompressedFile();
   }
 
-  /*check the compressed extension of the first file in the archive and change the
-   * compression mode in the content tab depending on it*/
+  /**
+   * Optionally auto-select compression from filename extensions when the user has not already
+   * chosen a non-None compression (issue #3209). Does not override an explicit selection.
+   */
   private void checkCompressedFile() {
-    if (wFilenameList.getItemCount() > 0) {
-      for (int i = 0; i < wFilenameList.getItemCount(); i++) {
-        String[] fileRecord = wFilenameList.getItem(i);
-        String fileExtension = FilenameUtils.getExtension(fileRecord[i]);
-        Collection<ICompressionProvider> compProviders =
-            CompressionProviderFactory.getInstance().getCompressionProviders();
-        for (ICompressionProvider provider : compProviders) {
-          if (provider.getDefaultExtension() != null
-              && provider.getDefaultExtension().equals(fileExtension)) {
-            int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
+    // Preserve explicit Compression settings (GZip, Zip, ...). Only auto-detect when None/empty.
+    String current = Const.NVL(wCompression.getText(), "");
+    if (!Utils.isEmpty(current) && !"None".equalsIgnoreCase(current)) {
+      return;
+    }
+
+    if (wFilenameList.getItemCount() <= 0) {
+      return;
+    }
+
+    Collection<ICompressionProvider> compProviders =
+        CompressionProviderFactory.getInstance().getCompressionProviders();
+
+    for (int i = 0; i < wFilenameList.getItemCount(); i++) {
+      String[] fileRecord = wFilenameList.getItem(i);
+      if (fileRecord == null || fileRecord.length == 0 || Utils.isEmpty(fileRecord[0])) {
+        continue;
+      }
+      // Filename is always column 0 (not row index i)
+      String fileExtension = FilenameUtils.getExtension(fileRecord[0]);
+      for (ICompressionProvider provider : compProviders) {
+        if (provider.getDefaultExtension() != null
+            && provider.getDefaultExtension().equals(fileExtension)) {
+          int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
+          if (toBeSelected >= 0) {
             wCompression.select(toBeSelected);
-            return;
           }
+          return;
         }
       }
-      wCompression.select(
-          ArrayUtils.indexOf(
-              wCompression.getItems(),
-              CompressionProviderFactory.getInstance()
-                  .getCompressionProviderByName("None")
-                  .getName()));
     }
+    // No matching compressed extension: leave compression as None/empty (do not force select).
   }
 
   private void showFiles() {
