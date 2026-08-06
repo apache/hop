@@ -295,7 +295,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
   }
 
-  private String buildFilename(Date date) {
+  String buildFilename(Date date) {
     String filename = resolve(meta.getFilenameBase());
     if (meta.isFilenameIncludingDate()) {
       filename += "-" + new SimpleDateFormat("yyyyMMdd").format(date);
@@ -316,8 +316,17 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     if (data.isBeamContext()) {
       filename += "_" + getLogChannelId() + "_" + data.getBeamBundleNr();
     }
-    filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
-    filename += meta.getCompressionCodec().getExtension();
+    String extension = Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
+    String compressionExtension = meta.getCompressionCodec().getExtension();
+    if (meta.isFilenameCompressionBeforeExtension()) {
+      // Spark-style: file.snappy.parquet
+      filename += compressionExtension;
+      filename += "." + extension;
+    } else {
+      // Backward compatible: file.parquet.snappy
+      filename += "." + extension;
+      filename += compressionExtension;
+    }
     return filename;
   }
 

@@ -25,6 +25,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.RowMeta;
@@ -37,6 +40,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.parquet.column.ParquetProperties;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -166,6 +170,56 @@ class ParquetOutputTest {
     assertEquals(2, data.outputFields.size());
     assertEquals("identifier", data.outputFields.get(0).getTargetFieldName());
     assertEquals("name", data.outputFields.get(1).getTargetFieldName());
+  }
+
+  @Test
+  void testBuildFilenameCompressionBeforeExtensionByDefault() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setCompressionCodec(CompressionCodecName.SNAPPY);
+
+    ParquetOutputData data = new ParquetOutputData();
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals("/tmp/output.snappy.parquet", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameCompressionAfterExtensionWhenDisabled() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setFilenameCompressionBeforeExtension(false);
+    meta.setCompressionCodec(CompressionCodecName.SNAPPY);
+
+    ParquetOutputData data = new ParquetOutputData();
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals("/tmp/output.parquet.snappy", output.buildFilename(fixedDate()));
+  }
+
+  @Test
+  void testBuildFilenameUncompressedHasNoCodecExtension() {
+    ParquetOutputMeta meta = new ParquetOutputMeta();
+    meta.setFilenameBase("/tmp/output");
+    meta.setFilenameExtension("parquet");
+    meta.setFilenameIncludingCopyNr(false);
+    meta.setFilenameIncludingSplitNr(false);
+    meta.setCompressionCodec(CompressionCodecName.UNCOMPRESSED);
+
+    ParquetOutputData data = new ParquetOutputData();
+    ParquetOutput output = createTransform(meta, data);
+
+    assertEquals("/tmp/output.parquet", output.buildFilename(fixedDate()));
+  }
+
+  private static Date fixedDate() {
+    return new GregorianCalendar(2024, Calendar.JANUARY, 15, 10, 30, 0).getTime();
   }
 
   private ParquetOutput createTransform(ParquetOutputMeta meta, ParquetOutputData data) {
