@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,8 @@ class WorkflowExecutorMetaTest {
             "/workflow-executor-transform.xml", WorkflowExecutorMeta.class);
 
     assertEquals("${PROJECT_HOME}/loops/child-workflow-executor.hwf", meta.getFilename());
+    assertFalse(meta.isFilenameInField());
+    assertEquals("", meta.getFilenameField() == null ? "" : meta.getFilenameField());
     assertEquals("ExecutionTime", meta.getExecutionTimeField());
     assertEquals("ExecutionResult", meta.getExecutionResultField());
     assertEquals("ExecutionNrErrors", meta.getExecutionNrErrorsField());
@@ -61,6 +65,8 @@ class WorkflowExecutorMetaTest {
     WorkflowExecutorMeta clone = (WorkflowExecutorMeta) meta.clone();
 
     assertEquals(clone.getFilename(), meta.getFilename());
+    assertEquals(clone.isFilenameInField(), meta.isFilenameInField());
+    assertEquals(clone.getFilenameField(), meta.getFilenameField());
     assertEquals(clone.getExecutionTimeField(), meta.getExecutionTimeField());
     assertEquals(clone.getExecutionResultField(), meta.getExecutionResultField());
     assertEquals(clone.getExecutionNrErrorsField(), meta.getExecutionNrErrorsField());
@@ -80,5 +86,22 @@ class WorkflowExecutorMetaTest {
     assertEquals(clone.getResultFilesFileNameField(), meta.getResultFilesFileNameField());
     assertEquals(clone.getResultRowsField().size(), meta.getResultRowsField().size());
     assertEquals(clone.getParameters().size(), meta.getParameters().size());
+  }
+
+  @Test
+  void setDefaultDisablesFilenameInField() {
+    WorkflowExecutorMeta meta = new WorkflowExecutorMeta();
+    meta.setDefault();
+    assertFalse(meta.isFilenameInField());
+  }
+
+  @Test
+  void testSerializationFilenameInField() throws Exception {
+    WorkflowExecutorMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/workflow-executor-fromfield-transform.xml", WorkflowExecutorMeta.class);
+
+    assertTrue(meta.isFilenameInField());
+    assertEquals("wf_to_run", meta.getFilenameField());
   }
 }
