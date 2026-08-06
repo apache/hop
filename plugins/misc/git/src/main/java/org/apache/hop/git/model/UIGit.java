@@ -999,6 +999,28 @@ public class UIGit extends VCS {
   }
 
   /**
+   * Get the untracked files under the given path: the files a git clean would remove. Ignored files
+   * are not part of this list, git clean leaves those alone as well.
+   *
+   * @param path The path to clean (relative to the repository root)
+   * @return The untracked files, sorted by name
+   */
+  public List<String> getUntrackedPathFiles(String path) throws HopException {
+    try {
+      String normalizedPath = normalizePathForJGit(path);
+      StatusCommand statusCommand = git.status();
+      if (normalizedPath != null && !".".equals(normalizedPath)) {
+        statusCommand = statusCommand.addPath(normalizedPath);
+      }
+      List<String> files = new ArrayList<>(statusCommand.call().getUntracked());
+      Collections.sort(files);
+      return files;
+    } catch (Exception e) {
+      throw new HopException("Git: error getting untracked files for '" + path + "'", e);
+    }
+  }
+
+  /**
    * Get the subset of revert-path files which are new: untracked or added but not in HEAD. Revert
    * only unstages these and leaves them on disk; removing them takes an explicit git clean. For all
    * other files (changed, missing, uncommitted) revert restores the content from HEAD.
