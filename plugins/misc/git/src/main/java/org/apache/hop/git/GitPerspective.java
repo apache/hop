@@ -475,8 +475,12 @@ public class GitPerspective implements IHopPerspective {
 
   protected void selectRef(Event event) {
     TreeItem item = (TreeItem) event.item;
-    if (item != null && item.getData() instanceof Ref ref) {
-      refreshHistory(ref.getName());
+    if (item != null) {
+      if (item.getData() instanceof Ref ref) {
+        refreshHistory(ref.getName());
+      } else {
+        item.setExpanded(!item.getExpanded());
+      }
     }
   }
 
