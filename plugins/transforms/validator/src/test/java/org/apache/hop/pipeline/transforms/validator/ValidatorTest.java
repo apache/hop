@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -47,6 +48,11 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -812,6 +818,158 @@ class ValidatorTest {
 
     assertTrue(validator.processRow());
     verify(validator).putRow(any(IRowMeta.class), eq(new Object[] {"ABZ"}));
+  }
+
+  @Test
+  void testInitFailsWhenInfoTransformDistributesOverMultipleCopies() throws Exception {
+    ValidatorMeta meta = createMeta(sourcingRule("allowed values", "allowed_value"));
+    Validator validator = createValidatorWithInfoTransform(meta, true, 4, false);
+
+    assertFalse(validator.init());
+  }
+
+  @Test
+  void testInitSucceedsWhenInfoTransformCopiesToAllCopies() throws Exception {
+    ValidatorMeta meta = createMeta(sourcingRule("allowed values", "allowed_value"));
+    Validator validator = createValidatorWithInfoTransform(meta, false, 4, false);
+
+    assertTrue(validator.init());
+  }
+
+  @Test
+  void testInitSucceedsWhenRunningInASingleCopy() throws Exception {
+    ValidatorMeta meta = createMeta(sourcingRule("allowed values", "allowed_value"));
+    Validator validator = createValidatorWithInfoTransform(meta, true, 1, false);
+
+    assertTrue(validator.init());
+  }
+
+  @Test
+  void testInitSucceedsForPartitionedTransforms() throws Exception {
+    ValidatorMeta meta = createMeta(sourcingRule("allowed values", "allowed_value"));
+    Validator validator = createValidatorWithInfoTransform(meta, true, 4, true);
+
+    assertTrue(validator.init());
+  }
+
+  @Test
+  void testInitIgnoresDistributionWhenValuesAreNotSourced() throws Exception {
+    Validation rule = new Validation();
+    rule.setName("list");
+    rule.setFieldName("value");
+    rule.setNullAllowed(true);
+    rule.setDataType("String");
+    rule.setAllowedValues(List.of("A", "B"));
+
+    ValidatorMeta meta = createMeta(rule);
+    Validator validator = createValidatorWithInfoTransform(meta, true, 4, false);
+
+    assertTrue(validator.init());
+  }
+
+  @Test
+  void testCaseInsensitiveComparisonStillMatchesAllowedValues() throws Exception {
+    Validation rule = new Validation();
+    rule.setName("list");
+    rule.setFieldName("value");
+    rule.setNullAllowed(true);
+    rule.setDataType("String");
+    rule.setAllowedValues(List.of("A", "B"));
+
+    ValidatorMeta meta = createMeta(rule);
+
+    // A case insensitive field can't use the hash based lookup, the linear comparison has to kick
+    // in
+    ValueMetaString valueMeta = new ValueMetaString("value");
+    valueMeta.setCaseInsensitive(true);
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(valueMeta);
+
+    Validator validator = createInitializedValidator(meta, rowMeta, true);
+    doReturn(new Object[] {"a"}).doReturn(null).when(validator).getRow();
+    doNothing().when(validator).putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(validator.processRow());
+    verify(validator).putRow(any(IRowMeta.class), eq(new Object[] {"a"}));
+    verify(validator, never())
+        .putError(
+            any(IRowMeta.class),
+            any(Object[].class),
+            anyLong(),
+            anyString(),
+            anyString(),
+            anyString());
+  }
+
+  @Test
+  void testErrorDescriptionsAreLoggedByDefault() throws Exception {
+    ValidatorMeta meta = createMeta(nullNotAllowed());
+    Validator validator = createInitializedValidator(meta, stringRowMeta(), true);
+
+    assertTrue(validator.isLoggingErrorDescriptions());
+  }
+
+  @Test
+  void testSuppressErrorLogStopsTheLogLinePerRejectedRow() throws Exception {
+    ValidatorMeta meta = createMeta(nullNotAllowed());
+    meta.setSuppressingErrorLog(true);
+    Validator validator = createInitializedValidator(meta, stringRowMeta(), true);
+
+    assertFalse(validator.isLoggingErrorDescriptions());
+
+    // the error row itself still has to reach the error handling hop
+    doReturn(new Object[] {null}).doReturn(null).when(validator).getRow();
+    stubPutError(validator);
+
+    assertTrue(validator.processRow());
+    verify(validator)
+        .putError(
+            any(IRowMeta.class),
+            any(Object[].class),
+            eq(1L),
+            anyString(),
+            eq("value"),
+            eq("KVD001"));
+  }
+
+  private Validator createValidatorWithInfoTransform(
+      ValidatorMeta meta, boolean infoTransformDistributes, int copies, boolean partitioned)
+      throws Exception {
+    TransformMeta infoTransform = new TransformMeta("allowed values", new ValidatorMeta());
+    infoTransform.setDistributes(infoTransformDistributes);
+
+    TransformMetaDataCombi combi = new TransformMetaDataCombi();
+    combi.transformMeta = infoTransform;
+    combi.transformName = infoTransform.getName();
+    doReturn(List.of(combi)).when((LocalPipelineEngine) helper.pipeline).getTransforms();
+
+    when(helper.transformMeta.getCopies(any(IVariables.class))).thenReturn(copies);
+    when(helper.transformMeta.isPartitioned()).thenReturn(partitioned);
+    if (partitioned) {
+      PartitionSchema partitionSchema = mock(PartitionSchema.class);
+      when(partitionSchema.calculatePartitionIds(any(IVariables.class)))
+          .thenReturn(new ArrayList<>(List.of("p0", "p1", "p2", "p3")));
+      TransformPartitioningMeta partitioningMeta = mock(TransformPartitioningMeta.class);
+      when(partitioningMeta.getPartitionSchema()).thenReturn(partitionSchema);
+      when(helper.transformMeta.getTransformPartitioningMeta()).thenReturn(partitioningMeta);
+    }
+    when(helper.pipelineMeta.getTransformFields(any(IVariables.class), anyString()))
+        .thenReturn(stringRowMeta());
+
+    return new Validator(
+        helper.transformMeta, meta, new ValidatorData(), 0, helper.pipelineMeta, helper.pipeline);
+  }
+
+  private static Validation sourcingRule(String sourcingTransformName, String sourcingField) {
+    Validation rule = new Validation();
+    rule.setName("sourced list");
+    rule.setFieldName("value");
+    rule.setNullAllowed(true);
+    rule.setDataType("String");
+    rule.setSourcingValues(true);
+    rule.setSourcingTransformName(sourcingTransformName);
+    rule.setSourcingField(sourcingField);
+    return rule;
   }
 
   private Validator createInitializedValidator(

@@ -19,9 +19,12 @@
 package org.apache.hop.pipeline.transforms.validator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -179,15 +182,61 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     }
   }
 
+  /**
+   * Every copy of this transform builds its own list of allowed values from the info transforms, so
+   * every copy needs to receive all the rows of those transforms. That only happens when the info
+   * transform copies its rows to all target copies. With the default round robin data movement each
+   * copy would see a different slice of the allowed values and reject perfectly valid rows, so we
+   * refuse to run instead of silently producing wrong results.
+   *
+   * <p>Partitioned transforms are left alone: there the copies are matched one to one with the
+   * copies of the info transform, which is a deliberate setup.
+   *
+   * @return true when the allowed values reach every copy of this transform
+   */
+  private boolean verifyInfoTransformsReachEveryCopy() {
+    if (getTransformMeta().isPartitioned() || getTransformMeta().getCopies(this) <= 1) {
+      return true;
+    }
+
+    boolean ok = true;
+    List<IStream> streams = meta.getTransformIOMeta().getInfoStreams();
+    for (int i = 0; i < meta.getValidations().size(); i++) {
+      Validation field = meta.getValidations().get(i);
+      if (!field.isSourcingValues() || i >= streams.size()) {
+        continue;
+      }
+      TransformMeta sourceTransform = streams.get(i).getTransformMeta();
+      if (sourceTransform == null || !sourceTransform.isDistributes()) {
+        continue;
+      }
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "Validator.Exception.InfoTransformIsDistributing",
+              sourceTransform.getName(),
+              getTransformName(),
+              Integer.toString(getTransformMeta().getCopies(this)),
+              Const.NVL(field.getName(), field.getFieldName())));
+      ok = false;
+    }
+    return ok;
+  }
+
   private void readSourceValuesFromInfoTransforms() throws HopTransformException {
     // The input and the output are the same but without the "info" source transforms.
     //
     data.inputRowMeta = getPipelineMeta().getTransformFields(variables, getTransformName());
 
-    Map<String, Integer> inputTransformWasProcessed = new HashMap<>();
+    List<IStream> streams = meta.getTransformIOMeta().getInfoStreams();
+
+    // Group the validations that source their allowed values by source transform. An info stream
+    // can only be drained once, so validations reading from the same transform have to be served
+    // from a single pass over that stream. They can still read different fields from it.
+    //
+    Map<String, List<Integer>> validationsPerTransform = new LinkedHashMap<>();
     for (int i = 0; i < meta.getValidations().size(); i++) {
       Validation field = meta.getValidations().get(i);
-      List<IStream> streams = meta.getTransformIOMeta().getInfoStreams();
 
       // If we need to source the "allowed values" data from a different transform, we do this here
       // as well.
@@ -206,48 +255,138 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                   + "]");
         }
 
-        // Still here : OK, read the data from the specified transform.
-        // The data is stored in data.listValues[i] and data.constantsMeta.
-        //
-        String transformName = streams.get(i).getTransformName();
-        if (inputTransformWasProcessed.containsKey(transformName)) {
-          // The transform was processed for other StreamInterface.
-          //
-          data.listValues[i] = data.listValues[inputTransformWasProcessed.get(transformName)];
-          data.constantsMeta[i] = data.constantsMeta[inputTransformWasProcessed.get(transformName)];
-          continue;
-        }
-        IRowSet allowedRowSet = findInputRowSet(transformName);
-        int fieldIndex = -1;
-        List<Object> allowedValues = new ArrayList<>();
-        Object[] allowedRowData = getRowFrom(allowedRowSet);
-        while (allowedRowData != null) {
-          IRowMeta allowedRowMeta = allowedRowSet.getRowMeta();
-          if (fieldIndex < 0) {
-            fieldIndex = allowedRowMeta.indexOfValue(field.getSourcingField());
-            if (fieldIndex < 0) {
-              throw new HopTransformException(
-                  "Source field ["
-                      + field.getSourcingField()
-                      + "] is not found in the source row data");
-            }
-            data.constantsMeta[i] = allowedRowMeta.getValueMeta(fieldIndex);
-          }
-          Object allowedValue = allowedRowData[fieldIndex];
-          if (allowedValue != null) {
-            allowedValues.add(allowedValue);
-          }
-
-          // Grab another row too...
-          //
-          allowedRowData = getRowFrom(allowedRowSet);
-        }
-        // Set the list values in the data block...
-        //
-        data.listValues[i] = allowedValues.toArray(new Object[0]);
-        inputTransformWasProcessed.put(transformName, i);
+        validationsPerTransform
+            .computeIfAbsent(streams.get(i).getTransformName(), name -> new ArrayList<>())
+            .add(i);
       }
     }
+
+    for (Map.Entry<String, List<Integer>> entry : validationsPerTransform.entrySet()) {
+      readSourceValuesFromInfoTransform(entry.getKey(), entry.getValue());
+    }
+  }
+
+  /**
+   * Read the allowed values of all the validations that source their data from the given transform.
+   * The stream is read once, the values are stored in data.listValues and data.constantsMeta.
+   *
+   * @param transformName the info transform to read the allowed values from
+   * @param validationIndexes the validations served by this info transform
+   */
+  private void readSourceValuesFromInfoTransform(
+      String transformName, List<Integer> validationIndexes) throws HopTransformException {
+    IRowSet allowedRowSet = findInputRowSet(transformName);
+    if (allowedRowSet == null) {
+      throw new HopTransformException(
+          "Unable to find the rows with allowed values coming from transform ["
+              + transformName
+              + "]. Please verify that the hop between ["
+              + transformName
+              + "] and ["
+              + getTransformName()
+              + "] is enabled.");
+    }
+
+    int nrValidations = validationIndexes.size();
+    int[] sourceIndexes = new int[nrValidations];
+    Arrays.fill(sourceIndexes, -1);
+    List<List<Object>> allowedValues = new ArrayList<>(nrValidations);
+    for (int v = 0; v < nrValidations; v++) {
+      allowedValues.add(new ArrayList<>());
+    }
+
+    Object[] allowedRowData = getRowFrom(allowedRowSet);
+    while (allowedRowData != null) {
+      IRowMeta allowedRowMeta = allowedRowSet.getRowMeta();
+      for (int v = 0; v < nrValidations; v++) {
+        if (sourceIndexes[v] < 0) {
+          Validation field = meta.getValidations().get(validationIndexes.get(v));
+          sourceIndexes[v] = allowedRowMeta.indexOfValue(field.getSourcingField());
+          if (sourceIndexes[v] < 0) {
+            throw new HopTransformException(
+                "Source field ["
+                    + field.getSourcingField()
+                    + "] is not found in the source row data");
+          }
+          data.constantsMeta[validationIndexes.get(v)] =
+              allowedRowMeta.getValueMeta(sourceIndexes[v]);
+        }
+        Object allowedValue = allowedRowData[sourceIndexes[v]];
+        if (allowedValue != null) {
+          allowedValues.get(v).add(allowedValue);
+        }
+      }
+
+      // Grab another row too...
+      //
+      allowedRowData = getRowFrom(allowedRowSet);
+    }
+
+    // Set the list values in the data block...
+    //
+    for (int v = 0; v < nrValidations; v++) {
+      int i = validationIndexes.get(v);
+      data.listValues[i] = allowedValues.get(v).toArray(new Object[0]);
+      data.listValuesSet[i] = createLookupSet(data.constantsMeta[i], data.listValues[i]);
+    }
+  }
+
+  /**
+   * Build a hash based view on the allowed values so we don't have to walk the whole list for every
+   * row. This is only safe for data types where two values are equal exactly when they compare as
+   * equal, so other types simply keep using the linear scan.
+   *
+   * @param constantsMeta the value metadata the allowed values are stored in
+   * @param listValues the allowed values
+   * @return a set of the allowed values, or null when the type doesn't allow this optimisation
+   */
+  private static Set<Object> createLookupSet(IValueMeta constantsMeta, Object[] listValues) {
+    if (constantsMeta == null
+        || listValues.length == 0
+        || constantsMeta.getStorageType() != IValueMeta.STORAGE_TYPE_NORMAL
+        || !isHashableType(constantsMeta.getType())) {
+      return null;
+    }
+    Set<Object> set = new HashSet<>((int) (listValues.length / 0.75f) + 1);
+    for (Object value : listValues) {
+      // Null values never match: the validation skips null values before the list is consulted.
+      if (value != null) {
+        set.add(value);
+      }
+    }
+    return set;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Set<Object>[] newSetArray(int size) {
+    return new Set[size];
+  }
+
+  /**
+   * Types for which equals() and compare()==0 agree. Doubles (-0.0, NaN) and BigDecimals (scale)
+   * are deliberately left out, and so are dates because they can be mixed with timestamps.
+   */
+  private static boolean isHashableType(int type) {
+    return type == IValueMeta.TYPE_STRING
+        || type == IValueMeta.TYPE_INTEGER
+        || type == IValueMeta.TYPE_BOOLEAN;
+  }
+
+  /**
+   * The hash lookup is only equivalent to the linear scan when the incoming value is compared with
+   * plain equality. A different data type, a non normal storage type or a string that is compared
+   * with a collator, case insensitively or while ignoring whitespace all change the outcome, so in
+   * those cases we fall back to comparing value by value.
+   */
+  private static boolean canUseLookupSet(IValueMeta valueMeta, IValueMeta constantsMeta) {
+    if (valueMeta.getType() != constantsMeta.getType()
+        || valueMeta.getStorageType() != IValueMeta.STORAGE_TYPE_NORMAL) {
+      return false;
+    }
+    return valueMeta.getType() != IValueMeta.TYPE_STRING
+        || (valueMeta.isCollatorDisabled()
+            && !valueMeta.isCaseInsensitive()
+            && !valueMeta.isIgnoreWhitespace());
   }
 
   /**
@@ -258,7 +397,9 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
    */
   private List<HopValidatorException> validateFields(IRowMeta inputRowMeta, Object[] r)
       throws HopValueException {
-    List<HopValidatorException> exceptions = new ArrayList<>();
+    // Reused per row: processRow is done with the list before the next row comes in.
+    List<HopValidatorException> exceptions = data.exceptions;
+    exceptions.clear();
 
     for (int i = 0; i < meta.getValidations().size(); i++) {
       Validation field = meta.getValidations().get(i);
@@ -308,7 +449,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
         }
       }
 
-      int dataType = ValueMetaFactory.getIdForValueMeta(field.getDataType());
+      int dataType = data.dataTypes[i];
 
       // Check the data type!
       // Same data type?
@@ -340,21 +481,13 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
         continue;
       }
 
-      if (data.fieldsMinimumLengthAsInt[i] >= 0
-          || data.fieldsMaximumLengthAsInt[i] >= 0
-          || data.minimumValue[i] != null
-          || data.maximumValue[i] != null
-          || data.listValues[i].length > 0
-          || field.isSourcingValues()
-          || StringUtils.isNotEmpty(data.startString[i])
-          || StringUtils.isNotEmpty(data.endString[i])
-          || StringUtils.isNotEmpty(data.startStringNotAllowed[i])
-          || StringUtils.isNotEmpty(data.endStringNotAllowed[i])
-          || field.isOnlyNumericAllowed()
-          || data.patternExpected[i] != null
-          || data.patternDisallowed[i] != null) {
+      if (data.hasValueChecks[i]) {
 
-        String stringValue = valueMeta.getString(valueData);
+        // Only render the value as a string when one of the configured rules actually needs it.
+        // The placeholder below is never looked at: data.needsStringValue covers exactly the rules
+        // that use stringValue or stringLength, so keep the two in sync when adding a rule.
+        //
+        String stringValue = data.needsStringValue[i] ? valueMeta.getString(valueData) : "";
         int stringLength = stringValue.length();
 
         // Minimum length
@@ -450,15 +583,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
         // In list?
         //
         if (field.isSourcingValues() || data.listValues[i].length > 0) {
-          boolean found = false;
-          for (Object object : data.listValues[i]) {
-            if (object != null
-                && data.listValues[i] != null
-                && valueMeta.compare(valueData, validatorMeta, object) == 0) {
-              found = true;
-            }
-          }
-          if (!found) {
+          if (!isInAllowedValues(i, valueMeta, validatorMeta, valueData)) {
             HopValidatorException exception =
                 new HopValidatorException(
                     this,
@@ -479,7 +604,9 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
         // Numeric data or strings with only
         if (field.isOnlyNumericAllowed()) {
-          HopValidatorException exception = assertNumeric(valueMeta, valueData, field);
+          HopValidatorException exception =
+              assertNumeric(
+                  valueMeta, valueData, field, data.needsStringValue[i] ? stringValue : null);
           if (exception != null) {
             exceptions.add(exception);
             if (!meta.isValidatingAll()) {
@@ -577,9 +704,8 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
         // Matching regular expression allowed?
         //
-        if (data.patternExpected[i] != null) {
-          Matcher matcher = data.patternExpected[i].matcher(stringValue);
-          if (!matcher.matches()) {
+        if (data.matcherExpected[i] != null) {
+          if (!data.matcherExpected[i].reset(stringValue).matches()) {
             HopValidatorException exception =
                 new HopValidatorException(
                     this,
@@ -601,9 +727,8 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
         // Matching regular expression NOT allowed?
         //
-        if (data.patternDisallowed[i] != null) {
-          Matcher matcher = data.patternDisallowed[i].matcher(stringValue);
-          if (matcher.matches()) {
+        if (data.matcherDisallowed[i] != null) {
+          if (data.matcherDisallowed[i].reset(stringValue).matches()) {
             HopValidatorException exception =
                 new HopValidatorException(
                     this,
@@ -626,6 +751,40 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     }
 
     return exceptions;
+  }
+
+  /**
+   * Look the value up in the allowed values of validation i. Uses the hash based lookup when the
+   * data type allows it and falls back to comparing the value with every allowed value otherwise.
+   *
+   * @param i the index of the validation
+   * @param valueMeta the metadata of the incoming value
+   * @param constantsMeta the metadata the allowed values are stored in
+   * @param valueData the incoming value
+   * @return true if the value is one of the allowed values
+   */
+  private boolean isInAllowedValues(
+      int i, IValueMeta valueMeta, IValueMeta constantsMeta, Object valueData)
+      throws HopValueException {
+    if (data.listValuesSet[i] != null && canUseLookupSet(valueMeta, constantsMeta)) {
+      return data.listValuesSet[i].contains(valueData);
+    }
+    for (Object object : data.listValues[i]) {
+      if (object != null && valueMeta.compare(valueData, constantsMeta, object) == 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * The engine writes a log line for every rejected row. On a transform whose job is to reject rows
+   * that log line costs far more than the validation itself, so it can be switched off while error
+   * rows keep flowing to the error handling hop.
+   */
+  @Override
+  protected boolean isLoggingErrorDescriptions() {
+    return !meta.isSuppressingErrorLog();
   }
 
   /**
@@ -653,7 +812,18 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
   // package-local visibility for testing purposes
   HopValidatorException assertNumeric(IValueMeta valueMeta, Object valueData, Validation field)
       throws HopValueException {
-    if (valueMeta.isNumeric() || containsOnlyDigits(valueMeta.getString(valueData))) {
+    return assertNumeric(valueMeta, valueData, field, null);
+  }
+
+  /**
+   * @param stringValue the value already rendered as a string, or null when it still has to be
+   *     converted. Numeric fields never need the conversion at all.
+   */
+  private HopValidatorException assertNumeric(
+      IValueMeta valueMeta, Object valueData, Validation field, String stringValue)
+      throws HopValueException {
+    if (valueMeta.isNumeric()
+        || containsOnlyDigits(stringValue != null ? stringValue : valueMeta.getString(valueData))) {
       return null;
     }
     return new HopValidatorException(
@@ -670,7 +840,8 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
   }
 
   private boolean containsOnlyDigits(String string) {
-    for (char c : string.toCharArray()) {
+    for (int i = 0; i < string.length(); i++) {
+      char c = string.charAt(i);
       if (c < '0' || c > '9') {
         return false;
       }
@@ -695,8 +866,16 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     }
     meta.searchInfoAndTargetTransforms(transforms);
 
+    if (!verifyInfoTransformsReachEveryCopy()) {
+      return false;
+    }
+
     // initialize arrays of validation data
     data.constantsMeta = new IValueMeta[meta.getValidations().size()];
+    data.dataTypes = new int[meta.getValidations().size()];
+    data.listValuesSet = newSetArray(meta.getValidations().size());
+    data.needsStringValue = new boolean[meta.getValidations().size()];
+    data.hasValueChecks = new boolean[meta.getValidations().size()];
     data.minimumValueAsString = new String[meta.getValidations().size()];
     data.maximumValueAsString = new String[meta.getValidations().size()];
     data.fieldsMinimumLengthAsInt = new int[meta.getValidations().size()];
@@ -719,10 +898,15 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     data.regularExpressionNotAllowed = new String[meta.getValidations().size()];
     data.patternExpected = new Pattern[meta.getValidations().size()];
     data.patternDisallowed = new Pattern[meta.getValidations().size()];
+    data.matcherExpected = new Matcher[meta.getValidations().size()];
+    data.matcherDisallowed = new Matcher[meta.getValidations().size()];
+    data.exceptions = new ArrayList<>();
 
     for (int i = 0; i < meta.getValidations().size(); i++) {
       Validation field = meta.getValidations().get(i);
+      // Resolving the data type goes over the plugin registry, so do it once instead of per row.
       int dataType = ValueMetaFactory.getIdForValueMeta(field.getDataType());
+      data.dataTypes[i] = dataType;
 
       try {
         initBasics(i, field);
@@ -743,13 +927,42 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
       if (StringUtils.isNotEmpty(data.regularExpression[i])) {
         data.patternExpected[i] = Pattern.compile(data.regularExpression[i]);
+        data.matcherExpected[i] = data.patternExpected[i].matcher("");
       }
       if (StringUtils.isNotEmpty(data.regularExpressionNotAllowed[i])) {
         data.patternDisallowed[i] = Pattern.compile(data.regularExpressionNotAllowed[i]);
+        data.matcherDisallowed[i] = data.patternDisallowed[i].matcher("");
       }
+
+      initRuleFlags(i, field);
+      data.listValuesSet[i] = createLookupSet(data.constantsMeta[i], data.listValues[i]);
     }
 
     return true;
+  }
+
+  /**
+   * Work out once which groups of rules are configured for a validation, so that the row loop
+   * doesn't have to test every single option again for every row.
+   */
+  private void initRuleFlags(int i, Validation field) {
+    data.needsStringValue[i] =
+        data.fieldsMinimumLengthAsInt[i] >= 0
+            || data.fieldsMaximumLengthAsInt[i] >= 0
+            || StringUtils.isNotEmpty(data.startString[i])
+            || StringUtils.isNotEmpty(data.endString[i])
+            || StringUtils.isNotEmpty(data.startStringNotAllowed[i])
+            || StringUtils.isNotEmpty(data.endStringNotAllowed[i])
+            || data.patternExpected[i] != null
+            || data.patternDisallowed[i] != null;
+
+    data.hasValueChecks[i] =
+        data.needsStringValue[i]
+            || data.minimumValue[i] != null
+            || data.maximumValue[i] != null
+            || data.listValues[i].length > 0
+            || field.isSourcingValues()
+            || field.isOnlyNumericAllowed();
   }
 
   private void initBasics(int i, Validation field) throws HopPluginException {
