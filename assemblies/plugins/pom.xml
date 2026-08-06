@@ -707,6 +707,7 @@
         <!-- marketplace optional: hop-tech-minio -->
         <!-- marketplace optional: hop-tech-mongodb -->
         <!-- marketplace optional: hop-tech-neo4j -->
+        <!-- marketplace optional: hop-tech-openlineage -->
         <!-- marketplace optional: hop-tech-opensearch -->
         <!-- marketplace optional: hop-tech-parquet -->
         <!-- marketplace optional: hop-tech-redis -->
@@ -1700,6 +1701,12 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-neo4j</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-openlineage</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>

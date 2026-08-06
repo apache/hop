@@ -1186,6 +1186,9 @@ This product bundles hamcrest 2.1, which is available under a
 This product bundles HdrHistogram 2.1.12, which is available under a
 "Creative Commons" license. For details, see licenses/LICENSE-CC0.
 
+This product bundles HdrHistogram 2.2.2, which is available under a
+"Creative Commons" license. For details, see licenses/LICENSE-CC0.
+
 This product bundles high-scale-lib 1.0.6, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
@@ -1276,6 +1279,12 @@ This product bundles jackson-dataformat-csv 2.14.2, which is available under a
 This product bundles jackson-dataformat-xml 2.22.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles jackson-datatype-jdk8 2.21.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles jackson-dataformat-yaml 2.21.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles jackson-datatype-jdk8 2.22.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1288,10 +1297,16 @@ This product bundles jackson-datatype-jsr310 2.18.3, which is available under a
 This product bundles jackson-datatype-jsr310 2.21.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles jackson-datatype-jsr310 2.21.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles jackson-jaxrs-base 2.22.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-jaxrs-json-provider 2.22.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles jackson-module-blackbird 2.21.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-module-jaxb-annotations 2.22.0, which is available under a
@@ -1747,6 +1762,9 @@ This product bundles langchain4j-ollama 0.29.1, which is available under a
 This product bundles langchain4j-open-ai 0.29.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles LatencyUtils 2.0.3, which is available under a
+"Creative Commons" license. For details, see licenses/LICENSE-CC0.
+
 This product bundles libphonenumber 8.13.40, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1781,6 +1799,15 @@ This product bundles metrics-core 4.1.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles metrics-spi 2.20.162, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles micrometer-observation 1.16.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles micrometer-core 1.16.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles micrometer-commons 1.16.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles minimal-json 0.9.5, which is available under a
@@ -2057,6 +2084,12 @@ This product bundles opencensus-contrib-http-util 0.31.1, which is available und
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles opencsv 5.12.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles openlineage-sql-java 1.46.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles openlineage-java 1.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles opentelemetry-api 1.62.0, which is available under a
@@ -2406,6 +2439,9 @@ This product bundles slf4j-api 2.0.17, which is available under a
 
 This product bundles slf4j-nop 2.0.17, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
+
+This product bundles snakeyaml 2.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
 
 This product bundles snakeyaml 2.6, which is available under a
 "Apache 2.0" license. For details, see LICENSE.

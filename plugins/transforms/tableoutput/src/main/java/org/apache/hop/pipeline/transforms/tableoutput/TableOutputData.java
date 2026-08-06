@@ -23,8 +23,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -54,6 +56,16 @@ public class TableOutputData extends BaseTransformData implements ITransformData
   public boolean batchMode;
 
   public int indexOfTableNameField;
+
+  /**
+   * Distinct table names seen in the per-row dynamic-table-name mode, emitted as lineage on
+   * dispose. Only populated when lineage is enabled, and capped — see {@code
+   * TableOutput.recordDynamicLineageTarget}.
+   */
+  public Set<String> dynamicTablesWritten = new LinkedHashSet<>();
+
+  /** Whether the lineage target set hit its cap, so the warning is logged only once. */
+  public boolean dynamicLineageTruncated;
 
   public List<Object[]> batchBuffer;
   public boolean sendToErrorRow;

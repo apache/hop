@@ -39,6 +39,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -58,6 +60,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     classLoaderGroup = "snowflake",
     isIncludeJdbcDrivers = true,
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class SnowflakeBulkLoaderMeta
     extends BaseTransformMeta<SnowflakeBulkLoader, SnowflakeBulkLoaderData> {
 

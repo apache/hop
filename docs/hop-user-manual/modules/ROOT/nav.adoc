@@ -514,6 +514,8 @@ under the License.
 *** xref:technology/neo4j/neo4j-logging-schema.adoc[Neo4j Logging Schema]
 ** xref:technology/redis/index.adoc[Redis]
 ** xref:technology/google/index.adoc[Google]
+** xref:technology/openlineage/index.adoc[OpenLineage]
+*** xref:technology/openlineage/dataset-identity.adoc[Dataset identity]
 * xref:hop-server/index.adoc[Hop Server]
 ** xref:hop-server/rest-api.adoc[REST api]
 ** xref:hop-server/web-service.adoc[Web Service]
