@@ -21,13 +21,16 @@
     <description/>
     <type>FILES_EXIST</type>
     <attributes/>
-    <filename/>
     <fields>
         <field>
             <name>/folder</name>
+            <filemask>.*\.txt</filemask>
+            <exclude_filemask>.*\.tmp</exclude_filemask>
+            <include_subfolders>Y</include_subfolders>
         </field>
         <field>
             <name>/archive.zip</name>
+            <include_subfolders>N</include_subfolders>
         </field>
     </fields>
     <parallel>N</parallel>
