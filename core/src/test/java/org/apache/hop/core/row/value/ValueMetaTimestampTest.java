@@ -18,7 +18,9 @@ package org.apache.hop.core.row.value;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,14 +47,59 @@ class ValueMetaTimestampTest {
   void testConvertTimestampToDateReturnsDateInsteadOfTimestamp() throws Exception {
     ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
     ValueMetaDate valueMetaDate = new ValueMetaDate();
-    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
 
-    Date date = (Date) valueMetaDate.convertData(valueMetaTimestamp, timestamp);
+    for (String value :
+        new String[] {
+          "1960-01-02 03:04:05.987654321",
+          "1970-01-01 00:00:00.000000000",
+          "2025-08-28 08:14:13.123456789"
+        }) {
+      Timestamp timestamp = Timestamp.valueOf(value);
+
+      Date date = (Date) valueMetaDate.convertData(valueMetaTimestamp, timestamp);
+
+      assertEquals(Date.class, date.getClass());
+      assertEquals(timestamp.getTime(), date.getTime());
+      assertNotSame(timestamp, date);
+    }
+  }
+
+  @Test
+  void testConvertNullTimestampToDateReturnsNull() throws Exception {
+    ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+
+    assertNull(valueMetaDate.convertData(valueMetaTimestamp, null));
+  }
+
+  @Test
+  void testConvertDateToDateKeepsPlainDateInstance() throws Exception {
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+    Date date = new Date(1_756_369_253_123L);
+
+    assertSame(date, valueMetaDate.convertData(valueMetaDate, date));
+  }
+
+  @Test
+  void testConvertSqlDateToDateReturnsPlainDate() throws Exception {
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+    java.sql.Date sqlDate = new java.sql.Date(1_756_369_253_123L);
+
+    Date date = (Date) valueMetaDate.convertData(valueMetaDate, sqlDate);
 
     assertEquals(Date.class, date.getClass());
-    assertEquals(timestamp.getTime(), date.getTime());
-    assertNull(valueMetaDate.convertData(valueMetaTimestamp, null));
-    assertEquals(timestamp, valueMetaTimestamp.getDate(timestamp));
+    assertEquals(sqlDate.getTime(), date.getTime());
+    assertNotSame(sqlDate, date);
+  }
+
+  @Test
+  void testTimestampConversionRemainsUnchanged() throws Exception {
+    ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
+    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
+
+    assertSame(timestamp, valueMetaTimestamp.getDate(timestamp));
+    assertSame(timestamp, valueMetaTimestamp.convertData(valueMetaTimestamp, timestamp));
+    assertEquals(123456789, timestamp.getNanos());
   }
 
   @Test
