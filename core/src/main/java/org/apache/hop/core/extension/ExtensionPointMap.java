@@ -159,6 +159,23 @@ public class ExtensionPointMap {
   }
 
   /**
+   * Is anything listening to this extension point id?
+   *
+   * <p>Lets the GUI leave out actions that only an optional plugin can perform: the marketplace
+   * button on the missing plugins dialog is hidden when the marketplace plugin isn't installed.
+   *
+   * @param id the id of the extension point interface
+   */
+  public boolean isRegistered(String id) {
+    lock.readLock().lock();
+    try {
+      return extensionPointPluginMap.containsRow(id);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  /**
    * Returns the element in the position (rowId,columnId) of the table
    *
    * <p>Useful for Unit Testing

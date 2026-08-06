@@ -18,10 +18,15 @@
 package org.apache.hop.ui.workflow.actions.missing;
 
 import java.util.List;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.ExtensionPointMap;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -79,6 +84,34 @@ public class MissingActionDialog extends ActionDialog {
       }
     }
     return entries.toString();
+  }
+
+  /**
+   * The plugin id to hand to the marketplace search. A single missing plugin gives an obvious
+   * search term; a file missing several different plugins gives none, so the marketplace opens
+   * unfiltered and the user picks from the list in the message.
+   */
+  private String marketplaceSearchFilter() {
+    if (mode != MISSING_ACTIONS) {
+      return ((MissingAction) action).getMissingPluginId();
+    }
+    List<String> pluginIds =
+        missingActions.stream().map(MissingAction::getMissingPluginId).distinct().toList();
+    return pluginIds.size() == 1 ? pluginIds.get(0) : null;
+  }
+
+  /** Hand the plugin id to whoever implements the marketplace (the marketplace plugin). */
+  private void openMarketplace(String filter) {
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          LogChannel.UI, variables, HopExtensionPoint.HopGuiSearchMarketplace.id, filter);
+    } catch (Exception e) {
+      new ErrorDialog(
+          getParent(),
+          BaseMessages.getString(PKG, "MissingActionDialog.MissingPlugins"),
+          BaseMessages.getString(PKG, "MissingActionDialog.SearchMarketplace.Error"),
+          e);
+    }
   }
 
   private String buildMessage() {
@@ -163,6 +196,7 @@ public class MissingActionDialog extends ActionDialog {
           }
         });
 
+    Button previousButton = closeButton;
     if (showOpenFile) {
       Button openButton = new Button(dialogShell, SWT.PUSH);
       PropsUi.setLook(openButton);
@@ -176,6 +210,33 @@ public class MissingActionDialog extends ActionDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
               confirm.run();
+            }
+          });
+      previousButton = openButton;
+    }
+
+    // Only when the marketplace plugin is installed to answer the call.
+    if (ExtensionPointMap.getInstance()
+        .isRegistered(HopExtensionPoint.HopGuiSearchMarketplace.id)) {
+      Button marketplaceButton = new Button(dialogShell, SWT.PUSH);
+      PropsUi.setLook(marketplaceButton);
+      FormData fdMarketplace = new FormData();
+      fdMarketplace.right = new FormAttachment(previousButton, -5);
+      fdMarketplace.bottom = new FormAttachment(closeButton, 0, SWT.BOTTOM);
+      marketplaceButton.setLayoutData(fdMarketplace);
+      marketplaceButton.setText(
+          BaseMessages.getString(PKG, "MissingActionDialog.SearchMarketplace"));
+      marketplaceButton.setToolTipText(
+          BaseMessages.getString(PKG, "MissingActionDialog.SearchMarketplace.Tooltip"));
+      marketplaceButton.addSelectionListener(
+          new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+              String filter = marketplaceSearchFilter();
+              cancel.run();
+              // The marketplace is modal and runs its own event loop, so let this dialog finish
+              // closing first instead of nesting one modal shell inside another.
+              display.asyncExec(() -> openMarketplace(filter));
             }
           });
     }

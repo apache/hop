@@ -165,6 +165,14 @@ public enum HopExtensionPoint {
   HopGuiGetControlSpaceSortOrderPrefix(
       "Gets a prefix to steer the sort order of variables when using CTRL-SPACE.  Defaults range from 900_ to 400_. Set prefixes in Map<String,String>"),
 
+  /**
+   * Open the marketplace so a missing plugin can be looked up and installed. Payload is the plugin
+   * id to search for (String); blank or null opens the marketplace unfiltered. Only listened to
+   * when the marketplace plugin is installed, so callers should check {@link
+   * ExtensionPointMap#isRegistered(String)} before offering it.
+   */
+  HopGuiSearchMarketplace("Open the marketplace, searching for a plugin id (String)"),
+
   HopImportStart("Executed at the start of the 'hop-import' command line tool"),
   HopImportEnd("Executed at the end of the 'hop-import' command line tool"),
 

@@ -618,7 +618,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-engines-spark -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-async</artifactId>
@@ -631,7 +630,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-misc-documentation -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-execution-database</artifactId>
@@ -644,8 +642,12 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-misc-import -->
-        <!-- marketplace optional: hop-misc-mail -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-mail</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-marketplace</artifactId>
@@ -664,14 +666,12 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-misc-py4j -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-reflection</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-misc-rest -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-misc-rest</artifactId>
@@ -696,23 +696,24 @@
             <version>2.19.0-SNAPSHOT</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-tech-arrow -->
-        <!-- marketplace optional: hop-tech-avro -->
-        <!-- marketplace optional: hop-tech-aws -->
-        <!-- marketplace optional: hop-tech-azure -->
-        <!-- marketplace optional: hop-tech-cassandra -->
-        <!-- marketplace optional: hop-tech-databricks -->
-        <!-- marketplace optional: hop-tech-dropbox -->
-        <!-- marketplace optional: hop-tech-elastic -->
-        <!-- marketplace optional: hop-tech-minio -->
-        <!-- marketplace optional: hop-tech-mongodb -->
-        <!-- marketplace optional: hop-tech-neo4j -->
-        <!-- marketplace optional: hop-tech-opensearch -->
-        <!-- marketplace optional: hop-tech-parquet -->
-        <!-- marketplace optional: hop-tech-redis -->
-        <!-- marketplace optional: hop-tech-salesforce -->
-        <!-- Also listed in the marketplace catalog (optional-plugins.yaml) so slim
-             distributions can install it, but it ships with the client. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-aws</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-azure</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-google</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-sftp</artifactId>
@@ -917,7 +918,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-detectlanguage -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-detectlastrow</artifactId>
@@ -930,14 +930,18 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-drools -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-dynamicsqlrow</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-edi2xml -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-edi2xml</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-excel</artifactId>
@@ -962,7 +966,12 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-fake -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-fake</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-fieldschangesequence</artifactId>
@@ -1323,7 +1332,12 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-script -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-script</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-selectvalues</artifactId>
@@ -1408,7 +1422,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-stanfordnlp -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-streamlookup</artifactId>
@@ -1487,7 +1500,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-tika -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-tokenreplacement</artifactId>
@@ -1524,7 +1536,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <!-- marketplace optional: hop-transform-vcard -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-webserviceavailable</artifactId>
@@ -1573,7 +1584,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-
     </dependencies>
 
     <!--
@@ -1615,12 +1625,6 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-misc-mail</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
                     <artifactId>hop-misc-py4j</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
@@ -1645,18 +1649,6 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-tech-aws</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-tech-azure</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-cassandra</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
@@ -1676,12 +1668,6 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-elastic</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-tech-google</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>
@@ -1736,24 +1722,6 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-transform-drools</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-transform-edi2xml</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-transform-fake</artifactId>
-                    <version>${project.version}</version>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.hop</groupId>
-                    <artifactId>hop-transform-script</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>
