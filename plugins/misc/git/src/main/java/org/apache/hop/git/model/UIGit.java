@@ -51,7 +51,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.jgit.api.CleanCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
@@ -902,9 +901,16 @@ public class UIGit extends VCS {
       String normalizedPath = normalizePathForJGit(path);
       // Revert files to HEAD state
       Status status = git.status().addPath(normalizedPath).call();
-      if (!status.getUntracked().isEmpty() || !status.getAdded().isEmpty()) {
-        resetPath(normalizedPath);
-        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, normalizedPath));
+      boolean isAdded = status.getAdded().contains(normalizedPath);
+      if (isAdded || status.getUntracked().contains(normalizedPath)) {
+        // The file is new: it doesn't exist in HEAD. Simply unstage it (if it was staged) and
+        // leave it on disk. Like git itself, revert never removes working tree files: removing
+        // untracked files takes an explicit git clean.
+        //
+        if (isAdded) {
+          resetPath(normalizedPath);
+        }
+        return;
       }
 
       /*
@@ -922,24 +928,43 @@ public class UIGit extends VCS {
   }
 
   /**
-   * Clean untracked files and directories under the given path (e.g. a folder).
+   * Remove the given untracked files from the working tree: a targeted <code>git clean</code>.
+   * Paths which git doesn't report as untracked (tracked files, ignored files) are skipped, so this
+   * can never remove content which is under version control.
    *
-   * @param path The path to clean (relative to repo root)
+   * @param paths The paths to clean (relative to the repository root)
    * @throws HopException when the clean operation fails
    */
-  public void cleanPath(String path) throws HopException {
+  public void cleanPaths(Collection<String> paths) throws HopException {
+    if (paths == null || paths.isEmpty()) {
+      return;
+    }
     try {
-      String normalizedPath = normalizePathForJGit(path);
-      if (normalizedPath == null || ".".equals(normalizedPath)) {
-        normalizedPath = "";
+      Set<String> untracked = git.status().call().getUntracked();
+      File workTree = new File(directory);
+      for (String path : paths) {
+        String normalizedPath = normalizePathForJGit(path);
+        if (normalizedPath == null || !untracked.contains(normalizedPath)) {
+          continue;
+        }
+        File file = new File(workTree, normalizedPath);
+        org.apache.commons.io.FileUtils.deleteQuietly(file);
+        deleteEmptyParentFolders(file.getParentFile(), workTree);
       }
-      CleanCommand cleanCommand = git.clean();
-      if (!normalizedPath.isEmpty()) {
-        cleanCommand.setPaths(Collections.singleton(normalizedPath));
-      }
-      cleanCommand.setCleanDirectories(true).setForce(true).call();
     } catch (Exception e) {
-      throw new HopException("Git: error cleaning path '" + path + "'", e);
+      throw new HopException("Git: error cleaning untracked files", e);
+    }
+  }
+
+  /** Remove the folders a clean left behind empty, up to (excluding) the repository root. */
+  private void deleteEmptyParentFolders(File folder, File workTree) {
+    File parent = folder;
+    while (parent != null
+        && parent.isDirectory()
+        && !parent.equals(workTree)
+        && parent.toPath().startsWith(workTree.toPath())
+        && parent.delete()) { // only succeeds for empty folders
+      parent = parent.getParentFile();
     }
   }
 
@@ -974,14 +999,14 @@ public class UIGit extends VCS {
   }
 
   /**
-   * Get the subset of revert-path files that will be deleted by revert (untracked or added). For
-   * these files revert removes the file; for others (changed, missing, uncommitted) the file stays
-   * and only content is reset.
+   * Get the subset of revert-path files which are new: untracked or added but not in HEAD. Revert
+   * only unstages these and leaves them on disk; removing them takes an explicit git clean. For all
+   * other files (changed, missing, uncommitted) revert restores the content from HEAD.
    *
    * @param path The path to revert (same as for getRevertPathFiles)
-   * @return Paths that will be deleted (untracked + added)
+   * @return The new (untracked + added) paths
    */
-  public Set<String> getRevertPathFilesThatWillBeDeleted(String path) throws HopException {
+  public Set<String> getNewRevertPathFiles(String path) throws HopException {
     try {
       Set<String> files = new HashSet<>();
       String normalizedPath = normalizePathForJGit(path);

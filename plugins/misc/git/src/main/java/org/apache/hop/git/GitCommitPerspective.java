@@ -586,14 +586,18 @@ public class GitCommitPerspective implements IHopPerspective {
 
         List<String> filesToClose = new ArrayList<>();
         List<String> filesToReload = new ArrayList<>();
+        List<String> addedFilesToDelete = new ArrayList<>();
         for (UIFile file : files) {
           // Absolute path for file explorer
           String path = getAbsolutePath(git.getDirectory(), file.getName());
 
           switch (file.getChangeType()) {
             case ADD -> {
+              // Restoring an added file only unstages it, the file stays on disk unless the
+              // user explicitly asked to delete the local copies as well.
+              git.revertPath(file.getName());
               if (deleteAddedFiles) {
-                git.revertPath(file.getName());
+                addedFilesToDelete.add(file.getName());
                 filesToClose.add(path);
               }
             }
@@ -603,6 +607,9 @@ public class GitCommitPerspective implements IHopPerspective {
             }
           }
         }
+
+        // The files which were added are untracked now: delete the local copies when asked
+        git.cleanPaths(addedFilesToDelete);
 
         // Close tabs for restored files that were deleted (untracked/added)
         ExplorerPerspective.getInstance().closeTabsForFilenames(filesToClose);

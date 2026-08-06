@@ -36,12 +36,14 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.RemoteAddCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.junit.RepositoryTestCase;
@@ -465,6 +467,104 @@ public class UIGitTest extends RepositoryTestCase {
 
     uiGit.revertPath(file.getName());
     assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testRevertPathOnlyUnstagesAddedFile() throws Exception {
+    initialCommit();
+
+    // A new file which was staged with "add"
+    File file = writeTrashFile("New.txt", "Hello world");
+    git.add().addFilepattern("New.txt").call();
+    assertTrue(git.status().call().getAdded().contains("New.txt"));
+
+    uiGit.revertPath("New.txt");
+
+    // The file is unstaged but is still on disk with its content intact
+    assertTrue(file.exists());
+    assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
+    Status status = git.status().call();
+    assertTrue(status.getAdded().isEmpty());
+    assertTrue(status.getUntracked().contains("New.txt"));
+  }
+
+  @Test
+  public void testRevertPathKeepsUntrackedFile() throws Exception {
+    initialCommit();
+
+    File file = writeTrashFile("Untracked.txt", "Hello world");
+
+    uiGit.revertPath("Untracked.txt");
+
+    assertTrue(file.exists());
+    assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
+    assertTrue(git.status().call().getUntracked().contains("Untracked.txt"));
+  }
+
+  @Test
+  public void testRevertPathRestoresDeletedFile() throws Exception {
+    File file = writeTrashFile("Test.txt", "Hello world");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("initial commit").call();
+
+    assertTrue(file.delete());
+
+    uiGit.revertPath("Test.txt");
+
+    assertTrue(file.exists());
+    assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testGetNewRevertPathFiles() throws Exception {
+    File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
+    git.add().addFilepattern("folder/Tracked.txt").call();
+    git.commit().setMessage("initial commit").call();
+
+    FileUtils.writeStringToFile(tracked, "Change", StandardCharsets.UTF_8);
+    writeTrashFile("folder/Untracked.txt", "Untracked");
+    writeTrashFile("folder/Added.txt", "Added");
+    git.add().addFilepattern("folder/Added.txt").call();
+
+    Set<String> newFiles = uiGit.getNewRevertPathFiles("folder");
+
+    assertEquals(2, newFiles.size());
+    assertTrue(newFiles.contains("folder/Untracked.txt"));
+    assertTrue(newFiles.contains("folder/Added.txt"));
+  }
+
+  @Test
+  public void testCleanPathsOnlyRemovesUntrackedFiles() throws Exception {
+    File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
+    git.add().addFilepattern("folder/Tracked.txt").call();
+    git.commit().setMessage("initial commit").call();
+    FileUtils.writeStringToFile(tracked, "Change", StandardCharsets.UTF_8);
+
+    File untracked = writeTrashFile("folder/Untracked.txt", "Untracked");
+    File nested = writeTrashFile("folder/new-folder/Nested.txt", "Nested");
+
+    uiGit.cleanPaths(
+        List.of("folder/Untracked.txt", "folder/new-folder/Nested.txt", "folder/Tracked.txt"));
+
+    // Untracked files are removed, along with the folder they left behind empty
+    assertFalse(untracked.exists());
+    assertFalse(nested.exists());
+    assertFalse(nested.getParentFile().exists());
+
+    // A tracked file is never removed by a clean, even when it's passed in
+    assertTrue(tracked.exists());
+    assertEquals("Change", FileUtils.readFileToString(tracked, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testCleanPathsWithoutPathsDoesNotRemoveAnything() throws Exception {
+    initialCommit();
+    File untracked = writeTrashFile("Untracked.txt", "Untracked");
+
+    uiGit.cleanPaths(List.of());
+    uiGit.cleanPaths(null);
+
+    assertTrue(untracked.exists());
   }
 
   @Test
