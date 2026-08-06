@@ -129,6 +129,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -173,7 +174,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "MetadataPerspective-ContextMenu";
 
   public static final String TOOLBAR_ITEM_NEW_TYPE = "MetadataPerspective-Toolbar-09000-NewType";
-  public static final String TOOLBAR_ITEM_NEW = "MetadataPerspective-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10040-Delete";
@@ -429,20 +429,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> this.updateSelection());
-    tree.addListener(
-        SWT.DefaultSelection,
-        event -> {
-          TreeItem treeItem = tree.getSelection()[0];
-          if (treeItem == null) {
-            return;
-          }
-          if (FILE.equals(treeItem.getData(KEY_TYPE))) {
-            onEditMetadata();
-          } else if (UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
-            // There's no editor for an element we can't load: explain why instead.
-            onUnknownMetadataDetails();
-          }
-        });
+    tree.addListener(SWT.DefaultSelection, this::openTreeItem);
 
     tree.addMenuDetectListener(
         event -> {
@@ -767,6 +754,22 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           ERROR,
           BaseMessages.getString(PKG, "MetadataPerspective.DragDropOpen.Error"),
           e);
+    }
+  }
+
+  private void openTreeItem(Event event) {
+    TreeItem treeItem = tree.getSelection()[0];
+    if (treeItem == null) {
+      return;
+    }
+    if (FILE.equals(treeItem.getData(KEY_TYPE))) {
+      onEditMetadata();
+    } else if (UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
+      // There's no editor for an element we can't load: explain why instead.
+      onUnknownMetadataDetails();
+    } else {
+      // Expand/Collapse category
+      treeItem.setExpanded(!treeItem.getExpanded());
     }
   }
 
@@ -1266,11 +1269,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     renderTree();
   }
 
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_NEW,
-      toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
-      image = "ui/images/new.svg")
   public void onNewMetadata() {
     if (tree.getSelectionCount() != 1) {
       return;
@@ -3195,12 +3193,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       isFolderSelected = FOLDER.equals(nodeType);
       // An element we can't load can only be deleted.
       isUnknownSelected = UNKNOWN_FILE.equals(nodeType);
-      // The context "New" applies to a type, folder or file (all resolve to a type key), but not
-      // to a category header or a plain label.
-      canCreateHere = getObjectKey(treeItem) != null;
     }
 
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, canCreateHere);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);

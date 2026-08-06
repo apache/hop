@@ -54,7 +54,7 @@ public final class MetadataCategories {
           new CategoryInfo(
               HopMetadataCategory.FILE_STORAGE,
               "MetadataPerspective.Category.FileStorage",
-              "ui/images/location.svg"),
+              "ui/images/storage.svg"),
           new CategoryInfo(
               HopMetadataCategory.RUN_CONFIG,
               "MetadataPerspective.Category.RunConfig",
