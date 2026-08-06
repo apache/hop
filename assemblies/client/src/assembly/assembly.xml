@@ -40,8 +40,6 @@
                 <include>org.apache.hop:hop-core:zip</include>
                 <include>org.apache.hop:hop-engine:zip</include>
                 <include>org.apache.hop:hop-ui:zip</include>
-                <!-- Beam is a marketplace plugin; bundled only when the dependency is
-                     present (-Pbeam / -Pfull). It brings its own lib/core libs and lib/spark-client. -->
                 <include>org.apache.hop:hop-engines-beam:zip</include>
                 <include>org.apache.hop:hop-ui-rcp:zip</include>
             </includes>
