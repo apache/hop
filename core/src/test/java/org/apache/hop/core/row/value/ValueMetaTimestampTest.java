@@ -18,12 +18,14 @@ package org.apache.hop.core.row.value;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -40,9 +42,24 @@ import org.mockito.stubbing.Answer;
 class ValueMetaTimestampTest {
 
   @Test
+  void testConvertTimestampToDateReturnsDateInsteadOfTimestamp() throws Exception {
+    ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
+    ValueMetaDate valueMetaDate = new ValueMetaDate();
+    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
+
+    Date date = (Date) valueMetaDate.convertData(valueMetaTimestamp, timestamp);
+
+    assertEquals(Date.class, date.getClass());
+    assertEquals(timestamp.getTime(), date.getTime());
+    assertNull(valueMetaDate.convertData(valueMetaTimestamp, null));
+    assertEquals(timestamp, valueMetaTimestamp.getDate(timestamp));
+  }
+
+  @Test
   void testSetPreparedStatementValue() throws Exception {
     ValueMetaTimestamp vm = new ValueMetaTimestamp();
     PreparedStatement ps = mock(PreparedStatement.class);
+    Timestamp timestamp = Timestamp.valueOf("2025-08-28 08:14:13.123456789");
     doAnswer(
             (Answer<Object>)
                 invocationOnMock -> {
@@ -53,7 +70,10 @@ class ValueMetaTimestampTest {
         .setTimestamp(anyInt(), (Timestamp) any());
 
     try {
-      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 0, null);
+      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 1, timestamp);
+      verify(ps).setTimestamp(1, timestamp);
+      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 2, null);
+      verify(ps).setNull(2, java.sql.Types.TIMESTAMP);
     } catch (HopDatabaseException ex) {
       fail("Error setting value on prepared statement ");
     }
