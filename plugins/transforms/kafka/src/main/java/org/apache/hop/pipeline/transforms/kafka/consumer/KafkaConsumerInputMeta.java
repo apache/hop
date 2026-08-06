@@ -105,6 +105,8 @@ public class KafkaConsumerInputMeta
 
   @HopMetadataProperty private TimestampConsumerField timestampField;
 
+  @HopMetadataProperty private HeadersConsumerField headersField;
+
   @HopMetadataProperty(
       key = "pipelinePath",
       injectionKey = "pipelinePath",
@@ -236,6 +238,10 @@ public class KafkaConsumerInputMeta
     timestampField =
         new TimestampConsumerField(
             BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TimestampField"));
+
+    // Left unnamed on purpose: an empty output name keeps the field off the output row, so
+    // pipelines saved before headers existed produce exactly the same row as before.
+    headersField = new HeadersConsumerField("");
   }
 
   public KafkaConsumerInputMeta(KafkaConsumerInputMeta m) {
@@ -271,6 +277,7 @@ public class KafkaConsumerInputMeta
     putFieldOnRowMeta(getPartitionField(), rowMeta, origin, variables);
     putFieldOnRowMeta(getOffsetField(), rowMeta, origin, variables);
     putFieldOnRowMeta(getTimestampField(), rowMeta, origin, variables);
+    putFieldOnRowMeta(getHeadersField(), rowMeta, origin, variables);
     return rowMeta;
   }
 
@@ -301,7 +308,8 @@ public class KafkaConsumerInputMeta
             getTopicField(),
             getPartitionField(),
             getOffsetField(),
-            getTimestampField()));
+            getTimestampField(),
+            getHeadersField()));
   }
 
   @Override
@@ -512,6 +520,7 @@ public class KafkaConsumerInputMeta
             case PARTITION -> partitionField;
             case OFFSET -> offsetField;
             case TIMESTAMP -> timestampField;
+            case HEADERS -> headersField;
           };
       field.setKafkaName(name);
       field.setOutputType(type);
@@ -601,6 +610,41 @@ public class KafkaConsumerInputMeta
     }
 
     public TopicConsumerField(String outputName) {
+      this();
+      this.outputName = outputName;
+    }
+  }
+
+  /**
+   * The record headers, rendered as a JSON array of {@code {"name":..,"value":..}} objects.
+   *
+   * <p>A Kafka record carries an ordered list of header pairs and the same name may appear more
+   * than once, which a flat row column cannot represent. An array of objects keeps both the order
+   * and any repeats, so the value round-trips through the Kafka Producer transform unchanged. Leave
+   * the output name empty to keep headers off the row entirely.
+   */
+  @Getter
+  @Setter
+  public static class HeadersConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        key = "outputName",
+        injectionKey = "HEADERS.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.HEADERS.OUTPUT_NAME")
+    protected String outputName;
+
+    public HeadersConsumerField() {
+      super();
+      this.outputName = "";
+      super.outputType = Type.String;
+      super.kafkaName = Name.HEADERS;
+    }
+
+    public HeadersConsumerField(HeadersConsumerField f) {
+      super(f.kafkaName, f.outputName, f.outputType);
+      this.outputName = f.outputName;
+    }
+
+    public HeadersConsumerField(String outputName) {
       this();
       this.outputName = outputName;
     }

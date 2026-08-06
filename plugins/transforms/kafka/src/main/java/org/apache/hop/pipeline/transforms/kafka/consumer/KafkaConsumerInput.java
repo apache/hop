@@ -43,6 +43,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaHeaders;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -410,14 +411,30 @@ public class KafkaConsumerInput
 
     Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
+    // Only fields carrying an output name are on the row, in the order KafkaConsumerInputMeta
+    // adds them, so each value is placed conditionally rather than at a fixed index.
     int index = 0;
-    rowData[index++] = record.key();
-    rowData[index++] = record.value();
-    rowData[index++] = record.topic();
-    rowData[index++] = (long) record.partition();
-    rowData[index++] = record.offset();
-    rowData[index] = record.timestamp();
+    index = putIfNamed(rowData, index, meta.getKeyField(), record.key());
+    index = putIfNamed(rowData, index, meta.getMessageField(), record.value());
+    index = putIfNamed(rowData, index, meta.getTopicField(), record.topic());
+    index = putIfNamed(rowData, index, meta.getPartitionField(), (long) record.partition());
+    index = putIfNamed(rowData, index, meta.getOffsetField(), record.offset());
+    index = putIfNamed(rowData, index, meta.getTimestampField(), record.timestamp());
+    putIfNamed(rowData, index, meta.getHeadersField(), KafkaHeaders.toJson(record.headers()));
 
     return rowData;
+  }
+
+  /**
+   * Writes a value at the given index only when the field contributes a column, and reports the
+   * next free index. A field with an empty output name is skipped by {@code
+   * KafkaConsumerInputMeta.getRowMeta}, so writing it here would shift every later column.
+   */
+  private int putIfNamed(Object[] rowData, int index, KafkaConsumerField field, Object value) {
+    if (field == null || StringUtils.isEmpty(field.getOutputName()) || index >= rowData.length) {
+      return index;
+    }
+    rowData[index] = value;
+    return index + 1;
   }
 }
