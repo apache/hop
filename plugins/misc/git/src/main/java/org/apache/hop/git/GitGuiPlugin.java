@@ -771,35 +771,51 @@ public class GitGuiPlugin
   }
 
   /**
-   * Normalize absolute filename.
+   * Normalize a path for map keys used by {@link #filePainted}. Pure string normalization — must
+   * not open VFS objects (called once per explorer tree item).
    *
    * @param path the path to normalize
-   * @return normalized path
+   * @return normalized path (forward slashes, no trailing slash except root)
    */
   private String getAbsoluteFilename(String path) {
-    try {
-      path = HopVfs.getFileObject(path).getName().getPath();
-    } catch (Exception e) {
-      // Ignore, keep simple path
+    if (path == null) {
+      return null;
     }
-    return path;
+    String normalized = path.replace('\\', '/');
+    // Strip file: URI prefix when present so keys match explorer OS paths after conversion
+    if (normalized.startsWith("file://")) {
+      normalized = normalized.substring("file://".length());
+      // file:///C:/... → /C:/... on some platforms; leave as-is and rely on slash unify
+    }
+    while (normalized.contains("//")) {
+      normalized = normalized.replace("//", "/");
+    }
+    if (normalized.length() > 1 && normalized.endsWith("/")) {
+      normalized = normalized.substring(0, normalized.length() - 1);
+    }
+    return normalized;
   }
 
   /**
-   * Normalize absolute filename
+   * Normalize absolute filename from a git-relative path without VFS.
    *
    * @param root The root path
    * @param relativePath The relative path
    * @return The absolute filename
    */
   private String getAbsoluteFilename(String root, String relativePath) {
-    String path = root + File.separator + relativePath;
-    try {
-      path = HopVfs.getFileObject(path).getName().getPath();
-    } catch (Exception e) {
-      // Ignore, keep simple path
+    if (relativePath == null || relativePath.isEmpty()) {
+      return getAbsoluteFilename(root);
     }
-    return path;
+    String rel = relativePath.replace('\\', '/');
+    while (rel.startsWith("./")) {
+      rel = rel.substring(2);
+    }
+    String base = root == null ? "" : root.replace('\\', '/');
+    if (base.endsWith("/")) {
+      return getAbsoluteFilename(base + rel);
+    }
+    return getAbsoluteFilename(base + "/" + rel);
   }
 
   /* package*/ void refreshChangedFiles() {
