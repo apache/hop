@@ -211,25 +211,8 @@ public class FormulaEditor extends Dialog implements KeyListener {
                         : functionLib.getFunctionDescription(item.getText()).getSyntax();
               }
 
-              String oldFormula = expressionEditor.getText();
-              int caretPosition = expressionEditor.getCaretPosition();
-              int textLength = expressionEditor.getText().length();
-              int selectionsize = expressionEditor.getSelectionCount();
-
-              // No text in editor yet, just add text
-              if (textLength == 0) {
-                expressionEditor.setText(partToInsert);
-              } else if (textLength == caretPosition) {
-                // we are at the end of the text, append new text
-                expressionEditor.setText(oldFormula + partToInsert);
-              } else {
-                // Adding text somewhere between other text
-                // if selectionsize is > 0 then we are writing over other text
-                expressionEditor.setText(
-                    oldFormula.substring(0, caretPosition)
-                        + partToInsert
-                        + oldFormula.substring(caretPosition + selectionsize));
-              }
+              // insert() replaces selection regardless of caret direction (fixes #5321)
+              expressionEditor.insert(partToInsert);
             }
           }
         });
