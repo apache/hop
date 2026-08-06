@@ -444,6 +444,8 @@ public class UIGit extends VCS {
     }
     status.getUntracked().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
     status.getConflicting().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
+    // Changed in the working tree but not staged: "git add" is what stages these
+    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
     status.getMissing().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, false)));
     return files;
   }
@@ -457,9 +459,9 @@ public class UIGit extends VCS {
       e.printStackTrace();
       return files;
     }
+    // Only what is in the index: working tree changes are reported by getUnstagedFiles()
     status.getAdded().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, true)));
     status.getChanged().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
-    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
     status.getRemoved().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, true)));
     return files;
   }
@@ -995,6 +997,28 @@ public class UIGit extends VCS {
       return new ArrayList<>(files);
     } catch (Exception e) {
       throw new HopException("Git: error reverting path files for '" + path + "'", e);
+    }
+  }
+
+  /**
+   * Get the untracked files under the given path: the files a git clean would remove. Ignored files
+   * are not part of this list, git clean leaves those alone as well.
+   *
+   * @param path The path to clean (relative to the repository root)
+   * @return The untracked files, sorted by name
+   */
+  public List<String> getUntrackedPathFiles(String path) throws HopException {
+    try {
+      String normalizedPath = normalizePathForJGit(path);
+      StatusCommand statusCommand = git.status();
+      if (normalizedPath != null && !".".equals(normalizedPath)) {
+        statusCommand = statusCommand.addPath(normalizedPath);
+      }
+      List<String> files = new ArrayList<>(statusCommand.call().getUntracked());
+      Collections.sort(files);
+      return files;
+    } catch (Exception e) {
+      throw new HopException("Git: error getting untracked files for '" + path + "'", e);
     }
   }
 

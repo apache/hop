@@ -534,6 +534,57 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testModifiedFilesAreUnstagedUntilTheyAreAdded() throws Exception {
+    File file = writeTrashFile("Test.txt", "Hello world");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("initial commit").call();
+
+    // A change in the working tree is not staged, only "git add" stages it
+    FileUtils.writeStringToFile(file, "Change", StandardCharsets.UTF_8);
+
+    List<UIFile> unstaged = uiGit.getUnstagedFiles();
+    assertEquals(1, unstaged.size());
+    assertEquals("Test.txt", unstaged.get(0).getName());
+    assertEquals(ChangeType.MODIFY, unstaged.get(0).getChangeType());
+    assertFalse(unstaged.get(0).isStaged());
+    assertTrue(uiGit.getStagedFiles().isEmpty());
+
+    uiGit.add("Test.txt");
+
+    List<UIFile> staged = uiGit.getStagedFiles();
+    assertEquals(1, staged.size());
+    assertEquals("Test.txt", staged.get(0).getName());
+    assertEquals(ChangeType.MODIFY, staged.get(0).getChangeType());
+    assertTrue(staged.get(0).isStaged());
+    assertTrue(uiGit.getUnstagedFiles().isEmpty());
+  }
+
+  @Test
+  public void testGetUntrackedPathFiles() throws Exception {
+    File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
+    writeTrashFile("folder/Ignored.txt", "Ignored");
+    writeTrashFile(".gitignore", "Ignored.txt");
+    git.add().addFilepattern("folder/Tracked.txt").addFilepattern(".gitignore").call();
+    git.commit().setMessage("initial commit").call();
+
+    FileUtils.writeStringToFile(tracked, "Change", StandardCharsets.UTF_8);
+    writeTrashFile("folder/Untracked.txt", "Untracked");
+    writeTrashFile("folder/Added.txt", "Added");
+    git.add().addFilepattern("folder/Added.txt").call();
+    writeTrashFile("outside/Other.txt", "Outside the folder");
+
+    // Only the untracked file: not the tracked, added, ignored or out of scope ones
+    assertEquals(List.of("folder/Untracked.txt"), uiGit.getUntrackedPathFiles("folder"));
+
+    // A single file works as well, as does the whole repository
+    assertEquals(
+        List.of("folder/Untracked.txt"), uiGit.getUntrackedPathFiles("folder/Untracked.txt"));
+    assertTrue(uiGit.getUntrackedPathFiles("folder/Tracked.txt").isEmpty());
+    assertEquals(
+        List.of("folder/Untracked.txt", "outside/Other.txt"), uiGit.getUntrackedPathFiles(null));
+  }
+
+  @Test
   public void testCleanPathsOnlyRemovesUntrackedFiles() throws Exception {
     File tracked = writeTrashFile("folder/Tracked.txt", "Hello world");
     git.add().addFilepattern("folder/Tracked.txt").call();
