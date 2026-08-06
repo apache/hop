@@ -21,7 +21,9 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonToken;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -46,6 +48,10 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
   /**
    * Create a copy of all elements in an existing metadata.
    *
+   * <p>Objects which can't be loaded, typically because the plugin they reference isn't installed
+   * (a Beam or Spark pipeline run configuration in a plain client, ...), are logged and skipped.
+   * They shouldn't keep a pipeline or workflow which doesn't use them from running.
+   *
    * @param source the source store to copy over
    */
   public SerializableMetadataProvider(IHopMetadataProvider source) throws HopException {
@@ -60,8 +66,31 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
       // Loop over the available objects of the class and copy the information over.
       //
       for (String name : sourceSerializer.listObjectNames()) {
-        targetSerializer.save(sourceSerializer.load(name));
+        try {
+          IHopMetadata object = sourceSerializer.load(name);
+          if (object != null) {
+            targetSerializer.save(object);
+          }
+        } catch (Exception e) {
+          logSkippedObject(name, metadataClass, e);
+        }
       }
+    }
+  }
+
+  private static void logSkippedObject(String name, Class<?> metadataClass, Exception e) {
+    String message =
+        "Error copying metadata object '"
+            + name
+            + "' of type "
+            + metadataClass.getSimpleName()
+            + ".  The object is ignored.";
+    if (HopLogStore.isInitialized()) {
+      LogChannel.GENERAL.logError(message, e);
+    } else {
+      // Metadata is also copied before any logging is available.
+      //
+      System.err.println(message + Const.CR + Const.getStackTracker(e));
     }
   }
 
