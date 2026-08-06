@@ -128,6 +128,9 @@ public class DatabaseExplorerDialog extends Dialog {
   private Tree wTree;
   private TreeItem tiTree;
 
+  /** Updated on SWT.Expand/Collapse; used to detect native ">" handling vs DPI miss. */
+  private long lastTreeExpandCollapseNanos;
+
   @Getter @Setter private String tableName;
 
   private final boolean justLook;
@@ -269,6 +272,8 @@ public class DatabaseExplorerDialog extends Dialog {
 
     wTree.addListener(SWT.Selection, e -> refreshButtons(getSchemaTable()));
     wTree.addListener(SWT.DefaultSelection, this::openSchema);
+    wTree.addListener(SWT.Expand, e -> lastTreeExpandCollapseNanos = System.nanoTime());
+    wTree.addListener(SWT.Collapse, e -> lastTreeExpandCollapseNanos = System.nanoTime());
     wTree.addListener(SWT.MouseDown, this::handleTreeMouseDown);
     shell.addListener(SWT.Close, e -> cancel());
 
@@ -1073,12 +1078,6 @@ public class DatabaseExplorerDialog extends Dialog {
     if (sel == null) {
       return;
     }
-    // Double-click on a folder toggles expand/collapse (native ">" hit target is unreliable on
-    // Windows when tree icons are zoomed).
-    if (sel.getItemCount() > 0) {
-      ConstUi.flipExpanded(sel);
-      return;
-    }
 
     TreeItem up1 = sel.getParentItem();
     if (up1 != null) {
@@ -1108,7 +1107,7 @@ public class DatabaseExplorerDialog extends Dialog {
 
     TreeItem item = wTree.getItem(new Point(e.x, e.y));
     if (item == null) {
-      // DPI scaling can place the visible ">" left of the native hit box; resolve by row Y.
+      // Expander ">" is often outside getItem()'s hit box; resolve the row by Y.
       item = findTreeItemAtY(e.y);
     }
     if (item == null || item.getItemCount() == 0) {
@@ -1124,10 +1123,18 @@ public class DatabaseExplorerDialog extends Dialog {
       return;
     }
 
-    boolean expandedBefore = item.getExpanded();
-    TreeItem target = item;
-    // Let the native expander run first when the click hit its (narrow) zone; if nothing changed,
-    // toggle ourselves so clicks on the visible ">" / folder icon still work.
+    if (onImage) {
+      // Folder icon is outside the native expander hit target.
+      item.setExpanded(!item.getExpanded());
+      return;
+    }
+
+    // Gutter / ">": native may or may not handle the click (works at 100%, often misses at
+    // high DPI). Wait one display turn; only complement when Expand/Collapse did not fire
+    // around this click — avoids the expand-then-collapse race at 100%.
+    final TreeItem target = item;
+    final boolean expandedBefore = item.getExpanded();
+    final long mouseDownNanos = System.nanoTime();
     wTree
         .getDisplay()
         .asyncExec(
@@ -1135,9 +1142,15 @@ public class DatabaseExplorerDialog extends Dialog {
               if (target.isDisposed()) {
                 return;
               }
-              if (target.getExpanded() == expandedBefore) {
-                target.setExpanded(!expandedBefore);
+              long delta = lastTreeExpandCollapseNanos - mouseDownNanos;
+              // Native handled if Expand/Collapse fired just before or after MouseDown.
+              if (Math.abs(delta) < 100_000_000L) {
+                return;
               }
+              if (target.getExpanded() != expandedBefore) {
+                return;
+              }
+              target.setExpanded(!expandedBefore);
             });
   }
 
