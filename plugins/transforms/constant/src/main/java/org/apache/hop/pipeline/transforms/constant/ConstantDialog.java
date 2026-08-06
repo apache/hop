@@ -27,6 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.BaseMessageDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -206,6 +207,25 @@ public class ConstantDialog extends BaseTransformDialog {
     wFields.optWidth(true);
   }
 
+  /**
+   * Returns a comma separated list of the 1-based row numbers that hold something but no field
+   * name, or null when every filled-in row is named. Only rows the save would keep are considered:
+   * completely empty rows are dropped anyway and are not a mistake.
+   */
+  private String findUnnamedRows(int nrFields) {
+    StringBuilder rowNumbers = new StringBuilder();
+    for (int i = 0; i < nrFields; i++) {
+      TableItem item = wFields.getNonEmpty(i);
+      if (Utils.isEmpty(item.getText(1))) {
+        if (rowNumbers.length() > 0) {
+          rowNumbers.append(", ");
+        }
+        rowNumbers.append(wFields.table.indexOf(item) + 1);
+      }
+    }
+    return rowNumbers.length() == 0 ? null : rowNumbers.toString();
+  }
+
   private void cancel() {
     transformName = null;
     input.setChanged(changed);
@@ -217,11 +237,24 @@ public class ConstantDialog extends BaseTransformDialog {
       return;
     }
 
-    transformName = wTransformName.getText(); // return value
-
     int i;
 
     int nrFields = wFields.nrNonEmpty();
+
+    // A row that was filled in but never named cannot become an output field, so saving it would
+    // quietly lose what was typed. Point at the row instead of accepting it.
+    String unnamedRows = findUnnamedRows(nrFields);
+    if (unnamedRows != null) {
+      new BaseMessageDialog(
+              shell,
+              BaseMessages.getString(PKG, "ConstantDialog.NoFieldName.Title"),
+              BaseMessages.getString(PKG, "ConstantDialog.NoFieldName.Message", unnamedRows))
+          .open();
+      return;
+    }
+
+    transformName = wTransformName.getText(); // return value
+
     List<ConstantField> fields = input.getFields();
     fields.clear();
 
