@@ -75,6 +75,16 @@ public class HopValidatorException extends HopValueException {
   }
 
   /**
+   * This exception carries the outcome of a validation rule to the error handling hop, it is never
+   * used to debug a code path. Capturing a stack trace for it would cost a stack walk for every
+   * rejected row, which is pure overhead on a transform whose job is to reject rows.
+   */
+  @Override
+  public synchronized Throwable fillInStackTrace() {
+    return this;
+  }
+
+  /**
    * @return the code
    */
   public int getCode() {

@@ -114,6 +114,7 @@ public class ValidatorDialog extends BaseTransformDialog {
   private Button wConcatErrors;
   private TextVar wConcatSeparator;
   private Button wSuppressLogFailedData;
+  private Button wSuppressErrorLog;
 
   public ValidatorDialog(
       Shell parent, IVariables variables, ValidatorMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -222,6 +223,20 @@ public class ValidatorDialog extends BaseTransformDialog {
     fdSuppressLogFailedData.top = new FormAttachment(wConcatErrors, margin);
     wSuppressLogFailedData.setLayoutData(fdSuppressLogFailedData);
 
+    // Optionally suppress the log line the engine writes for every rejected row
+    //
+    wSuppressErrorLog = new Button(shell, SWT.CHECK);
+    wSuppressErrorLog.setText(
+        BaseMessages.getString(PKG, "ValidatorDialog.SuppressErrorLog.Label"));
+    wSuppressErrorLog.setToolTipText(
+        BaseMessages.getString(PKG, "ValidatorDialog.SuppressErrorLog.Tooltip"));
+    PropsUi.setLook(wSuppressErrorLog);
+    FormData fdSuppressErrorLog = new FormData();
+    fdSuppressErrorLog.left = new FormAttachment(middle, 0);
+    fdSuppressErrorLog.right = new FormAttachment(100, 0);
+    fdSuppressErrorLog.top = new FormAttachment(wSuppressLogFailedData, margin);
+    wSuppressErrorLog.setLayoutData(fdSuppressErrorLog);
+
     // Create a scrolled composite on the right side...
     //
     ScrolledComposite wSComp = new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL);
@@ -229,7 +244,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     wSComp.setLayout(new FillLayout());
     FormData fdComp = new FormData();
     fdComp.left = new FormAttachment(middle / 2, margin);
-    fdComp.top = new FormAttachment(wSuppressLogFailedData, margin);
+    fdComp.top = new FormAttachment(wSuppressErrorLog, margin);
     fdComp.right = new FormAttachment(100, -margin);
     fdComp.bottom = new FormAttachment(wOk, -margin);
     // Limit viewport size so the dialog opens at a reasonable size; content scrolls inside.
@@ -1056,6 +1071,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     wConcatErrors.setSelection(input.isConcatenatingErrors());
     wConcatSeparator.setText(Const.NVL(input.getConcatenationSeparator(), ""));
     wSuppressLogFailedData.setSelection(input.isSuppressingLogFailedData());
+    wSuppressErrorLog.setSelection(input.isSuppressingErrorLog());
 
     // Select the first available field...
     //
@@ -1098,6 +1114,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     input.setConcatenatingErrors(wConcatErrors.getSelection());
     input.setConcatenationSeparator(wConcatSeparator.getText());
     input.setSuppressingLogFailedData(wSuppressLogFailedData.getSelection());
+    input.setSuppressingErrorLog(wSuppressErrorLog.getSelection());
 
     input.setValidations(selectionList);
 
