@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<!--
+  Local-only test users for Hop Web multi-role auth.
+  Mount this directory as /config (see run-hop-web-local-with-users.sh).
+
+  Passwords are plain text for easy local testing — do not use in production.
+  Role names map to Hop built-in roles (see hop-web.adoc Authentication).
+-->
+<tomcat-users>
+  <role rolename="hop-admin"/>
+  <role rolename="hop-user"/>
+  <role rolename="hop-operator"/>
+  <role rolename="hop-readonly"/>
+
+  <!-- Admin: full access including future security administration -->
+  <user username="admin" password="admin" roles="hop-admin"/>
+  <!-- User/developer: CRUD + execute -->
+  <user username="developer" password="developer" roles="hop-user"/>
+  <!-- Operator: view + execute only -->
+  <user username="operator" password="operator" roles="hop-operator"/>
+  <!-- Read-only: view only -->
+  <user username="viewer" password="viewer" roles="hop-readonly"/>
+</tomcat-users>

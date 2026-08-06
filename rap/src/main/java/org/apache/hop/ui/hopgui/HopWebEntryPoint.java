@@ -31,6 +31,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
@@ -116,6 +117,17 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     RapClientOsProvider.detectAndStoreClientMac();
     Const.setClientOsProvider(new RapClientOsProvider());
 
+    // Bind RBAC context from servlet Principal (EXTERNAL/Tomcat auth) for this UI session
+    HopSecurityContext securityContext = RapSecurityContextProvider.bindFromCurrentRequest();
+    if (securityContext.isAuthenticated()) {
+      LogChannel.UI.logBasic(
+          "Hop Web security: user ''{0}'' roles={1}",
+          securityContext.getUsername(), securityContext.getRoleIds());
+    } else {
+      LogChannel.UI.logDebug(
+          "Hop Web security: no authenticated principal (mode NONE or unrestricted)");
+    }
+
     ResourceManager resourceManager = RWT.getResourceManager();
     JavaScriptLoader jsLoader = RWT.getClient().getService(JavaScriptLoader.class);
 
@@ -169,6 +181,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     PropsUi props = PropsUi.getInstance();
     HopGui.getInstance().setProps(props);
     props.clearPersistedDialogPositionsOnStartupIfConfigured();
+    // Expose identity on HopGui for window title / status (session-scoped instance)
+    HopGui.getInstance().setSecurityContext(securityContext);
 
     // When user changes theme in Configuration → GUI options, redirect so the new theme takes
     // effect. Boolean null = "follow system" (run system redirect, don't use dark flag).

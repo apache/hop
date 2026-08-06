@@ -55,6 +55,7 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
@@ -68,6 +69,9 @@ import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.HopSecurityContext;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -93,6 +97,7 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.svg.SvgLabelFacade;
 import org.apache.hop.ui.core.widget.svg.SvgLabelListener;
@@ -176,6 +181,7 @@ public class HopGui
   public static final String ID_MAIN_MENU_FILE_EXPORT_TO_SVG = "10050-menu-file-export-to-svg";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
+  public static final String ID_MAIN_MENU_FILE_LOG_OFF = "10850-menu-file-log-off";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
 
   public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "20000-menu-edit";
@@ -228,6 +234,11 @@ public class HopGui
   public static final String ID_MAIN_TOOLBAR_OPEN = "toolbar-10020-open";
   public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10040-save";
   public static final String ID_MAIN_TOOLBAR_SAVE_AS = "toolbar-10050-save-as";
+
+  /** Username label immediately left of {@link #ID_MAIN_TOOLBAR_LOG_OFF}. */
+  public static final String ID_MAIN_TOOLBAR_USER = "toolbar-10890-user";
+
+  public static final String ID_MAIN_TOOLBAR_LOG_OFF = "toolbar-10900-log-off";
 
   public static final String ID_STATUS_TOOLBAR = "HopGui-Status-Toolbar";
 
@@ -314,6 +325,12 @@ public class HopGui
    * redirect to /ui or /ui-dark. Not used in desktop.
    */
   private Consumer<Boolean> webThemeRedirectCallback;
+
+  /**
+   * Session security context (Hop Web). Unrestricted / null on desktop or when authentication is
+   * not configured. Used for window title and available to UI code that needs the current user.
+   */
+  @Setter private HopSecurityContext securityContext;
 
   protected HopGui() {
     this(Display.getCurrent());
@@ -479,11 +496,16 @@ public class HopGui
   protected String getApplicationWindowTitle() {
     String appName = BaseMessages.getString(PKG, "HopGui.Application.Name");
     String version = new HopVersionProvider().getVersion()[0];
+    StringBuilder title = new StringBuilder(appName);
     if (StringUtils.isNotEmpty(version)) {
-      return appName + " - " + version;
+      title.append(" - ").append(version);
     }
-
-    return appName;
+    // Show authenticated username when Hop Web is fronted by container auth (EXTERNAL)
+    HopSecurityContext ctx = securityContext;
+    if (ctx != null && ctx.isAuthenticated()) {
+      title.append(" [").append(ctx.getUsername()).append(']');
+    }
+    return title.toString();
   }
 
   /** Build the shell */
@@ -1068,6 +1090,9 @@ public class HopGui
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
+    } else {
+      // Log off is Hop Web only
+      mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF, false);
     }
 
     // We build the menu items but don't attach them to the shell.
@@ -1116,6 +1141,12 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'n')
   @GuiOsxKeyboardShortcut(command = true, key = 'n')
   public void menuFileNew() {
+    if (!HopSecurityUi.check(Permission.FILE_CREATE)
+        && !HopSecurity.allows(Permission.METADATA_WRITE)) {
+      // Neither new files nor new metadata allowed
+      HopSecurityUi.deny(Permission.FILE_CREATE);
+      return;
+    }
     contextDelegate.fileNew();
   }
 
@@ -1217,6 +1248,43 @@ public class HopGui
     if (fileDelegate.saveGuardAllFiles()) {
       fileDelegate.closeAllFiles();
     }
+  }
+
+  /**
+   * Toolbar label showing the authenticated username (Hop Web). Text is set in {@link
+   * #updateLoggedInUserToolbar()}. Click is a no-op.
+   */
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_USER,
+      type = GuiToolbarElementType.LABEL,
+      label = "",
+      toolTip = "i18n::HopGui.Toolbar.User.Tooltip",
+      separator = true)
+  public void toolbarLoggedInUser() {
+    // Display-only label; no action
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_FILE_LOG_OFF,
+      label = "i18n::HopGui.Menu.File.LogOff",
+      parentId = ID_MAIN_MENU_FILE,
+      image = "ui/images/shutdown.svg",
+      separator = true)
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_LOG_OFF,
+      image = "ui/images/shutdown.svg",
+      toolTip = "i18n::HopGui.Menu.File.LogOff")
+  public void menuFileLogOff() {
+    // Confirm when there may be unsaved work (same guard as exit on desktop)
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      if (!fileDelegate.saveGuardAllFiles()) {
+        return;
+      }
+    }
+    HopWebLogoutFacade.logOff();
   }
 
   @GuiMenuElement(
@@ -1560,6 +1628,9 @@ public class HopGui
   @GuiKeyboardShortcut(key = SWT.F8)
   @GuiOsxKeyboardShortcut(key = SWT.F8)
   public void menuRunStart() {
+    if (!HopSecurityUi.check(Permission.RUN_EXECUTE)) {
+      return;
+    }
     getActiveFileTypeHandler().start();
   }
 
@@ -1570,6 +1641,9 @@ public class HopGui
       image = "ui/images/stop.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   public void menuRunStop() {
+    if (!HopSecurityUi.check(Permission.RUN_STOP)) {
+      return;
+    }
     getActiveFileTypeHandler().stop();
   }
 
@@ -1581,6 +1655,9 @@ public class HopGui
       parentId = ID_MAIN_MENU_RUN_PARENT_ID,
       separator = true)
   public void menuRunPause() {
+    if (!HopSecurityUi.check(Permission.RUN_STOP)) {
+      return;
+    }
     getActiveFileTypeHandler().pause();
   }
 
@@ -1659,7 +1736,36 @@ public class HopGui
     mainToolbarWidgets = new GuiToolbarWidgets();
     mainToolbarWidgets.registerGuiPluginObject(this);
     mainToolbarWidgets.createToolbarWidgets(mainToolbarContainer, ID_MAIN_TOOLBAR);
+    updateLoggedInUserToolbar();
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_LOG_OFF, false);
+    }
     mainToolbar.pack();
+  }
+
+  /**
+   * Show the authenticated username on the main toolbar (left of Log off). Hidden when the session
+   * is unrestricted (desktop / no auth).
+   */
+  protected void updateLoggedInUserToolbar() {
+    if (mainToolbarWidgets == null) {
+      return;
+    }
+    HopSecurityContext ctx = HopSecurity.getContext();
+    if (ctx == null || !ctx.isAuthenticated()) {
+      mainToolbarWidgets.setToolbarLabelText(ID_MAIN_TOOLBAR_USER, "", null);
+      return;
+    }
+    String username = Const.NVL(ctx.getUsername(), "");
+    String roles =
+        ctx.getRoleIds() == null || ctx.getRoleIds().isEmpty()
+            ? ""
+            : String.join(", ", ctx.getRoleIds());
+    String toolTip =
+        StringUtils.isEmpty(roles)
+            ? BaseMessages.getString(PKG, "HopGui.Toolbar.User.Tooltip", username)
+            : BaseMessages.getString(PKG, "HopGui.Toolbar.User.TooltipWithRoles", username, roles);
+    mainToolbarWidgets.setToolbarLabelText(ID_MAIN_TOOLBAR_USER, username, toolTip);
   }
 
   protected void addStatusToolbar() {
@@ -1949,6 +2055,12 @@ public class HopGui
         fileType, handler, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainToolbarWidgets.enableToolbarItem(
         fileType, handler, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
+
+    // New file / metadata: not capability-driven per active file — gate by RBAC only
+    boolean canCreate =
+        HopSecurity.allows(Permission.FILE_CREATE) || HopSecurity.allows(Permission.METADATA_WRITE);
+    mainMenuWidgets.enableMenuItem(ID_MAIN_MENU_FILE_NEW, canCreate);
+    mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_NEW, canCreate);
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {

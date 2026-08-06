@@ -29,6 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.ActionPermissionMapper;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -244,9 +245,16 @@ public class HopGuiKeyHandler extends KeyAdapter {
           && !shortcut.getParentClassName().equals(parentObject.getClass().getName())) {
         return false;
       }
+      // RBAC: refuse shortcuts the current user is not allowed to perform (e.g. Ctrl+S for
+      // read-only). Consume the key so the browser/OS does not fall through to a native action.
+      String methodName = shortcut.getParentMethodName();
+      if (!ActionPermissionMapper.allowsMethod(methodName)) {
+        LogChannel.UI.logBasic("Keyboard shortcut blocked by security: method ''{0}''", methodName);
+        return true;
+      }
       try {
         Class<?> parentClass = parentObject.getClass();
-        Method method = parentClass.getMethod(shortcut.getParentMethodName());
+        Method method = parentClass.getMethod(methodName);
         if (method != null) {
           method.invoke(parentObject);
           return true;

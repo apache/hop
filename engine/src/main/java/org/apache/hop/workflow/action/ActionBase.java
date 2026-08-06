@@ -50,6 +50,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.security.IDialogEditable;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -80,7 +82,8 @@ public abstract class ActionBase
         IAttributes,
         IExtensionData,
         ICheckResultSource,
-        IResourceHolder {
+        IResourceHolder,
+        IDialogEditable {
 
   /** The name of the action */
   @HopMetadataProperty private String name;
@@ -126,6 +129,16 @@ public abstract class ActionBase
   protected Map<String, Object> extensionDataMap;
 
   protected WorkflowMeta parentWorkflowMeta;
+
+  /**
+   * Action settings dialogs require {@link Permission#FILE_EDIT}. Inherited by all actions that
+   * extend this base so {@code BaseDialog.defaultShellHandling} can open them read-only when the
+   * current user lacks that permission.
+   */
+  @Override
+  public Permission requiredEditPermission() {
+    return Permission.FILE_EDIT;
+  }
 
   /** Instantiates a new action base object. */
   protected ActionBase() {

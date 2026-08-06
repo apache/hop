@@ -21,6 +21,8 @@ import jakarta.servlet.ServletContextEvent;
 import java.util.logging.Logger;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.HopSecurityBootstrap;
 import org.apache.hop.history.AuditManager;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;
 
@@ -41,8 +43,12 @@ public class HopWebServletContextListener extends RWTServletContextListener {
     } catch (HopException e) {
       e.printStackTrace();
     }
+    // Apply HOP_WEB_SECURITY_MODE / bootstrap BASIC users before any request
+    HopSecurityBootstrap.runOnce();
     // Use per-user audit folders in Hop Web when the user is authenticated
     AuditManager.setSessionAuditManagerProvider(new HopWebAuditManagerProvider());
+    // Session-aware RBAC: menus/toolbars consult HopSecurity for the UISession principal
+    HopSecurity.setProvider(new RapSecurityContextProvider());
     super.contextInitialized(event);
   }
 

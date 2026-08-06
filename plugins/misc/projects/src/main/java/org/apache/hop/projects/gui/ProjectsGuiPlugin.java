@@ -75,6 +75,8 @@ import org.apache.hop.projects.environment.LifecycleEnvironmentDialog;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
+import org.apache.hop.projects.security.ProjectsAccessControl;
+import org.apache.hop.projects.security.ProjectsSecurityTab;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -156,6 +158,21 @@ public class ProjectsGuiPlugin {
       String projectName, Project project, LifecycleEnvironment environment) throws HopException {
     try {
       HopGui hopGui = HopGui.getInstance();
+
+      // Hop Web RBAC: project access rules (Configuration → Security → Projects)
+      if (!ProjectsAccessControl.isProjectAllowed(projectName)) {
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
+        box.setText(
+            BaseMessages.getString(
+                ProjectsSecurityTab.class, "ProjectsSecurityTab.AccessDenied.Title"));
+        box.setMessage(
+            BaseMessages.getString(
+                ProjectsSecurityTab.class,
+                "ProjectsSecurityTab.AccessDenied.Message",
+                projectName));
+        box.open();
+        return;
+      }
 
       // Before we switch the namespace in HopGui, save the state of the perspectives
       //

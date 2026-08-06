@@ -34,6 +34,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -833,7 +834,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     ToolItem item = findToolItem(id);
     boolean hasCapability =
         handler != null ? handler.hasCapability(permission) : fileType.hasCapability(permission);
-    boolean enable = hasCapability && active;
+    // File-type capability AND runtime state AND session RBAC (Hop Web roles)
+    boolean enable = hasCapability && active && HopSecurity.allowsCapability(permission);
 
     if (item == null) {
       // Web composite mode: no ToolItem, enable/disable the control only
@@ -1049,6 +1051,34 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
           combo.select(index);
         }
       }
+    }
+  }
+
+  /**
+   * Update a {@link GuiToolbarElementType#LABEL} toolbar item's text and tooltip. On desktop SWT
+   * the ToolItem width is adjusted to the new text; when {@code text} is empty the label is hidden.
+   *
+   * @param id toolbar item id
+   * @param text label text (empty hides the label)
+   * @param toolTip optional tooltip (null leaves the existing tooltip unchanged)
+   */
+  public void setToolbarLabelText(String id, String text, String toolTip) {
+    Control control = widgetsMap.get(id);
+    if (!(control instanceof CLabel label) || label.isDisposed()) {
+      return;
+    }
+    String value = Const.NVL(text, "");
+    label.setText(value);
+    if (toolTip != null) {
+      label.setToolTipText(toolTip);
+    }
+    boolean visible = StringUtils.isNotEmpty(value);
+    label.setVisible(visible);
+    label.pack();
+    ToolItem toolItem = toolItemMap.get(id);
+    if (toolItem != null && !toolItem.isDisposed()) {
+      toolItem.setWidth(visible ? Math.max(label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, 1) : 0);
+      toolItem.setEnabled(visible);
     }
   }
 

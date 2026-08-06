@@ -1,0 +1,9 @@
+{
+  "mode": "EXTERNAL",
+  "roleMappings": {
+    "hop-admin": "admin",
+    "hop-user": "user",
+    "hop-operator": "operator",
+    "hop-readonly": "readonly"
+  }
+}

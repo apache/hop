@@ -91,6 +91,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
@@ -151,6 +152,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.CanvasSvgFacade;
@@ -919,15 +921,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             //
             pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, currentTransform);
             return;
-          } else if (event.button == 2 || (event.button == 1 && shift)) {
+          } else if (canEditGraph() && (event.button == 2 || (event.button == 1 && shift))) {
             // SHIFT CLICK: start drawing a new hop
             //
             canvas.setData("mode", "hop");
             canvas.setData(START_HOP_NODE, currentTransform.getName());
             startHopTransform = currentTransform;
-          } else {
+          } else if (canEditGraph()) {
             // Defer entering drag mode until pointer moves past threshold (avoids drag when
-            // clicking on name or making a small movement)
+            // clicking on name or making a small movement). Read-only sessions never arm drag.
             iconDragStartScreen = new Point(event.x, event.y);
             iconDragCommitted = false;
             previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
@@ -1019,28 +1021,30 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         noteOffset = new Point(real.x - loc.x, real.y - loc.y);
 
-        resize = this.getResize(areaOwner.getArea(), real);
+        if (canEditGraph()) {
+          resize = this.getResize(areaOwner.getArea(), real);
 
-        // For web environment, set canvas mode for visual feedback
-        if (EnvironmentUtils.getInstance().isWeb()) {
-          if (resize != null) {
-            canvas.setData("mode", "resize");
-            canvas.setData("resizeDirection", resize.name());
-          } else {
-            canvas.setData("mode", "drag");
-            dragSelection = true;
+          // For web environment, set canvas mode for visual feedback
+          if (EnvironmentUtils.getInstance().isWeb()) {
+            if (resize != null) {
+              canvas.setData("mode", "resize");
+              canvas.setData("resizeDirection", resize.name());
+            } else {
+              canvas.setData("mode", "drag");
+              dragSelection = true;
+            }
+            // Force immediate sync of mode and resize direction to client
+            redraw();
           }
-          // Force immediate sync of mode and resize direction to client
-          redraw();
-        }
 
-        // Keep the original area of the resizing note
-        resizeArea =
-            new Rectangle(
-                currentNotePad.getLocation().x,
-                currentNotePad.getLocation().y,
-                currentNotePad.getWidth(),
-                currentNotePad.getHeight());
+          // Keep the original area of the resizing note
+          resizeArea =
+              new Rectangle(
+                  currentNotePad.getLocation().x,
+                  currentNotePad.getLocation().y,
+                  currentNotePad.getWidth(),
+                  currentNotePad.getHeight());
+        }
 
         updateGui();
         done = true;
@@ -2213,7 +2217,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Commit to drag mode only after pointer moves past threshold while primary button is still
     // down (avoids drag on click jitter; threshold distinguishes click vs intentional drag).
     //
-    if (currentTransform != null
+    if (canEditGraph()
+        && currentTransform != null
         && iconOffset != null
         && !iconDragCommitted
         && iconDragStartScreen != null
@@ -2425,6 +2430,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   protected void moveSelected(int dx, int dy) {
+    if (!canEditGraph()) {
+      return;
+    }
     selectedNotes = pipelineMeta.getSelectedNotes();
     selectedTransforms = pipelineMeta.getSelectedTransforms();
 
@@ -4396,6 +4404,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public void delSelected(TransformMeta transformMeta) {
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
     List<TransformMeta> selection = pipelineMeta.getSelectedTransforms();
     if (currentTransform == null
         && transformMeta == null
@@ -6581,6 +6592,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (!hasPipelineSelection) {
       return;
     }
+    // delSelected re-checks FILE_EDIT (Access denied dialog when blocked)
     delSelected(null);
     updateGui();
   }
