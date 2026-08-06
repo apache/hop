@@ -43,6 +43,18 @@ image:hop-gui/popup-collapsed.png[Hop Gui Popup Dialog - Collapsed, width="65%"]
 
 image:hop-gui/popup-no-categories-no-fixed-width.png[Hop Gui Popup Dialog - No categories, No fixed width, width="65%"]
 
+== Adding transforms and actions
+
+When you open the popup dialog from a **pipeline** or **workflow** canvas (single-click on the background), the dialog lists every transform or action you can add.
+
+* **Click** a transform or action to place it at the canvas location where you opened the dialog.
+* **Click-drag** a transform or action from the dialog onto the canvas to place it where you release the mouse. In Hop Gui the icon follows the pointer; in Hop Web use drag-and-drop onto the canvas. Release outside the canvas (or press Esc in Hop Gui) to cancel.
+* **ALT-Click** (Option-Click on macOS) a transform or action to add or remove it as a *favorite* without closing the dialog. Favorites appear in their own category near the top of the list for quicker access.
+
+Hover over an item to see its description and these shortcuts in the tooltip.
+
+TIP: Dropping a new transform or action on top of an existing hop can split that hop (same confirmation dialog as when you move an icon onto a hop).
+
 == Creating Items
 
 When you create a new item, the dialog will show you a list of metadata items that can be created with a single click of a button.

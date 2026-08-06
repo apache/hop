@@ -76,8 +76,9 @@ public final class GuiActionFavorites {
   }
 
   /**
-   * Append the ALT-Click hint to a plugin description for use as a GuiAction tooltip. The modifier
-   * is shown with the platform specific label: "⌥" (Option) on macOS, "ALT" elsewhere.
+   * Append the favorites / placement hint to a plugin description for use as a GuiAction tooltip.
+   * The modifier is shown with the platform specific label: "⌥" (Option) on macOS, "ALT" elsewhere.
+   * The hint also mentions click-drag placement onto the canvas (issue #3111).
    *
    * @param description the plugin description (may be null)
    * @param favorite true if the plugin is already a favorite (show remove hint)
@@ -143,6 +144,38 @@ public final class GuiActionFavorites {
     }
     toggle(resolved.kind, resolved.pluginId);
     return true;
+  }
+
+  /**
+   * Whether this action creates a pipeline transform or workflow action that can be drag-placed
+   * from the context dialog onto the canvas (issue #3111).
+   */
+  public static boolean isPlaceableCreateAction(GuiAction action) {
+    return resolveFromAction(action) != null;
+  }
+
+  /**
+   * Resolve a create-transform / create-action GuiAction id to kind + plugin id.
+   *
+   * @return resolved pair, or null if the action is not a placeable create action
+   */
+  public static KindAndPluginId resolveFromAction(GuiAction action) {
+    if (action == null || StringUtils.isEmpty(action.getId())) {
+      return null;
+    }
+    return resolve(action.getId());
+  }
+
+  /**
+   * Resolve a create-transform / create-action id string (including favorites) to kind + plugin id.
+   *
+   * @return resolved pair, or null if not a placeable create action id
+   */
+  public static KindAndPluginId resolveFromId(String actionId) {
+    if (StringUtils.isEmpty(actionId)) {
+      return null;
+    }
+    return resolve(actionId);
   }
 
   /**
@@ -219,5 +252,6 @@ public final class GuiActionFavorites {
     return null;
   }
 
-  private record KindAndPluginId(Kind kind, String pluginId) {}
+  /** Kind + plugin id for a placeable create action from the context dialog. */
+  public record KindAndPluginId(Kind kind, String pluginId) {}
 }
