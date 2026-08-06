@@ -723,6 +723,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // candidate hop, but we need to ignore this click to not start a drag operation
             if (hopCandidate != null) {
               addCandidateAsHop();
+              // The hop completes on mouseDown and clears startHopAction; without this, the
+              // following mouseUp would look like a plain action click and open the context dialog.
+              if (startHopAction == null) {
+                avoidContextDialog = true;
+              }
             }
           } else if (event.button == 2 || (event.button == 1 && shift)) {
             // SHIFT CLICK is start of drag to create a new hop
@@ -890,12 +895,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // go away.
       //
       if (startHopAction != null) {
-        canvas.setData("mode", "null");
-        canvas.setData(START_HOP_NODE, null);
-        startHopAction = null;
-        hopCandidate = null;
-        endHopLocation = null;
-        lastClick = null;
+        cancelHopCandidate();
+        avoidContextDialog = true;
         redraw();
         return;
       }
@@ -1033,6 +1034,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
+    // A hop candidate released anywhere but on an action is abandoned. Cancel it here: nothing
+    // below completes it, so without this the canvas keeps drawing a hop nobody is drawing any
+    // more and the next click still works on a half-finished gesture.
+    //
+    if (startHopAction != null && workflowMeta.getAction(real.x, real.y, iconSize) == null) {
+      cancelHopCandidate();
+      lastButton = 0;
+      redraw();
+      return;
+    }
+
     // Quick new hop option? (drag from one action to another)
     //
     if (areaOwner != null && areaOwner.getAreaType() != null) {
@@ -1042,6 +1054,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // Mouse up while drawing a hop candidate
             addCandidateAsHop();
             redraw();
+            return;
           }
           break;
         case ACTION_NAME:
@@ -1257,6 +1270,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (avoidContextDialog) {
       avoidContextDialog = false;
       selectionRegion = null;
+      lastButton = 0;
       return;
     }
 
@@ -2176,8 +2190,26 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  /**
+   * Drop the hop that was being drawn. Every field the gesture touched goes back to its initial
+   * value, including the action the mouse went down on: a stale one makes the next mouse-up look
+   * like a click on that action.
+   */
+  private void cancelHopCandidate() {
+    canvas.setData("mode", "null");
+    canvas.setData(START_HOP_NODE, null);
+    startHopAction = null;
+    endHopAction = null;
+    endHopLocation = null;
+    hopCandidate = null;
+    forbiddenAction = null;
+    currentAction = null;
+  }
+
   public void clearSettings() {
     selectedAction = null;
+    currentAction = null;
+    endHopLocation = null;
     selectedNote = null;
     selectedActions = null;
     selectedNotes = null;
