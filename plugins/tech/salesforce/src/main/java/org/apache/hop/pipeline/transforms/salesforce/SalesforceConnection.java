@@ -43,6 +43,9 @@ import com.sforce.ws.wsdl.Constants;
 import jakarta.xml.soap.SOAPException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,6 +78,7 @@ public class SalesforceConnection {
   public static final String CONST_ARROW_LEFT = "<-----------------------------------------";
   public static final String CONST_ARROW_RIGHT = "----------------------------------------->";
   public static final String SERVICES_SOAP_U_64_0 = "/services/Soap/u/64.0";
+  private static final String HTTPS_SCHEME = "https://";
   public static final String CONST_INVALID_SESSION_ID = "INVALID_SESSION_ID";
   public static final String CONST_INVALID_SESSION_ID_ALTERNATE = "Invalid Session ID";
 
@@ -355,6 +359,84 @@ public class SalesforceConnection {
     }
   }
 
+  /**
+   * Apply the JVM proxy configuration to a connector config.
+   *
+   * <p>The Salesforce web service connector never consults the JVM proxy settings itself: it calls
+   * {@code URL.openConnection(config.getProxy())} and defaults that to {@link Proxy#NO_PROXY},
+   * which bypasses the default {@link ProxySelector} altogether. Every config we hand to a {@link
+   * PartnerConnection} therefore has to get its proxy set explicitly.
+   *
+   * @param config the connector config to configure
+   * @param endpoint the endpoint this config will connect to
+   */
+  private void applyProxy(ConnectorConfig config, String endpoint) {
+    Proxy proxy = selectProxy(endpoint);
+    if (proxy == null) {
+      return;
+    }
+    config.setProxy(proxy);
+
+    String proxyUser = System.getProperty("http.proxyUser", null);
+    if (StringUtils.isNotEmpty(proxyUser)) {
+      config.setProxyUsername(proxyUser);
+      config.setProxyPassword(
+          Encr.decryptPasswordOptionallyEncrypted(System.getProperty("http.proxyPassword", null)));
+    }
+
+    if (log.isDebug()) {
+      log.logDebug("Using proxy " + proxy + " to reach " + endpoint);
+    }
+  }
+
+  /**
+   * Determine the proxy to use for an endpoint.
+   *
+   * @param endpoint the endpoint that will be contacted
+   * @return the proxy to use, or null when the endpoint has to be reached directly
+   */
+  private Proxy selectProxy(String endpoint) {
+    Proxy proxy = selectProxyFor(endpoint);
+    if (proxy != null) {
+      return proxy;
+    }
+
+    // No https proxy configured: keep applying http.proxyHost to the (https) Salesforce endpoints,
+    // which is what Hop has always done for username/password connections. Selecting again with
+    // the scheme swapped to http lets the JVM apply http.proxyHost and http.nonProxyHosts for us.
+    if (StringUtils.isEmpty(System.getProperty("https.proxyHost"))
+        && endpoint != null
+        && endpoint.startsWith(HTTPS_SCHEME)) {
+      return selectProxyFor("http://" + endpoint.substring(HTTPS_SCHEME.length()));
+    }
+    return null;
+  }
+
+  /** Ask the JVM which proxy applies to an endpoint, honouring the proxy system properties. */
+  private Proxy selectProxyFor(String endpoint) {
+    try {
+      for (Proxy proxy : ProxySelector.getDefault().select(new URI(endpoint))) {
+        if (proxy.type() != Proxy.Type.DIRECT) {
+          return proxy;
+        }
+      }
+    } catch (Exception e) {
+      // A bad endpoint is reported by the connection attempt itself, don't fail over it here.
+      if (log.isDebug()) {
+        log.logDebug("Unable to determine the proxy for " + endpoint + " : " + e.getMessage());
+      }
+    }
+    return null;
+  }
+
+  /** Open an HTTP connection to an endpoint, through the proxy configured for it if any. */
+  private java.net.HttpURLConnection openHttpConnection(String endpoint) throws IOException {
+    java.net.URL endpointUrl = new java.net.URL(endpoint);
+    Proxy proxy = selectProxy(endpoint);
+    return (java.net.HttpURLConnection)
+        (proxy == null ? endpointUrl.openConnection() : endpointUrl.openConnection(proxy));
+  }
+
   private void connectWithUsernamePassword() throws HopException {
     ConnectorConfig config = new ConnectorConfig();
     config.setAuthEndpoint(getUrl());
@@ -364,16 +446,7 @@ public class SalesforceConnection {
     config.setCompression(isUsingCompression());
     config.setManualLogin(true);
 
-    String proxyUrl = System.getProperty("http.proxyHost", null);
-    if (StringUtils.isNotEmpty(proxyUrl)) {
-      int proxyPort = Integer.parseInt(System.getProperty("http.proxyPort", "80"));
-      String proxyUser = System.getProperty("http.proxyUser", null);
-      String proxyPassword =
-          Encr.decryptPasswordOptionallyEncrypted(System.getProperty("http.proxyPassword", null));
-      config.setProxy(proxyUrl, proxyPort);
-      config.setProxyUsername(proxyUser);
-      config.setProxyPassword(proxyPassword);
-    }
+    applyProxy(config, getUrl());
 
     // Set timeout
     if (getTimeOut() > 0) {
@@ -560,6 +633,8 @@ public class SalesforceConnection {
       // Set OAuth session ID (access token) for authentication
       config.setSessionId(getOauthAccessToken());
 
+      applyProxy(config, config.getServiceEndpoint());
+
       this.binding = new PartnerConnection(config);
 
       if (log.isDetailed()) {
@@ -613,6 +688,8 @@ public class SalesforceConnection {
       config.setSessionId(accessToken);
       config.setCompression(isUsingCompression());
 
+      applyProxy(config, config.getServiceEndpoint());
+
       // Set timeout
       if (getTimeOut() > 0) {
         config.setConnectionTimeout(getTimeOut());
@@ -651,8 +728,7 @@ public class SalesforceConnection {
       }
 
       // Prepare HTTP request
-      java.net.URL url = new java.net.URL(tokenUrl);
-      java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+      java.net.HttpURLConnection connection = openHttpConnection(tokenUrl);
       connection.setRequestMethod("POST");
       connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
       connection.setDoOutput(true);
@@ -864,8 +940,7 @@ public class SalesforceConnection {
       tokenUrl += "services/oauth2/token";
 
       // Prepare the request
-      java.net.URL url = new java.net.URL(tokenUrl);
-      java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+      java.net.HttpURLConnection connection = openHttpConnection(tokenUrl);
       connection.setRequestMethod("POST");
       connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
       connection.setDoOutput(true);
