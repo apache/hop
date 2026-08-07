@@ -175,6 +175,8 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private Button wEnclBreaks;
 
+  private Button wNullIfNotEnclosed;
+
   private Label wlNrHeader;
   private Text wNrHeader;
 
@@ -994,6 +996,27 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdEscape.right = new FormAttachment(100, 0);
     wEscape.setLayoutData(fdEscape);
 
+    // Return null for empty values which are not enclosed
+    Label wlNullIfNotEnclosed = new Label(wContentComp, SWT.RIGHT);
+    wlNullIfNotEnclosed.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Label"));
+    wlNullIfNotEnclosed.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Tooltip"));
+    PropsUi.setLook(wlNullIfNotEnclosed);
+    FormData fdlNullIfNotEnclosed = new FormData();
+    fdlNullIfNotEnclosed.left = new FormAttachment(0, 0);
+    fdlNullIfNotEnclosed.top = new FormAttachment(wEscape, margin);
+    fdlNullIfNotEnclosed.right = new FormAttachment(middle, -margin);
+    wlNullIfNotEnclosed.setLayoutData(fdlNullIfNotEnclosed);
+    wNullIfNotEnclosed = new Button(wContentComp, SWT.CHECK);
+    wNullIfNotEnclosed.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Tooltip"));
+    PropsUi.setLook(wNullIfNotEnclosed);
+    FormData fdNullIfNotEnclosed = new FormData();
+    fdNullIfNotEnclosed.left = new FormAttachment(middle, 0);
+    fdNullIfNotEnclosed.top = new FormAttachment(wlNullIfNotEnclosed, 0, SWT.CENTER);
+    wNullIfNotEnclosed.setLayoutData(fdNullIfNotEnclosed);
+
     // Addition Prepend file name
     Label wlPrependFileName = new Label(wContentComp, SWT.RIGHT);
     wlPrependFileName.setText(
@@ -1001,7 +1024,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wlPrependFileName);
     FormData fdlPrependFileName = new FormData();
     fdlPrependFileName.left = new FormAttachment(0, 0);
-    fdlPrependFileName.top = new FormAttachment(wEscape, margin);
+    fdlPrependFileName.top = new FormAttachment(wNullIfNotEnclosed, margin);
     fdlPrependFileName.right = new FormAttachment(middle, -margin);
     wlPrependFileName.setLayoutData(fdlPrependFileName);
     wPrependFileName = new Button(wContentComp, SWT.CHECK);
@@ -2317,6 +2340,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wEnclosure.setText(Const.NVL(meta.getContent().getEnclosure(), ""));
     wEscape.setText(Const.NVL(meta.getContent().getEscapeCharacter(), ""));
     wEnclBreaks.setSelection(meta.getContent().isBreakInEnclosureAllowed());
+    wNullIfNotEnclosed.setSelection(meta.getContent().isNullIfNotEnclosed());
     wPrependFileName.setSelection(meta.getContent().isPrependFileName());
     wHeader.setSelection(meta.getContent().isHeader());
     wNrHeader.setText("" + meta.getContent().getNrHeaderLines());
@@ -2534,6 +2558,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getContent().setEnclosure(wEnclosure.getText());
     meta.getContent().setEscapeCharacter(wEscape.getText());
     meta.getContent().setBreakInEnclosureAllowed(wEnclBreaks.getSelection());
+    meta.getContent().setNullIfNotEnclosed(wNullIfNotEnclosed.getSelection());
     meta.getContent().setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     meta.getContent().setFilenameField(wInclFilenameField.getText());
     meta.getContent().setRowNumberField(wInclRownumField.getText());

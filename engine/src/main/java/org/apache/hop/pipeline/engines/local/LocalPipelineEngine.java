@@ -235,17 +235,37 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
     super.prepareExecution();
 
-    // Do the lookup of the execution information only once
-    lookupExecutionInformationLocation();
-
-    // Register the pipeline
-    registerPipelineExecutionInformation();
-
-    // Attach samplers to the transforms if needed
+    // The transforms are initialized at this point, which means they can hold on to database
+    // connections, files, ... If anything below fails we never get to start the transform threads,
+    // so nothing would ever dispose them. Clean up explicitly to avoid leaking those resources.
     //
-    addTransformExecutionSamplers();
+    try {
+      // Do the lookup of the execution information only once
+      lookupExecutionInformationLocation();
 
-    //
+      // Register the pipeline
+      registerPipelineExecutionInformation();
+
+      // Attach samplers to the transforms if needed
+      //
+      addTransformExecutionSamplers();
+    } catch (Exception e) {
+      disposeInitializedTransforms();
+
+      // Just for safety, fire the pipeline finished listeners...
+      //
+      try {
+        fireExecutionFinishedListeners();
+      } catch (HopException listenerException) {
+        log.logError(
+            "Error firing the execution finished listeners after a failed preparation",
+            listenerException);
+      } finally {
+        // Flag the pipeline as finished even if an exception was thrown
+        setFinished(true);
+      }
+      throw e;
+    }
   }
 
   /**

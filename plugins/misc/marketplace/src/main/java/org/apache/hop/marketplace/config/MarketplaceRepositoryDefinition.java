@@ -41,7 +41,8 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Shareable Hop marketplace repository definition ({@code hop-marketplace-repo.yaml}). Passwords
- * are never written on export.
+ * are never written on export unless explicitly asked for, and then only obfuscated (see {@link
+ * MarketplaceSecrets}).
  */
 public final class MarketplaceRepositoryDefinition {
 
@@ -160,7 +161,8 @@ public final class MarketplaceRepositoryDefinition {
     // password intentionally ignored on import unless present (discouraged)
     String password = stringVal(map.get("password"));
     if (StringUtils.isNotBlank(password)) {
-      repo.setPassword(password);
+      // Obfuscated when exported by Hop, clear text when hand-written: both are accepted.
+      repo.setPassword(MarketplaceSecrets.decode(password));
     }
     repo.setBrowse(boolVal(map.get("browse"), false));
     repo.setCatalogUrl(stringVal(map.get("catalogUrl")));
@@ -263,7 +265,7 @@ public final class MarketplaceRepositoryDefinition {
       root.put("username", repo.getUsername());
     }
     if (includePassword && StringUtils.isNotBlank(repo.getPassword())) {
-      root.put("password", repo.getPassword());
+      root.put("password", MarketplaceSecrets.encode(repo.getPassword()));
     }
     root.put("browse", repo.isBrowse());
     if (StringUtils.isNotBlank(repo.getCatalogUrl())) {
