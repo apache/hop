@@ -17,6 +17,8 @@
 
 package org.apache.hop.marketplace.config;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -56,10 +58,14 @@ public class MarketplaceRepository {
   private String username;
 
   /**
-   * Optional HTTP Basic auth password. Prefer leaving this empty in hop-config.json and setting
-   * {@code HOP_MARKETPLACE_PASSWORD} instead for private repos. Do not set for anonymous ASF /
-   * Central / local Nexus.
+   * Optional HTTP Basic auth password, held in plain form in memory and obfuscated in
+   * hop-config.json (see {@link MarketplaceSecrets}). Obfuscation is not encryption, so for private
+   * repos prefer a variable ({@code ${MY_TOKEN}}), a variable resolver expression, or {@code
+   * HOP_MARKETPLACE_PASSWORD} — those keep the secret out of the file entirely. Do not set for
+   * anonymous ASF / Central / local Nexus.
    */
+  @JsonSerialize(using = MarketplaceSecrets.Serializer.class)
+  @JsonDeserialize(using = MarketplaceSecrets.Deserializer.class)
   private String password;
 
   /**
@@ -206,10 +212,13 @@ public class MarketplaceRepository {
    * <p>Scoped variables exist so several private repositories can each have their own token; the
    * global pair applies to every repository, which is why {@link #credentialsFromEnvironmentOnly()}
    * exists to let a rejected global credential fall back to anonymous.
+   *
+   * <p>Credentials configured on the entry may be variables or variable resolver expressions; they
+   * are resolved here, at use, so the config file only ever holds the reference.
    */
   public String effectiveUsername() {
     if (StringUtils.isNotBlank(username)) {
-      return username;
+      return MarketplaceSecrets.resolve(username);
     }
     return firstNonBlank(
         scopedEnv("USERNAME"),
@@ -220,7 +229,7 @@ public class MarketplaceRepository {
 
   public String effectivePassword() {
     if (StringUtils.isNotBlank(password)) {
-      return password;
+      return MarketplaceSecrets.resolve(password);
     }
     return firstNonBlank(scopedEnv("PASSWORD"), env("HOP_MARKETPLACE_PASSWORD"));
   }
