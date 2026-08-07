@@ -1299,12 +1299,15 @@ public class HopGui
     }
   }
 
-  /** Combo values for {@link #toolbarPrivilegeMode()}. */
-  public String[] getPrivilegeModeList() {
+  /**
+   * Combo values for {@link #toolbarPrivilegeMode()}. Return type must be {@code List<String>}
+   * because {@code BaseGuiWidgets.getComboItems} casts the reflected result to List.
+   */
+  public List<String> getPrivilegeModeList() {
     if (!HopWebPrivilegeFacade.isAvailable()) {
-      return new String[] {BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full")};
+      return List.of(BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full"));
     }
-    return HopWebPrivilegeFacade.getModeComboLabels();
+    return Arrays.asList(HopWebPrivilegeFacade.getModeComboLabels());
   }
 
   /**
