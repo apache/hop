@@ -249,7 +249,8 @@ run_container() {
     -e HOP_GUI_ZOOM_FACTOR=1.0 \
     -e HOP_WEB_SECURITY_MODE=BASIC \
     -e HOP_WEB_SEED_DEMO_USERS=true \
-    -v "${SCRIPT_DIR}/local-data/audit:/usr/local/tomcat/webapps/ROOT/audit" \
+    -e HOP_AUDIT_FOLDER=/tmp/hop-web-audit \
+    -v "${SCRIPT_DIR}/local-data/audit:/tmp/hop-web-audit" \
     -v "${security_abs}:/usr/local/tomcat/webapps/ROOT/config/security" \
     "${IMAGE_NAME}" >/dev/null
 

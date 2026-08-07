@@ -75,6 +75,29 @@ install_jdbc_drivers() {
   done
 }
 
+# Ensure HOP_AUDIT_FOLDER exists and is writable by the hop process (per-user data under
+# users/<username>/). Prefer the configured path; fall back to /tmp/hop-web-audit under
+# java.io.tmpdir when a bind-mount is not writable.
+ensure_hop_audit_folder() {
+  local preferred="${HOP_AUDIT_FOLDER:-/tmp/hop-web-audit}"
+  local fallback="/tmp/hop-web-audit"
+  mkdir -p "${preferred}" 2>/dev/null || true
+  if touch "${preferred}/.hop-write-test" 2>/dev/null; then
+    rm -f "${preferred}/.hop-write-test"
+    export HOP_AUDIT_FOLDER="${preferred}"
+  else
+    mkdir -p "${fallback}"
+    export HOP_AUDIT_FOLDER="${fallback}"
+    log "WARNING: configured audit folder '${preferred}' is not writable; using '${fallback}'"
+  fi
+  mkdir -p "${HOP_AUDIT_FOLDER}/users" 2>/dev/null || true
+  # Prepend so this -D wins over any baked CATALINA_OPTS value
+  export CATALINA_OPTS="-DHOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER} ${CATALINA_OPTS:-}"
+  log "HOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER}"
+}
+
+ensure_hop_audit_folder
+
 # The common execution options for short and long lived containers
 # The default log level is Basic
 #

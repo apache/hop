@@ -150,7 +150,18 @@ The main toolbar also shows the signed-in username to the left of the **Log off*
 
 image:hop-web-toolbar-user-and-log-off.png[Hop Web toolbar with signed-in username and Log off,width="50%"]
 
-Per-user audit data (open tabs, history) continues to be stored under `HOP_AUDIT_FOLDER/users/<username>/` when a principal is available.
+Per-user audit data (open tabs, project history, and so on) is stored under `HOP_AUDIT_FOLDER/users/<username>/` when a principal is available.
+Usernames are sanitized for path safety (for example `mattcasters@gmail.com` becomes `mattcasters_gmail.com`).
+
+In the Docker image the default is `HOP_AUDIT_FOLDER=/tmp/hop-web-audit` (writable by the `hop` process without a bind mount).
+If the configured folder is not writable, Hop Web falls back to `${java.io.tmpdir}/hop-web-audit` and logs a warning.
+To keep audit data across container restarts, mount a volume and set the same path, for example:
+
+[source,bash]
+----
+-e HOP_AUDIT_FOLDER=/tmp/hop-web-audit \
+-v /host/path/to/audit:/tmp/hop-web-audit
+----
 
 === Tomcat BASIC authentication (EXTERNAL)
 
@@ -339,13 +350,17 @@ When mode is `OAUTH2`, Hop Web uses the **authorization code flow with PKCE** ag
 | Default `openid profile email`
 
 | Role claim
-| Claim path for groups/roles (e.g. `groups`, `roles`, `realm_access.roles` for Keycloak)
+| Claim path for groups/roles (e.g. `groups`, `roles`, `realm_access.roles` for Keycloak). Personal Google accounts typically have no groups claim — see Google section below.
 
 | Username claim
-| Default `preferred_username` (falls back to `email`, then `sub`)
+| Default `preferred_username` (falls back to `email`, then `sub`). For Google, set `email`.
 |===
 
-Environment variables (applied at startup): `HOP_WEB_SECURITY_MODE=OAUTH2`, `HOP_WEB_OAUTH_ISSUER`, `HOP_WEB_OAUTH_CLIENT_ID`, `HOP_WEB_OAUTH_CLIENT_SECRET`, `HOP_WEB_OAUTH_REDIRECT_URI`, `HOP_WEB_OAUTH_SCOPES`, `HOP_WEB_OAUTH_ROLE_CLAIM`, `HOP_WEB_OAUTH_USERNAME_CLAIM`.
+Environment variables (applied at startup into `security-config.json` when set): `HOP_WEB_SECURITY_MODE=OAUTH2`, `HOP_WEB_OAUTH_ISSUER`, `HOP_WEB_OAUTH_CLIENT_ID`, `HOP_WEB_OAUTH_CLIENT_SECRET`, `HOP_WEB_OAUTH_REDIRECT_URI`, `HOP_WEB_OAUTH_SCOPES`, and optionally `HOP_WEB_OAUTH_ROLE_CLAIM` / `HOP_WEB_OAUTH_USERNAME_CLAIM`.
+
+IMPORTANT: If you set `HOP_WEB_OAUTH_ROLE_CLAIM` or `HOP_WEB_OAUTH_USERNAME_CLAIM` in the environment (or leave old values exported in your shell), they **override** the same fields in `security-config.json` on container start.
+The local OAuth run script only passes those env vars when you export them yourself — it does not inject Keycloak-style defaults.
+Prefer editing the config file (or Configuration → Security → OAuth / External) and leaving claim env vars unset unless you intentionally want env to win.
 
 Flow:
 
@@ -354,7 +369,8 @@ Flow:
 3. Callback `/oauth/callback` exchanges the code, validates the ID token (JWKS), maps roles, opens `/ui`.
 4. **Log off** clears the Hop session and, when advertised by the IdP, uses RP-initiated logout (`end_session_endpoint`).
 
-Map IdP groups to Hop roles with the *Container role mappings* table (same as EXTERNAL), e.g. `hop-admin` → `admin`.
+Map IdP groups (and other claim values) to Hop roles on the *External* tab (container / IdP role → Hop role), e.g. `hop-admin` → `admin`.
+Hop also tries to map the signed-in **username** and **email** claim through the same table, so you can grant Admin by email (see Google example).
 
 .Example Keycloak client
 ====
@@ -362,6 +378,48 @@ Map IdP groups to Hop roles with the *Container role mappings* table (same as EX
 * Valid redirect URIs: `http://localhost:8080/oauth/callback`
 * Valid post-logout redirect URIs: `http://localhost:8080/login`
 * Client scopes include groups or a custom realm role claim mapped into the ID token
+* Role claim in Hop: `realm_access.roles` (or `groups`), then map those names to Hop roles on the External tab
+====
+
+.Example Google (personal Gmail) as Admin
+====
+Personal Google accounts do not send Hop roles or Keycloak-style group claims.
+To make a specific Google account an administrator for local/dev:
+
+1. Create an OAuth 2.0 **Web application** client in Google Cloud Console.
+2. Add authorized redirect URI: `http://localhost:8080/oauth/callback` (exact match, including port).
+3. If the consent screen is in *Testing*, add your Gmail address under **Test users**.
+4. Run Hop Web in OAUTH2 mode with issuer `https://accounts.google.com`, your client id/secret, and scopes `openid profile email`.
+5. In `HOP_CONFIG_FOLDER/security/security-config.json` (or Configuration → Security after you have access):
+
+[source,json]
+----
+{
+  "mode": "OAUTH2",
+  "oauthIssuerUrl": "https://accounts.google.com",
+  "oauthClientId": "….apps.googleusercontent.com",
+  "oauthClientSecret": "…",
+  "oauthRedirectUri": "http://localhost:8080/oauth/callback",
+  "oauthScopes": "openid profile email",
+  "oauthRoleClaim": "email",
+  "oauthUsernameClaim": "email",
+  "oauthUsePkce": true,
+  "roleMappings": {
+    "you@gmail.com": "admin"
+  }
+}
+----
+
+6. Ensure shell env does **not** still export Keycloak claims, then restart and log in again:
+
+[source,bash]
+----
+unset HOP_WEB_OAUTH_ROLE_CLAIM HOP_WEB_OAUTH_USERNAME_CLAIM
+./docker/run-hop-web-local-with-oauth.sh
+----
+
+After sign-in, your session should include the *Admin* role (`security.manage`) so Configuration → Security is available.
+Other users without a mapping fall back to the *User* role.
 ====
 
 ==== Full web.xml with Tomcat BASIC (single role, EXTERNAL)

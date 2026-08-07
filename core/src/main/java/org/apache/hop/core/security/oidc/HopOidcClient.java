@@ -223,7 +223,16 @@ public final class HopOidcClient {
 
   public HopSecurityContext toSecurityContext(JWTClaimsSet claims) {
     String username = extractUsername(claims);
-    Set<String> roleNames = extractRoleNames(claims);
+    Set<String> roleNames = new LinkedHashSet<>(extractRoleNames(claims));
+    // Also map username / email via roleMappings (e.g. "you@gmail.com" → admin for Google OAuth
+    // where there is no groups claim)
+    if (username != null && !username.isBlank()) {
+      roleNames.add(username.trim());
+    }
+    Object emailClaim = claims.getClaim("email");
+    if (emailClaim != null && !String.valueOf(emailClaim).isBlank()) {
+      roleNames.add(String.valueOf(emailClaim).trim());
+    }
     Set<HopRole> hopRoles = new LinkedHashSet<>();
     for (String roleName : roleNames) {
       HopRole mapped = config.mapContainerRole(roleName);

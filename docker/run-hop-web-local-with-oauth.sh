@@ -78,20 +78,20 @@ SECURITY_DATA_DIR="${SCRIPT_DIR}/local-data/oauth-security"
 #   HOP_WEB_OAUTH_SCOPES
 #       Space-separated scopes. Default: openid profile email
 #
-#   HOP_WEB_OAUTH_ROLE_CLAIM
-#       JWT claim path for groups/roles (mapped to Hop roles via security UI table).
-#       Examples: groups | roles | realm_access.roles  (Keycloak realm roles)
-#
-#   HOP_WEB_OAUTH_USERNAME_CLAIM
-#       Claim used as Hop username. Default: preferred_username
-#       Falls back to email, then sub, if missing.
+#   HOP_WEB_OAUTH_ROLE_CLAIM / HOP_WEB_OAUTH_USERNAME_CLAIM
+#       Optional. Only set these if you want env to override security-config.json.
+#       Prefer the config file (or Configuration → Security). If exported here, they
+#       overwrite the JSON claim fields at bootstrap.
+#       Keycloak examples: realm_access.roles | groups
+#       Google (personal): set in JSON — oauthRoleClaim "email", map "you@gmail.com" → admin
 #
 # Forced by this script:
 #
 #   HOP_WEB_SECURITY_MODE=OAUTH2
 #
-# Also useful after first login (in Configuration → Security):
-#   Map IdP groups to Hop roles, e.g. hop-admin → admin, hop-operator → operator
+# Also useful after first login (in Configuration → Security → External):
+#   Map IdP groups or email addresses to Hop roles, e.g. hop-admin → admin,
+#   you@gmail.com → admin
 # ---------------------------------------------------------------------------
 
 SKIP_MAVEN=false
@@ -133,25 +133,35 @@ Required environment (export before running, or source a .env file):
   HOP_WEB_OAUTH_CLIENT_ID    OAuth2 / OIDC client id
 
 Optional environment:
-  HOP_WEB_OAUTH_CLIENT_SECRET    Client secret (confidential clients)
-  HOP_WEB_OAUTH_REDIRECT_URI     Default: http://localhost:<port>/oauth/callback
-  HOP_WEB_OAUTH_SCOPES           Default: openid profile email
-  HOP_WEB_OAUTH_ROLE_CLAIM       Default: groups  (Keycloak: realm_access.roles)
-  HOP_WEB_OAUTH_USERNAME_CLAIM   Default: preferred_username
+  HOP_WEB_OAUTH_CLIENT_SECRET      Client secret (confidential clients)
+  HOP_WEB_OAUTH_REDIRECT_URI       Default: http://localhost:<port>/oauth/callback
+  HOP_WEB_OAUTH_SCOPES             Default: openid profile email
+  HOP_WEB_OAUTH_ROLE_CLAIM         Optional override of security-config.json (avoid for Google)
+  HOP_WEB_OAUTH_USERNAME_CLAIM     Optional override of security-config.json
 
 IdP checklist:
   1. Create a client (confidential or public+PKCE)
   2. Valid redirect URI:  http://localhost:<port>/oauth/callback
   3. Post-logout redirect (if supported): http://localhost:<port>/login
-  4. Put groups/roles into the ID token under the configured role claim
-  5. Map those groups to Hop roles in Configuration → Security after first admin login
-     (or pre-seed security-config.json under docker/local-data/oauth-security/)
+  4. Configure role/username claims in security-config.json (not via env unless intentional)
+  5. Map IdP groups or email → Hop roles (External tab / roleMappings in JSON)
+  6. Google: oauthRoleClaim "email" + roleMappings "you@gmail.com":"admin"; unset claim env vars
 
 Example (Keycloak):
   export HOP_WEB_OAUTH_ISSUER=https://keycloak.example/realms/hop
   export HOP_WEB_OAUTH_CLIENT_ID=hop-web
   export HOP_WEB_OAUTH_CLIENT_SECRET=change-me
-  export HOP_WEB_OAUTH_ROLE_CLAIM=realm_access.roles
+  # Prefer putting realm_access.roles in security-config.json; env is optional:
+  # export HOP_WEB_OAUTH_ROLE_CLAIM=realm_access.roles
+  ./docker/run-hop-web-local-with-oauth.sh --quick
+
+Example (Google):
+  export HOP_WEB_OAUTH_ISSUER=https://accounts.google.com
+  export HOP_WEB_OAUTH_CLIENT_ID=….apps.googleusercontent.com
+  export HOP_WEB_OAUTH_CLIENT_SECRET=…
+  unset HOP_WEB_OAUTH_ROLE_CLAIM HOP_WEB_OAUTH_USERNAME_CLAIM
+  # Edit docker/local-data/oauth-security/security-config.json:
+  #   oauthRoleClaim/email username claim + roleMappings you@gmail.com → admin
   ./docker/run-hop-web-local-with-oauth.sh --quick
 EOF
 }
@@ -266,12 +276,11 @@ apply_oauth_defaults() {
   if [[ -z "${HOP_WEB_OAUTH_SCOPES:-}" ]]; then
     HOP_WEB_OAUTH_SCOPES="openid profile email"
   fi
-  if [[ -z "${HOP_WEB_OAUTH_ROLE_CLAIM:-}" ]]; then
-    HOP_WEB_OAUTH_ROLE_CLAIM="groups"
-  fi
-  if [[ -z "${HOP_WEB_OAUTH_USERNAME_CLAIM:-}" ]]; then
-    HOP_WEB_OAUTH_USERNAME_CLAIM="preferred_username"
-  fi
+  # Do NOT default HOP_WEB_OAUTH_ROLE_CLAIM / USERNAME_CLAIM here: injecting them into the
+  # container overwrites security-config.json at bootstrap (env wins). Leave claims in the
+  # config file (or export them only when you intentionally want env to override).
+  # Google: use oauthRoleClaim "email" + roleMappings "you@gmail.com" → "admin".
+  # Keycloak: oauthRoleClaim "realm_access.roles" (or groups) in the config file.
 }
 
 validate_oauth_env() {
@@ -297,8 +306,8 @@ validate_oauth_env() {
   log "OAuth client id:  ${HOP_WEB_OAUTH_CLIENT_ID}"
   log "OAuth redirect:   ${HOP_WEB_OAUTH_REDIRECT_URI}"
   log "OAuth scopes:     ${HOP_WEB_OAUTH_SCOPES}"
-  log "OAuth role claim: ${HOP_WEB_OAUTH_ROLE_CLAIM}"
-  log "OAuth user claim: ${HOP_WEB_OAUTH_USERNAME_CLAIM}"
+  log "OAuth role claim: ${HOP_WEB_OAUTH_ROLE_CLAIM:-(from security-config.json)}"
+  log "OAuth user claim: ${HOP_WEB_OAUTH_USERNAME_CLAIM:-(from security-config.json)}"
   if [[ -n "${HOP_WEB_OAUTH_CLIENT_SECRET:-}" ]]; then
     log "OAuth secret:     (set, ${#HOP_WEB_OAUTH_CLIENT_SECRET} chars)"
   else
@@ -344,7 +353,8 @@ run_container() {
   local security_abs
   security_abs="$(cd "${SECURITY_DATA_DIR}" && pwd)"
 
-  # Docker -e list: only pass optional vars when set so empty secret is intentional
+  # Docker -e list: only pass optional vars when set so empty secret is intentional.
+  # Do not pass empty ROLE_CLAIM / USERNAME_CLAIM — that would override security-config.json.
   local docker_env=(
     -e HOP_LOG_LEVEL=Basic
     -e HOP_GUI_ZOOM_FACTOR=1.0
@@ -353,11 +363,15 @@ run_container() {
     -e "HOP_WEB_OAUTH_CLIENT_ID=${HOP_WEB_OAUTH_CLIENT_ID}"
     -e "HOP_WEB_OAUTH_REDIRECT_URI=${HOP_WEB_OAUTH_REDIRECT_URI}"
     -e "HOP_WEB_OAUTH_SCOPES=${HOP_WEB_OAUTH_SCOPES}"
-    -e "HOP_WEB_OAUTH_ROLE_CLAIM=${HOP_WEB_OAUTH_ROLE_CLAIM}"
-    -e "HOP_WEB_OAUTH_USERNAME_CLAIM=${HOP_WEB_OAUTH_USERNAME_CLAIM}"
   )
   if [[ -n "${HOP_WEB_OAUTH_CLIENT_SECRET:-}" ]]; then
     docker_env+=(-e "HOP_WEB_OAUTH_CLIENT_SECRET=${HOP_WEB_OAUTH_CLIENT_SECRET}")
+  fi
+  if [[ -n "${HOP_WEB_OAUTH_ROLE_CLAIM:-}" ]]; then
+    docker_env+=(-e "HOP_WEB_OAUTH_ROLE_CLAIM=${HOP_WEB_OAUTH_ROLE_CLAIM}")
+  fi
+  if [[ -n "${HOP_WEB_OAUTH_USERNAME_CLAIM:-}" ]]; then
+    docker_env+=(-e "HOP_WEB_OAUTH_USERNAME_CLAIM=${HOP_WEB_OAUTH_USERNAME_CLAIM}")
   fi
 
   log "Starting ${CONTAINER_NAME} with OAuth2 / OIDC"
@@ -366,7 +380,8 @@ run_container() {
     --name "${CONTAINER_NAME}" \
     -p "${HOST_PORT}:8080" \
     "${docker_env[@]}" \
-    -v "${SCRIPT_DIR}/local-data/audit:/usr/local/tomcat/webapps/ROOT/audit" \
+    -e HOP_AUDIT_FOLDER=/tmp/hop-web-audit \
+    -v "${SCRIPT_DIR}/local-data/audit:/tmp/hop-web-audit" \
     -v "${security_abs}:/usr/local/tomcat/webapps/ROOT/config/security" \
     "${IMAGE_NAME}" >/dev/null
 
@@ -385,13 +400,15 @@ run_container() {
   echo ""
   echo "Issuer:       ${HOP_WEB_OAUTH_ISSUER}"
   echo "Client ID:    ${HOP_WEB_OAUTH_CLIENT_ID}"
-  echo "Role claim:   ${HOP_WEB_OAUTH_ROLE_CLAIM}"
+  echo "Role claim:   ${HOP_WEB_OAUTH_ROLE_CLAIM:-(from security-config.json)}"
   echo "Security dir: ${security_abs}"
+  echo "Audit data:   ${SCRIPT_DIR}/local-data/audit  →  /tmp/hop-web-audit"
   echo "Container:    ${CONTAINER_NAME}"
   echo "Stop:         ${SCRIPT_DIR}/run-hop-web-local-with-oauth.sh --stop"
   echo ""
-  echo "After first login as an admin, open Configuration → Security to refine"
-  echo "role mappings (IdP group → Hop role: admin / user / operator / readonly)."
+  echo "Map IdP groups or email → Hop roles in security-config.json (External tab)"
+  echo "or Configuration → Security after admin login. Unset HOP_WEB_OAUTH_*_CLAIM"
+  echo "in your shell unless you want env to override the config file."
   echo ""
 
   if [[ "${FOLLOW_LOGS}" == "true" ]]; then

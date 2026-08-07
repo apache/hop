@@ -81,6 +81,8 @@ public class HopOidcAuthFilter implements Filter {
       return;
     }
 
+    // Re-read security-config.json so edits (role mappings, claims) apply without JVM restart
+    HopSecurityConfig.clearCache();
     HopSecurityConfig config = HopSecurityConfig.load();
     if (config.getAuthMode() != HopSecurityConfig.AuthMode.OAUTH2) {
       chain.doFilter(request, response);

@@ -323,7 +323,8 @@ run_container() {
     -p "${HOST_PORT}:8080" \
     -e HOP_LOG_LEVEL=Basic \
     -e HOP_GUI_ZOOM_FACTOR=1.0 \
-    -v "${data_dir}/audit:/usr/local/tomcat/webapps/ROOT/audit" \
+    -e HOP_AUDIT_FOLDER=/tmp/hop-web-audit \
+    -v "${data_dir}/audit:/tmp/hop-web-audit" \
     -v "${auth_config_abs}:/config:ro" \
     "${IMAGE_NAME}" >/dev/null
 
