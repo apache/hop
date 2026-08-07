@@ -31,6 +31,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.marketplace.config.MarketplaceSecrets;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -132,7 +133,7 @@ public final class HopEnvironmentLoader {
         m.put("username", ref.getUsername());
       }
       if (StringUtils.isNotBlank(ref.getPassword())) {
-        m.put("password", ref.getPassword());
+        m.put("password", MarketplaceSecrets.encode(ref.getPassword()));
       }
       repos.add(m);
     }
