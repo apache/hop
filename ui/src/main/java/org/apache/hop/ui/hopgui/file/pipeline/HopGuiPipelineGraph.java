@@ -905,13 +905,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             // If we click on the start hop transform or a forbidden transform, then we don't have a
             // candidate hop, but we need to ignore this click to not start a drag operation.
             if (candidate != null) {
-              addCandidateAsHop(event.x, event.y);
               // Single-stream hop completes on mouseDown and clears startHopTransform; without
-              // this,
-              // the following mouseUp would look like a plain transform click and open the action
-              // dialog.
-              if (startHopTransform == null) {
-                avoidContextDialog = true;
+              // this, the following mouseUp would look like a plain transform click and open the
+              // action dialog. Claim that release up front: completing the hop can put a dialog on
+              // screen - the row layout report, the copy/distribute question - and a dialog runs
+              // its own event loop, which dispatches the release of this very click before we get
+              // back here.
+              avoidContextDialog = true;
+              addCandidateAsHop(event.x, event.y);
+              if (avoidContextDialog && startHopTransform != null) {
+                // The hop is not done yet: it is the pop-up menu of stream options that completes
+                // it, so the release is an ordinary one after all. Should the release already have
+                // been handled from a dialog's event loop, the flag is cleared by now and has to
+                // stay that way, or it would swallow the next click.
+                avoidContextDialog = false;
               }
             }
           } else if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {

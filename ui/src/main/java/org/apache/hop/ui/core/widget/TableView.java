@@ -741,18 +741,10 @@ public class TableView extends Composite {
     return new MouseAdapter() {
       @Override
       public void mouseDown(MouseEvent event) {
-        if (activeTableItem != null
-            && !activeTableItem.isDisposed()
-            && editor != null
-            && editor.getEditor() != null
-            && !editor.getEditor().isDisposed()
-            && activeTableColumn > 0) {
-          if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_TEXT) {
-            applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
-          } else if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_CCOMBO) {
-            applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
-          }
-        }
+        // Commit whatever cell is being edited before the click moves the active cell somewhere
+        // else: an editor left open here would be applied to the cell we are about to move to.
+        applyAllChanges();
+
         boolean rightClick = event.button == 3;
         if (event.button == 1 || rightClick) {
           boolean shift = (event.stateMask & SWT.SHIFT) != 0;
@@ -821,10 +813,19 @@ public class TableView extends Composite {
         && editor.getEditor() != null
         && !editor.getEditor().isDisposed()
         && activeTableColumn > 0) {
-      if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_TEXT) {
-        applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
-      } else if (columns[activeTableColumn - 1].getType() == ColumnInfo.COLUMN_TYPE_CCOMBO) {
-        applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
+      // Mirror the editors edit() opens: a format column is edited with a combo and a text-button
+      // column with a text field, just like the plain combo and text columns, so they have to be
+      // committed (and disposed) the same way. Leaving one open makes the next commit read that
+      // stale editor and write its text into another cell.
+      switch (columns[activeTableColumn - 1].getType()) {
+        case ColumnInfo.COLUMN_TYPE_TEXT, ColumnInfo.COLUMN_TYPE_TEXT_BUTTON:
+          applyTextChange(activeTableItem, activeTableRow, activeTableColumn);
+          break;
+        case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
+          applyComboChange(activeTableItem, activeTableRow, activeTableColumn);
+          break;
+        default:
+          break;
       }
     }
   }
