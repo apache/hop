@@ -127,7 +127,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
             BaseMessages.getString(
                 PKG,
                 "ExecProcess.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+                getLinesRead() + " : " + data.outputRowMeta.getString(outputRow)));
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {

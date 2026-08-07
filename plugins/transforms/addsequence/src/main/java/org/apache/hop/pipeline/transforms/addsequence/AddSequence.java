@@ -116,14 +116,18 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
     }
 
     try {
-      putRow(data.outputRowMeta, addSequence(getInputRowMeta(), r));
+      // The row we wrote is the row with the sequence value in it, so render it with the output
+      // metadata: the incoming metadata doesn't know about the value we just added.
+      //
+      Object[] outputRowData = addSequence(getInputRowMeta(), r);
+      putRow(data.outputRowMeta, outputRowData);
 
       if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(PKG, "AddSequence.Log.WriteRow")
                 + getLinesWritten()
                 + " : "
-                + getInputRowMeta().getString(r));
+                + data.outputRowMeta.getString(outputRowData));
       }
       if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "AddSequence.Log.LineNumber") + getLinesRead());

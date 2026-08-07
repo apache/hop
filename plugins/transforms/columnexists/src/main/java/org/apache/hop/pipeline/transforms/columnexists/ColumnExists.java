@@ -146,7 +146,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
             BaseMessages.getString(
                 PKG,
                 "ColumnExists.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+                getLinesRead() + " : " + data.outputRowMeta.getString(outputRowData)));
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {
