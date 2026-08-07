@@ -436,6 +436,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
     try {
       synchronized (DriverManager.class) {
+        // Force the JDBC 4 driver ServiceLoader scan to run here, while we hold the lock.
+        //
+        // DriverManager only performs that scan once, lazily, the first time a connection is
+        // opened. It instantiates every java.sql.Driver on the classpath, not just the one we
+        // need. If that happens in DriverManager.getConnection() below, it runs unsynchronized
+        // with the driver class loading of another transform's init thread: both threads then
+        // initialize the same driver class hierarchy from opposite ends and deadlock on the
+        // class initialization monitors, hanging the pipeline. Doing it here makes the scan
+        // happen exactly once, single threaded, before any driver class can be initialized by
+        // another route.
+        DriverManager.getDrivers();
+
         ClassLoader classLoader = PluginRegistry.getInstance().getClassLoader(plugin);
         Class<?> driverClass = classLoader.loadClass(classname);
 
