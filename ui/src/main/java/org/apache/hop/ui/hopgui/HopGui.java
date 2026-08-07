@@ -71,6 +71,7 @@ import org.apache.hop.core.search.ISearchableProvider;
 import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.HopSecurityContext;
+import org.apache.hop.core.security.HopSecurityPrivilegeMode;
 import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.TranslateUtil;
@@ -148,6 +149,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -234,6 +236,12 @@ public class HopGui
   public static final String ID_MAIN_TOOLBAR_OPEN = "toolbar-10020-open";
   public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10040-save";
   public static final String ID_MAIN_TOOLBAR_SAVE_AS = "toolbar-10050-save-as";
+
+  /**
+   * Temporary privilege mode combo (left of username). Id sorts before {@link
+   * #ID_MAIN_TOOLBAR_USER}.
+   */
+  public static final String ID_MAIN_TOOLBAR_PRIVILEGE = "toolbar-10880-privilege";
 
   /** Username label immediately left of {@link #ID_MAIN_TOOLBAR_LOG_OFF}. */
   public static final String ID_MAIN_TOOLBAR_USER = "toolbar-10890-user";
@@ -1251,6 +1259,55 @@ public class HopGui
   }
 
   /**
+   * Temporary session privilege mode (Full / Operator / Read-only). Values from {@link
+   * #getPrivilegeModeList()}.
+   */
+  @GuiToolbarElement(
+      root = ID_MAIN_TOOLBAR,
+      id = ID_MAIN_TOOLBAR_PRIVILEGE,
+      type = GuiToolbarElementType.COMBO,
+      comboValuesMethod = "getPrivilegeModeList",
+      extraWidth = 140,
+      toolTip = "i18n::HopGui.Toolbar.Privilege.Tooltip",
+      separator = true)
+  public void toolbarPrivilegeMode() {
+    if (!HopWebPrivilegeFacade.isAvailable() || mainToolbarWidgets == null) {
+      return;
+    }
+    Control control = mainToolbarWidgets.getWidgetsMap().get(ID_MAIN_TOOLBAR_PRIVILEGE);
+    if (!(control instanceof Combo combo) || combo.isDisposed()) {
+      return;
+    }
+    String label = combo.getText();
+    String modeId = HopWebPrivilegeFacade.labelToModeId(label);
+    if (HopWebPrivilegeFacade.setMode(modeId)) {
+      setSecurityContext(HopSecurity.getContext());
+      shell.setText(getApplicationWindowTitle());
+      updateLoggedInUserToolbar();
+      updatePrivilegeModeToolbar();
+      IHopFileTypeHandler handler = getActiveFileTypeHandler();
+      if (handler != null && handler.getFileType() != null) {
+        handleFileCapabilities(handler.getFileType(), handler, handler.hasChanged(), false, false);
+      } else {
+        handleFileCapabilities(new EmptyFileType(), false, false, false);
+      }
+      log.logBasic(
+          "Session privilege mode set to ''{0}'' (effective roles={1})",
+          modeId, HopSecurity.getContext().getRoleIds());
+    } else {
+      updatePrivilegeModeToolbar();
+    }
+  }
+
+  /** Combo values for {@link #toolbarPrivilegeMode()}. */
+  public String[] getPrivilegeModeList() {
+    if (!HopWebPrivilegeFacade.isAvailable()) {
+      return new String[] {BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full")};
+    }
+    return HopWebPrivilegeFacade.getModeComboLabels();
+  }
+
+  /**
    * Toolbar label showing the authenticated username (Hop Web). Text is set in {@link
    * #updateLoggedInUserToolbar()}. Click is a no-op.
    */
@@ -1259,8 +1316,7 @@ public class HopGui
       id = ID_MAIN_TOOLBAR_USER,
       type = GuiToolbarElementType.LABEL,
       label = "",
-      toolTip = "i18n::HopGui.Toolbar.User.Tooltip",
-      separator = true)
+      toolTip = "i18n::HopGui.Toolbar.User.Tooltip")
   public void toolbarLoggedInUser() {
     // Display-only label; no action
   }
@@ -1737,6 +1793,7 @@ public class HopGui
     mainToolbarWidgets.registerGuiPluginObject(this);
     mainToolbarWidgets.createToolbarWidgets(mainToolbarContainer, ID_MAIN_TOOLBAR);
     updateLoggedInUserToolbar();
+    updatePrivilegeModeToolbar();
     if (!EnvironmentUtils.getInstance().isWeb()) {
       mainToolbarWidgets.enableToolbarItem(ID_MAIN_TOOLBAR_LOG_OFF, false);
     }
@@ -1761,11 +1818,46 @@ public class HopGui
         ctx.getRoleIds() == null || ctx.getRoleIds().isEmpty()
             ? ""
             : String.join(", ", ctx.getRoleIds());
-    String toolTip =
-        StringUtils.isEmpty(roles)
-            ? BaseMessages.getString(PKG, "HopGui.Toolbar.User.Tooltip", username)
-            : BaseMessages.getString(PKG, "HopGui.Toolbar.User.TooltipWithRoles", username, roles);
+    HopSecurityContext base = HopWebPrivilegeFacade.getBaseContext();
+    boolean downgraded = HopSecurityPrivilegeMode.isDowngraded(base, ctx);
+    String toolTip;
+    if (downgraded) {
+      toolTip =
+          BaseMessages.getString(
+              PKG,
+              "HopGui.Toolbar.User.TooltipDowngraded",
+              username,
+              roles,
+              String.join(", ", base.getRoleIds()));
+    } else if (StringUtils.isEmpty(roles)) {
+      toolTip = BaseMessages.getString(PKG, "HopGui.Toolbar.User.Tooltip", username);
+    } else {
+      toolTip =
+          BaseMessages.getString(PKG, "HopGui.Toolbar.User.TooltipWithRoles", username, roles);
+    }
     mainToolbarWidgets.setToolbarLabelText(ID_MAIN_TOOLBAR_USER, username, toolTip);
+  }
+
+  /** Refresh privilege-mode combo items and selection from the session. */
+  protected void updatePrivilegeModeToolbar() {
+    if (mainToolbarWidgets == null) {
+      return;
+    }
+    Control control = mainToolbarWidgets.getWidgetsMap().get(ID_MAIN_TOOLBAR_PRIVILEGE);
+    if (!(control instanceof Combo combo) || combo.isDisposed()) {
+      return;
+    }
+    boolean available = HopWebPrivilegeFacade.isAvailable();
+    combo.setEnabled(available);
+    if (!available) {
+      combo.setItems(new String[] {BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full")});
+      combo.setText(BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full"));
+      return;
+    }
+    String[] items = HopWebPrivilegeFacade.getModeComboLabels();
+    combo.setItems(items);
+    String current = HopWebPrivilegeFacade.modeIdToLabel(HopWebPrivilegeFacade.getModeId());
+    combo.setText(current);
   }
 
   protected void addStatusToolbar() {

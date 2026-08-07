@@ -28,10 +28,22 @@ package org.apache.hop.core.security;
 public final class HopSecurity {
 
   /**
-   * UISession / request attribute key used by Hop Web to store the resolved {@link
-   * HopSecurityContext}.
+   * UISession / request attribute key used by Hop Web to store the <em>effective</em> {@link
+   * HopSecurityContext} (after any temporary privilege downgrade).
    */
   public static final String SESSION_CONTEXT_ATTRIBUTE = "hop.security.context";
+
+  /**
+   * UISession attribute for the login-time base context (never reduced by temporary privilege
+   * mode).
+   */
+  public static final String SESSION_BASE_CONTEXT_ATTRIBUTE = "hop.security.context.base";
+
+  /**
+   * UISession attribute: temporary mode id ({@link HopSecurityPrivilegeMode#MODE_FULL} or a Hop
+   * role id such as {@code readonly}).
+   */
+  public static final String SESSION_PRIVILEGE_MODE_ATTRIBUTE = "hop.security.privilege.mode";
 
   private static final ISecurityContextProvider UNRESTRICTED = HopSecurityContext::unrestricted;
 

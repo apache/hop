@@ -61,6 +61,8 @@ public class HopWebLogoutFacadeImpl extends HopWebLogoutFacade {
       UISession uiSession = RWT.getUISession();
       if (uiSession != null) {
         uiSession.removeAttribute(HopSecurity.SESSION_CONTEXT_ATTRIBUTE);
+        uiSession.removeAttribute(HopSecurity.SESSION_BASE_CONTEXT_ATTRIBUTE);
+        uiSession.removeAttribute(HopSecurity.SESSION_PRIVILEGE_MODE_ATTRIBUTE);
       }
 
       String contextPath = "";

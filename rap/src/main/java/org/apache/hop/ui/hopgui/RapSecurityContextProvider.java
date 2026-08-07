@@ -21,16 +21,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Set;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopRole;
 import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.core.security.HopSecurityContextResolver;
+import org.apache.hop.core.security.HopSecurityPrivilegeMode;
 import org.apache.hop.core.security.ISecurityContextProvider;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.UISession;
 
 /**
- * RAP session-aware {@link ISecurityContextProvider}. Reads the {@link HopSecurityContext} bound to
- * the UISession at entry-point start; falls back to unrestricted when no session is active.
+ * RAP session-aware {@link ISecurityContextProvider}. Returns the <em>effective</em> session
+ * context (after optional temporary privilege downgrade). Login-time base context is stored
+ * separately so privileges can be restored without re-authentication.
  */
 public class RapSecurityContextProvider implements ISecurityContextProvider {
 
@@ -52,22 +55,140 @@ public class RapSecurityContextProvider implements ISecurityContextProvider {
   }
 
   /**
-   * Resolve identity from the current HTTP request and store it on the UISession so subsequent
-   * authorization checks (menus, toolbars) use the same context for the life of the session.
+   * Resolve identity from the current HTTP request and store base + effective contexts on the
+   * UISession. Preserves an active temporary privilege mode when the authentic base is refreshed.
    *
-   * @return the resolved context (never null)
+   * @return the <em>effective</em> context after re-applying privilege mode (never null)
    */
   public static HopSecurityContext bindFromCurrentRequest() {
-    HopSecurityContext context = resolveFromCurrentRequest();
+    HopSecurityContext authentic = resolveFromCurrentRequest();
+    return bindBaseAndApplyMode(authentic);
+  }
+
+  /**
+   * Store the login-time base context and set effective = base (or re-apply current mode).
+   *
+   * @param authentic login-time context
+   * @return effective context
+   */
+  public static HopSecurityContext bindBaseAndApplyMode(HopSecurityContext authentic) {
+    if (authentic == null) {
+      authentic = HopSecurityContext.unrestricted();
+    }
     try {
       UISession session = RWT.getUISession();
-      if (session != null) {
-        session.setAttribute(HopSecurity.SESSION_CONTEXT_ATTRIBUTE, context);
+      if (session == null) {
+        return authentic;
       }
+      session.setAttribute(HopSecurity.SESSION_BASE_CONTEXT_ATTRIBUTE, authentic);
+      String mode = (String) session.getAttribute(HopSecurity.SESSION_PRIVILEGE_MODE_ATTRIBUTE);
+      HopRole assumed = HopSecurityPrivilegeMode.parseModeRole(mode);
+      HopSecurityContext effective = authentic;
+      if (assumed != null && HopSecurityPrivilegeMode.canAssume(authentic, assumed)) {
+        effective = HopSecurityPrivilegeMode.createEffective(authentic, assumed);
+      } else {
+        session.setAttribute(
+            HopSecurity.SESSION_PRIVILEGE_MODE_ATTRIBUTE, HopSecurityPrivilegeMode.MODE_FULL);
+      }
+      session.setAttribute(HopSecurity.SESSION_CONTEXT_ATTRIBUTE, effective);
+      return effective;
     } catch (Exception e) {
       LogChannel.UI.logDebug("Hop security: unable to store context on UISession", e);
+      return authentic;
     }
-    return context;
+  }
+
+  /** Login-time base context for the current UI session (or effective if base missing). */
+  public static HopSecurityContext getBaseContext() {
+    try {
+      UISession session = RWT.getUISession();
+      if (session == null) {
+        return HopSecurity.getContext();
+      }
+      Object base = session.getAttribute(HopSecurity.SESSION_BASE_CONTEXT_ATTRIBUTE);
+      if (base instanceof HopSecurityContext hopSecurityContext) {
+        return hopSecurityContext;
+      }
+      Object effective = session.getAttribute(HopSecurity.SESSION_CONTEXT_ATTRIBUTE);
+      if (effective instanceof HopSecurityContext hopSecurityContext) {
+        return hopSecurityContext;
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logDebug("Hop security: unable to read base context", e);
+    }
+    return HopSecurity.getContext();
+  }
+
+  /**
+   * Temporarily act as {@code role} (downgrade only). Returns false if not allowed.
+   *
+   * @param role target built-in role
+   * @return true if applied
+   */
+  public static boolean assumeRole(HopRole role) {
+    if (role == null) {
+      return restoreFullPrivileges();
+    }
+    try {
+      UISession session = RWT.getUISession();
+      if (session == null) {
+        return false;
+      }
+      HopSecurityContext base = getBaseContext();
+      if (!HopSecurityPrivilegeMode.canAssume(base, role)) {
+        LogChannel.UI.logBasic(
+            "Privilege mode refused: cannot assume ''{0}'' from base {1}",
+            role.getId(), base.getRoleIds());
+        return false;
+      }
+      HopSecurityContext effective = HopSecurityPrivilegeMode.createEffective(base, role);
+      session.setAttribute(HopSecurity.SESSION_CONTEXT_ATTRIBUTE, effective);
+      session.setAttribute(HopSecurity.SESSION_PRIVILEGE_MODE_ATTRIBUTE, role.getId());
+      LogChannel.UI.logBasic(
+          "Privilege mode: user ''{0}'' base={1} → effective={2}",
+          base.getUsername(), base.getRoleIds(), effective.getRoleIds());
+      return true;
+    } catch (Exception e) {
+      LogChannel.UI.logError("Hop security: assumeRole failed", e);
+      return false;
+    }
+  }
+
+  /** Restore login-time privileges. */
+  public static boolean restoreFullPrivileges() {
+    try {
+      UISession session = RWT.getUISession();
+      if (session == null) {
+        return false;
+      }
+      HopSecurityContext base = getBaseContext();
+      session.setAttribute(HopSecurity.SESSION_CONTEXT_ATTRIBUTE, base);
+      session.setAttribute(
+          HopSecurity.SESSION_PRIVILEGE_MODE_ATTRIBUTE, HopSecurityPrivilegeMode.MODE_FULL);
+      LogChannel.UI.logBasic(
+          "Privilege mode restored for user ''{0}'' ({1})", base.getUsername(), base.getRoleIds());
+      return true;
+    } catch (Exception e) {
+      LogChannel.UI.logError("Hop security: restoreFullPrivileges failed", e);
+      return false;
+    }
+  }
+
+  /** Current temporary mode id ({@link HopSecurityPrivilegeMode#MODE_FULL} or role id). */
+  public static String getPrivilegeModeId() {
+    try {
+      UISession session = RWT.getUISession();
+      if (session == null) {
+        return HopSecurityPrivilegeMode.MODE_FULL;
+      }
+      Object mode = session.getAttribute(HopSecurity.SESSION_PRIVILEGE_MODE_ATTRIBUTE);
+      if (mode instanceof String s && !s.isBlank()) {
+        return s;
+      }
+    } catch (Exception ignored) {
+      // fall through
+    }
+    return HopSecurityPrivilegeMode.MODE_FULL;
   }
 
   /**

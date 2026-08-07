@@ -150,6 +150,17 @@ The main toolbar also shows the signed-in username to the left of the **Log off*
 
 image:hop-web-toolbar-user-and-log-off.png[Hop Web toolbar with signed-in username and Log off,width="50%"]
 
+==== Temporary session privileges
+
+Next to the username, a **session privilege** combo lets you temporarily *lower* your effective role without logging out—for example switch from Admin to **Read-only** or **Operator** while browsing a project, then choose **Full access** to restore login rights.
+
+* You can only select a role whose permissions are a subset of your login-time (base) privileges (no elevation).
+* Username and audit identity stay the same; only UI authorization changes.
+* Open editors are not closed; the next save/edit uses the new permissions (dialogs and canvas already re-check).
+* Security configuration still requires Admin at the effective level—downgrade to Read-only hides it until you restore Full access.
+
+Desktop unrestricted sessions can use the same control to simulate Operator / Read-only.
+
 Per-user audit data (open tabs, project history, and so on) is stored under `HOP_AUDIT_FOLDER/users/<username>/` when a principal is available.
 Usernames are sanitized for path safety (for example `mattcasters@gmail.com` becomes `mattcasters_gmail.com`).
 
