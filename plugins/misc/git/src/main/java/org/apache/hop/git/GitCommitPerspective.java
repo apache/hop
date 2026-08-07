@@ -402,13 +402,17 @@ public class GitCommitPerspective implements IHopPerspective {
   protected void openFile(Event event) {
     try {
       TreeItem item = (TreeItem) event.item;
-      if (item != null && item.getData() instanceof UIFile file) {
-        ExplorerPerspective perspective = ExplorerPerspective.getInstance();
-        UIGit git = GitGuiPlugin.getInstance().getGit();
-        String path = this.getAbsolutePath(git.getDirectory(), file.getName());
-        IHopFileType fileType = perspective.getFileType(path);
-        fileType.openFile(hopGui, path, hopGui.getVariables());
-        perspective.activate();
+      if (item != null) {
+        if (item.getData() instanceof UIFile file) {
+          ExplorerPerspective perspective = ExplorerPerspective.getInstance();
+          UIGit git = GitGuiPlugin.getInstance().getGit();
+          String path = this.getAbsolutePath(git.getDirectory(), file.getName());
+          IHopFileType fileType = perspective.getFileType(path);
+          fileType.openFile(hopGui, path, hopGui.getVariables());
+          perspective.activate();
+        } else {
+          item.setExpanded(!item.getExpanded());
+        }
       }
     } catch (Exception e) {
       new ErrorDialog(
