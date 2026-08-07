@@ -121,6 +121,40 @@ class ConstantTest {
   }
 
   /**
+   * The row that is logged at row level is the row this transform wrote, so it has to be rendered
+   * with the output row metadata. Using the incoming metadata silently dropped the constants that
+   * were just added (issue #2621).
+   */
+  @Test
+  void testRowLevelLoggingShowsTheAddedConstants() throws Exception {
+    IRowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("field_01"));
+
+    doReturn(new Object[] {"START"}).when(constantSpy).getRow();
+    doReturn(inputRowMeta).when(constantSpy).getInputRowMeta();
+    doReturn(new Object[] {"ALL"}).when(rowMetaAndData).getData();
+    mockHelper.iTransformData.firstRow = true;
+    // The transform meta is a mock, so play the part of getFields() and add the constant field.
+    Mockito.doAnswer(
+            invocation -> {
+              IRowMeta outputRowMeta = invocation.getArgument(0);
+              outputRowMeta.addValueMeta(new ValueMetaString("constant_01"));
+              return null;
+            })
+        .when(mockHelper.iTransformMeta)
+        .getFields(any(), any(), any(), any(), any(), any());
+    when(mockHelper.iLogChannel.isRowLevel()).thenReturn(true);
+
+    assertTrue(constantSpy.processRow());
+
+    ArgumentCaptor<String> logged = ArgumentCaptor.forClass(String.class);
+    Mockito.verify(mockHelper.iLogChannel).logRowlevel(logged.capture());
+    assertTrue(
+        logged.getValue().contains("START") && logged.getValue().contains("ALL"),
+        "the logged row should contain the added constant, but was: " + logged.getValue());
+  }
+
+  /**
    * The dialog offers every registered value type, so buildRow() has to cope with types it has no
    * dedicated case for. Types the value meta plugin can build from a string have to work.
    */
