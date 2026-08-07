@@ -416,6 +416,17 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
       remarks.add(cr);
     }
 
+    // Without lookup keys we cannot build the WHERE clause of the UPDATE statement, not even when
+    // the lookup is skipped.
+    if (lookupField.getLookupKeys().isEmpty()) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "UpdateMeta.CheckResult.MissingKeyFields"),
+              transformMeta);
+      remarks.add(cr);
+    }
+
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =

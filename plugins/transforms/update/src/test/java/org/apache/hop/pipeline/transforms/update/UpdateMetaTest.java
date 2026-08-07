@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.update;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
@@ -29,11 +30,15 @@ import java.util.Random;
 import java.util.UUID;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -245,6 +250,40 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
       fail();
     } catch (Exception ex) {
     }
+  }
+
+  /**
+   * The lookup keys build the WHERE clause of the UPDATE, so an empty key grid can only produce
+   * invalid SQL - check() has to say so at design time rather than let the database complain at
+   * runtime. See <a href="https://github.com/apache/hop/issues/4772">issue #4772</a>.
+   */
+  @Test
+  void checkReportsMissingKeyFields() {
+    UpdateLookupField lookupField = new UpdateLookupField();
+    lookupField.setTableName("table_name");
+    lookupField.setLookupKeys(new ArrayList<>());
+    lookupField.setUpdateFields(List.of(new UpdateField("name", "name")));
+    umi.setLookupField(lookupField);
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    umi.check(
+        remarks,
+        null,
+        transformMeta,
+        new RowMeta(),
+        new String[] {"previous transform"},
+        new String[0],
+        null,
+        new Variables(),
+        new MemoryMetadataProvider());
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("No key fields are specified")),
+        "check() should flag the empty key grid, got: " + remarks);
   }
 
   // Call the allocate method on the LoadSaveTester meta class
