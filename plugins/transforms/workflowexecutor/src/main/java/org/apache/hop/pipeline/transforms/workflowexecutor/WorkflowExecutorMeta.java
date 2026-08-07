@@ -93,6 +93,14 @@ public class WorkflowExecutorMeta
       hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_FILE)
   private String filename;
 
+  /** Flag that indicate that workflow name is specified in a stream's field */
+  @HopMetadataProperty(key = "filenameInField")
+  private boolean filenameInField;
+
+  /** Name of the field containing the workflow file's name */
+  @HopMetadataProperty(key = "filenameField")
+  private String filenameField;
+
   /**
    * The number of input rows that are sent as result rows to the workflow in one go, defaults to
    * "1"
@@ -253,6 +261,7 @@ public class WorkflowExecutorMeta
     parameters = new ArrayList<>();
     resultRowsField = new ArrayList<>();
     inheritingAllVariables = true;
+    filenameInField = false;
 
     groupSize = "1";
     groupField = "";
@@ -432,20 +441,41 @@ public class WorkflowExecutorMeta
       IHopMetadataProvider metadataProvider,
       IVariables variables)
       throws HopException {
-    WorkflowMeta mappingWorkflowMeta = null;
+    return loadWorkflowMeta(executorMeta, null, metadataProvider, variables);
+  }
+
+  /**
+   * Loads child workflow metadata from a file.
+   *
+   * @param explicitWorkflowFilename when non-empty, this path is loaded and resolved instead of the
+   *     filename stored on {@code executorMeta}. Use when the workflow path is taken from an
+   *     incoming row at runtime so multiple transform copies must not mutate shared meta.
+   */
+  public static final synchronized WorkflowMeta loadWorkflowMeta(
+      WorkflowExecutorMeta executorMeta,
+      String explicitWorkflowFilename,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables)
+      throws HopException {
+    String filenameToUse =
+        !Utils.isEmpty(explicitWorkflowFilename)
+            ? explicitWorkflowFilename
+            : executorMeta.getFilename();
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
     IVariables tmpSpace =
-        r.resolveCurrentDirectory(
-            variables, executorMeta.getParentTransformMeta(), executorMeta.getFilename());
+        r.resolveCurrentDirectory(variables, executorMeta.getParentTransformMeta(), filenameToUse);
 
-    String realFilename = tmpSpace.resolve(executorMeta.getFilename());
+    String realFilename = tmpSpace.resolve(filenameToUse);
+    if (variables != null) {
+      realFilename = variables.resolve(realFilename);
+    }
 
     // OK, load the meta-data from file...
     //
     // Don't set internal variables: they belong to the parent thread!
     //
-    mappingWorkflowMeta = new WorkflowMeta(variables, realFilename, metadataProvider);
+    WorkflowMeta mappingWorkflowMeta = new WorkflowMeta(variables, realFilename, metadataProvider);
     LogChannel.GENERAL.logDetailed(
         "Loaded workflow", "Workflow was loaded from XML file [" + realFilename + "]");
 

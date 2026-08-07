@@ -19,10 +19,15 @@ package org.apache.hop.workflow.actions.filesexist;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -81,13 +86,55 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
 
     if (fileItems != null) {
       for (FileItem item : fileItems) {
-        if (parentWorkflow.isStopped()) break;
+        if (parentWorkflow.isStopped()) {
+          break;
+        }
 
         String path = resolve(item.getFileName());
-        try (FileObject file = HopVfs.getFileObject(path, getVariables())) {
+        String fileMask = resolve(item.getFileMask());
+        String excludeFileMask = resolve(item.getExcludeFileMask());
+        boolean includeSubfolders = item.isIncludeSubfolders();
 
-          if (file.exists()
-              && file.isReadable()) { // TODO: is it needed to check file for readability?
+        try (FileObject file = HopVfs.getFileObject(path, getVariables())) {
+          if (!file.exists()) {
+            missingFiles++;
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(PKG, "ActionFilesExist.File_Does_Not_Exist", path));
+            }
+            continue;
+          }
+
+          if (file.getType() == FileType.FOLDER
+              && (!Utils.isEmpty(fileMask) || !Utils.isEmpty(excludeFileMask))) {
+            // Folder with a wildcard: matching files must exist
+            FileObject[] matches =
+                file.findFiles(
+                    new TextFileSelector(
+                        file.toString(), fileMask, excludeFileMask, includeSubfolders));
+            if (matches == null || matches.length == 0) {
+              missingFiles++;
+              if (isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(
+                        PKG,
+                        "ActionFilesExist.NoMatchingFiles",
+                        path,
+                        Const.NVL(fileMask, ""),
+                        Const.NVL(excludeFileMask, "")));
+              }
+            } else {
+              if (isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(
+                        PKG,
+                        "ActionFilesExist.MatchingFilesFound",
+                        String.valueOf(matches.length),
+                        path));
+              }
+            }
+          } else if (file.isReadable()) {
+            // File or folder without wildcards: path must exist (and be readable)
             if (isDetailed()) {
               logDetailed(BaseMessages.getString(PKG, "ActionFilesExist.File_Exists", path));
             }
@@ -98,7 +145,6 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
                   BaseMessages.getString(PKG, "ActionFilesExist.File_Does_Not_Exist", path));
             }
           }
-
         } catch (Exception e) {
           nrErrors++;
           missingFiles++;
@@ -116,6 +162,62 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
     }
 
     return result;
+  }
+
+  private class TextFileSelector implements FileSelector {
+    private final String sourceFolder;
+    private final Pattern includePattern;
+    private final Pattern excludePattern;
+    private final boolean includeSubfolders;
+
+    public TextFileSelector(
+        String sourceFolder,
+        String fileWildcard,
+        String excludeWildcard,
+        boolean includeSubfolders) {
+      this.sourceFolder = sourceFolder;
+      this.includePattern = Utils.isEmpty(fileWildcard) ? null : Pattern.compile(fileWildcard);
+      this.excludePattern =
+          Utils.isEmpty(excludeWildcard) ? null : Pattern.compile(excludeWildcard);
+      this.includeSubfolders = includeSubfolders;
+    }
+
+    @Override
+    public boolean includeFile(FileSelectInfo info) {
+      try {
+        // Skip the base folder itself
+        if (info.getFile().toString().equals(sourceFolder)) {
+          return false;
+        }
+        if (info.getFile().getType() != FileType.FILE) {
+          return false;
+        }
+
+        // Only files in the base folder, or in sub-folders when enabled
+        boolean inBaseFolder = info.getFile().getParent().equals(info.getBaseFolder());
+        if (!inBaseFolder && !includeSubfolders) {
+          return false;
+        }
+
+        String shortFilename = info.getFile().getName().getBaseName();
+        boolean matches = includePattern == null || includePattern.matcher(shortFilename).matches();
+        boolean excluded =
+            excludePattern != null && excludePattern.matcher(shortFilename).matches();
+        return matches && !excluded;
+      } catch (Exception e) {
+        logError(
+            BaseMessages.getString(
+                PKG,
+                "ActionFilesExist.ERROR_0004_IO_Exception",
+                info.getFile() + " : " + e.getMessage()));
+        return false;
+      }
+    }
+
+    @Override
+    public boolean traverseDescendents(FileSelectInfo info) {
+      return info.getDepth() == 0 || includeSubfolders;
+    }
   }
 
   @Override

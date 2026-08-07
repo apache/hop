@@ -409,6 +409,7 @@ public class TextFileInputUtils {
       String[] strings =
           convertLineToStrings(log, textFileLine.line, info, delimiter, enclosure, escapeCharacter);
       int shiftFields = (passThruFields == null ? 0 : nrPassThruFields);
+      boolean nullIfNotEnclosed = info.isNullIfNotEnclosed();
       for (fieldnr = 0; fieldnr < nrFields; fieldnr++) {
         T f = info.getInputFields().get(fieldnr);
         int valueIndex = shiftFields + fieldnr;
@@ -424,10 +425,19 @@ public class TextFileInputUtils {
         if (strings != null && fieldnr < strings.length) {
           String pol = strings[fieldnr];
           try {
-            if (valueMeta.isNull(pol) || !Utils.isEmpty(nullif) && nullif.equals(pol)) {
-              pol = null;
+            if (nullIfNotEnclosed && pol == null) {
+              // Nothing was there: a value which is empty and not enclosed, or a missing trailing
+              // value. That's a null, also when HOP_EMPTY_STRING_DIFFERS_FROM_NULL is set to Y
+              // (which would otherwise turn it into an empty string).
+              value = null;
+            } else {
+              // An empty enclosed value ("") is an empty string, so don't null it out.
+              if ((!nullIfNotEnclosed || !pol.isEmpty())
+                  && (valueMeta.isNull(pol) || !Utils.isEmpty(nullif) && nullif.equals(pol))) {
+                pol = null;
+              }
+              value = valueMeta.convertDataFromString(pol, convertMeta, nullif, ifNull, trimType);
             }
-            value = valueMeta.convertDataFromString(pol, convertMeta, nullif, ifNull, trimType);
           } catch (Exception e) {
             // OK, give some feedback!
             // when getting fields, failOnParseError will be set to false, as we do not want one
@@ -623,6 +633,7 @@ public class TextFileInputUtils {
         int pos = 0;
         int length = line.length();
         boolean dencl = false;
+        boolean nullIfNotEnclosed = inf.isNullIfNotEnclosed();
 
         int lenEncl = (enclosure == null ? 0 : enclosure.length());
         int lenEsc = (escapeCharacters == null ? 0 : escapeCharacters.length());
@@ -833,8 +844,11 @@ public class TextFileInputUtils {
           }
 
           // Now add pol to the strings found!
+          // With "null if not enclosed" an empty value which was not enclosed (a;;b) is passed on
+          // as null while an empty enclosed value (a;"";b) stays an empty string. convertLineToRow
+          // turns that null into a null value in the output row.
           try {
-            strings[fieldnr] = pol;
+            strings[fieldnr] = nullIfNotEnclosed && !enclFound && pol.isEmpty() ? null : pol;
           } catch (ArrayIndexOutOfBoundsException e) {
             // In case we didn't allocate enough variables.
             // This happens when you have less header values specified than there are actual values
@@ -858,7 +872,8 @@ public class TextFileInputUtils {
                 BaseMessages.getString(PKG, "TextFileInput.Log.EndOfEmptyLineFound"));
           }
           if (fieldnr < strings.length) {
-            strings[fieldnr] = Const.EMPTY_STRING;
+            // A line ending on a separator (a;b;) leaves an empty, non-enclosed last value.
+            strings[fieldnr] = nullIfNotEnclosed ? null : Const.EMPTY_STRING;
           }
           fieldnr++;
         }

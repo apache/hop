@@ -158,4 +158,56 @@ class GuiActionFavoritesTest {
     GuiActionFavorites.toggle(Kind.TRANSFORM, "B");
     assertEquals(List.of("A", "C"), GuiActionFavorites.getFavoriteIds(Kind.TRANSFORM));
   }
+
+  @Test
+  void placeableCreateActionResolution() {
+    GuiAction transformCreate =
+        new GuiAction(
+            GuiActionFavorites.createId(Kind.TRANSFORM, "Dummy"),
+            GuiActionType.Create,
+            "Dummy",
+            "d",
+            "i",
+            (s, c, t) -> {});
+    assertTrue(GuiActionFavorites.isPlaceableCreateAction(transformCreate));
+    GuiActionFavorites.KindAndPluginId resolved =
+        GuiActionFavorites.resolveFromAction(transformCreate);
+    assertEquals(Kind.TRANSFORM, resolved.kind());
+    assertEquals("Dummy", resolved.pluginId());
+
+    GuiAction transformFavorite =
+        new GuiAction(
+            GuiActionFavorites.favoriteId(Kind.TRANSFORM, "Dummy"),
+            GuiActionType.Create,
+            "Dummy",
+            "d",
+            "i",
+            (s, c, t) -> {});
+    assertTrue(GuiActionFavorites.isPlaceableCreateAction(transformFavorite));
+    assertEquals(Kind.TRANSFORM, GuiActionFavorites.resolveFromAction(transformFavorite).kind());
+
+    GuiAction workflowCreate =
+        new GuiAction(
+            GuiActionFavorites.createId(Kind.WORKFLOW_ACTION, "START"),
+            GuiActionType.Create,
+            "Start",
+            "d",
+            "i",
+            (s, c, t) -> {});
+    assertTrue(GuiActionFavorites.isPlaceableCreateAction(workflowCreate));
+    assertEquals(Kind.WORKFLOW_ACTION, GuiActionFavorites.resolveFromAction(workflowCreate).kind());
+    assertEquals("START", GuiActionFavorites.resolveFromAction(workflowCreate).pluginId());
+
+    GuiAction other =
+        new GuiAction(
+            "pipeline-graph-edit-properties",
+            GuiActionType.Modify,
+            "Edit",
+            "d",
+            "i",
+            (s, c, t) -> {});
+    assertFalse(GuiActionFavorites.isPlaceableCreateAction(other));
+    assertEquals(null, GuiActionFavorites.resolveFromAction(other));
+    assertFalse(GuiActionFavorites.isPlaceableCreateAction(null));
+  }
 }

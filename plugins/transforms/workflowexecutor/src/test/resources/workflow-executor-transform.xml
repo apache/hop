@@ -29,6 +29,8 @@
     </partitioning>
     <run_configuration>local</run_configuration>
     <filename>${PROJECT_HOME}/loops/child-workflow-executor.hwf</filename>
+    <filenameInField>N</filenameInField>
+    <filenameField/>
     <group_size>1</group_size>
     <group_field/>
     <group_time/>
