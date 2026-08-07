@@ -1151,19 +1151,7 @@ public abstract class Pipeline
       // Also explicitly call dispose() to clean up resources opened during
       // init()
       //
-      for (TransformInitThread initThread : initThreads) {
-        TransformMetaDataCombi combi = initThread.getCombi();
-
-        // Dispose will overwrite the status, but we set it back right after
-        // this.
-        combi.transform.dispose();
-
-        if (initThread.isOk()) {
-          combi.data.setStatus(ComponentExecutionStatus.STATUS_HALTED);
-        } else {
-          combi.data.setStatus(ComponentExecutionStatus.STATUS_STOPPED);
-        }
-      }
+      disposeInitializedTransforms();
 
       // Just for safety, fire the pipeline finished listeners...
       try {
@@ -1196,6 +1184,33 @@ public abstract class Pipeline
     log.snap(Metrics.METRIC_PIPELINE_INIT_STOP);
 
     setReadyToStart(true);
+  }
+
+  /**
+   * Dispose the transforms which were initialized in {@link #prepareExecution()}. This releases the
+   * resources they acquired during init() (database connections, files, ...) in the situations
+   * where the transform threads are never started and {@link RunThread} can't do it for us.
+   */
+  public void disposeInitializedTransforms() {
+    if (transforms == null) {
+      return;
+    }
+    for (TransformMetaDataCombi combi : transforms) {
+      // Dispose will overwrite the status, but we set it back right after this.
+      //
+      ComponentExecutionStatus status = combi.data.getStatus();
+      try {
+        combi.transform.dispose();
+      } catch (Exception e) {
+        // A transform which fails to clean up shouldn't keep the others from doing so.
+        //
+        log.logError("Error disposing transform " + combi.transformName, e);
+      }
+      combi.data.setStatus(
+          status == ComponentExecutionStatus.STATUS_STOPPED
+              ? ComponentExecutionStatus.STATUS_STOPPED
+              : ComponentExecutionStatus.STATUS_HALTED);
+    }
   }
 
   /**
