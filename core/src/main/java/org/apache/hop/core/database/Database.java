@@ -147,6 +147,16 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private IRowMeta rowMeta;
 
+  /**
+   * The result row metadata derived by {@link #openQuery(PreparedStatement, IRowMeta, Object[])},
+   * cached together with the prepared statement it was derived from. A prepared statement always
+   * returns the same result layout, so transforms which re-execute the same statement once per
+   * incoming row (Database Join) do not have to rebuild it for every single row.
+   */
+  private PreparedStatement openQueryStatement;
+
+  private IRowMeta openQueryRowMeta;
+
   private int written;
 
   private final ILogChannel log;
@@ -635,6 +645,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   /** Disconnect from the database and close all open prepared statements. */
   public synchronized void disconnect() {
+    openQueryStatement = null;
+    openQueryRowMeta = null;
     if (connection == null) {
       return; // Nothing to do...
     }
@@ -983,11 +995,24 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public void closePreparedStatement(PreparedStatement ps) throws HopDatabaseException {
     if (ps != null) {
+      forgetOpenQueryRowMeta(ps);
       try {
         ps.close();
       } catch (SQLException e) {
         throw new HopDatabaseException("Error closing prepared statement", e);
       }
+    }
+  }
+
+  /**
+   * Drop the cached {@link #openQueryRowMeta} when the statement it was derived from is closed. A
+   * driver is free to hand out the same statement object again for different SQL afterwards, so the
+   * cached layout must not survive it.
+   */
+  private void forgetOpenQueryRowMeta(PreparedStatement ps) {
+    if (ps == openQueryStatement) {
+      openQueryStatement = null;
+      openQueryRowMeta = null;
     }
   }
 
@@ -1809,9 +1834,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       // to get the length of a String field. So, on MySQL, we ignore the length
       // of Strings in result rows.
       //
-      log.snap(Metrics.METRIC_DATABASE_GET_ROW_META_START, databaseMeta.getName());
-      rowMeta = getRowInfo(res.getMetaData(), databaseMeta.isMySqlVariant(), false);
-      log.snap(Metrics.METRIC_DATABASE_GET_ROW_META_STOP, databaseMeta.getName());
+      // A prepared statement always returns the same result layout, so the row metadata only has to
+      // be derived the first time we see this statement. Rebuilding it on every execution costs one
+      // plugin class load per column and dominates transforms which execute the statement once per
+      // incoming row, such as Database Join.
+      //
+      if (ps != openQueryStatement || openQueryRowMeta == null) {
+        log.snap(Metrics.METRIC_DATABASE_GET_ROW_META_START, databaseMeta.getName());
+        openQueryRowMeta = getRowInfo(res.getMetaData(), databaseMeta.isMySqlVariant(), false);
+        openQueryStatement = ps;
+        log.snap(Metrics.METRIC_DATABASE_GET_ROW_META_STOP, databaseMeta.getName());
+      }
+      rowMeta = openQueryRowMeta;
     } catch (SQLException ex) {
       throw new HopDatabaseException("ERROR executing query", ex);
     } catch (Exception e) {
@@ -2454,6 +2488,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         selStmt = null;
       }
       if (pstmt != null) {
+        forgetOpenQueryRowMeta(pstmt);
         pstmt.close();
         pstmt = null;
       }
