@@ -675,7 +675,9 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
 
     @Option(
         names = {"--password"},
-        description = "Optional Basic auth password (prefer env HOP_MARKETPLACE_PASSWORD)")
+        description =
+            "Optional Basic auth password, stored obfuscated (prefer a ${VARIABLE} or env"
+                + " HOP_MARKETPLACE_PASSWORD)")
     private String password;
 
     @Option(

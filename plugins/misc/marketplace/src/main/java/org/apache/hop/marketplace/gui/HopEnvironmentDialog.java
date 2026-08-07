@@ -1212,6 +1212,10 @@ public class HopEnvironmentDialog extends Dialog {
     Text wPass = new Text(dialog, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wPass);
     wPass.setText(Const.NVL(ref.getPassword(), ""));
+    String passwordTooltip =
+        BaseMessages.getString(PKG, "HopEnvironmentDialog.Repo.Column.Password.Tooltip");
+    wlPass.setToolTipText(passwordTooltip);
+    wPass.setToolTipText(passwordTooltip);
     FormData fdPass = new FormData();
     fdPass.left = new FormAttachment(middle, 0);
     fdPass.top = new FormAttachment(wlPass, 0, SWT.CENTER);

@@ -156,9 +156,21 @@ public final class MarketplaceHttp {
           + repository.environmentIdPrefix()
           + "_USERNAME / _PASSWORD if this repository needs different ones.";
     }
+    if (unresolved(repository.effectiveUsername()) || unresolved(repository.effectivePassword())) {
+      return ". The credentials configured for this repository use a variable that is not set, so"
+          + " the expression itself was sent as the credential. Define the variable, or set"
+          + " HOP_MARKETPLACE_"
+          + repository.environmentIdPrefix()
+          + "_USERNAME / _PASSWORD instead.";
+    }
     return ". Basic auth was sent as user '"
         + repository.effectiveUsername()
         + "' from the repository configuration; check that password.";
+  }
+
+  /** A credential that still carries variable syntax never made it through resolution. */
+  private static boolean unresolved(String credential) {
+    return credential != null && (credential.contains("${") || credential.contains("#{"));
   }
 
   private static void close(Object body) {
