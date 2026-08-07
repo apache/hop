@@ -197,10 +197,10 @@ You can right-click on any item in this tree to either Delete, Rename, or Show S
 
 The Classes folder indicates what classes have corresponding code block tabs in the Class Code panel.
 
-**Code Snippits**
+**Code Snippets**
 
-The Code Snippits folder shows the internal Hop code related to the User Defined Java Class transform.
-These snippets are shown as reference for the code of your class.
+The Code Snippets folder contains ready to use fragments for the most common User Defined Java Class operations, grouped by category.
+Click a snippet to insert it at the cursor position in the active class tab, or right-click it and pick Show Sample to open it in a read-only tab for reference.
 
 **Input Fields**
 
