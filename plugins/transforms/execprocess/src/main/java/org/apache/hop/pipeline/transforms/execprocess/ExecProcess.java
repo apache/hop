@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
@@ -98,7 +97,11 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
 
         execProcess(cmdArray.toArray(new String[0]), processResult);
       } else {
-        execProcess(processString, processResult);
+        if (isDetailed() && !hasBalancedQuotes(processString)) {
+          logDetailed(
+              BaseMessages.getString(PKG, "ExecProcess.Log.UnbalancedQuotes", processString));
+        }
+        execProcess(tokenizeCommandLine(processString), processResult);
       }
 
       if (meta.isFailWhenNotSuccess() && processResult.getExitValue() != 0) {
@@ -207,10 +210,6 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
     }
   }
 
-  private void execProcess(String process, ProcessResult processresult) throws HopException {
-    execProcess(new String[] {process}, processresult);
-  }
-
   private void execProcess(String[] process, ProcessResult processresult) throws HopException {
     Process p = null;
     waitForLatch = new CountDownLatch(1);
@@ -218,14 +217,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       String errorMsg = null;
       // execute process
       try {
-        if (!meta.isArgumentsInFields()) {
-          // Match historical Runtime.exec(String) whitespace tokenization without using the
-          // deprecated String overload. A single-element String[] would treat the whole command
-          // line (e.g. "/bin/echo hop-single") as the executable name.
-          p = data.runtime.exec(tokenizeCommandLine(process[0]));
-        } else {
-          p = data.runtime.exec(process);
-        }
+        p = data.runtime.exec(process);
       } catch (Exception e) {
         errorMsg = e.getMessage();
       }
@@ -328,16 +320,82 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
   }
 
   /**
-   * Tokenize a command line the same way Runtime.exec(String) historically did (whitespace via
-   * {@link StringTokenizer}).
+   * Split a command line into the executable and its arguments. Tokens are separated by whitespace,
+   * but a section wrapped in single or double quotes is kept together as one token even when it
+   * contains whitespace, and the quotes themselves are removed - the way a shell would do it.
+   *
+   * <p>Quoting is positional, so quoted and unquoted parts that touch each other end up in the same
+   * token: {@code --path="/my folder"} yields the single argument {@code --path=/my folder}. There
+   * is no backslash escaping: on Windows a backslash is a path separator, so {@code C:\my dir}
+   * keeps its backslashes and needs quotes to survive the space.
+   *
+   * <p>Quotes only take effect when they are balanced, see {@link #hasBalancedQuotes(String)}.
    */
-  static String[] tokenizeCommandLine(String command) {
-    StringTokenizer st = new StringTokenizer(command);
-    String[] cmdArray = new String[st.countTokens()];
-    for (int i = 0; st.hasMoreTokens(); i++) {
-      cmdArray[i] = st.nextToken();
+  static String[] tokenizeCommandLine(String command) throws HopException {
+    List<String> tokens = tokenize(command, hasBalancedQuotes(command));
+    if (tokens.isEmpty()) {
+      throw new HopException(BaseMessages.getString(PKG, "ExecProcess.ProcessEmpty"));
     }
-    return cmdArray;
+    return tokens.toArray(new String[0]);
+  }
+
+  /**
+   * Whether every single and double quote in the command line is closed again.
+   *
+   * <p>When they are not, we can't tell a mis-typed quote from a quote character that is simply
+   * part of an argument, so the command line is split on whitespace only and the quotes are left in
+   * place - what every Hop version up to 2.18 did with any command line. That keeps a stray
+   * apostrophe ({@code --message=don't}) working instead of turning it into a failing row.
+   */
+  static boolean hasBalancedQuotes(String command) {
+    char quote = 0;
+    for (int i = 0; i < command.length(); i++) {
+      char c = command.charAt(i);
+      if (quote != 0) {
+        if (c == quote) {
+          quote = 0;
+        }
+      } else if (c == '\'' || c == '"') {
+        quote = c;
+      }
+    }
+    return quote == 0;
+  }
+
+  private static List<String> tokenize(String command, boolean respectQuotes) {
+    List<String> tokens = new ArrayList<>();
+    StringBuilder token = new StringBuilder();
+    boolean inToken = false;
+    char quote = 0;
+
+    for (int i = 0; i < command.length(); i++) {
+      char c = command.charAt(i);
+      if (quote != 0) {
+        // Inside quotes everything is literal until the matching quote shows up
+        if (c == quote) {
+          quote = 0;
+        } else {
+          token.append(c);
+        }
+      } else if (respectQuotes && (c == '\'' || c == '"')) {
+        quote = c;
+        inToken = true;
+      } else if (Character.isWhitespace(c)) {
+        if (inToken) {
+          tokens.add(token.toString());
+          token.setLength(0);
+          inToken = false;
+        }
+      } else {
+        token.append(c);
+        inToken = true;
+      }
+    }
+
+    if (inToken) {
+      tokens.add(token.toString());
+    }
+    return tokens;
   }
 
   private String getOutputString(BufferedReader b) throws IOException {

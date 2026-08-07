@@ -218,11 +218,111 @@ class ExecProcessTest {
   }
 
   @Test
-  void tokenizeCommandLine_splitsOnWhitespaceLikeRuntimeExecString() {
+  void tokenizeCommandLine_splitsOnWhitespace() throws HopException {
     assertEquals(
         Arrays.asList("/bin/echo", "hop-single"),
         Arrays.asList(ExecProcess.tokenizeCommandLine("/bin/echo hop-single")));
     assertEquals(List.of("cmd"), Arrays.asList(ExecProcess.tokenizeCommandLine("cmd")));
+    assertEquals(
+        Arrays.asList("ls", "-la", "/work/hop/config"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("  ls\t-la   /work/hop/config ")));
+  }
+
+  /** Regression for issue #5988 : quoted arguments must survive as a single, unquoted token. */
+  @Test
+  void tokenizeCommandLine_keepsQuotedSectionsTogetherAndStripsQuotes() throws HopException {
+    List<String> expected = Arrays.asList("ls", "-la", "/work/hop/config");
+
+    assertEquals(
+        expected, Arrays.asList(ExecProcess.tokenizeCommandLine("ls -la /work/hop/config")));
+    assertEquals(
+        expected, Arrays.asList(ExecProcess.tokenizeCommandLine("ls -la \"/work/hop/config\"")));
+    assertEquals(
+        expected, Arrays.asList(ExecProcess.tokenizeCommandLine("ls -la '/work/hop/config'")));
+  }
+
+  @Test
+  void tokenizeCommandLine_quotedWhitespaceStaysInOneArgument() throws HopException {
+    assertEquals(
+        Arrays.asList("ls", "-la", "/work/my folder"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("ls -la \"/work/my folder\"")));
+    assertEquals(
+        Arrays.asList("ls", "-la", "/work/my folder"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("ls -la '/work/my folder'")));
+  }
+
+  @Test
+  void tokenizeCommandLine_handlesPartialQuotingAndNestedQuoteCharacters() throws HopException {
+    // Quoting is positional : quoted and unquoted parts that touch stay in the same token
+    assertEquals(
+        Arrays.asList("cmd", "--path=/my folder/x"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("cmd --path=\"/my folder\"/x")));
+    // The other quote character is literal inside quotes
+    assertEquals(
+        Arrays.asList("echo", "it's here"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("echo \"it's here\"")));
+    assertEquals(
+        Arrays.asList("echo", "say \"hi\""),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("echo 'say \"hi\"'")));
+    // An empty quoted section is a real (empty) argument
+    assertEquals(
+        Arrays.asList("cmd", "", "x"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("cmd \"\" x")));
+  }
+
+  /**
+   * An unbalanced quote falls back to the pre-2.19 behaviour - split on whitespace, keep the quotes
+   * - so a stray apostrophe in an argument keeps working instead of failing the row.
+   */
+  @Test
+  void tokenizeCommandLine_unbalancedQuoteFallsBackToWhitespaceSplitting() throws HopException {
+    assertEquals(
+        Arrays.asList("echo", "--message=don't", "x"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("echo --message=don't x")));
+    assertEquals(
+        Arrays.asList("ls", "-la", "\"/work/my", "folder"),
+        Arrays.asList(ExecProcess.tokenizeCommandLine("ls -la \"/work/my folder")));
+  }
+
+  @Test
+  void hasBalancedQuotes_detectsUnclosedQuotes() {
+    assertTrue(ExecProcess.hasBalancedQuotes("ls -la \"/work/hop/config\""));
+    assertTrue(ExecProcess.hasBalancedQuotes("echo 'it\"s'"));
+    assertTrue(ExecProcess.hasBalancedQuotes("ls -la /work/hop/config"));
+    assertFalse(ExecProcess.hasBalancedQuotes("ls -la \"/work/hop"));
+    assertFalse(ExecProcess.hasBalancedQuotes("echo don't"));
+  }
+
+  @Test
+  void tokenizeCommandLine_blankCommandThrows() {
+    assertThrows(HopException.class, () -> ExecProcess.tokenizeCommandLine("   "));
+  }
+
+  @Test
+  @EnabledOnOs({OS.LINUX, OS.MAC})
+  void processRow_singleCommandString_quotedArgumentWithSpaces() throws HopException {
+    HopEnvironment.init();
+
+    ExecProcessMeta meta = new ExecProcessMeta();
+    meta.setDefault();
+    meta.setProcessField("cmdline");
+    meta.setResultFieldName("result_out");
+    meta.setErrorFieldName("result_err");
+    meta.setExitValueFieldName("result_exit");
+    meta.setArgumentsInFields(false);
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("cmdline"));
+
+    Object[] row = new Object[] {"/bin/echo \"hop single\" 'and more'"};
+    ExecProcess transform = newTransform(meta, rowMeta, row);
+
+    assertTrue(transform.processRow());
+    assertFalse(transform.processRow());
+
+    Object[] out = readSingleOutputRow(transform);
+    assertEquals("hop single and more", out[1].toString().trim());
+    assertEquals(0L, out[3]);
   }
 
   @Test
