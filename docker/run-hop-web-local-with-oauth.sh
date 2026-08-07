@@ -339,9 +339,9 @@ ensure_dirs() {
   local hop_uid="${HOP_UID:-501}"
   local hop_gid="${HOP_GID:-501}"
   mkdir -p "${SCRIPT_DIR}/local-data/audit" "${SECURITY_DATA_DIR}"
-  chown "${hop_uid}:${hop_gid}" "${SCRIPT_DIR}/local-data/audit" "${SECURITY_DATA_DIR}" 2>/dev/null \
-    || chmod 777 "${SCRIPT_DIR}/local-data/audit" "${SECURITY_DATA_DIR}" 2>/dev/null \
-    || true
+  # Nested users/<name>/ dirs may be 0750 from Tomcat umask + host ownership; hop is UID 501.
+  chown -R "${hop_uid}:${hop_gid}" "${SCRIPT_DIR}/local-data/audit" "${SECURITY_DATA_DIR}" 2>/dev/null || true
+  chmod -R a+rwX "${SCRIPT_DIR}/local-data/audit" "${SECURITY_DATA_DIR}" 2>/dev/null || true
 }
 
 run_container() {

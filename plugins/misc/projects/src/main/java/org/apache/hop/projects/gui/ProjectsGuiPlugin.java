@@ -278,28 +278,34 @@ public class ProjectsGuiPlugin {
       updateProjectToolItem(projectName);
       updateEnvironmentToolItem(environmentName);
 
-      // Also add this as an event so we know what the project usage history is
+      // Also add this as an event so we know what the project usage history is.
+      // Failures must not block enabling the project (audit folder permission issues in Hop Web).
       //
-      AuditEvent prjUsedEvent =
-          new AuditEvent(
-              ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-              ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
-              projectName,
-              "open",
-              new Date());
-      AuditManager.getActive().storeEvent(prjUsedEvent);
-
-      if (environment != null) {
-        // Also add this as an event so we know what the project usage history is
-        //
-        AuditEvent envUsedEvent =
+      try {
+        AuditEvent prjUsedEvent =
             new AuditEvent(
                 ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-                ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
-                environmentName,
+                ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
+                projectName,
                 "open",
                 new Date());
-        AuditManager.getActive().storeEvent(envUsedEvent);
+        AuditManager.getActive().storeEvent(prjUsedEvent);
+
+        if (environment != null) {
+          AuditEvent envUsedEvent =
+              new AuditEvent(
+                  ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+                  ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
+                  environmentName,
+                  "open",
+                  new Date());
+          AuditManager.getActive().storeEvent(envUsedEvent);
+        }
+      } catch (Exception e) {
+        hopGui
+            .getLog()
+            .logError(
+                "Unable to store project/environment audit events (continuing): " + e.getMessage());
       }
 
       // Restore the state of the execution perspective as well

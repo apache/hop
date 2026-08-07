@@ -291,13 +291,12 @@ ensure_audit_volume() {
 
   mkdir -p "${audit_dir}"
 
-  if chown "${hop_uid}:${hop_gid}" "${audit_dir}" 2>/dev/null; then
-    log "Audit volume ownership: ${hop_uid}:${hop_gid}"
-    return 0
+  # Nested per-user dirs may be 0750 owned by the host user; open so hop (501) can write.
+  if chown -R "${hop_uid}:${hop_gid}" "${audit_dir}" 2>/dev/null; then
+    log "Audit volume ownership: ${hop_uid}:${hop_gid} (recursive)"
   fi
-
-  if chmod 777 "${audit_dir}" 2>/dev/null; then
-    log "Audit volume permissions: world-writable (container user uid ${hop_uid})"
+  if chmod -R a+rwX "${audit_dir}" 2>/dev/null; then
+    log "Audit volume permissions: world-writable recursive (container user uid ${hop_uid})"
     return 0
   fi
 

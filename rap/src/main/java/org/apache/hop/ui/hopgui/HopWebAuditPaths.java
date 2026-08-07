@@ -19,6 +19,8 @@ package org.apache.hop.ui.hopgui;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 
@@ -129,6 +131,7 @@ public final class HopWebAuditPaths {
       if (!dir.isDirectory()) {
         return null;
       }
+      openWorldWritable(dir.toPath());
       File probe = new File(dir, ".hop-write-test");
       Files.writeString(probe.toPath(), "ok");
       //noinspection ResultOfMethodCallIgnored
@@ -138,9 +141,31 @@ public final class HopWebAuditPaths {
         //noinspection ResultOfMethodCallIgnored
         users.mkdirs();
       }
+      openWorldWritable(users.toPath());
       return dir;
     } catch (IOException | SecurityException e) {
       return null;
+    }
+  }
+
+  /**
+   * Best-effort {@code rwxrwxrwx} so host UID and container hop UID (often 501) can both use a bind
+   * mount. No-op on non-POSIX filesystems or when not the owner.
+   */
+  private static void openWorldWritable(Path path) {
+    if (path == null || !Files.isDirectory(path)) {
+      return;
+    }
+    try {
+      Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rwxrwxrwx"));
+    } catch (UnsupportedOperationException | IOException | SecurityException e) {
+      File f = path.toFile();
+      //noinspection ResultOfMethodCallIgnored
+      f.setReadable(true, false);
+      //noinspection ResultOfMethodCallIgnored
+      f.setWritable(true, false);
+      //noinspection ResultOfMethodCallIgnored
+      f.setExecutable(true, false);
     }
   }
 }

@@ -78,6 +78,8 @@ install_jdbc_drivers() {
 # Ensure HOP_AUDIT_FOLDER exists and is writable by the hop process (per-user data under
 # users/<username>/). Prefer the configured path; fall back to /tmp/hop-web-audit under
 # java.io.tmpdir when a bind-mount is not writable.
+# Nested dirs may be 0750 from Tomcat umask 0027 and owned by the host UID after a bind-mount
+# chown — open them up so hop (UID 501) can write.
 ensure_hop_audit_folder() {
   local preferred="${HOP_AUDIT_FOLDER:-/tmp/hop-web-audit}"
   local fallback="/tmp/hop-web-audit"
@@ -91,6 +93,8 @@ ensure_hop_audit_folder() {
     log "WARNING: configured audit folder '${preferred}' is not writable; using '${fallback}'"
   fi
   mkdir -p "${HOP_AUDIT_FOLDER}/users" 2>/dev/null || true
+  # Best effort: hop can only chmod paths it owns; host scripts chmod -R before start for the rest
+  chmod -R a+rwX "${HOP_AUDIT_FOLDER}" 2>/dev/null || true
   # Prepend so this -D wins over any baked CATALINA_OPTS value
   export CATALINA_OPTS="-DHOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER} ${CATALINA_OPTS:-}"
   log "HOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER}"
