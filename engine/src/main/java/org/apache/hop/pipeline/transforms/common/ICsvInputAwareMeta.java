@@ -52,6 +52,16 @@ public interface ICsvInputAwareMeta<T extends ITextFileInputField> {
 
   boolean isBreakInEnclosureAllowed();
 
+  /**
+   * When enabled, an empty field that is not enclosed (a;;b) is returned as null while an empty
+   * enclosed field (a;"";b) is returned as an empty string.
+   *
+   * @return true if empty values without enclosure have to be returned as null
+   */
+  default boolean isNullIfNotEnclosed() {
+    return false;
+  }
+
   int getFileFormatTypeNr();
 
   boolean hasHeader();

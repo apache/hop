@@ -139,6 +139,16 @@ public class TextFileInputMeta
         injectionKeyDescription = "TextFileInput.Injection.ESCAPE_CHAR")
     private String escapeCharacter;
 
+    /**
+     * Flag indicating that an empty value which is not enclosed has to be returned as null. An
+     * empty value between enclosures then stays an empty string.
+     */
+    @HopMetadataProperty(
+        key = "null_if_not_enclosed",
+        injectionKey = "NULL_IF_NOT_ENCLOSED",
+        injectionKeyDescription = "TextFileInput.Injection.NULL_IF_NOT_ENCLOSED")
+    private boolean nullIfNotEnclosed;
+
     /** Flag indicating that the file contains one header line that should be skipped. */
     @HopMetadataProperty(
         key = "header",
@@ -317,6 +327,7 @@ public class TextFileInputMeta
       this.length = c.length;
       this.lineWrapped = c.lineWrapped;
       this.noEmptyLines = c.noEmptyLines;
+      this.nullIfNotEnclosed = c.nullIfNotEnclosed;
       this.nrFooterLines = c.nrFooterLines;
       this.nrHeaderLines = c.nrHeaderLines;
       this.nrLinesDocHeader = c.nrLinesDocHeader;
@@ -888,6 +899,11 @@ public class TextFileInputMeta
   @Override
   public boolean isBreakInEnclosureAllowed() {
     return content.breakInEnclosureAllowed;
+  }
+
+  @Override
+  public boolean isNullIfNotEnclosed() {
+    return content != null && content.nullIfNotEnclosed;
   }
 
   @Override
