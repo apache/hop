@@ -4230,6 +4230,59 @@ public class TableView extends Composite {
   }
 
   /**
+   * Replace cell values in one column for the given rows and record a single undo step.
+   *
+   * <p>{@code colNr} is the {@link TableItem} column index (1 = first {@link ColumnInfo}; 0 is the
+   * leading row-number column).
+   *
+   * @param colNr table item column index
+   * @param rowIndices absolute row indices into {@link #table}
+   * @param newValues new cell values, same length as {@code rowIndices}
+   */
+  public void applyColumnValues(int colNr, int[] rowIndices, String[] newValues) {
+    if (readonly || rowIndices == null || newValues == null || rowIndices.length == 0) {
+      return;
+    }
+    if (rowIndices.length != newValues.length) {
+      throw new IllegalArgumentException(
+          "rowIndices and newValues must have the same length ("
+              + rowIndices.length
+              + " vs "
+              + newValues.length
+              + ")");
+    }
+    if (colNr < 1 || colNr >= table.getColumnCount()) {
+      return;
+    }
+
+    applyAllChanges();
+
+    int size = rowIndices.length;
+    String[][] before = new String[size][];
+    String[][] after = new String[size][];
+    int[] index = new int[size];
+
+    for (int i = 0; i < size; i++) {
+      int rowNr = rowIndices[i];
+      if (rowNr < 0 || rowNr >= table.getItemCount()) {
+        continue;
+      }
+      TableItem item = table.getItem(rowNr);
+      index[i] = rowNr;
+      before[i] = getItemText(item);
+      item.setText(colNr, Const.NVL(newValues[i], ""));
+      after[i] = getItemText(item);
+    }
+
+    if (undoEnabled) {
+      ChangeAction ta = new ChangeAction();
+      ta.setChanged(before, after, index);
+      addUndo(ta);
+    }
+    setModified();
+  }
+
+  /**
    * @param sortable the sortable to set
    */
   public void setSortable(boolean sortable) {
