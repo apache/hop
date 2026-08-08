@@ -10,7 +10,10 @@
       "show_feedback": false,
       "topo_sort": false,
       "gather_metrics": false,
-      "transactional": false
+      "transactional": false,
+      "detect_buffer_deadlocks": true,
+      "mitigate_buffer_deadlocks": true,
+      "buffer_deadlock_spill_directory": ""
     }
   },
   "defaultSelection": true,
