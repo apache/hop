@@ -55,7 +55,13 @@ public enum Permission {
   /** System-wide Hop configuration. */
   CONFIG_SYSTEM("config.system"),
   /** Manage users, roles, and security settings. */
-  SECURITY_MANAGE("security.manage");
+  SECURITY_MANAGE("security.manage"),
+
+  /**
+   * Install/uninstall marketplace plugins, edit marketplace repositories, and apply hop-env plugin
+   * sets. Shared process install — Admin-only among built-in roles.
+   */
+  PLUGIN_MANAGE("plugin.manage");
 
   private final String id;
 

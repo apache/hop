@@ -66,6 +66,7 @@ class HopSecurityContextTest {
     assertTrue(ctx.allows(Permission.EXPLORER_WRITE));
     assertFalse(ctx.allows(Permission.SECURITY_MANAGE));
     assertFalse(ctx.allows(Permission.CONFIG_SYSTEM));
+    assertFalse(ctx.allows(Permission.PLUGIN_MANAGE));
   }
 
   @Test
@@ -81,6 +82,7 @@ class HopSecurityContextTest {
     assertFalse(ctx.allows(Permission.FILE_DELETE));
     assertFalse(ctx.allows(Permission.METADATA_WRITE));
     assertFalse(ctx.allows(Permission.EXPLORER_WRITE));
+    assertFalse(ctx.allows(Permission.PLUGIN_MANAGE));
   }
 
   @Test
@@ -93,6 +95,21 @@ class HopSecurityContextTest {
     assertFalse(ctx.allows(Permission.FILE_SAVE));
     assertFalse(ctx.allows(Permission.FILE_EDIT));
     assertFalse(ctx.allows(Permission.FILE_EXPORT));
+    assertFalse(ctx.allows(Permission.PLUGIN_MANAGE));
+  }
+
+  @Test
+  void onlyAdminMayManagePlugins() {
+    assertTrue(
+        HopSecurityContext.forUser("a", Set.of(HopRole.ADMIN)).allows(Permission.PLUGIN_MANAGE));
+    assertFalse(
+        HopSecurityContext.forUser("u", Set.of(HopRole.USER)).allows(Permission.PLUGIN_MANAGE));
+    assertFalse(
+        HopSecurityContext.forUser("o", Set.of(HopRole.OPERATOR)).allows(Permission.PLUGIN_MANAGE));
+    assertFalse(
+        HopSecurityContext.forUser("r", Set.of(HopRole.READ_ONLY))
+            .allows(Permission.PLUGIN_MANAGE));
+    assertTrue(HopSecurityContext.unrestricted().allows(Permission.PLUGIN_MANAGE));
   }
 
   @Test

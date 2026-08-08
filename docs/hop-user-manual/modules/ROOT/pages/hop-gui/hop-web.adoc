@@ -126,15 +126,15 @@ When a user is authenticated, Hop Web reads the servlet `Principal` and containe
 
 | *Admin*
 | `hop-admin`, `admin`
-| Full access, including future security administration.
+| Full access, including security administration and marketplace plugin install/remove (`plugin.manage`).
 
 | *User* (developer)
 | `hop-user`, `user`, `apachehop`
-| Create, edit, save, delete, execute, metadata CRUD. No security administration.
+| Create, edit, save, delete, execute, metadata CRUD. No security administration or marketplace install.
 
 | *Operator*
 | `hop-operator`, `operator`
-| View and execute only. No save, edit, delete, or metadata write.
+| View and execute only. No save, edit, delete, metadata write, or marketplace install.
 
 | *Read-only*
 | `hop-readonly`, `readonly`, `read-only`, `viewer`
@@ -158,8 +158,18 @@ Next to the username, a **session privilege** combo lets you temporarily *lower*
 * Username and audit identity stay the same; only UI authorization changes.
 * Open editors are not closed; the next save/edit uses the new permissions (dialogs and canvas already re-check).
 * Security configuration still requires Admin at the effective level—downgrade to Read-only hides it until you restore Full access.
+* Marketplace install/uninstall and hop-env *Apply* also require Admin (`plugin.manage`) at the effective level.
 
 Desktop unrestricted sessions can use the same control to simulate Operator / Read-only.
+
+==== Marketplace and authorization
+
+The Tools → Marketplace dialog remains available for browsing the catalog when authentication is enabled.
+*Install*, *Uninstall*, repository configuration, and hop-env *Apply* require the `plugin.manage` permission (built-in *Admin* role only).
+*Validate* (drift check without installing) does not.
+
+Plugin installs affect the shared server installation for all Hop Web users; they are not per-session.
+The `hop marketplace` CLI on the host is not gated by Hop Web roles (use OS access control for that).
 
 Per-user audit data (open tabs, project history, and so on) is stored under `HOP_AUDIT_FOLDER/users/<username>/` when a principal is available.
 Usernames are sanitized for path safety (for example `mattcasters@gmail.com` becomes `mattcasters_gmail.com`).
