@@ -21,6 +21,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -269,6 +270,12 @@ public class SpillingRowSet extends BaseRowSet implements Comparable<IRowSet>, I
   private void openNewWriteSegment() throws HopFileException, IOException {
     closeWriteSegmentQuietly();
     FileObject file = HopVfs.createTempFile("spilling-rowset", ".tmp", directory);
+    // Belt-and-suspenders if the JVM exits without pipeline cleanup (kill -9 still loses these).
+    try {
+      new File(file.getName().getPath()).deleteOnExit();
+    } catch (Exception e) {
+      // non-local VFS or path mapping issues — pipeline cleanupRowSets still deletes via VFS
+    }
     OutputStream os = HopVfs.getOutputStream(file, false);
     DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(os, 65536));
     writeSegment = new SpillSegment(file, dos);

@@ -1239,6 +1239,8 @@ public abstract class Pipeline
               ? ComponentExecutionStatus.STATUS_STOPPED
               : ComponentExecutionStatus.STATUS_HALTED);
     }
+    // Rowsets may already exist if prepare allocated them before a later failure.
+    cleanupRowSets();
   }
 
   /**
@@ -1384,6 +1386,10 @@ public abstract class Pipeline
           setRunning(false); // no longer running
 
           log.snap(Metrics.METRIC_PIPELINE_EXECUTION_STOP);
+
+          // Drop rowset buffers and any SpillingRowSet temp files (stop mid-run or normal end).
+          // Safe here: all transform threads have finished before this listener runs.
+          cleanupRowSets();
 
           // release unused vfs connections
           HopVfs.freeUnusedResources();
@@ -1593,6 +1599,8 @@ public abstract class Pipeline
    */
   @Override
   public void cleanup() {
+    cleanupRowSets();
+
     // Close all open server sockets.
     // We can only close these after all processing has been confirmed to be finished.
     //
@@ -1602,6 +1610,29 @@ public abstract class Pipeline
 
     for (TransformMetaDataCombi combi : transforms) {
       combi.transform.cleanup();
+    }
+  }
+
+  /**
+   * Clear every pipeline rowset. For {@link org.apache.hop.core.SpillingRowSet} this closes streams
+   * and deletes spill temp files left after stop or unfinished consumption. Safe to call more than
+   * once; no-op when rowsets were never allocated.
+   */
+  protected void cleanupRowSets() {
+    if (rowsets == null) {
+      return;
+    }
+    for (IRowSet rowSet : rowsets) {
+      if (rowSet == null) {
+        continue;
+      }
+      try {
+        rowSet.clear();
+      } catch (Exception e) {
+        if (log != null) {
+          log.logError("Error clearing rowset " + rowSet, e);
+        }
+      }
     }
   }
 
