@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +72,10 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
   private static final Class<?> PKG = FuzzyMatchMeta.class;
 
   public static final String DEFAULT_SEPARATOR = ",";
+  public static final int DEFAULT_MAX_MATCHES = 10;
+
+  /** Hard safety cap for Top-K to avoid runaway memory / row explosion. */
+  public static final int HARD_MAX_MATCHES = 100;
 
   /** Algorithms type */
   @HopMetadataProperty(key = "algorithm", storeWithCode = true)
@@ -111,9 +116,23 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
   @HopMetadataProperty(key = "separator")
   private String separator;
 
-  /** get closer matching value */
+  /**
+   * Legacy flag kept for backward compatibility with existing pipelines. Prefer {@link #matchMode}.
+   */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   @HopMetadataProperty(key = "closervalue")
   private boolean closerValue;
+
+  /** How multiple matches are returned. */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @HopMetadataProperty(key = "matchMode", storeWithCode = true)
+  private MatchMode matchMode;
+
+  /** Max matches for Top-K (ALL_ROWS / ALL_CONCAT). Default 10, hard-capped at 100. */
+  @HopMetadataProperty(key = "maxMatches")
+  private String maxMatches;
 
   /** return these field values from lookup */
   @HopMetadataProperty(groupKey = "lookup", key = "value")
@@ -123,6 +142,9 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     super();
     this.algorithm = NONE;
     this.lookupValues = new ArrayList<>();
+    this.matchMode = MatchMode.CLOSEST;
+    this.closerValue = true;
+    this.maxMatches = String.valueOf(DEFAULT_MAX_MATCHES);
   }
 
   public FuzzyMatchMeta(FuzzyMatchMeta m) {
@@ -136,7 +158,8 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     this.minimalValue = m.minimalValue;
     this.maximalValue = m.maximalValue;
     this.separator = m.separator;
-    this.closerValue = m.closerValue;
+    setMatchMode(m.getMatchMode());
+    this.maxMatches = m.maxMatches;
     m.lookupValues.forEach(v -> this.lookupValues.add(new FMLookupValue(v)));
   }
 
@@ -149,7 +172,8 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
   public void setDefault() {
     algorithm = NONE;
     separator = DEFAULT_SEPARATOR;
-    closerValue = true;
+    setMatchMode(MatchMode.CLOSEST);
+    maxMatches = String.valueOf(DEFAULT_MAX_MATCHES);
     minimalValue = "0";
     maximalValue = "1";
     caseSensitive = false;
@@ -157,6 +181,50 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     mainStreamField = null;
     outputMatchField = BaseMessages.getString(PKG, "FuzzyMatchMeta.OutputMatchFieldname");
     outputValueField = BaseMessages.getString(PKG, "FuzzyMatchMeta.OutputValueFieldname");
+  }
+
+  public MatchMode getMatchMode() {
+    if (matchMode != null) {
+      return matchMode;
+    }
+    // Legacy pipelines only have closer value
+    return closerValue ? MatchMode.CLOSEST : MatchMode.ALL_CONCAT;
+  }
+
+  public void setMatchMode(MatchMode matchMode) {
+    this.matchMode = matchMode == null ? MatchMode.CLOSEST : matchMode;
+    this.closerValue = this.matchMode == MatchMode.CLOSEST;
+  }
+
+  /** use {@link #getMatchMode()} */
+  public boolean isCloserValue() {
+    return getMatchMode() == MatchMode.CLOSEST;
+  }
+
+  /** use {@link #setMatchMode(MatchMode)} */
+  public void setCloserValue(boolean closerValue) {
+    this.closerValue = closerValue;
+    // When loading legacy XML, matchMode may still be unset.
+    if (matchMode == null || matchMode == MatchMode.CLOSEST || matchMode == MatchMode.ALL_CONCAT) {
+      this.matchMode = closerValue ? MatchMode.CLOSEST : MatchMode.ALL_CONCAT;
+    }
+  }
+
+  public boolean isAllRowsMode() {
+    return getMatchMode() == MatchMode.ALL_ROWS;
+  }
+
+  public boolean isAllConcatMode() {
+    return getMatchMode() == MatchMode.ALL_CONCAT;
+  }
+
+  public boolean supportsAdditionalFields() {
+    return isCloserValue()
+        || isAllRowsMode()
+        || getAlgorithm() == DOUBLE_METAPHONE
+        || getAlgorithm() == SOUNDEX
+        || getAlgorithm() == REFINED_SOUNDEX
+        || getAlgorithm() == METAPHONE;
   }
 
   @Override
@@ -175,36 +243,34 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     inputRowMeta.addValueMeta(v);
 
     String mainField = variables.resolve(getOutputValueField());
-    if (StringUtils.isNotEmpty(mainField) && isCloserValue()) {
-      switch (getAlgorithm()) {
-        case NONE:
-          throw new HopTransformException("Please specify the matching algorithm to use");
-        case LEVENSHTEIN, DAMERAU_LEVENSHTEIN, NEEDLEMAN_WUNSH:
-          // Distance algorithms return an integer measure
-          v = new ValueMetaInteger(mainField);
-          v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH);
-          break;
-        case JARO, JARO_WINKLER, PAIR_SIMILARITY:
-          v = new ValueMetaNumber(mainField);
-          break;
-        default:
-          // Phonetic algorithms
-          v = new ValueMetaString(mainField);
-          break;
+    if (StringUtils.isNotEmpty(mainField)) {
+      if (isAllConcatMode()) {
+        // Concatenated measures are always a string list
+        v = new ValueMetaString(mainField);
+      } else {
+        switch (getAlgorithm()) {
+          case NONE:
+            throw new HopTransformException("Please specify the matching algorithm to use");
+          case LEVENSHTEIN, DAMERAU_LEVENSHTEIN, NEEDLEMAN_WUNSH:
+            // Distance algorithms return an integer measure
+            v = new ValueMetaInteger(mainField);
+            v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH);
+            break;
+          case JARO, JARO_WINKLER, PAIR_SIMILARITY:
+            v = new ValueMetaNumber(mainField);
+            break;
+          default:
+            // Phonetic algorithms
+            v = new ValueMetaString(mainField);
+            break;
+        }
       }
       v.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
 
-    boolean activateAdditionalFields =
-        isCloserValue()
-            || (getAlgorithm() == DOUBLE_METAPHONE)
-            || (getAlgorithm() == SOUNDEX)
-            || (getAlgorithm() == REFINED_SOUNDEX)
-            || (getAlgorithm() == METAPHONE);
-
-    if (activateAdditionalFields) {
+    if (supportsAdditionalFields()) {
       if (info != null && info.length == 1 && info[0] != null) {
         for (FMLookupValue lookupValue : lookupValues) {
           v = info[0].searchValueMeta(lookupValue.getName());
@@ -473,6 +539,35 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     }
 
     return ioMeta;
+  }
+
+  @Getter
+  public enum MatchMode implements IEnumHasCodeAndDescription {
+    CLOSEST("closest", BaseMessages.getString(PKG, "FuzzyMatchMeta.matchMode.Closest")),
+    ALL_ROWS("all_rows", BaseMessages.getString(PKG, "FuzzyMatchMeta.matchMode.AllRows")),
+    ALL_CONCAT("all_concat", BaseMessages.getString(PKG, "FuzzyMatchMeta.matchMode.AllConcat")),
+    ;
+    private final String code;
+    private final String description;
+
+    MatchMode(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static String[] getDescriptions() {
+      return Arrays.stream(MatchMode.values())
+          .map(MatchMode::getDescription)
+          .toArray(String[]::new);
+    }
+
+    public static MatchMode lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(MatchMode.class, description, CLOSEST);
+    }
+
+    public static MatchMode lookupCode(String code) {
+      return IEnumHasCode.lookupCode(MatchMode.class, code, CLOSEST);
+    }
   }
 
   @Getter
