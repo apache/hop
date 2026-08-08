@@ -49,13 +49,22 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Run Group By tests</name>
+      <name>Run Fuzzy match tests</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
           <name>0012-fuzzymatch UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0012-fuzzymatch-closest UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0012-fuzzymatch-all-rows UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0012-fuzzymatch-all-concat UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
