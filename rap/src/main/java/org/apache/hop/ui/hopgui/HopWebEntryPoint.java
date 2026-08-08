@@ -51,8 +51,30 @@ import org.eclipse.swt.widgets.Display;
 
 public class HopWebEntryPoint extends AbstractEntryPoint {
 
+  /**
+   * Shortcuts that must remain active (sent to the server) but must not be cancelled in the
+   * browser, so native text editing still works (e.g. Ctrl+C/V/X in input fields).
+   */
   private static final Set<String> NATIVE_TEXT_EDITING_SHORTCUTS =
       Set.of("CTRL+C", "CTRL+V", "CTRL+X");
+
+  /**
+   * Bare navigation keys used for caret movement and selection in text fields (and tree widgets).
+   * They may stay in {@code ACTIVE_KEYS} so canvas pan shortcuts still reach the server when focus
+   * is on the graph, but must not be in {@code CANCEL_KEYS} or the browser never moves the caret
+   * (see issue #7833). Modifier combinations (CTRL+ARROW_*, ALT+ARROW_*, …) are separate RAP keys
+   * and remain cancelled when registered as application shortcuts.
+   */
+  private static final Set<String> NATIVE_TEXT_NAVIGATION_KEYS =
+      Set.of(
+          "ARROW_UP",
+          "ARROW_DOWN",
+          "ARROW_LEFT",
+          "ARROW_RIGHT",
+          "HOME",
+          "END",
+          "PAGE_UP",
+          "PAGE_DOWN");
 
   /** Audit group/type/name for Hop Web theme preference (per-user in audit folder). */
   public static final String AUDIT_GROUP_HOP_WEB = "hop-web";
@@ -346,6 +368,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
   static String[] buildCancelledKeyboardShortcuts(String[] activeShortcuts) {
     return Arrays.stream(activeShortcuts)
         .filter(shortcut -> !NATIVE_TEXT_EDITING_SHORTCUTS.contains(shortcut))
+        .filter(shortcut -> !NATIVE_TEXT_NAVIGATION_KEYS.contains(shortcut))
         .distinct()
         .toArray(String[]::new);
   }

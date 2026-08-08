@@ -83,23 +83,13 @@ public class HopGuiKeyHandler extends KeyAdapter {
       return;
     }
 
-    // Ignore shortcuts inside Text, Combo, StyledText, or CCombo widgets (including terminal).
+    // Do not steal keys needed for native editing / caret movement inside text-like widgets.
     // StyledText is not available in RAP, so we check via reflection to avoid NoClassDefFoundError.
-    if (event.widget instanceof Text
-        || event.widget instanceof Combo
-        || event.widget instanceof CCombo
-        || isStyledText(event.widget)) {
-      // Ignore Copy/Cut/Paste/Select all - check both keyCode and character
-      if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0) {
-        char key = Character.toLowerCase((char) event.keyCode);
-        if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
-          return;
-        }
-      }
-      // Ignore DEL and Backspace
-      if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
-        return;
-      }
+    // Bare ARROW_*/HOME/END would otherwise match canvas pan shortcuts (DragViewZoomBase) and break
+    // caret navigation — especially in Hop Web where RAP CANCEL_KEYS can also block the browser
+    // (see issue #7833). App shortcuts with CTRL/CMD/ALT (e.g. Ctrl+S, Ctrl+Arrow) still run.
+    if (isTextLikeWidget(event.widget) && isNativeTextEditingKey(event)) {
+      return;
     }
 
     List<Object> orderedParents = getParentObjectsInContextOrder(event.widget);
@@ -275,6 +265,51 @@ public class HopGuiKeyHandler extends KeyAdapter {
       } catch (Exception e) {
         return false;
       }
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if the widget is a Text, Combo, CCombo, or StyledText. StyledText is resolved via
+   * reflection so it is not referenced when it is not on the classpath (e.g. in RAP/Hop Web).
+   */
+  private static boolean isTextLikeWidget(Widget widget) {
+    if (widget == null) {
+      return false;
+    }
+    return widget instanceof Text
+        || widget instanceof Combo
+        || widget instanceof CCombo
+        || isStyledText(widget);
+  }
+
+  /**
+   * Keys that text-like widgets must handle themselves: copy/cut/paste/select-all,
+   * delete/backspace, and caret / selection navigation (arrows, home/end, page up/down) without
+   * CTRL/CMD/ALT. Shift alone is allowed so Shift+Arrow selection stays in the widget.
+   */
+  private static boolean isNativeTextEditingKey(KeyEvent event) {
+    if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
+      char key = Character.toLowerCase((char) event.keyCode);
+      if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
+        return true;
+      }
+    }
+    if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
+      return true;
+    }
+    // Caret movement / selection: leave for the widget unless an app modifier is held
+    boolean hasAppModifier = (event.stateMask & (SWT.CONTROL | SWT.COMMAND | SWT.ALT)) != 0;
+    if (!hasAppModifier) {
+      int keyCode = event.keyCode & SWT.KEY_MASK;
+      return keyCode == SWT.ARROW_LEFT
+          || keyCode == SWT.ARROW_RIGHT
+          || keyCode == SWT.ARROW_UP
+          || keyCode == SWT.ARROW_DOWN
+          || keyCode == SWT.HOME
+          || keyCode == SWT.END
+          || keyCode == SWT.PAGE_UP
+          || keyCode == SWT.PAGE_DOWN;
     }
     return false;
   }
