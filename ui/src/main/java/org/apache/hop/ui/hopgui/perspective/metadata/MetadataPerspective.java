@@ -44,6 +44,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -80,6 +82,7 @@ import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -174,6 +177,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   public static final String GUI_PLUGIN_CONTEXT_MENU_PARENT_ID = "MetadataPerspective-ContextMenu";
 
   public static final String TOOLBAR_ITEM_NEW_TYPE = "MetadataPerspective-Toolbar-09000-NewType";
+  public static final String TOOLBAR_ITEM_NEW = "MetadataPerspective-Toolbar-10000-New";
   public static final String TOOLBAR_ITEM_EDIT = "MetadataPerspective-Toolbar-10010-Edit";
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10040-Delete";
@@ -889,6 +893,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     //
     editor.createControl(area);
 
+    // Read-only role: disable all editor widgets (and extra button-bar actions) in the tab
+    if (BaseDialog.applyReadOnlyIfNeeded(composite, editor.getMetadata())) {
+      String suffix = BaseMessages.getString(BaseDialog.class, "BaseDialog.ReadOnly.TitleSuffix");
+      if (suffix != null && !tabItem.getText().contains(suffix.trim())) {
+        tabItem.setText(tabItem.getText() + suffix);
+      }
+    }
+
     tabItem.setControl(composite);
     tabItem.setData(editor);
 
@@ -966,6 +978,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /** Creates a new metadata item of the given type from the overview page. */
   public void createNewMetadataFromOverview(String key) {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     createMetadataOfType(key, "");
   }
 
@@ -1151,6 +1166,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       toolTip = "i18n::MetadataPerspective.ToolbarElement.NewType.Tooltip",
       image = "ui/images/add.svg")
   public void onNewMetadataType() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     Menu menu = new Menu(tree);
     addNewTypeMenuItems(menu, null);
     // Position the drop-down just below the toolbar button.
@@ -1269,7 +1287,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     renderTree();
   }
 
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_NEW,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
+      image = "ui/images/new.svg")
   public void onNewMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -1291,6 +1317,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * Creates a new metadata item of the given type at the given virtual path and opens its editor.
    */
   private void createMetadataOfType(String objectKey, String virtualPath) {
+    if (!HopSecurity.allows(Permission.METADATA_WRITE)) {
+      HopSecurityUi.deny(Permission.METADATA_WRITE);
+      return;
+    }
     try {
       MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
       manager.newMetadataWithEditor(Const.NVL(virtualPath, ""));
@@ -1313,6 +1343,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F3)
   @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void onEditMetadata() {
+    if (!HopSecurity.allows(Permission.METADATA_READ)
+        && !HopSecurity.allows(Permission.METADATA_WRITE)) {
+      HopSecurityUi.deny(Permission.METADATA_READ);
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -1347,6 +1382,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F2)
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void onRenameMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() < 1) {
       return;
@@ -1878,6 +1916,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void onDeleteMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() != 1) {
       return;
@@ -2222,6 +2263,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       toolTip = "i18n::MetadataPerspective.ToolbarElement.CreateCopy.Tooltip",
       image = "ui/images/duplicate.svg")
   public void duplicateMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() != 1) {
       return;
@@ -2601,6 +2645,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * audit trail. Items are never deleted here.
    */
   public void onDeleteFolder() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -3193,13 +3240,25 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       isFolderSelected = FOLDER.equals(nodeType);
       // An element we can't load can only be deleted.
       isUnknownSelected = UNKNOWN_FILE.equals(nodeType);
+      // The context "New" applies to a type, folder or file (all resolve to a type key), but not
+      // to a category header or a plain label.
+      canCreateHere = getObjectKey(treeItem) != null;
     }
 
+    boolean canWriteMeta = HopSecurity.allows(Permission.METADATA_WRITE);
+    boolean canReadMeta = HopSecurity.allows(Permission.METADATA_READ) || canWriteMeta;
+
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW_TYPE, canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, canCreateHere && canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected && canReadMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected && canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_DELETE, isMetadataSelected || isFolderSelected || isUnknownSelected);
+        TOOLBAR_ITEM_DELETE,
+        (isMetadataSelected || isFolderSelected || isUnknownSelected) && canWriteMeta);
   }
 
   @Override

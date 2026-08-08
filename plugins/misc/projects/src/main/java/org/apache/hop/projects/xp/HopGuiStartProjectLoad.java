@@ -33,6 +33,7 @@ import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.gui.ProjectsGuiPlugin;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.security.ProjectsAccessControl;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -107,6 +108,13 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
           try {
             ProjectConfig projectConfig = config.findProjectConfig(lastProjectName);
             if (projectConfig == null) {
+              continue;
+            }
+            if (!ProjectsAccessControl.isProjectAllowed(lastProjectName)) {
+              logChannelInterface.logBasic(
+                  "Skipping project '"
+                      + lastProjectName
+                      + "': current user is not allowed to open it");
               continue;
             }
             Project project = projectConfig.loadProject(variables);

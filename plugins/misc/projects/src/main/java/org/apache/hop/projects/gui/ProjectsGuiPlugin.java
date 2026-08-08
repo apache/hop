@@ -75,6 +75,8 @@ import org.apache.hop.projects.environment.LifecycleEnvironmentDialog;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.project.ProjectDialog;
+import org.apache.hop.projects.security.ProjectsAccessControl;
+import org.apache.hop.projects.security.ProjectsSecurityTab;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -156,6 +158,21 @@ public class ProjectsGuiPlugin {
       String projectName, Project project, LifecycleEnvironment environment) throws HopException {
     try {
       HopGui hopGui = HopGui.getInstance();
+
+      // Hop Web RBAC: project access rules (Configuration → Security → Projects)
+      if (!ProjectsAccessControl.isProjectAllowed(projectName)) {
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
+        box.setText(
+            BaseMessages.getString(
+                ProjectsSecurityTab.class, "ProjectsSecurityTab.AccessDenied.Title"));
+        box.setMessage(
+            BaseMessages.getString(
+                ProjectsSecurityTab.class,
+                "ProjectsSecurityTab.AccessDenied.Message",
+                projectName));
+        box.open();
+        return;
+      }
 
       // Before we switch the namespace in HopGui, save the state of the perspectives
       //
@@ -261,28 +278,34 @@ public class ProjectsGuiPlugin {
       updateProjectToolItem(projectName);
       updateEnvironmentToolItem(environmentName);
 
-      // Also add this as an event so we know what the project usage history is
+      // Also add this as an event so we know what the project usage history is.
+      // Failures must not block enabling the project (audit folder permission issues in Hop Web).
       //
-      AuditEvent prjUsedEvent =
-          new AuditEvent(
-              ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-              ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
-              projectName,
-              "open",
-              new Date());
-      AuditManager.getActive().storeEvent(prjUsedEvent);
-
-      if (environment != null) {
-        // Also add this as an event so we know what the project usage history is
-        //
-        AuditEvent envUsedEvent =
+      try {
+        AuditEvent prjUsedEvent =
             new AuditEvent(
                 ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
-                ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
-                environmentName,
+                ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
+                projectName,
                 "open",
                 new Date());
-        AuditManager.getActive().storeEvent(envUsedEvent);
+        AuditManager.getActive().storeEvent(prjUsedEvent);
+
+        if (environment != null) {
+          AuditEvent envUsedEvent =
+              new AuditEvent(
+                  ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
+                  ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
+                  environmentName,
+                  "open",
+                  new Date());
+          AuditManager.getActive().storeEvent(envUsedEvent);
+        }
+      } catch (Exception e) {
+        hopGui
+            .getLog()
+            .logError(
+                "Unable to store project/environment audit events (continuing): " + e.getMessage());
       }
 
       // Restore the state of the execution perspective as well

@@ -171,6 +171,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     shell = new Shell(parent, BaseDialog.getDefaultDialogStyle());
     PropsUi.setLook(shell);
     setShellImage(action);
+    BaseDialog.setDialogSubject(shell, action);
   }
 
   protected void createElements() {
@@ -545,6 +546,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseDialog.keepEnabledInReadOnly(wCancel);
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
 

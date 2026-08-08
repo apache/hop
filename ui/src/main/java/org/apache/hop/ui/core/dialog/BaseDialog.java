@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,6 +32,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopDialogEditGuard;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variable;
 import org.apache.hop.core.variables.VariableScope;
@@ -41,7 +44,10 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
@@ -70,13 +76,37 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
 
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
   private static final Class<?> PKG = BaseDialog.class;
 
   public static final String NO_DEFAULT_HANDLER = "NoDefaultHandler";
+
+  /**
+   * Shell data key for the object being edited (transform meta, action, metadata, …). When the
+   * value implements {@link org.apache.hop.core.security.IDialogEditable}, {@link
+   * #defaultShellHandling} makes the dialog read-only if the current user lacks the required edit
+   * permission.
+   */
+  public static final String DIALOG_SUBJECT = "hop.dialog.subject";
+
+  /**
+   * Widget data key: when set to a non-null value, the control stays enabled in read-only mode
+   * (typically Cancel / Close / Help).
+   */
+  public static final String DIALOG_KEEP_ENABLED = "hop.dialog.keepEnabled";
+
+  /**
+   * Stack of dialog subjects for open() call sites that do not set {@link #DIALOG_SUBJECT} on the
+   * shell (legacy dialogs). Nested dialogs push/pop so sub-dialogs inherit the parent edit
+   * permission correctly.
+   */
+  private static final ThreadLocal<Deque<Object>> DIALOG_SUBJECT_STACK =
+      ThreadLocal.withInitial(ArrayDeque::new);
 
   @Variable(
       scope = VariableScope.APPLICATION,
@@ -898,13 +928,24 @@ public abstract class BaseDialog extends Dialog {
           }
         });
 
+    Object subject = resolveDialogSubject(shell);
+    boolean readOnly = HopDialogEditGuard.isReadOnly(subject);
+
+    // Enter must not commit changes when the dialog is read-only
+    //
+    Consumer<Void> effectiveOk = readOnly ? v -> {} : okConsumer;
+
     // Check for enter being pressed in text input fields
     //
-    addDefaultListeners(shell, okConsumer);
+    addDefaultListeners(shell, effectiveOk);
 
     // Add spaces on tab items to make them more manageable
     //
     addSpacesOnTabs(shell);
+
+    if (readOnly) {
+      applyReadOnlyMode(shell);
+    }
 
     if (useStandardMinimumSize) {
       shell.setMinimumSize(650, 250);
@@ -930,6 +971,272 @@ public abstract class BaseDialog extends Dialog {
         display.sleep();
       }
     }
+  }
+
+  /**
+   * Attach the object being edited to the shell so {@link #defaultShellHandling} can decide whether
+   * the dialog should be read-only (when the subject implements {@link
+   * org.apache.hop.core.security.IDialogEditable}).
+   *
+   * @param shell dialog shell
+   * @param subject transform meta, action, metadata object, or any {@code IDialogEditable}
+   */
+  public static void setDialogSubject(Shell shell, Object subject) {
+    if (shell != null && !shell.isDisposed()) {
+      shell.setData(DIALOG_SUBJECT, subject);
+    }
+  }
+
+  /**
+   * Run {@code action} with {@code subject} on the dialog-subject stack so nested/legacy dialogs
+   * that do not call {@link #setDialogSubject} still open read-only when the subject is not
+   * editable.
+   *
+   * @param subject object being edited (typically {@code IDialogEditable})
+   * @param action dialog open work
+   * @param <T> result type
+   * @return result of action
+   */
+  public static <T> T withDialogSubject(Object subject, Supplier<T> action) {
+    Deque<Object> stack = DIALOG_SUBJECT_STACK.get();
+    stack.push(subject);
+    try {
+      return action.get();
+    } finally {
+      stack.pop();
+      if (stack.isEmpty()) {
+        DIALOG_SUBJECT_STACK.remove();
+      }
+    }
+  }
+
+  /**
+   * Same as {@link #withDialogSubject(Object, Supplier)} for void work.
+   *
+   * @param subject object being edited
+   * @param action dialog open work
+   */
+  public static void withDialogSubject(Object subject, Runnable action) {
+    withDialogSubject(
+        subject,
+        () -> {
+          action.run();
+          return null;
+        });
+  }
+
+  /**
+   * Resolve the subject for a shell: explicit shell data first, then the top of the call-site
+   * subject stack (legacy dialogs opened via {@link #withDialogSubject}).
+   *
+   * @param shell dialog shell (may be null)
+   * @return subject or null
+   */
+  public static Object resolveDialogSubject(Shell shell) {
+    if (shell != null && !shell.isDisposed()) {
+      Object onShell = shell.getData(DIALOG_SUBJECT);
+      if (onShell != null) {
+        return onShell;
+      }
+      // Propagate stack subject onto the shell for consistency
+      Object fromStack = peekDialogSubject();
+      if (fromStack != null) {
+        shell.setData(DIALOG_SUBJECT, fromStack);
+        return fromStack;
+      }
+    }
+    return peekDialogSubject();
+  }
+
+  private static Object peekDialogSubject() {
+    Deque<Object> stack = DIALOG_SUBJECT_STACK.get();
+    return stack.isEmpty() ? null : stack.peek();
+  }
+
+  /**
+   * Mark a control so it stays enabled when the dialog is put into read-only mode (Cancel, Close,
+   * Help, …).
+   *
+   * @param control widget to keep enabled
+   */
+  public static void keepEnabledInReadOnly(Control control) {
+    if (control != null && !control.isDisposed()) {
+      control.setData(DIALOG_KEEP_ENABLED, Boolean.TRUE);
+    }
+  }
+
+  /**
+   * Disable editing on all input controls in the shell while leaving Cancel/Close/Help usable.
+   * Tables become view-only; text fields become non-editable but remain selectable for copy.
+   *
+   * @param shell dialog shell
+   */
+  public static void applyReadOnlyMode(Shell shell) {
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
+
+    String title = shell.getText();
+    String suffix = BaseMessages.getString(PKG, "BaseDialog.ReadOnly.TitleSuffix");
+    if (title != null && (suffix == null || !title.contains(suffix.trim()))) {
+      shell.setText(title + (suffix != null ? suffix : " (read-only)"));
+    }
+
+    applyReadOnlyControls(shell);
+  }
+
+  /**
+   * Disable editing on all input controls under a composite (metadata perspective tabs, nested
+   * editor areas, …). Does not change shell titles.
+   *
+   * @param root composite or shell root
+   */
+  public static void applyReadOnlyControls(Composite root) {
+    setControlsReadOnly(root);
+  }
+
+  /**
+   * If {@code subject} is not editable for the current user, apply read-only controls under {@code
+   * root}.
+   *
+   * @param root composite containing editor widgets
+   * @param subject metadata object or other {@code IDialogEditable}
+   * @return true if read-only mode was applied
+   */
+  public static boolean applyReadOnlyIfNeeded(Composite root, Object subject) {
+    if (root == null || root.isDisposed() || !HopDialogEditGuard.isReadOnly(subject)) {
+      return false;
+    }
+    applyReadOnlyControls(root);
+    return true;
+  }
+
+  private static void setControlsReadOnly(Composite composite) {
+    if (composite == null || composite.isDisposed()) {
+      return;
+    }
+
+    for (Control control : composite.getChildren()) {
+      if (control == null || control.isDisposed()) {
+        continue;
+      }
+      if (control.getData(DIALOG_KEEP_ENABLED) != null) {
+        continue;
+      }
+
+      if (control instanceof TableView tableView) {
+        tableView.setReadonly(true);
+        continue;
+      }
+
+      if (control instanceof Text text) {
+        text.setEditable(false);
+        continue;
+      }
+
+      // StyledText is desktop-only; never reference the class on the RAP classpath
+      if (setStyledTextNonEditable(control)) {
+        continue;
+      }
+
+      if (control instanceof TextVar textVar) {
+        textVar.setEditable(false);
+        continue;
+      }
+
+      if (control instanceof TextComposite textComposite) {
+        textComposite.setEditable(false);
+        continue;
+      }
+
+      if (control instanceof Button button) {
+        if (isDismissOrHelpButton(button)) {
+          keepEnabledInReadOnly(button);
+          continue;
+        }
+        button.setEnabled(false);
+        continue;
+      }
+
+      if (control instanceof Combo
+          || control instanceof CCombo
+          || control instanceof ComboVar
+          || control instanceof List
+          || control instanceof Spinner
+          || control instanceof MetaSelectionLine
+          || control instanceof ToolBar) {
+        control.setEnabled(false);
+        continue;
+      }
+
+      // CTabFolder / Group / plain Composite: recurse so tabs stay switchable
+      if (control instanceof Composite child) {
+        setControlsReadOnly(child);
+      }
+    }
+  }
+
+  /** Cached optional StyledText class (null when unavailable, e.g. RAP / Hop Web). */
+  private static final Class<?> STYLED_TEXT_CLASS = loadStyledTextClass();
+
+  private static Class<?> loadStyledTextClass() {
+    try {
+      return Class.forName("org.eclipse.swt.custom.StyledText");
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
+      return null;
+    }
+  }
+
+  /**
+   * Desktop SWT has {@code StyledText}; RAP does not. Uses a cached reflective look-up so this
+   * class never fails with {@link NoClassDefFoundError} on Hop Web.
+   *
+   * @param control widget under consideration
+   * @return true if the control was a StyledText and was made non-editable
+   */
+  private static boolean setStyledTextNonEditable(Control control) {
+    if (STYLED_TEXT_CLASS == null || !STYLED_TEXT_CLASS.isInstance(control)) {
+      return false;
+    }
+    try {
+      STYLED_TEXT_CLASS.getMethod("setEditable", boolean.class).invoke(control, false);
+      return true;
+    } catch (ReflectiveOperationException ignored) {
+      return false;
+    }
+  }
+
+  /**
+   * Recognise standard dismiss / help buttons by their (i18n) label so they stay clickable in
+   * read-only mode even when not marked with {@link #DIALOG_KEEP_ENABLED}.
+   */
+  private static boolean isDismissOrHelpButton(Button button) {
+    String text = button.getText();
+    if (text == null || text.isBlank()) {
+      // Icon-only help buttons still need a chance — keep if image present and no text
+      return button.getImage() != null;
+    }
+    String normalized = normalizeButtonLabel(text);
+    if (normalized.isEmpty()) {
+      return false;
+    }
+    return normalized.equals(
+            normalizeButtonLabel(BaseMessages.getString(PKG, "System.Button.Cancel")))
+        || normalized.equals(
+            normalizeButtonLabel(BaseMessages.getString(PKG, "System.Button.Close")))
+        || normalized.equals(
+            normalizeButtonLabel(BaseMessages.getString(PKG, "System.Button.Help")))
+        || normalized.equals("cancel")
+        || normalized.equals("close")
+        || normalized.equals("help");
+  }
+
+  private static String normalizeButtonLabel(String text) {
+    if (text == null) {
+      return "";
+    }
+    // Strip mnemonic (&), whitespace and punctuation used in System.Button.* messages
+    return text.replace("&", "").replaceAll("\\s+", "").toLowerCase();
   }
 
   public static void addSpacesOnTabs(Composite composite) {

@@ -1314,12 +1314,32 @@ public class TestingGuiPlugin {
     selectUnitTestInList(unitTest.getName());
   }
 
+  /**
+   * Returns the pipeline graph state map for the open tab that owns {@code pipelineMeta}, or null
+   * when the pipeline is not open in the explorer / Hop GUI is not available on this thread.
+   *
+   * <p>Safe to call from non-UI threads (e.g. pipeline transform threads during {@code
+   * getTransformFields} / lineage): on Hop Web, {@link HopGui#getInstance()} requires a RAP UI
+   * session and throws {@link IllegalStateException} ("Invalid thread access") otherwise.
+   */
   public static Map<String, Object> getStateMap(PipelineMeta pipelineMeta) {
-    for (TabItemHandler item : HopGui.getExplorerPerspective().getItems()) {
-      if (item.getTypeHandler().getSubject().equals(pipelineMeta)) {
-        HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) item.getTypeHandler();
-        return pipelineGraph.getStateMap();
+    if (pipelineMeta == null) {
+      return null;
+    }
+    try {
+      for (TabItemHandler item : HopGui.getExplorerPerspective().getItems()) {
+        if (item.getTypeHandler() != null
+            && pipelineMeta.equals(item.getTypeHandler().getSubject())
+            && item.getTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph) {
+          return pipelineGraph.getStateMap();
+        }
       }
+    } catch (IllegalStateException e) {
+      // RAP/SWT: no UI context on this thread (transform/background workers)
+      return null;
+    } catch (RuntimeException e) {
+      // HopGui not initialized or perspective unavailable
+      return null;
     }
     return null;
   }

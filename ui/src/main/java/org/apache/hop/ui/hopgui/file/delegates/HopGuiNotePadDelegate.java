@@ -20,11 +20,13 @@ package org.apache.hop.ui.hopgui.file.delegates;
 import java.util.List;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -51,6 +53,9 @@ public class HopGuiNotePadDelegate {
     if (Utils.isEmpty(notes)) {
       return; // Nothing to do
     }
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
     int[] idxs = new int[notes.size()];
     NotePadMeta[] noteCopies = new NotePadMeta[notes.size()];
     for (int i = 0; i < idxs.length; i++) {
@@ -66,6 +71,9 @@ public class HopGuiNotePadDelegate {
   }
 
   public void deleteNote(AbstractMeta meta, NotePadMeta notePadMeta) {
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
     int idx = meta.indexOfNote(notePadMeta);
     if (idx >= 0) {
       meta.removeNote(idx);
@@ -76,6 +84,9 @@ public class HopGuiNotePadDelegate {
   }
 
   public void newNote(IVariables variables, AbstractMeta meta, int x, int y) {
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
     String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NoteEditor.Title");
     NotePadDialog dialog =
         new NotePadDialog(variables, hopGui.getShell(), title, meta.getFilename());

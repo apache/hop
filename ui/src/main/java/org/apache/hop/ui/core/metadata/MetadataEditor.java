@@ -28,6 +28,8 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,6 +42,7 @@ import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.HelpUtils;
@@ -195,6 +198,10 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   @Override
   public void setChanged() {
+    // Do not mark dirty when the user cannot write metadata (read-only editor)
+    if (!HopSecurity.allows(Permission.METADATA_WRITE)) {
+      return;
+    }
     if (!this.isChanged) {
       this.isChanged = true;
       // Update tab decoration and toolbar only. Do not fire MetadataChanged and do not reload
@@ -259,6 +266,9 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   @Override
   public void save() throws HopException {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     getWidgetsContent(metadata);
     String name = metadata.getName();

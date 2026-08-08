@@ -80,6 +80,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- ID token validation for Hop Web OIDC (also used by other plugins) -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>

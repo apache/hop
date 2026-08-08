@@ -64,33 +64,47 @@ public class HopGuiContextDelegate {
     Shell shell = hopGui.getShell();
     Menu menu = new Menu(shell, SWT.POP_UP);
 
+    boolean canCreateFiles =
+        org.apache.hop.core.security.HopSecurity.allows(
+            org.apache.hop.core.security.Permission.FILE_CREATE);
+    boolean canCreateMetadata =
+        org.apache.hop.core.security.HopSecurity.allows(
+            org.apache.hop.core.security.Permission.METADATA_WRITE);
+
     // 1) Global file types at the top (pipeline, workflow, markdown, ...).
     //
-    List<GuiAction> fileActions = new ArrayList<>();
-    for (IHopFileType fileType : HopFileTypeRegistry.getInstance().getFileTypes()) {
-      for (IGuiContextHandler handler : fileType.getContextHandlers()) {
-        fileActions.addAll(
-            GuiContextUtil.getInstance()
-                .filterActions(handler.getSupportedActions(), GuiActionType.Create));
+    if (canCreateFiles) {
+      List<GuiAction> fileActions = new ArrayList<>();
+      for (IHopFileType fileType : HopFileTypeRegistry.getInstance().getFileTypes()) {
+        for (IGuiContextHandler handler : fileType.getContextHandlers()) {
+          fileActions.addAll(
+              GuiContextUtil.getInstance()
+                  .filterActions(handler.getSupportedActions(), GuiActionType.Create));
+        }
       }
-    }
-    fileActions.sort(
-        Comparator.comparing((GuiAction a) -> Const.NVL(a.getCategoryOrder(), "9999"))
-            .thenComparing(a -> Const.NVL(a.getName(), a.getId())));
-    for (GuiAction action : fileActions) {
-      addActionMenuItem(menu, action, shell);
+      fileActions.sort(
+          Comparator.comparing((GuiAction a) -> Const.NVL(a.getCategoryOrder(), "9999"))
+              .thenComparing(a -> Const.NVL(a.getName(), a.getId())));
+      for (GuiAction action : fileActions) {
+        addActionMenuItem(menu, action, shell);
+      }
     }
 
     // 2) All metadata types, grouped/ordered exactly like the metadata perspective's "new" button.
     //
     boolean hasFileItems = menu.getItemCount() > 0;
-    if (hasFileItems) {
-      new MenuItem(menu, SWT.SEPARATOR);
+    int metadataItems = 0;
+    boolean separatorAdded = false;
+    if (canCreateMetadata) {
+      if (hasFileItems) {
+        new MenuItem(menu, SWT.SEPARATOR);
+        separatorAdded = true;
+      }
+      MetadataPerspective perspective = HopGui.getMetadataPerspective();
+      metadataItems = perspective != null ? perspective.addNewMetadataTypeMenuItems(menu) : 0;
     }
-    MetadataPerspective perspective = HopGui.getMetadataPerspective();
-    int metadataItems = perspective != null ? perspective.addNewMetadataTypeMenuItems(menu) : 0;
     // Drop a dangling separator when there were no metadata types to add.
-    if (metadataItems == 0 && hasFileItems) {
+    if (metadataItems == 0 && separatorAdded && menu.getItemCount() > 0) {
       menu.getItem(menu.getItemCount() - 1).dispose();
     }
 

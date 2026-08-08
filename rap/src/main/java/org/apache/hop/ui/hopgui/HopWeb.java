@@ -194,7 +194,8 @@ public class HopWeb implements ApplicationConfiguration {
     // Print some important system settings...
     //
     LogChannel.UI.logBasic("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
-    LogChannel.UI.logBasic("HOP_AUDIT_FOLDER: " + Const.HOP_AUDIT_FOLDER);
+    LogChannel.UI.logBasic("HOP_AUDIT_FOLDER (property): " + Const.HOP_AUDIT_FOLDER);
+    LogChannel.UI.logBasic("HOP_AUDIT_FOLDER (effective): " + HopWebAuditPaths.getAuditRoot());
     LogChannel.UI.logBasic("HOP_GUI_ZOOM_FACTOR: " + System.getProperty("HOP_GUI_ZOOM_FACTOR"));
   }
 

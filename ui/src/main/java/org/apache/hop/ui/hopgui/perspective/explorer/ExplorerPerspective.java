@@ -59,6 +59,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.SearchMatcher;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
@@ -91,6 +93,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
@@ -3078,6 +3081,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       toolTip = "i18n::ExplorerPerspective.ToolbarElement.CreateFolder.Tooltip",
       image = "ui/images/folder-add.svg")
   public void createFolder() {
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return;
+    }
 
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length != 1) {
@@ -3245,6 +3251,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     // Deleting is deliberately limited to a single file: the confirmation (and the reference
     // check behind it) is written for one file at a time.
     //
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return;
+    }
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length != 1) {
       return;
@@ -3268,6 +3277,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiKeyboardShortcut(key = SWT.F2)
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void renameFile() {
+    if (!HopSecurityUi.check(Permission.EXPLORER_WRITE)) {
+      return;
+    }
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length != 1) {
       return;
@@ -4469,16 +4481,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     boolean isFolderSelected = tif != null && tif.fileType instanceof FolderFileType;
     boolean openSupported = tif != null && (tif.folder || tif.fileType.supportsOpening());
+    boolean canWrite = HopSecurity.allows(Permission.EXPLORER_WRITE);
 
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_FOLDER, isFolderSelected);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_FOLDER, isFolderSelected && canWrite);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_OPEN, openSupported);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null && canWrite);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null && canWrite);
 
-    menuWidgets.enableMenuItem(CONTEXT_MENU_CREATE_FOLDER, isFolderSelected);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_CREATE_FOLDER, isFolderSelected && canWrite);
     menuWidgets.enableMenuItem(CONTEXT_MENU_OPEN, openSupported);
-    menuWidgets.enableMenuItem(CONTEXT_MENU_DELETE, tif != null);
-    menuWidgets.enableMenuItem(CONTEXT_MENU_RENAME, tif != null);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_DELETE, tif != null && canWrite);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_RENAME, tif != null && canWrite);
     menuWidgets.enableMenuItem(CONTEXT_MENU_COPY_NAME, tif != null);
     menuWidgets.enableMenuItem(CONTEXT_MENU_COPY_PATH, tif != null);
 
