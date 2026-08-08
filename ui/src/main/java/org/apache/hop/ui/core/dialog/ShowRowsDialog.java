@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
@@ -53,6 +54,10 @@ import org.eclipse.swt.widgets.Text;
  * <p>Use this when the caller already has rows in memory and only needs to display them. For
  * transform preview (streaming, "get more rows", pause/stop, logging text), use {@link
  * PreviewRowsDialog} instead.
+ *
+ * <p>Column headers are sortable. Each table item stores its original buffer index via {@link
+ * TableItem#setData(Object)} so cell selection and full-value lookup still work after a sort
+ * ({@link TableView} preserves unkeyed item data when rebuilding rows).
  */
 public final class ShowRowsDialog {
 
@@ -155,7 +160,7 @@ public final class ShowRowsDialog {
       IValueMeta valueMeta = rowMeta.getValueMeta(i);
       columns[i] =
           new ColumnInfo(valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, valueMeta.isNumeric());
-      columns[i].setToolTip(valueMeta.toStringMeta());
+      columns[i].setToolTip(formatColumnMetaTooltip(valueMeta));
       columns[i].setValueMeta(valueMeta);
       columns[i].setImage(GuiResource.getInstance().getImage(valueMeta));
       columns[i].setReadOnly(true);
@@ -171,10 +176,9 @@ public final class ShowRowsDialog {
             null,
             PropsUi.getInstance());
     view.setShowingBlueNullValues(true);
-    // Rows are kept in load order so a cell's visual position maps straight back to the buffer that
-    // holds its full value (see getFullCellString). Sorting rebuilds the table items from their
-    // truncated display text, breaking that mapping, so it is disabled here.
-    view.setSortable(false);
+    // Column sorting is enabled; each item stores its original buffer index so full-value lookup
+    // still works after the table is reordered (see resolveBufferIndex).
+    view.setSortable(true);
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
@@ -194,17 +198,20 @@ public final class ShowRowsDialog {
       } else {
         item = new TableItem(tableView.table, SWT.NONE);
       }
-      fillRow(item, rows.get(i));
+      fillRow(item, rows.get(i), i);
     }
     if (!tableView.isDisposed()) {
       tableView.optWidth(true, 200);
     }
   }
 
-  private void fillRow(TableItem item, Object[] row) {
+  private void fillRow(TableItem item, Object[] row, int bufferIndex) {
     if (row == null) {
       return;
     }
+
+    // Unkeyed data: TableView preserves getData()/setData(Object) across column sorts.
+    item.setData(bufferIndex);
 
     lineNr++;
     String rowNumber;
@@ -264,7 +271,8 @@ public final class ShowRowsDialog {
    * TableView#formatCellValueForDisplay}). Clicking a cell drops a read-only text field on it (like
    * the inline editor of an editable grid) so its full value can be selected and copied in place;
    * double-clicking a cell shows its full, original content in a floating box (handy for long
-   * strings, JSON and multi-line values).
+   * strings, JSON and multi-line values). Hovering (or selecting) a cell shows column metadata in a
+   * tooltip: name, type, length, precision.
    */
   private void setupCellSelection() {
     cellEditor = new TableEditor(tableView.table);
@@ -280,12 +288,61 @@ public final class ShowRowsDialog {
         });
     tableView.table.addListener(
         SWT.MouseDoubleClick, event -> showFullCellValue(new Point(event.x, event.y)));
+    // Dynamic cell tooltip with column metadata (name, type, length, precision, ...).
+    tableView.table.addListener(
+        SWT.MouseMove,
+        event -> {
+          CellRef ref = cellAt(new Point(event.x, event.y));
+          String tip =
+              ref == null ? null : formatColumnMetaTooltip(rowMeta.getValueMeta(ref.dataColumn));
+          if (!Objects.equals(tip, tableView.table.getToolTipText())) {
+            tableView.table.setToolTipText(tip);
+          }
+        });
+  }
+
+  /**
+   * Build a multi-line tooltip describing a column: name, type, and optional length / precision /
+   * origin.
+   */
+  static String formatColumnMetaTooltip(IValueMeta valueMeta) {
+    if (valueMeta == null) {
+      return null;
+    }
+    StringBuilder tip = new StringBuilder();
+    tip.append(
+        BaseMessages.getString(
+            PKG, "ShowRowsDialog.CellTooltip.Name", Const.NVL(valueMeta.getName(), "")));
+    tip.append(Const.CR);
+    tip.append(
+        BaseMessages.getString(
+            PKG, "ShowRowsDialog.CellTooltip.Type", Const.NVL(valueMeta.getTypeDesc(), "")));
+    if (valueMeta.getLength() > 0) {
+      tip.append(Const.CR);
+      tip.append(
+          BaseMessages.getString(
+              PKG, "ShowRowsDialog.CellTooltip.Length", Integer.toString(valueMeta.getLength())));
+    }
+    if (valueMeta.getPrecision() > 0) {
+      tip.append(Const.CR);
+      tip.append(
+          BaseMessages.getString(
+              PKG,
+              "ShowRowsDialog.CellTooltip.Precision",
+              Integer.toString(valueMeta.getPrecision())));
+    }
+    if (!Utils.isEmpty(valueMeta.getOrigin())) {
+      tip.append(Const.CR);
+      tip.append(
+          BaseMessages.getString(PKG, "ShowRowsDialog.CellTooltip.Origin", valueMeta.getOrigin()));
+    }
+    return tip.toString();
   }
 
   private void showFullCellValue(Point point) {
     CellRef ref = cellAt(point);
     if (ref != null) {
-      expandCell(ref.bounds, ref.rowIndex, ref.columnIndex);
+      expandCell(ref.bounds, ref.bufferIndex, ref.tableColumn);
     }
   }
 
@@ -299,11 +356,11 @@ public final class ShowRowsDialog {
     if (ref == null) {
       return;
     }
-    String full = getFullCellString(ref.rowIndex, ref.columnIndex - 1);
+    String full = getFullCellString(ref.bufferIndex, ref.dataColumn);
     if (full == null) {
       return;
     }
-    TableItem item = tableView.table.getItem(ref.rowIndex);
+    TableItem item = tableView.table.getItem(ref.tableRowIndex);
 
     if (cellEditorText != null && !cellEditorText.isDisposed()) {
       cellEditorText.dispose();
@@ -312,6 +369,7 @@ public final class ShowRowsDialog {
     final Text field = new Text(tableView.table, SWT.SINGLE | SWT.READ_ONLY);
     PropsUi.setLook(field);
     field.setText(full);
+    field.setToolTipText(formatColumnMetaTooltip(rowMeta.getValueMeta(ref.dataColumn)));
     cellEditorText = field;
     final long openedAt = System.currentTimeMillis();
 
@@ -330,25 +388,25 @@ public final class ShowRowsDialog {
     // plain MouseDown; treat a click within the OS double-click time of it opening as that second
     // click too. Coordinates are captured so the box anchors to the same cell.
     final Rectangle cellBounds = ref.bounds;
-    final int rowIndex = ref.rowIndex;
-    final int columnIndex = ref.columnIndex;
-    field.addListener(SWT.MouseDoubleClick, e -> expandCell(cellBounds, rowIndex, columnIndex));
+    final int bufferIndex = ref.bufferIndex;
+    final int tableColumn = ref.tableColumn;
+    field.addListener(SWT.MouseDoubleClick, e -> expandCell(cellBounds, bufferIndex, tableColumn));
     field.addListener(
         SWT.MouseDown,
         e -> {
           if (System.currentTimeMillis() - openedAt
               <= tableView.getDisplay().getDoubleClickTime()) {
-            expandCell(cellBounds, rowIndex, columnIndex);
+            expandCell(cellBounds, bufferIndex, tableColumn);
           }
         });
 
-    cellEditor.setEditor(field, item, columnIndex);
+    cellEditor.setEditor(field, item, tableColumn);
     field.setFocus();
     field.selectAll();
   }
 
   /** Expand the given cell's full value into the floating, selectable value box. */
-  private void expandCell(Rectangle cellBounds, int rowIndex, int columnIndex) {
+  private void expandCell(Rectangle cellBounds, int bufferIndex, int tableColumn) {
     if (cellEditorText != null && !cellEditorText.isDisposed()) {
       cellEditorText.dispose();
     }
@@ -357,7 +415,7 @@ public final class ShowRowsDialog {
     if (valueOverlay != null && !valueOverlay.isDisposed()) {
       return;
     }
-    String full = getFullCellString(rowIndex, columnIndex - 1);
+    String full = getFullCellString(bufferIndex, tableColumn - 1);
     if (full != null) {
       showValueOverlay(cellBounds, full);
     }
@@ -375,31 +433,66 @@ public final class ShowRowsDialog {
     if (item == null) {
       return null;
     }
-    int rowIndex = tableView.table.indexOf(item);
-    if (rowIndex < 0 || rowIndex >= rows.size()) {
+    int tableRowIndex = tableView.table.indexOf(item);
+    if (tableRowIndex < 0) {
+      return null;
+    }
+    int bufferIndex = resolveBufferIndex(item);
+    if (bufferIndex < 0 || bufferIndex >= rows.size()) {
       return null;
     }
     // Column 0 is the row-number column; data columns start at 1. Find the one under the pointer.
     for (int i = 1; i < tableView.table.getColumnCount(); i++) {
       Rectangle b = item.getBounds(i);
       if (b.contains(point)) {
-        return i - 1 < rowMeta.size() ? new CellRef(rowIndex, i, b) : null;
+        int dataColumn = i - 1;
+        return dataColumn < rowMeta.size()
+            ? new CellRef(bufferIndex, tableRowIndex, i, dataColumn, b)
+            : null;
       }
     }
     return null;
   }
 
   /**
-   * A located data cell: its row index into the buffer, its 1-based table column, and its bounds.
+   * Map a visual table item back to its original {@link #rows} index. Prefers the value stored at
+   * fill time via {@link TableItem#setData(Object)}; falls back to the 1-based line number in
+   * column 0, which also moves with the row when the table is sorted.
+   */
+  private int resolveBufferIndex(TableItem item) {
+    Object data = item.getData();
+    if (data instanceof Integer index) {
+      return index;
+    }
+    // Fallback: original line number text in the # column (1-based).
+    try {
+      String text = item.getText(0);
+      if (Utils.isEmpty(text)) {
+        return -1;
+      }
+      return Integer.parseInt(text.trim()) - 1;
+    } catch (NumberFormatException e) {
+      return -1;
+    }
+  }
+
+  /**
+   * A located data cell: buffer index into {@link #rows}, visual table row, 1-based table column,
+   * 0-based data column, and cell bounds.
    */
   private static final class CellRef {
-    private final int rowIndex;
-    private final int columnIndex;
+    private final int bufferIndex;
+    private final int tableRowIndex;
+    private final int tableColumn;
+    private final int dataColumn;
     private final Rectangle bounds;
 
-    private CellRef(int rowIndex, int columnIndex, Rectangle bounds) {
-      this.rowIndex = rowIndex;
-      this.columnIndex = columnIndex;
+    private CellRef(
+        int bufferIndex, int tableRowIndex, int tableColumn, int dataColumn, Rectangle bounds) {
+      this.bufferIndex = bufferIndex;
+      this.tableRowIndex = tableRowIndex;
+      this.tableColumn = tableColumn;
+      this.dataColumn = dataColumn;
       this.bounds = bounds;
     }
   }
