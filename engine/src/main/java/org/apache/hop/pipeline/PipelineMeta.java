@@ -78,6 +78,8 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
+import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
@@ -2703,6 +2705,20 @@ public class PipelineMeta extends AbstractMeta
                 BaseMessages.getString(PKG, "PipelineMeta.CheckResult.TypeResultOK.Description"),
                 null);
         remarks.add(cr);
+      }
+
+      // Bounded-buffer deadlock risk on split–rejoin multi-input transforms (classic engine)
+      //
+      List<BufferDeadlockRisk> deadlockRisks = PipelineBufferDeadlockAnalyzer.analyze(this);
+      for (BufferDeadlockRisk risk : deadlockRisks) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(
+                    PKG,
+                    "PipelineMeta.CheckResult.TypeResultWarning.BufferDeadlockRisk.Description",
+                    risk.formatMessage()),
+                risk.reconvergence()));
       }
 
       ExtensionPointHandler.callExtensionPoint(

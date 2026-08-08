@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -55,6 +56,7 @@ import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.SpillingRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -93,6 +95,8 @@ import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.analysis.BufferDeadlockRisk.SpillHop;
+import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
@@ -375,6 +379,20 @@ public abstract class Pipeline
 
   @Setter protected int feedbackSize;
 
+  /**
+   * Hops that should use {@link SpillingRowSet} when the local engine mitigates buffer deadlocks.
+   * Empty means all hops use the normal bounded rowset.
+   */
+  @Getter protected Set<SpillHop> bufferDeadlockSpillHops = Set.of();
+
+  /** Directory for {@link SpillingRowSet} temp files; blank uses the system temp directory. */
+  @Getter @Setter protected String bufferDeadlockSpillDirectory;
+
+  public void setBufferDeadlockSpillHops(Set<SpillHop> bufferDeadlockSpillHops) {
+    this.bufferDeadlockSpillHops =
+        bufferDeadlockSpillHops == null ? Set.of() : Set.copyOf(bufferDeadlockSpillHops);
+  }
+
   /** Instantiates a new pipeline. */
   public Pipeline() {
 
@@ -400,6 +418,7 @@ public abstract class Pipeline
     extensionDataMap = new HashMap<>();
 
     rowSetSize = Const.ROWS_IN_ROWSET;
+    bufferDeadlockSpillHops = Set.of();
 
     dataSamplers = Collections.synchronizedList(new ArrayList<>());
   }
@@ -768,6 +787,9 @@ public abstract class Pipeline
                         System.getProperty(Const.HOP_BATCHING_ROWSET));
                 if (batchingRowSet != null && batchingRowSet) {
                   rowSet = new BlockingBatchingRowSet(rowSetSize);
+                } else if (PipelineBufferDeadlockAnalyzer.shouldSpill(
+                    bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
+                  rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
                 } else {
                   rowSet = new BlockingRowSet(rowSetSize);
                 }
@@ -817,7 +839,13 @@ public abstract class Pipeline
           // distribution...
           for (int s = 0; s < thisCopies; s++) {
             for (int t = 0; t < nextCopies; t++) {
-              BlockingRowSet rowSet = new BlockingRowSet(rowSetSize);
+              IRowSet rowSet;
+              if (PipelineBufferDeadlockAnalyzer.shouldSpill(
+                  bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
+                rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
+              } else {
+                rowSet = new BlockingRowSet(rowSetSize);
+              }
               rowSet.setThreadNameFromToCopy(
                   thisTransform.getName(), s, nextTransform.getName(), t);
               rowsets.add(rowSet);

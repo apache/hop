@@ -50,6 +50,8 @@ import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
+import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -113,6 +115,71 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
             false));
   }
 
+  /**
+   * Risks found during configure; logged after {@code super.prepareExecution()} creates the log.
+   */
+  private List<BufferDeadlockRisk> pendingBufferDeadlockRisks = List.of();
+
+  private boolean pendingBufferDeadlockMitigated;
+
+  /**
+   * Runs the buffer-deadlock analyzer when detection is enabled (default) and optionally configures
+   * minimal spill hops when mitigation is enabled. Must run before {@code super.prepareExecution()}
+   * so rowset allocation sees the spill hop set. Logging is deferred until the pipeline log channel
+   * exists.
+   */
+  private void configureBufferDeadlockHandling(LocalPipelineRunConfiguration config) {
+    // Reset so nested/reused engines do not keep a previous spill set
+    setBufferDeadlockSpillHops(java.util.Set.of());
+    setBufferDeadlockSpillDirectory(null);
+    pendingBufferDeadlockRisks = List.of();
+    pendingBufferDeadlockMitigated = false;
+
+    boolean detect = config.isDetectBufferDeadlocks();
+    boolean mitigate = config.isMitigateBufferDeadlocks();
+    if (!detect && !mitigate) {
+      return;
+    }
+
+    List<BufferDeadlockRisk> risks = PipelineBufferDeadlockAnalyzer.analyze(getPipelineMeta());
+    if (detect) {
+      pendingBufferDeadlockRisks = risks;
+    }
+    pendingBufferDeadlockMitigated = mitigate && !risks.isEmpty();
+
+    if (mitigate && !risks.isEmpty()) {
+      setBufferDeadlockSpillHops(PipelineBufferDeadlockAnalyzer.collectSpillHops(risks));
+      String dir = resolve(Const.NVL(config.getBufferDeadlockSpillDirectory(), ""));
+      setBufferDeadlockSpillDirectory(dir);
+    }
+  }
+
+  private void logPendingBufferDeadlockRisks(LocalPipelineRunConfiguration config) {
+    if (!pendingBufferDeadlockRisks.isEmpty()) {
+      log.logMinimal(
+          "Detected "
+              + pendingBufferDeadlockRisks.size()
+              + " possible buffer deadlock risk(s) (split–rejoin with shared ancestors).");
+      for (BufferDeadlockRisk risk : pendingBufferDeadlockRisks) {
+        log.logMinimal(risk.formatMessage());
+      }
+      if (!config.isMitigateBufferDeadlocks()) {
+        log.logMinimal(
+            "Mitigation is disabled: this pipeline may hang on large data. Enable 'Mitigate "
+                + "buffer deadlocks' on the local run configuration to spill recommended hops to "
+                + "disk automatically.");
+      }
+    }
+    if (pendingBufferDeadlockMitigated) {
+      log.logMinimal(
+          "Buffer deadlock mitigation: using spilling rowsets for "
+              + getBufferDeadlockSpillHops().size()
+              + " hop(s).");
+    }
+    pendingBufferDeadlockRisks = List.of();
+    pendingBufferDeadlockMitigated = false;
+  }
+
   @Override
   public void prepareExecution() throws HopException {
 
@@ -130,6 +197,10 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     setGatheringMetrics(config.isGatheringMetrics());
     setFeedbackShown(config.isFeedbackShown());
     setFeedbackSize(Const.toInt(resolve(config.getFeedbackSize()), Const.ROWS_UPDATE));
+
+    // Buffer deadlock detection / optional minimal spill (classic local engine only)
+    //
+    configureBufferDeadlockHandling(config);
 
     // See if we need to enable transactions...
     //
@@ -234,6 +305,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
 
     super.prepareExecution();
+
+    // Log buffer-deadlock analysis now that Pipeline.prepareExecution created the log channel
+    if (pipelineRunConfiguration.getEngineRunConfiguration()
+        instanceof LocalPipelineRunConfiguration localConfig) {
+      logPendingBufferDeadlockRisks(localConfig);
+    }
 
     // The transforms are initialized at this point, which means they can hold on to database
     // connections, files, ... If anything below fails we never get to start the transform threads,

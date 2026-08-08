@@ -148,6 +148,52 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   @HopMetadataProperty(key = "transactional")
   protected boolean transactional;
 
+  /**
+   * When enabled, analyze the pipeline for split–rejoin buffer deadlock risk and log findings
+   * during prepare. Enabled by default.
+   */
+  @GuiWidgetElement(
+      id = "detectBufferDeadlocks",
+      order = "110",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label =
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.DetectBufferDeadlocks.Label",
+      toolTip =
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.DetectBufferDeadlocks.ToolTip")
+  @HopMetadataProperty(key = "detect_buffer_deadlocks")
+  protected boolean detectBufferDeadlocks;
+
+  /**
+   * When enabled, allocate spilling rowsets for hops recommended by the buffer-deadlock analyzer.
+   * On by default so at-risk topologies make progress (spill to disk) instead of hanging; detection
+   * logging already surfaces when this engages.
+   */
+  @GuiWidgetElement(
+      id = "mitigateBufferDeadlocks",
+      order = "120",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label =
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.MitigateBufferDeadlocks.Label",
+      toolTip =
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.MitigateBufferDeadlocks.ToolTip")
+  @HopMetadataProperty(key = "mitigate_buffer_deadlocks")
+  protected boolean mitigateBufferDeadlocks;
+
+  /** Directory for spilled rowset temp files; empty uses the system temporary directory. */
+  @GuiWidgetElement(
+      id = "bufferDeadlockSpillDirectory",
+      order = "130",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label =
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.BufferDeadlockSpillDirectory.Label",
+      toolTip =
+          "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.BufferDeadlockSpillDirectory.ToolTip")
+  @HopMetadataProperty(key = "buffer_deadlock_spill_directory")
+  protected String bufferDeadlockSpillDirectory;
+
   @SuppressWarnings("java:S115")
   public enum SampleType {
     None,
@@ -165,6 +211,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.sampleTypeInGui = SampleType.Last.name();
     this.sampleSize = "100";
     this.transactional = false;
+    this.detectBufferDeadlocks = true;
+    this.mitigateBufferDeadlocks = true;
+    this.bufferDeadlockSpillDirectory = "";
   }
 
   public LocalPipelineRunConfiguration(LocalPipelineRunConfiguration config) {
@@ -179,6 +228,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.sampleTypeInGui = config.sampleTypeInGui;
     this.sampleSize = config.sampleSize;
     this.transactional = config.transactional;
+    this.detectBufferDeadlocks = config.detectBufferDeadlocks;
+    this.mitigateBufferDeadlocks = config.mitigateBufferDeadlocks;
+    this.bufferDeadlockSpillDirectory = config.bufferDeadlockSpillDirectory;
   }
 
   @Override
