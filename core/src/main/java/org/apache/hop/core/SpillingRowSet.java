@@ -164,17 +164,17 @@ public class SpillingRowSet extends BaseRowSet implements Comparable<IRowSet>, I
   }
 
   /**
-   * Reported occupancy for {@code BaseTransform} flow-control heuristics.
+   * Reported occupancy for transform flow-control heuristics (not pure in-memory depth).
    *
-   * <p>{@link org.apache.hop.pipeline.transform.BaseTransform} sleeps with {@code Thread.sleep(0,
-   * 1)} when {@code size() >= 99%} of the rowset capacity (producer) or {@code size() <= 1%}
-   * (consumer). On many JVMs/OSes that "1 ns" sleep rounds up to about 1 ms. If we reported a full
-   * memory buffer while spilling (put is non-blocking), every put would sleep ~1 ms — near-zero
-   * CPU/disk and catastrophic throughput. Likewise, reporting {@code 0} while rows still sit only
-   * on disk would make the consumer sleep on every get.
+   * <p>The classic pipeline engine sleeps with {@code Thread.sleep(0, 1)} when {@code size() >= 99%}
+   * of the rowset capacity (producer) or {@code size() <= 1%} (consumer). On many JVMs/OSes that "1
+   * ns" sleep rounds up to about 1 ms. If we reported a full memory buffer while spilling (put is
+   * non-blocking), every put would sleep ~1 ms — near-zero CPU/disk and catastrophic throughput.
+   * Likewise, reporting {@code 0} while rows still sit only on disk would make the consumer sleep
+   * on every get.
    *
    * <p>So when there is pending work we advertise a mid-level size (neither "full" nor "empty").
-   * When idle we report {@code 0}. Use {@link #getUnreadSpilled()} / memory internals for tests.
+   * When idle we report {@code 0}.
    */
   @Override
   public int size() {
