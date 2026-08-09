@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: JMS producer sends each incoming row to a JMS queue or topic as a text message.
+
+= image:transforms/icons/jms-producer.svg[JMS producer transform Icon, role="image-doc-icon"] JMS producer
+
+== Description
+
+*JMS producer* sends each incoming row to a JMS queue or topic as a `TextMessage`.
+
+It works with any JMS 3.0 provider — see xref:pipeline/transforms/jms-consumer.adoc[JMS consumer] for the broker notes, which apply equally here.
+
+Rows are passed through unchanged, so the transform can sit in the middle of a pipeline rather than only at the end.
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|JMS connection
+|The xref:metadata-types/jms-connection.adoc[JMS connection] metadata object to use.
+
+|Destination type
+|`QUEUE` for point-to-point, `TOPIC` for publish/subscribe.
+
+|Queue / topic name
+|Name of the destination. Supports variables.
+
+|Use a JMS transaction
+|Commit each message in a JMS transaction instead of sending it outside one.
+
+|Message body field
+|Incoming field holding the message body. Required.
+
+|Correlation id field
+|Optional incoming field to set as the JMS correlation id, so replies can be matched back to the row that caused them.
+|===
+
+== Notes
+
+* The body field is read as a string using its Hop value metadata, so a non-string field is converted with the conversion mask configured on it.
+* A missing body or correlation id field fails the transform on the first row with the field name it looked for, rather than sending empty messages.

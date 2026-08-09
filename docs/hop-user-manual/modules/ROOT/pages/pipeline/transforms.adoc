@@ -134,6 +134,8 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/javascript.adoc[JavaScript]
 * xref:pipeline/transforms/jdbcmetadata.adoc[JDBC Metadata]
 * xref:pipeline/transforms/joinrows.adoc[Join Rows]
+* xref:pipeline/transforms/jms-consumer.adoc[JMS consumer]
+* xref:pipeline/transforms/jms-producer.adoc[JMS producer]
 * xref:pipeline/transforms/jsoninput.adoc[JSON Input]
 * xref:pipeline/transforms/jsonoutput.adoc[JSON Output]
 * xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer]
