@@ -141,6 +141,27 @@ limitations under the License.
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>Run Pipeline Unit Tests</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>0003-field-splitter-delimiter UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0003-field-splitter-id UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0003-field-splitter-keep-field UNIT</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -160,6 +181,13 @@ limitations under the License.
     <hop>
       <from>0003-field-splitter-escape-string</from>
       <to>0003-field-splitter-using-ids</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0003-field-splitter-using-ids</from>
+      <to>Run Pipeline Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
