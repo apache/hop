@@ -1641,6 +1641,7 @@ public class PipelineMeta extends AbstractMeta
    * that need to be set. This is happening here.
    */
   public void lookupReferencesAfterLoading() {
+    missingPipeline = null;
     for (TransformMeta transformMeta : transforms) {
       ITransformMeta iTransform = transformMeta.getTransform();
 
@@ -1650,6 +1651,12 @@ public class PipelineMeta extends AbstractMeta
       // Also set the parent pipeline to which this transform belongs.
       // This is rarely used, for example in getTableFields.getTableFields()
       transformMeta.setParentPipelineMeta(this);
+
+      // Keep track of the transforms whose plugin isn't installed so we can warn about them.
+      //
+      if (iTransform instanceof Missing missing) {
+        addMissingPipeline(missing);
+      }
     }
     syncTransformErrorHandlingWithHops();
   }

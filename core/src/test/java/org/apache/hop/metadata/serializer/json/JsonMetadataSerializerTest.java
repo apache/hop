@@ -138,4 +138,49 @@ class JsonMetadataSerializerTest {
     //
     assertThrows(HopException.class, () -> personSerializer.load("Gardener"));
   }
+
+  /**
+   * Tree refresh only needs name + virtualPath. readVirtualPath must not fully deserialize and must
+   * return the path (or empty) even for complex objects (issue #7791).
+   */
+  @Test
+  void testReadVirtualPath(@TempDir Path folder) throws Exception {
+    JsonMetadataProvider provider =
+        new JsonMetadataProvider(
+            new HopTwoWayPasswordEncoder(),
+            folder.toString(),
+            Variables.getADefaultVariableSpace());
+
+    Occupation occupation = new Occupation("Occupation1", "Description of occupation1", 2001);
+    occupation.setVirtualPath("jobs/tech");
+    provider.getSerializer(Occupation.class).save(occupation);
+
+    IHopMetadataSerializer<Occupation> serializer = provider.getSerializer(Occupation.class);
+    assertEquals("jobs/tech", serializer.readVirtualPath("Occupation1"));
+
+    // Field absent → empty string (HopMetadataBase default).
+    Occupation noPath = new Occupation("NoPath", "desc", 2002);
+    serializer.save(noPath);
+    assertEquals("", serializer.readVirtualPath("NoPath"));
+
+    assertThrows(HopException.class, () -> serializer.readVirtualPath("Missing"));
+  }
+
+  @Test
+  void testReadVirtualPathCorruptFile(@TempDir Path folder) throws Exception {
+    JsonMetadataProvider provider =
+        new JsonMetadataProvider(
+            new HopTwoWayPasswordEncoder(),
+            folder.toString(),
+            Variables.getADefaultVariableSpace());
+
+    IHopMetadataSerializer<Occupation> serializer = provider.getSerializer(Occupation.class);
+    Occupation occupation = new Occupation("Broken", "desc", 2001);
+    serializer.save(occupation);
+
+    Path jsonFile = folder.resolve("occupation").resolve("Broken.json");
+    Files.write(jsonFile, "not-valid-json{".getBytes(UTF_8));
+
+    assertThrows(HopException.class, () -> serializer.readVirtualPath("Broken"));
+  }
 }

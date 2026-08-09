@@ -52,12 +52,12 @@ public class MarketplaceGuiPlugin {
       id = ID_MAIN_MENU_TOOLS_MARKETPLACE,
       label = "i18n::MarketplaceGuiPlugin.Menu.Marketplace.Text",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID,
-      image = "ui/images/plugin.svg",
+      image = "ui/images/marketplace.svg",
       separator = true)
   @GuiToolbarElement(
       root = HopGui.ID_MAIN_TOOLBAR,
       id = ID_MAIN_TOOLBAR_MARKETPLACE,
-      image = "ui/images/plugin.svg",
+      image = "ui/images/marketplace.svg",
       toolTip = "i18n::MarketplaceGuiPlugin.Toolbar.Marketplace.Tooltip",
       separator = true)
   public void menuToolsMarketplace() {

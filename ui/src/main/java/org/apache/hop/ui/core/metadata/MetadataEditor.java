@@ -24,7 +24,6 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.plugins.IPlugin;
@@ -198,12 +197,9 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   public void setChanged() {
     if (!this.isChanged) {
       this.isChanged = true;
+      // Update tab decoration and toolbar only. Do not fire MetadataChanged and do not reload
+      // the metadata tree: dirty is not a persisted store change (see issue #7791).
       MetadataPerspective.getInstance().updateEditor(this);
-      try {
-        hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
-      } catch (HopException e) {
-        throw new HopRuntimeException(e);
-      }
     }
   }
 
@@ -335,6 +331,10 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     }
 
     MetadataPerspective.getInstance().updateEditor(this);
+
+    // Notify the GUI that the metadata store changed (tree refresh, plugins). Fire only after a
+    // successful persist — not when the editor is merely marked dirty (issue #7791).
+    hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
   }
 
   @Override

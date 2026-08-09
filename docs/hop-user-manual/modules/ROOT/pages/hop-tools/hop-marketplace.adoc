@@ -76,6 +76,7 @@ From the Hop install directory:
 ./hop marketplace install hop-tech-parquet
 ./hop marketplace install hop-engines-spark:2.19.0
 ./hop marketplace install hop-engines-spark:2.19.0 --repo asf
+./hop marketplace install hop-tech-parquet hop-transform-tika datavault
 ./hop marketplace list
 ./hop marketplace query parquet
 ./hop marketplace query "spark engine"
@@ -98,6 +99,11 @@ After install, apply, or uninstall, *restart Hop* so the plugin registry reloads
 
 Coordinates for `install`: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
 Optional `--repo <id>` forces a single repository (skips the fallback chain).
+
+`install` accepts several coordinates in one command. All of them are resolved before the first
+download, so an unknown or ambiguous name fails before anything is fetched. Downloads then run one
+after another with a `[2/5]` progress line per plugin; a plugin that fails to install does not stop
+the others, and the command exits non-zero when any of them failed.
 
 `query` searches the local optional-plugin catalog (not Maven Central). The filter is a
 case-insensitive substring matched against artifact id, name, category, description, and install
@@ -141,7 +147,8 @@ Use this tab to work with the local optional-plugin catalog:
 ** *Installed* — present on disk with a marketplace install receipt (version shown when known)
 ** *Present on disk* — plugin folder exists but no marketplace receipt
 ** *Not installed* — not found under `plugins/`
-* *Install* / *Uninstall* / *Refresh* — act on the selected plugin (uninstall requires a marketplace receipt)
+* *Install* / *Uninstall* / *Refresh* — act on the selected plugins (uninstall requires a marketplace receipt)
+* Several plugins can be selected at once with ctrl-click, shift-click, or ctrl-A, and installed or uninstalled in one go. Installs run one after another behind a single progress dialog; a plugin that fails does not stop the others and every failure is reported together at the end.
 
 Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
 
@@ -355,7 +362,7 @@ repositories:
   # - id: corporate
   #   url: "https://nexus.example.com/repository/hop-plugins/"
   #   username: reader
-  #   password: "…"   # prefer env HOP_MARKETPLACE_PASSWORD for secrets
+  #   password: "${CORPORATE_TOKEN}"   # stored obfuscated; prefer a variable or env HOP_MARKETPLACE_PASSWORD
 
 # Required optional plugins (installed into plugins/)
 plugins:
@@ -449,6 +456,29 @@ Credentials are resolved most-specific first:
 . `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`, applying to every repository
 
 Use the repository-scoped variables when more than one private repository is configured, since the global pair cannot express two different tokens.
+
+Username and password are resolved separately, so the two can come from different sources: a repository entry that sets only `username` is combined with `HOP_MARKETPLACE_PASSWORD` from the environment. Such a mixed pair counts as deliberately configured — the anonymous retry described below applies only when the repository entry supplies neither field.
+
+=== How stored passwords are protected
+
+A `password` on a repository entry is written to `hop-config.json` — and to exported repository definitions and environment files — obfuscated with Hop's two-way password encoder, the same `Encrypted 2be98afc…` form used for Hop server and database passwords. Configurations written by older versions are read as-is and re-encoded the next time they are saved.
+
+Obfuscation is not encryption: the encoder key is not a secret, so anyone holding the file and a Hop install can recover the password. It stops credentials being read over a shoulder, in a screenshot or in a diff — nothing more.
+
+To keep the secret out of the file altogether, put a variable or a variable resolver expression in `username` / `password` instead of the credential:
+
+[source,json]
+----
+{ "id": "acme", "url": "https://nexus.example.org/repository/hop/", "username": "reader", "password": "${ACME_TOKEN}" }
+----
+
+Variables are stored exactly as typed — there is nothing secret to obfuscate — and are resolved when the repository is contacted, so the secret lives in the variable rather than in the file.
+
+Marketplace repositories are client-wide rather than project-bound, so `${...}` resolves against client-level variables only: JVM system properties (`-DACME_TOKEN=…`, for example through `HOP_OPTIONS`) and variables described in `hop-config.json`. Project and environment variables are not visible here, and neither are plain shell environment variables — for those, use the `HOP_MARKETPLACE_*` names above. A xref:variables.adoc[variable resolver] expression such as `#{vault:hop/marketplace:token}` is looked up in the active metadata, so a secret manager works as well.
+
+A variable that is not set is sent to the server unresolved, and the resulting 401 says so.
+
+The `HOP_MARKETPLACE_*` environment variables above remain the simplest option when nothing at all should be written to the configuration.
 
 Because the global variables are offered to every repository — including public ones such as the ASF repository and Maven Central, which reject unknown credentials with HTTP 401 instead of ignoring them — a request that fails with 401 or 403 using credentials that came _only_ from the environment is retried once anonymously. Credentials configured on the repository entry are treated as deliberate and are never dropped, so those failures are reported as-is.
 

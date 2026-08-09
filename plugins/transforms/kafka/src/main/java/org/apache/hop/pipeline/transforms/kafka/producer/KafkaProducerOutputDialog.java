@@ -77,6 +77,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
   private ComboVar wTopicField;
   private ComboVar wKeyField;
   private ComboVar wMessageField;
+  private ComboVar wHeadersField;
   private TableView optionsTable;
   private CTabFolder wTabFolder;
 
@@ -300,6 +301,31 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
                 variables, pipelineMeta, wMessageField, transformName);
     wMessageField.getCComboWidget().addListener(SWT.FocusIn, lsMessageFocus);
 
+    Label wlHeadersField = new Label(wSetupComp, SWT.RIGHT);
+    PropsUi.setLook(wlHeadersField);
+    wlHeadersField.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.HeadersField"));
+    FormData fdlHeadersField = new FormData();
+    fdlHeadersField.left = new FormAttachment(0, 0);
+    fdlHeadersField.top = new FormAttachment(wMessageField, margin);
+    fdlHeadersField.right = new FormAttachment(middle, -margin);
+    wlHeadersField.setLayoutData(fdlHeadersField);
+
+    wHeadersField = new ComboVar(variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wHeadersField);
+    wHeadersField.addModifyListener(lsMod);
+    FormData fdHeadersField = new FormData();
+    fdHeadersField.left = new FormAttachment(wlHeadersField, margin);
+    fdHeadersField.top = new FormAttachment(wlHeadersField, 0, SWT.CENTER);
+    fdHeadersField.right = new FormAttachment(100, 0);
+    wHeadersField.setLayoutData(fdHeadersField);
+    wHeadersField
+        .getCComboWidget()
+        .addListener(
+            SWT.FocusIn,
+            e ->
+                KafkaDialogHelper.populateFieldsList(
+                    variables, pipelineMeta, wHeadersField, transformName));
+
     FormData fdSetupComp = new FormData();
     fdSetupComp.left = new FormAttachment(0, 0);
     fdSetupComp.top = new FormAttachment(0, 0);
@@ -418,6 +444,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     wTopicField.setText(Const.NVL(meta.getTopicField(), ""));
     wKeyField.setText(Const.NVL(meta.getKeyField(), ""));
     wMessageField.setText(Const.NVL(meta.getMessageField(), ""));
+    wHeadersField.setText(Const.NVL(meta.getHeadersField(), ""));
 
     populateOptionsData();
     enableFields();
@@ -540,6 +567,21 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     }
 
     meta.setMessageField(wMessageField.getText());
+
+    if (!Utils.isEmpty(wHeadersField.getText()) && checkMissingField(wHeadersField.getText())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(
+              PKG,
+              "KafkaProducerOutputDialog.HeadersFieldNotExists.Message",
+              wHeadersField.getText()));
+      mb.setText(
+          BaseMessages.getString(PKG, CONST_KAFKA_PRODUCER_OUTPUT_DIALOG_FIELD_NOT_EXISTS_TITLE));
+      mb.open();
+      return;
+    }
+
+    meta.setHeadersField(wHeadersField.getText());
     meta.setOptions(KafkaDialogHelper.getConfig(optionsTable));
 
     transformName = wTransformName.getText();

@@ -121,6 +121,8 @@ import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
+import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
@@ -170,6 +172,12 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -309,6 +317,28 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /** True once pointer has moved past {@link #ACTION_DRAG_THRESHOLD_PX} and drag has started. */
   private boolean actionDragCommitted;
+
+  /**
+   * Display filters used while placing an action dragged from the context dialog (issue #3111).
+   * Create happens on mouse-up (drop), not on drag-start.
+   */
+  private Listener placementDragMoveFilter;
+
+  private Listener placementDragUpFilter;
+
+  private Listener placementDragKeyFilter;
+
+  /** Pending create action while the user drags from the context dialog onto the canvas. */
+  private GuiAction pendingPlacementAction;
+
+  /**
+   * Ghost action shown while dragging from the context dialog. Created on first move over the
+   * canvas so the icon is visible; removed if the drop is cancelled.
+   */
+  private ActionMeta pendingPlacementGhost;
+
+  /** Last hop highlighted as a split candidate during placement drag. */
+  private WorkflowHopMeta pendingPlacementLastHopSplit;
 
   protected int lastButton;
 
@@ -523,6 +553,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
       canvas.addMouseWheelListener(this::mouseScrolled);
+    } else {
+      // Hop Web: accept create actions dragged from the context dialog (HTML5/SWT DnD).
+      installContextDialogPlacementDropTarget();
     }
 
     hopGui.replaceKeyboardShortcutListeners(this);
@@ -722,7 +755,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // If we click on the start hop action or a forbidden action, then we don't have a
             // candidate hop, but we need to ignore this click to not start a drag operation
             if (hopCandidate != null) {
+              // The hop completes on mouseDown and clears startHopAction; without this, the
+              // following mouseUp would look like a plain action click and open the context dialog.
+              // Claim that release up front: completing the hop can put a dialog on screen - the
+              // hop exists already, the hop causes a loop - and a dialog runs its own event loop,
+              // which dispatches the release of this very click before we get back here.
+              avoidContextDialog = true;
               addCandidateAsHop();
+              if (avoidContextDialog && startHopAction != null) {
+                // The hop was not made, so the release is an ordinary one after all. Should it
+                // already have been handled from a dialog's event loop, the flag is cleared by now
+                // and has to stay that way, or it would swallow the next click.
+                avoidContextDialog = false;
+              }
             }
           } else if (event.button == 2 || (event.button == 1 && shift)) {
             // SHIFT CLICK is start of drag to create a new hop
@@ -890,12 +935,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // go away.
       //
       if (startHopAction != null) {
-        canvas.setData("mode", "null");
-        canvas.setData(START_HOP_NODE, null);
-        startHopAction = null;
-        hopCandidate = null;
-        endHopLocation = null;
-        lastClick = null;
+        cancelHopCandidate();
+        avoidContextDialog = true;
         redraw();
         return;
       }
@@ -1033,6 +1074,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     }
 
+    // A hop candidate released anywhere but on an action is abandoned. Cancel it here: nothing
+    // below completes it, so without this the canvas keeps drawing a hop nobody is drawing any
+    // more and the next click still works on a half-finished gesture.
+    //
+    if (startHopAction != null && workflowMeta.getAction(real.x, real.y, iconSize) == null) {
+      cancelHopCandidate();
+      lastButton = 0;
+      redraw();
+      return;
+    }
+
     // Quick new hop option? (drag from one action to another)
     //
     if (areaOwner != null && areaOwner.getAreaType() != null) {
@@ -1042,6 +1094,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // Mouse up while drawing a hop candidate
             addCandidateAsHop();
             redraw();
+            return;
           }
           break;
         case ACTION_NAME:
@@ -1172,6 +1225,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       endHopLocation = null;
       actionDragStartScreen = null;
       actionDragCommitted = false;
+      removePlacementDragFilters();
 
       updateGui();
     } else {
@@ -1257,6 +1311,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (avoidContextDialog) {
       avoidContextDialog = false;
       selectionRegion = null;
+      lastButton = 0;
       return;
     }
 
@@ -1382,6 +1437,431 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         this.openedContextDialog = false;
       }
+    }
+  }
+
+  /**
+   * Install a DropTarget so Hop Web can drop a context-dialog create action onto this canvas (issue
+   * #3111). Native Hop GUI uses Display-filter placement instead.
+   */
+  private void installContextDialogPlacementDropTarget() {
+    DropTarget dropTarget = new DropTarget(canvas, DND.DROP_COPY);
+    dropTarget.setTransfer(new Transfer[] {TextTransfer.getInstance()});
+    dropTarget.addDropListener(
+        new DropTargetAdapter() {
+          @Override
+          public void dragEnter(DropTargetEvent event) {
+            acceptPlacementDrop(event);
+          }
+
+          @Override
+          public void dragOperationChanged(DropTargetEvent event) {
+            acceptPlacementDrop(event);
+          }
+
+          @Override
+          public void dragOver(DropTargetEvent event) {
+            acceptPlacementDrop(event);
+          }
+
+          @Override
+          public void drop(DropTargetEvent event) {
+            if (!TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+              event.detail = DND.DROP_NONE;
+              return;
+            }
+            String actionId = ContextDialogPlacement.decodeActionId(event.data);
+            if (actionId == null) {
+              event.detail = DND.DROP_NONE;
+              return;
+            }
+            // DropTargetEvent x/y are relative to the Display in SWT/RAP — convert to canvas.
+            org.eclipse.swt.graphics.Point canvasPos = canvas.toControl(event.x, event.y);
+            boolean placed = placeFromContextDialogActionId(actionId, canvasPos.x, canvasPos.y);
+            if (placed) {
+              ContextDialogPlacement.markDropCompletedOnActiveDialog();
+              event.detail = DND.DROP_COPY;
+            } else {
+              event.detail = DND.DROP_NONE;
+            }
+          }
+
+          private void acceptPlacementDrop(DropTargetEvent event) {
+            if (event.currentDataType != null
+                && TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+              event.detail = DND.DROP_COPY;
+              event.feedback = DND.FEEDBACK_SELECT;
+            } else {
+              event.detail = DND.DROP_NONE;
+            }
+          }
+        });
+  }
+
+  /**
+   * Create a workflow action from a context-dialog action id at canvas coordinates (Hop Web DnD
+   * drop path for issue #3111).
+   *
+   * @return true if an action was created
+   */
+  public boolean placeFromContextDialogActionId(String actionId, int canvasX, int canvasY) {
+    GuiActionFavorites.KindAndPluginId resolved = GuiActionFavorites.resolveFromId(actionId);
+    if (resolved == null || resolved.kind() != GuiActionFavorites.Kind.WORKFLOW_ACTION) {
+      return false;
+    }
+    if (canvas == null || canvas.isDisposed()) {
+      return false;
+    }
+
+    Point location = placementLocationFromCanvas(canvasX, canvasY);
+    int half = Math.max(iconSize / 2, 1);
+    String pluginName = resolved.pluginId();
+    try {
+      IPlugin plugin =
+          PluginRegistry.getInstance()
+              .findPluginWithId(ActionPluginType.class, resolved.pluginId());
+      if (plugin != null && plugin.getName() != null) {
+        pluginName = plugin.getName();
+      }
+    } catch (Exception e) {
+      // Keep plugin id as name fallback.
+    }
+
+    ActionMeta actionMeta =
+        workflowActionDelegate.newAction(
+            workflowMeta, resolved.pluginId(), pluginName, false, location);
+    if (actionMeta == null) {
+      return false;
+    }
+
+    WorkflowHopMeta hop = findHop(location.x + half, location.y + half, actionMeta);
+    if (hop != null) {
+      int id = 0;
+      if (!hopGui.getProps().getAutoSplit()) {
+        MessageDialogWithToggle md =
+            new MessageDialogWithToggle(
+                hopShell(),
+                BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
+                BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
+                    + Const.CR
+                    + hop,
+                SWT.ICON_QUESTION,
+                new String[] {
+                  BaseMessages.getString(PKG, "System.Button.Yes"),
+                  BaseMessages.getString(PKG, "System.Button.No")
+                },
+                BaseMessages.getString(
+                    PKG, "HopGuiWorkflowGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
+                hopGui.getProps().getAutoSplit());
+        id = md.open();
+        hopGui.getProps().setAutoSplit(md.getToggleState());
+      }
+      if ((id & 0xFF) == 0) {
+        workflowActionDelegate.insertAction(workflowMeta, hop, actionMeta);
+      }
+    }
+
+    workflowMeta.unselectAll();
+    actionMeta.setSelected(true);
+    avoidContextDialog = true;
+    updateGui();
+    return true;
+  }
+
+  /**
+   * Start a placement drag from the context dialog (issue #3111). The dialog has already closed. A
+   * ghost action is created when the pointer first moves over the canvas so the icon is visible
+   * while dragging; it is committed on mouse-up or removed on cancel. Used by native Hop GUI (not
+   * Hop Web DnD).
+   *
+   * @param action the selected GuiAction (must be a placeable workflow-action create action)
+   * @return true if this graph accepted the placement gesture
+   */
+  public boolean beginPlacementDragFromAction(GuiAction action) {
+    GuiActionFavorites.KindAndPluginId resolved = GuiActionFavorites.resolveFromAction(action);
+    if (resolved == null || resolved.kind() != GuiActionFavorites.Kind.WORKFLOW_ACTION) {
+      return false;
+    }
+    if (canvas == null || canvas.isDisposed()) {
+      return true;
+    }
+
+    pendingPlacementAction = action;
+    pendingPlacementGhost = null;
+    pendingPlacementLastHopSplit = null;
+    avoidContextDialog = true;
+    canvas.setData("mode", "drag");
+    canvas.setFocus();
+    setCursor(hopGui.getDisplay().getSystemCursor(SWT.CURSOR_CROSS));
+    installPlacementDragFilters();
+    updatePendingPlacementPreview(hopGui.getDisplay());
+    return true;
+  }
+
+  private void installPlacementDragFilters() {
+    removePlacementDragFilters();
+    Display display = hopGui.getDisplay();
+    placementDragMoveFilter =
+        event -> {
+          if (event.type != SWT.MouseMove || pendingPlacementAction == null) {
+            return;
+          }
+          if (canvas == null || canvas.isDisposed()) {
+            cancelPendingPlacement();
+            return;
+          }
+          updatePendingPlacementPreview(display);
+        };
+    placementDragUpFilter =
+        event -> {
+          if (event.type != SWT.MouseUp || event.button != 1) {
+            return;
+          }
+          if (pendingPlacementAction == null) {
+            removePlacementDragFilters();
+            return;
+          }
+          event.doit = false;
+          finishPendingPlacementDrop(display);
+        };
+    placementDragKeyFilter =
+        event -> {
+          if (event.type == SWT.KeyDown && event.keyCode == SWT.ESC) {
+            event.doit = false;
+            cancelPendingPlacement();
+          }
+        };
+    display.addFilter(SWT.MouseMove, placementDragMoveFilter);
+    display.addFilter(SWT.MouseUp, placementDragUpFilter);
+    display.addFilter(SWT.KeyDown, placementDragKeyFilter);
+  }
+
+  private void updatePendingPlacementPreview(Display display) {
+    if (pendingPlacementAction == null || canvas == null || canvas.isDisposed()) {
+      return;
+    }
+
+    org.eclipse.swt.graphics.Point cursor = display.getCursorLocation();
+    org.eclipse.swt.graphics.Point canvasPos = display.map(null, canvas, cursor);
+    org.eclipse.swt.graphics.Rectangle bounds = canvas.getClientArea();
+    boolean overCanvas =
+        canvasPos.x >= 0
+            && canvasPos.y >= 0
+            && canvasPos.x < bounds.width
+            && canvasPos.y < bounds.height;
+
+    if (!overCanvas) {
+      setCursor(display.getSystemCursor(SWT.CURSOR_NO));
+      clearPendingPlacementHopSplitHighlight();
+      return;
+    }
+
+    setCursor(display.getSystemCursor(SWT.CURSOR_CROSS));
+    Point location = placementLocationFromCanvas(canvasPos.x, canvasPos.y);
+    int half = Math.max(iconSize / 2, 1);
+
+    if (pendingPlacementGhost == null) {
+      ensurePendingPlacementGhost(location);
+      if (pendingPlacementGhost == null) {
+        return;
+      }
+    } else {
+      PropsUi.setLocation(pendingPlacementGhost, location.x, location.y);
+    }
+
+    WorkflowHopMeta hi = findHop(location.x + half, location.y + half, pendingPlacementGhost);
+    if (hi != null) {
+      if (pendingPlacementLastHopSplit != null && pendingPlacementLastHopSplit != hi) {
+        pendingPlacementLastHopSplit.setSplit(false);
+      }
+      pendingPlacementLastHopSplit = hi;
+      hi.setSplit(true);
+    } else {
+      clearPendingPlacementHopSplitHighlight();
+    }
+
+    redraw();
+  }
+
+  private Point placementLocationFromCanvas(int canvasX, int canvasY) {
+    Point real = screen2real(canvasX, canvasY);
+    int half = Math.max(iconSize / 2, 1);
+    Point location = new Point(real.x - half, real.y - half);
+    if (location.x < 0) {
+      location.x = 0;
+    }
+    if (location.y < 0) {
+      location.y = 0;
+    }
+    return location;
+  }
+
+  private void ensurePendingPlacementGhost(Point location) {
+    GuiActionFavorites.KindAndPluginId resolved =
+        GuiActionFavorites.resolveFromAction(pendingPlacementAction);
+    if (resolved == null || resolved.kind() != GuiActionFavorites.Kind.WORKFLOW_ACTION) {
+      return;
+    }
+    ActionMeta actionMeta =
+        workflowActionDelegate.newAction(
+            workflowMeta, resolved.pluginId(), pendingPlacementAction.getName(), false, location);
+    if (actionMeta == null) {
+      return;
+    }
+    workflowMeta.unselectAll();
+    actionMeta.setSelected(true);
+    pendingPlacementGhost = actionMeta;
+    selectedAction = actionMeta;
+    currentAction = actionMeta;
+    selectedActions = workflowMeta.getSelectedActions();
+    canvas.setData("mode", "drag");
+    updateGui();
+  }
+
+  private void clearPendingPlacementHopSplitHighlight() {
+    if (pendingPlacementLastHopSplit != null) {
+      pendingPlacementLastHopSplit.setSplit(false);
+      pendingPlacementLastHopSplit = null;
+    }
+  }
+
+  private void finishPendingPlacementDrop(Display display) {
+    GuiAction action = pendingPlacementAction;
+    ActionMeta ghost = pendingPlacementGhost;
+    pendingPlacementAction = null;
+    pendingPlacementGhost = null;
+    removePlacementDragFilters();
+    setCursor(null);
+    if (canvas != null && !canvas.isDisposed()) {
+      canvas.setData("mode", "null");
+    }
+
+    if (action == null || canvas == null || canvas.isDisposed()) {
+      clearPendingPlacementHopSplitHighlight();
+      return;
+    }
+
+    org.eclipse.swt.graphics.Point cursor = display.getCursorLocation();
+    org.eclipse.swt.graphics.Point canvasPos = display.map(null, canvas, cursor);
+    org.eclipse.swt.graphics.Rectangle bounds = canvas.getClientArea();
+    boolean overCanvas =
+        canvasPos.x >= 0
+            && canvasPos.y >= 0
+            && canvasPos.x < bounds.width
+            && canvasPos.y < bounds.height;
+
+    if (!overCanvas) {
+      clearPendingPlacementHopSplitHighlight();
+      if (ghost != null) {
+        workflowActionDelegate.deleteAction(workflowMeta, ghost);
+      }
+      selectedAction = null;
+      currentAction = null;
+      selectedActions = null;
+      avoidContextDialog = true;
+      updateGui();
+      return;
+    }
+
+    Point location = placementLocationFromCanvas(canvasPos.x, canvasPos.y);
+    int half = Math.max(iconSize / 2, 1);
+
+    ActionMeta actionMeta = ghost;
+    if (actionMeta == null) {
+      GuiActionFavorites.KindAndPluginId resolved = GuiActionFavorites.resolveFromAction(action);
+      if (resolved == null || resolved.kind() != GuiActionFavorites.Kind.WORKFLOW_ACTION) {
+        return;
+      }
+      actionMeta =
+          workflowActionDelegate.newAction(
+              workflowMeta, resolved.pluginId(), action.getName(), false, location);
+      if (actionMeta == null) {
+        return;
+      }
+    } else {
+      PropsUi.setLocation(actionMeta, location.x, location.y);
+    }
+
+    boolean doSplit =
+        pendingPlacementLastHopSplit != null && pendingPlacementLastHopSplit.isSplit();
+    clearPendingPlacementHopSplitHighlight();
+    if (doSplit) {
+      WorkflowHopMeta hop = findHop(location.x + half, location.y + half, actionMeta);
+      if (hop != null) {
+        int id = 0;
+        if (!hopGui.getProps().getAutoSplit()) {
+          MessageDialogWithToggle md =
+              new MessageDialogWithToggle(
+                  hopShell(),
+                  BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
+                  BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
+                      + Const.CR
+                      + hop,
+                  SWT.ICON_QUESTION,
+                  new String[] {
+                    BaseMessages.getString(PKG, "System.Button.Yes"),
+                    BaseMessages.getString(PKG, "System.Button.No")
+                  },
+                  BaseMessages.getString(
+                      PKG, "HopGuiWorkflowGraph.Dialog.Option.SplitHop.DoNotAskAgain"),
+                  hopGui.getProps().getAutoSplit());
+          id = md.open();
+          hopGui.getProps().setAutoSplit(md.getToggleState());
+        }
+        if ((id & 0xFF) == 0) {
+          workflowActionDelegate.insertAction(workflowMeta, hop, actionMeta);
+        }
+      }
+    }
+
+    workflowMeta.unselectAll();
+    actionMeta.setSelected(true);
+    selectedAction = null;
+    currentAction = null;
+    selectedActions = null;
+    avoidContextDialog = true;
+    updateGui();
+  }
+
+  private void cancelPendingPlacement() {
+    ActionMeta ghost = pendingPlacementGhost;
+    pendingPlacementAction = null;
+    pendingPlacementGhost = null;
+    clearPendingPlacementHopSplitHighlight();
+    removePlacementDragFilters();
+    if (canvas != null && !canvas.isDisposed()) {
+      canvas.setData("mode", "null");
+    }
+    setCursor(null);
+    selectedAction = null;
+    currentAction = null;
+    selectedActions = null;
+    if (ghost != null) {
+      workflowActionDelegate.deleteAction(workflowMeta, ghost);
+    }
+    avoidContextDialog = true;
+    updateGui();
+  }
+
+  private void removePlacementDragFilters() {
+    Display display = hopGui.getDisplay();
+    if (display == null || display.isDisposed()) {
+      placementDragMoveFilter = null;
+      placementDragUpFilter = null;
+      placementDragKeyFilter = null;
+      return;
+    }
+    if (placementDragMoveFilter != null) {
+      display.removeFilter(SWT.MouseMove, placementDragMoveFilter);
+      placementDragMoveFilter = null;
+    }
+    if (placementDragUpFilter != null) {
+      display.removeFilter(SWT.MouseUp, placementDragUpFilter);
+      placementDragUpFilter = null;
+    }
+    if (placementDragKeyFilter != null) {
+      display.removeFilter(SWT.KeyDown, placementDragKeyFilter);
+      placementDragKeyFilter = null;
     }
   }
 
@@ -2176,8 +2656,26 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  /**
+   * Drop the hop that was being drawn. Every field the gesture touched goes back to its initial
+   * value, including the action the mouse went down on: a stale one makes the next mouse-up look
+   * like a click on that action.
+   */
+  private void cancelHopCandidate() {
+    canvas.setData("mode", "null");
+    canvas.setData(START_HOP_NODE, null);
+    startHopAction = null;
+    endHopAction = null;
+    endHopLocation = null;
+    hopCandidate = null;
+    forbiddenAction = null;
+    currentAction = null;
+  }
+
   public void clearSettings() {
     selectedAction = null;
+    currentAction = null;
+    endHopLocation = null;
     selectedNote = null;
     selectedActions = null;
     selectedNotes = null;

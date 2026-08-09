@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -97,6 +98,7 @@ import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.HopWebUrlHelper;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -156,6 +158,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -208,6 +211,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       "ExplorerPerspective-ContextMenu-10060-ExpandAll";
   public static final String CONTEXT_MENU_COLLAPSE_ALL =
       "ExplorerPerspective-ContextMenu-10070-CollapseAll";
+  public static final String CONTEXT_MENU_REFRESH_FOLDER =
+      "ExplorerPerspective-ContextMenu-10080-RefreshFolder";
   public static final String CONTEXT_MENU_OPEN = "ExplorerPerspective-ContextMenu-10100-Open";
   public static final String CONTEXT_MENU_OPEN_AS_TEXT =
       "ExplorerPerspective-ContextMenu-10101-OpenAsText";
@@ -296,11 +301,32 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Getter private List<IExplorerRefreshListener> refreshListeners;
   @Getter private List<IExplorerSelectionListener> selectionListeners;
   private List<IHopFileType> fileTypes;
+
+  /**
+   * Lower-case extension (no dot) → first matching file type; built once in {@link #loadFileTypes}.
+   */
+  private Map<String, IHopFileType> fileTypeByExtension = new HashMap<>();
+
+  /** Exact base name → type for filters that are not extension patterns (e.g. Dockerfile). */
+  private Map<String, IHopFileType> fileTypeByBaseName = new HashMap<>();
+
+  private IHopFileType folderFileType;
+  private IHopFileType genericFileType;
+  private final IHopFileType emptyFileType = new EmptyFileType();
   private Map<String, Image> typeImageMap;
   private Text searchText;
   private String filterText = "";
-  private SearchMatcher filterMatcher = new SearchMatcher("", false, false, true);
+
+  /** Substring matcher only — fuzzy scoring is too expensive for per-keystroke file filters. */
+  private SearchMatcher filterMatcher = new SearchMatcher("", false, false, false);
+
   private Map<String, Boolean> treeStateBeforeFilter = null;
+
+  /** In-memory project tree for fast filter re-applies without re-walking VFS. */
+  private final ExplorerTreeModel treeModel = new ExplorerTreeModel();
+
+  private final Runnable applyFilterRunnable = this::applyPendingFilter;
+  private static final int FILTER_DEBOUNCE_MS = 250;
 
   /** Last folder the user selected in the tree; used for scoped refresh. */
   private String lastSelectedFolderPath;
@@ -482,6 +508,63 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     // Keep as last in the list...
     fileTypes.add(new GenericFileType());
+    indexFileTypes();
+  }
+
+  /**
+   * Build O(1) extension and basename maps so tree painting does not probe every file type (and
+   * historically every probe opened a VFS object) for each of thousands of project files.
+   */
+  private void indexFileTypes() {
+    fileTypeByExtension = new HashMap<>();
+    fileTypeByBaseName = new HashMap<>();
+    folderFileType = null;
+    genericFileType = null;
+
+    for (IHopFileType type : fileTypes) {
+      if (type instanceof FolderFileType) {
+        folderFileType = type;
+        continue;
+      }
+      if (type instanceof GenericFileType) {
+        genericFileType = type;
+        continue;
+      }
+
+      String[] filters = type.getFilterExtensions();
+      if (filters == null) {
+        continue;
+      }
+      for (String filter : filters) {
+        if (Utils.isEmpty(filter)) {
+          continue;
+        }
+        for (String part : filter.split(";")) {
+          String token = part.trim();
+          if (token.isEmpty() || "*".equals(token)) {
+            continue;
+          }
+          if (token.startsWith("*.") && token.length() > 2) {
+            String ext = token.substring(2).toLowerCase(Locale.ROOT);
+            fileTypeByExtension.putIfAbsent(ext, type);
+          } else if (token.startsWith(".") && token.length() > 1 && token.indexOf('.', 1) < 0) {
+            // ".gitignore" style token used as exact base name elsewhere — also as extension-less
+            // name match
+            fileTypeByBaseName.putIfAbsent(token, type);
+          } else if (!token.contains("*")) {
+            // Exact base name: Dockerfile, config, README, ...
+            fileTypeByBaseName.putIfAbsent(token, type);
+          }
+        }
+      }
+    }
+
+    if (folderFileType == null) {
+      folderFileType = new FolderFileType();
+    }
+    if (genericFileType == null) {
+      genericFileType = new GenericFileType();
+    }
   }
 
   private void loadTypeImages(Composite parentComposite) {
@@ -581,28 +664,14 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     searchFormData.right = new FormAttachment(100, 0);
     searchText.setLayoutData(searchFormData);
 
-    // Add listener to filter tree on text change
+    // Debounced filter: rebuild only after typing pauses (see SearchEverywhereDialog).
+    searchText.addListener(SWT.Modify, event -> scheduleFilterApply());
+    // Enter applies immediately
     searchText.addListener(
-        SWT.Modify,
+        SWT.DefaultSelection,
         event -> {
-          String text = searchText.getText();
-          boolean wasFiltering = !Utils.isEmpty(filterText);
-          boolean willFilter = text != null && text.length() > 2;
-
-          // Save tree state before filtering starts
-          if (!wasFiltering && willFilter) {
-            saveTreeState();
-          }
-
-          // Only filter when we have more than 2 characters, otherwise show all
-          filterText = willFilter ? text : "";
-          filterMatcher = new SearchMatcher(filterText, false, false, true);
-          refresh();
-
-          // Restore tree state after filtering ends
-          if (wasFiltering && !willFilter) {
-            restoreTreeState();
-          }
+          cancelScheduledFilterApply();
+          applyPendingFilter();
         });
 
     // Create a composite with toolbar and tree for the border
@@ -699,6 +768,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           MenuItem createFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_CREATE_FOLDER);
           if (createFolderItem != null) {
             createFolderItem.setEnabled(selection.length == 1);
+          }
+
+          MenuItem refreshFolderItem = menuWidgets.findMenuItem(CONTEXT_MENU_REFRESH_FOLDER);
+          if (refreshFolderItem != null) {
+            // Scoped refresh needs a single selection so lastSelectedFolderPath is meaningful.
+            refreshFolderItem.setEnabled(selection.length == 1 && tif != null);
           }
 
           // Finding references is only meaningful for a single pipeline or workflow file.
@@ -997,7 +1072,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** Depth passed to {@link #refreshFolder} when loading children of {@code tif}. */
   private int childDepthForFolder(TreeItemFolder tif) {
-    return tif.path.equals(rootFolder) ? 0 : tif.depth + 1;
+    return ExplorerPathUtils.pathsEqual(tif.path, rootFolder) ? 0 : tif.depth + 1;
   }
 
   /**
@@ -2556,7 +2631,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   private boolean selectInTree(TreeItem item, String filename) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
-    if (tif != null && tif.path.equals(filename)) {
+    if (tif != null && ExplorerPathUtils.pathsEqual(tif.path, filename)) {
       tree.setSelection(tif.treeItem);
       tree.showItem(tif.treeItem);
       return true;
@@ -3104,6 +3179,31 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     tree.setRedraw(true);
   }
 
+  /**
+   * Context menu: refresh only the selected folder (or the parent of a selected file). Cheaper than
+   * toolbar F5 full rebuild; use when you know which folder changed.
+   */
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_REFRESH_FOLDER,
+      label = "i18n::ExplorerPerspective.Menu.RefreshFolder",
+      image = "ui/images/refresh.svg",
+      separator = true)
+  public void refreshFolderFromMenu() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length != 1) {
+      return;
+    }
+    TreeItemFolder tif = (TreeItemFolder) selection[0].getData();
+    if (tif == null) {
+      return;
+    }
+    // Ensure lastSelectedFolderPath matches the context-clicked item
+    recordSelectedFolderPath(tif, selection[0]);
+    refreshSelectedFolder();
+  }
+
   public void expandCollapse(TreeItem item, boolean expand) {
     if (item == null || item.isDisposed()) {
       return;
@@ -3303,24 +3403,270 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       if (Utils.isEmpty(searchText.getText())) {
         refresh();
       } else {
+        // Modify listener will apply the cleared filter (immediately via cancel + apply)
+        cancelScheduledFilterApply();
         searchText.setText("");
+        applyPendingFilter();
       }
     } else {
       filterText = "";
-      filterMatcher = new SearchMatcher("", false, false, true);
+      filterMatcher = new SearchMatcher("", false, false, false);
+      treeModel.clear();
       refresh();
     }
   }
 
+  /**
+   * Hard-refresh the explorer tree (toolbar / F5).
+   *
+   * <p>Always rebuilds from disk so files and folders created outside the current selection (for
+   * example by a running pipeline) become visible. Clears the filter index and re-lists folders via
+   * VFS with an explicit {@link FileObject#refresh()} so cached children do not hide new entries.
+   * Expand/collapse state is restored from {@link TreeMemory}.
+   *
+   * <p>For a cheaper single-folder update use {@link #refreshSelectedFolder()} (context menu).
+   */
   public void refresh() {
     determineRootFolderName(hopGui);
-    if (Utils.isEmpty(filterText)
-        && !Utils.isEmpty(lastSelectedFolderPath)
-        && isUnderCurrentRoot(lastSelectedFolderPath)) {
-      refreshSelectedFolder();
+    // Structural refresh invalidates the filter index and discards lazy tree snapshots
+    treeModel.clear();
+    if (!Utils.isEmpty(filterText)) {
+      // F5 while filtering: update git status, then re-index the full project once
+      for (IExplorerRefreshListener listener : refreshListeners) {
+        listener.beforeRefresh();
+      }
+      applyFilterFromModel();
       return;
     }
+    // Always full rebuild — scoped refresh left only for context menu / internal ops
     refreshEntireTree();
+  }
+
+  private void scheduleFilterApply() {
+    if (hopGui == null || hopGui.getDisplay() == null) {
+      return;
+    }
+    Display display = hopGui.getDisplay();
+    display.timerExec(-1, applyFilterRunnable);
+    display.timerExec(FILTER_DEBOUNCE_MS, applyFilterRunnable);
+  }
+
+  private void cancelScheduledFilterApply() {
+    if (hopGui == null || hopGui.getDisplay() == null) {
+      return;
+    }
+    hopGui.getDisplay().timerExec(-1, applyFilterRunnable);
+  }
+
+  /**
+   * Apply the current search box text to the explorer tree. Debounced from {@link SWT#Modify}; runs
+   * immediately on Enter or when clearing the filter programmatically.
+   */
+  private void applyPendingFilter() {
+    if (searchText == null || searchText.isDisposed()) {
+      return;
+    }
+
+    String text = searchText.getText();
+    boolean wasFiltering = !Utils.isEmpty(filterText);
+    boolean willFilter = text != null && text.length() > 2;
+
+    if (!wasFiltering && willFilter) {
+      saveTreeState();
+    }
+
+    filterText = willFilter ? text : "";
+    filterMatcher = new SearchMatcher(filterText, false, false, false);
+
+    if (willFilter) {
+      applyFilterFromModel();
+    } else {
+      // Leaving filter mode: full tree rebuild + restore expand state
+      treeModel.clear();
+      refreshEntireTree();
+      if (wasFiltering) {
+        restoreTreeState();
+      }
+    }
+  }
+
+  /**
+   * Rebuild the SWT tree from the in-memory model for the active filter. Does <em>not</em> fire
+   * {@link IExplorerRefreshListener#beforeRefresh()} (avoids re-running git status every
+   * keystroke).
+   */
+  private void applyFilterFromModel() {
+    try {
+      determineRootFolderName(hopGui);
+      ensureFullTreeModel();
+
+      if (tree == null || tree.isDisposed() || treeModel.isEmpty()) {
+        return;
+      }
+
+      tree.setRedraw(false);
+      try {
+        tree.removeAll();
+
+        ExplorerTreeModel.Node rootNode = treeModel.getRoot();
+        TreeItem rootItem = new TreeItem(tree, SWT.NONE);
+        rootItem.setText(Const.NVL(rootNode.getName(), ""));
+        IHopFileType fileType = getFileType(rootNode.getPath(), true);
+        setItemImage(rootItem, fileType);
+        callPaintListeners(tree, rootItem, rootNode.getPath(), rootNode.getName());
+        setTreeItemData(rootItem, rootNode.getPath(), rootNode.getName(), fileType, 0, true, true);
+
+        renderFilteredChildren(rootItem, rootNode, 0);
+        rootItem.setExpanded(true);
+        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
+      } finally {
+        tree.setRedraw(true);
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header"),
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"),
+          e);
+    }
+    updateSelection();
+  }
+
+  /**
+   * Ensure {@link #treeModel} holds a full project walk. One VFS scan is reused for subsequent
+   * filter keystrokes until a structural refresh invalidates the model.
+   */
+  private void ensureFullTreeModel() throws Exception {
+    determineRootFolderName(hopGui);
+    if (treeModel.isUsableFor(rootFolder)) {
+      return;
+    }
+
+    final Exception[] error = new Exception[1];
+    BusyIndicator.showWhile(
+        hopGui.getDisplay(),
+        () -> {
+          try {
+            ExplorerTreeModel.Node rootNode =
+                new ExplorerTreeModel.Node(rootFolder, Const.NVL(rootName, ""), true);
+            String metadataFolderName = resolveMetadataFolderName();
+            loadModelChildren(rootNode, metadataFolderName);
+            treeModel.setRoot(rootNode, true);
+          } catch (Exception e) {
+            error[0] = e;
+          }
+        });
+    if (error[0] != null) {
+      throw error[0];
+    }
+  }
+
+  private void loadModelChildren(ExplorerTreeModel.Node parent, String metadataFolderName)
+      throws Exception {
+    FileObject[] children;
+    try {
+      children = listChildrenFresh(parent.getPath());
+    } catch (Exception e) {
+      return;
+    }
+    if (children.length == 0) {
+      return;
+    }
+
+    Arrays.sort(children, Comparator.comparing(Object::toString));
+
+    for (boolean folder : new boolean[] {true, false}) {
+      for (FileObject child : children) {
+        String childName = child.getName().getBaseName();
+        if (shouldSkipExplorerChild(child, childName, metadataFolderName)) {
+          continue;
+        }
+        boolean isFolder;
+        try {
+          isFolder = child.isFolder();
+        } catch (Exception e) {
+          continue;
+        }
+        if (isFolder != folder) {
+          continue;
+        }
+
+        String childPath = HopVfs.getFilename(child);
+        ExplorerTreeModel.Node childNode =
+            new ExplorerTreeModel.Node(childPath, childName, isFolder);
+        parent.addChild(childNode);
+        if (isFolder) {
+          loadModelChildren(childNode, metadataFolderName);
+        }
+      }
+    }
+  }
+
+  private String resolveMetadataFolderName() {
+    String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
+    if (Utils.isEmpty(metadataFolder)) {
+      return null;
+    }
+    String resolvedMetadataFolder = hopGui.getVariables().resolve(metadataFolder);
+    if (Utils.isEmpty(resolvedMetadataFolder)) {
+      return null;
+    }
+    String normalizedMetadataFolder = resolvedMetadataFolder.replace('\\', '/');
+    int lastSlashIndex = normalizedMetadataFolder.lastIndexOf('/');
+    return (lastSlashIndex >= 0)
+        ? normalizedMetadataFolder.substring(lastSlashIndex + 1)
+        : normalizedMetadataFolder;
+  }
+
+  private boolean shouldSkipExplorerChild(
+      FileObject child, String childName, String metadataFolderName) {
+    boolean isMetadataFolderMatch =
+        !Utils.isEmpty(metadataFolderName) && metadataFolderName.equals(childName);
+    if (!showingHiddenFiles) {
+      try {
+        if (child.isHidden() || childName.startsWith(".") || isMetadataFolderMatch) {
+          return true;
+        }
+      } catch (Exception e) {
+        if (childName.startsWith(".") || isMetadataFolderMatch) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private void renderFilteredChildren(
+      TreeItem parentItem, ExplorerTreeModel.Node parentNode, int depth) throws HopException {
+    boolean filtering = ExplorerTreeModel.isFiltering(filterText);
+    for (ExplorerTreeModel.Node child : parentNode.getChildren()) {
+      if (!ExplorerTreeModel.isVisible(child, filterMatcher, filtering)) {
+        continue;
+      }
+
+      IHopFileType fileType = getFileType(child.getPath(), child.isFolder());
+      TreeItem childItem = new TreeItem(parentItem, SWT.NONE);
+      childItem.setText(child.getName());
+      setItemImage(childItem, fileType);
+
+      if (!child.isFolder() && !fileType.supportsOpening()) {
+        childItem.setForeground(hopGui.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+      } else {
+        childItem.setForeground(null);
+      }
+
+      callPaintListeners(tree, childItem, child.getPath(), child.getName());
+      setTreeItemData(
+          childItem, child.getPath(), child.getName(), fileType, depth, child.isFolder(), true);
+
+      if (child.isFolder()) {
+        renderFilteredChildren(childItem, child, depth + 1);
+        if (childItem.getItemCount() > 0) {
+          childItem.setExpanded(true);
+          TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, true);
+        }
+      }
+    }
   }
 
   /** True when {@code path} is the explorer root or a folder inside it. */
@@ -3328,13 +3674,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (Utils.isEmpty(path) || Utils.isEmpty(rootFolder)) {
       return false;
     }
-    if (path.equals(rootFolder)) {
+    if (ExplorerPathUtils.pathsEqual(path, rootFolder)) {
       return true;
     }
     return isDescendant(rootFolder, path);
   }
 
-  /** Refresh only the last selected folder, keeping the rest of the tree intact. */
+  /**
+   * Refresh only the last selected folder, keeping the rest of the tree intact. Used by the context
+   * menu and by internal operations (delete parent fix-up); toolbar F5 uses {@link #refresh()}.
+   */
   private void refreshSelectedFolder() {
     String folderPath = lastSelectedFolderPath;
     if (Utils.isEmpty(folderPath)
@@ -3452,7 +3801,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    */
   private void updateLastSelectedFolderAfterDelete(TreeItem treeItem) {
     TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
-    if (tif == null || !tif.path.equals(lastSelectedFolderPath)) {
+    if (tif == null || !ExplorerPathUtils.pathsEqual(tif.path, lastSelectedFolderPath)) {
       return;
     }
 
@@ -3497,7 +3846,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   private String getParentFolderPath(String path) {
-    if (Utils.isEmpty(path) || path.equals(rootFolder)) {
+    if (Utils.isEmpty(path) || ExplorerPathUtils.pathsEqual(path, rootFolder)) {
       return null;
     }
 
@@ -3525,6 +3874,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private void refreshEntireTree() {
     try {
       determineRootFolderName(hopGui);
+      // Lazy UI rebuild is independent of the filter index; clear so the next filter re-indexes.
+      if (Utils.isEmpty(filterText)) {
+        treeModel.clear();
+      }
 
       for (IExplorerRefreshListener listener : refreshListeners) {
         listener.beforeRefresh();
@@ -3537,7 +3890,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       //
       TreeItem rootItem = new TreeItem(tree, SWT.NONE);
       rootItem.setText(Const.NVL(rootName, ""));
-      IHopFileType fileType = getFileType(rootFolder);
+      IHopFileType fileType = getFileType(rootFolder, true);
       setItemImage(rootItem, fileType);
       callPaintListeners(tree, rootItem, rootFolder, rootName);
       setTreeItemData(rootItem, rootFolder, rootName, fileType, 0, true, true);
@@ -3616,18 +3969,73 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   public IHopFileType getFileType(String path) throws HopException {
+    return getFileType(path, null);
+  }
 
-    // get this list from the plugin registry...
-    //
-    for (IHopFileType hopFileType : fileTypes) {
-      // Only look at the extension of the file
-      //
-      if (hopFileType.isHandledBy(path, false)) {
-        return hopFileType;
+  /**
+   * Resolve the hop file type for a path. When {@code isFolder} is known (explorer listing), skip
+   * all extension probes for directories.
+   *
+   * @param path absolute path
+   * @param isFolder {@link Boolean#TRUE} / {@link Boolean#FALSE} when known, or {@code null}
+   */
+  public IHopFileType getFileType(String path, Boolean isFolder) throws HopException {
+    if (Boolean.TRUE.equals(isFolder)) {
+      return folderFileType != null ? folderFileType : new FolderFileType();
+    }
+
+    // Fast path: extension map (most project files)
+    String extension = HopFileTypeBase.extractExtension(path);
+    if (!Utils.isEmpty(extension)) {
+      IHopFileType byExt = fileTypeByExtension.get(extension);
+      if (byExt != null) {
+        return byExt;
       }
     }
 
-    return new EmptyFileType();
+    // Exact base-name types (Dockerfile, .gitignore, config, ...)
+    String baseName = HopFileTypeBase.extractBaseName(path);
+    if (!Utils.isEmpty(baseName)) {
+      IHopFileType byName = fileTypeByBaseName.get(baseName);
+      if (byName != null) {
+        return byName;
+      }
+    }
+
+    // Fallback for custom handlers not covered by the maps (should be rare)
+    if (fileTypes != null) {
+      for (IHopFileType hopFileType : fileTypes) {
+        if (hopFileType instanceof FolderFileType || hopFileType instanceof GenericFileType) {
+          continue;
+        }
+        if (hopFileType.isHandledBy(path, false)) {
+          return hopFileType;
+        }
+      }
+    }
+
+    if (Boolean.FALSE.equals(isFolder) || isFolder == null) {
+      return genericFileType != null ? genericFileType : emptyFileType;
+    }
+    return emptyFileType;
+  }
+
+  /**
+   * Resolve a folder and force a VFS re-list so external creates (pipelines, other processes) are
+   * visible. Commons VFS caches children on {@link FileObject} until {@link FileObject#refresh()}.
+   */
+  private FileObject[] listChildrenFresh(String path) throws Exception {
+    FileObject folder = HopVfs.getFileObject(path);
+    try {
+      folder.refresh();
+    } catch (Exception e) {
+      // Still attempt to list; some providers throw on refresh for missing/imaginary files
+      if (hopGui != null && hopGui.getLog() != null) {
+        hopGui.getLog().logDebug("VFS refresh failed for '" + path + "': " + e.getMessage());
+      }
+    }
+    FileObject[] children = folder.getChildren();
+    return children != null ? children : new FileObject[0];
   }
 
   private void refreshFolder(TreeItem item, String path, int depth) {
@@ -3639,117 +4047,88 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         child.dispose();
       }
 
-      FileObject fileObject = HopVfs.getFileObject(path);
-      FileObject[] children = fileObject.getChildren();
+      FileObject[] children = listChildrenFresh(path);
+      if (children.length == 0) {
+        return;
+      }
 
-      // Sort by full path ascending
-      Arrays.sort(children, Comparator.comparing(Object::toString));
+      String metadataFolderName = resolveMetadataFolderName();
+      String maxDepthString = ExplorerPerspectiveConfigSingleton.getConfig().getLazyLoadingDepth();
+      int maxDepth = Const.toInt(hopGui.getVariables().resolve(maxDepthString), 0);
 
-      String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
-      String metadataFolderName = null;
-      if (!Utils.isEmpty(metadataFolder)) {
-        String resolvedMetadataFolder = hopGui.getVariables().resolve(metadataFolder);
-        if (!Utils.isEmpty(resolvedMetadataFolder)) {
-          String normalizedMetadataFolder = resolvedMetadataFolder.replace('\\', '/');
-          int lastSlashIndex = normalizedMetadataFolder.lastIndexOf('/');
-          metadataFolderName =
-              (lastSlashIndex >= 0)
-                  ? normalizedMetadataFolder.substring(lastSlashIndex + 1)
-                  : normalizedMetadataFolder;
+      // Classify once (folder vs file), then sort each group — avoids the old two-pass scan that
+      // called isFolder() twice per child.
+      List<FileObject> folderChildren = new ArrayList<>(children.length / 4 + 1);
+      List<FileObject> fileChildren = new ArrayList<>(children.length);
+      for (FileObject child : children) {
+        String childName = child.getName().getBaseName();
+        if (shouldSkipExplorerChild(child, childName, metadataFolderName)) {
+          continue;
+        }
+        boolean isFolder;
+        try {
+          isFolder = child.isFolder();
+        } catch (Exception e) {
+          continue;
+        }
+        if (isFolder) {
+          folderChildren.add(child);
+        } else {
+          fileChildren.add(child);
         }
       }
 
-      for (boolean folder : new boolean[] {true, false}) {
-        for (FileObject child : children) {
+      Comparator<FileObject> byPath = Comparator.comparing(Object::toString);
+      folderChildren.sort(byPath);
+      fileChildren.sort(byPath);
 
-          String childName = child.getName().getBaseName();
-          boolean isMetadataFolderMatch =
-              !Utils.isEmpty(metadataFolderName) && metadataFolderName.equals(childName);
-
-          // Skip hidden files or folders
-          if (!showingHiddenFiles
-              && (child.isHidden() || childName.startsWith(".") || isMetadataFolderMatch)) {
-            continue;
-          }
-
-          if (child.isFolder() != folder) {
-            continue;
-          }
-
-          // Apply filter if search text is not empty
-          if (!Utils.isEmpty(filterText)
-              && !filterMatcher.matches(childName)
-              && !hasMatchingDescendant(child)) {
-            continue;
-          }
-
-          String childPath = HopVfs.getFilename(child);
-
-          IHopFileType fileType = getFileType(childPath);
-          TreeItem childItem = new TreeItem(item, SWT.NONE);
-          childItem.setText(childName);
-          setItemImage(childItem, fileType);
-
-          // Apply gray for non-openable files before paint listeners so listeners (e.g. git) can
-          // use gray variants when they see this styling
-          if (!folder && !fileType.supportsOpening()) {
-            childItem.setForeground(hopGui.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
-          } else {
-            childItem.setForeground(null);
-          }
-
-          callPaintListeners(tree, childItem, childPath, childName);
-          setTreeItemData(childItem, childPath, childName, fileType, depth, folder, true);
-
-          // Recursively add children
-          //
-          if (child.isFolder()) {
-            // What is the maximum depth to lazily load?
-            //
-            String maxDepthString =
-                ExplorerPerspectiveConfigSingleton.getConfig().getLazyLoadingDepth();
-            int maxDepth = Const.toInt(hopGui.getVariables().resolve(maxDepthString), 0);
-
-            // If filtering is active, we want to load and expand more to show matches
-            boolean isFiltering = !Utils.isEmpty(filterText);
-
-            if (depth + 1 <= maxDepth || isFiltering) {
-              // Remember folder data to expand easily
-              //
-              childItem.setData(
-                  new TreeItemFolder(
-                      childItem, childPath, childName, fileType, depth, folder, true));
-
-              // We actually load the content up to the desired depth
-              //
-              refreshFolder(childItem, childPath, depth + 1);
-
-              // Auto-expand if filtering and this folder has visible children
-              if (isFiltering && childItem.getItemCount() > 0) {
-                childItem.setExpanded(true);
-                TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, true);
-              }
-            } else {
-              // Remember folder data to expand easily
-              //
-              childItem.setData(
-                  new TreeItemFolder(
-                      childItem, childPath, childName, fileType, depth, folder, false));
-
-              // Create a new item to get the "expand" icon but without the content behind it.
-              // The folder just contains an empty item to show the expand icon.
-              //
-              new TreeItem(childItem, SWT.NONE);
-              childItem.setExpanded(false);
-            }
-          }
-        }
+      for (FileObject child : folderChildren) {
+        addExplorerTreeChild(item, child, depth, true, maxDepth);
+      }
+      for (FileObject child : fileChildren) {
+        addExplorerTreeChild(item, child, depth, false, maxDepth);
       }
 
     } catch (Exception e) {
       TreeItem treeItem = new TreeItem(item, SWT.NONE);
       treeItem.setText("!!Error refreshing folder!!");
       hopGui.getLog().logError("Error refresh folder '" + path + "'", e);
+    }
+  }
+
+  private void addExplorerTreeChild(
+      TreeItem parent, FileObject child, int depth, boolean folder, int maxDepth) throws Exception {
+    String childName = child.getName().getBaseName();
+    String childPath = HopVfs.getFilename(child);
+    IHopFileType fileType = getFileType(childPath, folder);
+
+    TreeItem childItem = new TreeItem(parent, SWT.NONE);
+    childItem.setText(childName);
+    setItemImage(childItem, fileType);
+
+    // Apply gray for non-openable files before paint listeners so listeners (e.g. git) can
+    // use gray variants when they see this styling
+    if (!folder && !fileType.supportsOpening()) {
+      childItem.setForeground(hopGui.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+    } else {
+      childItem.setForeground(null);
+    }
+
+    callPaintListeners(tree, childItem, childPath, childName);
+    setTreeItemData(childItem, childPath, childName, fileType, depth, folder, true);
+
+    if (folder) {
+      if (depth + 1 <= maxDepth) {
+        childItem.setData(
+            new TreeItemFolder(childItem, childPath, childName, fileType, depth, true, true));
+        refreshFolder(childItem, childPath, depth + 1);
+      } else {
+        childItem.setData(
+            new TreeItemFolder(childItem, childPath, childName, fileType, depth, true, false));
+        // Dummy child to show the expand icon without loading content
+        new TreeItem(childItem, SWT.NONE);
+        childItem.setExpanded(false);
+      }
     }
   }
 
@@ -3854,67 +4233,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     for (TreeItem child : item.getItems()) {
       restoreTreeItemState(child);
     }
-  }
-
-  /**
-   * Check if a folder has any descendants (files or folders) that match the filter text. This
-   * allows parent folders to be shown if any of their children match the filter.
-   *
-   * @param folder The folder to check
-   * @return true if the folder or any of its descendants match the filter
-   */
-  private boolean hasMatchingDescendant(FileObject folder) {
-    return hasMatchingDescendant(folder, 0, 10); // Limit search depth to 10 levels
-  }
-
-  /**
-   * Check if a folder has any descendants (files or folders) that match the filter text.
-   *
-   * @param folder The folder to check
-   * @param currentDepth The current recursion depth
-   * @param maxDepth The maximum depth to search
-   * @return true if the folder or any of its descendants match the filter
-   */
-  private boolean hasMatchingDescendant(FileObject folder, int currentDepth, int maxDepth) {
-    if (Utils.isEmpty(filterText)) {
-      return true;
-    }
-
-    // Limit recursion depth to avoid performance issues
-    if (currentDepth >= maxDepth) {
-      return false;
-    }
-
-    try {
-      if (!folder.isFolder()) {
-        return false;
-      }
-
-      FileObject[] children = folder.getChildren();
-      for (FileObject child : children) {
-        String childName = child.getName().getBaseName();
-
-        // Skip hidden files if needed
-        if (!showingHiddenFiles && (child.isHidden() || childName.startsWith("."))) {
-          continue;
-        }
-
-        // Check if this child matches
-        if (filterMatcher.matches(childName)) {
-          return true;
-        }
-
-        // Recursively check descendants
-        if (child.isFolder() && hasMatchingDescendant(child, currentDepth + 1, maxDepth)) {
-          return true;
-        }
-      }
-    } catch (Exception e) {
-      // If there's an error reading the folder, assume no match
-      return false;
-    }
-
-    return false;
   }
 
   /** Update de tab name, tooltip and set the tab bold if the file has changed and vice versa. */
@@ -4102,7 +4420,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   private TreeItem locateTreeItem(TreeItem item, String path) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
-    if (tif != null && tif.path.equals(path)) {
+    if (tif != null && ExplorerPathUtils.pathsEqual(tif.path, path)) {
       return item;
     }
 
@@ -4122,7 +4440,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   private TreeItem findTreeItem(TreeItem item, String filename) {
     TreeItemFolder tif = (TreeItemFolder) item.getData();
-    if (tif != null && tif.path.equals(filename)) {
+    if (tif != null && ExplorerPathUtils.pathsEqual(tif.path, filename)) {
       return tif.treeItem;
     }
     for (TreeItem child : item.getItems()) {

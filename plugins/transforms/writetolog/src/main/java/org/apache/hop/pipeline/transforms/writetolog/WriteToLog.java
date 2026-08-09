@@ -90,6 +90,14 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> {
       }
     } // end if first
 
+    // Building the message reads and formats every logged field, so only do it when the configured
+    // level is actually visible under the current log level. Otherwise this is per-row work whose
+    // result is thrown away in setLog().
+    if (!data.logLevel.isVisible(getLogChannel().getLogLevel())) {
+      putRow(getInputRowMeta(), row); // copy row to output
+      return true;
+    }
+
     StringBuilder out = new StringBuilder();
     out.append(
         Const.CR

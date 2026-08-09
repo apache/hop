@@ -141,6 +141,21 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
     return new ArrayList<>(set);
   }
 
+  /** Same provider order as {@link #load(String)}: child providers override parent projects. */
+  @Override
+  public String readVirtualPath(String name) throws HopException {
+    List<IHopMetadataProvider> providers = multiProvider.getProviders();
+    ListIterator<IHopMetadataProvider> providerIterator = providers.listIterator(providers.size());
+    while (providerIterator.hasPrevious()) {
+      IHopMetadataProvider provider = providerIterator.previous();
+      IHopMetadataSerializer<T> serializer = provider.getSerializer(managedClass);
+      if (serializer.exists(name)) {
+        return serializer.readVirtualPath(name);
+      }
+    }
+    throw new HopException("Object '" + name + "' does not exist");
+  }
+
   @Override
   public boolean exists(String name) throws HopException {
     for (IHopMetadataProvider provider : multiProvider.getProviders()) {

@@ -19,6 +19,9 @@ package org.apache.hop.ui.core.database.dialog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -58,6 +61,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -124,14 +128,17 @@ public class DatabaseExplorerDialog extends Dialog {
   private Tree wTree;
   private TreeItem tiTree;
 
-  private String tableName;
+  /** Updated on SWT.Expand/Collapse; used to detect native ">" handling vs DPI miss. */
+  private long lastTreeExpandCollapseNanos;
+
+  @Getter @Setter private String tableName;
 
   private final boolean justLook;
-  private String selectedSchema;
-  private String selectedTable;
+  @Getter @Setter private String selectedSchema;
+  @Setter private String selectedTable;
   private final List<DatabaseMeta> databases;
-  private boolean splitSchemaAndTable;
-  private String schemaName;
+  @Getter @Setter private boolean splitSchemaAndTable;
+  @Getter @Setter private String schemaName;
   private Composite buttonsComposite;
   private Button wOk;
   private Button bPrev;
@@ -178,10 +185,6 @@ public class DatabaseExplorerDialog extends Dialog {
     props = PropsUi.getInstance();
     log = new LogChannel("DBExplorer");
     dbcache = DbCache.getInstance();
-  }
-
-  public void setSelectedTable(String selectedTable) {
-    this.selectedTable = selectedTable;
   }
 
   public boolean open() {
@@ -249,11 +252,12 @@ public class DatabaseExplorerDialog extends Dialog {
     addRightButtons();
     refreshButtons(null);
 
-    // Tree
-    wTree = new HopTree(shell, SWT.SINGLE | SWT.BORDER /*| (multiple?SWT.CHECK:SWT.NONE)*/);
+    // Tree /*| (multiple?SWT.CHECK:SWT.NONE)*/
+    wTree = new HopTree(shell, SWT.SINGLE | SWT.BORDER);
     PropsUi.setLook(wTree);
     FormData fdTree = new FormData();
-    fdTree.left = new FormAttachment(0, 0); // To the right of the label
+    // To the right of the label
+    fdTree.left = new FormAttachment(0, 0);
     fdTree.top = new FormAttachment(toolBar, margin);
     fdTree.right = new FormAttachment(buttonsComposite, -margin);
     fdTree.bottom = new FormAttachment(wOk, -2 * margin);
@@ -268,14 +272,9 @@ public class DatabaseExplorerDialog extends Dialog {
 
     wTree.addListener(SWT.Selection, e -> refreshButtons(getSchemaTable()));
     wTree.addListener(SWT.DefaultSelection, this::openSchema);
-    wTree.addListener(
-        SWT.MouseDown,
-        e -> {
-          if (e.button == 3) // right click!
-          {
-            setTreeMenu();
-          }
-        });
+    wTree.addListener(SWT.Expand, e -> lastTreeExpandCollapseNanos = System.nanoTime());
+    wTree.addListener(SWT.Collapse, e -> lastTreeExpandCollapseNanos = System.nanoTime());
+    wTree.addListener(SWT.MouseDown, this::handleTreeMouseDown);
     shell.addListener(SWT.Close, e -> cancel());
 
     // Prevent resizing below the complete control layout (notably right-side action buttons).
@@ -405,7 +404,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bDDL2 = new Button(buttonsComposite, SWT.PUSH);
     bDDL2.setText(
         BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDLOTHER_CONN));
-    bDDL2.setEnabled(activeSchemaTable != null);
+    bDDL2.setEnabled(activeSchemaTable != null && databases != null);
     bDDL2.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -413,7 +412,6 @@ public class DatabaseExplorerDialog extends Dialog {
             getDDLForOther(activeSchemaTable);
           }
         });
-    bDDL2.setEnabled(databases != null);
     FormData ddl2Data = new FormData();
     ddl2Data.left = new FormAttachment(0, 0);
     ddl2Data.right = new FormAttachment(100, 0);
@@ -458,7 +456,8 @@ public class DatabaseExplorerDialog extends Dialog {
 
     FormData fdComposite = new FormData();
     fdComposite.right = new FormAttachment(100, 0);
-    fdComposite.top = new FormAttachment(0, toolBar.getBounds().height);
+    // Attach to the toolbar control (not a pixel snapshot of its height at creation time).
+    fdComposite.top = new FormAttachment(toolBar, 0);
     fdComposite.bottom = new FormAttachment(wOk, -2 * PropsUi.getMargin());
     buttonsComposite.setLayoutData(fdComposite);
   }
@@ -493,44 +492,59 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   private void refreshButtons(String table) {
+    // Avoid setText/layout while expanding folders: Windows DPI often misaligns the native
+    // expander hit target, and synchronous label updates during Selection can make clicks feel
+    // dead unless they land in the tiny gap between ">" and the folder icon.
+    boolean tableChanged = !Objects.equals(activeSchemaTable, table);
     activeSchemaTable = table;
-    bPrev.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_100, Const.NVL(table, "?")));
-    bPrev.setEnabled(table != null);
+    boolean hasTable = table != null;
+    boolean canGenerateDdlForOther = hasTable && databases != null;
 
-    bPrevN.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_N, Const.NVL(table, "?")));
-    bPrevN.setEnabled(table != null);
+    if (tableChanged) {
+      bPrev.setText(
+          BaseMessages.getString(
+              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_100, Const.NVL(table, "?")));
+      bPrevN.setText(
+          BaseMessages.getString(
+              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_PREVIEW_N, Const.NVL(table, "?")));
+      bCount.setText(
+          BaseMessages.getString(
+              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_SIZE, Const.NVL(table, "?")));
+      bShow.setText(
+          BaseMessages.getString(
+              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_LAYOUT, Const.NVL(table, "?")));
+      bDDL.setText(BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDL));
+      bDDL2.setText(
+          BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDLOTHER_CONN));
+      bSql.setText(
+          BaseMessages.getString(
+              PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_OPEN_SQL, Const.NVL(table, "?")));
+      bTruncate.setText(
+          BaseMessages.getString(
+              PKG, "DatabaseExplorerDialog.Menu.Truncate", Const.NVL(table, "?")));
+    }
 
-    bCount.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_SIZE, Const.NVL(table, "?")));
-    bCount.setEnabled(table != null);
+    bPrev.setEnabled(hasTable);
+    bPrevN.setEnabled(hasTable);
+    bCount.setEnabled(hasTable);
+    bShow.setEnabled(hasTable);
+    bDDL.setEnabled(hasTable);
+    bDDL2.setEnabled(canGenerateDdlForOther);
+    bSql.setEnabled(hasTable);
+    bTruncate.setEnabled(hasTable);
 
-    bShow.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_SHOW_LAYOUT, Const.NVL(table, "?")));
-    bShow.setEnabled(table != null);
-
-    bDDL.setText(BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDL));
-    bDDL.setEnabled(table != null);
-
-    bDDL2.setText(
-        BaseMessages.getString(PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_GEN_DDLOTHER_CONN));
-    bDDL2.setEnabled(table != null);
-
-    bSql.setText(
-        BaseMessages.getString(
-            PKG, CONST_DATABASE_EXPLORER_DIALOG_MENU_OPEN_SQL, Const.NVL(table, "?")));
-    bSql.setEnabled(table != null);
-
-    bTruncate.setText(
-        BaseMessages.getString(PKG, "DatabaseExplorerDialog.Menu.Truncate", Const.NVL(table, "?")));
-    bTruncate.setEnabled(table != null);
-
-    shell.layout(true, true);
+    if (!tableChanged || shell == null || shell.isDisposed()) {
+      return;
+    }
+    Display display = shell.getDisplay();
+    display.asyncExec(
+        () -> {
+          if (shell == null || shell.isDisposed()) {
+            return;
+          }
+          buttonsComposite.layout(true, true);
+          shell.layout(true, false);
+        });
   }
 
   private boolean getData() {
@@ -611,12 +625,12 @@ public class DatabaseExplorerDialog extends Dialog {
     TreeItem tiTab = new TreeItem(tiTree, SWT.NONE);
     tiTab.setImage(GuiResource.getInstance().getImageFolder());
     tiTab.setText(STRING_TABLES);
-    tiTab.setExpanded(true);
     for (String tabname : tabnames) {
       TreeItem newTab = new TreeItem(tiTab, SWT.NONE);
       newTab.setImage(GuiResource.getInstance().getImageTable());
       newTab.setText(tabname);
     }
+    tiTab.setExpanded(true);
     return tiTab;
   }
 
@@ -1061,6 +1075,9 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void openSchema(Event e) {
     TreeItem sel = (TreeItem) e.item;
+    if (sel == null) {
+      return;
+    }
 
     TreeItem up1 = sel.getParentItem();
     if (up1 != null) {
@@ -1079,60 +1096,95 @@ public class DatabaseExplorerDialog extends Dialog {
     }
   }
 
-  /**
-   * @return the schemaName
-   */
-  public String getSchemaName() {
-    return schemaName;
+  private void handleTreeMouseDown(Event e) {
+    if (e.button == 3) {
+      setTreeMenu();
+      return;
+    }
+    if (e.button != 1) {
+      return;
+    }
+
+    TreeItem item = wTree.getItem(new Point(e.x, e.y));
+    if (item == null) {
+      // Expander ">" is often outside getItem()'s hit box; resolve the row by Y.
+      item = findTreeItemAtY(e.y);
+    }
+    if (item == null || item.getItemCount() == 0) {
+      return;
+    }
+
+    Rectangle textBounds = item.getBounds(0);
+    Rectangle imageBounds = item.getImageBounds(0);
+    boolean inGutter = e.x < textBounds.x;
+    boolean onImage =
+        imageBounds != null && !imageBounds.isEmpty() && imageBounds.contains(e.x, e.y);
+    if (!inGutter && !onImage) {
+      return;
+    }
+
+    if (onImage) {
+      // Folder icon is outside the native expander hit target.
+      item.setExpanded(!item.getExpanded());
+      return;
+    }
+
+    // Gutter / ">": native may or may not handle the click (works at 100%, often misses at
+    // high DPI). Wait one display turn; only complement when Expand/Collapse did not fire
+    // around this click — avoids the expand-then-collapse race at 100%.
+    final TreeItem target = item;
+    final boolean expandedBefore = item.getExpanded();
+    final long mouseDownNanos = System.nanoTime();
+    wTree
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              if (target.isDisposed()) {
+                return;
+              }
+              long delta = lastTreeExpandCollapseNanos - mouseDownNanos;
+              // Native handled if Expand/Collapse fired just before or after MouseDown.
+              if (Math.abs(delta) < 100_000_000L) {
+                return;
+              }
+              if (target.getExpanded() != expandedBefore) {
+                return;
+              }
+              target.setExpanded(!expandedBefore);
+            });
   }
 
-  /**
-   * @param schema the schema name to set
-   */
-  public void setSchemaName(String schema) {
-    this.schemaName = schema;
+  private TreeItem findTreeItemAtY(int y) {
+    for (TreeItem root : wTree.getItems()) {
+      TreeItem found = findTreeItemAtY(root, y);
+      if (found != null) {
+        return found;
+      }
+    }
+    return null;
   }
 
-  /**
-   * @return the tableName
-   */
-  public String getTableName() {
-    return tableName;
-  }
-
-  /**
-   * @param name the table name to set
-   */
-  public void setTableName(String name) {
-    this.tableName = name;
-  }
-
-  /**
-   * @return the splitSchemaAndTable
-   */
-  public boolean isSplitSchemaAndTable() {
-    return splitSchemaAndTable;
-  }
-
-  /**
-   * @param splitSchemaAndTable the splitSchemaAndTable to set
-   */
-  public void setSplitSchemaAndTable(boolean splitSchemaAndTable) {
-    this.splitSchemaAndTable = splitSchemaAndTable;
-  }
-
-  /**
-   * @return the selectSchema
-   */
-  public String getSelectedSchema() {
-    return selectedSchema;
-  }
-
-  /**
-   * @param selectSchema the selectSchema to set
-   */
-  public void setSelectedSchema(String selectSchema) {
-    this.selectedSchema = selectSchema;
+  private static TreeItem findTreeItemAtY(TreeItem item, int y) {
+    Rectangle textBounds = item.getBounds(0);
+    Rectangle imageBounds = item.getImageBounds(0);
+    int top = textBounds.y;
+    int bottom = textBounds.y + textBounds.height;
+    if (imageBounds != null && !imageBounds.isEmpty()) {
+      top = Math.min(top, imageBounds.y);
+      bottom = Math.max(bottom, imageBounds.y + imageBounds.height);
+    }
+    if (y >= top && y < bottom) {
+      return item;
+    }
+    if (item.getExpanded()) {
+      for (TreeItem child : item.getItems()) {
+        TreeItem found = findTreeItemAtY(child, y);
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
   }
 
   public void setSelectedSchemaAndTable(String schema, String table) {

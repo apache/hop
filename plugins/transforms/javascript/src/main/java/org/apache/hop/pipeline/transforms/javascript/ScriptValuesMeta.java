@@ -164,7 +164,12 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
   }
 
   public ScriptValuesMeta(ScriptValuesMeta m) {
-    this();
+    // Deliberately not calling this(): the no-arg constructor seeds a default "Script 1" for new
+    // transforms, and copying on top of that would add one more phantom script on every clone.
+    //
+    super();
+    jsScripts = new ArrayList<>();
+    scriptFields = new ArrayList<>();
     this.optimizationLevel = m.optimizationLevel;
     this.languageVersion = m.languageVersion;
     m.jsScripts.forEach(s -> this.jsScripts.add(new ScriptValuesScript(s)));
@@ -291,10 +296,12 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     String strActiveEndScript = "";
 
     // Building the Scripts
+    boolean transformScriptFound = false;
     if (!jsScripts.isEmpty()) {
       for (ScriptValuesScript jsScript : jsScripts) {
         if (jsScript.isTransformScript()) {
           strActiveScript = jsScript.getScript();
+          transformScriptFound = true;
         } else if (jsScript.isStartScript()) {
           strActiveStartScriptName = jsScript.getName();
           strActiveStartScript = jsScript.getScript();
@@ -303,6 +310,17 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
           strActiveEndScript = jsScript.getScript();
         }
       }
+    }
+
+    // A transform script is what gets executed for every row. Without one the transform quietly
+    // does nothing at all, so report it here instead of letting it slip through unnoticed.
+    //
+    if (!transformScriptFound) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "ScriptValuesMetaMod.CheckResult.NoTransformScript"),
+              transformMeta));
     }
 
     if (prev != null && !strActiveScript.isEmpty()) {

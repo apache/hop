@@ -88,6 +88,12 @@ public class KafkaProducerOutputMeta
   private String keyField;
 
   @HopMetadataProperty(
+      key = "headersField",
+      injectionKey = "HEADERS_FIELD",
+      injectionKeyDescription = "KafkaProducerOutputMeta.Injection.HEADERS_FIELD")
+  private String headersField;
+
+  @HopMetadataProperty(
       key = "messageField",
       injectionKey = "MESSAGE_FIELD",
       injectionKeyDescription = "KafkaProducerOutputMeta.Injection.MESSAGE_FIELD")
@@ -112,6 +118,7 @@ public class KafkaProducerOutputMeta
     this.topic = m.topic;
     this.topicInField = m.topicInField;
     this.topicField = m.topicField;
+    this.headersField = m.headersField;
     this.keyField = m.keyField;
     this.messageField = m.messageField;
     m.options.forEach(option -> this.options.add(new KafkaOption(option)));

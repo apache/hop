@@ -501,7 +501,9 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
 
     // don't let any rows get deleted or added (this does not affect the read-only state of the
     // cells)
-    fieldsTable.setReadonly(true);
+    // The output name column is editable so fields can be renamed, and so the Headers field - which
+    // ships unnamed to keep existing pipelines unchanged - can be switched on from the dialog.
+    fieldsTable.setReadonly(false);
   }
 
   private void buildOptionsTable(Composite parentWidget) {
@@ -888,15 +890,35 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
       String outputType = row.getText(3);
       try {
         KafkaConsumerField.Name ref = KafkaConsumerField.Name.valueOf(kafkaName.toUpperCase());
-        KafkaConsumerField field =
-            new KafkaConsumerField(ref, outputName, KafkaConsumerField.Type.valueOf(outputType));
-        // meta.setField(field); TODO FIXME
+        KafkaConsumerField field = fieldFor(ref);
+        if (field != null) {
+          field.setOutputName(outputName);
+          if (StringUtils.isNotEmpty(outputType)) {
+            field.setOutputType(KafkaConsumerField.Type.valueOf(outputType));
+          }
+        }
       } catch (IllegalArgumentException e) {
         if (isDebug()) {
           logDebug(e.getMessage(), e);
         }
       }
     }
+  }
+
+  /**
+   * The metadata keeps one typed instance per Kafka field rather than a list, so an edited table
+   * row has to be written back onto the matching instance.
+   */
+  private KafkaConsumerField fieldFor(KafkaConsumerField.Name name) {
+    return switch (name) {
+      case KEY -> meta.getKeyField();
+      case MESSAGE -> meta.getMessageField();
+      case TOPIC -> meta.getTopicField();
+      case PARTITION -> meta.getPartitionField();
+      case OFFSET -> meta.getOffsetField();
+      case TIMESTAMP -> meta.getTimestampField();
+      case HEADERS -> meta.getHeadersField();
+    };
   }
 
   private void setTopicsFromTable() {

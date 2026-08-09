@@ -21,7 +21,6 @@ import static org.apache.hop.pipeline.transforms.formula.util.FormulaFieldsExtra
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -136,7 +135,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     int tempIndex = getInputRowMeta().size();
 
     if (isRowLevel()) {
-      logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(r));
+      logRowlevel("Read row #" + getLinesRead() + " : " + getInputRowMeta().getString(r));
     }
 
     Object[] outputRowData = RowDataUtil.resizeArray(r, data.outputRowMeta.size());
@@ -219,7 +218,8 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     putRow(data.outputRowMeta, outputRowData);
 
     if (isRowLevel()) {
-      logRowlevel("Wrote row #" + getLinesWritten() + " : " + Arrays.toString(r));
+      logRowlevel(
+          "Wrote row #" + getLinesWritten() + " : " + data.outputRowMeta.getString(outputRowData));
     }
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead());

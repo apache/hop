@@ -447,6 +447,11 @@ public class MarketplaceRepositoriesPanel {
     wlPass.setLayoutData(fdlPass);
     Text wPass = new Text(general, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wPass);
+    wPass.setText(Const.NVL(repo.getPassword(), ""));
+    String passwordTooltip =
+        BaseMessages.getString(PKG, "ManageRepositoriesDialog.Edit.Password.Tooltip");
+    wlPass.setToolTipText(passwordTooltip);
+    wPass.setToolTipText(passwordTooltip);
     FormData fdPass = new FormData();
     fdPass.left = new FormAttachment(middle, margin);
     fdPass.top = new FormAttachment(wlPass, 0, SWT.CENTER);
@@ -725,9 +730,9 @@ public class MarketplaceRepositoriesPanel {
           repo.setName(wName.getText().trim());
           repo.setUrl(wUrl.getText().trim());
           repo.setUsername(StringUtils.trimToNull(wUser.getText()));
-          if (StringUtils.isNotBlank(wPass.getText())) {
-            repo.setPassword(wPass.getText());
-          }
+          // Empty means no password: clearing the field removes a stored credential, which is the
+          // only way back to environment-only credentials for this repository.
+          repo.setPassword(StringUtils.trimToNull(wPass.getText()));
           repo.setEnabled(wEnabled.getSelection());
           repo.setPrimary(wPrimary.getSelection());
           repo.setBrowse(wBrowse.getSelection());

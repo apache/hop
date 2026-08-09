@@ -35,6 +35,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Only to verify that a Kettle SFTPPut step imports into a real SFTP connection. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-sftp</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

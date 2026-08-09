@@ -175,6 +175,8 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private Button wEnclBreaks;
 
+  private Button wNullIfNotEnclosed;
+
   private Label wlNrHeader;
   private Text wNrHeader;
 
@@ -483,31 +485,43 @@ public class TextFileInputDialog extends BaseTransformDialog
     checkCompressedFile();
   }
 
-  /*check the compressed extension of the first file in the archive and change the
-   * compression mode in the content tab depending on it*/
+  /**
+   * Optionally auto-select compression from filename extensions when the user has not already
+   * chosen a non-None compression (issue #3209). Does not override an explicit selection.
+   */
   private void checkCompressedFile() {
-    if (wFilenameList.getItemCount() > 0) {
-      for (int i = 0; i < wFilenameList.getItemCount(); i++) {
-        String[] fileRecord = wFilenameList.getItem(i);
-        String fileExtension = FilenameUtils.getExtension(fileRecord[i]);
-        Collection<ICompressionProvider> compProviders =
-            CompressionProviderFactory.getInstance().getCompressionProviders();
-        for (ICompressionProvider provider : compProviders) {
-          if (provider.getDefaultExtension() != null
-              && provider.getDefaultExtension().equals(fileExtension)) {
-            int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
+    // Preserve explicit Compression settings (GZip, Zip, ...). Only auto-detect when None/empty.
+    String current = Const.NVL(wCompression.getText(), "");
+    if (!Utils.isEmpty(current) && !"None".equalsIgnoreCase(current)) {
+      return;
+    }
+
+    if (wFilenameList.getItemCount() <= 0) {
+      return;
+    }
+
+    Collection<ICompressionProvider> compProviders =
+        CompressionProviderFactory.getInstance().getCompressionProviders();
+
+    for (int i = 0; i < wFilenameList.getItemCount(); i++) {
+      String[] fileRecord = wFilenameList.getItem(i);
+      if (fileRecord == null || fileRecord.length == 0 || Utils.isEmpty(fileRecord[0])) {
+        continue;
+      }
+      // Filename is always column 0 (not row index i)
+      String fileExtension = FilenameUtils.getExtension(fileRecord[0]);
+      for (ICompressionProvider provider : compProviders) {
+        if (provider.getDefaultExtension() != null
+            && provider.getDefaultExtension().equals(fileExtension)) {
+          int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
+          if (toBeSelected >= 0) {
             wCompression.select(toBeSelected);
-            return;
           }
+          return;
         }
       }
-      wCompression.select(
-          ArrayUtils.indexOf(
-              wCompression.getItems(),
-              CompressionProviderFactory.getInstance()
-                  .getCompressionProviderByName("None")
-                  .getName()));
     }
+    // No matching compressed extension: leave compression as None/empty (do not force select).
   }
 
   private void showFiles() {
@@ -982,6 +996,27 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdEscape.right = new FormAttachment(100, 0);
     wEscape.setLayoutData(fdEscape);
 
+    // Return null for empty values which are not enclosed
+    Label wlNullIfNotEnclosed = new Label(wContentComp, SWT.RIGHT);
+    wlNullIfNotEnclosed.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Label"));
+    wlNullIfNotEnclosed.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Tooltip"));
+    PropsUi.setLook(wlNullIfNotEnclosed);
+    FormData fdlNullIfNotEnclosed = new FormData();
+    fdlNullIfNotEnclosed.left = new FormAttachment(0, 0);
+    fdlNullIfNotEnclosed.top = new FormAttachment(wEscape, margin);
+    fdlNullIfNotEnclosed.right = new FormAttachment(middle, -margin);
+    wlNullIfNotEnclosed.setLayoutData(fdlNullIfNotEnclosed);
+    wNullIfNotEnclosed = new Button(wContentComp, SWT.CHECK);
+    wNullIfNotEnclosed.setToolTipText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.NullIfNotEnclosed.Tooltip"));
+    PropsUi.setLook(wNullIfNotEnclosed);
+    FormData fdNullIfNotEnclosed = new FormData();
+    fdNullIfNotEnclosed.left = new FormAttachment(middle, 0);
+    fdNullIfNotEnclosed.top = new FormAttachment(wlNullIfNotEnclosed, 0, SWT.CENTER);
+    wNullIfNotEnclosed.setLayoutData(fdNullIfNotEnclosed);
+
     // Addition Prepend file name
     Label wlPrependFileName = new Label(wContentComp, SWT.RIGHT);
     wlPrependFileName.setText(
@@ -989,7 +1024,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wlPrependFileName);
     FormData fdlPrependFileName = new FormData();
     fdlPrependFileName.left = new FormAttachment(0, 0);
-    fdlPrependFileName.top = new FormAttachment(wEscape, margin);
+    fdlPrependFileName.top = new FormAttachment(wNullIfNotEnclosed, margin);
     fdlPrependFileName.right = new FormAttachment(middle, -margin);
     wlPrependFileName.setLayoutData(fdlPrependFileName);
     wPrependFileName = new Button(wContentComp, SWT.CHECK);
@@ -2305,6 +2340,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wEnclosure.setText(Const.NVL(meta.getContent().getEnclosure(), ""));
     wEscape.setText(Const.NVL(meta.getContent().getEscapeCharacter(), ""));
     wEnclBreaks.setSelection(meta.getContent().isBreakInEnclosureAllowed());
+    wNullIfNotEnclosed.setSelection(meta.getContent().isNullIfNotEnclosed());
     wPrependFileName.setSelection(meta.getContent().isPrependFileName());
     wHeader.setSelection(meta.getContent().isHeader());
     wNrHeader.setText("" + meta.getContent().getNrHeaderLines());
@@ -2522,6 +2558,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.getContent().setEnclosure(wEnclosure.getText());
     meta.getContent().setEscapeCharacter(wEscape.getText());
     meta.getContent().setBreakInEnclosureAllowed(wEnclBreaks.getSelection());
+    meta.getContent().setNullIfNotEnclosed(wNullIfNotEnclosed.getSelection());
     meta.getContent().setRowLimit(Const.toLongExpanded(wLimit.getText(), 0L));
     meta.getContent().setFilenameField(wInclFilenameField.getText());
     meta.getContent().setRowNumberField(wInclRownumField.getText());

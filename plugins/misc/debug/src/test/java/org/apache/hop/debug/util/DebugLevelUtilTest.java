@@ -17,9 +17,11 @@
 
 package org.apache.hop.debug.util;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,27 @@ import org.apache.hop.debug.transform.TransformDebugLevel;
 import org.junit.jupiter.api.Test;
 
 class DebugLevelUtilTest {
+
+  /**
+   * "Clear custom logging" is offered on every transform and action, also on the ones in a pipeline
+   * or workflow that never had any custom logging - and those have no debug attributes group at
+   * all.
+   */
+  @Test
+  void clearingDebugLevelWithoutADebugGroupDoesNothing() {
+    assertDoesNotThrow(() -> DebugLevelUtil.clearDebugLevel(null, "MyTransform"));
+  }
+
+  @Test
+  void theDebugGroupIsCreatedOnDemand() {
+    Map<String, Map<String, String>> attributesMap = new HashMap<>();
+
+    Map<String, String> group = DebugLevelUtil.getOrCreateDebugGroup(attributesMap);
+    group.put("key", "value");
+
+    assertSame(group, DebugLevelUtil.getOrCreateDebugGroup(attributesMap));
+    assertEquals("value", attributesMap.get(Defaults.DEBUG_GROUP).get("key"));
+  }
 
   @Test
   void storeAndLoadTransformDebugLevelWithCode() throws Exception {

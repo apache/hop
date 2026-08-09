@@ -63,6 +63,15 @@ public class RowMeta implements IRowMeta {
   List<IValueMeta> valueMetaList;
   List<Integer> needRealClone;
 
+  /**
+   * Immutable view of {@link #valueMetaList}, replaced wholesale under the write lock whenever the
+   * list changes. Index and size lookups happen for every field of every row, so they read this
+   * instead of taking the read lock; a reader sees either the array from before a mutation or the
+   * one from after it, which is the same guarantee the read lock gave. Never null and never mutated
+   * in place - always replaced via {@link #refreshSnapshot()}.
+   */
+  private volatile IValueMeta[] snapshot;
+
   public RowMeta() {
     this(new ArrayList<>(), new RowMetaCache());
   }
@@ -81,6 +90,8 @@ public class RowMeta implements IRowMeta {
               iValueMeta, targetType == null ? iValueMeta.getType() : targetType));
     }
     this.needRealClone = rowMeta.needRealClone;
+    // the delegated constructor above snapshotted an empty list; republish now that it is filled
+    refreshSnapshot();
   }
 
   private RowMeta(List<IValueMeta> valueMetaList, RowMetaCache rowMetaCache) {
@@ -88,6 +99,16 @@ public class RowMeta implements IRowMeta {
     this.cache = rowMetaCache;
     this.valueMetaList = valueMetaList;
     this.needRealClone = new ArrayList<>();
+    refreshSnapshot();
+  }
+
+  /**
+   * Publish the current contents of {@link #valueMetaList} to {@link #snapshot}. Must be called
+   * while holding the write lock, after every change to the list, so that lock-free readers cannot
+   * observe a snapshot that disagrees with the list.
+   */
+  private void refreshSnapshot() {
+    snapshot = valueMetaList.toArray(new IValueMeta[0]);
   }
 
   @Override
@@ -193,6 +214,7 @@ public class RowMeta implements IRowMeta {
         cache.storeMapping(valueMeta.getName(), i);
       }
       this.needRealClone = null;
+      refreshSnapshot();
     } finally {
       lock.writeLock().unlock();
     }
@@ -203,12 +225,9 @@ public class RowMeta implements IRowMeta {
    */
   @Override
   public int size() {
-    lock.readLock().lock();
-    try {
-      return valueMetaList.size();
-    } finally {
-      lock.readLock().unlock();
-    }
+    // Read from the snapshot rather than taking the read lock: this runs for every field of every
+    // row, and the lock showed up as a measurable share of transform time.
+    return snapshot.length;
   }
 
   /**
@@ -274,6 +293,7 @@ public class RowMeta implements IRowMeta {
         valueMetaList.add(newMeta);
         cache.storeMapping(newMeta.getName(), sz);
         needRealClone = null;
+        refreshSnapshot();
       } finally {
         lock.writeLock().unlock();
       }
@@ -304,6 +324,7 @@ public class RowMeta implements IRowMeta {
         // backwards.
         cache.insertAtMapping(newMeta.getName(), index);
         needRealClone = null;
+        refreshSnapshot();
       } finally {
         lock.writeLock().unlock();
       }
@@ -318,15 +339,13 @@ public class RowMeta implements IRowMeta {
    */
   @Override
   public IValueMeta getValueMeta(int index) {
-    lock.readLock().lock();
-    try {
-      if ((index >= 0) && (index < valueMetaList.size())) {
-        return valueMetaList.get(index);
-      } else {
-        return null;
-      }
-    } finally {
-      lock.readLock().unlock();
+    // Snapshot read instead of the read lock, for the same reason as size(). Read the volatile
+    // once into a local so the bounds check and the access cannot straddle a mutation.
+    IValueMeta[] current = snapshot;
+    if ((index >= 0) && (index < current.length)) {
+      return current[index];
+    } else {
+      return null;
     }
   }
 
@@ -354,6 +373,7 @@ public class RowMeta implements IRowMeta {
         valueMetaList.set(index, newMeta);
         cache.replaceMapping(old.getName(), newMeta.getName(), index);
         needRealClone = null;
+        refreshSnapshot();
       } finally {
         lock.writeLock().unlock();
       }
@@ -913,6 +933,7 @@ public class RowMeta implements IRowMeta {
       valueMetaList.clear();
       cache.invalidate();
       needRealClone = null;
+      refreshSnapshot();
     } finally {
       lock.writeLock().unlock();
     }
@@ -940,6 +961,7 @@ public class RowMeta implements IRowMeta {
       valueMetaList.remove(index);
       cache.invalidate();
       needRealClone = null;
+      refreshSnapshot();
     } finally {
       lock.writeLock().unlock();
     }

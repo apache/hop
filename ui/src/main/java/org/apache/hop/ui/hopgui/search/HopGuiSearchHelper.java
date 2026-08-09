@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -520,6 +521,7 @@ public final class HopGuiSearchHelper {
   }
 
   /** A type group (Pipeline, Workflow, a metadata type, Variable, ...) within a section. */
+  @Getter
   public static final class SearchTypeGroup {
     private final String type;
     private final List<SearchObjectGroup> objects;
@@ -527,14 +529,6 @@ public final class HopGuiSearchHelper {
     private SearchTypeGroup(String type, List<SearchObjectGroup> objects) {
       this.type = type;
       this.objects = objects;
-    }
-
-    public String getType() {
-      return type;
-    }
-
-    public List<SearchObjectGroup> getObjects() {
-      return objects;
     }
   }
 

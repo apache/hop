@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Source of truth for marketplace-optional plugins (not bundled in hop-client).
+# Source of truth for the plugins the marketplace offers. Nearly all of them are not bundled in
+# hop-client; a plugin which does ship with the client can be listed here as well, so that slim
+# distributions can install it. The catalog reports such a plugin as installed, because that's
+# decided by the presence of its installPath.
 # full-client-env.yaml is generated from this list; GUI catalog loads it at runtime.
 # When moving a plugin out of the fat assembly, add an entry here only.
 
@@ -167,6 +170,14 @@ plugins:
     description: SalesForce (SFDC)
     installPath: plugins/tech/salesforce
     modulePath: plugins/tech/salesforce
+  - artifactId: hop-tech-sftp
+    name: SFTP
+    category: Technology
+    description: >-
+      Named SFTP connections usable as a VFS scheme in every transform and action, the SFTP Put
+      transform and the SFTP get/put actions. Also ships with hop-client.
+    installPath: plugins/tech/sftp
+    modulePath: plugins/tech/sftp
   - artifactId: hop-tech-avro
     name: Avro
     category: Technology

@@ -32,6 +32,9 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtErrorHandler;
 import org.eclipse.swt.widgets.Shell;
 
@@ -173,6 +176,18 @@ public class GuiContextUtil {
         shellDialogMap.remove(parent.getText());
         if (selectedAction != null) {
           final ContextDialog dialog = contextDialog;
+          // Placement drag (issue #3111):
+          // - Hop Web DnD: drop either created the item or was cancelled → never hand off to
+          //   Display-filter placement (RAP does not support that path).
+          // - Native: hand off to the graph for ghost icon + create-on-drop.
+          if (dialog.isPlacementDrag()) {
+            if (dialog.isPlacementCompletedByDrop() || EnvironmentUtils.getInstance().isWeb()) {
+              return false;
+            }
+            if (tryBeginPlacementDrag(selectedAction)) {
+              return false;
+            }
+          }
           HopGui.getInstance()
               .getDisplay()
               .asyncExec(
@@ -195,5 +210,19 @@ public class GuiContextUtil {
       new ErrorDialog(parent, "Error", "An error occurred handling action selection", e);
     }
     return false;
+  }
+
+  /**
+   * Start canvas placement drag for a create-transform / create-action GuiAction.
+   *
+   * @return true if the active graph accepted the placement drag
+   */
+  private boolean tryBeginPlacementDrag(GuiAction selectedAction) {
+    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+    if (pipelineGraph != null && pipelineGraph.beginPlacementDragFromAction(selectedAction)) {
+      return true;
+    }
+    HopGuiWorkflowGraph workflowGraph = HopGui.getActiveWorkflowGraph();
+    return workflowGraph != null && workflowGraph.beginPlacementDragFromAction(selectedAction);
   }
 }

@@ -46,6 +46,7 @@
         <module>parquet</module>
         <module>redis</module>
         <module>salesforce</module>
+        <module>sftp</module>
         <module>vault</module>
         <module>webdav</module>
     </modules>

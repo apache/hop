@@ -194,6 +194,30 @@ Credentials resolve most-specific first:
 Use the scoped form when more than one private repository is configured; the
 global pair cannot express two different tokens.
 
+Username and password resolve separately: an entry with only `username` set is
+combined with `HOP_MARKETPLACE_PASSWORD` from the environment. A mixed pair
+counts as deliberate — the anonymous retry below applies only when the entry
+supplies neither field.
+
+A `password` on a repository entry is stored obfuscated (`Encrypted 2be98afc…`,
+Hop's two-way password encoder) in `hop-config.json`, in exported repository
+definitions and in environment files. Older clear-text configurations are read
+as-is and re-encoded on the next save. Obfuscation is not encryption — the key
+is public — so to keep the secret out of the file use a variable instead:
+
+```json
+{ "id": "acme", "url": "https://nexus.example.org/repository/hop/", "password": "${ACME_TOKEN}" }
+```
+
+Variables and variable resolver expressions are stored as typed and resolved
+when the repository is contacted. Repositories are client-wide, so `${...}`
+resolves against client-level variables only: JVM system properties (`-D…`,
+e.g. via `HOP_OPTIONS`) and variables described in `hop-config.json` — not
+project/environment variables, and not plain shell exports (use the
+`HOP_MARKETPLACE_*` names for those). `#{resolver:…}` expressions go through the
+active metadata. One that is not set reaches the server unresolved; the 401
+message says so.
+
 The global pair is offered to **every** repository, including public ones, and
 ASF/Central answer unknown credentials with 401 rather than ignoring them. So a
 request that fails with 401/403 using credentials that came *only* from the

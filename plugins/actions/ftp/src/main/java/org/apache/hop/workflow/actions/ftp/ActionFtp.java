@@ -67,7 +67,8 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     image = "FTP.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
     keywords = "i18n::ActionFtp.keyword",
-    documentationUrl = "/workflow/actions/ftp.html")
+    documentationUrl = "/workflow/actions/ftp.html",
+    classLoaderGroup = "sftp")
 @Getter
 @Setter
 @SuppressWarnings("java:S1104")
