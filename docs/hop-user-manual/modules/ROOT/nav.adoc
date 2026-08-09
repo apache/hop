@@ -268,6 +268,7 @@ under the License.
 *** xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance]
 *** xref:pipeline/transforms/spark-lake-table-merge.adoc[Spark lake table merge]
 *** xref:pipeline/transforms/spark-lake-table-output.adoc[Spark lake table output]
+*** xref:pipeline/transforms/spark-sql.adoc[Spark SQL]
 *** xref:pipeline/transforms/splitfields.adoc[Split Fields]
 *** xref:pipeline/transforms/splitfieldtorows.adoc[Split fields to rows]
 *** xref:pipeline/transforms/splunkinput.adoc[Splunk input]
