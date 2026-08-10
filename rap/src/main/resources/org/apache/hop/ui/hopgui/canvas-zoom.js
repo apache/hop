@@ -90,27 +90,37 @@
         _findAndAttachCanvas: function() {
             var self = this;
             var attempts = 0;
-            var maxAttempts = 10;
+            var maxAttempts = 20;
+
+            var findCanvasElement = function() {
+                // Prefer the RAP widget id from Java (same approach as canvas-svg.js).
+                if (self._canvasId) {
+                    var widgetElement = document.getElementById(self._canvasId);
+                    if (widgetElement) {
+                        if (widgetElement.tagName === "CANVAS") {
+                            return widgetElement;
+                        }
+                        var nested = widgetElement.querySelector("canvas");
+                        if (nested) {
+                            return nested;
+                        }
+                    }
+                }
+                // Fallback: first large visible graph canvas
+                var allCanvases = document.querySelectorAll("canvas");
+                for (var i = 0; i < allCanvases.length; i++) {
+                    var c = allCanvases[i];
+                    var rect = c.getBoundingClientRect();
+                    if (rect.width > 500 && rect.height > 500 && c.offsetParent !== null) {
+                        return c;
+                    }
+                }
+                return null;
+            };
             
             var tryFindCanvas = function() {
                 attempts++;
-                
-                // Find the active/visible canvas - typically the one in the currently selected tab
-                // Look for canvas elements that are large and visible (not hidden)
-                var allCanvases = document.querySelectorAll('canvas');
-                var canvas = null;
-                
-                for (var i = 0; i < allCanvases.length; i++) {
-                    var c = allCanvases[i];
-                    // Check if canvas is large enough (graph canvases are typically > 500px)
-                    // and is visible (not display:none or visibility:hidden)
-                    var rect = c.getBoundingClientRect();
-                    if (rect.width > 500 && rect.height > 500 && 
-                        c.offsetParent !== null) { // offsetParent is null if element or ancestor is hidden
-                        canvas = c;
-                        break;
-                    }
-                }
+                var canvas = findCanvasElement();
                 
                 if (!canvas) {
                     if (attempts < maxAttempts) {
@@ -121,8 +131,9 @@
                     }
                 }
                 
-                // Check if this is a different canvas than the one we already have
-                if (self._canvas === canvas) {
+                // Same canvas element: still re-ensure the wheel listener (RAP may replace nodes).
+                if (self._canvas === canvas && self._wheelHandler) {
+                    self._applyCanvasSizeFix();
                     return;
                 }
                 
@@ -195,8 +206,9 @@
         events: ["zoom"],
         propertyHandler: {
             canvas: function(widget, value) {
-                // When canvas property is updated from Java, update _canvasId
+                // When canvas property is updated from Java, re-attach wheel to that canvas.
                 widget._canvasId = value;
+                widget._findAndAttachCanvas();
             }
         }
     });

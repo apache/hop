@@ -106,6 +106,7 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
@@ -2769,6 +2770,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                   false,
                   false);
           if (EnvironmentUtils.getInstance().isWeb()) {
+            // openFile / link navigation often uses setActiveFileTypeHandler without a full
+            // CTabFolder Selection cycle that paints; rebind the SVG canvas client here.
+            notifyZoomHandlerForActiveTab();
             updateWebUrlForActiveTab();
           }
           return;
@@ -4653,7 +4657,44 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         CanvasZoomHelper.notifyCanvasReady(zoomHandler);
       }
       CanvasSvgHelper.notifyCanvasReady(workflowGraph.getCanvas());
+    } else if (activeHandler instanceof HopGuiAbstractGraph abstractGraph) {
+      // Plugin model graphs (Data Vault, Business Vault, dimensional, source model, …)
+      // share the single Hop Web SVG renderer and zoom remote; re-bind on tab switch.
+      Object zoomHandler = getModelGraphZoomHandler(abstractGraph);
+      if (zoomHandler != null) {
+        CanvasZoomHelper.notifyCanvasReady(zoomHandler);
+      }
+      CanvasSvgHelper.notifyCanvasReady(abstractGraph.getCanvas());
+      if (!abstractGraph.isDisposed()) {
+        abstractGraph.redraw();
+      }
     }
+  }
+
+  /**
+   * Model graphs store the RAP zoom handler as a private/protected field (or getter). Resolve via
+   * reflection so Explorer does not depend on hop-datavault types.
+   */
+  private static Object getModelGraphZoomHandler(HopGuiAbstractGraph graph) {
+    if (graph == null) {
+      return null;
+    }
+    try {
+      return graph.getClass().getMethod("getCanvasZoomHandler").invoke(graph);
+    } catch (ReflectiveOperationException ignored) {
+      // fall through
+    }
+    Class<?> type = graph.getClass();
+    while (type != null && type != Object.class) {
+      try {
+        var field = type.getDeclaredField("canvasZoomHandler");
+        field.setAccessible(true);
+        return field.get(graph);
+      } catch (ReflectiveOperationException ignored) {
+        type = type.getSuperclass();
+      }
+    }
+    return null;
   }
 
   /**
