@@ -173,64 +173,14 @@ public class ModifyActionLogLevelExtensionPoint
                   final ActionDebugLevel debugLevel =
                       DebugLevelUtil.getActionDebugLevel(entryLevelMap, actionCopy.toString());
                   if (debugLevel != null) {
-                    // Set the debug level for this one...
-                    //
-                    log.setLogLevel(jobLogLevel);
-                    workflow.setLogLevel(jobLogLevel);
-
-                    // Set the debug level back to normal...
-                    //
-
-                    if (debugLevel.isLoggingResult()) {
-                      log.logMinimal("Action results: ");
-                      log.logMinimal("  - result=" + result.isResult());
-                      log.logMinimal("  - stopped=" + result.isStopped());
-                      log.logMinimal("  - linesRead=" + result.getNrLinesRead());
-                      log.logMinimal("  - linesWritten=" + result.getNrLinesWritten());
-                      log.logMinimal("  - linesInput=" + result.getNrLinesInput());
-                      log.logMinimal("  - linesOutput=" + result.getNrLinesOutput());
-                      log.logMinimal("  - linesRejected=" + result.getNrLinesRejected());
-                      log.logMinimal("  - result row count=" + result.getRows().size());
-                      log.logMinimal(
-                          "  - result files count=" + result.getResultFilesList().size());
-                    }
-                    if (debugLevel.isLoggingResultRows()) {
-                      log.logMinimal("Action result rows: ");
-                      for (RowMetaAndData rmad : result.getRows()) {
-                        log.logMinimal(" - " + rmad.toString());
-                      }
-                    }
-                    if (debugLevel.isLoggingResultFiles()) {
-                      log.logMinimal("Action result files: ");
-                      for (ResultFile resultFile : result.getResultFilesList()) {
-                        log.logMinimal(
-                            " - "
-                                + resultFile.getFile().toString()
-                                + " from "
-                                + resultFile.getOrigin()
-                                + " : "
-                                + resultFile.getComment()
-                                + " / "
-                                + resultFile.getTypeCode());
-                      }
-                    }
-                    if (debugLevel.isLoggingVariables() && action instanceof IVariables) {
-                      log.logMinimal("Action notable variables: ");
-
-                      IVariables variables = (IVariables) action;
-                      // See the variables set differently from the parent workflow
-                      for (String var : variables.getVariableNames()) {
-                        if (!variablesToIgnore.contains(var)) {
-                          String value = variables.getVariable(var);
-                          String refValue = referenceSpace.getVariable(var);
-
-                          if (refValue == null || !refValue.equals(value)) {
-                            // Something different!
-                            //
-                            log.logMinimal(" - " + var + "=" + value);
-                          }
-                        }
-                      }
+                    try {
+                      logRequestedInformation(
+                          log, debugLevel, action, result, referenceSpace, variablesToIgnore);
+                    } finally {
+                      // Set the debug level back to normal...
+                      //
+                      log.setLogLevel(jobLogLevel);
+                      workflow.setLogLevel(jobLogLevel);
                     }
                   }
                 }
@@ -241,6 +191,96 @@ public class ModifyActionLogLevelExtensionPoint
           });
     } catch (Exception e) {
       jobLog.logError("Unable to handle specific debug level for workflow", e);
+    }
+  }
+
+  /**
+   * Log the extra information that was asked for on this action: its result, its result rows, its
+   * result files and the variables it changed.
+   *
+   * <p>This has to happen before the log level of the action is put back to the level of the
+   * workflow. Doing it the other way around silently swallowed all of it whenever the workflow
+   * itself ran at a level that hides these messages, which is exactly the case in which someone
+   * sets a custom log level on a single action.
+   *
+   * <p>Everything here is logged with {@link ILogChannel#logMinimal(String)}, so the level is
+   * raised to at least {@link LogLevel#MINIMAL} first: the user explicitly ticked these options, so
+   * a workflow or custom log level of "Nothing" or "Error" should not hide them either.
+   *
+   * @param log the log channel of the action
+   * @param debugLevel the custom logging configuration of the action
+   * @param action the action that was executed
+   * @param result the result of the action
+   * @param referenceSpace the variables as they were at the start of the root workflow
+   * @param variablesToIgnore the variables that are never worth reporting
+   */
+  private static void logRequestedInformation(
+      ILogChannel log,
+      ActionDebugLevel debugLevel,
+      IAction action,
+      Result result,
+      IVariables referenceSpace,
+      Set<String> variablesToIgnore) {
+
+    if (!debugLevel.isLoggingResult()
+        && !debugLevel.isLoggingResultRows()
+        && !debugLevel.isLoggingResultFiles()
+        && !debugLevel.isLoggingVariables()) {
+      return;
+    }
+
+    if (!LogLevel.MINIMAL.isVisible(log.getLogLevel())) {
+      log.setLogLevel(LogLevel.MINIMAL);
+    }
+
+    if (debugLevel.isLoggingResult()) {
+      log.logMinimal("Action results: ");
+      log.logMinimal("  - result=" + result.isResult());
+      log.logMinimal("  - stopped=" + result.isStopped());
+      log.logMinimal("  - linesRead=" + result.getNrLinesRead());
+      log.logMinimal("  - linesWritten=" + result.getNrLinesWritten());
+      log.logMinimal("  - linesInput=" + result.getNrLinesInput());
+      log.logMinimal("  - linesOutput=" + result.getNrLinesOutput());
+      log.logMinimal("  - linesRejected=" + result.getNrLinesRejected());
+      log.logMinimal("  - result row count=" + result.getRows().size());
+      log.logMinimal("  - result files count=" + result.getResultFilesList().size());
+    }
+    if (debugLevel.isLoggingResultRows()) {
+      log.logMinimal("Action result rows: ");
+      for (RowMetaAndData rmad : result.getRows()) {
+        log.logMinimal(" - " + rmad.toString());
+      }
+    }
+    if (debugLevel.isLoggingResultFiles()) {
+      log.logMinimal("Action result files: ");
+      for (ResultFile resultFile : result.getResultFilesList()) {
+        log.logMinimal(
+            " - "
+                + resultFile.getFile().toString()
+                + " from "
+                + resultFile.getOrigin()
+                + " : "
+                + resultFile.getComment()
+                + " / "
+                + resultFile.getTypeCode());
+      }
+    }
+    if (debugLevel.isLoggingVariables() && action instanceof IVariables actionVariables) {
+      log.logMinimal("Action notable variables: ");
+
+      // See the variables set differently from the parent workflow
+      for (String var : actionVariables.getVariableNames()) {
+        if (!variablesToIgnore.contains(var)) {
+          String value = actionVariables.getVariable(var);
+          String refValue = referenceSpace.getVariable(var);
+
+          if (refValue == null || !refValue.equals(value)) {
+            // Something different!
+            //
+            log.logMinimal(" - " + var + "=" + value);
+          }
+        }
+      }
     }
   }
 }

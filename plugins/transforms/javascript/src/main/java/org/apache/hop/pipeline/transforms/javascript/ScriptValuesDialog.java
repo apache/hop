@@ -577,11 +577,12 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   }
 
   private void setActiveCtab(String strName) {
-    if (strName.isEmpty()) {
-      folder.setSelection(0);
-    } else {
-      folder.setSelection(getCTabPosition(strName));
-    }
+    // strName is null when none of the saved scripts is marked as the transform script, and
+    // getCTabPosition() returns -1 for a name that no longer matches a tab. Fall back to the
+    // first tab in both cases rather than blowing up while opening the dialog.
+    //
+    int position = Utils.isEmpty(strName) ? -1 : getCTabPosition(strName);
+    folder.setSelection(Math.max(position, 0));
   }
 
   private void addCtab(String cScriptName, String strScript, int iType) {
@@ -690,6 +691,31 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       }
     }
     return -1;
+  }
+
+  /**
+   * The script type is carried by the tab icon, which is what {@link #getInfo(ScriptValuesMeta)}
+   * writes out. Look it up the same way, so validation can never disagree with what gets saved.
+   */
+  private CTabItem getTransformScriptTab() {
+    for (CTabItem item : folder.getItems()) {
+      if (imageActiveScript.equals(item.getImage())) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  /** Make the given tab the one and only transform script. */
+  private void setTransformScriptTab(CTabItem target) {
+    for (CTabItem item : folder.getItems()) {
+      if (item == target) {
+        item.setImage(imageActiveScript);
+      } else if (imageActiveScript.equals(item.getImage())) {
+        item.setImage(imageInactiveScript);
+      }
+    }
+    strActiveScript = target.getText();
   }
 
   private CTabItem getCTabItemByName(String strTabName) {
@@ -957,14 +983,13 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     boolean bInputOK = false;
 
     // Check if Active Script has set, otherwise Ask
-    if (getCTabItemByName(strActiveScript) == null) {
+    if (getTransformScriptTab() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.CANCEL | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "ScriptValuesDialogMod.NoActiveScriptSet"));
       mb.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.ERROR.Label"));
       switch (mb.open()) {
         case SWT.OK:
-          strActiveScript = folder.getItem(0).getText();
-          refresh();
+          setTransformScriptTab(folder.getItem(0));
           bInputOK = true;
           break;
         case SWT.CANCEL:

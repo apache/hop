@@ -56,6 +56,31 @@ class FuzzyMatchMetaTest {
   }
 
   @Test
+  void testGetFieldsDistanceMeasureIsInteger() throws Exception {
+    for (FuzzyMatchMeta.Algorithm algorithm :
+        List.of(
+            FuzzyMatchMeta.Algorithm.LEVENSHTEIN,
+            FuzzyMatchMeta.Algorithm.DAMERAU_LEVENSHTEIN,
+            FuzzyMatchMeta.Algorithm.NEEDLEMAN_WUNSH)) {
+      FuzzyMatchMeta meta = new FuzzyMatchMeta();
+      meta.setCloserValue(true);
+      meta.setAlgorithm(algorithm);
+      meta.setOutputMatchField("match");
+      meta.setOutputValueField("measure value");
+
+      IRowMeta inputRowMeta = new RowMeta();
+      meta.getFields(inputRowMeta, "FuzzyMatch", null, null, new Variables(), null);
+
+      IValueMeta measure = inputRowMeta.searchValueMeta("measure value");
+      assertNotNull(measure);
+      assertEquals(
+          IValueMeta.TYPE_INTEGER,
+          measure.getType(),
+          "Algorithm " + algorithm + " should output Integer measure value");
+    }
+  }
+
+  @Test
   void testGetFieldsRename() throws Exception {
     FuzzyMatchMeta meta = new FuzzyMatchMeta();
     meta.setCloserValue(true);
