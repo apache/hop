@@ -21,7 +21,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.TestType;
@@ -41,15 +43,40 @@ public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged
 
     // Ignore all other metadata object changes
     //
-    if (!(object instanceof PipelineUnitTest)) {
+    if (!(object instanceof PipelineUnitTest test)) {
       return;
     }
-    PipelineUnitTest test = (PipelineUnitTest) object;
     PipelineMeta pipelineMeta = TestingGuiPlugin.getActivePipelineMeta();
-    if (pipelineMeta != null) {
-      test.setName(pipelineMeta.getName() + " UNIT");
-      test.setType(TestType.UNIT_TEST);
-      test.setRelativeFilename(HopGui.getInstance().getVariables(), pipelineMeta.getFilename());
+    if (pipelineMeta == null) {
+      return;
     }
+
+    test.setName(uniqueUnitTestName(pipelineMeta.getName()));
+    test.setType(TestType.UNIT_TEST);
+    test.setRelativeFilename(HopGui.getInstance().getVariables(), pipelineMeta.getFilename());
+  }
+
+  /**
+   * Build a default unit-test name that does not collide with an existing unit test.
+   *
+   * <p>{@code <pipeline> UNIT}, then {@code <pipeline> UNIT 2}, {@code UNIT 3}, ...
+   */
+  static String uniqueUnitTestName(String pipelineName) throws HopException {
+    String base = (Utils.isEmpty(pipelineName) ? "Pipeline" : pipelineName.trim()) + " UNIT";
+    HopGui hopGui = HopGui.getInstance();
+    if (hopGui == null || hopGui.getMetadataProvider() == null) {
+      return base;
+    }
+
+    IHopMetadataSerializer<PipelineUnitTest> serializer =
+        hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class);
+    if (!serializer.exists(base)) {
+      return base;
+    }
+    int n = 2;
+    while (serializer.exists(base + " " + n)) {
+      n++;
+    }
+    return base + " " + n;
   }
 }
