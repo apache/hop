@@ -4626,7 +4626,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
-    activeHandler.updateGui();
+    // Under Hop Web, CTabItem.setControl can fire focus/selection before tab data is set
+    // (plugin file openers, first tab, etc.). Avoid NPE during that race.
+    if (activeHandler != null) {
+      activeHandler.updateGui();
+    }
   }
 
   /** Notify the zoom handler when tab is switched (for web/RAP) */
