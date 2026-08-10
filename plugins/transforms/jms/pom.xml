@@ -75,5 +75,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Embedded broker so the provider is exercised against a real broker in unit tests. -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>
