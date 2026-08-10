@@ -39,6 +39,28 @@ class HopWebEntryPointTest {
   }
 
   @Test
+  void preservesBareNavigationKeysAsActiveOnly() {
+    // Canvas pan registers bare arrows/HOME as ACTIVE_KEYS; CANCEL would block caret movement in
+    // text fields (issue #7833). Modifier combos stay cancellable for app shortcuts.
+    String[] activeShortcuts = {
+      "ARROW_LEFT",
+      "ARROW_RIGHT",
+      "ARROW_UP",
+      "ARROW_DOWN",
+      "HOME",
+      "END",
+      "PAGE_UP",
+      "PAGE_DOWN",
+      "CTRL+ARROW_LEFT",
+      "CTRL+S"
+    };
+
+    String[] cancelledShortcuts = HopWebEntryPoint.buildCancelledKeyboardShortcuts(activeShortcuts);
+
+    assertArrayEquals(new String[] {"CTRL+ARROW_LEFT", "CTRL+S"}, cancelledShortcuts);
+  }
+
+  @Test
   void removesDuplicateCancelledShortcuts() {
     String[] cancelledShortcuts =
         HopWebEntryPoint.buildCancelledKeyboardShortcuts(
