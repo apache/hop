@@ -29,4 +29,9 @@ public class TextExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
     super(hopGui, perspective, explorerFile);
   }
+
+  @Override
+  protected String getLanguageId() {
+    return "plaintext";
+  }
 }

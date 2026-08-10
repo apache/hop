@@ -121,6 +121,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.raw.RawExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
@@ -471,8 +472,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               Control c = focusControl;
               while (c != null) {
                 Object data = c.getData(KEY_TAB_FOLDER);
-                if (data instanceof CTabFolder && isEditorTabFolder((Control) data)) {
-                  CTabFolder folder = (CTabFolder) data;
+                if (data instanceof CTabFolder folder && isEditorTabFolder((Control) data)) {
                   for (CTabItem item : folder.getItems()) {
                     if (item.getControl() == c) {
                       if (activeTabFolder != folder || folder.getSelection() != item) {
@@ -508,6 +508,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
     }
     // Keep as last in the list...
+    fileTypes.add(new RawExplorerFileType());
     fileTypes.add(new GenericFileType());
     indexFileTypes();
   }
@@ -4869,7 +4870,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     List<CTabFolder> docked = getDockedTabFolders();
-    CTabFolder target = docked.isEmpty() ? null : docked.get(0);
+    CTabFolder target = docked.isEmpty() ? null : docked.getFirst();
     if (target != null) {
       for (CTabItem item : detached.getItems()) {
         moveTabToFolder(item, target);
@@ -4889,7 +4890,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     detachedFolders.remove(folder);
     if (activeTabFolder == folder) {
       List<CTabFolder> docked = getDockedTabFolders();
-      activeTabFolder = docked.isEmpty() ? null : docked.get(0);
+      activeTabFolder = docked.isEmpty() ? null : docked.getFirst();
     }
     Shell shell = folder.getShell();
     if (shell != null && !shell.isDisposed()) {
@@ -5037,7 +5038,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     root.setLayoutData(new FormDataBuilder().fullSize().result());
     editorRoot = root;
     List<CTabFolder> leaves = getDockedTabFolders();
-    activeTabFolder = leaves.isEmpty() ? null : leaves.get(0);
+    activeTabFolder = leaves.isEmpty() ? null : leaves.getFirst();
     tabFolderWrapper.layout(true, true);
   }
 
