@@ -22,11 +22,11 @@ import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.GenericFileName;
-import org.apache.commons.vfs2.provider.sftp.SftpFileProvider;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.SftpFileProvider;
 
 /**
  * The plain SFTP provider of commons-vfs, driven by a named {@link SftpConnection} instead of by

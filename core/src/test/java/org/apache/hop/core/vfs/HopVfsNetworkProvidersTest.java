@@ -50,11 +50,6 @@ import org.apache.ftpserver.ssl.SslConfigurationFactory;
 import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
-import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
-import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.auth.password.AcceptAllPasswordAuthenticator;
-import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
-import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -63,16 +58,14 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Round-trip tests for the network VFS providers Hop registers by default: {@code http}, {@code
- * https}, {@code ftp}, {@code ftps}, {@code sftp}. Each is exercised against an embedded server so
- * we don't need external resources.
+ * https}, {@code ftp}, {@code ftps}. Each is exercised against an embedded server so we don't need
+ * external resources.
  */
 class HopVfsNetworkProvidersTest {
 
   private static final String KEYSTORE_PASSWORD = "hop-test-pass";
   private static final String FTP_USER = "tester";
   private static final String FTP_PASS = "secret";
-  private static final String SFTP_USER = "alice";
-  private static final String SFTP_PASS = "secret";
   private static String LOCALHOST;
 
   @TempDir static Path sharedRoot;
@@ -93,9 +86,6 @@ class HopVfsNetworkProvidersTest {
   private static FtpServer ftpsServer;
   private static Listener ftpsListener;
   private static int ftpsPort;
-
-  private static SshServer sshServer;
-  private static int sftpPort;
 
   static {
     try {
@@ -147,12 +137,8 @@ class HopVfsNetworkProvidersTest {
     ftpsListener = ftps.listener;
     ftpsPort = ftpsListener.getPort();
 
-    // SFTP
-    Path sftpHome = sharedRoot.resolve("sftp");
-    Files.createDirectories(sftpHome);
-    Files.writeString(sftpHome.resolve("greeting.txt"), "sftp-payload");
-    sshServer = startSftp(sftpHome);
-    sftpPort = sshServer.getPort();
+    // sftp:// is served by the SFTP plugin, not by core - see
+    // org.apache.hop.vfs.sftp.HopVfsSftpSchemeTest in plugins/tech/sftp.
   }
 
   @AfterAll
@@ -161,7 +147,6 @@ class HopVfsNetworkProvidersTest {
     if (httpsServer != null) httpsServer.stop(0);
     if (ftpServer != null) ftpServer.stop();
     if (ftpsServer != null) ftpsServer.stop();
-    if (sshServer != null) sshServer.stop();
     restoreSystemProperty("javax.net.ssl.trustStore", previousTrustStoreProperty);
     restoreSystemProperty("javax.net.ssl.trustStorePassword", previousTrustStorePasswordProperty);
     if (keyStorePath != null) Files.deleteIfExists(keyStorePath);
@@ -201,22 +186,6 @@ class HopVfsNetworkProvidersTest {
     ftps.setPassiveMode(opts, true);
     ftps.setDataChannelProtectionLevel(opts, FtpsDataChannelProtectionLevel.P);
     assertEquals("ftps-payload", readWithOptions(url, opts));
-  }
-
-  @Test
-  @DisplayName("sftp:// fetches a payload from an embedded Apache MINA SSHD server")
-  void sftpProviderReadsFromEmbeddedServer() throws Exception {
-    String url =
-        "sftp://"
-            + SFTP_USER
-            + ":"
-            + SFTP_PASS
-            + "@"
-            + LOCALHOST
-            + ":"
-            + sftpPort
-            + "/greeting.txt";
-    assertEquals("sftp-payload", readToString(url));
   }
 
   // --- helpers ---------------------------------------------------------------------------
@@ -322,23 +291,6 @@ class HopVfsNetworkProvidersTest {
     FtpServer server = serverFactory.createServer();
     server.start();
     return new FtpServerStart(server, listener);
-  }
-
-  private static SshServer startSftp(Path home) throws IOException {
-    SshServer sshd = SshServer.setUpDefaultServer();
-    sshd.setHost(LOCALHOST);
-    sshd.setPort(0);
-    sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(sharedRoot.resolve("hostkey.ser")));
-    sshd.setPasswordAuthenticator(AcceptAllPasswordAuthenticator.INSTANCE);
-    sshd.setFileSystemFactory(new VirtualFileSystemFactory(home));
-    sshd.setSubsystemFactories(Collections.singletonList(new SftpSubsystemFactory()));
-    // commons-vfs2's SFTP client doesn't actively close the session when the FileObject
-    // is closed; the server's default 10-minute IDLE_TIMEOUT would otherwise hold the
-    // test open. Drop it to a few seconds so the read returns promptly.
-    org.apache.sshd.core.CoreModuleProperties.IDLE_TIMEOUT.set(
-        sshd, java.time.Duration.ofSeconds(5));
-    sshd.start();
-    return sshd;
   }
 
   private static void restoreSystemProperty(String key, String previousValue) {
