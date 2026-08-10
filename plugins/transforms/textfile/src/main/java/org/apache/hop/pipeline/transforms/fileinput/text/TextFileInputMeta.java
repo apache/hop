@@ -539,28 +539,34 @@ public class TextFileInputMeta
         // ignore any errors here.
       }
     } else {
-      for (ITextFileInputField field : inputFields) {
-        int type = field.getType();
-        if (type == IValueMeta.TYPE_NONE) {
-          type = IValueMeta.TYPE_STRING;
-        }
-
+      // Building the file list hits the file system, which for a VFS location means a remote
+      // directory listing. It doesn't depend on the field being described, and its only use is
+      // prefixing the field names, so resolve it once and only when that prefix is asked for.
+      // getFields() runs on every transform thread during pipeline preparation, so doing this per
+      // field turned one listing into "fields x transforms" concurrent listings of the same folder.
+      //
+      String fileNameToPrepend = null;
+      if (content.prependFileName) {
         FileInputList fileInputList =
             FileInputList.createFileList(variables, fileInput.getInputFiles());
-        String fileNameToPrepend = null;
         if (fileInputList.nrOfFiles() > 0) {
           fileNameToPrepend = fileInputList.getFile(0).getName().getURI();
         } else if (!fileInputList.getNonExistentFiles().isEmpty()) {
           fileNameToPrepend = fileInputList.getNonExistentFiles().get(0).getName().getURI();
         }
         // When file list is empty (e.g. not required and missing), use fictional path for prepend
-        if (content.prependFileName
-            && fileNameToPrepend == null
-            && !fileInput.getInputFiles().isEmpty()) {
+        if (fileNameToPrepend == null && !fileInput.getInputFiles().isEmpty()) {
           String firstPath = variables.resolve(fileInput.getInputFiles().getFirst().getFileName());
           if (!Utils.isEmpty(firstPath)) {
             fileNameToPrepend = firstPath;
           }
+        }
+      }
+
+      for (ITextFileInputField field : inputFields) {
+        int type = field.getType();
+        if (type == IValueMeta.TYPE_NONE) {
+          type = IValueMeta.TYPE_STRING;
         }
 
         try {
