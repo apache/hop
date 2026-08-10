@@ -195,6 +195,59 @@ class WorkflowActionMoveFilesLocalTest {
         "File content should match source");
   }
 
+  @Test
+  void testMoveDoNothingWhenDestinationExists() throws IOException, HopException {
+    Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
+    Path destinationFile = destinationFolder.toPath().resolve("test.txt");
+    String originalContent = "original content";
+    Files.writeString(destinationFile, originalContent, StandardCharsets.UTF_8);
+
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFile.toString());
+    fileToMove.setDestinationFileFolder(destinationFile.toString());
+    action.getFilesToMove().add(fileToMove);
+    action.setDestinationIsAFile(true);
+    action.setIfFileExists("do_nothing");
+
+    Result result = action.execute(new Result(), 0);
+    assertTrue(result.isResult(), "Doing nothing on an existing destination is not an error");
+    assertEquals(
+        0, result.getNrErrors(), "Doing nothing on an existing destination is not an error");
+    assertTrue(Files.exists(sourceFile), "Source file should still exist");
+    assertEquals(
+        originalContent,
+        Files.readString(destinationFile, StandardCharsets.UTF_8),
+        "Destination content should be unchanged");
+  }
+
+  /**
+   * Workflows written before the option was serialized don't have an {@code <iffileexists>} tag at
+   * all. They used to fall back to "do nothing", see issue #7858.
+   */
+  @Test
+  void testMoveWithoutIfFileExistsOptionDoesNothing() throws IOException, HopException {
+    Path sourceFile = createTestFilePath(sourceFolder, "test.txt");
+    Path destinationFile = destinationFolder.toPath().resolve("test.txt");
+    String originalContent = "original content";
+    Files.writeString(destinationFile, originalContent, StandardCharsets.UTF_8);
+
+    ActionMoveFiles.FileToMove fileToMove = new ActionMoveFiles.FileToMove();
+    fileToMove.setSourceFileFolder(sourceFile.toString());
+    fileToMove.setDestinationFileFolder(destinationFile.toString());
+    action.getFilesToMove().add(fileToMove);
+    action.setDestinationIsAFile(true);
+    action.setIfFileExists(null);
+
+    Result result = action.execute(new Result(), 0);
+    assertTrue(result.isResult(), "A missing option should behave like 'do nothing'");
+    assertEquals(0, result.getNrErrors(), "A missing option should not report errors");
+    assertTrue(Files.exists(sourceFile), "Source file should still exist");
+    assertEquals(
+        originalContent,
+        Files.readString(destinationFile, StandardCharsets.UTF_8),
+        "Destination content should be unchanged");
+  }
+
   private Path createTestFilePath(File folder, String filename) throws IOException {
     Path filePath = folder.toPath().resolve(filename);
     Files.writeString(filePath, TEST_FILE_CONTENT, StandardCharsets.UTF_8);
