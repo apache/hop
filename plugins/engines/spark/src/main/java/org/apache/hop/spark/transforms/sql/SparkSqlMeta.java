@@ -88,8 +88,8 @@ public class SparkSqlMeta extends BaseTransformMeta<SparkSql, SparkSqlData> {
    * [A-Za-z0-9_]} become underscores, and a leading digit is prefixed with an underscore. Transform
    * names such as {@code "Read orders (raw)"} therefore become {@code "Read_orders__raw_"}.
    *
-   * <p>Callers that need a stable, readable name should set an explicit override in {@link
-   * #getViews()}.
+   * <p>Callers that need a stable, readable name should set an explicit override in the {@code
+   * views} list instead.
    */
   public static String defaultViewName(String transformName) {
     if (transformName == null || transformName.isEmpty()) {
