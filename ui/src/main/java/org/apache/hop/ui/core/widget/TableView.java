@@ -1712,13 +1712,25 @@ public class TableView extends Composite {
       final IRowMeta sourceRowMeta = buildTableSourceRowMeta(rowMeta, conversionRowMeta);
       List<Object[]> v = getTableItemsAsRows(items, sourceRowMeta);
 
+      // Keep TableItem#getData() across the rebuild so callers (e.g. ShowRowsDialog) can map a
+      // visual row back to an external buffer index after the user sorts a column.
+      final Object[] preservedData = new Object[items.length];
+      for (int i = 0; i < items.length; i++) {
+        preservedData[i] = items[i].getData();
+      }
+
       final int[] sortIndex = new int[] {sortField + 2};
 
-      // Sort the vector!
-      v.sort(
-          (r1, r2) -> {
+      // Sort indices so each row stays paired with its preserved widget data.
+      Integer[] order = new Integer[v.size()];
+      for (int i = 0; i < order.length; i++) {
+        order[i] = i;
+      }
+      Arrays.sort(
+          order,
+          (i1, i2) -> {
             try {
-              return conversionRowMeta.compare(r1, r2, sortIndex);
+              return conversionRowMeta.compare(v.get(i1), v.get(i2), sortIndex);
             } catch (HopValueException e) {
               throw new HopRuntimeException("Error comparing rows", e);
             }
@@ -1728,7 +1740,8 @@ public class TableView extends Composite {
       table.removeAll();
 
       // Refill the table
-      for (Object[] r : v) {
+      for (int origIdx : order) {
+        Object[] r = v.get(origIdx);
         TableItem item = new TableItem(table, SWT.NONE);
 
         String colorName = (String) r[0];
@@ -1754,6 +1767,10 @@ public class TableView extends Composite {
           if (string != null) {
             item.setText(j - 2, string);
           }
+        }
+
+        if (preservedData[origIdx] != null) {
+          item.setData(preservedData[origIdx]);
         }
       }
       table.setSortColumn(table.getColumn(this.sortField));
