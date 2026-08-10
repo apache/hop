@@ -176,6 +176,73 @@
         return { width: w, height: h };
     }
 
+    /**
+     * Hit-test nodes map (logical graph coords). Used when area list is empty/stale so plugin
+     * model cards still get client drag previews on the SVG effects layer.
+     */
+    function findNodeAt(nodes, graphX, graphY, props) {
+        if (!nodes) {
+            return null;
+        }
+        var fallback = (props && props.iconSize) ? props.iconSize : 32;
+        var best = null;
+        for (var name in nodes) {
+            if (!nodes.hasOwnProperty(name)) {
+                continue;
+            }
+            var n = nodes[name];
+            if (!n) {
+                continue;
+            }
+            var w = n.width > 0 ? n.width : fallback;
+            var h = n.height > 0 ? n.height : fallback;
+            if (graphX >= n.x && graphX < n.x + w && graphY >= n.y && graphY < n.y + h) {
+                // Prefer smaller (top-most) cards when overlapping.
+                if (!best || w * h < best.area) {
+                    best = { name: name, node: n, width: w, height: h, area: w * h };
+                }
+            }
+        }
+        return best;
+    }
+
+    /** Resize edge near a NOTE area (logical coords). Margin matches desktop/web hit testing. */
+    function noteResizeEdge(area, graphX, graphY) {
+        if (!area || area.areaType !== "NOTE") {
+            return null;
+        }
+        var m = 10;
+        var left = graphX <= area.x + m;
+        var right = graphX >= area.x + area.width - m;
+        var top = graphY <= area.y + m;
+        var bottom = graphY >= area.y + area.height - m;
+        if (left && top) {
+            return "nw-resize";
+        }
+        if (right && top) {
+            return "ne-resize";
+        }
+        if (left && bottom) {
+            return "sw-resize";
+        }
+        if (right && bottom) {
+            return "se-resize";
+        }
+        if (left) {
+            return "w-resize";
+        }
+        if (right) {
+            return "e-resize";
+        }
+        if (top) {
+            return "n-resize";
+        }
+        if (bottom) {
+            return "s-resize";
+        }
+        return null;
+    }
+
     function getCanvasWidget(canvasId) {
         if (!canvasId || typeof rap === "undefined") {
             return null;
@@ -237,6 +304,8 @@
         this._dragIconArea = null;
         this._dragStartPositions = null;
         this._dragNodes = null;
+        this._noteHandleRects = null;
+        this._hopLineEl = null;
         this._mousedownHandler = null;
         this._mouseupHandler = null;
         this._documentMouseMoveHandler = null;
@@ -408,6 +477,8 @@
                 if (!self._dragActive && !self._panActive && !self._navDragActive && !self._selectActive) {
                     self._lastHoverKey = null;
                     self._updateHoverChrome(null);
+                    self._clearNoteResizeHandles();
+                    self._clearHopLine();
                 }
             };
             this._mousedownHandler = function (event) {
@@ -527,15 +598,147 @@
                 });
         },
 
-        _updateHoverChrome: function (area) {
+        _updateHoverChrome: function (area, graphX, graphY) {
             if (!this._canvas) {
                 return;
             }
             if (this._panActive || this._navDragActive || this._dragActive) {
                 this._canvas.style.cursor = "grabbing";
+                this._clearNoteResizeHandles();
                 return;
             }
-            this._canvas.style.cursor = (area && area.hover) ? "pointer" : "";
+            // Note edges: resize cursors (do not use generic pointer on whole note).
+            if (area && area.areaType === "NOTE" && graphX != null && graphY != null) {
+                var edge = noteResizeEdge(area, graphX, graphY);
+                if (edge) {
+                    this._canvas.style.cursor = edge;
+                    this._drawNoteResizeHandles(area);
+                    return;
+                }
+                this._drawNoteResizeHandles(area);
+                this._canvas.style.cursor = "move";
+                return;
+            }
+            this._clearNoteResizeHandles();
+            // Name/link: hand. Icon body: default (move). Others: clear.
+            if (area && (area.areaType === "TRANSFORM_NAME" || area.areaType === "NOTE_LINK"
+                || area.areaType === "ACTION_NAME")) {
+                this._canvas.style.cursor = "pointer";
+            } else if (area && (area.areaType === "TRANSFORM_ICON" || area.areaType === "ACTION_ICON")) {
+                this._canvas.style.cursor = "default";
+            } else {
+                this._canvas.style.cursor = "";
+            }
+        },
+
+        _ensureNoteHandle: function (index) {
+            if (!this._noteHandleRects) {
+                this._noteHandleRects = [];
+            }
+            while (this._noteHandleRects.length <= index) {
+                var div = document.createElement("div");
+                div.style.position = "absolute";
+                div.style.boxSizing = "border-box";
+                div.style.pointerEvents = "none";
+                div.style.display = "none";
+                div.style.width = "8px";
+                div.style.height = "8px";
+                div.style.backgroundColor = "rgb(0, 93, 166)";
+                div.style.border = "1px solid rgb(255, 255, 255)";
+                this._effectsLayer.appendChild(div);
+                this._noteHandleRects.push(div);
+            }
+            return this._noteHandleRects[index];
+        },
+
+        _clearNoteResizeHandles: function () {
+            if (!this._noteHandleRects) {
+                return;
+            }
+            for (var i = 0; i < this._noteHandleRects.length; i++) {
+                this._noteHandleRects[i].style.display = "none";
+            }
+        },
+
+        _drawNoteResizeHandles: function (area) {
+            if (!area || !this._effectsLayer) {
+                return;
+            }
+            var props = this._getCanvasProps();
+            var screen = graphRectToScreen(area.x, area.y, area.width, area.height, props);
+            var hs = 8;
+            var positions = [
+                [screen.left - hs / 2, screen.top - hs / 2],
+                [screen.left + screen.width / 2 - hs / 2, screen.top - hs / 2],
+                [screen.left + screen.width - hs / 2, screen.top - hs / 2],
+                [screen.left + screen.width - hs / 2, screen.top + screen.height / 2 - hs / 2],
+                [screen.left + screen.width - hs / 2, screen.top + screen.height - hs / 2],
+                [screen.left + screen.width / 2 - hs / 2, screen.top + screen.height - hs / 2],
+                [screen.left - hs / 2, screen.top + screen.height - hs / 2],
+                [screen.left - hs / 2, screen.top + screen.height / 2 - hs / 2]
+            ];
+            for (var i = 0; i < positions.length; i++) {
+                var el = this._ensureNoteHandle(i);
+                el.style.display = "block";
+                el.style.left = Math.round(positions[i][0]) + "px";
+                el.style.top = Math.round(positions[i][1]) + "px";
+            }
+        },
+
+        _ensureHopLine: function () {
+            if (!this._hopLineEl && this._effectsLayer) {
+                var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.style.position = "absolute";
+                svg.style.left = "0";
+                svg.style.top = "0";
+                svg.style.width = "100%";
+                svg.style.height = "100%";
+                svg.style.pointerEvents = "none";
+                svg.style.overflow = "visible";
+                var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("stroke", "rgb(0, 93, 166)");
+                line.setAttribute("stroke-width", "2");
+                line.setAttribute("stroke-dasharray", "6,4");
+                svg.appendChild(line);
+                this._effectsLayer.appendChild(svg);
+                this._hopLineEl = { svg: svg, line: line };
+            }
+            return this._hopLineEl;
+        },
+
+        _clearHopLine: function () {
+            if (this._hopLineEl) {
+                this._hopLineEl.svg.style.display = "none";
+            }
+        },
+
+        _updateHopLine: function (screenX, screenY) {
+            var mode = getWidgetData(this._canvasId, "mode");
+            if (mode !== "hop") {
+                this._clearHopLine();
+                return;
+            }
+            var startName = getWidgetData(this._canvasId, "startHopNode");
+            var nodes = getWidgetData(this._canvasId, "nodes") || {};
+            var startNode = startName ? nodes[startName] : null;
+            if (!startNode) {
+                this._clearHopLine();
+                return;
+            }
+            var props = this._getCanvasProps();
+            var size = nodeSize(startNode, props, null);
+            var startScreen = graphRectToScreen(
+                startNode.x + size.width / 2,
+                startNode.y + size.height / 2,
+                0,
+                0,
+                props);
+            var hop = this._ensureHopLine();
+            hop.svg.style.display = "block";
+            hop.line.setAttribute("x1", Math.round(startScreen.left));
+            hop.line.setAttribute("y1", Math.round(startScreen.top));
+            hop.line.setAttribute("x2", Math.round(screenX));
+            hop.line.setAttribute("y2", Math.round(screenY));
         },
 
         _getCanvasProps: function () {
@@ -985,15 +1188,34 @@
             var rect = this._canvas.getBoundingClientRect();
             var screenX = event.clientX - rect.left;
             var screenY = event.clientY - rect.top;
+            // Prefer live widget props (includes mode/nodes) over last SVG snapshot props.
             var props = this._getCanvasProps();
+            var graphProps = props.magnification != null ? props : (this._props || props);
             if (event.button === 0 && props.viewPort && containsRect(props.viewPort, screenX, screenY)) {
                 this._beginNavDrag(screenX, screenY, props.viewPort);
                 return;
             }
-            var graph = graphCoords(screenX, screenY, this._props);
+            var graph = graphCoords(screenX, screenY, graphProps);
             var iconArea = this._areas.length
                 ? findIconAreaAt(this._areas, graph.x, graph.y)
                 : null;
+            var clickedName = iconArea ? iconOwnerName(iconArea) : null;
+
+            // Fallback: hit-test nodes map (plugin model cards). Areas may be empty/stale while
+            // nodes still carry correct logical positions and sizes.
+            if (!clickedName) {
+                var nodes = getWidgetData(this._canvasId, "nodes");
+                var hit = findNodeAt(nodes, graph.x, graph.y, graphProps);
+                if (hit) {
+                    clickedName = hit.name;
+                    iconArea = {
+                        x: hit.node.x,
+                        y: hit.node.y,
+                        width: hit.width,
+                        height: hit.height
+                    };
+                }
+            }
 
             if (this._isPanGesture(event)) {
                 if (!iconArea) {
@@ -1003,17 +1225,18 @@
             }
 
             if (event.button === 0 && !iconArea) {
+                // Note area: do not start lasso — server handles note drag/resize.
+                var noteArea = getVisibleArea(this._areas, graph.x, graph.y);
+                if (noteArea && noteArea.areaType === "NOTE") {
+                    return;
+                }
                 if (!props.viewPort || !containsRect(props.viewPort, screenX, screenY)) {
                     this._beginSelect(screenX, screenY);
                 }
                 return;
             }
 
-            if (event.button !== 0 || !this._areas.length || !iconArea) {
-                return;
-            }
-            var clickedName = iconOwnerName(iconArea);
-            if (!clickedName) {
+            if (event.button !== 0 || !clickedName || !iconArea) {
                 return;
             }
             this._beginDrag(clickedName, graph.x, graph.y, iconArea);
@@ -1073,13 +1296,19 @@
         },
 
         _handleMouseMove: function (event) {
-            if (!this._canvas || !this._remoteObject || !this._areas.length) {
+            if (!this._canvas || !this._remoteObject) {
                 return;
             }
             var rect = this._canvas.getBoundingClientRect();
             var screenX = event.clientX - rect.left;
             var screenY = event.clientY - rect.top;
-            var graph = graphCoords(screenX, screenY, this._props);
+            var props = this._getCanvasProps();
+            var graphProps = props.magnification != null ? props : (this._props || props);
+            var graph = graphCoords(screenX, screenY, graphProps);
+
+            // Relationship hop rubber-band on the SVG effects layer (above SVG; canvas.js is under).
+            this._updateHopLine(screenX, screenY);
+
             if (this._panActive) {
                 this._computePanOffset(screenX, screenY);
                 this._updatePanPreview();
@@ -1097,20 +1326,56 @@
                 this._updateDragPreview(graph.x, graph.y);
                 return;
             }
-            var props = this._getCanvasProps();
+            // Server armed drag (mode=drag) but client did not get a prior _beginDrag — start from
+            // selected nodes so outlines still appear while the button is held.
+            var mode = getWidgetData(this._canvasId, "mode");
+            if (mode === "drag" && (event.buttons === 1 || event.which === 1)) {
+                var nodes = getWidgetData(this._canvasId, "nodes") || {};
+                var hit = findNodeAt(nodes, graph.x, graph.y, graphProps);
+                var startName = hit ? hit.name : null;
+                if (!startName) {
+                    for (var n in nodes) {
+                        if (nodes.hasOwnProperty(n) && nodes[n] && nodes[n].selected) {
+                            startName = n;
+                            hit = {
+                                name: n,
+                                node: nodes[n],
+                                width: nodes[n].width || (graphProps.iconSize || 32),
+                                height: nodes[n].height || (graphProps.iconSize || 32)
+                            };
+                            break;
+                        }
+                    }
+                }
+                if (startName && hit) {
+                    this._beginDrag(startName, graph.x, graph.y, {
+                        x: hit.node.x,
+                        y: hit.node.y,
+                        width: hit.width,
+                        height: hit.height
+                    });
+                    this._updateDragPreview(graph.x, graph.y);
+                    return;
+                }
+            }
             if (props.viewPort && containsRect(props.viewPort, screenX, screenY)) {
                 this._canvas.style.cursor = "grab";
+                this._clearNoteResizeHandles();
                 return;
             }
-            var panMode = getWidgetData(this._canvasId, "mode");
+            var panMode = mode;
             if (panMode === "pan" && !this._panActive) {
                 this._beginPan(screenX, screenY);
                 return;
             }
-            var area = getVisibleArea(this._areas, graph.x, graph.y);
-            this._updateHoverChrome(area);
+            var area = this._areas.length
+                ? getVisibleArea(this._areas, graph.x, graph.y)
+                : null;
+            this._updateHoverChrome(area, graph.x, graph.y);
 
-            var hoverKey = area ? area.areaType + ":" + JSON.stringify(area.owner) : "";
+            var hoverKey = area
+                ? area.areaType + ":" + JSON.stringify(area.owner) + ":" + Math.round(graph.x / 4) + ":" + Math.round(graph.y / 4)
+                : "";
             if (hoverKey === this._lastHoverKey) {
                 return;
             }
