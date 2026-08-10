@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.CanvasSvgRenderResult;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.pipeline.canvas.PipelineCanvasSvgRenderer;
@@ -31,6 +32,7 @@ import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
 import org.apache.hop.ui.hopgui.canvas.CanvasInteractionHandler;
 import org.apache.hop.ui.hopgui.canvas.CanvasRenderSnapshot;
 import org.apache.hop.ui.hopgui.canvas.CanvasSvgRendererHandler;
+import org.apache.hop.ui.hopgui.shared.IWebCanvasGraph;
 import org.apache.hop.workflow.canvas.WorkflowCanvasSvgRenderer;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
@@ -63,7 +65,7 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
       DPoint offset) {
     try {
       CanvasSvgRenderResult result = PipelineCanvasSvgRenderer.render(context);
-      storeSnapshot(canvas, result, magnification, offset, context.canvasSize);
+      publishSnapshotInternal(canvas, result, magnification, offset, context.canvasSize);
       return result;
     } catch (HopException e) {
       LogChannel.UI.logError("Failed to render pipeline SVG for web canvas", e);
@@ -79,7 +81,7 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
       DPoint offset) {
     try {
       CanvasSvgRenderResult result = WorkflowCanvasSvgRenderer.render(context);
-      storeSnapshot(canvas, result, magnification, offset, context.canvasSize);
+      publishSnapshotInternal(canvas, result, magnification, offset, context.canvasSize);
       return result;
     } catch (HopException e) {
       LogChannel.UI.logError("Failed to render workflow SVG for web canvas", e);
@@ -87,12 +89,13 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
     }
   }
 
-  private void storeSnapshot(
+  @Override
+  void publishSnapshotInternal(
       Canvas canvas,
       CanvasSvgRenderResult result,
       float magnification,
       DPoint offset,
-      org.apache.hop.core.gui.Point canvasSize) {
+      Point canvasSize) {
     if (result == null) {
       return;
     }
@@ -169,11 +172,8 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
 
   /** Expose area list update for graph classes that populate areaOwners after render. */
   static void syncAreaOwnersToGraph(Object graph, List<AreaOwner> areaOwners) {
-    if (graph instanceof org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph pipelineGraph) {
-      pipelineGraph.replaceAreaOwners(areaOwners);
-    } else if (graph
-        instanceof org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph workflowGraph) {
-      workflowGraph.replaceAreaOwners(areaOwners);
+    if (graph instanceof IWebCanvasGraph webCanvasGraph) {
+      webCanvasGraph.replaceAreaOwners(areaOwners);
     }
   }
 }
