@@ -147,6 +147,14 @@
         if (area.owner.kind === "transform" || area.owner.kind === "action") {
             return area.owner.name;
         }
+        // Plugin model graphs (Data Vault, etc.) register TRANSFORM_ICON areas with a
+        // string owner serialized as kind "label" / value.
+        if (area.owner.kind === "label" && area.owner.value) {
+            return area.owner.value;
+        }
+        if (area.owner.name) {
+            return area.owner.name;
+        }
         return null;
     }
 
