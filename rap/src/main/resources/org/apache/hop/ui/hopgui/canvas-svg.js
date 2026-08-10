@@ -158,6 +158,24 @@
         return null;
     }
 
+    /** Logical width/height for a node; falls back to iconSize for pipeline icons. */
+    function nodeSize(node, props, area) {
+        var fallback = (props && props.iconSize) ? props.iconSize : 32;
+        var w = fallback;
+        var h = fallback;
+        if (node && node.width > 0) {
+            w = node.width;
+        } else if (area && area.width > 0) {
+            w = area.width;
+        }
+        if (node && node.height > 0) {
+            h = node.height;
+        } else if (area && area.height > 0) {
+            h = area.height;
+        }
+        return { width: w, height: h };
+    }
+
     function getCanvasWidget(canvasId) {
         if (!canvasId || typeof rap === "undefined") {
             return null;
@@ -655,10 +673,11 @@
                     var node = nodes[name];
                     var x = node.x;
                     var y = node.y;
-                    extendGraphBounds(graphBounds, x, y, iconSize, iconSize);
+                    var size = nodeSize(node, props, null);
+                    extendGraphBounds(graphBounds, x, y, size.width, size.height);
                     hasBounds = true;
                     var screen = graphRectToScreen(
-                        x - 1, y - 1, iconSize + 1, iconSize + 1, props, offsetX, offsetY);
+                        x - 1, y - 1, size.width + 1, size.height + 1, props, offsetX, offsetY);
                     var rect = this._ensureDragPreviewRect(previewIndex++);
                     rect.style.display = "block";
                     rect.style.left = Math.round(screen.left) + "px";
@@ -734,6 +753,7 @@
         _beginDrag: function (clickedName, graphX, graphY, iconArea) {
             this._dragActive = true;
             this._dragClickedName = clickedName;
+            this._dragIconArea = iconArea || null;
             this._dragIconOffset = {
                 x: graphX - iconArea.x,
                 y: graphY - iconArea.y
@@ -741,6 +761,16 @@
             this._captureDragNodes();
             if (!this._dragStartPositions[clickedName]) {
                 this._dragStartPositions[clickedName] = { x: iconArea.x, y: iconArea.y };
+            }
+            // Enrich node size from hit area when server nodes omit width/height.
+            if (this._dragNodes && this._dragNodes[clickedName] && iconArea) {
+                var n = this._dragNodes[clickedName];
+                if (!(n.width > 0) && iconArea.width > 0) {
+                    n.width = iconArea.width;
+                }
+                if (!(n.height > 0) && iconArea.height > 0) {
+                    n.height = iconArea.height;
+                }
             }
             this._lastHoverKey = null;
             this._updateHoverChrome(null);
@@ -756,6 +786,7 @@
             this._dragActive = false;
             this._dragClickedName = null;
             this._dragIconOffset = null;
+            this._dragIconArea = null;
             this._dragStartPositions = null;
             this._dragNodes = null;
             this._clearDragPreview();
@@ -802,7 +833,6 @@
             }
 
             var props = this._props || {};
-            var iconSize = props.iconSize || 32;
             var gridSize = props.showGrid ? (props.gridSize || 1) : 1;
             var clickedStart = this._dragStartPositions[this._dragClickedName];
             if (!clickedStart) {
@@ -839,7 +869,8 @@
 
                 var x = start.x + dx;
                 var y = start.y + dy;
-                var screen = graphRectToScreen(x - 1, y - 1, iconSize + 1, iconSize + 1, props);
+                var size = nodeSize(node, props, isClicked ? this._dragIconArea : null);
+                var screen = graphRectToScreen(x - 1, y - 1, size.width + 1, size.height + 1, props);
                 var rect = this._ensureDragPreviewRect(previewIndex++);
                 rect.style.display = "block";
                 rect.style.left = Math.round(screen.left) + "px";

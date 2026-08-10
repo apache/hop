@@ -122,12 +122,14 @@ const handleEvent = function (event) {
             x2 = x1;
             y2 = y1;
 
-            // Determine which node is clicked if any
+            // Determine which node is clicked if any (card width/height when present)
             const iconLogicalSize = (props ? Math.round(props.iconSize * magForDown) : 32) / magForDown;
             for (let key in nodes) {
                 const node = nodes[key];
-                if (node.x <= x1 && x1 < node.x + iconLogicalSize
-                    && node.y <= y1 && y1 < node.y + iconLogicalSize) {
+                const nw = (node.width > 0) ? node.width : iconLogicalSize;
+                const nh = (node.height > 0) ? node.height : iconLogicalSize;
+                if (node.x <= x1 && x1 < node.x + nw
+                    && node.y <= y1 && y1 < node.y + nh) {
                     clicked = node;
                     
                     // Calculate iconOffset: where within the icon did user click?
@@ -469,10 +471,13 @@ const handleEvent = function (event) {
             // Draw notes
             drawNotes(notes, gc, mode, dx, dy);
 
-            // Draw a new hop candidate line (matching desktop client style)
+            // Draw a new hop candidate line (matching desktop client style).
+            // Use node width/height when present (model cards); else pipeline icon size.
             if (mode === "hop" && hopStartNode) {
-                const startX = Math.round(fx(hopStartNode.x) + iconSize / 2);
-                const startY = Math.round(fy(hopStartNode.y) + iconSize / 2);
+                const hopW = (hopStartNode.width > 0) ? hopStartNode.width : props.iconSize;
+                const hopH = (hopStartNode.height > 0) ? hopStartNode.height : props.iconSize;
+                const startX = Math.round(fx(hopStartNode.x + hopW / 2));
+                const startY = Math.round(fy(hopStartNode.y + hopH / 2));
                 
                 // Use raw screen coordinates for the mouse position (not transformed)
                 const endX = mouseScreenX;
@@ -570,7 +575,26 @@ function drawGrid(gc, gridSize) {
     gc.globalAlpha = 1.0;  // Reset alpha
 }
 
+function nodeLogicalSize(node, defaultIconSize) {
+    const w = (node && node.width > 0) ? node.width : defaultIconSize;
+    const h = (node && node.height > 0) ? node.height : defaultIconSize;
+    return { width: w, height: h };
+}
+
+function nodeCenterScreen(node, x, y, defaultIconSize) {
+    const size = nodeLogicalSize(node, defaultIconSize);
+    return {
+        x: Math.round(fx(x + size.width / 2)),
+        y: Math.round(fy(y + size.height / 2))
+    };
+}
+
 function drawHops(hops, gc, mode, nodes, dx, iconSize, dy) {
+    if (!hops || !nodes) {
+        return;
+    }
+    // iconSize is magnified; convert back to logical default for width/height fallback.
+    const defaultLogicalIcon = (magnification > 0) ? (iconSize / magnification) : 32;
     // Set consistent stroke style for all hops
     gc.strokeStyle = fgColor;
     gc.lineWidth = 1;
@@ -597,11 +621,13 @@ function drawHops(hops, gc, mode, nodes, dx, iconSize, dy) {
                 x = snapToGrid(x);
                 y = snapToGrid(y);
             }
-            fromX = Math.round(fx(x) + iconSize / 2);
-            fromY = Math.round(fy(y) + iconSize / 2);
+            const c = nodeCenterScreen(fromNode, x, y, defaultLogicalIcon);
+            fromX = c.x;
+            fromY = c.y;
         } else {
-            fromX = Math.round(fx(fromNode.x) + iconSize / 2);
-            fromY = Math.round(fy(fromNode.y) + iconSize / 2);
+            const c = nodeCenterScreen(fromNode, fromNode.x, fromNode.y, defaultLogicalIcon);
+            fromX = c.x;
+            fromY = c.y;
         }
         
         // Calculate to coordinates (with client-side snapping when configured)
@@ -613,11 +639,13 @@ function drawHops(hops, gc, mode, nodes, dx, iconSize, dy) {
                 x = snapToGrid(x);
                 y = snapToGrid(y);
             }
-            toX = Math.round(fx(x) + iconSize / 2);
-            toY = Math.round(fy(y) + iconSize / 2);
+            const c = nodeCenterScreen(toNode, x, y, defaultLogicalIcon);
+            toX = c.x;
+            toY = c.y;
         } else {
-            toX = Math.round(fx(toNode.x) + iconSize / 2);
-            toY = Math.round(fy(toNode.y) + iconSize / 2);
+            const c = nodeCenterScreen(toNode, toNode.x, toNode.y, defaultLogicalIcon);
+            toX = c.x;
+            toY = c.y;
         }
         
         gc.moveTo(fromX, fromY);
@@ -627,10 +655,18 @@ function drawHops(hops, gc, mode, nodes, dx, iconSize, dy) {
 }
 
 function drawNodes(nodes, mode, dx, dy, gc, iconSize) {
+    if (!nodes) {
+        return;
+    }
+    // iconSize is magnified; logical default for cards without width/height.
+    const defaultLogicalIcon = (magnification > 0) ? (iconSize / magnification) : 32;
     for (let nodeName in nodes) {
         const node = nodes[nodeName];
         let x = node.x;
         let y = node.y;
+        const size = nodeLogicalSize(node, defaultLogicalIcon);
+        const screenW = Math.round(size.width * magnification) + 1;
+        const screenH = Math.round(size.height * magnification) + 1;
 
         // Move selected nodes with client-side snapping
         //
@@ -657,24 +693,27 @@ function drawNodes(nodes, mode, dx, dy, gc, iconSize) {
             gc.lineWidth = 1;
             gc.strokeStyle = nodeColor;
         }
-        // Use rounded screen coordinates for pixel-perfect rendering
-        drawRoundRectangle(gc, Math.round(fx(x - 1)), Math.round(fy(y - 1)), iconSize + 1, iconSize + 1, 8, 8, false);
+        // Use rounded screen coordinates for pixel-perfect rendering (card-sized when width/height set)
+        drawRoundRectangle(gc, Math.round(fx(x - 1)), Math.round(fy(y - 1)), screenW, screenH, 8, 8, false);
         gc.strokeStyle = fgColor;
         gc.lineWidth = 1;
 
-        // Draw node name
+        // Draw node name under the card/icon
         //
         gc.fillStyle = fgColor;
 
         // Calculate the font size and magnify it as well.
         //
         gc.fillText(nodeName,
-            Math.round(fx(x) + iconSize / 2 - gc.measureText(nodeName).width / 2),
-            Math.round(fy(y) + iconSize + 7));
+            Math.round(fx(x) + (size.width * magnification) / 2 - gc.measureText(nodeName).width / 2),
+            Math.round(fy(y) + size.height * magnification + 7));
     }
 }
 
 function drawNotes(notes, gc, mode, dx, dy) {
+    if (!notes) {
+        return;
+    }
     notes.forEach(function (note) {
         let noteX = note.x;
         let noteY = note.y;
