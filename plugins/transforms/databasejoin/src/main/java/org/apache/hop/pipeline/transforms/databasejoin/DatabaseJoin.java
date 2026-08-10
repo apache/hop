@@ -96,7 +96,6 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
       }
     }
-    final ResultSet rs;
     try {
       // Construct the parameters row...
       Object[] lookupRowData = new Object[data.lookupRowMeta.size()];

@@ -17,7 +17,6 @@
 
 package org.apache.hop.debug.transform;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -71,13 +70,8 @@ public class TransformDebugGuiPlugin {
       TransformMeta transformMeta = context.getTransformMeta();
       IVariables variables = context.getPipelineGraph().getVariables();
 
-      Map<String, Map<String, String>> attributesMap = pipelineMeta.getAttributesMap();
-      Map<String, String> debugGroupAttributesMap = attributesMap.get(Defaults.DEBUG_GROUP);
-
-      if (debugGroupAttributesMap == null) {
-        debugGroupAttributesMap = new HashMap<>();
-        attributesMap.put(Defaults.DEBUG_GROUP, debugGroupAttributesMap);
-      }
+      Map<String, String> debugGroupAttributesMap =
+          DebugLevelUtil.getOrCreateDebugGroup(pipelineMeta.getAttributesMap());
 
       TransformDebugLevel debugLevel =
           DebugLevelUtil.getTransformDebugLevel(debugGroupAttributesMap, transformMeta.getName());
@@ -85,10 +79,14 @@ public class TransformDebugGuiPlugin {
         debugLevel = new TransformDebugLevel();
       }
 
-      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+      // The fields a condition can be built on are the fields the condition is evaluated against
+      // at runtime: the incoming fields, or the transform's own fields if it generates rows.
+      //
+      IRowMeta conditionRowMeta =
+          DebugLevelUtil.getConditionFields(variables, pipelineMeta, transformMeta);
       TransformDebugLevelDialog dialog =
           new TransformDebugLevelDialog(
-              hopGui.getActiveShell(), debugLevel, inputRowMeta, variables);
+              hopGui.getActiveShell(), debugLevel, conditionRowMeta, variables);
       if (dialog.open()) {
         DebugLevelUtil.storeTransformDebugLevel(
             debugGroupAttributesMap, transformMeta.getName(), debugLevel);

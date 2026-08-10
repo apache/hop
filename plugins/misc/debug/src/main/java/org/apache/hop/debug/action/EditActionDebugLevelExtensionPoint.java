@@ -23,7 +23,6 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.DebugLevelUtil;
-import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
@@ -54,7 +53,7 @@ public class EditActionDebugLevelExtensionPoint
         ActionMeta actionCopy = (ActionMeta) ext.getAreaOwner().getParent();
 
         DebugLevelUtil.storeActionDebugLevel(
-            workflowMeta.getAttributesMap().get(Defaults.DEBUG_GROUP),
+            DebugLevelUtil.getOrCreateDebugGroup(workflowMeta.getAttributesMap()),
             actionCopy.getName(),
             debugLevel);
         ext.getWorkflowGraph().redraw();
