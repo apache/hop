@@ -59,9 +59,10 @@ function getThemeColors(theme) {
 //
 const handleEvent = function (event) {
     const mode = event.widget.getData("mode");
-    const nodes = event.widget.getData("nodes");
-    const hops = event.widget.getData("hops");
-    const notes = event.widget.getData("notes");
+    // Plugin graphs (Data Vault modelers, etc.) may omit nodes/hops/notes; default so Paint never NPE.
+    const nodes = event.widget.getData("nodes") || {};
+    const hops = event.widget.getData("hops") || [];
+    const notes = event.widget.getData("notes") || [];
     const props = event.widget.getData("props");
     const startHopNodeName = event.widget.getData("startHopNode");
     const resizeDirection = event.widget.getData("resizeDirection");
@@ -69,6 +70,11 @@ const handleEvent = function (event) {
     // Get pan data from props (it's sent via JSON)
     const panStartOffset = props ? props.panStartOffset : null;
     const panBoundaries = props ? props.panBoundaries : null;
+
+    // Props can be missing on the first paint before the server sets canvas data.
+    if (!props) {
+        return;
+    }
 
     // Global vars to make the coordinate calculation function simpler.
     //
