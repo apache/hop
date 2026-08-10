@@ -81,8 +81,8 @@
         <jsch.version>2.28.6</jsch.version>
         <json-simple.version>1.1.1</json-simple.version>
         <jakarta-jms-api.version>3.1.0</jakarta-jms-api.version>
-        <artemis-jakarta-client.version>2.42.0</artemis-jakarta-client.version>
-        <artemis-server.version>2.42.0</artemis-server.version>
+        <artemis-jakarta-client.version>2.55.0</artemis-jakarta-client.version>
+        <artemis-server.version>2.55.0</artemis-server.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsoup.version>1.23.1</jsoup.version>
         <jspecify.version>1.0.1</jspecify.version>
@@ -230,12 +230,12 @@
                 <version>${jakarta-jms-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.activemq</groupId>
+                <groupId>org.apache.artemis</groupId>
                 <artifactId>artemis-jakarta-client</artifactId>
                 <version>${artemis-jakarta-client.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.activemq</groupId>
+                <groupId>org.apache.artemis</groupId>
                 <artifactId>artemis-server</artifactId>
                 <version>${artemis-server.version}</version>
             </dependency>

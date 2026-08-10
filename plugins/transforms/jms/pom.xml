@@ -58,7 +58,7 @@
           plugin ships the lake-format connectors.
         -->
         <dependency>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-jakarta-client</artifactId>
         </dependency>
 
@@ -77,7 +77,7 @@
 
         <!-- Embedded broker so the provider is exercised against a real broker in unit tests. -->
         <dependency>
-            <groupId>org.apache.activemq</groupId>
+            <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-server</artifactId>
             <scope>test</scope>
         </dependency>
