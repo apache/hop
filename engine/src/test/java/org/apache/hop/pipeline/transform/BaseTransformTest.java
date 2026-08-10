@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.ResultFile;
@@ -61,6 +62,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -114,6 +116,33 @@ class BaseTransformTest {
                 mockHelper.pipeline)
             .getLogLevel();
     assertNull(logLevel);
+  }
+
+  /**
+   * A nested execution (Pipeline/Workflow Executor) passes the calling transform's variables down
+   * to the child pipeline, so the parent variable space can carry another transform's
+   * Internal.Transform.* values. Initializing from that space must not overwrite ours.
+   */
+  @Test
+  void testInitializeFromKeepsOwnInternalTransformVariables() {
+    BaseTransform<ITransformMeta, ITransformData> baseTransform =
+        new BaseTransform<>(
+            mockHelper.transformMeta,
+            mockHelper.iTransformMeta,
+            mockHelper.iTransformData,
+            0,
+            mockHelper.pipelineMeta,
+            mockHelper.pipeline);
+
+    IVariables parent = new Variables();
+    parent.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, "some other transform");
+    parent.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, "7");
+
+    baseTransform.initializeFrom(parent);
+
+    assertEquals(
+        "BASE TRANSFORM", baseTransform.getVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME));
+    assertEquals("0", baseTransform.getVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR));
   }
 
   @Test
