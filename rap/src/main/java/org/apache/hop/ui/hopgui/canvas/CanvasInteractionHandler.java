@@ -19,8 +19,7 @@ package org.apache.hop.ui.hopgui.canvas;
 
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.shared.IWebCanvasGraph;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.remote.AbstractOperationHandler;
@@ -96,10 +95,8 @@ public class CanvasInteractionHandler extends Widget {
     int graphY = properties.get("graphY").asInt();
     int screenX = properties.get("screenX") != null ? properties.get("screenX").asInt() : graphX;
     int screenY = properties.get("screenY") != null ? properties.get("screenY").asInt() : graphY;
-    if (graph instanceof HopGuiPipelineGraph pipelineGraph) {
-      pipelineGraph.handleWebCanvasHover(graphX, graphY, screenX, screenY);
-    } else if (graph instanceof HopGuiWorkflowGraph workflowGraph) {
-      workflowGraph.handleWebCanvasHover(graphX, graphY, screenX, screenY);
+    if (graph instanceof IWebCanvasGraph webCanvasGraph) {
+      webCanvasGraph.handleWebCanvasHover(graphX, graphY, screenX, screenY);
     }
   }
 }
