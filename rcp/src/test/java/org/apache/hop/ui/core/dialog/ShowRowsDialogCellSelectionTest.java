@@ -88,6 +88,46 @@ class ShowRowsDialogCellSelectionTest extends SwtBotTestBase {
               LONG_VALUE,
               onUi(editor::getText),
               "the editor must expose the full, untruncated cell value for copying");
+          String tooltip = onUi(editor::getToolTipText);
+          assertNotNull(tooltip, "selected cell should show a column-metadata tooltip");
+          assertTrue(
+              tooltip.contains("text"),
+              "cell tooltip should include the column name; was: " + tooltip);
+        });
+  }
+
+  @Test
+  void sortingKeepsFullValueLookupForTheSelectedCell() {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("text"));
+    List<Object[]> rows = new ArrayList<>();
+    rows.add(new Object[] {"zebra-" + LONG_VALUE});
+    rows.add(new Object[] {"alpha-" + LONG_VALUE});
+
+    withDialog(
+        parent ->
+            new ShowRowsDialog(parent, new Variables(), "Preview", "Output rows", rowMeta, rows)
+                .open(),
+        bot -> {
+          Table table = awaitTable(bot);
+          assertNotNull(table, "the ShowRowsDialog table should open");
+
+          // Sort by the data column (index 1; 0 is the row-number column).
+          onUi(
+              () -> {
+                table.getColumn(1).notifyListeners(SWT.Selection, new Event());
+                return null;
+              });
+          bot.sleep(100);
+
+          // After ascending sort, "alpha-..." should be first. Click it and verify full value.
+          clickFirstDataCell(table);
+          Text editor = awaitCellEditor(bot, table);
+          assertNotNull(editor, "cell editor should open after sort");
+          assertEquals(
+              "alpha-" + LONG_VALUE,
+              onUi(editor::getText),
+              "after sorting, the full buffer value for the clicked row must still be resolved");
         });
   }
 
