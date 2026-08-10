@@ -84,7 +84,7 @@
         <jsch.version>2.27.8</jsch.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.6.0</json-smart.version>
-        <jsoup.version>1.22.1</jsoup.version>
+        <jsoup.version>1.23.1</jsoup.version>
         <jspecify.version>1.0.0</jspecify.version>
         <juniversalchardet.version>2.5.0</juniversalchardet.version>
         <kafka-avro-serializer.version>7.6.1</kafka-avro-serializer.version>
