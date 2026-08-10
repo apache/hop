@@ -234,6 +234,7 @@
         this._dragActive = false;
         this._dragClickedName = null;
         this._dragIconOffset = null;
+        this._dragIconArea = null;
         this._dragStartPositions = null;
         this._dragNodes = null;
         this._mousedownHandler = null;
