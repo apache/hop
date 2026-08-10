@@ -1,0 +1,5 @@
+{
+	"name": "Plain Text Custom",
+	"scopeName": "text.plain",
+	"fileTypes": ["txt", "text"]
+}
