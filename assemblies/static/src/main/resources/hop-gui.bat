@@ -119,7 +119,9 @@ echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTI
 echo.
 echo ===[Starting Hop]=========================================================
 
-%_HOP_JAVA% -classpath %CLASSPATH% -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
+REM SWT 3.134+ enables monitor-specific scaling by default on Windows; only
+REM "quarter" and "exact" are compatible. Do not set -Dswt.autoScale=false.
+%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
 if ERRORLEVEL 1 (pause)
 
 :End
