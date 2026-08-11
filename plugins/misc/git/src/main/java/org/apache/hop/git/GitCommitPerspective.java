@@ -116,12 +116,18 @@ public class GitCommitPerspective implements IHopPerspective {
   public static final String TOOLBAR_ITEM_DELETE = "GitCommitPerspective-Toolbar-10400-Delete";
 
   private static final String COMMIT_MESSAGES_AUDIT_TYPE = "commit-messages";
+  private static final String STAGED_LABEL = "GitCommitPerspective.Status.Staged.Label";
+  private static final String UNSTAGED_LABEL = "GitCommitPerspective.Status.Unstaged.Label";
+  private static final String UNTRACKED_LABEL = "GitCommitPerspective.Status.Untracked.Label";
   @Getter private static GitCommitPerspective instance;
 
   private HopGui hopGui;
   private SashForm wSashForm;
   private Control wToolBar;
   private Tree wTree;
+  private TreeItem stagedRootItem;
+  private TreeItem unstagedRootItem;
+  private TreeItem untrackedRootItem;
   private Text wMessage;
   private CLabel wStatus;
   private Button wAmend;
@@ -258,7 +264,7 @@ public class GitCommitPerspective implements IHopPerspective {
         event -> {
           List<UIFile> selectedFiles = this.getSelectedFiles();
 
-          setMenuItemEnabled(menuWidgets, CONTEXT_MENU_ADD, !getSelectedUntrackedFiles().isEmpty());
+          setMenuItemEnabled(menuWidgets, CONTEXT_MENU_ADD, !getSelectedUnstagedFiles().isEmpty());
           setMenuItemEnabled(
               menuWidgets, CONTEXT_MENU_UNSTAGE, !getSelectedStagedFiles().isEmpty());
           setMenuItemEnabled(menuWidgets, CONTEXT_MENU_ADD_TO_GIT_IGNORE, !selectedFiles.isEmpty());
@@ -348,18 +354,19 @@ public class GitCommitPerspective implements IHopPerspective {
    * committing a file for the first time is a deliberate act, git doesn't do it for you either.
    */
   private void checkChangedFiles() {
-    if (wTree == null || wTree.isDisposed() || wTree.getItemCount() < 2) {
+    setChecked(stagedRootItem, true);
+    setChecked(unstagedRootItem, true);
+    setChecked(untrackedRootItem, false);
+  }
+
+  /** Check or uncheck a whole group of files. */
+  private void setChecked(TreeItem rootItem, boolean checked) {
+    if (!isUsable(rootItem)) {
       return;
     }
-
-    for (TreeItem rootItem : wTree.getItems()) {
-      boolean allChecked = rootItem.getItemCount() > 0;
-      for (TreeItem item : rootItem.getItems()) {
-        boolean tracked = !(item.getData() instanceof UIFile file) || !isUntracked(file);
-        item.setChecked(tracked);
-        allChecked = allChecked && tracked;
-      }
-      rootItem.setChecked(allChecked);
+    rootItem.setChecked(checked && rootItem.getItemCount() > 0);
+    for (TreeItem item : rootItem.getItems()) {
+      item.setChecked(checked);
     }
   }
 
@@ -368,21 +375,28 @@ public class GitCommitPerspective implements IHopPerspective {
     return !file.isStaged() && file.getChangeType() == DiffEntry.ChangeType.ADD;
   }
 
-  /** Uncheck the given files under the unstaged node, they are no longer part of the commit. */
+  /**
+   * Uncheck the given files wherever they ended up outside the index: they are no longer part of
+   * the commit. A file that was staged as new lands under "Untracked" once it is unstaged.
+   */
   private void uncheckUnstagedFiles(Set<String> fileNames) {
-    if (wTree == null || wTree.isDisposed() || wTree.getItemCount() < 2 || fileNames.isEmpty()) {
+    if (fileNames.isEmpty()) {
       return;
     }
 
-    TreeItem unstagedRootItem = this.getUnstagedRootItem();
-    boolean allChecked = true;
-    for (TreeItem item : unstagedRootItem.getItems()) {
-      if (item.getData() instanceof UIFile file && fileNames.contains(file.getName())) {
-        item.setChecked(false);
+    for (TreeItem rootItem : new TreeItem[] {unstagedRootItem, untrackedRootItem}) {
+      if (!isUsable(rootItem)) {
+        continue;
       }
-      allChecked = allChecked && item.getChecked();
+      boolean allChecked = rootItem.getItemCount() > 0;
+      for (TreeItem item : rootItem.getItems()) {
+        if (item.getData() instanceof UIFile file && fileNames.contains(file.getName())) {
+          item.setChecked(false);
+        }
+        allChecked = allChecked && item.getChecked();
+      }
+      rootItem.setChecked(allChecked);
     }
-    unstagedRootItem.setChecked(allChecked && unstagedRootItem.getItemCount() > 0);
   }
 
   protected void retrieveState() {
@@ -809,7 +823,9 @@ public class GitCommitPerspective implements IHopPerspective {
 
       // Unselected staged files
       List<UIFile> filesToIgnore =
-          this.getSelectedFiles(getStagedRootItem().getItems(), new ArrayList<>(), false);
+          isUsable(stagedRootItem)
+              ? this.getSelectedFiles(stagedRootItem.getItems(), new ArrayList<>(), false)
+              : new ArrayList<>();
 
       // No files to commit. Selecting a row in the tree only highlights it, so tell the user to
       // check the box when there are files listed but none of them are checked.
@@ -920,12 +936,36 @@ public class GitCommitPerspective implements IHopPerspective {
         PKG, "GitCommitPerspective.Status.CommitId.Label", commitId.substring(0, 7));
   }
 
-  private TreeItem getStagedRootItem() {
-    return wTree.getItems()[0];
+  /** Create one of the group nodes the files are listed under. */
+  private TreeItem createRootItem(String labelKey) {
+    TreeItem rootItem = new TreeItem(wTree, SWT.NONE);
+    rootItem.setImage(GuiResource.getInstance().getImageFolder());
+    setRootItemLabel(rootItem, labelKey);
+    return rootItem;
   }
 
-  private TreeItem getUnstagedRootItem() {
-    return wTree.getItems()[1];
+  /**
+   * Label a group node with the number of files in it, so a collapsed group still tells you how
+   * much is in there.
+   */
+  private void setRootItemLabel(TreeItem rootItem, String labelKey) {
+    if (!isUsable(rootItem)) {
+      return;
+    }
+    rootItem.setText(
+        BaseMessages.getString(PKG, labelKey, Integer.toString(rootItem.getItemCount())));
+  }
+
+  /** The group a file belongs to, the way "git status" reports it. */
+  private TreeItem getRootItemFor(UIFile file) {
+    if (file.isStaged()) {
+      return stagedRootItem;
+    }
+    return isUntracked(file) ? untrackedRootItem : unstagedRootItem;
+  }
+
+  private boolean isUsable(TreeItem rootItem) {
+    return wTree != null && !wTree.isDisposed() && rootItem != null && !rootItem.isDisposed();
   }
 
   protected List<UIFile> getSelectedFiles() {
@@ -936,23 +976,24 @@ public class GitCommitPerspective implements IHopPerspective {
   }
 
   protected List<UIFile> getSelectedStagedFiles() {
-    if (wTree == null || wTree.isDisposed()) {
+    if (!isUsable(stagedRootItem)) {
       return List.of();
     }
-    if (wTree.getItemCount() == 0) {
-      return List.of();
-    }
-    return getSelectedFiles(getStagedRootItem().getItems(), new ArrayList<>(), true);
+    return getSelectedFiles(stagedRootItem.getItems(), new ArrayList<>(), true);
   }
 
-  protected List<UIFile> getSelectedUntrackedFiles() {
-    if (wTree == null || wTree.isDisposed()) {
-      return List.of();
+  /**
+   * The checked files which are not in the index: changed files git tracks and files it doesn't
+   * know about yet. These are the ones "Add" can stage.
+   */
+  protected List<UIFile> getSelectedUnstagedFiles() {
+    List<UIFile> files = new ArrayList<>();
+    for (TreeItem rootItem : new TreeItem[] {unstagedRootItem, untrackedRootItem}) {
+      if (isUsable(rootItem)) {
+        getSelectedFiles(rootItem.getItems(), files, true);
+      }
     }
-    if (wTree.getItemCount() == 0) {
-      return List.of();
-    }
-    return getSelectedFiles(getUnstagedRootItem().getItems(), new ArrayList<>(), true);
+    return files;
   }
 
   protected List<UIFile> getUncheckedFiles() {
@@ -981,7 +1022,7 @@ public class GitCommitPerspective implements IHopPerspective {
     wAmend.setEnabled(gitEnabled);
     wMessage.setEnabled(gitEnabled);
 
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ADD, !getSelectedUntrackedFiles().isEmpty());
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ADD, !getSelectedUnstagedFiles().isEmpty());
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_UNSTAGE, !getSelectedStagedFiles().isEmpty());
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RESTORE, !getSelectedStagedFiles().isEmpty());
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, !getSelectedFiles().isEmpty());
@@ -1008,14 +1049,12 @@ public class GitCommitPerspective implements IHopPerspective {
 
       UIGit git = GitGuiPlugin.getInstance().getGit();
       if (git != null) {
-        TreeItem stagedItem = new TreeItem(wTree, SWT.NONE);
-        stagedItem.setImage(GuiResource.getInstance().getImageFolder());
-        stagedItem.setText(BaseMessages.getString(PKG, "GitCommitPerspective.Status.Staged.Label"));
-
-        TreeItem untrackedItem = new TreeItem(wTree, SWT.NONE);
-        untrackedItem.setText(
-            BaseMessages.getString(PKG, "GitCommitPerspective.Status.Unstaged.Label"));
-        untrackedItem.setImage(GuiResource.getInstance().getImageFolder());
+        // The three groups "git status" reports: what is in the index, what changed in files git
+        // tracks, and the files it doesn't know about yet.
+        //
+        stagedRootItem = createRootItem(STAGED_LABEL);
+        unstagedRootItem = createRootItem(UNSTAGED_LABEL);
+        untrackedRootItem = createRootItem(UNTRACKED_LABEL);
 
         // Reload changes files
         GitGuiPlugin.getInstance().refreshChangedFiles();
@@ -1025,10 +1064,7 @@ public class GitCommitPerspective implements IHopPerspective {
         for (String fileName : filesToCommit.keySet()) {
           UIFile file = filesToCommit.get(fileName);
 
-          // What is in the index goes under "Staged", the rest under "Unstaged", whatever the
-          // type of change is. A file that gets unstaged has to move to the unstaged node.
-          //
-          TreeItem item = new TreeItem(file.isStaged() ? stagedItem : untrackedItem, SWT.NONE);
+          TreeItem item = new TreeItem(getRootItemFor(file), SWT.NONE);
           switch (file.getChangeType()) {
             case ADD, COPY, RENAME ->
                 item.setForeground(
@@ -1046,8 +1082,15 @@ public class GitCommitPerspective implements IHopPerspective {
           item.setData(file);
         }
 
-        stagedItem.setExpanded(true);
-        untrackedItem.setExpanded(true);
+        // The files are in, so the groups can say how many they hold
+        //
+        setRootItemLabel(stagedRootItem, STAGED_LABEL);
+        setRootItemLabel(unstagedRootItem, UNSTAGED_LABEL);
+        setRootItemLabel(untrackedRootItem, UNTRACKED_LABEL);
+
+        for (TreeItem rootItem : wTree.getItems()) {
+          rootItem.setExpanded(true);
+        }
 
         // Offer all the work in progress for the next commit
         //

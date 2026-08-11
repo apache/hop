@@ -49,6 +49,7 @@ import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.junit.RepositoryTestCase;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -736,6 +737,70 @@ public class UIGitTest extends RepositoryTestCase {
         .filter(file -> file.getName().equals(name))
         .findFirst()
         .orElseThrow(() -> new AssertionError("File '" + name + "' not found"));
+  }
+
+  @Test
+  public void testIgnoreRulesMatchedWithoutRegardToCase() throws Exception {
+    initialCommit();
+
+    // A rule in lower case, folders on disk in another case: git catches these when it is told the
+    // file system doesn't care about case, JGit doesn't
+    writeTrashFile(".gitignore", "output/\n*.LOG\n");
+    writeTrashFile("Output/generated.txt", "generated");
+    writeTrashFile("Deep/OUTPUT/generated.txt", "generated");
+    writeTrashFile("run.Log", "log");
+    writeTrashFile("keep.txt", "keep");
+
+    // Case sensitive, the way git behaves on Linux: JGit is right, nothing is filtered
+    List<String> unstaged = getUnstagedFileNames();
+    assertTrue(unstaged.contains("Output/generated.txt"));
+    assertTrue(unstaged.contains("run.Log"));
+
+    db.getConfig()
+        .setBoolean(
+            ConfigConstants.CONFIG_CORE_SECTION,
+            null,
+            CaseInsensitiveIgnores.CONFIG_KEY_IGNORECASE,
+            true);
+    db.getConfig().save();
+
+    unstaged = getUnstagedFileNames();
+    assertTrue(unstaged.contains("keep.txt"));
+    assertFalse(unstaged.contains("Output/generated.txt"));
+    assertFalse(unstaged.contains("Deep/OUTPUT/generated.txt"));
+    assertFalse(unstaged.contains("run.Log"));
+
+    // What is kept out of the unstaged files is reported as ignored instead
+    Set<String> ignored = uiGit.getIgnored(null);
+    assertTrue(ignored.contains("Output/generated.txt"));
+    assertTrue(ignored.contains("run.Log"));
+    assertFalse(ignored.contains("keep.txt"));
+  }
+
+  @Test
+  public void testIgnoreRuleCanBeNegatedWithoutRegardToCase() throws Exception {
+    initialCommit();
+
+    writeTrashFile(".gitignore", "output/\n!Output/keep.txt\n");
+    writeTrashFile("output/keep.txt", "keep");
+    writeTrashFile("output/generated.txt", "generated");
+
+    db.getConfig()
+        .setBoolean(
+            ConfigConstants.CONFIG_CORE_SECTION,
+            null,
+            CaseInsensitiveIgnores.CONFIG_KEY_IGNORECASE,
+            true);
+    db.getConfig().save();
+
+    // git never descends into an ignored folder, so the negated file stays ignored as well
+    List<String> unstaged = getUnstagedFileNames();
+    assertFalse(unstaged.contains("output/keep.txt"));
+    assertFalse(unstaged.contains("output/generated.txt"));
+  }
+
+  private List<String> getUnstagedFileNames() {
+    return uiGit.getUnstagedFiles().stream().map(UIFile::getName).toList();
   }
 
   @Test
