@@ -51,6 +51,7 @@ final class ContentEditorTm4eSupport {
   private static final boolean TRACE_SCOPES = Boolean.getBoolean("hop.contenteditor.trace.scopes");
 
   private static final String SCOPE_JSON = "source.json";
+  private static final String SCOPE_TEXT = "text.plain";
   private static final String SCOPE_XML = "text.xml";
   private static final String SCOPE_SQL = "source.sql";
   private static final String SCOPE_PYTHON = "source.python";
@@ -64,6 +65,7 @@ final class ContentEditorTm4eSupport {
           SCOPE_JSON, "json.json",
           SCOPE_XML, "xml.json",
           SCOPE_SQL, "sql.json",
+          SCOPE_TEXT, "text.json",
           SCOPE_PYTHON, "python.json",
           SCOPE_YAML, "yaml.json",
           SCOPE_SHELL, "shell.json",
@@ -120,6 +122,7 @@ final class ContentEditorTm4eSupport {
       case "yaml", "yml" -> SCOPE_YAML;
       case "shell", "bash", "sh" -> SCOPE_SHELL;
       case "bat", "cmd", "batch" -> SCOPE_BATCH;
+      case "plaintext" -> SCOPE_TEXT;
       default -> null;
     };
   }

@@ -521,6 +521,20 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
+   * Enables or disables a hop. Use this instead of {@link PipelineHopMeta#setEnabled(boolean)}: the
+   * caches in this class take the enabled state of the hops into account, so they need to be
+   * cleared. A stale cache makes the engine look for row sets which were never allocated for a
+   * disabled hop, resulting in "Unable to find input rowset!" during initialization.
+   *
+   * @param hop The hop to enable or disable
+   * @param enabled true to enable the hop, false to disable it
+   */
+  public void setHopEnabled(PipelineHopMeta hop, boolean enabled) {
+    hop.setEnabled(enabled);
+    clearCaches();
+  }
+
+  /**
    * Gets the list of used transforms, which are the transforms that are connected by hops.
    *
    * @return a list with all the used transforms

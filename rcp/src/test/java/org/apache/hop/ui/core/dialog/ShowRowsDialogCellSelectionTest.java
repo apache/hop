@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.dialog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -31,9 +32,13 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -88,6 +93,160 @@ class ShowRowsDialogCellSelectionTest extends SwtBotTestBase {
               LONG_VALUE,
               onUi(editor::getText),
               "the editor must expose the full, untruncated cell value for copying");
+          String tooltip = onUi(editor::getToolTipText);
+          assertNotNull(tooltip, "selected cell should show a column-metadata tooltip");
+          assertTrue(
+              tooltip.contains("text"),
+              "cell tooltip should include the column name; was: " + tooltip);
+        });
+  }
+
+  /**
+   * Copy to clipboard, export to Excel/CSV and save-to-data-set all read the cell straight off the
+   * table item, so the item has to hold the complete value: the grid only shortens it when drawing.
+   */
+  @Test
+  void gridCellsHoldTheFullValueEvenThoughTheyAreDrawnShortened() {
+    String multiLine = "first line\nsecond line\nthird line";
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("text"));
+    rowMeta.addValueMeta(new ValueMetaString("lines"));
+    List<Object[]> rows = new ArrayList<>();
+    rows.add(new Object[] {LONG_VALUE, multiLine});
+
+    withDialog(
+        parent ->
+            new ShowRowsDialog(parent, new Variables(), "Preview", "Output rows", rowMeta, rows)
+                .open(),
+        bot -> {
+          Table table = awaitTable(bot);
+          assertNotNull(table, "the ShowRowsDialog table should open");
+
+          assertEquals(
+              LONG_VALUE,
+              onUi(() -> table.getItem(0).getText(1)),
+              "a long cell value must be stored in full, not truncated with an ellipsis");
+          assertEquals(
+              multiLine,
+              onUi(() -> table.getItem(0).getText(2)),
+              "a multi-line cell value must keep all of its lines");
+        });
+  }
+
+  /** Ctrl+C on selected rows must put the complete values on the clipboard, ellipsis-free. */
+  @Test
+  void copyingSelectedRowsPutsTheFullValuesOnTheClipboard() {
+    String multiLine = "first line\nsecond line";
+
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("text"));
+    rowMeta.addValueMeta(new ValueMetaString("lines"));
+    List<Object[]> rows = new ArrayList<>();
+    rows.add(new Object[] {LONG_VALUE, multiLine});
+
+    withDialog(
+        parent ->
+            new ShowRowsDialog(parent, new Variables(), "Preview", "Output rows", rowMeta, rows)
+                .open(),
+        bot -> {
+          Table table = awaitTable(bot);
+          assertNotNull(table, "the ShowRowsDialog table should open");
+
+          // A click makes the row the active one; the key handler ignores keys until then.
+          clickFirstDataCell(table);
+
+          String clipped =
+              onUi(
+                  () -> {
+                    table.setSelection(0);
+                    Event event = new Event();
+                    event.keyCode = 'c';
+                    event.stateMask = SWT.MOD1;
+                    table.notifyListeners(SWT.KeyDown, event);
+                    Clipboard clipboard = new Clipboard(display);
+                    try {
+                      return (String) clipboard.getContents(TextTransfer.getInstance());
+                    } finally {
+                      clipboard.dispose();
+                    }
+                  });
+
+          assertNotNull(clipped, "Ctrl+C should put the selected row on the clipboard");
+          assertTrue(
+              clipped.contains(LONG_VALUE),
+              "the clipboard must hold the full value, not the shortened one; was: " + clipped);
+          assertTrue(
+              clipped.contains(multiLine),
+              "the clipboard must keep every line of a multi-line value; was: " + clipped);
+        });
+  }
+
+  @Test
+  void sortingKeepsFullValueLookupForTheSelectedCell() {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("text"));
+    List<Object[]> rows = new ArrayList<>();
+    rows.add(new Object[] {"zebra-" + LONG_VALUE});
+    rows.add(new Object[] {"alpha-" + LONG_VALUE});
+
+    withDialog(
+        parent ->
+            new ShowRowsDialog(parent, new Variables(), "Preview", "Output rows", rowMeta, rows)
+                .open(),
+        bot -> {
+          Table table = awaitTable(bot);
+          assertNotNull(table, "the ShowRowsDialog table should open");
+
+          // Sort by the data column (index 1; 0 is the row-number column).
+          onUi(
+              () -> {
+                table.getColumn(1).notifyListeners(SWT.Selection, new Event());
+                return null;
+              });
+          bot.sleep(100);
+
+          // After ascending sort, "alpha-..." should be first. Click it and verify full value.
+          clickFirstDataCell(table);
+          Text editor = awaitCellEditor(bot, table);
+          assertNotNull(editor, "cell editor should open after sort");
+          assertEquals(
+              "alpha-" + LONG_VALUE,
+              onUi(editor::getText),
+              "after sorting, the full buffer value for the clicked row must still be resolved");
+        });
+  }
+
+  /**
+   * The in-place editor must be the grid's own one - a text field wrapped in a holder that also
+   * carries the "expand" icon opening the multi-line viewer - and not a hand-rolled field that only
+   * reacts to a double-click.
+   */
+  @Test
+  void theCellEditorCarriesTheGridsExpandIcon() {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("text"));
+    List<Object[]> rows = new ArrayList<>();
+    rows.add(new Object[] {LONG_VALUE});
+
+    withDialog(
+        parent ->
+            new ShowRowsDialog(parent, new Variables(), "Preview", "Output rows", rowMeta, rows)
+                .open(),
+        bot -> {
+          Table table = awaitTable(bot);
+          assertNotNull(table, "the ShowRowsDialog table should open");
+
+          clickFirstDataCell(table);
+
+          Text editor = awaitCellEditor(bot, table);
+          assertNotNull(editor, "clicking a cell should open the grid's in-place editor");
+
+          Composite holder = onUi(editor::getParent);
+          assertNotSame(table, holder, "the editor should sit in the holder that carries the icon");
+          assertNotNull(
+              onUi(() -> findLabelWithImage(holder)),
+              "the editor holder should carry the expand icon opening the multi-line viewer");
         });
   }
 
@@ -140,12 +299,12 @@ class ShowRowsDialogCellSelectionTest extends SwtBotTestBase {
     return null;
   }
 
-  private static Table findTable(org.eclipse.swt.widgets.Composite parent) {
+  private static Table findTable(Composite parent) {
     for (Control child : parent.getChildren()) {
       if (child instanceof Table table) {
         return table;
       }
-      if (child instanceof org.eclipse.swt.widgets.Composite composite) {
+      if (child instanceof Composite composite) {
         Table found = findTable(composite);
         if (found != null) {
           return found;
@@ -155,11 +314,30 @@ class ShowRowsDialogCellSelectionTest extends SwtBotTestBase {
     return null;
   }
 
-  /** The cell editor is a {@link Text} parented straight onto the table (via a TableEditor). */
-  private static Text findDirectTextChild(Table table) {
-    for (Control child : table.getChildren()) {
+  /**
+   * The cell editor is a {@link Text} the grid parents onto the table via a TableEditor, wrapped in
+   * a holder composite that also carries the "expand" icon.
+   */
+  private static Text findDirectTextChild(Composite parent) {
+    for (Control child : parent.getChildren()) {
       if (child instanceof Text text && !text.isDisposed()) {
         return text;
+      }
+      if (child instanceof Composite composite) {
+        Text found = findDirectTextChild(composite);
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
+  /** The expand icon: an image-carrying label next to the editor. */
+  private static Label findLabelWithImage(Composite parent) {
+    for (Control child : parent.getChildren()) {
+      if (child instanceof Label label && label.getImage() != null) {
+        return label;
       }
     }
     return null;

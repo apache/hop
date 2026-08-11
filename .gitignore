@@ -91,3 +91,8 @@ local-snapshots-dir/
 
 # GCP service-account key staged for the integration tests (Jenkins credentials gcp-access-hop)
 google-key-apache-hop-it.json
+
+# The SFTP provider test suite needs a *directory* literally named subdir4.jar
+# (it checks a folder ending in .jar isn't treated as a layered file system).
+# Without this the *.jar rule above silently keeps it out of the commit.
+!plugins/tech/sftp/src/test/resources/test-data/read-tests/dir1/subdir4.jar/

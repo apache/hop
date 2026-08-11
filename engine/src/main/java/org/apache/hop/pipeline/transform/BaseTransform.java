@@ -2937,7 +2937,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void setInternalVariables() {
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, transformName);
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(getCopy()));
-    setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, log.getLogChannelId());
+    // The log channel isn't created yet when the constructor initializes the variables.
+    //
+    if (log != null) {
+      setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, log.getLogChannelId());
+    }
   }
 
   /*
@@ -3615,6 +3619,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public void initializeFrom(IVariables parent) {
     variables.initializeFrom(parent);
+
+    // The Internal.Transform.* variables belong to this transform. The parent space can carry
+    // values of another transform (a nested execution started from e.g. a Pipeline or Workflow
+    // Executor passes them down), so re-apply ours after copying the parent's.
+    //
+    setInternalVariables();
   }
 
   /*

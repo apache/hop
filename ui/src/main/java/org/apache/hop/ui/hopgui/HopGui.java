@@ -1927,7 +1927,7 @@ public class HopGui
     // Register built-in sidebar toolbar items (visibility depends on active perspective).
     // File explorer: both terminal and execution. Other perspectives: terminal only.
     // List order: terminal then execution; refresh draws in reverse so execution appears above.
-    int sidebarIconSize = 21;
+    int sidebarIconSize = 24;
     sidebarToolbarDescriptors.add(
         SidebarToolbarItemDescriptor.builder()
             .id(SIDEBAR_TOOLBAR_ITEM_TERMINAL)
@@ -1975,7 +1975,7 @@ public class HopGui
     fdSidebar.left = new FormAttachment(0, 0);
     fdSidebar.top = new FormAttachment(0, 0);
     fdSidebar.bottom = new FormAttachment(100, 0);
-    fdSidebar.width = (int) (40 * PropsUi.getNativeZoomFactor());
+    fdSidebar.width = (int) (34 * PropsUi.getNativeZoomFactor());
     perspectivesSidebar.setLayoutData(fdSidebar);
   }
 

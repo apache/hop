@@ -136,7 +136,7 @@ public class CreditCardValidator
             BaseMessages.getString(
                 PKG,
                 "CreditCardValidator.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(row)));
+                getLinesRead() + " : " + data.outputRowMeta.getString(outputRow)));
       }
 
     } catch (Exception e) {

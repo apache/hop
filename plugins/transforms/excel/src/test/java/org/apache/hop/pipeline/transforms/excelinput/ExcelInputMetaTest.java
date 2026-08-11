@@ -20,10 +20,23 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class ExcelInputMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
+    // Password fields require Encr.encoder (initialized by HopEnvironment)
+    HopEnvironment.init();
+  }
 
   @Test
   void testSerialization() throws Exception {

@@ -653,6 +653,60 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testUnstageFilesWithResetPath() throws Exception {
+    initialCommit();
+
+    // Stage a change to a tracked file and a brand new file
+    writeTrashFile("Test.txt", "Changed");
+    uiGit.add("Test.txt");
+    writeTrashFile("New.txt", "New file");
+    uiGit.add("New.txt");
+    assertEquals(2, uiGit.getStagedFiles().size());
+
+    for (UIFile file : uiGit.getStagedFiles()) {
+      uiGit.resetPath(file.getName());
+    }
+
+    // Nothing staged anymore, but both changes are still there
+    assertTrue(uiGit.getStagedFiles().isEmpty());
+    assertEquals(2, uiGit.getUnstagedFiles().size());
+    assertEquals("Changed", read(new File(db.getWorkTree(), "Test.txt")));
+  }
+
+  @Test
+  public void testUntrackedAndModifiedFileFlags() throws Exception {
+    initialCommit();
+
+    // A file git doesn't know about yet and a change to a file it does know about
+    writeTrashFile("New.txt", "New file");
+    writeTrashFile("Test.txt", "Changed");
+
+    List<UIFile> unstagedFiles = uiGit.getUnstagedFiles();
+    UIFile untracked = findFile(unstagedFiles, "New.txt");
+    UIFile modified = findFile(unstagedFiles, "Test.txt");
+
+    // The commit perspective tells both apart by change type to decide what it offers for the
+    // next commit: an unstaged ADD is a file git doesn't track yet, which is never checked for you
+    assertEquals(ChangeType.ADD, untracked.getChangeType());
+    assertFalse(untracked.isStaged());
+    assertEquals(ChangeType.MODIFY, modified.getChangeType());
+    assertFalse(modified.isStaged());
+
+    // Once added, the same new file is staged
+    uiGit.add("New.txt");
+    UIFile staged = findFile(uiGit.getStagedFiles(), "New.txt");
+    assertEquals(ChangeType.ADD, staged.getChangeType());
+    assertTrue(staged.isStaged());
+  }
+
+  private UIFile findFile(List<UIFile> files, String name) {
+    return files.stream()
+        .filter(file -> file.getName().equals(name))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("File '" + name + "' not found"));
+  }
+
+  @Test
   public void testCloneShouldFail() throws Exception {
     // WhenDirAlreadyExists
     boolean success = uiGit.cloneRepo(db.getDirectory().getPath(), db.getDirectory().getPath());

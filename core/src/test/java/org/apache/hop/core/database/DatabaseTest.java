@@ -56,7 +56,9 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -623,5 +625,78 @@ class DatabaseTest {
     assertEquals(1, iRowMeta.size());
     assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
     assertInstanceOf(ValueMetaNumber.class, iRowMeta.getValueMeta(0));
+  }
+
+  @Test
+  void testOpenQueryDerivesRowMetaOncePerPreparedStatement() throws Exception {
+    Database db = mockDatabaseForOpenQuery();
+
+    // Database Join re-executes the same prepared statement once per incoming row. Deriving the
+    // result layout costs one plugin class load per column, so it has to happen only once.
+    //
+    for (int i = 0; i < 5; i++) {
+      db.openQuery(ps, new RowMeta(), new Object[] {});
+
+      assertEquals(1, db.getReturnRowMeta().size());
+      assertEquals(columnName, db.getReturnRowMeta().getValueMeta(0).getName());
+      assertInstanceOf(ValueMetaNumber.class, db.getReturnRowMeta().getValueMeta(0));
+    }
+
+    verify(rs, times(1)).getMetaData();
+  }
+
+  @Test
+  void testOpenQueryDerivesRowMetaAgainAfterStatementIsClosed() throws Exception {
+    Database db = mockDatabaseForOpenQuery();
+
+    db.openQuery(ps, new RowMeta(), new Object[] {});
+    db.closePreparedStatement(ps);
+    db.openQuery(ps, new RowMeta(), new Object[] {});
+
+    // A driver may hand the same statement object back for different SQL once it is closed, so the
+    // cached layout must not survive it.
+    verify(rs, times(2)).getMetaData();
+  }
+
+  @Test
+  void testOpenQueryDerivesRowMetaPerStatementWhenStatementsAreAlternated() throws Exception {
+    Database db = mockDatabaseForOpenQuery();
+
+    // A second statement on the same connection, returning a different layout.
+    PreparedStatement otherPs = mock(PreparedStatement.class);
+    ResultSet otherRs = mock(ResultSet.class);
+    ResultSetMetaData otherRsMetaData = mock(ResultSetMetaData.class);
+    when(otherRsMetaData.getColumnCount()).thenReturn(1);
+    when(otherRsMetaData.getColumnName(1)).thenReturn("bonus");
+    when(otherRsMetaData.getColumnLabel(1)).thenReturn("bonus");
+    when(otherRsMetaData.getColumnType(1)).thenReturn(Types.VARCHAR);
+    when(otherRs.getMetaData()).thenReturn(otherRsMetaData);
+    when(otherPs.executeQuery()).thenReturn(otherRs);
+
+    // Alternating statements must never hand out the layout cached for the other one.
+    //
+    for (int i = 0; i < 3; i++) {
+      db.openQuery(ps, new RowMeta(), new Object[] {});
+      assertEquals(columnName, db.getReturnRowMeta().getValueMeta(0).getName());
+      assertInstanceOf(ValueMetaNumber.class, db.getReturnRowMeta().getValueMeta(0));
+
+      db.openQuery(otherPs, new RowMeta(), new Object[] {});
+      assertEquals("bonus", db.getReturnRowMeta().getValueMeta(0).getName());
+      assertInstanceOf(ValueMetaString.class, db.getReturnRowMeta().getValueMeta(0));
+    }
+  }
+
+  private Database mockDatabaseForOpenQuery() throws SQLException {
+    when(rsMetaData.getColumnCount()).thenReturn(1);
+    when(rsMetaData.getColumnName(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnLabel(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnType(1)).thenReturn(Types.DECIMAL);
+    when(rs.getMetaData()).thenReturn(rsMetaData);
+    when(ps.executeQuery()).thenReturn(rs);
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    return db;
   }
 }

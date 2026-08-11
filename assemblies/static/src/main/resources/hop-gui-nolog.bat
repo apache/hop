@@ -112,7 +112,9 @@ echo.
 echo ===[Starting Hop]=========================================================
 
 REM Empty title "" is required: start treats the first quoted argument as the window title.
-start "" "%_HOP_JAVA%" -classpath %CLASSPATH% -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
+REM SWT 3.134+ enables monitor-specific scaling by default on Windows; only
+REM "quarter" and "exact" are compatible. Do not set -Dswt.autoScale=false.
+start "" "%_HOP_JAVA%" -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
 
 :End
 endlocal

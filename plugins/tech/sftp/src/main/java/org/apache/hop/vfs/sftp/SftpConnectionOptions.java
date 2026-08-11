@@ -23,13 +23,13 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.FileUtil;
-import org.apache.commons.vfs2.provider.sftp.BytesIdentityInfo;
-import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.BytesIdentityInfo;
+import org.apache.hop.vfs.sftp.provider.SftpFileSystemConfigBuilder;
 
 /** Translates a {@link SftpConnection} into the VFS options the SFTP provider connects with. */
 public final class SftpConnectionOptions {

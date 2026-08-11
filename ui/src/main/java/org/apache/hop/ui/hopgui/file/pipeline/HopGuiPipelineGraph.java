@@ -195,6 +195,7 @@ import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
+import org.apache.hop.ui.hopgui.shared.IWebCanvasGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -250,7 +251,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         IHasLogChannel,
         ILogParentProvided,
         IHopFileTypeHandler,
-        IGuiRefresher {
+        IGuiRefresher,
+        IWebCanvasGraph {
 
   private static final Class<?> PKG = HopGui.class;
 
@@ -907,13 +909,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             // If we click on the start hop transform or a forbidden transform, then we don't have a
             // candidate hop, but we need to ignore this click to not start a drag operation.
             if (candidate != null) {
-              addCandidateAsHop(event.x, event.y);
               // Single-stream hop completes on mouseDown and clears startHopTransform; without
-              // this,
-              // the following mouseUp would look like a plain transform click and open the action
-              // dialog.
-              if (startHopTransform == null) {
-                avoidContextDialog = true;
+              // this, the following mouseUp would look like a plain transform click and open the
+              // action dialog. Claim that release up front: completing the hop can put a dialog on
+              // screen - the row layout report, the copy/distribute question - and a dialog runs
+              // its own event loop, which dispatches the release of this very click before we get
+              // back here.
+              avoidContextDialog = true;
+              addCandidateAsHop(event.x, event.y);
+              if (avoidContextDialog && startHopTransform != null) {
+                // The hop is not done yet: it is the pop-up menu of stream options that completes
+                // it, so the release is an ordinary one after all. Should the release already have
+                // been handled from a dialog's event loop, the flag is cleared by now and has to
+                // stay that way, or it would swallow the next click.
+                avoidContextDialog = false;
               }
             }
           } else if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {
@@ -987,7 +996,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // the hop.
         //
         else if (event.button == 2 || (event.button == 1 && control)) {
-          hop.setEnabled(!hop.isEnabled());
+          setHopEnabled(hop, !hop.isEnabled());
           updateErrorMetaForHop(hop);
           updateGui();
         } else {
@@ -5543,6 +5552,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // in hop-run
           //
           String pipelineRunConfigurationName = executionConfiguration.getRunConfiguration();
+
+          // The engine looks up the previous transforms of every transform through the caches in
+          // PipelineMeta. Editing in the graph can leave those caches out of sync with the hops
+          // (a disabled hop that is still cached leads to "Unable to find input rowset!"), so make
+          // sure we always start a run with clean caches.
+          //
+          pipelineMeta.clearCaches();
+
           pipeline =
               PipelineEngineFactory.createPipelineEngine(
                   variables,
@@ -5737,6 +5754,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Create a new pipeline to execution
         //
+        pipelineMeta.clearCaches();
         pipeline = new LocalPipelineEngine(pipelineMeta, variables, hopGui.getLoggingObject());
         pipeline.setPreview(true);
         pipeline.setVariable(IPipelineEngine.PIPELINE_IN_PREVIEW_MODE, "Y");
@@ -6402,8 +6420,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void setHopEnabled(PipelineHopMeta hop, boolean enabled) {
-    hop.setEnabled(enabled);
-    pipelineMeta.clearCaches();
+    pipelineMeta.setHopEnabled(hop, enabled);
   }
 
   private void modalMessageDialog(String title, String message, int swtFlags) {

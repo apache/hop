@@ -108,6 +108,17 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
             ConstUi.LARGE_ICON_SIZE));
   }
 
+  /**
+   * Mark this editor as creating a brand-new metadata object that has not been persisted yet.
+   *
+   * <p>Create-before-dialog hooks may suggest a default name on the object. That suggested name
+   * must not be treated as an existing persisted identity: changing it must create a new object,
+   * not rename (and delete) another metadata entry that already uses the suggested name.
+   */
+  public void markAsNew() {
+    this.originalName = null;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -289,10 +300,15 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     IHopMetadataSerializer<T> serializer = manager.getSerializer();
 
     if (StringUtils.isEmpty(originalName)) {
+      // New object (including create dialog with a suggested default name via markAsNew())
       isCreated = true;
+      if (serializer.exists(name)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "MetadataEditor.Error.NameAlreadyExists", name));
+      }
     }
 
-    // If rename
+    // If rename of an already-persisted object
     //
     else if (!originalName.equals(name)) {
 
@@ -337,6 +353,10 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
       String objectKey = manager.getManagedClass().getAnnotation(HopMetadata.class).key();
       MetadataPerspective.getInstance()
           .performGlobalReplaceIfSupported(objectKey, originalName, name);
+    }
+
+    // After a successful create or rename, the persisted identity is the current name
+    if (isCreated || isRename) {
       this.originalName = metadata.getName();
     }
 

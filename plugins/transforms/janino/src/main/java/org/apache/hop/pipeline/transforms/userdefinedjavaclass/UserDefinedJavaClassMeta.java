@@ -272,6 +272,7 @@ public class UserDefinedJavaClassMeta
         "org.apache.hop.core.*",
         "org.apache.hop.core.exception.*",
         "org.apache.hop.pipeline.*",
+        "org.apache.hop.pipeline.engine.*",
         "org.apache.hop.workflow.*",
         "org.apache.hop.workflow.action.*",
         "org.apache.hop.core.plugins.*",

@@ -152,6 +152,7 @@ import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
+import org.apache.hop.ui.hopgui.shared.IWebCanvasGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
@@ -215,7 +216,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         IHasLogChannel,
         ILogParentProvided,
         IHopFileTypeHandler,
-        IGuiRefresher {
+        IGuiRefresher,
+        IWebCanvasGraph {
 
   private static final Class<?> PKG = HopGuiWorkflowGraph.class;
 
@@ -757,11 +759,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // If we click on the start hop action or a forbidden action, then we don't have a
             // candidate hop, but we need to ignore this click to not start a drag operation
             if (hopCandidate != null) {
-              addCandidateAsHop();
               // The hop completes on mouseDown and clears startHopAction; without this, the
               // following mouseUp would look like a plain action click and open the context dialog.
-              if (startHopAction == null) {
-                avoidContextDialog = true;
+              // Claim that release up front: completing the hop can put a dialog on screen - the
+              // hop exists already, the hop causes a loop - and a dialog runs its own event loop,
+              // which dispatches the release of this very click before we get back here.
+              avoidContextDialog = true;
+              addCandidateAsHop();
+              if (avoidContextDialog && startHopAction != null) {
+                // The hop was not made, so the release is an ordinary one after all. Should it
+                // already have been handled from a dialog's event loop, the flag is cleared by now
+                // and has to stay that way, or it would swallow the next click.
+                avoidContextDialog = false;
               }
             }
           } else if (canEditGraph() && (event.button == 2 || (event.button == 1 && shift))) {
