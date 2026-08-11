@@ -33,42 +33,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.util.Collections;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
-import org.apache.commons.vfs2.provider.ftps.FtpsDataChannelProtectionLevel;
-import org.apache.commons.vfs2.provider.ftps.FtpsFileSystemConfigBuilder;
-import org.apache.ftpserver.FtpServer;
-import org.apache.ftpserver.FtpServerFactory;
-import org.apache.ftpserver.listener.Listener;
-import org.apache.ftpserver.listener.ListenerFactory;
-import org.apache.ftpserver.ssl.SslConfigurationFactory;
-import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
-import org.apache.ftpserver.usermanager.impl.BaseUser;
-import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Round-trip tests for the network VFS providers Hop registers by default: {@code http}, {@code
- * https}, {@code ftp}, {@code ftps}. Each is exercised against an embedded server so we don't need
- * external resources.
+ * Round-trip tests for the network VFS providers Hop core registers by default: {@code http} and
+ * {@code https}. Each is exercised against an embedded server so we don't need external resources.
+ *
+ * <p>{@code ftp}, {@code ftps} and {@code sftp} are served by their technology plugins and proved
+ * there, in {@code org.apache.hop.vfs.ftp.HopVfsFtpSchemeTest} and {@code
+ * org.apache.hop.vfs.sftp.HopVfsSftpSchemeTest}.
  */
 class HopVfsNetworkProvidersTest {
 
   private static final String KEYSTORE_PASSWORD = "hop-test-pass";
-  private static final String FTP_USER = "tester";
-  private static final String FTP_PASS = "secret";
   private static String LOCALHOST;
-
-  @TempDir static Path sharedRoot;
 
   private static HttpServer httpServer;
   private static int httpPort;
@@ -78,14 +62,6 @@ class HopVfsNetworkProvidersTest {
   private static Path keyStorePath;
   private static String previousTrustStoreProperty;
   private static String previousTrustStorePasswordProperty;
-
-  private static FtpServer ftpServer;
-  private static Listener ftpListener;
-  private static int ftpPort;
-
-  private static FtpServer ftpsServer;
-  private static Listener ftpsListener;
-  private static int ftpsPort;
 
   static {
     try {
@@ -119,34 +95,14 @@ class HopVfsNetworkProvidersTest {
     System.setProperty("javax.net.ssl.trustStore", keyStorePath.toString());
     System.setProperty("javax.net.ssl.trustStorePassword", KEYSTORE_PASSWORD);
 
-    // FTP
-    Path ftpHome = sharedRoot.resolve("ftp");
-    Files.createDirectories(ftpHome);
-    Files.writeString(ftpHome.resolve("greeting.txt"), "ftp-payload");
-    FtpServerStart ftp = startFtp(ftpHome, false);
-    ftpServer = ftp.server;
-    ftpListener = ftp.listener;
-    ftpPort = ftpListener.getPort();
-
-    // FTPS
-    Path ftpsHome = sharedRoot.resolve("ftps");
-    Files.createDirectories(ftpsHome);
-    Files.writeString(ftpsHome.resolve("greeting.txt"), "ftps-payload");
-    FtpServerStart ftps = startFtp(ftpsHome, true);
-    ftpsServer = ftps.server;
-    ftpsListener = ftps.listener;
-    ftpsPort = ftpsListener.getPort();
-
-    // sftp:// is served by the SFTP plugin, not by core - see
-    // org.apache.hop.vfs.sftp.HopVfsSftpSchemeTest in plugins/tech/sftp.
+    // ftp://, ftps:// and sftp:// are served by their technology plugins, not by core - see
+    // org.apache.hop.vfs.ftp.HopVfsFtpSchemeTest and org.apache.hop.vfs.sftp.HopVfsSftpSchemeTest.
   }
 
   @AfterAll
   static void stopServers() throws Exception {
     if (httpServer != null) httpServer.stop(0);
     if (httpsServer != null) httpsServer.stop(0);
-    if (ftpServer != null) ftpServer.stop();
-    if (ftpsServer != null) ftpsServer.stop();
     restoreSystemProperty("javax.net.ssl.trustStore", previousTrustStoreProperty);
     restoreSystemProperty("javax.net.ssl.trustStorePassword", previousTrustStorePasswordProperty);
     if (keyStorePath != null) Files.deleteIfExists(keyStorePath);
@@ -166,39 +122,10 @@ class HopVfsNetworkProvidersTest {
         "https-payload", readToString("https://" + LOCALHOST + ":" + httpsPort + "/secure.txt"));
   }
 
-  @Test
-  @DisplayName("ftp:// fetches a payload from an embedded Apache FtpServer")
-  void ftpProviderReadsFromEmbeddedServer() throws Exception {
-    String url =
-        "ftp://" + FTP_USER + ":" + FTP_PASS + "@" + LOCALHOST + ":" + ftpPort + "/greeting.txt";
-    FileSystemOptions opts = new FileSystemOptions();
-    FtpFileSystemConfigBuilder.getInstance().setPassiveMode(opts, true);
-    assertEquals("ftp-payload", readWithOptions(url, opts));
-  }
-
-  @Test
-  @DisplayName("ftps:// fetches a payload over TLS from an embedded Apache FtpServer")
-  void ftpsProviderReadsFromEmbeddedServer() throws Exception {
-    String url =
-        "ftps://" + FTP_USER + ":" + FTP_PASS + "@" + LOCALHOST + ":" + ftpsPort + "/greeting.txt";
-    FileSystemOptions opts = new FileSystemOptions();
-    FtpsFileSystemConfigBuilder ftps = FtpsFileSystemConfigBuilder.getInstance();
-    ftps.setPassiveMode(opts, true);
-    ftps.setDataChannelProtectionLevel(opts, FtpsDataChannelProtectionLevel.P);
-    assertEquals("ftps-payload", readWithOptions(url, opts));
-  }
-
   // --- helpers ---------------------------------------------------------------------------
 
   private static String readToString(String url) throws Exception {
     try (InputStream in = HopVfs.getFileObject(url).getContent().getInputStream()) {
-      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
-    }
-  }
-
-  private static String readWithOptions(String url, FileSystemOptions opts) throws Exception {
-    FileObject obj = HopVfs.getFileSystemManager().resolveFile(url, opts);
-    try (InputStream in = obj.getContent().getInputStream()) {
       return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
@@ -258,39 +185,6 @@ class HopVfsNetworkProvidersTest {
     SSLContext ctx = SSLContext.getInstance("TLS");
     ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
     return ctx;
-  }
-
-  /** Holder so callers can recover the dynamic port from the {@link Listener}. */
-  private record FtpServerStart(FtpServer server, Listener listener) {}
-
-  private static FtpServerStart startFtp(Path home, boolean tls) throws Exception {
-    FtpServerFactory serverFactory = new FtpServerFactory();
-    ListenerFactory listenerFactory = new ListenerFactory();
-    listenerFactory.setPort(0);
-    if (tls) {
-      SslConfigurationFactory ssl = new SslConfigurationFactory();
-      ssl.setKeystoreFile(keyStorePath.toFile());
-      ssl.setKeystorePassword(KEYSTORE_PASSWORD);
-      ssl.setKeyPassword(KEYSTORE_PASSWORD);
-      listenerFactory.setSslConfiguration(ssl.createSslConfiguration());
-      // Explicit FTPS (AUTH TLS) — matches commons-vfs2's default FtpsMode.EXPLICIT.
-      listenerFactory.setImplicitSsl(false);
-    }
-    Listener listener = listenerFactory.createListener();
-    serverFactory.addListener("default", listener);
-
-    PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
-    BaseUser user = new BaseUser();
-    user.setName(FTP_USER);
-    user.setPassword(FTP_PASS);
-    user.setHomeDirectory(home.toString());
-    user.setAuthorities(Collections.singletonList(new WritePermission()));
-    serverFactory.setUserManager(userManagerFactory.createUserManager());
-    serverFactory.getUserManager().save(user);
-
-    FtpServer server = serverFactory.createServer();
-    server.start();
-    return new FtpServerStart(server, listener);
   }
 
   private static void restoreSystemProperty(String key, String previousValue) {

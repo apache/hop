@@ -37,6 +37,7 @@
         <module>databricks</module>
         <module>dropbox</module>
         <module>elastic</module>
+        <module>ftp</module>
         <module>google</module>
         <module>minio</module>
         <module>mongodb</module>
