@@ -36,6 +36,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
@@ -172,7 +173,8 @@ public class WriteToLogDialog extends BaseTransformDialog {
 
     wLogMessage =
         new StyledTextComp(
-            variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+        TextComposite.STYLE_TYPE_TEXT);
     PropsUi.setLook(wLogMessage, Props.WIDGET_STYLE_FIXED);
     FormData fdLogMessage = new FormData();
     fdLogMessage.left = new FormAttachment(middle, 0);

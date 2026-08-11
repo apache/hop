@@ -54,6 +54,7 @@ import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -441,7 +442,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         new StyledTextComp(
             variables,
             wSettingsGroup,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_SOQL);
     wCondition.setToolTipText(
         BaseMessages.getString(PKG, "SalesforceInputDialog.Condition.Tooltip"));
     PropsUi.setLook(wCondition, Props.WIDGET_STYLE_FIXED);
@@ -514,7 +516,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         new StyledTextComp(
             variables,
             wSettingsGroup,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_SOQL);
     PropsUi.setLook(wQuery, Props.WIDGET_STYLE_FIXED);
     wQuery.addModifyListener(lsMod);
     FormData fdQuery = new FormData();

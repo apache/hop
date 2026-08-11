@@ -605,7 +605,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
               variables,
               item.getParent(),
               SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_JAVASCRIPT);
     } else {
       wScript =
           new JavaScriptStyledTextComp(

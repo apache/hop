@@ -1630,6 +1630,7 @@ public class GitPerspective implements IHopPerspective {
       wDiffStyled =
           new DiffStyledTextComp(
               hopGui.getVariables(), parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      // styleType STYLE_TYPE_DIFF is set by DiffStyledTextComp constructor
       PropsUi.setLook(wDiffStyled, Props.WIDGET_STYLE_FIXED);
 
       wDiff = wDiffStyled;

@@ -17,24 +17,146 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.FindReplaceDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
+import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+/**
+ * Multi-line text editor composite used across Hop dialogs (SQL, scripts, logs, etc.).
+ *
+ * <p>Supports an optional toolbar (undo/redo, clipboard, find/replace) that plugins can extend via
+ * {@link GuiToolbarElement} with {@link #ID_TOOLBAR} as the root, the same way {@link TableView}
+ * toolbars work.
+ *
+ * <p>Toolbar plugins receive a {@link TextComposite} instance. To know what kind of text is being
+ * edited, use {@link #getStyleType()} (e.g. {@link #STYLE_TYPE_SQL}) rather than {@code instanceof}
+ * checks on subclasses — on Hop Web many specialized editors are replaced by a plain {@link
+ * StyledTextComp} with the same style type set.
+ *
+ * <pre>{@code
+ * @GuiToolbarElement(root = TextComposite.ID_TOOLBAR, id = "...", image = "...")
+ * public static void mySqlAction(TextComposite text) {
+ *   if (!TextComposite.STYLE_TYPE_SQL.equals(text.getStyleType())) {
+ *     return;
+ *   }
+ *   // ...
+ * }
+ * }</pre>
+ */
+@GuiPlugin
 public abstract class TextComposite extends Composite {
   private static final Class<?> PKG = StyledTextComp.class;
+
+  public static final String ID_TOOLBAR = "TextComposite-Toolbar";
+  public static final String ID_TOOLBAR_UNDO = "textcomposite-toolbar-10000-undo";
+  public static final String ID_TOOLBAR_REDO = "textcomposite-toolbar-10010-redo";
+  public static final String ID_TOOLBAR_CUT = "textcomposite-toolbar-10100-cut";
+  public static final String ID_TOOLBAR_COPY = "textcomposite-toolbar-10110-copy";
+  public static final String ID_TOOLBAR_PASTE = "textcomposite-toolbar-10120-paste";
+  public static final String ID_TOOLBAR_SELECT_ALL = "textcomposite-toolbar-10130-select-all";
+  public static final String ID_TOOLBAR_FIND = "textcomposite-toolbar-10200-find";
+  public static final String ID_TOOLBAR_FIND_REPLACE = "textcomposite-toolbar-10210-find-replace";
+
+  /** Default / unspecified multi-line text. */
+  public static final String STYLE_TYPE_GENERIC = "Generic";
+
+  /** SQL (or SQL-like) script. */
+  public static final String STYLE_TYPE_SQL = "SQL";
+
+  /** JavaScript source. */
+  public static final String STYLE_TYPE_JAVASCRIPT = "JavaScript";
+
+  /** Java source. */
+  public static final String STYLE_TYPE_JAVA = "Java";
+
+  /** Generic scripting language (engine may vary). */
+  public static final String STYLE_TYPE_SCRIPT = "Script";
+
+  /** Execution or application log output. */
+  public static final String STYLE_TYPE_LOG = "Log";
+
+  /** Unified / git-style diff. */
+  public static final String STYLE_TYPE_DIFF = "Diff";
+
+  /** Regular expression. */
+  public static final String STYLE_TYPE_REGEX = "Regex";
+
+  /** Formula / expression language. */
+  public static final String STYLE_TYPE_FORMULA = "Formula";
+
+  /** JSON document or query payload. */
+  public static final String STYLE_TYPE_JSON = "JSON";
+
+  /** Free-form human-readable text / message body. */
+  public static final String STYLE_TYPE_TEXT = "Text";
+
+  /** Cassandra Query Language. */
+  public static final String STYLE_TYPE_CQL = "CQL";
+
+  /** Salesforce Object Query Language. */
+  public static final String STYLE_TYPE_SOQL = "SOQL";
+
+  /** Drools rules. */
+  public static final String STYLE_TYPE_DROOLS = "Drools";
+
+  @Getter private final boolean toolbarEnabled;
+  @Getter @Setter private Control toolbar;
+  @Getter @Setter private GuiToolbarWidgets toolbarWidgets;
+
+  /**
+   * Semantic type of the text being edited (for toolbar plugins and similar contributors). Defaults
+   * to {@link #STYLE_TYPE_GENERIC}. Prefer the {@code STYLE_TYPE_*} constants; plugins may use
+   * other free-form values.
+   *
+   * <p><strong>Must be set via the constructor</strong> so that {@link
+   * org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter} sees the correct value when the
+   * toolbar is built. Calling {@link #setStyleType(String)} after construction does not rebuild the
+   * toolbar or re-run filters.
+   */
+  @Getter private String styleType = STYLE_TYPE_GENERIC;
+
+  private final List<String> removeToolItems;
+  private final PropsUi props;
+
+  /**
+   * Sets the semantic style type of this editor.
+   *
+   * <p>Does <strong>not</strong> rebuild the toolbar or re-evaluate toolbar filters. Prefer passing
+   * {@code styleType} to the constructor so plugins that filter on type (for example JSON format)
+   * work correctly.
+   *
+   * @param styleType type label; {@code null} resets to {@link #STYLE_TYPE_GENERIC}
+   */
+  public void setStyleType(String styleType) {
+    this.styleType = styleType != null ? styleType : STYLE_TYPE_GENERIC;
+  }
 
   /**
    * Constructs a new instance of this class given its parent and a style value describing its
@@ -51,7 +173,212 @@ public abstract class TextComposite extends Composite {
    * @throws IllegalArgumentException
    */
   public TextComposite(Composite parent, int style) {
+    this(parent, style, true, new ArrayList<>(), STYLE_TYPE_GENERIC);
+  }
+
+  /**
+   * @param parent parent composite
+   * @param style SWT style for this composite (usually {@link SWT#NONE}; the text control has its
+   *     own style)
+   * @param toolbarEnabled whether a toolbar may be shown above the text
+   */
+  public TextComposite(Composite parent, int style, boolean toolbarEnabled) {
+    this(parent, style, toolbarEnabled, new ArrayList<>(), STYLE_TYPE_GENERIC);
+  }
+
+  /**
+   * @param parent parent composite
+   * @param style SWT style for this composite
+   * @param toolbarEnabled whether a toolbar may be shown above the text
+   * @param styleType semantic content type ({@link #STYLE_TYPE_SQL}, …); used by toolbar filters
+   */
+  public TextComposite(Composite parent, int style, boolean toolbarEnabled, String styleType) {
+    this(parent, style, toolbarEnabled, new ArrayList<>(), styleType);
+  }
+
+  /**
+   * @param parent parent composite
+   * @param style SWT style for this composite
+   * @param toolbarEnabled whether a toolbar may be shown above the text
+   * @param removeToolItems toolbar item IDs to hide for this instance
+   */
+  public TextComposite(
+      Composite parent, int style, boolean toolbarEnabled, List<String> removeToolItems) {
+    this(parent, style, toolbarEnabled, removeToolItems, STYLE_TYPE_GENERIC);
+  }
+
+  /**
+   * Full constructor. {@code styleType} is applied <em>before</em> the toolbar is created so {@link
+   * org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter} methods can read it.
+   *
+   * @param parent parent composite
+   * @param style SWT style for this composite
+   * @param toolbarEnabled whether a toolbar may be shown above the text
+   * @param removeToolItems toolbar item IDs to hide for this instance
+   * @param styleType semantic content type ({@link #STYLE_TYPE_SQL}, …)
+   */
+  public TextComposite(
+      Composite parent,
+      int style,
+      boolean toolbarEnabled,
+      List<String> removeToolItems,
+      String styleType) {
     super(parent, style);
+    this.props = PropsUi.getInstance();
+    this.toolbarEnabled = toolbarEnabled;
+    this.removeToolItems =
+        removeToolItems != null ? new ArrayList<>(removeToolItems) : new ArrayList<>();
+    this.styleType = styleType != null ? styleType : STYLE_TYPE_GENERIC;
+
+    FormLayout layout = new FormLayout();
+    layout.marginLeft = 0;
+    layout.marginRight = 0;
+    layout.marginTop = 0;
+    layout.marginBottom = 0;
+    setLayout(layout);
+
+    addToolbar();
+  }
+
+  /**
+   * Control that content (the text widget and variable icon) should attach below, or {@code null}
+   * when no toolbar is shown.
+   */
+  public Control getTopControl() {
+    return toolbar;
+  }
+
+  protected void addToolbar() {
+    toolbarWidgets = new GuiToolbarWidgets();
+    // Register under TextComposite so toolbar listeners and plugin static methods resolve this
+    // instance for every subclass (StyledTextComp, SQLStyledTextComp, …).
+    toolbarWidgets.registerGuiPluginObject(TextComposite.class.getName(), this);
+
+    if (toolbarEnabled && props.isShowTextCompositeToolbar()) {
+      IToolbarContainer toolBarContainer =
+          ToolbarFacade.createToolbarContainer(this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+      toolbar = toolBarContainer.getControl();
+      FormData fdToolBar = new FormData();
+      fdToolBar.left = new FormAttachment(0, 0);
+      fdToolBar.top = new FormAttachment(0, 0);
+      fdToolBar.right = new FormAttachment(100, 0);
+      toolbar.setLayoutData(fdToolBar);
+      PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
+
+      toolbarWidgets.createToolbarWidgets(toolBarContainer, ID_TOOLBAR, removeToolItems);
+      toolbar.pack();
+    }
+  }
+
+  /** Refresh enablement of built-in toolbar buttons based on selection and editability. */
+  public void updateToolbar() {
+    if (toolbarWidgets == null || toolbar == null || toolbar.isDisposed()) {
+      return;
+    }
+    boolean editable = isEditable();
+    boolean hasSelection = getSelectionCount() > 0;
+    boolean canPaste = editable && checkPaste();
+
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_UNDO, canUndo());
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_REDO, canRedo());
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CUT, editable && hasSelection);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_COPY, hasSelection);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_PASTE, canPaste);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_SELECT_ALL, getCharCount() > 0);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FIND, true);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FIND_REPLACE, editable);
+  }
+
+  // --- Toolbar actions (static so they resolve for every TextComposite subclass) ---
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_UNDO,
+      image = "ui/images/undo.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.Undo.ToolTip")
+  public static void toolbarUndo(TextComposite text) {
+    text.undo();
+    text.updateToolbar();
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_REDO,
+      image = "ui/images/redo.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.Redo.ToolTip")
+  public static void toolbarRedo(TextComposite text) {
+    text.redo();
+    text.updateToolbar();
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_CUT,
+      image = "ui/images/cut.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.Cut.ToolTip",
+      separator = true)
+  public static void toolbarCut(TextComposite text) {
+    text.cut();
+    text.updateToolbar();
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_COPY,
+      image = "ui/images/copy.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.Copy.ToolTip")
+  public static void toolbarCopy(TextComposite text) {
+    text.copy();
+    text.updateToolbar();
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_PASTE,
+      image = "ui/images/paste.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.Paste.ToolTip")
+  public static void toolbarPaste(TextComposite text) {
+    text.paste();
+    text.updateToolbar();
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_SELECT_ALL,
+      image = "ui/images/select-all.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.SelectAll.ToolTip")
+  public static void toolbarSelectAll(TextComposite text) {
+    text.selectAll();
+    text.updateToolbar();
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_FIND,
+      image = "ui/images/search.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.Find.ToolTip",
+      separator = true)
+  public static void toolbarFind(TextComposite text) {
+    text.find();
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_FIND_REPLACE,
+      image = "ui/images/edit.svg",
+      toolTip = "i18n::TextComposite.ToolBarWidget.FindReplace.ToolTip")
+  public static void toolbarFindReplace(TextComposite text) {
+    text.findAndReplace();
+  }
+
+  /** Open the find dialog (Ctrl+F). */
+  public void find() {
+    FindReplaceDialog.open(getShell(), this, false);
+  }
+
+  /** Open the find and replace dialog (Ctrl+H). */
+  public void findAndReplace() {
+    FindReplaceDialog.open(getShell(), this, true);
   }
 
   public abstract void addModifyListener(ModifyListener lsMod);
@@ -262,6 +589,16 @@ public abstract class TextComposite extends Composite {
     return false;
   }
 
+  /** Whether undo is currently available. */
+  protected boolean canUndo() {
+    return false;
+  }
+
+  /** Whether redo is currently available. */
+  protected boolean canRedo() {
+    return false;
+  }
+
   protected void buildingStyledTextMenu(Menu popupMenu) {
 
     if (isSupportUnoRedo()) {
@@ -271,7 +608,12 @@ public abstract class TextComposite extends Composite {
       undoItem.setImage(
           GuiResource.getInstance()
               .getImage("ui/images/undo.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-      undoItem.addListener(SWT.Selection, event -> undo());
+      undoItem.addListener(
+          SWT.Selection,
+          event -> {
+            undo();
+            updateToolbar();
+          });
 
       final MenuItem redoItem = new MenuItem(popupMenu, SWT.PUSH);
       redoItem.setText(
@@ -279,7 +621,12 @@ public abstract class TextComposite extends Composite {
       redoItem.setImage(
           GuiResource.getInstance()
               .getImage("ui/images/redo.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-      redoItem.addListener(SWT.Selection, event -> redo());
+      redoItem.addListener(
+          SWT.Selection,
+          event -> {
+            redo();
+            updateToolbar();
+          });
 
       new MenuItem(popupMenu, SWT.SEPARATOR);
     }
@@ -290,7 +637,12 @@ public abstract class TextComposite extends Composite {
     cutItem.setImage(
         GuiResource.getInstance()
             .getImage("ui/images/cut.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    cutItem.addListener(SWT.Selection, event -> cut());
+    cutItem.addListener(
+        SWT.Selection,
+        event -> {
+          cut();
+          updateToolbar();
+        });
 
     final MenuItem copyItem = new MenuItem(popupMenu, SWT.PUSH);
     copyItem.setText(
@@ -306,7 +658,12 @@ public abstract class TextComposite extends Composite {
     pasteItem.setImage(
         GuiResource.getInstance()
             .getImage("ui/images/paste.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    pasteItem.addListener(SWT.Selection, event -> paste());
+    pasteItem.addListener(
+        SWT.Selection,
+        event -> {
+          paste();
+          updateToolbar();
+        });
 
     new MenuItem(popupMenu, SWT.SEPARATOR);
 
@@ -318,7 +675,31 @@ public abstract class TextComposite extends Composite {
         GuiResource.getInstance()
             .getImage(
                 "ui/images/select-all.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
-    selectAllItem.addListener(SWT.Selection, event -> selectAll());
+    selectAllItem.addListener(
+        SWT.Selection,
+        event -> {
+          selectAll();
+          updateToolbar();
+        });
+
+    new MenuItem(popupMenu, SWT.SEPARATOR);
+
+    final MenuItem findItem = new MenuItem(popupMenu, SWT.PUSH);
+    findItem.setText(
+        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Find")));
+    findItem.setImage(
+        GuiResource.getInstance()
+            .getImage("ui/images/search.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    findItem.addListener(SWT.Selection, event -> find());
+
+    final MenuItem findReplaceItem = new MenuItem(popupMenu, SWT.PUSH);
+    findReplaceItem.setText(
+        OsHelper.customizeMenuitemText(
+            BaseMessages.getString(PKG, "WidgetDialog.Styled.FindReplace")));
+    findReplaceItem.setImage(
+        GuiResource.getInstance()
+            .getImage("ui/images/edit.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    findReplaceItem.addListener(SWT.Selection, event -> findAndReplace());
 
     addListener(
         SWT.KeyDown,
@@ -328,20 +709,26 @@ public abstract class TextComposite extends Composite {
               && (event.stateMask & SWT.MOD1) != 0
               && (event.stateMask & SWT.MOD2) != 0) {
             redo();
+            updateToolbar();
           } else if (isSupportUnoRedo()
               && event.keyCode == 'z'
               && (event.stateMask & SWT.MOD1) != 0) {
             undo();
+            updateToolbar();
           } else if (event.keyCode == 'a' && (event.stateMask & SWT.MOD1) != 0) {
             selectAll();
+            updateToolbar();
           } else if (event.keyCode == 'f' && (event.stateMask & SWT.MOD1) != 0) {
-            // TODO: implement FIND
-            // find();
+            find();
+            event.doit = false;
           } else if (event.keyCode == 'h' && (event.stateMask & SWT.MOD1) != 0) {
-            // TODO: implement FIND AND REPLACE
-            // findAndReplace();
+            findAndReplace();
+            event.doit = false;
           }
         });
+
+    addListener(SWT.Modify, event -> updateToolbar());
+    addListener(SWT.Selection, event -> updateToolbar());
 
     addMenuDetectListener(
         event -> {
@@ -353,8 +740,19 @@ public abstract class TextComposite extends Composite {
             cutItem.setEnabled(false);
             copyItem.setEnabled(false);
           }
+          findReplaceItem.setEnabled(isEditable());
+          updateToolbar();
         });
 
     setMenu(popupMenu);
+
+    // Initial enablement once the text control exists
+    getDisplay()
+        .asyncExec(
+            () -> {
+              if (!isDisposed()) {
+                updateToolbar();
+              }
+            });
   }
 }

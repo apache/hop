@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -358,7 +359,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
         new StyledTextComp(
             variables,
             wMessageGroup,
-            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+        TextComposite.STYLE_TYPE_TEXT);
     PropsUi.setLook(wMessage);
     wMessage.addModifyListener(lsMod);
     FormData fdMessage = new FormData();

@@ -20,6 +20,9 @@ under the License.
 
 Due to the https://www.eclipse.org/rap/developers-guide/devguide.php?topic=rwt.html[differences between RWT and SWT], there are some anti-patterns that should be avoided when developing webSpoon and (webSpoon-) compatible plugins.
 
+GUI toolbar plugins (`@GuiPlugin`) must not put desktop-only SWT types in method signatures; use abstractions such as `TextComposite` and content type via `getStyleType()`.
+See xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars].
+
 == Avoid sharing session-unique instances among sessions
 
 The *singleton pattern* is a design pattern where only one instance of a class is created.
