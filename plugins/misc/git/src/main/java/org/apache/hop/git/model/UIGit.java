@@ -656,6 +656,7 @@ public class UIGit extends VCS {
     return push("default");
   }
 
+  /** Ask which branch or tag to push and push it. */
   public boolean push(String type) throws HopException {
     if (!hasRemote()) {
       throw new HopException("There is no remote set up to push to. Please set this up.");
@@ -684,19 +685,38 @@ public class UIGit extends VCS {
         return false;
       }
     }
-    try {
-      name = name == null ? null : getExpandedName(name, type);
+    return push(type, name);
+  }
 
-      PushCommand cmd;
+  /**
+   * Push a single branch or tag by name, without asking which one.
+   *
+   * @param type the type of the reference: {@link VCS#TYPE_BRANCH} or {@link VCS#TYPE_TAG}
+   * @param name the short name of the branch or tag, null to push the default refspec
+   */
+  public boolean push(String type, String name) throws HopException {
+    return push(name == null ? null : new RefSpec(getExpandedName(name, type)));
+  }
+
+  /** Delete a tag on the remote: git push origin :refs/tags/name */
+  public boolean deleteRemoteTag(String name) throws HopException {
+    return push(new RefSpec(":" + getExpandedName(name, VCS.TYPE_TAG)));
+  }
+
+  private boolean push(RefSpec refSpec) throws HopException {
+    if (!hasRemote()) {
+      throw new HopException("There is no remote set up to push to. Please set this up.");
+    }
+    try {
+      PushCommand cmd = git.push();
 
       String url = git.getRepository().getConfig().getString("remote", "origin", "url");
-      cmd = git.push();
       if (!StringUtils.isEmpty(url) && (url.startsWith("https://") || url.startsWith("http://"))) {
         cmd.setCredentialsProvider(credentialsProvider);
       }
 
-      if (name != null) {
-        cmd.setRefSpecs(new RefSpec(name));
+      if (refSpec != null) {
+        cmd.setRefSpecs(refSpec);
       }
 
       Iterable<PushResult> resultIterable = cmd.call();
@@ -709,7 +729,7 @@ public class UIGit extends VCS {
           || e.getMessage()
               .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
         if (promptUsernamePassword()) {
-          return push(type);
+          return push(refSpec);
         }
       } else {
         throw new HopException("There was an error doing a git push", e);
@@ -727,23 +747,29 @@ public class UIGit extends VCS {
           result.getRemoteUpdates().stream()
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.OK)
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE)
+              // Deleting a ref that is already gone on the remote is not an error
+              .filter(update -> update.getStatus() != RemoteRefUpdate.Status.NON_EXISTING)
               .forEach(
                   // for each failed refspec
                   update -> {
+                    boolean isTag = update.getRemoteName().startsWith(Constants.R_TAGS);
                     sb.append("Errors while pushing: ")
                         .append("\n")
                         .append("Destination: ")
                         .append(result.getURI().toString())
                         .append("\n")
-                        .append("Branch name: ")
-                        .append(update.getSrcRef())
+                        .append(isTag ? "Tag name: " : "Branch name: ")
+                        // A delete has no source ref, report the ref on the remote instead
+                        .append(Repository.shortenRefName(update.getRemoteName()))
                         .append("\n");
                     switch (update.getStatus()) {
                       case REJECTED_NONFASTFORWARD:
                         sb.append(" * ")
                             .append(update.getStatus().toString())
                             .append(
-                                " - Remote repository contains changes. Merge the remote changes (e.g. 'git pull') before pushing again.")
+                                isTag
+                                    ? " - The tag already exists on the remote and points to another commit."
+                                    : " - Remote repository contains changes. Merge the remote changes (e.g. 'git pull') before pushing again.")
                             .append("\n");
                         break;
                       default:

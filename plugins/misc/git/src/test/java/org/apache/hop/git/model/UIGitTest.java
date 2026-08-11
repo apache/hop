@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -356,6 +357,36 @@ public class UIGitTest extends RepositoryTestCase {
     assertEquals(commit.getId(), db2.resolve(commit.getId().getName() + "^{commit}"));
 
     assertEquals("refs/remotes/origin/master", uiGit.getExpandedName("origin/master", "branch"));
+  }
+
+  @Test
+  public void testPushAndDeleteTagByName() throws Exception {
+    // Set remote
+    Git git2 = new Git(db2);
+    UIGit uiGit2 = new UIGit();
+    uiGit2.setGit(git2);
+    setupRemote();
+
+    git.commit().setMessage("initial commit").call();
+    git.tag().setName("v1").call();
+
+    // Push the tag itself, a default push doesn't include tags
+    assertTrue(uiGit.push());
+    assertFalse(uiGit2.getTags().contains("v1"));
+
+    assertTrue(uiGit.push(VCS.TYPE_TAG, "v1"));
+    assertTrue(uiGit2.getTags().contains("v1"));
+
+    // Delete the tag on the remote
+    assertTrue(uiGit.deleteRemoteTag("v1"));
+    assertFalse(uiGit2.getTags().contains("v1"));
+
+    // Deleting a tag that is already gone on the remote is not an error
+    assertTrue(uiGit.deleteRemoteTag("v1"));
+
+    // The name is known, so no selection dialog is opened
+    verify(uiGit, never()).getEnterSelectionDialog(any(), anyString(), anyString());
+    git2.close();
   }
 
   @Test
