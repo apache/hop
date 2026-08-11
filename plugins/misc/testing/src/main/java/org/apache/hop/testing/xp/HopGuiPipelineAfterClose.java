@@ -26,6 +26,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
+import org.apache.hop.testing.util.UnitTestGraphVariables;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 @ExtensionPoint(
     extensionPointId = "HopGuiPipelineAfterClose",
@@ -36,7 +38,16 @@ public class HopGuiPipelineAfterClose implements IExtensionPoint<PipelineMeta> {
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, PipelineMeta pipelineMeta)
       throws HopException {
-    Map<String, Object> stateMap = TestingGuiPlugin.getStateMap(pipelineMeta);
+    HopGuiPipelineGraph pipelineGraph = TestingGuiPlugin.getPipelineGraph(pipelineMeta);
+    Map<String, Object> stateMap =
+        pipelineGraph != null
+            ? pipelineGraph.getStateMap()
+            : TestingGuiPlugin.getStateMap(pipelineMeta);
+    if (pipelineGraph != null) {
+      UnitTestGraphVariables.clear(pipelineGraph.getVariables(), stateMap);
+    } else {
+      UnitTestGraphVariables.clear(variables, stateMap);
+    }
     if (stateMap != null) {
       stateMap.remove(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
     }

@@ -459,6 +459,8 @@ public class MetadataManager<T extends IHopMetadata> {
           element);
 
       MetadataEditor<T> editor = this.createEditor(element);
+      // Suggested default names from create-before hooks are not a persisted identity
+      editor.markAsNew();
 
       // Always open this in a separate dialog so that we block until we have a name for the new
       // element.
@@ -467,15 +469,9 @@ public class MetadataManager<T extends IHopMetadata> {
       MetadataEditorDialog dialog =
           new MetadataEditorDialog(HopGui.getInstance().getShell(), editor);
 
+      // MetadataEditor.save() already fires HopGuiMetadataObjectCreated on success
       String name = dialog.open();
-      if (name != null) {
-        ExtensionPointHandler.callExtensionPoint(
-            HopGui.getInstance().getLog(),
-            variables,
-            HopExtensionPoint.HopGuiMetadataObjectCreated.id,
-            element);
-      }
-      return element;
+      return name != null ? element : null;
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(), CONST_ERROR, "Error editing new metadata element", e);
@@ -501,6 +497,8 @@ public class MetadataManager<T extends IHopMetadata> {
           element);
 
       MetadataEditor<T> editor = this.createEditor(element);
+      // Suggested default names from create-before hooks are not a persisted identity
+      editor.markAsNew();
       editor.setTitle(
           BaseMessages.getString(
               PKG,
@@ -512,12 +510,11 @@ public class MetadataManager<T extends IHopMetadata> {
       //
       MetadataPerspective perspective = HopGui.getMetadataPerspective();
       if (perspective == null) {
+        // MetadataEditor.save() already fires HopGuiMetadataObjectCreated on success
         MetadataEditorDialog dialog = new MetadataEditorDialog(hopGui.getActiveShell(), editor);
         if (dialog.open() == null) {
           return null;
         }
-        ExtensionPointHandler.callExtensionPoint(
-            hopGui.getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectCreated.id, element);
         return element;
       }
 
