@@ -27,10 +27,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.variables.Variables;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HopVfs} */
 class HopVfsTest {
+
+  @AfterEach
+  void tearDown() {
+    // startsWithScheme(name, variables) bootstraps named VFS providers; clear so other core VFS
+    // tests are not polluted by static HopVfs state.
+    HopVfs.setBootstrapVariables(null);
+    HopVfs.reset();
+  }
 
   /**
    * Test to validate that startsWitScheme() returns true if the fileName starts with known protocol

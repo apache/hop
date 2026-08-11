@@ -74,6 +74,12 @@ public class DataSetConst {
   public static final String STATE_KEY_GOLDEN_DATASET_RESULTS = "GoldenDataSetResults";
   public static final String STATE_KEY_ACTIVE_UNIT_TEST = "ActiveUnitTest";
 
+  /**
+   * Keys of unit-test variables currently applied to the pipeline graph variable space
+   * (design-time). Value type: {@code Set<String>}.
+   */
+  public static final String STATE_KEY_APPLIED_UNIT_TEST_VARIABLES = "AppliedUnitTestVariables";
+
   private static final String[] tweakDesc =
       new String[] {
         BaseMessages.getString(PKG, "DataSetConst.Tweak.NONE.Desc"),

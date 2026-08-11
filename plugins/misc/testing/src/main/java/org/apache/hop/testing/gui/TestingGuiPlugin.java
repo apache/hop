@@ -63,6 +63,7 @@ import org.apache.hop.testing.PipelineUnitTestTweak;
 import org.apache.hop.testing.actions.runtests.RunPipelineTests;
 import org.apache.hop.testing.actions.runtests.RunPipelineTestsField;
 import org.apache.hop.testing.util.DataSetConst;
+import org.apache.hop.testing.util.UnitTestGraphVariables;
 import org.apache.hop.testing.xp.PipelineMetaModifier;
 import org.apache.hop.testing.xp.WriteToDataSetExtensionPoint;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -880,9 +881,10 @@ public class TestingGuiPlugin {
         return;
       }
 
-      // Remove
+      // Clear unit-test sample variables from the graph variable space, then drop state.
       //
       Map<String, Object> stateMap = getStateMap(pipelineMeta);
+      UnitTestGraphVariables.clear(pipelineGraph.getVariables(), stateMap);
       if (stateMap != null) {
         stateMap.clear();
       }
@@ -894,7 +896,7 @@ public class TestingGuiPlugin {
         combo.setText("");
       }
 
-      // Also clear the unit test variables from the pipelineGraph instance.
+      // Also clear the unit test control variables from the pipelineGraph instance.
       //
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "N");
       pipelineGraph.getVariables().setVariable(DataSetConst.VAR_UNIT_TEST_NAME, null);
@@ -1143,6 +1145,11 @@ public class TestingGuiPlugin {
     if (pipelineGraph == null) {
       return;
     }
+    Combo combo = getInstance().getUnitTestsCombo();
+    // Avoid re-firing the selection listener when the combo already shows this test
+    if (combo != null && Const.NVL(name, "").equals(combo.getText())) {
+      return;
+    }
     pipelineGraph.getToolBarWidgets().selectComboItem(ID_TOOLBAR_UNIT_TESTS_COMBO, name);
   }
 
@@ -1306,22 +1313,64 @@ public class TestingGuiPlugin {
   }
 
   public static final void selectUnitTest(PipelineMeta pipelineMeta, PipelineUnitTest unitTest) {
-    Map<String, Object> stateMap = getStateMap(pipelineMeta);
-    if (stateMap == null) {
+    HopGuiPipelineGraph pipelineGraph = getPipelineGraph(pipelineMeta);
+    if (pipelineGraph == null || unitTest == null) {
       // Can't select since we don't find the tab
+      return;
     }
+    Map<String, Object> stateMap = pipelineGraph.getStateMap();
     stateMap.put(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST, unitTest);
+
+    IVariables graphVariables = pipelineGraph.getVariables();
+    // Make unit-test sample variables available for design-time (get fields, check, dialogs)
+    // and as the live source for the next execution configuration dialog.
+    UnitTestGraphVariables.apply(graphVariables, unitTest, stateMap);
+
+    // Keep unit-test control flags in sync on switch (not only at run start)
+    graphVariables.setVariable(DataSetConst.VAR_RUN_UNIT_TEST, "Y");
+    graphVariables.setVariable(DataSetConst.VAR_UNIT_TEST_NAME, unitTest.getName());
+
     selectUnitTestInList(unitTest.getName());
   }
 
   public static Map<String, Object> getStateMap(PipelineMeta pipelineMeta) {
+    HopGuiPipelineGraph pipelineGraph = getPipelineGraph(pipelineMeta);
+    return pipelineGraph != null ? pipelineGraph.getStateMap() : null;
+  }
+
+  /**
+   * Find the open pipeline graph tab for the given metadata, if any.
+   *
+   * <p>Prefers the active pipeline graph when it matches, then scans explorer tabs. Matching is by
+   * identity first, then {@link PipelineMeta#equals(Object)} (filename/name).
+   *
+   * @param pipelineMeta the pipeline metadata
+   * @return the graph, or null when the pipeline is not open in the GUI
+   */
+  public static HopGuiPipelineGraph getPipelineGraph(PipelineMeta pipelineMeta) {
+    HopGuiPipelineGraph active = HopGui.getActivePipelineGraph();
+    if (active != null && pipelineMetaMatches(active.getPipelineMeta(), pipelineMeta)) {
+      return active;
+    }
+    if (pipelineMeta == null || HopGui.getExplorerPerspective() == null) {
+      return null;
+    }
     for (TabItemHandler item : HopGui.getExplorerPerspective().getItems()) {
-      if (item.getTypeHandler().getSubject().equals(pipelineMeta)) {
-        HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) item.getTypeHandler();
-        return pipelineGraph.getStateMap();
+      if (!(item.getTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph)) {
+        continue;
+      }
+      if (pipelineMetaMatches(pipelineGraph.getPipelineMeta(), pipelineMeta)) {
+        return pipelineGraph;
       }
     }
     return null;
+  }
+
+  private static boolean pipelineMetaMatches(PipelineMeta a, PipelineMeta b) {
+    if (a == null || b == null) {
+      return false;
+    }
+    return a == b || a.equals(b);
   }
 
   public static final PipelineUnitTest getCurrentUnitTest(PipelineMeta pipelineMeta) {
