@@ -451,7 +451,10 @@ public class ContextDialog extends Dialog {
     fdCanvas.top = new FormAttachment(searchComposite, 0);
     fdCanvas.bottom = new FormAttachment(wTooltipComposite, 0);
     wScrolledComposite.setLayoutData(fdCanvas);
+    // Expand + min size is the reliable ScrolledComposite/RAP pattern; content height is
+    // measured in onPaint and applied via setMinHeight / updateVerticalBar.
     wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
     itemsFont = GuiResource.getInstance().getFontDefault();
 
@@ -1107,6 +1110,11 @@ public class ContextDialog extends Dialog {
   }
 
   private void onResize(Event event) {
+    // Width changes reflow icons and change total content height; force a full remeasure.
+    previousTotalContentHeight = 0;
+    if (wCanvas != null && !wCanvas.isDisposed()) {
+      wCanvas.redraw();
+    }
     updateVerticalBar();
   }
 
@@ -1326,9 +1334,16 @@ public class ContextDialog extends Dialog {
 
     totalContentHeight = Math.max(area.height, y);
 
-    if (previousTotalContentHeight != totalContentHeight) {
+    // Content size is only known after paint. Resize the canvas and refresh the scrollbar here.
+    // updateVerticalBar() used to run only from filter()/resize *before* the first paint, so on
+    // Hop Web (RAP) the scroll range could stay stale and truncate the list mid-way (#7868).
+    int canvasWidth = wCanvas.getBounds().width;
+    if (previousTotalContentHeight != totalContentHeight || canvasWidth != area.width) {
       previousTotalContentHeight = totalContentHeight;
       wCanvas.setSize(area.width, totalContentHeight);
+      wScrolledComposite.setMinWidth(area.width);
+      wScrolledComposite.setMinHeight(totalContentHeight);
+      updateVerticalBar();
     }
   }
 
@@ -1649,25 +1664,37 @@ public class ContextDialog extends Dialog {
   }
 
   private void updateVerticalBar() {
+    if (wScrolledComposite == null || wScrolledComposite.isDisposed()) {
+      return;
+    }
     ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
+    if (verticalBar == null || verticalBar.isDisposed()) {
+      return;
+    }
     org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
-    if (totalContentHeight < clientArea.height) {
+    // Prefer the height measured in onPaint; canvas bounds can still be the dummy 10x10 size
+    // when filter() runs before the first paint.
+    int contentHeight = totalContentHeight;
+    if (contentHeight <= 0 && wCanvas != null && !wCanvas.isDisposed()) {
+      contentHeight = wCanvas.getBounds().height;
+    }
+
+    if (contentHeight <= clientArea.height) {
       verticalBar.setEnabled(false);
       verticalBar.setVisible(false);
     } else {
       verticalBar.setEnabled(true);
       verticalBar.setVisible(true);
 
-      org.eclipse.swt.graphics.Rectangle bounds = wCanvas.getBounds();
-
       verticalBar.setMinimum(0);
-      verticalBar.setMaximum(bounds.height);
+      verticalBar.setMaximum(contentHeight);
 
-      // How much can we show in percentage?
-      // That's the size of the thumb
-      //
-      verticalBar.setThumb(Math.min(clientArea.height, bounds.height));
+      // Thumb is the visible portion of the content (pixels).
+      verticalBar.setThumb(Math.min(clientArea.height, contentHeight));
+      int page = Math.max(clientArea.height - yMargin, 1);
+      verticalBar.setPageIncrement(page);
+      verticalBar.setIncrement(Math.max(iconSize + yMargin, 1));
     }
   }
 
