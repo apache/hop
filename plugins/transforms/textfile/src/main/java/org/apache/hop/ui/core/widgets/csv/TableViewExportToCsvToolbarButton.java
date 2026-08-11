@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.ui.core.widgets;
+package org.apache.hop.ui.core.widgets.csv;
 
 import java.io.BufferedWriter;
 import java.io.OutputStream;
