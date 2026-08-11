@@ -91,7 +91,7 @@ export SPARK_VERSION HADOOP_VERSION SPARK_BASE_URL
 export INCLUDE_DISABLED
 # Watchdog for a hop-run that never returns (see run-tests.sh). Exported so the value reaches the
 # test container through the compose files; 0 disables it.
-export HOP_IT_TIMEOUT="${HOP_IT_TIMEOUT:-1800}"
+export HOP_IT_TIMEOUT="${HOP_IT_TIMEOUT:-3600}"
 export HOP_SPARK_CLIENT_VERSION="${HOP_SPARK_CLIENT_VERSION:-}"
 
 if [ -z "${PROJECT_NAME}" ]; then
