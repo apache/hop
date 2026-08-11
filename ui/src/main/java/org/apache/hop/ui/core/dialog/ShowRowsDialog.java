@@ -35,10 +35,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -46,7 +43,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * Read-only dialog that shows a static set of rows with a custom title and header message.
@@ -55,9 +51,8 @@ import org.eclipse.swt.widgets.Text;
  * transform preview (streaming, "get more rows", pause/stop, logging text), use {@link
  * PreviewRowsDialog} instead.
  *
- * <p>Column headers are sortable. Each table item stores its original buffer index via {@link
- * TableItem#setData(Object)} so cell selection and full-value lookup still work after a sort
- * ({@link TableView} preserves unkeyed item data when rebuilding rows).
+ * <p>Column headers are sortable. Cells hold their full values — the grid only shortens long or
+ * multi-line text when drawing it — so copying, exporting and sorting all work on complete values.
  */
 public final class ShowRowsDialog {
 
@@ -70,11 +65,6 @@ public final class ShowRowsDialog {
       Const.toBoolean(
           HopConfig.readStringVariable(Const.HOP_BINARY_FIELDS_AVOID_HEX_PREVIEW, "false"));
 
-  /** Caps for the floating full-value box: it grows to fit the value, then scrolls beyond these. */
-  private static final int MAX_OVERLAY_WIDTH = 600;
-
-  private static final int MAX_OVERLAY_HEIGHT = 400;
-
   private final Shell parentShell;
   private final IVariables variables;
   private final String title;
@@ -85,14 +75,6 @@ public final class ShowRowsDialog {
   private Shell shell;
   private TableView tableView;
   private int lineNr;
-
-  /** Read-only text field overlaid on the clicked cell so its value can be selected in place. */
-  private TableEditor cellEditor;
-
-  private Text cellEditorText;
-
-  /** Lightweight floating box showing the full value of an overflowing cell (Ctrl+Space style). */
-  private Shell valueOverlay;
 
   public ShowRowsDialog(
       Shell parent,
@@ -149,7 +131,7 @@ public final class ShowRowsDialog {
 
     tableView = buildTableView(margin, messageLabel);
     populateRows();
-    setupCellSelection();
+    setupCellTooltip();
 
     BaseDialog.defaultShellHandling(shell, c -> close(), c -> close());
   }
@@ -163,6 +145,8 @@ public final class ShowRowsDialog {
       columns[i].setToolTip(formatColumnMetaTooltip(valueMeta));
       columns[i].setValueMeta(valueMeta);
       columns[i].setImage(GuiResource.getInstance().getImage(valueMeta));
+      // Read-only: the grid gives such a column a view-only inline editor with an expand icon, so
+      // the full value stays selectable in place and can be opened in the multi-line viewer.
       columns[i].setReadOnly(true);
     }
 
@@ -176,8 +160,7 @@ public final class ShowRowsDialog {
             null,
             PropsUi.getInstance());
     view.setShowingBlueNullValues(true);
-    // Column sorting is enabled; each item stores its original buffer index so full-value lookup
-    // still works after the table is reordered (see resolveBufferIndex).
+    // Column sorting is enabled: items carry their full values, so a sort reorders complete rows.
     view.setSortable(true);
 
     FormData fdTable = new FormData();
@@ -198,20 +181,17 @@ public final class ShowRowsDialog {
       } else {
         item = new TableItem(tableView.table, SWT.NONE);
       }
-      fillRow(item, rows.get(i), i);
+      fillRow(item, rows.get(i));
     }
     if (!tableView.isDisposed()) {
       tableView.optWidth(true, 200);
     }
   }
 
-  private void fillRow(TableItem item, Object[] row, int bufferIndex) {
+  private void fillRow(TableItem item, Object[] row) {
     if (row == null) {
       return;
     }
-
-    // Unkeyed data: TableView preserves getData()/setData(Object) across column sorts.
-    item.setData(bufferIndex);
 
     lineNr++;
     String rowNumber;
@@ -246,7 +226,9 @@ public final class ShowRowsDialog {
       }
 
       if (displayValue != null) {
-        item.setText(column + 1, TableView.formatCellValueForDisplay(displayValue));
+        // Store the full value: the grid shortens long / multi-line text at paint time, so what is
+        // copied, exported or read back out of the table stays complete.
+        item.setText(column + 1, displayValue);
         item.setForeground(column + 1, GuiResource.getInstance().getColorBlack());
       } else {
         item.setText(column + 1, "<null>");
@@ -259,42 +241,22 @@ public final class ShowRowsDialog {
     if (shell == null || shell.isDisposed()) {
       return;
     }
-    if (cellEditor != null) {
-      cellEditor.dispose();
-    }
     PropsUi.getInstance().setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
   /**
-   * Cells only show a truncated, single-lined value for performance (see {@link
-   * TableView#formatCellValueForDisplay}). Clicking a cell drops a read-only text field on it (like
-   * the inline editor of an editable grid) so its full value can be selected and copied in place;
-   * double-clicking a cell shows its full, original content in a floating box (handy for long
-   * strings, JSON and multi-line values). Hovering (or selecting) a cell shows column metadata in a
-   * tooltip: name, type, length, precision.
+   * Hovering a cell shows column metadata in a tooltip: name, type, length, precision. Selecting a
+   * cell is handled by the grid itself: a read-only column gets a view-only inline editor holding
+   * the full value, with an expand icon for the multi-line viewer.
    */
-  private void setupCellSelection() {
-    cellEditor = new TableEditor(tableView.table);
-    cellEditor.grabHorizontal = true;
-    cellEditor.horizontalAlignment = SWT.LEFT;
-    tableView.table.addListener(
-        SWT.MouseDown,
-        event -> {
-          // Leave Shift/Ctrl clicks to the table so row range/toggle selection keeps working.
-          if (event.button == 1 && (event.stateMask & (SWT.SHIFT | SWT.MOD1)) == 0) {
-            openCellEditor(new Point(event.x, event.y));
-          }
-        });
-    tableView.table.addListener(
-        SWT.MouseDoubleClick, event -> showFullCellValue(new Point(event.x, event.y)));
-    // Dynamic cell tooltip with column metadata (name, type, length, precision, ...).
+  private void setupCellTooltip() {
     tableView.table.addListener(
         SWT.MouseMove,
         event -> {
-          CellRef ref = cellAt(new Point(event.x, event.y));
+          int dataColumn = dataColumnAt(new Point(event.x, event.y));
           String tip =
-              ref == null ? null : formatColumnMetaTooltip(rowMeta.getValueMeta(ref.dataColumn));
+              dataColumn < 0 ? null : formatColumnMetaTooltip(rowMeta.getValueMeta(dataColumn));
           if (!Objects.equals(tip, tableView.table.getToolTipText())) {
             tableView.table.setToolTipText(tip);
           }
@@ -339,254 +301,25 @@ public final class ShowRowsDialog {
     return tip.toString();
   }
 
-  private void showFullCellValue(Point point) {
-    CellRef ref = cellAt(point);
-    if (ref != null) {
-      expandCell(ref.bounds, ref.bufferIndex, ref.tableColumn);
-    }
-  }
-
   /**
-   * Single-click handler: drop a read-only text field on the clicked cell — the same cell-fitting
-   * effect as an editable grid's inline editor — holding the full, untruncated value so it can be
-   * selected and copied in place. Double-clicking the field expands it to the full-value box.
+   * The 0-based data column under a table-relative point, or -1 when the point isn't over a data
+   * cell (the row-number column, empty space, or a column outside the row metadata).
    */
-  private void openCellEditor(Point point) {
-    CellRef ref = cellAt(point);
-    if (ref == null) {
-      return;
-    }
-    String full = getFullCellString(ref.bufferIndex, ref.dataColumn);
-    if (full == null) {
-      return;
-    }
-    TableItem item = tableView.table.getItem(ref.tableRowIndex);
-
-    if (cellEditorText != null && !cellEditorText.isDisposed()) {
-      cellEditorText.dispose();
-    }
-
-    final Text field = new Text(tableView.table, SWT.SINGLE | SWT.READ_ONLY);
-    PropsUi.setLook(field);
-    field.setText(full);
-    field.setToolTipText(formatColumnMetaTooltip(rowMeta.getValueMeta(ref.dataColumn)));
-    cellEditorText = field;
-    final long openedAt = System.currentTimeMillis();
-
-    // Escape or losing focus removes the field again.
-    field.addListener(
-        SWT.KeyDown,
-        e -> {
-          if (e.keyCode == SWT.ESC) {
-            field.dispose();
-          }
-        });
-    field.addListener(SWT.FocusOut, e -> field.dispose());
-
-    // Double-clicking the field expands to the full-value box. The field is created on the first
-    // click, so on some platforms the second click of a double-click lands on this fresh field as a
-    // plain MouseDown; treat a click within the OS double-click time of it opening as that second
-    // click too. Coordinates are captured so the box anchors to the same cell.
-    final Rectangle cellBounds = ref.bounds;
-    final int bufferIndex = ref.bufferIndex;
-    final int tableColumn = ref.tableColumn;
-    field.addListener(SWT.MouseDoubleClick, e -> expandCell(cellBounds, bufferIndex, tableColumn));
-    field.addListener(
-        SWT.MouseDown,
-        e -> {
-          if (System.currentTimeMillis() - openedAt
-              <= tableView.getDisplay().getDoubleClickTime()) {
-            expandCell(cellBounds, bufferIndex, tableColumn);
-          }
-        });
-
-    cellEditor.setEditor(field, item, tableColumn);
-    field.setFocus();
-    field.selectAll();
-  }
-
-  /** Expand the given cell's full value into the floating, selectable value box. */
-  private void expandCell(Rectangle cellBounds, int bufferIndex, int tableColumn) {
-    if (cellEditorText != null && !cellEditorText.isDisposed()) {
-      cellEditorText.dispose();
-    }
-    // A double-click fires both a MouseDown (caught within the double-click window) and a
-    // MouseDoubleClick; ignore the second while the box for this click is still up.
-    if (valueOverlay != null && !valueOverlay.isDisposed()) {
-      return;
-    }
-    String full = getFullCellString(bufferIndex, tableColumn - 1);
-    if (full != null) {
-      showValueOverlay(cellBounds, full);
-    }
-  }
-
-  /**
-   * Resolve the data cell under a table-relative point, or null when the point isn't over a data
-   * cell (the row-number column, empty space, or a row/column outside the backing buffer).
-   */
-  private CellRef cellAt(Point point) {
-    if (tableView == null || tableView.isDisposed() || rows == null || rowMeta == null) {
-      return null;
+  private int dataColumnAt(Point point) {
+    if (tableView == null || tableView.isDisposed() || rowMeta == null) {
+      return -1;
     }
     TableItem item = tableView.table.getItem(point);
     if (item == null) {
-      return null;
-    }
-    int tableRowIndex = tableView.table.indexOf(item);
-    if (tableRowIndex < 0) {
-      return null;
-    }
-    int bufferIndex = resolveBufferIndex(item);
-    if (bufferIndex < 0 || bufferIndex >= rows.size()) {
-      return null;
+      return -1;
     }
     // Column 0 is the row-number column; data columns start at 1. Find the one under the pointer.
     for (int i = 1; i < tableView.table.getColumnCount(); i++) {
-      Rectangle b = item.getBounds(i);
-      if (b.contains(point)) {
+      if (item.getBounds(i).contains(point)) {
         int dataColumn = i - 1;
-        return dataColumn < rowMeta.size()
-            ? new CellRef(bufferIndex, tableRowIndex, i, dataColumn, b)
-            : null;
+        return dataColumn < rowMeta.size() ? dataColumn : -1;
       }
     }
-    return null;
-  }
-
-  /**
-   * Map a visual table item back to its original {@link #rows} index. Prefers the value stored at
-   * fill time via {@link TableItem#setData(Object)}; falls back to the 1-based line number in
-   * column 0, which also moves with the row when the table is sorted.
-   */
-  private int resolveBufferIndex(TableItem item) {
-    Object data = item.getData();
-    if (data instanceof Integer index) {
-      return index;
-    }
-    // Fallback: original line number text in the # column (1-based).
-    try {
-      String text = item.getText(0);
-      if (Utils.isEmpty(text)) {
-        return -1;
-      }
-      return Integer.parseInt(text.trim()) - 1;
-    } catch (NumberFormatException e) {
-      return -1;
-    }
-  }
-
-  /**
-   * A located data cell: buffer index into {@link #rows}, visual table row, 1-based table column,
-   * 0-based data column, and cell bounds.
-   */
-  private static final class CellRef {
-    private final int bufferIndex;
-    private final int tableRowIndex;
-    private final int tableColumn;
-    private final int dataColumn;
-    private final Rectangle bounds;
-
-    private CellRef(
-        int bufferIndex, int tableRowIndex, int tableColumn, int dataColumn, Rectangle bounds) {
-      this.bufferIndex = bufferIndex;
-      this.tableRowIndex = tableRowIndex;
-      this.tableColumn = tableColumn;
-      this.dataColumn = dataColumn;
-      this.bounds = bounds;
-    }
-  }
-
-  /**
-   * Show the full cell value in a lightweight, non-modal multi-line text box anchored to the cell —
-   * the same floating-shell idea as the Ctrl+Space variable helper. Dismisses on Escape or when it
-   * loses focus.
-   */
-  private void showValueOverlay(Rectangle cellBounds, String value) {
-    if (valueOverlay != null && !valueOverlay.isDisposed()) {
-      valueOverlay.dispose();
-    }
-
-    Point location = tableView.table.toDisplay(cellBounds.x, cellBounds.y);
-
-    // A resizable (but title-less) floating shell: light like the variable helper, yet the user can
-    // drag its edges to make it bigger for a long value.
-    final Shell overlay = new Shell(shell, SWT.RESIZE);
-    overlay.setLayout(new FillLayout());
-
-    final Text text =
-        new Text(overlay, SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY | SWT.BORDER);
-    PropsUi.setLook(text);
-    text.setText(value);
-
-    // Size the box to its content. Width comes from the value's natural (unwrapped) width, at least
-    // the cell width and capped so it never sprawls across the screen; height is then measured
-    // after
-    // the value wraps to that width (minus the border + scrollbar gutter), so a value that spans
-    // several lines gets a taller box instead of a scrollbar — we only scroll past the height cap.
-    Point natural = text.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-    int contentWidth = Math.min(natural.x + 20, MAX_OVERLAY_WIDTH);
-    int width = Math.max(cellBounds.width, contentWidth);
-    int wrapWidth = Math.max(50, width - 24);
-    Point wrapped = text.computeSize(wrapWidth, SWT.DEFAULT);
-    int contentHeight = Math.min(wrapped.y + 8, MAX_OVERLAY_HEIGHT);
-    int height = Math.max(cellBounds.height + 4, contentHeight);
-    overlay.setSize(width, height);
-    overlay.setLocation(location.x, location.y);
-
-    // Dismiss on Escape.
-    text.addListener(
-        SWT.KeyDown,
-        e -> {
-          if (e.keyCode == SWT.ESC) {
-            overlay.dispose();
-          }
-        });
-
-    overlay.open();
-    valueOverlay = overlay;
-
-    // Grab focus after the current (double-click) event settles, so a trailing table focus event
-    // can't immediately close the box. Pre-select the whole value so it's ready to copy. Only after
-    // focus is settled inside the box do we arm click-away dismissal — via shell deactivation
-    // rather
-    // than a text focus-out, so grabbing a resize edge (which keeps the shell active) doesn't close
-    // it.
-    overlay
-        .getDisplay()
-        .asyncExec(
-            () -> {
-              if (text.isDisposed()) {
-                return;
-              }
-              text.setFocus();
-              text.selectAll();
-              overlay.addListener(
-                  SWT.Deactivate,
-                  e -> {
-                    if (!overlay.isDisposed()) {
-                      overlay.dispose();
-                    }
-                  });
-            });
-  }
-
-  /** Convert the raw buffer value at (rowIndex, column) to its full string form, no truncation. */
-  private String getFullCellString(int rowIndex, int column) {
-    Object[] row = rows.get(rowIndex);
-    IValueMeta valueMeta = rowMeta.getValueMeta(column);
-    try {
-      if (valueMeta.isBinary()) {
-        byte[] bytes = valueMeta.getBinary(row[column]);
-        if (bytes == null) {
-          return null;
-        }
-        return AVOID_BINARY_IN_HEX ? valueMeta.getString(bytes) : Hex.encodeHexString(bytes);
-      }
-      return valueMeta.getString(row[column]);
-    } catch (HopValueException e) {
-      new LogChannel(PKG).logError("Unable to format cell value", e);
-      return null;
-    }
+    return -1;
   }
 }
