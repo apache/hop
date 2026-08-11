@@ -23,6 +23,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -51,25 +52,31 @@ public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged
       return;
     }
 
-    test.setName(uniqueUnitTestName(pipelineMeta.getName()));
+    HopGui hopGui = HopGui.getInstance();
+    test.setName(uniqueUnitTestName(pipelineMeta.getName(), hopGui.getMetadataProvider()));
     test.setType(TestType.UNIT_TEST);
-    test.setRelativeFilename(HopGui.getInstance().getVariables(), pipelineMeta.getFilename());
+    test.setRelativeFilename(hopGui.getVariables(), pipelineMeta.getFilename());
   }
 
   /**
    * Build a default unit-test name that does not collide with an existing unit test.
    *
    * <p>{@code <pipeline> UNIT}, then {@code <pipeline> UNIT 2}, {@code UNIT 3}, ...
+   *
+   * @param pipelineName pipeline name used as the base (may be null/empty)
+   * @param metadataProvider metadata used to detect existing names; when null, returns the base
+   *     name without collision checks (headless / unit tests must not call {@code
+   *     HopGui.getInstance()})
    */
-  static String uniqueUnitTestName(String pipelineName) throws HopException {
+  static String uniqueUnitTestName(String pipelineName, IHopMetadataProvider metadataProvider)
+      throws HopException {
     String base = (Utils.isEmpty(pipelineName) ? "Pipeline" : pipelineName.trim()) + " UNIT";
-    HopGui hopGui = HopGui.getInstance();
-    if (hopGui == null || hopGui.getMetadataProvider() == null) {
+    if (metadataProvider == null) {
       return base;
     }
 
     IHopMetadataSerializer<PipelineUnitTest> serializer =
-        hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class);
+        metadataProvider.getSerializer(PipelineUnitTest.class);
     if (!serializer.exists(base)) {
       return base;
     }

@@ -30,14 +30,14 @@ class HopGuiUnitTestCreateBeforeDialogTest {
 
   @Test
   void uniqueUnitTestNameUsesPipelineNameBase() throws Exception {
-    // Without HopGui metadata provider, returns the base name only
-    String name = HopGuiUnitTestCreateBeforeDialog.uniqueUnitTestName("my-pipeline");
+    // Null metadata provider: no HopGui/SWT — base name only (headless CI safe)
+    String name = HopGuiUnitTestCreateBeforeDialog.uniqueUnitTestName("my-pipeline", null);
     assertEquals("my-pipeline UNIT", name);
   }
 
   @Test
   void uniqueUnitTestNameHandlesEmptyPipelineName() throws Exception {
-    String name = HopGuiUnitTestCreateBeforeDialog.uniqueUnitTestName(null);
+    String name = HopGuiUnitTestCreateBeforeDialog.uniqueUnitTestName(null, null);
     assertEquals("Pipeline UNIT", name);
     assertTrue(name.endsWith(" UNIT"));
   }
