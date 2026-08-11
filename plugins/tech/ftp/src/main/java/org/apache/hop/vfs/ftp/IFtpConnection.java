@@ -63,7 +63,7 @@ public interface IFtpConnection {
   /**
    * An FTP proxy to log in through. The client connects to this host instead of to the server, and
    * the server it really wants is passed along in the user name - see {@link
-   * FtpClientFactory#proxyUserName}.
+   * FtpClientFactory#loginUserName}.
    */
   String getProxyHost();
 
