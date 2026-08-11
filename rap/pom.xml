@@ -31,7 +31,7 @@
     <properties>
         <monaco.resources.dir>${project.build.directory}/generated-resources/org/apache/hop/ui/hopgui/monaco</monaco.resources.dir>
         <monaco.version>0.55.1</monaco.version>
-        <rap.version>4.5.0</rap.version>
+        <rap.version>4.7.0</rap.version>
     </properties>
 
     <dependencies>
