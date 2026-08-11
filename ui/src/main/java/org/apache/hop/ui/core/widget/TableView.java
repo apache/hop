@@ -841,6 +841,10 @@ public class TableView extends Composite {
       }
       final int rowNr = table.indexOf(row);
       final int colNr = activeTableColumn;
+      if (isColumnReadOnly(colNr)) {
+        // Nothing is typed into a view-only editor, so there is nothing to write back.
+        return;
+      }
       final String value = getTextWidgetValue(colNr);
 
       final String[] fBeforeEdit = beforeEdit;
@@ -1295,6 +1299,12 @@ public class TableView extends Composite {
         final Control ftext = text;
         final Composite fholder = inlineEditorHolder;
 
+        // The editor on a read-only cell is a viewer: it just goes away, it never writes back.
+        if (isColumnReadOnly(colNr)) {
+          disposeInlineEditor(ftext, fholder);
+          return;
+        }
+
         final String[] fBeforeEdit = beforeEdit;
 
         // Save the position of the caret for the focus-dropping popup-dialogs
@@ -1712,8 +1722,8 @@ public class TableView extends Composite {
       final IRowMeta sourceRowMeta = buildTableSourceRowMeta(rowMeta, conversionRowMeta);
       List<Object[]> v = getTableItemsAsRows(items, sourceRowMeta);
 
-      // Keep TableItem#getData() across the rebuild so callers (e.g. ShowRowsDialog) can map a
-      // visual row back to an external buffer index after the user sorts a column.
+      // Keep TableItem#getData() across the rebuild so callers that tag their rows can still map a
+      // visual row back to their own data after the user sorts a column.
       final Object[] preservedData = new Object[items.length];
       for (int i = 0; i < items.length; i++) {
         preservedData[i] = items[i].getData();
@@ -1894,6 +1904,14 @@ public class TableView extends Composite {
     disposeInlineEditor(text, inlineEditorHolder);
   }
 
+  /** True when the given (1-based) table column is read-only, so its editor is view-only. */
+  private boolean isColumnReadOnly(int colNr) {
+    return colNr > 0
+        && colNr - 1 < columns.length
+        && columns[colNr - 1] != null
+        && columns[colNr - 1].isReadOnly();
+  }
+
   /** Variant for call sites that captured the editor and its holder before going asynchronous. */
   @SuppressWarnings("javabugs:S2259") // the holder is created before it is deferred for disposal
   private void disposeInlineEditor(Control editorControl, Composite holder) {
@@ -1924,6 +1942,12 @@ public class TableView extends Composite {
 
   private void applyTextChange(TableItem row, int rowNr, int colNr) {
     if (text == null || text.isDisposed()) {
+      return;
+    }
+    // The editor on a read-only cell is a viewer: take it down again without touching the value.
+    if (isColumnReadOnly(colNr)) {
+      disposeInlineEditor();
+      table.setFocus();
       return;
     }
     String textData = getTextWidgetValue(colNr);
@@ -2022,11 +2046,12 @@ public class TableView extends Composite {
 
   /**
    * Open the multi-line editor on the cell currently being edited, carrying over whatever stands in
-   * the inline editor. Silently does nothing for cells that have no pop-out (combo, button,
-   * password, read-only or disabled), so it is safe to wire to a key stroke that is not cell-aware.
+   * the inline editor. On a read-only column it opens as a value viewer. Silently does nothing for
+   * cells that have no pop-out (combo, button, password or disabled), so it is safe to wire to a
+   * key stroke that is not cell-aware.
    */
   private void expandActiveCell() {
-    if (readonly || !table.isEnabled() || !isEnabled() || columns.length == 0) {
+    if (!table.isEnabled() || !isEnabled() || columns.length == 0) {
       return;
     }
     if (activeTableItem == null || activeTableItem.isDisposed()) {
@@ -2041,7 +2066,6 @@ public class TableView extends Composite {
     if (colinfo == null
         || (colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT
             && colinfo.getType() != ColumnInfo.COLUMN_TYPE_TEXT_BUTTON)
-        || colinfo.isReadOnly()
         || colinfo.isPasswordField()) {
       return;
     }
@@ -2064,6 +2088,9 @@ public class TableView extends Composite {
       multilineShell.setFocus();
       return;
     }
+    // On a read-only column the pop-out is a value viewer: same box, but it can't be typed in and
+    // it never writes back to the cell.
+    final boolean viewOnly = colinfo.isReadOnly();
     // If an inline editor is already open on this cell, carry over its current (possibly edited)
     // text; otherwise start from the stored cell value. Read it before disposing the inline editor.
     String seed;
@@ -2077,9 +2104,11 @@ public class TableView extends Composite {
     setPosition(rowNr, colNr);
     table.setSelection(new TableItem[] {row});
 
-    beforeEdit = getItemText(row);
-    // An edit is already in progress when the carried-over text differs from the stored value.
-    fieldChanged = !seed.equals(row.getText(colNr));
+    if (!viewOnly) {
+      beforeEdit = getItemText(row);
+      // An edit is already in progress when the carried-over text differs from the stored value.
+      fieldChanged = !seed.equals(row.getText(colNr));
+    }
 
     Rectangle cellBounds = row.getBounds(colNr);
     Point location = table.toDisplay(cellBounds.x, cellBounds.y);
@@ -2097,20 +2126,34 @@ public class TableView extends Composite {
         });
     popup.setLayout(new FillLayout());
 
-    final Text multi = new Text(popup, SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER);
+    final Text multi =
+        new Text(
+            popup,
+            SWT.MULTI
+                | SWT.WRAP
+                | SWT.V_SCROLL
+                | SWT.BORDER
+                | (viewOnly ? SWT.READ_ONLY : SWT.NONE));
     PropsUi.setLook(multi);
     // Enter closing the editor is surprising in a multi-line box, so spell the keys out.
-    multi.setToolTipText(BaseMessages.getString(PKG, "TableView.tooltip.MultilineEditorKeys"));
+    multi.setToolTipText(
+        BaseMessages.getString(
+            PKG,
+            viewOnly
+                ? "TableView.tooltip.MultilineViewerKeys"
+                : "TableView.tooltip.MultilineEditorKeys"));
     // Seed with the platform delimiter so line breaks render (Windows needs \r\n).
     multi.setText(toPlatformLineBreaks(seed));
 
     // Track changes for undo + modified notifications, exactly like the inline editors do.
-    multi.addModifyListener(lsUndo);
-    if (lsMod != null) {
-      multi.addModifyListener(lsMod);
-    }
-    if (colinfo.isUsingVariables()) {
-      multi.addKeyListener(new ControlSpaceKeyAdapter(variables, multi));
+    if (!viewOnly) {
+      multi.addModifyListener(lsUndo);
+      if (lsMod != null) {
+        multi.addModifyListener(lsMod);
+      }
+      if (colinfo.isUsingVariables()) {
+        multi.addKeyListener(new ControlSpaceKeyAdapter(variables, multi));
+      }
     }
 
     popup.setSize(Math.max(cellBounds.width, 400), 200);
@@ -2128,6 +2171,10 @@ public class TableView extends Composite {
           popup.dispose();
           if (!table.isDisposed()) {
             table.setFocus();
+          }
+          if (viewOnly) {
+            // A value viewer only closes: nothing to store, nothing changed.
+            return;
           }
           if (!newValue.equals(row.getText(colNr))) {
             row.setText(colNr, newValue);
@@ -2977,7 +3024,12 @@ public class TableView extends Composite {
 
     ColumnInfo colinfo = columns[colNr - 1];
 
-    if (colinfo.isReadOnly()) {
+    // A read-only cell can't be edited, but its value still has to be readable and selectable: it
+    // is drawn shortened and single-lined, so without an editor there is no way to see the rest of
+    // it. Give it the same inline editor (and expand icon), only view-only. Columns that hand their
+    // click to a selection adapter keep doing nothing, as before.
+    final boolean viewOnly = colinfo.isReadOnly();
+    if (viewOnly && colinfo.getSelectionAdapter() != null) {
       return;
     }
 
@@ -3010,10 +3062,10 @@ public class TableView extends Composite {
       return;
     }
 
-    String content = row.getText(colNr) + (extra != 0 ? "" + extra : "");
+    String content = row.getText(colNr) + (!viewOnly && extra != 0 ? "" + extra : "");
     String tooltip = columns[colNr - 1].getToolTip();
 
-    final boolean useVariables = columns[colNr - 1].isUsingVariables();
+    final boolean useVariables = !viewOnly && columns[colNr - 1].isUsingVariables();
     final boolean passwordField = columns[colNr - 1].isPasswordField();
 
     final ModifyListener modifyListener = me -> setColumnWidthBasedOnTextField(colNr, useVariables);
@@ -3101,17 +3153,23 @@ public class TableView extends Composite {
         textWidget.addListener(SWT.KeyUp, lsKeyUp);
       }
     } else {
-      Text textWidget = new Text(editorParent, SWT.NONE);
+      Text textWidget = new Text(editorParent, viewOnly ? SWT.READ_ONLY : SWT.NONE);
       text = textWidget;
       textWidget.setText(content);
-      if (lsMod != null) {
-        textWidget.addModifyListener(lsMod);
+      // A view-only editor never changes anything, so it takes no modify/undo listeners.
+      if (!viewOnly) {
+        if (lsMod != null) {
+          textWidget.addModifyListener(lsMod);
+        }
+        textWidget.addModifyListener(lsUndo);
+        // Make the column larger so we can still see the string we're entering...
+        textWidget.addModifyListener(modifyListener);
       }
-      textWidget.addModifyListener(lsUndo);
       textWidget.setSelection(content.length());
+      if (viewOnly) {
+        forwardRowActivation(textWidget);
+      }
       textWidget.addKeyListener(lsKeyText);
-      // Make the column larger so we can still see the string we're entering...
-      textWidget.addModifyListener(modifyListener);
       if (selectText) {
         textWidget.selectAll();
       }
@@ -3146,6 +3204,33 @@ public class TableView extends Composite {
   }
 
   /**
+   * A view-only editor covers the cell, so the table itself never sees the second click of a
+   * double-click, nor the Enter key, that would otherwise fire {@link SWT#DefaultSelection} and
+   * activate the row. Pass those on, so dialogs that pick a row that way (e.g. SelectRowDialog)
+   * keep working on a read-only grid. Deferred, because the editor's own handling of the key takes
+   * it down first.
+   */
+  private void forwardRowActivation(Text textWidget) {
+    Listener activateRow =
+        e ->
+            getDisplay()
+                .asyncExec(
+                    () -> {
+                      if (!table.isDisposed()) {
+                        table.notifyListeners(SWT.DefaultSelection, new Event());
+                      }
+                    });
+    textWidget.addListener(SWT.MouseDoubleClick, activateRow);
+    textWidget.addListener(
+        SWT.KeyDown,
+        e -> {
+          if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+            activateRow.handleEvent(e);
+          }
+        });
+  }
+
+  /**
    * Put a small "expand" icon on the right edge of the inline editor which opens the value in the
    * floating multi-line editor. It is a {@link Label} rather than a {@link Button} on purpose: a
    * label does not take focus, so clicking it does not fire the editor's focus-lost handler (which
@@ -3156,7 +3241,12 @@ public class TableView extends Composite {
     Label expandLabel = new Label(holder, SWT.NONE);
     PropsUi.setLook(expandLabel);
     expandLabel.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    expandLabel.setToolTipText(BaseMessages.getString(PKG, "TableView.tooltip.ExpandValue"));
+    expandLabel.setToolTipText(
+        BaseMessages.getString(
+            PKG,
+            colinfo.isReadOnly()
+                ? "TableView.tooltip.ViewValue"
+                : "TableView.tooltip.ExpandValue"));
 
     // The holder sits on top of the table cell, so without a background of its own the cell's own
     // text shows through around the icon. Take the editor's background so the two read as one field
@@ -3496,7 +3586,10 @@ public class TableView extends Composite {
         for (int r = 0; r < table.getItemCount() && (r < nrLines || nrLines <= 0); r++) {
           TableItem ti = table.getItem(r);
           if (ti != null) {
-            columnStrings.add(ti.getText(c));
+            // Size on what is actually drawn: a long or multi-line value is shown shortened, so
+            // measuring the full value would stretch the column for text nobody sees.
+            String display = customCellText(ti, c);
+            columnStrings.add(display != null ? display : ti.getText(c));
           }
         }
       }
