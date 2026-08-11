@@ -19,8 +19,10 @@ package org.apache.hop.git;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Props;
@@ -96,6 +98,8 @@ public class GitCommitPerspective implements IHopPerspective {
   public static final String CONTEXT_MENU_ADD = "GitCommitPerspective-ContextMenu-10100-AddToGit";
   public static final String CONTEXT_MENU_ADD_TO_GIT_IGNORE =
       "GitCommitPerspective-ContextMenu-10110-AddToGitIgnore";
+  public static final String CONTEXT_MENU_UNSTAGE =
+      "GitCommitPerspective-ContextMenu-10120-Unstage";
   public static final String CONTEXT_MENU_SHOW_TEXT_DIFF =
       "GitCommitPerspective-ContextMenu-10200-ShowTextDiff";
   public static final String CONTEXT_MENU_SHOW_GRAPH_DIFF =
@@ -107,6 +111,7 @@ public class GitCommitPerspective implements IHopPerspective {
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "GitCommitPerspective-Toolbar";
   public static final String TOOLBAR_ITEM_REFRESH = "GitCommitPerspective-Toolbar-10100-Refresh";
   public static final String TOOLBAR_ITEM_ADD = "GitCommitPerspective-Toolbar-10200-Add";
+  public static final String TOOLBAR_ITEM_UNSTAGE = "GitCommitPerspective-Toolbar-10250-Unstage";
   public static final String TOOLBAR_ITEM_RESTORE = "GitCommitPerspective-Toolbar-10300-Restore";
   public static final String TOOLBAR_ITEM_DELETE = "GitCommitPerspective-Toolbar-10400-Delete";
 
@@ -254,6 +259,8 @@ public class GitCommitPerspective implements IHopPerspective {
           List<UIFile> selectedFiles = this.getSelectedFiles();
 
           setMenuItemEnabled(menuWidgets, CONTEXT_MENU_ADD, !getSelectedUntrackedFiles().isEmpty());
+          setMenuItemEnabled(
+              menuWidgets, CONTEXT_MENU_UNSTAGE, !getSelectedStagedFiles().isEmpty());
           setMenuItemEnabled(menuWidgets, CONTEXT_MENU_ADD_TO_GIT_IGNORE, !selectedFiles.isEmpty());
           setMenuItemEnabled(menuWidgets, CONTEXT_MENU_SHOW_TEXT_DIFF, !selectedFiles.isEmpty());
           setMenuItemEnabled(
@@ -328,33 +335,54 @@ public class GitCommitPerspective implements IHopPerspective {
 
   @GuiKeyboardShortcut(control = true, key = 'k', global = true)
   @GuiOsxKeyboardShortcut(command = true, key = 'k', global = true)
-  public void selectAllStaged() {
-    checkStagedFiles();
+  public void selectAllChanged() {
+    checkChangedFiles();
 
     wMessage.selectAll();
     wMessage.setFocus();
   }
 
   /**
-   * Check the staged files and uncheck the unstaged ones. Staged files are the ones that go into
-   * the next commit, so they are what the commit buttons act on by default.
+   * Check the files git already knows about, staged or not: the commit acts on what is checked, so
+   * this offers all the work in progress for the next commit. Untracked files are left unchecked:
+   * committing a file for the first time is a deliberate act, git doesn't do it for you either.
    */
-  private void checkStagedFiles() {
+  private void checkChangedFiles() {
     if (wTree == null || wTree.isDisposed() || wTree.getItemCount() < 2) {
       return;
     }
 
-    TreeItem stagedRootItem = this.getStagedRootItem();
-    stagedRootItem.setChecked(stagedRootItem.getItemCount() > 0);
-    for (TreeItem item : stagedRootItem.getItems()) {
-      item.setChecked(true);
+    for (TreeItem rootItem : wTree.getItems()) {
+      boolean allChecked = rootItem.getItemCount() > 0;
+      for (TreeItem item : rootItem.getItems()) {
+        boolean tracked = !(item.getData() instanceof UIFile file) || !isUntracked(file);
+        item.setChecked(tracked);
+        allChecked = allChecked && tracked;
+      }
+      rootItem.setChecked(allChecked);
+    }
+  }
+
+  /** A file git doesn't know about yet: added in the working tree, not in the index. */
+  private boolean isUntracked(UIFile file) {
+    return !file.isStaged() && file.getChangeType() == DiffEntry.ChangeType.ADD;
+  }
+
+  /** Uncheck the given files under the unstaged node, they are no longer part of the commit. */
+  private void uncheckUnstagedFiles(Set<String> fileNames) {
+    if (wTree == null || wTree.isDisposed() || wTree.getItemCount() < 2 || fileNames.isEmpty()) {
+      return;
     }
 
     TreeItem unstagedRootItem = this.getUnstagedRootItem();
-    unstagedRootItem.setChecked(false);
+    boolean allChecked = true;
     for (TreeItem item : unstagedRootItem.getItems()) {
-      item.setChecked(false);
+      if (item.getData() instanceof UIFile file && fileNames.contains(file.getName())) {
+        item.setChecked(false);
+      }
+      allChecked = allChecked && item.getChecked();
     }
+    unstagedRootItem.setChecked(allChecked && unstagedRootItem.getItemCount() > 0);
   }
 
   protected void retrieveState() {
@@ -462,6 +490,58 @@ public class GitCommitPerspective implements IHopPerspective {
     }
   }
 
+  /**
+   * Unstage the selected staged files: the equivalent of git restore --staged. The changes are kept
+   * in the working tree, only the index is updated. Use {@link #restoreFiles()} to throw the
+   * changes away.
+   */
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_UNSTAGE,
+      label = "i18n::GitCommitPerspective.Menu.Unstage.Text",
+      image = "git-unstage.svg")
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_UNSTAGE,
+      toolTip = "i18n::GitCommitPerspective.Toolbar.Unstage.Tooltip",
+      image = "git-unstage.svg")
+  @GuiKeyboardShortcut(control = true, alt = true, key = 'U')
+  @GuiOsxKeyboardShortcut(control = true, alt = true, key = 'U')
+  public void unstageFiles() {
+    try {
+      List<UIFile> files = getSelectedStagedFiles();
+      if (files.isEmpty()) {
+        return;
+      }
+
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      Set<String> unstagedFileNames = new HashSet<>();
+      for (UIFile file : files) {
+        git.resetPath(file.getName());
+        unstagedFileNames.add(file.getName());
+      }
+
+      GitGuiPlugin.getInstance().beforeRefresh();
+      refresh();
+
+      // Taking a file out of the commit is the point of unstaging it, so leave these unchecked
+      // even though refresh() offers every changed file by default.
+      //
+      uncheckUnstagedFiles(unstagedFileNames);
+      updateGui();
+
+      // Refresh the tree, change colors...
+      ExplorerPerspective.getInstance().refresh();
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.UnstageError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.UnstageError.Message"),
+          e);
+    }
+  }
+
   @GuiMenuElement(
       root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
       parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
@@ -556,6 +636,8 @@ public class GitCommitPerspective implements IHopPerspective {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_RESTORE,
+      // Keep restore, which throws changes away, out of the staging group
+      separator = true,
       toolTip = "i18n::GitCommitPerspective.Toolbar.Restore.Tooltip",
       image = "git-restore.svg")
   @GuiKeyboardShortcut(alt = true, control = true, key = 'Z')
@@ -900,6 +982,7 @@ public class GitCommitPerspective implements IHopPerspective {
     wMessage.setEnabled(gitEnabled);
 
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ADD, !getSelectedUntrackedFiles().isEmpty());
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_UNSTAGE, !getSelectedStagedFiles().isEmpty());
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RESTORE, !getSelectedStagedFiles().isEmpty());
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, !getSelectedFiles().isEmpty());
 
@@ -941,30 +1024,21 @@ public class GitCommitPerspective implements IHopPerspective {
         GitResource resource = GitResource.getInstance();
         for (String fileName : filesToCommit.keySet()) {
           UIFile file = filesToCommit.get(fileName);
-          TreeItem item = null;
+
+          // What is in the index goes under "Staged", the rest under "Unstaged", whatever the
+          // type of change is. A file that gets unstaged has to move to the unstaged node.
+          //
+          TreeItem item = new TreeItem(file.isStaged() ? stagedItem : untrackedItem, SWT.NONE);
           switch (file.getChangeType()) {
-            case ADD, COPY, RENAME:
-              {
-                item = new TreeItem(file.isStaged() ? stagedItem : untrackedItem, SWT.NONE);
+            case ADD, COPY, RENAME ->
                 item.setForeground(
                     file.isStaged() ? resource.getStagedAddColor() : resource.getUnstagedColor());
-                break;
-              }
-            case MODIFY:
-              {
-                item = new TreeItem(stagedItem, SWT.NONE);
+            case MODIFY ->
                 item.setForeground(
                     file.isStaged()
                         ? resource.getStagedModifyColor()
                         : resource.getUnstagedColor());
-                break;
-              }
-            case DELETE:
-              {
-                item = new TreeItem(stagedItem, SWT.NONE);
-                item.setForeground(resource.getIgnoredColor());
-                break;
-              }
+            case DELETE -> item.setForeground(resource.getIgnoredColor());
           }
 
           item.setText(file.getName());
@@ -975,9 +1049,9 @@ public class GitCommitPerspective implements IHopPerspective {
         stagedItem.setExpanded(true);
         untrackedItem.setExpanded(true);
 
-        // Start from the staged files, the way a "git commit" would
+        // Offer all the work in progress for the next commit
         //
-        checkStagedFiles();
+        checkChangedFiles();
       }
       wTree.setRedraw(true);
 
