@@ -91,7 +91,9 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
         && data.files.nrOfMissingFiles() > 0
         && !meta.getFileInput().isAcceptingFilenames()
         && !meta.getErrorHandling().isErrorIgnored()) {
-      logError(BaseMessages.getString(PKG, "BaseFileInputTransform.Log.Error.NoFilesSpecified"));
+      logError(
+          BaseMessages.getString(
+              BaseFileInputTransform.class, "BaseFileInputTransform.Log.Error.NoFilesSpecified"));
       return false;
     }
 
