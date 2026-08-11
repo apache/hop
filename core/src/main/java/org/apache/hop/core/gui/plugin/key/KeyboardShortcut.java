@@ -31,7 +31,12 @@ public class KeyboardShortcut {
   /** If true, shortcut works from anywhere (e.g. activate perspective, toggle terminal). */
   private boolean global;
 
-  /** Class that declares the shortcut (where it should be triggered). */
+  /**
+   * Class the shortcut is triggered on. It defaults to the class declaring the annotated method but
+   * is set to the GUI plugin class when the shortcut is registered: a shortcut method can be
+   * inherited from a base class (the canvas navigation keys are declared on DragViewZoomBase and
+   * inherited by the pipeline and workflow graphs).
+   */
   private String parentClassName;
 
   private String parentMethodName;

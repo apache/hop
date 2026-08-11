@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -765,6 +766,12 @@ public class PropsUi extends Props {
   }
 
   public static void setLook(final Widget widget, int style) {
+    // Handle the keyboard shortcuts of widgets that are created after their shell was set up, e.g.
+    // when a metadata editor rebuilds a section. In Hop Web the key listener has to be there when
+    // the widget is rendered or RAP never sends its key events to the server.
+    //
+    HopGuiKeyHandler.getInstance().attachTo(widget);
+
     if (EnvironmentUtils.getInstance().isWeb()) {
       setLookOnWeb(widget, style);
       return;
