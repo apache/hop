@@ -1691,10 +1691,8 @@ public class ContextDialog extends Dialog {
       verticalBar.setMaximum(contentHeight);
 
       // Thumb is the visible portion of the content (pixels).
+      // Note: RAP ScrollBar has no setPageIncrement/setIncrement — do not call them here.
       verticalBar.setThumb(Math.min(clientArea.height, contentHeight));
-      int page = Math.max(clientArea.height - yMargin, 1);
-      verticalBar.setPageIncrement(page);
-      verticalBar.setIncrement(Math.max(iconSize + yMargin, 1));
     }
   }
 
