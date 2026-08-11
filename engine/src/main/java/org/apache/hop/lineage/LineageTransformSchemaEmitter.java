@@ -20,7 +20,6 @@ package org.apache.hop.lineage;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -200,7 +199,9 @@ public final class LineageTransformSchemaEmitter {
     }
     try {
       return pipelineMeta.getPrevTransformFields(pipeline, transformMeta);
-    } catch (HopException ignored) {
+    } catch (Exception ignored) {
+      // Includes HopException and unexpected runtime failures from GetFields extension points
+      // (e.g. SWT access from a worker thread); design-graph schema is best-effort only.
       return null;
     }
   }
@@ -233,7 +234,8 @@ public final class LineageTransformSchemaEmitter {
     }
     try {
       return pipelineMeta.getTransformFields(pipeline, transformMeta);
-    } catch (HopException ignored) {
+    } catch (Exception ignored) {
+      // Best-effort design-graph fallback; see resolveInputRowMetaFromGraph.
       return null;
     }
   }
