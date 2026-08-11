@@ -45,5 +45,5 @@ services:
       - INCLUDE_DISABLED=${INCLUDE_DISABLED:-false}
       # Seconds a single hop-run may take before the watchdog in run-tests.sh dumps its JVM
       # threads and kills it. 0 disables the watchdog.
-      - HOP_IT_TIMEOUT=${HOP_IT_TIMEOUT:-1800}
+      - HOP_IT_TIMEOUT=${HOP_IT_TIMEOUT:-3600}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

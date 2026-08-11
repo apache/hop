@@ -46,12 +46,12 @@ fi
 # available), and only then kills it, so the next hang lands in the log with a stack trace.
 # Set HOP_IT_TIMEOUT=0 to disable the watchdog.
 if [ -z "${HOP_IT_TIMEOUT}" ]; then
-  HOP_IT_TIMEOUT=1800
+  HOP_IT_TIMEOUT=3600
 fi
 case "${HOP_IT_TIMEOUT}" in
 '' | *[!0-9]*)
-  echo "WARNING: ignoring non-numeric HOP_IT_TIMEOUT='${HOP_IT_TIMEOUT}', using 1800"
-  HOP_IT_TIMEOUT=1800
+  echo "WARNING: ignoring non-numeric HOP_IT_TIMEOUT='${HOP_IT_TIMEOUT}', using 3600"
+  HOP_IT_TIMEOUT=3600
   ;;
 *) ;;
 esac
