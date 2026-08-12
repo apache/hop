@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.MenuItem;
  * toolbars work.
  *
  * <p>Toolbar plugins receive a {@link TextComposite} instance. To know what kind of text is being
- * edited, use {@link #getStyleType()} (e.g. {@link #STYLE_TYPE_SQL}) rather than {@code instanceof}
+ * edited, use {@code getStyleType()} (e.g. {@link #STYLE_TYPE_SQL}) rather than {@code instanceof}
  * checks on subclasses — on Hop Web many specialized editors are replaced by a plain {@link
  * StyledTextComp} with the same style type set.
  *
