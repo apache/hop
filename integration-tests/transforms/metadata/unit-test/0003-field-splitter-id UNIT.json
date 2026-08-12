@@ -39,10 +39,10 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0054-split-fields-id UNIT",
+  "name": "0003-field-splitter-id UNIT",
   "description": "",
   "persist_filename": "",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0054-split-fields-id.hpl",
+  "pipeline_filename": "./0003-field-splitter-id.hpl",
   "test_type": "UNIT_TEST"
 }
