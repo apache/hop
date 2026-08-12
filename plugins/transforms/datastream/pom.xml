@@ -29,5 +29,5 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Data Stream</name>
 
-    <dependencies />
+    <dependencies></dependencies>
 </project>

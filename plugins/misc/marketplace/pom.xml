@@ -71,19 +71,19 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.build.directory}/generated" />
+                                <mkdir dir="${project.build.directory}/generated"></mkdir>
                                 <!-- Keep only the '- artifactId:' entries, normalized to '  - artifactId: <id>'. -->
                                 <loadfile property="fullClientEnv.plugins" srcFile="${project.basedir}/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml">
                                     <filterchain>
                                         <linecontainsregexp>
-                                            <regexp pattern="^\s*-\s*artifactId:\s*\S" />
+                                            <regexp pattern="^\s*-\s*artifactId:\s*\S"></regexp>
                                         </linecontainsregexp>
                                         <tokenfilter>
-                                            <replaceregex pattern="^\s*-\s*artifactId:\s*(.*?)\s*$" replace=" - artifactId: \1" />
+                                            <replaceregex pattern="^\s*-\s*artifactId:\s*(.*?)\s*$" replace=" - artifactId: \1"></replaceregex>
                                         </tokenfilter>
                                     </filterchain>
                                 </loadfile>
-                                <fail message="No '- artifactId:' entries found in optional-plugins.yaml" unless="fullClientEnv.plugins" />
+                                <fail message="No '- artifactId:' entries found in optional-plugins.yaml" unless="fullClientEnv.plugins"></fail>
                                 <echo encoding="UTF-8" file="${project.build.directory}/generated/full-client-env.yaml"># Generated from optional-plugins.yaml - do not edit by hand.
 # Rebuild the marketplace module to refresh (Maven generate-resources).
 #
@@ -102,7 +102,7 @@ enforceOnRun: false
 plugins:
 ${fullClientEnv.plugins}</echo>
                                 <!-- Normalize line endings so the output is byte-identical on every platform. -->
-                                <fixcrlf encoding="UTF-8" eol="lf" file="${project.build.directory}/generated/full-client-env.yaml" />
+                                <fixcrlf encoding="UTF-8" eol="lf" file="${project.build.directory}/generated/full-client-env.yaml"></fixcrlf>
                             </target>
                         </configuration>
                     </execution>
