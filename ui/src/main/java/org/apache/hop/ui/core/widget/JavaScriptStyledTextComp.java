@@ -40,7 +40,7 @@ public class JavaScriptStyledTextComp extends StyledTextVar {
       boolean varsSensitive,
       boolean variableIconOnTop) {
 
-    super(variables, parent, style, varsSensitive, variableIconOnTop);
+    super(variables, parent, style, varsSensitive, variableIconOnTop, true, STYLE_TYPE_JAVASCRIPT);
   }
 
   @Override

@@ -20,6 +20,9 @@ under the License.
 
 This page explains how to develop new plugins with references to make development easy.
 
+For contributing **toolbar buttons** and other GUI-only extensions (`@GuiPlugin`, `@GuiToolbarElement`, `@GuiToolbarElementFilter`), see xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars].
+That page covers the TextComposite and TableView extension points (SQL formatters, JSON tools, table export, and similar).
+
 == Plugin Registry
 
 Hop keeps a central registry of all the available Hop plugins.

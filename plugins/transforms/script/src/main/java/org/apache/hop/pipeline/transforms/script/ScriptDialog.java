@@ -513,7 +513,8 @@ public class ScriptDialog extends BaseTransformDialog {
               variables,
               item.getParent(),
               SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_SCRIPT);
     } else {
       wScript =
           new ScriptStyledTextComp(

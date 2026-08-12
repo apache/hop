@@ -627,6 +627,15 @@ public class PropsUi extends Props {
     setProperty(STRING_SHOW_TABLE_VIEW_TOOLBAR, show ? YES : NO);
   }
 
+  public boolean isShowTextCompositeToolbar() {
+    String show = getProperty(STRING_SHOW_TEXT_COMPOSITE_TOOLBAR, YES);
+    return YES.equalsIgnoreCase(show); // Default: show the toolbar
+  }
+
+  public void setShowTextCompositeToolbar(boolean show) {
+    setProperty(STRING_SHOW_TEXT_COMPOSITE_TOOLBAR, show ? YES : NO);
+  }
+
   /**
    * Maximum number of characters shown in a preview grid cell before it is truncated (double-click
    * the cell to see the full value). 0 disables truncation. Default 50.
