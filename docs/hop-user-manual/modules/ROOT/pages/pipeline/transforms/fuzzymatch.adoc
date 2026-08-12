@@ -27,7 +27,8 @@ under the License.
 
 The Fuzzy Match transform finds strings that potentially match using duplicate-detecting algorithms that calculate the similarity of two streams of data.
 
-This transform returns matching values as a separated list as specified by user-defined minimal or maximal values.
+For each row on the main stream, the transform compares the main stream field against values from the lookup stream and returns matches within the configured score range.
+Depending on the selected match mode, it can return the single best match, multiple matches as separate output rows (Top-K), or multiple matches as a concatenated list.
 
 |
 == Supported Engines
@@ -55,12 +56,34 @@ This transform returns matching values as a separated list as specified by user-
 |Main stream field|Identifies the primary stream to match the Lookup field with
 |Algorithm|Identifies which string-matching algorithm to use---options include Levenshtein, Damerau-Levenshtein, Needleman Wunsch, Jaro, Jaro Winkler, Pair letters similarity, Metaphone, Double Metaphone, SoundEx, or Refined SoundEx
 |Case sensitive|Identifies if streams can or cannot differ based on the use of uppercase and lowercase letters---only for use with the Levenshtein algorithms
-|Get closer value|When checked, returns a single result with the highest similarity score---when unchecked, returns all matches that satisfy the minimal and maximal value setting as a separated list, separated by the values separator
-|Minimum value|Identifies the lowest possible similarity score
-|Maximal value|Identifies the highest possible similarity score
-|Values separator|Identifies the string that separate the matches.
-Only available for specific algorithms and when the Get closer value option is unchecked.
+|Match mode|Controls how matches are returned (see <<match-mode>> below)
+|Minimum value|Identifies the lowest possible similarity score or distance that is accepted as a match
+|Maximal value|Identifies the highest possible similarity score or distance that is accepted as a match
+|Max matches|Top-K limit for multi-match modes.
+Only the best matches (by distance or similarity) are kept.
+The default is `10`.
+Values are hard-capped at `100` to avoid runaway memory and row explosion.
+Only available when Match mode is *All matches (separate rows)* or *All matches (concatenated)*.
+|Values separator|Identifies the string that separates matches (and measure values) when Match mode is *All matches (concatenated)*.
 |===
+
+[[match-mode]]
+*Match mode*
+
+|===
+|Mode|Description
+|Closest match|Returns a single result: the best match for the current main stream value.
+For distance algorithms (Levenshtein, Damerau-Levenshtein, Needleman Wunsch), the best match has the *smallest* distance.
+For similarity algorithms (Jaro, Jaro Winkler, Pair letters similarity), the best match has the *highest* similarity.
+|All matches (separate rows)|Returns one output row per match, each with its own match value and measure value.
+Matches are ranked (best first) and limited by *Max matches* (Top-K).
+This is the recommended way to retrieve multiple matches together with their distances or similarity scores.
+|All matches (concatenated)|Returns a single output row where all matches are joined with the *Values separator*.
+When a Value field is configured, the corresponding measure values are joined in the same order with the same separator (for example `A,B,C` with measures `1,2,3`).
+Results are also limited by *Max matches* (Top-K).
+|===
+
+TIP: Existing pipelines that used the former *Get closer value* checkbox map as follows: checked → *Closest match*; unchecked → *All matches (concatenated)*.
 
 *Algorithm Definitions*
 
@@ -97,8 +120,30 @@ The Fields tab enables you to define how to return the results of a comparison.
 [options="header"]
 |===
 |Option|Description
-|Match field|Defines the name of the column that contains the comparison value
-|Value field|Defines the similarity score for which to return a value
+|Match field|Defines the name of the column that contains the comparison value (the matched lookup string).
+In *All matches (concatenated)* mode this can contain multiple values joined by the values separator.
+|Value field|Defines the name of the column that contains the measure for the match.
+The measure type depends on the algorithm and match mode:
+
+* Distance algorithms (Levenshtein, Damerau-Levenshtein, Needleman Wunsch): integer distance for *Closest match* and *All matches (separate rows)*; a separator-joined string of distances for *All matches (concatenated)*.
+* Similarity algorithms (Jaro, Jaro Winkler, Pair letters similarity): numeric similarity for *Closest match* and *All matches (separate rows)*; a separator-joined string of scores for *All matches (concatenated)*.
+* Phonetic algorithms: the encoded phonetic value as a string.
 |===
 
 You can also specify the list of additional fields to retrieve from the lookup stream.
+
+* Additional fields are available for *Closest match* and *All matches (separate rows)* (one lookup field value per output row).
+* They are also available for phonetic algorithms.
+* They are not returned in *All matches (concatenated)* mode for distance and similarity algorithms, because multiple matches are collapsed into a single string cell.
+
+== Output behavior
+
+[options="header"]
+|===
+|Match mode|Output shape|Measure (Value field)
+|Closest match|One output row per main stream row|Single typed measure (integer / number / string)
+|All matches (separate rows)|Up to *Max matches* output rows per main stream row (one per match), ranked best-first|One typed measure per output row
+|All matches (concatenated)|One output row per main stream row|Separator-joined string of measures, aligned with the match list
+|===
+
+If no lookup value falls within the configured minimum and maximal range, the transform still forwards the main stream row with empty match and measure fields.
