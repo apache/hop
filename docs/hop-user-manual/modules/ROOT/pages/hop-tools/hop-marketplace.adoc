@@ -210,11 +210,29 @@ Configure the global marketplace repository list (stored under `marketplace` in 
 * *Set primary* — install tries this repository first
 * *Up* / *Down* — order fallbacks after the primary
 * *Reset defaults* — Apache Repository (primary) + Maven Central
-* *Save* — write hop-config (required to keep changes)
+* *Import…* / *Export…* — read or write a shareable `hop-marketplace-repo.yaml` definition on disk
+* *Import from URL…* — download a definition published at an https address (see <<marketplace-import-from-url>>)
+* *Save* — write hop-config (required to keep Add / Edit / Remove changes; the two import buttons save on their own)
 
 Add or edit a repository with id, name, URL, optional credentials, and primary/enabled flags:
 
 image::marketplace/marketplace-dialog-repository-editor.png[Add or edit marketplace repository,60%,align="left"]
+
+[[marketplace-import-from-url]]
+=== Import from URL
+
+*Import from URL…* adds a repository from a definition published on the web, so a marketplace operator can hand out one link instead of a file and a set of instructions.
+
+Because the address is typically pasted from an email, a chat message or a web page, the import is deliberately narrow:
+
+* *https only.* The definition names the hosts that plugin code is later downloaded from, so it must not be modifiable in transit. For a host without TLS, download the file and import it from disk.
+* *The download is anonymous.* No credentials are sent, so an address that turns out to be hostile cannot collect the `HOP_MARKETPLACE_*` credentials that apply to every repository. This means the definition itself has to be publicly readable; the artifacts it points at do not.
+* *Credentials in the file are ignored.* A definition fetched over the network describes *where* a repository is, never *who* connects to it. Add the username and password on the repository entry afterwards, or set `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`.
+* *Nothing is added until you confirm.* Hop shows the id, name, URL, download template, catalog URL and plugin count first. Adding a repository means trusting it as a source of code, so check that the addresses are ones you expect.
+
+One field is not merely descriptive: a definition that sets `primary: true` becomes the primary repository on import and demotes the current one, so every install tries it first. If that repository is private and the credentials are not set yet, installs that used to work will fail until they are. Check that field before importing a definition you did not write, and use *Set primary* to put the order back.
+
+Importing the same file *from disk* keeps any credentials it contains. That is what makes an administrator-provisioned definition work for an internal rollout: the file was placed there deliberately, where a URL is only ever a pointer.
 
 === Projects lifecycle environments
 
