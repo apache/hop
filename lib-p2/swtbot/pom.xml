@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-libs-p2</artifactId>
-        <version>2.19.0</version>
+        <version>2.20.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -111,8 +111,8 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <copy file="${swtbot.download.dir}/${swtbot.finder.file}" overwrite="true" tofile="${swtbot.finder.jar}"></copy>
-                                <copy file="${swtbot.download.dir}/${swtbot.junit5.file}" overwrite="true" tofile="${swtbot.junit5.jar}"></copy>
+                                <copy file="${swtbot.download.dir}/${swtbot.finder.file}" overwrite="true" tofile="${swtbot.finder.jar}" />
+                                <copy file="${swtbot.download.dir}/${swtbot.junit5.file}" overwrite="true" tofile="${swtbot.junit5.jar}" />
                             </target>
                         </configuration>
                     </execution>

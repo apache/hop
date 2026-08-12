@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-misc</artifactId>
-        <version>2.19.0</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-misc-marketplace</artifactId>
@@ -71,19 +71,19 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.build.directory}/generated"></mkdir>
+                                <mkdir dir="${project.build.directory}/generated" />
                                 <!-- Keep only the '- artifactId:' entries, normalized to '  - artifactId: <id>'. -->
                                 <loadfile property="fullClientEnv.plugins" srcFile="${project.basedir}/src/main/resources/org/apache/hop/marketplace/optional-plugins.yaml">
                                     <filterchain>
                                         <linecontainsregexp>
-                                            <regexp pattern="^\s*-\s*artifactId:\s*\S"></regexp>
+                                            <regexp pattern="^\s*-\s*artifactId:\s*\S" />
                                         </linecontainsregexp>
                                         <tokenfilter>
-                                            <replaceregex pattern="^\s*-\s*artifactId:\s*(.*?)\s*$" replace=" - artifactId: \1"></replaceregex>
+                                            <replaceregex pattern="^\s*-\s*artifactId:\s*(.*?)\s*$" replace=" - artifactId: \1" />
                                         </tokenfilter>
                                     </filterchain>
                                 </loadfile>
-                                <fail message="No '- artifactId:' entries found in optional-plugins.yaml" unless="fullClientEnv.plugins"></fail>
+                                <fail message="No '- artifactId:' entries found in optional-plugins.yaml" unless="fullClientEnv.plugins" />
                                 <echo encoding="UTF-8" file="${project.build.directory}/generated/full-client-env.yaml"># Generated from optional-plugins.yaml - do not edit by hand.
 # Rebuild the marketplace module to refresh (Maven generate-resources).
 #
@@ -102,7 +102,7 @@ enforceOnRun: false
 plugins:
 ${fullClientEnv.plugins}</echo>
                                 <!-- Normalize line endings so the output is byte-identical on every platform. -->
-                                <fixcrlf encoding="UTF-8" eol="lf" file="${project.build.directory}/generated/full-client-env.yaml"></fixcrlf>
+                                <fixcrlf encoding="UTF-8" eol="lf" file="${project.build.directory}/generated/full-client-env.yaml" />
                             </target>
                         </configuration>
                     </execution>
