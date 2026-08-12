@@ -86,7 +86,7 @@ a|URI Format
 `+[file://] absolute-path+`
 
 Where `absolute-path` is a valid absolute file name for the local platform.
-UNC names are supported under Windows.
+UNC paths are accepted by Apache VFS, but are not reliably supported in Hop — see <<windows-unc-paths, Windows UNC paths>>.
 
 Examples
 
@@ -270,6 +270,30 @@ Examples
 //
 |Zip|see 'jar'|
 |===
+
+[#windows-unc-paths]
+== Windows UNC paths
+
+The table above describes the file system types provided by Apache VFS itself.
+Apache VFS accepts UNC paths such as `+file://///somehost/someshare/afile.txt+`, but **UNC paths are not reliably supported in Hop**.
+They work in some cases and fail in others, and which transforms work is not predictable: the same file may be readable through one transform and not another, because different transforms reach the file system by different routes.
+
+WARNING: Do not rely on UNC paths in pipelines or workflows you intend to run unattended.
+
+Use a mounted drive or folder instead, and point Hop at the mount:
+
+* On Windows, map the share to a drive letter and use that letter, for example `+file:///Z:/somedir/afile.txt+`.
+* On Linux and macOS, mount the share and use the local path, for example `+file:///mnt/someshare/afile.txt+`.
+
+Referring to the mount through a variable keeps the pipeline portable across operating systems:
+
+[source]
+----
+# Windows
+NETWORK_PATH=Z:
+# Linux, macOS
+NETWORK_PATH=/mnt/someshare
+----
 
 == Supported operations
 
