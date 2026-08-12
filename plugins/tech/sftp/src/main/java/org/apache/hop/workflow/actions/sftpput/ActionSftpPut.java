@@ -543,7 +543,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                           realDestinationFolder
                               + Const.FILE_SEPARATOR
                               + myFile.getName().getBaseName());
-                  myFile.moveTo(destination);
+                  HopVfs.moveFile(myFile, destination);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(

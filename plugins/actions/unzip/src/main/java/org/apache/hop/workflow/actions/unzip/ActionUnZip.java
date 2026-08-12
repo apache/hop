@@ -907,7 +907,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             true,
             null);
 
-        sourceFileObject.moveTo(destFile);
+        HopVfs.moveFile(sourceFileObject, destFile);
 
         if (archiveSize > 0) {
           result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + archiveSize);

@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.NameScope;
-import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -369,30 +368,21 @@ public class SftpPut extends BaseTransform<SftpPutMeta, SftpPutData> {
   }
 
   /**
-   * Move a file, also when the two folders sit on different file systems of the operating system.
-   *
-   * <p>Two local folders are one and the same file system as far as VFS is concerned, whichever
-   * disks they're on, so {@link FileObject#moveTo(FileObject)} always picks a rename. A rename
-   * across a mount point is exactly what the OS refuses to do, so fall back to a copy followed by a
-   * delete. See <a href="https://github.com/apache/hop/issues/5936">issue #5936</a>.
+   * Move a file, saying which file it was about when that doesn't work. {@link
+   * HopVfs#moveFile(FileObject, FileObject)} is what gets it across two file systems of the
+   * operating system.
    */
   private void move(FileObject sourceFile, FileObject destination) throws HopException {
     try {
-      sourceFile.moveTo(destination);
-    } catch (FileSystemException renameFailed) {
-      try {
-        destination.copyFrom(sourceFile, Selectors.SELECT_SELF);
-        sourceFile.delete();
-      } catch (Exception copyFailed) {
-        renameFailed.addSuppressed(copyFailed);
-        throw new HopException(
-            BaseMessages.getString(
-                PKG,
-                "SftpPut.Error.UnableToMove",
-                sourceFile.getPublicURIString(),
-                destination.getPublicURIString()),
-            renameFailed);
-      }
+      HopVfs.moveFile(sourceFile, destination);
+    } catch (FileSystemException moveFailed) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG,
+              "SftpPut.Error.UnableToMove",
+              sourceFile.getPublicURIString(),
+              destination.getPublicURIString()),
+          moveFailed);
     }
   }
 

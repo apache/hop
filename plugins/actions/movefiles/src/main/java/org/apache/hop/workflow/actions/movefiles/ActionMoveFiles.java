@@ -716,7 +716,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         if (!simulate) {
           Long moved = trackBytesMoved(sourceFileFolder, result);
           destinationFilename.createFile();
-          sourceFileFolder.moveTo(destinationFilename);
+          HopVfs.moveFile(sourceFileFolder, destinationFilename);
           emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFilename, moved);
         }
 
@@ -748,7 +748,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           case "overwrite_file" -> {
             if (!simulate) {
               Long moved = trackBytesMoved(sourceFileFolder, result);
-              sourceFileFolder.moveTo(destinationFilename);
+              HopVfs.moveFile(sourceFileFolder, destinationFilename);
               emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFilename, moved);
             }
             if (isDetailed()) {
@@ -794,7 +794,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
             if (!simulate) {
               Long moved = trackBytesMoved(sourceFileFolder, result);
-              sourceFileFolder.moveTo(destinationFile);
+              HopVfs.moveFile(sourceFileFolder, destinationFile);
               emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
             }
             if (isDetailed()) {
@@ -853,7 +853,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             if (!destinationFile.exists()) {
               if (!simulate) {
                 Long moved = trackBytesMoved(sourceFileFolder, result);
-                sourceFileFolder.moveTo(destinationFile);
+                HopVfs.moveFile(sourceFileFolder, destinationFile);
                 emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
               }
               if (isDetailed()) {
@@ -875,7 +875,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 case "overwrite_file" -> {
                   if (!simulate) {
                     Long moved = trackBytesMoved(sourceFileFolder, result);
-                    sourceFileFolder.moveTo(destinationFile);
+                    HopVfs.moveFile(sourceFileFolder, destinationFile);
                     emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
                   }
                   if (isDetailed()) {
@@ -909,7 +909,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
                   if (!simulate) {
                     Long moved = trackBytesMoved(sourceFileFolder, result);
-                    sourceFileFolder.moveTo(destinationFile);
+                    HopVfs.moveFile(sourceFileFolder, destinationFile);
                     emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
                   }
                   if (isDetailed()) {
