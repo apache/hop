@@ -29,6 +29,7 @@
     <name>Hop Core</name>
 
     <properties>
+        <assembly_package-phase>none</assembly_package-phase>
         <batik.version>1.19</batik.version>
     </properties>
 
@@ -522,5 +523,20 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>assemblies</id>
+            <activation>
+                <property>
+                    <name>assemblies</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <properties>
+                <assembly_package-phase>package</assembly_package-phase>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
