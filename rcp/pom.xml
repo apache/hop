@@ -32,14 +32,14 @@
     <properties>
         <assembly_package-phase>none</assembly_package-phase>
         <jface.text.version>3.29.0</jface.text.version>
-        <tm4e.core.version>0.17.2</tm4e.core.version>
     </properties>
 
     <dependencies>
+        <!-- The lib-p2 wrappers carry the Hop version, not the wrapped Eclipse version. -->
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.eclipse.tm4e.core</artifactId>
-            <version>${tm4e.core.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.platform</groupId>
@@ -80,13 +80,13 @@
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.eclipse.swtbot.swt.finder</artifactId>
-            <version>${swtbot.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.eclipse.swtbot.swt.finder</artifactId>
-            <version>${swtbot.version}</version>
+            <version>${project.version}</version>
             <classifier>junit5</classifier>
             <scope>test</scope>
         </dependency>
