@@ -77,6 +77,16 @@ class TestingGuiPluginTweakTest {
     assertTrue(targets.isEmpty());
   }
 
+  /**
+   * getCurrentUnitTest must not touch SWT from a non-UI thread (issue #7896). Unit tests have no
+   * Display, so Display.getCurrent() is null and the method returns null without throwing.
+   */
+  @Test
+  void getCurrentUnitTestReturnsNullOffUiThread() {
+    assertNull(TestingGuiPlugin.getCurrentUnitTest(new PipelineMeta()));
+    assertNull(TestingGuiPlugin.getStateMap(new PipelineMeta()));
+  }
+
   @Test
   void applyTweakEnableAddsBypass() {
     PipelineUnitTest unitTest = new PipelineUnitTest();

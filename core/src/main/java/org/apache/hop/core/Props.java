@@ -78,6 +78,7 @@ public class Props implements Cloneable {
 
   public static final String STRING_HIDE_VIEWPORT = "HideViewport";
   public static final String STRING_SHOW_TABLE_VIEW_TOOLBAR = "ShowTableViewToolbar";
+  public static final String STRING_SHOW_TEXT_COMPOSITE_TOOLBAR = "ShowTextCompositeToolbar";
   public static final String STRING_SHOW_EXIT_WARNING = "ShowExitWarning";
 
   public static final String STRING_CUSTOM_PARAMETER = "CustomParameter";

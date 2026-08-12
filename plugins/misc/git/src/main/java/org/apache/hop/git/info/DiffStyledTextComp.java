@@ -43,7 +43,7 @@ public class DiffStyledTextComp extends StyledTextVar {
       new Color(Display.getDefault(), 153, 102, 0); // Brown/Orange
 
   public DiffStyledTextComp(IVariables variables, Composite parent, int style) {
-    super(variables, parent, style, false, false); // No variable support needed
+    super(variables, parent, style, false, false, true, STYLE_TYPE_DIFF); // No variable support
     // Set read-only and disable editing
     getTextWidget().setEditable(false);
   }

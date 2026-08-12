@@ -97,7 +97,8 @@ public class ActionEvalDialog extends ActionDialog {
               action,
               shell,
               SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_JAVASCRIPT);
     } else {
       wScript =
           new JavaScriptStyledTextComp(

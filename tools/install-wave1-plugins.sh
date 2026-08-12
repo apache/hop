@@ -25,7 +25,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALL_DIR="${1:-${ROOT}/assemblies/client/target/hop}"
-VERSION="${HOP_VERSION:-2.19.0-SNAPSHOT}"
+VERSION="${HOP_VERSION:-2.20.0-SNAPSHOT}"
 LIST_SCRIPT="${ROOT}/tools/list-marketplace-plugins.sh"
 ZIP_DIR="${HOP_PLUGIN_ZIP_DIR:-}"
 

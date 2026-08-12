@@ -355,6 +355,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
               hopGui.getVariables(),
               wDiffComposite,
               SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      // styleType STYLE_TYPE_DIFF is set by DiffStyledTextComp constructor
       PropsUi.setLook(wDiffStyled, Props.WIDGET_STYLE_FIXED);
       wDiffStyled.setLayoutData(fdDiff);
       wDiff = wDiffStyled;

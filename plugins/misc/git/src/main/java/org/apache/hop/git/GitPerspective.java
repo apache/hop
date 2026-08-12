@@ -41,6 +41,7 @@ import org.apache.hop.git.config.GitConfigSingleton;
 import org.apache.hop.git.info.DiffStyledTextComp;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
+import org.apache.hop.git.model.VCS;
 import org.apache.hop.git.util.FileTypeUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -392,10 +393,11 @@ public class GitPerspective implements IHopPerspective {
           boolean isTags = ref.getName().startsWith(Constants.R_TAGS);
 
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_CHECKOUT, !isCurrentBranch);
-          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PUSH, isHeads);
+          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PUSH, isHeads || isTags);
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PULL, isHeads);
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_RENAME, isHeads);
-          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_DELETE, !isCurrentBranch);
+          setMenuItemEnabled(
+              refMenuWidgets, REF_CONTEXT_MENU_DELETE, !isCurrentBranch && (isHeads || isTags));
 
           MenuItem menuItem = refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_CREATE_BRANCH);
           if (menuItem != null) {
@@ -1159,12 +1161,6 @@ public class GitPerspective implements IHopPerspective {
     }
   }
 
-  @GuiMenuElement(
-      root = GUI_PLUGIN_REF_CONTEXT_MENU_PARENT_ID,
-      parentId = GUI_PLUGIN_REF_CONTEXT_MENU_PARENT_ID,
-      id = REF_CONTEXT_MENU_PUSH,
-      label = "i18n::GitPerspective.Menu.Push.Text",
-      image = "push.svg")
   @GuiToolbarElement(
       root = GitPerspective.GUI_PLUGIN_HISTORY_TOOLBAR_PARENT_ID,
       id = GitPerspective.TOOLBAR_ITEM_PUSH,
@@ -1173,6 +1169,34 @@ public class GitPerspective implements IHopPerspective {
   public void push() {
     try {
       GitGuiPlugin.getInstance().getGit().push();
+
+      // Refresh refs and commit history
+      refresh(false);
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+          e);
+    }
+  }
+
+  /** Push the selected branch or tag in the references tree. */
+  @GuiMenuElement(
+      root = GUI_PLUGIN_REF_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_REF_CONTEXT_MENU_PARENT_ID,
+      id = REF_CONTEXT_MENU_PUSH,
+      label = "i18n::GitPerspective.Menu.Push.Text",
+      image = "push.svg")
+  public void pushReference() {
+    Ref ref = getSelectedReference();
+    if (ref == null) {
+      return;
+    }
+    try {
+      UIGit git = GitGuiPlugin.getInstance().getGit();
+      String type = ref.getName().startsWith(Constants.R_TAGS) ? VCS.TYPE_TAG : VCS.TYPE_BRANCH;
+      git.push(type, git.getShortenedName(ref.getName()));
 
       // Refresh refs and commit history
       refresh(false);
@@ -1252,7 +1276,7 @@ public class GitPerspective implements IHopPerspective {
     if (ref != null) {
       if (ref.getName().startsWith(Constants.R_HEADS)) {
         deleteBranch(ref);
-      } else {
+      } else if (ref.getName().startsWith(Constants.R_TAGS)) {
         deleteTag(ref);
       }
     }
@@ -1297,10 +1321,34 @@ public class GitPerspective implements IHopPerspective {
               PKG, "GitGuiPlugin.Dialog.Tag.DeleteTagConfirmation.Message", name));
 
       if (dialog.open() == SWT.YES) {
-        git.deleteTag(name);
+        if (git.deleteTag(name) && git.hasRemote()) {
+          deleteRemoteTag(git, name);
+        }
 
         // Refresh refs and commit history
         refresh(false);
+      }
+    }
+  }
+
+  /** Ask to delete the tag on the remote as well, deleting it locally only leaves it there. */
+  private void deleteRemoteTag(UIGit git, String name) {
+    MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    dialog.setText(
+        BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Tag.DeleteRemoteTagConfirmation.Header"));
+    dialog.setMessage(
+        BaseMessages.getString(
+            PKG, "GitGuiPlugin.Dialog.Tag.DeleteRemoteTagConfirmation.Message", name));
+
+    if (dialog.open() == SWT.YES) {
+      try {
+        git.deleteRemoteTag(name);
+      } catch (Exception e) {
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            e);
       }
     }
   }
@@ -1630,6 +1678,7 @@ public class GitPerspective implements IHopPerspective {
       wDiffStyled =
           new DiffStyledTextComp(
               hopGui.getVariables(), parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      // styleType STYLE_TYPE_DIFF is set by DiffStyledTextComp constructor
       PropsUi.setLook(wDiffStyled, Props.WIDGET_STYLE_FIXED);
 
       wDiff = wDiffStyled;

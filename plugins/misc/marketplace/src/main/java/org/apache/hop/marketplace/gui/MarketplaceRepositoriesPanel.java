@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
@@ -30,6 +31,7 @@ import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.config.MarketplaceRepositoryDefinition;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -103,6 +105,8 @@ public class MarketplaceRepositoriesPanel {
     wExport.addListener(SWT.Selection, e -> exportDefinition());
     Button wImport = createRightButton(parent, "ManageRepositoriesDialog.Button.Import");
     wImport.addListener(SWT.Selection, e -> importDefinition());
+    Button wImportUrl = createRightButton(parent, "ManageRepositoriesDialog.Button.ImportUrl");
+    wImportUrl.addListener(SWT.Selection, e -> importDefinitionFromUrl());
     Button wRemove = createRightButton(parent, "ManageRepositoriesDialog.Button.Remove");
     wRemove.addListener(SWT.Selection, e -> removeSelected());
     Button wEdit = createRightButton(parent, "ManageRepositoriesDialog.Button.Edit");
@@ -111,7 +115,9 @@ public class MarketplaceRepositoriesPanel {
     wAdd.addListener(SWT.Selection, e -> addRepository());
 
     this.actionButtons =
-        new Button[] {wAdd, wEdit, wRemove, wImport, wExport, wPrimary, wUp, wDown, wReset, wSave};
+        new Button[] {
+          wAdd, wEdit, wRemove, wImport, wImportUrl, wExport, wPrimary, wUp, wDown, wReset, wSave
+        };
     layoutRightButtons(actionButtons, wlHelp);
     applyManagePermissions();
 
@@ -862,17 +868,7 @@ public class MarketplaceRepositoriesPanel {
       if (StringUtils.isBlank(path)) {
         return;
       }
-      MarketplaceRepository imported = MarketplaceRepositoryDefinition.load(Path.of(path.trim()));
-      MarketplaceRepositoryDefinition.applyToConfig(config, imported, false);
-      markDirty();
-      refreshTable();
-      selectRepoId(imported.getId());
-      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Import.Done.Header"));
-      box.setMessage(
-          BaseMessages.getString(
-              PKG, "ManageRepositoriesDialog.Import.Done.Message", imported.getId()));
-      box.open();
+      applyImported(MarketplaceRepositoryDefinition.load(Path.of(path.trim())));
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -880,6 +876,125 @@ public class MarketplaceRepositoriesPanel {
           BaseMessages.getString(PKG, "ManageRepositoriesDialog.Import.Error"),
           e);
     }
+  }
+
+  /**
+   * Import a definition published at a URL. The download is anonymous and any credentials in the
+   * file are dropped, so what arrives describes only where a repository is. Because the definition
+   * decides which hosts plugin code is later downloaded from, it is shown for confirmation before
+   * anything is added.
+   */
+  private void importDefinitionFromUrl() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
+    try {
+      String url =
+          new EnterStringDialog(
+                  shell,
+                  "",
+                  BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Header"),
+                  BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Message"))
+              .open();
+      if (StringUtils.isBlank(url)) {
+        return;
+      }
+      MarketplaceRepository imported = MarketplaceRepositoryDefinition.loadFromPublicUrl(url);
+      switch (confirmImport(imported, url.trim())) {
+        case CANCEL:
+          return;
+        case AS_FALLBACK:
+          // Take the repository, leave the install order alone.
+          imported.setPrimary(false);
+          break;
+        case IMPORT:
+          break;
+      }
+      applyImported(imported);
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Error"),
+          e);
+    }
+  }
+
+  private enum ImportChoice {
+    IMPORT,
+    AS_FALLBACK,
+    CANCEL
+  }
+
+  /**
+   * Show what a downloaded definition would add, and let the user back out.
+   *
+   * <p>A definition that claims {@code primary: true} does more than add a repository: it decides
+   * which repository every install tries first. That gets its own warning and a third option, so
+   * the repository can be taken without handing over the install order.
+   */
+  private ImportChoice confirmImport(MarketplaceRepository imported, String url) {
+    String details =
+        BaseMessages.getString(
+            PKG,
+            "ManageRepositoriesDialog.ImportUrl.Confirm.Message",
+            url,
+            Const.NVL(imported.getId(), "-"),
+            Const.NVL(imported.getName(), "-"),
+            Const.NVL(imported.getUrl(), "-"),
+            Const.NVL(imported.getUrlTemplate(), "-"),
+            Const.NVL(imported.getCatalogUrl(), "-"),
+            Integer.toString(imported.getPlugins() == null ? 0 : imported.getPlugins().size()));
+
+    MarketplaceRepositoryDefinition.ImportRisk risk =
+        MarketplaceRepositoryDefinition.assess(config, imported);
+    if (risk.noPublicFallback()) {
+      details +=
+          BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.NoFallback.Message");
+    }
+
+    if (!risk.takesOverPrimary()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.CANCEL | SWT.ICON_QUESTION);
+      box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Confirm.Header"));
+      box.setMessage(details);
+      return box.open() == SWT.OK ? ImportChoice.IMPORT : ImportChoice.CANCEL;
+    }
+
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Primary.Header"));
+    box.setMessage(
+        details
+            + BaseMessages.getString(
+                PKG,
+                "ManageRepositoriesDialog.ImportUrl.Primary.Message",
+                imported.displayName(),
+                Const.NVL(risk.currentPrimaryName(), "-")));
+    int answer = box.open();
+    if (answer == SWT.YES) {
+      return ImportChoice.IMPORT;
+    }
+    return answer == SWT.NO ? ImportChoice.AS_FALLBACK : ImportChoice.CANCEL;
+  }
+
+  /**
+   * Add the imported repository and write it out. Importing is a deliberate one-off action rather
+   * than an edit in progress, and the CLI equivalent saves too, so leaving it pending only invites
+   * the question of where Save is. A failed write keeps the panel dirty and reports itself.
+   */
+  private void applyImported(MarketplaceRepository imported) throws HopException {
+    MarketplaceRepositoryDefinition.applyToConfig(config, imported, false);
+    markDirty();
+    refreshTable();
+    selectRepoId(imported.getId());
+    if (!saveChanges(false)) {
+      return;
+    }
+    MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+    box.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Import.Done.Header"));
+    box.setMessage(
+        BaseMessages.getString(
+            PKG, "ManageRepositoriesDialog.Import.Done.Message", imported.getId()));
+    box.open();
   }
 
   private void exportDefinition() {

@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
@@ -90,19 +91,15 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.JavaScriptException;
-import org.mozilla.javascript.NodeTransformer;
-import org.mozilla.javascript.Parser;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.ast.ScriptNode;
-import org.mozilla.javascript.tools.ToolErrorReporter;
 
 public class ScriptValuesDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ScriptValuesMeta.class;
@@ -605,7 +602,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
               variables,
               item.getParent(),
               SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_JAVASCRIPT);
     } else {
       wScript =
           new JavaScriptStyledTextComp(
@@ -1200,6 +1198,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   @SuppressWarnings("deprecation")
   private boolean test(boolean getvars, boolean popup) {
     boolean retval = true;
+    boolean scriptRan = true;
     TextComposite wScript = getStyledTextComp();
     String scr = wScript.getText();
     HopException testException = null;
@@ -1354,59 +1353,47 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         try {
 
           Script evalScript = jscx.compileString(scr, "script", 1, null);
-          evalScript.exec(jscx, jsscope);
+
+          try {
+            evalScript.exec(jscx, jsscope);
+          } catch (RhinoException e) {
+            // "Get variables" only needs the script to compile: the names are read from a static
+            // parse of the source. Running it here is a best-effort attempt to learn their types,
+            // and it runs against the placeholder input values generated above, so every script
+            // that really inspects its input -- JSON.parse(field), date parsing, ... -- fails at
+            // this point through no fault of the user. Reporting that as a failed test used to
+            // leave the user with no variables at all, so keep going and let the types default.
+            // See issue #3403.
+            if (!getvars) {
+              throw e;
+            }
+            scriptRan = false;
+          }
 
           if (getvars) {
-            ScriptNode tree = parseVariables(jscx, jsscope, scr, "script", 1, null);
-            for (int i = 0; i < tree.getParamAndVarCount(); i++) {
-              String varname = tree.getParamOrVarName(i);
-              if (!varname.equalsIgnoreCase("row")
-                  && !varname.equalsIgnoreCase("pipeline_Status")) {
-                int type = IValueMeta.TYPE_STRING;
-                int length = -1;
-                int precision = -1;
-                Object result = jsscope.get(varname, jsscope);
-                if (result != null) {
-                  String classname = result.getClass().getName();
-                  if (classname.equalsIgnoreCase("java.lang.Byte")) {
-                    // MAX = 127
-                    type = IValueMeta.TYPE_INTEGER;
-                    length = 3;
-                    precision = 0;
-                  } else if (classname.equalsIgnoreCase("java.lang.Integer")) {
-                    // MAX = 2147483647
-                    type = IValueMeta.TYPE_INTEGER;
-                    length = 9;
-                    precision = 0;
-                  } else if (classname.equalsIgnoreCase("java.lang.Long")) {
-                    // MAX = 9223372036854775807
-                    type = IValueMeta.TYPE_INTEGER;
-                    length = 18;
-                    precision = 0;
-                  } else if (classname.equalsIgnoreCase("java.lang.Double")) {
-                    type = IValueMeta.TYPE_NUMBER;
-                    length = 16;
-                    precision = 2;
+            // Leave the fields already in the grid alone: the button must not duplicate them, nor
+            // throw away types the user corrected by hand.
+            //
+            List<String> present = new ArrayList<>();
+            int nrPresent = wFields.nrNonEmpty();
+            for (int i = 0; i < nrPresent; i++) {
+              present.add(wFields.getNonEmpty(i).getText(1));
+            }
 
-                  } else if (classname.equalsIgnoreCase("org.mozilla.javascript.NativeDate")
-                      || classname.equalsIgnoreCase("java.util.Date")) {
-                    type = IValueMeta.TYPE_DATE;
-                  } else if (classname.equalsIgnoreCase("java.lang.Boolean")) {
-                    type = IValueMeta.TYPE_BOOLEAN;
-                  }
-                }
-                TableItem ti = new TableItem(wFields.table, SWT.NONE);
-                ti.setText(1, varname);
-                ti.setText(2, "");
-                ti.setText(3, ValueMetaFactory.getValueMetaName(type));
-                ti.setText(4, length >= 0 ? ("" + length) : "");
-                ti.setText(5, precision >= 0 ? ("" + precision) : "");
+            for (ScriptValuesVariableDiscovery.DiscoveredVariable variable :
+                ScriptValuesVariableDiscovery.discover(jscx, jsscope, scr, present)) {
+              TableItem ti = new TableItem(wFields.table, SWT.NONE);
+              ti.setText(1, variable.name());
+              ti.setText(2, "");
+              ti.setText(3, ValueMetaFactory.getValueMetaName(variable.type()));
+              ti.setText(4, variable.length() >= 0 ? ("" + variable.length()) : "");
+              ti.setText(5, variable.precision() >= 0 ? ("" + variable.precision()) : "");
 
-                // If the variable name exists in the input, suggest to replace the value
-                //
-                ti.setText(
-                    6, (rowMeta.indexOfValue(varname) >= 0) ? YES_NO_COMBO[1] : YES_NO_COMBO[0]);
-              }
+              // If the variable name exists in the input, suggest to replace the value
+              //
+              ti.setText(
+                  6,
+                  (rowMeta.indexOfValue(variable.name()) >= 0) ? YES_NO_COMBO[1] : YES_NO_COMBO[0]);
             }
             wFields.removeEmptyRows();
             wFields.setRowNums();
@@ -1444,6 +1431,17 @@ public class ScriptValuesDialog extends BaseTransformDialog {
                 BaseMessages.getString(PKG, "ScriptValuesDialogMod.ScriptCompilationOK")
                     + Const.CR);
             mb.setText("OK");
+            mb.open();
+          } else if (!scriptRan) {
+            // The variables were found, but nothing ran to tell us what they hold.
+            //
+            MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+            mb.setMessage(
+                BaseMessages.getString(
+                    PKG, "ScriptValuesDialogMod.GetVariables.TypesUnknown.Message"));
+            mb.setText(
+                BaseMessages.getString(
+                    PKG, "ScriptValuesDialogMod.GetVariables.TypesUnknown.Title"));
             mb.open();
           }
         } else {
@@ -1925,15 +1923,6 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       String sourceName,
       int lineno,
       Object securityDomain) {
-    CompilerEnvirons evn = new CompilerEnvirons();
-    evn.initFromContext(cx);
-    evn.setOptimizationLevel(-1);
-    evn.setGeneratingSource(true);
-    evn.setGenerateDebugInfo(true);
-    ErrorReporter errorReporter = new ToolErrorReporter(false);
-    Parser p = new Parser(evn, errorReporter);
-    ScriptNode tree = p.parse(source, "", 0); // IOException
-    new NodeTransformer().transform(tree, evn);
-    return tree;
+    return ScriptValuesVariableDiscovery.parse(cx, source);
   }
 }

@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
@@ -48,6 +49,8 @@ public final class MarketplaceRepositoryDefinition {
 
   public static final String KIND = "hop-marketplace-repository";
   public static final String SCHEMA_VERSION = "1.0";
+
+  private static final String HTTPS_PREFIX = "https://";
 
   private MarketplaceRepositoryDefinition() {}
 
@@ -74,6 +77,60 @@ public final class MarketplaceRepositoryDefinition {
   }
 
   /**
+   * Download and parse a definition published at a public URL, for import from an address the user
+   * typed or pasted.
+   *
+   * <p>Differs from {@link #loadFromHttp(String)} on two points, both because the address is not
+   * necessarily trusted:
+   *
+   * <ul>
+   *   <li>The request is anonymous. Credentials are never offered to a pasted address, so a hostile
+   *       URL cannot collect the {@code HOP_MARKETPLACE_*} credentials that apply to every
+   *       repository.
+   *   <li>Any {@code username} / {@code password} in the downloaded file is dropped. A definition
+   *       fetched over the network describes <em>where</em> a repository is, never <em>who</em>
+   *       connects to it; credentials are supplied locally, keyed by repository id.
+   * </ul>
+   *
+   * <p>Plain HTTP is refused: the definition names the hosts that plugin code is downloaded from,
+   * so it must not be modifiable in transit.
+   *
+   * <p>Only the download is anonymous. Once imported, the repository is an ordinary configuration
+   * entry and is contacted with whatever credentials are configured for it.
+   */
+  public static MarketplaceRepository loadFromPublicUrl(String url) throws HopException {
+    String trimmed = requireHttps(url);
+    return withoutCredentials(download(trimmed, null));
+  }
+
+  /** Trimmed URL, or a failure explaining why only https is accepted. */
+  static String requireHttps(String url) throws HopException {
+    if (StringUtils.isBlank(url)) {
+      throw new HopException("Repository definition URL is required");
+    }
+    String trimmed = url.trim();
+    if (!trimmed.regionMatches(true, 0, HTTPS_PREFIX, 0, HTTPS_PREFIX.length())) {
+      throw new HopException(
+          "Repository definitions can only be imported over https, so that they cannot be modified"
+              + " in transit. Download the file and import it from disk if the host has no TLS: "
+              + trimmed);
+    }
+    return trimmed;
+  }
+
+  /**
+   * Drop credentials from a definition that came off the network. Everything describing where the
+   * repository is survives; only who connects to it is removed.
+   */
+  static MarketplaceRepository withoutCredentials(MarketplaceRepository imported) {
+    if (imported != null) {
+      imported.setUsername(null);
+      imported.setPassword(null);
+    }
+    return imported;
+  }
+
+  /**
    * Download and parse a shared repository definition.
    *
    * <p>No repository entry exists yet at import time, so credentials can only come from the
@@ -81,8 +138,16 @@ public final class MarketplaceRepositoryDefinition {
    * a private repository could not be imported by URL at all.
    */
   public static MarketplaceRepository loadFromHttp(String url) throws HopException {
+    return download(url, new MarketplaceRepository("import", url));
+  }
+
+  /**
+   * Fetch and parse a definition. A null {@code credentials} repository makes the request
+   * anonymous.
+   */
+  private static MarketplaceRepository download(String url, MarketplaceRepository credentials)
+      throws HopException {
     try {
-      MarketplaceRepository credentials = new MarketplaceRepository("import", url);
       HttpResponse<InputStream> response =
           MarketplaceHttp.send(
               MarketplaceHttp.newClient(),
@@ -97,7 +162,7 @@ public final class MarketplaceRepositoryDefinition {
                 + " (HTTP "
                 + response.statusCode()
                 + ")"
-                + MarketplaceHttp.authHint(response.statusCode(), credentials));
+                + downloadHint(response.statusCode(), credentials));
       }
       try (InputStream in = response.body()) {
         return parse(in, url);
@@ -110,6 +175,23 @@ public final class MarketplaceRepositoryDefinition {
       }
       throw new HopException("Unable to download repository definition from " + url, e);
     }
+  }
+
+  /**
+   * Explain a failed download. The anonymous path cannot act on the environment credentials {@link
+   * MarketplaceHttp#authHint} suggests, so it says what actually applies: the definition itself has
+   * to be readable without credentials.
+   */
+  private static String downloadHint(int status, MarketplaceRepository credentials) {
+    if (credentials != null) {
+      return MarketplaceHttp.authHint(status, credentials);
+    }
+    if (MarketplaceHttp.isAuthFailure(status)) {
+      return ". The definition was requested without credentials, which is deliberate for an"
+          + " address that was typed or pasted. Publish the definition so it can be read without"
+          + " authentication, or download the file and import it from disk.";
+    }
+    return "";
   }
 
   static MarketplaceRepository parse(InputStream in, String source) throws HopException {
@@ -334,6 +416,68 @@ public final class MarketplaceRepositoryDefinition {
       }
     }
     return root;
+  }
+
+  /**
+   * What importing {@code imported} would change beyond adding one repository.
+   *
+   * @param takesOverPrimary the definition claims {@code primary: true} while a different
+   *     repository currently holds it, so every install would try the new one first
+   * @param currentPrimaryName display name of the repository that would be demoted, or null
+   * @param noPublicFallback neither the Apache nor the Maven Central repository is configured and
+   *     enabled, so nothing public is left to fall back on
+   */
+  public record ImportRisk(
+      boolean takesOverPrimary, String currentPrimaryName, boolean noPublicFallback) {
+
+    public boolean isSafe() {
+      return !takesOverPrimary && !noPublicFallback;
+    }
+  }
+
+  /**
+   * Inspect an import before applying it. Importing adds or updates a single repository, with one
+   * exception: a definition may declare itself primary and demote the repository that holds that
+   * role today. That is worth surfacing when the definition came from somewhere else.
+   */
+  public static ImportRisk assess(MarketplaceConfig config, MarketplaceRepository imported) {
+    if (config == null || imported == null) {
+      return new ImportRisk(false, null, false);
+    }
+    MarketplaceRepository currentPrimary = null;
+    boolean publicFallback = false;
+    for (MarketplaceRepository repo : nullSafe(config.getRepositories())) {
+      if (repo == null || !repo.isEnabled()) {
+        continue;
+      }
+      if (repo.isPrimary() && currentPrimary == null) {
+        currentPrimary = repo;
+      }
+      publicFallback |= isPublicDefault(repo);
+    }
+    // Re-importing the definition of the repository that is already primary changes nothing.
+    boolean takesOver =
+        imported.isPrimary()
+            && currentPrimary != null
+            && !Objects.equals(currentPrimary.getId(), imported.getId());
+    return new ImportRisk(
+        takesOver, takesOver ? currentPrimary.displayName() : null, !publicFallback);
+  }
+
+  /**
+   * The shipped public repositories, matched on id or URL: an id can be renamed, and a URL can be
+   * pointed at a mirror, so either identifies one.
+   */
+  private static boolean isPublicDefault(MarketplaceRepository repo) {
+    String url = repo.normalizedUrl();
+    return MarketplaceConfig.DEFAULT_ASF_ID.equals(repo.getId())
+        || MarketplaceConfig.DEFAULT_CENTRAL_ID.equals(repo.getId())
+        || MarketplaceConfig.DEFAULT_ASF_URL.equals(url)
+        || MarketplaceConfig.DEFAULT_CENTRAL_URL.equals(url);
+  }
+
+  private static <T> List<T> nullSafe(List<T> list) {
+    return list == null ? List.of() : list;
   }
 
   public static void applyToConfig(

@@ -269,7 +269,8 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
             ? new StyledTextComp(
                 variables,
                 wContent,
-                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
+                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+                TextComposite.STYLE_TYPE_SQL)
             : new SQLStyledTextComp(
                 variables,
                 wContent,

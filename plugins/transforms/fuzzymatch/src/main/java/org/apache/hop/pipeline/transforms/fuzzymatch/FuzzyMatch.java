@@ -19,11 +19,16 @@ package org.apache.hop.pipeline.transforms.fuzzymatch;
 
 import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm;
 import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.FMLookupValue;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.MatchMode;
 
 import com.wcohen.ss.Jaro;
 import com.wcohen.ss.JaroWinkler;
 import com.wcohen.ss.NeedlemanWunsch;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.PriorityQueue;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
@@ -173,7 +178,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     return true;
   }
 
-  private Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
+  private List<Object[]> lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
     if (first) {
       first = false;
 
@@ -195,17 +200,16 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
                 PKG, "FuzzyMatch.Exception.CouldnotFindMainField", meta.getMainStreamField()));
       }
     }
-    Object[] add;
     if (row[data.indexOfMainField] == null) {
-      add = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-    } else {
-      try {
-        add = getFromCache(row);
-      } catch (Exception e) {
-        throw new HopTransformException(e);
-      }
+      List<Object[]> empty = new ArrayList<>(1);
+      empty.add(RowDataUtil.allocateRowData(data.outputRowMeta.size()));
+      return empty;
     }
-    return RowDataUtil.addRowData(row, rowMeta.size(), add);
+    try {
+      return getFromCache(row);
+    } catch (Exception e) {
+      throw new HopTransformException(e);
+    }
   }
 
   private void addToCache(Object[] value) throws HopException {
@@ -218,47 +222,28 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     }
   }
 
-  private Object[] getFromCache(Object[] keyRow) throws HopValueException {
+  private List<Object[]> getFromCache(Object[] keyRow) throws HopValueException {
     if (isDebug()) {
       logDebug(
           BaseMessages.getString(
               PKG, "FuzzyMatch.Log.ReadingMainStreamRow", getInputRowMeta().getString(keyRow)));
     }
-    Object[] retval = null;
-    switch (meta.getAlgorithm()) {
-      case LEVENSHTEIN, DAMERAU_LEVENSHTEIN, NEEDLEMAN_WUNSH:
-        retval = doDistance(keyRow);
-        break;
-      case DOUBLE_METAPHONE, METAPHONE, SOUNDEX, REFINED_SOUNDEX:
-        retval = doPhonetic(keyRow);
-        break;
-      case JARO, JARO_WINKLER, PAIR_SIMILARITY:
-        retval = doSimilarity(keyRow);
-        break;
-      default:
-        break;
-    }
-
-    return retval;
+    return switch (meta.getAlgorithm()) {
+      case LEVENSHTEIN, DAMERAU_LEVENSHTEIN, NEEDLEMAN_WUNSH -> doDistance(keyRow);
+      case DOUBLE_METAPHONE, METAPHONE, SOUNDEX, REFINED_SOUNDEX -> doPhonetic(keyRow);
+      case JARO, JARO_WINKLER, PAIR_SIMILARITY -> doSimilarity(keyRow);
+      default -> List.<Object[]>of(RowDataUtil.allocateRowData(data.outputRowMeta.size()));
+    };
   }
 
-  private Object[] doDistance(Object[] row) throws HopValueException {
-    // Reserve room
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    Iterator<Object[]> it = data.look.iterator();
-
-    long distance = -1;
-
+  private List<Object[]> doDistance(Object[] row) throws HopValueException {
+    boolean lowerIsBetter = true;
+    PriorityQueue<ScoredMatch> topK = newTopKHeap(lowerIsBetter);
     String lookupValueString = getInputRowMeta().getString(row, data.indexOfMainField);
 
-    while (it.hasNext()) {
-      // Get cached row data
-      Object[] cachedData = it.next();
-      // Key value is the first value
+    for (Object[] cachedData : data.look) {
       String cacheValue = (String) cachedData[0];
 
-      int cDistance;
       String useCacheValue = cacheValue;
       String useLookupvalue = lookupValueString;
       if (!meta.isCaseSensitive()) {
@@ -266,7 +251,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
         useLookupvalue = lookupValueString.toLowerCase();
       }
 
-      cDistance =
+      int cDistance =
           switch (meta.getAlgorithm()) {
             case DAMERAU_LEVENSHTEIN ->
                 Utils.getDamerauLevenshteinDistance(useCacheValue, useLookupvalue);
@@ -276,81 +261,43 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
           };
 
       if (data.minimalDistance <= cDistance && cDistance <= data.maximalDistance) {
-        if (meta.isCloserValue()) {
-          if (cDistance < distance || distance == -1) {
-            // Get closer value
-            // minimal distance
-            distance = cDistance;
-            int index = 0;
-            rowData[index++] = cacheValue;
-            // Add metric value?
-            if (data.addValueFieldName) {
-              rowData[index++] = distance;
-            }
-            // Add additional return values?
-            if (data.addAdditionalFields) {
-              for (int i = 0; i < meta.getLookupValues().size(); i++) {
-                int nr = i + 1;
-                int nf = i + index;
-                rowData[nf] = cachedData[nr];
-              }
-            }
-          }
-        } else {
-          // get all values separated by values separator
-          if (rowData[0] == null) {
-            rowData[0] = cacheValue;
-          } else {
-            rowData[0] = rowData[0] + data.valueSeparator + cacheValue;
-          }
-        }
+        offerTopK(topK, new ScoredMatch(cachedData, cDistance, (long) cDistance), lowerIsBetter);
       }
     }
 
-    return rowData;
+    return buildMatchResults(topK, lowerIsBetter);
   }
 
-  private Object[] doPhonetic(Object[] row) {
-    // Reserve room
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    Iterator<Object[]> it = data.look.iterator();
+  private List<Object[]> doPhonetic(Object[] row) {
+    boolean lowerIsBetter = true; // equal scores; first-seen kept by heap capacity
+    PriorityQueue<ScoredMatch> topK = newTopKHeap(lowerIsBetter);
 
     Object o = row[data.indexOfMainField];
     String lookupvalue = (String) o;
-
     String lookupValueMF = getEncodedMF(lookupvalue, meta.getAlgorithm());
 
-    while (it.hasNext()) {
-      // Get cached row data
-      Object[] cachedData = it.next();
-      // Key value is the first value
+    for (Object[] cachedData : data.look) {
       String cacheValue = (String) cachedData[0];
-
       String cacheValueMF = getEncodedMF(cacheValue, meta.getAlgorithm());
-
       if (lookupValueMF.equals(cacheValueMF)) {
-
-        // Add match value
-        int index = 0;
-        rowData[index++] = cacheValue;
-
-        // Add metric value?
-        if (data.addValueFieldName) {
-          rowData[index++] = cacheValueMF;
-        }
-        // Add additional return values?
-        if (data.addAdditionalFields) {
-          for (int i = 0; i < meta.getLookupValues().size(); i++) {
-            int nf = i + index;
-            int nr = i + 1;
-            rowData[nf] = cachedData[nr];
-          }
-        }
+        offerTopK(topK, new ScoredMatch(cachedData, 0, cacheValueMF), lowerIsBetter);
       }
     }
 
-    return rowData;
+    if (meta.isCloserValue()) {
+      // Preserve legacy behaviour: last matching phonetic wins
+      Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+      for (Object[] cachedData : data.look) {
+        String cacheValue = (String) cachedData[0];
+        String cacheValueMF = getEncodedMF(cacheValue, meta.getAlgorithm());
+        if (lookupValueMF.equals(cacheValueMF)) {
+          fillMatchRow(rowData, cachedData, cacheValueMF);
+        }
+      }
+      return List.<Object[]>of(rowData);
+    }
+
+    return buildMatchResults(topK, lowerIsBetter);
   }
 
   private String getEncodedMF(String value, Algorithm algorithmType) {
@@ -374,67 +321,127 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     return encodedValueMF;
   }
 
-  private Object[] doSimilarity(Object[] row) {
-    // Reserve room
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-    // prepare to read from cache ...
-    Iterator<Object[]> it = data.look.iterator();
-    double similarity = 0;
+  private List<Object[]> doSimilarity(Object[] row) {
+    boolean lowerIsBetter = false;
+    PriorityQueue<ScoredMatch> topK = newTopKHeap(lowerIsBetter);
 
-    // get current value from main stream
     Object o = row[data.indexOfMainField];
-
     String lookupValueString = o == null ? "" : (String) o;
 
-    while (it.hasNext()) {
-      // Get cached row data
-      Object[] cachedData = it.next();
-      // Key value is the first value
+    for (Object[] cachedData : data.look) {
       String cacheValue = (String) cachedData[0];
 
       double cSimilarity =
           switch (meta.getAlgorithm()) {
             case JARO -> new Jaro().score(cacheValue, lookupValueString);
             case JARO_WINKLER -> new JaroWinkler().score(cacheValue, lookupValueString);
-            default ->
-                // Letters pair similarity
-                LetterPairSimilarity.getSimiliarity(cacheValue, lookupValueString);
+            default -> LetterPairSimilarity.getSimilarity(cacheValue, lookupValueString);
           };
 
       if (data.minimalSimilarity <= cSimilarity && cSimilarity <= data.maximalSimilarity) {
-        if (meta.isCloserValue()) {
-          if (cSimilarity > similarity
-              || (cSimilarity == 0 && cacheValue.equals(lookupValueString))) {
-            similarity = cSimilarity;
-            // Update match value
-            int index = 0;
-            rowData[index++] = cacheValue;
-            // Add metric value?
-            if (data.addValueFieldName) {
-              rowData[index++] = similarity;
-            }
-
-            // Add additional return values?
-            if (data.addAdditionalFields) {
-              for (int i = 0; i < meta.getLookupValues().size(); i++) {
-                int nf = i + index;
-                int nr = i + 1;
-                rowData[nf] = cachedData[nr];
-              }
-            }
-          }
-        } else {
-          // get all values separated by values separator
-          if (rowData[0] == null) {
-            rowData[0] = cacheValue;
-          } else {
-            rowData[0] = rowData[0] + data.valueSeparator + cacheValue;
-          }
+        // Exact empty-string edge case from legacy closer-value logic
+        double score = cSimilarity;
+        if (cSimilarity == 0 && cacheValue.equals(lookupValueString)) {
+          score = 0;
         }
+        offerTopK(topK, new ScoredMatch(cachedData, score, cSimilarity), lowerIsBetter);
       }
     }
 
+    return buildMatchResults(topK, lowerIsBetter);
+  }
+
+  private PriorityQueue<ScoredMatch> newTopKHeap(boolean lowerIsBetter) {
+    // Worst candidate at the head so it can be evicted.
+    Comparator<ScoredMatch> worstFirst =
+        lowerIsBetter
+            ? Comparator.comparingDouble((ScoredMatch m) -> m.score).reversed()
+            : Comparator.comparingDouble(m -> m.score);
+    return new PriorityQueue<>(Math.max(1, data.maxMatches), worstFirst);
+  }
+
+  private void offerTopK(
+      PriorityQueue<ScoredMatch> heap, ScoredMatch candidate, boolean lowerIsBetter) {
+    int k = meta.isCloserValue() ? 1 : data.maxMatches;
+    if (k <= 0) {
+      return;
+    }
+    if (heap.size() < k) {
+      heap.offer(candidate);
+      return;
+    }
+    ScoredMatch worst = heap.peek();
+    if (worst == null) {
+      return;
+    }
+    boolean better = lowerIsBetter ? candidate.score < worst.score : candidate.score > worst.score;
+    if (better) {
+      heap.poll();
+      heap.offer(candidate);
+    }
+  }
+
+  private List<Object[]> buildMatchResults(PriorityQueue<ScoredMatch> heap, boolean lowerIsBetter) {
+    if (heap.isEmpty()) {
+      return List.<Object[]>of(RowDataUtil.allocateRowData(data.outputRowMeta.size()));
+    }
+
+    List<ScoredMatch> ranked = new ArrayList<>(heap);
+    ranked.sort(
+        lowerIsBetter
+            ? Comparator.comparingDouble(m -> m.score)
+            : Comparator.comparingDouble((ScoredMatch m) -> m.score).reversed());
+
+    MatchMode mode = meta.getMatchMode();
+    if (mode == MatchMode.ALL_CONCAT) {
+      return List.<Object[]>of(buildConcatRow(ranked));
+    }
+
+    // CLOSEST (k=1) and ALL_ROWS: one output addition per match
+    List<Object[]> results = new ArrayList<>(ranked.size());
+    for (ScoredMatch match : ranked) {
+      Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+      fillMatchRow(rowData, match.cachedData, match.measureValue);
+      results.add(rowData);
+    }
+    return results;
+  }
+
+  private Object[] buildConcatRow(List<ScoredMatch> ranked) {
+    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
+    StringBuilder matches = new StringBuilder();
+    StringBuilder measures = new StringBuilder();
+    for (int i = 0; i < ranked.size(); i++) {
+      ScoredMatch match = ranked.get(i);
+      if (i > 0) {
+        matches.append(data.valueSeparator);
+        if (data.addValueFieldName) {
+          measures.append(data.valueSeparator);
+        }
+      }
+      matches.append(match.cachedData[0]);
+      if (data.addValueFieldName) {
+        measures.append(match.measureValue);
+      }
+    }
+    rowData[0] = matches.toString();
+    if (data.addValueFieldName) {
+      rowData[1] = measures.toString();
+    }
     return rowData;
+  }
+
+  private void fillMatchRow(Object[] rowData, Object[] cachedData, Object measureValue) {
+    int index = 0;
+    rowData[index++] = cachedData[0];
+    if (data.addValueFieldName) {
+      rowData[index++] = measureValue;
+    }
+    if (data.addAdditionalFields) {
+      for (int i = 0; i < meta.getLookupValues().size(); i++) {
+        rowData[index + i] = cachedData[i + 1];
+      }
+    }
   }
 
   @Override
@@ -468,14 +475,12 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     }
 
     try {
-
-      // Do the actual lookup in the hastable.
-      Object[] outputRow = lookupValues(getInputRowMeta(), r);
-      if (outputRow == null) {
-        setOutputDone(); // signal end to receiver(s)
-        return false;
+      List<Object[]> additions = lookupValues(getInputRowMeta(), r);
+      int inputSize = getInputRowMeta().size();
+      for (Object[] add : additions) {
+        Object[] outputRow = RowDataUtil.addRowData(Arrays.copyOf(r, r.length), inputSize, add);
+        putRow(data.outputRowMeta, outputRow);
       }
-      putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
       if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "FuzzyMatch.Log.LineNumber") + getLinesRead());
@@ -520,29 +525,41 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
       return false;
     }
 
-    // We need to add metrics (distance, similarity, ...)
-    // only when the field name is provided
-    // and user want to return the closer value.
-    //
-    data.addValueFieldName =
-        (StringUtils.isNotEmpty(resolve(meta.getOutputValueField())) && meta.isCloserValue());
+    // Metrics (distance, similarity, ...) when an output field name is provided
+    data.addValueFieldName = StringUtils.isNotEmpty(resolve(meta.getOutputValueField()));
 
     // Set the number of fields to cache
     // default value is one
     //
     int nrFields = 1;
 
-    if (!meta.getLookupValues().isEmpty()
-        && (meta.isCloserValue()
-            || meta.getAlgorithm() == Algorithm.DOUBLE_METAPHONE
-            || meta.getAlgorithm() == Algorithm.SOUNDEX
-            || meta.getAlgorithm() == Algorithm.REFINED_SOUNDEX
-            || meta.getAlgorithm() == Algorithm.METAPHONE)) {
+    if (!meta.getLookupValues().isEmpty() && meta.supportsAdditionalFields()) {
       // cache also additional fields
       data.addAdditionalFields = true;
       nrFields += meta.getLookupValues().size();
     }
     data.indexOfCachedFields = new int[nrFields];
+
+    // Top-K size: default 10, hard-capped at 100
+    int maxMatches = Const.toInt(resolve(meta.getMaxMatches()), FuzzyMatchMeta.DEFAULT_MAX_MATCHES);
+    if (maxMatches < 1) {
+      maxMatches = 1;
+    }
+    if (maxMatches > FuzzyMatchMeta.HARD_MAX_MATCHES) {
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                PKG,
+                "FuzzyMatch.Log.MaxMatchesCapped",
+                maxMatches,
+                FuzzyMatchMeta.HARD_MAX_MATCHES));
+      }
+      maxMatches = FuzzyMatchMeta.HARD_MAX_MATCHES;
+    }
+    data.maxMatches = maxMatches;
+    if (isDetailed() && !meta.isCloserValue()) {
+      logDetailed(BaseMessages.getString(PKG, "FuzzyMatch.Log.MaxMatches", data.maxMatches));
+    }
 
     switch (meta.getAlgorithm()) {
       case LEVENSHTEIN, DAMERAU_LEVENSHTEIN, NEEDLEMAN_WUNSH:
@@ -556,7 +573,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
           logDetailed(
               BaseMessages.getString(PKG, "FuzzyMatch.Log.MaximalDistance", data.maximalDistance));
         }
-        if (!meta.isCloserValue()) {
+        if (meta.isAllConcatMode()) {
           data.valueSeparator = resolve(meta.getSeparator());
           if (isDetailed()) {
             logDetailed(
@@ -577,7 +594,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
               BaseMessages.getString(
                   PKG, "FuzzyMatch.Log.MaximalSimilarity", data.maximalSimilarity));
         }
-        if (!meta.isCloserValue()) {
+        if (meta.isAllConcatMode()) {
           data.valueSeparator = resolve(meta.getSeparator());
           if (isDetailed()) {
             logDetailed(
@@ -598,5 +615,17 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
   public void dispose() {
     data.look.clear();
     super.dispose();
+  }
+
+  private static final class ScoredMatch {
+    private final Object[] cachedData;
+    private final double score;
+    private final Object measureValue;
+
+    private ScoredMatch(Object[] cachedData, double score, Object measureValue) {
+      this.cachedData = cachedData;
+      this.score = score;
+      this.measureValue = measureValue;
+    }
   }
 }

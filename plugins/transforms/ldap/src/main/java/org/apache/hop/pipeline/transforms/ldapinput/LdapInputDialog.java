@@ -43,6 +43,7 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -676,7 +677,8 @@ public class LdapInputDialog extends BaseTransformDialog {
             variables,
             wSearchGroup,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-            true);
+            true,
+            TextComposite.STYLE_TYPE_TEXT);
     wFilterString.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.FilterString.Tooltip"));
     PropsUi.setLook(wFilterString);
