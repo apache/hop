@@ -168,6 +168,7 @@
         <spotless.skip>false</spotless.skip>
         <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
+        <tm4e.core.version>0.17.2</tm4e.core.version>
         <ui.test.argLine></ui.test.argLine>
         <ui.test.excludedGroups></ui.test.excludedGroups>
         <ui.test.includedGroups></ui.test.includedGroups>

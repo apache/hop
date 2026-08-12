@@ -121,16 +121,17 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- The lib-p2 wrapper carries the Hop version, not the wrapped SWTBot version. -->
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.eclipse.swtbot.swt.finder</artifactId>
-            <version>${swtbot.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.eclipse.swtbot.swt.finder</artifactId>
-            <version>${swtbot.version}</version>
+            <version>${project.version}</version>
             <classifier>junit5</classifier>
             <scope>test</scope>
         </dependency>
