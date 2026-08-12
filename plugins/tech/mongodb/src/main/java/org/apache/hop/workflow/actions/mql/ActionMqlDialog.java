@@ -264,8 +264,10 @@ public class ActionMqlDialog extends ActionDialog {
 
     wMql =
         new StyledTextComp(
-            variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-
+            variables,
+            shell,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_JSON);
     PropsUi.setLook(wMql, Props.WIDGET_STYLE_FIXED);
     FormData fdMql = new FormData();
     fdMql.left = new FormAttachment(0, 0);

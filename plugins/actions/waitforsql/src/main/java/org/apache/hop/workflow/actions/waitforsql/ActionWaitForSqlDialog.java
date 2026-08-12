@@ -477,7 +477,8 @@ public class ActionWaitForSqlDialog extends ActionDialog {
             ? new StyledTextComp(
                 action,
                 wCustomGroup,
-                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
+                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+                TextComposite.STYLE_TYPE_SQL)
             : new SQLStyledTextComp(
                 action,
                 wCustomGroup,

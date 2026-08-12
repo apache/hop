@@ -117,6 +117,7 @@ public class ConfigGuiOptionsTab {
   private Button wMetricsOnTransforms;
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
+  private Button wShowTextCompositeToolbar;
   private Text wMaxPreviewCellLength;
   private Button wShowPreviewLineBreaks;
   private Button wMetricsPanelShowUnits;
@@ -221,6 +222,9 @@ public class ConfigGuiOptionsTab {
       wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
+      if (wShowTextCompositeToolbar != null && !wShowTextCompositeToolbar.isDisposed()) {
+        wShowTextCompositeToolbar.setSelection(props.isShowTextCompositeToolbar());
+      }
       if (wMaxPreviewCellLength != null && !wMaxPreviewCellLength.isDisposed()) {
         wMaxPreviewCellLength.setText(Integer.toString(props.getMaxPreviewCellLength()));
       }
@@ -974,6 +978,16 @@ public class ConfigGuiOptionsTab {
             margin);
     lastTablesControl = wShowTableViewToolbar;
 
+    wShowTextCompositeToolbar =
+        createCheckbox(
+            tablesContent,
+            "EnterOptionsDialog.ShowTextCompositeToolbar.Label",
+            "EnterOptionsDialog.ShowTextCompositeToolbar.ToolTip",
+            props.isShowTextCompositeToolbar(),
+            lastTablesControl,
+            margin);
+    lastTablesControl = wShowTextCompositeToolbar;
+
     // Maximum number of characters shown in a preview grid cell before it is truncated.
     Control[] maxPreviewCellLengthControls =
         createTextField(
@@ -1431,6 +1445,9 @@ public class ConfigGuiOptionsTab {
     props.setDarkMode(darkMode);
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
+    if (wShowTextCompositeToolbar != null && !wShowTextCompositeToolbar.isDisposed()) {
+      props.setShowTextCompositeToolbar(wShowTextCompositeToolbar.getSelection());
+    }
     props.setMaxPreviewCellLength(
         Const.toInt(wMaxPreviewCellLength.getText(), props.getMaxPreviewCellLength()));
     props.setShowPreviewLineBreaksAsSymbols(wShowPreviewLineBreaks.getSelection());
