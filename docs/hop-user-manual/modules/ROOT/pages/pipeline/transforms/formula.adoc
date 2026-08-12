@@ -80,6 +80,27 @@ TIP: The formula will not evaluate a field unless the field pre-exists. Either s
 
 * Set a Null Timestamp with formula: DATEVALUE("0")
 
+== Dates before 1900
+
+WARNING: The Formula transform can not calculate with dates before *1899-12-31*. Formulas are evaluated the way Excel does, as date serial numbers counting the days since that date, so there simply is no representation for anything older.
+
+This has two consequences to be aware of.
+
+*Date and Timestamp fields older than 1899-12-31 are rejected.* Because such a date can not be converted to a serial number, the transform reports an error for the row instead of calculating with a wrong value. Applications that use a very old date as a placeholder for "no value" (1750-01-01 and similar) will run into this. Filter or convert those values before the Formula transform, for example by mapping them to `null` in a Calculator, Switch/Case or Filter Rows transform, or divert the rows with error handling (see below).
+
+*The DATE() function adds 1900 to years below 1900.* This is Excel behavior, not a Hop limitation: a year between 0 and 1899 is interpreted as an offset from 1900. `DATE(1800,1,1)` therefore returns 3700-01-01 and `DATE(50,1,1)` returns 1950-01-01. Hop can not detect this, since the result is a perfectly valid date, so double check any formula that builds a date from a literal or calculated year.
+
+== Error handling
+
+A formula that can not be calculated for a row stops the pipeline with an error message naming the field and the formula. This covers unsupported dates as described above, as well as the error values Excel returns for a failed calculation: `#DIV/0!`, `#VALUE!`, `#NUM!`, `#REF!`, `#NAME?` and `#NULL!`.
+
+Two options are available to handle these rows instead:
+
+* Handle the error inside the formula with `IFERROR()`, for example `IFERROR([amount]/[count], 0)`.
+* Enable error handling on the transform to divert the offending rows to another transform, leaving the rest of the stream untouched.
+
+NOTE: `#N/A` is the exception: it means "no value available" and is written to the output field as a `null`. This is what the *Set Null to #N/A* option relies on, so formulas using `NA()` keep working as before.
+
 == Options
 
 [options="header"]
@@ -290,8 +311,8 @@ The kettle import process is able to migrate the existing Formula steps containe
 |*description*|Construct date from year, month, and day of month.
 |*syntax*|DATE( Integer Year , Integer Month , Integer Day )
 |*returns*|Date
-|*semantics*|This computes the date's serial number given Year, Month, and Day. Fractional values are truncated. The value of the serial number depends on the current epoch. Note that some applications may not handle correctly dates before 1904; in particular, many spreadsheets incorrectly claim that 1900 is a leap year (it was not; there was no 1900-02-29).
-|*constraints*|1 <= Month <= 12; 1 <= Day <= 31
+|*semantics*|This computes the date's serial number given Year, Month, and Day. Fractional values are truncated. The value of the serial number depends on the current epoch. Note that some applications may not handle correctly dates before 1904; in particular, many spreadsheets incorrectly claim that 1900 is a leap year (it was not; there was no 1900-02-29). A Year between 0 and 1899 is interpreted as an offset from 1900, so DATE(1800,1,1) returns 3700-01-01 and DATE(50,1,1) returns 1950-01-01. Dates before 1899-12-31 can not be represented.
+|*constraints*|1 <= Month <= 12; 1 <= Day <= 31; Year >= 1900
 |===
 
 *Examples*
