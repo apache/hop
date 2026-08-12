@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
 import java.util.HashSet;
+import java.util.Set;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -29,7 +30,7 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
   public IRowMeta outputRowMeta;
 
   /** used to store values in used to look up things */
-  public HashSet<Object[]> look;
+  public Set<Object[]> look;
 
   public boolean readLookupValues;
 
@@ -53,6 +54,9 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
   public boolean addValueFieldName;
   public boolean addAdditionalFields;
 
+  /** Top-K limit for multi-match modes (already clamped). */
+  public int maxMatches;
+
   /** index of return fields from lookup stream */
   public int[] indexOfCachedFields;
 
@@ -67,5 +71,6 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
     this.valueSeparator = "";
     this.nrCachedFields = 1;
     this.addAdditionalFields = false;
+    this.maxMatches = FuzzyMatchMeta.DEFAULT_MAX_MATCHES;
   }
 }

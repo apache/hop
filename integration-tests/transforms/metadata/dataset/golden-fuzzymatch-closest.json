@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-fuzzymatch-closest.csv",
+  "name": "golden-fuzzymatch-closest",
+  "description": "Golden data for Fuzzy match Closest mode (Levenshtein)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "#",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "name"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "match"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "#",
+      "field_name": "measure value"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "code"
+    }
+  ],
+  "folder_name": ""
+}
