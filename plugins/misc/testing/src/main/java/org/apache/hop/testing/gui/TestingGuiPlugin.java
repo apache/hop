@@ -87,8 +87,10 @@ import org.apache.hop.ui.testing.EditRowsDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -1344,26 +1346,38 @@ public class TestingGuiPlugin {
    * <p>Prefers the active pipeline graph when it matches, then scans explorer tabs. Matching is by
    * identity first, then {@link PipelineMeta#equals(Object)} (filename/name).
    *
+   * <p>Must only be called from the UI thread: looking up the active tab touches SWT widgets.
+   * Background callers (e.g. lineage GetFields from a transform thread) get {@code null}.
+   *
    * @param pipelineMeta the pipeline metadata
-   * @return the graph, or null when the pipeline is not open in the GUI
+   * @return the graph, or null when the pipeline is not open in the GUI or the caller is not on the
+   *     UI thread
    */
   public static HopGuiPipelineGraph getPipelineGraph(PipelineMeta pipelineMeta) {
-    HopGuiPipelineGraph active = HopGui.getActivePipelineGraph();
-    if (active != null && pipelineMetaMatches(active.getPipelineMeta(), pipelineMeta)) {
-      return active;
-    }
-    if (pipelineMeta == null || HopGui.getExplorerPerspective() == null) {
+    // Tab / graph lookup may touch SWT widgets; only safe on the UI thread (issue #7896).
+    if (Display.getCurrent() == null) {
       return null;
     }
-    for (TabItemHandler item : HopGui.getExplorerPerspective().getItems()) {
-      if (!(item.getTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph)) {
-        continue;
+    try {
+      HopGuiPipelineGraph active = HopGui.getActivePipelineGraph();
+      if (active != null && pipelineMetaMatches(active.getPipelineMeta(), pipelineMeta)) {
+        return active;
       }
-      if (pipelineMetaMatches(pipelineGraph.getPipelineMeta(), pipelineMeta)) {
-        return pipelineGraph;
+      if (pipelineMeta == null || HopGui.getExplorerPerspective() == null) {
+        return null;
       }
+      for (TabItemHandler item : HopGui.getExplorerPerspective().getItems()) {
+        if (!(item.getTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph)) {
+          continue;
+        }
+        if (pipelineMetaMatches(pipelineGraph.getPipelineMeta(), pipelineMeta)) {
+          return pipelineGraph;
+        }
+      }
+      return null;
+    } catch (SWTException e) {
+      return null;
     }
-    return null;
   }
 
   private static boolean pipelineMetaMatches(PipelineMeta a, PipelineMeta b) {
@@ -1377,6 +1391,10 @@ public class TestingGuiPlugin {
     // When rendering a pipeline on a server status page we never have a current unit test
     //
     if (!"GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+      return null;
+    }
+    // Same rule as getPipelineGraph: never access HopGui/SWT from a worker thread (issue #7896).
+    if (Display.getCurrent() == null) {
       return null;
     }
     Map<String, Object> stateMap = getStateMap(pipelineMeta);

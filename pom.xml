@@ -25,7 +25,7 @@
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>2.19.0-SNAPSHOT</version>
+    <version>2.20.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Orchestration Platform</name>
@@ -158,7 +158,7 @@
         <objenesis.version>3.6</objenesis.version>
         <opentelemetry.version>1.65.0</opentelemetry.version>
         <org.eclipse.platform.version>3.134.0</org.eclipse.platform.version>
-        <project.build.outputTimestamp>1779880334</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1786535563</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
@@ -168,6 +168,7 @@
         <spotless.skip>false</spotless.skip>
         <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
+        <tm4e.core.version>0.17.2</tm4e.core.version>
         <ui.test.argLine></ui.test.argLine>
         <ui.test.excludedGroups></ui.test.excludedGroups>
         <ui.test.includedGroups></ui.test.includedGroups>
@@ -267,12 +268,6 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <!--
-                      Skip the assemblies/ reactor (hop-client, hop-web, … go to dist.apache.org).
-                      Keep the per-module "assembly" profile so plugin modules with
-                      src/assembly/assembly.xml attach marketplace-installable zips
-                      (artifactId-version.zip) for repository.apache.org / Maven Central.
-                    -->
                     <arguments>-P=-assemblies -DskipTests</arguments>
                 </configuration>
             </plugin>
@@ -658,7 +653,7 @@
             <id>assembly</id>
             <activation>
                 <property>
-                    <name>assemblies</name>
+                    <name>module.zips</name>
                     <value>!false</value>
                 </property>
                 <file>

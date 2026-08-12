@@ -61,12 +61,35 @@ Large / lesser-used plugins are *not* bundled in the hop-client zip (ASF package
 Each plugin module with `src/assembly/assembly.xml` builds a standalone zip (Maven
 assembly with `appendAssemblyId=false`).
 
-The root `maven-release-plugin` is configured with `-P=-assemblies -DskipTests`:
+Two independent switches control this, and mixing them up is what breaks the marketplace:
 
-* **`-assemblies`** — skip the `assemblies/` reactor (hop-client / hop-web products go to
-  dist.apache.org, not Maven Central).
-* **Do not** disable the per-module **`assembly`** profile — that would drop plugin zips
-  from staging and break the marketplace.
+[cols="1,3"]
+|===
+|Property |Gates
+
+|`assemblies`
+|The `assemblies/` reactor — `hop-assemblies-plugins` and the hop-client / hop-web
+products — plus the `hop-core` / `hop-engine` / `hop-ui` / `hop-ui-rcp` zips, which exist
+only to be unpacked into those products. None of these are staged to Maven Central; the
+client and the source release go to dist.apache.org. The release turns this off via
+`-P=-assemblies`, so a normal build still produces everything `assemblies/client` needs.
+
+|`module.zips`
+|The per-module `artifactId-version.zip` attached next to each plugin jar. This is the
+artifact the marketplace installs, so a release must **never** disable it.
+|===
+
+Net effect on a release: every plugin zip is staged, and no `hop-assemblies-*` or
+core/engine/ui/rcp zip is.
+
+They used to share the single `assemblies` property, so one `-Dassemblies=false` silently
+dropped every plugin zip while the build still reported `BUILD SUCCESS`. That is why the
+zips are missing from Maven Central for 2.12.0-2.14.0 and 2.16.0-2.18.1.
+
+WARNING: Do not add `-Dassemblies=false`, `-Dmodule.zips=false` or `-P=-assembly` to the
+release commands, and do not pass `-Darguments="..."` on the command line — it replaces the
+`<arguments>` configured in the root pom wholesale, taking the `-P=-assemblies` with it.
+Older versions of this guide included both; that is the bug described above.
 
 So `release:perform` publishes both the jar and the zip under the same GAV, for example:
 

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-engine</artifactId>
@@ -29,9 +29,8 @@
     <name>Hop Engine</name>
 
     <properties>
+        <assembly_package-phase>none</assembly_package-phase>
         <commons-validator.version>1.10.1</commons-validator.version>
-        <!-- jakarta.* API versions are managed centrally in hop-libs -->
-        <!-- mina override remove when updating jaas-->
         <mina.core.version>2.2.8</mina.core.version>
         <snappy-java.version>1.1.10.8</snappy-java.version>
     </properties>
@@ -45,13 +44,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- mina override remove when updating jaas-->
             <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-core</artifactId>
                 <version>${mina.core.version}</version>
             </dependency>
-            <!-- commons-validator transitives; 1.11.0+ addresses CVE-2025-48734 -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
@@ -261,5 +258,20 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>assemblies</id>
+            <activation>
+                <property>
+                    <name>assemblies</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <properties>
+                <assembly_package-phase>package</assembly_package-phase>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

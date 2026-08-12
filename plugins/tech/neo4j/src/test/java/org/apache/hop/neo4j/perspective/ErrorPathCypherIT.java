@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,10 @@ package org.apache.hop.neo4j.perspective;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.abort;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +37,8 @@ import org.neo4j.driver.Record;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.types.Node;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.Neo4jContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 /**
@@ -45,18 +47,37 @@ import org.testcontainers.utility.DockerImageName;
  * <p>Neo4j 5 removed size() on a pattern expression, which made the Error path tab of the Neo4j
  * perspective fail. This verifies both that the statement is accepted by Neo4j 5 and that it still
  * selects the deepest execution which reported errors.
+ *
+ * <p>Skipped when Docker is unavailable or the Neo4j container cannot start in time (common on
+ * constrained CI agents). Unit tests in {@link HopNeo4jPerspectiveTest} still guard the Cypher
+ * shape without Docker.
  */
-@Testcontainers(disabledWithoutDocker = true)
 class ErrorPathCypherIT {
 
-  @Container
-  static Neo4jContainer<?> neo4j =
-      new Neo4jContainer<>(DockerImageName.parse("neo4j:5.26")).withoutAuthentication();
-
+  private static Neo4jContainer<?> neo4j;
   private static Driver driver;
 
   @BeforeAll
   static void setUp() {
+    assumeTrue(
+        DockerClientFactory.instance().isDockerAvailable(),
+        "Docker is required for ErrorPathCypherIT");
+
+    // Cap heap/pagecache so Neo4j can start on small CI agents; default memory can hang/timeout.
+    neo4j =
+        new Neo4jContainer<>(DockerImageName.parse("neo4j:5.26"))
+            .withoutAuthentication()
+            .withEnv("NEO4J_server_memory_heap_initial__size", "256m")
+            .withEnv("NEO4J_server_memory_heap_max__size", "512m")
+            .withEnv("NEO4J_server_memory_pagecache_size", "64m")
+            .withStartupTimeout(Duration.ofMinutes(5));
+
+    try {
+      neo4j.start();
+    } catch (Exception e) {
+      abort("Neo4j container did not become ready (issue #7898): " + e.getMessage());
+    }
+
     driver = GraphDatabase.driver(neo4j.getBoltUrl(), AuthTokens.none());
 
     // A workflow which executes a pipeline, which in turn executes a transform that failed.
@@ -89,6 +110,9 @@ class ErrorPathCypherIT {
   static void tearDown() {
     if (driver != null) {
       driver.close();
+    }
+    if (neo4j != null) {
+      neo4j.stop();
     }
   }
 
