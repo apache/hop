@@ -173,8 +173,10 @@ public class WriteToLogDialog extends BaseTransformDialog {
 
     wLogMessage =
         new StyledTextComp(
-            variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-        TextComposite.STYLE_TYPE_TEXT);
+            variables,
+            shell,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_TEXT);
     PropsUi.setLook(wLogMessage, Props.WIDGET_STYLE_FIXED);
     FormData fdLogMessage = new FormData();
     fdLogMessage.left = new FormAttachment(middle, 0);

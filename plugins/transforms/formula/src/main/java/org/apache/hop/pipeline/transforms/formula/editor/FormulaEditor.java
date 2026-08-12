@@ -223,8 +223,10 @@ public class FormulaEditor extends Dialog implements KeyListener {
     //
     expressionEditor =
         new StyledTextComp(
-            variables, rightSash, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-        TextComposite.STYLE_TYPE_FORMULA);
+            variables,
+            rightSash,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_FORMULA);
     expressionEditor.setText(this.formula);
     expressionEditor.addModifyListener(event -> setStyles());
     expressionEditor.addKeyListener(this);

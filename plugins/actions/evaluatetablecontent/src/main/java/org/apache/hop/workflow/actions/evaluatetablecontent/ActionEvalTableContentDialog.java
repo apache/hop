@@ -409,8 +409,10 @@ public class ActionEvalTableContentDialog extends ActionDialog {
 
     wSql =
         new StyledTextComp(
-            action, wCustomGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-        TextComposite.STYLE_TYPE_SQL);
+            action,
+            wCustomGroup,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_SQL);
     PropsUi.setLook(wSql, Props.WIDGET_STYLE_FIXED);
     wSql.addModifyListener(lsMod);
     FormData fdSql = new FormData();

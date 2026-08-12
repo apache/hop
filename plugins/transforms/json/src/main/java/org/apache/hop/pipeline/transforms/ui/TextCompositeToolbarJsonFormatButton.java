@@ -46,9 +46,10 @@ public class TextCompositeToolbarJsonFormatButton {
    *
    * <p>Signature must be {@code (String, Object)} for {@link GuiToolbarElementFilter} reflection.
    *
-   * <p><strong>Do not call {@link TextComposite#isEditable()} (or {@code getText()}, etc.) here.</strong>
-   * Filters run while the {@link TextComposite} constructor is still building the toolbar, before
-   * the underlying text widget exists. Check editability in the action method instead.
+   * <p><strong>Do not call {@link TextComposite#isEditable()} (or {@code getText()}, etc.)
+   * here.</strong> Filters run while the {@link TextComposite} constructor is still building the
+   * toolbar, before the underlying text widget exists. Check editability in the action method
+   * instead.
    *
    * @param buttonId the toolbar button id being evaluated
    * @param guiPluginInstance the registered TextComposite instance (or other owner)

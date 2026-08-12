@@ -279,7 +279,9 @@ public class TableInputDialog extends BaseTransformDialog {
     if (EnvironmentUtils.getInstance().isWeb()) {
       wSqlComposite =
           new StyledTextComp(
-              variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+              variables,
+              shell,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
               TextComposite.STYLE_TYPE_SQL);
     } else {
       wSqlComposite =

@@ -534,8 +534,10 @@ public class SshDialog extends BaseTransformDialog {
 
     wCommand =
         new StyledTextComp(
-            variables, wCommands, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-        TextComposite.STYLE_TYPE_TEXT);
+            variables,
+            wCommands,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_TEXT);
     wCommand.setToolTipText(BaseMessages.getString(PKG, "SSHDialog.Command.Tooltip"));
     PropsUi.setLook(wCommand);
     wCommand.addModifyListener(lsMod);

@@ -360,7 +360,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
             variables,
             wMessageGroup,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
-        TextComposite.STYLE_TYPE_TEXT);
+            TextComposite.STYLE_TYPE_TEXT);
     PropsUi.setLook(wMessage);
     wMessage.addModifyListener(lsMod);
     FormData fdMessage = new FormData();

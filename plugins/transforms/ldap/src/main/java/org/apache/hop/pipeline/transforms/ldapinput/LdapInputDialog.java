@@ -678,7 +678,7 @@ public class LdapInputDialog extends BaseTransformDialog {
             wSearchGroup,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
             true,
-        TextComposite.STYLE_TYPE_TEXT);
+            TextComposite.STYLE_TYPE_TEXT);
     wFilterString.setToolTipText(
         BaseMessages.getString(PKG, "LdapInputDialog.FilterString.Tooltip"));
     PropsUi.setLook(wFilterString);
