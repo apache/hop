@@ -267,12 +267,6 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <!--
-                      Skip the assemblies/ reactor (hop-client, hop-web, … go to dist.apache.org).
-                      Keep the per-module "assembly" profile so plugin modules with
-                      src/assembly/assembly.xml attach marketplace-installable zips
-                      (artifactId-version.zip) for repository.apache.org / Maven Central.
-                    -->
                     <arguments>-P=-assemblies -DskipTests</arguments>
                 </configuration>
             </plugin>
@@ -658,7 +652,7 @@
             <id>assembly</id>
             <activation>
                 <property>
-                    <name>assemblies</name>
+                    <name>module.zips</name>
                     <value>!false</value>
                 </property>
                 <file>
