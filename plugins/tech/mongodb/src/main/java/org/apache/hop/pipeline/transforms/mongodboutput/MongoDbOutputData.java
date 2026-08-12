@@ -45,7 +45,10 @@ import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.bson.BsonType;
 import org.bson.Document;
+import org.bson.json.JsonReader;
+import org.bson.types.ObjectId;
 
 /** Data class for the MongoDbOutput transform */
 @Getter
@@ -815,7 +818,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         {
           String val = hopType.getString(hopValue);
           if (hopValueIsJSON) {
-            valueToSet = Document.parse(val);
+            valueToSet = parseMongoJsonValue(val);
           } else {
             valueToSet = val;
           }
@@ -881,6 +884,32 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       return true;
     }
     return false;
+  }
+
+  /**
+   * Parse an incoming JSON string that will be written to MongoDB as a BSON value.
+   *
+   * <p>Historically this was a straight {@code Document.parse(val)}. BSON 5.x's parser rejects
+   * top-level BSON extended JSON for non-DOCUMENT types — most notably {@code {"$oid": "..."}} —
+   * with a {@code BsonInvalidOperationException}, because the top-level type is OBJECT_ID rather
+   * than DOCUMENT. That regressed the ability to use {@code _id} (or any ObjectId-typed field) as
+   * an Update match field in the MongoDB Output transform (Apache Hop #7183).
+   *
+   * <p>Detect top-level ObjectId extended JSON and return an {@link ObjectId} directly so the value
+   * is stored with the correct BSON type. Anything else falls through to {@code Document.parse},
+   * preserving prior behaviour for regular embedded documents.
+   *
+   * <p>Package-private for unit testing.
+   */
+  static Object parseMongoJsonValue(String val) {
+    try (JsonReader reader = new JsonReader(val)) {
+      if (reader.readBsonType() == BsonType.OBJECT_ID) {
+        return reader.readObjectId();
+      }
+    } catch (RuntimeException ignore) {
+      // fall through to Document.parse which will surface a consistent error message
+    }
+    return Document.parse(val);
   }
 
   @SuppressWarnings("unchecked")

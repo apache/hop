@@ -267,4 +267,30 @@ class MongoDbOutputDataTest {
     data.setOutputRowMeta(rowMeta);
     assertThat(data.getOutputRowMeta(), equalTo(rowMeta));
   }
+
+  /**
+   * Regression test for #7183. BSON 5.x's Document.parse rejects top-level extended-JSON typed
+   * values like {@code {"$oid": "..."}}. parseMongoJsonValue must recognise that shape and return
+   * an ObjectId with the right value so update match fields on _id continue to work.
+   */
+  @Test
+  void parseMongoJsonValue_topLevelObjectIdExtendedJson_returnsObjectId() {
+    String hex = "6a15efdd0a93aa5ed3b4b947";
+    Object result = MongoDbOutputData.parseMongoJsonValue("{\"$oid\": \"" + hex + "\"}");
+    assertThat(result, instanceOf(org.bson.types.ObjectId.class));
+    assertEquals(hex, ((org.bson.types.ObjectId) result).toHexString());
+  }
+
+  /**
+   * Regression test for #7183. Regular JSON documents (the pre-existing behaviour) must still flow
+   * through Document.parse and produce a Document.
+   */
+  @Test
+  void parseMongoJsonValue_regularDocument_returnsDocument() {
+    Object result = MongoDbOutputData.parseMongoJsonValue("{\"foo\": 1, \"bar\": \"baz\"}");
+    assertThat(result, instanceOf(Document.class));
+    Document doc = (Document) result;
+    assertEquals(1, doc.get("foo"));
+    assertEquals("baz", doc.get("bar"));
+  }
 }
