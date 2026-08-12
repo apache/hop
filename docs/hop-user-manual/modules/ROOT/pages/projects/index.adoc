@@ -72,6 +72,7 @@ Just like projects, environments are defined in one or a number of configuration
 
 TIP: store your environment configuration files outside of the project folder.
 You may even want to check them in to a separate version control repository.
+How those files get onto a running Hop Server is covered in xref:hop-server/deploying.adoc[Deploying Hop Server].
 
 ==== Import variables
 
