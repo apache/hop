@@ -169,9 +169,9 @@
         <swtbot.version>4.3.0</swtbot.version>
         <target.jdk.version>21</target.jdk.version>
         <tm4e.core.version>0.17.2</tm4e.core.version>
-        <ui.test.argLine />
-        <ui.test.excludedGroups />
-        <ui.test.includedGroups />
+        <ui.test.argLine></ui.test.argLine>
+        <ui.test.excludedGroups></ui.test.excludedGroups>
+        <ui.test.includedGroups></ui.test.includedGroups>
     </properties>
 
     <dependencies>
@@ -543,9 +543,9 @@
                         <includes>
                             <include>src/**/*.java</include>
                         </includes>
-                        <googleJavaFormat />
-                        <importOrder />
-                        <removeUnusedImports />
+                        <googleJavaFormat></googleJavaFormat>
+                        <importOrder></importOrder>
+                        <removeUnusedImports></removeUnusedImports>
                     </java>
                     <pom>
                         <includes>
@@ -772,7 +772,7 @@
         <profile>
             <id>uitest</id>
             <properties>
-                <ui.test.excludedGroups />
+                <ui.test.excludedGroups></ui.test.excludedGroups>
                 <ui.test.includedGroups>uitest</ui.test.includedGroups>
             </properties>
         </profile>

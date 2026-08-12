@@ -1676,7 +1676,7 @@
                             <descriptors>
                                 <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
                             </descriptors>
-                            <descriptorSourceDirectory combine.self="override" />
+                            <descriptorSourceDirectory combine.self="override"></descriptorSourceDirectory>
                         </configuration>
                     </execution>
                 </executions>
