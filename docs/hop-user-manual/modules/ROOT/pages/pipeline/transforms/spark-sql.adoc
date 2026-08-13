@@ -1,0 +1,132 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Spark SQL runs a SQL statement over the Datasets of the incoming transforms on the native Spark pipeline engine, so joins, unions and aggregations are planned as one Catalyst query.
+
+= image:transforms/icons/spark-sql.svg[Spark SQL transform Icon, role="image-doc-icon"] Spark SQL
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+*Spark SQL* runs a https://spark.apache.org/sql/[Spark SQL] statement on the xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine].
+
+Every incoming transform is registered as a temporary view, so a single statement can join, union, filter, window and aggregate them. Spark's Catalyst optimizer plans the whole statement at once, rather than the pipeline chaining separate Hop Join, Filter and Calculator transforms that Catalyst cannot see across.
+
+This is *not* the same as the classic xref:pipeline/transforms/execsqlrow.adoc[Execute SQL script], xref:pipeline/transforms/tableinput.adoc[Table input] or xref:pipeline/transforms/dynamicsqlrow.adoc[Dynamic SQL row] transforms: those send SQL to a relational database over JDBC. Spark SQL compiles the statement against the pipeline's in-flight Datasets instead, and needs no database connection.
+
+This transform is *not* available on the local Hop engine or on Beam engines.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:cross.svg[Not Supported, 24]
+!Single Threaded! image:cross.svg[Not Supported, 24]
+!Native Spark! image:check_mark.svg[Supported, 24]
+!Beam Spark! image:cross.svg[Not Supported, 24]
+!Beam Flink! image:cross.svg[Not Supported, 24]
+!Beam Dataflow! image:cross.svg[Not Supported, 24]
+!===
+
+NOTE: *Spark* here means Hop's *native* Spark pipeline engine only (not Beam Spark).
+|===
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option |Description
+
+|Transform name
+|Unique name of the transform in the pipeline.
+
+|SQL statement
+|The statement passed to `SparkSession.sql()`. Hop variables (`${...}`) are resolved on the driver before the statement runs — see <<Variables>>.
+
+|Input views
+|Optional per-input overrides of the temporary view name. Leave empty to use the default derived from each incoming transform's name — see <<Input views>>.
+
+|Output fields
+|The fields the statement returns. Required — see <<Output fields>>.
+|===
+
+== Input views
+
+Each enabled incoming hop contributes one temporary view. By default the view name is derived from the incoming transform name: every character outside `A-Z`, `a-z`, `0-9` and `_` becomes an underscore, and a leading digit is prefixed with an underscore.
+
+For example, a transform called `Read orders (raw)` is available as `Read_orders__raw_`.
+
+Because that is rarely what you want to type in a statement, set an explicit name in the *Input views* grid instead:
+
+[options="header",cols="1,1"]
+|===
+|Incoming transform |View name
+
+|Read orders (raw)
+|orders
+
+|Read customers
+|customers
+|===
+
+The statement can then read naturally:
+
+[source,sql]
+----
+SELECT c.name        AS name,
+       SUM(o.amount) AS total
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+GROUP BY c.name
+----
+
+If two incoming transforms resolve to the same view name, the pipeline fails at build time with both transform names, rather than one silently shadowing the other.
+
+A statement with no incoming hops is allowed, so catalog tables and literals work too:
+
+[source,sql]
+----
+SELECT * FROM VALUES (1, 'a'), (2, 'b') AS t(id, label)
+----
+
+== Output fields
+
+The output field list is required and must not be empty. Hop resolves field names and types at design time, before any Spark session exists, so the statement's result schema is not available to it. Declaring the fields keeps design-time metadata correct and gives downstream transforms a row layout that matches the Dataset exactly.
+
+The declared list also drives the output: fields are selected in the order you declare them and cast to the Spark type for the Hop type you choose. Declaring a field the statement does not return fails the pipeline with the list of columns it did return.
+
+TIP: Alias the expressions in the statement (`SUM(o.amount) AS total`) so the returned column names match the fields you declare.
+
+== Variables
+
+Variables are substituted into the SQL text on the driver before the statement is parsed — the result is plain string substitution, not a bound parameter:
+
+[source,sql]
+----
+SELECT COUNT(*) AS row_count FROM orders WHERE amount >= ${MIN_AMOUNT}
+----
+
+WARNING: Because this is string substitution, a variable whose value comes from outside the project can change the meaning of the statement. Only use variables you control for SQL text.
+
+== Notes and limitations
+
+* Structured Streaming SQL is not supported: the native Spark engine is batch-only.
+* Views exist only for the statement that reads them. They are not visible to other transforms or to later pipelines.
+* `CREATE`/`DROP` statements against a configured catalog run, but this transform is designed to return a result set; use xref:pipeline/transforms/spark-lake-table-maintenance.adoc[Spark lake table maintenance] for table maintenance operations.

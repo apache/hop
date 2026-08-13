@@ -80,6 +80,12 @@ image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-empty-server.png[Ap
 
 == Your first Apache Airflow and Apache Hop DAG
 
+NOTE: This page runs a *short-lived* `apache/hop` container with a local engine.
+That is often what you want: if the project is already in the image, you do not need a Hop Server at all.
+Send xref:metadata-types/execution-information-location.adoc[execution information] to a volume, database, OpenSearch, Neo4j or Elastic so you can inspect the run after the container exits.
+See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers].
+To have Airflow submit work to a running Hop Server instead (remote run configuration, export resources), see xref:hop-server/deploy-export-resources.adoc[Remote run with export resources].
+
 We'll use the Apache Airflow https://airflow.apache.org/docs/apache-airflow-providers-docker/stable/_api/airflow/providers/docker/operators/docker/index.html[DockerOperator^] to run Apache Hop workflows and pipelines from an embedded container in Apache Airflow.
 
 Again, you don't need to be an Apache Airflow, Docker, or Python expert to create DAGs, we'll treat DAGs as just another text file.

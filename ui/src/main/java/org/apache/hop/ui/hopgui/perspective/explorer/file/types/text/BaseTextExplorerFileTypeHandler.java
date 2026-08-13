@@ -52,10 +52,10 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
   /**
    * Language id for syntax highlighting (e.g. "json", "xml"). Subclasses can override; default is
-   * null (plain text).
+   * plain text.
    */
   protected String getLanguageId() {
-    return null;
+    return "plaintext";
   }
 
   @Override

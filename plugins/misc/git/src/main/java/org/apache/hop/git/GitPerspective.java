@@ -401,7 +401,7 @@ public class GitPerspective implements IHopPerspective {
 
           MenuItem menuItem = refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_CREATE_BRANCH);
           if (menuItem != null) {
-            menuItem.setEnabled(isHeads || isRemotes);
+            menuItem.setEnabled(isHeads || isRemotes || isTags);
             menuItem.setText(
                 BaseMessages.getString(PKG, "GitPerspective.Menu.CreateBranchFrom.Text", branch));
           }
@@ -1071,7 +1071,7 @@ public class GitPerspective implements IHopPerspective {
       String name = dialog.open();
       if (name != null) {
         UIGit git = GitGuiPlugin.getInstance().getGit();
-        if (git.createBranch(name)) {
+        if (git.createBranch(name, ref.getName())) {
           // Refresh the explorer file, refs and commit history
           refresh(true);
         }

@@ -1511,7 +1511,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
 
       // Rename the folder
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update all opened impacted file type handlers
       for (String filename : filenames) {
@@ -1544,7 +1544,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       String newPath = sourceExists ? pathFromTarget : pathFromSource;
 
       // Rename the file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update opened file type handler (use old path to find the handler)
       TabItemHandler handler = findTabItemHandler(oldPath);
@@ -1580,7 +1580,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
 
       // Move file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update all opened impacted file type handlers
       for (String filename : filenames) {
@@ -1610,7 +1610,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       String newPath = sourceExists ? pathFromTarget : pathFromSource;
 
       // Move file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update opened file type handler
       TabItemHandler handler = findTabItemHandler(oldPath);

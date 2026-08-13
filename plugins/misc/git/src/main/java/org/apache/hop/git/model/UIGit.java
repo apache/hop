@@ -442,7 +442,10 @@ public class UIGit extends VCS {
       e.printStackTrace();
       return files;
     }
-    status.getUntracked().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
+    Set<String> ignored = getCaseInsensitiveIgnored(status.getUntracked());
+    status.getUntracked().stream()
+        .filter(name -> !ignored.contains(name))
+        .forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
     status.getConflicting().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
     // Changed in the working tree but not staged: "git add" is what stages these
     status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
@@ -1118,10 +1121,16 @@ public class UIGit extends VCS {
     }
   }
 
-  public boolean createBranch(String name, String commitId) {
+  /**
+   * Create a branch that starts at the given start point and check it out.
+   *
+   * @param name the name of the new branch
+   * @param startPoint a commit id or the name of a branch, remote branch or tag to start from.
+   *     Annotated tags are peeled to the commit they point at.
+   */
+  public boolean createBranch(String name, String startPoint) {
     try {
-      RevCommit commit = resolve(commitId);
-      git.branchCreate().setName(name).setStartPoint(commit).call();
+      git.branchCreate().setName(name).setStartPoint(startPoint).call();
       checkoutBranch(getExpandedName(name, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
@@ -1489,10 +1498,33 @@ public class UIGit extends VCS {
         statusCommand = statusCommand.addPath(normalizedPath);
       }
       Status status = statusCommand.call();
-      return status.getIgnoredNotInIndex();
+      Set<String> ignored = new HashSet<>(status.getIgnoredNotInIndex());
+      ignored.addAll(getCaseInsensitiveIgnored(status.getUntracked()));
+      return ignored;
     } catch (GitAPIException e) {
       LogChannel.UI.logError("Error getting list of files ignored by git", e);
       return new HashSet<>();
     }
+  }
+
+  /**
+   * The files JGit reports as untracked but git itself ignores. JGit matches ignore rules case
+   * sensitively whatever core.ignorecase says, so on a case insensitive file system a rule like
+   * "output/" leaves everything in a folder named "Output" untracked. Empty for repositories that
+   * are matched case sensitively, where JGit and git agree.
+   */
+  private Set<String> getCaseInsensitiveIgnored(Set<String> untrackedFiles) {
+    Repository repository = git.getRepository();
+    if (untrackedFiles.isEmpty() || !CaseInsensitiveIgnores.appliesTo(repository)) {
+      return Set.of();
+    }
+    CaseInsensitiveIgnores ignores = new CaseInsensitiveIgnores(repository);
+    Set<String> ignored = new HashSet<>();
+    for (String file : untrackedFiles) {
+      if (ignores.isIgnored(file)) {
+        ignored.add(file);
+      }
+    }
+    return ignored;
   }
 }

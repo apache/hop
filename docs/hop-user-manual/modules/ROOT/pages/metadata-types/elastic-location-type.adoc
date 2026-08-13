@@ -22,7 +22,11 @@ under the License.
 
 == Description
 
-With this location type you can store execution information in an Elastic database.
+With this location type you can store execution information in an Elasticsearch index.
+
+It is a *caching* location: Hop keeps the execution in memory and writes one JSON document per pipeline or workflow to the index.
+
+If the cluster is OpenSearch rather than Elasticsearch, use the xref:metadata-types/opensearch-location-type.adoc[OpenSearch location type] instead.
 
 == Options
 
@@ -30,4 +34,9 @@ With this location type you can store execution information in an Elastic databa
 * *The Elastic API Key to use*: The API key of the Elastic server
 * *The index name to use*: The name of the index to store the execution information in.
 * *Button 'Create and configure Elastic index'*: This executes a number of commands to create and configure the specified index in such a way that Hop can store and retrieve information from Elastic.
+
+== See also
+
+* xref:metadata-types/execution-information-location.adoc[Execution Information Location]
+* xref:metadata-types/opensearch-location-type.adoc[OpenSearch location type]
 

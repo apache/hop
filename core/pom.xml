@@ -95,10 +95,6 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-alts</artifactId>
             <version>${grpc.version}</version>
@@ -468,14 +464,8 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Embedded servers used by HopVfsNetworkProvidersTest to verify the FTP/FTPS/SFTP
-             VFS providers actually exchange bytes. Test scope only. -->
-        <dependency>
-            <groupId>org.apache.ftpserver</groupId>
-            <artifactId>ftpserver-core</artifactId>
-            <version>1.2.1</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- Embedded servers used by HopVfsNetworkProvidersTest to verify the network VFS
+             providers actually exchange bytes. Test scope only. -->
         <dependency>
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-core</artifactId>

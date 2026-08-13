@@ -1,0 +1,173 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[DeployingHopServer]]
+:imagesdir: ../../assets/images
+:openvar: ${
+:closevar: }
+:description: How to get a Hop project onto a Hop Server: bake it into a Docker image, send it from a client with export resources, or check it out with git on the host.
+
+= Deploying Hop Server
+
+xref:hop-server/index.adoc[Hop Server] is a long-lived process that executes pipelines and workflows.
+It is not a scheduler: something else (Hop Gui, xref:hop-run/index.adoc[hop-run], Apache Airflow, cron, Jenkins, a Kubernetes CronJob, ...) has to submit the work.
+
+This page is the deployment story: after you develop a project, how does a running Hop Server get the files and the configuration it needs?
+
+There are three patterns that cover almost every production setup:
+
+* xref:hop-server/deploy-project-image.adoc[Project in a Docker image] -- CI builds an image that contains the project.
+You can roll that image as a long-lived Hop Server, but you often do not need to: a scheduler can start a *short-lived* copy, run one pipeline or workflow, and exit.
+* xref:hop-server/deploy-export-resources.adoc[Remote run with export resources] -- the client owns the project and sends a ZIP to a "dumb" server.
+* xref:hop-server/deploy-git-checkout.adoc[Git checkout on the server] -- the host has a clone; updating is `git pull`.
+
+== What you deploy
+
+Two things make a Hop project runnable.
+
+The *project* lives in git: `project-config.json`, the `metadata/` folder, pipelines, workflows, and any other files the project itself owns.
+See xref:projects/index.adoc[Projects and environments].
+
+The *lifecycle environment* is per runtime: one or more JSON files with hostnames, credentials, inbound paths, and a purpose (Development, Test, Production).
+Those values change between laptops, test and production, and they usually must *not* live in the project repository.
+
+Hop Server then needs the project in one of two ways:
+
+* *On disk*, registered and enabled.
+The official Docker image does this from `HOP_PROJECT_*` / `HOP_ENVIRONMENT_*` variables.
+On a host you register the project and environment once with xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf], then start the server with `-e`.
+The environment already references its project, so you do not pass `-j` as well.
+This is how xref:hop-server/deploy-project-image.adoc[the image] and xref:hop-server/deploy-git-checkout.adoc[the git checkout] work.
+Environment configuration files must be present *on the server*.
+
+* *As a payload from the client*.
+A xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configuration with *Export linked resources to server* sends a ZIP (the files Hop can pack, plus serialized metadata, plus the execution configuration).
+This is xref:hop-server/deploy-export-resources.adoc[export resources].
+Environment configuration is applied *on the client*; variables travel with the execution.
+
+`<metadata_folder>` in `hop-server.xml` is the older, lower-level hook.
+Prefer enabling a project so `{openvar}PROJECT_HOME{closevar}`, metadata inheritance and environment variables all work.
+When both a project and `<metadata_folder>` are set, both providers sit on the metadata stack.
+
+== Choose a pattern
+
+[cols="1,2,2,2",options="header"]
+|===
+| |Project in a Docker image |Export resources from a client |Git checkout on the server
+
+|Who owns the project files
+|The image (immutable per build)
+|The client (Airflow, hop-run, Hop Gui)
+|The server host (working tree)
+
+|How you update
+|Rebuild and roll the container
+|Change the client project; the next run sends a new ZIP
+|`git pull` (restart only for environment or server config)
+
+|Environment configuration
+|Mounted or injected on the *server*
+|Applied on the *client*
+|Files on the *server*, usually outside the clone
+
+|Extra files (JDBC, plugins, `.properties`, JSON schemas)
+|`COPY` into the image or a volume
+|*Not sent.* Must already exist on the server, or be rewritten with the named-resource folder mapping
+|Present in the clone or installed on the host
+
+|File paths
+|`{openvar}PROJECT_HOME{closevar}` is real on the server
+|Paths are rewritten; see the xref:hop-server/deploy-export-resources.adoc[export resources caveats]
+|`{openvar}PROJECT_HOME{closevar}` is the clone directory
+
+|Best for
+|Enterprise CI/CD, Kubernetes, OpenShift; the same image as a short-lived job *or* a long-lived server
+|Orchestrators that already have the project; a server that should not own files
+|Smaller or ops-friendly hosts with git access
+
+|Poor fit
+|You cannot rebuild images
+|Heavy file I/O, extra config files, large data files
+|You cannot (or must not) run `git pull` on production hosts
+|===
+
+== You often do not need a Hop Server
+
+If the project is already in an image, a scheduler can start that image as a *short-lived* container (locally, or on Docker, Kubernetes, OpenShift, ...), run one pipeline or workflow, and exit.
+There is no long-lived Hop Server to keep alive, upgrade or authenticate.
+
+The official `apache/hop` image does both jobs.
+Set `HOP_FILE_PATH` and `HOP_RUN_CONFIG` and the entrypoint runs xref:hop-run/index.adoc[hop-run] and exits.
+Omit them and it starts Hop Server.
+
+Because the container disappears when the run finishes, send xref:metadata-types/execution-information-location.adoc[execution information] somewhere that outlives it: a mounted volume (file or caching-file location), a relational database, OpenSearch, Neo4j or Elastic.
+You can inspect those runs later from the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective] in Hop Gui.
+
+This is the usual production pattern when a scheduler (Airflow, Jenkins, cron, a Kubernetes Job or CronJob) already owns the calendar.
+Keep a long-lived Hop Server when you need xref:hop-server/web-service.adoc[web services], or when many clients submit work to a shared always-on engine.
+
+See xref:hop-server/deploy-project-image.adoc#skip_hop_server_short_lived_containers[Skip Hop Server: short-lived containers] and the xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow] how-to.
+
+== Environment configuration
+
+Use project variables for values that are stable and safe to commit (folder names relative to `{openvar}PROJECT_HOME{closevar}`).
+Use environment variables for infrastructure: `{openvar}DB_HOSTNAME{closevar}`, credentials, inbound paths.
+
+Keep environment JSON *outside* the project folder when it contains secrets.
+Typical places:
+
+* a second, private repository
+* files dropped onto the host by the deployment pipeline
+* a Kubernetes Secret or ConfigMap mounted as a file
+* a xref:metadata-types/variable-resolver/index.adoc[variable resolver] (HashiCorp Vault, Azure Key Vault, Google Secret Manager) so the committed file only holds resolver expressions
+
+An environment can list several configuration files.
+In Docker that is the comma-separated `HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS` variable.
+
+A production file looks like this:
+
+[source,json]
+----
+{
+  "variables" : [ {
+    "name" : "DB_HOSTNAME",
+    "value" : "db.prod.example.com",
+    "description" : "Warehouse host"
+  }, {
+    "name" : "DB_PASSWORD",
+    "value" : "#{vault:hop/data/some-db:password}",
+    "description" : "Resolved at runtime"
+  } ]
+}
+----
+
+Default metadata password protection is obfuscation, not encryption.
+For production use the AES2 encoder or a secrets resolver, change the default Hop Server credential (`cluster` / `cluster`), and enable TLS.
+See xref:password/passwords.adoc[Passwords] and the project's `SECURITY.md`.
+
+For xref:hop-server/deploy-export-resources.adoc[export resources] the *same* environment files are used on the *client* (`hop-run.sh -e prod ...`).
+The server does not read them.
+
+== What Hop Server does not do
+
+* It does not schedule work.
+Use Airflow, cron, Jenkins, a Kubernetes CronJob, or hop-run from a wrapper.
+* It does not keep a durable work queue.
+A restart drops in-flight executions unless you set `--shutdown-timeout` / `HOP_SERVER_SHUTDOWN_TIMEOUT` and the orchestrator waits.
+* A short-lived `apache/hop` container that runs `hop-run` and exits is *not* Hop Server.
+For a project baked into an image that is often the better production pattern -- see <<_you_often_do_not_need_a_hop_server>>.
+
+How you start, stop and query a server is still on the xref:hop-server/index.adoc[Hop Server] reference page.

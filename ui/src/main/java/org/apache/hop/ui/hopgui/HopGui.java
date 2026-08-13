@@ -2176,7 +2176,20 @@ public class HopGui
       return;
     }
 
-    if (control.getData("HOP_TERMINAL_WIDGET") == Boolean.TRUE) {
+    // Widgets that this shell creates later on (a metadata editor rebuilding a section, ...) are
+    // covered when they get the focus.
+    //
+    keyHandler.addHandledShell(display, control.getShell());
+
+    addKeyboardShortcutListeners(control, keyHandler);
+  }
+
+  private void addKeyboardShortcutListeners(Control control, HopGuiKeyHandler keyHandler) {
+    if (control == null || control.isDisposed()) {
+      return;
+    }
+
+    if (control.getData(HopGuiKeyHandler.HOP_TERMINAL_WIDGET) == Boolean.TRUE) {
       return;
     }
 
@@ -2187,7 +2200,7 @@ public class HopGui
     //
     if (control instanceof Composite compositeControl) {
       for (Control child : compositeControl.getChildren()) {
-        replaceKeyboardShortcutListeners(child, keyHandler);
+        addKeyboardShortcutListeners(child, keyHandler);
       }
     }
   }

@@ -158,12 +158,27 @@ plugins:
     description: OpenSearch
     installPath: plugins/tech/opensearch
     modulePath: plugins/tech/opensearch
+  - artifactId: hop-tech-openlineage
+    name: OpenLineage
+    category: Technology
+    description: OpenLineage lineage sink — emit run, file and warehouse (column-level) lineage to Marquez or any OpenLineage endpoint.
+    installPath: plugins/tech/openlineage
+    modulePath: plugins/tech/openlineage
   - artifactId: hop-tech-salesforce
     name: SaleForce
     category: Technology
     description: SalesForce (SFDC)
     installPath: plugins/tech/salesforce
     modulePath: plugins/tech/salesforce
+  - artifactId: hop-tech-ftp
+    name: FTP
+    category: Technology
+    description: >-
+      Named FTP and FTPS connections usable as a VFS scheme in every transform and action, the
+      ftp:// and ftps:// schemes themselves, and the FTP get/put/delete actions. Also ships with
+      hop-client.
+    installPath: plugins/tech/ftp
+    modulePath: plugins/tech/ftp
   - artifactId: hop-tech-sftp
     name: SFTP
     category: Technology

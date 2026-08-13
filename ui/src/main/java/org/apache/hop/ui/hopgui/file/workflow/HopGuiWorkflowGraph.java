@@ -3624,6 +3624,52 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  /** Move the selected actions and notes with the arrow keys, as a single undo action. */
+  @Override
+  protected boolean nudgeSelectedElements(int dx, int dy) {
+    List<ActionMeta> actions = workflowMeta.getSelectedActions();
+    List<NotePadMeta> notes = workflowMeta.getSelectedNotes();
+    if (Utils.isEmpty(actions) && Utils.isEmpty(notes)) {
+      return false;
+    }
+
+    Point[] actionsBefore = captureLocations(actions);
+    Point[] notesBefore = captureNoteLocations(notes);
+
+    moveSelected(dx, dy);
+
+    Point[] actionsAfter = captureLocations(actions);
+    Point[] notesAfter = captureNoteLocations(notes);
+    if (Arrays.equals(actionsBefore, actionsAfter) && Arrays.equals(notesBefore, notesAfter)) {
+      // Nothing moved: the selection is up against the top or left side of the canvas.
+      return true;
+    }
+
+    // Record notes first, then actions, linked into a single undo action (nextAlso).
+    boolean also = false;
+    if (!Utils.isEmpty(notes)) {
+      also = !Utils.isEmpty(actions);
+      addUndoPosition(
+          notes.toArray(new NotePadMeta[0]),
+          workflowMeta.getNoteIndexes(notes),
+          notesBefore,
+          notesAfter,
+          also);
+    }
+    if (!Utils.isEmpty(actions)) {
+      addUndoPosition(
+          actions.toArray(new ActionMeta[0]),
+          workflowMeta.getActionIndexes(actions),
+          actionsBefore,
+          actionsAfter,
+          also);
+    }
+
+    workflowMeta.setChanged();
+    updateGui();
+    return true;
+  }
+
   private void modalMessageDialog(String title, String message, int swtFlags) {
     MessageBox messageBox = new MessageBox(hopShell(), swtFlags);
     messageBox.setMessage(message);

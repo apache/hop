@@ -50,5 +50,8 @@ public final class SparkConst {
 
   public static final String SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID = "SparkLakeTableMaintenance";
 
+  /** Spark SQL over the Datasets of the incoming transforms — native Spark only. */
+  public static final String SPARK_SQL_PLUGIN_ID = "SparkSql";
+
   private SparkConst() {}
 }

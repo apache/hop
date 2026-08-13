@@ -91,3 +91,6 @@ In that example variable `DATA_PATH_1` will get value `/server/files/`.
 This in turn allows you to transfer required files in advance or map a folder into a docker container and so on.
 It gives you flexibility when executing remotely while having ease of development on your client.
 
+Extra configuration files, JDBC drivers and plugins are *not* sent in the ZIP.
+See xref:hop-server/deploy-export-resources.adoc[Remote run with export resources] for the full list of limitations and when to put the project on the server instead.
+

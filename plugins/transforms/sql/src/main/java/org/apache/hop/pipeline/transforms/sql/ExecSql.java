@@ -31,6 +31,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -309,6 +310,10 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
           if (!data.db.isAutoCommit()) {
             data.db.commit();
           }
+          // Lineage: source/target tables (and column lineage) are recovered by parsing the SQL in
+          // the sink, which the engine cannot do without a SQL grammar.
+          LineageRelationalIoEmitter.emitTransformRelationalExec(
+              this, data.db.getDatabaseMeta(), data.sql, null, null, true, null);
         }
         return true;
       } catch (HopException e) {

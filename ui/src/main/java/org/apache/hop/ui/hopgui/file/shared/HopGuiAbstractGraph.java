@@ -155,6 +155,28 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     toolTip.setVisible(true);
   }
 
+  /**
+   * On the pipeline and workflow canvas the arrow keys move the selected transforms, actions and
+   * notes. Only when nothing is selected they pan the view.
+   */
+  @Override
+  protected boolean moveSelectionWithArrowKey(int dx, int dy, boolean largeStep) {
+    int step = Math.max(1, PropsUi.getInstance().getCanvasGridSize());
+    if (largeStep) {
+      step *= LARGE_STEP_FACTOR;
+    }
+    return nudgeSelectedElements(dx * step, dy * step);
+  }
+
+  /**
+   * Move the selected elements on the canvas over the given distance, as one undo action.
+   *
+   * @param dx the horizontal distance in graph coordinates
+   * @param dy the vertical distance in graph coordinates
+   * @return true if elements were selected and moved, false if there was nothing to move
+   */
+  protected abstract boolean nudgeSelectedElements(int dx, int dy);
+
   public abstract SnapAllignDistribute createSnapAlignDistribute();
 
   @Override

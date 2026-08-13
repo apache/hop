@@ -39,6 +39,8 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -59,6 +61,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     isIncludeJdbcDrivers = true,
     classLoaderGroup = "crate-db",
     actionTransformTypes = {ActionTransformType.RDBMS})
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class CrateDBBulkLoaderMeta
     extends BaseTransformMeta<CrateDBBulkLoader, CrateDBBulkLoaderData>
     implements IProvidesModelerMeta {
@@ -120,7 +123,8 @@ public class CrateDBBulkLoaderMeta
   @HopMetadataProperty(
       key = "truncate",
       injectionKey = "TRUNCATE_TABLE",
-      injectionKeyDescription = "CrateDBBulkLoader.Injection.TruncateTable.Field")
+      injectionKeyDescription = "CrateDBBulkLoader.Injection.TruncateTable.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
   private boolean truncateTable;
 
   @HopMetadataProperty(

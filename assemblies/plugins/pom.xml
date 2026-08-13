@@ -182,12 +182,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-ftp</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-http</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -722,6 +716,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-ftp</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-google</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1131,6 +1131,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-jdbc-metadata</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-jms</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -1698,6 +1704,12 @@
                 <dependency>
                     <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-neo4j</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-openlineage</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>
                 </dependency>
