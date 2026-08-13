@@ -16,7 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -1185,18 +1184,9 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wOutputFileEncoding.removeAll();
-      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wOutputFileEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wOutputFileEncoding.getItems());
-      if (idx >= 0) {
-        wOutputFileEncoding.select(idx);
-      }
+      String encoding = wOutputFileEncoding.getText();
+      wOutputFileEncoding.setItems(ConstUi.getEncodings());
+      wOutputFileEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.advancedxmloutput;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -29,6 +28,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -715,20 +715,9 @@ public class AdvancedXmlOutputDialog extends BaseTransformDialog {
       return;
     }
     encodingsLoaded = true;
-    List<String> encs = new ArrayList<>(Charset.availableCharsets().keySet());
-    java.util.Collections.sort(encs);
     String current = wEncoding.getText();
-    for (String e : encs) {
-      wEncoding.add(e);
-    }
-    if (!Utils.isEmpty(current)) {
-      int idx = wEncoding.indexOf(current);
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      } else {
-        wEncoding.setText(current);
-      }
-    }
+    wEncoding.setItems(ConstUi.getEncodings());
+    wEncoding.setText(Const.NVL(current, ""));
   }
 
   // ---------------------------------------------------------------------------
