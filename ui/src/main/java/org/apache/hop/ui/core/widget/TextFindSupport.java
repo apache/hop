@@ -20,7 +20,7 @@ package org.apache.hop.ui.core.widget;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 
-/** Pure string helpers for find / replace in a {@link TextComposite}. */
+/** Pure string helpers for find / replace in an {@link IFindReplaceTarget}. */
 public final class TextFindSupport {
 
   private TextFindSupport() {}
