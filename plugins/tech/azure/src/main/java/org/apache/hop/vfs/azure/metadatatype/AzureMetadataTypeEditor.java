@@ -47,6 +47,8 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
   private ComboVar wAuthenticationType;
   private Label wlStorageAccountKey;
   private PasswordTextVar wStorageAccountKey;
+  private Label wlSasToken;
+  private PasswordTextVar wSasToken;
   private TextVar wStorageAccountEndpoint;
   private TextVar wCacheTtlSeconds;
 
@@ -156,7 +158,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wlAuthenticationType.setLayoutData(fdlAuthenticationType);
     wAuthenticationType = new ComboVar(getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthenticationType);
-    wAuthenticationType.setItems(new String[] {"Key", "Managed Identity"});
+    wAuthenticationType.setItems(new String[] {"Key", "Managed Identity", "SAS Token"});
     FormData fdAuthenticationType = new FormData();
     fdAuthenticationType.top = new FormAttachment(wlAuthenticationType, 0, SWT.CENTER);
     fdAuthenticationType.left = new FormAttachment(middle, 0);
@@ -185,6 +187,29 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wStorageAccountKey.setLayoutData(fdStorageAccountKey);
     lastControl = wStorageAccountKey;
 
+    // The SAS token
+    //
+    wlSasToken = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlSasToken);
+    wlSasToken.setText(BaseMessages.getString(PKG, "AzureMetadataTypeEditor.SasToken.Label"));
+    wlSasToken.setToolTipText(
+        BaseMessages.getString(PKG, "AzureMetadataTypeEditor.SasToken.ToolTip"));
+    FormData fdlSasToken = new FormData();
+    fdlSasToken.top = new FormAttachment(lastControl, margin);
+    fdlSasToken.left = new FormAttachment(0, 0);
+    fdlSasToken.right = new FormAttachment(middle, -margin);
+    wlSasToken.setLayoutData(fdlSasToken);
+    wSasToken = new PasswordTextVar(getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSasToken);
+    wSasToken.setToolTipText(
+        BaseMessages.getString(PKG, "AzureMetadataTypeEditor.SasToken.ToolTip"));
+    FormData fdSasToken = new FormData();
+    fdSasToken.top = new FormAttachment(wlSasToken, 0, SWT.CENTER);
+    fdSasToken.left = new FormAttachment(middle, 0);
+    fdSasToken.right = new FormAttachment(95, 0);
+    wSasToken.setLayoutData(fdSasToken);
+    lastControl = wSasToken;
+
     // Cache TTL (seconds)
     //
     Label wlCacheTtlSeconds = new Label(parent, SWT.RIGHT);
@@ -210,8 +235,11 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
         e -> {
           String authType = wAuthenticationType.getText();
           boolean showKey = "Key".equals(authType);
+          boolean showSasToken = "SAS Token".equals(authType);
           wlStorageAccountKey.setVisible(showKey);
           wStorageAccountKey.setVisible(showKey);
+          wlSasToken.setVisible(showSasToken);
+          wSasToken.setVisible(showSasToken);
           parent.layout(true, true);
         });
 
@@ -223,6 +251,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wStorageAccountName.addModifyListener(e -> setChanged());
     wAuthenticationType.addModifyListener(e -> setChanged());
     wStorageAccountKey.addModifyListener(e -> setChanged());
+    wSasToken.addModifyListener(e -> setChanged());
     wStorageAccountEndpoint.addModifyListener(e -> setChanged());
     wCacheTtlSeconds.addModifyListener(e -> setChanged());
   }
@@ -235,14 +264,18 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wStorageAccountName.setText(Const.NVL(azureMetadataType.getStorageAccountName(), ""));
     wAuthenticationType.setText(Const.NVL(azureMetadataType.getAuthenticationType(), "Key"));
     wStorageAccountKey.setText(Const.NVL(azureMetadataType.getStorageAccountKey(), ""));
+    wSasToken.setText(Const.NVL(azureMetadataType.getSasToken(), ""));
     wStorageAccountEndpoint.setText(Const.NVL(azureMetadataType.getStorageAccountEndpoint(), ""));
     wCacheTtlSeconds.setText(Const.NVL(azureMetadataType.getCacheTtlSeconds(), "5"));
 
     // Show/hide storage account key based on authentication type
     String authType = wAuthenticationType.getText();
     boolean showKey = "Key".equals(authType);
+    boolean showSasToken = "SAS Token".equals(authType);
     wlStorageAccountKey.setVisible(showKey);
     wStorageAccountKey.setVisible(showKey);
+    wlSasToken.setVisible(showSasToken);
+    wSasToken.setVisible(showSasToken);
   }
 
   @Override
@@ -252,6 +285,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     azureMetadataType.setStorageAccountName(wStorageAccountName.getText());
     azureMetadataType.setAuthenticationType(wAuthenticationType.getText());
     azureMetadataType.setStorageAccountKey(wStorageAccountKey.getText());
+    azureMetadataType.setSasToken(wSasToken.getText());
     azureMetadataType.setStorageAccountEndpoint(wStorageAccountEndpoint.getText());
     azureMetadataType.setCacheTtlSeconds(wCacheTtlSeconds.getText());
   }
