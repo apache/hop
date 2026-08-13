@@ -1739,7 +1739,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
                         HopVfs.getFileObject(
                             HopVfs.getFilename(file.getParent()) + "/" + renameText.getText(),
                             variables);
-                    file.moveTo(newFile);
+                    HopVfs.moveFile(file, newFile);
                   } catch (Exception e) {
                     showError(
                         BaseMessages.getString(
