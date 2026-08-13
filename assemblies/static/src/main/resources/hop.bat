@@ -22,6 +22,9 @@ setlocal EnableDelayedExpansion
 REM switch to script directory
 cd /D %~dp0
 
+REM Optional user-level env written by `hop setup` (does not override already-set variables)
+if exist "%USERPROFILE%\.hop\hop-env.cmd" call "%USERPROFILE%\.hop\hop-env.cmd"
+
 REM Option to change the character set of the Windows Shell to show foreign characters
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 

@@ -22,6 +22,9 @@ setlocal
 REM switch to script directory
 cd /D %~dp0
 
+REM Optional user-level env written by `hop setup` (does not override already-set variables)
+if exist "%USERPROFILE%\.hop\hop-env.cmd" call "%USERPROFILE%\.hop\hop-env.cmd"
+
 set LIBSPATH=lib\core
 set CLASSPATH=lib\core\*;lib\spark-client\*;lib\swt\win64\*
 

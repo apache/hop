@@ -1,0 +1,161 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.
+The ASF licenses this file to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Configure Hop launcher environment variables from Hop Gui or the hop setup command
+:openvar: ${
+:closevar: }
+
+= Hop setup
+
+`hop setup` configures the *launcher* environment variables that Hop reads before Java starts.
+
+This is different from xref:hop-tools/hop-conf/hop-conf.adoc[hop conf], which edits `hop-config.json` (projects, system variables, GUI options).
+
+Without these variables Hop uses the installation `config/` and `audit/` folders. After an upgrade those folders are gone. Setup writes the variables to your user environment, a shell startup file, and/or a `hop-env` script so configuration lives outside the install.
+
+== Recommended folders
+
+|===
+|Variable |Linux / macOS |Windows
+
+|{openvar}HOP_CONFIG_FOLDER{closevar}
+|`~/.local/share/hop` (or `{openvar}XDG_DATA_HOME{closevar}/hop`)
+|`%USERPROFILE%\.hop\config`
+
+|{openvar}HOP_AUDIT_FOLDER{closevar}
+|`~/.local/state/hop` (or `{openvar}XDG_STATE_HOME{closevar}/hop`)
+|`%USERPROFILE%\.hop\audit`
+|===
+
+You can also set `{openvar}HOP_JAVA_HOME{closevar}`, `{openvar}HOP_OPTIONS{closevar}` and `{openvar}HOP_SHARED_JDBC_FOLDERS{closevar}`.
+
+== Hop Gui
+
+Open the configurator from:
+
+* *Tools → Configure Hop environment...*
+* The Welcome dialog topic *Environment setup*
+* The first-start question, when `{openvar}HOP_CONFIG_FOLDER{closevar}` is not set
+
+On first start Hop asks whether to keep configuration outside the installation folder:
+
+image::hop-tools/setup/01-hop-setup-question.png[First-start question to configure a user-level HOP_CONFIG_FOLDER, width="90%"]
+
+*Yes* opens the configurator with the recommended folders filled in. *No* skips the prompt (you can still open it from the Tools menu).
+
+=== Variables tab
+
+Set `{openvar}HOP_CONFIG_FOLDER{closevar}`, `{openvar}HOP_AUDIT_FOLDER{closevar}`, `{openvar}HOP_JAVA_HOME{closevar}`, `{openvar}HOP_OPTIONS{closevar}` and `{openvar}HOP_SHARED_JDBC_FOLDERS{closevar}`.
+
+image::hop-tools/setup/02-configure-hop-environment-dialog-variables-tab.png[Configure Hop environment dialog, Variables tab, width="90%"]
+
+* *Use recommended values* — platform folders (`~/.local/share/hop` and `~/.local/state/hop` on Linux/macOS, `%USERPROFILE%\.hop\config` and `audit` on Windows).
+* *Use existing values* — the current environment, or `./config` and `./audit` when those variables are unset.
+* *Create the config and audit folders* and *Copy the current install config folder* when the new config folder is empty.
+
+=== Location tab
+
+Choose where to write the variables:
+
+image::hop-tools/setup/03-configure-hop-environment-dialog-location-tab.png[Configure Hop environment dialog, Location tab, width="90%"]
+
+* Windows user environment variables
+* Shell startup file (`~/.bashrc` or `~/.zshrc`)
+* A `hop-env` script sourced by Hop launchers (`~/.config/hop/hop-env.sh` or `%USERPROFILE%\.hop\hop-env.cmd`)
+
+=== Preview and apply
+
+*Preview* shows the planned files without writing them:
+
+image::hop-tools/setup/04-config-hop-environment-preview-dialog.png[Preview of planned hop-env and shell rc writes, width="90%"]
+
+*Apply* writes the selected targets. Restart Hop so the new folders take effect:
+
+image::hop-tools/setup/05-configure-hop-environment-configured-message.png[Environment configured confirmation, width="80%"]
+
+Hop Web does not write the server operating system environment. Use *Preview* and apply the generated script on the machine that starts Hop.
+
+== Command line
+
+From the Hop install directory:
+
+[source,bash]
+----
+./hop setup
+./hop setup show
+./hop setup apply --defaults
+./hop setup apply --defaults --dry-run
+./hop setup apply --config-folder /data/hop/config --audit-folder /data/hop/audit --script
+----
+
+On Windows use `hop.bat setup apply --defaults`.
+
+=== apply options
+
+|===
+|Option |Description
+
+|`--config-folder`
+|Value for `{openvar}HOP_CONFIG_FOLDER{closevar}`
+
+|`--audit-folder`
+|Value for `{openvar}HOP_AUDIT_FOLDER{closevar}`
+
+|`--java-home`
+|Value for `{openvar}HOP_JAVA_HOME{closevar}`
+
+|`--options`
+|Value for `{openvar}HOP_OPTIONS{closevar}`
+
+|`--jdbc-folders`
+|Value for `{openvar}HOP_SHARED_JDBC_FOLDERS{closevar}`
+
+|`--defaults`
+|Fill unspecified config/audit folders with the recommended paths
+
+|`--user-env`
+|Write Windows user environment variables
+
+|`--shell-rc`
+|Update `~/.bashrc` or `~/.zshrc` (detected from `{openvar}SHELL{closevar}`)
+
+|`--rc-file`
+|Override the rc file path
+
+|`--script`
+|Write a hop-env script
+
+|`--script-file`
+|Override the script path (default: `~/.config/hop/hop-env.sh` or `%USERPROFILE%\.hop\hop-env.cmd`)
+
+|`--copy-existing`
+|Copy `<install>/config` when the new config folder has no `hop-config.json`
+
+|`--create-folders` / `--no-create-folders`
+|Create the config and audit folders (default: create)
+
+|`--dry-run`
+|Print the planned files without writing
+|===
+
+If you do not pick a write target, Hop uses:
+
+* Windows: user environment + hop-env script
+* Linux / macOS: shell rc file + hop-env script
+
+Hop launchers source the well-known hop-env script when it exists, so desktop shortcuts pick up the folders after a restart. An environment variable that is already set is left unchanged.
+
+To skip the first-start prompt set `{openvar}HOP_NO_SETUP_DIALOG{closevar}=Y`.

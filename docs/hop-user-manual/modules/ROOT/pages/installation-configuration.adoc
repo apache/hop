@@ -88,7 +88,9 @@ Apache Hop's installation and configuration are fully self-contained by default.
 
 With the system or environment variables below, you can make your Hop configuration independent of the installed Hop versions. This lets you switch between Hop versions or installations, while keeping your projects and environment lists, last opened files and other settings.
 
-TIP: if you set the environment variables below after you've been using Apache Hop for a while, you can move the contents of your `hop/config/` folder to your new `HOP_CONFIG_FOLDER` location
+The easiest way is xref:hop-tools/hop-setup.adoc[hop setup]: *Tools → Configure Hop environment...* in Hop Gui, or `./hop setup apply --defaults` from the install directory. Restart Hop afterwards.
+
+TIP: if you set the environment variables below after you've been using Apache Hop for a while, you can move the contents of your `hop/config/` folder to your new `HOP_CONFIG_FOLDER` location. `hop setup apply --defaults --copy-existing` does that copy when the new folder is empty.
 
 === Create environment variables in Windows
 

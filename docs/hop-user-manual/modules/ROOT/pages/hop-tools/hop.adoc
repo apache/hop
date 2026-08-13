@@ -47,6 +47,7 @@ Commands:
   run      Run a pipeline or workflow
   search   Search in Hop metadata
   server   Run a Hop server
+  setup    Configure Hop environment variables
 ----
 
 =====
@@ -60,4 +61,8 @@ Commands:
 |-h|Displays this help message and quits
 |-V|Show the current Hop version
 |===
+
+== Setup
+
+xref:hop-tools/hop-setup.adoc[hop setup] writes launcher environment variables (`HOP_CONFIG_FOLDER`, `HOP_AUDIT_FOLDER`, and related). It is not the same as `hop conf`, which edits `hop-config.json`.
 
