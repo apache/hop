@@ -81,6 +81,10 @@ public class SetupDialog extends Dialog {
   private Text wRcFile;
   private Button wScript;
   private Text wScriptFile;
+  private Button wCreateDefaultProject;
+  private Text wDefaultProjectHome;
+  private Button wRegisterSamples;
+  private Label wSamplesPath;
 
   public SetupDialog(Shell parent, IVariables variables) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
@@ -144,6 +148,7 @@ public class SetupDialog extends Dialog {
 
     addVariablesTab(wTabFolder, middle, margin);
     addLocationTab(wTabFolder, middle, margin);
+    addProjectsTab(wTabFolder, middle, margin);
     wTabFolder.setSelection(0);
 
     populate(snapshot);
@@ -284,6 +289,71 @@ public class SetupDialog extends Dialog {
     wScriptFile = addPathField(comp, "SetupDialog.ScriptFile.Label", last, middle, margin, true);
   }
 
+  private void addProjectsTab(CTabFolder folder, int middle, int margin) {
+    Composite comp = addTab(folder, "SetupDialog.Tab.Projects");
+
+    Label wIntro = new Label(comp, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(wIntro);
+    wIntro.setText(BaseMessages.getString(PKG, "SetupDialog.Projects.Intro"));
+    FormData fdIntro = new FormData();
+    fdIntro.left = new FormAttachment(0, 0);
+    fdIntro.right = new FormAttachment(100, 0);
+    fdIntro.top = new FormAttachment(0, 0);
+    wIntro.setLayoutData(fdIntro);
+
+    wCreateDefaultProject = new Button(comp, SWT.CHECK);
+    PropsUi.setLook(wCreateDefaultProject);
+    wCreateDefaultProject.setText(
+        BaseMessages.getString(PKG, "SetupDialog.Projects.CreateDefault"));
+    wCreateDefaultProject.setSelection(true);
+    FormData fdCreate = new FormData();
+    fdCreate.left = new FormAttachment(0, 0);
+    fdCreate.right = new FormAttachment(100, 0);
+    fdCreate.top = new FormAttachment(wIntro, margin * 2);
+    wCreateDefaultProject.setLayoutData(fdCreate);
+
+    wDefaultProjectHome =
+        addPathField(
+            comp,
+            "SetupDialog.Projects.DefaultHome.Label",
+            wCreateDefaultProject,
+            middle,
+            margin,
+            true);
+    wCreateDefaultProject.addListener(SWT.Selection, e -> updateProjectWidgets());
+
+    Button wRecommendedProject = new Button(comp, SWT.PUSH);
+    PropsUi.setLook(wRecommendedProject);
+    wRecommendedProject.setText(BaseMessages.getString(PKG, "SetupDialog.Projects.Recommended"));
+    FormData fdRecommended = new FormData();
+    fdRecommended.left = new FormAttachment(middle, margin);
+    fdRecommended.top = new FormAttachment(wDefaultProjectHome, margin);
+    wRecommendedProject.setLayoutData(fdRecommended);
+    wRecommendedProject.addListener(
+        SWT.Selection,
+        e ->
+            wDefaultProjectHome.setText(
+                HopEnvironmentDefaults.recommendedDefaultProjectHome(os, paths)));
+
+    wRegisterSamples = new Button(comp, SWT.CHECK);
+    PropsUi.setLook(wRegisterSamples);
+    wRegisterSamples.setText(BaseMessages.getString(PKG, "SetupDialog.Projects.RegisterSamples"));
+    wRegisterSamples.setSelection(true);
+    FormData fdSamples = new FormData();
+    fdSamples.left = new FormAttachment(0, 0);
+    fdSamples.right = new FormAttachment(100, 0);
+    fdSamples.top = new FormAttachment(wRecommendedProject, margin * 2);
+    wRegisterSamples.setLayoutData(fdSamples);
+
+    wSamplesPath = new Label(comp, SWT.LEFT | SWT.WRAP);
+    PropsUi.setLook(wSamplesPath);
+    FormData fdPath = new FormData();
+    fdPath.left = new FormAttachment(middle, margin);
+    fdPath.right = new FormAttachment(100, 0);
+    fdPath.top = new FormAttachment(wRegisterSamples, margin);
+    wSamplesPath.setLayoutData(fdPath);
+  }
+
   private Composite addTab(CTabFolder folder, String titleKey) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
     PropsUi.setLook(tab);
@@ -349,11 +419,26 @@ public class SetupDialog extends Dialog {
     wJdbc.setText(Const.NVL(current.getJdbcFolders(), ""));
     wRcFile.setText(HopEnvironmentDefaults.recommendedShellRcFile(paths));
     wScriptFile.setText(HopEnvironmentDefaults.wellKnownEnvFile(os, paths));
+    wDefaultProjectHome.setText(HopEnvironmentDefaults.recommendedDefaultProjectHome(os, paths));
+    java.nio.file.Path hopHome = HopInstallHome.resolveOrNull();
+    if (hopHome != null) {
+      wSamplesPath.setText(hopHome.resolve("config/projects/samples").toString());
+    } else {
+      wSamplesPath.setText(BaseMessages.getString(PKG, "SetupDialog.Projects.SamplesMissing"));
+      wRegisterSamples.setSelection(false);
+      wRegisterSamples.setEnabled(false);
+    }
     if (isFirstTime()) {
       fillRecommendedValues();
     } else {
       fillExistingValues();
     }
+    updateProjectWidgets();
+  }
+
+  private void updateProjectWidgets() {
+    boolean create = wCreateDefaultProject.getSelection();
+    wDefaultProjectHome.setEnabled(create);
   }
 
   private static boolean isFirstTime() {
@@ -403,6 +488,9 @@ public class SetupDialog extends Dialog {
     spec.setCreateFolders(wCreateFolders.getSelection());
     spec.setCopyExisting(wCopyExisting.getSelection());
     spec.setDryRun(dryRun);
+    spec.setCreateDefaultProject(wCreateDefaultProject.getSelection());
+    spec.setDefaultProjectHome(blankToEmpty(wDefaultProjectHome.getText()));
+    spec.setRegisterSamples(wRegisterSamples.getSelection());
     return spec;
   }
 

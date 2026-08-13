@@ -35,6 +35,10 @@ public final class HopSetupVariables {
 
   public static final String HOP_CONFIG_JSON = "hop-config.json";
 
+  public static final String DEFAULT_PROJECT_NAME = "default";
+  public static final String SAMPLES_PROJECT_NAME = "samples";
+  public static final String PROJECT_CONFIG_FILENAME = "project-config.json";
+
   public static final String NO_SETUP_DIALOG = "HOP_NO_SETUP_DIALOG";
 
   public static final String CONFIG_OPTION_DO_NOT_SHOW = "doNotShowSetupDialog";

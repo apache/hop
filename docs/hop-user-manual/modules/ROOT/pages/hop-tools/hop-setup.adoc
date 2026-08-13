@@ -76,6 +76,20 @@ image::hop-tools/setup/03-configure-hop-environment-dialog-location-tab.png[Conf
 * Shell startup file (`~/.bashrc` or `~/.zshrc`)
 * A `hop-env` script sourced by Hop launchers (`~/.config/hop/hop-env.sh` or `%USERPROFILE%\.hop\hop-env.cmd`)
 
+=== Projects tab
+
+A new `{openvar}HOP_CONFIG_FOLDER{closevar}` starts without projects. On the *Projects* tab you can:
+
+image::hop-tools/setup/06-configure-hop-environment-dialog-projects-tab.png[Configure Hop environment dialog, Projects tab, width="90%"]
+
+* Create a *default* project in a user documents folder:
+** Linux: `~/Documents/hop/default`
+** macOS: `~/hop/default`
+** Windows: `%USERPROFILE%\Documents\Hop\default`
+* Register the *samples* project from this Hop installation (`<install>/config/projects/samples`) so the examples stay available after the config folder moves.
+
+Both options are selected by default. Apply writes them into the new `hop-config.json` (and creates `project-config.json` plus the install default-project template when the default home is empty).
+
 === Preview and apply
 
 *Preview* shows the planned files without writing them:
@@ -85,6 +99,10 @@ image::hop-tools/setup/04-config-hop-environment-preview-dialog.png[Preview of p
 *Apply* writes the selected targets. Restart Hop so the new folders take effect:
 
 image::hop-tools/setup/05-configure-hop-environment-configured-message.png[Environment configured confirmation, width="80%"]
+
+After restart, Hop Gui opens the new default project:
+
+image::hop-tools/setup/07-hop-gui-with-a-new-default-project.png[Hop Gui after setup with the new default project, width="90%"]
 
 Hop Web does not write the server operating system environment. Use *Preview* and apply the generated script on the machine that starts Hop.
 
@@ -124,7 +142,7 @@ On Windows use `hop.bat setup apply --defaults`.
 |Value for `{openvar}HOP_SHARED_JDBC_FOLDERS{closevar}`
 
 |`--defaults`
-|Fill unspecified config/audit folders with the recommended paths
+|Fill unspecified config/audit folders with the recommended paths and register a default project plus samples
 
 |`--user-env`
 |Write Windows user environment variables
@@ -140,6 +158,15 @@ On Windows use `hop.bat setup apply --defaults`.
 
 |`--script-file`
 |Override the script path (default: `~/.config/hop/hop-env.sh` or `%USERPROFILE%\.hop\hop-env.cmd`)
+
+|`--create-default-project` / `--no-create-default-project`
+|Create a default project (implied by `--defaults`)
+
+|`--default-project-home`
+|Home folder of the default project
+
+|`--register-samples` / `--no-register-samples`
+|Register `<install>/config/projects/samples` in the new hop-config (implied by `--defaults`)
 
 |`--copy-existing`
 |Copy `<install>/config` when the new config folder has no `hop-config.json`

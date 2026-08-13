@@ -26,6 +26,7 @@ import org.apache.hop.setup.persist.ConfigFolderSeeder;
 import org.apache.hop.setup.persist.EnvScriptWriter;
 import org.apache.hop.setup.persist.HopVfsFiles;
 import org.apache.hop.setup.persist.IProcessRunner;
+import org.apache.hop.setup.persist.ProjectRegistrationWriter;
 import org.apache.hop.setup.persist.ShellRcWriter;
 import org.apache.hop.setup.persist.WindowsUserEnvironmentWriter;
 
@@ -35,6 +36,7 @@ public class HopEnvironmentApplier {
   private final OsFamily os;
   private final UserPaths paths;
   private final ConfigFolderSeeder seeder;
+  private final ProjectRegistrationWriter projects;
   private final WindowsUserEnvironmentWriter windowsWriter;
   private final ILogChannel log;
 
@@ -43,6 +45,7 @@ public class HopEnvironmentApplier {
         OsFamily.detect(),
         UserPaths.system(),
         new ConfigFolderSeeder(),
+        new ProjectRegistrationWriter(),
         new WindowsUserEnvironmentWriter(),
         new LogChannel("Hop setup"));
   }
@@ -53,7 +56,13 @@ public class HopEnvironmentApplier {
       ConfigFolderSeeder seeder,
       IProcessRunner processRunner,
       ILogChannel log) {
-    this(os, paths, seeder, new WindowsUserEnvironmentWriter(processRunner), log);
+    this(
+        os,
+        paths,
+        seeder,
+        new ProjectRegistrationWriter(),
+        new WindowsUserEnvironmentWriter(processRunner),
+        log);
   }
 
   public HopEnvironmentApplier(
@@ -62,9 +71,20 @@ public class HopEnvironmentApplier {
       ConfigFolderSeeder seeder,
       WindowsUserEnvironmentWriter windowsWriter,
       ILogChannel log) {
+    this(os, paths, seeder, new ProjectRegistrationWriter(), windowsWriter, log);
+  }
+
+  public HopEnvironmentApplier(
+      OsFamily os,
+      UserPaths paths,
+      ConfigFolderSeeder seeder,
+      ProjectRegistrationWriter projects,
+      WindowsUserEnvironmentWriter windowsWriter,
+      ILogChannel log) {
     this.os = os;
     this.paths = paths;
     this.seeder = seeder;
+    this.projects = projects == null ? new ProjectRegistrationWriter() : projects;
     this.windowsWriter = windowsWriter;
     this.log = log == null ? new LogChannel("Hop setup") : log;
   }
@@ -84,6 +104,7 @@ public class HopEnvironmentApplier {
     logBasic("Applying Hop environment variables: " + String.join(", ", variables.keySet()));
 
     seeder.seed(spec, result);
+    projects.apply(spec, os, paths, result);
 
     if (spec.isWriteScript()) {
       writeScript(spec, variables, result);

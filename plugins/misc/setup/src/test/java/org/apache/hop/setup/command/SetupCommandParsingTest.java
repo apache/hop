@@ -65,6 +65,18 @@ class SetupCommandParsingTest {
     HopEnvironmentSpec spec = apply.toSpec();
     assertTrue(spec.getConfigFolder() != null && !spec.getConfigFolder().isBlank());
     assertTrue(spec.getAuditFolder() != null && !spec.getAuditFolder().isBlank());
+    assertTrue(spec.isCreateDefaultProject());
+    assertTrue(spec.isRegisterSamples());
+    assertTrue(spec.getDefaultProjectHome() != null && !spec.getDefaultProjectHome().isBlank());
+  }
+
+  @Test
+  void defaultsCanSkipProjects() {
+    SetupCommand.ApplyCommand apply =
+        parse("--defaults", "--no-create-default-project", "--no-register-samples");
+    HopEnvironmentSpec spec = apply.toSpec();
+    assertFalse(spec.isCreateDefaultProject());
+    assertFalse(spec.isRegisterSamples());
   }
 
   @Test

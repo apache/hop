@@ -48,6 +48,10 @@ public class HopEnvironmentSpec {
   private boolean copyExisting;
   private boolean dryRun;
 
+  private boolean createDefaultProject;
+  private String defaultProjectHome;
+  private boolean registerSamples;
+
   public Map<String, String> variables() {
     Map<String, String> map = new LinkedHashMap<>();
     put(map, HopSetupVariables.CONFIG_FOLDER, configFolder);

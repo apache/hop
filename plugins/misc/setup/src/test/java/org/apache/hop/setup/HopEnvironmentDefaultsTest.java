@@ -86,6 +86,22 @@ class HopEnvironmentDefaultsTest {
   }
 
   @Test
+  void defaultProjectHomeIsInDocumentsOnLinuxAndWindows() {
+    UserPaths paths = unix("/bin/bash");
+    assertEquals(
+        "/home/alice/Documents/hop/default",
+        HopEnvironmentDefaults.recommendedDefaultProjectHome(OsFamily.UNIX, paths));
+    Path winHome = Path.of("C:\\Users\\alice");
+    UserPaths win = new UserPaths(winHome, winHome, winHome, winHome, null);
+    assertEquals(
+        winHome.resolve("Documents").resolve("Hop").resolve("default").toString(),
+        HopEnvironmentDefaults.recommendedDefaultProjectHome(OsFamily.WINDOWS, win));
+    assertEquals(
+        "/home/alice/hop/default",
+        HopEnvironmentDefaults.recommendedDefaultProjectHome(OsFamily.OSX, paths));
+  }
+
+  @Test
   void installFallbacksAreRelative() {
     assertEquals("./config", HopEnvironmentDefaults.INSTALL_CONFIG_FOLDER);
     assertEquals("./audit", HopEnvironmentDefaults.INSTALL_AUDIT_FOLDER);

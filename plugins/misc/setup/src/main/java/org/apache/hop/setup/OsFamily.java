@@ -21,13 +21,24 @@ import org.apache.hop.core.Const;
 
 public enum OsFamily {
   WINDOWS,
+  OSX,
   UNIX;
 
   public static OsFamily detect() {
-    return Const.isWindows() ? WINDOWS : UNIX;
+    if (Const.isWindows()) {
+      return WINDOWS;
+    }
+    if (Const.isOSX()) {
+      return OSX;
+    }
+    return UNIX;
   }
 
   public boolean isWindows() {
     return this == WINDOWS;
+  }
+
+  public boolean isOsx() {
+    return this == OSX;
   }
 }

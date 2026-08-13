@@ -216,8 +216,27 @@ public class SetupCommand implements Runnable, IHopCommand, IHasHopMetadataProvi
 
     @Option(
         names = {"--defaults"},
-        description = "Fill unspecified config/audit folders with the recommended platform paths")
+        description =
+            "Fill unspecified config/audit folders with the recommended platform paths and"
+                + " register a default project plus the install samples project")
     boolean defaults;
+
+    @Option(
+        names = {"--create-default-project"},
+        description = "Create a default project in the user's documents folder",
+        negatable = true)
+    Boolean createDefaultProject;
+
+    @Option(
+        names = {"--default-project-home"},
+        description = "Home folder of the default project")
+    String defaultProjectHome;
+
+    @Option(
+        names = {"--register-samples"},
+        description = "Register the samples project from this Hop installation",
+        negatable = true)
+    Boolean registerSamples;
 
     @Override
     public void run() {
@@ -269,6 +288,13 @@ public class SetupCommand implements Runnable, IHopCommand, IHasHopMetadataProvi
       spec.setCopyExisting(copyExisting);
       spec.setCreateFolders(createFolders);
       spec.setDryRun(dryRun);
+      boolean createProject = createDefaultProject != null ? createDefaultProject : defaults;
+      spec.setCreateDefaultProject(createProject);
+      spec.setDefaultProjectHome(defaultProjectHome);
+      if (createProject && spec.getDefaultProjectHome() == null) {
+        spec.setDefaultProjectHome(HopEnvironmentDefaults.recommendedDefaultProjectHome(os, paths));
+      }
+      spec.setRegisterSamples(registerSamples != null ? registerSamples : defaults);
       return spec;
     }
   }

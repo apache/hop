@@ -87,4 +87,24 @@ public final class HopEnvironmentDefaults {
     }
     return StringUtils.defaultString(javaHome);
   }
+
+  /**
+   * User-owned default project home: {@code ~/Documents/hop/default} on Linux, {@code
+   * ~/hop/default} on macOS, {@code %USERPROFILE%\Documents\Hop\default} on Windows.
+   */
+  public static String recommendedDefaultProjectHome(OsFamily os, UserPaths paths) {
+    if (os.isWindows()) {
+      return paths.getHome().resolve("Documents").resolve("Hop").resolve("default").toString();
+    }
+    if (os.isOsx()) {
+      return paths.getHome().resolve("hop").resolve("default").toString();
+    }
+    return paths.getHome().resolve("Documents").resolve("hop").resolve("default").toString();
+  }
+
+  public static String recommendedProjectsFolder(OsFamily os, UserPaths paths) {
+    java.nio.file.Path home = java.nio.file.Path.of(recommendedDefaultProjectHome(os, paths));
+    java.nio.file.Path parent = home.getParent();
+    return parent == null ? home.toString() : parent.toString();
+  }
 }
