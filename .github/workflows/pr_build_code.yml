@@ -54,7 +54,7 @@ jobs:
       - name: Spotless check
         run: mvn spotless:check
       - name: Build with Maven
-        run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Djacoco.skip=true --file pom.xml
+        run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -Dassemblies=false -Dmodule.zips=false -Djacoco.skip=true --file pom.xml
 
   # Add a UI and run the UI tests only
   ui-tests:
@@ -81,7 +81,7 @@ jobs:
       - name: Run SWTBot UI tests under Xvfb
         run: >
           xvfb-run -a --server-args="-screen 0 1280x1024x24"
-          mvn -B -V -Puitest -Dassemblies=false -Djacoco.skip=true package
+          mvn -B -V -Puitest -Dassemblies=false -Dmodule.zips=false -Djacoco.skip=true package
       - name: Upload SWTBot failure screenshots
         if: failure()
         uses: actions/upload-artifact@v4

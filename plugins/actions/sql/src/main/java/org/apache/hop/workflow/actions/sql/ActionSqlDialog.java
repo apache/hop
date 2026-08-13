@@ -269,7 +269,10 @@ public class ActionSqlDialog extends ActionDialog {
     wSql =
         EnvironmentUtils.getInstance().isWeb()
             ? new StyledTextComp(
-                variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
+                variables,
+                shell,
+                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+                TextComposite.STYLE_TYPE_SQL)
             : new SQLStyledTextComp(
                 variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wSql.addLineStyleListener(getSqlReservedWords());

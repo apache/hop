@@ -39,9 +39,11 @@ public class CanvasFacadeImpl extends CanvasFacade {
     setDataCommon(canvas, magnification, offset, meta);
     if (meta instanceof WorkflowMeta workflowMeta) {
       setDataWorkflow(canvas, workflowMeta);
-    } else {
-      setDataPipeline(canvas, (PipelineMeta) meta);
+    } else if (meta instanceof PipelineMeta pipelineMeta) {
+      setDataPipeline(canvas, pipelineMeta);
     }
+    // Other meta types (plugin model graphs, etc.): common props only.
+    // Callers may already have set canvas data keys such as "nodes" for client drag previews.
   }
 
   private void setDataCommon(Canvas canvas, float magnification, DPoint offset, Object meta) {

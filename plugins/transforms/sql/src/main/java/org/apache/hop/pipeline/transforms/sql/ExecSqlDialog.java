@@ -155,7 +155,10 @@ public class ExecSqlDialog extends BaseTransformDialog {
     wSql =
         EnvironmentUtils.getInstance().isWeb()
             ? new StyledTextComp(
-                variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)
+                variables,
+                shell,
+                SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+                TextComposite.STYLE_TYPE_SQL)
             : new SQLStyledTextComp(
                 variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     final List<String> sqlKeywords = getSqlReservedWords();
@@ -217,7 +220,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     FormData fdlReadField = new FormData();
     fdlReadField.left = new FormAttachment(middle, margin);
     fdlReadField.right = new FormAttachment(middle * 2, -margin);
-    fdlReadField.bottom = new FormAttachment(wOk, -margin);
+    fdlReadField.bottom = new FormAttachment(wOk, -3 * margin);
     wlReadField.setLayoutData(fdlReadField);
     wReadField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wReadField);

@@ -797,6 +797,10 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         MarketplaceRepository imported = MarketplaceRepositoryDefinition.loadFromUri(fileOrUrl);
         MarketplaceConfig config = MarketplaceConfig.load();
         boolean existed = config.findRepository(imported.getId()) != null;
+        // Assess before applying: afterwards the demoted repository is indistinguishable from any
+        // other fallback.
+        MarketplaceRepositoryDefinition.ImportRisk risk =
+            MarketplaceRepositoryDefinition.assess(config, imported);
         MarketplaceRepositoryDefinition.applyToConfig(config, imported, primary);
         config.save();
         System.out.println(
@@ -806,6 +810,21 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                 + "' → "
                 + imported.normalizedUrl()
                 + (imported.isBrowse() ? " (browse enabled)" : ""));
+        // Importing one repository should not silently change which one installs try first.
+        if (risk.takesOverPrimary() && !primary) {
+          System.out.println(
+              "WARNING: the definition set '"
+                  + imported.getId()
+                  + "' as the primary repository, replacing '"
+                  + risk.currentPrimaryName()
+                  + "'. Installs now try it first. Use 'marketplace repo set-primary' to change"
+                  + " that back.");
+        }
+        if (risk.noPublicFallback()) {
+          System.out.println(
+              "WARNING: neither the Apache nor the Maven Central repository is configured and"
+                  + " enabled, so there is no public repository to fall back on.");
+        }
       } catch (Exception e) {
         System.err.println("ERROR: " + e.getMessage());
         throw new CommandLine.ExecutionException(

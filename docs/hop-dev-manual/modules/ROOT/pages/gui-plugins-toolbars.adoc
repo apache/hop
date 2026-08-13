@@ -1,0 +1,451 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How Hop GUI toolbars work, how to contribute buttons with @GuiPlugin and @GuiToolbarElement, how to use GuiToolbarElementFilter, and how TextComposite / TableView expose extensible toolbars to plugins.
+[[GuiPluginsToolbars-GuiPluginsAndToolbars]]
+= GUI plugins and toolbars
+
+Hop has a lightweight system for contributing UI actions from plugins without hard-coding every button into the core GUI.
+This page explains how that system works for **toolbars** — the main way plugins add icons above tables, multi-line text editors, and other widgets.
+
+You will learn:
+
+* How `@GuiPlugin` classes are discovered
+* How `@GuiToolbarElement` adds a toolbar button
+* How listeners receive the host widget (`TableView`, `TextComposite`, …)
+* How `@GuiToolbarElementFilter` shows or hides buttons (easy to miss)
+* How the **TextComposite** and **TableView** toolbars are designed for extension (SQL formatters, JSON pretty-print, export, lineage, …)
+
+Related reading: xref:plugin-development.adoc[Plugin development], xref:hopweb/hopweb-antipatterns.adoc[Hop Web antipatterns].
+
+== Mental model
+
+[source]
+----
+@GuiPlugin class
+    └── @GuiToolbarElement(root = "Some-Toolbar-Id", id = "...", image = "...")
+            └── static or instance method  →  invoked when the user clicks
+    └── @GuiToolbarElementFilter(parentId = "Some-Toolbar-Id")   (optional)
+            └── static boolean method(String itemId, Object host)  →  show/hide
+----
+
+1. A **host** widget (for example `TextComposite` or `TableView`) creates a toolbar with a fixed **root id** (`ID_TOOLBAR`).
+2. At startup, Hop scans every `@GuiPlugin` and registers methods annotated with `@GuiToolbarElement` under that root id.
+3. When the host builds the toolbar, `GuiToolbarWidgets` loads all items for that root, applies filters, and wires click listeners.
+4. On click, Hop prefers a **public static** method that takes the host object as its single argument (the pattern plugins should use).
+
+== @GuiPlugin discovery
+
+Classes annotated with `@GuiPlugin` are registered as the `GuiPluginType` plugin type.
+At GUI startup, `HopGuiEnvironment.initGuiPlugins()` reflects over every such class and records:
+
+* `@GuiToolbarElement` methods → toolbar items
+* `@GuiToolbarElementFilter` methods → show/hide rules for a toolbar root
+* Also: menu elements, keyboard shortcuts, tabs, context actions, and similar GUI contributions
+
+[source,java]
+----
+@GuiPlugin
+public class MyToolbarContributions {
+  // static methods with @GuiToolbarElement / @GuiToolbarElementFilter
+}
+----
+
+Put the class on the plugin classpath (under `plugins/…`) so the plugin system can load it.
+`hop-ui` is typically a `provided` dependency for transform/action plugins that already ship dialogs.
+
+IMPORTANT: On Hop Web, reflection at registration time loads every type that appears in **method and field signatures** of `@GuiPlugin` classes.
+Do **not** put desktop-only SWT types (for example `org.eclipse.swt.custom.StyledText`) in those signatures.
+Use abstractions such as `TextComposite` instead.
+See the `GuiPluginWebCompatibilityTest` and xref:hopweb/hopweb-antipatterns.adoc[Hop Web antipatterns].
+
+== Contributing a toolbar button: @GuiToolbarElement
+
+Annotation (package `org.apache.hop.core.gui.plugin.toolbar`):
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Meaning
+
+| `root`
+| **Toolbar root id** this item belongs to (must match the host’s `ID_TOOLBAR` / parent id).
+
+| `id`
+| Unique item id (use a stable, namespaced string so other plugins can refer to or filter it).
+
+| `image`
+| SVG path loaded via the plugin classloader (for example `json-input.svg` or `ui/images/search.svg`).
+
+| `toolTip`
+| Tooltip; use `i18n::Key.Name` for translation via `BaseMessages` / resource bundles.
+
+| `label`
+| Optional text label (buttons are usually icon-only).
+
+| `type`
+| Defaults to `BUTTON`; also supports combo, text, label, checkbox, and so on.
+
+| `separator`
+| If `true`, draws a separator before this item.
+
+| `extraWidth` / `alignRight` / …
+| Layout hints for non-button types.
+|===
+
+=== Preferred listener shape (plugins)
+
+Use a **public static** method with one parameter: the host widget type (or a supertype / interface).
+
+[source,java]
+----
+@GuiToolbarElement(
+    root = TextComposite.ID_TOOLBAR,
+    id = "textcomposite-toolbar-20010-format-json",
+    toolTip = "i18n::MyPlugin.FormatJson.ToolTip",
+    separator = true,
+    image = "json-input.svg")
+public static void formatJson(TextComposite text) {
+  // use text.getText(), text.insert(...), text.getStyleType(), ...
+}
+----
+
+`GuiToolbarWidgets` / `BaseGuiWidgets` resolve listeners as follows:
+
+1. If a host object was registered on the toolbar, look for a **static** method whose single parameter is assignable from that host’s class.
+2. Otherwise fall back to an instance method on a plugin singleton (no-arg, or with `Event`).
+
+Static methods that take the host object are the reliable pattern for **per-widget** toolbars (`TableView`, `TextComposite`), because many instances exist at once.
+
+=== Built-in items on the host class
+
+Hosts such as `TableView` and `TextComposite` are themselves `@GuiPlugin` classes.
+Their built-in actions are also `@GuiToolbarElement` methods (sometimes static helpers on the abstract base).
+Plugin ids should use higher numeric ranges (for example `20000+`) so they sort after core items.
+
+== Showing or hiding buttons: @GuiToolbarElementFilter
+
+This annotation is powerful and easy to overlook.
+It is the supported way to **conditionally show** toolbar items (for example only for SQL editors, only for database metadata lines, only when editable).
+
+=== Contract
+
+[source,java]
+----
+@GuiToolbarElementFilter(parentId = TextComposite.ID_TOOLBAR)
+public static boolean isButtonShown(String itemId, Object guiPluginInstance) {
+  // return true → show the item; false → hide it
+}
+----
+
+[cols="1,3",options="header"]
+|===
+| Rule | Detail
+
+| Annotation
+| `@GuiToolbarElementFilter(parentId = "<toolbar-root-id>")` — `parentId` must match the toolbar `root` / host `ID_TOOLBAR`.
+
+| Method shape
+| **Must** be `public static boolean methodName(String itemId, Object guiPluginInstance)`.
+Hop looks up the method with reflection using exactly `String.class` and `Object.class`.
+A signature of `(String, TextComposite)` will **not** be found.
+
+| `itemId`
+| The `@GuiToolbarElement.id` of the item currently being decided.
+
+| `guiPluginInstance`
+| The **host** object registered with the toolbar (for example the `TextComposite` or `TableView` instance), typed as `Object` — cast carefully.
+
+| Return value
+| `true` = show, `false` = hide.
+
+| Multiple filters
+| All registered filters for that toolbar root are consulted.
+If **any** filter returns `false` for an item, the item is hidden.
+|===
+
+=== Critical pitfall: do not hide everyone else’s buttons
+
+Filters run for **every** toolbar item under that root, not only for your button.
+If your filter returns `false` for ids it does not own, you will hide undo, cut, find, and every other contribution.
+
+Always start with:
+
+[source,java]
+----
+if (!MY_BUTTON_ID.equals(itemId)) {
+  return true; // leave all other items alone
+}
+// then decide for MY_BUTTON_ID only
+----
+
+=== Critical pitfall: filters run mid-construction
+
+`GuiToolbarElementFilter` methods are invoked when the host builds its toolbar — for `TextComposite` that is **inside the base constructor**, before subclasses create the underlying `Text` / `StyledText` widget.
+
+Safe in a filter:
+
+* Values set **before** `addToolbar()` (for example constructor `styleType`)
+* Identity / type of the host object (`instanceof TextComposite`)
+* Other fields already initialized on the host
+
+**Not** safe in a filter (defer to the button action instead):
+
+* `isEditable()`, `getText()`, `getSelectionText()`, caret position, and similar methods that touch the child text control
+* Anything that assumes the host’s full construction has finished
+
+[source,java]
+----
+// Filter: only what is available at construction time
+@GuiToolbarElementFilter(parentId = TextComposite.ID_TOOLBAR)
+public static boolean isButtonShown(String buttonId, Object guiPluginInstance) {
+  if (!MY_ID.equals(buttonId)) {
+    return true;
+  }
+  if (!(guiPluginInstance instanceof TextComposite text)) {
+    return false;
+  }
+  return TextComposite.STYLE_TYPE_JSON.equalsIgnoreCase(text.getStyleType());
+}
+
+// Action: runtime checks (editability, content, …)
+@GuiToolbarElement(root = TextComposite.ID_TOOLBAR, id = MY_ID, ...)
+public static void formatJson(TextComposite text) {
+  if (text == null || text.isDisposed() || !text.isEditable()) {
+    return;
+  }
+  // ...
+}
+----
+
+=== Working example (JSON format on TextComposite)
+
+From the JSON transform plugin (`TextCompositeToolbarJsonFormatButton`):
+
+[source,java]
+----
+@GuiToolbarElementFilter(parentId = TextComposite.ID_TOOLBAR)
+public static boolean isButtonShown(String buttonId, Object guiPluginInstance) {
+  if (!ID_TOOLBAR_FORMAT_JSON.equals(buttonId)) {
+    return true;
+  }
+  if (!(guiPluginInstance instanceof TextComposite textComposite)) {
+    return false;
+  }
+  // styleType only — isEditable() is checked in formatJson() at click time
+  return TextComposite.STYLE_TYPE_JSON.equalsIgnoreCase(textComposite.getStyleType());
+}
+----
+
+Another core example: `MetaSelectionLineClearDbCacheToolbarItem` filters a clear-cache button so it only appears for database metadata lines.
+
+== Extensible host: TextComposite toolbar
+
+`org.apache.hop.ui.core.widget.TextComposite` is the multi-line editor used for SQL, scripts, logs, formulas, JSON, and more.
+It exposes:
+
+[cols="1,2",options="header"]
+|===
+| API | Purpose
+
+| `TextComposite.ID_TOOLBAR` (`"TextComposite-Toolbar"`)
+| Root id for `@GuiToolbarElement.root` / filter `parentId`.
+
+| Built-in items
+| Undo/redo, cut/copy/paste, select all, find, find/replace (when the global “show text editor toolbar” option is on).
+
+| Constructor `styleType` / `getStyleType()`
+| Semantic content type for plugins (must be set in the constructor; see below).
+
+| `selectAll()`, `insert()`, `getText()`, `setText()`, …
+| Safe editing API that works on desktop and Hop Web backends.
+|===
+
+=== styleType (do not use instanceof)
+
+On Hop Web, dialogs often replace specialized classes with a plain `StyledTextComp`.
+So `instanceof SQLStyledTextComp` is **false** on Hop Web even when the user is editing SQL.
+Always use `getStyleType()` when deciding plugin behavior.
+
+IMPORTANT: Toolbar filters run when the `TextComposite` is **constructed** (during `addToolbar()`).
+Pass `styleType` as a **constructor argument** so filters see the correct value.
+Calling `setStyleType(...)` after construction does **not** rebuild the toolbar or re-run filters.
+
+[source,java]
+----
+// Correct: style type is known before the toolbar is built
+wSql =
+    EnvironmentUtils.getInstance().isWeb()
+        ? new StyledTextComp(variables, shell, SWT.MULTI | ..., TextComposite.STYLE_TYPE_SQL)
+        : new SQLStyledTextComp(variables, shell, SWT.MULTI | ...); // defaults to SQL
+----
+
+Known style type constants:
+
+[cols="1,2",options="header"]
+|===
+| Constant | Typical use
+
+| `STYLE_TYPE_GENERIC`
+| Default / unspecified
+
+| `STYLE_TYPE_SQL`
+| SQL scripts and queries
+
+| `STYLE_TYPE_JAVASCRIPT` / `STYLE_TYPE_JAVA` / `STYLE_TYPE_SCRIPT`
+| Scripting languages
+
+| `STYLE_TYPE_JSON`
+| JSON documents or query payloads
+
+| `STYLE_TYPE_LOG` / `STYLE_TYPE_DIFF` / `STYLE_TYPE_REGEX` / `STYLE_TYPE_FORMULA` / `STYLE_TYPE_TEXT`
+| Logs, diffs, expressions, free text
+
+| `STYLE_TYPE_CQL` / `STYLE_TYPE_SOQL` / `STYLE_TYPE_DROOLS`
+| Domain languages
+
+| Free-form strings
+| Plugins may introduce their own labels (for example `"Cypher"`) if needed
+|===
+
+Specialized subclasses set defaults in their constructors (`SQLStyledTextComp` → `SQL`, and so on).
+Call sites that use a plain `StyledTextComp` / `StyledTextVar` (including Hop Web stand-ins) must pass the matching `styleType` constructor argument.
+
+=== Ideas enabled by this SPI
+
+Because any plugin can attach to `TextComposite.ID_TOOLBAR` and branch on `styleType`, you can ship optional tooling without bloating core dialogs:
+
+* SQL pretty-print / format
+* SQL lineage or “explain”
+* Visual SQL builders
+* JSON / XML formatters (see the sample JSON format button)
+* Language-specific helpers (Cypher, SOQL, Drools, …)
+
+Keep heavy or optional features in plugins; keep the host widget small.
+
+=== Preferences and opt-out
+
+* Global: configuration option **Show text editor toolbar** (`PropsUi.isShowTextCompositeToolbar()`).
+* Per instance: construct with `toolbarEnabled = false`, or pass item ids to remove.
+
+== Extensible host: TableView toolbar
+
+`TableView` uses the same mechanism with root id `TableView.ID_TOOLBAR` (`"TableView-Toolbar"`).
+
+Built-in items cover row insert/delete, clipboard, filter, navigate-to-column, undo/redo, and more.
+Plugins contribute the same way — for example export-to-Excel / export-to-CSV toolbar buttons in the Excel and text-file plugins:
+
+[source,java]
+----
+@GuiToolbarElement(
+    root = TableView.ID_TOOLBAR,
+    id = "tableview-toolbar-30000-export-to-excel",
+    toolTip = "i18n::ExcelWidget.ExportToolbarButton.ToolTip",
+    separator = true,
+    image = "excelwriter.svg")
+public static void export(TableView tableView) {
+  // ...
+}
+----
+
+== How the host builds the toolbar (for widget authors)
+
+If you own a new composite that should accept plugin buttons:
+
+. Choose a stable public root id, for example `public static final String ID_TOOLBAR = "MyWidget-Toolbar";`
+. Annotate the host class (or a related `@GuiPlugin`) with built-in `@GuiToolbarElement` methods if needed
+. On construction:
++
+[source,java]
+----
+toolbarWidgets = new GuiToolbarWidgets();
+// Register under the class name elements expect to resolve
+toolbarWidgets.registerGuiPluginObject(MyWidget.class.getName(), this);
+
+IToolbarContainer container =
+    ToolbarFacade.createToolbarContainer(this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+toolbar = container.getControl();
+// layout toolbar at the top...
+toolbarWidgets.createToolbarWidgets(container, ID_TOOLBAR, removeToolItems);
+----
+. Prefer `ToolbarFacade` / `IToolbarContainer` so desktop (SWT `ToolBar`) and Hop Web (composite row layout) share one path.
+
+== i18n for tooltips
+
+Prefer:
+
+[source,java]
+----
+toolTip = "i18n::MyClass.MyButton.ToolTip"
+----
+
+with a messages file under the plugin package, for example:
+
+[source]
+----
+plugins/.../src/main/resources/org/example/myplugin/messages/messages_en_US.properties
+----
+
+[source,properties]
+----
+MyClass.MyButton.ToolTip=Pretty-print JSON
+----
+
+Escape variable-like tokens in properties with single quotes when needed (`'${VAR}'`) so they are not treated as interpolation.
+
+== Checklist for a new toolbar contribution
+
+* [ ] Class annotated with `@GuiPlugin`
+* [ ] Button method uses `@GuiToolbarElement(root = Host.ID_TOOLBAR, id = "…", image = "…", toolTip = "i18n::…")`
+* [ ] Listener is `public static void name(HostType host)` (or a safe supertype)
+* [ ] No desktop-only SWT types in the GuiPlugin class signatures
+* [ ] If visibility depends on context: add `@GuiToolbarElementFilter(parentId = Host.ID_TOOLBAR)` with signature `(String, Object)`
+* [ ] Filter returns `true` for all item ids that are **not** yours
+* [ ] Filter only uses state available at construction (`styleType`, not `isEditable()` / `getText()`)
+* [ ] Runtime checks (`isEditable()`, empty text, …) live in the action method
+* [ ] For `TextComposite`: pass `styleType` in the constructor; use `getStyleType()` in filters/actions (not `instanceof`)
+* [ ] SVG image is on the plugin classpath; i18n key exists in `messages_en_US.properties`
+* [ ] Manual check on desktop and, if relevant, Hop Web
+
+== Reference source locations
+
+[cols="1,2",options="header"]
+|===
+| Topic | Location
+
+| Toolbar widgets runtime
+| `ui/.../gui/GuiToolbarWidgets.java`, `BaseGuiWidgets.java`
+
+| Annotations
+| `core/.../gui/plugin/toolbar/GuiToolbarElement.java`, `GuiToolbarElementFilter.java`
+
+| Registration scan
+| `ui/.../hopgui/HopGuiEnvironment.initGuiPlugins()`
+
+| Text editor host
+| `ui/.../widget/TextComposite.java`
+
+| Table host
+| `ui/.../widget/TableView.java`
+
+| Sample JSON format button
+| `plugins/transforms/json/.../ui/TextCompositeToolbarJsonFormatButton.java`
+
+| Sample table export buttons
+| `plugins/transforms/excel/.../TableViewExportToExcelToolbarButton.java`, CSV equivalent under textfile
+
+| Metadata line filter example
+| `ui/.../database/MetaSelectionLineClearDbCacheToolbarItem.java`
+|===

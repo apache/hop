@@ -53,6 +53,7 @@ Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], 
 For example with a comma (,) delimiter: ```aaaa,"123,456",ccc``` can be resolved to 3 fields using enclosure ```"```.
 | Escape string|To include delimiter characters in values sometimes an escape string is used like backslash, double backslash and so on.
 For example with a comma (,) delimiter: ```aaaa,123\\,456,ccc``` can be resolved to 3 fields using escape character ```\\```.
+|Keep the field to split|When enabled, the original field is kept and the new fields are appended at the end of the field list. When disabled (default), the original field is replaced in place by the new fields.
 |Fields table|This table is where you define the properties for each new field created by the split.
 For each new field, you must define the field name, data type, and other properties.
 |===

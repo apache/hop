@@ -35,6 +35,7 @@ import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.cache.SoftRefFilesCache;
 import org.apache.commons.vfs2.impl.DefaultFileReplicator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
@@ -227,9 +228,6 @@ public class HopVfs {
       fsm.addProvider("jar", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
       fsm.addProvider("http", new org.apache.commons.vfs2.provider.http5.Http5FileProvider());
       fsm.addProvider("https", new org.apache.commons.vfs2.provider.http5s.Http5sFileProvider());
-      fsm.addProvider("ftp", new org.apache.commons.vfs2.provider.ftp.FtpFileProvider());
-      fsm.addProvider("ftps", new org.apache.commons.vfs2.provider.ftps.FtpsFileProvider());
-      fsm.addProvider("sftp", new org.apache.commons.vfs2.provider.sftp.SftpFileProvider());
       fsm.addProvider("war", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
       fsm.addProvider("par", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
       fsm.addProvider("ear", new org.apache.commons.vfs2.provider.jar.JarFileProvider());
@@ -510,6 +508,38 @@ public class HopVfs {
       return getOutputStream(fileObject, append);
     } catch (IOException e) {
       throw new HopFileException(e);
+    }
+  }
+
+  /**
+   * Move a file or a folder, also when the source and the destination sit on two different file
+   * systems of the operating system.
+   *
+   * <p>{@link FileObject#moveTo(FileObject)} only copies and deletes when the two files belong to
+   * two different VFS file systems. Two local folders are one and the same VFS file system
+   * whichever disks they're on, so it always picks a rename, and a rename across a mount point is
+   * exactly what the operating system refuses. Everything in Hop that moves a file to a folder the
+   * user picked has to go through here, or it breaks the moment those two folders are two different
+   * mounts. See <a href="https://github.com/apache/hop/issues/5936">issue #5936</a>.
+   *
+   * @param source the file or folder to move
+   * @param destination where to move it to
+   * @throws FileSystemException when the move failed. When the copy which follows a failed rename
+   *     fails as well, this is the original rename failure with the copy failure suppressed.
+   */
+  public static void moveFile(FileObject source, FileObject destination)
+      throws FileSystemException {
+    try {
+      source.moveTo(destination);
+    } catch (FileSystemException renameFailed) {
+      try {
+        // SELECT_ALL rather than SELECT_SELF: a folder has to arrive with its children.
+        destination.copyFrom(source, Selectors.SELECT_ALL);
+        source.deleteAll();
+      } catch (FileSystemException copyFailed) {
+        renameFailed.addSuppressed(copyFailed);
+        throw renameFailed;
+      }
     }
   }
 

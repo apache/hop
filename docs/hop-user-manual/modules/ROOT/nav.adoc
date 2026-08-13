@@ -467,6 +467,7 @@ under the License.
 ** xref:metadata-types/data-set.adoc[Data Set]
 ** xref:metadata-types/execution-data-profile.adoc[]
 ** xref:metadata-types/execution-information-location.adoc[]
+** xref:metadata-types/ftp-connection.adoc[FTP Connection]
 ** xref:metadata-types/google-storage-authentication.adoc[Google Storage Connection]
 ** xref:metadata-types/hop-server.adoc[Hop Server]
 ** xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]

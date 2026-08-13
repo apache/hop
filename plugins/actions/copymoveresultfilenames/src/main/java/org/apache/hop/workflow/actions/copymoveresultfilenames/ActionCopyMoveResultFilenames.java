@@ -410,7 +410,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
             }
           } else {
             // Move file
-            sourceFile.moveTo(destinationFile);
+            HopVfs.moveFile(sourceFile, destinationFile);
             nrSuccess++;
             if (isDetailed()) {
               logDetailed(

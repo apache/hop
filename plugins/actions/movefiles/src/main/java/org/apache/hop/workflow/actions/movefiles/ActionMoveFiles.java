@@ -170,6 +170,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   public ActionMoveFiles(String n) {
     super(n, "");
     filesToMove = new ArrayList<>();
+    ifFileExists = CONST_DO_NOTHING;
     ifMovedFileExists = CONST_DO_NOTHING;
     moveEmptyFolders = true;
     nrErrorsLessThan = "10";
@@ -715,7 +716,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         if (!simulate) {
           Long moved = trackBytesMoved(sourceFileFolder, result);
           destinationFilename.createFile();
-          sourceFileFolder.moveTo(destinationFilename);
+          HopVfs.moveFile(sourceFileFolder, destinationFilename);
           emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFilename, moved);
         }
 
@@ -743,11 +744,11 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                   PKG, "ActionMoveFiles.Log.FileExists", destinationFilename.toString()));
         }
 
-        switch (ifFileExists) {
+        switch (ifExistsOption(ifFileExists)) {
           case "overwrite_file" -> {
             if (!simulate) {
               Long moved = trackBytesMoved(sourceFileFolder, result);
-              sourceFileFolder.moveTo(destinationFilename);
+              HopVfs.moveFile(sourceFileFolder, destinationFilename);
               emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFilename, moved);
             }
             if (isDetailed()) {
@@ -793,7 +794,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
             if (!simulate) {
               Long moved = trackBytesMoved(sourceFileFolder, result);
-              sourceFileFolder.moveTo(destinationFile);
+              HopVfs.moveFile(sourceFileFolder, destinationFile);
               emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
             }
             if (isDetailed()) {
@@ -852,7 +853,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             if (!destinationFile.exists()) {
               if (!simulate) {
                 Long moved = trackBytesMoved(sourceFileFolder, result);
-                sourceFileFolder.moveTo(destinationFile);
+                HopVfs.moveFile(sourceFileFolder, destinationFile);
                 emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
               }
               if (isDetailed()) {
@@ -870,11 +871,11 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               }
 
             } else {
-              switch (ifMovedFileExists) {
+              switch (ifExistsOption(ifMovedFileExists)) {
                 case "overwrite_file" -> {
                   if (!simulate) {
                     Long moved = trackBytesMoved(sourceFileFolder, result);
-                    sourceFileFolder.moveTo(destinationFile);
+                    HopVfs.moveFile(sourceFileFolder, destinationFile);
                     emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
                   }
                   if (isDetailed()) {
@@ -908,7 +909,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
                   if (!simulate) {
                     Long moved = trackBytesMoved(sourceFileFolder, result);
-                    sourceFileFolder.moveTo(destinationFile);
+                    HopVfs.moveFile(sourceFileFolder, destinationFile);
                     emitMoveLineage(parentWorkflow, sourceFileFolder, destinationFile, moved);
                   }
                   if (isDetailed()) {
@@ -930,6 +931,13 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 case FAIL ->
                     // Update Errors
                     updateErrors();
+                case CONST_DO_NOTHING -> retVal = true;
+                default ->
+                    logError(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionMoveFiles.Error.UnknownIfMovedFileExists",
+                            ifMovedFileExists));
               }
             }
           }
@@ -937,6 +945,10 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               // Update Errors
               updateErrors();
           case CONST_DO_NOTHING -> retVal = true;
+          default ->
+              logError(
+                  BaseMessages.getString(
+                      PKG, "ActionMoveFiles.Error.UnknownIfFileExists", ifFileExists));
         }
       }
     } catch (Exception e) {
@@ -1083,6 +1095,17 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       }
     }
     return entryStatus;
+  }
+
+  /**
+   * Workflows saved before the option was written to XML (and hand-written ones) simply don't have
+   * the tag. In that case we keep the historical default: do nothing.
+   *
+   * @param option the "if (moved) file exists" option as it was deserialized
+   * @return the option to act upon, never null or empty
+   */
+  private String ifExistsOption(String option) {
+    return Utils.isEmpty(option) ? CONST_DO_NOTHING : option;
   }
 
   private void updateErrors() {

@@ -38,6 +38,24 @@ if [ -z "${HOP_IT_PER_TEST_JVM}" ]; then
   HOP_IT_PER_TEST_JVM="false"
 fi
 
+# Hard cap (in seconds) on a single hop-run invocation. Without it, one workflow that never
+# returns blocks the whole nightly and says nothing about why: ASF Jenkins builds #2269 and #2270
+# both sat inside the sftp project until the run was killed hours later, with the console log
+# ending mid-workflow. When the cap is hit the watchdog first sends SIGQUIT to the JVM, which
+# writes a full thread dump to the test output (the test image ships a JRE, so jstack/jcmd are not
+# available), and only then kills it, so the next hang lands in the log with a stack trace.
+# Set HOP_IT_TIMEOUT=0 to disable the watchdog.
+if [ -z "${HOP_IT_TIMEOUT}" ]; then
+  HOP_IT_TIMEOUT=3600
+fi
+case "${HOP_IT_TIMEOUT}" in
+'' | *[!0-9]*)
+  echo "WARNING: ignoring non-numeric HOP_IT_TIMEOUT='${HOP_IT_TIMEOUT}', using 3600"
+  HOP_IT_TIMEOUT=3600
+  ;;
+*) ;;
+esac
+
 # Install any JDBC drivers required by this test set, using the Hop driver-download CLI.
 # Driven by HOP_DRIVERS_DOWNLOAD (comma separated driver ids, each optionally with a version, e.g.
 # "vertica,mysql:9.2.0"), set per test in the integration-tests-*.yaml compose files. Restricted
@@ -233,6 +251,64 @@ for testcase in root.iter("testcase"):
 PYTHON_PARSE_SUREFIRE
 }
 
+# Run hop-run.sh with the usual tee redirection, bounded by HOP_IT_TIMEOUT (see above).
+# Returns hop-run's own exit code, or 124 when the watchdog had to kill a stuck run.
+run_hop_with_watchdog() {
+  if [ "${HOP_IT_TIMEOUT}" -eq 0 ]; then
+    $HOP_LOCATION/hop-run.sh "$@" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+    return $?
+  fi
+
+  $HOP_LOCATION/hop-run.sh "$@" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1) &
+  local runner_pid=$!
+  local waited=0
+
+  while kill -0 "${runner_pid}" 2>/dev/null; do
+    if [ "${waited}" -ge "${HOP_IT_TIMEOUT}" ]; then
+      echo "${SPACER}"
+      echo "ERROR: hop-run has not finished after ${HOP_IT_TIMEOUT}s, assuming it is stuck."
+      echo "Sending SIGQUIT to the JVM for a thread dump, then terminating it."
+      echo "${SPACER}"
+
+      # hop-run.sh does not exec java, so the JVM is a child of the shell we started.
+      local jvm_pid
+      jvm_pid=$(pgrep -P "${runner_pid}" java | head -n1)
+      if [ -z "${jvm_pid}" ]; then
+        jvm_pid=$(pgrep -f 'org.apache.hop.run.HopRun' | head -n1)
+      fi
+      if [ -n "${jvm_pid}" ]; then
+        # SIGQUIT makes the JVM print every thread's stack on its stdout, which tee captures.
+        # Twice: two dumps a few seconds apart show whether anything is moving at all.
+        kill -QUIT "${jvm_pid}" 2>/dev/null || true
+        sleep 15
+        kill -QUIT "${jvm_pid}" 2>/dev/null || true
+        sleep 10
+        kill -TERM "${jvm_pid}" 2>/dev/null || true
+        sleep 5
+        kill -KILL "${jvm_pid}" 2>/dev/null || true
+      else
+        echo "WARNING: could not find the hop-run JVM process, killing the wrapper only"
+      fi
+
+      kill -TERM "${runner_pid}" 2>/dev/null || true
+      wait "${runner_pid}" 2>/dev/null
+
+      # The surefire report is built from these files, so say there why the run has no result.
+      {
+        echo ""
+        echo "ERROR: hop-run was killed by the integration-test watchdog after ${HOP_IT_TIMEOUT}s."
+        echo "The JVM thread dump above (SIGQUIT) shows where the run was stuck."
+      } >>/tmp/test_output
+      return 124
+    fi
+    sleep 5
+    waited=$((waited + 5))
+  done
+
+  wait "${runner_pid}"
+  return $?
+}
+
 # Set up a temporary folder
 export TMP_FOLDER=/tmp/hop-it-$$
 rm -rf "${TMP_FOLDER}"
@@ -344,14 +420,14 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
         start_time_test=$SECONDS
 
-        $HOP_LOCATION/hop-run.sh \
+        run_hop_with_watchdog \
           -r "${SUITE_RUN_CONFIG}" \
           "${HOP_RUN_COMMON_ARGS[@]}" \
           -p "PROJECT_NAME=${PROJECT_NAME}" \
           -p "IT_SUREFIRE_DIR=${SUREFIRE_DIR}" \
-          -f "${RUNNER_PIPELINE}" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+          -f "${RUNNER_PIPELINE}"
 
-        exit_code=${PIPESTATUS[0]}
+        exit_code=$?
         test_duration=$((SECONDS - start_time_test))
         total_duration=$((SECONDS - start_time))
 
@@ -365,6 +441,22 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
         echo ${SPACER}
         echo "Duration: $test_duration"
         echo "Exit Code: $exit_code"
+
+        # A watchdog kill must always turn the build red. The suite may already have written a
+        # report for the workflows it did finish, so add a separate failing suite rather than
+        # overwriting those results.
+        if [ "${exit_code}" -eq 124 ] && [ "${SUREFIRE_REPORT}" = "true" ]; then
+          TIMEOUT_REPORT="${SUREFIRE_DIR}/surefile_${PROJECT_NAME}_timeout.xml"
+          {
+            echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            echo "<testsuite xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd\" version=\"3.0\" name=\"${PROJECT_NAME}_timeout\" time=\"$total_duration\" tests=\"1\" errors=\"1\" skipped=\"0\" failures=\"0\">"
+            echo "<testcase name=\"suite_timeout\" time=\"$test_duration\"><failure type=\"suite_timeout\">hop-run did not finish within ${HOP_IT_TIMEOUT}s</failure><system-out><![CDATA["
+            cat /tmp/test_output
+            echo "]]></system-out><system-err><![CDATA["
+            cat /tmp/test_output_err
+            echo "]]></system-err></testcase></testsuite>"
+          } >"${TIMEOUT_REPORT}"
+        fi
 
         # Surefire XML is written by the Surefire Report Output transform.
         # If the transform never ran (startup failure), write a minimal failure suite.
@@ -473,13 +565,13 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
           start_time_test=$SECONDS
 
           #Run Test (use project pipeline run config, e.g. Beam "local")
-          $HOP_LOCATION/hop-run.sh \
+          run_hop_with_watchdog \
             -r "${PIPELINE_RUN_CONFIG}" \
             "${HOP_RUN_COMMON_ARGS[@]}" \
-            -f "$hop_file" > >(tee /tmp/test_output) 2> >(tee /tmp/test_output_err >&1)
+            -f "$hop_file"
 
           #Capture exit code
-          exit_code=${PIPESTATUS[0]}
+          exit_code=$?
 
           #Test time duration
           test_duration=$((SECONDS - start_time_test))

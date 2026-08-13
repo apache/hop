@@ -150,6 +150,7 @@ import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
+import org.apache.hop.ui.hopgui.shared.IWebCanvasGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
@@ -213,7 +214,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         IHasLogChannel,
         ILogParentProvided,
         IHopFileTypeHandler,
-        IGuiRefresher {
+        IGuiRefresher,
+        IWebCanvasGraph {
 
   private static final Class<?> PKG = HopGuiWorkflowGraph.class;
 

@@ -249,6 +249,27 @@ Three steps:
 # or explicit: ./hop marketplace install org.apache.hop:hop-datavault:0.4.0-SNAPSHOT
 ```
 
+In the GUI, **Import from URL…** on the Repositories tab does the same from a
+published link. That path is narrower than a file or the CLI import, because
+the address is usually pasted from somewhere else:
+
+- **https only** — the definition names the hosts plugin code comes from, so it
+  must not be rewritable in transit
+- **anonymous download** — no credentials are sent, so a hostile address cannot
+  collect the global `HOP_MARKETPLACE_*` pair. The definition must be publicly
+  readable; the artifacts it points at need not be
+- **credentials in the file are ignored** — set them on the repository entry
+  afterwards, or via `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`
+- **confirmation first** — id, URL, download template, catalog URL and plugin
+  count are shown before anything is added
+
+A definition that sets `primary: true` becomes the primary repository on import,
+which means every install tries it first. Check that field before importing a
+definition you did not write.
+
+Importing the same file **from disk** keeps its credentials, so an
+administrator can still provision one for an internal rollout.
+
 
 **How listing works**
 

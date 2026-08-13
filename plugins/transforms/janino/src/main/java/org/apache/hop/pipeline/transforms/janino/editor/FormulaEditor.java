@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
@@ -223,7 +224,10 @@ public class FormulaEditor extends Dialog implements KeyListener {
     //
     expressionEditor =
         new StyledTextComp(
-            variables, rightSash, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            variables,
+            rightSash,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_FORMULA);
     expressionEditor.setText(this.formula);
     expressionEditor.addModifyListener(event -> setStyles());
     expressionEditor.addKeyListener(this);

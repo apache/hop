@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,20 +28,25 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.file.TextFileInputField;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class TextFileInputMetaTest {
 
@@ -83,6 +89,62 @@ class TextFileInputMetaTest {
         metaCopy,
         new MemoryMetadataProvider());
     validate(metaCopy);
+  }
+
+  /**
+   * The file list backing "prepend file name" is only needed when that option is on, and building
+   * it means a directory listing - a remote one for a VFS location. getFields() runs on every
+   * transform thread while a pipeline is prepared, so resolving it when nobody asked for it put all
+   * of those threads on the same remote file at once.
+   */
+  @Test
+  void getFieldsPrependsTheFileNameOnlyWhenAsked(@TempDir Path tempDir) throws Exception {
+    Path csvFile = Files.createFile(tempDir.resolve("customers.csv"));
+
+    TextFileInputMeta meta = new TextFileInputMeta();
+    InputFile inputFile = new InputFile();
+    inputFile.setFileName(csvFile.toAbsolutePath().toString());
+    meta.getFileInput().getInputFiles().add(inputFile);
+    meta.getInputFields().add(new TextFileInputField("id", -1, -1));
+    meta.getInputFields().add(new TextFileInputField("name", -1, -1));
+
+    // Off (the default): the field names are used as they are.
+    //
+    IRowMeta row = new RowMeta();
+    meta.getFields(row, "TFI", null, null, new Variables(), new MemoryMetadataProvider());
+    assertEquals(2, row.size());
+    assertEquals("id", row.getValueMeta(0).getName());
+    assertEquals("name", row.getValueMeta(1).getName());
+
+    // On: every field name is prefixed with the base name of the first file in the list.
+    //
+    meta.getContent().setPrependFileName(true);
+    IRowMeta prefixedRow = new RowMeta();
+    meta.getFields(prefixedRow, "TFI", null, null, new Variables(), new MemoryMetadataProvider());
+    assertEquals(2, prefixedRow.size());
+    assertEquals("customers_id", prefixedRow.getValueMeta(0).getName());
+    assertEquals("customers_name", prefixedRow.getValueMeta(1).getName());
+  }
+
+  /**
+   * With "prepend file name" on but the file missing, the configured path is used for the prefix
+   * rather than dropping it: the row layout can't depend on the file being there yet.
+   */
+  @Test
+  void getFieldsPrependsTheConfiguredNameWhenTheFileIsMissing(@TempDir Path tempDir) {
+    TextFileInputMeta meta = new TextFileInputMeta();
+    InputFile inputFile = new InputFile();
+    inputFile.setFileName(tempDir.resolve("not-there.csv").toAbsolutePath().toString());
+    meta.getFileInput().getInputFiles().add(inputFile);
+    meta.getInputFields().add(new TextFileInputField("id", -1, -1));
+    meta.getContent().setPrependFileName(true);
+
+    IRowMeta row = new RowMeta();
+    assertDoesNotThrow(
+        () ->
+            meta.getFields(row, "TFI", null, null, new Variables(), new MemoryMetadataProvider()));
+    assertEquals(1, row.size());
+    assertEquals("not-there_id", row.getValueMeta(0).getName());
   }
 
   private static void validate(TextFileInputMeta meta) {

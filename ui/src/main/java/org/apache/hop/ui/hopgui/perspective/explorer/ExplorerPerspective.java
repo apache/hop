@@ -106,6 +106,7 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
@@ -120,6 +121,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.raw.RawExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
@@ -470,8 +472,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               Control c = focusControl;
               while (c != null) {
                 Object data = c.getData(KEY_TAB_FOLDER);
-                if (data instanceof CTabFolder && isEditorTabFolder((Control) data)) {
-                  CTabFolder folder = (CTabFolder) data;
+                if (data instanceof CTabFolder folder && isEditorTabFolder((Control) data)) {
                   for (CTabItem item : folder.getItems()) {
                     if (item.getControl() == c) {
                       if (activeTabFolder != folder || folder.getSelection() != item) {
@@ -507,6 +508,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
     }
     // Keep as last in the list...
+    fileTypes.add(new RawExplorerFileType());
     fileTypes.add(new GenericFileType());
     indexFileTypes();
   }
@@ -1506,7 +1508,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
 
       // Rename the folder
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update all opened impacted file type handlers
       for (String filename : filenames) {
@@ -1539,7 +1541,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       String newPath = sourceExists ? pathFromTarget : pathFromSource;
 
       // Rename the file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update opened file type handler (use old path to find the handler)
       TabItemHandler handler = findTabItemHandler(oldPath);
@@ -1575,7 +1577,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       }
 
       // Move file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update all opened impacted file type handlers
       for (String filename : filenames) {
@@ -1605,7 +1607,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       String newPath = sourceExists ? pathFromTarget : pathFromSource;
 
       // Move file
-      sourceFile.moveTo(targetFile);
+      HopVfs.moveFile(sourceFile, targetFile);
 
       // Update opened file type handler
       TabItemHandler handler = findTabItemHandler(oldPath);
@@ -2769,6 +2771,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                   false,
                   false);
           if (EnvironmentUtils.getInstance().isWeb()) {
+            // openFile / link navigation often uses setActiveFileTypeHandler without a full
+            // CTabFolder Selection cycle that paints; rebind the SVG canvas client here.
+            notifyZoomHandlerForActiveTab();
             updateWebUrlForActiveTab();
           }
           return;
@@ -4626,7 +4631,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
-    activeHandler.updateGui();
+    // Under Hop Web, CTabItem.setControl can fire focus/selection before tab data is set
+    // (plugin file openers, first tab, etc.). Avoid NPE during that race.
+    if (activeHandler != null) {
+      activeHandler.updateGui();
+    }
   }
 
   /** Notify the zoom handler when tab is switched (for web/RAP) */
@@ -4649,7 +4658,44 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         CanvasZoomHelper.notifyCanvasReady(zoomHandler);
       }
       CanvasSvgHelper.notifyCanvasReady(workflowGraph.getCanvas());
+    } else if (activeHandler instanceof HopGuiAbstractGraph abstractGraph) {
+      // Plugin model graphs (Data Vault, Business Vault, dimensional, source model, …)
+      // share the single Hop Web SVG renderer and zoom remote; re-bind on tab switch.
+      Object zoomHandler = getModelGraphZoomHandler(abstractGraph);
+      if (zoomHandler != null) {
+        CanvasZoomHelper.notifyCanvasReady(zoomHandler);
+      }
+      CanvasSvgHelper.notifyCanvasReady(abstractGraph.getCanvas());
+      if (!abstractGraph.isDisposed()) {
+        abstractGraph.redraw();
+      }
     }
+  }
+
+  /**
+   * Model graphs store the RAP zoom handler as a private/protected field (or getter). Resolve via
+   * reflection so Explorer does not depend on hop-datavault types.
+   */
+  private static Object getModelGraphZoomHandler(HopGuiAbstractGraph graph) {
+    if (graph == null) {
+      return null;
+    }
+    try {
+      return graph.getClass().getMethod("getCanvasZoomHandler").invoke(graph);
+    } catch (ReflectiveOperationException ignored) {
+      // fall through
+    }
+    Class<?> type = graph.getClass();
+    while (type != null && type != Object.class) {
+      try {
+        var field = type.getDeclaredField("canvasZoomHandler");
+        field.setAccessible(true);
+        return field.get(graph);
+      } catch (ReflectiveOperationException ignored) {
+        type = type.getSuperclass();
+      }
+    }
+    return null;
   }
 
   /**
@@ -4824,7 +4870,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       return;
     }
     List<CTabFolder> docked = getDockedTabFolders();
-    CTabFolder target = docked.isEmpty() ? null : docked.get(0);
+    CTabFolder target = docked.isEmpty() ? null : docked.getFirst();
     if (target != null) {
       for (CTabItem item : detached.getItems()) {
         moveTabToFolder(item, target);
@@ -4844,7 +4890,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     detachedFolders.remove(folder);
     if (activeTabFolder == folder) {
       List<CTabFolder> docked = getDockedTabFolders();
-      activeTabFolder = docked.isEmpty() ? null : docked.get(0);
+      activeTabFolder = docked.isEmpty() ? null : docked.getFirst();
     }
     Shell shell = folder.getShell();
     if (shell != null && !shell.isDisposed()) {
@@ -4992,7 +5038,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     root.setLayoutData(new FormDataBuilder().fullSize().result());
     editorRoot = root;
     List<CTabFolder> leaves = getDockedTabFolders();
-    activeTabFolder = leaves.isEmpty() ? null : leaves.get(0);
+    activeTabFolder = leaves.isEmpty() ? null : leaves.getFirst();
     tabFolderWrapper.layout(true, true);
   }
 

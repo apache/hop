@@ -87,17 +87,24 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
     // reserve room
     Object[] outputRow = RowDataUtil.allocateRowData(data.outputMeta.size());
 
-    int nrExtraFields = meta.getFields().size() - 1;
+    final boolean keepSplitField = meta.isKeepSplitField();
+    if (keepSplitField) {
+      // Keep all original fields, append split results at the end
+      //
+      System.arraycopy(r, 0, outputRow, 0, data.previousMeta.size());
+    } else {
+      int nrExtraFields = meta.getFields().size() - 1;
 
-    System.arraycopy(r, 0, outputRow, 0, data.fieldnr);
-    System.arraycopy(
-        r,
-        data.fieldnr + 1,
-        outputRow,
-        data.fieldnr + 1 + nrExtraFields,
-        data.previousMeta.size() - (data.fieldnr + 1));
+      System.arraycopy(r, 0, outputRow, 0, data.fieldnr);
+      System.arraycopy(
+          r,
+          data.fieldnr + 1,
+          outputRow,
+          data.fieldnr + 1 + nrExtraFields,
+          data.previousMeta.size() - (data.fieldnr + 1));
+    }
 
-    // OK, now we have room in the middle to place the fields...
+    // OK, now we have room to place the fields...
     //
 
     // Named values info.id[0] not filled in!
@@ -118,6 +125,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
         Const.splitString(
             valueToSplit, data.delimiter, data.enclosure, removeEnclosure, data.escapeString);
     int prev = 0;
+    final int splitOutputBaseIndex = keepSplitField ? data.previousMeta.size() : data.fieldnr;
     for (int i = 0; i < meta.getFields().size(); i++) {
       FSField field = meta.getFields().get(i);
       String id = Const.NVL(field.getId(), "");
@@ -156,8 +164,8 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
 
       Object value;
       try {
-        IValueMeta valueMeta = data.outputMeta.getValueMeta(data.fieldnr + i);
-        IValueMeta conversionValueMeta = data.conversionMeta.getValueMeta(data.fieldnr + i);
+        IValueMeta valueMeta = data.outputMeta.getValueMeta(splitOutputBaseIndex + i);
+        IValueMeta conversionValueMeta = data.conversionMeta.getValueMeta(splitOutputBaseIndex + i);
 
         if (rawValue != null && valueMeta.isNull(rawValue)) {
           rawValue = null;
@@ -178,7 +186,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
                 meta.getSplitField() + "]!"),
             e);
       }
-      outputRow[data.fieldnr + i] = value;
+      outputRow[splitOutputBaseIndex + i] = value;
     }
 
     return outputRow;

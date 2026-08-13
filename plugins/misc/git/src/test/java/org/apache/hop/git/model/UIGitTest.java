@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -359,6 +360,36 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   @Test
+  public void testPushAndDeleteTagByName() throws Exception {
+    // Set remote
+    Git git2 = new Git(db2);
+    UIGit uiGit2 = new UIGit();
+    uiGit2.setGit(git2);
+    setupRemote();
+
+    git.commit().setMessage("initial commit").call();
+    git.tag().setName("v1").call();
+
+    // Push the tag itself, a default push doesn't include tags
+    assertTrue(uiGit.push());
+    assertFalse(uiGit2.getTags().contains("v1"));
+
+    assertTrue(uiGit.push(VCS.TYPE_TAG, "v1"));
+    assertTrue(uiGit2.getTags().contains("v1"));
+
+    // Delete the tag on the remote
+    assertTrue(uiGit.deleteRemoteTag("v1"));
+    assertFalse(uiGit2.getTags().contains("v1"));
+
+    // Deleting a tag that is already gone on the remote is not an error
+    assertTrue(uiGit.deleteRemoteTag("v1"));
+
+    // The name is known, so no selection dialog is opened
+    verify(uiGit, never()).getEnterSelectionDialog(any(), anyString(), anyString());
+    git2.close();
+  }
+
+  @Test
   public void testShouldPushOnlyToOrigin() throws Exception {
     // origin for db2
     URIish uri = new URIish(db2.getDirectory().toURI().toURL());
@@ -650,6 +681,60 @@ public class UIGitTest extends RepositoryTestCase {
     tags = uiGit.getTags();
     assertEquals(0, tags.size());
     assertFalse(tags.contains("test"));
+  }
+
+  @Test
+  public void testUnstageFilesWithResetPath() throws Exception {
+    initialCommit();
+
+    // Stage a change to a tracked file and a brand new file
+    writeTrashFile("Test.txt", "Changed");
+    uiGit.add("Test.txt");
+    writeTrashFile("New.txt", "New file");
+    uiGit.add("New.txt");
+    assertEquals(2, uiGit.getStagedFiles().size());
+
+    for (UIFile file : uiGit.getStagedFiles()) {
+      uiGit.resetPath(file.getName());
+    }
+
+    // Nothing staged anymore, but both changes are still there
+    assertTrue(uiGit.getStagedFiles().isEmpty());
+    assertEquals(2, uiGit.getUnstagedFiles().size());
+    assertEquals("Changed", read(new File(db.getWorkTree(), "Test.txt")));
+  }
+
+  @Test
+  public void testUntrackedAndModifiedFileFlags() throws Exception {
+    initialCommit();
+
+    // A file git doesn't know about yet and a change to a file it does know about
+    writeTrashFile("New.txt", "New file");
+    writeTrashFile("Test.txt", "Changed");
+
+    List<UIFile> unstagedFiles = uiGit.getUnstagedFiles();
+    UIFile untracked = findFile(unstagedFiles, "New.txt");
+    UIFile modified = findFile(unstagedFiles, "Test.txt");
+
+    // The commit perspective tells both apart by change type to decide what it offers for the
+    // next commit: an unstaged ADD is a file git doesn't track yet, which is never checked for you
+    assertEquals(ChangeType.ADD, untracked.getChangeType());
+    assertFalse(untracked.isStaged());
+    assertEquals(ChangeType.MODIFY, modified.getChangeType());
+    assertFalse(modified.isStaged());
+
+    // Once added, the same new file is staged
+    uiGit.add("New.txt");
+    UIFile staged = findFile(uiGit.getStagedFiles(), "New.txt");
+    assertEquals(ChangeType.ADD, staged.getChangeType());
+    assertTrue(staged.isStaged());
+  }
+
+  private UIFile findFile(List<UIFile> files, String name) {
+    return files.stream()
+        .filter(file -> file.getName().equals(name))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("File '" + name + "' not found"));
   }
 
   @Test

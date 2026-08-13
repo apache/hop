@@ -129,7 +129,7 @@ public class CacheEntry {
         targetFileObject.delete();
       }
       FileObject fileObject = HopVfs.getFileObject(filename, variables);
-      fileObject.moveTo(targetFileObject);
+      HopVfs.moveFile(fileObject, targetFileObject);
     } catch (Exception e) {
       throw new HopException(
           "Error renaming execution information to file '" + targetFilename + "'", e);
