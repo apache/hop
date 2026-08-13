@@ -1753,6 +1753,16 @@
             }
         },
 
+        _isOverNavigationView: function (props, screenX, screenY) {
+            if (!props) {
+                return false;
+            }
+            if (props.graphPort && containsRect(props.graphPort, screenX, screenY)) {
+                return true;
+            }
+            return !!(props.viewPort && containsRect(props.viewPort, screenX, screenY));
+        },
+
         _beginNavDrag: function (screenX, screenY, viewPort) {
             this._navDragActive = true;
             this._navDragStartX = screenX;
@@ -1812,9 +1822,27 @@
             if (event.button === 0) {
                 this._pointerHeld = true;
             }
-            if (event.button === 0 && props.viewPort && containsRect(props.viewPort, screenX, screenY)) {
-                this._beginNavDrag(screenX, screenY, props.viewPort);
-                return;
+            if (event.button === 0 && this._isOverNavigationView(props, screenX, screenY)) {
+                var startViewPort = props.viewPort;
+                if (startViewPort && !containsRect(startViewPort, screenX, screenY)) {
+                    // Click on the minimap outside the overlay: jump so the overlay is
+                    // centered on the click, then drag from there.
+                    var jumped = clampNavPreviewRect(
+                        startViewPort,
+                        props.graphPort,
+                        screenX - startViewPort.width / 2,
+                        screenY - startViewPort.height / 2);
+                    startViewPort = {
+                        x: jumped.x,
+                        y: jumped.y,
+                        width: startViewPort.width,
+                        height: startViewPort.height
+                    };
+                }
+                if (startViewPort) {
+                    this._beginNavDrag(screenX, screenY, startViewPort);
+                    return;
+                }
             }
             var graph = graphCoords(screenX, screenY, graphProps);
             // Always remember mousedown for mode=drag / mode=resize previews after server arms mode.
@@ -1872,7 +1900,7 @@
                         }
                     }
                 }
-                if (!props.viewPort || !containsRect(props.viewPort, screenX, screenY)) {
+                if (!this._isOverNavigationView(props, screenX, screenY)) {
                     this._beginSelect(screenX, screenY);
                 }
                 return;
@@ -2015,7 +2043,7 @@
             if (this._syncServerModePreviews(screenX, screenY, graph.x, graph.y, buttonsDown)) {
                 return;
             }
-            if (props.viewPort && containsRect(props.viewPort, screenX, screenY)) {
+            if (this._isOverNavigationView(props, screenX, screenY)) {
                 this._canvas.style.cursor = "grab";
                 this._clearNoteResizeHandles();
                 return;
