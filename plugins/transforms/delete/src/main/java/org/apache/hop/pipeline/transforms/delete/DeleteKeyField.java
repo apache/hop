@@ -30,7 +30,8 @@ public class DeleteKeyField {
   /** which field in input stream to compare with? */
   @HopMetadataProperty(
       key = "name",
-      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyStream")
+      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyStream",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String keyStream;
 
   /** field in table */

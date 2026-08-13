@@ -519,6 +519,8 @@ under the License.
 *** xref:technology/neo4j/neo4j-logging-schema.adoc[Neo4j Logging Schema]
 ** xref:technology/redis/index.adoc[Redis]
 ** xref:technology/google/index.adoc[Google]
+** xref:technology/openlineage/index.adoc[OpenLineage]
+*** xref:technology/openlineage/dataset-identity.adoc[Dataset identity]
 * xref:hop-server/index.adoc[Hop Server]
 ** xref:hop-server/deploying.adoc[Deploying Hop Server]
 *** xref:hop-server/deploy-project-image.adoc[Project in a Docker image]
