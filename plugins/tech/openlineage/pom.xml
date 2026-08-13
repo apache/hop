@@ -35,7 +35,7 @@
           openlineage-java brings its own (older) HttpClient5. Pin it to the version Hop already
           ships so the distribution does not end up with two copies of the same library.
         -->
-        <openlineage.httpclient5.version>5.6.1</openlineage.httpclient5.version>
+        <openlineage.httpclient5.version>5.6.3</openlineage.httpclient5.version>
         <!--
           Keep in step with the jackson-databind version managed in the root pom: the modules
           bundled here (datatype-jsr310/jdk8, module-blackbird, dataformat-yaml) run against the
