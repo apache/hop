@@ -96,6 +96,8 @@ public class MarketplaceDialog extends Dialog {
   private TableView wTable;
   private Text wSearch;
   private Label wStatus;
+  private Button wInstall;
+  private Button wUninstall;
   private Path hopHome;
   private MarketplaceConfig config;
   private MarketplaceRepositoriesPanel repositoriesPanel;
@@ -220,11 +222,11 @@ public class MarketplaceDialog extends Dialog {
     comp.setLayout(layout);
     tab.setControl(comp);
 
-    Button wUninstall = new Button(comp, SWT.PUSH);
+    wUninstall = new Button(comp, SWT.PUSH);
     wUninstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall"));
     wUninstall.addListener(SWT.Selection, e -> uninstallSelected());
 
-    Button wInstall = new Button(comp, SWT.PUSH);
+    wInstall = new Button(comp, SWT.PUSH);
     wInstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install"));
     wInstall.addListener(SWT.Selection, e -> installSelected());
 
@@ -234,6 +236,8 @@ public class MarketplaceDialog extends Dialog {
 
     BaseTransformDialog.positionBottomButtons(
         comp, new Button[] {wInstall, wUninstall, wRefresh}, PropsUi.getMargin(), null);
+
+    applyPluginManagePermissions();
 
     // Search / filter above the plugin list
     Label wlSearch = new Label(comp, SWT.RIGHT);
@@ -700,7 +704,29 @@ public class MarketplaceDialog extends Dialog {
         displayName(info));
   }
 
+  /** Enable Install/Uninstall only when plugin manage permission is allowed. */
+  private void applyPluginManagePermissions() {
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    if (wInstall != null && !wInstall.isDisposed()) {
+      wInstall.setEnabled(canManage);
+      wInstall.setToolTipText(
+          canManage
+              ? ""
+              : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin"));
+    }
+    if (wUninstall != null && !wUninstall.isDisposed()) {
+      wUninstall.setEnabled(canManage);
+      wUninstall.setToolTipText(
+          canManage
+              ? ""
+              : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall.RequiresAdmin"));
+    }
+  }
+
   private void installSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     List<OptionalPluginInfo> selection = selected();
     if (selection.isEmpty()) {
       return;
@@ -882,6 +908,9 @@ public class MarketplaceDialog extends Dialog {
   }
 
   private void uninstallSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     List<OptionalPluginInfo> selection = selected();
     if (selection.isEmpty()) {
       return;

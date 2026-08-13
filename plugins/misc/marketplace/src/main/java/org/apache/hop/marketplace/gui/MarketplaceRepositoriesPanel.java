@@ -67,6 +67,7 @@ public class MarketplaceRepositoriesPanel {
   private MarketplaceConfig config;
   private final Shell shell;
   private final TableView wTable;
+  private final Button[] actionButtons;
   private boolean dirty;
 
   /**
@@ -113,10 +114,12 @@ public class MarketplaceRepositoriesPanel {
     Button wAdd = createRightButton(parent, "ManageRepositoriesDialog.Button.Add");
     wAdd.addListener(SWT.Selection, e -> addRepository());
 
-    Button[] rightButtons = {
-      wAdd, wEdit, wRemove, wImport, wImportUrl, wExport, wPrimary, wUp, wDown, wReset, wSave
-    };
-    layoutRightButtons(rightButtons, wlHelp);
+    this.actionButtons =
+        new Button[] {
+          wAdd, wEdit, wRemove, wImport, wImportUrl, wExport, wPrimary, wUp, wDown, wReset, wSave
+        };
+    layoutRightButtons(actionButtons, wlHelp);
+    applyManagePermissions();
 
     ColumnInfo[] columns = {
       new ColumnInfo(
@@ -209,7 +212,26 @@ public class MarketplaceRepositoriesPanel {
     return dirty;
   }
 
+  private void applyManagePermissions() {
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    String tip =
+        canManage
+            ? null
+            : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin");
+    for (Button b : actionButtons) {
+      if (b != null && !b.isDisposed()) {
+        b.setEnabled(canManage);
+        if (tip != null) {
+          b.setToolTipText(tip);
+        }
+      }
+    }
+  }
+
   public boolean saveChanges(boolean showSuccessDialog) {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return false;
+    }
     try {
       config.ensureValidPrimary();
       config.save();
@@ -278,6 +300,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void addRepository() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = new MarketplaceRepository();
     repo.setId("");
     repo.setName("");
@@ -300,6 +325,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void editSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       return;
@@ -802,6 +830,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void removeSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       return;
@@ -820,6 +851,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void importDefinition() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     try {
       String path =
           BaseDialog.presentFileDialog(
@@ -851,6 +885,9 @@ public class MarketplaceRepositoriesPanel {
    * anything is added.
    */
   private void importDefinitionFromUrl() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     try {
       String url =
           new EnterStringDialog(
@@ -961,6 +998,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void exportDefinition() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
@@ -1005,6 +1045,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void setPrimarySelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null) {
       return;
@@ -1024,6 +1067,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void moveSelected(int delta) {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MarketplaceRepository repo = selected();
     if (repo == null || config.getRepositories() == null) {
       return;
@@ -1042,6 +1088,9 @@ public class MarketplaceRepositoriesPanel {
   }
 
   private void resetDefaults() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     MessageBox confirm = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
     confirm.setText(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Reset.Header"));
     confirm.setMessage(BaseMessages.getString(PKG, "ManageRepositoriesDialog.Reset.Message"));

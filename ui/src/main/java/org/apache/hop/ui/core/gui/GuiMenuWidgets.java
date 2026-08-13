@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.security.HopSecurity;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -364,7 +365,8 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     MenuItem menuItem = menuItemMap.get(id);
     boolean hasCapability =
         handler != null ? handler.hasCapability(permission) : fileType.hasCapability(permission);
-    boolean enable = hasCapability && active;
+    // File-type capability AND runtime state AND session RBAC (Hop Web roles)
+    boolean enable = hasCapability && active && HopSecurity.allowsCapability(permission);
     if (menuItem != null && !menuItem.isDisposed() && enable != menuItem.isEnabled()) {
       menuItem.setEnabled(enable);
     }
