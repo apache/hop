@@ -552,6 +552,7 @@ public class GuiRegistry {
     List<KeyboardShortcut> shortcuts =
         shortCutsMap.computeIfAbsent(guiPluginClassName, k -> new ArrayList<>());
     KeyboardShortcut keyboardShortCut = new KeyboardShortcut(shortcut, method);
+    keyboardShortCut.setParentClassName(guiPluginClassName);
     shortcuts.add(keyboardShortCut);
   }
 
@@ -559,7 +560,9 @@ public class GuiRegistry {
       String parentClassName, Method parentMethod, GuiOsxKeyboardShortcut shortcut) {
     List<KeyboardShortcut> shortcuts =
         shortCutsMap.computeIfAbsent(parentClassName, k -> new ArrayList<>());
-    shortcuts.add(new KeyboardShortcut(shortcut, parentMethod));
+    KeyboardShortcut keyboardShortCut = new KeyboardShortcut(shortcut, parentMethod);
+    keyboardShortCut.setParentClassName(parentClassName);
+    shortcuts.add(keyboardShortCut);
   }
 
   /**

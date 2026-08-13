@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
+import org.eclipse.swt.SWT;
 import org.junit.jupiter.api.Test;
 
 class HopWebEntryPointTest {
@@ -58,6 +59,35 @@ class HopWebEntryPointTest {
     String[] cancelledShortcuts = HopWebEntryPoint.buildCancelledKeyboardShortcuts(activeShortcuts);
 
     assertArrayEquals(new String[] {"CTRL+ARROW_LEFT", "CTRL+S"}, cancelledShortcuts);
+  }
+
+  @Test
+  void preservesShiftNavigationKeysAsActiveOnly() {
+    // SHIFT+arrow moves the selection on the canvas but still extends the selection in text
+    // fields, so the browser must keep handling it.
+    String[] activeShortcuts = {
+      "SHIFT+ARROW_LEFT",
+      "SHIFT+ARROW_RIGHT",
+      "SHIFT+ARROW_UP",
+      "SHIFT+ARROW_DOWN",
+      "SHIFT+HOME",
+      "SHIFT+END",
+      "CTRL+SHIFT+ARROW_UP",
+      "CTRL+S"
+    };
+
+    String[] cancelledShortcuts = HopWebEntryPoint.buildCancelledKeyboardShortcuts(activeShortcuts);
+
+    assertArrayEquals(new String[] {"CTRL+SHIFT+ARROW_UP", "CTRL+S"}, cancelledShortcuts);
+  }
+
+  @Test
+  void mapsShiftArrowShortcutToRapFormat() {
+    KeyboardShortcut shortcut = mock(KeyboardShortcut.class);
+    when(shortcut.getKeyCode()).thenReturn(SWT.ARROW_LEFT);
+    when(shortcut.isShift()).thenReturn(true);
+
+    assertEquals("SHIFT+ARROW_LEFT", new HopWebEntryPoint().convertToRapFormat(shortcut));
   }
 
   @Test
