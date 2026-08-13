@@ -26,6 +26,9 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,6 +66,15 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
    * against the full path); it must keep working for backward compatibility.
    */
   private static final String SOURCE_WILDCARD_PATH = ".*/geoip_.*\\.zip";
+
+  /** 2024-04-15 10:20:30 local time: the modification date carried by the archived entries. */
+  private static final long ARCHIVE_TIME = toEpochMillis(2024, 4, 15, 10, 20, 30);
+
+  /** 2026-01-05 08:00:00 local time: the modification date of the files already in the target. */
+  private static final long EXISTING_TIME = toEpochMillis(2026, 1, 5, 8, 0, 0);
+
+  /** A zip stores DOS timestamps, which have a two second resolution. */
+  private static final long TIME_TOLERANCE_MS = 2000L;
 
   @Override
   protected Class<ActionUnZip> getActionClass() {
@@ -240,6 +252,137 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
   }
 
   /**
+   * Issue #4143: the scenario from the report. An archive of reference files dated April 2024 is
+   * unzipped over a folder that already holds freshly generated files of the same name, with "If
+   * file exists" set to {@code SKIP} and "Set modification date to original" checked. Only the
+   * genuinely missing entry may be extracted, and only that entry may receive the archived
+   * modification date -- the skipped files keep their own, recent date.
+   *
+   * <p>Before the fix the archived date was applied to every entry in the archive, because it was
+   * stamped from a {@code finally} block that ran whether or not the entry had been extracted.
+   */
+  @Test
+  void skippedFilesKeepTheirOwnModificationDate() throws Exception {
+    File workDir = Files.createTempDirectory("unzip4143-skip").toFile();
+    workDir.deleteOnExit();
+
+    File zipFile = new File(workDir, "ref_files.zip");
+    createZipWithEntries(
+        zipFile,
+        new String[] {"a.csv", "b.csv", "c.csv"},
+        new String[] {"archived-a", "archived-b", "archived-c"},
+        ARCHIVE_TIME);
+
+    // The target directory already holds freshly generated a.csv and b.csv, plus an unrelated
+    // x.csv that is not in the archive at all.
+    File targetDir = new File(workDir, "dst");
+    File a = writeExistingFile(targetDir, "a.csv");
+    File b = writeExistingFile(targetDir, "b.csv");
+    File x = writeExistingFile(targetDir, "x.csv");
+
+    ActionUnZip action = new ActionUnZip();
+    action.setSetOriginalModificationDate(true);
+    Result result = runUnzipSingleFile(action, zipFile, targetDir, FileExistsEnum.SKIP);
+
+    assertEquals(0, result.getNrErrors(), "The action should not report errors");
+
+    // The one missing entry is extracted and does carry the archived date.
+    File c = new File(targetDir, "c.csv");
+    assertTrue(c.exists(), "c.csv was missing from the target and should have been extracted");
+    assertTimeEquals(
+        ARCHIVE_TIME,
+        c.lastModified(),
+        "extracted c.csv should carry the archived modification date");
+
+    // The skipped files keep their content *and* their own modification date.
+    assertEquals("current-a", readFile(a), "a.csv already existed and must not be overwritten");
+    assertTimeEquals(
+        EXISTING_TIME,
+        a.lastModified(),
+        "skipped a.csv must keep its own modification date (issue #4143)");
+    assertTimeEquals(
+        EXISTING_TIME,
+        b.lastModified(),
+        "skipped b.csv must keep its own modification date (issue #4143)");
+    assertTimeEquals(
+        EXISTING_TIME,
+        x.lastModified(),
+        "x.csv is not in the archive and must not be touched at all");
+  }
+
+  /**
+   * Issue #4143, second path into the same bug: an entry that is filtered out by the entry wildcard
+   * is not extracted either, so a file of that name already sitting in the target folder must keep
+   * its modification date. {@code OVERWRITE} is used here on purpose, so that the wildcard -- not
+   * the "if file exists" rule -- is what spares the existing file.
+   */
+  @Test
+  void entriesFilteredOutByTheWildcardKeepTheirModificationDate() throws Exception {
+    File workDir = Files.createTempDirectory("unzip4143-wildcard").toFile();
+    workDir.deleteOnExit();
+
+    File zipFile = new File(workDir, "geoip.zip");
+    createZipWithEntries(
+        zipFile,
+        new String[] {"country.txt", "city.txt"},
+        new String[] {"archived-country", "archived-city"},
+        ARCHIVE_TIME);
+
+    File targetDir = new File(workDir, "dst");
+    File city = writeExistingFile(targetDir, "city.txt");
+
+    ActionUnZip action = new ActionUnZip();
+    action.setSetOriginalModificationDate(true);
+    action.setWildcard("country\\.txt"); // city.txt is filtered out
+    Result result = runUnzipSingleFile(action, zipFile, targetDir, FileExistsEnum.OVERWRITE);
+
+    assertEquals(0, result.getNrErrors(), "The action should not report errors");
+
+    File country = new File(targetDir, "country.txt");
+    assertTrue(country.exists(), "country.txt matched the wildcard and should have been extracted");
+    assertTimeEquals(
+        ARCHIVE_TIME,
+        country.lastModified(),
+        "extracted country.txt should carry the archived modification date");
+
+    assertEquals(
+        "current-city", readFile(city), "city.txt was filtered out and must not be overwritten");
+    assertTimeEquals(
+        EXISTING_TIME,
+        city.lastModified(),
+        "city.txt was filtered out by the wildcard and must keep its modification date");
+  }
+
+  /**
+   * Issue #4143, third path into the same bug: with "If file exists" set to {@code FAIL} the
+   * existing file is reported as an error and left alone, so its modification date must survive
+   * too.
+   */
+  @Test
+  void filesRefusedByFailModeKeepTheirModificationDate() throws Exception {
+    File workDir = Files.createTempDirectory("unzip4143-fail").toFile();
+    workDir.deleteOnExit();
+
+    File zipFile = new File(workDir, "ref_files.zip");
+    createZipWithEntries(
+        zipFile, new String[] {"a.csv"}, new String[] {"archived-a"}, ARCHIVE_TIME);
+
+    File targetDir = new File(workDir, "dst");
+    File a = writeExistingFile(targetDir, "a.csv");
+
+    ActionUnZip action = new ActionUnZip();
+    action.setSetOriginalModificationDate(true);
+    Result result = runUnzipSingleFile(action, zipFile, targetDir, FileExistsEnum.FAIL);
+
+    assertTrue(result.getNrErrors() > 0, "An existing file should be reported as an error in FAIL");
+    assertEquals("current-a", readFile(a), "a.csv must not be overwritten in FAIL mode");
+    assertTimeEquals(
+        EXISTING_TIME,
+        a.lastModified(),
+        "a.csv was refused by FAIL mode and must keep its modification date");
+  }
+
+  /**
    * Builds a temp folder with two {@code geoip_*.zip} archives, each holding one distinct entry.
    */
   private static File createGeoipArchiveFolder() throws java.io.IOException {
@@ -303,14 +446,68 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
   /** Creates a zip file containing the given text entries. */
   private static void createZipWithEntries(File zipFile, String[] entryNames, String[] contents)
       throws java.io.IOException {
+    createZipWithEntries(zipFile, entryNames, contents, -1L);
+  }
+
+  /**
+   * Creates a zip file containing the given text entries, all stamped with the given modification
+   * time (epoch millis, or -1 to leave the default "now").
+   */
+  private static void createZipWithEntries(
+      File zipFile, String[] entryNames, String[] contents, long modificationTime)
+      throws java.io.IOException {
     try (OutputStream fos = new FileOutputStream(zipFile);
         ZipOutputStream zos = new ZipOutputStream(fos)) {
       for (int i = 0; i < entryNames.length; i++) {
-        zos.putNextEntry(new ZipEntry(entryNames[i]));
+        ZipEntry entry = new ZipEntry(entryNames[i]);
+        if (modificationTime >= 0) {
+          entry.setTime(modificationTime);
+        }
+        zos.putNextEntry(entry);
         zos.write(contents[i].getBytes(StandardCharsets.UTF_8));
         zos.closeEntry();
       }
     }
+  }
+
+  /**
+   * Creates a file in the target folder with known content and a known, recent modification date,
+   * standing in for a file that a previous workflow step just generated.
+   */
+  private static File writeExistingFile(File dir, String name) throws java.io.IOException {
+    Files.createDirectories(dir.toPath());
+    File file = new File(dir, name);
+    Files.writeString(
+        file.toPath(),
+        "current-" + name.substring(0, name.lastIndexOf('.')),
+        StandardCharsets.UTF_8);
+    assertTrue(
+        file.setLastModified(EXISTING_TIME),
+        "Test setup: could not set the modification date of " + name);
+    return file;
+  }
+
+  private static String readFile(File file) throws java.io.IOException {
+    return Files.readString(file.toPath(), StandardCharsets.UTF_8);
+  }
+
+  private static long toEpochMillis(
+      int year, int month, int day, int hour, int minute, int second) {
+    return LocalDateTime.of(year, month, day, hour, minute, second)
+        .atZone(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli();
+  }
+
+  /** Compares two modification dates within the two second resolution of a zip DOS timestamp. */
+  private static void assertTimeEquals(long expected, long actual, String message) {
+    assertTrue(
+        Math.abs(expected - actual) <= TIME_TOLERANCE_MS,
+        message
+            + " -- expected "
+            + Instant.ofEpochMilli(expected)
+            + " but was "
+            + Instant.ofEpochMilli(actual));
   }
 
   /**

@@ -631,6 +631,11 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
           synchronized (HopVfs.getFileSystemManager(getVariables())) {
             FileObject newFileObject = null;
+            // Whether this entry actually produced a target file (or folder). Only then may we
+            // stamp the archived modification date on it: entries that were skipped, filtered
+            // out by a wildcard, refused by the "if file exists" rule or that failed halfway
+            // must leave the file that is already on disk untouched (issue #4143).
+            boolean targetWritten = false;
             try {
               if (isDetailed()) {
                 logDetailed(
@@ -659,6 +664,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                 //
                 if (!newFileObject.exists()) {
                   newFileObject.createFolder();
+                  targetWritten = true;
                 }
               } else {
                 // File
@@ -752,6 +758,10 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                       os.close();
                     }
                   }
+
+                  // The entry was written to the target folder, so the archived modification
+                  // date may be applied to it below.
+                  targetWritten = true;
                 } // end if take
               }
             } catch (Exception e) {
@@ -767,7 +777,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
               if (newFileObject != null) {
                 try {
                   newFileObject.close();
-                  if (setOriginalModificationDate) {
+                  if (targetWritten && setOriginalModificationDate) {
                     // Change last modification date
                     newFileObject
                         .getContent()
