@@ -17,8 +17,6 @@
 
 package org.apache.hop.mail.pipeline.transforms.mail;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -30,6 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mail.metadata.MailServerConnection;
 import org.apache.hop.mail.workflow.actions.mail.MailEmbeddedImageField;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -2275,18 +2274,9 @@ public class MailDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wEncoding.removeAll();
-      ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

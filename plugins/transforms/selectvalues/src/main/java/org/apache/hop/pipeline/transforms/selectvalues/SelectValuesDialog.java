@@ -19,9 +19,7 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 
 import static org.apache.hop.core.row.IValueMeta.storageTypeCodes;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +39,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -664,12 +663,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
 
   private String[] getCharsets() {
     if (charsets == null) {
-      Collection<Charset> charsetCol = Charset.availableCharsets().values();
-      charsets = new String[charsetCol.size()];
-      int i = 0;
-      for (Charset charset : charsetCol) {
-        charsets[i++] = charset.displayName();
-      }
+      charsets = ConstUi.getEncodings();
     }
     return charsets;
   }

@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,6 +51,7 @@ import org.apache.hop.pipeline.transforms.fileinput.text.TextFileCSVImportProgre
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -764,18 +764,9 @@ public class CsvInputDialog extends BaseTransformDialog
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wEncoding.removeAll();
-      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

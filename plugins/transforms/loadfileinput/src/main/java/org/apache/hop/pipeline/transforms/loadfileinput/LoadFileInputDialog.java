@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -33,6 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -1124,15 +1123,8 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
       String encoding = wEncoding.getText();
-      wEncoding.removeAll();
-      ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      if (!Utils.isEmpty(encoding)) {
-        wEncoding.setText(encoding);
-      }
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 
