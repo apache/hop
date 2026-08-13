@@ -19,6 +19,8 @@ under the License.
 
 A **Hop Helm chart** supporting **long-lived** setups.
 
+To run a Hop Server whose image already contains your project, set `HOP_PROJECT_FOLDER`, `HOP_PROJECT_NAME`, `HOP_ENVIRONMENT_NAME` and `HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS` (commented examples are in `hop/values.yaml`). The full pattern — bake the project in CI, inject environment JSON at run time — is documented in the user manual: [Project in a Docker image](https://hop.apache.org/manual/latest/hop-server/deploy-project-image.html).
+
 You can provide values for the following variables in the values.yaml file:
 
 ## Variables hop server

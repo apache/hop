@@ -1,0 +1,96 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[OpenSearchLocationType]]
+:imagesdir: ../../assets/images
+:description: Store Hop execution information in an OpenSearch index.
+
+= OpenSearch Location Type
+
+== Description
+
+With this location type you can store execution information in an https://opensearch.org/[OpenSearch] index.
+
+It is a *caching* location: Hop keeps the execution in memory and writes one JSON document per pipeline or workflow to the index, the same document model as the Caching File, Caching Database and xref:metadata-types/elastic-location-type.adoc[Elastic] locations.
+Inspect the runs later from the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective].
+
+OpenSearch is the right choice when the cluster is OpenSearch (Amazon OpenSearch Service, a self-hosted cluster, ...).
+Use the Elastic location type against Elasticsearch.
+
+== Options
+
+* *OpenSearch server base URL*: The base URL of the OpenSearch REST API, including the port.
+For example: `https://localhost:9200`
+* *The OpenSearch username to use*: HTTP basic authentication user.
+* *The OpenSearch password to use*: HTTP basic authentication password.
+* *The index name to use*: The index that stores the execution documents.
+* *Ignore SSL certificate check*: Skip TLS certificate verification.
+Useful against a local or self-signed cluster; leave this off in production.
+* *Persistence delay*: Maximum time to wait before a dirty cache entry is written to OpenSearch, in milliseconds (default `5000`).
+* *Maximum cache age*: Maximum time to keep an entry in memory, in milliseconds (default `86400000`, one day).
+* *Button 'Create and configure OpenSearch index'*: Creates the specified index with the mappings and settings Hop needs, and shows the HTTP result.
+
+Click *Create and configure OpenSearch index* once, before the first run.
+The request is a `PUT` of the index name with a mapping that:
+
+* treats `execution`, `executionState` and `summary` as nested objects
+* stores dates with `epoch_millis`, `yyyy-MM-dd HH:mm:ss.SSS` and `strict_date_optional_time`
+* disables indexing of `childExecutions`, `childExecutionStates` and `childExecutionData` (they are stored but not searched)
+* raises `index.mapping.total_fields.limit` to `500`
+
+The dialog that opens afterwards shows the status code and response body so you can see whether the index was created or already existed.
+
+== Compared to the Elastic location
+
+Both plugins cache in memory and persist one JSON document per execution to `/<index>/_doc`.
+They are not interchangeable:
+
+[cols="1,2,2",options="header"]
+|===
+| |OpenSearch |Elastic
+
+|Authentication
+|Username and password (`Authorization: Basic`)
+|API key (`Authorization: ApiKey`)
+
+|TLS
+|*Ignore SSL certificate check* option
+|Uses the JVM default trust store; no ignore-SSL option
+
+|HTTP calls
+|Hop REST transform (anonymous pipeline)
+|Java `HttpClient`
+
+|Create index
+|Nested mappings (`execution`, `executionState`, `summary`) and explicit date formats
+|Flatter dotted field names (`execution.executionStartDate`, ...) and default date types
+
+|Listing executions
+|OpenSearch SQL (`POST /_plugins/_sql`), ordered by `creationDate`, limited to 50 rows; a "last period" date filter is converted to UTC
+|`_search` with `match_all`, ordered by `execution.executionStartDate`, respects the requested limit
+
+|Extra GUI filters
+|Parent / pipeline / workflow / finished filters are not sent: OpenSearch SQL rejects those nested conditions
+|Not applied on the Elastic side either; listing is `match_all` plus sort
+|===
+
+Pick the plugin that matches the product you run.
+An OpenSearch cluster will not accept Elastic API keys, and Elasticsearch will not serve `/_plugins/_sql`.
+
+== See also
+
+* xref:metadata-types/execution-information-location.adoc[Execution Information Location]
+* xref:metadata-types/elastic-location-type.adoc[Elastic location type]

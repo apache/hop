@@ -1,0 +1,138 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[DeployGitCheckout]]
+:imagesdir: ../../assets/images
+:openvar: ${
+:closevar: }
+:description: Clone a Hop project onto the server host, start Hop Server against that folder, and update with git pull.
+
+= Git checkout on the server
+
+The host can use git.
+You clone the project, register it, and start Hop Server with that folder as the project home.
+Updating is `git pull`.
+
+See xref:hop-server/deploying.adoc[Deploying Hop Server] for how this compares to the other patterns.
+Environment configuration files still live *on the server*, usually outside the clone.
+
+== One-time setup
+
+. Install a Hop client package (the same archive you use for hop-run), or run the official `apache/hop` image with the clone bind-mounted (see <<docker-mount>> below).
+. Clone the repository:
++
+[source,bash]
+----
+git clone git@git.example.com:data/your-project.git /opt/hop-projects/your-project
+----
+. Point `HOP_CONFIG_FOLDER` at a directory *outside* the Hop install so an upgrade does not lose the project registration, for example `/etc/hop/config`.
+. Register the project and a production environment.
+The environment references the project; after this, `-e` is enough to start the server.
+
+[source,bash]
+----
+export HOP_CONFIG_FOLDER=/etc/hop/config
+
+hop-conf.sh --project-create \
+  --project=your-project \
+  --project-home=/opt/hop-projects/your-project \
+  --project-keep-config-file
+
+hop-conf.sh --environment-create \
+  --environment=prod \
+  --environment-project=your-project \
+  --environment-purpose=Production \
+  --environment-config-files=/etc/hop/environments/prod.json
+----
+
+. Start the server with the environment.
+The project name is taken from that environment; you do not pass `-j`.
+
+[source,bash]
+----
+hop-server.sh -e prod /etc/hop/hop-server.xml
+----
+
+If `hop-server.xml` lives in the project, the projects plugin resolves it relative to `{openvar}PROJECT_HOME{closevar}` (see xref:hop-server/index.adoc#_start_hop_server_with_a_configuration_file[Start Hop Server with a configuration file]).
+Prefer keeping the server XML and the environment JSON *outside* the clone.
+
+A systemd unit is in the Hop repository at `docs/hop-user-manual/modules/ROOT/assets/files/hop-server/hop-server.service`.
+It sets `HOP_CONFIG_FOLDER`, starts with `-e prod`, and uses a stop timeout that matches `HOP_SERVER_SHUTDOWN_TIMEOUT`.
+
+[#docker-mount]
+== Docker with a bind-mounted clone
+
+You do not need a custom image.
+Mount the clone and set the same variables as xref:hop-server/deploy-project-image.adoc[the image pattern]:
+
+[source,bash]
+----
+docker run -d --name hop-server \
+  -p 8080:8080 \
+  -e HOP_PROJECT_FOLDER=/your-project \
+  -e HOP_PROJECT_NAME=your-project \
+  -e HOP_ENVIRONMENT_NAME=prod \
+  -e HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/prod.json \
+  -e HOP_SERVER_USER=hop-admin \
+  -e HOP_SERVER_PASS=change-me \
+  -v /opt/hop-projects/your-project:/your-project \
+  -v /etc/hop/environments/prod.json:/config/prod.json:ro \
+  apache/hop:<version>
+----
+
+`git pull` on the host updates the files the container sees.
+Restart the container after you change environment JSON or `hop-server.xml`.
+
+The xref:tech-manual::docker-container.adoc#_custom_entrypoint_extension_shell_script[custom entrypoint] example on the Docker page shows how to `git clone` (or `git pull`) inside the container at start if the host itself should not hold the clone.
+
+== Updating
+
+[source,bash]
+----
+cd /opt/hop-projects/your-project
+git pull --ff-only
+----
+
+[cols="2,3",options="header"]
+|===
+|Change |Restart Hop Server?
+
+|`.hpl` / `.hwf` in the clone
+|No -- files are read when the next execution starts
+
+|Project metadata JSON (`metadata/**`)
+|Usually no -- metadata is read from disk on use
+
+|Environment JSON (`prod.json`)
+|*Yes* -- variables are applied when the environment is enabled at startup
+
+|`hop-server.xml`, JVM options, plugins, JDBC
+|*Yes*
+
+|`project-config.json` / parent project
+|*Yes* -- the project is enabled at startup
+|===
+
+Use `--ff-only` and, in production, check out a known tag or commit rather than a floating branch.
+
+`git pull` while an execution is reading a file is a rare race.
+Busy servers are better served by xref:hop-server/deploy-project-image.adoc[an immutable image].
+
+== Environment files
+
+`/etc/hop/environments/prod.json` is not in the clone.
+Production hosts get that file from configuration management, a second repository, or a secret store.
+See xref:hop-server/deploying.adoc#_environment_configuration[Environment configuration].

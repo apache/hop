@@ -172,6 +172,8 @@ As mentioned at the beginning of the tutorial, the API layer above can now proce
 
 == Conclusion
 
+To bake the whole project into an image in CI and roll Hop Server on Docker, Compose, Kubernetes or OpenShift, see xref:hop-server/deploy-project-image.adoc[Project in a Docker image].
+
 Apache Hop Pipelines as web services are easy to set up via meta-data configurations and can be easily deployed via Docker. They are suitable everywhere to synchronously return results quickly that do not require a long processing time. As of version 1.1, Apache Hop also supports the use of workflows as web services.
 
 Here, the call is asynchronous, i.e. when the service is called, a unique ID of the workflow to be executed is returned immediately and the execution starts in the background on the HOP server (for details check https://hop.apache.org/manual/latest/hop-server/async-web-service.html[the docs]).

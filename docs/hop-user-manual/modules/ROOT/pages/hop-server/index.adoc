@@ -22,6 +22,8 @@ under the License.
 
 Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configurations.
 
+How you get a project onto a Hop Server is covered in xref:hop-server/deploying.adoc[Deploying Hop Server].
+
 == Starting and Stopping Hop Server
 
 === General Use
@@ -111,6 +113,7 @@ Specify a comma separated list of KEY=VALUE pairs.
 |-e
 |--environment
 |The name of the project lifecycle environment to enable before startup.
+The project name is taken from that environment, so you do not need `-j` as well.
 This is provided for by the 'projects' plugin.
 
 |-n
@@ -120,6 +123,7 @@ This is provided for by the 'projects' plugin.
 |-j
 |--project
 |The name of the project to enable before startup.
+Not needed when `-e` is set.
 This is provided for by the 'projects' plugin.
 
 |-gs
