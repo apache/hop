@@ -854,7 +854,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 moveToFolderFolder.toString() + Const.FILE_SEPARATOR + shortFilename;
             destinationFile = HopVfs.getFileObject(moveToFileNameFull, getVariables());
             if (!destinationFile.exists()) {
-              sourceFileName.moveTo(destinationFile);
+              HopVfs.moveFile(sourceFileName, destinationFile);
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
@@ -874,7 +874,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             } else {
               switch (ifMovedFileExists) {
                 case "overwrite_file" -> {
-                  sourceFileName.moveTo(destinationFile);
+                  HopVfs.moveFile(sourceFileName, destinationFile);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
@@ -903,7 +903,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                       moveToFolderFolder.toString() + Const.FILE_SEPARATOR + shortFilename;
                   destinationFile = HopVfs.getFileObject(destinationfilenamefull, getVariables());
 
-                  sourceFileName.moveTo(destinationFile);
+                  HopVfs.moveFile(sourceFileName, destinationFile);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
