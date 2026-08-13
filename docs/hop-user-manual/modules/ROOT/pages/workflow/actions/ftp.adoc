@@ -39,6 +39,7 @@ This workflow retrieves files from one directory exclusively.
 |Option|Description
 |Action name|The name of the workflow action.
 2+|Server
+|FTP connection|An optional xref:metadata-types/ftp-connection.adoc[FTP Connection] from the metadata. Pick one and the server, credentials, transfer mode, timeouts and proxy settings below come from that connection; leave it empty to configure the server on this action.
 |FTP server name/IP address|The name of the server or the IP address.
 |Server Port|Port number of the FTP server.
 |Username|The user name associated with FTP server account.

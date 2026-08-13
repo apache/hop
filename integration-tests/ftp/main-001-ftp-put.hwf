@@ -51,14 +51,14 @@ limitations under the License.
     </action>
     <action>
       <name>Put a file with FTP</name>
-      <description/>
+      <description>Uploads into the directory the login lands in. A remote directory which is not there is an error now, so this can no longer name one the container may not have.</description>
       <type>FTP_PUT</type>
       <attributes/>
       <servername>${FTP_SERVER}</servername>
       <serverport>21</serverport>
       <username>${FTP_USER}</username>
       <password>${FTP_PASSWORD}</password>
-      <remoteDirectory>/admin</remoteDirectory>
+      <remoteDirectory/>
       <localDirectory>${PROJECT_HOME}/files</localDirectory>
       <wildcard>.*.txt</wildcard>
       <binary>N</binary>

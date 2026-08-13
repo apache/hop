@@ -28,6 +28,11 @@ The `FTP delete` action deletes files on an FTP server.
 
 === General tab
 
+WARNING: The *SFTP* protocol of this action is deprecated.
+It exists because the action was written before Hop could reach an SFTP server any other way.
+It can now: the xref:workflow/actions/deletefiles.adoc[Delete files] action resolves its paths through VFS, so an xref:metadata-types/sftp-connection.adoc[SFTP Connection] or a plain `sftp://` path deletes remote files without a second implementation of the same thing.
+Existing workflows keep working and log a warning; new ones should use Delete files.
+
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
@@ -36,10 +41,10 @@ The `FTP delete` action deletes files on an FTP server.
 |Protocol a|
 
 * FTP
-* FTPS
-* SFTP
-* SSH
+* SFTP (deprecated, see the note below)
 
+|FTP connection|An optional xref:metadata-types/ftp-connection.adoc[FTP Connection] from the metadata. Pick one and the server, credentials, transfer mode, timeouts and proxy settings below come from that connection; leave it empty to configure the server on this action.
+|SFTP connection|An optional xref:metadata-types/sftp-connection.adoc[SFTP Connection] from the metadata, used when the protocol is SFTP.
 |FTP server name/IP address|The name of the server or the IP address.
 |Server Port|Port number of the FTP server.
 |Username|The user name associated with FTP server account.
