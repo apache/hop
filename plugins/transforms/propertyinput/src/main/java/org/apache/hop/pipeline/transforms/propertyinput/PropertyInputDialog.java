@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -37,6 +35,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -1049,18 +1048,9 @@ public class PropertyInputDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wEncoding.removeAll();
-      ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

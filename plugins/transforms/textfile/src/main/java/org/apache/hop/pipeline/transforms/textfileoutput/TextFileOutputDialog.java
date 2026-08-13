@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -1357,18 +1356,9 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wEncoding.removeAll();
-      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 
