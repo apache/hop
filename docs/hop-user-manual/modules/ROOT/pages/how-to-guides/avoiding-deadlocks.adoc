@@ -78,6 +78,25 @@ image:how-to-guides/deadlocks-stream-lookup/deadlock-stream-lookup-use-blocking-
 * Configure the Blocking transform with the `Pass all rows` option to handle streams in a sequential manner.
 * Adjust settings like cache size within the Blocking transform for optimal performance.
 
+=== 5. Detect and mitigate on the local engine (automatic)
+
+For the *Local* pipeline engine, Hop can detect split–rejoin topologies that risk bounded-rowset deadlocks (for example Stream Lookup or Merge Join with a shared upstream source).
+
+On the local *Pipeline Run Configuration*:
+
+* *Detect buffer deadlocks* (enabled by default) — analyzes the pipeline during prepare and logs any risks. Pipeline verify also reports them as warnings.
+* *Mitigate buffer deadlocks (spill to disk)* (enabled by default) — when risks are found, only the recommended hops use a spilling rowset: rows stay in memory up to the rowset size, then excess rows spill to temporary files so producers do not block. Other hops keep normal bounded buffers. Prefer progress over hanging; turn this off if you want strict bounded memory only.
+* *Buffer deadlock spill directory* — optional temp directory for spill files (defaults to the system temporary directory).
+
+This avoids redesigning the pipeline for many common cases, at the cost of disk I/O on the hops that actually fill. Beam and Spark engines are unaffected (they materialize between stages).
+
+==== How detection and mitigation work
+
+* *Detection* looks for multi-input transforms (main and/or info streams) whose inbound predecessors share a common ancestor — the classic split–rejoin shape behind Stream Lookup and Merge Join hangs. Structural hop cycles are already forbidden; this is a *bounded-buffer wait-for* risk, not a graph cycle.
+* *Mitigation* replaces only the recommended inbound hops into those transforms with a *spilling rowset*: in-memory up to the configured rowset size, then excess rows are serialized to temporary files (row *data* only, not metadata per row). Producers no longer block forever on a full buffer, so the pipeline can finish and call end-of-stream.
+* Spilling is *not* applied to info hops alone. For Stream Lookup the critical hop is often the *main* input (the one not drained while the lookup cache loads); the analyzer therefore targets all risky inbound hops at the reconvergence.
+* Existing design-time workarounds (separate sources, Blocking transform, larger rowset size) remain valid. Mitigation is the automatic safety net for the local multi-threaded engine.
+
 === How the Merge Join Transform Can Cause Deadlocks
 
 Deadlocks can also occur with the xref:pipeline/transforms/mergejoin.adoc[Merge Join] transform, particularly when processing large datasets or running pipelines locally. Here’s an example scenario that demonstrates how deadlocks might arise with the *Merge Join* transform:
