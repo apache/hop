@@ -546,7 +546,12 @@ These use Spark Dataset APIs on the driver graph (no per-row Hop mini-pipeline f
 
 |Spark file input / output
 |`spark.read` / `df.write`
+
+|xref:pipeline/transforms/spark-sql.adoc[Spark SQL]
+|`spark.sql` over the incoming Datasets, each registered as a temporary view
 |===
+
+TIP: When a chain of Join / Filter / Calculator transforms exists only to express analytic logic, a single xref:pipeline/transforms/spark-sql.adoc[Spark SQL] transform lets Catalyst plan the whole thing as one query instead.
 
 === Generic mapPartitions transforms
 

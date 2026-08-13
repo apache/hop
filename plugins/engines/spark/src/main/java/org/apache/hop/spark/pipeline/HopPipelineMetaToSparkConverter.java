@@ -52,6 +52,7 @@ import org.apache.hop.spark.pipeline.handler.SparkLakeTableOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMemoryGroupByHandler;
 import org.apache.hop.spark.pipeline.handler.SparkMergeJoinHandler;
 import org.apache.hop.spark.pipeline.handler.SparkSortRowsHandler;
+import org.apache.hop.spark.pipeline.handler.SparkSqlHandler;
 import org.apache.hop.spark.pipeline.handler.SparkUniqueRowsHandler;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.spark.sql.Dataset;
@@ -80,7 +81,8 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.SPARK_LAKE_TABLE_INPUT_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID,
-          SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID);
+          SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID,
+          SparkConst.SPARK_SQL_PLUGIN_ID);
 
   /**
    * Plugin ids that must not run as partition-local Hop mini-pipelines. Keep in lockstep with
@@ -170,6 +172,7 @@ public class HopPipelineMetaToSparkConverter {
         SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID, new SparkLakeTableMergeHandler());
     transformHandlers.put(
         SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID, new SparkLakeTableMaintenanceHandler());
+    transformHandlers.put(SparkConst.SPARK_SQL_PLUGIN_ID, new SparkSqlHandler());
   }
 
   public void validatePipeline() throws HopException {
@@ -363,9 +366,10 @@ public class HopPipelineMetaToSparkConverter {
 
   /**
    * Prefer a target-stream Dataset when {@code previous} routed to {@code current} (Filter/Switch);
-   * otherwise use the previous transform's main Dataset.
+   * otherwise use the previous transform's main Dataset. Public so native handlers that resolve
+   * their own named inputs (Spark SQL) reuse the same target-stream rules as the converter.
    */
-  static Dataset<Row> lookupPreviousDataset(
+  public static Dataset<Row> lookupPreviousDataset(
       Map<String, Dataset<Row>> transformDatasetMap,
       TransformMeta previous,
       TransformMeta current,
