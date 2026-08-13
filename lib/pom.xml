@@ -33,6 +33,8 @@
         <angus-activation.version>2.0.3</angus-activation.version>
         <angus-mail.version>2.0.5</angus-mail.version>
         <annotations.version>26.1.0</annotations.version>
+        <artemis-jakarta-client.version>2.55.0</artemis-jakarta-client.version>
+        <artemis-server.version>2.55.0</artemis-server.version>
         <asm.version>9.10.1</asm.version>
         <avro.version>1.12.1</avro.version>
         <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
@@ -68,6 +70,7 @@
         <jackson.version>2.21.5</jackson.version>
         <jakarta-activation-api.version>2.1.4</jakarta-activation-api.version>
         <jakarta-annotation-api.version>3.0.0</jakarta-annotation-api.version>
+        <jakarta-jms-api.version>3.1.0</jakarta-jms-api.version>
         <jakarta-servlet-api.version>6.1.0</jakarta-servlet-api.version>
         <jakarta-ws-rs-api.version>4.0.0</jakarta-ws-rs-api.version>
         <jakarta-xml-bind-api.version>4.0.5</jakarta-xml-bind-api.version>
@@ -80,9 +83,6 @@
         <joda-time.version>2.14.3</joda-time.version>
         <jsch.version>2.28.6</jsch.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <jakarta-jms-api.version>3.1.0</jakarta-jms-api.version>
-        <artemis-jakarta-client.version>2.55.0</artemis-jakarta-client.version>
-        <artemis-server.version>2.55.0</artemis-server.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsoup.version>1.23.1</jsoup.version>
         <jspecify.version>1.0.1</jspecify.version>
