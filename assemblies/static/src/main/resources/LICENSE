@@ -1339,6 +1339,9 @@ This product bundles hamcrest 2.1, which is available under a
 This product bundles HdrHistogram 2.1.12, which is available under a
 "Creative Commons" license. For details, see licenses/LICENSE-CC0.
 
+This product bundles HdrHistogram 2.2.2, which is available under a
+"Creative Commons" license. For details, see licenses/LICENSE-CC0.
+
 This product bundles high-scale-lib 1.0.6, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
@@ -1462,6 +1465,12 @@ This product bundles jackson-dataformat-xml 2.21.5, which is available under a
 This product bundles jackson-datatype-jdk8 2.21.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles jackson-dataformat-yaml 2.21.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles jackson-datatype-jdk8 2.22.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles jackson-datatype-joda 2.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1474,16 +1483,19 @@ This product bundles jackson-datatype-jsr310 2.19.2, which is available under a
 This product bundles jackson-datatype-jsr310 2.21.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-datatype-jsr310 2.21.2, which is available under a
+This product bundles jackson-datatype-jsr310 2.21.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-jaxrs-base 2.21.5, which is available under a
+This product bundles jackson-jaxrs-base 2.22.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-jaxrs-json-provider 2.21.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles jackson-module-jaxb-annotations 2.21.5, which is available under a
+This product bundles jackson-module-blackbird 2.21.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles jackson-module-jaxb-annotations 2.22.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-module-scala_2.12 2.21.0, which is available under a
@@ -2008,11 +2020,8 @@ This product bundles langchain4j-ollama 0.29.1, which is available under a
 This product bundles langchain4j-open-ai 0.29.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles lettuce-core 6.5.5.RELEASE, which is available under a
-"The MIT" license. For details, see licenses/LICENSE-MIT.
-
-This product bundles leveldbjni-all 1.8, which is available under a
-"3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
+This product bundles LatencyUtils 2.0.3, which is available under a
+"Creative Commons" license. For details, see licenses/LICENSE-CC0.
 
 This product bundles libphonenumber 8.13.40, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
@@ -2147,6 +2156,15 @@ This product bundles metrics-logback 3.1.5, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles metrics-spi 2.20.162, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles micrometer-observation 1.16.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles micrometer-core 1.16.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles micrometer-commons 1.16.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles minimal-json 0.9.5, which is available under a
@@ -2434,7 +2452,13 @@ This product bundles opencensus-contrib-http-util 0.31.1, which is available und
 This product bundles opencsv 5.12.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles opentelemetry-api 1.65.0, which is available under a
+This product bundles openlineage-sql-java 1.46.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles openlineage-java 1.46.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles opentelemetry-api 1.62.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles opentelemetry-common 1.65.0, which is available under a
@@ -2880,6 +2904,9 @@ This product bundles slf4j-api 2.0.18, which is available under a
 
 This product bundles slf4j-nop 2.0.18, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
+
+This product bundles snakeyaml 2.5, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
 
 This product bundles snakeyaml 2.6, which is available under a
 "Apache 2.0" license. For details, see LICENSE.

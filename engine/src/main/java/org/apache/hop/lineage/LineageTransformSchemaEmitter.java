@@ -165,7 +165,11 @@ public final class LineageTransformSchemaEmitter {
     return List.copyOf(fields);
   }
 
-  private static IRowMeta resolveInputRowMetaRuntime(ITransform transform) {
+  /**
+   * The row shape a transform actually saw, preferring the live input row meta and falling back to
+   * its input row sets. Package-visible so the relational emitter resolves it identically.
+   */
+  static IRowMeta resolveInputRowMetaRuntime(ITransform transform) {
     if (transform instanceof BaseTransform base) {
       IRowMeta meta = base.getInputRowMeta();
       if (meta != null && !meta.isEmpty()) {

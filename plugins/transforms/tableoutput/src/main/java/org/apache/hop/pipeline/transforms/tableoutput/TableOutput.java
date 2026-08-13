@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -38,6 +39,8 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
+import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -53,6 +56,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
   public static final String COULD_NOT_RETRIEVE_TABLE_STRUCTURE_FOR =
       "Could not retrieve table structure for: ";
   public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction: ";
+
+  /**
+   * Upper bound on the distinct target tables remembered for lineage in the dynamic table-name
+   * mode. The table name comes from a row field, so its cardinality is unbounded in principle.
+   */
+  private static final int MAX_DYNAMIC_LINEAGE_TABLES = 1000;
 
   public TableOutput(
       TransformMeta transformMeta,
@@ -156,6 +165,53 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     return true;
   }
 
+  /**
+   * Remembers a target seen in the per-row dynamic table-name mode, for the lineage emitted on
+   * dispose.
+   *
+   * <p>This is the one piece of lineage bookkeeping on the per-row path, so it is guarded twice: it
+   * does nothing at all unless lineage is switched on (the default is off, and every pipeline would
+   * otherwise pay for a feature it is not using), and it stops accumulating past {@link
+   * #MAX_DYNAMIC_LINEAGE_TABLES} so a high-cardinality table-name field cannot grow the set without
+   * bound. Hitting the cap costs lineage for the tables beyond it, never the write.
+   */
+  @VisibleForTesting
+  void recordDynamicLineageTarget(String tableName) {
+    if (Utils.isEmpty(tableName) || !LineageHub.getInstance().isEnabled()) {
+      return;
+    }
+    if (data.dynamicTablesWritten.size() >= MAX_DYNAMIC_LINEAGE_TABLES) {
+      if (!data.dynamicLineageTruncated) {
+        data.dynamicLineageTruncated = true;
+        logBasic(
+            "More than "
+                + MAX_DYNAMIC_LINEAGE_TABLES
+                + " distinct target tables; lineage is reported for the first "
+                + MAX_DYNAMIC_LINEAGE_TABLES
+                + " only");
+      }
+      return;
+    }
+    data.dynamicTablesWritten.add(tableName);
+  }
+
+  /**
+   * Emits one {@code RELATIONAL_IO} write per distinct table seen in the per-row dynamic table-name
+   * mode. Called on dispose, once all rows (and therefore all targets) have been processed.
+   */
+  private void emitDynamicRelationalLineage() {
+    if (!meta.isTableNameInField() || data.dynamicTablesWritten.isEmpty()) {
+      return;
+    }
+    String database =
+        data.databaseMeta == null ? null : resolve(data.databaseMeta.getDatabaseName());
+    String schema = resolve(meta.getSchemaName());
+    for (String table : data.dynamicTablesWritten) {
+      LineageRelationalIoEmitter.emitTransformRelationalWrite(
+          this, data.databaseMeta, database, schema, table, data.insertRowMeta, true, null);
+    }
+  }
+
   protected Object[] writeToTable(IRowMeta rowMeta, Object[] r) throws HopException {
 
     if (r == null) { // Stop: last line or error encountered
@@ -194,6 +250,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
       }
       tableName = rowMeta.getString(r, data.indexOfTableNameField);
+      recordDynamicLineageTarget(tableName);
       if (!meta.isTableNameInTable() && !meta.isSpecifyFields()) {
         // If the name of the table should not be inserted itself, remove the table name
         // from the input row data as well. This forcibly creates a copy of r
@@ -1153,6 +1210,8 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
   @Override
   public void dispose() {
+
+    emitDynamicRelationalLineage();
 
     if (data.db != null) {
       try {

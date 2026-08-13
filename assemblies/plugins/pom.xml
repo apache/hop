@@ -1703,6 +1703,12 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-openlineage</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
                     <artifactId>hop-tech-opensearch</artifactId>
                     <version>${project.version}</version>
                     <type>zip</type>

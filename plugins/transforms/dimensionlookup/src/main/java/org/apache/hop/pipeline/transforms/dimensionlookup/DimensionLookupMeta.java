@@ -46,6 +46,8 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCode;
@@ -68,6 +70,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.LOOKUP})
 @Getter
 @Setter
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData> {
   private static final Class<?> PKG = DimensionLookupMeta.class;
   public static final String CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM =
@@ -1425,7 +1428,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     @HopMetadataProperty(
         key = "name",
         injectionKey = "STREAM_FIELDNAME",
-        injectionKeyDescription = "DimensionLookup.Injection.STREAM_FIELDNAME")
+        injectionKeyDescription = "DimensionLookup.Injection.STREAM_FIELDNAME",
+        hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
     private String name;
 
     /** Fields in the dimension to update or retrieve */
@@ -1485,13 +1489,15 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     /** Fields used to look up a value in the dimension */
     @HopMetadataProperty(
         injectionKey = "KEY_STREAM_FIELDNAME",
-        injectionKeyDescription = "DimensionLookup.Injection.KEY_STREAM_FIELDNAME")
+        injectionKeyDescription = "DimensionLookup.Injection.KEY_STREAM_FIELDNAME",
+        hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
     private String name;
 
     /** Fields in the dimension to use for lookup */
     @HopMetadataProperty(
         injectionKey = "KEY_DATABASE_FIELDNAME",
-        injectionKeyDescription = "DimensionLookup.Injection.KEY_DATABASE_FIELDNAME")
+        injectionKeyDescription = "DimensionLookup.Injection.KEY_DATABASE_FIELDNAME",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
     private String lookup;
 
     public DLKey() {}
