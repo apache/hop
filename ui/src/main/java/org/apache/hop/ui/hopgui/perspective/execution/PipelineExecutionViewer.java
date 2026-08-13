@@ -793,6 +793,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
         viewPort = pipelinePainter.getViewPort();
         graphPort = pipelinePainter.getGraphPort();
+        canvas.setData("viewPort", viewPort);
+        canvas.setData("graphPort", graphPort);
       } catch (Exception e) {
         new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error drawing pipeline image", e);
       }
@@ -927,7 +929,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     lastClick = new Point(real.x, real.y);
     boolean control = (event.stateMask & SWT.MOD1) != 0;
 
-    if (setupDragView(event.button, control, new Point(event.x, event.y))) {
+    Point clickScreen = new Point(event.x, event.y);
+    if (setupDragViewPort(clickScreen)) {
+      return;
+    }
+
+    if (setupDragView(event.button, control, clickScreen)) {
       return;
     }
 

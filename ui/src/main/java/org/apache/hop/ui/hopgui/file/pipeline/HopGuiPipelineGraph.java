@@ -2405,6 +2405,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Change the cursor when the mouse is on the resize edge of a note
       if (resizeOver != null) {
         setCursor(getDisplay().getSystemCursor(resizeOver.getCursor()));
+      } else if (isOverNavigationView(new Point(event.x, event.y))) {
+        setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
       }
       // Change cursor when the mouse is on a hop, note link, or an area that support hovering
       else if (mouseOverNoteLink != null

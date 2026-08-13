@@ -333,44 +333,54 @@ public abstract class DragViewZoomBase extends Composite {
   }
 
   /**
-   * See if this is a click on the navigation view inner rectangle with the goal of dragging it
-   * around a bit.
+   * See if this is a click on the navigation minimap. A click on the blue visible-area overlay
+   * starts a drag. A click on the rest of the minimap first jumps the view so the overlay is
+   * centered on the click, then starts a drag.
    */
   protected boolean setupDragViewPort(Point screenClick) {
-    if (viewPort != null && viewPort.contains(screenClick)) {
-      viewPortNavigation = true;
-      viewPortStart = new Point(screenClick);
-      viewDragBaseOffset = new DPoint(offset);
-      // Change cursor when dragging view port
-      setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
-      return true;
+    if (!ViewPortNavigator.hitMinimap(graphPort, viewPort, screenClick)) {
+      return false;
     }
-    return false;
+    if (viewPort != null && !viewPort.contains(screenClick)) {
+      Point viewCenter = ViewPortNavigator.viewPortCenter(viewPort);
+      if (viewCenter != null) {
+        offset = computeViewPortDragOffset(new DPoint(offset), viewCenter, screenClick);
+        validateOffset();
+        redraw();
+      }
+    }
+    viewPortNavigation = true;
+    viewPortStart = new Point(screenClick);
+    viewDragBaseOffset = new DPoint(offset);
+    setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
+    return true;
   }
 
   protected void dragViewPort(Point clickLocation) {
-    double deltaX = clickLocation.x - viewPortStart.x;
-    double deltaY = clickLocation.y - viewPortStart.y;
+    if (viewPortStart == null || viewDragBaseOffset == null) {
+      return;
+    }
+    offset = computeViewPortDragOffset(viewDragBaseOffset, viewPortStart, clickLocation);
+    validateOffset();
+    redraw();
+  }
 
-    // Convert pixel delta (in minimap/canvas space) to graph coordinates using the same
-    // scale as the minimap: overlay size in pixels = visible size in graph * scale.
-    //
-    double mag = Math.max(0.01, magnification);
+  /**
+   * Convert a pixel drag of the visible-area overlay into a graph offset. Uses the same
+   * magnification as drawing so the overlay tracks the pointer 1:1.
+   */
+  private DPoint computeViewPortDragOffset(DPoint baseOffset, Point start, Point current) {
+    double mag = Math.max(0.01, calculateCorrectedMagnification());
     Point area = getArea();
     double visibleWidthGraph = area.x / mag;
     double visibleHeightGraph = area.y / mag;
-    if (viewPort.width <= 0 || viewPort.height <= 0) {
-      return;
-    }
-    double scaleX = (double) viewPort.width / visibleWidthGraph;
-    double scaleY = (double) viewPort.height / visibleHeightGraph;
-    double deltaGraphX = deltaX / scaleX;
-    double deltaGraphY = deltaY / scaleY;
+    return ViewPortNavigator.dragOffset(
+        baseOffset, viewPort, start, current, visibleWidthGraph, visibleHeightGraph);
+  }
 
-    offset = new DPoint(viewDragBaseOffset.x - deltaGraphX, viewDragBaseOffset.y - deltaGraphY);
-
-    validateOffset();
-    redraw();
+  /** True when the pointer is over the navigation minimap (frame or visible-area overlay). */
+  protected boolean isOverNavigationView(Point screenClick) {
+    return ViewPortNavigator.hitMinimap(graphPort, viewPort, screenClick);
   }
 
   public void validateOffset() {
