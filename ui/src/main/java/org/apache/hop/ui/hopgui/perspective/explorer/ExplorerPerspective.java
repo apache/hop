@@ -171,7 +171,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.swt.widgets.Widget;
 
 @HopPerspectivePlugin(
     id = "100-HopExplorerPerspective",
@@ -964,7 +963,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           @Override
           public void dragOver(final DropTargetEvent event) {
+            // No tree item under the cursor (empty area / between items). Reject so RAP/Hop Web
+            // does not attempt an invalid drop that can NPE and kill the session (#7933).
             if (event.item == null) {
+              event.detail = DND.DROP_NONE;
+              event.feedback = DND.FEEDBACK_NONE;
               return;
             }
 
@@ -981,10 +984,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                   // For internal drag check hierarchies
                   if (dragFile != null) {
                     FileObject sourceFile = HopVfs.getFileObject(dragFile);
+                    FileObject sourceParent = sourceFile.getParent();
 
-                    // Avoid copy or move to itself, it's parent or for folder it's descendant
+                    // Avoid copy or move to itself, its parent or for folder its descendant
                     if (sourceFile.equals(targetFile)
-                        || sourceFile.getParent().equals(targetFile)
+                        || (sourceParent != null && sourceParent.equals(targetFile))
                         || sourceFile.getName().isDescendent(targetFile.getName())) {
                       event.detail = DND.DROP_NONE;
                     }
@@ -996,52 +1000,77 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                 event.detail = DND.DROP_NONE;
                 event.feedback = DND.FEEDBACK_NONE;
               }
+            } else {
+              event.detail = DND.DROP_NONE;
+              event.feedback = DND.FEEDBACK_NONE;
             }
           }
 
           @Override
           public void drop(final DropTargetEvent event) {
-            if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
-              Widget item = event.item;
-              if (item.getData() instanceof TreeItemFolder targetItem) {
-                List<String> errors = new ArrayList<>();
-
-                for (String path : (String[]) event.data) {
-                  try {
-                    FileObject sourceFile = HopVfs.getFileObject(path);
-                    FileObject targetFile =
-                        HopVfs.getFileObject(
-                            targetItem.path
-                                + Const.FILE_SEPARATOR
-                                + sourceFile.getName().getBaseName());
-
-                    if (event.detail == DND.DROP_COPY) {
-                      // Copy file and folder and all its descendants
-                      // No need to update tab item handler because all files are new
-                      targetFile.copyFrom(sourceFile, Selectors.SELECT_ALL);
-                    } else if (event.detail == DND.DROP_MOVE) {
-                      // Move file or folder and all its descendants and update tab item handlers
-                      moveFile(sourceFile, targetFile);
-                    }
-                  } catch (Exception e) {
-                    errors.add(path);
-                  }
-                }
-
-                // Report errors
-                if (!errors.isEmpty()) {
-
-                  String paths = String.join("\n", errors);
-
-                  MessageBox messageBox =
-                      new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
-                  messageBox.setText("Drag and drop");
-                  messageBox.setMessage("Unable to copy/move file(s):\n\n" + paths);
-                  messageBox.open();
-                }
-
-                refresh();
+            // Guard every precondition: uncaught exceptions in RAP DND listeners can tear down
+            // the Hop Web UI session (see #7933).
+            try {
+              if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)
+                  || event.item == null
+                  || event.data == null
+                  || !(event.data instanceof String[] paths)) {
+                event.detail = DND.DROP_NONE;
+                return;
               }
+
+              Object itemData = event.item.getData();
+              if (!(itemData instanceof TreeItemFolder targetItem) || !targetItem.folder) {
+                event.detail = DND.DROP_NONE;
+                return;
+              }
+
+              List<String> errors = new ArrayList<>();
+
+              for (String path : paths) {
+                if (Utils.isEmpty(path)) {
+                  continue;
+                }
+                try {
+                  FileObject sourceFile = HopVfs.getFileObject(path);
+                  FileObject targetFile =
+                      HopVfs.getFileObject(
+                          targetItem.path
+                              + Const.FILE_SEPARATOR
+                              + sourceFile.getName().getBaseName());
+
+                  if (event.detail == DND.DROP_COPY) {
+                    // Copy file and folder and all its descendants
+                    // No need to update tab item handler because all files are new
+                    targetFile.copyFrom(sourceFile, Selectors.SELECT_ALL);
+                  } else if (event.detail == DND.DROP_MOVE) {
+                    // Move file or folder and all its descendants and update tab item handlers
+                    moveFile(sourceFile, targetFile);
+                  }
+                } catch (Exception e) {
+                  errors.add(path);
+                }
+              }
+
+              // Report errors
+              if (!errors.isEmpty()) {
+                String errorPaths = String.join("\n", errors);
+
+                MessageBox messageBox =
+                    new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
+                messageBox.setText("Drag and drop");
+                messageBox.setMessage("Unable to copy/move file(s):\n\n" + errorPaths);
+                messageBox.open();
+              }
+
+              refresh();
+            } catch (Exception e) {
+              event.detail = DND.DROP_NONE;
+              new ErrorDialog(
+                  HopGui.getInstance().getShell(),
+                  "Drag and drop",
+                  "Unexpected error during file drag and drop",
+                  e);
             }
           }
         });
