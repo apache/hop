@@ -20,6 +20,7 @@ package org.apache.hop.git.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -735,6 +736,32 @@ public class UIGitTest extends RepositoryTestCase {
         .filter(file -> file.getName().equals(name))
         .findFirst()
         .orElseThrow(() -> new AssertionError("File '" + name + "' not found"));
+  }
+
+  @Test
+  public void testCreateBranchFromTag() throws Exception {
+    RevCommit tagged = initialCommit();
+
+    uiGit.createTag("lightweight");
+    Ref annotatedTag = git.tag().setName("annotated").setMessage("Annotated tag").call();
+
+    // Move the current branch forward, a branch created from a tag has to start at the tagged
+    // commit and not at HEAD
+    writeTrashFile("Test2.txt", "Hello world");
+    uiGit.add("Test2.txt");
+    RevCommit head = git.commit().setMessage("second commit").call();
+    assertNotEquals(tagged.getId(), head.getId());
+
+    assertTrue(
+        uiGit.createBranch("from-lightweight", uiGit.getExpandedName("lightweight", VCS.TYPE_TAG)));
+    assertEquals("from-lightweight", uiGit.getBranch());
+    assertEquals(tagged.getId(), db.resolve(Constants.HEAD));
+
+    // An annotated tag points at a tag object, it has to be peeled to the commit
+    uiGit.checkout(Constants.MASTER);
+    assertTrue(uiGit.createBranch("from-annotated", annotatedTag.getName()));
+    assertEquals("from-annotated", uiGit.getBranch());
+    assertEquals(tagged.getId(), db.resolve(Constants.HEAD));
   }
 
   @Test

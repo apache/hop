@@ -1118,10 +1118,16 @@ public class UIGit extends VCS {
     }
   }
 
-  public boolean createBranch(String name, String commitId) {
+  /**
+   * Create a branch that starts at the given start point and check it out.
+   *
+   * @param name the name of the new branch
+   * @param startPoint a commit id or the name of a branch, remote branch or tag to start from.
+   *     Annotated tags are peeled to the commit they point at.
+   */
+  public boolean createBranch(String name, String startPoint) {
     try {
-      RevCommit commit = resolve(commitId);
-      git.branchCreate().setName(name).setStartPoint(commit).call();
+      git.branchCreate().setName(name).setStartPoint(startPoint).call();
       checkoutBranch(getExpandedName(name, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
