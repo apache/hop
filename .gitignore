@@ -46,6 +46,7 @@ docs/.pnp.js
 tmp/images
 
 integration-tests/mail/output/
+integration-tests/ftp/output/
 # Generated spreadsheet writer outputs (under files/ historically; now also under output/)
 integration-tests/spreadsheet/files/exel-part-001.xlsx
 integration-tests/spreadsheet/files/exel-part-002.xlsx

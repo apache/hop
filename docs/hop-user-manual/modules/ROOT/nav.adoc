@@ -470,6 +470,7 @@ under the License.
 *** xref:metadata-types/elastic-location-type.adoc[Elastic location]
 *** xref:metadata-types/opensearch-location-type.adoc[OpenSearch location]
 *** xref:metadata-types/neo4j/neo4j-location-type.adoc[Neo4j location]
+** xref:metadata-types/ftp-connection.adoc[FTP Connection]
 ** xref:metadata-types/google-storage-authentication.adoc[Google Storage Connection]
 ** xref:metadata-types/hop-server.adoc[Hop Server]
 ** xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]

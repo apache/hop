@@ -288,7 +288,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
           file = HopVfs.getFileObject(targetfilename, variables);
 
           // Move file
-          data.sourceFile.moveTo(file);
+          HopVfs.moveFile(data.sourceFile, file);
 
         } finally {
           if (file != null) {

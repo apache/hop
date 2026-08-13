@@ -683,7 +683,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             realMoveToDirectory + Const.FILE_SEPARATOR + fileObjectd.getName().getBaseName(),
             getVariables())) {
 
-      fileObjectd.moveTo(fileObjectm);
+      HopVfs.moveFile(fileObjectd, fileObjectm);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(PKG, "ActionZipFile.Cant_Move_File1.Label")
