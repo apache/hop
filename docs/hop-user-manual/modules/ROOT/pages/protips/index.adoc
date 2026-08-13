@@ -41,6 +41,11 @@ include::../snippets/variables/hop-windows-shell-encoding.adoc[]
 CTRL-K::
 In any table view in a Hop dialog, select one or more lines and use `CTRL-K` to remove all lines but your selection
 
+Table views::
+On a wide preview (or any other table grid), use the view icon on the table toolbar to define a named subset and order of columns.
+Views are stored per project and matched by column name, so you can reuse them the next time you inspect similar data.
+See xref:pipeline/run-preview-debug-pipeline.adoc#table-views[Table views].
+
 CTRL-SHIFT-Click::
 Hover your mouse pointer over any pipeline action in a workflow, pipeline or workflow executor transform etc and use `CTRL-SHIFT-Click` to open that item in a new tab.
 The same behavior can be triggered by hovering over an item and hitting the `Z` key.
