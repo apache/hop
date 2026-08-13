@@ -59,11 +59,12 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
       Set.of("CTRL+C", "CTRL+V", "CTRL+X");
 
   /**
-   * Bare navigation keys used for caret movement and selection in text fields (and tree widgets).
-   * They may stay in {@code ACTIVE_KEYS} so canvas pan shortcuts still reach the server when focus
-   * is on the graph, but must not be in {@code CANCEL_KEYS} or the browser never moves the caret
-   * (see issue #7833). Modifier combinations (CTRL+ARROW_*, ALT+ARROW_*, …) are separate RAP keys
-   * and remain cancelled when registered as application shortcuts.
+   * Navigation keys used for caret movement and selection in text fields (and tree widgets), both
+   * bare and with SHIFT held down to extend the selection. They may stay in {@code ACTIVE_KEYS} so
+   * the canvas navigation shortcuts still reach the server when focus is on the graph, but must not
+   * be in {@code CANCEL_KEYS} or the browser never moves the caret (see issue #7833). Modifier
+   * combinations with CTRL or ALT are separate RAP keys and remain cancelled when registered as
+   * application shortcuts.
    */
   private static final Set<String> NATIVE_TEXT_NAVIGATION_KEYS =
       Set.of(
@@ -74,7 +75,15 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
           "HOME",
           "END",
           "PAGE_UP",
-          "PAGE_DOWN");
+          "PAGE_DOWN",
+          "SHIFT+ARROW_UP",
+          "SHIFT+ARROW_DOWN",
+          "SHIFT+ARROW_LEFT",
+          "SHIFT+ARROW_RIGHT",
+          "SHIFT+HOME",
+          "SHIFT+END",
+          "SHIFT+PAGE_UP",
+          "SHIFT+PAGE_DOWN");
 
   /** Audit group/type/name for Hop Web theme preference (per-user in audit folder). */
   public static final String AUDIT_GROUP_HOP_WEB = "hop-web";

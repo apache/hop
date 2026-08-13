@@ -2477,6 +2477,55 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
+  /** Move the selected transforms and notes with the arrow keys, as a single undo action. */
+  @Override
+  protected boolean nudgeSelectedElements(int dx, int dy) {
+    List<TransformMeta> transforms = pipelineMeta.getSelectedTransforms();
+    List<NotePadMeta> notes = pipelineMeta.getSelectedNotes();
+    if (Utils.isEmpty(transforms) && Utils.isEmpty(notes)) {
+      return false;
+    }
+
+    Point[] transformsBefore = captureLocations(transforms);
+    Point[] notesBefore = captureNoteLocations(notes);
+
+    moveSelected(dx, dy);
+
+    Point[] transformsAfter = captureLocations(transforms);
+    Point[] notesAfter = captureNoteLocations(notes);
+    if (Arrays.equals(transformsBefore, transformsAfter)
+        && Arrays.equals(notesBefore, notesAfter)) {
+      // Nothing moved: the selection is up against the top or left side of the canvas.
+      return true;
+    }
+
+    // Record notes first, then transforms, linked into a single undo action (nextAlso).
+    boolean also = false;
+    if (!Utils.isEmpty(notes)) {
+      also = !Utils.isEmpty(transforms);
+      hopGui.undoDelegate.addUndoPosition(
+          pipelineMeta,
+          notes.toArray(new NotePadMeta[0]),
+          pipelineMeta.getNoteIndexes(notes),
+          notesBefore,
+          notesAfter,
+          also);
+    }
+    if (!Utils.isEmpty(transforms)) {
+      hopGui.undoDelegate.addUndoPosition(
+          pipelineMeta,
+          transforms.toArray(new TransformMeta[0]),
+          pipelineMeta.getTransformIndexes(transforms),
+          transformsBefore,
+          transformsAfter,
+          also);
+    }
+
+    pipelineMeta.setChanged();
+    updateGui();
+    return true;
+  }
+
   private void addCandidateAsHop(int mouseX, int mouseY) {
 
     if (candidate == null) {
