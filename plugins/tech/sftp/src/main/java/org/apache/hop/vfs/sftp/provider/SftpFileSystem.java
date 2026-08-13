@@ -216,8 +216,15 @@ public class SftpFileSystem extends AbstractFileSystem {
         channel.connect(DurationUtils.toMillisInt(connectTimeout));
         final Boolean userDirIsRoot =
             SftpFileSystemConfigBuilder.getInstance().getUserDirIsRoot(getFileSystemOptions());
+        // A file system rooted at a second slash sends every path absolute, so the working
+        // directory plays no part - and a "cd /" is a USS path a z/OS server need not have at all.
+        final boolean rootedAtSecondSlash =
+            getRootName() instanceof IRootPrefixFileName prefixed
+                && !prefixed.getRootPrefix().isEmpty();
         final String workingDirectory = getRootName().getPath();
-        if (workingDirectory != null && (userDirIsRoot == null || !userDirIsRoot.booleanValue())) {
+        if (workingDirectory != null
+            && !rootedAtSecondSlash
+            && (userDirIsRoot == null || !userDirIsRoot.booleanValue())) {
           try {
             channel.cd(workingDirectory);
           } catch (final SftpException e) {

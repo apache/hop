@@ -20,6 +20,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.GenericFileName;
 import org.apache.hop.vfs.sftp.metadata.SftpConnection;
+import org.apache.hop.vfs.sftp.provider.IRootPrefixFileName;
 
 /**
  * The name of a file behind a named SFTP connection.
@@ -30,7 +31,9 @@ import org.apache.hop.vfs.sftp.metadata.SftpConnection;
  * point at today. That also means a URI taken from a file object can be handed straight back to
  * VFS.
  */
-public class SftpConnectionFileName extends GenericFileName {
+public class SftpConnectionFileName extends GenericFileName implements IRootPrefixFileName {
+
+  private final String rootPrefix;
 
   protected SftpConnectionFileName(
       String scheme,
@@ -39,7 +42,8 @@ public class SftpConnectionFileName extends GenericFileName {
       String userName,
       String password,
       String path,
-      FileType type) {
+      FileType type,
+      String rootPrefix) {
     super(
         scheme,
         hostName,
@@ -49,17 +53,34 @@ public class SftpConnectionFileName extends GenericFileName {
         password,
         path,
         type == null ? FileType.IMAGINARY : type);
+    this.rootPrefix = rootPrefix == null ? "" : rootPrefix;
   }
 
-  /** {@code <connection name>://}, without server or credentials. */
+  @Override
+  public String getRootPrefix() {
+    return rootPrefix;
+  }
+
+  /**
+   * {@code <connection name>://}, without server or credentials, plus the second slash of a path
+   * rooted at one - so {@code prod:////A.B.C} reads back as it was typed.
+   */
   @Override
   protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
-    buffer.append(getScheme()).append("://");
+    buffer.append(getScheme()).append("://").append(rootPrefix);
   }
 
+  /** Children and parents keep the root they were reached through. */
   @Override
   public FileName createName(String absPath, FileType type) {
     return new SftpConnectionFileName(
-        getScheme(), getHostName(), getPort(), getUserName(), getPassword(), absPath, type);
+        getScheme(),
+        getHostName(),
+        getPort(),
+        getUserName(),
+        getPassword(),
+        absPath,
+        type,
+        rootPrefix);
   }
 }

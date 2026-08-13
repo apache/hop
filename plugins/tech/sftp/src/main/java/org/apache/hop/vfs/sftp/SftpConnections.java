@@ -61,7 +61,7 @@ public final class SftpConnections {
 
   /**
    * Build the URI of a file behind a named connection. Both the folder and the file name are
-   * optional.
+   * optional. A path rooted at a second slash, such as the z/OS data set {@code //A.B.C}, keeps it.
    */
   public static String buildUri(SftpConnection connection, String folder, String filename) {
     StringBuilder uri = new StringBuilder(getBaseUri(connection));
@@ -72,10 +72,16 @@ public final class SftpConnections {
       }
       path += filename.replace('\\', '/').trim();
     }
-    while (path.startsWith("/")) {
-      path = path.substring(1);
+    // One leading slash or three and more mean the same, but exactly two is a path of its own,
+    // which the parser reads from prod:////A.B.C.
+    int slashes = 0;
+    while (slashes < path.length() && path.charAt(slashes) == '/') {
+      slashes++;
     }
-    return uri.append(path).toString();
+    if (slashes == 2) {
+      uri.append("//");
+    }
+    return uri.append(path.substring(slashes)).toString();
   }
 
   /**
