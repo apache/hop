@@ -96,6 +96,7 @@
         <module>janino</module>
         <module>javascript</module>
         <module>jdbc-metadata</module>
+        <module>jms</module>
         <module>joinrows</module>
         <module>json</module>
         <module>kafka</module>
