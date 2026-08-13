@@ -38,6 +38,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.security.ISecurityConfigSection;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -51,6 +52,9 @@ import org.eclipse.swt.widgets.Label;
 
 /**
  * Configuration Perspective tab for Hop Web security.
+ *
+ * <p>Shown only in Hop Web for sessions with {@link Permission#SECURITY_MANAGE} (administrators, or
+ * unrestricted when authentication is off). Hidden in the desktop client.
  *
  * <p>Hosts a nested tab folder with built-in sections (General, OAuth, External, Basic) and any
  * plugin-contributed tabs registered under {@link #SECURITY_CONFIG_TABS}.
@@ -92,6 +96,15 @@ public class ConfigSecurityTab {
       parentId = ConfigurationPerspective.CONFIG_PERSPECTIVE_TABS,
       description = "Security mode, roles and users")
   public void addSecurityTab(CTabFolder wTabFolder) {
+    // Desktop Hop GUI: hide entirely. Hop Web only, and only for administrators.
+    if (!EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    canManage = HopSecurity.allows(Permission.SECURITY_MANAGE);
+    if (!canManage) {
+      return;
+    }
+
     int margin = PropsUi.getMargin();
 
     CTabItem wTab = new CTabItem(wTabFolder, SWT.NONE);
@@ -106,8 +119,6 @@ public class ConfigSecurityTab {
     layout.marginHeight = PropsUi.getFormMargin();
     outer.setLayout(layout);
 
-    canManage = HopSecurity.allows(Permission.SECURITY_MANAGE);
-
     wlStatus = new Label(outer, SWT.LEFT | SWT.WRAP);
     PropsUi.setLook(wlStatus);
     FormData fdStatus = new FormData();
@@ -116,19 +127,6 @@ public class ConfigSecurityTab {
     fdStatus.right = new FormAttachment(100, 0);
     wlStatus.setLayoutData(fdStatus);
     updateStatusLabel();
-
-    if (!canManage) {
-      Label wlDenied = new Label(outer, SWT.LEFT | SWT.WRAP);
-      PropsUi.setLook(wlDenied);
-      wlDenied.setText(BaseMessages.getString(PKG, "ConfigSecurityTab.NoPermission.Message"));
-      FormData fdDenied = new FormData();
-      fdDenied.left = new FormAttachment(0, 0);
-      fdDenied.top = new FormAttachment(wlStatus, margin * 2);
-      fdDenied.right = new FormAttachment(100, 0);
-      wlDenied.setLayoutData(fdDenied);
-      wTab.setControl(outer);
-      return;
-    }
 
     wbSave = new Button(outer, SWT.PUSH);
     wbSave.setText(BaseMessages.getString(PKG, "ConfigSecurityTab.Button.Save"));

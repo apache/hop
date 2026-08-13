@@ -332,7 +332,8 @@ Or from a local source build:
 
 ==== Configuration Perspective → Security
 
-Administrators (role with `security.manage`, or an unrestricted session before auth is enabled) can open *Configuration* → *Security*.
+The *Security* tab appears only in **Hop Web**, and only for administrators (role with `security.manage`, or an unrestricted session when authentication mode is `NONE`).
+It is not shown in the desktop Hop GUI.
 The page is split into tabs:
 
 * *General* — authentication mode (`NONE` / `EXTERNAL` / `BASIC` / `OAUTH2`) and login welcome message
