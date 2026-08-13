@@ -46,6 +46,9 @@ public class AzureMetadataType extends HopMetadataBase implements Serializable, 
   @HopMetadataProperty(password = true)
   private String storageAccountKey;
 
+  @HopMetadataProperty(password = true)
+  private String sasToken;
+
   @HopMetadataProperty private String storageAccountEndpoint;
 
   /** Cache TTL in seconds for list-result caching (same as S3/MinIO). */
@@ -54,5 +57,23 @@ public class AzureMetadataType extends HopMetadataBase implements Serializable, 
   public AzureMetadataType() {
     this.authenticationType = "Key"; // Default to Key authentication
     this.cacheTtlSeconds = "5";
+  }
+
+  /**
+   * Gets the shared access signature token, used when the authentication type is "SAS Token".
+   *
+   * @return the SAS token
+   */
+  public String getSasToken() {
+    return sasToken;
+  }
+
+  /**
+   * Sets the shared access signature token.
+   *
+   * @param sasToken the SAS token to set
+   */
+  public void setSasToken(String sasToken) {
+    this.sasToken = sasToken;
   }
 }
