@@ -244,7 +244,12 @@ public class HopEnvironmentDialog extends Dialog {
     // Bottom buttons
     Button wApply = new Button(parent, SWT.PUSH);
     wApply.setText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Button.Apply"));
-    wApply.setToolTipText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Button.Apply.Tooltip"));
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    wApply.setEnabled(canManage);
+    wApply.setToolTipText(
+        canManage
+            ? BaseMessages.getString(PKG, "HopEnvironmentDialog.Button.Apply.Tooltip")
+            : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin"));
     wApply.addListener(SWT.Selection, e -> apply());
 
     Button wValidate = new Button(parent, SWT.PUSH);
@@ -269,6 +274,7 @@ public class HopEnvironmentDialog extends Dialog {
     PropsUi.setLook(wPrune);
     wPrune.setText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Prune"));
     wPrune.setToolTipText(BaseMessages.getString(PKG, "HopEnvironmentDialog.Prune.Tooltip"));
+    wPrune.setEnabled(canManage);
     FormData fdPrune = new FormData();
     fdPrune.left = new FormAttachment(0, 0);
     fdPrune.bottom = new FormAttachment(wValidate, -PropsUi.getMargin());
@@ -1034,6 +1040,9 @@ public class HopEnvironmentDialog extends Dialog {
   }
 
   private void apply() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
     if (ensureSavedForAction()) {
       return;
     }

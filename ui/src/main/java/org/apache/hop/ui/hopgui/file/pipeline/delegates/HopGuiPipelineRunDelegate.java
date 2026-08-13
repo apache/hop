@@ -28,6 +28,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -39,6 +40,7 @@ import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.EngineCompatibilityRunGate;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.PaletteEngineFilter;
@@ -87,6 +89,9 @@ public class HopGuiPipelineRunDelegate {
       throws HopException {
 
     if (pipelineMeta == null) {
+      return null;
+    }
+    if (!HopSecurityUi.check(Permission.RUN_EXECUTE)) {
       return null;
     }
 

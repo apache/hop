@@ -31,6 +31,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -78,6 +79,8 @@ public class HelpUtils {
     fdButton.left = new FormAttachment(0, 0);
     fdButton.bottom = new FormAttachment(100, 0);
     button.setLayoutData(fdButton);
+    // Always available in read-only dialogs
+    BaseDialog.keepEnabledInReadOnly(button);
     return button;
   }
 

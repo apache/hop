@@ -149,6 +149,7 @@ Use this tab to work with the local optional-plugin catalog:
 ** *Not installed* — not found under `plugins/`
 * *Install* / *Uninstall* / *Refresh* — act on the selected plugins (uninstall requires a marketplace receipt)
 * Several plugins can be selected at once with ctrl-click, shift-click, or ctrl-A, and installed or uninstalled in one go. Installs run one after another behind a single progress dialog; a plugin that fails does not stop the others and every failure is reported together at the end.
+* On *Hop Web* with authentication enabled, *Install*, *Uninstall*, repository editing, and hop-env *Apply* require the administrator permission `plugin.manage` (built-in *Admin* role). Catalog browse, *Refresh*, and *Validate* remain available to other roles. See the Hop Web authorization section for details.
 
 Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
 

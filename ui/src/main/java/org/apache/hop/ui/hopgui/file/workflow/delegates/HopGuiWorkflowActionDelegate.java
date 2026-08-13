@@ -26,11 +26,14 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.workflow.actions.missing.MissingActionDialog;
@@ -99,7 +102,7 @@ public class HopGuiWorkflowActionDelegate {
 
         if (openIt) {
           IActionDialog d = getActionDialog(action, workflowMeta);
-          if (d != null && d.open() != null) {
+          if (d != null && BaseDialog.withDialogSubject(action, d::open) != null) {
             ActionMeta actionMeta = new ActionMeta();
             actionMeta.setAction(action);
             if (location == null) {
@@ -295,7 +298,8 @@ public class HopGuiWorkflowActionDelegate {
       dialog = getActionDialog(jei, workflowMeta);
       if (dialog != null) {
         dialogs.put(action.getName(), dialog);
-        if (dialog.open() != null) {
+        // Subject stack covers legacy action dialogs that never set BaseDialog.DIALOG_SUBJECT
+        if (BaseDialog.withDialogSubject(jei, dialog::open) != null) {
           // First see if the name changed.
           // If so, we need to verify that the name is not already used in the workflow.
           //
@@ -328,6 +332,9 @@ public class HopGuiWorkflowActionDelegate {
   }
 
   public void deleteActions(WorkflowMeta workflow, List<ActionMeta> actions) {
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
+    }
 
     // Hops belonging to the deleting actions are placed in a single transaction and removed.
     List<WorkflowHopMeta> workflowHops = new ArrayList<>();

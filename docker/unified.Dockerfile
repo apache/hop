@@ -375,7 +375,7 @@ ARG HOP_GID=501
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
 ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
@@ -411,7 +411,8 @@ RUN groupadd -r hop -g ${HOP_GID} \
     && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
     && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \
-    && mkdir "${HOP_AUDIT_FOLDER}" \
+    && mkdir -p "${HOP_AUDIT_FOLDER}" \
+    && chown hop:hop "${HOP_AUDIT_FOLDER}" \
     && chown -R hop:hop /usr/local/tomcat
 
 # Copy resources (matching original Dockerfile.web layer structure)
@@ -431,7 +432,7 @@ FROM tomcat:10-jdk21 AS rest
 ENV HOP_CONFIG_FOLDER=""
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
 ENV HOP_OPTIONS="-Xmx4g"

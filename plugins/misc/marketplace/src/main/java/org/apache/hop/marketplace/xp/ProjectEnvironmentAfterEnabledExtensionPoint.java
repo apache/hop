@@ -29,6 +29,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.env.EnvironmentApplier;
@@ -183,6 +185,21 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
             + "' to fix your environment.";
 
     if (MarketplaceAttributes.isAutoApply(context) && config.isEnabled()) {
+      if (!HopSecurity.allows(Permission.PLUGIN_MANAGE)) {
+        String denied =
+            "Marketplace auto-apply skipped: session lacks plugin.manage (administrator). "
+                + report
+                + "\nSign in as an administrator or run 'hop marketplace apply -f "
+                + envFile
+                + "' on the server.";
+        if (log != null) {
+          log.logBasic(denied);
+        }
+        if (isGuiRuntime()) {
+          warnGui("Marketplace auto-apply not permitted", denied);
+        }
+        return;
+      }
       if (log != null) {
         log.logBasic("Auto-applying marketplace environment file " + envFile);
       }

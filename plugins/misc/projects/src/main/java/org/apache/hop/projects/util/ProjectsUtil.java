@@ -145,11 +145,20 @@ public class ProjectsUtil {
 
     // Save some history concerning the usage of the project
     // but only in case Hop was started by HopGui because that is the only case
-    // where this info is valuable.
+    // where this info is valuable. Audit I/O must not block enabling a project (e.g. Docker audit
+    // folder permission issues).
     //
     if (Const.getHopPlatformRuntime() != null && Const.getHopPlatformRuntime().equals("GUI")) {
-      AuditManager.registerEvent(
-          HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
+      try {
+        AuditManager.registerEvent(
+            HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
+      } catch (Exception e) {
+        log.logError(
+            "Unable to register project open audit event for '"
+                + projectName
+                + "' (continuing enable): "
+                + e.getMessage());
+      }
     }
 
     // Signal others that we have a new active project
