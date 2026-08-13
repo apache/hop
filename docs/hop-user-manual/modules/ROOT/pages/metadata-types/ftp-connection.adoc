@@ -1,0 +1,183 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Register a named FTP or FTPS server for use in Hop VFS paths and in the FTP actions.
+
+= FTP Connection
+
+== Description
+
+This metadata type registers a **named** FTP or FTPS server in your project.
+Hop exposes each connection under the **connection name** as a VFS scheme, so you reference files with:
+
+`+myConnectionName:///path/on/the/server+`
+
+That works in every transform, action and file dialog which accepts a file name: Text file input and output, Get file names, Copy files, and so on.
+The xref:workflow/actions/ftp.adoc[Get a file with FTP], xref:workflow/actions/ftpput.adoc[Put a file with FTP] and xref:workflow/actions/ftpdelete.adoc[FTP delete] actions can point at a connection by name instead of carrying their own copy of the server settings.
+
+The server, the credentials and the session settings live in this metadata object and are applied when the connection is opened - they are **not** part of the file paths you write.
+
+One connection covers plain FTP as well as both flavours of FTPS; which one is used is the *Security* option below.
+
+NOTE: Every field supports variables. Passwords are stored encrypted in the metadata.
+
+TIP: Rename a connection and Hop offers to update the pipelines and workflows referring to it.
+
+== Options
+
+=== Server
+
+[options="header"]
+|===
+|Option |Description
+|Connection name| Name of this connection. It doubles as the URI scheme in paths (`+name:///...+`), so it can only hold the characters a URI scheme allows: start with a letter, followed by letters, digits, `+`, `-` or `.`
+|Description| Optional longer description
+|Security| `FTP (no encryption)`, `FTPS - explicit (AUTH TLS)` or `FTPS - implicit`. Explicit FTPS connects on the plain port and upgrades the connection with `AUTH TLS`; this is what most servers mean by FTPS. Implicit FTPS is TLS from the first byte and traditionally listens on port 990
+|Server name / IP address| The host running the FTP server
+|Server port| The TCP port of the server. Left empty, the default of the security mode is used: 21 for FTP and explicit FTPS, 990 for implicit FTPS
+|User name| The user to log in as
+|Password| The password to log in with
+|===
+
+=== Security
+
+Only used in the two FTPS security modes; the whole tab is disabled for plain FTP.
+
+[options="header"]
+|===
+|Option |Description
+|Verify the server certificate| Check the certificate of the server against the trust store of the JVM, and check that it was issued for the host you connect to. Turn this off to accept a self-signed certificate, at the cost of no longer detecting a man-in-the-middle
+|Data connection| Whether the file contents are encrypted as well as the commands. `Encrypted` is the default; `Not encrypted` sends the file contents in the clear. See <<Data connection encryption>> below
+|Client certificate keystore| A keystore holding the certificate Hop identifies itself with, for servers which ask for one (mutual TLS). Read through VFS, so it doesn't have to be a local file. Leave it empty when the server only wants a user name and a password
+|Keystore password| The password of the keystore, also used to unlock the key in it
+|Key alias| Which key in the keystore to use. Empty takes the first one
+|Keystore type| `PKCS12`, `JKS`, ... Empty uses the default of the JVM, which is `PKCS12`
+|===
+
+=== Advanced
+
+[options="header"]
+|===
+|Option |Description
+|Binary transfer mode| Transfer files byte for byte. Turn this off only for text files which need their line endings converted to the convention of the server
+|Active connection (instead of passive)| In an active connection the server opens the data connection back to Hop. Passive, the default, has Hop open it, which is what works through a firewall or from a container
+|Active mode port range, from / to| The range of local ports a data connection may be opened on in active mode, so a firewall only has to let that range through. Empty means any free port. Only used in active mode
+|Paths are relative to the home directory| Resolve paths against the directory the server drops you in after the login, rather than against its root
+|Verify the address of the data connection| Check that the data connection goes to the same host as the command connection. Servers behind NAT hand out an address which fails that check; turn this off for those
+|Control encoding| The character set of the command channel, and with it of the file names. Leave it empty for the commons-net default
+|Ask the server whether it speaks UTF-8| Send `FEAT` and use UTF-8 when the server says it supports it, instead of trusting the control encoding above. Off by default because servers have been known to answer that question wrongly
+|Connect timeout (ms)| How long to wait for the connection to be established. Empty means the default of the library
+|Control connection timeout (ms)| How long a read on the command connection may block
+|Data connection timeout (ms)| How long a read on the data connection may block
+|Keep alive during transfers (ms)| How often to send a `NOOP` on the command connection while a transfer is running. A long transfer leaves the command connection idle, and firewalls drop idle connections; this keeps it busy. Empty or 0 means no keep alive
+|Keep alive reply timeout (ms)| How long to wait for the answer to that keep alive
+|===
+
+=== File listing
+
+All of this is optional: left empty, the format of the listings is worked out from what the server answers to `SYST`. Fill it in only for a server which reports something the client doesn't recognise, or which writes its dates in a way it can't parse.
+
+[options="header"]
+|===
+|Option |Description
+|Listing format| The format the server lists its directories in. For example `UNIX`, `WINDOWS`, `VMS`, `OS/400` or `MVS`. Empty means auto detect
+|Server language code| The language the server writes month names in, as a two letter code such as `fr`
+|Server time zone| The time zone the server reports its file dates in, for example `UTC`. Needed when the server reports local times without saying which zone it is in
+|Date format| The date format in the listings, for example `d MMM yyyy`
+|Date format within the last year| The format the server uses for recent files, which usually carries a time instead of a year, for example `d MMM HH:mm`
+|Month names| The month names the server writes, pipe separated (`jan\|feb\|mar\|...`). Only needed for a language the client has no table for
+|Read the last modified time with MDTM| Ask the server for the modification time of each file with `MDTM`, which is accurate to the second, instead of taking the minute-accurate one from the listing. Costs an extra command per file
+|===
+
+=== Proxy
+
+Two kinds of proxy are supported, and they can be combined.
+
+[options="header"]
+|===
+|Option |Description
+|FTP proxy host| An FTP proxy to log in through. Hop connects to the proxy instead of to the server, and names the server it is really after in the user name it sends: `+user@server proxyuser+`
+|FTP proxy port| The port of the FTP proxy. Empty means the same port as the server
+|FTP proxy user name| The user to authenticate with at the proxy
+|FTP proxy password| The password to authenticate with at the proxy
+|SOCKS proxy host| A SOCKS proxy to tunnel the connection through
+|SOCKS proxy port| The port of the SOCKS proxy, usually 1080
+|SOCKS proxy user name| The user to authenticate with at the SOCKS proxy. Fill in both the user name and the password, or neither
+|SOCKS proxy password| The password to authenticate with at the SOCKS proxy
+|===
+
+WARNING: The JVM reads SOCKS credentials from process-wide system properties, which is the only place it looks for them. Hop sets them for the length of a connect and clears them again right after, but this remains a process-wide setting: don't rely on two different SOCKS identities being used at the very same moment.
+
+== Data connection encryption
+
+FTP uses two connections: a *command* connection carrying the login and the commands, and a separate *data* connection opened per transfer that carries the file contents and the directory listings.
+
+Turning on FTPS encrypts the command connection. It does not automatically encrypt the data connection - that is a separate decision, made with the `PROT` command, and this option is what Hop sends:
+
+[options="header"]
+|===
+|Option |Meaning
+|Encrypted - protect the file contents as well| The data connection is encrypted too, so your file contents are protected on the wire. This is the default and what you want in almost every case. Sent to the server as `PROT P`
+|Not encrypted - send the file contents in the clear| The data connection is plain TCP. Credentials are still protected, because those travel over the command connection, but the file contents are not. Sent to the server as `PROT C`
+|===
+
+The unencrypted option exists for two reasons: some load balancers and NAT devices need to see the data connection to rewrite it, and encrypting bulk transfers costs CPU. Pick it only when the server or the network in front of it requires it, and only for data you are willing to send in the clear.
+
+NOTE: A server can refuse the level you ask for. If a connection fails right after the login with a `PROT` error, the server does not support the setting configured here.
+
+== Test connection
+
+The *Test connection* button connects with what is on screen, logs in and asks the server for its working directory, without saving the connection first.
+
+== Using a connection
+
+=== In file paths
+
+Everywhere Hop accepts a file name:
+
+[source]
+----
+myConnectionName:///inbox/customers.csv
+----
+
+Any number of slashes after the scheme means the same thing: `+prod://tmp/x+`, `+prod:///tmp/x+` and `+prod:////tmp/x+` all point at `/tmp/x` on the server.
+
+[IMPORTANT]
+====
+*Paths are relative to the home directory* applies to the VFS scheme only.
+
+With it on, `+prod:///inbox+` means `inbox` inside the directory the server drops you in after the login. The *remote directory* of an FTP action is not resolved by Hop at all - it is sent to the server as it is - so `/inbox` there means `inbox` at the root of the server. Those are the same place only when the server locks the user into their home directory.
+
+Write the remote directory of an action without a leading slash (`inbox`, not `/inbox`) and both mean the same directory either way.
+====
+
+=== In the FTP actions
+
+The three FTP actions have a *FTP connection* field at the top of their server settings.
+Pick a connection there and the server, credentials, transfer mode, timeouts and proxy settings below it are taken from the metadata; leave it empty and the action uses its own settings, the way it always has.
+
+== Plain ftp:// and ftps:// URLs
+
+The FTP technology plugin also registers the plain `ftp://` and `ftps://` schemes, which take the server and the credentials in the URL itself:
+
+[source]
+----
+ftp://user:password@server:21/path/file.txt
+----
+
+Those work without any metadata, but they put credentials in your pipelines and workflows. A named connection is the better option wherever you can use one.

@@ -164,6 +164,15 @@ plugins:
     description: SalesForce (SFDC)
     installPath: plugins/tech/salesforce
     modulePath: plugins/tech/salesforce
+  - artifactId: hop-tech-ftp
+    name: FTP
+    category: Technology
+    description: >-
+      Named FTP and FTPS connections usable as a VFS scheme in every transform and action, the
+      ftp:// and ftps:// schemes themselves, and the FTP get/put/delete actions. Also ships with
+      hop-client.
+    installPath: plugins/tech/ftp
+    modulePath: plugins/tech/ftp
   - artifactId: hop-tech-sftp
     name: SFTP
     category: Technology
