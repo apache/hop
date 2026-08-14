@@ -81,6 +81,8 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       remoteObject.setHandler(widget.getOperationHandler());
       remoteObject.listen("contentChanged", true);
       remoteObject.listen("focusChanged", true);
+      remoteObject.listen("selectionChanged", true);
+      remoteObject.listen("findRequested", true);
       host.addListener(
           SWT.Dispose,
           event -> {
@@ -108,6 +110,24 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     RapContentEditorWidget widget = new RapContentEditorWidget(root, text, languageId);
     Control toolbar = addToolbar(root, widget);
     text.setLayoutData(FormDataBuilder.builder().top(toolbar).bottom().fullWidth().build());
+    text.addListener(
+        SWT.KeyDown,
+        event -> {
+          if ((event.stateMask & SWT.MOD1) == 0 || (event.stateMask & SWT.MOD2) != 0) {
+            return;
+          }
+          if (event.keyCode == 'f') {
+            ContentEditorActions.find(widget);
+            event.doit = false;
+          } else if (event.keyCode == 'h') {
+            if (widget.isEditable()) {
+              ContentEditorActions.findAndReplace(widget);
+            } else {
+              ContentEditorActions.find(widget);
+            }
+            event.doit = false;
+          }
+        });
     return widget;
   }
 
@@ -136,16 +156,30 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     toolbarWidgets.registerGuiPluginObject(widget);
     toolbarWidgets.createToolbarWidgets(
         toolbarContainer, IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    if (widget instanceof RapToolbarAware toolbarAware) {
+      toolbarAware.setToolbarWidgets(toolbarWidgets);
+      toolbarAware.updateToolbar();
+    }
     toolbar.pack();
     return toolbar;
   }
 
-  private static class RapMonacoEditorWidget implements IContentEditorWidget {
+  private interface RapToolbarAware {
+    void setToolbarWidgets(GuiToolbarWidgets toolbarWidgets);
+
+    void updateToolbar();
+  }
+
+  private static class RapMonacoEditorWidget implements IContentEditorWidget, RapToolbarAware {
 
     private final Composite root;
     private final RemoteObject remoteObject;
     private final Display display;
     private volatile String cachedContent = "";
+    private volatile int selectionStart;
+    private volatile int selectionEnd;
+    private volatile boolean readOnly;
+    private GuiToolbarWidgets toolbarWidgets;
     private final java.util.List<ModifyListener> modifyListeners = new CopyOnWriteArrayList<>();
     private boolean suppressModify;
     private volatile String languageId;
@@ -162,7 +196,36 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
             @Override
             public void handleNotify(String event, JsonObject properties) {
               if ("focusChanged".equals(event) && properties.get("focused") != null) {
-                setFocus(properties.get("focused").asBoolean());
+                setEditorFocused(properties.get("focused").asBoolean());
+                return;
+              }
+              if ("selectionChanged".equals(event)) {
+                if (properties.get("start") != null) {
+                  selectionStart = properties.get("start").asInt();
+                }
+                if (properties.get("end") != null) {
+                  selectionEnd = properties.get("end").asInt();
+                }
+                return;
+              }
+              if ("findRequested".equals(event)) {
+                boolean replace =
+                    properties.get("replace") != null && properties.get("replace").asBoolean();
+                Display current = host.getDisplay();
+                if (current == null || host.isDisposed()) {
+                  return;
+                }
+                current.asyncExec(
+                    () -> {
+                      if (host.isDisposed()) {
+                        return;
+                      }
+                      if (replace && isEditable()) {
+                        ContentEditorActions.findAndReplace(RapMonacoEditorWidget.this);
+                      } else {
+                        ContentEditorActions.find(RapMonacoEditorWidget.this);
+                      }
+                    });
                 return;
               }
               if (!"contentChanged".equals(event) || properties.get("content") == null) {
@@ -197,7 +260,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
           };
     }
 
-    private void setFocus(boolean focused) {
+    private void setEditorFocused(boolean focused) {
       if (display == null || display.isDisposed()) {
         return;
       }
@@ -210,7 +273,12 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     }
 
     void clearFocus() {
-      setFocus(false);
+      setEditorFocused(false);
+    }
+
+    @Override
+    public void setToolbarWidgets(GuiToolbarWidgets toolbarWidgets) {
+      this.toolbarWidgets = toolbarWidgets;
     }
 
     AbstractOperationHandler getOperationHandler() {
@@ -231,6 +299,8 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     public void setText(String content) {
       String s = content != null ? content : "";
       cachedContent = s;
+      selectionStart = 0;
+      selectionEnd = 0;
       remoteObject.set("content", s);
     }
 
@@ -257,7 +327,9 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
 
     @Override
     public void setReadOnly(boolean readOnly) {
+      this.readOnly = readOnly;
       remoteObject.set("readOnly", readOnly);
+      updateToolbar();
     }
 
     @Override
@@ -308,15 +380,88 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     public void redo() {
       // no-op for Monaco until redo remote ops exist
     }
+
+    @Override
+    public String getSelectionText() {
+      int start = clampedOffset(Math.min(selectionStart, selectionEnd));
+      int end = clampedOffset(Math.max(selectionStart, selectionEnd));
+      if (end <= start) {
+        return "";
+      }
+      return cachedContent.substring(start, end);
+    }
+
+    @Override
+    public int getSelectionCount() {
+      return Math.abs(selectionEnd - selectionStart);
+    }
+
+    @Override
+    public void setSelection(int start, int end) {
+      selectionStart = Math.max(0, start);
+      selectionEnd = Math.max(selectionStart, end);
+      JsonObject obj = new JsonObject();
+      obj.add("start", selectionStart);
+      obj.add("end", selectionEnd);
+      remoteObject.call("setSelection", obj);
+    }
+
+    @Override
+    public int getCaretPosition() {
+      return Math.max(selectionStart, selectionEnd);
+    }
+
+    @Override
+    public void setCaretPosition(int position) {
+      setSelection(position, position);
+    }
+
+    @Override
+    public void insert(String text) {
+      String insertion = text != null ? text : "";
+      int start = clampedOffset(Math.min(selectionStart, selectionEnd));
+      int end = clampedOffset(Math.max(selectionStart, selectionEnd));
+      cachedContent = cachedContent.substring(0, start) + insertion + cachedContent.substring(end);
+      int caret = start + insertion.length();
+      selectionStart = caret;
+      selectionEnd = caret;
+      JsonObject obj = new JsonObject();
+      obj.add("text", insertion);
+      obj.add("start", start);
+      obj.add("end", end);
+      remoteObject.call("insert", obj);
+    }
+
+    @Override
+    public boolean isEditable() {
+      return !readOnly;
+    }
+
+    @Override
+    public void updateToolbar() {
+      if (toolbarWidgets == null) {
+        return;
+      }
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND, true);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, isEditable());
+    }
+
+    private int clampedOffset(int offset) {
+      if (offset < 0) {
+        return 0;
+      }
+      return Math.min(offset, cachedContent.length());
+    }
   }
 
-  private static class RapContentEditorWidget implements IContentEditorWidget {
+  private static class RapContentEditorWidget implements IContentEditorWidget, RapToolbarAware {
 
     private final Composite root;
     private final Text text;
     private final java.util.List<ModifyListener> modifyListeners = new CopyOnWriteArrayList<>();
     private boolean suppressModify;
     private volatile String languageId;
+    private GuiToolbarWidgets toolbarWidgets;
 
     RapContentEditorWidget(Composite root, Text text, String languageId) {
       this.root = root;
@@ -373,6 +518,12 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     @Override
     public void setReadOnly(boolean readOnly) {
       text.setEditable(!readOnly);
+      updateToolbar();
+    }
+
+    @Override
+    public void setToolbarWidgets(GuiToolbarWidgets toolbarWidgets) {
+      this.toolbarWidgets = toolbarWidgets;
     }
 
     @Override
@@ -418,6 +569,56 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
     @Override
     public void redo() {
       // SWT Text has no standard redo API
+    }
+
+    @Override
+    public String getSelectionText() {
+      String selected = text.getSelectionText();
+      return selected != null ? selected : "";
+    }
+
+    @Override
+    public int getSelectionCount() {
+      return text.getSelectionCount();
+    }
+
+    @Override
+    public void setSelection(int start, int end) {
+      text.setSelection(start, end);
+    }
+
+    @Override
+    public int getCaretPosition() {
+      return text.getCaretPosition();
+    }
+
+    @Override
+    public void setCaretPosition(int position) {
+      text.setSelection(position);
+    }
+
+    @Override
+    public void insert(String content) {
+      text.insert(content != null ? content : "");
+    }
+
+    @Override
+    public boolean isEditable() {
+      return text.getEditable();
+    }
+
+    @Override
+    public boolean setFocus() {
+      return !text.isDisposed() && text.setFocus();
+    }
+
+    @Override
+    public void updateToolbar() {
+      if (toolbarWidgets == null) {
+        return;
+      }
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND, true);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, isEditable());
     }
   }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget.editor;
 
+import org.apache.hop.ui.core.widget.IFindReplaceTarget;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Control;
 import org.jspecify.annotations.Nullable;
@@ -28,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  * <p>Allows setting/getting text, setting the language (for syntax highlighting), and listening for
  * modifications through a single API.
  */
-public interface IContentEditorWidget {
+public interface IContentEditorWidget extends IFindReplaceTarget {
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ContentEditor-Toolbar";
 
@@ -120,4 +121,16 @@ public interface IContentEditorWidget {
 
   /** Redo the last undone edit. No-op if not supported by the implementation. */
   void redo();
+
+  @Override
+  default boolean isDisposed() {
+    Control control = getControl();
+    return control == null || control.isDisposed();
+  }
+
+  @Override
+  default boolean setFocus() {
+    Control control = getControl();
+    return control != null && !control.isDisposed() && control.setFocus();
+  }
 }

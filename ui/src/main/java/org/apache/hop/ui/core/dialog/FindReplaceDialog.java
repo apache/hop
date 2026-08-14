@@ -22,8 +22,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextComposite;
-import org.apache.hop.ui.core.widget.TextFindSupport;
+import org.apache.hop.ui.core.widget.FindReplaceOperations;
+import org.apache.hop.ui.core.widget.IFindReplaceTarget;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -36,7 +36,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Find / find-and-replace dialog for multi-line {@link TextComposite} editors (SQL, scripts, logs).
+ * Find / find-and-replace dialog for multi-line editors ({@link
+ * org.apache.hop.ui.core.widget.TextComposite} and the explorer content editor).
  */
 public class FindReplaceDialog extends Dialog {
   private static final Class<?> PKG = FindReplaceDialog.class;
@@ -45,7 +46,7 @@ public class FindReplaceDialog extends Dialog {
   private static String lastReplace = "";
   private static boolean lastCaseSensitive = false;
 
-  private final TextComposite textComposite;
+  private final IFindReplaceTarget target;
   private final boolean replaceMode;
   private final PropsUi props;
 
@@ -55,25 +56,25 @@ public class FindReplaceDialog extends Dialog {
   private Button wCaseSensitive;
   private Label wlStatus;
 
-  private FindReplaceDialog(Shell parent, TextComposite textComposite, boolean replaceMode) {
+  private FindReplaceDialog(Shell parent, IFindReplaceTarget target, boolean replaceMode) {
     super(parent, SWT.NONE);
-    this.textComposite = textComposite;
+    this.target = target;
     this.replaceMode = replaceMode;
     this.props = PropsUi.getInstance();
   }
 
   /**
-   * Open a find or find-and-replace dialog for the given text composite.
+   * Open a find or find-and-replace dialog for the given editor.
    *
    * @param parent parent shell
-   * @param textComposite target editor
+   * @param target target editor
    * @param replaceMode when true, show replace controls
    */
-  public static void open(Shell parent, TextComposite textComposite, boolean replaceMode) {
-    if (parent == null || textComposite == null || textComposite.isDisposed()) {
+  public static void open(Shell parent, IFindReplaceTarget target, boolean replaceMode) {
+    if (parent == null || target == null || target.isDisposed()) {
       return;
     }
-    new FindReplaceDialog(parent, textComposite, replaceMode).openDialog();
+    new FindReplaceDialog(parent, target, replaceMode).openDialog();
   }
 
   private void openDialog() {
@@ -169,12 +170,12 @@ public class FindReplaceDialog extends Dialog {
       wReplaceOne = new Button(shell, SWT.PUSH);
       wReplaceOne.setText(BaseMessages.getString(PKG, "FindReplaceDialog.Replace.Button"));
       wReplaceOne.addListener(SWT.Selection, e -> replaceOne());
-      wReplaceOne.setEnabled(textComposite.isEditable());
+      wReplaceOne.setEnabled(target.isEditable());
 
       wReplaceAll = new Button(shell, SWT.PUSH);
       wReplaceAll.setText(BaseMessages.getString(PKG, "FindReplaceDialog.ReplaceAll.Button"));
       wReplaceAll.addListener(SWT.Selection, e -> replaceAll());
-      wReplaceAll.setEnabled(textComposite.isEditable());
+      wReplaceAll.setEnabled(target.isEditable());
     }
 
     Button wClose = new Button(shell, SWT.PUSH);
@@ -190,7 +191,7 @@ public class FindReplaceDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons(shell, buttons, margin, wlStatus);
 
     // Defaults
-    String selection = textComposite.getSelectionText();
+    String selection = target.getSelectionText();
     if (StringUtils.isNotEmpty(selection) && !selection.contains("\n")) {
       wFind.setText(selection);
     } else if (StringUtils.isNotEmpty(lastFind)) {
@@ -209,7 +210,7 @@ public class FindReplaceDialog extends Dialog {
   }
 
   private void findNext(boolean forward) {
-    if (textComposite.isDisposed()) {
+    if (target.isDisposed()) {
       close();
       return;
     }
@@ -219,44 +220,7 @@ public class FindReplaceDialog extends Dialog {
       return;
     }
     rememberOptions();
-
-    String content = textComposite.getText();
-    boolean caseSensitive = wCaseSensitive.getSelection();
-    int caret = textComposite.getCaretPosition();
-    int selectionLen = textComposite.getSelectionCount();
-
-    int found;
-    if (forward) {
-      // Start after current selection when it matches (or after caret)
-      int from = caret;
-      if (selectionLen > 0) {
-        // Caret is typically at the end of the selection; start after it
-        from = Math.max(caret, caret); // caret already end in most cases
-        // If selection equals query, step past it
-        String selected = textComposite.getSelectionText();
-        if (matches(selected, query, caseSensitive)) {
-          from = caret; // end of selection
-        }
-      }
-      found = TextFindSupport.findNext(content, query, from, caseSensitive);
-      if (found < 0 && from > 0) {
-        // wrap
-        found = TextFindSupport.findNext(content, query, 0, caseSensitive);
-      }
-    } else {
-      int from = caret - selectionLen - 1;
-      if (from < 0) {
-        from = content.length();
-      }
-      found = TextFindSupport.findPrevious(content, query, from, caseSensitive);
-      if (found < 0) {
-        found = TextFindSupport.findPrevious(content, query, content.length(), caseSensitive);
-      }
-    }
-
-    if (found >= 0) {
-      textComposite.setSelection(found, found + query.length());
-      textComposite.setFocus();
+    if (FindReplaceOperations.find(target, query, wCaseSensitive.getSelection(), forward)) {
       setStatus("");
     } else {
       setStatus(BaseMessages.getString(PKG, "FindReplaceDialog.Status.NotFound"));
@@ -264,26 +228,7 @@ public class FindReplaceDialog extends Dialog {
   }
 
   private void replaceOne() {
-    if (textComposite.isDisposed() || !textComposite.isEditable()) {
-      return;
-    }
-    String query = wFind.getText();
-    if (StringUtils.isEmpty(query)) {
-      setStatus(BaseMessages.getString(PKG, "FindReplaceDialog.Status.EmptyFind"));
-      return;
-    }
-    rememberOptions();
-    String selected = textComposite.getSelectionText();
-    if (matches(selected, query, wCaseSensitive.getSelection())) {
-      String replacement = wReplace != null ? wReplace.getText() : "";
-      textComposite.insert(replacement);
-      textComposite.updateToolbar();
-    }
-    findNext(true);
-  }
-
-  private void replaceAll() {
-    if (textComposite.isDisposed() || !textComposite.isEditable()) {
+    if (target.isDisposed() || !target.isEditable()) {
       return;
     }
     String query = wFind.getText();
@@ -293,25 +238,30 @@ public class FindReplaceDialog extends Dialog {
     }
     rememberOptions();
     String replacement = wReplace != null ? wReplace.getText() : "";
-    TextFindSupport.ReplaceAllResult result =
-        TextFindSupport.replaceAll(
-            textComposite.getText(), query, replacement, wCaseSensitive.getSelection());
-    if (result.count() > 0) {
-      int caret = textComposite.getCaretPosition();
-      textComposite.setText(result.text());
-      textComposite.setCaretPosition(Math.min(caret, result.text().length()));
-      textComposite.updateToolbar();
+    if (FindReplaceOperations.replaceOne(
+        target, query, replacement, wCaseSensitive.getSelection())) {
+      setStatus("");
+    } else {
+      setStatus(BaseMessages.getString(PKG, "FindReplaceDialog.Status.NotFound"));
     }
-    setStatus(
-        BaseMessages.getString(
-            PKG, "FindReplaceDialog.Status.ReplaceAllCount", Integer.toString(result.count())));
   }
 
-  private static boolean matches(String value, String query, boolean caseSensitive) {
-    if (value == null || query == null) {
-      return false;
+  private void replaceAll() {
+    if (target.isDisposed() || !target.isEditable()) {
+      return;
     }
-    return caseSensitive ? value.equals(query) : value.equalsIgnoreCase(query);
+    String query = wFind.getText();
+    if (StringUtils.isEmpty(query)) {
+      setStatus(BaseMessages.getString(PKG, "FindReplaceDialog.Status.EmptyFind"));
+      return;
+    }
+    rememberOptions();
+    String replacement = wReplace != null ? wReplace.getText() : "";
+    int count =
+        FindReplaceOperations.replaceAll(target, query, replacement, wCaseSensitive.getSelection());
+    setStatus(
+        BaseMessages.getString(
+            PKG, "FindReplaceDialog.Status.ReplaceAllCount", Integer.toString(count)));
   }
 
   private void rememberOptions() {

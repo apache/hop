@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.MenuItem;
  * }</pre>
  */
 @GuiPlugin
-public abstract class TextComposite extends Composite {
+public abstract class TextComposite extends Composite implements IFindReplaceTarget {
   private static final Class<?> PKG = StyledTextComp.class;
 
   public static final String ID_TOOLBAR = "TextComposite-Toolbar";

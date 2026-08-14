@@ -20,7 +20,10 @@ package org.apache.hop.ui.hopgui;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.ui.core.dialog.FindReplaceDialog;
 import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Shared content-editor toolbar actions for Hop GUI (desktop) and Hop Web.
@@ -43,6 +46,8 @@ public class ContentEditorActions {
   public static final String ID_TOOLBAR_COPY = "ContentEditor-Toolbar-30000-copy";
   public static final String ID_TOOLBAR_PASTE = "ContentEditor-Toolbar-30010-paste";
   public static final String ID_TOOLBAR_CUT = "ContentEditor-Toolbar-30020-cut";
+  public static final String ID_TOOLBAR_FIND = "ContentEditor-Toolbar-40000-find";
+  public static final String ID_TOOLBAR_FIND_REPLACE = "ContentEditor-Toolbar-40010-find-replace";
 
   private ContentEditorActions() {}
 
@@ -116,5 +121,40 @@ public class ContentEditorActions {
       toolTip = "i18n::ContentEditorWidget.ToolBar.Paste.Tooltip")
   public static void paste(IContentEditorWidget editor) {
     editor.paste();
+  }
+
+  @GuiToolbarElement(
+      root = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = ID_TOOLBAR_FIND,
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/search.svg",
+      toolTip = "i18n::ContentEditorWidget.ToolBar.Find.Tooltip",
+      separator = true)
+  public static void find(IContentEditorWidget editor) {
+    Shell shell = shellOf(editor);
+    if (shell != null) {
+      FindReplaceDialog.open(shell, editor, false);
+    }
+  }
+
+  @GuiToolbarElement(
+      root = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = ID_TOOLBAR_FIND_REPLACE,
+      type = GuiToolbarElementType.BUTTON,
+      image = "ui/images/edit.svg",
+      toolTip = "i18n::ContentEditorWidget.ToolBar.Replace.Tooltip")
+  public static void findAndReplace(IContentEditorWidget editor) {
+    Shell shell = shellOf(editor);
+    if (shell != null) {
+      FindReplaceDialog.open(shell, editor, true);
+    }
+  }
+
+  private static Shell shellOf(IContentEditorWidget editor) {
+    if (editor == null || editor.isDisposed()) {
+      return null;
+    }
+    Control control = editor.getControl();
+    return control != null && !control.isDisposed() ? control.getShell() : null;
   }
 }
