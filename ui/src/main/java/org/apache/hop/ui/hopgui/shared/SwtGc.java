@@ -607,7 +607,17 @@ public class SwtGc implements IGc {
       }
       try (java.io.InputStream in = org.apache.hop.core.vfs.HopVfs.getInputStream(path)) {
         org.eclipse.swt.graphics.ImageData data = new org.eclipse.swt.graphics.ImageData(in);
-        Image img = new Image(gc.getDevice(), data);
+        Image img =
+            SwtUniversalImage.createDpiAwareImage(
+                gc.getDevice(),
+                zoom -> {
+                  if (zoom == 100) {
+                    return data;
+                  }
+                  int w = Math.max(1, data.width * zoom / 100);
+                  int h = Math.max(1, data.height * zoom / 100);
+                  return data.scaledTo(w, h);
+                });
         try {
           gc.drawImage(img, 0, 0, data.width, data.height, x, y, width, height);
         } finally {

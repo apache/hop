@@ -1571,36 +1571,14 @@ public class GuiResource {
 
       Image zoomedImaged = getZoomedImaged(svg, display, width, height);
       if (disabled) {
-        // First disabled the image...
-        //
-        image = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
-
-        // Now darken or lighten the image...
-        //
-        float factor;
-        if (PropsUi.getInstance().isDarkMode()) {
-          factor = 0.4f;
-        } else {
-          factor = 2.5f;
-        }
-
-        ImageData data = image.getImageData();
-        for (int x = 0; x < data.width; x++) {
-          for (int y = 0; y < data.height; y++) {
-            int pixel = data.getPixel(x, y);
-            int a = (pixel >> 24) & 0xFF;
-            int b = (pixel >> 16) & 0xFF;
-            int g = (pixel >> 8) & 0xFF;
-            int r = pixel & 0xFF;
-            a = (int) (a * factor);
-            b = (int) (b * factor);
-            g = (int) (g * factor);
-            r = (int) (r * factor);
-            data.setPixel(x, y, r + (g << 8) + (b << 16) + (a << 25));
-          }
-          image.dispose();
-          image = new Image(display, data);
-        }
+        Image gray = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
+        float factor = PropsUi.getInstance().isDarkMode() ? 0.4f : 2.5f;
+        image =
+            SwtUniversalImage.createDpiAwareImage(
+                display,
+                zoom ->
+                    applyDisabledContrast(
+                        SwtUniversalImage.getImageDataAtZoom(gray, zoom), factor));
       } else {
         image = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
       }
@@ -1609,6 +1587,25 @@ public class GuiResource {
       imageMap.put(key, image);
     }
     return image;
+  }
+
+  private static ImageData applyDisabledContrast(ImageData source, float factor) {
+    ImageData data = (ImageData) source.clone();
+    for (int x = 0; x < data.width; x++) {
+      for (int y = 0; y < data.height; y++) {
+        int pixel = data.getPixel(x, y);
+        int a = (pixel >> 24) & 0xFF;
+        int b = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int r = pixel & 0xFF;
+        a = (int) (a * factor);
+        b = (int) (b * factor);
+        g = (int) (g * factor);
+        r = (int) (r * factor);
+        data.setPixel(x, y, r + (g << 8) + (b << 16) + (a << 25));
+      }
+    }
+    return data;
   }
 
   public Color getColor(int red, int green, int blue) {
