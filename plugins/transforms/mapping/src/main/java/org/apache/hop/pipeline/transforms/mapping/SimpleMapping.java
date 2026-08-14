@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -29,7 +28,6 @@ import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
@@ -245,29 +243,11 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
   }
 
   public static List<MappingInput> findMappingInputs(Pipeline mappingPipeline) {
-    List<MappingInput> list = new ArrayList<>();
-
-    List<IEngineComponent> components = mappingPipeline.getComponents();
-    for (IEngineComponent component : components) {
-      if (component instanceof MappingInput mappingInput) {
-        list.add(mappingInput);
-      }
-    }
-
-    return list;
+    return MappingTransforms.findMappingInputs(mappingPipeline);
   }
 
   private List<MappingOutput> findMappingOutputs(Pipeline mappingPipeline) {
-    List<MappingOutput> list = new ArrayList<>();
-
-    List<IEngineComponent> components = mappingPipeline.getComponents();
-    for (IEngineComponent component : components) {
-      if (component instanceof MappingOutput mappingOutput) {
-        list.add(mappingOutput);
-      }
-    }
-
-    return list;
+    return MappingTransforms.findMappingOutputs(mappingPipeline);
   }
 
   @Override

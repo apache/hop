@@ -158,6 +158,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/mongodbdelete.adoc[MongoDB delete]
 * xref:pipeline/transforms/mongodbinput.adoc[MongoDB Input]
 * xref:pipeline/transforms/mongodboutput.adoc[MongoDB Output]
+* xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping]
 * xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
 * xref:pipeline/transforms/mysqlbulkloader.adoc[MySQL bulk loader]
 * xref:pipeline/transforms/neo4j-cypher.adoc[Neo4j Cypher]

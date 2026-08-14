@@ -29,6 +29,9 @@ The Mapping input transform represents and describes the input for a Mapping pip
 
 The data of this input will be provided by the parent pipeline (the pipeline that calls the mapping).
 
+A child used from xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] must contain exactly one Mapping input.
+A child used from xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] may contain zero or more Mapping input transforms.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

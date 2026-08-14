@@ -44,6 +44,8 @@ In the Simple Mapping transform you can specify one xref:pipeline/transforms/map
 
 Use this transform if you find yourself repeating the same logic multiple times over several different pipelines.
 
+If you need more than one input or output, or info / target hops (for example a reusable Stream Lookup or Switch / Case), use xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] instead.
+
 == Options
 
 The options are fairly self-explanatory:
