@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import org.eclipse.swt.graphics.ImageData;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link SwtUniversalImage} */
 class SwtUniversalImageTest {
 
   @Test
