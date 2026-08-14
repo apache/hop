@@ -40,6 +40,11 @@ All actions in a workflow run sequentially by default.
 * **Projects** are logical collections of hop code and configuration.
 **Environments** contain the environment-specific (e.g. dev, uat, prd) metadata.
 
+* **Fields** are the typed columns on a data row.
+**Parameters** are named inputs on a pipeline or workflow.
+**Variables** are named string values in a scope.
+They look similar in the UI but they do not behave the same way — see xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
+
 include::../snippets/hop-concepts/item-types.adoc[]
 
 include::../snippets/hop-concepts/hop-projects-environments.adoc[]

@@ -45,6 +45,8 @@ TIP:  If you need to refer to a previous pipeline’s data row(s) fields, then u
 == Usage
 Note that workflow/environment variables are set only once. A pipeline needs to start to get any new variables. A running or sequential or nested (nested pipelines are technically the same pipeline) pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor.
 
+See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for when to use a field, a parameter, or a variable.
+
 Refer to parameters/variables using the syntax: {openvar}myVariable{closevar}, for example from a previous pipeline.
 
 *Two ways to pass fields, parameters to variables downstream:*

@@ -80,6 +80,7 @@ See also:
 * The xref:workflow/actions/pipeline.adoc[Pipeline action] that executes a pipeline from a workflow.
 * The xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor transform] that executes a workflow from a pipeline.
 * The xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop] how-to guide.
+* xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how values move between parent and child.
 
 Samples (samples project):
 
@@ -111,15 +112,17 @@ The filename may contain variables (for example, you can use the built-in Intern
 In this tab you can specify which field to use to set a certain parameter or variable value. If multiple rows are passed to the workflow, the first row is taken to set the parameters or variables.
 TIP: If you leave the "Inherit all variables from pipeline" option checked (it is by default), all the variables defined in the current pipeline are passed to the child pipeline.
 
-You can pass *parameters and variables* downstream only. You can’t pass params/variables between pipelines unless they are started new. For example, you can pass params/variables between pipelines, when each named pipeline is started in a pipeline executor – once per row.
+Parameters and variables are passed *downstream* when the child pipeline starts (once per executor iteration).
+They are not sent back to the parent.
+To return information, send *fields* as result rows, or set a variable with a wider scope.
+See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for the comparison and inheritance rules.
 
-Though you cannot pass parameters and variables upstream (in nested or sequential pipelines) you can pass data rows back up a pipeline via the following pattern. See project: samples/loops/pipeline-executor.hpl
+To return fields from the child (samples project: `samples/loops/pipeline-executor.hpl`):
 
-* The *parent pipeline executor* specifies the row field name defined in the child pipeline row under the tab “Result rows”. The output of the parent pipeline executor is option “result rows after execution”.
+* On the *parent* executor, list the expected field names and types on the *Result rows* tab, and use the hop *This output will contain the result rows after execution*.
+* In the *child*, produce a row with those same names and types, and end with xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result].
 
-* *Child pipeline*: A data row is generated with the same field name and type that is defined in the parent pipeline executor tab “Results rows” in the child pipeline. The last transform of the child pipeline is “copy rows to result”.
-
-Remember that all parameters must be defined (in edit pipeline/workflow properties) at least once in each pipeline or workflow. 
+Declare every parameter you pass on the receiving pipeline (pipeline properties → *Parameters*). 
 
 [options="header"]
 |===

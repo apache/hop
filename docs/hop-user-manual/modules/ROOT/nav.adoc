@@ -401,6 +401,7 @@ under the License.
 *** xref:workflow/actions/xslt.adoc[XSL pipeline]
 *** xref:workflow/actions/zipfile.adoc[Zip File]
 //::=END AUTO GENERATED LINKS ACTIONS
+* xref:fields-parameters-variables.adoc[Fields, parameters, and variables]
 * xref:variables.adoc[Variables]
 * xref:vfs.adoc[Virtual File System]
 ** xref:vfs/aws-s3-vfs.adoc[Amazon Web Services S3]

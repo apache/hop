@@ -44,7 +44,10 @@ The Workflow Executor transform execute a Hop workflow from within a pipeline.
 
 By default, the specified workflow will be executed once for each input row (this can be changed in the Row Grouping tab).
 
-Fields from the data row(s) can be used to set parameters and variables and it is passed to the workflow in the form of a result row. Remember that all parameters must be defined at least once in each pipeline or workflow (Edit pipeline/workflow properties). You are passing a parameter when you send a field/parameter/variable to a workflow executor from the Parameters tab.
+Fields from the data row(s) can be used to set parameters and variables and are passed to the workflow in the form of a result row.
+Declare every parameter you pass on the receiving workflow (workflow properties → *Parameters*).
+You are passing a parameter when you send a field, parameter, or variable to a workflow executor from the *Parameters* tab.
+See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how fields, parameters, and variables differ and how they flow between parent and child.
 
 You can also allow a group of records to be passed based on the value in a field (when the value changes the workflow is executed) or on time. In these cases, the first row of the group or rows is used to set parameters or variables in the workflow.
 
@@ -56,6 +59,7 @@ See also:
 * The xref:workflow/actions/pipeline.adoc[Pipeline action] that executes a pipeline from a workflow.
 * The xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor transform] that executes a sub-pipeline from a pipeline.
 * The xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop] how-to guide.
+* xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how values move between parent and child.
 
 Samples (samples project)
 
