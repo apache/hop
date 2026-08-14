@@ -47,10 +47,30 @@ Place a Data grid onto the data orchestration grid. On the Meta tab, add the fie
 
 [width="90%, options="header"]
 |===
-|Meta tab|specify the field metadata (output specification) of the data
-|Data Tab|contains the data.
-Everything is entered in String format so make sure you use the correct format masks in the metadata tab.
+|Meta tab|Field metadata (name, type and format masks) used to parse the strings on the Data tab.
+See <<meta-tab>>.
+|Data Tab|The grid of values.
+Every cell is a string.
+Hop converts each cell using the Type and Format of that column on the Meta tab.
 |===
+
+[[meta-tab]]
+== Meta tab
+
+include::../../snippets/field-metadata/field-columns.adoc[]
+
+[options="header"]
+|===
+|Column|Description
+|Name|Name of the output field (the column).
+|Type|Hop data type.
+Each Data-tab cell in this column is parsed into this type.
+See xref:concepts.adoc#data-types[Data types].
+|===
+
+TIP: The Data tab has one column per Meta-tab field and one row per output row.
+That is how you specify *several different values*.
+Do not try to put comma-separated values in a single cell; that is one string.
 
 == Metadata Injection Support
 

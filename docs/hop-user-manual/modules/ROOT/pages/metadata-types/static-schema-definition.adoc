@@ -49,6 +49,7 @@ Transforms:
 |Field Separator|separator used between fields in the schema definition
 |Enclosure|field enclosure used for fields in the schema definition
 |Field Definitions|List of fields and attributes that describe the file layout for this schema definition.
+Format, Length, Precision, Decimal, Group and Currency are described in xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |===
 
 ////

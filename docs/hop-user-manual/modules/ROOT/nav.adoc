@@ -69,6 +69,7 @@ under the License.
 ** xref:pipeline/metadata-injection.adoc[Metadata Injection]
 ** xref:pipeline/specify-copies.adoc[Specify copies]
 ** xref:pipeline/partitioning.adoc[Partitioning]
+** xref:pipeline/formatting-values.adoc[Formatting numbers and dates]
 ** xref:pipeline/transforms.adoc[Transforms]
 *** xref:pipeline/transforms/abort.adoc[Abort]
 *** xref:pipeline/transforms/addchecksum.adoc[Add a checksum]

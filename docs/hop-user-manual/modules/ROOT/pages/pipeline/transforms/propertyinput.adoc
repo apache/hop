@@ -113,7 +113,8 @@ A unique list is kept in memory that can be used in the next workflow action in 
 |Name|The name of the output field
 |Column|The attribute to read
 |Type|The data type for the field. This might require conversion if the source file does not use the same type. The following options all apply to the result after conversion.
-|Format|The format or conversion mask to use in the data type conversion
+|Format|The format or conversion mask to use in the data type conversion.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|The maximum number of characters for the output data type, or -1 for no limit.
 |Precision|The number of decimal places used for displaying floating-point numbers.
 |Currency|The currency symbol to display for monetary value.

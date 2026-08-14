@@ -61,11 +61,13 @@ TIP: The execution speed of the Calculator is far better than the speed provided
 |Field C|The third field to use in the calculation.
 |Value Type|The data type to use for the result of this calculation.
 |Length|The length to set for the result of this calculation.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Precision|The precision to set for the result of this calculation.
 |Remove|A boolean flag to set. Set to `Y` for temporary fields that are only required for intermediate calculations and don't need to be included in the output.
 |Conversion mask|Conversion mask to apply to date or numeric fields.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Decimal symbol|The decimal symbol to set in the output field.
-|Grouping symbol|The grouping symbol to set in the output field.
+|Grouping symbol|The thousands grouping symbol to set in the output field, not a row group.
 |Currency symbol|The currency symbol to set in the output field.
 |===
 

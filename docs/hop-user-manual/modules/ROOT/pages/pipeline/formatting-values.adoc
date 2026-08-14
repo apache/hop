@@ -1,0 +1,233 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How Hop uses Format, Length, Precision, Decimal, Group and Currency when converting numbers and dates to and from strings, including time zones and daylight saving time.
+:imagesdir: ../assets/images
+
+= Formatting numbers and dates
+
+Many transforms show a fields table with columns such as *Format*, *Length*, *Precision*, *Decimal*, *Group* and *Currency*.
+These columns are field metadata.
+They tell Hop how to read a string into a typed value, and how to write a typed value back to a string.
+
+They look obvious after a decade of using them.
+They are not, especially *Group*, which is a thousands separator and not a row group.
+
+This page is the single description of those columns.
+Transform and action pages that expose them link here instead of repeating the same one-liners.
+
+== When this metadata is used
+
+Hop applies format metadata when it converts between a String and another type:
+
+* reading and writing text, CSV, XML, JSON, Excel and similar files
+* previewing rows in Hop Gui
+* parsing a constant *Value* (Row Generator, Add Constants, Data Grid)
+* concatenating fields, logging, and converting to String in scripts
+
+Hop does *not* rewrite values when it writes to a relational database.
+The database driver receives the typed value (Integer, Number, Date, …).
+See xref:concepts.adoc#data-types[Data types].
+
+== The shared field columns
+
+include::../snippets/field-metadata/field-columns.adoc[]
+
+== Number formats
+
+include::../snippets/field-metadata/number-format-symbols.adoc[]
+
+=== Worked examples
+
+The *Decimal* and *Group* columns change the characters that `.` and `,` in the mask stand for.
+They do not change the mask itself.
+
+[options="header"]
+|===
+|Value|Format|Decimal|Group|Currency|Result
+|1234.5|`#,##0.00`|`.`|`,`| |`1,234.50`
+|1234.5|`#,##0.00`|`,`|`.`| |`1.234,50`
+|1234.5|`¤ #,##0.00`|`.`|`,`|`$`|`$ 1,234.50`
+|1234.5|`0.###E0`|`.`|`,`| |`1.2345E3`
+|0.25|`0%`|`.`|`,`| |`25%`
+|===
+
+Leave Decimal and Group empty to use the JVM default locale.
+That is convenient on one machine and a source of surprises when the same pipeline runs in another country.
+Prefer an explicit Format, Decimal and Group whenever you parse or write numbers as text.
+
+== Date and timestamp formats
+
+include::../snippets/field-metadata/date-format-symbols.adoc[]
+
+=== Common masks
+
+[options="header"]
+|===
+|Mask|Example
+|`yyyy-MM-dd`|`2026-08-14`
+|`yyyy-MM-dd HH:mm:ss`|`2026-08-14 19:51:00`
+|`yyyy-MM-dd HH:mm:ss.SSS`|`2026-08-14 19:51:00.123`
+|`yyyyMMdd`|`20260814`
+|`yyyy-MM-dd'T'HH:mm:ss.SSSZ`|`2026-08-14T19:51:00.123+0000`
+|===
+
+Quote literal letters with single quotes (`'T'` above).
+Unquoted letters are pattern symbols.
+
+[[string-to-date]]
+=== String to Date and Date to String
+
+A Hop `Date` is a `java.util.Date`: an instant, stored as milliseconds since `1970-01-01 00:00:00 UTC`.
+It does *not* remember a time zone.
+The time zone only matters when Hop converts that instant to a String, or a String back to an instant.
+
+Hop uses Java `SimpleDateFormat` for both directions:
+
+* *String → Date* (`convertStringToDate`) — the Format mask, Date Locale and Date Time Zone on the field tell the parser how to read the text.
+* *Date → String* (`convertDateToString`) — the same metadata prints the instant.
+
+If you leave *Date Time Zone* empty, Hop uses the JVM default (`TimeZone.getDefault()`).
+A pipeline that parses cleanly on a laptop set to `UTC` can fail on a server set to `America/New_York` (EST/EDT) or `Europe/Brussels` (CET/CEST).
+Set the zone explicitly on the field (xref:pipeline/transforms/selectvalues.adoc[Select Values] → Meta-data tab → *Date Time Zone*) whenever the string does not carry an offset.
+
+*Date Format Lenient?* (same tab) is passed to `SimpleDateFormat.setLenient`.
+The default is *not* lenient: a value that is not a real wall-clock time in that zone throws
+
+`couldn't convert string [...] to a date using format [...]`
+
+Lenient mode will invent a nearby valid time instead of failing.
+That hides bad data. Prefer a strict parse and an explicit zone.
+
+==== Time zone letters in the mask
+
+[options="header"]
+|===
+|Letter|What the string must contain|Example
+|`Z`|RFC 822 offset, no colon|`+0000`, `-0500`, `+0100`
+|`X`|ISO 8601 offset (`XX` / `XXX` for `-0500` / `-05:00`)|`Z`, `-05`, `-0500`, `-05:00`
+|`z`|Named zone or GMT offset|`UTC`, `EST`, `CEST`, `GMT-05:00`
+|===
+
+If the mask has *no* `Z`, `X` or `z`, the digits in the string are a *wall-clock time in the field's Date Time Zone* (or the JVM default).
+They are not "just UTC" unless that zone is `UTC`.
+
+Good round-trip masks:
+
+* `yyyy-MM-dd'T'HH:mm:ss.SSSX` → `2026-03-08T07:30:00.000Z`
+* `yyyy-MM-dd HH:mm:ssZ` → `2026-03-08 07:30:00+0000`
+
+==== Daylight saving time: the missing hour and the doubled hour
+
+Regions that observe daylight saving time (DST) change the civil clock twice a year.
+The UTC timeline never skips or repeats.
+The local wall clock does.
+
+*Spring forward (gap).*
+Clocks jump ahead one hour.
+That local hour *does not exist*.
+
+* `America/New_York` (EST → EDT): second Sunday of March, `02:00` becomes `03:00`.
+  In 2026 that is `2026-03-08`.
+  `2026-03-08 02:30:00` is not a real local time.
+* `Europe/Brussels` (CET → CEST): last Sunday of March, `02:00` becomes `03:00`.
+  In 2026 that is `2026-03-29`.
+  `2026-03-29 02:30:00` is not a real local time.
+
+*Fall back (overlap).*
+Clocks jump back one hour.
+That local hour *occurs twice*.
+
+* `America/New_York` (EDT → EST): first Sunday of November, `02:00` becomes `01:00`.
+  In 2026 that is `2026-11-01`.
+  `2026-11-01 01:30:00` happens first as EDT (UTC−4) and again as EST (UTC−5).
+* `Europe/Brussels` (CEST → CET): last Sunday of October, `03:00` becomes `02:00`.
+  In 2026 that is `2026-10-25`.
+  `2026-10-25 02:30:00` happens twice.
+
+[options="header"]
+|===
+|Direction|Gap (spring)|Overlap (fall)
+|String → Date|A timezone-less string whose local time falls in the missing hour *throws* (strict parse).
+Typical Hop error: `couldn't convert string [2026-03-29 02:30:00] to a date using format [yyyy-MM-dd HH:mm:ss]`.
+|The same local time maps to *two* instants.
+`SimpleDateFormat` picks one of them.
+You cannot tell which hour the source meant unless the string carries an offset.
+|Date → String|Every instant still prints.
+A UTC instant just after the jump prints as `03:xx` local, never as `02:xx`.
+|Two different instants print as the *same* local string if the mask has no `Z` / `X` / `z`.
+Parsing that string back is not a safe round-trip.
+|===
+
+==== The UTC-string-in-a-local-JVM trap
+
+This is the one that bites.
+
+Source systems often store UTC as a *naive* string: `2026-03-29 02:30:00`, meaning 02:30 UTC, with no `Z` and no offset.
+That instant is perfectly valid in UTC (it is 03:30 CEST, or 21:30 the previous evening in EDT).
+
+If Hop parses that string with Format `yyyy-MM-dd HH:mm:ss` and the JVM (or the field) is in `Europe/Brussels` or `America/New_York`, the parser treats `02:30` as *local* wall-clock time.
+On the spring-forward night that local time does not exist, and the convert throws — even though the original value was a normal UTC timestamp.
+
+The same string in November can parse, but to the wrong instant of the two 01:30 / 02:30 locals.
+
+Fixes, in order of preference:
+
+. Put the offset in the string and in the mask (`Z` or `X`). Then the JVM default zone no longer matters.
+. Keep the naive UTC string, but set *Date Time Zone* to `UTC` on the field that parses it (and on the field that writes it back).
+. Do *not* rely on *Date Format Lenient = Y* to paper over the gap.
+  Lenient parsing will shift `02:30` to some other local time and you will load the wrong instant with no error.
+
+When you *write* dates to text, CSV, JSON or logs from a DST-observing JVM, use a mask with an offset, or set the output field's Date Time Zone to `UTC`.
+Otherwise a reader in another zone — or the same pipeline after a DST weekend — will not reconstruct the instant you had.
+
+== Rounding
+
+include::../snippets/rounding-types.adoc[]
+
+== Common mistakes
+
+*Treating Group as a category.*
+Group is the thousands separator (`,` or `.`).
+It does not group rows.
+Use xref:pipeline/transforms/groupby.adoc[Group By] or xref:pipeline/transforms/memgroupby.adoc[Memory Group By] for that.
+
+*Putting several values in one Value cell.*
+Value is a single constant.
+`1,2,3` is one string, not three rows.
+Use xref:pipeline/transforms/datagrid.adoc[Data Grid] when you need more than one distinct row.
+
+*Swapping Decimal and Group.*
+`1.234,50` needs Decimal `,` and Group `.`.
+The opposite pair will not parse, or will parse the wrong number.
+
+*Leaving Format empty for locale-specific numbers.*
+Without an explicit mask, Hop uses JVM defaults.
+A pipeline that works on a US laptop can fail on a European server.
+
+*Expecting Length to change a Date's internal value.*
+Length `4` on a Date only affects how that date is *printed* as a string (typically the year).
+The Date on the stream is still a full date-time.
+
+*Parsing a UTC date string in a local time zone.*
+`2026-03-29 02:30:00` is a normal UTC timestamp and a missing local hour in CEST.
+Set *Date Time Zone* to `UTC`, or include `Z` / `X` in the mask.
+See <<string-to-date>>.
+
+*Sending large integers through JavaScript.*
+JavaScript numbers are IEEE 754 doubles.
+Integers longer than about 15–16 digits can change.
+See xref:pipeline/transforms/javascript.adoc#numeric-values[JavaScript — Numeric values].

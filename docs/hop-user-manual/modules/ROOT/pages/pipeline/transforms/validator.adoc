@@ -85,13 +85,14 @@ Once you select a validation on the left hand side of the dialog you can specify
 |The data type that the input field needs to have
 
 |Conversion mask
-|The expected conversion mask
+|The expected conversion mask.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 
 |Decimal symbol
 |The expected decimal symbol
 
 |Grouping symbol
-|The expected decimal symbol
+|The expected thousands grouping symbol, not a row group.
 
 |Null allows?
 |Disable this if null values are not allows

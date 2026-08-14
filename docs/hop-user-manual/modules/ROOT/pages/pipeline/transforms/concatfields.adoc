@@ -69,7 +69,7 @@ This is identical to the fields tab option of the Text File Output transform and
 |Name|The name of the field.
 |Type|Type of the field can be either String, Date or Number.
 |Format|The format mask to convert with.
-See Number Formats for a complete description of format symbols.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length a|The length option depends on the field type follows:
 
 - Number - Total number of significant figures in a number

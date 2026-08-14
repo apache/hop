@@ -94,22 +94,27 @@ Click `Get fields to change` to import fields from previous transforms.
 |Length|The field length
 |Precision|The precision option depends on the field type, but only Number is supported; it returns the number of floating point digits
 |Binary to Normal?|Converts a string to a numeric data type, when appropriate
-|Format|The format mask (number type or date format)
+|Format|The format mask (number type or date format).
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Date Format Lenient?|Determines whether the date parser is strict or lenient.
 Leniency means that invalid date values are processed.
 If set to N, only strictly valid date values will be accepted; if set to Y, the parser will attempt to determine the intention of an incorrect date, if possible, and correct it.
+Do not use Y to hide daylight-saving gaps — see xref:pipeline/formatting-values.adoc#string-to-date[String to Date and Date to String].
 |Date Locale|Specifies the date locale to use for date conversions and calculations.
 Leave blank to use the default encoding on your system or chose from the populated this list accordingly.
 |Date Time Zone|Specifies the date time zone to use for date conversions and calculations.
-Leave blank to use the default encoding on your system or chose from the populated list accordingly.
+Leave blank to use the JVM default (`TimeZone.getDefault()`).
+Set this to `UTC` when the string is a timezone-less UTC timestamp, or include `Z` / `X` in the Format mask.
+See xref:pipeline/formatting-values.adoc#string-to-date[String to Date and Date to String].
 |Lenient number conversion|When this option is set to Y, numbers get parsed until it finds a non-numeric value (e.g. a dash or slash) and stops parsing without reporting an error.
 When set to N, numbers get parsed strictly throwing an error in case invalid numbers are in the input.
 |Encoding|Specifies the text file encoding to use.
 Leave blank to use the default encoding on your system.
 To use Unicode, specify UTF-8 or UTF-16. On first use, Hop searches your system for available encodings and populates this list accordingly.
 |Decimal|A decimal point; this is either a dot or a comma
-|Grouping|A method of separating units of thousands in numbers of four digits or larger.
-This is either a dot or a comma.
+|Grouping|Thousands grouping symbol (`.` or `,`).
+This is *not* a row group.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Currency|Symbol used to represent currencies
 |Rounding type|This option allows you to define how Numbers are rounded when they are converted to String.
 This happens when previewing the data, but also when data is bulk loaded or converted to a string in scripts.

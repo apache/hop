@@ -46,6 +46,23 @@ The Add Constant Values transform is a simple and high performance way to add co
 |Option|Description
 |Transform name|Name of the transform.
 *Note*: This name has to be unique in a single pipeline.
-|Fields|specify the name, type, and value in the form of a string.
-Then, specify the formats to convert the value into the chosen data type.
+|Fields|Name, type and constant *Value* for each field to add.
+The value is entered as a string and converted with the format metadata on the same row.
+See <<fields-table>>.
 |===
+
+[[fields-table]]
+== Fields
+
+include::../../snippets/field-metadata/field-columns.adoc[]
+
+[options="header"]
+|===
+|Column|Description
+|Name|Name of the constant field added to every input row.
+|Type|Hop data type of the constant.
+See xref:concepts.adoc#data-types[Data types].
+|===
+
+IMPORTANT: *Value* is a *single* constant per field.
+*Group* is the thousands separator, not a row group.

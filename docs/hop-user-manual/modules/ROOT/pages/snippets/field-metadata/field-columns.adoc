@@ -1,0 +1,45 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+The columns below appear on many field tables.
+They are xref:pipeline/formatting-values.adoc[field metadata]: they control how Hop converts a string to a typed value, and how a typed value is written back to a string.
+They do *not* change the value stored in a database.
+
+[options="header"]
+|===
+|Column|Description
+|Format / Conversion mask|Number or date pattern used to parse and print the value.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+|Length|String: maximum characters.
+Number / BigNumber: significant digits.
+Integer: display width (leading zeros when writing).
+Date: length of the printed string (for example `4` prints only the year).
+Use `-1` when unset.
+|Precision|Decimal digits after the radix for Number and BigNumber.
+Not used for String, Date or Boolean.
+|Decimal|Character that separates the integer and fractional parts.
+`.` in `10,000.00` (US) or `,` in `10.000,00` (DE).
+|Group / Grouping|Thousands grouping symbol.
+`,` in `10,000.00` (US) or `.` in `10.000,00` (DE).
+This is *not* a row group or category.
+|Currency|Optional currency symbol used when the format mask contains a currency sign (`¤`).
+Examples: `$`, `€`.
+|Value|A *single* constant, entered as a string and parsed with Type, Format, Decimal, Group and Currency.
+Not a comma-separated list of values.
+Use xref:pipeline/transforms/datagrid.adoc[Data Grid] when you need several different rows.
+|Set empty string?|When the constant is empty, emit an empty string (`""`) instead of `null`.
+|===

@@ -85,6 +85,7 @@ The YAML Input transform reads data from YAML structures, files or incoming fiel
 |Key|The key to the element.
 |Type|The data type to convert to.
 |Format|The format or conversion mask to use in the data type conversion.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|The length of the output data type.
 |Precision|The precision of the output data type.
 |Currency|The currency symbol to use during data type conversion.

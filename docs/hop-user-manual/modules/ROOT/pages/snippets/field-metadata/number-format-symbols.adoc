@@ -1,0 +1,41 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+Number format masks follow Java `DecimalFormat`.
+See the https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/DecimalFormat.html[Java 21 DecimalFormat] documentation for the full pattern language.
+
+[options="header"]
+|===
+|Symbol|Location|Localized|Meaning
+|0|Number|Yes|Digit
+|#|Number|Yes|Digit, zero shows as absent
+|.|Number|Yes|Decimal separator or monetary decimal separator
+|-|Number|Yes|Minus sign
+|,|Number|Yes|Grouping separator
+|E|Number|Yes|Separates mantissa and exponent in scientific notation; need not be quoted in prefix or suffix
+|;|Sub pattern boundary|Yes|Separates positive and negative sub patterns
+|%|Prefix or suffix|Yes|Multiply by 100 and show as percentage
+|\u2030|Prefix or suffix|Yes|Multiply by 1000 and show as per mille
+|¤ (`\u00A4`)|Prefix or suffix|No|Currency sign, replaced by the currency symbol.
+If doubled, replaced by the international currency symbol.
+If present in a pattern, the monetary decimal separator is used instead of the decimal separator.
+|'|Prefix or suffix|No|Used to quote special characters in a prefix or suffix, for example, `'#'#` formats 123 to `#123`.
+To create a single quote itself, use two in a row: `# o''clock`.
+|===
+
+In a pattern, the exponent character immediately followed by one or more digit characters indicates scientific notation.
+For example, `0.###E0` formats the number 1234 as `1.234E3`.

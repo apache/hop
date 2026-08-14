@@ -137,8 +137,8 @@ Number: total number of significant figures in a number; String: total length of
 |Trim type|Truncates the field (left, right, both) before processing.
 Useful for fields that have no static length.
 |Repeat|If set to Y, will repeat this value if the field in the next row is empty.
-|Format|The format mask (number type).
-See Text File Input transform and the section "Number Formats" for a complete description of format symbols.
+|Format|The format mask (number type or date format).
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Currency|Symbol used to represent currencies.
 |Decimal|A decimal point; this is either a dot or a comma.
 |Grouping|A method of separating units of thousands in numbers of four digits or larger.

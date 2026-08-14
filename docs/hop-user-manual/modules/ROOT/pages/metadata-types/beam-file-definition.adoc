@@ -44,6 +44,7 @@ Transforms:
 |Enclosure|field enclosure used for fields in the file definition
 |Field Definitions|List of field name, type, format, length and precision.
 Describes the file layout for this field definition.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |===
 
 == Samples

@@ -112,7 +112,8 @@ NOTE: `#N/A` is the exception: it means "no value available" and is written to t
 
 * Note: You may have to add quotes around variables in formulas as variables have no type.
 |Value type|the data type for the new formula field
-|Length|field length
+|Length|field length.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Precision|field precision
 |Replace value|select a pipeline field from the dropdown to replace that field's value with the formula result. It is not recommended to pre-create a field with a NULL value in a "Get variables" transform as that is considered a hack and is not supported behavior.
 | Set Null to #N/A | By default, Null values will create a blank cell during the calculation. Use this option to insert `#N/A` in the cell
