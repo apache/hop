@@ -27,10 +27,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.grammar.IStateStack;
 import org.eclipse.tm4e.core.grammar.ITokenizeLineResult;
 import org.eclipse.tm4e.core.registry.IGrammarSource;
 import org.eclipse.tm4e.core.registry.IRegistryOptions;
@@ -157,6 +159,105 @@ class ContentEditorTm4eSupportTest {
         grammar.tokenizeLine("REM comment\nECHO %PATH%", null, null);
     assertNotNull(result);
     assertTrue(result.getTokens().length > 0, "batch line should produce tokens");
+  }
+
+  @Test
+  void scopeForLanguage_markdownAliases_returnTextHtmlMarkdown() {
+    assertEquals("text.html.markdown", ContentEditorTm4eSupport.scopeForLanguage("markdown"));
+    assertEquals("text.html.markdown", ContentEditorTm4eSupport.scopeForLanguage("md"));
+  }
+
+  @Test
+  void markdownGrammarResourceIsOnClasspath() throws Exception {
+    try (InputStream in =
+        ContentEditorTm4eSupport.class.getResourceAsStream("grammars/markdown.json")) {
+      assertNotNull(in, "grammars/markdown.json should be on the classpath");
+      assertTrue(in.read() >= 0, "markdown.json should not be empty");
+    }
+  }
+
+  @Test
+  void markdownGrammarScopesBlockElements() throws Exception {
+    IGrammar grammar = loadGrammar("text.html.markdown", "markdown.json");
+    assertNotNull(grammar, "TM4E should load the markdown grammar");
+
+    assertTrue(
+        scopesOf(grammar, "# Title").contains("markup.heading.markdown"),
+        "a heading line should be scoped as a heading");
+    assertTrue(
+        scopesOf(grammar, "> quoted").contains("markup.quote.markdown"),
+        "a blockquote line should be scoped as a quote");
+    assertTrue(
+        scopesOf(grammar, "- item").contains("punctuation.definition.list.begin.markdown"),
+        "a list bullet should be scoped as a list");
+    assertTrue(
+        scopesOf(grammar, "---").contains("meta.separator.markdown"),
+        "a thematic break should be scoped as a separator");
+    assertTrue(
+        scopesOf(grammar, "| --- | :-: |").contains("punctuation.definition.table.markdown"),
+        "a table delimiter row should be scoped as a table");
+  }
+
+  @Test
+  void markdownGrammarScopesInlineElements() throws Exception {
+    IGrammar grammar = loadGrammar("text.html.markdown", "markdown.json");
+
+    assertTrue(
+        scopesOf(grammar, "some **bold** text").contains("markup.bold.markdown"),
+        "**...** should be scoped as bold");
+    assertTrue(
+        scopesOf(grammar, "some *italic* text").contains("markup.italic.markdown"),
+        "*...* should be scoped as italic");
+    assertTrue(
+        scopesOf(grammar, "snake_case_word").stream().noneMatch(s -> s.contains("markup.italic")),
+        "underscores inside a word should not turn into italics");
+    assertTrue(
+        scopesOf(grammar, "an `inline` snippet").contains("markup.inline.raw.string.markdown"),
+        "`...` should be scoped as inline raw");
+    assertTrue(
+        scopesOf(grammar, "see [Hop](https://hop.apache.org)")
+            .contains("markup.underline.link.markdown"),
+        "a link target should be scoped as a link");
+  }
+
+  @Test
+  void markdownGrammarKeepsFencedCodeBlockStateAcrossLines() throws Exception {
+    IGrammar grammar = loadGrammar("text.html.markdown", "markdown.json");
+
+    IStateStack state = null;
+    List<String> insideScopes = List.of();
+    List<String> afterScopes = List.of();
+    for (String line : List.of("```sql", "SELECT 1", "```", "# after")) {
+      ITokenizeLineResult<org.eclipse.tm4e.core.grammar.IToken[]> result =
+          grammar.tokenizeLine(line, state, null);
+      state = result.getRuleStack();
+      if ("SELECT 1".equals(line)) {
+        insideScopes = scopesOf(result);
+      } else if ("# after".equals(line)) {
+        afterScopes = scopesOf(result);
+      }
+    }
+
+    assertTrue(
+        insideScopes.contains("markup.fenced_code.block.markdown"),
+        "lines between fences should stay inside the fenced code block");
+    assertTrue(
+        afterScopes.contains("markup.heading.markdown"),
+        "the closing fence should end the block so following markup is scoped again");
+  }
+
+  /** All scopes produced for a single line, without carrying over any state. */
+  private static List<String> scopesOf(IGrammar grammar, String line) {
+    return scopesOf(grammar.tokenizeLine(line, null, null));
+  }
+
+  private static List<String> scopesOf(
+      ITokenizeLineResult<org.eclipse.tm4e.core.grammar.IToken[]> result) {
+    List<String> scopes = new ArrayList<>();
+    for (org.eclipse.tm4e.core.grammar.IToken token : result.getTokens()) {
+      scopes.addAll(token.getScopes());
+    }
+    return scopes;
   }
 
   @Test
