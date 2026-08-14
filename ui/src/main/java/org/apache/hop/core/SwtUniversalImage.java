@@ -120,9 +120,9 @@ public abstract class SwtUniversalImage {
   }
 
   /**
-   * SWT 3.134+ on Windows treats {@code new Image(device, ImageData)} as 100% zoom and raster-
-   * scales it to the monitor zoom (SMOOTH), which makes icons blurry at 200% DPI. {@link
-   * ImageDataProvider} re-rasterizes at the requested zoom instead. RAP has no per-monitor zoom, so
+   * SWT 3.134+ on Windows treats {@code new Image(device, ImageData)} as 100% zoom and
+   * raster-scales it to the monitor zoom (SMOOTH), which makes icons blurry at 200% DPI. {@link
+   * ImageDataProvider} re-rasterize at the requested zoom instead. RAP has no per-monitor zoom, so
    * keep the ImageData constructor there.
    */
   static boolean isDpiAwareImageProviderSupported() {

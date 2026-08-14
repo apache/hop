@@ -1517,18 +1517,18 @@ public class GuiResource {
     builder.append(height);
     String key = builder.toString();
 
-    Image image = imageMap.get(key);
-    if (image == null) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getImage(display, location);
-      int realWidth = (int) Math.round(zoomFactor * width);
-      int realHeight = (int) Math.round(zoomFactor * height);
-      image =
-          new Image(
-              display, svg.getAsBitmapForSize(display, realWidth, realHeight), SWT.IMAGE_COPY);
-      svg.dispose();
-      imageMap.put(key, image);
-    }
-    return image;
+    return imageMap.computeIfAbsent(
+        key,
+        k -> {
+          SwtUniversalImage svg = SwtSvgImageUtil.getImage(display, location);
+          int realWidth = (int) Math.round(zoomFactor * width);
+          int realHeight = (int) Math.round(zoomFactor * height);
+          Image loaded =
+              new Image(
+                  display, svg.getAsBitmapForSize(display, realWidth, realHeight), SWT.IMAGE_COPY);
+          svg.dispose();
+          return loaded;
+        });
   }
 
   /**
@@ -1565,28 +1565,29 @@ public class GuiResource {
     builder.append('|').append(width).append('|').append(height).append('|').append(disabled);
     String key = builder.toString();
 
-    Image image = imageMap.get(key);
-    if (image == null) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
+    return imageMap.computeIfAbsent(
+        key,
+        k -> {
+          SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
 
-      Image zoomedImaged = getZoomedImaged(svg, display, width, height);
-      if (disabled) {
-        Image gray = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
-        float factor = PropsUi.getInstance().isDarkMode() ? 0.4f : 2.5f;
-        image =
-            SwtUniversalImage.createDpiAwareImage(
-                display,
-                zoom ->
-                    applyDisabledContrast(
-                        SwtUniversalImage.getImageDataAtZoom(gray, zoom), factor));
-      } else {
-        image = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
-      }
+          Image zoomedImaged = getZoomedImaged(svg, display, width, height);
+          Image loaded;
+          if (disabled) {
+            Image gray = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
+            float factor = PropsUi.getInstance().isDarkMode() ? 0.4f : 2.5f;
+            loaded =
+                SwtUniversalImage.createDpiAwareImage(
+                    display,
+                    zoom ->
+                        applyDisabledContrast(
+                            SwtUniversalImage.getImageDataAtZoom(gray, zoom), factor));
+          } else {
+            loaded = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
+          }
 
-      svg.dispose();
-      imageMap.put(key, image);
-    }
-    return image;
+          svg.dispose();
+          return loaded;
+        });
   }
 
   private static ImageData applyDisabledContrast(ImageData source, float factor) {
@@ -1610,12 +1611,7 @@ public class GuiResource {
 
   public Color getColor(int red, int green, int blue) {
     RGB rgb = new RGB(red, green, blue);
-    Color color = colorMap.get(rgb);
-    if (color == null) {
-      color = new Color(display, rgb);
-      colorMap.put(rgb, color);
-    }
-    return color;
+    return colorMap.computeIfAbsent(rgb, key -> new Color(display, key));
   }
 
   /**
