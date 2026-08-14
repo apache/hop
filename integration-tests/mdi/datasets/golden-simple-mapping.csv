@@ -1,0 +1,2 @@
+filename,runConfiguration,input_source,input_target,input_description,input_main_path,input_rename_on_output,output_source,output_target,output_description,output_main_path,output_rename_on_output,inherit_all_vars
+child-mapping.hpl,local,Reader,Mapping input,Input path,Y,Y,Mapping output,Writer,Output path,N,N,N

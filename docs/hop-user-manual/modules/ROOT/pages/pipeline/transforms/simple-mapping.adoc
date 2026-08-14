@@ -57,6 +57,15 @@ It is always executed with a standard local Hop pipeline run configuration since
 You can map (hence the name) field names.
 * Output tab: specify how to rename output fields retrieved from the xref:pipeline/transforms/mapping-output.adoc[Mapping output] transform.
 
+== Metadata Injection
+
+Input and output mappings reuse the same nested fields, so injection keys are prefixed to keep them unique.
+
+* Top-level: `filename`, `runConfiguration`, `INPUT_SOURCE_TRANSFORM`, `INPUT_TARGET_TRANSFORM`, `INPUT_DESCRIPTION`, `INPUT_MAIN_PATH`, `INPUT_RENAME_ON_OUTPUT`, and the matching `OUTPUT_*` keys, plus `PARAMETERS_INHERIT_ALL_VARIABLES`
+* Group `INPUT_FIELDS`: `INPUT_SOURCE_FIELD`, `INPUT_TARGET_FIELD`
+* Group `OUTPUT_FIELDS`: `OUTPUT_SOURCE_FIELD`, `OUTPUT_TARGET_FIELD`
+* Group `PARAMETERS_MAPPINGS`: `PARAMETERS_VARIABLE`, `PARAMETERS_VALUE`
+
 == Sample
 
 In the samples project you can find two examples of the Simple Mapping transform, the transforms/files/simple-mapping-child.hpl and simple-mapping-parent.hpl pipelines.

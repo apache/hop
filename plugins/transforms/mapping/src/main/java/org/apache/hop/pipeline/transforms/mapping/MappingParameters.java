@@ -30,11 +30,17 @@ import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
  */
 public class MappingParameters implements Cloneable {
 
-  @HopMetadataProperty(key = "variablemapping")
+  @HopMetadataProperty(
+      key = "variablemapping",
+      injectionGroupKey = "MAPPINGS",
+      injectionGroupDescription = "SimpleMapping.Injection.Group.MAPPINGS")
   private List<MappingVariableMapping> variableMappings;
 
   /** This flag causes the sub-transformation to inherit all variables from the parent */
-  @HopMetadataProperty(key = "inherit_all_vars")
+  @HopMetadataProperty(
+      key = "inherit_all_vars",
+      injectionKey = "INHERIT_ALL_VARIABLES",
+      injectionKeyDescription = "SimpleMapping.Injection.INHERIT_ALL_VARIABLES")
   private boolean inheritingAllVariables;
 
   public MappingParameters() {
