@@ -1139,14 +1139,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       Execution execution,
       ExecutionState state) {
     try {
-      executionItem.setImage(GuiResource.getInstance().getImagePipeline());
-
       String label = execution.getName();
       label += " - " + START_DATE_FORMAT.format(execution.getExecutionStartDate());
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      decorateItemWithState(executionItem, location, state);
+      decorateItemWithState(executionItem, location, execution, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing pipeline execution information tree item", e);
@@ -1159,8 +1157,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       Execution execution,
       ExecutionState state) {
     try {
-      executionItem.setImage(GuiResource.getInstance().getImageWorkflow());
-
       String label = execution.getName();
       label +=
           " - "
@@ -1168,7 +1164,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      decorateItemWithState(executionItem, location, state);
+      decorateItemWithState(executionItem, location, execution, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing workflow execution information tree item", e);
@@ -1176,15 +1172,36 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   private static void decorateItemWithState(
-      TreeItem executionItem, ExecutionInfoLocation location, ExecutionState state) {
+      TreeItem executionItem,
+      ExecutionInfoLocation location,
+      Execution execution,
+      ExecutionState state) {
     long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
+    ExecutionStatusIcon statusIcon = ExecutionStatusIcon.from(state, loggingInterval);
+    executionItem.setImage(statusIcon.toImage(execution.getExecutionType()));
 
+    if (state == null) {
+      return;
+    }
     if (state.isFailed()) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
     } else if (state.isStale(loggingInterval)) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightGray());
     } else if (state.isRunning()) {
       executionItem.setBackground(GuiResource.getInstance().getColorLightBlueMuted());
+    }
+  }
+
+  /** Refresh the tab image after a viewer reloads execution state (failed / stalled / default). */
+  public void updateViewerTabImage(IExecutionViewer viewer) {
+    if (tabFolder == null || tabFolder.isDisposed() || viewer == null) {
+      return;
+    }
+    for (CTabItem item : tabFolder.getItems()) {
+      if (viewer.equals(item.getData()) && !item.isDisposed()) {
+        item.setImage(viewer.getTitleImage());
+        return;
+      }
     }
   }
 

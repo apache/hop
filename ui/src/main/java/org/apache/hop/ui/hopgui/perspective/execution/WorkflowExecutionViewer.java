@@ -528,7 +528,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   @Override
   public Image getTitleImage() {
-    return GuiResource.getInstance().getImageWorkflow();
+    return ExecutionStatusIcon.imageFor(ExecutionType.Workflow, executionState, loggingInterval());
   }
 
   @Override
@@ -712,6 +712,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   public void refresh() {
     refreshStatus();
     refreshActionData();
+    perspective.updateViewerTabImage(this);
     redraw();
   }
 

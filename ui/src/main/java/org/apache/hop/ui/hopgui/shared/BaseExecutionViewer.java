@@ -169,6 +169,21 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
     return Utils.getDurationHMS(durationMs / 1000.0);
   }
 
+  /**
+   * Logging interval from the execution information location, used to decide whether state is
+   * stalled. Defaults to 20s when the location is not loaded yet.
+   */
+  protected long loggingInterval() {
+    if (perspective == null || perspective.getLocationMap() == null) {
+      return 20000;
+    }
+    ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+    if (location == null) {
+      return 20000;
+    }
+    return Const.toLong(location.getDataLoggingInterval(), 20000);
+  }
+
   public abstract void drillDownOnLocation(Point location);
 
   @Override
