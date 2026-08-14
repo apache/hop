@@ -24,6 +24,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.ui.core.PropsUi;
@@ -31,6 +32,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -58,6 +60,7 @@ final class ContentEditorTm4eSupport {
   private static final String SCOPE_YAML = "source.yaml";
   private static final String SCOPE_SHELL = "source.shell";
   private static final String SCOPE_BATCH = "source.batchfile";
+  private static final String SCOPE_MARKDOWN = "text.html.markdown";
 
   /** Maps TM4E scope names to grammar resource filenames (classpath-relative to grammars/). */
   private static final Map<String, String> GRAMMAR_FILES =
@@ -69,7 +72,8 @@ final class ContentEditorTm4eSupport {
           SCOPE_PYTHON, "python.json",
           SCOPE_YAML, "yaml.json",
           SCOPE_SHELL, "shell.json",
-          SCOPE_BATCH, "bat.json");
+          SCOPE_BATCH, "bat.json",
+          SCOPE_MARKDOWN, "markdown.json");
 
   // Same palette as before (light/dark) for consistency
   private static final RGB L_COMMENT = new RGB(128, 128, 128);
@@ -94,6 +98,8 @@ final class ContentEditorTm4eSupport {
 
   private final Registry registry;
   private final Display display;
+  private final Map<String, TextAttribute> attributeCache = new HashMap<>();
+  private final Map<RGB, Color> colorCache = new HashMap<>();
 
   private ContentEditorTm4eSupport(Display display) {
     this.display = display != null && !display.isDisposed() ? display : Display.getDefault();
@@ -122,6 +128,7 @@ final class ContentEditorTm4eSupport {
       case "yaml", "yml" -> SCOPE_YAML;
       case "shell", "bash", "sh" -> SCOPE_SHELL;
       case "bat", "cmd", "batch" -> SCOPE_BATCH;
+      case "markdown", "md" -> SCOPE_MARKDOWN;
       case "plaintext" -> SCOPE_TEXT;
       default -> null;
     };
@@ -216,18 +223,45 @@ final class ContentEditorTm4eSupport {
     };
   }
 
-  /** Maps TM4E scope list to our TextAttribute (same palette as rule-based). */
+  /**
+   * Maps TM4E scope list to our TextAttribute (same palette as rule-based). Attributes are cached
+   * per scope combination: a document produces the same handful of combinations over and over.
+   */
   private org.eclipse.jface.text.TextAttribute scopeToAttribute(List<String> scopes) {
-    RGB rgb = scopeToRgb(scopes);
-    Color color = new Color(display, rgb);
-    return new org.eclipse.jface.text.TextAttribute(color);
+    String scope = scopes == null ? "" : String.join(" ", scopes);
+    return attributeCache.computeIfAbsent(
+        scope,
+        key -> {
+          Color color = colorCache.computeIfAbsent(scopeToRgb(key), rgb -> new Color(display, rgb));
+          return new org.eclipse.jface.text.TextAttribute(color, null, scopeToFontStyle(key));
+        });
   }
 
-  private RGB scopeToRgb(List<String> scopes) {
-    if (scopes == null || scopes.isEmpty()) {
+  /**
+   * Font style (bold, italic, underline, strike-through) for the given scope. Only Markdown markup
+   * scopes use anything but the plain style today.
+   */
+  private static int scopeToFontStyle(String scope) {
+    int style = SWT.NORMAL;
+    if (scope.contains("markup.heading") || scope.contains("markup.bold")) {
+      style |= SWT.BOLD;
+    }
+    if (scope.contains(".italic") || scope.contains("markup.quote")) {
+      style |= SWT.ITALIC;
+    }
+    if (scope.contains("markup.underline")) {
+      style |= org.eclipse.jface.text.TextAttribute.UNDERLINE;
+    }
+    if (scope.contains("markup.strikethrough")) {
+      style |= org.eclipse.jface.text.TextAttribute.STRIKETHROUGH;
+    }
+    return style;
+  }
+
+  private RGB scopeToRgb(String scope) {
+    if (scope.isEmpty()) {
       return isDark() ? D_DEFAULT : L_DEFAULT;
     }
-    String scope = String.join(" ", scopes);
     boolean dark = isDark();
 
     if (TRACE_SCOPES) {
@@ -237,6 +271,32 @@ final class ContentEditorTm4eSupport {
     // Comments (all languages)
     if (scope.contains("comment")) {
       return dark ? D_COMMENT : L_COMMENT;
+    }
+
+    // Markdown markup. Checked before the generic rules below because the inner scopes are named
+    // after what they mean in a document (heading, quote, raw, ...) rather than after a token type.
+    if (scope.contains("markup.heading")) {
+      return dark ? D_KEYWORD : L_JSON_KEY;
+    }
+    if (scope.contains("markup.underline.link")) {
+      return dark ? D_JSON_KEY : L_KEYWORD;
+    }
+    if (scope.contains("markup.quote")
+        || scope.contains("meta.separator")
+        || scope.contains("punctuation.definition.table")) {
+      return dark ? D_COMMENT : L_COMMENT;
+    }
+    if (scope.contains("fenced_code.block.language")
+        || scope.contains("punctuation.definition.list")) {
+      return dark ? D_KEYWORD : L_KEYWORD;
+    }
+    if (scope.contains("markup.inline.raw") || scope.contains("markup.fenced_code")) {
+      return dark ? D_STRING : L_STRING;
+    }
+    if (scope.contains("markup.bold")
+        || scope.contains("markup.italic")
+        || scope.contains("markup.strikethrough")) {
+      return dark ? D_KEYWORD : L_KEYWORD;
     }
 
     // JSON keys: must be checked before "string" - VS Code uses "support.type.property-name.json"
@@ -261,7 +321,7 @@ final class ContentEditorTm4eSupport {
     if (scope.contains("constant.language")) {
       return dark ? D_CONSTANT : L_CONSTANT;
     }
-    if (scope.contains("constant.other")) {
+    if (scope.contains("constant.other") || scope.contains("constant.character")) {
       return dark ? D_CONSTANT : L_CONSTANT;
     }
 

@@ -22,8 +22,8 @@ import org.eclipse.swt.widgets.Display;
 
 /**
  * Builds a {@link SourceViewerConfiguration} for the content editor. Uses TM4E with TextMate
- * grammars for syntax highlighting of JSON, XML, SQL, Python, and YAML; other languages get a plain
- * config.
+ * grammars for syntax highlighting of JSON, XML, SQL, Python, YAML, and Markdown; other languages
+ * get a plain config.
  */
 public final class RuleBasedSourceViewerConfiguration {
 
@@ -31,8 +31,8 @@ public final class RuleBasedSourceViewerConfiguration {
 
   /**
    * Creates a configuration for the given language. Uses TM4E when a grammar is available (json,
-   * xml, sql, python, yaml, shell, bat); otherwise returns a plain configuration with no syntax
-   * highlighting.
+   * xml, sql, python, yaml, shell, bat, markdown); otherwise returns a plain configuration with no
+   * syntax highlighting.
    *
    * @param languageId language id (e.g. "json", "xml", "sql", "yaml"), or null for plain text
    * @return configuration, never null
