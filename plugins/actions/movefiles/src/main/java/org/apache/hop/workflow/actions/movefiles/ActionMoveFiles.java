@@ -578,7 +578,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                       new AllFileSelector() {
                         @Override
                         public boolean traverseDescendents(FileSelectInfo info) {
-                          return true;
+                          return info.getDepth() == 0 || includeSubfolders;
                         }
 
                         @Override

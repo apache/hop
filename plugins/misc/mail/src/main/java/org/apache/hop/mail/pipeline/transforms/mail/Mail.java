@@ -1051,7 +1051,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
     }
   }
 
-  private class TextFileSelector implements FileSelector {
+  class TextFileSelector implements FileSelector {
     String fileWildcard = null;
     String sourceFolder = null;
 
@@ -1095,7 +1095,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
-      return true;
+      return info.getDepth() == 0 || meta.isIncludeSubFolders();
     }
   }
 
