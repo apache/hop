@@ -1553,18 +1553,18 @@ public class GuiResource {
     builder.append(height);
     String key = builder.toString();
 
-    Image image = imageMap.get(key);
-    if (image == null) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getImage(display, location);
-      int realWidth = (int) Math.round(zoomFactor * width);
-      int realHeight = (int) Math.round(zoomFactor * height);
-      image =
-          new Image(
-              display, svg.getAsBitmapForSize(display, realWidth, realHeight), SWT.IMAGE_COPY);
-      svg.dispose();
-      imageMap.put(key, image);
-    }
-    return image;
+    return imageMap.computeIfAbsent(
+        key,
+        k -> {
+          SwtUniversalImage svg = SwtSvgImageUtil.getImage(display, location);
+          int realWidth = (int) Math.round(zoomFactor * width);
+          int realHeight = (int) Math.round(zoomFactor * height);
+          Image loaded =
+              new Image(
+                  display, svg.getAsBitmapForSize(display, realWidth, realHeight), SWT.IMAGE_COPY);
+          svg.dispose();
+          return loaded;
+        });
   }
 
   /**
@@ -1601,60 +1601,53 @@ public class GuiResource {
     builder.append('|').append(width).append('|').append(height).append('|').append(disabled);
     String key = builder.toString();
 
-    Image image = imageMap.get(key);
-    if (image == null) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
+    return imageMap.computeIfAbsent(
+        key,
+        k -> {
+          SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
 
-      Image zoomedImaged = getZoomedImaged(svg, display, width, height);
-      if (disabled) {
-        // First disabled the image...
-        //
-        image = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
-
-        // Now darken or lighten the image...
-        //
-        float factor;
-        if (PropsUi.getInstance().isDarkMode()) {
-          factor = 0.4f;
-        } else {
-          factor = 2.5f;
-        }
-
-        ImageData data = image.getImageData();
-        for (int x = 0; x < data.width; x++) {
-          for (int y = 0; y < data.height; y++) {
-            int pixel = data.getPixel(x, y);
-            int a = (pixel >> 24) & 0xFF;
-            int b = (pixel >> 16) & 0xFF;
-            int g = (pixel >> 8) & 0xFF;
-            int r = pixel & 0xFF;
-            a = (int) (a * factor);
-            b = (int) (b * factor);
-            g = (int) (g * factor);
-            r = (int) (r * factor);
-            data.setPixel(x, y, r + (g << 8) + (b << 16) + (a << 25));
+          Image zoomedImaged = getZoomedImaged(svg, display, width, height);
+          Image loaded;
+          if (disabled) {
+            Image gray = new Image(display, zoomedImaged, SWT.IMAGE_GRAY);
+            float factor = PropsUi.getInstance().isDarkMode() ? 0.4f : 2.5f;
+            loaded =
+                SwtUniversalImage.createDpiAwareImage(
+                    display,
+                    zoom ->
+                        applyDisabledContrast(
+                            SwtUniversalImage.getImageDataAtZoom(gray, zoom), factor));
+          } else {
+            loaded = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
           }
-          image.dispose();
-          image = new Image(display, data);
-        }
-      } else {
-        image = new Image(display, zoomedImaged, SWT.IMAGE_COPY);
-      }
 
-      svg.dispose();
-      imageMap.put(key, image);
+          svg.dispose();
+          return loaded;
+        });
+  }
+
+  private static ImageData applyDisabledContrast(ImageData source, float factor) {
+    ImageData data = (ImageData) source.clone();
+    for (int x = 0; x < data.width; x++) {
+      for (int y = 0; y < data.height; y++) {
+        int pixel = data.getPixel(x, y);
+        int a = (pixel >> 24) & 0xFF;
+        int b = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int r = pixel & 0xFF;
+        a = (int) (a * factor);
+        b = (int) (b * factor);
+        g = (int) (g * factor);
+        r = (int) (r * factor);
+        data.setPixel(x, y, r + (g << 8) + (b << 16) + (a << 25));
+      }
     }
-    return image;
+    return data;
   }
 
   public Color getColor(int red, int green, int blue) {
     RGB rgb = new RGB(red, green, blue);
-    Color color = colorMap.get(rgb);
-    if (color == null) {
-      color = new Color(display, rgb);
-      colorMap.put(rgb, color);
-    }
-    return color;
+    return colorMap.computeIfAbsent(rgb, key -> new Color(display, key));
   }
 
   /**

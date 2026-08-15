@@ -81,32 +81,38 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
 
   @Override
   protected Image renderSimple(Device device, int width, int height) {
-    BufferedImage area = SwingUniversalImage.createBitmap(width, height);
-    Graphics2D gc = SwingUniversalImage.createGraphics(area);
-    SwingUniversalImageSvg.render(
-        gc, svgGraphicsNode, svgGraphicsSize, width / 2, height / 2, width, height, 0);
-    gc.dispose();
-
-    return swing2swt(device, area);
+    return createDpiAwareImage(device, width, height, (w, h) -> toImageData(renderSvg(w, h, 0d)));
   }
 
   @Override
   protected Image renderRotated(Device device, int width, int height, double angleRadians) {
-    BufferedImage doubleArea = SwingUniversalImage.createDoubleBitmap(width, height);
+    return createDpiAwareImage(
+        device,
+        zoom -> {
+          int svgW = pixelSize(width, zoom);
+          int svgH = pixelSize(height, zoom);
+          BufferedImage doubleArea = SwingUniversalImage.createDoubleBitmap(svgW, svgH);
+          Graphics2D gc = SwingUniversalImage.createGraphics(doubleArea);
+          SwingUniversalImageSvg.render(
+              gc,
+              svgGraphicsNode,
+              svgGraphicsSize,
+              doubleArea.getWidth() / 2,
+              doubleArea.getHeight() / 2,
+              svgW,
+              svgH,
+              angleRadians);
+          gc.dispose();
+          return toImageData(doubleArea);
+        });
+  }
 
-    Graphics2D gc = SwingUniversalImage.createGraphics(doubleArea);
+  private BufferedImage renderSvg(int width, int height, double angleRadians) {
+    BufferedImage area = SwingUniversalImage.createBitmap(width, height);
+    Graphics2D gc = SwingUniversalImage.createGraphics(area);
     SwingUniversalImageSvg.render(
-        gc,
-        svgGraphicsNode,
-        svgGraphicsSize,
-        doubleArea.getWidth() / 2,
-        doubleArea.getHeight() / 2,
-        width,
-        height,
-        angleRadians);
-
+        gc, svgGraphicsNode, svgGraphicsSize, width / 2, height / 2, width, height, angleRadians);
     gc.dispose();
-
-    return swing2swt(device, doubleArea);
+    return area;
   }
 }
