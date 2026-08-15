@@ -743,7 +743,7 @@ public class SearchEverywhereDialog {
     Control content =
         dock.openToolTab(
             searchTabTitle(searchString),
-            GuiResource.getInstance().getImage("ui/images/search.svg", 16, 16),
+            GuiResource.getInstance().getImageSearch(),
             true,
             container -> new HopGuiSearchResultsPanel(container, hopGui));
     if (content instanceof HopGuiSearchResultsPanel panel) {

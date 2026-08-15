@@ -40,7 +40,7 @@ class ContentEditorActionsTest {
 
     assertEquals(IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID, replace.root());
     assertEquals(ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, replace.id());
-    assertEquals("ui/images/edit.svg", replace.image());
+    assertEquals("ui/images/find-replace.svg", replace.image());
   }
 
   private static GuiToolbarElement toolbarElement(String methodName) throws Exception {

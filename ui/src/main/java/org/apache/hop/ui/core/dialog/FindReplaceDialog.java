@@ -81,7 +81,10 @@ public class FindReplaceDialog extends Dialog {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL | SWT.SHEET);
     PropsUi.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageSearch());
+    shell.setImage(
+        replaceMode
+            ? GuiResource.getInstance().getImageFindReplace()
+            : GuiResource.getInstance().getImageSearch());
     shell.setText(
         BaseMessages.getString(
             PKG,

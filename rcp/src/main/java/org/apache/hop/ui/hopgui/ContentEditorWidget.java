@@ -595,7 +595,7 @@ public class ContentEditorWidget implements IContentEditorWidget {
       parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
       id = ID_CONTEXT_MENU_FIND_REPLACE,
       label = "i18n::ContentEditorWidget.Menu.FindReplace",
-      image = "ui/images/edit.svg")
+      image = "ui/images/find-replace.svg")
   public void findAndReplace() {
     FindReplaceDialog.open(control.getShell(), this, true);
   }

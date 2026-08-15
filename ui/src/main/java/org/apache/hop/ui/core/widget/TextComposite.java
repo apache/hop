@@ -365,7 +365,7 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
   @GuiToolbarElement(
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_FIND_REPLACE,
-      image = "ui/images/edit.svg",
+      image = "ui/images/find-replace.svg",
       toolTip = "i18n::TextComposite.ToolBarWidget.FindReplace.ToolTip")
   public static void toolbarFindReplace(TextComposite text) {
     text.findAndReplace();
@@ -687,9 +687,7 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
     final MenuItem findItem = new MenuItem(popupMenu, SWT.PUSH);
     findItem.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Find")));
-    findItem.setImage(
-        GuiResource.getInstance()
-            .getImage("ui/images/search.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    findItem.setImage(GuiResource.getInstance().getImageSearch());
     findItem.addListener(SWT.Selection, event -> find());
 
     final MenuItem findReplaceItem = new MenuItem(popupMenu, SWT.PUSH);
@@ -698,7 +696,8 @@ public abstract class TextComposite extends Composite implements IFindReplaceTar
             BaseMessages.getString(PKG, "WidgetDialog.Styled.FindReplace")));
     findReplaceItem.setImage(
         GuiResource.getInstance()
-            .getImage("ui/images/edit.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+            .getImage(
+                "ui/images/find-replace.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     findReplaceItem.addListener(SWT.Selection, event -> findAndReplace());
 
     addListener(
