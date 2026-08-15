@@ -499,7 +499,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
-      return true;
+      return info.getDepth() == 0 || includeSubFolders;
     }
   }
 
