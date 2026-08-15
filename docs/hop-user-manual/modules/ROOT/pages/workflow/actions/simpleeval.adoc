@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Simple evaluation action evaluates contents of a variable or a field in the result stream.
+:description: The Simple evaluation action evaluates a variable, a field in the result stream, the number of result files, or log text from the previous action.
 
 :openvar: ${
 :closevar: }
@@ -25,7 +25,7 @@ under the License.
 
 == Description
 
-The `Simple evaluation` action evaluates contents or value of a variable or a field in the result stream.
+The `Simple evaluation` action evaluates the contents of a variable, a field in the result stream, the number of result files, or the log text of the previous workflow action.
 
 Connect two actions with the output of the Simple Evaluation.
 
@@ -44,9 +44,15 @@ The green (success) hop will be called if the condition was evaluated successful
 |Option|Description
 |Action name|The name of the workflow action.
 2+|Source
-|Evaluate|Evaluation type: field or variable.
-|Field name|The field to evaluate
-|Type|Data type.
+|Evaluate a|
+Evaluation type:
+
+* Field from previous result
+* Variable
+* Number of result files
+* Log text from previous result
+|Field name|The field to evaluate (only shown when evaluating a field)
+|Type|Data type (hidden when evaluating result files or log text)
 2+|Success On
 |Success when source variable set| The action will always success if the source variable was set otherwise it will fail.
 |Success condition a|
@@ -92,4 +98,34 @@ And remember: Once this variable is set, the variable keeps existing, even when 
 |Source: Type|String, Number etc.|The type of your field
 |Success On: Success condition|Equal/Non equal/etc.|Select the condition to be met for a successful result
 |Success On: Value||Value to compare the field to
+|===
+
+**Evaluating the number of result files**
+
+Use this to check how many files the previous action added to the workflow result (for example after *Add filenames to result* or a pipeline that adds files).
+
+The source is treated as a number. Typical conditions are equal to, greater than, smaller than, or between.
+
+[options="header"]
+|===
+|Field|Value|Explanation
+|Source: Evaluate|Number of result files|Select this to evaluate how many files the previous action added to the result
+|Success On: Success condition|Equal/Greater than/Between/etc.|Compare the file count
+|Success On: Value||Expected number of result files
+|===
+
+**Evaluating log text from the previous result**
+
+Use this to verify that a previous pipeline or workflow action logged an expected snippet, or that an unwanted snippet is absent.
+
+The source is the log text captured for the previous action. It is treated as a string. Typical conditions are *If value contains* and *If value not contains*. Regular expressions are also supported.
+
+This is a no-code alternative to checking the previous result log text in a JavaScript action.
+
+[options="header"]
+|===
+|Field|Value|Explanation
+|Source: Evaluate|Log text from previous result|Select this to evaluate the previous action's log text
+|Success On: Success condition|Contains/Not contains/Regex/etc.|Check for presence or absence of a snippet
+|Success On: Value||The text snippet or regular expression to look for
 |===

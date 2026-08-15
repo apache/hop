@@ -517,10 +517,11 @@ public class ActionSimpleEvalDialog extends ActionDialog {
   }
 
   private void refresh() {
-    boolean evaluatepreviousRowField =
-        ValueType.lookupDescription(wValueType.getText()) == ValueType.FIELD;
-    boolean evaluateVariable =
-        ValueType.lookupDescription(wValueType.getText()) == ValueType.VARIABLE;
+    ValueType selectedValueType = ValueType.lookupDescription(wValueType.getText());
+    boolean evaluatepreviousRowField = selectedValueType == ValueType.FIELD;
+    boolean evaluateVariable = selectedValueType == ValueType.VARIABLE;
+    boolean evaluateResultFiles = selectedValueType == ValueType.RESULT_FILES;
+    boolean evaluateLogText = selectedValueType == ValueType.LOG_TEXT;
     wlVariableName.setVisible(evaluateVariable);
     wVariableName.setVisible(evaluateVariable);
     wlFieldName.setVisible(evaluatepreviousRowField);
@@ -529,27 +530,32 @@ public class ActionSimpleEvalDialog extends ActionDialog {
     wSuccessWhenSet.setVisible(evaluateVariable);
 
     boolean successWhenSet = wSuccessWhenSet.getSelection() && evaluateVariable;
+    boolean showType = !successWhenSet && !evaluateResultFiles && !evaluateLogText;
 
-    wlFieldType.setVisible(!successWhenSet);
-    wFieldType.setVisible(!successWhenSet);
+    wlFieldType.setVisible(showType);
+    wFieldType.setVisible(showType);
 
     boolean valueTypeDate =
-        FieldType.lookupDescription(wFieldType.getText()) == FieldType.DATE_TIME;
-    wlMask.setVisible(!successWhenSet && valueTypeDate);
-    wMask.setVisible(!successWhenSet && valueTypeDate);
+        showType && FieldType.lookupDescription(wFieldType.getText()) == FieldType.DATE_TIME;
+    wlMask.setVisible(valueTypeDate);
+    wMask.setVisible(valueTypeDate);
 
-    boolean valueTypeString = FieldType.lookupDescription(wFieldType.getText()) == FieldType.STRING;
+    boolean valueTypeString =
+        evaluateLogText
+            || (showType && FieldType.lookupDescription(wFieldType.getText()) == FieldType.STRING);
     wlSuccessStringCondition.setVisible(!successWhenSet && valueTypeString);
     wSuccessStringCondition.setVisible(!successWhenSet && valueTypeString);
 
     boolean valueTypeNumber =
-        FieldType.lookupDescription(wFieldType.getText()) == FieldType.NUMBER
-            || FieldType.lookupDescription(wFieldType.getText()) == FieldType.DATE_TIME;
+        evaluateResultFiles
+            || (showType
+                && (FieldType.lookupDescription(wFieldType.getText()) == FieldType.NUMBER
+                    || FieldType.lookupDescription(wFieldType.getText()) == FieldType.DATE_TIME));
     wlSuccessNumberCondition.setVisible(!successWhenSet && valueTypeNumber);
     wSuccessNumberCondition.setVisible(!successWhenSet && valueTypeNumber);
 
     boolean valueTypeBoolean =
-        FieldType.lookupDescription(wFieldType.getText()) == FieldType.BOOLEAN;
+        showType && FieldType.lookupDescription(wFieldType.getText()) == FieldType.BOOLEAN;
     wlSuccessBooleanCondition.setVisible(!successWhenSet && valueTypeBoolean);
     wSuccessBooleanCondition.setVisible(!successWhenSet && valueTypeBoolean);
 
@@ -583,10 +589,17 @@ public class ActionSimpleEvalDialog extends ActionDialog {
     }
 
     action.setName(wName.getText());
-    action.setValueType(ValueType.lookupDescription(wValueType.getText()));
+    ValueType valueType = ValueType.lookupDescription(wValueType.getText());
+    action.setValueType(valueType);
     action.setFieldName(wFieldName.getText());
     action.setVariableName(wVariableName.getText());
-    action.setFieldType(FieldType.lookupDescription(wFieldType.getText()));
+    if (valueType == ValueType.RESULT_FILES) {
+      action.setFieldType(FieldType.NUMBER);
+    } else if (valueType == ValueType.LOG_TEXT) {
+      action.setFieldType(FieldType.STRING);
+    } else {
+      action.setFieldType(FieldType.lookupDescription(wFieldType.getText()));
+    }
     action.setMask(wMask.getText());
     action.setCompareValue(wCompareValue.getText());
     action.setMinValue(wMinValue.getText());
