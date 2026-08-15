@@ -18,6 +18,7 @@ package org.apache.hop.history;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -179,5 +180,32 @@ class AuditManagerTest {
 
     stateMap = AuditManager.getActive().loadAuditStateMap(group, type);
     assertTrue(stateMap.getNameStateMap().isEmpty(), "State should be cleared");
+  }
+
+  @Test
+  void testRemoveState() throws HopException {
+    String group = "hop-gui";
+    String type = "table-view";
+
+    Map<String, Object> first = new HashMap<>();
+    first.put("columns", List.of("id", "name"));
+    AuditManager.storeState(
+        org.apache.hop.core.logging.LogChannel.GENERAL, group, type, "Customer keys", first);
+
+    Map<String, Object> second = new HashMap<>();
+    second.put("columns", List.of("order_id"));
+    AuditManager.storeState(
+        org.apache.hop.core.logging.LogChannel.GENERAL, group, type, "Order dates", second);
+
+    AuditStateMap stateMap = AuditManager.getActive().loadAuditStateMap(group, type);
+    assertEquals(2, stateMap.getNameStateMap().size(), "Both views should be stored");
+
+    assertNotNull(stateMap.remove("Customer keys"));
+    AuditManager.getActive().saveAuditStateMap(group, type, stateMap);
+
+    stateMap = AuditManager.getActive().loadAuditStateMap(group, type);
+    assertNull(stateMap.get("Customer keys"), "Removed view should be gone");
+    assertNotNull(stateMap.get("Order dates"), "The other view should remain");
+    assertEquals(1, stateMap.getNameStateMap().size());
   }
 }

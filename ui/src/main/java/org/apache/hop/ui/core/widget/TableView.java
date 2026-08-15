@@ -55,6 +55,7 @@ import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.TableViewColumnViewDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
@@ -151,6 +152,7 @@ public class TableView extends Composite {
       "tableview-toolbar-10320-filtered-selection";
   public static final String ID_TOOLBAR_NAVIGATE_TO_COLUMN =
       "tableview-toolbar-10330-navigate-to-column";
+  public static final String ID_TOOLBAR_TABLE_VIEWS = "tableview-toolbar-10340-table-views";
   public static final String ID_TOOLBAR_COPY_SELECTED = "tableview-toolbar-10400-copy-selected";
   public static final String ID_TOOLBAR_PASTE_TO_TABLE = "tableview-toolbar-10410-paste-to-table";
   public static final String ID_TOOLBAR_CUT_SELECTED = "tableview-toolbar-10420-cut-selected";
@@ -235,6 +237,8 @@ public class TableView extends Composite {
   private boolean addIndexColumn = true;
   private final Color nullTextColor;
   private final List<String> removeToolItems;
+  private final Set<Integer> hiddenDataColumns = new HashSet<>();
+  private int[] rememberedWidths;
 
   /**
    * Create a table to add to a dialog
@@ -577,6 +581,9 @@ public class TableView extends Composite {
         tableColumn[i + 1].setAlignment(SWT.RIGHT);
       }
       tableColumn[i + 1].pack();
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        tableColumn[i + 1].setMoveable(true);
+      }
     }
 
     table.setHeaderVisible(true);
@@ -735,6 +742,7 @@ public class TableView extends Composite {
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CLEAR_SELECTION, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_FILTERED_SELECTION, hasRows);
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_NAVIGATE_TO_COLUMN, columns.length > 0);
+    toolbarWidgets.enableToolbarItem(ID_TOOLBAR_TABLE_VIEWS, columns.length > 0);
   }
 
   private MouseListener createTableMouseListener() {
@@ -1462,6 +1470,16 @@ public class TableView extends Composite {
           OsHelper.customizeMenuitemText(
               BaseMessages.getString(PKG, "TableView.menu.NavigateToColumn")));
       miNavigateToColumn.addListener(SWT.Selection, e -> navigateToColumn());
+    }
+
+    if (!removeToolItems.contains(ID_TOOLBAR_TABLE_VIEWS)) {
+      MenuItem miTableViews = new MenuItem(mRow, SWT.NONE);
+      miTableViews.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.TableViews")));
+      miTableViews.setImage(GuiResource.getInstance().getImageView());
+      miTableViews.addListener(SWT.Selection, e -> editTableViews());
+      new MenuItem(mRow, SWT.SEPARATOR);
+    } else if (!removeToolItems.contains(ID_TOOLBAR_NAVIGATE_TO_COLUMN)) {
       new MenuItem(mRow, SWT.SEPARATOR);
     }
 
@@ -1536,6 +1554,7 @@ public class TableView extends Composite {
     }
 
     table.setMenu(mRow);
+    addHeaderContextMenu(mRow);
   }
 
   protected void addToolbar() {
@@ -3539,6 +3558,12 @@ public class TableView extends Composite {
 
     for (int c = 0; c < table.getColumnCount(); c++) {
       TableColumn tc = table.getColumn(c);
+      if (c > 0 && hiddenDataColumns.contains(c - 1)) {
+        if (tc.getWidth() != 0) {
+          tc.setWidth(0);
+        }
+        continue;
+      }
       int max = 0;
       if (header) {
         max = TextSizeUtilFacade.textExtent(tc.getText()).x + extraForMargin;
@@ -4230,11 +4255,286 @@ public class TableView extends Composite {
     }
 
     // tableColumn[0] is the row-number (#) column; data columns start at index 1.
+    if (hiddenDataColumns.contains(index)) {
+      showDataColumn(index);
+    }
     TableColumn tableCol = tableColumn[index + 1];
     if (tableCol != null && !tableCol.isDisposed()) {
       table.showColumn(tableCol);
       activeTableColumn = index + 1;
     }
+  }
+
+  @GuiToolbarElement(
+      root = ID_TOOLBAR,
+      id = ID_TOOLBAR_TABLE_VIEWS,
+      image = "ui/images/view.svg",
+      toolTip = "i18n::TableView.ToolBarWidget.TableViews.ToolTip")
+  public void editTableViews() {
+    if (columns.length == 0) {
+      return;
+    }
+    new TableViewColumnViewDialog(getShell(), this).open();
+  }
+
+  /**
+   * Hide and reorder data columns so that only {@code columnNames} stay visible, in that order.
+   * Matching is by column name. Cell data is left in place.
+   *
+   * @return {@code true} if at least one column matched
+   */
+  public boolean applyColumnView(List<String> columnNames) {
+    if (table == null || table.isDisposed() || columns.length == 0) {
+      return false;
+    }
+    String[] available = new String[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      available[i] = Const.NVL(columns[i].getName(), "");
+    }
+    List<Integer> visible = TableViewColumnViews.resolveColumnIndices(available, columnNames);
+    if (visible.isEmpty()) {
+      return false;
+    }
+    ensureRememberedWidths();
+    hiddenDataColumns.clear();
+    Set<Integer> visibleSet = new HashSet<>(visible);
+    for (int i = 0; i < columns.length; i++) {
+      if (!visibleSet.contains(i)) {
+        hiddenDataColumns.add(i);
+      }
+    }
+    applyHiddenAndOrder(visible);
+    return true;
+  }
+
+  /** Restore every data column to its original order and remembered width. */
+  public void resetColumnView() {
+    if (table == null || table.isDisposed()) {
+      return;
+    }
+    hiddenDataColumns.clear();
+    for (int i = 1; i < tableColumn.length; i++) {
+      TableColumn tc = tableColumn[i];
+      if (tc == null || tc.isDisposed()) {
+        continue;
+      }
+      tc.setResizable(true);
+      int restore = rememberedWidths != null ? rememberedWidths[i] : 0;
+      if (restore > 0) {
+        tc.setWidth(restore);
+      } else if (tc.getWidth() <= 0) {
+        tc.pack();
+      }
+    }
+    setColumnOrderSafe(naturalColumnOrder());
+  }
+
+  /**
+   * Visible data-column names in current visual order (the # column is omitted). Hidden columns
+   * (width 0) are skipped.
+   */
+  public List<String> getVisibleColumnNamesInOrder() {
+    List<String> names = new ArrayList<>();
+    if (table == null || table.isDisposed()) {
+      return names;
+    }
+    for (int tableIdx : getColumnOrderSafe()) {
+      if (tableIdx <= 0 || tableIdx > columns.length) {
+        continue;
+      }
+      int dataIdx = tableIdx - 1;
+      if (hiddenDataColumns.contains(dataIdx)) {
+        continue;
+      }
+      TableColumn tc = tableColumn[tableIdx];
+      if (tc == null || tc.isDisposed() || tc.getWidth() <= 0) {
+        continue;
+      }
+      names.add(Const.NVL(columns[dataIdx].getName(), ""));
+    }
+    return names;
+  }
+
+  public void hideDataColumn(int dataIndex) {
+    if (dataIndex < 0 || dataIndex >= columns.length) {
+      return;
+    }
+    if (table == null || table.isDisposed()) {
+      return;
+    }
+    ensureRememberedWidths();
+    rememberWidth(dataIndex + 1);
+    hiddenDataColumns.add(dataIndex);
+    TableColumn tc = tableColumn[dataIndex + 1];
+    if (tc != null && !tc.isDisposed()) {
+      tc.setWidth(0);
+      tc.setResizable(false);
+    }
+  }
+
+  private void showDataColumn(int dataIndex) {
+    if (dataIndex < 0 || dataIndex >= columns.length) {
+      return;
+    }
+    hiddenDataColumns.remove(dataIndex);
+    TableColumn tc = tableColumn[dataIndex + 1];
+    if (tc == null || tc.isDisposed()) {
+      return;
+    }
+    tc.setResizable(true);
+    int restore = rememberedWidths != null ? rememberedWidths[dataIndex + 1] : 0;
+    if (restore > 0) {
+      tc.setWidth(restore);
+    } else if (tc.getWidth() <= 0) {
+      tc.pack();
+    }
+  }
+
+  private void applyHiddenAndOrder(List<Integer> visibleDataIndices) {
+    for (int i = 0; i < columns.length; i++) {
+      TableColumn tc = tableColumn[i + 1];
+      if (tc == null || tc.isDisposed()) {
+        continue;
+      }
+      if (hiddenDataColumns.contains(i)) {
+        rememberWidth(i + 1);
+        tc.setWidth(0);
+        tc.setResizable(false);
+      } else {
+        tc.setResizable(true);
+        if (tc.getWidth() <= 0) {
+          int restore = rememberedWidths != null ? rememberedWidths[i + 1] : 0;
+          tc.setWidth(restore > 0 ? restore : 50);
+        }
+      }
+    }
+
+    int[] order = new int[tableColumn.length];
+    int pos = 0;
+    order[pos++] = 0;
+    for (int dataIdx : visibleDataIndices) {
+      order[pos++] = dataIdx + 1;
+    }
+    for (int i = 0; i < columns.length; i++) {
+      if (hiddenDataColumns.contains(i)) {
+        order[pos++] = i + 1;
+      }
+    }
+    setColumnOrderSafe(order);
+  }
+
+  private void ensureRememberedWidths() {
+    if (rememberedWidths != null && rememberedWidths.length == tableColumn.length) {
+      return;
+    }
+    rememberedWidths = new int[tableColumn.length];
+    for (int i = 0; i < tableColumn.length; i++) {
+      if (tableColumn[i] != null && !tableColumn[i].isDisposed()) {
+        rememberedWidths[i] = tableColumn[i].getWidth();
+      }
+    }
+  }
+
+  private void rememberWidth(int tableColIndex) {
+    ensureRememberedWidths();
+    TableColumn tc = tableColumn[tableColIndex];
+    if (tc == null || tc.isDisposed()) {
+      return;
+    }
+    int width = tc.getWidth();
+    if (width > 0) {
+      rememberedWidths[tableColIndex] = width;
+    }
+  }
+
+  private int[] naturalColumnOrder() {
+    int[] order = new int[tableColumn.length];
+    for (int i = 0; i < order.length; i++) {
+      order[i] = i;
+    }
+    return order;
+  }
+
+  private int[] getColumnOrderSafe() {
+    try {
+      int[] order = table.getColumnOrder();
+      if (order != null && order.length == tableColumn.length) {
+        return order;
+      }
+    } catch (Exception e) {
+      // RAP / some SWT ports do not implement column order
+    }
+    return naturalColumnOrder();
+  }
+
+  private void setColumnOrderSafe(int[] order) {
+    try {
+      table.setColumnOrder(order);
+    } catch (Exception e) {
+      // RAP / some SWT ports do not implement column order
+    }
+  }
+
+  private void addHeaderContextMenu(Menu rowMenu) {
+    Menu headerMenu = new Menu(table);
+
+    MenuItem miHide = new MenuItem(headerMenu, SWT.NONE);
+    miHide.setText(
+        OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.HideColumn")));
+    final int[] headerDataColumn = {-1};
+    miHide.addListener(
+        SWT.Selection,
+        e -> {
+          if (headerDataColumn[0] >= 0) {
+            hideDataColumn(headerDataColumn[0]);
+          }
+        });
+
+    MenuItem miShowAll = new MenuItem(headerMenu, SWT.NONE);
+    miShowAll.setText(
+        OsHelper.customizeMenuitemText(
+            BaseMessages.getString(PKG, "TableView.menu.ShowAllColumns")));
+    miShowAll.addListener(SWT.Selection, e -> resetColumnView());
+
+    if (!removeToolItems.contains(ID_TOOLBAR_TABLE_VIEWS)) {
+      new MenuItem(headerMenu, SWT.SEPARATOR);
+      MenuItem miTableViews = new MenuItem(headerMenu, SWT.NONE);
+      miTableViews.setText(
+          OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "TableView.menu.TableViews")));
+      miTableViews.setImage(GuiResource.getInstance().getImageView());
+      miTableViews.addListener(SWT.Selection, e -> editTableViews());
+    }
+
+    table.addListener(
+        SWT.MenuDetect,
+        event -> {
+          Point pt = table.toControl(event.x, event.y);
+          boolean onHeader = pt.y >= 0 && pt.y < table.getHeaderHeight();
+          if (onHeader) {
+            headerDataColumn[0] = findDataColumnAtX(pt.x);
+            miHide.setEnabled(headerDataColumn[0] >= 0);
+            table.setMenu(headerMenu);
+          } else {
+            table.setMenu(rowMenu);
+          }
+        });
+  }
+
+  private int findDataColumnAtX(int x) {
+    int pos = 0;
+    ScrollBar hBar = table.getHorizontalBar();
+    if (hBar != null && !hBar.isDisposed()) {
+      pos -= hBar.getSelection();
+    }
+    for (int tableIdx : getColumnOrderSafe()) {
+      TableColumn tc = table.getColumn(tableIdx);
+      int width = tc.getWidth();
+      if (x >= pos && x < pos + width) {
+        return tableIdx == 0 ? -1 : tableIdx - 1;
+      }
+      pos += width;
+    }
+    return -1;
   }
 
   public IRowMeta getRowWithoutValues() {

@@ -106,3 +106,29 @@ To change the pipeline run configuration, click **Configure**.
 The collected rows are shown in the preview window when execution pauses or finishes.
 
 image::hop-gui/pipeline/preview-pipeline.png[Preview pipeline,75%,align="left"]
+
+[[table-views]]
+== Table views
+
+Preview windows (and other table grids in Hop Gui) can contain a large number of columns.
+A **table view** is a named subset of those columns, in the order you want to see them.
+The underlying rows are not changed: hidden columns stay in the data and are still exported, copied or saved.
+
+Open the **Table views** dialog from the table toolbar image:getting-started/icons/view.svg[Table views,25px,align="bottom"] icon, from the row context menu, or from the column header context menu.
+
+image::hop-gui/pipeline/table-views-dialog.png[Table views dialog on a wide preview,75%,align="left"]
+
+In the dialog:
+
+* Create, rename or delete a view. **Use current layout** fills the view from the columns that are visible now.
+* Move fields between **Available columns** and **Columns in view**, and use **Move up** / **Move down** to set the display order.
+* **Apply** shows only the selected columns, in that order. **Show all columns** restores the full table.
+* **Save** stores the view so you can reuse it later.
+
+Views are stored per project in the Hop audit folder and are matched by column name.
+A view such as `customer-bk-fields` can be applied to any table that has those field names, not only the preview where you created it.
+
+You can also hide a single column from the column header context menu, or drag headers to reorder them (desktop Hop Gui).
+Those one-off changes can be captured with **Use current layout** and then saved as a named view.
+
+The table toolbar itself can be turned on or off with **Show a toolbar above tables** in the xref:hop-gui/perspective-configuration.adoc[Configuration] perspective.
