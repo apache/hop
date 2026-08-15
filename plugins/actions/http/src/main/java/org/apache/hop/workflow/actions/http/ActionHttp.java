@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.http;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,10 +30,13 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import javax.net.ssl.HttpsURLConnection;
 import lombok.Getter;
 import lombok.Setter;
@@ -65,6 +69,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 /** This defines an HTTP action. */
@@ -145,6 +150,9 @@ public class ActionHttp extends ActionBase {
 
   @HopMetadataProperty(key = "addfilenameresult")
   private boolean addFilenameResult;
+
+  @HopMetadataProperty(key = "reply_variable")
+  private String replyVariableName;
 
   @HopMetadataProperty(key = "header", groupKey = "headers")
   private List<Header> headers;
@@ -403,14 +411,29 @@ public class ActionHttp extends ActionBase {
                   PKG, "ActionHTTP.Log.ReplayInfo", connection.getContentType(), date));
         }
 
+        ByteArrayOutputStream replyBuffer = null;
+        String resolvedReplyVariable =
+            Utils.isEmpty(replyVariableName) ? "" : resolve(replyVariableName);
+        if (!Utils.isEmpty(resolvedReplyVariable)) {
+          replyBuffer = new ByteArrayOutputStream();
+        }
+
         byte[] buffer = new byte[8192];
         int bytesRead;
         while ((bytesRead = input.read(buffer)) != -1) {
           outputFile.write(buffer, 0, bytesRead);
+          if (replyBuffer != null) {
+            replyBuffer.write(buffer, 0, bytesRead);
+          }
         }
         bytesReadThisRow += ((CountingInputStream) input).getCount();
         bytesWrittenThisRow += ((CountingOutputStream) outputFile).getCount();
         httpLineageResponseBytes = ((CountingInputStream) input).getCount();
+
+        if (replyBuffer != null) {
+          storeReplyInVariable(
+              resolvedReplyVariable, replyBuffer.toByteArray(), connection.getContentType());
+        }
 
         if (isBasic()) {
           logBasic(
@@ -555,6 +578,48 @@ public class ActionHttp extends ActionBase {
             "proxyPort",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.integerValidator()));
+  }
+
+  /**
+   * Stores the HTTP reply body in a workflow variable so later actions can use it. The value is set
+   * on this action and on the parent workflow (and its parents).
+   */
+  private void storeReplyInVariable(String variableName, byte[] replyBytes, String contentType) {
+    if (Utils.isEmpty(variableName) || replyBytes == null) {
+      return;
+    }
+    String reply = new String(replyBytes, charsetFromContentType(contentType));
+    setVariable(variableName, reply);
+    IWorkflowEngine<WorkflowMeta> parent = getParentWorkflow();
+    while (parent != null) {
+      parent.setVariable(variableName, reply);
+      parent = parent.getParentWorkflow();
+    }
+    if (isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "ActionHTTP.Log.ReplyStoredInVariable", variableName));
+    }
+  }
+
+  static Charset charsetFromContentType(String contentType) {
+    if (Utils.isEmpty(contentType)) {
+      return StandardCharsets.UTF_8;
+    }
+    String lower = contentType.toLowerCase(Locale.ROOT);
+    int idx = lower.indexOf("charset=");
+    if (idx < 0) {
+      return StandardCharsets.UTF_8;
+    }
+    String charsetName = contentType.substring(idx + 8).trim();
+    int separator = charsetName.indexOf(';');
+    if (separator >= 0) {
+      charsetName = charsetName.substring(0, separator).trim();
+    }
+    charsetName = charsetName.replace("\"", "").trim();
+    try {
+      return Charset.forName(charsetName);
+    } catch (Exception e) {
+      return StandardCharsets.UTF_8;
+    }
   }
 
   @Getter
