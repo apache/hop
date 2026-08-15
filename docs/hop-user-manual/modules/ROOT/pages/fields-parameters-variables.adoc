@@ -1,0 +1,162 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[FieldsParametersVariables]]
+:imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
+:description: Fields, parameters, and variables are the three ways Apache Hop moves data and configuration. This page compares them, how they flow between pipelines and workflows, and the pitfalls that come up when they share a name.
+
+= Fields, parameters, and variables
+
+Apache Hop moves information in three related but different ways:
+
+* *Fields* are the typed columns on a data row that flow between transforms.
+* *Parameters* are named inputs declared on a pipeline or workflow. They become variables of the same name when that pipeline or workflow starts.
+* *Variables* are named string values in a scope (JVM, environment, project, run configuration, workflow, or pipeline).
+
+They can look similar in the UI, especially when a dialog column is titled *Parameters/Variables*, but they do not behave the same way.
+
+Fields, parameters, and variables are available downstream when they are in scope. You can pass them again through as many nesting levels as you need. The *Get Parameters* / *Get Variables* buttons only look one level up: they read the pipeline or workflow the action or transform points at, not the whole ancestor chain.
+
+== At a glance
+
+[cols="1,2,2,2", options="header"]
+|===
+| |Fields |Parameters |Variables
+
+|What they are
+|Named, typed columns on a data row
+|Named inputs declared on a pipeline or workflow
+|Named string values in a scope
+
+|Typical analogy
+|Columns in a result set
+|Function arguments
+|Environment or configuration
+
+|Type
+|Hop data types (String, Integer, Date, and so on)
+|Always a string; activated as a variable of the same name
+|Always a string
+
+|Scope
+|The stream between transforms, and result rows between a parent and a child
+|The pipeline or workflow that declared them
+|JVM, environment, project, run configuration, workflow, or pipeline
+
+|Direction
+|Flow with the data. A child can return rows to its parent
+|Passed downstream when the child starts
+|Inherited downstream. Can be set "upward" only with a wider scope
+
+|When they become visible
+|After a row has been produced
+|After the child pipeline or workflow has started
+|After the pipeline or workflow that should read them has started
+|===
+
+For the full variable reference (how to write `{openvar}NAME{closevar}`, hierarchy, resolvers, and the built-in names), see xref:variables.adoc[Variables].
+
+== Fields
+
+A field is a column on a data row. Transforms read incoming fields, add or change fields, and send the row on.
+
+After a pipeline run, click the small table icon on a transform to preview the cached rows and see the fields that were in scope. That preview is described in xref:pipeline/run-preview-debug-pipeline.adoc[Run, Preview and Debug a Pipeline].
+
+Fields do not travel as variables. To use a field value as a variable in a child pipeline or workflow, map it on the *Parameters* tab of a xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor], xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor], xref:workflow/actions/pipeline.adoc[Pipeline] action, or xref:workflow/actions/workflow.adoc[Workflow] action. To turn a variable back into a field, use xref:pipeline/transforms/getvariable.adoc[Get variables].
+
+A child can send fields back to its parent. Typical pattern:
+
+. In the child pipeline, end with xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result].
+. On the parent xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor], open the *Result rows* tab and declare the field names and types you expect back.
+. Use the executor hop *This output will contain the result rows after execution*.
+
+The samples project includes this pattern in `samples/loops/pipeline-executor.hpl`.
+
+NOTE: Copy rows to result as a way to build loops from a workflow is xref:how-to-guides/loops-in-apache-hop.adoc[deprecated]. Prefer a pipeline or workflow executor. Returning result rows from an executor child is still the supported way to send fields back to the parent.
+
+== Parameters
+
+Think of parameters as function arguments. Declaring them on a pipeline is like writing `MyPipeline(parameter1, parameter2, ...)`. Each parameter has a name, an optional default, and an optional description (pipeline or workflow properties, *Parameters* tab).
+
+When the pipeline or workflow starts, each parameter is activated as a variable of the same name. From that point you can write `{openvar}MY_PARAM{closevar}` anywhere a variable is accepted. Use xref:pipeline/transforms/getvariable.adoc[Get variables] only when you need that value as a field in the stream.
+
+Rules that matter in practice:
+
+* Declare the parameter on the *receiving* pipeline or workflow. If a Pipeline Executor (or Pipeline action) sets `CUSTOMER_ID`, the child must list `CUSTOMER_ID` in its own properties. Leave the child's default empty when you want the caller to supply the value.
+* Parameters travel *downstream* when the child is started. They are not sent back to the parent. To return information, send *fields* (result rows, above) or set a xref:pipeline/transforms/setvariable.adoc[variable] with a wider scope.
+* A value you pass on the caller's *Parameters* tab wins over the child's default. A column titled *Parameters/Variables* means: set this name in the child, overriding whatever was there before. That is how you override a child default for one execution.
+* *Pass parameter values to sub pipeline* (Pipeline / Workflow action) and *Inherit all variables from pipeline* (executors) control implicit inheritance. If the child declares a parameter, also list that name on the caller's *Parameters* tab when you want a specific value, even if a same-named variable already exists in the parent. Otherwise the child's empty default can replace the inherited value.
+* *Get Parameters* fills the tab from the child you selected. It does not walk further up the call stack.
+
+See xref:pipeline/create-pipeline.adoc[Create a Pipeline] for the properties dialog.
+
+== Variables
+
+Variables are more global than fields, and you choose the scope: the Java virtual machine, the root workflow, the parent, and so on. They are always strings.
+
+Two practical kinds:
+
+* *Configuration variables* are set before execution: system properties, xref:projects/projects-environments.adoc[environment] files, project variables, run configurations, or `hop-run -p`. Any downstream workflow or pipeline can use `{openvar}myVariable{closevar}` directly. You do not need Get variables unless the value must become a field.
+* *Runtime variables* are set while a pipeline or workflow is running, usually with xref:pipeline/transforms/setvariable.adoc[Set Variables] or the xref:workflow/actions/setvariables.adoc[Set Variables] action. A running pipeline cannot pick up a new value that another transform in the *same* pipeline just set: all transforms start together. Set the variable, then start another pipeline or workflow (or let a Pipeline Executor start the child once per row). A nested pipeline that was already running is the same execution; it will not see the new value either.
+
+A variable can be visible "upstream" only when it was set with a wider scope than the child (for example *Valid in the parent* or *Valid in the root*).
+Set Variables also crawls nested execution engines so a value set in a child can reach a mixed workflow/pipeline hierarchy when the chosen scope allows it.
+
+The places you can define variables, and which level inherits from which, are listed in xref:variables.adoc#_how_can_i_define_variables[Variables: How can I define variables] and xref:variables.adoc#_hierarchy[Variables: Hierarchy].
+
+== Passing values between pipelines and workflows
+
+[cols="1,3", options="header"]
+|===
+|You want to... |Do this
+
+|Pass a field into a child as a parameter
+|Map the field on the caller's *Parameters* tab. Declare the same name on the child.
+
+|Pass a configuration value into everything
+|Set an environment, project, or run-configuration variable. Refer to `{openvar}NAME{closevar}` in any descendant.
+
+|Use a variable as a field
+|xref:pipeline/transforms/getvariable.adoc[Get variables] in the pipeline that needs the field.
+
+|Return fields from a child to the parent
+|Copy rows to result in the child, and *Result rows* on the parent executor.
+
+|Return a single value toward a parent
+|xref:pipeline/transforms/setvariable.adoc[Set Variables] with a parent, grand-parent, or root scope.
+
+|Loop with a new parameter value each time
+|Pipeline Executor or Workflow Executor (once per row, or grouped). Each child start sees the new parameter. See xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop].
+|===
+
+== Common pitfalls
+
+* *Same name, different thing.* A field `customer_id`, a parameter `CUSTOMER_ID`, and a variable `CUSTOMER_ID` can all exist at once. The field is not the variable. Map it explicitly when you need the value in the other form.
+* *Declaring a parameter can hide an inherited variable.* If the child lists `HOSTNAME` with an empty default and the caller does not pass `HOSTNAME`, Hop may set the variable to empty instead of keeping a project or environment value. Pass the parameter from the caller, or give the child a non-empty default so an already-set variable of the same name is kept.
+* *Do not set and read a variable in the same pipeline.* Transforms run in parallel. There is no guaranteed order, so the reader can see a previous run's value or nothing. This is the most common variable surprise.
+* *A pipeline that is already running will not see new variables.* Start a new pipeline (or a new executor iteration) after Set Variables. Parameters are the alternative when you need a value at start-up of each child.
+* *Get Parameters only sees one level.* If the name is declared two levels up, type it or copy it yourself.
+* *Workflows have no data stream.* You cannot read fields in a workflow action the way a transform does. Pass parameters into the next pipeline, or use Get variables there.
+
+== See also
+
+* xref:variables.adoc[Variables] — syntax, hierarchy, resolvers, and built-in names
+* xref:pipeline/transforms/setvariable.adoc[Set Variables] and xref:pipeline/transforms/getvariable.adoc[Get variables]
+* xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] and xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor]
+* xref:workflow/actions/pipeline.adoc[Pipeline] and xref:workflow/actions/workflow.adoc[Workflow] actions
+* xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]

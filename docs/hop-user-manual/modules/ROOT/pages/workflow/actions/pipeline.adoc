@@ -96,6 +96,8 @@ See xref:logging/logging-basics.adoc[Logging] for more details.
 
 === Parameters tab
 
+See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how parameters relate to fields and variables.
+
 *Pass params downstream*: On the Parameters tab, select the pipeline transform checkbox to `Pass parameter values to sub pipeline`. The parameter must already exist in the pipeline (in pipeline properties for example) or alternatively, on the Parameters tab, you can specify new parameters.
 The Parameters tab allows you to override existing parameter values or NULL them by leaving the value empty.
 

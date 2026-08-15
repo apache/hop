@@ -101,7 +101,9 @@ See also the logging window in Logging.
 
 === Parameters Tab
 
-Specify which parameters will be passed to the sub-workflow:
+Specify which parameters will be passed to the sub-workflow.
+
+See xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how parameters relate to fields and variables.
 
 [options="header",cols="1,3", width="90%"]
 |===
