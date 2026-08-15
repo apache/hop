@@ -220,6 +220,7 @@ public class GuiResource {
   @Getter private Image imageDuplicate;
   @Getter private Image imageEmpty;
   @Getter private Image imageExpandAll;
+  @Getter private Image imageFindReplace;
   @Getter private Image imageFunction;
   @Getter private Image imageKeyboard;
   @Getter private Image imageHelp;
@@ -457,6 +458,7 @@ public class GuiResource {
     imagePreview.dispose();
     imageServer.dispose();
     imageFile.dispose();
+    imageFindReplace.dispose();
     imageFolder.dispose();
     imageMissing.dispose();
     imageVariable.dispose();
@@ -771,6 +773,8 @@ public class GuiResource {
     imagePaste = loadAsResource(display, "ui/images/paste.svg", ConstUi.SMALL_ICON_SIZE);
     imageExpandAll = loadAsResource(display, "ui/images/expand-all.svg", ConstUi.SMALL_ICON_SIZE);
     imageLabel = loadAsResource(display, "ui/images/label.svg", ConstUi.SMALL_ICON_SIZE);
+    imageFindReplace =
+        loadAsResource(display, "ui/images/find-replace.svg", ConstUi.SMALL_ICON_SIZE);
     imageFunction = loadAsResource(display, "ui/images/function.svg", ConstUi.SMALL_ICON_SIZE);
     imageKeyboard = loadAsResource(display, "ui/images/keyboard.svg", ConstUi.SMALL_ICON_SIZE);
     imageMarketplace =

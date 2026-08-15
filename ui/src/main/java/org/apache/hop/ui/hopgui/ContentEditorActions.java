@@ -141,7 +141,7 @@ public class ContentEditorActions {
       root = IContentEditorWidget.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = ID_TOOLBAR_FIND_REPLACE,
       type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/edit.svg",
+      image = "ui/images/find-replace.svg",
       toolTip = "i18n::ContentEditorWidget.ToolBar.Replace.Tooltip")
   public static void findAndReplace(IContentEditorWidget editor) {
     Shell shell = shellOf(editor);
