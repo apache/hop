@@ -1,0 +1,79 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Multi Mapping transform re-uses a child pipeline with zero or more inputs and outputs, including info and target streams.
+
+= image:transforms/icons/MMAP.svg[Multi Mapping transform Icon, role="image-doc-icon"] Multi Mapping
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Multi Mapping transform re-uses a child pipeline (a mapping) with *zero or more* inputs and outputs.
+
+Unlike xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping], which always has one xref:pipeline/transforms/mapping-input.adoc[Mapping input] and one xref:pipeline/transforms/mapping-output.adoc[Mapping output], Multi Mapping can:
+
+* start a child that generates its own data (0 inputs)
+* run a child that only writes data (0 outputs)
+* join or look up using several Mapping Input transforms
+* split rows to several Mapping Output transforms
+
+Non-main input mappings become *info hops* (the same idea as xref:pipeline/transforms/streamlookup.adoc[Stream Lookup]).
+Non-main output mappings become *target hops* (the same idea as xref:pipeline/transforms/switchcase.adoc[Switch / Case]).
+
+That lets you wrap a reusable Stream Lookup or Switch / Case style pipeline.
+
+The child pipeline is always executed with a local Hop pipeline run configuration so rows can be streamed in and out of the mapping.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Single Threaded! image:cross.svg[Supported, 24]
+!Native Spark! image:cross.svg[Supported, 24]
+!Beam Spark! image:cross.svg[Supported, 24]
+!Beam Flink! image:cross.svg[Supported, 24]
+!Beam Dataflow! image:cross.svg[Supported, 24]
+!===
+|===
+
+== Options
+
+* Transform name: a unique name in your pipeline
+* Pipeline: the mapping (sub-) pipeline to run
+* Run configuration: local Hop run configuration only
+* Parameters tab: variables to pass into the child, plus inherit-all-variables
+* Input tabs (Add Input): one tab per input mapping
+** Input source transform: parent transform that sends rows (empty = auto-detect remaining hops)
+** Mapping Input transform: child Mapping Input that receives those rows
+** Main data path: checked for the primary stream; unchecked for an info hop
+** Update mapped field names downstream: reverse input renames on the way out
+** Field mapping table
+* Output tabs (Add Output): one tab per output mapping
+** Mapping Output transform: child Mapping Output that produces rows
+** Output target transform: parent transform that receives those rows (empty = auto-detect remaining hops)
+** Main data path: checked for the primary stream; unchecked for a target hop
+** Field mapping table
+
+You can close every input or output tab. A mapping with no inputs is a generator. A mapping with no outputs is a sink.
+
+== Sample
+
+The samples project contains parent/child examples under `transforms/` for a single stream, a generator, a join, an info lookup, and multiple target outputs.
