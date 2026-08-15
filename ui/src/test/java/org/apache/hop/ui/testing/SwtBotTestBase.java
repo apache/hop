@@ -42,6 +42,12 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+/**
+ * Shared SWTBot harness for {@code @Tag("uitest")} tests. The default reactor run includes those
+ * tests whenever a display is available; they are skipped only when the JVM is headless. On a
+ * desktop wrap Maven with {@code tools/with-isolated-display.sh} so the shells do not steal the
+ * interactive session. {@code -Puitest} runs only UI tests; {@code -Pskip-uitest} excludes them.
+ */
 @ExtendWith(SWTBotJunit5Extension.class)
 public abstract class SwtBotTestBase {
 

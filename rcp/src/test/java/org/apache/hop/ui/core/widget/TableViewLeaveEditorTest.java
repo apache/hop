@@ -49,8 +49,9 @@ import org.junit.jupiter.api.Test;
  * the {@code COLUMN_TYPE_TEXT_BUTTON} one, which is a {@link TextVarButton} - a {@link TextVar},
  * not the plain {@link Text} that the type mismatch makes {@code getTextWidgetValue} cast to.
  *
- * <p>Tagged {@code uitest} so it is skipped on headless machines; run with {@code mvn -pl rcp
- * -Puitest test}.
+ * <p>Tagged {@code uitest} so it is skipped when there is no display. The default reactor run still
+ * includes it on a desktop; wrap Maven with {@code tools/with-isolated-display.sh} so the dialog
+ * does not steal focus.
  */
 @Tag("uitest")
 class TableViewLeaveEditorTest extends SwtBotTestBase {
