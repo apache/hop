@@ -42,6 +42,7 @@
         <module>py4j</module>
         <module>reflection</module>
         <module>rest</module>
+        <module>setup</module>
         <module>static-schema</module>
         <module>testing</module>
     </modules>
