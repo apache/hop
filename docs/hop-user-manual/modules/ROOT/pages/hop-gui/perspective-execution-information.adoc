@@ -56,6 +56,22 @@ For example:
 
 image::execution-information-perspective-left-panel-example.png[An example left panel]
 
+The pipeline and workflow icons also show execution status:
+
+|===
+|Icon |Meaning
+
+|Default pipeline or workflow icon
+|Finished successfully, or still running. Running rows also use a light-blue background.
+
+|Pipeline or workflow icon with a red exclamation mark
+|The execution failed. Failed rows also use a light-red background.
+
+|Pipeline or workflow icon with an orange question mark
+|The execution is stalled: no state update was received within the location logging interval. Stalled rows also use a light-gray background.
+
+|===
+
 Possible action:
 
 |===

@@ -680,7 +680,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
   @Override
   public Image getTitleImage() {
-    return GuiResource.getInstance().getImagePipeline();
+    return ExecutionStatusIcon.imageFor(ExecutionType.Pipeline, executionState, loggingInterval());
   }
 
   @Override
@@ -822,6 +822,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     refreshStatus();
     refreshMetrics();
     refreshTransformData();
+    perspective.updateViewerTabImage(this);
     redraw();
   }
 

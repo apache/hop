@@ -149,9 +149,13 @@ public class GuiResource {
   private SwtUniversalImage imageHash;
   private SwtUniversalImage imagePipeline;
   private SwtUniversalImage imagePipelineDisabled;
+  private SwtUniversalImage imagePipelineError;
+  private SwtUniversalImage imagePipelineStalled;
   private SwtUniversalImage imagePartitionSchema;
   private SwtUniversalImage imageWorkflow;
   private SwtUniversalImage imageWorkflowDisabled;
+  private SwtUniversalImage imageWorkflowError;
+  private SwtUniversalImage imageWorkflowStalled;
   private SwtUniversalImage imageArrowDefault;
   private SwtUniversalImage imageArrowTrue;
   private SwtUniversalImage imageArrowFalse;
@@ -459,9 +463,13 @@ public class GuiResource {
     imageHash.dispose();
     imagePipeline.dispose();
     imagePipelineDisabled.dispose();
+    imagePipelineError.dispose();
+    imagePipelineStalled.dispose();
     imagePartitionSchema.dispose();
     imageWorkflow.dispose();
     imageWorkflowDisabled.dispose();
+    imageWorkflowError.dispose();
+    imageWorkflowStalled.dispose();
     imageCopyRows.dispose();
     imageCopyRowsDisabled.dispose();
     imageError.dispose();
@@ -843,9 +851,17 @@ public class GuiResource {
     imagePipeline = SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline.svg");
     imagePipelineDisabled =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline-disabled.svg");
+    imagePipelineError =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline-error.svg");
+    imagePipelineStalled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/pipeline-stalled.svg");
     imageWorkflow = SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow.svg");
     imageWorkflowDisabled =
         SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow-disabled.svg");
+    imageWorkflowError =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow-error.svg");
+    imageWorkflowStalled =
+        SwtSvgImageUtil.getImageAsResource(display, "ui/images/workflow-stalled.svg");
     imageServer = SwtSvgImageUtil.getImageAsResource(display, "ui/images/server.svg");
     imagePreview = SwtSvgImageUtil.getImageAsResource(display, "ui/images/preview.svg");
     imageTrue = SwtSvgImageUtil.getImageAsResource(display, "ui/images/true.svg");
@@ -1250,6 +1266,16 @@ public class GuiResource {
         imagePipelineDisabled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
+  public Image getImagePipelineError() {
+    return getZoomedImaged(
+        imagePipelineError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  public Image getImagePipelineStalled() {
+    return getZoomedImaged(
+        imagePipelineStalled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
   @Deprecated
   public Image getImageClosePanel() {
     return imageClose;
@@ -1274,6 +1300,16 @@ public class GuiResource {
   public Image getImageWorkflowDisabled() {
     return getZoomedImaged(
         imageWorkflowDisabled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  public Image getImageWorkflowError() {
+    return getZoomedImaged(
+        imageWorkflowError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+  }
+
+  public Image getImageWorkflowStalled() {
+    return getZoomedImaged(
+        imageWorkflowStalled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   /**
