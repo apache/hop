@@ -37,22 +37,40 @@ public class MappingIODefinition implements Cloneable {
   @SuppressWarnings("java:S2065")
   private transient TransformMeta inputTransform;
 
-  @HopMetadataProperty(key = "input_transform")
+  @HopMetadataProperty(
+      key = "input_transform",
+      injectionKey = "SOURCE_TRANSFORM",
+      injectionKeyDescription = "SimpleMapping.Injection.SOURCE_TRANSFORM")
   private String inputTransformName;
 
-  @HopMetadataProperty(key = "output_transform")
+  @HopMetadataProperty(
+      key = "output_transform",
+      injectionKey = "TARGET_TRANSFORM",
+      injectionKeyDescription = "SimpleMapping.Injection.TARGET_TRANSFORM")
   private String outputTransformName;
 
-  @HopMetadataProperty(key = "description")
+  @HopMetadataProperty(
+      key = "description",
+      injectionKey = "DESCRIPTION",
+      injectionKeyDescription = "SimpleMapping.Injection.DESCRIPTION")
   private String description;
 
-  @HopMetadataProperty(key = "connector")
+  @HopMetadataProperty(
+      key = "connector",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "SimpleMapping.Injection.Group.FIELDS")
   private List<MappingValueRename> valueRenames;
 
-  @HopMetadataProperty(key = "main_path")
+  @HopMetadataProperty(
+      key = "main_path",
+      injectionKey = "MAIN_PATH",
+      injectionKeyDescription = "SimpleMapping.Injection.MAIN_PATH")
   private boolean mainDataPath;
 
-  @HopMetadataProperty(key = "rename_on_output")
+  @HopMetadataProperty(
+      key = "rename_on_output",
+      injectionKey = "RENAME_ON_OUTPUT",
+      injectionKeyDescription = "SimpleMapping.Injection.RENAME_ON_OUTPUT")
   private boolean renamingOnOutput;
 
   /**

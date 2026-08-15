@@ -93,6 +93,16 @@ public @interface HopMetadataProperty {
   String injectionKeyDescription() default "";
 
   /**
+   * Optional prefix applied to descendant injection keys and injection group keys. Use this when
+   * the same nested type is referenced more than once (for example input and output mappings) so
+   * that metadata injection keys stay unique. Does not affect serialization {@link #key()} / {@link
+   * #groupKey()}. Default empty: current behavior.
+   *
+   * @return the prefix for descendant injection keys, or empty
+   */
+  String injectionKeyPrefix() default "";
+
+  /**
    * @return The metadata group key to which this property belongs. Don't specify any key if you
    *     want this to be the same as key();
    */

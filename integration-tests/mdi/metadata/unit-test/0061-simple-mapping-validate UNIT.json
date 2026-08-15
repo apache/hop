@@ -1,0 +1,127 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "filename",
+          "data_set_field": "filename"
+        },
+        {
+          "transform_field": "runConfiguration",
+          "data_set_field": "runConfiguration"
+        },
+        {
+          "transform_field": "input_source",
+          "data_set_field": "input_source"
+        },
+        {
+          "transform_field": "input_target",
+          "data_set_field": "input_target"
+        },
+        {
+          "transform_field": "input_description",
+          "data_set_field": "input_description"
+        },
+        {
+          "transform_field": "input_main_path",
+          "data_set_field": "input_main_path"
+        },
+        {
+          "transform_field": "input_rename_on_output",
+          "data_set_field": "input_rename_on_output"
+        },
+        {
+          "transform_field": "output_source",
+          "data_set_field": "output_source"
+        },
+        {
+          "transform_field": "output_target",
+          "data_set_field": "output_target"
+        },
+        {
+          "transform_field": "output_description",
+          "data_set_field": "output_description"
+        },
+        {
+          "transform_field": "output_main_path",
+          "data_set_field": "output_main_path"
+        },
+        {
+          "transform_field": "output_rename_on_output",
+          "data_set_field": "output_rename_on_output"
+        },
+        {
+          "transform_field": "inherit_all_vars",
+          "data_set_field": "inherit_all_vars"
+        }
+      ],
+      "field_order": [
+        "filename"
+      ],
+      "data_set_name": "golden-simple-mapping",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "parent",
+          "data_set_field": "parent"
+        },
+        {
+          "transform_field": "child",
+          "data_set_field": "child"
+        }
+      ],
+      "field_order": [
+        "parent"
+      ],
+      "data_set_name": "golden-simple-mapping-input-fields",
+      "transform_name": "validate input fields"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "parent",
+          "data_set_field": "parent"
+        },
+        {
+          "transform_field": "child",
+          "data_set_field": "child"
+        }
+      ],
+      "field_order": [
+        "parent"
+      ],
+      "data_set_name": "golden-simple-mapping-output-fields",
+      "transform_name": "validate output fields"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "variable",
+          "data_set_field": "variable"
+        },
+        {
+          "transform_field": "input",
+          "data_set_field": "input"
+        }
+      ],
+      "field_order": [
+        "variable"
+      ],
+      "data_set_name": "golden-simple-mapping-parameters",
+      "transform_name": "validate parameters"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0061-simple-mapping-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0061-simple-mapping-validate.hpl"
+}
