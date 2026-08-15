@@ -243,6 +243,14 @@ public class HopGui
    */
   public static final String ID_MAIN_TOOLBAR_PRIVILEGE = "toolbar-10880-privilege";
 
+  /**
+   * hop-config.json option to show the session controls ({@link #ID_MAIN_TOOLBAR_PRIVILEGE} and log
+   * off) in the desktop Hop GUI. There is no session to speak of there: the privilege combo only
+   * simulates roles and logging off does nothing, so both are hidden unless someone explicitly
+   * wants them to debug the different privilege modes.
+   */
+  public static final String HOP_CONFIG_SHOW_SESSION_CONTROLS = "showSessionControls";
+
   /** Username label immediately left of {@link #ID_MAIN_TOOLBAR_LOG_OFF}. */
   public static final String ID_MAIN_TOOLBAR_USER = "toolbar-10890-user";
 
@@ -1098,9 +1106,11 @@ public class HopGui
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
-    } else {
+    } else if (areSessionControlsVisible()) {
       // Log off is Hop Web only
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF, false);
+    } else {
+      mainMenuWidgets.removeMenuItem(HopGui.ID_MAIN_MENU_FILE_LOG_OFF);
     }
 
     // We build the menu items but don't attach them to the shell.
@@ -1256,6 +1266,16 @@ public class HopGui
     if (fileDelegate.saveGuardAllFiles()) {
       fileDelegate.closeAllFiles();
     }
+  }
+
+  /**
+   * The privilege mode combo and the log off action belong with the security configuration, which
+   * is only available in Hop Web. In the desktop Hop GUI they are hidden unless option {@link
+   * #HOP_CONFIG_SHOW_SESSION_CONTROLS} is enabled in hop-config.json.
+   */
+  public static boolean areSessionControlsVisible() {
+    return EnvironmentUtils.getInstance().isWeb()
+        || HopConfig.readOptionBoolean(HOP_CONFIG_SHOW_SESSION_CONTROLS, false);
   }
 
   /**
@@ -1794,7 +1814,13 @@ public class HopGui
 
     mainToolbarWidgets = new GuiToolbarWidgets();
     mainToolbarWidgets.registerGuiPluginObject(this);
-    mainToolbarWidgets.createToolbarWidgets(mainToolbarContainer, ID_MAIN_TOOLBAR);
+    List<String> hiddenToolbarItems = new ArrayList<>();
+    if (!areSessionControlsVisible()) {
+      hiddenToolbarItems.add(ID_MAIN_TOOLBAR_PRIVILEGE);
+      hiddenToolbarItems.add(ID_MAIN_TOOLBAR_LOG_OFF);
+    }
+    mainToolbarWidgets.createToolbarWidgets(
+        mainToolbarContainer, ID_MAIN_TOOLBAR, hiddenToolbarItems);
     updateLoggedInUserToolbar();
     updatePrivilegeModeToolbar();
     if (!EnvironmentUtils.getInstance().isWeb()) {

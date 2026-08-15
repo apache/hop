@@ -298,6 +298,30 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     return menuItemMap.get(id);
   }
 
+  /**
+   * Find the menu item with the given ID and remove it from the menu, together with the separator
+   * that was created in front of it. Use this for menu items which simply don't apply to the
+   * environment we're running in.
+   *
+   * @param id The ID to look for
+   */
+  public void removeMenuItem(String id) {
+    MenuItem menuItem = menuItemMap.remove(id);
+    menuEnabledMap.remove(id);
+    if (menuItem == null || menuItem.isDisposed()) {
+      return;
+    }
+    Menu parentMenu = menuItem.getParent();
+    int index = parentMenu.indexOf(menuItem);
+    if (index > 0) {
+      MenuItem previousItem = parentMenu.getItem(index - 1);
+      if ((previousItem.getStyle() & SWT.SEPARATOR) != 0) {
+        previousItem.dispose();
+      }
+    }
+    menuItem.dispose();
+  }
+
   public KeyboardShortcut findKeyboardShortcut(String id) {
     return shortcutMap.get(id);
   }
