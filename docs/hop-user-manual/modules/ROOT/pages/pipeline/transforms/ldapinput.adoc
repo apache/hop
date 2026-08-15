@@ -100,7 +100,8 @@ Note: If you renamed a field in the Select & Alter tab, the name here must match
 |Fetch as|String, Binary
 |Is sorted Key?| Y/N
 |Type|The data type for this field.
-|Format|The format mask (number type or date format)
+|Format|The format mask (number type or date format).
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|The field length.
 |Precision|The precision option depends on the field type, but only Number is supported; it returns the number of floating point digits.
 |Currency|Symbol used to represent currencies

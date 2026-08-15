@@ -94,13 +94,15 @@ include::../../snippets/variables/control-space.adoc[]
 
 |Type|Specifies the field type: String, Date, Number, Boolean, Integer, BigNumber, Serializable, or Binary.
 |Format|Allows you to specify the format of the field after the type has been determined.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|For Number: Total number of significant figures in a number; For String: total length of string; For Date: length of printed output of the string (for example, entering 4 would only return the year).
 |Precision|For Number: Number of floating point digits.
 Not used for String, Date, or Boolean.
 |Currency|Used to interpret numbers with currency symbols.
 For example, $10,000.00 or E5.000,00.
 |Decimal|Used to indicate whether to use a period (".") or comma (",") for number values.
-|Group|Used to indicate whether to use a period (".") or comma (",") for number values.
+|Group|Thousands grouping symbol: a period (`.`) or comma (`,`).
+This is *not* a row group.
 |TrimType|Type trim this field before processing: select either none, left, right, or both (left and right).
 |===
 

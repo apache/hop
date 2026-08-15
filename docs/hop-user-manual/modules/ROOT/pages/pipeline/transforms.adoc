@@ -22,6 +22,9 @@ under the License.
 Transforms are the cornerstone of HOP, they are used to process and transform your data, they are the building blocks that are used to create a pipeline.
 The pages nested under this topic contain information on how to use the transforms and what you have to pay attention too when using them.
 
+Field tables often share Format, Length, Precision, Decimal, Group and Currency columns.
+Those are explained once in xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+
 * xref:pipeline/transforms/abort.adoc[Abort]
 * xref:pipeline/transforms/addchecksum.adoc[Add a checksum]
 * xref:pipeline/transforms/addconstant.adoc[Add Constants]

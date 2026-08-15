@@ -93,6 +93,7 @@ image::transforms/odata-input-fields-tab.png[OData input Fields Tab, align="cent
 |OData Path|The JSON property path of the field within the entity JSON object (e.g., `UserName`, `AddressInfo/0/City/Name` for nested structures).
 |Type|The Hop data type (String, Integer, Number, Date, Boolean, BigNumber).
 |Format|Optional parsing format for date or numeric fields.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Get Fields|Connects to the `$metadata` endpoint of the OData service and automatically populates the fields list based on the selected Entity Set's schema properties.
 |===
 

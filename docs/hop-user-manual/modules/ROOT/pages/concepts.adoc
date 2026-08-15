@@ -35,6 +35,8 @@ xref:metadata-driven-architecture.adoc[Metadata Driven Architecture]
 // Data types
 include::snippets/hop-concepts/data-types.adoc[]
 
+xref:pipeline/formatting-values.adoc[Formatting numbers and dates] describes Format, Length, Precision, Decimal, Group and Currency — the field metadata used whenever Hop converts a value to or from a String.
+
 == Various
 
 The following items are an alphabetically ordered list of concepts that are used throughout Hop and will be mentioned at various locations in the Hop tools and documentation.

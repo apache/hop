@@ -78,5 +78,7 @@ On the server side the following query should return "ON" `show global variables
 * Format as Date (yyyy-MM-dd)
 * Format as a timestamp (yyyy-MM-dd HH:mm:ss)
 * Format as Number (grouping symbol is "," - decimal is ".")
+
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates] for the date and number masks.
 * Escape enclosure characters when found
 |===

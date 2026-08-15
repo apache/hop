@@ -69,9 +69,59 @@ On Java 17 and later, the JVM no longer includes an ECMAScript engine; Hop bundl
 `End`: The script will be executed after the last row was read
 
 |Fields
-|Here you can specify the fields to retrieve from the context of the transform script after every row.
+|Fields to retrieve from the transform-script context after every row.
+See <<fields-table>>.
 
 |===
+
+[[fields-table]]
+== Fields table
+
+Each row describes one output field.
+
+[options="header"]
+|===
+|Column|Description
+|Fieldname|Name of the script variable to read after each row.
+|Rename to|Output field name if it should differ from *Fieldname*.
+Leave empty to keep the variable name.
+|Type|Hop data type of the output field.
+See xref:concepts.adoc#data-types[Data types].
+|Length|See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+|Precision|See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+|Replace value 'Fieldname' or 'Rename to'|`Y` overwrites an incoming field of that name.
+`N` (default) appends a new field.
+|Script result?|`Y`: fill this field with the *return value of the last expression* in the transform script, not with a named variable.
+`N` (default): read the script binding named in *Fieldname*.
+Mark at most one field as `Y`.
+|===
+
+=== Script result?
+
+After the transform script runs, Hop evaluates each Fields row:
+
+* *Script result? = N* — the field value is `bindings.get(Fieldname)`, the script variable of that name.
+* *Script result? = Y* — the field value is the value returned by the script engine (`eval`).
+  In ECMAScript, Groovy and Python that is the value of the last expression in the script.
+
+Use *Script result?* when the interesting value is an expression, not a named variable.
+
+.ECMAScript — named variable (Script result? = N)
+[source,javascript]
+----
+var total = price * quantity;
+----
+
+Define a field `total` with *Script result?* = `N`.
+
+.ECMAScript — last expression (Script result? = Y)
+[source,javascript]
+----
+price * quantity
+----
+
+Define any field name (for example `total`) with *Script result?* = `Y`.
+The field is filled with the product, even though the script never assigned a variable called `total`.
 
 == Variable bindings
 

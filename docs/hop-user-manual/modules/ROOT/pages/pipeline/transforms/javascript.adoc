@@ -204,12 +204,17 @@ The Fields table contains a list of variables from your script, and enables you 
 |Fieldname|Specify the name of the incoming field.
 |Rename to|Specify a new name for the incoming field.
 |Type|Specify a data type for the output field.
-|Length|Specify the length of the output field.
-|Precision|Specify the precision value of the output field.
+|Length|Length of the output field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+|Precision|Precision of the output field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Replace value ‘Fieldname’ or ‘Rename to’|Specify whether to replace the value of the selected field with another value or to rename a field. The values are Y (Yes) and N (No).
 |Get variables|Retrieve a list of Javascript variables from your script. You can manually add variables as the ‘Get variables’ button may not always work.
 |Test Script|Test the syntax of your script, and displays the Generate Rows dialog box with a set of rows for testing.
 |===
+
+NOTE: This is the Rhino *JavaScript* transform.
+The GraalVM / JSR-223 *Script* transform has an extra *Script result?* column; see xref:pipeline/transforms/script.adoc#fields-table[Script — Fields table].
 
 == Javascript Internal API Objects
 

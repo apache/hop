@@ -129,6 +129,17 @@ public class ConstantDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
               BaseMessages.getString(PKG, "System.Combo.No")
             });
+    colinf[0].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Name.Column.Tooltip"));
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Type.Column.Tooltip"));
+    colinf[2].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Format.Column.Tooltip"));
+    colinf[3].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Length.Column.Tooltip"));
+    colinf[4].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Precision.Column.Tooltip"));
+    colinf[5].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Currency.Column.Tooltip"));
+    colinf[6].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Decimal.Column.Tooltip"));
+    colinf[7].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Group.Column.Tooltip"));
+    colinf[8].setToolTip(BaseMessages.getString(PKG, "ConstantDialog.Value.Column.Tooltip"));
+    colinf[9].setToolTip(
+        BaseMessages.getString(PKG, "ConstantDialog.Value.SetEmptyString.Tooltip"));
 
     wFields =
         new TableView(

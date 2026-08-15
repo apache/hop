@@ -50,6 +50,6 @@ The Set Field Value To A Constant transform replaces the value of a field with a
 |Field|Specify the field that contains the value you want to replace.
 |Replace by value|Specify the value that will replace the original field value specified.
 |Conversion mask (Date)|Specify a date format for the replaced field.
-See Common Formats for information on common valid date formats you can use in this transform.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Set empty string?|Specify Y to allow an empty string when the value is empty; otherwise, a null value is used.
 |===

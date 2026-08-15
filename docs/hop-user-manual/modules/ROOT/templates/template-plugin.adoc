@@ -19,3 +19,8 @@ under the License.
 
 *This is a template document*
 
+Document every option that is visible in the dialog.
+
+* Every table column in the dialog needs a row in the Options table. One-liners are fine.
+* Shared field-metadata columns (Format, Length, Precision, Decimal, Group, Currency, Value) are explained once in xref:pipeline/formatting-values.adoc[Formatting numbers and dates]. Link there instead of re-explaining them.
+* If you add a new column to a dialog, add the Options row and a column-header tooltip in the same change.

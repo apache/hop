@@ -15,6 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 
+[[data-types]]
 == Data types
 
 As a best practice for producing consistent, predictable outcomes when working with your data in Apache Hop, you must consider how the Apache Hop engine processes different data types and field metadata in transformations and jobs.
@@ -50,10 +51,10 @@ NOTE: Apache Hop also comes with a number of additional complex data types (e.g.
 - When converting from a String to another type, Hop uses the format settings defined in the transform metadata (for example, date masks, decimal symbols, and grouping characters).
 - When converting from another type to a String, Hop applies the same metadata-based format.
 
-For these reasons, it is important to be explicit about formats when working with String types.
-A common issue arises with decimal separators, which may differ between environments.
-For example, an EU locale typically uses `,` for decimals, while a US locale uses `.`.
-Using an explicit format avoids these inconsistencies.
+Be explicit about formats when working with String types.
+A common issue is the decimal separator, which differs between environments: an EU locale typically uses `,`, a US locale uses `.`.
+
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates] for Format, Length, Precision, Decimal, Group and Currency.
 
 === Timestamp
 

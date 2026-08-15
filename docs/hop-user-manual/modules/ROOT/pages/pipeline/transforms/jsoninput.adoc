@@ -141,7 +141,7 @@ All records can be retrieved by adding the asterisk * in the path.
 For example, $.mydata.*
 |Type|Data type of the input field.
 |Format|An optional mask for converting the format of the original field.
-See Common Formats for information on common valid date and numeric formats you can use in this transform.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|Length of the field.
 |Precision|Number of floating point digits for number-type fields.
 |Currency|Currency symbol ($ or €, for example).
@@ -164,7 +164,8 @@ Click Select fields from snippet button and paste the entire JSON text and it wi
 
 *Dates and Timestamps*
 
-For Hop types of Date and Timestamp, use the Format column to specify the incoming format. E.g. for Date: yyyy-MM-dd. You can either select a format from the dropdown or enter format text directly. Hop uses SimpleDateFormat (Java Platform SE 8) at https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+For Hop types of Date and Timestamp, use the Format column to specify the incoming format. E.g. for Date: yyyy-MM-dd. You can either select a format from the dropdown or enter format text directly.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 
 *Examples of Timestamp formats:*
 

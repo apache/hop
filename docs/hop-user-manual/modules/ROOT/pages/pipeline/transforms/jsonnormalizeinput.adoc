@@ -121,7 +121,7 @@ The table has the following columns:
 |Path|Flattened key for the value *within each record*, after nested objects are merged into dotted (or custom-separated) paths. This is *not* a JsonPath into the whole document—that is what **Record JsonPath** on the Content tab is for. Examples: `orderId`, `customer.name`. The value must match a key produced for that row by flattening (unless **Ignore missing field paths** is enabled, in which case a missing key yields null). Wildcards, filters, and regex are not used in this column—only the path string for the flattened field.
 |Type|Data type of the input field.
 |Format|An optional mask for converting the format of the original field.
-See Common Formats for information on common valid date and numeric formats you can use in this transform.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|Length of the field.
 |Precision|Number of floating point digits for number-type fields.
 |Currency|Currency symbol ($ or €, for example).
@@ -144,7 +144,8 @@ Click *Select fields from snippet* and paste JSON text—typically *one represen
 
 *Dates and timestamps*
 
-For Hop types of *Date* and *Timestamp*, use the *Format* column to specify the incoming format. For example, for Date: `yyyy-MM-dd`. You can select a format from the dropdown or enter format text directly. Hop uses https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[SimpleDateFormat,window=_blank] (Java 8).
+For Hop types of *Date* and *Timestamp*, use the *Format* column to specify the incoming format. For example, for Date: `yyyy-MM-dd`. You can select a format from the dropdown or enter format text directly.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 
 *Examples of Timestamp formats:*
 

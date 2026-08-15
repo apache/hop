@@ -455,6 +455,15 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ValueMetaBase.trimTypeDesc)
         };
+    columnInformation[0].setToolTip(BaseMessages.getString(PKG, "System.Column.Name.Tooltip"));
+    columnInformation[1].setToolTip(BaseMessages.getString(PKG, "System.Column.Type.Tooltip"));
+    columnInformation[2].setToolTip(BaseMessages.getString(PKG, "System.Column.Format.Tooltip"));
+    columnInformation[3].setToolTip(BaseMessages.getString(PKG, "System.Column.Length.Tooltip"));
+    columnInformation[4].setToolTip(BaseMessages.getString(PKG, "System.Column.Precision.Tooltip"));
+    columnInformation[5].setToolTip(BaseMessages.getString(PKG, "System.Column.Currency.Tooltip"));
+    columnInformation[6].setToolTip(BaseMessages.getString(PKG, "System.Column.Decimal.Tooltip"));
+    columnInformation[7].setToolTip(BaseMessages.getString(PKG, "System.Column.Group.Tooltip"));
+    columnInformation[8].setToolTip(BaseMessages.getString(PKG, "System.Column.TrimType.Tooltip"));
 
     wFields =
         new TableView(

@@ -52,9 +52,10 @@ In our case we route rows of data to one or more target transforms based on the 
 |Use string contains comparison|If checked, the comparison will be true if the value is found anywhere in the field being tested.
 Unchecked and the value has to exactly match the field.
 |Case value data type|The data type of the values specified in this dialog
-|Case value conversion mask|The conversion mask of the values specified in this dialog (numeric / date values)
+|Case value conversion mask|The conversion mask of the values specified in this dialog (numeric / date values).
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Case value decimal symbol|The decimal symbol of the values specified in this dialog (numeric values)
-|Case value grouping symbol|The grouping symbol of the values specified in this dialog (numeric values)
+|Case value grouping symbol|The thousands grouping symbol of the values specified in this dialog (numeric values), not a row group.
 |Case values|Here you can specify a value-target transform pair, one per row.
 To specify a null value, simply leave the value column blank while entering a target transform.
 Please note that it is possible to specify the same target transform more than once.
