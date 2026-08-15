@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.multimapping;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.pipeline.transforms.mapping.MappingVariableMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -34,6 +35,7 @@ class MultiMappingMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Mult
     meta.getInputMappings().get(0).getValueRenames().add(new MultiMappingInputRename());
     meta.getOutputMappings().add(new MultiMappingOutputDefinition());
     meta.getOutputMappings().get(0).getValueRenames().add(new MultiMappingOutputRename());
+    meta.getMappingParameters().getVariableMappings().add(new MappingVariableMapping());
     setup(meta);
   }
 
@@ -53,16 +55,12 @@ class MultiMappingMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Mult
     check("OUTPUT_DESCRIPTION", () -> meta.getOutputMappings().get(0).getDescription());
     check("OUTPUT_MAIN_PATH", () -> meta.getOutputMappings().get(0).isMainDataPath());
     check("OUTPUT_RENAME_ON_OUTPUT", () -> meta.getOutputMappings().get(0).isRenamingOnOutput());
-    check("inherit_all_vars", () -> meta.getMappingParameters().isInheritingAllVariables());
-    skipPropertyTest("variable");
-    skipPropertyTest("input");
+    check("INHERIT_ALL_VARIABLES", () -> meta.getMappingParameters().isInheritingAllVariables());
+    check("VARIABLE", () -> meta.getMappingParameters().getVariableMappings().get(0).getName());
+    check("VALUE", () -> meta.getMappingParameters().getVariableMappings().get(0).getValue());
     skipPropertyTest("INPUT_RENAME_SOURCE");
     skipPropertyTest("INPUT_RENAME_TARGET");
     skipPropertyTest("OUTPUT_RENAME_SOURCE");
     skipPropertyTest("OUTPUT_RENAME_TARGET");
-    skipPropertyTest("mappings");
-    skipPropertyTest("parameters");
-    skipPropertyTest("mapping");
-    skipPropertyTest("connector");
   }
 }
