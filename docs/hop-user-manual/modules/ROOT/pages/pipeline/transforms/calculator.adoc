@@ -93,8 +93,10 @@ Beware: If A is an Integer and B a Number, it will automatically convert B to an
 The result is rounded to an Integer by adding 1/2, taking the floor of the result, and casting the result to type int.
 In other words, the result is equal to the value of the expression: floor (a + 0.5).
 In case you need the rounding method "Round half to even", use the following method ROUND( A, B ) with no decimals (B=0).
-|ROUND( A, B )|ROUND_2|Round A to the nearest even number with B decimals.
-The used rounding method is "Round half to even", it is also called unbiased rounding, convergent rounding, statistician's rounding, Dutch rounding, Gaussian rounding, odd-even rounding, bankers' rounding or broken rounding, and is widely used in bookkeeping.
+|ROUND( A, B )|ROUND_2|Round A to the nearest number with B decimals.
+By default, the "Round half ceiling" method is used : when the digit to be rounded falls exactly halfway between two values, rounding always occurs towards the higher value.
+This behavior can be changed with -DROUND_2_MODE=ROUND_HALF_EVEN parameter, which allows switching to "round half to even" rounding. 
+This method is also called unbiased rounding, convergent rounding, statistician's rounding, Dutch rounding, Gaussian rounding, odd-even rounding, bankers' rounding or broken rounding, and is widely used in bookkeeping.
 This is the default rounding mode used in IEEE 754 computing functions and operators.
 In Germany it is often called "Mathematisches Runden".
 |STDROUND( A )|ROUND_STD_1|Round A to the nearest integer.
