@@ -56,6 +56,7 @@ class ActionHttpLoadSaveTest {
     assertEquals(2, meta.getHeaders().size());
     assertTrue(meta.isIgnoreSsl());
     assertFalse(meta.isRunForEveryRow());
+    assertEquals("HTTP_REPLY", meta.getReplyVariableName());
   }
 
   @Test
@@ -74,5 +75,6 @@ class ActionHttpLoadSaveTest {
     assertEquals(clone.getHeaders().size(), meta.getHeaders().size());
     assertEquals(clone.isIgnoreSsl(), meta.isIgnoreSsl());
     assertEquals(clone.isRunForEveryRow(), meta.isRunForEveryRow());
+    assertEquals(clone.getReplyVariableName(), meta.getReplyVariableName());
   }
 }
