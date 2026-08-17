@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -198,7 +199,9 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdbTable.top = new FormAttachment(wSchema, margin);
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar(variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable =
+        new TextVar(variables, wGConnection, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(wTable);
     wTable.setToolTipText(BaseMessages.getString(PKG, "SQLFileOutputDialog.TargetTable.Tooltip"));
     wTable.addModifyListener(lsMod);
@@ -332,7 +335,9 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     fdbFilename.top = new FormAttachment(wStartNewLine, 0);
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();

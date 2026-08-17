@@ -42,6 +42,17 @@ public final class NamingEngine {
    * @param input original name
    * @return transformed name
    */
+  /**
+   * Names that must not be rewritten: empty, table null markers, and values that already contain a
+   * variable expression.
+   */
+  public static boolean shouldSkip(String value) {
+    if (StringUtils.isEmpty(value) || "<null>".equals(value)) {
+      return true;
+    }
+    return value.contains("${");
+  }
+
   public static String apply(NamingScheme scheme, String input) {
     if (input == null) {
       return null;

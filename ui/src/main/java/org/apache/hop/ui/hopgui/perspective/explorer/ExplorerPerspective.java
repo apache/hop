@@ -94,6 +94,8 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
@@ -1463,6 +1465,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
       text.setText(item.getText());
+      NamingSchemeWidgetSupport.attachShortcut(
+          text,
+          hopGui.getVariables(),
+          tif.folder ? NamingSchemeTypes.FOLDER : NamingSchemeTypes.FILE);
       text.addListener(SWT.FocusOut, event -> text.dispose());
       text.addListener(
           SWT.KeyUp,

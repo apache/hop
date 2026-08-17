@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -57,7 +58,7 @@ public class SftpConnectionEditor extends MetadataEditor<SftpConnection> {
   private final int middle;
   private final int margin;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
 
   private TextVar wServerName;
@@ -98,7 +99,9 @@ public class SftpConnectionEditor extends MetadataEditor<SftpConnection> {
   public void createControl(Composite parent) {
     IVariables variables = manager.getVariables();
 
-    wName = addTextLine(parent, null, "SftpConnectionEditor.Name.Label");
+    wName =
+        addTextVarLine(variables, parent, null, "SftpConnectionEditor.Name.Label")
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     wDescription = addTextLine(parent, wName, "SftpConnectionEditor.Description.Label");
 
     Button wTest = new Button(parent, SWT.PUSH);

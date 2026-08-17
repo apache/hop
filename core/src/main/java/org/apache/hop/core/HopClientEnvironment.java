@@ -78,6 +78,7 @@ public class HopClientEnvironment {
     init(
         List.of(
             LoggingPluginType.getInstance(),
+            org.apache.hop.core.naming.NamingSchemeTypePluginType.getInstance(),
             ValueMetaPluginType.getInstance(),
             DatabasePluginType.getInstance(),
             ExtensionPointPluginType.getInstance(),

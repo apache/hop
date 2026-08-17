@@ -35,6 +35,7 @@ public @interface ConfigPlugin {
   String CATEGORY_SERVER = "server";
   String CATEGORY_DOC = "doc";
   String CATEGORY_PYTHON = "python";
+  String CATEGORY_NAMING = "naming";
 
   String id();
 

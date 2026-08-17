@@ -38,19 +38,25 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 /** Abstract implementation of all metadata editors. */
@@ -139,6 +145,38 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   public Button[] createButtonsForButtonBar(final Composite parent) {
     return null;
+  }
+
+  /**
+   * Name line with the naming-scheme shortcut and variable insertion disabled. Place at the top of
+   * the editor (attached to the parent).
+   *
+   * @param parent editor composite
+   * @param label localized name-field label
+   * @param middle form middle percentage
+   * @param margin form margin
+   * @return the name widget
+   */
+  protected TextVar createNameField(Composite parent, String label, int middle, int margin) {
+    Label wlName = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlName);
+    wlName.setText(label);
+    FormData fdlName = new FormData();
+    fdlName.top = new FormAttachment(0, margin);
+    fdlName.left = new FormAttachment(0, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
+    wlName.setLayoutData(fdlName);
+
+    TextVar name =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
+    PropsUi.setLook(name);
+    FormData fdName = new FormData();
+    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
+    fdName.left = new FormAttachment(middle, 0);
+    fdName.right = new FormAttachment(100, 0);
+    name.setLayoutData(fdName);
+    return name;
   }
 
   protected Button createHelpButton(final Shell shell) {

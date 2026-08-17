@@ -28,9 +28,10 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 
 /**
- * Reusable naming rules for identifiers such as Hop field names, database tables/columns, and
- * file/folder names. Apply via the TableView toolbar (Hop field names) or programmatically with
- * {@link org.apache.hop.naming.engine.NamingEngine}.
+ * Reusable naming rules for identifiers such as Hop field names, transform/action names, database
+ * tables/columns, and file/folder names. Apply with CTRL-SHIFT-N on a TextVar (or related widget),
+ * via the TableView toolbar, or programmatically with {@link
+ * org.apache.hop.naming.engine.NamingEngine}.
  */
 @Getter
 @Setter
@@ -46,7 +47,7 @@ public class NamingScheme extends HopMetadataBase implements Serializable, IHopM
 
   @HopMetadataProperty private String description;
 
-  /** Target kind code: {@link NamingSchemeType} (default {@code hop-field}). */
+  /** Target kind code: {@link NamingSchemeType} (default {@code general}). */
   @HopMetadataProperty private String type;
 
   /** Case style code: {@link NamingCaseStyle}. */
@@ -75,7 +76,7 @@ public class NamingScheme extends HopMetadataBase implements Serializable, IHopM
   @HopMetadataProperty private String suffix;
 
   public NamingScheme() {
-    this.type = NamingSchemeType.HOP_FIELD.getCode();
+    this.type = NamingSchemeType.GENERAL.getCode();
     this.caseStyle = NamingCaseStyle.LOWER.getCode();
     this.wordSeparator = NamingWordSeparator.UNDERSCORE.getCode();
     this.extraDelimiters = "";

@@ -882,6 +882,14 @@ public class TableView extends Composite {
         previousShift = shift;
         boolean ctrl = ((e.stateMask & SWT.MOD1) != 0);
 
+        // Naming-scheme shortcut on the focused cell (when not already editing).
+        if (!readonly) {
+          applyNamingShortcutToActiveCell(e);
+          if (!e.doit) {
+            return;
+          }
+        }
+
         // Move rows up or down shortcuts...
         if (!readonly && e.keyCode == SWT.ARROW_DOWN && ctrl) {
           moveRowsDown();
@@ -1239,8 +1247,8 @@ public class TableView extends Composite {
       }
       int colNr = activeTableColumn;
       int rowNr = table.indexOf(row);
-      boolean usingVariables = columns[colNr - 1].isUsingVariables();
-      if (usingVariables) {
+      boolean usingComposite = usesCompositeEditor(colNr);
+      if (usingComposite) {
         row.setText(colNr, comboVar.getText());
       } else {
         row.setText(colNr, combo.getText());
@@ -1264,8 +1272,8 @@ public class TableView extends Composite {
 
         if (colNr > 0) {
           try {
-            boolean usingVariables = columns[colNr - 1].isUsingVariables();
-            if (usingVariables) {
+            boolean usingComposite = usesCompositeEditor(colNr);
+            if (usingComposite) {
               row.setText(colNr, comboVar.getText());
             } else {
               row.setText(colNr, combo.getText());
@@ -1636,7 +1644,7 @@ public class TableView extends Composite {
         activeTableItem.setText(activeTableColumn, beforeEdit[activeTableColumn - 1]);
       }
       ColumnInfo columnInfo = columns[activeTableColumn - 1];
-      if (columnInfo.isUsingVariables()) {
+      if (usesCompositeEditor(columnInfo)) {
         comboVar.setVisible(false);
       } else {
         combo.setVisible(false);
@@ -1659,8 +1667,7 @@ public class TableView extends Composite {
   }
 
   protected String getTextWidgetValue(int colNr) {
-    boolean b = columns[colNr - 1].isUsingVariables();
-    if (b) {
+    if (usesCompositeEditor(colNr)) {
       return ((TextVar) text).getText();
     } else {
       return ((Text) text).getText();
@@ -1669,8 +1676,7 @@ public class TableView extends Composite {
 
   protected int getTextWidgetCaretPosition(int colNr) {
     if (colNr >= 0) {
-      boolean b = columns[colNr - 1].isUsingVariables();
-      if (b) {
+      if (usesCompositeEditor(colNr)) {
         return ((TextVar) text).getTextWidget().getCaretPosition();
       } else {
         return ((Text) text).getCaretPosition();
@@ -1678,6 +1684,59 @@ public class TableView extends Composite {
     } else {
       return -1;
     }
+  }
+
+  /**
+   * True when the column is edited with TextVar/ComboVar: variables, naming schemes, or both.
+   *
+   * @param colNr TableItem column index (1 = first ColumnInfo)
+   * @return true if the inline editor is a composite widget
+   */
+  private boolean usesCompositeEditor(int colNr) {
+    if (colNr < 1 || colNr - 1 >= columns.length) {
+      return false;
+    }
+    return usesCompositeEditor(columns[colNr - 1]);
+  }
+
+  private boolean usesCompositeEditor(ColumnInfo columnInfo) {
+    return columnInfo != null
+        && (columnInfo.isUsingVariables()
+            || StringUtils.isNotEmpty(columnInfo.getNamingSchemeType()));
+  }
+
+  private void applyNamingShortcutToActiveCell(KeyEvent e) {
+    if (activeTableItem == null
+        || activeTableItem.isDisposed()
+        || activeTableColumn < 1
+        || activeTableColumn - 1 >= columns.length) {
+      return;
+    }
+    ColumnInfo col = columns[activeTableColumn - 1];
+    if (StringUtils.isEmpty(col.getNamingSchemeType())) {
+      return;
+    }
+    final TableItem item = activeTableItem;
+    final int colNr = activeTableColumn;
+    final int rowNr = table.indexOf(item);
+    if (rowNr < 0) {
+      return;
+    }
+    TextWidgetShortcutContext ctx =
+        TextWidgetShortcutContext.builder()
+            .control(table)
+            .variables(variables)
+            .getText(() -> item.isDisposed() ? "" : item.getText(colNr))
+            .setText(
+                value -> {
+                  if (!item.isDisposed() && !value.equals(item.getText(colNr))) {
+                    applyColumnValues(colNr, new int[] {rowNr}, new String[] {value});
+                  }
+                })
+            .namingSchemeType(col.getNamingSchemeType())
+            .variablesEnabled(col.isUsingVariables())
+            .build();
+    TextWidgetShortcutKeyAdapter.dispatch(e, ctx);
   }
 
   public void sortTable(int colNr) {
@@ -2007,7 +2066,7 @@ public class TableView extends Composite {
 
   private void applyComboChange(TableItem row, int rowNr, int colNr) {
     String textData;
-    boolean usingVariables = columns[colNr - 1].isUsingVariables();
+    boolean usingVariables = usesCompositeEditor(colNr);
     if (usingVariables) {
       if (comboVar == null) {
         return;
@@ -2173,6 +2232,19 @@ public class TableView extends Composite {
       if (colinfo.isUsingVariables()) {
         multi.addKeyListener(new ControlSpaceKeyAdapter(variables, multi));
       }
+    }
+    if (StringUtils.isNotEmpty(colinfo.getNamingSchemeType())) {
+      multi.addKeyListener(
+          new TextWidgetShortcutKeyAdapter(
+              () ->
+                  TextWidgetShortcutContext.builder()
+                      .control(multi)
+                      .variables(variables)
+                      .getText(multi::getText)
+                      .setText(multi::setText)
+                      .namingSchemeType(colinfo.getNamingSchemeType())
+                      .variablesEnabled(colinfo.isUsingVariables())
+                      .build()));
     }
 
     popup.setSize(Math.max(cellBounds.width, 400), 200);
@@ -3085,9 +3157,11 @@ public class TableView extends Composite {
     String tooltip = columns[colNr - 1].getToolTip();
 
     final boolean useVariables = !viewOnly && columns[colNr - 1].isUsingVariables();
+    final boolean useCompositeEditor = !viewOnly && usesCompositeEditor(columns[colNr - 1]);
     final boolean passwordField = columns[colNr - 1].isPasswordField();
 
-    final ModifyListener modifyListener = me -> setColumnWidthBasedOnTextField(colNr, useVariables);
+    final ModifyListener modifyListener =
+        me -> setColumnWidthBasedOnTextField(colNr, useCompositeEditor);
 
     // Text cells get an "expand" icon on the right edge of the inline editor which opens the
     // multi-line pop-out. Holding both needs a wrapper composite around the editor, so only create
@@ -3110,7 +3184,7 @@ public class TableView extends Composite {
       editorParent = table;
     }
 
-    if (useVariables) {
+    if (useCompositeEditor) {
       IGetCaretPosition getCaretPositionInterface =
           () -> ((TextVar) text).getTextWidget().getCaretPosition();
 
@@ -3152,6 +3226,10 @@ public class TableView extends Composite {
       }
 
       text = textWidget;
+      textWidget.setVariablesEnabled(useVariables);
+      if (StringUtils.isNotEmpty(columns[colNr - 1].getNamingSchemeType()) && !passwordField) {
+        textWidget.enableNamingSchemes(columns[colNr - 1].getNamingSchemeType());
+      }
       textWidget.setText(content);
       if (lsMod != null) {
         textWidget.addModifyListener(lsMod);
@@ -3381,7 +3459,8 @@ public class TableView extends Composite {
     }
 
     final boolean useVariables = columnInfo.isUsingVariables();
-    if (useVariables) {
+    final boolean useCompositeEditor = usesCompositeEditor(columnInfo);
+    if (useCompositeEditor) {
       IGetCaretPosition getCaretPositionInterface = () -> 0;
 
       // Widget will be disposed when we get here
@@ -3415,6 +3494,10 @@ public class TableView extends Composite {
       comboVar.setData(CANCEL_KEYS, new String[] {"TAB", CONST_SHIFT_TAB});
       comboVar.addModifyListener(lsModCombo);
       comboVar.addFocusListener(lsFocusCombo);
+      comboVar.setVariablesEnabled(useVariables);
+      if (StringUtils.isNotEmpty(columnInfo.getNamingSchemeType())) {
+        comboVar.enableNamingSchemes(columnInfo.getNamingSchemeType());
+      }
       comboVar.setText(item.getText(colNr));
       comboVar.getCComboWidget().setVisibleItemCount(Math.min(opt.length, 15));
 

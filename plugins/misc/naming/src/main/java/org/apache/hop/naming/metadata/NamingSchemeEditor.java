@@ -23,6 +23,7 @@ import org.apache.hop.naming.engine.NamingEngine;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -38,7 +39,7 @@ public class NamingSchemeEditor extends MetadataEditor<NamingScheme> {
 
   private static final Class<?> PKG = NamingScheme.class;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Combo wType;
   private Combo wCaseStyle;
@@ -63,22 +64,9 @@ public class NamingSchemeEditor extends MetadataEditor<NamingScheme> {
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin() + 2;
 
-    // Name
-    Label wlName = new Label(parent, SWT.RIGHT);
-    PropsUi.setLook(wlName);
-    wlName.setText(BaseMessages.getString(PKG, "NamingSchemeEditor.Name.Label"));
-    FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin);
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    wName =
+        createNameField(
+            parent, BaseMessages.getString(PKG, "NamingSchemeEditor.Name.Label"), middle, margin);
     Control lastControl = wName;
 
     // Description
@@ -110,7 +98,7 @@ public class NamingSchemeEditor extends MetadataEditor<NamingScheme> {
     wlType.setLayoutData(fdlType);
     wType = new Combo(parent, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wType);
-    wType.setItems(NamingSchemeType.getLabels());
+    wType.setItems(NamingSchemeType.getPluginLabels());
     FormData fdType = new FormData();
     fdType.top = new FormAttachment(wlType, 0, SWT.CENTER);
     fdType.left = new FormAttachment(middle, 0);
@@ -366,7 +354,7 @@ public class NamingSchemeEditor extends MetadataEditor<NamingScheme> {
   private void fillSchemeFromWidgets(NamingScheme scheme) {
     scheme.setName(wName.getText());
     scheme.setDescription(wDescription.getText());
-    scheme.setType(NamingSchemeType.fromLabel(wType.getText()).getCode());
+    scheme.setType(NamingSchemeType.codeFromDisplay(wType.getText()));
     scheme.setCaseStyle(NamingCaseStyle.fromLabel(wCaseStyle.getText()).getCode());
     scheme.setWordSeparator(NamingWordSeparator.fromLabel(wWordSeparator.getText()).getCode());
     scheme.setExtraDelimiters(wExtraDelimiters.getText());
@@ -382,7 +370,7 @@ public class NamingSchemeEditor extends MetadataEditor<NamingScheme> {
     NamingScheme scheme = getMetadata();
     wName.setText(Const.NVL(scheme.getName(), ""));
     wDescription.setText(Const.NVL(scheme.getDescription(), ""));
-    wType.setText(NamingSchemeType.fromCode(scheme.getType()).getLabel());
+    wType.setText(NamingSchemeType.displayFromCode(scheme.getType()));
     wCaseStyle.setText(NamingCaseStyle.fromCode(scheme.getCaseStyle()).getLabel());
     wWordSeparator.setText(NamingWordSeparator.fromCode(scheme.getWordSeparator()).getLabel());
     wExtraDelimiters.setText(Const.NVL(scheme.getExtraDelimiters(), ""));

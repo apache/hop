@@ -17,14 +17,27 @@
 
 package org.apache.hop.naming.metadata;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.naming.NamingSchemeTypePluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Target kind for a {@link NamingScheme}. Stored as a stable string code on the metadata element.
  */
 public enum NamingSchemeType {
+  GENERAL("general", "NamingSchemeType.General"),
   HOP_FIELD("hop-field", "NamingSchemeType.HopField"),
+  HOP_TRANSFORM("hop-transform", "NamingSchemeType.HopTransform"),
+  HOP_ACTION("hop-action", "NamingSchemeType.HopAction"),
+  HOP_PIPELINE("hop-pipeline", "NamingSchemeType.HopPipeline"),
+  HOP_WORKFLOW("hop-workflow", "NamingSchemeType.HopWorkflow"),
+  HOP_METADATA("hop-metadata", "NamingSchemeType.HopMetadata"),
+  HOP_VARIABLE("hop-variable", "NamingSchemeType.HopVariable"),
   DATABASE_TABLE("database-table", "NamingSchemeType.DatabaseTable"),
   DATABASE_COLUMN("database-column", "NamingSchemeType.DatabaseColumn"),
   FILE("file", "NamingSchemeType.File"),
@@ -48,6 +61,12 @@ public enum NamingSchemeType {
     return BaseMessages.getString(PKG, i18nKey);
   }
 
+  /**
+   * Map a known built-in code to an enum constant. Unknown plugin codes (for example {@code
+   * dv-hub}) are <em>not</em> coerced to {@link #HOP_FIELD} for matching — use {@link
+   * NamingSchemeSelector#matching(Iterable, String)} with the raw code instead. This method still
+   * returns {@link #HOP_FIELD} for unknown values so existing enum callers keep compiling.
+   */
   public static NamingSchemeType fromCode(String code) {
     if (StringUtils.isEmpty(code)) {
       return HOP_FIELD;
@@ -76,6 +95,55 @@ public enum NamingSchemeType {
       labels[i] = values[i].getLabel();
     }
     return labels;
+  }
+
+  public static String[] getPluginLabels() {
+    List<IPlugin> plugins = pluginTypes();
+    if (plugins.isEmpty()) {
+      return getLabels();
+    }
+    plugins.sort(
+        Comparator.comparing((IPlugin p) -> !"general".equalsIgnoreCase(p.getIds()[0]))
+            .thenComparing(IPlugin::getName, String.CASE_INSENSITIVE_ORDER));
+    String[] labels = new String[plugins.size()];
+    for (int i = 0; i < plugins.size(); i++) {
+      labels[i] = plugins.get(i).getName();
+    }
+    return labels;
+  }
+
+  public static String codeFromDisplay(String display) {
+    if (StringUtils.isEmpty(display)) {
+      return GENERAL.getCode();
+    }
+    for (IPlugin plugin : pluginTypes()) {
+      if (display.equals(plugin.getName()) || display.equalsIgnoreCase(plugin.getIds()[0])) {
+        return plugin.getIds()[0];
+      }
+    }
+    return fromLabel(display).getCode();
+  }
+
+  public static String displayFromCode(String code) {
+    if (StringUtils.isEmpty(code)) {
+      return GENERAL.getLabel();
+    }
+    for (IPlugin plugin : pluginTypes()) {
+      if (code.equalsIgnoreCase(plugin.getIds()[0])) {
+        return plugin.getName();
+      }
+    }
+    NamingSchemeType type = fromCode(code);
+    return type.getCode().equalsIgnoreCase(code) ? type.getLabel() : code;
+  }
+
+  private static List<IPlugin> pluginTypes() {
+    try {
+      return new ArrayList<>(
+          PluginRegistry.getInstance().getPlugins(NamingSchemeTypePluginType.class));
+    } catch (Exception e) {
+      return List.of();
+    }
   }
 
   public static NamingSchemeType fromLabel(String label) {

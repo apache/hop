@@ -22,15 +22,17 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.naming.engine.NamingEngine;
 import org.apache.hop.naming.metadata.NamingScheme;
-import org.apache.hop.naming.metadata.NamingSchemeType;
+import org.apache.hop.naming.metadata.NamingSchemeSelector;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -38,8 +40,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 /**
- * TableView toolbar action that applies a {@link NamingScheme} of type Hop field names to a chosen
- * column (issue #2683).
+ * TableView toolbar action that applies a {@link NamingScheme} to a chosen column. Columns that
+ * declared a naming type are preferred; otherwise any column can be rewritten with hop-field
+ * schemes (issue #2683).
  */
 @GuiPlugin
 public class TableViewNamingToolbarButton {
@@ -67,41 +70,54 @@ public class TableViewNamingToolbarButton {
     }
 
     try {
-      // 1. Pick column (default: first data column)
-      //
-      String[] columnNames = new String[columns.length];
+      List<Integer> eligible = new ArrayList<>();
       for (int i = 0; i < columns.length; i++) {
-        columnNames[i] = columns[i].getName();
-      }
-      EnterSelectionDialog columnDialog =
-          new EnterSelectionDialog(
-              shell,
-              columnNames,
-              BaseMessages.getString(PKG, "Naming.ColumnSelection.Title"),
-              BaseMessages.getString(PKG, "Naming.ColumnSelection.Message"));
-      columnDialog.setSelectedNrs(new int[] {0});
-      if (columnDialog.open() == null) {
-        return;
-      }
-      int columnIndex = columnDialog.getSelectionNr();
-      if (columnIndex < 0 || columnIndex >= columns.length) {
-        return;
-      }
-      // TableItem column 0 is "#"; data columns start at 1
-      int tableColNr = columnIndex + 1;
-
-      // 2. Pick Naming Scheme (Hop field names)
-      //
-      IHopMetadataSerializer<NamingScheme> serializer =
-          HopGui.getInstance().getMetadataProvider().getSerializer(NamingScheme.class);
-      List<NamingScheme> allSchemes = serializer.loadAll();
-      List<NamingScheme> fieldSchemes = new ArrayList<>();
-      for (NamingScheme scheme : allSchemes) {
-        NamingSchemeType type = NamingSchemeType.fromCode(scheme.getType());
-        if (type == NamingSchemeType.HOP_FIELD) {
-          fieldSchemes.add(scheme);
+        if (StringUtils.isNotEmpty(columns[i].getNamingSchemeType())) {
+          eligible.add(i);
         }
       }
+      // Unannotated tables keep the original "any column + hop-field" behavior.
+      boolean annotated = !eligible.isEmpty();
+      if (!annotated) {
+        for (int i = 0; i < columns.length; i++) {
+          eligible.add(i);
+        }
+      }
+
+      int columnIndex;
+      if (eligible.size() == 1) {
+        columnIndex = eligible.get(0);
+      } else {
+        String[] columnNames = new String[eligible.size()];
+        for (int i = 0; i < eligible.size(); i++) {
+          columnNames[i] = columns[eligible.get(i)].getName();
+        }
+        EnterSelectionDialog columnDialog =
+            new EnterSelectionDialog(
+                shell,
+                columnNames,
+                BaseMessages.getString(PKG, "Naming.ColumnSelection.Title"),
+                BaseMessages.getString(PKG, "Naming.ColumnSelection.Message"));
+        columnDialog.setSelectedNrs(new int[] {0});
+        if (columnDialog.open() == null) {
+          return;
+        }
+        int pick = columnDialog.getSelectionNr();
+        if (pick < 0 || pick >= eligible.size()) {
+          return;
+        }
+        columnIndex = eligible.get(pick);
+      }
+
+      // TableItem column 0 is "#"; data columns start at 1
+      int tableColNr = columnIndex + 1;
+      String typeCode =
+          annotated ? columns[columnIndex].getNamingSchemeType() : NamingSchemeTypes.HOP_FIELD;
+
+      IHopMetadataSerializer<NamingScheme> serializer =
+          HopGui.getInstance().getMetadataProvider().getSerializer(NamingScheme.class);
+      List<NamingScheme> fieldSchemes =
+          NamingSchemeSelector.matching(serializer.loadAll(), typeCode);
       if (fieldSchemes.isEmpty()) {
         MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
         box.setText(BaseMessages.getString(PKG, "Naming.NoSchemes.Title"));
@@ -110,27 +126,30 @@ public class TableViewNamingToolbarButton {
         return;
       }
 
-      String[] schemeNames = new String[fieldSchemes.size()];
-      for (int i = 0; i < fieldSchemes.size(); i++) {
-        schemeNames[i] = fieldSchemes.get(i).getName();
+      NamingScheme scheme;
+      if (fieldSchemes.size() == 1) {
+        scheme = fieldSchemes.get(0);
+      } else {
+        String[] schemeNames = new String[fieldSchemes.size()];
+        for (int i = 0; i < fieldSchemes.size(); i++) {
+          schemeNames[i] = fieldSchemes.get(i).getName();
+        }
+        EnterSelectionDialog schemeDialog =
+            new EnterSelectionDialog(
+                shell,
+                schemeNames,
+                BaseMessages.getString(PKG, "Naming.SchemeSelection.Title"),
+                BaseMessages.getString(PKG, "Naming.SchemeSelection.Message"));
+        if (schemeDialog.open() == null) {
+          return;
+        }
+        int schemeIndex = schemeDialog.getSelectionNr();
+        if (schemeIndex < 0 || schemeIndex >= fieldSchemes.size()) {
+          return;
+        }
+        scheme = fieldSchemes.get(schemeIndex);
       }
-      EnterSelectionDialog schemeDialog =
-          new EnterSelectionDialog(
-              shell,
-              schemeNames,
-              BaseMessages.getString(PKG, "Naming.SchemeSelection.Title"),
-              BaseMessages.getString(PKG, "Naming.SchemeSelection.Message"));
-      if (schemeDialog.open() == null) {
-        return;
-      }
-      int schemeIndex = schemeDialog.getSelectionNr();
-      if (schemeIndex < 0 || schemeIndex >= fieldSchemes.size()) {
-        return;
-      }
-      NamingScheme scheme = fieldSchemes.get(schemeIndex);
 
-      // 3. Apply to non-empty rows
-      //
       List<TableItem> items = tableView.getNonEmptyItems();
       if (items.isEmpty()) {
         return;
@@ -142,7 +161,7 @@ public class TableViewNamingToolbarButton {
         TableItem item = items.get(i);
         rowIndices[i] = tableView.getTable().indexOf(item);
         String current = item.getText(tableColNr);
-        if (StringUtils.isEmpty(current) || "<null>".equals(current)) {
+        if (NamingSchemeShortcut.shouldSkip(current)) {
           newValues[i] = current;
         } else {
           newValues[i] = NamingEngine.apply(scheme, current);
@@ -156,6 +175,20 @@ public class TableViewNamingToolbarButton {
           BaseMessages.getString(PKG, "Naming.Error.Title"),
           BaseMessages.getString(PKG, "Naming.Error.Message"),
           e);
+    }
+  }
+
+  @GuiToolbarElementFilter(parentId = TableView.ID_TOOLBAR)
+  public static boolean showApplyNaming(String itemId, Object guiPluginInstance) {
+    if (!ID_TOOLBAR_APPLY_NAMING.equals(itemId)) {
+      return true;
+    }
+    try {
+      IHopMetadataSerializer<NamingScheme> serializer =
+          HopGui.getInstance().getMetadataProvider().getSerializer(NamingScheme.class);
+      return !serializer.listObjectNames().isEmpty();
+    } catch (Exception e) {
+      return false;
     }
   }
 }

@@ -48,6 +48,7 @@ import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextComposite;
@@ -402,6 +403,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     colinf[2].setComboValues(ValueMetaFactory.getAllValueMetaNames());
     colinf[4].setReadOnly(true);

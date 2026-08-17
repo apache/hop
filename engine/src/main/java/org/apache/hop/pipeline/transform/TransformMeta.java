@@ -60,6 +60,7 @@ import org.w3c.dom.Node;
 /** This class contains everything that is needed to define a transform. */
 @Getter
 @Setter
+@org.apache.hop.core.naming.NamingSchemeKind("hop-transform")
 public class TransformMeta
     implements Cloneable,
         Comparable<TransformMeta>,
@@ -84,7 +85,8 @@ public class TransformMeta
   @HopMetadataProperty(key = "type")
   private String transformPluginId; // --> transform plugin id
 
-  @HopMetadataProperty private String name;
+  @HopMetadataProperty(namingSchemeType = "hop-transform")
+  private String name;
 
   @HopMetadataProperty(inline = true)
   private ITransformMeta transform;

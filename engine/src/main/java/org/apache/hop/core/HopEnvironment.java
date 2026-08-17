@@ -101,6 +101,7 @@ public class HopEnvironment {
         ExecutionInfoLocationPluginType.getInstance(),
         LineageSinkPluginType.getInstance(),
         HopCommandPluginType.getInstance(),
+        org.apache.hop.core.naming.NamingSchemeTypePluginType.getInstance(),
         DataStreamPluginType.getInstance());
   }
 

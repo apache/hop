@@ -28,6 +28,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -365,7 +366,9 @@ public class ActionZipFileDialog extends ActionDialog {
     fdbZipFilename.right = new FormAttachment(100, 0);
     fdbZipFilename.top = new FormAttachment(wSourceFiles, 0);
     wbZipFilename.setLayoutData(fdbZipFilename);
-    wZipFilename = new TextVar(variables, wZipFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wZipFilename =
+        new TextVar(variables, wZipFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wZipFilename);
     wZipFilename.addModifyListener(lsMod);
     FormData fdZipFilename = new FormData();

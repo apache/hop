@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class JmsConsumerDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JmsConsumerMeta.class;
@@ -92,15 +91,14 @@ public class JmsConsumerDialog extends BaseTransformDialog {
     fdlTransformName.top = new FormAttachment(0, margin);
     fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(e -> input.setChanged());
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    createTransformNameControl(shell, fdTransformName);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(e -> input.setChanged());
     Control last = wTransformName;
 
     wConnection =

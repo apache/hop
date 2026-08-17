@@ -170,6 +170,13 @@ public @interface HopMetadataProperty {
   HopMetadataPropertyType hopMetadataPropertyType() default HopMetadataPropertyType.NONE;
 
   /**
+   * Optional naming-scheme type code for this String field ({@code hop-field}, {@code
+   * hop-transform}, {@code dv-hub}, …). Empty means the field is not a name to validate. Does not
+   * replace {@link #hopMetadataPropertyType()}.
+   */
+  String namingSchemeType() default "";
+
+  /**
    * When serializing common objects sometimes we don't want to serialize every field. In this
    * scenario you can specify the fields to serialize.
    *

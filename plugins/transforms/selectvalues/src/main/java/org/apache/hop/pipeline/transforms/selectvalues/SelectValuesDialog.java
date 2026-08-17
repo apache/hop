@@ -46,6 +46,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -200,6 +201,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.RenameTo"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
+    colinf[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[2] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Length"),
@@ -419,6 +421,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               ValueMetaBase.roundingTypeDesc),
         };
+    colmeta[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colmeta[5].setToolTip(
         BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip"));
     fieldColumns.add(colmeta[0]);

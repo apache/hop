@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -57,7 +58,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Text wTableNameField;
+  private TextVar wTableNameField;
   private Text wSqlCreationField;
   private Button wIncludeTable;
 
@@ -400,7 +401,9 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     fdlTableNameField.right = new FormAttachment(middle, -margin);
     fdlTableNameField.top = new FormAttachment(wSettings, margin);
     wlTableNameField.setLayoutData(fdlTableNameField);
-    wTableNameField = new Text(wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTableNameField =
+        new TextVar(variables, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_FIELD);
     wTableNameField.setToolTipText(
         BaseMessages.getString(PKG, "GetTableNamesDialog.TableNameFieldName.Tooltip"));
     PropsUi.setLook(wTableNameField);

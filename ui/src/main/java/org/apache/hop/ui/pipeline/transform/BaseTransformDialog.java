@@ -55,6 +55,9 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -99,7 +102,11 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   /** The Transform name label. */
   protected Label wlTransformName;
 
-  /** The Transform name UI component. */
+  /**
+   * The Transform name text control. Must remain an SWT {@link Text} that is a <em>direct child of
+   * the dialog composite</em>. Existing plugins resolve this field by type ({@code Text}, not
+   * {@code TextVar}) and attach siblings with {@code new FormAttachment(wTransformName, ...)}.
+   */
   protected Text wTransformName;
 
   /** Horizontal spacer below the transform name line; use for top attachment of dialog content. */
@@ -308,15 +315,14 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
 
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    createTransformNameControl(shell, fdTransformName);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
 
     wSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();
@@ -327,6 +333,22 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
     loading = true;
     return wSpacer;
+  }
+
+  /**
+   * Create a naming-enabled transform-name field as a direct child of {@code parent}. {@link
+   * #wTransformName} is an SWT {@link Text} sibling of other dialog controls so existing plugins
+   * stay binary- and layout-compatible. The N indicator is placed at {@code fd.right}.
+   *
+   * @param parent parent composite (usually {@link #shell})
+   * @param fd form data for the name slot (left/top/right)
+   */
+  protected void createTransformNameControl(Composite parent, FormData fd) {
+    wTransformName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    Label naming =
+        NamingSchemeWidgetSupport.enableOnText(
+            wTransformName, variables, NamingSchemeTypes.HOP_TRANSFORM);
+    NamingSchemeWidgetSupport.layoutWithIndicator(wTransformName, naming, fd);
   }
 
   /**
@@ -1174,6 +1196,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     if (optimizeWidth) {
       tableView.optWidth(true);
     }
+    NamingSchemeColumnApplierRegistry.getInstance().applyAnnotatedColumns(tableView, null, null);
   }
 
   static DialogBoxWithButtons getFieldsChoiceDialog(

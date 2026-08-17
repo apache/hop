@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -67,7 +68,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
   private WorkflowRunConfiguration runConfiguration;
   private WorkflowRunConfiguration workingConfiguration;
 
-  private Text wName;
+  private TextVar wName;
   private Text wDescription;
   private Button wDefault;
   private MetaSelectionLine<ExecutionInfoLocation> wExecutionInfoLocation;
@@ -141,21 +142,12 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     //
     // What's the name
     //
-    Label wlName = new Label(parent, SWT.RIGHT);
-    PropsUi.setLook(wlName);
-    wlName.setText(BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.name"));
-    FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin);
-    fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlName.right = new FormAttachment(middle, -margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.left = new FormAttachment(middle, 0); // To the right of the label
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    wName =
+        createNameField(
+            parent,
+            BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.name"),
+            middle,
+            margin);
     Control lastControl = wName;
 
     Label wlDescription = new Label(parent, SWT.RIGHT);

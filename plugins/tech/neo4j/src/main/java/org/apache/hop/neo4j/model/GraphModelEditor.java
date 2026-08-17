@@ -52,7 +52,9 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
@@ -100,7 +102,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
   // Model fields
   private Text wModelDescription;
-  private Text wModelName;
+  private TextVar wModelName;
 
   // Node fields
   private List wNodesList;
@@ -377,7 +379,9 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdlModelName.right = new FormAttachment(middle, 0);
     fdlModelName.top = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlModelName);
-    wModelName = new Text(wModelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wModelName =
+        new TextVar(hopGui.getVariables(), wModelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wModelName);
     FormData fdModelName = new FormData();
     fdModelName.left = new FormAttachment(middle, margin);

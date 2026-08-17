@@ -41,6 +41,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -317,7 +318,9 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wbaFilename.setLayoutData(
         new FormDataBuilder().top(wlFilename, 0, SWT.CENTER).right(wbbFilename, -margin).result());
 
-    wFilename = new TextVar(variables, group, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename =
+        new TextVar(variables, group, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FILE);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     wFilename.setLayoutData(

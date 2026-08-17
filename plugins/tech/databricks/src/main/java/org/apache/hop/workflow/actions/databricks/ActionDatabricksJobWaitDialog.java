@@ -26,6 +26,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -41,7 +42,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** Dialog for {@link ActionDatabricksJobWait}. */
 public class ActionDatabricksJobWaitDialog extends ActionDialog {
@@ -50,7 +50,7 @@ public class ActionDatabricksJobWaitDialog extends ActionDialog {
   private ActionDatabricksJobWait action;
   private boolean changed;
 
-  private Text wName;
+  private TextVar wName;
   private MetaSelectionLine<DatabricksConnection> wConnection;
   private TextVar wRunId;
   private TextVar wTimeout;
@@ -107,7 +107,9 @@ public class ActionDatabricksJobWaitDialog extends ActionDialog {
     fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_ACTION);
     PropsUi.setLook(wName);
     wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
