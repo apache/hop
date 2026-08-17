@@ -21,10 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.AfterEach;
@@ -97,6 +100,30 @@ class HopVfsTest {
 
     boolean test = HopVfs.checkForScheme(schemes, true, vfsFilename);
     assertTrue(test);
+  }
+
+  /**
+   * On Windows, a network share resolves to a "file:////" VFS URI (4 slashes). {@link
+   * HopVfs#getFilename(FileObject)} must turn that back into a native UNC path (no "file:" scheme,
+   * no percent-encoding) since callers such as the Csv input transform open it directly with
+   * java.io.File/FileInputStream, which do not understand VFS URIs (issue #7983).
+   */
+  @Test
+  void testGetFilenameConvertsWindowsNetworkShareUriToNativePath() {
+    FileObject fileObject = mock(FileObject.class);
+    FileName fileName = mock(FileName.class);
+    when(fileObject.getName()).thenReturn(fileName);
+    when(fileName.getRootURI()).thenReturn("file:////ServerName");
+    when(fileName.getURI()).thenReturn("file:////ServerName/Folder%24/File.csv");
+
+    String filename = HopVfs.getFilename(fileObject);
+
+    assertFalse(
+        filename.startsWith("file:"), "Native path should not carry the VFS scheme: " + filename);
+    assertFalse(filename.contains("%24"), "Native path should be percent-decoded: " + filename);
+    assertTrue(filename.contains("ServerName"));
+    assertTrue(filename.contains("Folder$"));
+    assertTrue(filename.contains("File.csv"));
   }
 
   @Test

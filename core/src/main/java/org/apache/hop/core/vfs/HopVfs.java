@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -560,7 +562,19 @@ public class HopVfs {
       return fileName.getURI(); // nothing we can do about non-normal files.
     }
     if (root.startsWith("file:////")) {
-      return fileName.getURI(); // we'll see 4 forward slashes for a windows/smb network share
+      // We'll see 4 forward slashes for a windows/smb network share, e.g.
+      // file:////server/share/file.csv
+      //
+      // fileName.getURI() is a percent-encoded VFS URI, not a native OS path, so it can't be
+      // used as-is to open a java.io.File / FileInputStream directly (e.g. the Csv input
+      // transform does this for performance reasons). Convert it back to a native UNC path
+      // (\\server\share\file.csv) the same way java.io.File#toURI() encoded it, so the two
+      // remain symmetrical. See https://github.com/apache/hop/issues/7983
+      try {
+        return new File(new URI(fileName.getURI())).getPath();
+      } catch (URISyntaxException e) {
+        return fileName.getURI(); // fall back to the previous behaviour
+      }
     }
     if (root.endsWith(":/")) { // Windows
       root = root.substring(8, 10);
