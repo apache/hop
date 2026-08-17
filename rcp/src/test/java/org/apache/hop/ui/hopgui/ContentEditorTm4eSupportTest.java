@@ -161,6 +161,136 @@ class ContentEditorTm4eSupportTest {
     assertTrue(result.getTokens().length > 0, "batch line should produce tokens");
   }
 
+  /**
+   * The scoped ranges have to tile the requested range without holes. JFace merges neighbouring
+   * tokens that share a TextAttribute by adding up their lengths, so a hole (a line delimiter that
+   * no token covers) shortens the style range of a run of same-coloured lines: one character per
+   * line with LF, two with CRLF. That is issue #7971 - highlighting that stops before the end of a
+   * run, worse on Windows and worse the more lines are involved.
+   */
+  private static void assertTiles(IGrammar grammar, String text) {
+    List<ContentEditorTm4eSupport.ScopedRange> ranges =
+        ContentEditorTm4eSupport.tokenize(grammar, text, 0, text.length());
+
+    int expectedOffset = 0;
+    for (ContentEditorTm4eSupport.ScopedRange range : ranges) {
+      assertEquals(
+          expectedOffset,
+          range.offset(),
+          () ->
+              "gap or overlap before ["
+                  + text.substring(range.offset(), range.offset() + range.length())
+                  + "] at offset "
+                  + range.offset());
+      assertTrue(range.length() > 0, "empty range at offset " + range.offset());
+      expectedOffset += range.length();
+    }
+    assertEquals(text.length(), expectedOffset, "ranges stop before the end of the text");
+  }
+
+  @Test
+  void tokenize_coversEveryCharacter_withUnixLineEndings() throws Exception {
+    IGrammar grammar = loadGrammar("source.sql", "sql.json");
+
+    assertTiles(grammar, "SELECT\n    p.CODE\nfrom\n    DIM_PRESTATION p\n");
+  }
+
+  @Test
+  void tokenize_coversEveryCharacter_withWindowsLineEndings() throws Exception {
+    IGrammar grammar = loadGrammar("source.sql", "sql.json");
+
+    assertTiles(grammar, "SELECT\r\n    p.CODE\r\nfrom\r\n    DIM_PRESTATION p\r\n");
+  }
+
+  @Test
+  void tokenize_coversEveryCharacter_ofRepeatedHeadings() throws Exception {
+    IGrammar grammar = loadGrammar("text.html.markdown", "markdown.json");
+
+    // Consecutive lines that share a colour are what makes the shortfall add up
+    assertTiles(grammar, "# h1\n## h2\n### h3\n\n# h1\n## h2\n### h3\n#### h4\n");
+    assertTiles(grammar, "# h1\r\n## h2\r\n### h3\r\n\r\n# h1\r\n## h2\r\n### h3\r\n#### h4\r\n");
+  }
+
+  @Test
+  void tokenize_coversEveryCharacter_ofBlankAndEmptyLines() throws Exception {
+    IGrammar grammar = loadGrammar("source.json", "json.json");
+
+    assertTiles(grammar, "{\r\n\r\n    \"string\" : \"metadata\"\r\n\r\n}\r\n");
+  }
+
+  /**
+   * What {@link org.eclipse.jface.text.rules.DefaultDamagerRepairer#createPresentation} does with a
+   * token stream: neighbouring tokens that share a TextAttribute become one style range whose
+   * length is the sum of the token lengths, the offsets of the merged tokens are never consulted.
+   * Returns the resulting {offset, end} pairs.
+   */
+  private static List<int[]> mergeLikeJFace(
+      List<ContentEditorTm4eSupport.ScopedRange> ranges,
+      java.util.function.Function<ContentEditorTm4eSupport.ScopedRange, String> attribute) {
+    List<int[]> styleRanges = new ArrayList<>();
+    String lastAttribute = null;
+    int start = 0;
+    int length = 0;
+    for (ContentEditorTm4eSupport.ScopedRange range : ranges) {
+      String current = attribute.apply(range);
+      if (current.equals(lastAttribute)) {
+        length += range.length();
+      } else {
+        if (lastAttribute != null) {
+          styleRanges.add(new int[] {start, start + length});
+        }
+        lastAttribute = current;
+        start = range.offset();
+        length = range.length();
+      }
+    }
+    if (lastAttribute != null) {
+      styleRanges.add(new int[] {start, start + length});
+    }
+    return styleRanges;
+  }
+
+  @Test
+  void mergedStyleRuns_endWhereTheirTextEnds() throws Exception {
+    IGrammar grammar = loadGrammar("text.html.markdown", "markdown.json");
+    // Three heading lines in a row: every token on them carries markup.heading, so JFace merges
+    // them into one style range. Each line delimiter it swallows used to cut a character off the
+    // end of that range, which is what made the last heading lose its colour (issue #7971).
+    String text = "# h1\n## h2\n### h3\n";
+
+    List<int[]> styleRanges =
+        mergeLikeJFace(
+            ContentEditorTm4eSupport.tokenize(grammar, text, 0, text.length()),
+            range ->
+                String.join(" ", range.scopes()).contains("markup.heading") ? "heading" : "other");
+
+    int endOfLastHeading = text.indexOf("### h3") + "### h3".length();
+    assertTrue(
+        styleRanges.stream().anyMatch(r -> r[1] == endOfLastHeading),
+        "no style range ends at the end of '### h3' (offset "
+            + endOfLastHeading
+            + "), ranges: "
+            + styleRanges.stream().map(r -> r[0] + ".." + r[1]).toList());
+  }
+
+  @Test
+  void tokenize_appliesOnlyToTheRequestedRange() throws Exception {
+    IGrammar grammar = loadGrammar("source.sql", "sql.json");
+    String text = "SELECT\r\n    p.CODE\r\nfrom\r\n";
+    int lineTwo = text.indexOf("    p.CODE");
+    int lineTwoLength = "    p.CODE".length();
+
+    List<ContentEditorTm4eSupport.ScopedRange> ranges =
+        ContentEditorTm4eSupport.tokenize(grammar, text, lineTwo, lineTwoLength);
+
+    assertEquals(lineTwo, ranges.getFirst().offset(), "should start at the requested offset");
+    ContentEditorTm4eSupport.ScopedRange last = ranges.getLast();
+    assertEquals(
+        lineTwo + lineTwoLength,
+        last.offset() + last.length(),
+        "should stop at the end of the requested range");
+  }
+
   @Test
   void scopeForLanguage_markdownAliases_returnTextHtmlMarkdown() {
     assertEquals("text.html.markdown", ContentEditorTm4eSupport.scopeForLanguage("markdown"));
