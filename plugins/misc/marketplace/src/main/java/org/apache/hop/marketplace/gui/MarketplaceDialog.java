@@ -21,8 +21,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRunnableWithProgress;
@@ -93,6 +96,8 @@ public class MarketplaceDialog extends Dialog {
   private TableView wTable;
   private Text wSearch;
   private Label wStatus;
+  private Button wInstall;
+  private Button wUninstall;
   private Path hopHome;
   private MarketplaceConfig config;
   private MarketplaceRepositoriesPanel repositoriesPanel;
@@ -103,16 +108,27 @@ public class MarketplaceDialog extends Dialog {
   private boolean searchPending;
   private long searchRequestedAt;
 
+  /** Pre-filled search text, e.g. the plugin id from the missing plugins dialog. */
+  private final String initialSearch;
+
   public MarketplaceDialog(Shell parent) {
+    this(parent, null);
+  }
+
+  /**
+   * @param initialSearch search box content on open, or null/blank to list everything
+   */
+  public MarketplaceDialog(Shell parent, String initialSearch) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
     this.props = PropsUi.getInstance();
+    this.initialSearch = initialSearch;
   }
 
   public void open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX);
     PropsUi.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setImage(GuiResource.getInstance().getImageMarketplace());
     shell.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Shell.Title"));
 
     FormLayout formLayout = new FormLayout();
@@ -181,6 +197,11 @@ public class MarketplaceDialog extends Dialog {
 
     BaseTransformDialog.setSize(shell);
     shell.open();
+    if (StringUtils.isNotBlank(initialSearch) && !wSearch.isDisposed()) {
+      // Selected, so typing replaces the suggested plugin id when it turns up nothing.
+      wSearch.setFocus();
+      wSearch.selectAll();
+    }
     Display display = parent.getDisplay();
     while (!shell.isDisposed()) {
       if (!display.readAndDispatch()) {
@@ -201,11 +222,11 @@ public class MarketplaceDialog extends Dialog {
     comp.setLayout(layout);
     tab.setControl(comp);
 
-    Button wUninstall = new Button(comp, SWT.PUSH);
+    wUninstall = new Button(comp, SWT.PUSH);
     wUninstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall"));
     wUninstall.addListener(SWT.Selection, e -> uninstallSelected());
 
-    Button wInstall = new Button(comp, SWT.PUSH);
+    wInstall = new Button(comp, SWT.PUSH);
     wInstall.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install"));
     wInstall.addListener(SWT.Selection, e -> installSelected());
 
@@ -215,6 +236,8 @@ public class MarketplaceDialog extends Dialog {
 
     BaseTransformDialog.positionBottomButtons(
         comp, new Button[] {wInstall, wUninstall, wRefresh}, PropsUi.getMargin(), null);
+
+    applyPluginManagePermissions();
 
     // Search / filter above the plugin list
     Label wlSearch = new Label(comp, SWT.RIGHT);
@@ -242,6 +265,11 @@ public class MarketplaceDialog extends Dialog {
     fdSearch.top = new FormAttachment(wlSearch, 0, SWT.CENTER);
     fdSearch.right = new FormAttachment(wClearSearch, -PropsUi.getMargin());
     wSearch.setLayoutData(fdSearch);
+    // Set before the listener is added: the first refreshTable() below already picks this up, a
+    // Modify event here would only schedule a second, identical query.
+    if (StringUtils.isNotBlank(initialSearch)) {
+      wSearch.setText(initialSearch.trim());
+    }
     wSearch.addListener(SWT.Modify, e -> scheduleSearch());
 
     Label wSearchSep = new Label(comp, SWT.HORIZONTAL | SWT.SEPARATOR);
@@ -292,7 +320,9 @@ public class MarketplaceDialog extends Dialog {
         new TableView(
             Variables.getADefaultVariableSpace(),
             comp,
-            SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE | SWT.V_SCROLL,
+            // No SWT.SINGLE: TableView adds SWT.MULTI, so several plugins can be installed or
+            // removed in one go.
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL,
             columns,
             1,
             true,
@@ -312,7 +342,7 @@ public class MarketplaceDialog extends Dialog {
   private void createEnvironmentTab(CTabFolder folder) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
     tab.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Tab.Environment"));
-    tab.setImage(GuiResource.getInstance().getImageFile());
+    tab.setImage(GuiResource.getInstance().getImageClientEnvironment());
     Composite comp = new Composite(folder, SWT.NONE);
     PropsUi.setLook(comp);
     FormLayout layout = new FormLayout();
@@ -353,7 +383,7 @@ public class MarketplaceDialog extends Dialog {
   private void createRepositoriesTab(CTabFolder folder) {
     CTabItem tab = new CTabItem(folder, SWT.NONE);
     tab.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Tab.Repositories"));
-    tab.setImage(GuiResource.getInstance().getImageServer());
+    tab.setImage(GuiResource.getInstance().getImageRepository());
     Composite comp = new Composite(folder, SWT.NONE);
     PropsUi.setLook(comp);
     FormLayout layout = new FormLayout();
@@ -482,8 +512,7 @@ public class MarketplaceDialog extends Dialog {
     for (OptionalPluginInfo info : plugins) {
       // Column 0 is the (hidden) index column; data columns are 1-based.
       TableItem item = new TableItem(wTable.table, SWT.NONE);
-      String name = Const.NVL(info.getName(), info.getArtifactId());
-      item.setText(1, Const.NVL(name, ""));
+      item.setText(1, Const.NVL(displayName(info), ""));
       item.setText(2, Const.NVL(info.getVersion(), ""));
       item.setText(3, Const.NVL(info.getArtifactId(), ""));
       item.setText(4, Const.NVL(info.getCategory(), ""));
@@ -604,12 +633,28 @@ public class MarketplaceDialog extends Dialog {
     return true;
   }
 
-  private OptionalPluginInfo selected() {
+  /** The plugins highlighted in the table, in table order. Empty when nothing is selected. */
+  private List<OptionalPluginInfo> selected() {
     TableItem[] items = wTable.table.getSelection();
-    if (items == null || items.length == 0) {
-      return null;
+    if (items == null) {
+      return List.of();
     }
-    return (OptionalPluginInfo) items[0].getData();
+    List<OptionalPluginInfo> selection = new ArrayList<>();
+    for (TableItem item : items) {
+      if (item.getData() instanceof OptionalPluginInfo info) {
+        selection.add(info);
+      }
+    }
+    return selection;
+  }
+
+  /** Plugin names as the table shows them, one per line, for confirmations and summaries. */
+  private static String nameList(List<String> names) {
+    return names.stream().map(name -> "- " + name).collect(Collectors.joining("\n"));
+  }
+
+  private static String displayName(OptionalPluginInfo info) {
+    return Const.NVL(info.getName(), info.getArtifactId());
   }
 
   /**
@@ -632,77 +677,189 @@ public class MarketplaceDialog extends Dialog {
     return source;
   }
 
-  private void installSelected() {
-    OptionalPluginInfo info = selected();
-    if (info == null) {
-      return;
+  /** One plugin ready to install: where to get it, and what to call it while it downloads. */
+  private record InstallRequest(
+      MavenCoordinates coordinates, String preferredRepo, String displayName) {}
+
+  /** What a batch install did: what went in, what didn't, and whether the user stopped it. */
+  private record InstallOutcome(
+      List<String> installed, Map<String, Exception> failures, boolean cancelled) {}
+
+  /** Coordinates, repository and display name for one selected row. */
+  private InstallRequest toInstallRequest(OptionalPluginInfo info) {
+    String groupId =
+        StringUtils.isNotBlank(info.getGroupId()) ? info.getGroupId() : config.getGroupId();
+    String version =
+        StringUtils.isNotBlank(info.getVersion())
+            ? info.getVersion()
+            : MarketplaceCommand.resolveDefaultVersion(config);
+    String preferredRepo =
+        StringUtils.isNotBlank(info.getSource()) && !"apache".equalsIgnoreCase(info.getSource())
+            ? info.getSource()
+            : null;
+    return new InstallRequest(
+        new MavenCoordinates(groupId, info.getArtifactId(), version),
+        preferredRepo,
+        // Same name the table shows, not the Maven coordinate.
+        displayName(info));
+  }
+
+  /** Enable Install/Uninstall only when plugin manage permission is allowed. */
+  private void applyPluginManagePermissions() {
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    if (wInstall != null && !wInstall.isDisposed()) {
+      wInstall.setEnabled(canManage);
+      wInstall.setToolTipText(
+          canManage
+              ? ""
+              : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Install.RequiresAdmin"));
     }
-    try {
-      if (repositoriesPanel != null) {
-        config = repositoriesPanel.getConfig();
-      }
-      String groupId =
-          StringUtils.isNotBlank(info.getGroupId()) ? info.getGroupId() : config.getGroupId();
-      String version =
-          StringUtils.isNotBlank(info.getVersion())
-              ? info.getVersion()
-              : MarketplaceCommand.resolveDefaultVersion(config);
-      MavenCoordinates coords = new MavenCoordinates(groupId, info.getArtifactId(), version);
-      String preferredRepo =
-          StringUtils.isNotBlank(info.getSource()) && !"apache".equalsIgnoreCase(info.getSource())
-              ? info.getSource()
-              : null;
-      // Same name the table shows, not the Maven coordinate.
-      String displayName = Const.NVL(info.getName(), info.getArtifactId());
-      wStatus.setText(
-          BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installing", coords.gav()));
-      shell.update();
-      if (!runInstall(coords, preferredRepo, displayName)) {
-        // Cancelled by the user — no success popup, and the table still reflects reality.
-        refreshTable(RefreshReason.AFTER_CHANGE);
-        wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.Cancelled"));
-        return;
-      }
-      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Install.Done.Header"));
-      box.setMessage(
-          BaseMessages.getString(PKG, "MarketplaceDialog.Install.Done.Message", coords.gav()));
-      box.open();
-      refreshTable(RefreshReason.AFTER_CHANGE);
-      wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      showInstallError(info, e);
-    } catch (Exception e) {
-      showInstallError(info, e);
+    if (wUninstall != null && !wUninstall.isDisposed()) {
+      wUninstall.setEnabled(canManage);
+      wUninstall.setToolTipText(
+          canManage
+              ? ""
+              : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall.RequiresAdmin"));
     }
   }
 
-  private void showInstallError(OptionalPluginInfo info, Exception e) {
+  private void installSelected() {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
+      return;
+    }
+    List<OptionalPluginInfo> selection = selected();
+    if (selection.isEmpty()) {
+      return;
+    }
+    if (repositoriesPanel != null) {
+      config = repositoriesPanel.getConfig();
+    }
+    List<InstallRequest> requests = selection.stream().map(this::toInstallRequest).toList();
+    InstallOutcome outcome;
+    try {
+      wStatus.setText(installingStatus(requests));
+      shell.update();
+      outcome = runInstall(requests);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      showInstallError(requests, e);
+      return;
+    } catch (Exception e) {
+      showInstallError(requests, e);
+      return;
+    }
+
+    // The table reflects what is on disk either way: a batch can be part installed.
+    refreshTable(RefreshReason.AFTER_CHANGE);
+    if (!outcome.failures().isEmpty()) {
+      showInstallFailures(outcome);
+      wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+      return;
+    }
+    if (outcome.cancelled()) {
+      // Cancelled by the user — no success popup.
+      wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.Cancelled"));
+      return;
+    }
+    boolean single = outcome.installed().size() == 1;
+    MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+    box.setText(
+        BaseMessages.getString(
+            PKG,
+            single
+                ? "MarketplaceDialog.Install.Done.Header"
+                : "MarketplaceDialog.Install.Done.HeaderMultiple"));
+    box.setMessage(
+        single
+            ? BaseMessages.getString(
+                PKG, "MarketplaceDialog.Install.Done.Message", outcome.installed().get(0))
+            : BaseMessages.getString(
+                PKG,
+                "MarketplaceDialog.Install.Done.MessageMultiple",
+                Integer.toString(outcome.installed().size()),
+                nameList(outcome.installed())));
+    box.open();
+    wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+  }
+
+  private String installingStatus(List<InstallRequest> requests) {
+    return requests.size() == 1
+        ? BaseMessages.getString(
+            PKG, "MarketplaceDialog.Status.Installing", requests.get(0).coordinates().gav())
+        : BaseMessages.getString(
+            PKG, "MarketplaceDialog.Status.InstallingCount", Integer.toString(requests.size()));
+  }
+
+  /** The batch never started, or the dialog itself broke down. */
+  private void showInstallError(List<InstallRequest> requests, Exception e) {
     // ProgressMonitorDialog wraps the real failure; unwrap so the dialog shows the cause.
     Throwable cause =
         e instanceof InvocationTargetException ite && ite.getCause() != null ? ite.getCause() : e;
     new ErrorDialog(
         shell,
         BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
-        BaseMessages.getString(PKG, "MarketplaceDialog.Install.Error", info.getArtifactId()),
+        BaseMessages.getString(
+            PKG,
+            "MarketplaceDialog.Install.Error",
+            requests.stream().map(InstallRequest::displayName).collect(Collectors.joining(", "))),
         cause);
   }
 
   /**
+   * Report the plugins the batch could not install. One dialog for the lot: a failing repository
+   * usually takes every plugin down with it, and a popup per plugin would have to be clicked away
+   * as many times.
+   */
+  private void showInstallFailures(InstallOutcome outcome) {
+    StringBuilder detail = new StringBuilder();
+    for (Map.Entry<String, Exception> failure : outcome.failures().entrySet()) {
+      log.logError("Failed to install " + failure.getKey(), failure.getValue());
+      detail
+          .append("- ")
+          .append(failure.getKey())
+          .append(": ")
+          .append(Const.NVL(failure.getValue().getMessage(), failure.getValue().toString()))
+          .append(Const.CR);
+    }
+    String header =
+        outcome.failures().size() == 1
+            ? BaseMessages.getString(
+                PKG,
+                "MarketplaceDialog.Install.Error",
+                outcome.failures().keySet().iterator().next())
+            : BaseMessages.getString(
+                PKG,
+                "MarketplaceDialog.Install.Error.Multiple",
+                Integer.toString(outcome.failures().size()),
+                Integer.toString(outcome.failures().size() + outcome.installed().size()));
+    // The first failure carries the stack trace; the rest are summarised in the message.
+    Exception first = outcome.failures().values().iterator().next();
+    new ErrorDialog(
+        shell,
+        BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+        header + Const.CR + Const.CR + detail,
+        first);
+  }
+
+  /**
    * Download and install on a worker thread behind a cancellable progress dialog, so the UI keeps
-   * repainting and the user can see the zip arrive.
+   * repainting and the user can see the zips arrive.
    *
    * <p>{@link ProgressMonitorDialog#run(boolean, IRunnableWithProgress)} pumps the event loop until
    * the work finishes and only then returns, so everything after the call is back on the UI thread
    * and needs no marshalling.
    *
-   * @return true when the plugin was installed, false when the user cancelled
-   * @throws InvocationTargetException wrapping whatever the install failed with
+   * <p>A failing plugin does not abort the batch — one unavailable artifact shouldn't cost the user
+   * the other nine installs — so failures are collected and reported together at the end. Nothing
+   * is thrown out of the operation, which also sidesteps a trap: {@code monitor.done()} disposes
+   * the progress shell and ends the pump loop, so anything thrown after it is never observed and a
+   * failed install would be reported as a success.
    */
-  private boolean runInstall(MavenCoordinates coords, String preferredRepo, String displayName)
+  private InstallOutcome runInstall(List<InstallRequest> requests)
       throws InvocationTargetException, InterruptedException {
     PluginInstaller installer = new PluginInstaller(log, hopHome, config);
+    List<String> installed = new ArrayList<>();
+    Map<String, Exception> failures = new LinkedHashMap<>();
     AtomicBoolean cancelled = new AtomicBoolean(false);
     ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
 
@@ -710,63 +867,137 @@ public class MarketplaceDialog extends Dialog {
         monitor -> {
           ProgressMonitorInstallListener listener = new ProgressMonitorInstallListener(monitor);
           listener.begin(
-              BaseMessages.getString(PKG, "MarketplaceDialog.Progress.Installing", displayName),
-              displayName);
-          try {
-            installer.install(coords, true, null, preferredRepo, listener);
-          } catch (Exception e) {
-            if (!monitor.isCanceled()) {
-              // Throw WITHOUT calling monitor.done(). done() disposes the progress shell, which
-              // ends ProgressMonitorDialog's pump loop before it has a chance to observe this
-              // exception — a failed install would then be reported as a success. Leaving the shell
-              // up lets the pump see the exception and rethrow it. Catching Exception (not just
-              // HopException) is what keeps a RuntimeException from killing the worker thread
-              // silently and hanging the dialog forever.
-              throw new InvocationTargetException(e, e.getMessage());
+              installTaskName(requests),
+              requests.size() == 1 ? requests.get(0).displayName() : null);
+          for (int i = 0; i < requests.size(); i++) {
+            if (monitor.isCanceled()) {
+              cancelled.set(true);
+              break;
             }
-            cancelled.set(true);
+            InstallRequest request = requests.get(i);
+            // Drives the "3 of 12" line and scales the bar across the batch.
+            listener.item(request.displayName(), i, requests.size());
+            try {
+              installer.install(
+                  request.coordinates(), true, null, request.preferredRepo(), listener);
+              installed.add(request.coordinates().gav());
+            } catch (Exception e) {
+              // Catching Exception (not just HopException) is what keeps a RuntimeException from
+              // killing the worker thread silently and hanging the dialog forever.
+              if (monitor.isCanceled()) {
+                cancelled.set(true);
+                break;
+              }
+              failures.put(request.displayName(), e);
+            }
           }
           listener.complete();
           monitor.done();
         };
 
     dialog.run(true, operation);
-    return !cancelled.get();
+    return new InstallOutcome(installed, failures, cancelled.get());
+  }
+
+  private String installTaskName(List<InstallRequest> requests) {
+    return requests.size() == 1
+        ? BaseMessages.getString(
+            PKG, "MarketplaceDialog.Progress.Installing", requests.get(0).displayName())
+        : BaseMessages.getString(
+            PKG, "MarketplaceDialog.Progress.InstallingCount", Integer.toString(requests.size()));
   }
 
   private void uninstallSelected() {
-    OptionalPluginInfo info = selected();
-    if (info == null) {
+    if (!MarketplaceSecurity.checkManagePlugins()) {
       return;
     }
-    try {
-      InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, info.getArtifactId());
-      if (receipt == null) {
-        MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-        box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Uninstall.NoReceipt.Header"));
-        box.setMessage(
-            BaseMessages.getString(
-                PKG, "MarketplaceDialog.Uninstall.NoReceipt.Message", info.getArtifactId()));
-        box.open();
-        return;
-      }
-      MessageBox confirm = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-      confirm.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Uninstall.Confirm.Header"));
-      confirm.setMessage(
-          BaseMessages.getString(
-              PKG, "MarketplaceDialog.Uninstall.Confirm.Message", info.getArtifactId()));
-      if (confirm.open() != SWT.YES) {
-        return;
-      }
-      new PluginUninstaller(log, hopHome).uninstall(info.getArtifactId());
-      refreshTable(RefreshReason.AFTER_CHANGE);
-      wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
-    } catch (Exception e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
-          BaseMessages.getString(PKG, "MarketplaceDialog.Uninstall.Error", info.getArtifactId()),
-          e);
+    List<OptionalPluginInfo> selection = selected();
+    if (selection.isEmpty()) {
+      return;
     }
+    List<OptionalPluginInfo> removable = new ArrayList<>();
+    List<String> withoutReceipt = new ArrayList<>();
+    try {
+      for (OptionalPluginInfo info : selection) {
+        if (PluginInstaller.readReceipt(hopHome, info.getArtifactId()) == null) {
+          withoutReceipt.add(info.getArtifactId());
+        } else {
+          removable.add(info);
+        }
+      }
+    } catch (Exception e) {
+      showUninstallError(selection.stream().map(OptionalPluginInfo::getArtifactId).toList(), e);
+      return;
+    }
+
+    // Plugins that ship with the client have no receipt; say so instead of silently skipping them.
+    if (!withoutReceipt.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+      box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Uninstall.NoReceipt.Header"));
+      box.setMessage(
+          withoutReceipt.size() == 1
+              ? BaseMessages.getString(
+                  PKG, "MarketplaceDialog.Uninstall.NoReceipt.Message", withoutReceipt.get(0))
+              : BaseMessages.getString(
+                  PKG,
+                  "MarketplaceDialog.Uninstall.NoReceipt.MessageMultiple",
+                  nameList(withoutReceipt)));
+      box.open();
+      if (removable.isEmpty()) {
+        return;
+      }
+    }
+
+    List<String> artifactIds = removable.stream().map(OptionalPluginInfo::getArtifactId).toList();
+    MessageBox confirm = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    confirm.setText(
+        BaseMessages.getString(
+            PKG,
+            artifactIds.size() == 1
+                ? "MarketplaceDialog.Uninstall.Confirm.Header"
+                : "MarketplaceDialog.Uninstall.Confirm.HeaderMultiple"));
+    confirm.setMessage(
+        artifactIds.size() == 1
+            ? BaseMessages.getString(
+                PKG, "MarketplaceDialog.Uninstall.Confirm.Message", artifactIds.get(0))
+            : BaseMessages.getString(
+                PKG,
+                "MarketplaceDialog.Uninstall.Confirm.MessageMultiple",
+                Integer.toString(artifactIds.size()),
+                nameList(artifactIds)));
+    if (confirm.open() != SWT.YES) {
+      return;
+    }
+
+    PluginUninstaller uninstaller = new PluginUninstaller(log, hopHome);
+    List<String> failed = new ArrayList<>();
+    Exception firstFailure = null;
+    for (String artifactId : artifactIds) {
+      try {
+        uninstaller.uninstall(artifactId);
+      } catch (Exception e) {
+        // Same reasoning as the install batch: report everything that went wrong, once.
+        log.logError("Failed to uninstall " + artifactId, e);
+        failed.add(artifactId);
+        if (firstFailure == null) {
+          firstFailure = e;
+        }
+      }
+    }
+    refreshTable(RefreshReason.AFTER_CHANGE);
+    if (firstFailure != null) {
+      showUninstallError(failed, firstFailure);
+      return;
+    }
+    wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+  }
+
+  private void showUninstallError(List<String> artifactIds, Exception e) {
+    new ErrorDialog(
+        shell,
+        BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+        BaseMessages.getString(
+            PKG, "MarketplaceDialog.Uninstall.Error", String.join(", ", artifactIds)),
+        e);
   }
 }

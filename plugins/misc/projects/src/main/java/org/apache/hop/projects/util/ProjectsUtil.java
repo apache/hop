@@ -133,17 +133,32 @@ public class ProjectsUtil {
       project.setMetadataProvider(metadataProvider);
     }
 
+    // The named VFS connections live in the metadata of this project, so hand HopVfs the variables
+    // to find them with. This also resets the file system manager: the providers of the previous
+    // project are gone and those of this one are registered the next time VFS is used.
+    //
+    HopVfs.setBootstrapVariables(variables);
+
     // We store the project in the namespace singleton (used mainly in the GUI)
     //
     HopNamespace.setNamespace(projectName);
 
     // Save some history concerning the usage of the project
     // but only in case Hop was started by HopGui because that is the only case
-    // where this info is valuable.
+    // where this info is valuable. Audit I/O must not block enabling a project (e.g. Docker audit
+    // folder permission issues).
     //
     if (Const.getHopPlatformRuntime() != null && Const.getHopPlatformRuntime().equals("GUI")) {
-      AuditManager.registerEvent(
-          HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
+      try {
+        AuditManager.registerEvent(
+            HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");
+      } catch (Exception e) {
+        log.logError(
+            "Unable to register project open audit event for '"
+                + projectName
+                + "' (continuing enable): "
+                + e.getMessage());
+      }
     }
 
     // Signal others that we have a new active project

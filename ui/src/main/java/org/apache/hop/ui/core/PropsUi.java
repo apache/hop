@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -627,6 +628,15 @@ public class PropsUi extends Props {
     setProperty(STRING_SHOW_TABLE_VIEW_TOOLBAR, show ? YES : NO);
   }
 
+  public boolean isShowTextCompositeToolbar() {
+    String show = getProperty(STRING_SHOW_TEXT_COMPOSITE_TOOLBAR, YES);
+    return YES.equalsIgnoreCase(show); // Default: show the toolbar
+  }
+
+  public void setShowTextCompositeToolbar(boolean show) {
+    setProperty(STRING_SHOW_TEXT_COMPOSITE_TOOLBAR, show ? YES : NO);
+  }
+
   /**
    * Maximum number of characters shown in a preview grid cell before it is truncated (double-click
    * the cell to see the full value). 0 disables truncation. Default 50.
@@ -765,6 +775,12 @@ public class PropsUi extends Props {
   }
 
   public static void setLook(final Widget widget, int style) {
+    // Handle the keyboard shortcuts of widgets that are created after their shell was set up, e.g.
+    // when a metadata editor rebuilds a section. In Hop Web the key listener has to be there when
+    // the widget is rendered or RAP never sends its key events to the server.
+    //
+    HopGuiKeyHandler.getInstance().attachTo(widget);
+
     if (EnvironmentUtils.getInstance().isWeb()) {
       setLookOnWeb(widget, style);
       return;

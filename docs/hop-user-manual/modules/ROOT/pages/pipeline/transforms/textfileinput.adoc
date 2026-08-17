@@ -127,6 +127,7 @@ Special characters (e.g. CHAR ASCII HEX01) can be set with the format $[value], 
 For example, if you have \ as an escape character, the text 'Not the nine o\'clock news' (where ' is the the enclosure character) gets parsed as Not the nine o'clock news instead of splitting the field value.
 Special characters (e.g. CHAR HEX01) can be set with the format $[value], e.g. $[01] or $[6F,FF,00,1F].
 The Escape character may be left empty, or set to the same character as the Enclosure. In both cases a doubled enclosure inside an enclosed field (for example "" when " is the enclosure) is treated as a single, literal enclosure character and is de-duplicated in the resulting value, following the common CSV convention (so "she said ""hi""" is read as she said "hi"). This also works when "Allow breaks in enclosed fields?" is enabled.
+|Return null for empty values which are not enclosed?|Enable to make a difference between an empty value and a missing value. An empty value which is not enclosed (`a;;b`) is then returned as null, while an empty enclosed value (`a;"";b`) is returned as an empty string. A line ending on a separator (`a;b;`) also returns null for that last value. When this option is disabled (the default) both are handled the same way, as they always were. To keep the difference between an empty string and null in the transforms further down the pipeline, also set the `HOP_EMPTY_STRING_DIFFERS_FROM_NULL` variable to `Y`.
 |Prepend filename to headers|Enable to add the filename to each field in the file. This can help when you are joining data by making it clear which file each field comes from.
 |Header|Enable if your text file has a header row (first lines in the file). These typically determine the column names used in the transform. If you set this on a file that does not contain headers, the data values in the first row are interpreted as headers, which will likely produce unexpected results. In this case, if the field is blank, it will be named EmptyField_n, where n is the column's position in the row. Always check the field set to ensure the column names and data types have been interpreted correctly.
 |Number of header lines|Specify the number of rows encompass the header in the file.
@@ -220,76 +221,32 @@ Available options include:
 |Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
 |Name|Name of the field to include in the output.
 |Type|Data type for the field. This can be either String, Date or Number
-|Format|See Number Formats for a complete description of format symbols.
+|Format|Number or date pattern.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Position|This is needed when processing the 'Fixed' filetype.
 It is zero based, so the first character starts with position 0.
 |Length|For Number: Total number of significant figures in a number; For String: total length of string; For Date: length of printed output of the string (e.g. 4 only gives back the year).
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Precision|For Number: The number of floating point digits displayed
 |Currency|Used to interpret monetary values like $10,000.00 or E5.000,00
 |Decimal|The character used as the decimal point for numbers. Typically a "." (10,000.00) or "," (5.000,00)
-|Grouping|A character used as a thousands separator for numbers. Typically a "," (10,000.00) or "." (5.000,00)
+|Grouping|A character used as a thousands separator for numbers. Typically a "," (10,000.00) or "." (5.000,00).
+This is *not* a row group.
 |Null if|Specify a value that will be replaced with a null value in the output.
 |Default|Default value in case the field in the text file was not specified (empty)
 |Trim type|Specify how whitespace is trimmed from the value in the column. This can be left (removes leading spaces), right (removes trailing spaces), both, or none.
 |Repeat|If the corresponding value in this row is empty, repeat the one from the last row when it was not empty.
 |===
 
-**Number Formats**
+==== Number formats
 
-The information below on Number formats was taken from the Sun Java API documentation, located at http://java.sun.com/j2se/1.4.2/docs/api/java/text/DecimalFormat.html.
-For further information on valid numeric formats used in this transform, view the Number Formatting Table.
+include::../../snippets/field-metadata/number-format-symbols.adoc[]
 
-[options="header"]
-|===
-|Symbol|Location|Localized|Meaning
-|0|Number|Yes|Digit
-|#|Number|Yes|Digit, zero shows as absent
-|.|Number|Yes|Decimal separator or monetary decimal separator
-|-|Number|Yes|Minus sign
-|,|Number|Yes|Grouping separator
-|E|Number|Yes|Separates mantissa and exponent in scientific notation; need not be quoted in prefix or suffix
-|;|Sub pattern boundary|Yes|Separates positive and negative sub patterns
-|%|Prefix or suffix|Yes|Multiply by 100 and show as percentage
-|\u2030|Prefix or suffix|Yes|Multiply by 1000 and show as per mille
-|€ (\u00A4)|Prefix or suffix|No|Currency sign, replaced by currency symbol.
-If doubled, replaced by international currency symbol.
-If present in a pattern, the monetary decimal separator is used instead of the decimal separator.
-|'|Prefix or suffix|No|Used to quote special characters in a prefix or suffix, for example, "'#'#" formats 123 to "#123".
-To create a single quote itself, use two in a row: "# o''clock".
-|===
+==== Date formats
 
-**Scientific Notation**
+include::../../snippets/field-metadata/date-format-symbols.adoc[]
 
-In a pattern, the exponent character immediately followed by one or more digit characters indicates scientific notation (for example, "0.###E0" formats the number 1234 as "1.234E3".
-
-**Date formats**
-
-The information on Date formats was taken from the Sun Java API documentation, located at:
-
-http://java.sun.com/j2se/1.4.2/docs/api/java/text/SimpleDateFormat.html.
-For further information on valid date formats used in this transform, view the Date Formatting Table.
-
-[options="header"]
-|===
-|Letter|Date or Time Component|Presentation|Examples
-|M|Month in year|Month|July; Jul; 07
-|w|Week in year|Number|27
-|W|Week in month|Number|2
-|D|Day in year|Number|189
-|d|Day in month|Number|10
-|F|Day of week in month|Number|2
-|E|Day in week|Text|Tuesday; Tue
-|a|Am/pm marker|Text|PM
-|H|Hour in day (0-23)|Number 0|
-|k|Hour in day (1-24)|Number 24|
-|K|Hour in am/pm (0-11)|Number 0|
-|h|Hour in am/pm (1-12)|Number 12|
-|m|Minute in hour|Number 30|
-|s|Second in minute|Number 55|
-|S|Millisecond|Number 978|
-|z|Time zone|General time zone|Pacific Standard Time; PST; GMT-08:00
-|Z|Time zone|RFC 822 time zone|-0800
-|===
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates] for Decimal, Group, Currency, Length, Precision and worked examples.
 
 == Additional Output Fields Tab
 

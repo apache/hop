@@ -15,6 +15,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# No service here publishes a port. Everything in this file talks to everything else over the
+# compose network by service name, so a host port would only widen the surface: it would collide
+# with whatever else is listening on a developer machine or a shared CI agent, and it would put a
+# deliberately permissive test server (an open proxy, an mTLS endpoint, a mock API) on the host's
+# interfaces. To reach a container while debugging, use "docker compose exec" or attach a
+# throwaway container to the network instead of publishing a port.
+
 services:
   integration_test_http:
     extends:
@@ -26,9 +33,13 @@ services:
       - ./resource/http/mtls/nginx-configs:/opt/hop/tests/mtls/nginx:ro
     depends_on:
       - http
+      - httpecho
       - tomcat
       - castlemock
       - mtls_test
+      - proxy
+      - paging
+      - httpsse
     environment:
       HOP_MTLS_CERTS_DIR: /opt/hop/tests/mtls/certs
       HOP_MTLS_BASE_URL: https://mtls_test:443
@@ -36,8 +47,34 @@ services:
   http:
     image: kennethreitz/httpbin
     hostname: http
-    ports:
-      - "80"
+
+  # go-httpbin alongside the original rather than replacing it, for the Server-Sent Events tests:
+  # the image above has no /sse route. Swapping wholesale is a separate job - go-httpbin returns
+  # headers and query args as JSON arrays, and it decodes request bodies as text, which destroys
+  # the binary round-trip that tests 0026/0027 exist to prove (issue #3746).
+  # PORT=80 so it is addressed the same way as everything else here.
+  httpsse:
+    image: mccutchen/go-httpbin:v2.15.0
+    hostname: httpsse
+    environment:
+      PORT: "80"
+
+  # Answers any HTTP method with the method name, so the custom-method tests can assert on the
+  # verb the server actually received. httpbin routes only the well-known verbs.
+  httpecho:
+    image: nginx:alpine
+    hostname: httpecho
+    volumes:
+      - ./resource/http/echo/echo.conf:/etc/nginx/nginx.conf:ro
+    # The binary payload served at /binary is written at start-up rather than checked in: the
+    # repository holds no binary files. These bytes are deliberately not valid UTF-8, so any
+    # charset round-trip on the way out or back corrupts them (issue #3746).
+    command:
+      - sh
+      - -c
+      - |
+        printf '\211PNG\r\n\032\n\377\330\303(\000\001' > /usr/share/nginx/binary.dat
+        exec nginx -g 'daemon off;'
 
   tomcat:
     user: root
@@ -52,12 +89,45 @@ services:
     image: castlemock/castlemock
     hostname: castlemock
 
+  # A paginating API, one endpoint per RestPaginationType. Every endpoint serves the same six
+  # items over three pages of two, so a paging test passes only when it collected all six with no
+  # duplicates - too few means it stopped early, duplicates mean it re-fetched a page.
+  paging:
+    image: nginx:alpine
+    hostname: paging
+    volumes:
+      - ./resource/http/paging/paging.conf:/etc/nginx/nginx.conf:ro
+
+  # Forward proxy for the REST/HTTP proxy tests. Two ports so one container covers both paths:
+  # 3128 is open, 3129 demands Basic credentials. Squid stamps every response it serves with an
+  # X-Cache header, which is how a test tells a proxied response from a direct one.
+  #
+  # It straddles both networks on purpose: it is the only route from the test container to
+  # proxied-origin below.
+  proxy:
+    image: ubuntu/squid:5.2-22.04_beta
+    hostname: proxy
+    volumes:
+      - ./resource/http/proxy/squid.conf:/etc/squid/squid.conf:ro
+      - ./resource/http/proxy/passwords.txt:/etc/squid/passwords:ro
+    networks:
+      - default
+      - proxy_only
+
+  # An origin the test container cannot reach on its own: it sits only on the internal network,
+  # so without proxy settings the host does not even resolve. That is what lets a proxy test
+  # prove the proxy was used, rather than just that a request happened to succeed.
+  proxied-origin:
+    image: nginx:alpine
+    hostname: proxied-origin
+    volumes:
+      - ./resource/http/proxy/origin.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - proxy_only
+
   mtls_test:
     image: nginx:alpine
     hostname: mtls_test
-    ports:
-      - "9443:443"
-      - "9080:80"
     volumes:
       - ./resource/http/mtls/test-certs:/etc/nginx/certs:ro
       - ./resource/http/mtls/nginx-configs/mtls.conf:/etc/nginx/nginx.conf:ro
@@ -66,3 +136,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+networks:
+  # Carries proxied-origin and the proxy only. "internal" keeps it off the host network too, so
+  # the only way in is through the proxy container that also sits on the default network.
+  proxy_only:
+    internal: true

@@ -62,6 +62,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
   private Label wlFilenameSplitSize;
   private TextVar wFilenameSplitSize;
   private Button wFilenameCreateFolders;
+  private Button wFilenameCompressionBeforeExtension;
   private Combo wCompressionCodec;
   private Combo wVersion;
   private TextVar wRowGroupSize;
@@ -302,6 +303,26 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     fdFilenameCreateFolders.top = new FormAttachment(wlFilenameCreateFolders, 0, SWT.CENTER);
     fdFilenameCreateFolders.right = new FormAttachment(100, 0);
     wFilenameCreateFolders.setLayoutData(fdFilenameCreateFolders);
+    lastControl = wlFilenameCreateFolders;
+
+    Label wlFilenameCompressionBeforeExtension = new Label(wFileGroup, SWT.RIGHT);
+    wlFilenameCompressionBeforeExtension.setText(
+        BaseMessages.getString(
+            PKG, "ParquetOutputDialog.FilenameCompressionBeforeExtension.Label"));
+    PropsUi.setLook(wlFilenameCompressionBeforeExtension);
+    FormData fdlFilenameCompressionBeforeExtension = new FormData();
+    fdlFilenameCompressionBeforeExtension.left = new FormAttachment(0, 0);
+    fdlFilenameCompressionBeforeExtension.right = new FormAttachment(middle, -margin);
+    fdlFilenameCompressionBeforeExtension.top = new FormAttachment(lastControl, margin);
+    wlFilenameCompressionBeforeExtension.setLayoutData(fdlFilenameCompressionBeforeExtension);
+    wFilenameCompressionBeforeExtension = new Button(wFileGroup, SWT.CHECK);
+    PropsUi.setLook(wFilenameCompressionBeforeExtension);
+    FormData fdFilenameCompressionBeforeExtension = new FormData();
+    fdFilenameCompressionBeforeExtension.left = new FormAttachment(middle, 0);
+    fdFilenameCompressionBeforeExtension.top =
+        new FormAttachment(wlFilenameCompressionBeforeExtension, 0, SWT.CENTER);
+    fdFilenameCompressionBeforeExtension.right = new FormAttachment(100, 0);
+    wFilenameCompressionBeforeExtension.setLayoutData(fdFilenameCompressionBeforeExtension);
 
     // End of the file group
     //
@@ -478,6 +499,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     wFilenameIncludeSplitNr.setSelection(input.isFilenameIncludingSplitNr());
     wFilenameSplitSize.setText(Const.NVL(input.getFileSplitSize(), ""));
     wFilenameCreateFolders.setSelection(input.isFilenameCreatingParentFolders());
+    wFilenameCompressionBeforeExtension.setSelection(input.isFilenameCompressionBeforeExtension());
     wCompressionCodec.setText(input.getCompressionCodec().name());
     wVersion.setText(input.getVersion().getDescription());
     wRowGroupSize.setText(Const.NVL(input.getRowGroupSize(), ""));
@@ -506,6 +528,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     input.setFilenameIncludingSplitNr(wFilenameIncludeSplitNr.getSelection());
     input.setFileSplitSize(wFilenameSplitSize.getText());
     input.setFilenameCreatingParentFolders(wFilenameCreateFolders.getSelection());
+    input.setFilenameCompressionBeforeExtension(wFilenameCompressionBeforeExtension.getSelection());
 
     CompressionCodecName codec = CompressionCodecName.UNCOMPRESSED;
     try {

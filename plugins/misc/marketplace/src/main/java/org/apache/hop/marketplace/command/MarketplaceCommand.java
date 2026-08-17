@@ -136,16 +136,21 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       mixinStandardHelpOptions = true,
       name = "install",
       description =
-          "Download and install a plugin zip. Short names resolve via the same discovery as query"
-              + " (e.g. datavault → hop-datavault:0.4.0-SNAPSHOT from a browse repo).")
+          "Download and install one or more plugin zips. Short names resolve via the same discovery"
+              + " as query (e.g. datavault → hop-datavault:0.4.0-SNAPSHOT from a browse repo)."
+              + " Every coordinate is resolved before the first download, so a typo fails before"
+              + " anything is fetched. A plugin that fails to install does not stop the others;"
+              + " the command exits non-zero when any of them failed.")
   static class InstallCommand extends MarketplaceSubCommand {
     @Parameters(
         index = "0",
+        arity = "1..*",
         paramLabel = "COORDINATE",
         description =
-            "Short name, artifactId, artifactId:version, or groupId:artifactId:version"
-                + " (e.g. datavault, hop-tech-parquet, hop-datavault:0.4.0-SNAPSHOT)")
-    private String coordinate;
+            "One or more short names, artifactIds, artifactId:version, or"
+                + " groupId:artifactId:version, separated by spaces"
+                + " (e.g. datavault hop-tech-parquet hop-datavault:0.4.0-SNAPSHOT)")
+    private List<String> coordinates;
 
     @Option(
         names = {"--repo"},
@@ -162,44 +167,67 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           throw new HopException("Marketplace is disabled in hop-config.json");
         }
         Path hopHome = HopHome.resolve();
+        PluginInstaller installer = new PluginInstaller(log, hopHome, config);
         // Activate any previously staged plugins first
-        new PluginInstaller(log, hopHome, config).activateAllPending();
+        installer.activateAllPending();
 
-        PluginDiscovery.InstallTarget target =
-            PluginDiscovery.resolveInstall(
-                coordinate, config.getGroupId(), resolveDefaultVersion(config), config, log);
-        MavenCoordinates gav = target.coordinates();
-        if (StringUtils.isNotBlank(target.preferredRepoId()) && StringUtils.isBlank(repoId)) {
-          System.out.println(
-              "Resolved "
-                  + coordinate
-                  + " → "
-                  + gav.gav()
-                  + " (prefer repo '"
-                  + target.preferredRepoId()
-                  + "')");
-        } else if (!coordinate.trim().equals(gav.artifactId()) || !coordinate.contains(":")) {
-          System.out.println("Resolved " + coordinate + " → " + gav.gav());
+        // Resolve the whole list before fetching anything: an unknown or ambiguous coordinate at
+        // the end of the line should not surface after three plugins have already downloaded.
+        List<PluginDiscovery.InstallTarget> targets = new ArrayList<>();
+        for (String coordinate : coordinates) {
+          PluginDiscovery.InstallTarget target =
+              PluginDiscovery.resolveInstall(
+                  coordinate, config.getGroupId(), resolveDefaultVersion(config), config, log);
+          printResolution(coordinate, target);
+          targets.add(target);
         }
+
+        List<String> failed = new ArrayList<>();
+        int installed = 0;
         ConsoleInstallListener progress = ConsoleInstallListener.forStdOut();
-        InstallReceipt receipt;
         try {
-          receipt =
-              new PluginInstaller(log, hopHome, config)
-                  .install(gav, true, repoId, target.preferredRepoId(), progress);
+          for (int i = 0; i < targets.size(); i++) {
+            PluginDiscovery.InstallTarget target = targets.get(i);
+            MavenCoordinates gav = target.coordinates();
+            // Prints "[2/5] hop-tech-parquet"; silent for a single install.
+            progress.item(gav.artifactId(), i, targets.size());
+            try {
+              InstallReceipt receipt =
+                  installer.install(gav, true, repoId, target.preferredRepoId(), progress);
+              installed++;
+              System.out.println(installedMessage(gav, receipt, hopHome, targets.size() == 1));
+            } catch (Exception e) {
+              // One plugin failing shouldn't cost the user the rest of the batch. Everything that
+              // went wrong is listed at the end, and the exit code still reports failure.
+              // Close any half-drawn progress bar so the error starts on its own row.
+              progress.complete();
+              failed.add(gav.artifactId());
+              System.err.println("ERROR: failed to install " + gav.gav() + ": " + e.getMessage());
+              if (log != null) {
+                log.logError("Marketplace install failed for " + gav.gav(), e);
+              }
+            }
+          }
         } finally {
           // Close off the in-place bar line so what follows starts on a fresh row.
           progress.complete();
         }
-        System.out.println(
-            "Plugin "
-                + gav.gav()
-                + " installed under "
-                + hopHome
-                + (receipt.getRepositoryId() != null
-                    ? " from repo '" + receipt.getRepositoryId() + "'"
-                    : "")
-                + ". Restart Hop to load it.");
+
+        if (targets.size() > 1) {
+          System.out.println(
+              installed
+                  + " of "
+                  + targets.size()
+                  + " plugins installed under "
+                  + hopHome
+                  + ". Restart Hop to load them.");
+        }
+        if (!failed.isEmpty()) {
+          throw new CommandLine.ExecutionException(
+              new CommandLine(this), "failed to install: " + String.join(", ", failed));
+        }
+      } catch (CommandLine.ExecutionException e) {
+        throw e;
       } catch (Exception e) {
         System.err.println("ERROR: " + e.getMessage());
         if (log != null) {
@@ -208,6 +236,36 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "install failed" : e.getMessage(), e);
       }
+    }
+
+    /** Report what a short name resolved to, unless the user already typed the full coordinate. */
+    private void printResolution(String coordinate, PluginDiscovery.InstallTarget target) {
+      MavenCoordinates gav = target.coordinates();
+      if (StringUtils.isNotBlank(target.preferredRepoId()) && StringUtils.isBlank(repoId)) {
+        System.out.println(
+            "Resolved "
+                + coordinate
+                + " → "
+                + gav.gav()
+                + " (prefer repo '"
+                + target.preferredRepoId()
+                + "')");
+      } else if (!coordinate.trim().equals(gav.artifactId()) || !coordinate.contains(":")) {
+        System.out.println("Resolved " + coordinate + " → " + gav.gav());
+      }
+    }
+
+    private static String installedMessage(
+        MavenCoordinates gav, InstallReceipt receipt, Path hopHome, boolean single) {
+      return "Plugin "
+          + gav.gav()
+          + " installed under "
+          + hopHome
+          + (receipt.getRepositoryId() != null
+              ? " from repo '" + receipt.getRepositoryId() + "'"
+              : "")
+          // For a batch the restart hint belongs on the summary line, not on every plugin.
+          + (single ? ". Restart Hop to load it." : ".");
     }
   }
 
@@ -617,7 +675,9 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
 
     @Option(
         names = {"--password"},
-        description = "Optional Basic auth password (prefer env HOP_MARKETPLACE_PASSWORD)")
+        description =
+            "Optional Basic auth password, stored obfuscated (prefer a ${VARIABLE} or env"
+                + " HOP_MARKETPLACE_PASSWORD)")
     private String password;
 
     @Option(
@@ -718,7 +778,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       name = "import",
       description =
           "Import a hop-marketplace-repo.yaml (or URL) into hop-config.json. Upserts by repository"
-              + " id.")
+              + " id; merges plugin metadata when the id already exists.")
   static class RepoImportCommand extends MarketplaceSubCommand {
     @Parameters(
         index = "0",
@@ -737,6 +797,10 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         MarketplaceRepository imported = MarketplaceRepositoryDefinition.loadFromUri(fileOrUrl);
         MarketplaceConfig config = MarketplaceConfig.load();
         boolean existed = config.findRepository(imported.getId()) != null;
+        // Assess before applying: afterwards the demoted repository is indistinguishable from any
+        // other fallback.
+        MarketplaceRepositoryDefinition.ImportRisk risk =
+            MarketplaceRepositoryDefinition.assess(config, imported);
         MarketplaceRepositoryDefinition.applyToConfig(config, imported, primary);
         config.save();
         System.out.println(
@@ -746,6 +810,21 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                 + "' → "
                 + imported.normalizedUrl()
                 + (imported.isBrowse() ? " (browse enabled)" : ""));
+        // Importing one repository should not silently change which one installs try first.
+        if (risk.takesOverPrimary() && !primary) {
+          System.out.println(
+              "WARNING: the definition set '"
+                  + imported.getId()
+                  + "' as the primary repository, replacing '"
+                  + risk.currentPrimaryName()
+                  + "'. Installs now try it first. Use 'marketplace repo set-primary' to change"
+                  + " that back.");
+        }
+        if (risk.noPublicFallback()) {
+          System.out.println(
+              "WARNING: neither the Apache nor the Maven Central repository is configured and"
+                  + " enabled, so there is no public repository to fall back on.");
+        }
       } catch (Exception e) {
         System.err.println("ERROR: " + e.getMessage());
         throw new CommandLine.ExecutionException(

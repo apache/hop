@@ -300,6 +300,14 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       injectionKeyDescription = "ExcelInput.Injection.SPREADSHEET_TYPE")
   private SpreadSheetType spreadSheetType;
 
+  /** The password to open a protected (encrypted) workbook with */
+  @HopMetadataProperty(
+      key = "password",
+      password = true,
+      injectionKey = "PASSWORD",
+      injectionKeyDescription = "ExcelInput.Injection.PASSWORD")
+  private String password;
+
   public ExcelInputMeta() {
     super();
     this.fields = new ArrayList<>();
@@ -345,6 +353,7 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.extensionFieldName = m.extensionFieldName;
     this.sizeFieldName = m.sizeFieldName;
     this.spreadSheetType = m.spreadSheetType;
+    this.password = m.password;
   }
 
   @Override

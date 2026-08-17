@@ -55,8 +55,8 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRo
 
     // create a fixed sized queue for max performance
     //
-    putArray = new ArrayBlockingQueue<>(BATCHSIZE, true);
-    getArray = new ArrayBlockingQueue<>(BATCHSIZE, true);
+    putArray = new ArrayBlockingQueue<>(BATCHSIZE, false);
+    getArray = new ArrayBlockingQueue<>(BATCHSIZE, false);
 
     size = maxSize / BATCHSIZE; // each buffer's size
     Object[][] buffer;
@@ -162,7 +162,8 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRo
 
   @Override
   public void setDone() {
-    super.setDone();
+    // Enqueue the last partial batch before marking done so concurrent consumers that observe
+    // isDone()==true cannot exit before the final rows are available (issue #7742).
     if (putIndex > 0 && putIndex < size && inputBuffer != null) {
       inputBuffer[putIndex] = null; // signal the end of buffer
       for (int i = putIndex + 1; i < size; i++) {
@@ -171,6 +172,7 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<IRo
       getArray.offer(inputBuffer);
     }
     putArray.clear();
+    super.setDone();
   }
 
   @Override

@@ -99,8 +99,10 @@ class ProcessFilesTest {
             int.class,
             PipelineMeta.class,
             Pipeline.class);
-    return kons.newInstance(
-        helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
+    ProcessFiles transform =
+        kons.newInstance(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
+    transform.init();
+    return transform;
   }
 
   private RowMeta rowMeta() {

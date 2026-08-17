@@ -46,7 +46,7 @@ cd /path/to/hop
 * Do *NOT* pass `--prune` unless you also want other marketplace installs removed.
 * `full-client-env.yaml` is generated at build time from marketplace plugin source file `optional-plugins.yaml` (source of truth).
 
-Beam SDKs/runners live under `plugins/engines/beam/lib-beam` (installed with the Beam plugin), not under `lib/beam`. Launch scripts add that folder to the classpath only when it exists. Developers who want Beam baked into a local hop-client build can use Maven profile `-Pbeam` (for example `./mvnw -pl assemblies/client -am package -Pbeam`).
+Beam SDKs/runners install with the Beam marketplace plugin into top-level `lib/core` (and Spark client jars into `lib/spark-client`). The older `plugins/engines/beam/lib-beam` layout is no longer produced. Developers who want Beam baked into a local hop-client build can use Maven profile `-Pbeam` (for example `./mvnw -pl assemblies/client -am package -Pbeam`).
 
 == Defaults
 
@@ -76,6 +76,7 @@ From the Hop install directory:
 ./hop marketplace install hop-tech-parquet
 ./hop marketplace install hop-engines-spark:2.19.0
 ./hop marketplace install hop-engines-spark:2.19.0 --repo asf
+./hop marketplace install hop-tech-parquet hop-transform-tika datavault
 ./hop marketplace list
 ./hop marketplace query parquet
 ./hop marketplace query "spark engine"
@@ -98,6 +99,11 @@ After install, apply, or uninstall, *restart Hop* so the plugin registry reloads
 
 Coordinates for `install`: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
 Optional `--repo <id>` forces a single repository (skips the fallback chain).
+
+`install` accepts several coordinates in one command. All of them are resolved before the first
+download, so an unknown or ambiguous name fails before anything is fetched. Downloads then run one
+after another with a `[2/5]` progress line per plugin; a plugin that fails to install does not stop
+the others, and the command exits non-zero when any of them failed.
 
 `query` searches the local optional-plugin catalog (not Maven Central). The filter is a
 case-insensitive substring matched against artifact id, name, category, description, and install
@@ -141,7 +147,9 @@ Use this tab to work with the local optional-plugin catalog:
 ** *Installed* — present on disk with a marketplace install receipt (version shown when known)
 ** *Present on disk* — plugin folder exists but no marketplace receipt
 ** *Not installed* — not found under `plugins/`
-* *Install* / *Uninstall* / *Refresh* — act on the selected plugin (uninstall requires a marketplace receipt)
+* *Install* / *Uninstall* / *Refresh* — act on the selected plugins (uninstall requires a marketplace receipt)
+* Several plugins can be selected at once with ctrl-click, shift-click, or ctrl-A, and installed or uninstalled in one go. Installs run one after another behind a single progress dialog; a plugin that fails does not stop the others and every failure is reported together at the end.
+* On *Hop Web* with authentication enabled, *Install*, *Uninstall*, repository editing, and hop-env *Apply* require the administrator permission `plugin.manage` (built-in *Admin* role). Catalog browse, *Refresh*, and *Validate* remain available to other roles. See the Hop Web authorization section for details.
 
 Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
 
@@ -203,11 +211,29 @@ Configure the global marketplace repository list (stored under `marketplace` in 
 * *Set primary* — install tries this repository first
 * *Up* / *Down* — order fallbacks after the primary
 * *Reset defaults* — Apache Repository (primary) + Maven Central
-* *Save* — write hop-config (required to keep changes)
+* *Import…* / *Export…* — read or write a shareable `hop-marketplace-repo.yaml` definition on disk
+* *Import from URL…* — download a definition published at an https address (see <<marketplace-import-from-url>>)
+* *Save* — write hop-config (required to keep Add / Edit / Remove changes; the two import buttons save on their own)
 
 Add or edit a repository with id, name, URL, optional credentials, and primary/enabled flags:
 
 image::marketplace/marketplace-dialog-repository-editor.png[Add or edit marketplace repository,60%,align="left"]
+
+[[marketplace-import-from-url]]
+=== Import from URL
+
+*Import from URL…* adds a repository from a definition published on the web, so a marketplace operator can hand out one link instead of a file and a set of instructions.
+
+Because the address is typically pasted from an email, a chat message or a web page, the import is deliberately narrow:
+
+* *https only.* The definition names the hosts that plugin code is later downloaded from, so it must not be modifiable in transit. For a host without TLS, download the file and import it from disk.
+* *The download is anonymous.* No credentials are sent, so an address that turns out to be hostile cannot collect the `HOP_MARKETPLACE_*` credentials that apply to every repository. This means the definition itself has to be publicly readable; the artifacts it points at do not.
+* *Credentials in the file are ignored.* A definition fetched over the network describes *where* a repository is, never *who* connects to it. Add the username and password on the repository entry afterwards, or set `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`.
+* *Nothing is added until you confirm.* Hop shows the id, name, URL, download template, catalog URL and plugin count first. Adding a repository means trusting it as a source of code, so check that the addresses are ones you expect.
+
+One field is not merely descriptive: a definition that sets `primary: true` becomes the primary repository on import and demotes the current one, so every install tries it first. If that repository is private and the credentials are not set yet, installs that used to work will fail until they are. Check that field before importing a definition you did not write, and use *Set primary* to put the order back.
+
+Importing the same file *from disk* keeps any credentials it contains. That is what makes an administrator-provisioned definition work for an internal rollout: the file was placed there deliberately, where a URL is only ever a pointer.
 
 === Projects lifecycle environments
 
@@ -355,7 +381,7 @@ repositories:
   # - id: corporate
   #   url: "https://nexus.example.com/repository/hop-plugins/"
   #   username: reader
-  #   password: "…"   # prefer env HOP_MARKETPLACE_PASSWORD for secrets
+  #   password: "${CORPORATE_TOKEN}"   # stored obfuscated; prefer a variable or env HOP_MARKETPLACE_PASSWORD
 
 # Required optional plugins (installed into plugins/)
 plugins:
@@ -364,7 +390,7 @@ plugins:
   - groupId: org.apache.hop    # optional; default org.apache.hop
     artifactId: hop-engines-spark
     version: "2.19.0"
-  # Beam engine plugin only (Beam SDKs ship under plugins/engines/beam/lib-beam with the plugin):
+  # Beam engine plugin only (Beam SDKs unpack into lib/core with the plugin):
   # - artifactId: hop-engines-beam
   #   version: "2.19.0"
 
@@ -440,7 +466,67 @@ A longer sample ships with the marketplace plugin sources (`plugins/misc/marketp
 
 == Enterprise / air-gapped
 
-Point marketplace repositories at your internal Nexus or Artifactory mirror of `org.apache.hop` plugin zips. Prefer anonymous read where possible; for private repos set Basic auth on the repository entry (in hop-config or in hop-env `repositories`) or use `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`. Wrong credentials can cause HTTP 401 even when anonymous access would work.
+Point marketplace repositories at your internal Nexus or Artifactory mirror of `org.apache.hop` plugin zips. Prefer anonymous read where possible; for private repos set Basic auth on the repository entry (in hop-config or in hop-env `repositories`) or use `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`.
+
+Credentials are resolved most-specific first:
+
+. `username` / `password` on the repository entry
+. `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`, where `<ID>` is the repository id upper-cased with non-alphanumeric characters replaced by `_` (repository `local-nexus` reads `HOP_MARKETPLACE_LOCAL_NEXUS_USERNAME`)
+. `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`, applying to every repository
+
+Use the repository-scoped variables when more than one private repository is configured, since the global pair cannot express two different tokens.
+
+Username and password are resolved separately, so the two can come from different sources: a repository entry that sets only `username` is combined with `HOP_MARKETPLACE_PASSWORD` from the environment. Such a mixed pair counts as deliberately configured — the anonymous retry described below applies only when the repository entry supplies neither field.
+
+=== How stored passwords are protected
+
+A `password` on a repository entry is written to `hop-config.json` — and to exported repository definitions and environment files — obfuscated with Hop's two-way password encoder, the same `Encrypted 2be98afc…` form used for Hop server and database passwords. Configurations written by older versions are read as-is and re-encoded the next time they are saved.
+
+Obfuscation is not encryption: the encoder key is not a secret, so anyone holding the file and a Hop install can recover the password. It stops credentials being read over a shoulder, in a screenshot or in a diff — nothing more.
+
+To keep the secret out of the file altogether, put a variable or a variable resolver expression in `username` / `password` instead of the credential:
+
+[source,json]
+----
+{ "id": "acme", "url": "https://nexus.example.org/repository/hop/", "username": "reader", "password": "${ACME_TOKEN}" }
+----
+
+Variables are stored exactly as typed — there is nothing secret to obfuscate — and are resolved when the repository is contacted, so the secret lives in the variable rather than in the file.
+
+Marketplace repositories are client-wide rather than project-bound, so `${...}` resolves against client-level variables only: JVM system properties (`-DACME_TOKEN=…`, for example through `HOP_OPTIONS`) and variables described in `hop-config.json`. Project and environment variables are not visible here, and neither are plain shell environment variables — for those, use the `HOP_MARKETPLACE_*` names above. A xref:variables.adoc[variable resolver] expression such as `#{vault:hop/marketplace:token}` is looked up in the active metadata, so a secret manager works as well.
+
+A variable that is not set is sent to the server unresolved, and the resulting 401 says so.
+
+The `HOP_MARKETPLACE_*` environment variables above remain the simplest option when nothing at all should be written to the configuration.
+
+Because the global variables are offered to every repository — including public ones such as the ASF repository and Maven Central, which reject unknown credentials with HTTP 401 instead of ignoring them — a request that fails with 401 or 403 using credentials that came _only_ from the environment is retried once anonymously. Credentials configured on the repository entry are treated as deliberate and are never dropped, so those failures are reported as-is.
+
+The same credentials apply to `hop marketplace repo import <https URL>`, so a shared repository definition can be hosted in a private repository. No repository entry exists at import time, so only the environment variables are available there.
+
+Installing works against any Maven repository, because downloads use plain Maven layout. Listing plugins (`browse: true`) needs a repository-manager API, and those differ per product. Set `browserType` on the repository to choose:
+
+[options="header"]
+|===
+|Value|Endpoint used|Repository manager
+|`auto` (default)|detected from the URL|any of the below
+|`nexus`|`/service/rest/v1/search`|Sonatype Nexus 3
+|`forgejo`|`/api/v1/packages/{owner}`|Forgejo, Gitea
+|===
+
+`auto` selects `forgejo` for URLs containing `/api/packages/` (for example `https://forge.example.org/api/packages/acme/maven`) and `nexus` otherwise. On Forgejo, packages are named `groupId:artifactId` and each candidate version is checked for a plugin zip, so plain library jars are not listed as installable.
+
+For a repository manager with no supported search API, publish a catalog YAML and set `catalogUrl` on the repository instead — discovery then reads that file and never calls a registry API. The catalog is fetched with the repository's Basic credentials when they are configured, so it can live in a private repository.
+
+Plugin zips do not have to be served from a Maven repository at all. Set `urlTemplate` on the repository when they come from git release assets, a static file host, or a CDN:
+
+[source,yaml]
+----
+urlTemplate: https://forge.example.org/acme/dist/releases/download/v${version}/${artifactId}-${version}.zip
+----
+
+Supported placeholders are `${groupId}`, `${groupPath}` (groupId with dots replaced by slashes), `${artifactId}` and `${version}`; an unrecognised placeholder is reported as an error instead of producing a confusing 404. When `urlTemplate` is set, the repository `url` is not used for plugin downloads.
+
+Such a host serves no Maven metadata, so versions must be exact: combine `urlTemplate` with a `catalogUrl` that pins each version. SNAPSHOT resolution does not apply, and live browsing cannot list release assets.
 
 == For plugin authors
 

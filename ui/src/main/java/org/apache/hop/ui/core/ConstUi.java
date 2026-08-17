@@ -17,7 +17,10 @@
 
 package org.apache.hop.ui.core;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
@@ -256,5 +259,21 @@ public class ConstUi {
       Arrays.sort(names);
     }
     return names;
+  }
+
+  /**
+   * Get the available character set encodings to show in a drop down. The first entry is empty so
+   * that a previously selected encoding can be cleared again, falling back to the default encoding.
+   *
+   * @return the available encodings, preceded by an empty entry
+   */
+  public static String[] getEncodings() {
+    Collection<Charset> charsets = Charset.availableCharsets().values();
+    List<String> encodings = new ArrayList<>(charsets.size() + 1);
+    encodings.add("");
+    for (Charset charset : charsets) {
+      encodings.add(charset.displayName());
+    }
+    return encodings.toArray(new String[0]);
   }
 }

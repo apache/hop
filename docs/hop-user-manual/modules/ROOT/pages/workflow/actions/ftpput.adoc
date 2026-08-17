@@ -33,6 +33,7 @@ The Put A File With FTP action uploads a file to an FTP server.
 |Option|Description
 |Action name|The name of the workflow action.
 2+|General tab
+|FTP connection|An optional xref:metadata-types/ftp-connection.adoc[FTP Connection] from the metadata. Pick one and the server, credentials, transfer mode, timeouts and proxy settings below come from that connection; leave it empty to configure the server on this action.
 |FTP server name/IP address|The name of the server or the IP address.
 |Port|The port number the FTP server connects on.
 |Username|The user name associated with the FTP server account.

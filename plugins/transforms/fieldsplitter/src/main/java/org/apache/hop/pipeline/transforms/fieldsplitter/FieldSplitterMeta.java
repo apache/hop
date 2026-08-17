@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.fieldsplitter;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -35,6 +37,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 @Transform(
     id = "FieldSplitter",
     image = "fieldsplitter.svg",
@@ -74,6 +78,15 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
       injectionKeyDescription = "FieldSplitterDialog.EscapeString.Label")
   private String escapeString;
 
+  /**
+   * When true, keep the field being split and append the new fields at the end of the field list.
+   */
+  @HopMetadataProperty(
+      key = "keep_split_field",
+      injectionKey = "KEEP_SPLIT_FIELD",
+      injectionKeyDescription = "FieldSplitter.Injection.KEEP_SPLIT_FIELD")
+  private boolean keepSplitField;
+
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
@@ -93,6 +106,7 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
     this.delimiter = m.delimiter;
     this.enclosure = m.enclosure;
     this.escapeString = m.escapeString;
+    this.keepSplitField = m.keepSplitField;
     m.fields.forEach(f -> this.fields.add(new FSField(f)));
   }
 
@@ -106,6 +120,7 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
     splitField = "";
     delimiter = ",";
     enclosure = null;
+    keepSplitField = false;
   }
 
   @Override
@@ -125,6 +140,21 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
       throw new HopTransformException(
           BaseMessages.getString(
               PKG, "FieldSplitter.Log.CouldNotFindFieldToSplit", getSplitField()));
+    }
+
+    if (keepSplitField) {
+      // Keep the original field and append the new fields at the end
+      //
+      for (FSField field : fields) {
+        try {
+          final IValueMeta v = field.createValueMeta();
+          v.setOrigin(name);
+          r.addValueMeta(v);
+        } catch (Exception e) {
+          throw new HopTransformException(e);
+        }
+      }
+      return;
     }
 
     // Add the new fields at the place of the index --> replace!
@@ -218,6 +248,8 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
     }
   }
 
+  @Getter
+  @Setter
   public static class FSField {
     @HopMetadataProperty(
         key = "name",
@@ -333,297 +365,5 @@ public class FieldSplitterMeta extends BaseTransformMeta<FieldSplitter, FieldSpl
       valueMeta.setTrimType(trimType.getType());
       return valueMeta;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets id
-     *
-     * @return value of id
-     */
-    public String getId() {
-      return id;
-    }
-
-    /**
-     * Sets id
-     *
-     * @param id value of id
-     */
-    public void setId(String id) {
-      this.id = id;
-    }
-
-    /**
-     * Gets idRemoved
-     *
-     * @return value of idRemoved
-     */
-    public boolean isIdRemoved() {
-      return idRemoved;
-    }
-
-    /**
-     * Sets idRemoved
-     *
-     * @param idRemoved value of idRemoved
-     */
-    public void setIdRemoved(boolean idRemoved) {
-      this.idRemoved = idRemoved;
-    }
-
-    /**
-     * Gets type
-     *
-     * @return value of type
-     */
-    public String getType() {
-      return type;
-    }
-
-    /**
-     * Sets type
-     *
-     * @param type value of type
-     */
-    public void setType(String type) {
-      this.type = type;
-    }
-
-    /**
-     * Gets format
-     *
-     * @return value of format
-     */
-    public String getFormat() {
-      return format;
-    }
-
-    /**
-     * Sets format
-     *
-     * @param format value of format
-     */
-    public void setFormat(String format) {
-      this.format = format;
-    }
-
-    /**
-     * Gets group
-     *
-     * @return value of group
-     */
-    public String getGroup() {
-      return group;
-    }
-
-    /**
-     * Sets group
-     *
-     * @param group value of group
-     */
-    public void setGroup(String group) {
-      this.group = group;
-    }
-
-    /**
-     * Gets decimal
-     *
-     * @return value of decimal
-     */
-    public String getDecimal() {
-      return decimal;
-    }
-
-    /**
-     * Sets decimal
-     *
-     * @param decimal value of decimal
-     */
-    public void setDecimal(String decimal) {
-      this.decimal = decimal;
-    }
-
-    /**
-     * Gets currency
-     *
-     * @return value of currency
-     */
-    public String getCurrency() {
-      return currency;
-    }
-
-    /**
-     * Sets currency
-     *
-     * @param currency value of currency
-     */
-    public void setCurrency(String currency) {
-      this.currency = currency;
-    }
-
-    /**
-     * Gets length
-     *
-     * @return value of length
-     */
-    public int getLength() {
-      return length;
-    }
-
-    /**
-     * Sets length
-     *
-     * @param length value of length
-     */
-    public void setLength(int length) {
-      this.length = length;
-    }
-
-    /**
-     * Gets precision
-     *
-     * @return value of precision
-     */
-    public int getPrecision() {
-      return precision;
-    }
-
-    /**
-     * Sets precision
-     *
-     * @param precision value of precision
-     */
-    public void setPrecision(int precision) {
-      this.precision = precision;
-    }
-
-    /**
-     * Gets nullIf
-     *
-     * @return value of nullIf
-     */
-    public String getNullIf() {
-      return nullIf;
-    }
-
-    /**
-     * Sets nullIf
-     *
-     * @param nullIf value of nullIf
-     */
-    public void setNullIf(String nullIf) {
-      this.nullIf = nullIf;
-    }
-
-    /**
-     * Gets ifNull
-     *
-     * @return value of ifNull
-     */
-    public String getIfNull() {
-      return ifNull;
-    }
-
-    /**
-     * Sets ifNull
-     *
-     * @param ifNull value of ifNull
-     */
-    public void setIfNull(String ifNull) {
-      this.ifNull = ifNull;
-    }
-
-    /**
-     * Gets trimType
-     *
-     * @return value of trimType
-     */
-    public IValueMeta.TrimType getTrimType() {
-      return trimType;
-    }
-
-    /**
-     * Sets trimType
-     *
-     * @param trimType value of trimType
-     */
-    public void setTrimType(IValueMeta.TrimType trimType) {
-      this.trimType = trimType;
-    }
-  }
-
-  public String getSplitField() {
-    return splitField;
-  }
-
-  public void setSplitField(final String splitField) {
-    this.splitField = splitField;
-  }
-
-  public String getDelimiter() {
-    return delimiter;
-  }
-
-  public void setDelimiter(final String delimiter) {
-    this.delimiter = delimiter;
-  }
-
-  public String getEnclosure() {
-    return enclosure;
-  }
-
-  public void setEnclosure(final String enclosure) {
-    this.enclosure = enclosure;
-  }
-
-  /**
-   * Gets escapeString
-   *
-   * @return value of escapeString
-   */
-  public String getEscapeString() {
-    return escapeString;
-  }
-
-  /**
-   * @param escapeString The escapeString to set
-   */
-  public void setEscapeString(String escapeString) {
-    this.escapeString = escapeString;
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public List<FSField> getFields() {
-    return fields;
-  }
-
-  /**
-   * Sets fields
-   *
-   * @param fields value of fields
-   */
-  public void setFields(List<FSField> fields) {
-    this.fields = fields;
   }
 }

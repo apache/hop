@@ -127,9 +127,54 @@ The Javascript pane is the editing area for writing your code. You can insert co
 
 The position at the bottom of the Javascript panel displays the line number and position of the cursor.
 
+The `ECMAScript level` selects the Mozilla Rhino language level used to compile and run your scripts. The default is *ES6*, which matches the engine default in recent Rhino releases and supports modern syntax such as `let`, `const`, arrow functions, and template literals.
+
+Existing pipelines that do not store a language level continue to run at *ES6*, so current behavior is preserved. Choose a legacy level only when a script depends on older JavaScript semantics.
+
+NOTE: Support is limited to what the embedded Rhino engine implements. Some modern features (for example `class` syntax or `async`/`await`) may still be unavailable even at ES6 or ECMASCRIPT.
+
+=== A short history of the language levels
+
+JavaScript grew up in the browser under Netscape and later Mozilla.
+Before the language was primarily described by yearly *ECMAScript* editions (ES5, ES6/ES2015, ES2016, …), Mozilla shipped numbered *JavaScript* releases (1.5, 1.6, 1.7, 1.8) in SpiderMonkey—the engine that powered Firefox.
+
+*Rhino* is Mozilla’s Java implementation of that same language family.
+It was built so server-side and embedded applications (like Hop pipelines) could run JavaScript on the JVM with tight Java interoperability.
+Rhino kept those historic language version switches so embedders could opt into newer syntax without silently breaking older scripts.
+Hop exposes that choice as *ECMAScript level*.
+
+Rough timeline:
+
+* **JavaScript 1.0–1.4** — Early Netscape era (`var`, functions, prototypes, basic objects). Hop lists levels starting at the more complete **1.5** baseline.
+* **JavaScript 1.5** (around 2000, Firefox 1.0 era) — Aligns with *ECMAScript 3*: exception-based error handling, richer regular expressions, `Number` formatting helpers (`toFixed`, `toPrecision`, …), getters/setters, and other ES3-era language work. This is the classic “pre-modern” scripting baseline many long-lived scripts still assume.
+* **JavaScript 1.6** (around 2005, Firefox 1.5) — Functional-style *Array* helpers: `indexOf`, `lastIndexOf`, `every`, `filter`, `forEach`, `map`, `some`, plus Array/String generics. Also introduced *E4X* (ECMAScript for XML) and related XML-oriented syntax that some older Hop samples still demonstrate.
+* **JavaScript 1.7** (around 2006, Firefox 2) — Block scoping with `let`, iterators and generators (`yield`), early `for…of`-style iteration ideas, and destructuring assignment. Several ideas here later became standard ECMAScript; a few Mozilla-only experiments (such as array comprehensions) did not.
+* **JavaScript 1.8** (around 2008, Firefox 3) — Array reduction (`reduce`, `reduceRight`) and more generator/expression-oriented features. Still the last of the old “JavaScript 1.x” marketing line before the industry moved fully to ES5/ES6 versioning.
+* **ES5** (2009) — Strict mode, `JSON`, `Object.create` / property descriptors, and other library/language cleanups. Rhino’s numbered 1.x levels predate calling this out as its own Hop combo entry; much of ES5 is available when you move to modern levels.
+* **ES6 / ES2015 and later** — The big modern leap: proper `let`/`const` semantics, arrow functions, template literals, classes (where implemented), promises, modules, and a long tail of yearly ECMAScript features. Rhino models this mainly as *VERSION_ES6* and, for the newest engine behavior, *VERSION_ECMASCRIPT*.
+
+Why offer the old levels at all? Because language upgrades are not always additive in practice.
+A script written for a looser 1.5-era engine can break under ES6 rules (reserved words, stricter scoping, different edge-case semantics).
+Keeping **DEFAULT** and **1.5–1.8** available means you can modernize new transforms with **ES6** while leaving battle-tested legacy scripts on the level they were written for.
+
+=== Available levels
+
+[%header]
+|===
+|Level|When it appeared (approx.)|Notable capabilities
+|DEFAULT|Rhino legacy default|Odd historical “default” mode kept for compatibility. Limited modern syntax (for example `let` is not available). Prefer an explicit 1.x or ES6 level for new work.
+|1.5|~2000 (ES3 / JS 1.5)|`var`-centric scripts, ES3 exceptions and regex features, classic `Number` formatting methods, getters/setters.
+|1.6|~2005|Array extras (`map`, `filter`, `forEach`, `some`, `every`, `indexOf`, …), Array/String generics, E4X XML features where enabled.
+|1.7|~2006|`let`, generators/`yield`, iterator-style looping, destructuring assignment (Mozilla-era forms).
+|1.8|~2008|`Array.reduce` / `reduceRight`, expression closures and further generator-oriented features from that era.
+|ES6 (default)|ES2015+ (engine default since Rhino 1.8.0)|Modern syntax Rhino implements: `let`/`const`, arrow functions, template literals, spread, and many later library features. Default for new transforms and for pipelines that omit the setting.
+|ECMASCRIPT|Ongoing|Latest ECMAScript level supported by the embedded Rhino build. Tracks the engine’s newest work and may enable stricter checks than ES6.
+|===
+
+
 The `Optimization level` selects the level of JavaScript optimization. The values are:
 
-* 1: JavaScript runs in interpreted mode.
+* -1: JavaScript runs in interpreted mode.
 * 0: No optimizations are performed.
 * 1-9: All optimizations are performed. 9 performs the most optimization with faster script execution, but compiles slower. The default is 9.
 
@@ -159,12 +204,17 @@ The Fields table contains a list of variables from your script, and enables you 
 |Fieldname|Specify the name of the incoming field.
 |Rename to|Specify a new name for the incoming field.
 |Type|Specify a data type for the output field.
-|Length|Specify the length of the output field.
-|Precision|Specify the precision value of the output field.
+|Length|Length of the output field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
+|Precision|Precision of the output field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Replace value ‘Fieldname’ or ‘Rename to’|Specify whether to replace the value of the selected field with another value or to rename a field. The values are Y (Yes) and N (No).
 |Get variables|Retrieve a list of Javascript variables from your script. You can manually add variables as the ‘Get variables’ button may not always work.
 |Test Script|Test the syntax of your script, and displays the Generate Rows dialog box with a set of rows for testing.
 |===
+
+NOTE: This is the Rhino *JavaScript* transform.
+The GraalVM / JSR-223 *Script* transform has an extra *Script result?* column; see xref:pipeline/transforms/script.adoc#fields-table[Script — Fields table].
 
 == Javascript Internal API Objects
 

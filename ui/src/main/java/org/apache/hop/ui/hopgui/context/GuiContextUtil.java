@@ -27,11 +27,15 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.security.ActionPermissionMapper;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtErrorHandler;
 import org.eclipse.swt.widgets.Shell;
 
@@ -64,11 +68,38 @@ public class GuiContextUtil {
   public final List<GuiAction> filterActions(List<GuiAction> guiActions, GuiActionType actionType) {
     List<GuiAction> filtered = new ArrayList<>();
     for (GuiAction guiAction : guiActions) {
-      if (guiAction.getType().equals(actionType)) {
+      if (guiAction.getType().equals(actionType) && isActionAllowed(guiAction)) {
         filtered.add(guiAction);
       }
     }
     return filtered;
+  }
+
+  /**
+   * Drop actions the current session is not allowed to perform (Hop Web RBAC). Unrestricted
+   * sessions keep every action.
+   *
+   * @param actions actions to filter
+   * @return new list containing only allowed actions
+   */
+  public final List<GuiAction> filterAllowedActions(List<GuiAction> actions) {
+    if (actions == null || actions.isEmpty()) {
+      return actions == null ? new ArrayList<>() : actions;
+    }
+    List<GuiAction> filtered = new ArrayList<>(actions.size());
+    for (GuiAction action : actions) {
+      if (isActionAllowed(action)) {
+        filtered.add(action);
+      }
+    }
+    return filtered;
+  }
+
+  private static boolean isActionAllowed(GuiAction action) {
+    if (action == null) {
+      return true;
+    }
+    return ActionPermissionMapper.allowsGuiAction(action);
   }
 
   /**
@@ -143,7 +174,7 @@ public class GuiContextUtil {
    */
   public synchronized boolean handleActionSelection(
       Shell parent, String message, Point clickLocation, IGuiContextHandler contextHandler) {
-    List<GuiAction> actions = contextHandler.getSupportedActions();
+    List<GuiAction> actions = filterAllowedActions(contextHandler.getSupportedActions());
     if (actions.isEmpty()) {
       return false;
     }
@@ -167,12 +198,24 @@ public class GuiContextUtil {
                 clickLocation,
                 actions,
                 contextHandler.getContextId(),
-                contextHandler::getSupportedActions);
+                () -> filterAllowedActions(contextHandler.getSupportedActions()));
         shellDialogMap.put(parent.getText(), contextDialog);
         GuiAction selectedAction = contextDialog.open();
         shellDialogMap.remove(parent.getText());
         if (selectedAction != null) {
           final ContextDialog dialog = contextDialog;
+          // Placement drag (issue #3111):
+          // - Hop Web DnD: drop either created the item or was cancelled → never hand off to
+          //   Display-filter placement (RAP does not support that path).
+          // - Native: hand off to the graph for ghost icon + create-on-drop.
+          if (dialog.isPlacementDrag()) {
+            if (dialog.isPlacementCompletedByDrop() || EnvironmentUtils.getInstance().isWeb()) {
+              return false;
+            }
+            if (tryBeginPlacementDrag(selectedAction)) {
+              return false;
+            }
+          }
           HopGui.getInstance()
               .getDisplay()
               .asyncExec(
@@ -195,5 +238,19 @@ public class GuiContextUtil {
       new ErrorDialog(parent, "Error", "An error occurred handling action selection", e);
     }
     return false;
+  }
+
+  /**
+   * Start canvas placement drag for a create-transform / create-action GuiAction.
+   *
+   * @return true if the active graph accepted the placement drag
+   */
+  private boolean tryBeginPlacementDrag(GuiAction selectedAction) {
+    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+    if (pipelineGraph != null && pipelineGraph.beginPlacementDragFromAction(selectedAction)) {
+      return true;
+    }
+    HopGuiWorkflowGraph workflowGraph = HopGui.getActiveWorkflowGraph();
+    return workflowGraph != null && workflowGraph.beginPlacementDragFromAction(selectedAction);
   }
 }

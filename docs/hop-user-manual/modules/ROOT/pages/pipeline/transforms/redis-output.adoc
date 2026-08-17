@@ -1,0 +1,189 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Write STRING, HASH, SET or LIST values to Redis.
+
+= Redis Output
+
+== Description
+
+Redis Output writes stream rows to Redis using a shared xref:metadata-types/redis/redis-connection.adoc[Redis Connection].
+
+Choose a *write mode* depending on whether you need one Redis write per pipeline row, or several mappings from the same row.
+
+== Write modes
+
+=== KEY_VALUE
+
+Use this mode for a single, explicit mapping: pick which stream fields supply the Redis key and value (and hash key / hash value when writing a HASH).
+
+* One data structure for the whole transform (`STRING`, `HASH`, `SET`, or `LIST`)
+* One write per incoming pipeline row
+* Key / value / hash fields are selected from the stream; each has its own codec
+* TTL and list push direction are configured once for the transform
+
+Typical use: every row writes one Redis entry, for example `SET user:{id}` from fields `id` and `payload`.
+
+=== STREAM_FIELDS
+
+Use this mode when one pipeline row should produce multiple Redis writes, possibly with different data structures, keys, codecs, or TTLs.
+
+* Configure a *fields* table: each row is one mapping
+* *Stream field* is the value written to Redis (string value, hash value, set member, or list element)
+* *Redis key* (and *Hash field* for HASH) decide where that value is written — see <<key-resolution>>
+* Data structure, codecs, and TTL are set *per mapping row*
+* Mappings that share the same Redis key and use HASH are batched into one `HSET` for that pipeline row
+
+Typical use: cache several attributes from the same row (for example a STRING profile key and a HASH of detail fields), or write mixed structures in one pass.
+
+*Get fields* fills the table with one mapping per upstream field. Defaults: data structure `STRING`, Redis key = stream field name, Redis key / value codecs `STRING`, hash columns empty, TTL `0`.
+
+[#key-resolution]
+== Redis key and hash field resolution (STREAM_FIELDS)
+
+In the fields table, *Redis key* and *Hash field* are editable combo boxes: you can pick an upstream field name or type a value yourself.
+
+Resolution at runtime:
+
+. If the configured text matches an incoming stream field name, Redis uses *that field's value* from the current row as the Redis key (or hash field name).
+. Otherwise the text is treated as a literal (variables such as `${PREFIX}:user` are resolved), and that string is used as the Redis key (or hash field name).
+
+Examples:
+
+|===
+|Configured Redis key |Incoming fields |Redis key used
+
+|`userId`
+|`userId` = `42`
+|`42` (value from the stream)
+
+|`cache:user`
+|(no field named `cache:user`)
+|`cache:user` (literal)
+
+|`${APP}:session`
+|(no matching field; `APP` = `shop`)
+|`shop:session` (after variable resolution)
+
+|===
+
+*Hash field* follows the same rules and is required when the mapping's data structure is `HASH`. It is ignored for `STRING`, `SET`, and `LIST`.
+
+NOTE: In `KEY_VALUE` mode, *Key field* / *Hash key field* always refer to stream fields whose *values* become the Redis key / hash field. There is no literal-key option in that mode; use `STREAM_FIELDS` (or a prior transform that builds the key into a field) if you need a fixed or composed key string.
+
+== Data structures
+
+|===
+|Structure |Command(s) |`KEY_VALUE` |`STREAM_FIELDS` (per table row)
+
+|STRING
+|`SET` (+ optional `EXPIRE`)
+|Key field + value field
+|Stream field value → `SET` with resolved key
+
+|HASH
+|`HSET` (+ optional `EXPIRE` on the key)
+|Key field + hash key field + hash value field
+|Stream field value → `HSET` with resolved Redis key and hash field (same Redis key rows are batched)
+
+|SET
+|`SADD` (+ optional `EXPIRE`)
+|Key field + value field (member)
+|Stream field value → `SADD` with resolved key
+
+|LIST
+|`RPUSH` or `LPUSH` (+ optional `EXPIRE`)
+|Key field + value field; list push direction configurable
+|Stream field value → `RPUSH` (list push direction not configurable yet)
+
+|===
+
+Codecs (`STRING`, `JSON`, `JAVA_OBJECT`, `BYTE`) encode keys and values when talking to Redis. Configure them on the transform in `KEY_VALUE`, or per mapping row in `STREAM_FIELDS`.
+
+TTL: values greater than `0` call `EXPIRE` after the write; `0` or empty means no expiry. In `KEY_VALUE` TTL is transform-wide; in `STREAM_FIELDS` it is per mapping row.
+
+== Options
+
+=== Common
+
+|===
+|Option |Description
+
+|Redis connection
+|Name of the Redis connection metadata
+
+|Write mode
+|`KEY_VALUE` or `STREAM_FIELDS` (see <<Write modes>>)
+
+|===
+
+=== KEY_VALUE options
+
+|===
+|Option |Description
+
+|Data structure
+|`STRING`, `HASH`, `SET`, or `LIST` (controls which fields are shown)
+
+|Key field / key codec
+|Stream field whose *value* is the Redis key, and how it is encoded
+
+|Hash key field / hash key codec
+|Shown only for `HASH`: stream field whose *value* is the hash field name
+
+|Value field / value codec
+|Stream field for the string value, set member, list element, or (for HASH) hash value
+
+|List push direction
+|`RPUSH` or `LPUSH` (LIST only)
+
+|TTL seconds
+|Optional key expiry after each write (`> 0` sets expiry)
+
+|===
+
+=== STREAM_FIELDS options (fields table)
+
+|===
+|Column |Description
+
+|Stream field
+|Incoming field whose *value* is written to Redis
+
+|Data structure
+|`STRING`, `HASH`, `SET`, or `LIST` for this mapping
+
+|Redis key
+|Where to write: stream field name (use that field's value) or literal / variable text — see <<key-resolution>>
+
+|Redis key codec
+|Encoding for the Redis key
+
+|Hash field
+|HASH only: Redis hash field name, resolved like *Redis key*. Leave empty for non-HASH rows
+
+|Hash field codec
+|HASH only: encoding for the hash field name
+
+|Value codec
+|Encoding for the stream field value written to Redis
+
+|TTL seconds
+|Per-row expiry; `> 0` sets `EXPIRE`, `0` or empty means no expiry
+
+|===

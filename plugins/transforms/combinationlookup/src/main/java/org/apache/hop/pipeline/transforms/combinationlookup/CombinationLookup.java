@@ -418,10 +418,6 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     return true;
   }
 
-  /**
-   * CombinationLookup table: dimension table keys[]: which dim-fields do we use to look up key?
-   * retval: name of the key to return
-   */
   public void setCombiLookup(IRowMeta inputRowMeta) throws HopDatabaseException {
     DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
     CFields fields = meta.getFields();

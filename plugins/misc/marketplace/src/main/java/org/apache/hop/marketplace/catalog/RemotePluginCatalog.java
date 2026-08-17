@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.marketplace.config.MarketplaceHttp;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -50,7 +51,7 @@ public final class RemotePluginCatalog {
     String url = repository.getCatalogUrl().trim();
     List<OptionalPluginInfo> plugins;
     if (url.startsWith("http://") || url.startsWith("https://")) {
-      plugins = loadHttp(url);
+      plugins = loadHttp(url, repository);
     } else {
       plugins = loadFile(Path.of(url));
     }
@@ -79,19 +80,38 @@ public final class RemotePluginCatalog {
   }
 
   public static List<OptionalPluginInfo> loadHttp(String url) throws HopException {
+    return loadHttp(url, null);
+  }
+
+  /**
+   * Download and parse a catalog, sending the repository's Basic credentials when configured. A
+   * catalog hosted in a private repository (Forgejo, Nexus, …) is unreachable without them.
+   */
+  public static List<OptionalPluginInfo> loadHttp(String url, MarketplaceRepository repository)
+      throws HopException {
     try {
-      HttpClient client =
-          HttpClient.newBuilder()
-              .connectTimeout(Duration.ofSeconds(30))
-              .followRedirects(HttpClient.Redirect.NORMAL)
-              .build();
-      HttpRequest request =
-          HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(60)).GET().build();
+      HttpClient client = MarketplaceHttp.newClient();
+      HttpRequest.Builder builder =
+          HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(60)).GET();
+      MarketplaceHttp.applyAuth(builder, repository);
+      HttpRequest request = builder.build();
       HttpResponse<InputStream> response =
           client.send(request, HttpResponse.BodyHandlers.ofInputStream());
       if (response.statusCode() < 200 || response.statusCode() >= 300) {
-        throw new HopException(
-            "Unable to download catalog from " + url + " (HTTP " + response.statusCode() + ")");
+        StringBuilder message = new StringBuilder();
+        message
+            .append("Unable to download catalog from ")
+            .append(url)
+            .append(" (HTTP ")
+            .append(response.statusCode())
+            .append(")");
+        if ((response.statusCode() == 401 || response.statusCode() == 403)
+            && (repository == null || !repository.hasCredentials())) {
+          message.append(
+              ". No credentials were sent; set HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD"
+                  + " if the catalog is hosted in a private repository.");
+        }
+        throw new HopException(message.toString());
       }
       try (InputStream in = response.body()) {
         return parse(in, url);

@@ -135,7 +135,8 @@ public class HopGuiWorkflowLogDelegate {
           new StyledTextComp(
               workflowGraph.getVariables(),
               workflowLogComposite,
-              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+              TextComposite.STYLE_TYPE_LOG);
     } else {
       workflowLogText =
           new StyledTextVar(
@@ -143,7 +144,8 @@ public class HopGuiWorkflowLogDelegate {
               workflowLogComposite,
               SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
               false,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_LOG);
       // Error highlighting is applied directly in HopGuiLogBrowser when adding lines
     }
     PropsUi.setLook(workflowLogText);

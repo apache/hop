@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -117,8 +118,51 @@ public abstract class SwtUniversalImage {
     return result;
   }
 
-  /** Converts BufferedImage to SWT/Image with alpha channel. */
-  protected Image swing2swt(Device device, BufferedImage img) {
+  /**
+   * SWT 3.134+ on Windows treats {@code new Image(device, ImageData)} as 100% zoom and
+   * raster-scales it to the monitor zoom (SMOOTH), which makes icons blurry at 200% DPI. Desktop
+   * SWT re-rasterizes via ImageDataProvider instead. RAP has no per-monitor zoom and does not ship
+   * that type, so keep the ImageData constructor there and never link the desktop API from this
+   * class.
+   */
+  static boolean isDpiAwareImageProviderSupported() {
+    return !"rap".equals(SWT.getPlatform());
+  }
+
+  /**
+   * Pixel size of a logical extent at an SWT zoom percentage. Must be linear ({@code 200} → {@code
+   * 2 * 100}) to satisfy the desktop ImageDataProvider contract.
+   */
+  static int pixelSize(int logical, int zoom) {
+    return Math.max(1, logical * zoom / 100);
+  }
+
+  /**
+   * Creates an {@link Image} that can supply native pixels for every SWT zoom. On RAP the 100%
+   * variant is used as-is. The renderer type is Hop-owned so RAP class loading does not resolve
+   * desktop-only {@code org.eclipse.swt.graphics.ImageDataProvider}.
+   */
+  public static Image createDpiAwareImage(Device device, ImageDataAtZoom renderer) {
+    if (!isDpiAwareImageProviderSupported()) {
+      return new Image(device, renderer.render(100));
+    }
+    return SwtDesktopDpiImages.create(device, renderer);
+  }
+
+  /** ImageData at the given zoom, with a RAP-safe fallback that scales the 100% variant. */
+  public static ImageData getImageDataAtZoom(Image image, int zoom) {
+    if (isDpiAwareImageProviderSupported()) {
+      return SwtDesktopDpiImages.getImageData(image, zoom);
+    }
+    ImageData data = image.getImageData();
+    if (zoom == 100) {
+      return data;
+    }
+    return data.scaledTo(pixelSize(data.width, zoom), pixelSize(data.height, zoom));
+  }
+
+  /** Converts BufferedImage to SWT ImageData with alpha channel. */
+  static ImageData toImageData(BufferedImage img) {
     PaletteData palette = new PaletteData(0xFF0000, 0xFF00, 0xFF);
     ImageData data = new ImageData(img.getWidth(), img.getHeight(), 32, palette);
     for (int y = 0; y < data.height; y++) {
@@ -130,6 +174,34 @@ public abstract class SwtUniversalImage {
         data.setAlpha(x, y, a);
       }
     }
-    return new Image(device, data);
+    return data;
+  }
+
+  /**
+   * Creates a zoom-aware SWT image from a renderer that produces pixels at a concrete width/height.
+   */
+  protected Image createDpiAwareImage(
+      Device device, int width, int height, ImageDataAtSize renderer) {
+    return createDpiAwareImage(
+        device, zoom -> renderer.render(pixelSize(width, zoom), pixelSize(height, zoom)));
+  }
+
+  /** Converts BufferedImage to SWT/Image with alpha channel. */
+  protected Image swing2swt(Device device, BufferedImage img) {
+    return new Image(device, toImageData(img));
+  }
+
+  /**
+   * Supplies {@link ImageData} for an SWT zoom percentage (100, 150, 200, …). Same contract as
+   * desktop ImageDataProvider, without depending on that RAP-missing type.
+   */
+  @FunctionalInterface
+  public interface ImageDataAtZoom {
+    ImageData render(int zoom);
+  }
+
+  @FunctionalInterface
+  protected interface ImageDataAtSize {
+    ImageData render(int width, int height);
   }
 }

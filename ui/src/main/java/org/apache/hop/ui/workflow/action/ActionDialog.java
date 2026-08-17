@@ -324,6 +324,7 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
   protected void setShellImage(IAction action) {
     if (action != null && shell != null && !shell.isDisposed()) {
       WorkflowDialog.setShellImage(shell, action);
+      BaseDialog.setDialogSubject(shell, action);
     }
   }
 
@@ -397,6 +398,7 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
     /** Adds a Cancel button. */
     public ButtonBarBuilder cancel(Listener listener) {
       dialog.wCancel = createButton(BaseMessages.getString(PKG, "System.Button.Cancel"), listener);
+      BaseDialog.keepEnabledInReadOnly(dialog.wCancel);
       buttons.add(dialog.wCancel);
       return this;
     }

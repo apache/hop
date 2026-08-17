@@ -164,15 +164,32 @@
         </Arguments>
     </jsFunction>
     <jsFunction name="replace">
-        <help>Searches inside the given String(arg1) for the matching one(arg2) and repalces it with arg3.</help>
+        <help>Searches inside the given String(arg1) for the matching one(arg2) and replaces every occurrence with arg3. IMPORTANT: the value to search for is a regular expression, not plain text, and all matches are replaced.</help>
         <sample>// Replaces Strings inside the given Variable.
             // It is possible to make more replacements inside
             // one call. The given variables must be an odd number
             //
+            // IMPORTANT: the value to search for is treated as a
+            // REGULAR EXPRESSION and every match is replaced, not
+            // just the first one. Characters like . * + ? [ ] ( ) $ ^
+            // have a special meaning. A dot matches ANY character, so
+            // replace(filename, "." + extension, "") does not simply
+            // strip the extension: for "mypdf.pdf" the pattern ".pdf"
+            // already matches "ypdf" and the result becomes "m".
+            //
+            // Only pass a pattern you wrote yourself. Building one from
+            // a field value is unsafe, because that value can contain
+            // characters the regular expression engine reads as syntax.
+            // To cut a piece of literal text off a string, use plain
+            // string handling instead:
+            //
+            // var cut = filename.lastIndexOf("." + extension);
+            // var withoutExtension = cut &lt; 0 ? filename : filename.substring(0, cut);
+            //
             // Usage:
             // replace(var, var, var);
             // 1: String - The Variable with the content to replace.
-            // 2: String - The Value to search for.
+            // 2: String - The regular expression to search for.
             // 3: String - The Value to replace with.
             //
             // replace(var, var, var, var,var,...)

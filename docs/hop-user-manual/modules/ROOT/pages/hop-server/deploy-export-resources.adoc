@@ -1,0 +1,180 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[DeployExportResources]]
+:imagesdir: ../../assets/images
+:openvar: ${
+:closevar: }
+:description: Run a bare Hop Server and send it work from hop-run, Hop Gui or Airflow with a remote run configuration and export resources enabled.
+
+= Remote run with export resources
+
+Hop Server runs on a machine -- or in a stock `apache/hop` long-lived container -- *without* a project of its own.
+A client (Hop Gui, xref:hop-run/index.adoc[hop-run], an Airflow worker that has a Hop client) executes a workflow or pipeline with a xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote] run configuration and *Export linked resources to server* enabled.
+Everything Hop can pack is sent to the server in a ZIP.
+
+See xref:hop-server/deploying.adoc[Deploying Hop Server] for how this compares to the other patterns.
+
+Environment configuration happens on the *client*.
+The server never reads your environment JSON files.
+
+== How the ZIP is built
+
+When export resources is enabled, Hop walks the parent pipeline or workflow and every referenced pipeline or workflow (mappings, workflow actions, metadata-referenced files such as a Pipeline Log).
+It then:
+
+* serializes the client's project metadata to `metadata.json` inside the ZIP
+* rewrites sibling Hop files to `{openvar}Internal.Entry.Current.Folder{closevar}/...`
+* rewrites named data folders to `{openvar}DATA_PATH_n{closevar}/...`
+* adds the execution configuration XML, including the variables that were resolved on the client
+* sends the ZIP to the server, which runs from the archive *without* unzipping it into a project home
+
+The remote run configuration has two folder fields that matter as soon as you touch anything that is not a `.hpl` / `.hwf` file:
+
+[cols="1,3",options="header"]
+|===
+|Option |What to put there
+
+|Named resources reference source folder
+|Typically `{openvar}PROJECT_HOME{closevar}`
+
+|Named resources reference target folder
+|A directory that *exists on the server* (or is mounted there)
+|===
+
+Result: `{openvar}DATA_PATH_1{closevar}` is set to the target mapping of that folder, for example `/data/incoming`.
+
+If you leave the target empty, `{openvar}DATA_PATH_n{closevar}` keeps the *client's* absolute path, which is almost never valid on the server.
+
+The same options are documented on the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] and xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] pages.
+
+== What is not in the ZIP
+
+WARNING: Export resources is easy to get wrong.
+File locations lose their meaning once they have been rewritten into a ZIP, and extra dependencies are not sent.
+
+* Environment JSON files are *not* sent.
+Enable the environment on the client (`hop-run.sh -e prod ...`) so the variables are already in the execution configuration.
+* Extra configuration files (`.properties`, JSON or Avro schemas, templates, snippets of `hop-config.json`) are *not* sent unless a transform or action implements `exportResources()` for that filename.
+Many do not.
+* JDBC drivers, plugins and native libraries are never sent.
+Install them on the server (or in the server image) yourself.
+* Large data files are *renamed*, not packed.
+Stage them on the server or on a shared VFS (S3, NFS, ...) and map the folder.
+* Only transforms and actions that implement `exportResources` participate.
+A "Write to file" transform with a hardcoded laptop path will fail on the server.
+
+Practical rules:
+
+* Express every path as a variable (`{openvar}PROJECT_HOME{closevar}`, `{openvar}DATA_IN{closevar}`, ...), never as a developer laptop path.
+* Prefer environment *variables* over sidecar files if you must use this pattern.
+* Pre-stage shared files on the server and set the named-resource target folder to that location.
+* If the project has many file dependencies, use xref:hop-server/deploy-project-image.adoc[a project image] or a xref:hop-server/deploy-git-checkout.adoc[git checkout] instead.
+
+== The client
+
+The environment already references its project, so `-e` is enough.
+You do not pass `-j` as well.
+
+[source,bash]
+----
+hop-run.sh -e prod \
+  -r remote-on-server \
+  -f '{openvar}PROJECT_HOME{closevar}/main.hwf'
+----
+
+`remote-on-server` is a Remote run configuration in the project metadata:
+
+* Hop Server host, port and credentials
+* *Export linked resources to server?* enabled
+* Named resources source folder: `{openvar}PROJECT_HOME{closevar}`
+* Named resources target folder: a path that exists on the server, for example `/data/project`
+
+Hop Gui uses the same run configuration.
+That is the usual way to try a shared test server from a laptop.
+
+=== Apache Airflow
+
+This is *not* the xref:how-to-guides/run-hop-in-apache-airflow.adoc[short-lived `apache/hop` container] how-to.
+That page runs `hop-run` inside Docker with a *local* engine and never talks to Hop Server.
+
+To drive a Hop Server from Airflow you have two honest options:
+
+. Give the Airflow worker a Hop client (installed on the worker, or a thin image that contains Hop) and call `hop-run` with the remote run configuration above.
+. Stay on the short-lived-container how-to and skip Hop Server entirely.
+
+A DAG task that shells out to hop-run looks like this:
+
+[source,python]
+----
+from airflow.operators.bash import BashOperator
+
+run_on_hop_server = BashOperator(
+    task_id="run_on_hop_server",
+    bash_command=(
+        "hop-run.sh -e prod "
+        "-r remote-on-server "
+        "-f '{openvar}PROJECT_HOME{closevar}/main.hwf'"
+    ),
+)
+----
+
+The worker must have `HOP_CONFIG_FOLDER` (or a Hop install whose `config/hop-config.json` already lists the project and the `prod` environment) and network access to the server.
+
+== The server
+
+The server does not need the project.
+
+[tabs]
+====
+Linux, macOS::
++
+--
+[source,bash]
+----
+./hop-server.sh 0.0.0.0 8080
+----
+--
+
+Docker::
++
+--
+[source,bash]
+----
+docker run -d --name hop-server \
+  -p 8080:8080 \
+  -e HOP_SERVER_USER=hop-admin \
+  -e HOP_SERVER_PASS=change-me \
+  apache/hop:<version>
+----
+
+Do *not* set `HOP_PROJECT_*` on this container.
+The project arrives in the ZIP.
+--
+====
+
+The server *does* need:
+
+* a Hop version compatible with the client (same release is the safe choice)
+* the same JDBC drivers and extra plugins the project uses
+* the named-resource *target* directories (they can be empty if you only send Hop files)
+* network reachability from the client
+* credentials and, in production, TLS -- see xref:hop-server/index.adoc#_ssl_configuration[SSL configuration]
+
+xref:hop-server/web-service.adoc[Web services] look up metadata *on the server*.
+They will not see the client's project unless you also set `<metadata_folder>` / `HOP_SERVER_METADATA_FOLDER`.
+Do not mix the two patterns by accident.
+If you need web services, put the project on the server with xref:hop-server/deploy-project-image.adoc[an image] or a xref:hop-server/deploy-git-checkout.adoc[git checkout].

@@ -21,6 +21,9 @@ setlocal
 REM switch to script directory
 cd /D %~dp0
 
+REM Optional user-level env written by `hop setup` (does not override already-set variables)
+if exist "%USERPROFILE%\.hop\hop-env.cmd" call "%USERPROFILE%\.hop\hop-env.cmd"
+
 REM Option to change the Characterset of the Windows Shell to show foreign caracters
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
@@ -32,13 +35,6 @@ if defined HOP_SPARK_CLIENT_VERSION if exist "lib\spark-clients\%HOP_SPARK_CLIEN
   set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
 )
 
-REM Beam SDKs under optional plugin (plugins\engines\beam\lib-beam)
-if exist "plugins\engines\beam\lib-beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\lib-beam\*
-)
-if exist "plugins\engines\beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\*
-)
 
 
 
@@ -126,7 +122,9 @@ echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTI
 echo.
 echo ===[Starting Hop]=========================================================
 
-%_HOP_JAVA% -classpath %CLASSPATH% -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
+REM SWT 3.134+ enables monitor-specific scaling by default on Windows; only
+REM "quarter" and "exact" are compatible. Do not set -Dswt.autoScale=false.
+%_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
 if ERRORLEVEL 1 (pause)
 
 :End

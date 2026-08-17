@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Validate Redis STRING values read back after write",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "redis_key",
+          "data_set_field": "redis_key"
+        },
+        {
+          "transform_field": "redis_value",
+          "data_set_field": "redis_value"
+        }
+      ],
+      "field_order": [
+        "redis_key",
+        "redis_value"
+      ],
+      "data_set_name": "0001-golden-redis-string",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0001-redis-read-string UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0001-redis-read-string.hpl"
+}

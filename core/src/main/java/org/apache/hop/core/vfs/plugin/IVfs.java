@@ -22,9 +22,29 @@ import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.variables.IVariables;
 
 public interface IVfs {
+  /**
+   * The fixed URL schemes served by {@link #getProvider()}, empty for a plugin serving named
+   * connections from the metadata only.
+   *
+   * @return the fixed URL schemes of this plugin
+   */
   String[] getUrlSchemes();
 
+  /**
+   * The provider serving the fixed {@link #getUrlSchemes()}. Return {@code null} when there are no
+   * fixed schemes: a provider registered under no scheme at all can never be reached, and the file
+   * system manager can't close what it doesn't know a scheme for.
+   *
+   * @return the provider for the fixed schemes, or null if this plugin has none
+   */
   FileProvider getProvider();
 
+  /**
+   * The providers of the named connections in the metadata, keyed by connection name : the name is
+   * the scheme these are registered under.
+   *
+   * @param variables the variables pointing at the metadata to load the connections from
+   * @return a provider per named connection, empty or null if there are none
+   */
   Map<String, FileProvider> getProviders(IVariables variables);
 }

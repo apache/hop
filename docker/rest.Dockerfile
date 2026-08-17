@@ -21,7 +21,7 @@ LABEL maintainer="Apache Hop Team"
 ENV HOP_CONFIG_FOLDER=""
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 # specify the hop log level
 ENV HOP_LOG_LEVEL="Basic"

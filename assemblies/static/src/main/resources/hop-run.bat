@@ -21,6 +21,9 @@ setlocal
 REM switch to script directory
 cd /D %~dp0
 
+REM Optional user-level env written by `hop setup` (does not override already-set variables)
+if exist "%USERPROFILE%\.hop\hop-env.cmd" call "%USERPROFILE%\.hop\hop-env.cmd"
+
 REM Option to change the Characterset of the Windows Shell to show foreign caracters
 if not "%HOP_WINDOWS_SHELL_ENCODING%"=="" chcp %HOP_WINDOWS_SHELL_ENCODING%
 
@@ -32,13 +35,6 @@ if defined HOP_SPARK_CLIENT_VERSION if exist "lib\spark-clients\%HOP_SPARK_CLIEN
   set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
 )
 
-REM Beam SDKs under optional plugin (plugins\engines\beam\lib-beam)
-if exist "plugins\engines\beam\lib-beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\lib-beam\*
-)
-if exist "plugins\engines\beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\*
-)
 
 
 

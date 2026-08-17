@@ -134,7 +134,8 @@ public class HopGuiPipelineLogDelegate {
           new StyledTextComp(
               pipelineGraph.getVariables(),
               pipelineLogComposite,
-              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+              TextComposite.STYLE_TYPE_LOG);
     } else {
       pipelineLogText =
           new StyledTextVar(
@@ -142,7 +143,8 @@ public class HopGuiPipelineLogDelegate {
               pipelineLogComposite,
               SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
               false,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_LOG);
       // Error highlighting is applied directly in HopGuiLogBrowser when adding lines
     }
     PropsUi.setLook(pipelineLogText);

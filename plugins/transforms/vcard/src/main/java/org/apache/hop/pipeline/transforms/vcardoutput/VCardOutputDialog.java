@@ -18,7 +18,6 @@ package org.apache.hop.pipeline.transforms.vcardoutput;
 
 import static org.apache.hop.core.util.Utils.isEmpty;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.apache.hop.pipeline.transforms.vcard.VCardMappingDialogUtil;
 import org.apache.hop.pipeline.transforms.vcard.VCardPropertyType;
 import org.apache.hop.pipeline.transforms.vcard.VCardStreamFieldMatcher;
 import org.apache.hop.pipeline.transforms.vcard.VCardVersionOption;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -637,10 +637,9 @@ public class VCardOutputDialog extends BaseTransformDialog implements ITransform
   private void setEncodings() {
     if (!gotEncodings) {
       gotEncodings = true;
-      wEncoding.removeAll();
-      for (Charset charset : Charset.availableCharsets().values()) {
-        wEncoding.add(charset.displayName());
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

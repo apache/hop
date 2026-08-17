@@ -301,7 +301,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
 
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
-      return true;
+      return info.getDepth() == 0 || includeSubFolders;
     }
   }
 

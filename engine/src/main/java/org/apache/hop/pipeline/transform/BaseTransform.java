@@ -193,6 +193,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   protected volatile Long dataVolumeOut;
 
+  /**
+   * Whether {@link Const#HOP_METRIC_DATA_VOLUME} byte counting is on. Resolved once in {@link
+   * #init()} rather than per row: it is a configuration flag, so looking it up in the variable map
+   * on every row is pointless work on the hottest path in the engine.
+   */
+  private boolean dataVolumeMetricEnabled;
+
   private boolean distributed;
 
   private final IRowDistribution rowDistribution;
@@ -497,6 +504,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(copyNr));
+
+    dataVolumeMetricEnabled =
+        Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"));
 
     // See if fields and types are not null when running.
     // Since this is expensive we're only going to enable it when safe mode checking is on.
@@ -889,7 +899,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolume() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolume;
@@ -910,7 +920,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       if (getPipeline() == null) {
         return;
       }
-      if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+      if (!dataVolumeMetricEnabled) {
         return;
       }
       Long size = RowMeta.getRowSizeEstimateFromRow(row);
@@ -936,7 +946,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolumeIn() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolumeIn;
@@ -950,7 +960,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Long getDataVolumeOut() {
-    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+    if (!dataVolumeMetricEnabled) {
       return null;
     }
     return dataVolumeOut;
@@ -2927,7 +2937,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void setInternalVariables() {
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, transformName);
     setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, Integer.toString(getCopy()));
-    setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, log.getLogChannelId());
+    // The log channel isn't created yet when the constructor initializes the variables.
+    //
+    if (log != null) {
+      setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, log.getLogChannelId());
+    }
   }
 
   /*
@@ -3605,6 +3619,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public void initializeFrom(IVariables parent) {
     variables.initializeFrom(parent);
+
+    // The Internal.Transform.* variables belong to this transform. The parent space can carry
+    // values of another transform (a nested execution started from e.g. a Pipeline or Workflow
+    // Executor passes them down), so re-apply ours after copying the parent's.
+    //
+    setInternalVariables();
   }
 
   /*

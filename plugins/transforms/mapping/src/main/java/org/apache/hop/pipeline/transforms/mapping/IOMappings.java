@@ -21,13 +21,13 @@ package org.apache.hop.pipeline.transforms.mapping;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class IOMappings implements Cloneable {
-  @HopMetadataProperty(key = "input")
+  @HopMetadataProperty(key = "input", injectionKeyPrefix = "INPUT_")
   private MappingIODefinition inputMapping;
 
-  @HopMetadataProperty(key = "output")
+  @HopMetadataProperty(key = "output", injectionKeyPrefix = "OUTPUT_")
   private MappingIODefinition outputMapping;
 
-  @HopMetadataProperty(key = "parameters")
+  @HopMetadataProperty(key = "parameters", injectionKeyPrefix = "PARAMETERS_")
   private MappingParameters mappingParameters;
 
   public IOMappings() {

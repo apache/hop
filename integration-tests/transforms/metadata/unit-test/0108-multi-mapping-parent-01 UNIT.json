@@ -1,0 +1,48 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Multi Mapping 1-in-1-out parity with Simple Mapping",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "a",
+          "data_set_field": "a"
+        },
+        {
+          "transform_field": "b",
+          "data_set_field": "b"
+        },
+        {
+          "transform_field": "sum",
+          "data_set_field": "sum"
+        },
+        {
+          "transform_field": "parameter1",
+          "data_set_field": "parameter1"
+        },
+        {
+          "transform_field": "parameter2",
+          "data_set_field": "parameter2"
+        }
+      ],
+      "field_order": [
+        "a",
+        "b",
+        "sum",
+        "parameter1",
+        "parameter2"
+      ],
+      "data_set_name": "golden-multi-mapping-01",
+      "transform_name": "Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0108-multi-mapping-parent-01 UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0108-multi-mapping-parent-01.hpl"
+}

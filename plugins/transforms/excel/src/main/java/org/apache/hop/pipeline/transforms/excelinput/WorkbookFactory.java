@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import java.io.InputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.variables.IVariables;
@@ -34,12 +35,25 @@ public class WorkbookFactory {
   public static IKWorkbook getWorkbook(
       SpreadSheetType type, String filename, String encoding, IVariables variables)
       throws HopException {
+    return getWorkbook(type, filename, encoding, null, variables);
+  }
+
+  /**
+   * Open a workbook, optionally protected with a password.
+   *
+   * @param password the password of an encrypted workbook, null or empty for a plain workbook. Only
+   *     the POI based engines support this.
+   */
+  public static IKWorkbook getWorkbook(
+      SpreadSheetType type, String filename, String encoding, String password, IVariables variables)
+      throws HopException {
+    checkPasswordSupported(type, password);
     return switch (type) {
       case POI ->
           new PoiWorkbook(
-              filename, encoding,
+              filename, encoding, password,
               variables); // encoding is not used, perhaps detected automatically?
-      case SAX_POI -> new StaxPoiWorkbook(filename, encoding, variables);
+      case SAX_POI -> new StaxPoiWorkbook(filename, encoding, password, variables);
       case ODS ->
           new OdfWorkbook(
               filename, encoding,
@@ -52,11 +66,26 @@ public class WorkbookFactory {
 
   public static IKWorkbook getWorkbook(
       SpreadSheetType type, InputStream inputStream, String encoding) throws HopException {
+    return getWorkbook(type, inputStream, encoding, null);
+  }
+
+  /**
+   * Open a workbook from a stream, optionally protected with a password.
+   *
+   * @param password the password of an encrypted workbook, null or empty for a plain workbook. Only
+   *     the POI based engines support this.
+   */
+  public static IKWorkbook getWorkbook(
+      SpreadSheetType type, InputStream inputStream, String encoding, String password)
+      throws HopException {
+    checkPasswordSupported(type, password);
     return switch (type) {
       case POI ->
           new PoiWorkbook(
-              inputStream, encoding); // encoding is not used, perhaps detected automatically?
-      case SAX_POI -> new StaxPoiWorkbook(inputStream, encoding);
+              inputStream,
+              encoding,
+              password); // encoding is not used, perhaps detected automatically?
+      case SAX_POI -> new StaxPoiWorkbook(inputStream, encoding, password);
       case ODS ->
           new OdfWorkbook(
               inputStream, encoding); // encoding is not used, perhaps detected automatically?
@@ -64,5 +93,21 @@ public class WorkbookFactory {
           throw new HopException(
               "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");
     };
+  }
+
+  /**
+   * Only the POI based engines can decrypt a workbook. The ODF library we use has no notion of
+   * encrypted documents, so we fail early with a clear message instead of handing the password over
+   * to a reader that silently ignores it.
+   */
+  private static void checkPasswordSupported(SpreadSheetType type, String password)
+      throws HopException {
+    if (StringUtils.isNotEmpty(password)
+        && type != SpreadSheetType.POI
+        && type != SpreadSheetType.SAX_POI) {
+      throw new HopException(
+          "Reading password protected files is not supported by spreadsheet type "
+              + type.getDescription());
+    }
   }
 }

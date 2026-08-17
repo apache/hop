@@ -78,6 +78,8 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.analysis.BufferDeadlockRisk;
+import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
@@ -517,6 +519,20 @@ public class PipelineMeta extends AbstractMeta
    */
   public void setPipelineHop(int i, PipelineHopMeta hop) {
     hops.set(i, hop);
+    clearCaches();
+  }
+
+  /**
+   * Enables or disables a hop. Use this instead of {@link PipelineHopMeta#setEnabled(boolean)}: the
+   * caches in this class take the enabled state of the hops into account, so they need to be
+   * cleared. A stale cache makes the engine look for row sets which were never allocated for a
+   * disabled hop, resulting in "Unable to find input rowset!" during initialization.
+   *
+   * @param hop The hop to enable or disable
+   * @param enabled true to enable the hop, false to disable it
+   */
+  public void setHopEnabled(PipelineHopMeta hop, boolean enabled) {
+    hop.setEnabled(enabled);
     clearCaches();
   }
 
@@ -1641,6 +1657,7 @@ public class PipelineMeta extends AbstractMeta
    * that need to be set. This is happening here.
    */
   public void lookupReferencesAfterLoading() {
+    missingPipeline = null;
     for (TransformMeta transformMeta : transforms) {
       ITransformMeta iTransform = transformMeta.getTransform();
 
@@ -1650,6 +1667,12 @@ public class PipelineMeta extends AbstractMeta
       // Also set the parent pipeline to which this transform belongs.
       // This is rarely used, for example in getTableFields.getTableFields()
       transformMeta.setParentPipelineMeta(this);
+
+      // Keep track of the transforms whose plugin isn't installed so we can warn about them.
+      //
+      if (iTransform instanceof Missing missing) {
+        addMissingPipeline(missing);
+      }
     }
     syncTransformErrorHandlingWithHops();
   }
@@ -2696,6 +2719,20 @@ public class PipelineMeta extends AbstractMeta
                 BaseMessages.getString(PKG, "PipelineMeta.CheckResult.TypeResultOK.Description"),
                 null);
         remarks.add(cr);
+      }
+
+      // Bounded-buffer deadlock risk on split–rejoin multi-input transforms (classic engine)
+      //
+      List<BufferDeadlockRisk> deadlockRisks = PipelineBufferDeadlockAnalyzer.analyze(this);
+      for (BufferDeadlockRisk risk : deadlockRisks) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(
+                    PKG,
+                    "PipelineMeta.CheckResult.TypeResultWarning.BufferDeadlockRisk.Description",
+                    risk.formatMessage()),
+                risk.reconvergence()));
       }
 
       ExtensionPointHandler.callExtensionPoint(

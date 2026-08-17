@@ -84,3 +84,14 @@ Fields name are always defined in the first line of the google spreadsheet.
 
 **Get Fields** lets you get fields and guess their types, format, precision, decimal and group delimiter as well as trim type.
 
+include::../../snippets/field-metadata/field-columns.adoc[]
+
+[options="header"]
+|===
+|Column|Description
+|Name|Name of the output field. Taken from the first row of the sheet when you click *Get Fields*.
+|Type|Hop data type used to parse the cell text.
+See xref:concepts.adoc#data-types[Data types].
+|Trim type|How to trim whitespace from the cell text before conversion: none, left, right, or both.
+|===
+

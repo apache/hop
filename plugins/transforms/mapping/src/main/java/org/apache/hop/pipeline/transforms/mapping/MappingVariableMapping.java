@@ -21,10 +21,16 @@ package org.apache.hop.pipeline.transforms.mapping;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class MappingVariableMapping implements Cloneable {
-  @HopMetadataProperty(key = "variable")
+  @HopMetadataProperty(
+      key = "variable",
+      injectionKey = "VARIABLE",
+      injectionKeyDescription = "SimpleMapping.Injection.VARIABLE")
   private String name;
 
-  @HopMetadataProperty(key = "input")
+  @HopMetadataProperty(
+      key = "input",
+      injectionKey = "VALUE",
+      injectionKeyDescription = "SimpleMapping.Injection.VALUE")
   private String value;
 
   public MappingVariableMapping() {}

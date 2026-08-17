@@ -276,6 +276,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     }
     PropsUi.setLook(shell);
     setShellImage(shell, baseTransformMeta);
+    BaseDialog.setDialogSubject(shell, baseTransformMeta);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -377,6 +378,9 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   public void setShellImage(Shell shell, ITransformMeta transformMetaInterface) {
 
     setShellImage(shell);
+    // Attach subject for dialogs that create the shell manually and call this method
+    Object subject = transformMetaInterface != null ? transformMetaInterface : baseTransformMeta;
+    BaseDialog.setDialogSubject(shell, subject);
 
     if (transformMeta != null && transformMeta.isDeprecated()) {
       addDeprecation();
@@ -1394,6 +1398,8 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   }
 
   private void setShellImage(Shell shell) {
+    // Ensure legacy dialogs that only call setShellImage(shell) still carry a subject
+    BaseDialog.setDialogSubject(shell, baseTransformMeta);
     if (transformMeta != null) {
       IPlugin plugin =
           PluginRegistry.getInstance()
@@ -1565,6 +1571,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
      */
     public ButtonBarBuilder cancel(Listener listener) {
       dialog.wCancel = createButton(BaseMessages.getString(PKG, "System.Button.Cancel"), listener);
+      BaseDialog.keepEnabledInReadOnly(dialog.wCancel);
       buttons.add(dialog.wCancel);
       return this;
     }

@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -55,6 +56,7 @@ import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.SpillingRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -93,6 +95,8 @@ import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.analysis.BufferDeadlockRisk.SpillHop;
+import org.apache.hop.pipeline.analysis.PipelineBufferDeadlockAnalyzer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineCompatibilityChecker;
@@ -375,6 +379,20 @@ public abstract class Pipeline
 
   @Setter protected int feedbackSize;
 
+  /**
+   * Hops that should use {@link SpillingRowSet} when the local engine mitigates buffer deadlocks.
+   * Empty means all hops use the normal bounded rowset.
+   */
+  @Getter protected Set<SpillHop> bufferDeadlockSpillHops = Set.of();
+
+  /** Directory for {@link SpillingRowSet} temp files; blank uses the system temp directory. */
+  @Getter @Setter protected String bufferDeadlockSpillDirectory;
+
+  public void setBufferDeadlockSpillHops(Set<SpillHop> bufferDeadlockSpillHops) {
+    this.bufferDeadlockSpillHops =
+        bufferDeadlockSpillHops == null ? Set.of() : Set.copyOf(bufferDeadlockSpillHops);
+  }
+
   /** Instantiates a new pipeline. */
   public Pipeline() {
 
@@ -400,6 +418,7 @@ public abstract class Pipeline
     extensionDataMap = new HashMap<>();
 
     rowSetSize = Const.ROWS_IN_ROWSET;
+    bufferDeadlockSpillHops = Set.of();
 
     dataSamplers = Collections.synchronizedList(new ArrayList<>());
   }
@@ -768,6 +787,9 @@ public abstract class Pipeline
                         System.getProperty(Const.HOP_BATCHING_ROWSET));
                 if (batchingRowSet != null && batchingRowSet) {
                   rowSet = new BlockingBatchingRowSet(rowSetSize);
+                } else if (PipelineBufferDeadlockAnalyzer.shouldSpill(
+                    bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
+                  rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
                 } else {
                   rowSet = new BlockingRowSet(rowSetSize);
                 }
@@ -817,7 +839,13 @@ public abstract class Pipeline
           // distribution...
           for (int s = 0; s < thisCopies; s++) {
             for (int t = 0; t < nextCopies; t++) {
-              BlockingRowSet rowSet = new BlockingRowSet(rowSetSize);
+              IRowSet rowSet;
+              if (PipelineBufferDeadlockAnalyzer.shouldSpill(
+                  bufferDeadlockSpillHops, thisTransform.getName(), nextTransform.getName())) {
+                rowSet = new SpillingRowSet(rowSetSize, bufferDeadlockSpillDirectory);
+              } else {
+                rowSet = new BlockingRowSet(rowSetSize);
+              }
               rowSet.setThreadNameFromToCopy(
                   thisTransform.getName(), s, nextTransform.getName(), t);
               rowsets.add(rowSet);
@@ -1151,19 +1179,7 @@ public abstract class Pipeline
       // Also explicitly call dispose() to clean up resources opened during
       // init()
       //
-      for (TransformInitThread initThread : initThreads) {
-        TransformMetaDataCombi combi = initThread.getCombi();
-
-        // Dispose will overwrite the status, but we set it back right after
-        // this.
-        combi.transform.dispose();
-
-        if (initThread.isOk()) {
-          combi.data.setStatus(ComponentExecutionStatus.STATUS_HALTED);
-        } else {
-          combi.data.setStatus(ComponentExecutionStatus.STATUS_STOPPED);
-        }
-      }
+      disposeInitializedTransforms();
 
       // Just for safety, fire the pipeline finished listeners...
       try {
@@ -1196,6 +1212,35 @@ public abstract class Pipeline
     log.snap(Metrics.METRIC_PIPELINE_INIT_STOP);
 
     setReadyToStart(true);
+  }
+
+  /**
+   * Dispose the transforms which were initialized in {@link #prepareExecution()}. This releases the
+   * resources they acquired during init() (database connections, files, ...) in the situations
+   * where the transform threads are never started and {@link RunThread} can't do it for us.
+   */
+  public void disposeInitializedTransforms() {
+    if (transforms == null) {
+      return;
+    }
+    for (TransformMetaDataCombi combi : transforms) {
+      // Dispose will overwrite the status, but we set it back right after this.
+      //
+      ComponentExecutionStatus status = combi.data.getStatus();
+      try {
+        combi.transform.dispose();
+      } catch (Exception e) {
+        // A transform which fails to clean up shouldn't keep the others from doing so.
+        //
+        log.logError("Error disposing transform " + combi.transformName, e);
+      }
+      combi.data.setStatus(
+          status == ComponentExecutionStatus.STATUS_STOPPED
+              ? ComponentExecutionStatus.STATUS_STOPPED
+              : ComponentExecutionStatus.STATUS_HALTED);
+    }
+    // Rowsets may already exist if prepare allocated them before a later failure.
+    cleanupRowSets();
   }
 
   /**
@@ -1341,6 +1386,10 @@ public abstract class Pipeline
           setRunning(false); // no longer running
 
           log.snap(Metrics.METRIC_PIPELINE_EXECUTION_STOP);
+
+          // Drop rowset buffers and any SpillingRowSet temp files (stop mid-run or normal end).
+          // Safe here: all transform threads have finished before this listener runs.
+          cleanupRowSets();
 
           // release unused vfs connections
           HopVfs.freeUnusedResources();
@@ -1550,6 +1599,8 @@ public abstract class Pipeline
    */
   @Override
   public void cleanup() {
+    cleanupRowSets();
+
     // Close all open server sockets.
     // We can only close these after all processing has been confirmed to be finished.
     //
@@ -1559,6 +1610,29 @@ public abstract class Pipeline
 
     for (TransformMetaDataCombi combi : transforms) {
       combi.transform.cleanup();
+    }
+  }
+
+  /**
+   * Clear every pipeline rowset. For {@link org.apache.hop.core.SpillingRowSet} this closes streams
+   * and deletes spill temp files left after stop or unfinished consumption. Safe to call more than
+   * once; no-op when rowsets were never allocated.
+   */
+  protected void cleanupRowSets() {
+    if (rowsets == null) {
+      return;
+    }
+    for (IRowSet rowSet : rowsets) {
+      if (rowSet == null) {
+        continue;
+      }
+      try {
+        rowSet.clear();
+      } catch (Exception e) {
+        if (log != null) {
+          log.logError("Error clearing rowset " + rowSet, e);
+        }
+      }
     }
   }
 

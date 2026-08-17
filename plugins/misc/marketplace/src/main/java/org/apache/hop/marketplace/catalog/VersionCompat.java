@@ -37,6 +37,11 @@ public final class VersionCompat {
   /**
    * Whether {@code info} may be offered on the given running Hop version. Blank min/max means no
    * bound on that side. Missing hop version fails closed only when a bound is present.
+   *
+   * <p>{@code x.y.z-SNAPSHOT} is treated as the {@code x.y.z} line for these bounds so developers
+   * on a SNAPSHOT build satisfy a {@code minHopVersion} of the same release (e.g. {@code
+   * 2.19.0-SNAPSHOT} fulfills {@code minHopVersion: 2.19.0}). Artifact version ordering via {@link
+   * #compare(String, String)} still ranks SNAPSHOT below the release.
    */
   public static boolean isCompatibleWithHop(OptionalPluginInfo info, String hopVersion) {
     if (info == null) {
@@ -50,13 +55,31 @@ public final class VersionCompat {
     if (StringUtils.isBlank(hopVersion)) {
       return false;
     }
-    if (StringUtils.isNotBlank(min) && compare(hopVersion, min) < 0) {
+    // Compatibility uses the release line; SNAPSHOT is development of that line.
+    String hopLine = stripSnapshotQualifier(hopVersion);
+    if (StringUtils.isNotBlank(min) && compare(hopLine, stripSnapshotQualifier(min)) < 0) {
       return false;
     }
-    if (StringUtils.isNotBlank(max) && compare(hopVersion, max) > 0) {
+    if (StringUtils.isNotBlank(max) && compare(hopLine, stripSnapshotQualifier(max)) > 0) {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Strip a trailing {@code -SNAPSHOT} qualifier (case-insensitive). Used for Hop min/max
+   * compatibility only.
+   */
+  static String stripSnapshotQualifier(String version) {
+    if (StringUtils.isBlank(version)) {
+      return version;
+    }
+    String v = version.trim();
+    String lower = v.toLowerCase(Locale.ROOT);
+    if (lower.endsWith("-snapshot")) {
+      return v.substring(0, v.length() - "-snapshot".length());
+    }
+    return v;
   }
 
   /**

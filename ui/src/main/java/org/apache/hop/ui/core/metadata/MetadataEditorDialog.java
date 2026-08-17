@@ -106,6 +106,11 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
 
     shell.addListener(SWT.Activate, e -> editor.refreshOnDialogActivate());
 
+    BaseDialog.setDialogSubject(shell, editor.getMetadata());
+    BaseDialog.keepEnabledInReadOnly(wCancel);
+    // Also apply to the content area early so createControl-time enabled state is overridden
+    BaseDialog.applyReadOnlyIfNeeded(area, editor.getMetadata());
+
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return result;

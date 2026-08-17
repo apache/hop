@@ -20,16 +20,15 @@ package org.apache.hop.ui.hopgui.perspective.explorer.file;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -89,26 +88,16 @@ public class ParquetFileType implements IHopFileType {
 
   @Override
   public boolean isHandledBy(String filename, boolean checkContent) throws HopException {
-    try {
-      FileObject fileObject = HopVfs.getFileObject(filename);
-      FileName fileName = fileObject.getName();
-      String fileExtension = fileName.getExtension().toLowerCase();
-
-      // No extension
-      if (Utils.isEmpty(fileExtension)) return false;
-
-      // Verify the extension
-      //
-      for (String typeExtension : EXTENSIONS) {
-        if (typeExtension.toLowerCase().endsWith(fileExtension)) {
-          return true;
-        }
-      }
+    String fileExtension = HopFileTypeBase.extractExtension(filename);
+    if (Utils.isEmpty(fileExtension)) {
       return false;
-    } catch (Exception e) {
-      throw new HopException(
-          "Unable to verify file handling of file '" + filename + "' by extension", e);
     }
+    for (String typeExtension : EXTENSIONS) {
+      if (typeExtension.toLowerCase(Locale.ROOT).endsWith(fileExtension)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override

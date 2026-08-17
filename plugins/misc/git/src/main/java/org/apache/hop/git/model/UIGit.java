@@ -51,7 +51,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.jgit.api.CleanCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
@@ -443,8 +442,13 @@ public class UIGit extends VCS {
       e.printStackTrace();
       return files;
     }
-    status.getUntracked().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
+    Set<String> ignored = getCaseInsensitiveIgnored(status.getUntracked());
+    status.getUntracked().stream()
+        .filter(name -> !ignored.contains(name))
+        .forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
     status.getConflicting().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
+    // Changed in the working tree but not staged: "git add" is what stages these
+    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
     status.getMissing().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, false)));
     return files;
   }
@@ -458,9 +462,9 @@ public class UIGit extends VCS {
       e.printStackTrace();
       return files;
     }
+    // Only what is in the index: working tree changes are reported by getUnstagedFiles()
     status.getAdded().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, true)));
     status.getChanged().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
-    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
     status.getRemoved().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, true)));
     return files;
   }
@@ -655,6 +659,7 @@ public class UIGit extends VCS {
     return push("default");
   }
 
+  /** Ask which branch or tag to push and push it. */
   public boolean push(String type) throws HopException {
     if (!hasRemote()) {
       throw new HopException("There is no remote set up to push to. Please set this up.");
@@ -683,19 +688,38 @@ public class UIGit extends VCS {
         return false;
       }
     }
-    try {
-      name = name == null ? null : getExpandedName(name, type);
+    return push(type, name);
+  }
 
-      PushCommand cmd;
+  /**
+   * Push a single branch or tag by name, without asking which one.
+   *
+   * @param type the type of the reference: {@link VCS#TYPE_BRANCH} or {@link VCS#TYPE_TAG}
+   * @param name the short name of the branch or tag, null to push the default refspec
+   */
+  public boolean push(String type, String name) throws HopException {
+    return push(name == null ? null : new RefSpec(getExpandedName(name, type)));
+  }
+
+  /** Delete a tag on the remote: git push origin :refs/tags/name */
+  public boolean deleteRemoteTag(String name) throws HopException {
+    return push(new RefSpec(":" + getExpandedName(name, VCS.TYPE_TAG)));
+  }
+
+  private boolean push(RefSpec refSpec) throws HopException {
+    if (!hasRemote()) {
+      throw new HopException("There is no remote set up to push to. Please set this up.");
+    }
+    try {
+      PushCommand cmd = git.push();
 
       String url = git.getRepository().getConfig().getString("remote", "origin", "url");
-      cmd = git.push();
       if (!StringUtils.isEmpty(url) && (url.startsWith("https://") || url.startsWith("http://"))) {
         cmd.setCredentialsProvider(credentialsProvider);
       }
 
-      if (name != null) {
-        cmd.setRefSpecs(new RefSpec(name));
+      if (refSpec != null) {
+        cmd.setRefSpecs(refSpec);
       }
 
       Iterable<PushResult> resultIterable = cmd.call();
@@ -708,7 +732,7 @@ public class UIGit extends VCS {
           || e.getMessage()
               .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
         if (promptUsernamePassword()) {
-          return push(type);
+          return push(refSpec);
         }
       } else {
         throw new HopException("There was an error doing a git push", e);
@@ -726,23 +750,29 @@ public class UIGit extends VCS {
           result.getRemoteUpdates().stream()
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.OK)
               .filter(update -> update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE)
+              // Deleting a ref that is already gone on the remote is not an error
+              .filter(update -> update.getStatus() != RemoteRefUpdate.Status.NON_EXISTING)
               .forEach(
                   // for each failed refspec
                   update -> {
+                    boolean isTag = update.getRemoteName().startsWith(Constants.R_TAGS);
                     sb.append("Errors while pushing: ")
                         .append("\n")
                         .append("Destination: ")
                         .append(result.getURI().toString())
                         .append("\n")
-                        .append("Branch name: ")
-                        .append(update.getSrcRef())
+                        .append(isTag ? "Tag name: " : "Branch name: ")
+                        // A delete has no source ref, report the ref on the remote instead
+                        .append(Repository.shortenRefName(update.getRemoteName()))
                         .append("\n");
                     switch (update.getStatus()) {
                       case REJECTED_NONFASTFORWARD:
                         sb.append(" * ")
                             .append(update.getStatus().toString())
                             .append(
-                                " - Remote repository contains changes. Merge the remote changes (e.g. 'git pull') before pushing again.")
+                                isTag
+                                    ? " - The tag already exists on the remote and points to another commit."
+                                    : " - Remote repository contains changes. Merge the remote changes (e.g. 'git pull') before pushing again.")
                             .append("\n");
                         break;
                       default:
@@ -902,9 +932,16 @@ public class UIGit extends VCS {
       String normalizedPath = normalizePathForJGit(path);
       // Revert files to HEAD state
       Status status = git.status().addPath(normalizedPath).call();
-      if (!status.getUntracked().isEmpty() || !status.getAdded().isEmpty()) {
-        resetPath(normalizedPath);
-        org.apache.commons.io.FileUtils.deleteQuietly(new File(directory, normalizedPath));
+      boolean isAdded = status.getAdded().contains(normalizedPath);
+      if (isAdded || status.getUntracked().contains(normalizedPath)) {
+        // The file is new: it doesn't exist in HEAD. Simply unstage it (if it was staged) and
+        // leave it on disk. Like git itself, revert never removes working tree files: removing
+        // untracked files takes an explicit git clean.
+        //
+        if (isAdded) {
+          resetPath(normalizedPath);
+        }
+        return;
       }
 
       /*
@@ -922,24 +959,43 @@ public class UIGit extends VCS {
   }
 
   /**
-   * Clean untracked files and directories under the given path (e.g. a folder).
+   * Remove the given untracked files from the working tree: a targeted <code>git clean</code>.
+   * Paths which git doesn't report as untracked (tracked files, ignored files) are skipped, so this
+   * can never remove content which is under version control.
    *
-   * @param path The path to clean (relative to repo root)
+   * @param paths The paths to clean (relative to the repository root)
    * @throws HopException when the clean operation fails
    */
-  public void cleanPath(String path) throws HopException {
+  public void cleanPaths(Collection<String> paths) throws HopException {
+    if (paths == null || paths.isEmpty()) {
+      return;
+    }
     try {
-      String normalizedPath = normalizePathForJGit(path);
-      if (normalizedPath == null || ".".equals(normalizedPath)) {
-        normalizedPath = "";
+      Set<String> untracked = git.status().call().getUntracked();
+      File workTree = new File(directory);
+      for (String path : paths) {
+        String normalizedPath = normalizePathForJGit(path);
+        if (normalizedPath == null || !untracked.contains(normalizedPath)) {
+          continue;
+        }
+        File file = new File(workTree, normalizedPath);
+        org.apache.commons.io.FileUtils.deleteQuietly(file);
+        deleteEmptyParentFolders(file.getParentFile(), workTree);
       }
-      CleanCommand cleanCommand = git.clean();
-      if (!normalizedPath.isEmpty()) {
-        cleanCommand.setPaths(Collections.singleton(normalizedPath));
-      }
-      cleanCommand.setCleanDirectories(true).setForce(true).call();
     } catch (Exception e) {
-      throw new HopException("Git: error cleaning path '" + path + "'", e);
+      throw new HopException("Git: error cleaning untracked files", e);
+    }
+  }
+
+  /** Remove the folders a clean left behind empty, up to (excluding) the repository root. */
+  private void deleteEmptyParentFolders(File folder, File workTree) {
+    File parent = folder;
+    while (parent != null
+        && parent.isDirectory()
+        && !parent.equals(workTree)
+        && parent.toPath().startsWith(workTree.toPath())
+        && parent.delete()) { // only succeeds for empty folders
+      parent = parent.getParentFile();
     }
   }
 
@@ -974,14 +1030,36 @@ public class UIGit extends VCS {
   }
 
   /**
-   * Get the subset of revert-path files that will be deleted by revert (untracked or added). For
-   * these files revert removes the file; for others (changed, missing, uncommitted) the file stays
-   * and only content is reset.
+   * Get the untracked files under the given path: the files a git clean would remove. Ignored files
+   * are not part of this list, git clean leaves those alone as well.
+   *
+   * @param path The path to clean (relative to the repository root)
+   * @return The untracked files, sorted by name
+   */
+  public List<String> getUntrackedPathFiles(String path) throws HopException {
+    try {
+      String normalizedPath = normalizePathForJGit(path);
+      StatusCommand statusCommand = git.status();
+      if (normalizedPath != null && !".".equals(normalizedPath)) {
+        statusCommand = statusCommand.addPath(normalizedPath);
+      }
+      List<String> files = new ArrayList<>(statusCommand.call().getUntracked());
+      Collections.sort(files);
+      return files;
+    } catch (Exception e) {
+      throw new HopException("Git: error getting untracked files for '" + path + "'", e);
+    }
+  }
+
+  /**
+   * Get the subset of revert-path files which are new: untracked or added but not in HEAD. Revert
+   * only unstages these and leaves them on disk; removing them takes an explicit git clean. For all
+   * other files (changed, missing, uncommitted) revert restores the content from HEAD.
    *
    * @param path The path to revert (same as for getRevertPathFiles)
-   * @return Paths that will be deleted (untracked + added)
+   * @return The new (untracked + added) paths
    */
-  public Set<String> getRevertPathFilesThatWillBeDeleted(String path) throws HopException {
+  public Set<String> getNewRevertPathFiles(String path) throws HopException {
     try {
       Set<String> files = new HashSet<>();
       String normalizedPath = normalizePathForJGit(path);
@@ -1043,10 +1121,16 @@ public class UIGit extends VCS {
     }
   }
 
-  public boolean createBranch(String name, String commitId) {
+  /**
+   * Create a branch that starts at the given start point and check it out.
+   *
+   * @param name the name of the new branch
+   * @param startPoint a commit id or the name of a branch, remote branch or tag to start from.
+   *     Annotated tags are peeled to the commit they point at.
+   */
+  public boolean createBranch(String name, String startPoint) {
     try {
-      RevCommit commit = resolve(commitId);
-      git.branchCreate().setName(name).setStartPoint(commit).call();
+      git.branchCreate().setName(name).setStartPoint(startPoint).call();
       checkoutBranch(getExpandedName(name, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
@@ -1414,10 +1498,33 @@ public class UIGit extends VCS {
         statusCommand = statusCommand.addPath(normalizedPath);
       }
       Status status = statusCommand.call();
-      return status.getIgnoredNotInIndex();
+      Set<String> ignored = new HashSet<>(status.getIgnoredNotInIndex());
+      ignored.addAll(getCaseInsensitiveIgnored(status.getUntracked()));
+      return ignored;
     } catch (GitAPIException e) {
       LogChannel.UI.logError("Error getting list of files ignored by git", e);
       return new HashSet<>();
     }
+  }
+
+  /**
+   * The files JGit reports as untracked but git itself ignores. JGit matches ignore rules case
+   * sensitively whatever core.ignorecase says, so on a case insensitive file system a rule like
+   * "output/" leaves everything in a folder named "Output" untracked. Empty for repositories that
+   * are matched case sensitively, where JGit and git agree.
+   */
+  private Set<String> getCaseInsensitiveIgnored(Set<String> untrackedFiles) {
+    Repository repository = git.getRepository();
+    if (untrackedFiles.isEmpty() || !CaseInsensitiveIgnores.appliesTo(repository)) {
+      return Set.of();
+    }
+    CaseInsensitiveIgnores ignores = new CaseInsensitiveIgnores(repository);
+    Set<String> ignored = new HashSet<>();
+    for (String file : untrackedFiles) {
+      if (ignores.isIgnored(file)) {
+        ignored.add(file);
+      }
+    }
+    return ignored;
   }
 }

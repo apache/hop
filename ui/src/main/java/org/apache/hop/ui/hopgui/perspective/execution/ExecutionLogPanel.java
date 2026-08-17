@@ -38,8 +38,7 @@ import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.shared.TextZoom;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -108,7 +107,8 @@ public class ExecutionLogPanel {
           new StyledTextComp(
               Variables.getADefaultVariableSpace(),
               composite,
-              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+              TextComposite.STYLE_TYPE_LOG);
     } else {
       logText =
           new StyledTextVar(
@@ -116,7 +116,8 @@ public class ExecutionLogPanel {
               composite,
               SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
               false,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_LOG);
     }
     PropsUi.setLook(logText);
     FormData fdText = new FormData();
@@ -314,14 +315,9 @@ public class ExecutionLogPanel {
     }
 
     String displayText = display.toString();
-    StyledText styledText = getStyledText();
-    if (styledText != null && !styledText.isDisposed()) {
-      styledText.setText(displayText);
-      for (int[] span : highlightSpans) {
-        applyHighlightRange(styledText, span[0], span[1]);
-      }
-    } else {
-      logText.setText(displayText);
+    logText.setText(displayText);
+    for (int[] span : highlightSpans) {
+      applyHighlightRange(span[0], span[1]);
     }
 
     if (!logText.isDisposed()) {
@@ -354,25 +350,13 @@ public class ExecutionLogPanel {
     }
   }
 
-  private void applyHighlightRange(StyledText styledText, int start, int length) {
-    StyleRange range = new StyleRange();
-    range.start = start;
-    range.length = length;
-    range.fontStyle = SWT.NORMAL;
+  private void applyHighlightRange(int start, int length) {
     // Avoid contrast-remapped colors for reliable dark-mode readability
-    if (PropsUi.getInstance().isDarkMode()) {
-      range.background = GuiResource.getInstance().getColor(180, 90, 0);
-    } else {
-      range.background = GuiResource.getInstance().getColorYellow();
-    }
-    styledText.setStyleRange(range);
-  }
-
-  private StyledText getStyledText() {
-    if (logText instanceof StyledTextVar) {
-      return ((StyledTextVar) logText).getTextWidget();
-    }
-    return null;
+    Color background =
+        PropsUi.getInstance().isDarkMode()
+            ? GuiResource.getInstance().getColor(180, 90, 0)
+            : GuiResource.getInstance().getColorYellow();
+    logText.setStyleRange(start, length, background, null);
   }
 
   private boolean shouldDisplayLine(String line) {

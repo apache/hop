@@ -73,7 +73,7 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
 
       // Now rename the new file to the final value...
       //
-      newFile.moveTo(file);
+      HopVfs.moveFile(newFile, file);
     } catch (Exception e) {
       throw new HopException("Error writing to Hop configuration file : " + filename, e);
     }

@@ -20,9 +20,6 @@ package org.apache.hop.marketplace.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
@@ -44,12 +42,15 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Shareable Hop marketplace repository definition ({@code hop-marketplace-repo.yaml}). Passwords
- * are never written on export.
+ * are never written on export unless explicitly asked for, and then only obfuscated (see {@link
+ * MarketplaceSecrets}).
  */
 public final class MarketplaceRepositoryDefinition {
 
   public static final String KIND = "hop-marketplace-repository";
   public static final String SCHEMA_VERSION = "1.0";
+
+  private static final String HTTPS_PREFIX = "https://";
 
   private MarketplaceRepositoryDefinition() {}
 
@@ -75,24 +76,93 @@ public final class MarketplaceRepositoryDefinition {
     return load(Path.of(s));
   }
 
+  /**
+   * Download and parse a definition published at a public URL, for import from an address the user
+   * typed or pasted.
+   *
+   * <p>Differs from {@link #loadFromHttp(String)} on two points, both because the address is not
+   * necessarily trusted:
+   *
+   * <ul>
+   *   <li>The request is anonymous. Credentials are never offered to a pasted address, so a hostile
+   *       URL cannot collect the {@code HOP_MARKETPLACE_*} credentials that apply to every
+   *       repository.
+   *   <li>Any {@code username} / {@code password} in the downloaded file is dropped. A definition
+   *       fetched over the network describes <em>where</em> a repository is, never <em>who</em>
+   *       connects to it; credentials are supplied locally, keyed by repository id.
+   * </ul>
+   *
+   * <p>Plain HTTP is refused: the definition names the hosts that plugin code is downloaded from,
+   * so it must not be modifiable in transit.
+   *
+   * <p>Only the download is anonymous. Once imported, the repository is an ordinary configuration
+   * entry and is contacted with whatever credentials are configured for it.
+   */
+  public static MarketplaceRepository loadFromPublicUrl(String url) throws HopException {
+    String trimmed = requireHttps(url);
+    return withoutCredentials(download(trimmed, null));
+  }
+
+  /** Trimmed URL, or a failure explaining why only https is accepted. */
+  static String requireHttps(String url) throws HopException {
+    if (StringUtils.isBlank(url)) {
+      throw new HopException("Repository definition URL is required");
+    }
+    String trimmed = url.trim();
+    if (!trimmed.regionMatches(true, 0, HTTPS_PREFIX, 0, HTTPS_PREFIX.length())) {
+      throw new HopException(
+          "Repository definitions can only be imported over https, so that they cannot be modified"
+              + " in transit. Download the file and import it from disk if the host has no TLS: "
+              + trimmed);
+    }
+    return trimmed;
+  }
+
+  /**
+   * Drop credentials from a definition that came off the network. Everything describing where the
+   * repository is survives; only who connects to it is removed.
+   */
+  static MarketplaceRepository withoutCredentials(MarketplaceRepository imported) {
+    if (imported != null) {
+      imported.setUsername(null);
+      imported.setPassword(null);
+    }
+    return imported;
+  }
+
+  /**
+   * Download and parse a shared repository definition.
+   *
+   * <p>No repository entry exists yet at import time, so credentials can only come from the
+   * environment; a bare repository resolves exactly those. Without this, a definition published in
+   * a private repository could not be imported by URL at all.
+   */
   public static MarketplaceRepository loadFromHttp(String url) throws HopException {
+    return download(url, new MarketplaceRepository("import", url));
+  }
+
+  /**
+   * Fetch and parse a definition. A null {@code credentials} repository makes the request
+   * anonymous.
+   */
+  private static MarketplaceRepository download(String url, MarketplaceRepository credentials)
+      throws HopException {
     try {
-      HttpClient client =
-          HttpClient.newBuilder()
-              .connectTimeout(Duration.ofSeconds(30))
-              .followRedirects(HttpClient.Redirect.NORMAL)
-              .build();
-      HttpRequest request =
-          HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(60)).GET().build();
       HttpResponse<InputStream> response =
-          client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+          MarketplaceHttp.send(
+              MarketplaceHttp.newClient(),
+              url,
+              Duration.ofSeconds(60),
+              credentials,
+              HttpResponse.BodyHandlers.ofInputStream());
       if (response.statusCode() < 200 || response.statusCode() >= 300) {
         throw new HopException(
             "Unable to download repository definition from "
                 + url
                 + " (HTTP "
                 + response.statusCode()
-                + ")");
+                + ")"
+                + downloadHint(response.statusCode(), credentials));
       }
       try (InputStream in = response.body()) {
         return parse(in, url);
@@ -100,8 +170,28 @@ public final class MarketplaceRepositoryDefinition {
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
+      if (e instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
+      }
       throw new HopException("Unable to download repository definition from " + url, e);
     }
+  }
+
+  /**
+   * Explain a failed download. The anonymous path cannot act on the environment credentials {@link
+   * MarketplaceHttp#authHint} suggests, so it says what actually applies: the definition itself has
+   * to be readable without credentials.
+   */
+  private static String downloadHint(int status, MarketplaceRepository credentials) {
+    if (credentials != null) {
+      return MarketplaceHttp.authHint(status, credentials);
+    }
+    if (MarketplaceHttp.isAuthFailure(status)) {
+      return ". The definition was requested without credentials, which is deliberate for an"
+          + " address that was typed or pasted. Publish the definition so it can be read without"
+          + " authentication, or download the file and import it from disk.";
+    }
+    return "";
   }
 
   static MarketplaceRepository parse(InputStream in, String source) throws HopException {
@@ -153,10 +243,16 @@ public final class MarketplaceRepositoryDefinition {
     // password intentionally ignored on import unless present (discouraged)
     String password = stringVal(map.get("password"));
     if (StringUtils.isNotBlank(password)) {
-      repo.setPassword(password);
+      // Obfuscated when exported by Hop, clear text when hand-written: both are accepted.
+      repo.setPassword(MarketplaceSecrets.decode(password));
     }
     repo.setBrowse(boolVal(map.get("browse"), false));
     repo.setCatalogUrl(stringVal(map.get("catalogUrl")));
+    repo.setUrlTemplate(stringVal(map.get("urlTemplate")));
+    String browserType = stringVal(map.get("browserType"));
+    if (StringUtils.isNotBlank(browserType)) {
+      repo.setBrowserType(browserType);
+    }
     repo.setSearchQuery(stringVal(map.get("searchQuery")));
     repo.setIncludeSnapshots(boolVal(map.get("includeSnapshots"), true));
     repo.setGroupIdFilter(stringVal(map.get("groupIdFilter")));
@@ -251,11 +347,19 @@ public final class MarketplaceRepositoryDefinition {
       root.put("username", repo.getUsername());
     }
     if (includePassword && StringUtils.isNotBlank(repo.getPassword())) {
-      root.put("password", repo.getPassword());
+      root.put("password", MarketplaceSecrets.encode(repo.getPassword()));
     }
     root.put("browse", repo.isBrowse());
     if (StringUtils.isNotBlank(repo.getCatalogUrl())) {
       root.put("catalogUrl", repo.getCatalogUrl());
+    }
+    if (StringUtils.isNotBlank(repo.getUrlTemplate())) {
+      root.put("urlTemplate", repo.getUrlTemplate());
+    }
+    // Only export an explicit choice; auto-detection is the default and stays implicit.
+    if (StringUtils.isNotBlank(repo.getBrowserType())
+        && !MarketplaceRepository.BROWSER_AUTO.equalsIgnoreCase(repo.getBrowserType())) {
+      root.put("browserType", repo.getBrowserType());
     }
     if (StringUtils.isNotBlank(repo.getSearchQuery())) {
       root.put("searchQuery", repo.getSearchQuery());
@@ -314,6 +418,68 @@ public final class MarketplaceRepositoryDefinition {
     return root;
   }
 
+  /**
+   * What importing {@code imported} would change beyond adding one repository.
+   *
+   * @param takesOverPrimary the definition claims {@code primary: true} while a different
+   *     repository currently holds it, so every install would try the new one first
+   * @param currentPrimaryName display name of the repository that would be demoted, or null
+   * @param noPublicFallback neither the Apache nor the Maven Central repository is configured and
+   *     enabled, so nothing public is left to fall back on
+   */
+  public record ImportRisk(
+      boolean takesOverPrimary, String currentPrimaryName, boolean noPublicFallback) {
+
+    public boolean isSafe() {
+      return !takesOverPrimary && !noPublicFallback;
+    }
+  }
+
+  /**
+   * Inspect an import before applying it. Importing adds or updates a single repository, with one
+   * exception: a definition may declare itself primary and demote the repository that holds that
+   * role today. That is worth surfacing when the definition came from somewhere else.
+   */
+  public static ImportRisk assess(MarketplaceConfig config, MarketplaceRepository imported) {
+    if (config == null || imported == null) {
+      return new ImportRisk(false, null, false);
+    }
+    MarketplaceRepository currentPrimary = null;
+    boolean publicFallback = false;
+    for (MarketplaceRepository repo : nullSafe(config.getRepositories())) {
+      if (repo == null || !repo.isEnabled()) {
+        continue;
+      }
+      if (repo.isPrimary() && currentPrimary == null) {
+        currentPrimary = repo;
+      }
+      publicFallback |= isPublicDefault(repo);
+    }
+    // Re-importing the definition of the repository that is already primary changes nothing.
+    boolean takesOver =
+        imported.isPrimary()
+            && currentPrimary != null
+            && !Objects.equals(currentPrimary.getId(), imported.getId());
+    return new ImportRisk(
+        takesOver, takesOver ? currentPrimary.displayName() : null, !publicFallback);
+  }
+
+  /**
+   * The shipped public repositories, matched on id or URL: an id can be renamed, and a URL can be
+   * pointed at a mirror, so either identifies one.
+   */
+  private static boolean isPublicDefault(MarketplaceRepository repo) {
+    String url = repo.normalizedUrl();
+    return MarketplaceConfig.DEFAULT_ASF_ID.equals(repo.getId())
+        || MarketplaceConfig.DEFAULT_CENTRAL_ID.equals(repo.getId())
+        || MarketplaceConfig.DEFAULT_ASF_URL.equals(url)
+        || MarketplaceConfig.DEFAULT_CENTRAL_URL.equals(url);
+  }
+
+  private static <T> List<T> nullSafe(List<T> list) {
+    return list == null ? List.of() : list;
+  }
+
   public static void applyToConfig(
       MarketplaceConfig config, MarketplaceRepository imported, boolean makePrimary)
       throws HopException {
@@ -342,16 +508,99 @@ public final class MarketplaceRepositoryDefinition {
       }
       existing.setBrowse(imported.isBrowse());
       existing.setCatalogUrl(imported.getCatalogUrl());
+      existing.setBrowserType(imported.getBrowserType());
+      existing.setUrlTemplate(imported.getUrlTemplate());
       existing.setSearchQuery(imported.getSearchQuery());
       existing.setIncludeSnapshots(imported.isIncludeSnapshots());
       existing.setGroupIdFilter(imported.getGroupIdFilter());
       existing.setHomepage(imported.getHomepage());
       existing.setDescription(imported.getDescription());
-      if (imported.getPlugins() != null) {
-        existing.setPlugins(new ArrayList<>(imported.getPlugins()));
+      // Multiple per-plugin YAMLs may share one repository id (e.g. community Nexus).
+      // Merge plugin metadata by G:A; empty import must not wipe existing entries.
+      if (imported.getPlugins() != null && !imported.getPlugins().isEmpty()) {
+        existing.setPlugins(mergePlugins(existing.getPlugins(), imported.getPlugins()));
       }
       config.ensureValidPrimary();
     }
+  }
+
+  /**
+   * Merge plugin metadata lists for same-id repository import.
+   *
+   * <p>Existing entries not present in {@code imported} are kept. Imported entries with a matching
+   * G:A (or artifactId when groupId is missing on either side) replace the prior entry so re-import
+   * refreshes version and display fields. New G:A values are appended. Order: prior plugins first,
+   * then newly appended imports.
+   */
+  static List<OptionalPluginInfo> mergePlugins(
+      List<OptionalPluginInfo> existing, List<OptionalPluginInfo> imported) {
+    List<OptionalPluginInfo> result = new ArrayList<>();
+    if (existing != null) {
+      for (OptionalPluginInfo p : existing) {
+        if (p != null && StringUtils.isNotBlank(p.getArtifactId())) {
+          result.add(p);
+        }
+      }
+    }
+    if (imported == null || imported.isEmpty()) {
+      return result;
+    }
+    for (OptionalPluginInfo incoming : imported) {
+      if (incoming == null || StringUtils.isBlank(incoming.getArtifactId())) {
+        continue;
+      }
+      int idx = indexOfMatchingPlugin(result, incoming);
+      if (idx >= 0) {
+        result.set(idx, incoming);
+      } else {
+        result.add(incoming);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Find an existing plugin that should be updated by {@code candidate}: prefer groupId+artifactId,
+   * fall back to artifactId alone when either side lacks groupId.
+   */
+  static int indexOfMatchingPlugin(List<OptionalPluginInfo> plugins, OptionalPluginInfo candidate) {
+    if (plugins == null || candidate == null || StringUtils.isBlank(candidate.getArtifactId())) {
+      return -1;
+    }
+    String candArt = candidate.getArtifactId().toLowerCase(Locale.ROOT);
+    String candGa = pluginGaKey(candidate);
+    boolean candHasGroup = StringUtils.isNotBlank(candidate.getGroupId());
+
+    for (int i = 0; i < plugins.size(); i++) {
+      OptionalPluginInfo p = plugins.get(i);
+      if (p == null || StringUtils.isBlank(p.getArtifactId())) {
+        continue;
+      }
+      if (!candArt.equals(p.getArtifactId().toLowerCase(Locale.ROOT))) {
+        continue;
+      }
+      boolean pHasGroup = StringUtils.isNotBlank(p.getGroupId());
+      if (candHasGroup && pHasGroup) {
+        if (candGa.equals(pluginGaKey(p))) {
+          return i;
+        }
+        // Same artifactId, different groupId → distinct plugins
+        continue;
+      }
+      // One or both sides lack groupId: treat as the same plugin
+      return i;
+    }
+    return -1;
+  }
+
+  /** Lowercase {@code groupId:artifactId}; blank groupId becomes empty prefix. */
+  static String pluginGaKey(OptionalPluginInfo info) {
+    if (info == null || StringUtils.isBlank(info.getArtifactId())) {
+      return "";
+    }
+    String g =
+        StringUtils.isNotBlank(info.getGroupId()) ? info.getGroupId().toLowerCase(Locale.ROOT) : "";
+    return g + ":" + info.getArtifactId().toLowerCase(Locale.ROOT);
   }
 
   private static String stringVal(Object o) {

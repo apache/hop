@@ -184,6 +184,50 @@ export HOP_MARKETPLACE_USERNAME=reader
 export HOP_MARKETPLACE_PASSWORD='…'
 ```
 
+Credentials resolve most-specific first:
+
+1. `username` / `password` on the repository entry
+2. `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD` — per repository, id upper-cased
+   with non-alphanumerics as `_` (`local-nexus` → `HOP_MARKETPLACE_LOCAL_NEXUS_*`)
+3. `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD` — all repositories
+
+Use the scoped form when more than one private repository is configured; the
+global pair cannot express two different tokens.
+
+Username and password resolve separately: an entry with only `username` set is
+combined with `HOP_MARKETPLACE_PASSWORD` from the environment. A mixed pair
+counts as deliberate — the anonymous retry below applies only when the entry
+supplies neither field.
+
+A `password` on a repository entry is stored obfuscated (`Encrypted 2be98afc…`,
+Hop's two-way password encoder) in `hop-config.json`, in exported repository
+definitions and in environment files. Older clear-text configurations are read
+as-is and re-encoded on the next save. Obfuscation is not encryption — the key
+is public — so to keep the secret out of the file use a variable instead:
+
+```json
+{ "id": "acme", "url": "https://nexus.example.org/repository/hop/", "password": "${ACME_TOKEN}" }
+```
+
+Variables and variable resolver expressions are stored as typed and resolved
+when the repository is contacted. Repositories are client-wide, so `${...}`
+resolves against client-level variables only: JVM system properties (`-D…`,
+e.g. via `HOP_OPTIONS`) and variables described in `hop-config.json` — not
+project/environment variables, and not plain shell exports (use the
+`HOP_MARKETPLACE_*` names for those). `#{resolver:…}` expressions go through the
+active metadata. One that is not set reaches the server unresolved; the 401
+message says so.
+
+The global pair is offered to **every** repository, including public ones, and
+ASF/Central answer unknown credentials with 401 rather than ignoring them. So a
+request that fails with 401/403 using credentials that came *only* from the
+environment is retried once anonymously. Credentials set on the repository entry
+are deliberate and are never dropped this way — those failures surface as-is.
+
+Credentials also apply to `marketplace repo import <https URL>`, so a shared
+definition can live in a private repository. There is no repository entry yet at
+that point, so only the environment variables above are used.
+
 ## GUI
 
 Hop GUI → **Tools → Marketplace…**, or the main toolbar icon after **Save As…**
@@ -205,18 +249,93 @@ Three steps:
 # or explicit: ./hop marketplace install org.apache.hop:hop-datavault:0.4.0-SNAPSHOT
 ```
 
+In the GUI, **Import from URL…** on the Repositories tab does the same from a
+published link. That path is narrower than a file or the CLI import, because
+the address is usually pasted from somewhere else:
+
+- **https only** — the definition names the hosts plugin code comes from, so it
+  must not be rewritable in transit
+- **anonymous download** — no credentials are sent, so a hostile address cannot
+  collect the global `HOP_MARKETPLACE_*` pair. The definition must be publicly
+  readable; the artifacts it points at need not be
+- **credentials in the file are ignored** — set them on the repository entry
+  afterwards, or via `HOP_MARKETPLACE_<ID>_USERNAME` / `_PASSWORD`
+- **confirmation first** — id, URL, download template, catalog URL and plugin
+  count are shown before anything is added
+
+A definition that sets `primary: true` becomes the primary repository on import,
+which means every install tries it first. Check that field before importing a
+definition you did not write.
+
+Importing the same file **from disk** keeps its credentials, so an
+administrator can still provision one for an internal rollout.
+
 
 **How listing works**
 
 - Bundled Apache optional plugins: **version = running Hop version** (not absolute latest on ASF)
-- Every enabled repo with **`browse: true`**: live Nexus search for `*.zip` (one row per artifact, latest plugin version, last updated)
+- Every enabled repo with **`browse: true`**: live repository search for `*.zip` (one row per artifact, latest plugin version, last updated)
 - Optional YAML `plugins:` metadata **enriches** names/categories and can set:
-  - `minHopVersion` / `maxHopVersion` — hide if this Hop is outside the range (e.g. datavault needs ≥ 2.18.1)
+  - `minHopVersion` / `maxHopVersion` — hide if this Hop is outside the range (e.g. datavault needs ≥ 2.18.1). A running `x.y.z-SNAPSHOT` counts as the `x.y.z` line (so `2.19.0-SNAPSHOT` fulfills `minHopVersion: 2.19.0`)
   - `version` — optional pin of the plugin artifact; otherwise latest from browse
+
+**Shared repository id (multi-plugin community Nexus)**
+
+Several projects may publish their own `hop-marketplace-repo.yaml` with the **same** `id`
+and Nexus `url` (each listing only its own plugin under `plugins:`). Import merges
+plugin metadata by `groupId` + `artifactId` into one hop-config entry — later imports
+do not wipe earlier plugins. Re-importing the same G:A refreshes that entry’s fields.
 
 GUI **Plugins** tab uses the same discovery as `query`.
 
 Sample: `src/main/samples/hop-marketplace-repo.community.example.yaml`
+
+**Which browse API** — set per repository with `browserType`:
+
+| Value | Endpoint | Use for |
+|-------|----------|---------|
+| `auto` (default) | detected from the URL | anything |
+| `nexus` | `/service/rest/v1/search` | Sonatype Nexus 3 |
+| `forgejo` | `/api/v1/packages/{owner}` | Forgejo / Gitea package registry |
+
+`auto` picks `forgejo` when the URL contains `/api/packages/`, else `nexus`.
+Forgejo lists packages named `groupId:artifactId`; a second call per version
+confirms a plugin zip exists, so library jars are not offered as installs.
+Downloads never use this setting — they are plain Maven layout, which works
+against both.
+
+```yaml
+id: acme
+url: https://forge.example.org/api/packages/acme/maven
+browse: true
+browserType: forgejo   # or omit and let auto detect it
+groupIdFilter: com.acme.hop
+```
+
+A private Forgejo registry needs credentials (owner name as username, an access
+token as password) via `HOP_MARKETPLACE_USERNAME` / `HOP_MARKETPLACE_PASSWORD`.
+
+Serving a `catalogUrl` YAML instead skips the registry API altogether and works
+against any static host. The catalog is fetched with the repository's Basic
+credentials when configured, so it may live in a private repository.
+
+**Non-Maven hosts** — set `urlTemplate` when plugin zips are served from
+something that is not a Maven repository (git release assets, a static file
+host, a CDN). It replaces layout resolution for downloads:
+
+```yaml
+id: acme
+urlTemplate: https://forge.example.org/acme/dist/releases/download/v${version}/${artifactId}-${version}.zip
+catalogUrl: https://forge.example.org/acme/dist/releases/download/v2026.09/catalog.yaml
+browse: false
+```
+
+Placeholders: `${groupId}`, `${groupPath}` (dots → slashes), `${artifactId}`,
+`${version}`. An unknown placeholder is an error rather than a silent 404.
+
+Such a host has no Maven metadata, so versions must be exact — pair `urlTemplate`
+with a `catalogUrl` that pins them. SNAPSHOT resolution does not apply, and
+`browse` cannot list release assets.
 
 **Environment file** path + **Browse…** / **Edit…** / **Validate** / **Apply** manage
 declarative `hop-env.yaml` files. **Edit…** opens a tabbed editor (General,

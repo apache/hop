@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import org.apache.hop.marketplace.catalog.OptionalPluginInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -111,5 +113,111 @@ class MarketplaceRepositoryDefinitionTest {
     String saved = Files.readString(out);
     assertTrue(saved.contains("hop-datavault"));
     assertTrue(saved.contains("minHopVersion"));
+  }
+
+  @Test
+  void applyToConfigMergesPluginsFromSameIdImports() throws Exception {
+    MarketplaceConfig config = new MarketplaceConfig();
+
+    MarketplaceRepository dataVault = new MarketplaceRepository();
+    dataVault.setId("data-hopper-community");
+    dataVault.setName("Data Hopper Community Plugins");
+    dataVault.setUrl("https://repository.data-hopper.com/repository/hop-community-plugins/");
+    dataVault.setBrowse(true);
+    dataVault.setPlugins(List.of(plugin("org.apache.hop", "hop-datavault", "0.5.0", "2.18.1")));
+    MarketplaceRepositoryDefinition.applyToConfig(config, dataVault, false);
+
+    MarketplaceRepository pentaho = new MarketplaceRepository();
+    pentaho.setId("data-hopper-community");
+    pentaho.setName("Data Hopper Community Plugins");
+    pentaho.setUrl("https://repository.data-hopper.com/repository/hop-community-plugins/");
+    pentaho.setBrowse(true);
+    pentaho.setPlugins(
+        List.of(
+            plugin(
+                "org.projectdatahopper.hop", "hop-pentaho-reporting-output", "1.0.0", "2.19.0")));
+    MarketplaceRepositoryDefinition.applyToConfig(config, pentaho, false);
+
+    MarketplaceRepository found = config.findRepository("data-hopper-community");
+    assertEquals(2, found.getPlugins().size());
+    assertEquals("hop-datavault", found.getPlugins().get(0).getArtifactId());
+    assertEquals("hop-pentaho-reporting-output", found.getPlugins().get(1).getArtifactId());
+  }
+
+  @Test
+  void applyToConfigReimportUpdatesMatchingPluginKeepsOthers() throws Exception {
+    MarketplaceConfig config = new MarketplaceConfig();
+
+    MarketplaceRepository first = new MarketplaceRepository();
+    first.setId("community");
+    first.setUrl("https://example.com/repository/hop/");
+    first.setPlugins(
+        List.of(
+            plugin("org.apache.hop", "hop-datavault", "0.4.0", "2.18.1"),
+            plugin("org.example", "other-plugin", "1.0.0", null)));
+    MarketplaceRepositoryDefinition.applyToConfig(config, first, false);
+
+    MarketplaceRepository update = new MarketplaceRepository();
+    update.setId("community");
+    update.setUrl("https://example.com/repository/hop/");
+    OptionalPluginInfo refreshed = plugin("org.apache.hop", "hop-datavault", "0.5.0", "2.19.0");
+    refreshed.setName("Data Vault");
+    update.setPlugins(List.of(refreshed));
+    MarketplaceRepositoryDefinition.applyToConfig(config, update, false);
+
+    MarketplaceRepository found = config.findRepository("community");
+    assertEquals(2, found.getPlugins().size());
+    assertEquals("0.5.0", found.getPlugins().get(0).getVersion());
+    assertEquals("2.19.0", found.getPlugins().get(0).getMinHopVersion());
+    assertEquals("Data Vault", found.getPlugins().get(0).getName());
+    assertEquals("other-plugin", found.getPlugins().get(1).getArtifactId());
+  }
+
+  @Test
+  void applyToConfigEmptyPluginsDoesNotWipeExisting() throws Exception {
+    MarketplaceConfig config = new MarketplaceConfig();
+
+    MarketplaceRepository withPlugins = new MarketplaceRepository();
+    withPlugins.setId("community");
+    withPlugins.setUrl("https://example.com/repository/hop/");
+    withPlugins.setPlugins(List.of(plugin("org.apache.hop", "hop-datavault", "0.5.0", null)));
+    MarketplaceRepositoryDefinition.applyToConfig(config, withPlugins, false);
+
+    MarketplaceRepository noPlugins = new MarketplaceRepository();
+    noPlugins.setId("community");
+    noPlugins.setUrl("https://example.com/repository/hop-v2/");
+    noPlugins.setBrowse(true);
+    noPlugins.setPlugins(List.of());
+    MarketplaceRepositoryDefinition.applyToConfig(config, noPlugins, false);
+
+    MarketplaceRepository found = config.findRepository("community");
+    assertEquals("https://example.com/repository/hop-v2/", found.getUrl());
+    assertTrue(found.isBrowse());
+    assertEquals(1, found.getPlugins().size());
+    assertEquals("hop-datavault", found.getPlugins().get(0).getArtifactId());
+  }
+
+  @Test
+  void mergePluginsMatchesArtifactIdWhenGroupIdMissing() {
+    OptionalPluginInfo existing = plugin(null, "hop-datavault", "0.4.0", null);
+    OptionalPluginInfo incoming = plugin("org.apache.hop", "hop-datavault", "0.5.0", "2.18.1");
+
+    List<OptionalPluginInfo> merged =
+        MarketplaceRepositoryDefinition.mergePlugins(List.of(existing), List.of(incoming));
+
+    assertEquals(1, merged.size());
+    assertEquals("0.5.0", merged.get(0).getVersion());
+    assertEquals("org.apache.hop", merged.get(0).getGroupId());
+  }
+
+  private static OptionalPluginInfo plugin(
+      String groupId, String artifactId, String version, String minHopVersion) {
+    OptionalPluginInfo info = new OptionalPluginInfo();
+    info.setGroupId(groupId);
+    info.setArtifactId(artifactId);
+    info.setVersion(version);
+    info.setMinHopVersion(minHopVersion);
+    info.setName(artifactId);
+    return info;
   }
 }

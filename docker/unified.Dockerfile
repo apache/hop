@@ -243,7 +243,8 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/config /build/hop-web-prepared/webapps/ROOT/ && \
     cp -r /build/assemblies/client/target/hop/plugins /build/hop-web-prepared/ && \
     cp -r /build/assemblies/client/target/hop/lib/jdbc/ /build/hop-web-prepared/jdbc-drivers && \
-    if [ -d /build/assemblies/client/target/hop/plugins/engines/beam/lib-beam ]; then cp -r /build/assemblies/client/target/hop/plugins/engines/beam/lib-beam/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/; fi && \
+    # Beam SDKs unpack under lib/core when the marketplace Beam plugin is installed (#7721/#7722).
+    # Legacy plugins/engines/beam/lib-beam is no longer produced; do not require it (apache/hop#7748).
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
@@ -374,7 +375,7 @@ ARG HOP_GID=501
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
 ENV HOP_OPTIONS="-XX:+AggressiveHeap -Dorg.eclipse.rap.rwt.resourceLocation=/tmp/rwt-resources"
@@ -410,7 +411,8 @@ RUN groupadd -r hop -g ${HOP_GID} \
     && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
     && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \
-    && mkdir "${HOP_AUDIT_FOLDER}" \
+    && mkdir -p "${HOP_AUDIT_FOLDER}" \
+    && chown hop:hop "${HOP_AUDIT_FOLDER}" \
     && chown -R hop:hop /usr/local/tomcat
 
 # Copy resources (matching original Dockerfile.web layer structure)
@@ -430,7 +432,7 @@ FROM tomcat:10-jdk21 AS rest
 ENV HOP_CONFIG_FOLDER=""
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 ENV HOP_LOG_LEVEL="Basic"
 ENV HOP_OPTIONS="-Xmx4g"

@@ -80,6 +80,7 @@ If you want to overwrite an existing field, you need to define the same field he
 |Java expression|The Java expression to evaluate. See examples below.
 |Value type|The field's data type.
 |Length|The maximum length of a string in the new field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Precision|The number of decimal places used to express numbers.
 |Replace value|Set this to be identical to the "New field" name when you want to replace the value in an existing field.
 |===

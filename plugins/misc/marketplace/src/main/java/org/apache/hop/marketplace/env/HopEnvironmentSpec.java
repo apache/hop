@@ -17,10 +17,13 @@
 
 package org.apache.hop.marketplace.env;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.marketplace.config.MarketplaceSecrets;
 
 /**
  * Declarative Hop environment file ({@code hop-env.yaml} / {@code hop-env.json}).
@@ -60,6 +63,13 @@ public class HopEnvironmentSpec {
     /** Optional Basic auth username (prefer env HOP_MARKETPLACE_PASSWORD for secrets). */
     private String username;
 
+    /**
+     * Optional Basic auth password, obfuscated in the environment file the same way as in
+     * hop-config.json. Environment files are meant to be shared, so prefer a variable or {@code
+     * HOP_MARKETPLACE_PASSWORD} over a password here.
+     */
+    @JsonSerialize(using = MarketplaceSecrets.Serializer.class)
+    @JsonDeserialize(using = MarketplaceSecrets.Deserializer.class)
     private String password;
   }
 

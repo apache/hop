@@ -28,6 +28,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.highlight.JavaHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleListener;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.KeyAdapter;
@@ -37,8 +38,8 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -58,11 +59,22 @@ public class StyledTextVar extends TextComposite {
   private boolean fullSelection = false;
 
   public StyledTextVar(IVariables variables, Composite parent, int style) {
-    this(variables, parent, style, true, false);
+    this(variables, parent, style, true, false, true, STYLE_TYPE_GENERIC);
+  }
+
+  /** Construct with a semantic {@code styleType} (applied before the toolbar is built). */
+  public StyledTextVar(IVariables variables, Composite parent, int style, String styleType) {
+    this(variables, parent, style, true, false, true, styleType);
   }
 
   public StyledTextVar(IVariables variables, Composite parent, int style, boolean varsSensitive) {
-    this(variables, parent, style, varsSensitive, false);
+    this(variables, parent, style, varsSensitive, false, true, STYLE_TYPE_GENERIC);
+  }
+
+  /** Construct with vars sensitivity and a semantic {@code styleType}. */
+  public StyledTextVar(
+      IVariables variables, Composite parent, int style, boolean varsSensitive, String styleType) {
+    this(variables, parent, style, varsSensitive, false, true, styleType);
   }
 
   public StyledTextVar(
@@ -71,22 +83,67 @@ public class StyledTextVar extends TextComposite {
       int style,
       boolean varsSensitive,
       boolean variableIconOnTop) {
+    this(variables, parent, style, varsSensitive, variableIconOnTop, true, STYLE_TYPE_GENERIC);
+  }
 
-    super(parent, SWT.NONE);
+  public StyledTextVar(
+      IVariables variables,
+      Composite parent,
+      int style,
+      boolean varsSensitive,
+      boolean variableIconOnTop,
+      String styleType) {
+    this(variables, parent, style, varsSensitive, variableIconOnTop, true, styleType);
+  }
+
+  public StyledTextVar(
+      IVariables variables,
+      Composite parent,
+      int style,
+      boolean varsSensitive,
+      boolean variableIconOnTop,
+      boolean toolbarEnabled) {
+    this(
+        variables,
+        parent,
+        style,
+        varsSensitive,
+        variableIconOnTop,
+        toolbarEnabled,
+        STYLE_TYPE_GENERIC);
+  }
+
+  public StyledTextVar(
+      IVariables variables,
+      Composite parent,
+      int style,
+      boolean varsSensitive,
+      boolean variableIconOnTop,
+      boolean toolbarEnabled,
+      String styleType) {
+
+    super(parent, SWT.NONE, toolbarEnabled, styleType);
 
     undoStack = new LinkedList<>();
     redoStack = new LinkedList<>();
 
     wText = new StyledText(this, style);
     wPopupMenu = new Menu(parent.getShell(), SWT.POP_UP);
-    this.setLayout(new FormLayout());
 
     buildingStyledTextMenu(wPopupMenu);
 
     addUndoRedoSupport();
 
+    Control top = getTopControl();
+
     // Default layout without variables
-    wText.setLayoutData(new FormDataBuilder().top().left().right(100, 0).bottom(100, 0).result());
+    wText.setLayoutData(
+        new FormDataBuilder()
+            .top(top != null ? new FormAttachment(top, 0) : new FormAttachment(0, 0))
+            .left()
+            .right(100, 0)
+            .bottom(100, 0)
+            .result());
 
     // Special layout for variables decorator
     if (varsSensitive) {
@@ -96,7 +153,12 @@ public class StyledTextVar extends TextComposite {
         PropsUi.setLook(wIcon);
         wIcon.setToolTipText(BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
         wIcon.setImage(GuiResource.getInstance().getImageVariableMini());
-        wIcon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        if (top != null) {
+          wIcon.setLayoutData(
+              new FormDataBuilder().top(new FormAttachment(top, 0)).right(100, 0).result());
+        } else {
+          wIcon.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        }
         wText.setLayoutData(
             new FormDataBuilder()
                 .top(new FormAttachment(wIcon, 0, 0))
@@ -110,10 +172,15 @@ public class StyledTextVar extends TextComposite {
         controlDecoration.setToolTipText(
             BaseMessages.getString(PKG, "StyledTextComp.tooltip.InsertVariable"));
         PropsUi.setLook(controlDecoration);
-        controlDecoration.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        if (top != null) {
+          controlDecoration.setLayoutData(
+              new FormDataBuilder().top(new FormAttachment(top, 0)).right(100, 0).result());
+        } else {
+          controlDecoration.setLayoutData(new FormDataBuilder().top().right(100, 0).result());
+        }
         wText.setLayoutData(
             new FormDataBuilder()
-                .top()
+                .top(top != null ? new FormAttachment(top, 0) : new FormAttachment(0, 0))
                 .left()
                 .right(new FormAttachment(controlDecoration, 0, 0))
                 .bottom(100, 0)
@@ -155,6 +222,20 @@ public class StyledTextVar extends TextComposite {
   @Override
   public void insert(String strInsert) {
     wText.insert(strInsert);
+  }
+
+  @Override
+  public void setStyleRange(int start, int length, Color background, Color foreground) {
+    if (wText.isDisposed() || length <= 0) {
+      return;
+    }
+    StyleRange range = new StyleRange();
+    range.start = start;
+    range.length = length;
+    range.background = background;
+    range.foreground = foreground;
+    range.fontStyle = SWT.NORMAL;
+    wText.setStyleRange(range);
   }
 
   @Override
@@ -246,6 +327,9 @@ public class StyledTextVar extends TextComposite {
   @Override
   public void setEnabled(boolean enabled) {
     wText.setEnabled(enabled);
+    if (getToolbar() != null && !getToolbar().isDisposed()) {
+      getToolbar().setEnabled(enabled);
+    }
     // StyledText component does not get the "disabled" look, so it needs to be applied explicitly
     if (Display.getDefault() != null) {
       wText.setBackground(
@@ -253,6 +337,16 @@ public class StyledTextVar extends TextComposite {
               ? GuiResource.getInstance().getColorWhite()
               : GuiResource.getInstance().getColorBackground());
     }
+  }
+
+  @Override
+  protected boolean canUndo() {
+    return !undoStack.isEmpty();
+  }
+
+  @Override
+  protected boolean canRedo() {
+    return !redoStack.isEmpty();
   }
 
   @Override

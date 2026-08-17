@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.security.HopSecurityContext;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
@@ -49,6 +51,40 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public class HopWebEntryPoint extends AbstractEntryPoint {
+
+  /**
+   * Shortcuts that must remain active (sent to the server) but must not be cancelled in the
+   * browser, so native text editing still works (e.g. Ctrl+C/V/X in input fields).
+   */
+  private static final Set<String> NATIVE_TEXT_EDITING_SHORTCUTS =
+      Set.of("CTRL+C", "CTRL+V", "CTRL+X");
+
+  /**
+   * Navigation keys used for caret movement and selection in text fields (and tree widgets), both
+   * bare and with SHIFT held down to extend the selection. They may stay in {@code ACTIVE_KEYS} so
+   * the canvas navigation shortcuts still reach the server when focus is on the graph, but must not
+   * be in {@code CANCEL_KEYS} or the browser never moves the caret (see issue #7833). Modifier
+   * combinations with CTRL or ALT are separate RAP keys and remain cancelled when registered as
+   * application shortcuts.
+   */
+  private static final Set<String> NATIVE_TEXT_NAVIGATION_KEYS =
+      Set.of(
+          "ARROW_UP",
+          "ARROW_DOWN",
+          "ARROW_LEFT",
+          "ARROW_RIGHT",
+          "HOME",
+          "END",
+          "PAGE_UP",
+          "PAGE_DOWN",
+          "SHIFT+ARROW_UP",
+          "SHIFT+ARROW_DOWN",
+          "SHIFT+ARROW_LEFT",
+          "SHIFT+ARROW_RIGHT",
+          "SHIFT+HOME",
+          "SHIFT+END",
+          "SHIFT+PAGE_UP",
+          "SHIFT+PAGE_DOWN");
 
   /** Audit group/type/name for Hop Web theme preference (per-user in audit folder). */
   public static final String AUDIT_GROUP_HOP_WEB = "hop-web";
@@ -112,6 +148,17 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     RapClientOsProvider.detectAndStoreClientMac();
     Const.setClientOsProvider(new RapClientOsProvider());
 
+    // Bind RBAC context from servlet Principal (EXTERNAL/Tomcat auth) for this UI session
+    HopSecurityContext securityContext = RapSecurityContextProvider.bindFromCurrentRequest();
+    if (securityContext.isAuthenticated()) {
+      LogChannel.UI.logBasic(
+          "Hop Web security: user ''{0}'' roles={1}",
+          securityContext.getUsername(), securityContext.getRoleIds());
+    } else {
+      LogChannel.UI.logDebug(
+          "Hop Web security: no authenticated principal (mode NONE or unrestricted)");
+    }
+
     ResourceManager resourceManager = RWT.getResourceManager();
     JavaScriptLoader jsLoader = RWT.getClient().getService(JavaScriptLoader.class);
 
@@ -129,9 +176,9 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     // CANCEL_KEYS prevents the browser from handling these shortcuts
     // Note: CTRL automatically maps to Command key on Mac
     Display display = parent.getDisplay();
-    String[] allShortcuts = buildKeyboardShortcuts();
-    display.setData(RWT.ACTIVE_KEYS, allShortcuts);
-    display.setData(RWT.CANCEL_KEYS, allShortcuts);
+    String[] activeShortcuts = buildKeyboardShortcuts();
+    display.setData(RWT.ACTIVE_KEYS, activeShortcuts);
+    display.setData(RWT.CANCEL_KEYS, buildCancelledKeyboardShortcuts(activeShortcuts));
 
     // Transferring Widget Data for client-side canvas drawing instructions
     WidgetUtil.registerDataKeys("props");
@@ -165,6 +212,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     PropsUi props = PropsUi.getInstance();
     HopGui.getInstance().setProps(props);
     props.clearPersistedDialogPositionsOnStartupIfConfigured();
+    // Expose identity on HopGui for window title / status (session-scoped instance)
+    HopGui.getInstance().setSecurityContext(securityContext);
 
     // When user changes theme in Configuration → GUI options, redirect so the new theme takes
     // effect. Boolean null = "follow system" (run system redirect, don't use dark flag).
@@ -339,6 +388,14 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     return shortcuts.toArray(new String[0]);
   }
 
+  static String[] buildCancelledKeyboardShortcuts(String[] activeShortcuts) {
+    return Arrays.stream(activeShortcuts)
+        .filter(shortcut -> !NATIVE_TEXT_EDITING_SHORTCUTS.contains(shortcut))
+        .filter(shortcut -> !NATIVE_TEXT_NAVIGATION_KEYS.contains(shortcut))
+        .distinct()
+        .toArray(String[]::new);
+  }
+
   /**
    * Convert a KeyboardShortcut to RAP format for ACTIVE_KEYS / CANCEL_KEYS. RAP only supports CTRL,
    * ALT, SHIFT (not META), so we use CTRL+ for all command/control shortcuts; on Mac the browser
@@ -347,7 +404,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
    * @param shortcut The keyboard shortcut to convert
    * @return RAP format string (e.g., "CTRL+C", "ALT+SHIFT+F1") or null if invalid
    */
-  private String convertToRapFormat(KeyboardShortcut shortcut) {
+  String convertToRapFormat(KeyboardShortcut shortcut) {
     if (shortcut.getKeyCode() == 0) {
       return null;
     }

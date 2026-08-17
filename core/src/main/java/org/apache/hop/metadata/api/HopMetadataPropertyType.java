@@ -28,6 +28,7 @@ public enum HopMetadataPropertyType {
   PARTITION_SCHEMA,
   CASSANDRA_CONNECTION,
   MONGODB_CONNECTION,
+  REDIS_CONNECTION,
   SPLUNK_CONNECTION,
 
   // PIPELINE
@@ -53,6 +54,16 @@ public enum HopMetadataPropertyType {
 
   // FIELDS
   FIELD_LIST,
+  /**
+   * The pipeline stream field that feeds a mapping's target — the source half of a field-to-target
+   * mapping, whose other half names what it is written to ({@link #RDBMS_COLUMN}, for example). The
+   * two together describe "stream field X is written to Y".
+   *
+   * <p>At most one property per mapping object may carry this. Such an object often holds other
+   * properties that are also stream fields — the second bound of a BETWEEN condition, say — and
+   * annotating those makes the pair ambiguous.
+   */
+  STREAM_FIELD,
 
   // FILES
   FILE_PATH,
@@ -105,6 +116,8 @@ public enum HopMetadataPropertyType {
   VFS_S3_CONNECTION,
   VFS_WEBDAV_CONNECTION,
   VFS_DATABRICKS_CONNECTION,
+  VFS_SFTP_CONNECTION,
+  VFS_FTP_CONNECTION,
 
   // DATA STREAM
   DATA_STREAM,

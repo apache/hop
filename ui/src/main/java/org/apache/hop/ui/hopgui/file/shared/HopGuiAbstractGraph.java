@@ -32,6 +32,8 @@ import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.markdown.NoteLinkHit;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
@@ -153,6 +155,28 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     toolTip.setVisible(true);
   }
 
+  /**
+   * On the pipeline and workflow canvas the arrow keys move the selected transforms, actions and
+   * notes. Only when nothing is selected they pan the view.
+   */
+  @Override
+  protected boolean moveSelectionWithArrowKey(int dx, int dy, boolean largeStep) {
+    int step = Math.max(1, PropsUi.getInstance().getCanvasGridSize());
+    if (largeStep) {
+      step *= LARGE_STEP_FACTOR;
+    }
+    return nudgeSelectedElements(dx * step, dy * step);
+  }
+
+  /**
+   * Move the selected elements on the canvas over the given distance, as one undo action.
+   *
+   * @param dx the horizontal distance in graph coordinates
+   * @param dy the vertical distance in graph coordinates
+   * @return true if elements were selected and moved, false if there was nothing to move
+   */
+  protected abstract boolean nudgeSelectedElements(int dx, int dy);
+
   public abstract SnapAllignDistribute createSnapAlignDistribute();
 
   @Override
@@ -239,7 +263,18 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
    * @param noteMeta the metadata of the note to be resized
    * @param real the current position of the mouse used for calculating the resize dimensions
    */
+  /**
+   * Whether the current session may mutate canvas content (move/delete/create hops, notes, …).
+   * Silent check for drag/mousemove paths — use {@code HopSecurityUi.check} for deliberate actions.
+   */
+  protected boolean canEditGraph() {
+    return HopSecurity.allows(Permission.FILE_EDIT);
+  }
+
   protected void resizeNote(NotePadMeta noteMeta, Point real) {
+    if (!canEditGraph() || noteMeta == null || resize == null || resizeArea == null) {
+      return;
+    }
     switch (resize) {
       case EAST -> {
         int width = real.x - resizeArea.x;

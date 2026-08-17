@@ -1,0 +1,10 @@
+{
+  "name": "basic-auth-preemptive",
+  "auth_type": "Basic",
+  "base_url": "http://${HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false,
+  "username": "hop",
+  "password": "secret",
+  "non_preemptive_basic_auth": false
+}

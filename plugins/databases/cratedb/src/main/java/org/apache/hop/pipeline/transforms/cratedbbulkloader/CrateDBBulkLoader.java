@@ -219,6 +219,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
 
     if (first) {
       first = false;
+
       if (meta.isStreamToS3Csv()) {
 
         data.fieldnrs = new HashMap<>();

@@ -98,7 +98,7 @@ The transform will capture the values `Author, Ann` and `53`, so you can create 
 |Length|Length of the field.
 |Precision|Number of floating point digits for number-type fields.
 |Format|An optional mask for converting the format of the original field.
-See Common Formats for information on common valid date and numeric formats you can use in this transform.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Group|A grouping can be a "," (10,000.00 for example) or "." (5.000,00 for example)
 |Decimal|The character used as a decimal point.
 |Currency|Currency symbol ($ or € for example)

@@ -1,0 +1,208 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/openlineage/
+:language: en_US
+:description: How the Hop OpenLineage sink identifies datasets, and the naming another lineage producer has to match to stitch into Hop's graph.
+
+= OpenLineage dataset identity
+
+A dataset in OpenLineage is identified by the pair `(namespace, name)`.
+Two events carrying the *same* pair refer to the *same* node in the lineage graph.
+
+The most common silent failure in cross-tool lineage is one physical table showing up as two
+differently-named nodes: Hop writes `orders`, dbt reads `analytics.staging.orders`, and the graph
+never joins them. This page documents exactly what Hop emits, so a second producer can match it.
+
+Treat these rules as an API. Changing them re-keys existing lineage graphs, which is a breaking
+change — see <<Versioning>>.
+
+== Two namespaces, never conflate them
+
+There are two distinct namespace concepts, and they are not interchangeable:
+
+[cols="1,2,2",options="header"]
+|===
+|Concept |What it identifies |Source in Hop
+
+|*Job namespace*
+|The producer of the run — the Hop installation or environment
+|`HOP_LINEAGE_OPENLINEAGE_NAMESPACE`, default `hop`
+
+|*Dataset namespace*
+|The physical data source a dataset lives in — a database, a filesystem
+|Derived from the dataset's location, see below
+|===
+
+[WARNING]
+====
+The job namespace (`hop`) is *not* a valid dataset namespace for a database table.
+A dbt run emitting the same table must use the dataset namespace below, not the Hop job namespace.
+Aligning only the job namespace will *not* stitch datasets together.
+====
+
+== File datasets
+
+File (`FILE_IO`) datasets have two naming modes, selected by
+`HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING` (default `N`).
+
+=== Legacy mode (default)
+
+* *namespace* = the Hop job namespace (`HOP_LINEAGE_OPENLINEAGE_NAMESPACE`, default `hop`)
+* *name* = the last path segment of the file URI, with the full URI preserved in the `dataSource`
+  dataset facet
+
+This predates the contract and uses the job namespace as the dataset namespace. It does *not*
+follow the OpenLineage naming specification and will not reconcile a file across engines or tools.
+It remains the default only so that existing lineage graphs are not silently re-keyed.
+
+=== Spec mode (`HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING=Y`)
+
+Follows the https://openlineage.io/docs/spec/naming[OpenLineage naming specification], derived by
+the shared engine helper `LineageFileIdentity` so that the sink and the Beam/Spark engines agree on
+one identity for the same physical file.
+
+[cols="1,1,2",options="header"]
+|===
+|VFS scheme |namespace |name
+
+|`file://` |`file` |absolute path (`/data/customers.csv`)
+|`s3://`, `s3a://`, `s3n://` |`s3://{bucket}` |object key, no leading slash
+|`gs://` |`gs://{bucket}` |object key
+|`hdfs://` |`hdfs://{host}:{port}` |path
+|`abfss://`, `wasbs://` |`{scheme}://{container}@{account}` |path
+|other (`ftp`, `sftp`, `http`, …) |`{scheme}://{host}[:{port}]` |path
+|===
+
+URI user info (credentials) is dropped from the namespace, so no secret reaches the lineage graph.
+The exception is Azure, whose authority carries the container rather than a credential.
+
+Switching a deployment from legacy to spec mode re-keys its file datasets. That is why it is a
+flag rather than a straight change.
+
+== Relational datasets — the join key for other tools
+
+This is the identity another producer has to match to land on the same node as a Hop write.
+
+=== Dataset namespace
+
+[source]
+----
+{scheme}://{host}[:{port}]
+----
+
+* `scheme` is derived from the *Hop database type*, not from the raw JDBC sub-protocol — the two
+  differ (PostgreSQL is `postgresql` in JDBC but `postgres` in the OpenLineage naming spec).
+  Known types map as below; any other type falls back to its lowercased Hop type id.
+* `host` is taken from the connection, trimmed and *lowercased*.
+* `port` is the connection's port, or the database's default port when the connection leaves it
+  blank. It is omitted only when neither is known.
+
+[cols="1,1",options="header"]
+|===
+|Hop database type |Dataset namespace
+
+|PostgreSQL |`postgres://{host}:{port}`
+|MySQL, MariaDB |`mysql://{host}:{port}`
+|Redshift |`redshift://{host}:{port}`
+|Oracle |`oracle://{host}:{port}`
+|MS SQL Server (both drivers) |`mssql://{host}:{port}`
+|DB2 |`db2://{host}:{port}`
+|anything else |`{lowercased type id}://{host}:{port}`
+|===
+
+A connection with no host — an embedded or file-backed database — has no namespace to key on, and
+no relational lineage event is emitted for it.
+
+[NOTE]
+====
+*Known gap: Snowflake and BigQuery.* The OpenLineage naming specification names these by account
+(`snowflake://{account}`) and by a bare `bigquery` namespace respectively. Hop currently derives
+both from host and port like every other type, which means Snowflake does not match a dbt run's
+identity and BigQuery — having no host — emits nothing. Aligning them is tracked follow-up work.
+====
+
+=== Dataset name
+
+[source]
+----
+{database}.{schema}.{table}
+----
+
+* Only the segments the database actually has are included, joined with `.`; a database with no
+  catalog level yields `{schema}.{table}`.
+* Segments are emitted *verbatim*: trimmed, but never re-cased and never quoted. No surrounding
+  quotes, no trailing semicolon.
+* A table recovered by parsing SQL carries no catalog segment (SQL cannot name one) and may carry
+  no schema either. Blank segments are filled from the connection's own catalog
+  (`DatabaseMeta.getDatabaseName()`) and preferred schema, so a read of `schema.table` and a write
+  of `catalog.schema.table` resolve to one identity.
+
+[NOTE]
+====
+*Known gap: identifier casing.* The naming specification asks for the name as the database itself
+stores it in its catalog — upper case for Snowflake, lower case for PostgreSQL — unless the
+identifier was quoted. Hop emits what the transform was configured with, so a Table Output
+configured `PUBLIC.ORDERS` and a `select … from public.orders` currently produce two nodes.
+Until per-dialect normalisation lands, configure table and schema names in the case the database
+stores them.
+====
+
+=== Worked example
+
+A Hop pipeline writes `analytics.staging.orders` in PostgreSQL on `db:5432`; a dbt model then
+reads it to build `analytics.marts.daily_orders`. Both must emit the handoff table as:
+
+[source]
+----
+namespace: postgres://db:5432
+name:      analytics.staging.orders
+----
+
+The graph query "what fed `analytics.marts.daily_orders`?" then traverses Hop → dbt through one
+shared node, with nothing having to infer that two differently-named nodes are the same table.
+If such a guess is required, the identities are not aligned.
+
+== Run identity
+
+Dataset identity answers "is this the same table". Run identity answers "is this run a child of
+the Hop run". The run id this sink emits is:
+
+* *runId* = the Hop log channel id of the executing pipeline or workflow
+  (`LineageContext.getLogChannelId()`). File and relational I/O are correlated to the *parent
+  pipeline* run via the `pipelineLogChannelId` context attribute.
+
+OpenLineage types `runId` as a UUID. Hop log channel ids are already UUID strings, so the emitted
+value is that id verbatim. Only the synthetic fallback used when no log channel id is available —
+never part of a real cross-tool stitch — is derived deterministically from the job name.
+
+A downstream producer that wants to attach as a child of the Hop run propagates this value as the
+OpenLineage `ParentRunFacet` `run.runId`, with `job.namespace` set to the Hop job namespace and
+`job.name` to the Hop workflow or pipeline name.
+
+== Versioning
+
+This is *contract v3*.
+
+* *v3* documents the relational identity as implemented by the engine's `RELATIONAL_IO` emitter:
+  the namespace scheme is derived from the Hop database type rather than the JDBC sub-protocol,
+  and the two known gaps above (Snowflake/BigQuery namespaces, identifier casing) are stated
+  rather than assumed.
+* *v2* added the OpenLineage-spec file naming mode, opt-in via
+  `HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING`, keeping legacy file naming as the default.
+
+Any change to the rules on this page is breaking: it must bump the version here and be reflected
+in every producer that stitches into Hop's graph.

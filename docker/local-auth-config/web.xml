@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<!--
+  Hop Web web.xml with container BASIC authentication for all roles.
+  Copied to WEB-INF by run-web.sh when this file is present under /config.
+  Keep servlet mappings in sync with assemblies/web/.../WEB-INF/web.xml.
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <context-param>
+        <param-name>org.eclipse.rap.applicationConfiguration</param-name>
+        <param-value>org.apache.hop.ui.hopgui.HopWeb</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
+    </listener>
+
+    <!-- No-op unless security mode is BASIC (Hop-managed). Safe alongside Tomcat EXTERNAL auth. -->
+    <filter>
+        <filter-name>HopBasicAuth</filter-name>
+        <filter-class>org.apache.hop.ui.hopgui.security.HopBasicAuthFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>HopOidcAuth</filter-name>
+        <filter-class>org.apache.hop.ui.hopgui.security.HopOidcAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HopBasicAuth</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>HopGui</servlet-name>
+        <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>HopGui</servlet-name>
+        <url-pattern>/ui</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HopGui</servlet-name>
+        <url-pattern>/ui-dark</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>welcome</servlet-name>
+        <jsp-file>/docs/English/welcome/index.html</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>welcome</servlet-name>
+        <url-pattern>/docs/English/welcome/index.html</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Server</servlet-name>
+        <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Server</servlet-name>
+        <url-pattern>/hop/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Require BASIC auth for the whole app (UI + RAP services + /hop/*) -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Hop Web</web-resource-name>
+            <url-pattern>/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+            <http-method>DELETE</http-method>
+            <http-method>HEAD</http-method>
+            <http-method>OPTIONS</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>hop-admin</role-name>
+            <role-name>hop-user</role-name>
+            <role-name>hop-operator</role-name>
+            <role-name>hop-readonly</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <!-- Local test only; use CONFIDENTIAL (HTTPS) in production -->
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>Hop Web</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>hop-admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>hop-user</role-name>
+    </security-role>
+    <security-role>
+        <role-name>hop-operator</role-name>
+    </security-role>
+    <security-role>
+        <role-name>hop-readonly</role-name>
+    </security-role>
+
+</web-app>

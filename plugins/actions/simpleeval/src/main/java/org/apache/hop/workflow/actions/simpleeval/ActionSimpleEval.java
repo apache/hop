@@ -54,7 +54,10 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public enum ValueType implements IEnumHasCodeAndDescription {
     FIELD("field", BaseMessages.getString(PKG, "ActionSimpleEval.EvalPreviousField.Label")),
-    VARIABLE("variable", BaseMessages.getString(PKG, "ActionSimpleEval.EvalVariable.Label"));
+    VARIABLE("variable", BaseMessages.getString(PKG, "ActionSimpleEval.EvalVariable.Label")),
+    RESULT_FILES(
+        "resultfiles", BaseMessages.getString(PKG, "ActionSimpleEval.EvalResultFiles.Label")),
+    LOG_TEXT("logtext", BaseMessages.getString(PKG, "ActionSimpleEval.EvalLogText.Label"));
 
     private final String code;
     private final String description;
@@ -421,12 +424,28 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
         sourcevalue = resolve(getVariableWithSpec());
         break;
+      case RESULT_FILES:
+        int fileCount = result.getResultFiles() != null ? result.getResultFiles().size() : 0;
+        sourcevalue = Integer.toString(fileCount);
+        break;
+      case LOG_TEXT:
+        sourcevalue = Const.NVL(result.getLogText(), "");
+        break;
       default:
         break;
     }
 
     if (isDetailed()) {
-      logDetailed(BaseMessages.getString(PKG, "ActionSimpleEval.Log.ValueToevaluate", sourcevalue));
+      if (valueType == ValueType.LOG_TEXT) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionSimpleEval.Log.LogTextToEvaluate",
+                Integer.toString(sourcevalue.length())));
+      } else {
+        logDetailed(
+            BaseMessages.getString(PKG, "ActionSimpleEval.Log.ValueToevaluate", sourcevalue));
+      }
     }
 
     boolean success = false;
@@ -437,7 +456,9 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     String realMinValue = resolve(minValue);
     String realMaxValue = resolve(maxValue);
 
-    switch (fieldType) {
+    FieldType evaluationType = getEvaluationFieldType();
+
+    switch (evaluationType) {
       case STRING:
         switch (successStringCondition) {
           case EQUAL: // equal
@@ -1141,6 +1162,21 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   }
 
   public FieldType getFieldType() {
+    return fieldType;
+  }
+
+  /**
+   * Result files are always compared as a number. Log text is always compared as a string.
+   *
+   * @return the field type actually used during evaluation
+   */
+  FieldType getEvaluationFieldType() {
+    if (valueType == ValueType.RESULT_FILES) {
+      return FieldType.NUMBER;
+    }
+    if (valueType == ValueType.LOG_TEXT) {
+      return FieldType.STRING;
+    }
     return fieldType;
   }
 

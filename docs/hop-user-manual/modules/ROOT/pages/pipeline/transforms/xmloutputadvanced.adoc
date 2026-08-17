@@ -65,6 +65,7 @@ The dialog is organized into three tabs: *File*, *Content* and *XML Tree*.
 |Include time in filename|Append the system time (`HHmmss`) to the filename.
 |Specify custom date/time format|Use a custom date/time pattern instead of the date/time toggles above.
 |Date/time format|Java `SimpleDateFormat` pattern, used when the custom format toggle is on.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Split every N rows|Maximum rows per file before rolling over to a new split, or per completed XML field segment when *Output* includes an XML field. `0` = no splitting.
 |Zip output file|Wrap each output file in a zip archive (one entry per file). Generated XSDs are written next to the archive, not inside it.
 |Do not open new file at start|Defer file creation until the first input row is received.

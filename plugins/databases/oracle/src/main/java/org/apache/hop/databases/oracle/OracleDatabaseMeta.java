@@ -318,7 +318,8 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
    */
   @Override
   public String getLimitClause(int nrRows) {
-    return " WHERE ROWNUM <= " + nrRows;
+    // Minimum version Oracle 12c Release 1 (released in 2013)
+    return " FETCH FIRST " + nrRows + " ROWS ONLY";
   }
 
   /**

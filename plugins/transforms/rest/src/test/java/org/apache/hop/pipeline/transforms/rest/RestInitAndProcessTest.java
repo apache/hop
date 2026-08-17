@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
-import jakarta.ws.rs.core.MediaType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -34,6 +34,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.rest.client.RestAuthType;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -101,8 +102,7 @@ class RestInitAndProcessTest {
     assertEquals(5000, data.realConnectionTimeout);
     assertEquals(10000, data.realReadTimeout);
     assertEquals(RestMeta.HTTP_METHOD_GET, data.method);
-    assertNotNull(data.config);
-    assertEquals(MediaType.APPLICATION_JSON_TYPE, data.mediaType);
+    assertEquals(ContentType.APPLICATION_JSON, data.mediaType);
   }
 
   @Test
@@ -133,7 +133,7 @@ class RestInitAndProcessTest {
     assertTrue(result);
     assertEquals(3000, data.realConnectionTimeout);
     assertEquals(6000, data.realReadTimeout);
-    assertEquals(MediaType.APPLICATION_XML_TYPE, data.mediaType);
+    assertEquals(ContentType.APPLICATION_XML, data.mediaType);
   }
 
   @Test
@@ -162,7 +162,7 @@ class RestInitAndProcessTest {
   }
 
   @Test
-  void testInitWithProxySettings() {
+  void testInitWithProxySettings() throws HopException {
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setName("TestRest");
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -191,7 +191,11 @@ class RestInitAndProcessTest {
     assertEquals(8080, data.realProxyPort);
     assertEquals("user", data.realHttpLogin);
     assertNotNull(data.realHttpPassword);
-    assertNotNull(data.basicAuthentication);
+    // The credentials reach the client configuration as Basic auth. They used to be turned into a
+    // Jersey HttpAuthenticationFeature on the data object; they are now a request header written
+    // by RestAuthenticator, so there is nothing on `data` left to assert.
+    assertEquals(RestAuthType.BASIC, rest.createClientSettings().getAuthType());
+    assertEquals("user", rest.createClientSettings().getBasicUsername());
   }
 
   @Test
@@ -223,39 +227,39 @@ class RestInitAndProcessTest {
       // Verify correct media type is set based on application type
       switch (appType) {
         case RestMeta.APPLICATION_TYPE_XML:
-          assertEquals(MediaType.APPLICATION_XML_TYPE, data.mediaType);
+          assertEquals(ContentType.APPLICATION_XML, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_JSON:
-          assertEquals(MediaType.APPLICATION_JSON_TYPE, data.mediaType);
+          assertEquals(ContentType.APPLICATION_JSON, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_OCTET_STREAM:
-          assertEquals(MediaType.APPLICATION_OCTET_STREAM_TYPE, data.mediaType);
+          assertEquals(ContentType.APPLICATION_OCTET_STREAM, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_XHTML:
-          assertEquals(MediaType.APPLICATION_XHTML_XML_TYPE, data.mediaType);
+          assertEquals(ContentType.APPLICATION_XHTML_XML, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_FORM_URLENCODED:
-          assertEquals(MediaType.APPLICATION_FORM_URLENCODED_TYPE, data.mediaType);
+          assertEquals(ContentType.APPLICATION_FORM_URLENCODED, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_ATOM_XML:
-          assertEquals(MediaType.APPLICATION_ATOM_XML_TYPE, data.mediaType);
+          assertEquals(ContentType.APPLICATION_ATOM_XML, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_SVG_XML:
-          assertEquals(MediaType.APPLICATION_SVG_XML_TYPE, data.mediaType);
+          assertEquals(ContentType.APPLICATION_SVG_XML, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_TEXT_XML:
-          assertEquals(MediaType.TEXT_XML_TYPE, data.mediaType);
+          assertEquals(ContentType.TEXT_XML, data.mediaType);
           break;
         case RestMeta.APPLICATION_TYPE_TEXT_PLAIN:
         default:
-          assertEquals(MediaType.TEXT_PLAIN_TYPE, data.mediaType);
+          assertEquals(ContentType.TEXT_PLAIN, data.mediaType);
           break;
       }
     }
   }
 
   @Test
-  void testInitWithIgnoreSsl() {
+  void testInitWithIgnoreSsl() throws HopException {
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setName("TestRest");
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -277,7 +281,9 @@ class RestInitAndProcessTest {
     boolean result = rest.init();
 
     assertTrue(result);
-    assertNotNull(data.sslContext);
+    // A trust-all context, plus the permissive host name verifier that has to accompany it.
+    assertNotNull(rest.createClientSettings().getSslContext());
+    assertTrue(rest.createClientSettings().isPermissiveHostnameVerifier());
   }
 
   @Test

@@ -163,10 +163,11 @@ The `ignore manual fields` ignores any fields manually defined in the transform'
 |Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
 |Name|The field to write
 |Type|The type of data
-|Format|The Excel format to use in the sheet.
+|Format|The *Excel* number/date format to use in the sheet, not Hop's DecimalFormat / SimpleDateFormat mask.
 Please consult the Excel manual for valid formats.
 There are some online references as well.
 For `.ods`, common Excel format tokens are converted to OpenDocument equivalents where possible.
+Hop field-metadata formats are described in xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Style from cell|A cell (i.e. A1, B3 etc.) to copy the styling from for this column (usually some pre-styled cell in a template)
 |Field Title|If set, this is used for the Header/Footer instead of the Hop field name
 |Header/Footer style from cell|A cell to copy the styling from for headers/footers (usually some pre-styled cell in a template)

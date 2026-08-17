@@ -44,6 +44,8 @@ In the Simple Mapping transform you can specify one xref:pipeline/transforms/map
 
 Use this transform if you find yourself repeating the same logic multiple times over several different pipelines.
 
+If you need more than one input or output, or info / target hops (for example a reusable Stream Lookup or Switch / Case), use xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] instead.
+
 == Options
 
 The options are fairly self-explanatory:
@@ -56,6 +58,15 @@ It is always executed with a standard local Hop pipeline run configuration since
 * Input tab: specify which fields to pass to the xref:pipeline/transforms/mapping-input.adoc[Mapping input] transform in the mapping.
 You can map (hence the name) field names.
 * Output tab: specify how to rename output fields retrieved from the xref:pipeline/transforms/mapping-output.adoc[Mapping output] transform.
+
+== Metadata Injection
+
+Input and output mappings reuse the same nested fields, so injection keys are prefixed to keep them unique.
+
+* Top-level: `filename`, `runConfiguration`, `INPUT_SOURCE_TRANSFORM`, `INPUT_TARGET_TRANSFORM`, `INPUT_DESCRIPTION`, `INPUT_MAIN_PATH`, `INPUT_RENAME_ON_OUTPUT`, and the matching `OUTPUT_*` keys, plus `PARAMETERS_INHERIT_ALL_VARIABLES`
+* Group `INPUT_FIELDS`: `INPUT_SOURCE_FIELD`, `INPUT_TARGET_FIELD`
+* Group `OUTPUT_FIELDS`: `OUTPUT_SOURCE_FIELD`, `OUTPUT_TARGET_FIELD`
+* Group `PARAMETERS_MAPPINGS`: `PARAMETERS_VARIABLE`, `PARAMETERS_VALUE`
 
 == Sample
 

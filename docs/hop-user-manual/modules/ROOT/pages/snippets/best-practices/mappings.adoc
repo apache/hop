@@ -26,4 +26,6 @@ The Simple Mapping is a pipeline reading from a xref:pipeline/transforms/mapping
 
 You can re-use the work in other pipelines using the xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] transform.
 
+When the reusable logic needs more than one input or output, or info / target hops, use xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] instead.
+
 

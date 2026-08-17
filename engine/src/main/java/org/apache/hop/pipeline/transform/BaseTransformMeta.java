@@ -47,6 +47,8 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.security.IDialogEditable;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
@@ -70,7 +72,7 @@ import org.w3c.dom.Node;
  * BaseTransformMeta by adding fields for the output file name, compression, file format, etc...
  */
 public class BaseTransformMeta<Main extends ITransform, Data extends ITransformData>
-    implements ITransformMeta, Cloneable {
+    implements ITransformMeta, Cloneable, IDialogEditable {
 
   /**
    * Prevents infinite recursion when {@link #loadXml(Node, IHopMetadataProvider)} calls {@code
@@ -95,6 +97,16 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
 
   public BaseTransformMeta() {
     changed = false;
+  }
+
+  /**
+   * Transform settings dialogs require {@link Permission#FILE_EDIT}. Inherited by all transforms
+   * that extend this base so {@code BaseDialog.defaultShellHandling} can open them read-only when
+   * the current user lacks that permission.
+   */
+  @Override
+  public Permission requiredEditPermission() {
+    return Permission.FILE_EDIT;
   }
 
   @Override

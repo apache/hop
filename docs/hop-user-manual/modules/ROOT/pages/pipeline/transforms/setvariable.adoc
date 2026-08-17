@@ -46,7 +46,9 @@ Variables have no type in Hop (casted as strings). If working with formulas for 
 
 Note that variables cannot be passed upstream between pipelines. Parameters are best passed downstream to avoid threading issues. A nested pipeline is technically the same pipeline, so variables are inherited in the initialization phase.
 
-Though you cannot pass parameters and variables upstream (in nested or sequential pipelines) you can pass data rows back up a pipeline via the following pattern in the samples project: samples/loops/pipeline-executor.hpl
+You cannot pass parameters back to a parent.
+To return data, send fields as result rows (samples project: `samples/loops/pipeline-executor.hpl`) or set a variable with a wider scope.
+See xref:fields-parameters-variables.adoc[Fields, parameters, and variables].
 
 A variable can be set in one pipeline and be available in the next pipeline (named pipeline) that is in the loop of a pipeline executor.  If you are using a pipeline executor child, the parent pipeline does not restart and does not get any set variables. The new variable name to set in a child pipeline is shown below in the second column.
 

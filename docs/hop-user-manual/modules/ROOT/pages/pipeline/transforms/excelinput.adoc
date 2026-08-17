@@ -59,6 +59,12 @@ Currently the following are supported:
 Functionality provided by the Apache POI project.
 * Excel XLSX (Streaming): This spread sheet type allows to read in large Excel files.
 * Open Office ODS: By selecting this type you can read OpenOffice spreadsheet using the ODFDOM engine.
+|Password a|The password to open a password protected (encrypted) workbook.
+Leave this empty for regular files.
+
+Only the two Excel (POI) engines can decrypt a workbook, the Open Office ODS engine will report an error when a password is set.
+Note that with the streaming engine an encrypted workbook has to be decrypted as a whole before it can be read, so for those files the streaming engine loses its low memory advantage.
+A password on a file that is not encrypted is ignored, which allows a single transform to read a directory holding both protected and regular files.
 |File or directory|Specifies the location and/or name of the input text file.
 Note: Click Add to add the file/directory/wildcard combination to the list of selected files (grid) below.
 |Regular expression|Specify the regular expression you want to use to select the files in the directory specified in the previous option.
@@ -131,8 +137,8 @@ Number: total number of significant figures in a number; String: total length of
 |Trim type|Truncates the field (left, right, both) before processing.
 Useful for fields that have no static length.
 |Repeat|If set to Y, will repeat this value if the field in the next row is empty.
-|Format|The format mask (number type).
-See Text File Input transform and the section "Number Formats" for a complete description of format symbols.
+|Format|The format mask (number type or date format).
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Currency|Symbol used to represent currencies.
 |Decimal|A decimal point; this is either a dot or a comma.
 |Grouping|A method of separating units of thousands in numbers of four digits or larger.

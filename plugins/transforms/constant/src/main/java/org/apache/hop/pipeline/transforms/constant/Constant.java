@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -57,12 +58,26 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
   public static final RowMetaAndData buildRow(
       ConstantMeta meta, ConstantData data, List<ICheckResult> remarks) {
     IRowMeta rowMeta = new RowMeta();
-    Object[] rowData = new Object[meta.getFields().size()];
+    // Collected in lockstep with rowMeta: a field that gets skipped below must not leave a hole
+    // in the data, or every constant after it ends up in the previous field's column.
+    List<Object> rowData = new ArrayList<>();
 
-    for (int i = 0; i < meta.getFields().size(); i++) {
-      ConstantField field = meta.getFields().get(i);
+    int fieldNr = 0;
+    for (ConstantField field : meta.getFields()) {
+      fieldNr++;
       int valtype = ValueMetaFactory.getIdForValueMeta(field.getFieldType());
-      if (field.getFieldName() != null) {
+      // Skip unnamed fields exactly like ConstantMeta.getFields() does. That method builds the
+      // transform's output row meta, so keeping a blank-named field here would make the constants
+      // row one value wider than the meta describing it.
+      if (StringUtils.isEmpty(field.getFieldName())) {
+        // A field that was filled in but never named can't become a column. Say so rather than
+        // dropping it quietly - it is nearly always a forgotten name, not a deliberate blank.
+        if (hasContent(field)) {
+          String message =
+              BaseMessages.getString(PKG, "Constant.CheckResult.NoFieldNameWarning", fieldNr);
+          remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, null));
+        }
+      } else {
         IValueMeta value = null;
         try {
           value = ValueMetaFactory.createValueMeta(field.getFieldName(), valtype);
@@ -74,24 +89,22 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
         value.setLength(field.getFieldLength());
         value.setPrecision(field.getFieldPrecision());
 
+        Object fieldValue = null;
         if (field.isEmptyString()) {
           // Just set empty string
-          rowData[i] = StringUtil.EMPTY_STRING;
+          fieldValue = StringUtil.EMPTY_STRING;
+        } else if (value.getType() == IValueMeta.TYPE_NONE) {
+          // No value type was selected for this field, so there's nothing to convert to.
+          String message =
+              BaseMessages.getString(
+                  PKG, "Constant.CheckResult.SpecifyTypeError", value.getName(), field.getValue());
+          remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
         } else {
 
           String stringValue = field.getValue();
 
           // If the value is empty: consider it to be NULL.
-          if (Utils.isEmpty(stringValue)) {
-            rowData[i] = null;
-
-            if (value.getType() == IValueMeta.TYPE_NONE) {
-              String message =
-                  BaseMessages.getString(
-                      PKG, "Constant.CheckResult.SpecifyTypeError", value.getName(), stringValue);
-              remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
-            }
-          } else {
+          if (!Utils.isEmpty(stringValue)) {
             switch (value.getType()) {
               case IValueMeta.TYPE_NUMBER:
                 try {
@@ -115,7 +128,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
                     data.df.setDecimalFormatSymbols(data.dfs);
                   }
 
-                  rowData[i] = data.nf.parse(stringValue).doubleValue();
+                  fieldValue = data.nf.parse(stringValue).doubleValue();
                 } catch (Exception e) {
                   String message =
                       BaseMessages.getString(
@@ -129,7 +142,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
                 break;
 
               case IValueMeta.TYPE_STRING:
-                rowData[i] = stringValue;
+                fieldValue = stringValue;
                 break;
 
               case IValueMeta.TYPE_DATE:
@@ -139,7 +152,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
                     data.daf.setDateFormatSymbols(data.dafs);
                   }
 
-                  rowData[i] = data.daf.parse(stringValue);
+                  fieldValue = data.daf.parse(stringValue);
                 } catch (Exception e) {
                   String message =
                       BaseMessages.getString(
@@ -154,7 +167,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
 
               case IValueMeta.TYPE_INTEGER:
                 try {
-                  rowData[i] = Long.valueOf(stringValue);
+                  fieldValue = Long.valueOf(stringValue);
                 } catch (Exception e) {
                   String message =
                       BaseMessages.getString(
@@ -169,7 +182,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
 
               case IValueMeta.TYPE_BIGNUMBER:
                 try {
-                  rowData[i] = new BigDecimal(stringValue);
+                  fieldValue = new BigDecimal(stringValue);
                 } catch (Exception e) {
                   String message =
                       BaseMessages.getString(
@@ -183,17 +196,17 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
                 break;
 
               case IValueMeta.TYPE_BOOLEAN:
-                rowData[i] =
+                fieldValue =
                     "Y".equalsIgnoreCase(stringValue) || "TRUE".equalsIgnoreCase(stringValue);
                 break;
 
               case IValueMeta.TYPE_BINARY:
-                rowData[i] = stringValue.getBytes();
+                fieldValue = stringValue.getBytes();
                 break;
 
               case IValueMeta.TYPE_TIMESTAMP:
                 try {
-                  rowData[i] = Timestamp.valueOf(stringValue);
+                  fieldValue = Timestamp.valueOf(stringValue);
                 } catch (Exception e) {
                   String message =
                       BaseMessages.getString(
@@ -208,7 +221,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
 
               case IValueMeta.TYPE_INET:
                 try {
-                  rowData[i] = InetAddress.getByName(stringValue);
+                  fieldValue = InetAddress.getByName(stringValue);
                 } catch (Exception e) {
                   String message =
                       BaseMessages.getString(
@@ -222,20 +235,51 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
                 break;
 
               default:
-                String message =
-                    BaseMessages.getString(
-                        PKG, "Constant.CheckResult.SpecifyTypeError", value.getName(), stringValue);
-                remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
+                // Any other value type: let the value meta plugin itself do the conversion.
+                // This way types like JSON and UUID work without a dedicated case here, and any
+                // type that simply can't be built from text reports why instead of claiming that
+                // no type was selected.
+                try {
+                  IValueMeta stringMeta = new ValueMetaString(field.getFieldName());
+                  stringMeta.setConversionMask(field.getFieldFormat());
+
+                  fieldValue = value.convertData(stringMeta, stringValue);
+                } catch (Exception e) {
+                  String message =
+                      BaseMessages.getString(
+                          PKG,
+                          "Constant.BuildRow.Error.Parsing.Type",
+                          value.getTypeDesc(),
+                          value.getName(),
+                          stringValue,
+                          e.toString());
+                  remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
+                }
             }
           }
         }
         // Now add value to the row!
         // This is in fact a copy from the fields row, but now with data.
         rowMeta.addValueMeta(value);
+        rowData.add(fieldValue);
       } // end if
     } // end for
 
-    return new RowMetaAndData(rowMeta, rowData);
+    return new RowMetaAndData(rowMeta, rowData.toArray());
+  }
+
+  /**
+   * Whether anything was filled in for this field. Used to tell a forgotten field name apart from a
+   * leftover blank row, which carries nothing and is not worth reporting.
+   */
+  private static boolean hasContent(ConstantField field) {
+    return field.isEmptyString()
+        || StringUtils.isNotEmpty(field.getValue())
+        || StringUtils.isNotEmpty(field.getFieldType())
+        || StringUtils.isNotEmpty(field.getFieldFormat())
+        || StringUtils.isNotEmpty(field.getCurrency())
+        || StringUtils.isNotEmpty(field.getDecimal())
+        || StringUtils.isNotEmpty(field.getGroup());
   }
 
   @Override
@@ -268,7 +312,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
               PKG,
               "Constant.Log.Wrote.Row",
               Long.toString(getLinesWritten()),
-              getInputRowMeta().getString(r)));
+              data.outputMeta.getString(r)));
     }
 
     if (checkFeedback(getLinesWritten()) && isBasic()) {
@@ -286,15 +330,21 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
 
     if (super.init()) {
       // Create a row (constants) with all the values in it...
-      List<ICheckResult> remarks = new ArrayList<>(); // stores the errors...
+      List<ICheckResult> remarks = new ArrayList<>(); // stores the errors and warnings...
       data.constants = buildRow(meta, data, remarks);
-      if (remarks.isEmpty()) {
-        return true;
-      } else {
-        for (ICheckResult cr : remarks) {
+
+      // Only a genuinely unbuildable constant stops the transform. Warnings - a field that was
+      // filled in but never named - are logged and the transform runs without that field.
+      boolean initialized = true;
+      for (ICheckResult cr : remarks) {
+        if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {
           logError(cr.getText());
+          initialized = false;
+        } else {
+          logMinimal(cr.getText());
         }
       }
+      return initialized;
     }
     return false;
   }

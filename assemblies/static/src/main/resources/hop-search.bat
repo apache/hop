@@ -21,6 +21,9 @@ setlocal
 REM switch to script directory
 cd /D %~dp0
 
+REM Optional user-level env written by `hop setup` (does not override already-set variables)
+if exist "%USERPROFILE%\.hop\hop-env.cmd" call "%USERPROFILE%\.hop\hop-env.cmd"
+
 set LIBSPATH=lib\core
 set CLASSPATH=lib\core\*;lib\spark-client\*;lib\swt\win64\*
 
@@ -29,13 +32,6 @@ if defined HOP_SPARK_CLIENT_VERSION if exist "lib\spark-clients\%HOP_SPARK_CLIEN
   set CLASSPATH=%CLASSPATH%;lib\spark-clients\%HOP_SPARK_CLIENT_VERSION%\*
 )
 
-REM Beam SDKs under optional plugin (plugins\engines\beam\lib-beam)
-if exist "plugins\engines\beam\lib-beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\lib-beam\*
-)
-if exist "plugins\engines\beam\" (
-  set CLASSPATH=%CLASSPATH%;plugins\engines\beam\*
-)
 
 
 

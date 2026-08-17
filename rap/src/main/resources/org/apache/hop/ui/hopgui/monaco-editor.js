@@ -75,6 +75,7 @@
       return new hop.MonacoEditor(properties);
     },
     destructor: function(widget) {
+      widget._notifyFocus(false);
       widget._destroyed = true;
       if (widget._retryId) { clearInterval(widget._retryId); widget._retryId = null; }
       if (widget._debounceId) { clearTimeout(widget._debounceId); widget._debounceId = null; }
@@ -87,7 +88,8 @@
       }
     },
     properties: [ "content", "language", "readOnly", "theme" ],
-    events: [ "contentChanged" ]
+    events: [ "contentChanged", "focusChanged", "selectionChanged", "findRequested" ],
+    methods: [ "setSelection", "insert" ]
   });
 
   rwt.define("hop");
@@ -149,6 +151,60 @@
       }
     },
 
+    setSelection: function(properties) {
+      if (!this._editor || !this._editor.getModel()) {
+        return;
+      }
+      var model = this._editor.getModel();
+      var start = properties && properties.start != null ? properties.start : 0;
+      var end = properties && properties.end != null ? properties.end : start;
+      start = Math.max(0, Math.min(start, model.getValueLength()));
+      end = Math.max(start, Math.min(end, model.getValueLength()));
+      var startPos = model.getPositionAt(start);
+      var endPos = model.getPositionAt(end);
+      var range = window.monaco.Range.fromPositions(startPos, endPos);
+      this._editor.setSelection(range);
+      this._editor.revealRangeInCenterIfOutsideViewport(range);
+    },
+
+    insert: function(properties) {
+      if (!this._editor || !this._editor.getModel()) {
+        return;
+      }
+      var model = this._editor.getModel();
+      var text = properties && properties.text != null ? properties.text : "";
+      var start;
+      var end;
+      if (properties && properties.start != null) {
+        start = Math.max(0, Math.min(properties.start, model.getValueLength()));
+        end = properties.end != null
+          ? Math.max(start, Math.min(properties.end, model.getValueLength()))
+          : start;
+      } else {
+        var selection = this._editor.getSelection();
+        if (!selection) {
+          return;
+        }
+        start = model.getOffsetAt({
+          lineNumber: selection.startLineNumber,
+          column: selection.startColumn
+        });
+        end = model.getOffsetAt({
+          lineNumber: selection.endLineNumber,
+          column: selection.endColumn
+        });
+      }
+      var range = window.monaco.Range.fromPositions(
+        model.getPositionAt(start),
+        model.getPositionAt(end)
+      );
+      this._editor.executeEdits("hop-find-replace", [{
+        range: range,
+        text: text,
+        forceMoveMarkers: true
+      }]);
+    },
+
     _notifyServer: function() {
       if (this._destroyed || !this._editor || this._readOnly) return;
       var value = this._editor.getValue();
@@ -159,6 +215,52 @@
         }
       } catch (e) {
         console.warn("MonacoEditor: failed to notify server", e);
+      }
+    },
+
+    _notifyFocus: function(focused) {
+      try {
+        var remote = rap.getRemoteObject(this);
+        if (remote) {
+          remote.notify("focusChanged", { focused: focused });
+        }
+      } catch (e) {
+        console.warn("MonacoEditor: failed to notify focus", e);
+      }
+    },
+
+    _notifySelection: function() {
+      if (this._destroyed || !this._editor || !this._editor.getModel()) return;
+      try {
+        var model = this._editor.getModel();
+        var sel = this._editor.getSelection();
+        if (!sel) return;
+        var start = model.getOffsetAt({
+          lineNumber: sel.startLineNumber,
+          column: sel.startColumn
+        });
+        var end = model.getOffsetAt({
+          lineNumber: sel.endLineNumber,
+          column: sel.endColumn
+        });
+        var remote = rap.getRemoteObject(this);
+        if (remote) {
+          remote.notify("selectionChanged", { start: start, end: end });
+        }
+      } catch (e) {
+        console.warn("MonacoEditor: failed to notify selection", e);
+      }
+    },
+
+    _notifyFind: function(replace) {
+      if (this._destroyed) return;
+      try {
+        var remote = rap.getRemoteObject(this);
+        if (remote) {
+          remote.notify("findRequested", { replace: !!replace });
+        }
+      } catch (e) {
+        console.warn("MonacoEditor: failed to notify find", e);
       }
     },
 
@@ -229,7 +331,27 @@
           self._scheduleNotify();
         });
 
+        self._editor.onDidChangeCursorSelection(function() {
+          self._notifySelection();
+        });
+
+        if (window.monaco && window.monaco.KeyMod && window.monaco.KeyCode) {
+          self._editor.addCommand(
+            window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.KeyF,
+            function() { self._notifyFind(false); }
+          );
+          self._editor.addCommand(
+            window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.KeyH,
+            function() { self._notifyFind(true); }
+          );
+        }
+
+        self._editor.onDidFocusEditorWidget(function() {
+          self._notifyFocus(true);
+        });
+
         self._editor.onDidBlurEditorWidget(function() {
+          self._notifyFocus(false);
           if (self._debounceId) {
             clearTimeout(self._debounceId);
             self._debounceId = null;

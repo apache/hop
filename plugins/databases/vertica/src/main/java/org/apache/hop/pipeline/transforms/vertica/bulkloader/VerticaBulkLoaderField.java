@@ -33,7 +33,8 @@ public class VerticaBulkLoaderField {
   @HopMetadataProperty(
       key = "stream_name",
       injectionKey = "STREAM_FIELDNAME",
-      injectionKeyDescription = "VerticaBulkLoader.Inject.FIELDSTREAM")
+      injectionKeyDescription = "VerticaBulkLoader.Inject.FIELDSTREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.STREAM_FIELD)
   private String fieldStream;
 
   @HopMetadataProperty(

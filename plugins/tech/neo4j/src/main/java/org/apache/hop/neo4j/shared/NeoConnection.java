@@ -405,6 +405,11 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
       //
       configBuilder = configBuilder.withLogging(Logging.javaUtilLogging(Level.WARNING));
 
+      // Driver 6.1 retries auto-commit queries once by default. Transforms writing with
+      // auto-commit are not necessarily idempotent, so keep the pre-6.1 behaviour.
+      //
+      configBuilder = configBuilder.withAutoCommitRetriesDisabled(true);
+
       Config config = configBuilder.build();
 
       Driver driver;

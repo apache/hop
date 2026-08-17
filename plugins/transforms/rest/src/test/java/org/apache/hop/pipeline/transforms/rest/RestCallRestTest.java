@@ -19,30 +19,17 @@ package org.apache.hop.pipeline.transforms.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriBuilder;
-import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -62,15 +49,18 @@ import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
 import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
-import org.glassfish.jersey.client.ClientConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.ArgumentCaptor;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
+/**
+ * Covers {@link Rest#callRest(Object[])} one HTTP verb and one input-field kind at a time. The
+ * transform is given a stubbed client through {@link RestData#client}, so each test asserts on the
+ * request that reached the wire — see {@link FakeHttpClient#captured()}.
+ */
 class RestCallRestTest {
 
   @RegisterExtension
@@ -94,1101 +84,512 @@ class RestCallRestTest {
 
   @Test
   void testCallRestWithGetMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("{\"result\":\"success\"}");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.add("Content-Type", "application/json");
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrl("http://example.com");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
+    meta.getResultField().setCode("statusCode");
+    meta.getResultField().setResponseTime("responseTime");
+    meta.getResultField().setResponseHeader("headers");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.get(Response.class)).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.realUrl = "http://example.com";
+    data.resultFieldName = "result";
+    data.resultCodeFieldName = "statusCode";
+    data.resultResponseFieldName = "responseTime";
+    data.resultHeaderFieldName = "headers";
+    data.inputRowMeta = rowMeta("field1");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com"));
+    Rest rest = transform(meta, data, json(200, "{\"result\":\"success\"}"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"value1"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
+    assertNotNull(outputRow);
+    assertTrue(outputRow.length >= 1);
+    // The result fields are appended to the input row, in declaration order.
+    assertEquals("value1", outputRow[0]);
+    assertEquals("{\"result\":\"success\"}", outputRow[1]);
+    assertEquals(200L, outputRow[2]);
+    assertNotNull(outputRow[3]); // response time
+    assertNotNull(outputRow[4]); // headers
 
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
+    assertEquals("GET", FakeHttpClient.captured().getMethod());
+    // A rootless URL picks up the empty path the request line needs.
+    assertEquals("http://example.com/", uri());
+  }
 
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
+  /**
+   * The URL is sent as configured. Only an empty path becomes {@code /}, because the request line
+   * has no way to express "no path" — {@code /api} and {@code /api/} are different resources on
+   * many servers, so neither may be rewritten into the other.
+   */
+  @ParameterizedTest
+  @CsvSource({
+    "http://example.com, http://example.com/",
+    "http://example.com/, http://example.com/",
+    "http://example.com/api, http://example.com/api",
+    "http://example.com/api/, http://example.com/api/",
+    "http://example.com/api?x=1, http://example.com/api?x=1",
+    "http://example.com/api?q=%22hop%22, http://example.com/api?q=%22hop%22",
+    "http://example.com/api?f=name%20eq%20%27hop%27, http://example.com/api?f=name%20eq%20%27hop%27",
+    "http://example.com/path%20with%20space/x, http://example.com/path%20with%20space/x"
+  })
+  void testTheConfiguredUrlIsSentUnaltered(String configured, String expected) throws HopException {
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrl(configured);
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_GET);
-      meta.setUrl("http://example.com");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-      meta.getResultField().setCode("statusCode");
-      meta.getResultField().setResponseTime("responseTime");
-      meta.getResultField().setResponseHeader("headers");
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.realUrl = configured;
+    data.resultFieldName = "result";
+    data.inputRowMeta = rowMeta();
 
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_GET;
-      data.realUrl = "http://example.com";
-      data.resultFieldName = "result";
-      data.resultCodeFieldName = "statusCode";
-      data.resultResponseFieldName = "responseTime";
-      data.resultHeaderFieldName = "headers";
+    Rest rest = transform(meta, data, json(200, "{}"));
+    rest.callRest(new Object[] {});
 
-      // Setup input row
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("field1"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"value1"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      // Output row should have at least the input fields plus result fields
-      assertTrue(outputRow.length >= 1);
-      assertEquals("value1", outputRow[0]);
-      // The result fields are added at the end of the input row
-      // Result field is at input size + 0
-      assertEquals("{\"result\":\"success\"}", outputRow[1]); // result field
-      // Status code is at input size + 1
-      assertEquals(200L, outputRow[2]); // status code
-      // Response time is at input size + 2
-      assertNotNull(outputRow[3]); // response time
-      // Headers are at input size + 3
-      assertNotNull(outputRow[4]); // headers
-
-      verify(builder, times(1)).get(Response.class);
-    }
+    assertEquals(expected, uri());
   }
 
   @Test
   void testCallRestWithPostMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(201);
-    when(response.readEntity(String.class)).thenReturn("{\"id\":123}");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.add("Content-Type", "application/json");
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_POST);
+    meta.setUrl("http://example.com/api");
+    meta.setBodyField("body");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.post(any(Entity.class))).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_POST;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useBody = true;
+    data.indexOfBodyField = 1;
+    data.inputRowMeta = rowMeta("field1", "body");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+    Rest rest = transform(meta, data, json(201, "{\"id\":123}"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"value1", "{\"name\":\"test\"}"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_POST);
-      meta.setUrl("http://example.com/api");
-      meta.setBodyField("body");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_POST;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.useBody = true;
-      data.indexOfBodyField = 1;
-
-      // Setup input row
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("field1"));
-      inputRowMeta.addValueMeta(new ValueMetaString("body"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"value1", "{\"name\":\"test\"}"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("{\"id\":123}", outputRow[2]); // result field
-      verify(builder, times(1)).post(any(Entity.class));
-    }
+    assertNotNull(outputRow);
+    assertEquals("{\"id\":123}", outputRow[2]);
+    assertEquals("POST", FakeHttpClient.captured().getMethod());
+    assertEquals("{\"name\":\"test\"}", requestBody());
   }
 
   @Test
   void testCallRestPostWithoutBodySendsEmptyEntity() throws HopException {
     // Issue #7621: a body-less POST must still produce a Content-Length header. The transform
-    // normalizes a null body to an empty string so the JDK connector used by the REST-connection
-    // path sends Content-Length: 0 instead of omitting it. Here we assert the transform posts a
-    // non-null, empty entity rather than a null one.
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("");
-    when(response.getHeaders()).thenReturn(new MultivaluedHashMap<>());
+    // normalizes a null body to an empty string, so an empty entity is sent rather than none at
+    // all — without one the request would go out with no Content-Length.
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_POST);
+    meta.setUrl("http://example.com/api");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.post(any(Entity.class))).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
-
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
-
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
-
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_POST);
-      meta.setUrl("http://example.com/api");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_POST;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.useBody = false; // no body configured -> entityString is null
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("field1"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      Object[] outputRow = rest.callRest(new Object[] {"value1"});
-
-      assertNotNull(outputRow);
-      ArgumentCaptor<Entity> entityCaptor = ArgumentCaptor.forClass(Entity.class);
-      verify(builder, times(1)).post(entityCaptor.capture());
-      assertEquals("", entityCaptor.getValue().getEntity());
-    }
-  }
-
-  @Test
-  void testAppendMatrixAndQueryParamsBakesParamsIntoUrl() throws HopException {
-    // Issue #7621: the REST-connection path builds its target inside RestConnection, so the
-    // transform bakes the configured matrix/query parameters into the URL to stay equivalent to the
-    // standalone path. This verifies both parameter kinds end up on the resulting URL.
     RestData data = new RestData();
-    data.useParams = true;
-    data.nrParams = 2;
-    data.paramNames = new String[] {"q", "lang"};
-    data.indexOfParamFields = new int[] {0, 1};
-    data.useMatrixParams = true;
-    data.nrMatrixParams = 1;
-    data.matrixParamNames = new String[] {"author"};
-    data.indexOfMatrixParamFields = new int[] {2};
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_POST;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useBody = false; // no body configured -> entity is null
+    data.inputRowMeta = rowMeta("field1");
 
-    IRowMeta inputRowMeta = new RowMeta();
-    inputRowMeta.addValueMeta(new ValueMetaString("qField"));
-    inputRowMeta.addValueMeta(new ValueMetaString("langField"));
-    inputRowMeta.addValueMeta(new ValueMetaString("authorField"));
-    data.inputRowMeta = inputRowMeta;
+    Rest rest = transform(meta, data, json(200, "{}"));
 
-    TransformMeta transformMeta = new TransformMeta();
-    transformMeta.setName("TestRest");
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setName("TestRest");
-    pipelineMeta.addTransform(transformMeta);
+    Object[] outputRow = rest.callRest(new Object[] {"value1"});
 
-    Rest rest =
-        new Rest(transformMeta, new RestMeta(), data, 0, pipelineMeta, new LocalPipelineEngine());
-
-    Object[] row = new Object[] {"search", "en", "shakespeare"};
-    String url = rest.appendMatrixAndQueryParams("http://example.com/api", row);
-
-    assertTrue(url.contains("q=search"), url);
-    assertTrue(url.contains("lang=en"), url);
-    assertTrue(url.contains("author=shakespeare"), url);
-  }
-
-  @Test
-  void testAppendMatrixAndQueryParamsNoParamsReturnsUrlUnchanged() throws HopException {
-    RestData data = new RestData();
-    data.useParams = false;
-    data.useMatrixParams = false;
-
-    TransformMeta transformMeta = new TransformMeta();
-    transformMeta.setName("TestRest");
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setName("TestRest");
-    pipelineMeta.addTransform(transformMeta);
-
-    Rest rest =
-        new Rest(transformMeta, new RestMeta(), data, 0, pipelineMeta, new LocalPipelineEngine());
-
-    String url = "http://example.com/api?existing=1";
-    assertEquals(url, rest.appendMatrixAndQueryParams(url, new Object[] {}));
+    assertNotNull(outputRow);
+    assertNotNull(FakeHttpClient.captured().getEntity());
+    assertEquals(0, FakeHttpClient.captured().getEntity().getContentLength());
+    assertEquals("", requestBody());
   }
 
   @Test
   void testCallRestWithPutMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("{\"updated\":true}");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_PUT);
+    meta.setUrl("http://example.com/api/1");
+    meta.setBodyField("body");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.put(any(Entity.class))).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_PUT;
+    data.realUrl = "http://example.com/api/1";
+    data.resultFieldName = "result";
+    data.useBody = true;
+    data.indexOfBodyField = 0;
+    data.inputRowMeta = rowMeta("body");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+    Rest rest = transform(meta, data, json(200, "{\"updated\":true}"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"{\"field\":\"value\"}"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_PUT);
-      meta.setUrl("http://example.com/api");
-      meta.setBodyField("body");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_PUT;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.useBody = true;
-      data.indexOfBodyField = 0;
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("body"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"{\"name\":\"updated\"}"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("{\"updated\":true}", outputRow[1]);
-      verify(builder, times(1)).put(any(Entity.class));
-    }
+    assertNotNull(outputRow);
+    assertEquals("{\"updated\":true}", outputRow[1]);
+    assertEquals("PUT", FakeHttpClient.captured().getMethod());
+    assertEquals("{\"field\":\"value\"}", requestBody());
   }
 
   @Test
   void testCallRestWithDeleteMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(204);
-    when(response.readEntity(String.class)).thenReturn("");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_DELETE);
+    meta.setUrl("http://example.com/api/123");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
+    meta.getResultField().setCode("statusCode");
 
-    Invocation invocation = mock(Invocation.class);
-    when(invocation.invoke()).thenReturn(response);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_DELETE;
+    data.realUrl = "http://example.com/api/123";
+    data.resultFieldName = "result";
+    data.resultCodeFieldName = "statusCode";
+    data.inputRowMeta = rowMeta("id");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.build(eq("DELETE"), any(Entity.class))).thenReturn(invocation);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    Rest rest = transform(meta, data, json(204, ""));
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api/123"));
+    Object[] outputRow = rest.callRest(new Object[] {"123"});
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
-
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_DELETE);
-      meta.setUrl("http://example.com/api/123");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-      meta.getResultField().setCode("statusCode");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_DELETE;
-      data.realUrl = "http://example.com/api/123";
-      data.resultFieldName = "result";
-      data.resultCodeFieldName = "statusCode";
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("id"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"123"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals(204L, outputRow[2]); // status code
-      verify(builder, times(1)).build(eq("DELETE"), any(Entity.class));
-    }
+    assertNotNull(outputRow);
+    assertEquals(204L, outputRow[2]);
+    assertEquals("DELETE", FakeHttpClient.captured().getMethod());
   }
 
   @Test
   void testCallRestWithHeadMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.add("Content-Length", "1234");
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_HEAD);
+    meta.setUrl("http://example.com/api");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setCode("statusCode");
+    meta.getResultField().setResponseHeader("headers");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.head()).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_HEAD;
+    data.realUrl = "http://example.com/api";
+    data.resultCodeFieldName = "statusCode";
+    data.resultHeaderFieldName = "headers";
+    data.inputRowMeta = rowMeta();
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+    Rest rest = transform(meta, data, json(200, ""));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_HEAD);
-      meta.setUrl("http://example.com/api");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setCode("statusCode");
-      meta.getResultField().setResponseHeader("headers");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_HEAD;
-      data.realUrl = "http://example.com/api";
-      data.resultCodeFieldName = "statusCode";
-      data.resultHeaderFieldName = "headers";
-
-      IRowMeta inputRowMeta = new RowMeta();
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals(200L, outputRow[0]); // status code
-      verify(builder, times(1)).head();
-    }
+    assertNotNull(outputRow);
+    assertEquals(200L, outputRow[0]);
+    assertEquals("HEAD", FakeHttpClient.captured().getMethod());
   }
 
   @Test
   void testCallRestWithOptionsMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.add("Allow", "GET, POST, PUT, DELETE");
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_OPTIONS);
+    meta.setUrl("http://example.com/api");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setResponseHeader("allowedMethods");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.options()).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_OPTIONS;
+    data.realUrl = "http://example.com/api";
+    data.resultHeaderFieldName = "allowedMethods";
+    data.inputRowMeta = rowMeta();
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+    Rest rest =
+        transform(meta, data, FakeHttpClient.returning(200, "", Map.of("Allow", "GET,PUT")));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_OPTIONS);
-      meta.setUrl("http://example.com/api");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setResponseHeader("allowedMethods");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_OPTIONS;
-      data.realUrl = "http://example.com/api";
-      data.resultHeaderFieldName = "allowedMethods";
-
-      IRowMeta inputRowMeta = new RowMeta();
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      verify(builder, times(1)).options();
-    }
+    assertNotNull(outputRow);
+    assertEquals("OPTIONS", FakeHttpClient.captured().getMethod());
+    assertTrue(String.valueOf(outputRow[0]).contains("Allow"));
   }
 
   @Test
   void testCallRestWithPatchMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("{\"patched\":true}");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_PATCH);
+    meta.setUrl("http://example.com/api");
+    meta.setBodyField("body");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.method(eq(RestMeta.HTTP_METHOD_PATCH), any(Entity.class))).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_PATCH;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useBody = true;
+    data.indexOfBodyField = 0;
+    data.inputRowMeta = rowMeta("body");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+    Rest rest = transform(meta, data, json(200, "{\"patched\":true}"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"{\"field\":\"value\"}"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_PATCH);
-      meta.setUrl("http://example.com/api");
-      meta.setBodyField("body");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_PATCH;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.useBody = true;
-      data.indexOfBodyField = 0;
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("body"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"{\"field\":\"value\"}"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("{\"patched\":true}", outputRow[1]);
-      verify(builder, times(1)).method(eq(RestMeta.HTTP_METHOD_PATCH), any(Entity.class));
-    }
+    assertNotNull(outputRow);
+    assertEquals("{\"patched\":true}", outputRow[1]);
+    assertEquals(RestMeta.HTTP_METHOD_PATCH, FakeHttpClient.captured().getMethod());
+    assertEquals("{\"field\":\"value\"}", requestBody());
   }
 
   @Test
   void testCallRestWithQueryParameters() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("[{\"id\":1},{\"id\":2}]");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrl("http://example.com/api");
+    List<ParameterField> params = new ArrayList<>();
+    params.add(new ParameterField("searchField", "search"));
+    params.add(new ParameterField("limitField", "limit"));
+    meta.setParameterFields(params);
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.get(Response.class)).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useParams = true;
+    data.nrParams = 2;
+    data.paramNames = new String[] {"search", "limit"};
+    data.indexOfParamFields = new int[] {0, 1};
+    data.inputRowMeta = rowMeta("searchField", "limitField");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api?search=test&limit=10"));
+    Rest rest = transform(meta, data, json(200, "[{\"id\":1},{\"id\":2}]"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"test", "10"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_GET);
-      meta.setUrl("http://example.com/api");
-      List<ParameterField> params = new ArrayList<>();
-      params.add(new ParameterField("searchField", "search"));
-      params.add(new ParameterField("limitField", "limit"));
-      meta.setParameterFields(params);
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_GET;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.useParams = true;
-      data.nrParams = 2;
-      data.paramNames = new String[] {"search", "limit"};
-      data.indexOfParamFields = new int[] {0, 1};
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("searchField"));
-      inputRowMeta.addValueMeta(new ValueMetaString("limitField"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"test", "10"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("[{\"id\":1},{\"id\":2}]", outputRow[2]);
-      verify(webTarget, times(2)).queryParam(anyString(), any());
-    }
+    assertNotNull(outputRow);
+    assertEquals("[{\"id\":1},{\"id\":2}]", outputRow[2]);
+    assertEquals("http://example.com/api?search=test&limit=10", uri());
   }
 
   @Test
   void testCallRestWithHeaders() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("{\"authenticated\":true}");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrl("http://example.com/api");
+    List<HeaderField> headerFields = new ArrayList<>();
+    headerFields.add(new HeaderField("authField", "Authorization"));
+    headerFields.add(new HeaderField("typeField", "Content-Type"));
+    meta.setHeaderFields(headerFields);
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.get(Response.class)).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useHeaders = true;
+    data.nrheader = 2;
+    data.headerNames = new String[] {"Authorization", "Content-Type"};
+    data.indexOfHeaderFields = new int[] {0, 1};
+    data.inputRowMeta = rowMeta("authField", "typeField");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+    Rest rest = transform(meta, data, json(200, "{\"authenticated\":true}"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"Bearer token123", "application/json"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_GET);
-      meta.setUrl("http://example.com/api");
-      List<HeaderField> headerFields = new ArrayList<>();
-      headerFields.add(new HeaderField("authField", "Authorization"));
-      headerFields.add(new HeaderField("typeField", "Content-Type"));
-      meta.setHeaderFields(headerFields);
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_GET;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.useHeaders = true;
-      data.nrheader = 2;
-      data.headerNames = new String[] {"Authorization", "Content-Type"};
-      data.indexOfHeaderFields = new int[] {0, 1};
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("authField"));
-      inputRowMeta.addValueMeta(new ValueMetaString("typeField"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"Bearer token123", "application/json"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("{\"authenticated\":true}", outputRow[2]);
-      verify(builder).headers(any());
-    }
+    assertNotNull(outputRow);
+    assertEquals("{\"authenticated\":true}", outputRow[2]);
+    ClassicHttpRequest request = FakeHttpClient.captured();
+    assertEquals("Bearer token123", request.getFirstHeader("Authorization").getValue());
+    assertEquals("application/json", request.getFirstHeader("Content-Type").getValue());
   }
 
   @Test
   void testCallRestWithMatrixParameters() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("[{\"book\":\"title\"}]");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrl("http://example.com/api");
+    List<MatrixParameterField> matrixParams = new ArrayList<>();
+    matrixParams.add(new MatrixParameterField("authorField", "author"));
+    matrixParams.add(new MatrixParameterField("yearField", "year"));
+    meta.setMatrixParameterFields(matrixParams);
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.get(Response.class)).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.useMatrixParams = true;
+    data.nrMatrixParams = 2;
+    data.matrixParamNames = new String[] {"author", "year"};
+    data.indexOfMatrixParamFields = new int[] {0, 1};
+    data.inputRowMeta = rowMeta("authorField", "yearField");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
-    when(webTarget.getUriBuilder()).thenReturn(UriBuilder.fromUri("http://example.com/api"));
+    Rest rest = transform(meta, data, json(200, "[{\"book\":\"title\"}]"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
-    when(client.target(any(URI.class))).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"John Doe", "2023"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
+    assertNotNull(outputRow);
+    assertEquals("[{\"book\":\"title\"}]", outputRow[2]);
+    // Matrix parameters attach to the last path segment. The space is percent-encoded rather than
+    // form-encoded: a '+' in a path is a literal plus, not a space.
+    assertEquals("http://example.com/api;author=John%20Doe;year=2023", uri());
+  }
 
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
+  @Test
+  void testCallRestWithMatrixParametersBeforeQueryString() throws HopException {
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrl("http://example.com/api?page=1");
+    List<MatrixParameterField> matrixParams = new ArrayList<>();
+    matrixParams.add(new MatrixParameterField("authorField", "author"));
+    meta.setMatrixParameterFields(matrixParams);
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.realUrl = "http://example.com/api?page=1";
+    data.resultFieldName = "result";
+    data.useMatrixParams = true;
+    data.nrMatrixParams = 1;
+    data.matrixParamNames = new String[] {"author"};
+    data.indexOfMatrixParamFields = new int[] {0};
+    data.inputRowMeta = rowMeta("authorField");
 
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_GET);
-      meta.setUrl("http://example.com/api");
-      List<MatrixParameterField> matrixParams = new ArrayList<>();
-      matrixParams.add(new MatrixParameterField("authorField", "author"));
-      matrixParams.add(new MatrixParameterField("yearField", "year"));
-      meta.setMatrixParameterFields(matrixParams);
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
+    Rest rest = transform(meta, data, json(200, "[]"));
 
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_GET;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.useMatrixParams = true;
-      data.nrMatrixParams = 2;
-      data.matrixParamNames = new String[] {"author", "year"};
-      data.indexOfMatrixParamFields = new int[] {0, 1};
+    rest.callRest(new Object[] {"orwell"});
 
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("authorField"));
-      inputRowMeta.addValueMeta(new ValueMetaString("yearField"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"John Doe", "2023"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("[{\"book\":\"title\"}]", outputRow[2]);
-    }
+    assertEquals("http://example.com/api;author=orwell?page=1", uri());
   }
 
   @Test
   void testCallRestWithDynamicUrl() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(200);
-    when(response.readEntity(String.class)).thenReturn("{\"dynamic\":true}");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setMethod(RestMeta.HTTP_METHOD_GET);
+    meta.setUrlInField(true);
+    meta.setUrlField("urlField");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.get(Response.class)).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = RestMeta.HTTP_METHOD_GET;
+    data.resultFieldName = "result";
+    data.indexOfUrlField = 0;
+    data.inputRowMeta = rowMeta("urlField");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://dynamic-url.com/api/resource"));
+    Rest rest = transform(meta, data, json(200, "{\"dynamic\":true}"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"http://dynamic-url.com/api/resource"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setMethod(RestMeta.HTTP_METHOD_GET);
-      meta.setUrlInField(true);
-      meta.setUrlField("urlField");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.method = RestMeta.HTTP_METHOD_GET;
-      data.resultFieldName = "result";
-      data.indexOfUrlField = 0;
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("urlField"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-      when(rest.createClientBuilder()).thenReturn(clientBuilder);
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"http://dynamic-url.com/api/resource"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("{\"dynamic\":true}", outputRow[1]);
-    }
+    assertNotNull(outputRow);
+    assertEquals("{\"dynamic\":true}", outputRow[1]);
+    assertEquals("http://dynamic-url.com/api/resource", uri());
   }
 
   @Test
   void testCallRestWithDynamicMethod() throws HopException {
-    // Setup mocks
-    Response response = mock(Response.class);
-    when(response.getStatus()).thenReturn(201);
-    when(response.readEntity(String.class)).thenReturn("{\"created\":true}");
-    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    when(response.getHeaders()).thenReturn(headers);
+    RestMeta meta = new RestMeta();
+    meta.setDynamicMethod(true);
+    meta.setMethodFieldName("methodField");
+    meta.setUrl("http://example.com/api");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
 
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(builder.post(any(Entity.class))).thenReturn(response);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(builder.accept((MediaType[]) any())).thenReturn(builder);
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.indexOfMethod = 0;
+    data.inputRowMeta = rowMeta("methodField");
 
-    WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
+    Rest rest = transform(meta, data, json(200, "{\"created\":true}"));
 
-    Client client = mock(Client.class);
-    when(client.target(anyString())).thenReturn(webTarget);
+    Object[] outputRow = rest.callRest(new Object[] {"POST"});
 
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
-    when(clientBuilder.build()).thenReturn(client);
-
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
-
-      // Setup transform
-      TransformMeta transformMeta = new TransformMeta();
-      transformMeta.setName("TestRest");
-      PipelineMeta pipelineMeta = new PipelineMeta();
-      pipelineMeta.setName("TestRest");
-      pipelineMeta.addTransform(transformMeta);
-
-      RestMeta meta = new RestMeta();
-      meta.setDynamicMethod(true);
-      meta.setMethodFieldName("methodField");
-      meta.setUrl("http://example.com/api");
-      meta.setResultField(new ResultField());
-      meta.getResultField().setFieldName("result");
-
-      RestData data = new RestData();
-      data.config = new ClientConfig();
-      data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      data.realUrl = "http://example.com/api";
-      data.resultFieldName = "result";
-      data.indexOfMethod = 0;
-
-      IRowMeta inputRowMeta = new RowMeta();
-      inputRowMeta.addValueMeta(new ValueMetaString("methodField"));
-      data.inputRowMeta = inputRowMeta;
-
-      Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
-      rest.setMetadataProvider(mock(IHopMetadataProvider.class));
-
-      // Execute
-      Object[] inputRow = new Object[] {"POST"};
-      Object[] outputRow = rest.callRest(inputRow);
-
-      // Verify
-      assertNotNull(outputRow);
-      assertEquals("{\"created\":true}", outputRow[1]);
-    }
+    assertNotNull(outputRow);
+    assertEquals("{\"created\":true}", outputRow[1]);
+    assertEquals("POST", FakeHttpClient.captured().getMethod());
   }
 
   @Test
-  void testCallRestWithUnknownMethod() throws Exception {
-    // Setup transform
+  void testCallRestWithNonStandardMethodIsSentVerbatim() throws HopException {
+    // Issue #4770: the verb is a token the server defines, not one of a fixed list, so whatever is
+    // configured goes on the request line unchanged.
+    RestMeta meta = new RestMeta();
+    meta.setMethod("PURGE");
+    meta.setUrl("http://example.com/api");
+    meta.setResultField(new ResultField());
+    meta.getResultField().setFieldName("result");
+
+    RestData data = new RestData();
+    data.mediaType = ContentType.APPLICATION_JSON;
+    data.method = "PURGE";
+    data.realUrl = "http://example.com/api";
+    data.resultFieldName = "result";
+    data.inputRowMeta = rowMeta();
+
+    Rest rest = transform(meta, data, json(200, "{}"));
+
+    assertNotNull(rest.callRest(new Object[] {}));
+    assertEquals("PURGE", FakeHttpClient.captured().getMethod());
+  }
+
+  /** Builds the transform under test, wired to a stubbed client instead of a real one. */
+  private static Rest transform(RestMeta meta, RestData data, CloseableHttpClient client) {
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setName("TestRest");
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("TestRest");
     pipelineMeta.addTransform(transformMeta);
 
-    RestMeta meta = new RestMeta();
-    meta.setUrl("http://example.com/api");
-    meta.setResultField(new ResultField());
+    data.client = client;
 
-    RestData data = new RestData();
-    data.config = new ClientConfig();
-    data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-    data.method = "INVALID_METHOD";
-    data.realUrl = "http://example.com/api";
-
-    IRowMeta inputRowMeta = new RowMeta();
-    data.inputRowMeta = inputRowMeta;
-
-    // ensure the clientBuilder variable is defined before stubbing in this test
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
-    Rest rest =
-        spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
-    when(rest.createClientBuilder()).thenReturn(clientBuilder);
+    Rest rest = new Rest(transformMeta, meta, data, 0, pipelineMeta, new LocalPipelineEngine());
     rest.setMetadataProvider(mock(IHopMetadataProvider.class));
+    return rest;
+  }
 
-    // This should throw an exception for unknown method
-    // We'll need to mock the client builder even for the error case
-    when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
-    when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
-    when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
-    when(clientBuilder.sslContext(any())).thenReturn(clientBuilder);
+  private static CloseableHttpClient json(int status, String body) {
+    return FakeHttpClient.returning(status, body, Map.of("Content-Type", "application/json"));
+  }
 
-    Client client = mock(Client.class);
-    WebTarget webTarget = mock(WebTarget.class);
-    when(client.target(anyString())).thenReturn(webTarget);
-    when(webTarget.getUri()).thenReturn(URI.create("http://example.com/api"));
-    Invocation.Builder builder = mock(Invocation.Builder.class);
-    when(webTarget.request()).thenReturn(builder);
-    when(builder.header(anyString(), any())).thenReturn(builder);
-    when(clientBuilder.build()).thenReturn(client);
+  private static IRowMeta rowMeta(String... fieldNames) {
+    IRowMeta rowMeta = new RowMeta();
+    for (String fieldName : fieldNames) {
+      rowMeta.addValueMeta(new ValueMetaString(fieldName));
+    }
+    return rowMeta;
+  }
 
-    try (MockedStatic<ClientBuilder> mockedStatic = Mockito.mockStatic(ClientBuilder.class)) {
-      mockedStatic.when(ClientBuilder::newBuilder).thenReturn(clientBuilder);
+  /** The URL the captured request was actually sent to. */
+  private static String uri() {
+    try {
+      return FakeHttpClient.captured().getUri().toString();
+    } catch (Exception e) {
+      throw new IllegalStateException("The captured request has no usable URI", e);
+    }
+  }
 
-      // Execute and expect exception
-      Object[] inputRow = new Object[] {};
-      assertThrows(HopException.class, () -> rest.callRest(inputRow));
+  private static String requestBody() {
+    try {
+      return EntityUtils.toString(FakeHttpClient.captured().getEntity(), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to read the captured request body", e);
     }
   }
 }

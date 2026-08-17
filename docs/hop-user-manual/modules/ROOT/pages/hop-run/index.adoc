@@ -86,6 +86,7 @@ The available options are listed in more detail in the table below:
 |```-e```
 |```--environment```
 |The name of the environment to use.
+The project name is taken from that environment, so you do not need `-j` as well.
 
 Check the xref:projects/projects-environments.adoc[documentation on environments] for more details.
 
@@ -109,7 +110,8 @@ Strict by default — when omitted, Hop Run refuses to start such a run and prin
 
 |```-j```
 |```--project```
-|The name of the project to use when running a pipeline or workflow
+|The name of the project to use when running a pipeline or workflow.
+Not needed when `-e` is set.
 
 |```-l```
 |```--level```

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -49,6 +50,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.NoneDatabaseMeta;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.plugins.IPlugin;
@@ -64,6 +66,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.imp.HopImportBase;
 import org.apache.hop.imp.IHopImport;
 import org.apache.hop.imp.ImportPlugin;
+import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,6 +81,30 @@ import org.w3c.dom.NodeList;
 public class KettleImport extends HopImportBase implements IHopImport {
   private static final Class<?> PKG = KettleImport.class;
   public static final String CONST_SERVERNAME = "servername";
+  public static final String CONST_PASSWORD = "password";
+  private static final String SFTP_PUT_TYPE = "SFTPPut";
+  private static final String SFTP_CONNECTION_METADATA_KEY = "sftp-connection";
+
+  /** The elements of a Kettle SFTPPut step which describe the server, not the upload itself. */
+  private static final List<String> SFTP_CONNECTION_TAGS =
+      List.of(
+          CONST_SERVERNAME,
+          "serverport",
+          "username",
+          CONST_PASSWORD,
+          "usekeyfilename",
+          "keyfilename",
+          "keyfilepass",
+          "compression",
+          "proxyType",
+          "proxyHost",
+          "proxyPort",
+          "proxyUsername",
+          "proxyPassword");
+
+  /** The SFTP connections created during this import, by the step settings they came from. */
+  private final Map<String, String> sftpConnectionNames = new HashMap<>();
+
   public static final String CONST_TABLESPACE = "tablespace";
   public static final String CONST_DATA_TABLESPACE = "data_tablespace";
   public static final String CONST_INDEX_TABLESPACE = "index_tablespace";
@@ -511,6 +538,170 @@ public class KettleImport extends HopImportBase implements IHopImport {
     doc.renameNode(element, null, newElementName);
   }
 
+  /**
+   * The Kettle SFTPPut step keeps the server and its credentials in the step itself. Hop keeps them
+   * in an SFTP connection in the metadata, so that the same server can be reached from every
+   * transform and action. Move the settings of this step into such a connection and point the step
+   * at it.
+   */
+  private void migrateSftpPutStep(Document doc, Node stepNode) {
+    Map<String, String> settings = new LinkedHashMap<>();
+    for (String tag : SFTP_CONNECTION_TAGS) {
+      settings.put(tag, Const.NVL(XmlHandler.getTagValue(stepNode, tag), ""));
+    }
+
+    String transformName = Const.NVL(XmlHandler.getTagValue(stepNode, "name"), "SFTP Put");
+    String connectionName = createSftpConnection(settings, transformName);
+
+    for (String tag : SFTP_CONNECTION_TAGS) {
+      removeChildElement(stepNode, tag);
+    }
+
+    // Very old files stored "delete the file after the upload" in a separate <remove> element.
+    //
+    Element removeElement = getChildElement(stepNode, "remove");
+    if (removeElement != null) {
+      if ("Y".equalsIgnoreCase(removeElement.getTextContent())
+          && StringUtils.isEmpty(XmlHandler.getTagValue(stepNode, "aftersftpput"))) {
+        setChildElement(doc, stepNode, "aftersftpput", "delete");
+      }
+      removeChildElement(stepNode, "remove");
+    }
+
+    // Kettle's typo, fixed in Hop.
+    //
+    Element addFilenameElement = getChildElement(stepNode, "addFilenameResut");
+    if (addFilenameElement != null) {
+      renameNode(doc, addFilenameElement, "addFilenameToResult");
+    }
+
+    setChildElement(doc, stepNode, "connection", connectionName);
+  }
+
+  /**
+   * Create an SFTP connection in the metadata for the given step settings, or return the name of
+   * the one created earlier for the very same settings: a transformation with five steps talking to
+   * the same server ends up with one connection, not five.
+   *
+   * @return the name of the connection to point the step at
+   */
+  private String createSftpConnection(Map<String, String> settings, String transformName) {
+    String signature = settings.toString();
+    String existingName = sftpConnectionNames.get(signature);
+    if (existingName != null) {
+      return existingName;
+    }
+
+    String name = uniqueSftpConnectionName(settings.get(CONST_SERVERNAME), transformName);
+    sftpConnectionNames.put(signature, name);
+
+    try {
+      Class<IHopMetadata> connectionClass =
+          metadataProvider.getMetadataClassForKey(SFTP_CONNECTION_METADATA_KEY);
+      IHopMetadata connection = connectionClass.getDeclaredConstructor().newInstance();
+
+      setSftpProperty(connection, "setName", name);
+      setSftpProperty(
+          connection,
+          "setDescription",
+          "Imported from the Kettle SFTPPut step \"" + transformName + "\"");
+      setSftpProperty(connection, "setServerName", settings.get(CONST_SERVERNAME));
+      setSftpProperty(connection, "setServerPort", Const.NVL(settings.get("serverport"), "22"));
+      setSftpProperty(connection, "setUsername", settings.get("username"));
+      setSftpProperty(
+          connection,
+          "setPassword",
+          Encr.decryptPasswordOptionallyEncrypted(settings.get(CONST_PASSWORD)));
+      setSftpProperty(connection, "setKeyFilename", settings.get("keyfilename"));
+      setSftpProperty(
+          connection,
+          "setKeyPassphrase",
+          Encr.decryptPasswordOptionallyEncrypted(settings.get("keyfilepass")));
+      setSftpProperty(connection, "setCompression", Const.NVL(settings.get("compression"), "none"));
+      setSftpProperty(connection, "setProxyType", settings.get("proxyType"));
+      setSftpProperty(connection, "setProxyHost", settings.get("proxyHost"));
+      setSftpProperty(connection, "setProxyPort", settings.get("proxyPort"));
+      setSftpProperty(connection, "setProxyUsername", settings.get("proxyUsername"));
+      setSftpProperty(
+          connection,
+          "setProxyPassword",
+          Encr.decryptPasswordOptionallyEncrypted(settings.get("proxyPassword")));
+      connectionClass
+          .getMethod("setUseKeyFile", boolean.class)
+          .invoke(connection, "Y".equalsIgnoreCase(settings.get("usekeyfilename")));
+
+      metadataProvider.getSerializer(connectionClass).save(connection);
+      log.logBasic("Created SFTP connection '" + name + "' for step '" + transformName + "'");
+    } catch (Exception e) {
+      // Without the SFTP plugin there's no connection to create. The step is still pointed at the
+      // name we picked, so all that's left for the user to do is to create it.
+      //
+      log.logError(
+          "Unable to create SFTP connection '"
+              + name
+              + "' for step '"
+              + transformName
+              + "'. Please create it by hand in the metadata.",
+          e);
+    }
+    return name;
+  }
+
+  /**
+   * The name of an SFTP connection doubles as a VFS scheme, so it can only hold the characters a
+   * URI scheme allows.
+   */
+  private String uniqueSftpConnectionName(String serverName, String transformName) {
+    String base = StringUtils.isEmpty(serverName) ? transformName : serverName;
+    String cleaned = base.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-+|-+$)", "");
+    String name = "sftp-" + (StringUtils.isEmpty(cleaned) ? "connection" : cleaned);
+    String uniqueName = name;
+    int copy = 2;
+    while (sftpConnectionNames.containsValue(uniqueName)) {
+      uniqueName = name + "-" + copy++;
+    }
+    return uniqueName;
+  }
+
+  private void setSftpProperty(IHopMetadata connection, String setter, String value)
+      throws HopException {
+    try {
+      connection
+          .getClass()
+          .getMethod(setter, String.class)
+          .invoke(connection, Const.NVL(value, ""));
+    } catch (Exception e) {
+      throw new HopException("Unable to set " + setter + " on an SFTP connection", e);
+    }
+  }
+
+  private Element getChildElement(Node parent, String name) {
+    NodeList children = parent.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node child = children.item(i);
+      if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(name)) {
+        return (Element) child;
+      }
+    }
+    return null;
+  }
+
+  private void removeChildElement(Node parent, String name) {
+    Element child = getChildElement(parent, name);
+    if (child != null) {
+      parent.removeChild(child);
+    }
+  }
+
+  private void setChildElement(Document doc, Node parent, String name, String value) {
+    Element child = getChildElement(parent, name);
+    if (child == null) {
+      child = doc.createElement(name);
+      parent.appendChild(child);
+    }
+    child.setTextContent(value);
+  }
+
   private void processNode(Document doc, Node node, EntryType entryType, int depth) {
     Node nodeToProcess = node;
     NodeList nodeList = nodeToProcess.getChildNodes();
@@ -578,10 +769,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
         if (currentNode.getNodeName().equals("step")) {
           entryType = EntryType.OTHER;
+          boolean sftpPutStep = false;
           NodeList currentNodeChildNodes = currentNode.getChildNodes();
           for (int i1 = 0; i1 < currentNodeChildNodes.getLength(); i1++) {
             Node childNode = currentNodeChildNodes.item(i1);
             if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals(SFTP_PUT_TYPE)) {
+                sftpPutStep = true;
+              }
               if (childNode.getNodeName().equals("type")
                   && childNode.getChildNodes().item(0).getNodeValue().equals("Formula")) {
                 entryType = EntryType.FORMULA;
@@ -603,6 +799,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 entryType = EntryType.METAINJECT;
               }
             }
+          }
+          if (sftpPutStep) {
+            migrateSftpPutStep(doc, currentNode);
           }
         }
 

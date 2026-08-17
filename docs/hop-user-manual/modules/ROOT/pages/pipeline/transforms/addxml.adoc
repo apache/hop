@@ -67,7 +67,8 @@ The table below describes each of the available properties for a field.
 |Fieldname|Name of the field
 |Element name|The name of the element in the XML file to use
 |Type|Type of the field can be either String, Date, or Number
-|Format|Select the date or number format to apply to the values in the field
+|Format|Select the date or number format to apply to the values in the field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|Output string is padded to this length if it is specified
 |Precision|The number of decimal places used to display floating point numbers.
 |Currency|Symbol used to represent currencies like $10,000.00 or E5.000,00

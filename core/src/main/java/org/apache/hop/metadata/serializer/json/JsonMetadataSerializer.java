@@ -303,4 +303,64 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     }
     return HopVfs.fileExists(calculateFilename(name));
   }
+
+  /**
+   * Stream-parse the JSON file and extract only the top-level {@code virtualPath} field without
+   * constructing the managed metadata type. Used by the metadata perspective tree refresh so large
+   * projects do not fully deserialize every object (issue #7791).
+   */
+  @Override
+  public String readVirtualPath(String name) throws HopException {
+    if (name == null) {
+      throw new HopException("Error: you need to specify the name of the metadata object to load");
+    }
+    validateBaseFolder(false);
+    if (!baseFolderExists || !exists(name)) {
+      throw new HopException("Object '" + name + "' does not exist");
+    }
+
+    String filename = calculateFilename(name);
+    try (InputStream fileInputStream = HopVfs.getInputStream(filename)) {
+      JsonFactory jsonFactory = new JsonFactory();
+      try (com.fasterxml.jackson.core.JsonParser jsonParser =
+          jsonFactory.createParser(fileInputStream)) {
+        if (jsonParser.nextToken() != com.fasterxml.jackson.core.JsonToken.START_OBJECT) {
+          throw new HopException("Expected a JSON object in file '" + filename + "'");
+        }
+        while (jsonParser.nextToken() != com.fasterxml.jackson.core.JsonToken.END_OBJECT
+            && jsonParser.currentToken() != null) {
+          if (jsonParser.currentToken() != com.fasterxml.jackson.core.JsonToken.FIELD_NAME) {
+            continue;
+          }
+          String fieldName = jsonParser.currentName();
+          jsonParser.nextToken(); // move to value
+          if ("virtualPath".equals(fieldName)) {
+            if (jsonParser.currentToken() == com.fasterxml.jackson.core.JsonToken.VALUE_NULL) {
+              return "";
+            }
+            if (jsonParser.currentToken() == com.fasterxml.jackson.core.JsonToken.VALUE_STRING) {
+              return Const.NVL(jsonParser.getText(), "");
+            }
+            // Unexpected type for virtualPath — treat as empty rather than failing the tree.
+            jsonParser.skipChildren();
+            return "";
+          }
+          // Skip nested objects/arrays for other fields; scalars are no-ops for skipChildren.
+          jsonParser.skipChildren();
+        }
+        // Field absent: same as HopMetadataBase default.
+        return "";
+      }
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(
+          "Error reading virtualPath of metadata object '"
+              + name
+              + "' from file '"
+              + filename
+              + "'",
+          e);
+    }
+  }
 }

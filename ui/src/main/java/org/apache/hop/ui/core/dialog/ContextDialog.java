@@ -50,11 +50,18 @@ import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
+import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -72,6 +79,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
@@ -117,6 +125,34 @@ public class ContextDialog extends Dialog {
   private boolean shiftClicked;
   private boolean ctrlClicked;
   private boolean focusLost;
+
+  /**
+   * True when the user started dragging a placeable Create item out of this dialog (issue #3111).
+   * On native SWT the dialog closes on drag-start and the graph continues placement; on Hop Web
+   * HTML5/SWT DnD is used and the shell is only hidden until dragFinished.
+   */
+  private boolean placementDrag;
+
+  /**
+   * True when a canvas DropTarget already created the transform/action (Hop Web DnD path). Prevents
+   * GuiContextUtil from starting a second placement gesture.
+   */
+  private boolean placementCompletedByDrop;
+
+  /** Item under the mouse when a potential placement drag was armed (MouseDown on Create item). */
+  private Item pressItem;
+
+  /** Display coordinates of the MouseDown that armed a potential placement drag. */
+  private org.eclipse.swt.graphics.Point pressDisplayLocation;
+
+  private Listener placementArmMoveFilter;
+  private Listener placementArmUpFilter;
+
+  /** Item currently being dragged via SWT DnD (Hop Web). */
+  private Item dndDragItem;
+
+  /** Minimum pointer movement (display px) before a press on a Create item becomes a drag. */
+  private static final int PLACEMENT_DRAG_THRESHOLD_PX = 8;
 
   /** All context items. */
   private final List<Item> items = new ArrayList<>();
@@ -415,7 +451,10 @@ public class ContextDialog extends Dialog {
     fdCanvas.top = new FormAttachment(searchComposite, 0);
     fdCanvas.bottom = new FormAttachment(wTooltipComposite, 0);
     wScrolledComposite.setLayoutData(fdCanvas);
+    // Expand + min size is the reliable ScrolledComposite/RAP pattern; content height is
+    // measured in onPaint and applied via setMinHeight / updateVerticalBar.
     wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
     itemsFont = GuiResource.getInstance().getFontDefault();
 
@@ -502,9 +541,14 @@ public class ContextDialog extends Dialog {
 
     wCanvas.addListener(SWT.KeyDown, this::onKeyPressed);
     wCanvas.addListener(SWT.Paint, this::onPaint);
+    wCanvas.addListener(SWT.MouseDown, this::onMouseDown);
     wCanvas.addListener(SWT.MouseUp, this::onMouseUp);
     if (!EnvironmentUtils.getInstance().isWeb()) {
       wCanvas.addListener(SWT.MouseMove, this::onMouseMove);
+    } else {
+      // Hop Web: RAP does not deliver reliable mouse-move-while-pressed for Display filters.
+      // Use HTML5-backed SWT DnD so the user can drag a create item onto the graph canvas.
+      installWebPlacementDragSource();
     }
 
     // OS Specific listeners...
@@ -651,6 +695,11 @@ public class ContextDialog extends Dialog {
   }
 
   public void dispose() {
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
+
+    removePlacementArmFilters();
 
     // Store the toolbar settings
     storeDialogSettings();
@@ -663,8 +712,12 @@ public class ContextDialog extends Dialog {
     // There's no need to keep re-loading all the time.
     // Previously this cache was not functional so that we needed to dispose here.
 
-    highlightColor.dispose();
-    headerFont.dispose();
+    if (highlightColor != null && !highlightColor.isDisposed()) {
+      highlightColor.dispose();
+    }
+    if (headerFont != null && !headerFont.isDisposed()) {
+      headerFont.dispose();
+    }
   }
 
   @GuiToolbarElement(
@@ -744,7 +797,38 @@ public class ContextDialog extends Dialog {
     }
   }
 
+  private void onMouseDown(Event event) {
+    if (event.button != 1 || placementDrag) {
+      return;
+    }
+    AreaOwner areaOwner = AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
+    if (areaOwner == null || areaOwner.getParent() != OwnerType.ITEM) {
+      return;
+    }
+    Item item = (Item) areaOwner.getOwner();
+    if (item == null || !GuiActionFavorites.isPlaceableCreateAction(item.getAction())) {
+      return;
+    }
+    selectItem(item, false);
+    // Native Hop GUI: arm Display-filter placement drag. Hop Web uses SWT DnD instead (see
+    // installWebPlacementDragSource) because RAP does not deliver mouse-move-while-pressed.
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    pressItem = item;
+    pressDisplayLocation = shell.getDisplay().getCursorLocation();
+    installPlacementArmFilters();
+  }
+
   private void onMouseUp(Event event) {
+    if (placementDrag) {
+      // Drag already committed; dialog is closing or closed.
+      return;
+    }
+    removePlacementArmFilters();
+    pressItem = null;
+    pressDisplayLocation = null;
+
     AreaOwner areaOwner = AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
     if (areaOwner == null) {
       return;
@@ -794,6 +878,148 @@ public class ContextDialog extends Dialog {
       default:
         break;
     }
+  }
+
+  private void installPlacementArmFilters() {
+    removePlacementArmFilters();
+    Display display = shell.getDisplay();
+    placementArmMoveFilter =
+        event -> {
+          if (event.type != SWT.MouseMove || pressItem == null || placementDrag) {
+            return;
+          }
+          // Only commit while the primary button is still held (avoids stray move events).
+          if ((event.stateMask & SWT.BUTTON1) == 0) {
+            return;
+          }
+          if (shell.isDisposed()) {
+            removePlacementArmFilters();
+            return;
+          }
+          org.eclipse.swt.graphics.Point cursor = display.getCursorLocation();
+          int dx = cursor.x - pressDisplayLocation.x;
+          int dy = cursor.y - pressDisplayLocation.y;
+          int thresholdSq = PLACEMENT_DRAG_THRESHOLD_PX * PLACEMENT_DRAG_THRESHOLD_PX;
+          if (dx * dx + dy * dy > thresholdSq) {
+            commitPlacementDrag(pressItem);
+          }
+        };
+    placementArmUpFilter =
+        event -> {
+          if (event.type == SWT.MouseUp) {
+            // Click path: dialog MouseUp will select. Clear arm state only.
+            removePlacementArmFilters();
+            pressItem = null;
+            pressDisplayLocation = null;
+          }
+        };
+    display.addFilter(SWT.MouseMove, placementArmMoveFilter);
+    display.addFilter(SWT.MouseUp, placementArmUpFilter);
+  }
+
+  private void removePlacementArmFilters() {
+    if (shell == null || shell.isDisposed()) {
+      placementArmMoveFilter = null;
+      placementArmUpFilter = null;
+      return;
+    }
+    Display display = shell.getDisplay();
+    if (placementArmMoveFilter != null) {
+      display.removeFilter(SWT.MouseMove, placementArmMoveFilter);
+      placementArmMoveFilter = null;
+    }
+    if (placementArmUpFilter != null) {
+      display.removeFilter(SWT.MouseUp, placementArmUpFilter);
+      placementArmUpFilter = null;
+    }
+  }
+
+  private void commitPlacementDrag(Item item) {
+    if (item == null || placementDrag) {
+      return;
+    }
+    selectedAction = item.getAction();
+    placementDrag = true;
+    focusLost = false;
+    shiftClicked = false;
+    ctrlClicked = false;
+    pressItem = null;
+    pressDisplayLocation = null;
+    removePlacementArmFilters();
+    dispose();
+  }
+
+  /**
+   * Hop Web: DragSource on the icon canvas so HTML5 DnD can carry a placeable create action to the
+   * pipeline/workflow canvas DropTarget. The shell is hidden on dragStart (so the canvas is
+   * visible) but kept alive until dragFinished so the DragSource remains valid.
+   */
+  private void installWebPlacementDragSource() {
+    DragSource dragSource = new DragSource(wCanvas, DND.DROP_COPY);
+    dragSource.setTransfer(new Transfer[] {TextTransfer.getInstance()});
+    dragSource.addDragListener(
+        new DragSourceAdapter() {
+          @Override
+          public void dragStart(DragSourceEvent event) {
+            Item item = findItem(event.x, event.y);
+            if (item == null || !GuiActionFavorites.isPlaceableCreateAction(item.getAction())) {
+              event.doit = false;
+              dndDragItem = null;
+              return;
+            }
+            dndDragItem = item;
+            selectItem(item, false);
+            selectedAction = item.getAction();
+            placementDrag = true;
+            placementCompletedByDrop = false;
+            focusLost = false;
+            // Prefer the item icon as drag image; fall back to Hop logo on web if needed.
+            if (item.getImage() != null && !item.getImage().isDisposed()) {
+              event.image = item.getImage();
+            } else {
+              event.image = GuiResource.getInstance().getImageHop();
+            }
+            // Hide (do not dispose) so the graph canvas is usable while the DragSource stays alive.
+            if (shell != null && !shell.isDisposed()) {
+              shell.setVisible(false);
+            }
+            event.doit = true;
+          }
+
+          @Override
+          public void dragSetData(DragSourceEvent event) {
+            if (TextTransfer.getInstance().isSupportedType(event.dataType) && dndDragItem != null) {
+              event.data = ContextDialogPlacement.encode(dndDragItem.getAction());
+              event.doit = event.data != null;
+            }
+          }
+
+          @Override
+          public void dragFinished(DragSourceEvent event) {
+            dndDragItem = null;
+            // End the modal open() loop. If the drop already created the item,
+            // GuiContextUtil will see placementCompletedByDrop and skip a second create.
+            if (selectedAction == null && !placementCompletedByDrop) {
+              // Drag cancelled without a selection — treat as focus-lost style cancel.
+              placementDrag = false;
+            }
+            dispose();
+          }
+        });
+  }
+
+  /** Called by canvas drop targets when a web DnD drop successfully placed a transform/action. */
+  public void markPlacementCompletedByDrop() {
+    placementCompletedByDrop = true;
+    placementDrag = true;
+    focusLost = false;
+  }
+
+  /**
+   * @return true if a canvas DropTarget already handled creation for this placement gesture
+   */
+  public boolean isPlacementCompletedByDrop() {
+    return placementCompletedByDrop;
   }
 
   /**
@@ -884,6 +1110,11 @@ public class ContextDialog extends Dialog {
   }
 
   private void onResize(Event event) {
+    // Width changes reflow icons and change total content height; force a full remeasure.
+    previousTotalContentHeight = 0;
+    if (wCanvas != null && !wCanvas.isDisposed()) {
+      wCanvas.redraw();
+    }
     updateVerticalBar();
   }
 
@@ -1103,9 +1334,16 @@ public class ContextDialog extends Dialog {
 
     totalContentHeight = Math.max(area.height, y);
 
-    if (previousTotalContentHeight != totalContentHeight) {
+    // Content size is only known after paint. Resize the canvas and refresh the scrollbar here.
+    // updateVerticalBar() used to run only from filter()/resize *before* the first paint, so on
+    // Hop Web (RAP) the scroll range could stay stale and truncate the list mid-way (#7868).
+    int canvasWidth = wCanvas.getBounds().width;
+    if (previousTotalContentHeight != totalContentHeight || canvasWidth != area.width) {
       previousTotalContentHeight = totalContentHeight;
       wCanvas.setSize(area.width, totalContentHeight);
+      wScrolledComposite.setMinWidth(area.width);
+      wScrolledComposite.setMinHeight(totalContentHeight);
+      updateVerticalBar();
     }
   }
 
@@ -1228,8 +1466,20 @@ public class ContextDialog extends Dialog {
   }
 
   private void onFocusLost() {
+    // Placement drag closes the dialog intentionally; do not treat as cancel.
+    if (placementDrag || selectedAction != null) {
+      return;
+    }
     focusLost = true;
     dispose();
+  }
+
+  /**
+   * @return true if the dialog closed because the user started dragging a placeable create item
+   *     onto the canvas (issue #3111)
+   */
+  public boolean isPlacementDrag() {
+    return placementDrag;
   }
 
   private void onModifySearch() {
@@ -1414,25 +1664,35 @@ public class ContextDialog extends Dialog {
   }
 
   private void updateVerticalBar() {
+    if (wScrolledComposite == null || wScrolledComposite.isDisposed()) {
+      return;
+    }
     ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
+    if (verticalBar == null || verticalBar.isDisposed()) {
+      return;
+    }
     org.eclipse.swt.graphics.Rectangle clientArea = wScrolledComposite.getClientArea();
 
-    if (totalContentHeight < clientArea.height) {
+    // Prefer the height measured in onPaint; canvas bounds can still be the dummy 10x10 size
+    // when filter() runs before the first paint.
+    int contentHeight = totalContentHeight;
+    if (contentHeight <= 0 && wCanvas != null && !wCanvas.isDisposed()) {
+      contentHeight = wCanvas.getBounds().height;
+    }
+
+    if (contentHeight <= clientArea.height) {
       verticalBar.setEnabled(false);
       verticalBar.setVisible(false);
     } else {
       verticalBar.setEnabled(true);
       verticalBar.setVisible(true);
 
-      org.eclipse.swt.graphics.Rectangle bounds = wCanvas.getBounds();
-
       verticalBar.setMinimum(0);
-      verticalBar.setMaximum(bounds.height);
+      verticalBar.setMaximum(contentHeight);
 
-      // How much can we show in percentage?
-      // That's the size of the thumb
-      //
-      verticalBar.setThumb(Math.min(clientArea.height, bounds.height));
+      // Thumb is the visible portion of the content (pixels).
+      // Note: RAP ScrollBar has no setPageIncrement/setIncrement — do not call them here.
+      verticalBar.setThumb(Math.min(clientArea.height, contentHeight));
     }
   }
 

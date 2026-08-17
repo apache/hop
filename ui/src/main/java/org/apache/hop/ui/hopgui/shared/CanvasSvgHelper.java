@@ -37,14 +37,24 @@ public final class CanvasSvgHelper {
                   .getMethod("getId", org.eclipse.swt.widgets.Widget.class)
                   .invoke(null, canvas);
       long revision = CanvasSvgFacade.getRevision(canvasId);
-      if (revision == 0) {
-        canvas.getDisplay().asyncExec(canvas::redraw);
-      }
       Class<?> handlerClass =
           Class.forName("org.apache.hop.ui.hopgui.canvas.CanvasSvgRendererHandler");
       handlerClass
           .getMethod("notifyCanvasReady", Canvas.class, long.class)
           .invoke(null, canvas, revision);
+      // Always schedule a paint after rebinding the client to this canvas. Without this, tab
+      // switches / link navigation can leave the previous graph's SVG overlay visible until the
+      // user clicks (first paint publishes a snapshot and bumps revision).
+      if (!canvas.isDisposed()) {
+        canvas
+            .getDisplay()
+            .asyncExec(
+                () -> {
+                  if (!canvas.isDisposed()) {
+                    canvas.redraw();
+                  }
+                });
+      }
     } catch (ClassNotFoundException e) {
       // Desktop build without RAP fragment
     } catch (Exception e) {

@@ -308,6 +308,8 @@ public class ScriptDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.ReturnValue"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             YES_NO_COMBO);
+    scriptResultColumn.setToolTip(
+        BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.ReturnValue.Tooltip"));
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -337,6 +339,12 @@ public class ScriptDialog extends BaseTransformDialog {
               YES_NO_COMBO),
           scriptResultColumn,
         };
+    colinf[0].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Filename.Tooltip"));
+    colinf[1].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.RenameTo.Tooltip"));
+    colinf[2].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Type.Tooltip"));
+    colinf[3].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Length.Tooltip"));
+    colinf[4].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Precision.Tooltip"));
+    colinf[5].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Replace.Tooltip"));
 
     wFields =
         new TableView(
@@ -513,7 +521,8 @@ public class ScriptDialog extends BaseTransformDialog {
               variables,
               item.getParent(),
               SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_SCRIPT);
     } else {
       wScript =
           new ScriptStyledTextComp(

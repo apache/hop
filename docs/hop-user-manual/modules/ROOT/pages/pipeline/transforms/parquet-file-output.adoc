@@ -92,6 +92,11 @@ Specify a split size larger than 0 and this is then the number of rows per file.
 The file part (split) number will be included in the filename to make sure that the same file is not being overwritten.
 The split number is formatted with mask `0000`
 
+|Include compression codec before extension?
+|When enabled (the default for new transforms), the compression codec is placed before the file extension (for example `file.snappy.parquet`), which matches the naming used by Spark and other Parquet tools.
+When disabled, the compression codec is appended after the extension (for example `file.parquet.snappy`).
+Existing pipelines that do not have this option set keep the previous behavior.
+
 |Compression codec
 |Here you can indicate which compression codec you want to use.
 The default is SNAPPY for Apache Snappy compression.

@@ -1,0 +1,299 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[DeployProjectImage]]
+:imagesdir: ../../assets/images
+:openvar: ${
+:closevar: }
+:description: Build a Docker image that contains your Hop project. Run it as a short-lived job from a scheduler, or as a long-lived Hop Server, with docker run, Compose, Kubernetes or OpenShift.
+
+= Project in a Docker image
+
+This is the classic enterprise pattern.
+
+The Hop project lives in git.
+When a change is merged, a Jenkins pipeline, GitHub Action or GitLab CI job builds a Docker image that copies the project into a folder such as `/your-project`.
+
+That image can run in two ways:
+
+* *Short-lived* -- a scheduler starts the container, hop-run executes one pipeline or workflow, the container exits.
+You often do not need a Hop Server at all.
+* *Long-lived* -- the same image starts Hop Server; you roll it with `docker run`, Compose, Kubernetes or OpenShift.
+
+See xref:hop-server/deploying.adoc[Deploying Hop Server] for how this compares to the other patterns.
+
+== The image
+
+Extend the official `apache/hop` image rather than assembling Hop yourself.
+A copy of this Dockerfile is in the Hop repository at `docs/hop-user-manual/modules/ROOT/assets/files/hop-server/Dockerfile`.
+
+[source,dockerfile]
+----
+FROM apache/hop:<version>
+
+COPY --chown=hop:hop . /your-project
+
+# Optional extra JDBC drivers the official image does not ship:
+# COPY --chown=hop:hop lib/jdbc/*.jar /opt/hop/lib/jdbc/
+----
+
+Pin a Hop version.
+Do not use `latest` in production.
+The image user is `hop`; keep `/your-project` as the project home in CI, Compose and Helm so the rest of this page stays consistent.
+
+The official entrypoint already knows how to turn a folder into either a short-lived hop-run or a long-lived Hop Server.
+When you set the variables below it:
+
+. registers the project with `hop-conf --project-create --project-keep-config-file`
+. registers the environment (the environment references that project)
+. if `HOP_FILE_PATH` and `HOP_RUN_CONFIG` are set, runs that file with hop-run and exits
+. otherwise starts Hop Server with the environment enabled
+
+You do not need a custom `CMD`.
+The xref:tech-manual::docker-container.adoc[Docker container] page lists every variable.
+
+[cols="2,3",options="header"]
+|===
+|Variable |Role
+
+|`HOP_PROJECT_FOLDER`
+|`/your-project`
+
+|`HOP_PROJECT_NAME`
+|Name used when the entrypoint *creates* the project in the container
+
+|`HOP_ENVIRONMENT_NAME`
+|Name used when the entrypoint *creates* the environment
+
+|`HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`
+|Comma-separated paths to environment JSON files *inside* the container
+
+|`HOP_FILE_PATH`
+|Pipeline or workflow to run.
+When set (with `HOP_RUN_CONFIG`), the container is short-lived.
+
+|`HOP_RUN_CONFIG`
+|Run configuration name for a short-lived run (usually a *local* engine).
+
+|`HOP_SERVER_USER` / `HOP_SERVER_PASS`
+|Hop Server credentials (long-lived only).
+Change the default `cluster` / `cluster`.
+
+|`HOP_SERVER_PORT` / `HOP_SERVER_HOSTNAME`
+|Defaults `8080` and `0.0.0.0`
+
+|`HOP_SERVER_SHUTDOWN_TIMEOUT`
+|Seconds to wait for running work on `docker stop` / `SIGTERM`.
+`0` exits immediately.
+
+|`HOP_PARENT_PROJECT_NAME` / `HOP_PARENT_PROJECT_FOLDER`
+|Optional one-level parent project.
+See the Docker page.
+|===
+
+`HOP_PROJECT_NAME` is required in the image because the entrypoint has to *create* the project before it can create the environment that points at it.
+After that, enabling the environment is enough: the project name is taken from the environment.
+
+== Do not bake secrets
+
+Copy the project into the image.
+Inject environment JSON at run time.
+
+[cols="1,2",options="header"]
+|===
+|Mechanism |Typical use
+
+|Bind mount
+|`docker run -v /etc/hop/prod.json:/config/prod.json:ro`
+
+|Compose `configs` / `secrets`
+|Same idea, declared in Compose
+
+|Kubernetes Secret or ConfigMap
+|Mount at `/config/prod.json`
+
+|`HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS`
+|`/config/prod.json` (add more files, comma-separated)
+|===
+
+If the environment file contains only non-secret values or xref:metadata-types/variable-resolver/index.adoc[resolver] expressions, it *may* live at `/your-project/config/prod.json` and be copied with the project.
+Treat that as the exception.
+
+`<metadata_folder>` / `HOP_SERVER_METADATA_FOLDER` is the older hook for xref:hop-server/web-service.adoc[web services].
+Prefer `HOP_PROJECT_*` so `{openvar}PROJECT_HOME{closevar}` and metadata inheritance work.
+
+JDBC drivers the image is not allowed to ship can be installed at start with `HOP_DRIVERS_DOWNLOAD` and `HOP_DRIVERS_ACCEPT_LICENSE`, or `COPY`'d into `/opt/hop/lib/jdbc/`.
+Extra plugins go into the image the same way.
+
+== Continuous integration
+
+The pipeline is the same whether you use Jenkins, GitHub Actions or GitLab CI:
+
+. Check out the project.
+. `docker build -t registry.example.com/your-project-hop-server:<git-sha>` (and a moving branch tag if you want).
+. `docker push`.
+. Either start short-lived jobs from the scheduler (Airflow, a Kubernetes Job, ...), or deploy / restart a long-lived Hop Server: `docker compose pull && docker compose up -d`, `helm upgrade`, `kubectl set image` / `oc rollout`.
+
+A minimal GitHub Actions workflow is in the Hop repository at `docs/hop-user-manual/modules/ROOT/assets/files/hop-server/ci-build-image.yml`.
+Log in to the registry the way that registry documents (OIDC, a deploy token, ...).
+
+[cols="1,3",options="header"]
+|===
+|System |Same four steps
+
+|GitHub Actions
+|`actions/checkout` -> `docker/build-push-action` -> deploy job or `workflow_dispatch`
+
+|GitLab CI
+|`docker build` / `docker push` in `.gitlab-ci.yml`; deploy with `kubectl` or a runner on the host
+
+|Jenkins
+|Pipeline stages for checkout, `docker.build(...).push()`, then a deploy stage
+|===
+
+[#skip_hop_server_short_lived_containers]
+== Skip Hop Server: short-lived containers
+
+If a scheduler already decides *when* work runs, do not also run a Hop Server.
+Use the same baked image as a job: start it, run one file, exit.
+
+[source,bash]
+----
+docker run --rm \
+  -e HOP_PROJECT_FOLDER=/your-project \
+  -e HOP_PROJECT_NAME=your-project \
+  -e HOP_ENVIRONMENT_NAME=prod \
+  -e HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/prod.json \
+  -e HOP_FILE_PATH='{openvar}PROJECT_HOME{closevar}/main.hwf' \
+  -e HOP_RUN_CONFIG=local \
+  -v /etc/hop/prod.json:/config/prod.json:ro \
+  registry.example.com/your-project-hop-server:<git-sha>
+----
+
+Airflow can do this with the DockerOperator (or KubernetesPodOperator on a cluster).
+That is exactly the xref:how-to-guides/run-hop-in-apache-airflow.adoc[Airflow how-to], except the image already contains `/your-project` so you do not mount the project from the worker.
+On Kubernetes or OpenShift the same idea is a Job or CronJob whose container spec is this image plus those environment variables.
+
+The container is gone when hop-run finishes, so anything you still want to look at later must be written *outside* it.
+
+Attach an xref:metadata-types/execution-information-location.adoc[execution information location] to the `local` run configuration (it is metadata, so it is already in the image):
+
+[cols="1,3",options="header"]
+|===
+|Location type |Typical target for a short-lived job
+
+|File / caching file
+|A volume or PVC mounted at a fixed path, or a VFS URI (S3, ...).
+The folder must still be there after the pod is deleted.
+
+|Caching database
+|A relational database the container can reach.
+Survives every job.
+
+|xref:metadata-types/opensearch-location-type.adoc[OpenSearch] or xref:metadata-types/elastic-location-type.adoc[Elastic]
+|A search cluster.
+Useful when many jobs write in parallel.
+
+|Neo4j
+|A graph database, if you already use Neo4j for this.
+|===
+
+Inspect those runs later from the xref:hop-gui/perspective-execution-information.adoc[Execution Information perspective] in Hop Gui.
+Do *not* use a *Remote* execution information location that points at a Hop Server you are not running.
+
+Keep a long-lived Hop Server when you need xref:hop-server/web-service.adoc[web services] or xref:hop-server/async-web-service.adoc[asynchronous web services], or when many clients submit work to one always-on engine.
+
+== Run a long-lived Hop Server
+
+=== docker run
+
+[source,bash]
+----
+docker run -d --name hop-server \
+  -p 8080:8080 \
+  -e HOP_PROJECT_FOLDER=/your-project \
+  -e HOP_PROJECT_NAME=your-project \
+  -e HOP_ENVIRONMENT_NAME=prod \
+  -e HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/prod.json \
+  -e HOP_SERVER_USER=hop-admin \
+  -e HOP_SERVER_PASS=change-me \
+  -e HOP_SERVER_SHUTDOWN_TIMEOUT=120 \
+  -v /etc/hop/prod.json:/config/prod.json:ro \
+  registry.example.com/your-project-hop-server:<git-sha>
+----
+
+=== Docker Compose
+
+A full file is in the Hop repository at `docs/hop-user-manual/modules/ROOT/assets/files/hop-server/docker-compose.yaml`.
+The service is the same image and the same variables; a bind mount supplies `prod.json`.
+
+[source,bash]
+----
+docker compose pull
+docker compose up -d
+----
+
+After a new image is pushed:
+
+[source,bash]
+----
+docker compose pull
+docker compose up -d --force-recreate
+----
+
+=== Kubernetes and OpenShift
+
+Use the baked image in a Deployment (or the https://github.com/apache/hop/tree/main/helm[Helm chart] under `helm/`).
+
+* Create the Hop Server credential as a Secret.
+The chart expects `<release_name>-server` with key `pass`.
+* Mount environment JSON from a Secret or ConfigMap at `/config/prod.json`.
+* Set the same `HOP_PROJECT_*` and `HOP_ENVIRONMENT_*` variables.
+They are already listed, commented, in `helm/hop/values.yaml`.
+
+[source,yaml]
+----
+server:
+  image:
+    name: registry.example.com/your-project-hop-server
+    tag: "abc1234"
+    env:
+      HOP_PROJECT_FOLDER: /your-project
+      HOP_PROJECT_NAME: your-project
+      HOP_ENVIRONMENT_NAME: prod
+      HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS: /config/prod.json
+----
+
+The image already runs as non-root user `hop`.
+On OpenShift that matches a typical restricted SecurityContextConstraint; you rarely need extra SCC work.
+
+Roll a new image with `helm upgrade` or `kubectl rollout restart`.
+Set `HOP_SERVER_SHUTDOWN_TIMEOUT` (and a matching `terminationGracePeriodSeconds`) so in-flight work can finish before the new replica takes over.
+See xref:hop-server/index.adoc#_graceful_shutdown[graceful shutdown].
+
+== After deploy
+
+Point a browser at `http://host:8080`.
+Change the default `cluster` / `cluster` credentials.
+
+xref:hop-server/web-service.adoc[Web services] work because the project's `metadata/` folder is on disk.
+
+Clients (Hop Gui, hop-run, an Airflow worker with a Hop client) use a *Remote* run configuration that points at this server.
+Export resources is optional here: the server already has the project.
+Prefer executing a filename under `{openvar}PROJECT_HOME{closevar}` that exists in the image.
+
+For the short-lived alternative, see <<skip_hop_server_short_lived_containers>>.
+The xref:tech-manual::docker-container.adoc[Docker container] page lists every hop-run variable. The xref:how-to-guides/apache-hop-web-services-docker.adoc[web services in Docker] how-to is the long-lived case.

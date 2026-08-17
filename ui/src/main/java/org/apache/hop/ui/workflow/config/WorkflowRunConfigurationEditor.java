@@ -334,6 +334,13 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
   public void save() throws HopException {
     changeWorkingEngineConfiguration(runConfiguration);
 
+    // Make this the exclusive default when the default flag is set (issue #2753).
+    getWidgetsContent(getMetadata());
+    if (getMetadata().isDefaultSelection()) {
+      WorkflowRunConfiguration.clearDefaultFlagFromOthers(
+          manager.getMetadataProvider(), getMetadata().getName());
+    }
+
     super.save();
   }
 

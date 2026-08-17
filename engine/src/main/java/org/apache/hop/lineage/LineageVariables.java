@@ -17,13 +17,44 @@
 
 package org.apache.hop.lineage;
 
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variable;
 import org.apache.hop.core.variables.VariableScope;
+import org.apache.hop.core.variables.Variables;
 
 /** Hop variables that configure the lineage observation hub and sinks. */
 public final class LineageVariables {
 
+  /** Prefix shared by every lineage hub and sink configuration variable. */
+  private static final String LINEAGE_PREFIX = "HOP_LINEAGE";
+
   private LineageVariables() {}
+
+  /**
+   * Variable space used to resolve the engine-scoped lineage settings (hub configuration and sink
+   * plugin settings), with {@code HOP_LINEAGE_*} OS environment variables overlaid so they can be
+   * injected via Docker, Kubernetes or CI — the documented deployment path.
+   *
+   * <p>The environment is overlaid <b>unconditionally</b> for these keys, on purpose: {@code
+   * HopEnvironment} publishes the described ENGINE-variable <i>defaults</i> (e.g. {@code
+   * HOP_LINEAGE_ENABLED=N}) as JVM system properties during initialization, which {@link
+   * Variables#initializeFrom} then loads. A plain "only when not already a system property" overlay
+   * would therefore always lose to that default and the environment would be silently ignored. For
+   * the {@code HOP_LINEAGE_*} settings the environment wins over the system-property default; this
+   * is scoped to that prefix so no other variables are affected.
+   */
+  public static IVariables engineVariables() {
+    Variables variables = new Variables();
+    variables.initializeFrom(null);
+    System.getenv()
+        .forEach(
+            (key, value) -> {
+              if (key.startsWith(LINEAGE_PREFIX)) {
+                variables.setVariable(key, value);
+              }
+            });
+    return variables;
+  }
 
   @Variable(
       scope = VariableScope.ENGINE,

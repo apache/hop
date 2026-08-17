@@ -19,15 +19,13 @@ package org.apache.hop.pipeline.transforms.filemetadata;
 
 import static org.apache.hop.pipeline.transforms.filemetadata.FileMetadataMeta.FMCandidate;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -107,18 +105,9 @@ public class FileMetadataDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wDefaultCharset.removeAll();
-      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wDefaultCharset.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = meta.getDefaultCharset();
-      int idx = Const.indexOfString(defEncoding, wDefaultCharset.getItems());
-      if (idx >= 0) {
-        wDefaultCharset.select(idx);
-      }
+      String encoding = wDefaultCharset.getText();
+      wDefaultCharset.setItems(ConstUi.getEncodings());
+      wDefaultCharset.setText(Const.NVL(encoding, ""));
     }
   }
 

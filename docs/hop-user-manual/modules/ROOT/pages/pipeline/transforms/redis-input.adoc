@@ -1,0 +1,106 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Read STRING, HASH, SET or LIST values from Redis.
+
+= Redis Input
+
+== Description
+
+Redis Input enriches each incoming pipeline row by reading one or more Redis values using a shared xref:metadata-types/redis/redis-connection.adoc[Redis Connection].
+
+Configure a *fields* table: each row is one mapping that adds an output column to the same pipeline row. This transform needs upstream rows that supply Redis keys (or you can use literal / variable keys in the table).
+
+Supported operations:
+
+|===
+|Data structure |Command |Value field content
+
+|STRING
+|`GET`
+|Decoded scalar value (or null if missing)
+
+|HASH
+|`HGET`
+|Decoded hash value (Hash field is required). `HGETALL` is not supported.
+
+|SET
+|`SMEMBERS`
+|JSON array string of decoded members, e.g. `["a","b"]` (empty set → `[]`)
+
+|LIST
+|`LRANGE`
+|JSON array string of decoded elements for the configured range (empty → `[]`)
+
+|===
+
+`SISMEMBER` is not supported.
+
+[#key-resolution]
+== Redis key and hash field resolution
+
+*Redis key* and *Hash field* are editable combo boxes: pick an upstream field name or type a value.
+
+. If the text matches an incoming stream field name, Redis uses *that field's value* from the current row.
+. Otherwise the text is treated as a literal (variables such as `${PREFIX}:user` are resolved).
+
+== Options
+
+|===
+|Option |Description
+
+|Redis connection
+|Name of the Redis connection metadata
+
+|Fields table
+|One or more read mappings (see below). Use *Get fields* to add one mapping per upstream field (defaults: data structure `STRING`, Redis key = field name, value field = `{fieldName}Value`, codecs `STRING`, hash columns empty, list start/stop `0` / `-1`).
+
+|===
+
+=== Fields table columns
+
+|===
+|Column |Description
+
+|Redis key
+|Stream field name (use that field's value) or literal / variable — see <<key-resolution>>
+
+|Redis key codec
+|Encoding for the Redis key
+
+|Data structure
+|`STRING`, `HASH`, `SET`, or `LIST`
+
+|Hash field
+|Required for `HASH` (`HGET`). Stream field name or literal. Ignored otherwise.
+
+|Hash field codec
+|Encoding for the hash field name (`HASH` only)
+
+|Value field
+|Name of the output column added to the stream
+
+|Value codec
+|Encoding for STRING/HASH values, and for each SET/LIST element before building the JSON array
+
+|List start / List stop
+|`LRANGE` bounds (default `0` / `-1`). Use the same index twice (e.g. `5` / `5`) to read a single element as a one-item array. Ignored for non-LIST rows.
+
+|===
+
+Codecs: `STRING`, `JSON`, `JAVA_OBJECT`, `BYTE`.

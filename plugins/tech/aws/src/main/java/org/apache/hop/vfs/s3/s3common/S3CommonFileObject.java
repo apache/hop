@@ -209,6 +209,11 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
     return e.getMessage();
   }
 
+  private static boolean isNotFound(S3Exception e) {
+    String err = errorCode(e);
+    return "404".equals(err) || "NotFound".equals(err) || "NoSuchKey".equals(err);
+  }
+
   @Override
   public void doAttach() throws Exception {
     LogChannel.GENERAL.logDebug("Attach called on {0}", getQualifiedName());
@@ -253,10 +258,8 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
   protected void handleAttachException(String key, String bucket, S3Exception e)
       throws IOException {
     String keyWithDelimiter = key + DELIMITER;
-    String err = errorCode(e);
-    boolean isNotFound = "404".equals(err) || "NotFound".equals(err) || "NoSuchKey".equals(err);
 
-    if (isNotFound) {
+    if (isNotFound(e)) {
       handleNotFoundAttach(bucket, keyWithDelimiter);
     } else {
       resolveTypeViaList(key, bucket, keyWithDelimiter);
@@ -439,7 +442,37 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
-    return new S3CommonPipedOutputStream(this.fileSystem, bucketName, key);
+    return createOutputStream(bAppend, S3CommonPipedOutputStream.DEFAULT_PART_SIZE);
+  }
+
+  /**
+   * Open a write or append stream for this object. S3 has no append operation, so appending to an
+   * existing object is emulated with a multipart upload, see {@link S3AppendOutputStream}.
+   */
+  protected OutputStream createOutputStream(boolean bAppend, int partSize) throws IOException {
+    // A bucket itself has no content to append to, so only a real key can be appended to.
+    if (bAppend && !isRootBucket()) {
+      HeadObjectResponse head = headExistingObject();
+      if (head != null && head.contentLength() != null && head.contentLength() > 0) {
+        return new S3AppendOutputStream(fileSystem, bucketName, key, partSize, head);
+      }
+      // No object to append to yet, so plainly creating it is the correct append semantic.
+    }
+    return new S3CommonPipedOutputStream(this.fileSystem, bucketName, key, partSize);
+  }
+
+  /** Head this object, returning null when it does not exist yet. */
+  private HeadObjectResponse headExistingObject() {
+    try {
+      return fileSystem
+          .getS3Client()
+          .headObject(HeadObjectRequest.builder().bucket(bucketName).key(key).build());
+    } catch (S3Exception e) {
+      if (isNotFound(e)) {
+        return null;
+      }
+      throw e;
+    }
   }
 
   @Override

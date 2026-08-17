@@ -68,6 +68,45 @@ Once done you will see an `azure` entry in the central `hop-config.json` file:
 }
 ----
 
+== Authentication types
+
+An Azure connection in the metadata perspective can authenticate in three ways, selected with the
+*Authentication Type* option. Connections that predate this option keep working: an empty
+authentication type is treated as `Key`.
+
+[options="header"]
+|===
+|Authentication Type|What you provide|When to use it
+|`Key`|The storage account key|Simplest to set up. The key grants full, non-expiring access to the whole storage account.
+|`Managed Identity`|Nothing|Runs on Azure with a managed identity, or locally through the Azure CLI (`az login`) or the `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` / `AZURE_CLIENT_SECRET` environment variables. The identity needs a role such as `Storage Blob Data Contributor`.
+|`SAS Token`|A shared access signature|Access is limited to the resources, permissions and expiry encoded in the signature, so it avoids handing out a long lived account key.
+|===
+
+=== SAS token
+
+A shared access signature is the approach Microsoft recommends for application level access to
+Azure Storage, because it can be scoped and given an expiry rather than granting unrestricted
+access to the account.
+
+Generate one in the Azure portal under *Shared access signature* for the storage account, or with
+`az storage account generate-sas`, then paste the *query string* into the *SAS Token* field:
+
+[source]
+----
+sv=2022-11-02&ss=b&srt=co&sp=rl&se=2026-12-31T00:00:00Z&sig=...
+----
+
+A leading `?` is accepted and may be left in place. Do not paste a full URL — only the query
+string portion is expected.
+
+The token is stored as a password in the connection metadata, which means it is encrypted at rest
+and masked in the UI, and it can be supplied through a variable so it does not have to be committed
+to a project at all.
+
+NOTE: A signature stops working once it expires, and Hop reports the resulting failure as an
+authentication error. Renew the token, or use `Managed Identity` where you want credentials that
+rotate for you.
+
 == Usage and testing
 
 To test if the configuration works you can simply upload a small CSV file in an Azure Storage folder and then use File/Open in Hop GUI.

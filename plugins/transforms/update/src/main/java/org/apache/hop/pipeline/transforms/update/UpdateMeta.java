@@ -37,6 +37,8 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -57,6 +59,7 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 @Getter
 @Setter
+@RelationalLineage(operation = RelationalIoOperation.WRITE)
 public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class;
 
@@ -412,6 +415,17 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "UpdateMeta.CheckResult.InvalidConnection"),
+              transformMeta);
+      remarks.add(cr);
+    }
+
+    // Without lookup keys we cannot build the WHERE clause of the UPDATE statement, not even when
+    // the lookup is skipped.
+    if (lookupField.getLookupKeys().isEmpty()) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "UpdateMeta.CheckResult.MissingKeyFields"),
               transformMeta);
       remarks.add(cr);
     }

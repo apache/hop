@@ -44,6 +44,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.security.HopSecurity;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -80,6 +82,7 @@ import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -129,6 +132,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -429,20 +433,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> this.updateSelection());
-    tree.addListener(
-        SWT.DefaultSelection,
-        event -> {
-          TreeItem treeItem = tree.getSelection()[0];
-          if (treeItem == null) {
-            return;
-          }
-          if (FILE.equals(treeItem.getData(KEY_TYPE))) {
-            onEditMetadata();
-          } else if (UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
-            // There's no editor for an element we can't load: explain why instead.
-            onUnknownMetadataDetails();
-          }
-        });
+    tree.addListener(SWT.DefaultSelection, this::openTreeItem);
 
     tree.addMenuDetectListener(
         event -> {
@@ -742,8 +733,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                   hopGui.getVariables(),
                   HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
                   metadata);
+              // Listener on MetadataChanged refreshes the tree once.
               hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
-              refresh();
             } catch (Exception e) {
               new ErrorDialog(
                   getShell(),
@@ -760,13 +751,29 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     try {
       MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
       manager.editWithEditor(name);
-      hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+      // Opening an editor is not a store change — do not fire MetadataChanged (issue #7791).
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
           ERROR,
           BaseMessages.getString(PKG, "MetadataPerspective.DragDropOpen.Error"),
           e);
+    }
+  }
+
+  private void openTreeItem(Event event) {
+    TreeItem treeItem = tree.getSelection()[0];
+    if (treeItem == null) {
+      return;
+    }
+    if (FILE.equals(treeItem.getData(KEY_TYPE))) {
+      onEditMetadata();
+    } else if (UNKNOWN_FILE.equals(treeItem.getData(KEY_TYPE))) {
+      // There's no editor for an element we can't load: explain why instead.
+      onUnknownMetadataDetails();
+    } else {
+      // Expand/Collapse category
+      treeItem.setExpanded(!treeItem.getExpanded());
     }
   }
 
@@ -886,6 +893,14 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     //
     editor.createControl(area);
 
+    // Read-only role: disable all editor widgets (and extra button-bar actions) in the tab
+    if (BaseDialog.applyReadOnlyIfNeeded(composite, editor.getMetadata())) {
+      String suffix = BaseMessages.getString(BaseDialog.class, "BaseDialog.ReadOnly.TitleSuffix");
+      if (suffix != null && !tabItem.getText().contains(suffix.trim())) {
+        tabItem.setText(tabItem.getText() + suffix);
+      }
+    }
+
     tabItem.setControl(composite);
     tabItem.setData(editor);
 
@@ -963,6 +978,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /** Creates a new metadata item of the given type from the overview page. */
   public void createNewMetadataFromOverview(String key) {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     createMetadataOfType(key, "");
   }
 
@@ -1148,6 +1166,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       toolTip = "i18n::MetadataPerspective.ToolbarElement.NewType.Tooltip",
       image = "ui/images/add.svg")
   public void onNewMetadataType() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     Menu menu = new Menu(tree);
     addNewTypeMenuItems(menu, null);
     // Position the drop-down just below the toolbar button.
@@ -1272,6 +1293,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       toolTip = "i18n::MetadataPerspective.ToolbarElement.New.Tooltip",
       image = "ui/images/new.svg")
   public void onNewMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -1293,6 +1317,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * Creates a new metadata item of the given type at the given virtual path and opens its editor.
    */
   private void createMetadataOfType(String objectKey, String virtualPath) {
+    if (!HopSecurity.allows(Permission.METADATA_WRITE)) {
+      HopSecurityUi.deny(Permission.METADATA_WRITE);
+      return;
+    }
     try {
       MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
       manager.newMetadataWithEditor(Const.NVL(virtualPath, ""));
@@ -1315,6 +1343,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F3)
   @GuiOsxKeyboardShortcut(key = SWT.F3)
   public void onEditMetadata() {
+    if (!HopSecurity.allows(Permission.METADATA_READ)
+        && !HopSecurity.allows(Permission.METADATA_WRITE)) {
+      HopSecurityUi.deny(Permission.METADATA_READ);
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -1331,8 +1364,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         try {
           MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
           manager.editWithEditor(objectName);
-
-          hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+          // Opening an editor is not a store change — do not fire MetadataChanged (issue #7791).
         } catch (Exception e) {
           new ErrorDialog(getShell(), ERROR, "Error editing metadata", e);
         }
@@ -1350,6 +1382,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.F2)
   @GuiOsxKeyboardShortcut(key = SWT.F2)
   public void onRenameMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() < 1) {
       return;
@@ -1881,6 +1916,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void onDeleteMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() != 1) {
       return;
@@ -2225,6 +2263,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       toolTip = "i18n::MetadataPerspective.ToolbarElement.CreateCopy.Tooltip",
       image = "ui/images/duplicate.svg")
   public void duplicateMetadata() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
 
     if (tree.getSelectionCount() != 1) {
       return;
@@ -2286,7 +2327,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
     if (editor == null || !isInitialized()) return;
 
-    // Update TabItem
+    // Update TabItem title and dirty font only. Do not reload the metadata tree here:
+    // that is expensive on large projects and dirty ≠ a persisted store change (issue #7791).
+    // Tree content is refreshed via MetadataChanged after save/delete/rename/etc.
     //
     for (CTabItem item : tabFolder.getItems()) {
       if (editor.equals(item.getData())) {
@@ -2296,10 +2339,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         break;
       }
     }
-
-    // Update TreeItem
-    //
-    this.refresh();
 
     // Update HOP GUI menu and toolbar...
     //
@@ -2384,9 +2423,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
 
   /**
    * Loads the metadata model from disk into memory: one {@link MetadataTypeModel} per metadata type
-   * with its items (name + virtual path). This is the only place that reads metadata objects from
-   * the provider, so search filtering (handled entirely by {@link #renderTree()}) never touches
-   * disk.
+   * with its items (name + virtual path via {@link IHopMetadataSerializer#readVirtualPath(String)},
+   * not a full object load). Search filtering (handled entirely by {@link #renderTree()}) never
+   * touches disk.
    */
   private void reloadModel() {
     typeModels.clear();
@@ -2419,7 +2458,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
         for (String name : names) {
           String virtualPath;
           try {
-            virtualPath = Const.NVL(serializer.load(name).getVirtualPath(), "");
+            // Cheap path: name + virtualPath only (JSON peeks a single field). Avoid full
+            // serializer.load() for every object on each tree refresh (issue #7791).
+            virtualPath = Const.NVL(serializer.readVirtualPath(name), "");
           } catch (Exception e) {
             // We can't load this one: a missing plugin, corrupt JSON, ... .  Rather than hiding it,
             // we list it under the "Unknown" category where it can be inspected and deleted.
@@ -2604,6 +2645,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
    * audit trail. Items are never deleted here.
    */
   public void onDeleteFolder() {
+    if (!HopSecurityUi.check(Permission.METADATA_WRITE)) {
+      return;
+    }
     if (tree.getSelectionCount() != 1) {
       return;
     }
@@ -3201,12 +3245,20 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       canCreateHere = getObjectKey(treeItem) != null;
     }
 
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, canCreateHere);
+    boolean canWriteMeta = HopSecurity.allows(Permission.METADATA_WRITE);
+    boolean canReadMeta = HopSecurity.allows(Permission.METADATA_READ) || canWriteMeta;
+
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW_TYPE, canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, canCreateHere && canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected && canReadMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected && canWriteMeta);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected && canWriteMeta);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(
-        TOOLBAR_ITEM_DELETE, isMetadataSelected || isFolderSelected || isUnknownSelected);
+        TOOLBAR_ITEM_DELETE,
+        (isMetadataSelected || isFolderSelected || isUnknownSelected) && canWriteMeta);
   }
 
   @Override

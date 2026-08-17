@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIFile;
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EISheet;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -53,6 +52,7 @@ import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonLi
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterListDialog;
@@ -65,6 +65,7 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.VariableButtonListenerFactory;
@@ -148,6 +149,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
   private Text wLimit;
 
   private CCombo wSpreadSheetType;
+
+  private PasswordTextVar wPassword;
 
   private CCombo wEncoding;
 
@@ -272,13 +275,32 @@ public class ExcelInputDialog extends BaseTransformDialog {
       wSpreadSheetType.add(type.getDescription());
     }
 
+    // The password of a protected (encrypted) workbook
+    Label wlPassword = new Label(wFileComp, SWT.RIGHT);
+    wlPassword.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Password.Label"));
+    wlPassword.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.Password.Tooltip"));
+    PropsUi.setLook(wlPassword);
+    FormData fdlPassword = new FormData();
+    fdlPassword.left = new FormAttachment(0, 0);
+    fdlPassword.right = new FormAttachment(middle, -margin);
+    fdlPassword.top = new FormAttachment(wSpreadSheetType, margin);
+    wlPassword.setLayoutData(fdlPassword);
+    wPassword = new PasswordTextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPassword.setToolTipText(BaseMessages.getString(PKG, "ExcelInputDialog.Password.Tooltip"));
+    PropsUi.setLook(wPassword);
+    FormData fdPassword = new FormData();
+    fdPassword.left = new FormAttachment(middle, 0);
+    fdPassword.right = new FormAttachment(100, 0);
+    fdPassword.top = new FormAttachment(wSpreadSheetType, margin);
+    wPassword.setLayoutData(fdPassword);
+
     // Filename list line
     wlFilenameList = new Label(wFileComp, SWT.LEFT);
     wlFilenameList.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FilenameList.Label"));
     PropsUi.setLook(wlFilenameList);
     FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment(0, 0);
-    fdlFilenameList.top = new FormAttachment(wSpreadSheetType, margin);
+    fdlFilenameList.top = new FormAttachment(wPassword, margin);
     fdlFilenameList.right = new FormAttachment(100, 0);
     wlFilenameList.setLayoutData(fdlFilenameList);
 
@@ -1105,6 +1127,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wLimit.setText("" + meta.getRowLimit());
     wEncoding.setText(Const.NVL(meta.getEncoding(), ""));
     wSpreadSheetType.setText(meta.getSpreadSheetType().getDescription());
+    wPassword.setText(Const.NVL(meta.getPassword(), ""));
     wAddResult.setSelection(meta.isAddResultFile());
 
     if (isDebug()) {
@@ -1216,6 +1239,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     meta.setSchemaDefinition(wSchemaDefinition.getText());
     meta.setIgnoreFields(wIgnoreFields.getSelection());
     meta.setSpreadSheetType(SpreadSheetType.values()[wSpreadSheetType.getSelectionIndex()]);
+    meta.setPassword(wPassword.getText());
     meta.setFileField(wInclFilenameField.getText());
     meta.setSheetField(wInclSheetNameField.getText());
     meta.setSheetRowNumberField(wInclSheetRowNumField.getText());
@@ -1674,6 +1698,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
                 info.getSpreadSheetType(),
                 HopVfs.getFilename(fileObject),
                 info.getEncoding(),
+                Utils.resolvePassword(variables, info.getPassword()),
                 variables);
 
         int nrSheets = workbook.getNumberOfSheets();
@@ -1742,7 +1767,11 @@ public class ExcelInputDialog extends BaseTransformDialog {
       try {
         IKWorkbook workbook =
             WorkbookFactory.getWorkbook(
-                info.getSpreadSheetType(), HopVfs.getFilename(file), info.getEncoding(), variables);
+                info.getSpreadSheetType(),
+                HopVfs.getFilename(file),
+                info.getEncoding(),
+                Utils.resolvePassword(variables, info.getPassword()),
+                variables);
         processingWorkbook(fields, info, workbook);
         workbook.close();
       } catch (Exception e) {
@@ -1907,19 +1936,9 @@ public class ExcelInputDialog extends BaseTransformDialog {
     if (!gotEncodings) {
       gotEncodings = true;
 
-      wEncoding.removeAll();
-
-      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (Charset charSet : values) {
-        wEncoding.add(charSet.displayName());
-      }
-
-      // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
-      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
-      if (idx >= 0) {
-        wEncoding.select(idx);
-      }
+      String encoding = wEncoding.getText();
+      wEncoding.setItems(ConstUi.getEncodings());
+      wEncoding.setText(Const.NVL(encoding, ""));
     }
   }
 

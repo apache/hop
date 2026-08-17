@@ -56,10 +56,34 @@ Examples:
 |Option|Description
 |Transform Name|Name of the transform this name has to be unique in a single pipeline
 |Limit|Sets the maximum number of rows you want to generate
-|Fields|This table is where you configure the structure and values of the rows you are generating (optional).
+|Fields|Structure and constant values of the generated rows (optional).
+See <<fields-table>>.
 |Never stop generating rows|This option is intended for real-time use cases where you never want to stop the running pipeline.
 The output of this transform is then used to drive recurring tasks like polling from a file, queue, database, ...
 |Interval in ms|The interval between generated rows in milliseconds.
 |Current row time field name|The *optional *field name for the Date field containing the time when the current row was generated
 |Previous row time field name|The *optional *field name for the Date field containing the time when the previous row was generated
 |===
+
+[[fields-table]]
+== Fields
+
+Each row in the Fields table defines one output field.
+Every generated pipeline row carries the same constants.
+
+include::../../snippets/field-metadata/field-columns.adoc[]
+
+[options="header"]
+|===
+|Column|Description
+|Name|Name of the generated field.
+|Type|Hop data type.
+The *Value* string is parsed into this type.
+See xref:concepts.adoc#data-types[Data types].
+|===
+
+IMPORTANT: *Value* is a *single* constant, not a comma-separated list.
+`1,2,3` is one string (or a parse error), not three rows.
+*Group* is the thousands separator (`,` in `1,000.00`), not a row group.
+
+To emit several different rows of sample data, use xref:pipeline/transforms/datagrid.adoc[Data Grid] instead.

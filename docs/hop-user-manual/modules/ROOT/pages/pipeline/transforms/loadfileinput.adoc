@@ -84,7 +84,8 @@ The fields to load from the file.
 |Name|The name of the imported field.
 |Element|File content or size
 |Type|The data type for this field
-|Format|The format mask
+|Format|The format mask.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|The field length
 |Precision|The precision option depends on the field type, but only Number is supported; it returns the number of floating point digits
 |Currency|Symbol used to represent currencies

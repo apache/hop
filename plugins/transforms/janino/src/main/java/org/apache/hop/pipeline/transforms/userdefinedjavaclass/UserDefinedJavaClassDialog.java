@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
@@ -150,8 +151,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   private enum TabAddActions {
     ADD_COPY,
     ADD_BLANK,
-    ADD_DEFAULT
+    ADD_DEFAULT,
+    ADD_SAMPLE
   }
+
+  /** Marks a tab that only shows a code snippet for reference, not a class of this transform. */
+  private static final String SAMPLE_TAB = "sampleTab";
 
   private String strActiveScript;
 
@@ -819,12 +824,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
   }
 
-  private void addCtab(String tabName, String tabCode, TabAddActions tabType) {
+  private CTabItem addCtab(String tabName, String tabCode, TabAddActions tabType) {
     CTabItem item = new CTabItem(folder, SWT.CLOSE);
     item.setFont(GuiResource.getInstance().getFontDefault());
 
     switch (tabType) {
-      case ADD_DEFAULT:
+      case ADD_DEFAULT, ADD_SAMPLE:
         item.setText(tabName);
         break;
       default:
@@ -838,7 +843,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
               variables,
               item.getParent(),
               SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL,
-              false);
+              false,
+              TextComposite.STYLE_TYPE_JAVA);
     } else {
       wScript =
           new JavaStyledTextComp(
@@ -870,8 +876,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     item.setImage(imageInactiveScript);
     item.setControl(wScript);
 
-    // Adding new Item to Tree
-    modifyTabTree(item, TabActions.ADD_ITEM);
+    if (tabType == TabAddActions.ADD_SAMPLE) {
+      // A sample is shown for reference only. It is not a class of this transform, so it doesn't
+      // belong in the classes tree and it must not end up in the definitions to compile.
+      item.setData(SAMPLE_TAB, Boolean.TRUE);
+      wScript.setEditable(false);
+    } else {
+      // Adding new Item to Tree
+      modifyTabTree(item, TabActions.ADD_ITEM);
+    }
+    return item;
+  }
+
+  private boolean isSampleTab(CTabItem cTab) {
+    return Boolean.TRUE.equals(cTab.getData(SAMPLE_TAB));
   }
 
   private void modifyTabTree(CTabItem ctabitem, TabActions action) {
@@ -1167,7 +1185,10 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
     meta.replaceFields(newFields);
 
-    CTabItem[] cTabs = folder.getItems();
+    CTabItem[] cTabs =
+        Arrays.stream(folder.getItems())
+            .filter(cTab -> !isSampleTab(cTab))
+            .toArray(CTabItem[]::new);
     if (cTabs.length > 0) {
       for (CTabItem cTab : cTabs) {
         JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
@@ -1706,9 +1727,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
           if (getCTabPosition(sampleTabName) == -1) {
             addCtab(
-                sampleTabName,
-                snippitsHelper.getSample(snippitFullName),
-                TabAddActions.ADD_DEFAULT);
+                sampleTabName, snippitsHelper.getSample(snippitFullName), TabAddActions.ADD_SAMPLE);
           }
 
           if (getCTabPosition(sampleTabName) != -1) {

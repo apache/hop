@@ -139,6 +139,16 @@ public class TextFileInputMeta
         injectionKeyDescription = "TextFileInput.Injection.ESCAPE_CHAR")
     private String escapeCharacter;
 
+    /**
+     * Flag indicating that an empty value which is not enclosed has to be returned as null. An
+     * empty value between enclosures then stays an empty string.
+     */
+    @HopMetadataProperty(
+        key = "null_if_not_enclosed",
+        injectionKey = "NULL_IF_NOT_ENCLOSED",
+        injectionKeyDescription = "TextFileInput.Injection.NULL_IF_NOT_ENCLOSED")
+    private boolean nullIfNotEnclosed;
+
     /** Flag indicating that the file contains one header line that should be skipped. */
     @HopMetadataProperty(
         key = "header",
@@ -317,6 +327,7 @@ public class TextFileInputMeta
       this.length = c.length;
       this.lineWrapped = c.lineWrapped;
       this.noEmptyLines = c.noEmptyLines;
+      this.nullIfNotEnclosed = c.nullIfNotEnclosed;
       this.nrFooterLines = c.nrFooterLines;
       this.nrHeaderLines = c.nrHeaderLines;
       this.nrLinesDocHeader = c.nrLinesDocHeader;
@@ -528,28 +539,34 @@ public class TextFileInputMeta
         // ignore any errors here.
       }
     } else {
-      for (ITextFileInputField field : inputFields) {
-        int type = field.getType();
-        if (type == IValueMeta.TYPE_NONE) {
-          type = IValueMeta.TYPE_STRING;
-        }
-
+      // Building the file list hits the file system, which for a VFS location means a remote
+      // directory listing. It doesn't depend on the field being described, and its only use is
+      // prefixing the field names, so resolve it once and only when that prefix is asked for.
+      // getFields() runs on every transform thread during pipeline preparation, so doing this per
+      // field turned one listing into "fields x transforms" concurrent listings of the same folder.
+      //
+      String fileNameToPrepend = null;
+      if (content.prependFileName) {
         FileInputList fileInputList =
             FileInputList.createFileList(variables, fileInput.getInputFiles());
-        String fileNameToPrepend = null;
         if (fileInputList.nrOfFiles() > 0) {
           fileNameToPrepend = fileInputList.getFile(0).getName().getURI();
         } else if (!fileInputList.getNonExistentFiles().isEmpty()) {
           fileNameToPrepend = fileInputList.getNonExistentFiles().get(0).getName().getURI();
         }
         // When file list is empty (e.g. not required and missing), use fictional path for prepend
-        if (content.prependFileName
-            && fileNameToPrepend == null
-            && !fileInput.getInputFiles().isEmpty()) {
+        if (fileNameToPrepend == null && !fileInput.getInputFiles().isEmpty()) {
           String firstPath = variables.resolve(fileInput.getInputFiles().getFirst().getFileName());
           if (!Utils.isEmpty(firstPath)) {
             fileNameToPrepend = firstPath;
           }
+        }
+      }
+
+      for (ITextFileInputField field : inputFields) {
+        int type = field.getType();
+        if (type == IValueMeta.TYPE_NONE) {
+          type = IValueMeta.TYPE_STRING;
         }
 
         try {
@@ -888,6 +905,11 @@ public class TextFileInputMeta
   @Override
   public boolean isBreakInEnclosureAllowed() {
     return content.breakInEnclosureAllowed;
+  }
+
+  @Override
+  public boolean isNullIfNotEnclosed() {
+    return content != null && content.nullIfNotEnclosed;
   }
 
   @Override

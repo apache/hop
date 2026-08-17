@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-plugins-tech</artifactId>
@@ -37,13 +37,17 @@
         <module>databricks</module>
         <module>dropbox</module>
         <module>elastic</module>
+        <module>ftp</module>
         <module>google</module>
         <module>minio</module>
         <module>mongodb</module>
         <module>neo4j</module>
+        <module>openlineage</module>
         <module>opensearch</module>
         <module>parquet</module>
+        <module>redis</module>
         <module>salesforce</module>
+        <module>sftp</module>
         <module>vault</module>
         <module>webdav</module>
     </modules>

@@ -166,6 +166,7 @@ The following are the properties display in the Fields tab:
 Select ‘Y’(es) or ‘N’(o).
 |Type|The data type of the field.
 |Format|An optional mask for converting the format of the original field.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length a| The length of the field depends on the following field types:
 
 * Number: Total number of significant figures in a number

@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionDescription;
 import org.apache.hop.pipeline.transforms.janino.function.FunctionLib;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
@@ -211,25 +212,8 @@ public class FormulaEditor extends Dialog implements KeyListener {
                         : functionLib.getFunctionDescription(item.getText()).getSyntax();
               }
 
-              String oldFormula = expressionEditor.getText();
-              int caretPosition = expressionEditor.getCaretPosition();
-              int textLength = expressionEditor.getText().length();
-              int selectionsize = expressionEditor.getSelectionCount();
-
-              // No text in editor yet, just add text
-              if (textLength == 0) {
-                expressionEditor.setText(partToInsert);
-              } else if (textLength == caretPosition) {
-                // we are at the end of the text, append new text
-                expressionEditor.setText(oldFormula + partToInsert);
-              } else {
-                // Adding text somewhere between other text
-                // if selectionsize is > 0 then we are writing over other text
-                expressionEditor.setText(
-                    oldFormula.substring(0, caretPosition)
-                        + partToInsert
-                        + oldFormula.substring(caretPosition + selectionsize));
-              }
+              // insert() replaces selection regardless of caret direction (fixes #5321)
+              expressionEditor.insert(partToInsert);
             }
           }
         });
@@ -240,7 +224,10 @@ public class FormulaEditor extends Dialog implements KeyListener {
     //
     expressionEditor =
         new StyledTextComp(
-            variables, rightSash, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+            variables,
+            rightSash,
+            SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+            TextComposite.STYLE_TYPE_FORMULA);
     expressionEditor.setText(this.formula);
     expressionEditor.addModifyListener(event -> setStyles());
     expressionEditor.addKeyListener(this);

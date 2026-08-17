@@ -165,7 +165,10 @@ public class SqlEditor {
     if (EnvironmentUtils.getInstance().isWeb()) {
       wScript =
           new StyledTextComp(
-              variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+              variables,
+              shell,
+              SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL,
+              TextComposite.STYLE_TYPE_SQL);
     } else {
       wScript =
           new SQLStyledTextComp(

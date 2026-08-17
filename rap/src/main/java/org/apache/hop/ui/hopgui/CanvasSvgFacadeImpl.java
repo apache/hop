@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.CanvasSvgRenderResult;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.pipeline.canvas.PipelineCanvasSvgRenderer;
@@ -31,6 +32,7 @@ import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
 import org.apache.hop.ui.hopgui.canvas.CanvasInteractionHandler;
 import org.apache.hop.ui.hopgui.canvas.CanvasRenderSnapshot;
 import org.apache.hop.ui.hopgui.canvas.CanvasSvgRendererHandler;
+import org.apache.hop.ui.hopgui.shared.IWebCanvasGraph;
 import org.apache.hop.workflow.canvas.WorkflowCanvasSvgRenderer;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
@@ -63,7 +65,7 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
       DPoint offset) {
     try {
       CanvasSvgRenderResult result = PipelineCanvasSvgRenderer.render(context);
-      storeSnapshot(canvas, result, magnification, offset, context.canvasSize);
+      publishSnapshotInternal(canvas, result, magnification, offset, context.canvasSize);
       return result;
     } catch (HopException e) {
       LogChannel.UI.logError("Failed to render pipeline SVG for web canvas", e);
@@ -79,7 +81,7 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
       DPoint offset) {
     try {
       CanvasSvgRenderResult result = WorkflowCanvasSvgRenderer.render(context);
-      storeSnapshot(canvas, result, magnification, offset, context.canvasSize);
+      publishSnapshotInternal(canvas, result, magnification, offset, context.canvasSize);
       return result;
     } catch (HopException e) {
       LogChannel.UI.logError("Failed to render workflow SVG for web canvas", e);
@@ -87,12 +89,13 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
     }
   }
 
-  private void storeSnapshot(
+  @Override
+  void publishSnapshotInternal(
       Canvas canvas,
       CanvasSvgRenderResult result,
       float magnification,
       DPoint offset,
-      org.apache.hop.core.gui.Point canvasSize) {
+      Point canvasSize) {
     if (result == null) {
       return;
     }
@@ -117,11 +120,18 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
 
     CanvasRenderSnapshot snapshot =
         new CanvasRenderSnapshot(revision, result.getSvg(), result.getAreaOwners(), props);
-    CanvasGraphRegistry.getInstance().updateSnapshot(canvasId, snapshot);
-    Object graph = CanvasGraphRegistry.getInstance().getGraph(canvasId);
+    CanvasGraphRegistry registry = CanvasGraphRegistry.getInstance();
+    registry.updateSnapshot(canvasId, snapshot);
+    Object graph = registry.getGraph(canvasId);
     syncAreaOwnersToGraph(graph, result.getAreaOwners());
     setCanvasWidgetDataInternal(canvas, revision);
-    CanvasSvgRendererHandler.notifyCanvasReady(canvas, revision);
+    // Single shared client renderer for the session: only rebind when this canvas is the active
+    // tab. Otherwise a background paint (e.g. mouse-up on the graph we just navigated away from
+    // after following a BV/DV link) steals the overlay back to the previous model.
+    Canvas active = registry.getActiveCanvas();
+    if (active == null || active.isDisposed() || active == canvas) {
+      CanvasSvgRendererHandler.notifyCanvasReady(canvas, revision);
+    }
   }
 
   @Override
@@ -169,11 +179,8 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
 
   /** Expose area list update for graph classes that populate areaOwners after render. */
   static void syncAreaOwnersToGraph(Object graph, List<AreaOwner> areaOwners) {
-    if (graph instanceof org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph pipelineGraph) {
-      pipelineGraph.replaceAreaOwners(areaOwners);
-    } else if (graph
-        instanceof org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph workflowGraph) {
-      workflowGraph.replaceAreaOwners(areaOwners);
+    if (graph instanceof IWebCanvasGraph webCanvasGraph) {
+      webCanvasGraph.replaceAreaOwners(areaOwners);
     }
   }
 }

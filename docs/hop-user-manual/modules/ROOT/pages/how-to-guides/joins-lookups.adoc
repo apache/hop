@@ -84,7 +84,9 @@ allows you to run a query against a database using data obtained from previous t
 
 Lookups are a way to let you enrich your pipeline's stream with additional fields from external sources. The transforms allow you to choose which additional fields will be retrieved from the lookup source.
 
-Contrary to joins, lookups work on the current pipeline stream and your never change the number of rows you're processing.
+Contrary to joins, most lookups work on the current pipeline stream and never change the number of rows you're processing.
+
+NOTE: xref:pipeline/transforms/fuzzymatch.adoc[Fuzzy match] is an exception when *Match mode* is set to *All matches (separate rows)*: one main stream row can produce multiple output rows (Top-K).
 
 There are a number of transforms in the `Lookup` category that are considered self-explanatory in a lookup context and won't be included here. These transforms are:
 

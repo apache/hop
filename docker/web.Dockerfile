@@ -26,7 +26,8 @@ ARG HOP_GID=501
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AES_ENCODER_KEY_FILE=""
-ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+# Writable by the hop user without a bind mount (per-user data under users/<name>/)
+ENV HOP_AUDIT_FOLDER="/tmp/hop-web-audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
 # specify the hop log level
 ENV HOP_LOG_LEVEL="Basic"
@@ -71,13 +72,17 @@ RUN groupadd -r hop -g ${HOP_GID} \
     && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
     && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \
-    && mkdir "${HOP_AUDIT_FOLDER}"
+    && mkdir -p "${HOP_AUDIT_FOLDER}" \
+    && chown hop:hop "${HOP_AUDIT_FOLDER}"
 
 # Copy resources
+# lib/core includes Beam SDKs when the Beam marketplace plugin is installed into the client
+# (e.g. tools/install-wave1-plugins.sh). Do not COPY plugins/engines/beam/lib-beam: that path
+# was removed in #7721 / #7722 (SDKs now unpack under lib/core). An unconditional COPY fails
+# docker buildx when the directory is missing (apache/hop#7748).
 COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
 COPY ./assemblies/client/target/hop/config "${CATALINA_HOME}"/webapps/ROOT/config
 COPY ./assemblies/client/target/hop/lib/core "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib
-COPY ./assemblies/client/target/hop/plugins/engines/beam/lib-beam "${CATALINA_HOME}"/webapps/ROOT/WEB-INF/lib
 COPY ./assemblies/client/target/hop/plugins "${CATALINA_HOME}"/plugins
 COPY ./assemblies/client/target/hop/lib/jdbc/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/

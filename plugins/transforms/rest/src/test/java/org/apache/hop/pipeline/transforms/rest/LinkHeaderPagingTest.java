@@ -20,15 +20,19 @@ package org.apache.hop.pipeline.transforms.rest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import jakarta.ws.rs.core.MultivaluedHashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class LinkHeaderPagingTest {
 
   @Test
   void prefersNextWhenPrevAndNextShareOneHeaderValue() {
-    MultivaluedHashMap<String, Object> h = new MultivaluedHashMap<>();
-    h.add(
+    Map<String, List<String>> h = new LinkedHashMap<>();
+    add(
+        h,
         "Link",
         "<https://api.github.com/repos/apache/hop/issues?page=1>; rel=\"prev\", "
             + "<https://api.github.com/repos/apache/hop/issues?page=3>; rel=\"next\"");
@@ -39,9 +43,17 @@ class LinkHeaderPagingTest {
 
   @Test
   void mergesMultipleLinkHeaderFields() {
-    MultivaluedHashMap<String, Object> h = new MultivaluedHashMap<>();
-    h.add("Link", "<https://api.example.com/a>; rel=\"first\"");
-    h.add("link", "<https://api.example.com/b>; rel=\"next\"");
+    Map<String, List<String>> h = new LinkedHashMap<>();
+    add(h, "Link", "<https://api.example.com/a>; rel=\"first\"");
+    add(h, "link", "<https://api.example.com/b>; rel=\"next\"");
+    assertEquals("https://api.example.com/b", LinkHeaderPaging.findFirstUriWithRelNext(h));
+  }
+
+  @Test
+  void repeatedValuesUnderOneHeaderNameAreBothConsidered() {
+    Map<String, List<String>> h = new LinkedHashMap<>();
+    add(h, "Link", "<https://api.example.com/a>; rel=\"first\"");
+    add(h, "Link", "<https://api.example.com/b>; rel=\"next\"");
     assertEquals("https://api.example.com/b", LinkHeaderPaging.findFirstUriWithRelNext(h));
   }
 
@@ -74,9 +86,14 @@ class LinkHeaderPagingTest {
         LinkHeaderPaging.findFirstUriWithRelNext(header("<https://x.test/prev>; rel=\"prev\"")));
   }
 
-  static MultivaluedHashMap<String, Object> header(String linkValue) {
-    MultivaluedHashMap<String, Object> h = new MultivaluedHashMap<>();
-    h.add("Link", linkValue);
+  static Map<String, List<String>> header(String linkValue) {
+    Map<String, List<String>> h = new LinkedHashMap<>();
+    add(h, "Link", linkValue);
     return h;
+  }
+
+  /** Headers arrive as name to values, the way {@code Rest} materialises a response. */
+  static void add(Map<String, List<String>> headers, String name, String value) {
+    headers.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
   }
 }

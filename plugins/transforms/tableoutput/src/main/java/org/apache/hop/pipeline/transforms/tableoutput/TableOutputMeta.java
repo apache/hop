@@ -38,6 +38,8 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -57,6 +59,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
 @Getter
 @Setter
+@RelationalLineage(
+    operation = RelationalIoOperation.WRITE,
+    tableNameFromFieldProperty = "tableNameField")
 public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData> {
   private static final Class<?> PKG = TableOutputMeta.class;
 
@@ -148,7 +153,8 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   @HopMetadataProperty(
       key = "tablename_field",
       injectionKey = "TABLE_NAME_FIELD",
-      injectionKeyDescription = "TableOutputMeta.Injection.TableNameField.Field")
+      injectionKeyDescription = "TableOutputMeta.Injection.TableNameField.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableNameField;
 
   @HopMetadataProperty(

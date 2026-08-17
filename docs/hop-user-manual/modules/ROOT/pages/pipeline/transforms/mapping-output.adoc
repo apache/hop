@@ -29,6 +29,9 @@ The Mapping output transform describes the output of the mapping pipeline to the
 
 The data entering this transform will be streamed to the parent pipeline.
 
+A child used from xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] must contain exactly one Mapping output.
+A child used from xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] may contain zero or more Mapping output transforms.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

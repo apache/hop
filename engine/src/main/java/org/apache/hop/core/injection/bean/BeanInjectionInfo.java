@@ -117,7 +117,7 @@ public class BeanInjectionInfo<Meta extends Object> {
 
     List<BeanLevelInfo> parentPath = Arrays.asList(classLevelInfo);
 
-    boolean hasChildren = extractMetadataProperties(rootGroup, parentPath, clazz, null);
+    boolean hasChildren = extractMetadataProperties(rootGroup, parentPath, clazz, null, "");
     if (!hasChildren) {
       throw new HopRuntimeException("Injection not supported in " + clazz);
     }
@@ -130,7 +130,8 @@ public class BeanInjectionInfo<Meta extends Object> {
       Group rootGroup,
       List<BeanLevelInfo> parentPath,
       Class<?> clazz,
-      HopMetadataProperty parentProperty) {
+      HopMetadataProperty parentProperty,
+      String keyPrefix) {
 
     Set<String> childKeysToIgnore = getChildKeysToIgnore(parentProperty);
 
@@ -153,10 +154,11 @@ public class BeanInjectionInfo<Meta extends Object> {
 
       HopMetadataProperty property = propertyFields.get(field);
 
-      String injectionKey = calculateInjectionKey(field, property);
+      String injectionKey = applyPrefix(keyPrefix, calculateInjectionKey(field, property));
       String injectionKeyDescription = calculateInjectionKeyDescription(property);
-      String injectionGroupKey = calculateInjectionGroupKey(property);
+      String injectionGroupKey = applyPrefix(keyPrefix, calculateInjectionGroupKey(property));
       String injectionGroupDescription = calculateInjectionGroupDescription(property);
+      String childPrefix = nextPrefix(keyPrefix, property.injectionKeyPrefix());
 
       // Class Bean Level Info...
       //
@@ -219,14 +221,15 @@ public class BeanInjectionInfo<Meta extends Object> {
                   path,
                   property.isExcludedFromInjection());
           group.properties.add(p);
-          properties.put(injectionKey, p);
+          registerProperty(injectionKey, p);
         } else {
           Set<String> ignoreKeys = new HashSet<>(Set.of(property.childKeysToIgnore()));
           for (Field childField : ReflectionUtil.findAllFields(fieldType)) {
             Class<?> childFieldType = childField.getType();
             HopMetadataProperty childProperty = childField.getAnnotation(HopMetadataProperty.class);
             if (childProperty != null && !ignoreKeys.contains(childProperty.key())) {
-              String childInjectionKey = calculateInjectionKey(childField, childProperty);
+              String childInjectionKey =
+                  applyPrefix(childPrefix, calculateInjectionKey(childField, childProperty));
               String childInjectionKeyDescription = calculateInjectionKeyDescription(childProperty);
 
               // Child bean level info...
@@ -253,11 +256,16 @@ public class BeanInjectionInfo<Meta extends Object> {
                         path,
                         property.isExcludedFromInjection());
                 group.properties.add(p);
-                properties.put(childInjectionKey, p);
+                registerProperty(childInjectionKey, p);
               } else {
                 // Extract properties of this child as well...
                 //
-                extractMetadataProperties(rootGroup, path, childFieldType, childProperty);
+                extractMetadataProperties(
+                    rootGroup,
+                    path,
+                    childFieldType,
+                    childProperty,
+                    nextPrefix(childPrefix, childProperty.injectionKeyPrefix()));
               }
             }
           }
@@ -282,18 +290,50 @@ public class BeanInjectionInfo<Meta extends Object> {
                   path,
                   property.isExcludedFromInjection());
           rootGroup.properties.add(p);
-          properties.put(injectionKey, p);
+          registerProperty(injectionKey, p);
         }
         if (!childless) {
           // POJO: look deeper..
           //
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
           path.add(fieldLevelInfo);
-          extractMetadataProperties(rootGroup, path, fieldType, property);
+          extractMetadataProperties(rootGroup, path, fieldType, property, childPrefix);
         }
       }
     }
     return true;
+  }
+
+  private void registerProperty(String injectionKey, Property property) {
+    if (properties.containsKey(injectionKey)) {
+      log.logBasic(
+          "Duplicate metadata injection key '"
+              + injectionKey
+              + "' in "
+              + clazz.getName()
+              + "; last definition wins");
+    }
+    properties.put(injectionKey, property);
+  }
+
+  private static String applyPrefix(String prefix, String key) {
+    if (StringUtils.isEmpty(prefix) || StringUtils.isEmpty(key)) {
+      return key;
+    }
+    return prefix + key;
+  }
+
+  /**
+   * Accumulated prefix for descendants of a field; empty field prefix keeps the incoming prefix.
+   */
+  private static String nextPrefix(String prefix, String fieldPrefix) {
+    if (StringUtils.isEmpty(fieldPrefix)) {
+      return prefix;
+    }
+    if (StringUtils.isEmpty(prefix)) {
+      return fieldPrefix;
+    }
+    return prefix + fieldPrefix;
   }
 
   private static @NonNull Set<String> getChildKeysToIgnore(HopMetadataProperty property) {

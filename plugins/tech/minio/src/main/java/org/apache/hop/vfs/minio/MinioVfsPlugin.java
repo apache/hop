@@ -39,7 +39,7 @@ public class MinioVfsPlugin implements IVfs {
 
   @Override
   public FileProvider getProvider() {
-    return new MinioFileProvider();
+    return null;
   }
 
   @Override

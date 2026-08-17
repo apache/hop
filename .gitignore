@@ -46,6 +46,7 @@ docs/.pnp.js
 tmp/images
 
 integration-tests/mail/output/
+integration-tests/ftp/output/
 # Generated spreadsheet writer outputs (under files/ historically; now also under output/)
 integration-tests/spreadsheet/files/exel-part-001.xlsx
 integration-tests/spreadsheet/files/exel-part-002.xlsx
@@ -64,6 +65,8 @@ integration-tests/mdi/files/jsonoutput-mdi-test_0.json
 integration-tests/mdi/output/
 integration-tests/http/files/http-action-output
 integration-tests/http/output/
+# SFTP tests download and move files into output/ while they run
+integration-tests/sftp/output/
 integration-tests/spreadsheet/files/sample-file-append.xlsx
 integration-tests/spreadsheet/files/sample-file-append-test.xlsx
 integration-tests/spark-native/output
@@ -89,3 +92,8 @@ local-snapshots-dir/
 
 # GCP service-account key staged for the integration tests (Jenkins credentials gcp-access-hop)
 google-key-apache-hop-it.json
+
+# The SFTP provider test suite needs a *directory* literally named subdir4.jar
+# (it checks a folder ending in .jar isn't treated as a layered file system).
+# Without this the *.jar rule above silently keeps it out of the commit.
+!plugins/tech/sftp/src/test/resources/test-data/read-tests/dir1/subdir4.jar/

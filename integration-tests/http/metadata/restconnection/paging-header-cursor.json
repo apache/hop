@@ -1,0 +1,12 @@
+{
+  "name": "paging-header-cursor",
+  "pagination_type": "HEADER_CURSOR",
+  "page_param_name": "X-Cursor",
+  "limit_param_name": "X-Limit",
+  "default_limit": 2,
+  "cursor_json_path": "$.next",
+  "auth_type": "No Auth",
+  "base_url": "http://${PAGING_HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false
+}

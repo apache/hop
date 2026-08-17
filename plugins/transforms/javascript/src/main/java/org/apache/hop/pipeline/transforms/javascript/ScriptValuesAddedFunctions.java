@@ -2671,7 +2671,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
               boolean destinationExists = fileDestination.exists();
               // Let's move the file...
               if ((destinationExists && overwrite) || !destinationExists) {
-                fileSource.moveTo(fileDestination);
+                HopVfs.moveFile(fileSource, fileDestination);
               }
             }
           } else {

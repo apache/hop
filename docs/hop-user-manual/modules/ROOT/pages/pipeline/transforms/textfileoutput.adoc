@@ -131,6 +131,7 @@ The table below describes each of the options for configuring the field properti
 |Name|The name of the field.
 |Type|Data type of the field. This can be either String, Date or Number.
 |Format|Select a format to apply to the field value. Only applies to numbers and dates.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length a| The length option depends on the field type:
 
 * Number - Total number of significant figures in a number
@@ -139,7 +140,8 @@ The table below describes each of the options for configuring the field properti
 |Precision |For numbers, specifies the number of floating point digits
 |Currency|Symbol used to represent currencies, such as dollars ($10,000.00) or Euros (E5.000,00)
 |Decimal|The character used to represent the decimal point in a floating-point number. A decimal point can be a "." (10,000.00) or "," (5.000,00).
-|Group|The character used to represent the thousands separator in numbers. This can be a "," (10,000.00) or "." (5.000,00)
+|Group|The thousands separator in numbers. This can be a "," (10,000.00) or "." (5.000,00).
+This is *not* a row group.
 |Trim type|The trimming method used to remove blank spaces from string values. This can be left (removes leading spaces), right (removes trailing spaces), both, or none.
 
 Note: Trimming only works when there is no field length given. 

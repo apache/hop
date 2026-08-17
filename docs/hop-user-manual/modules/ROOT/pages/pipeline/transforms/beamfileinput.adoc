@@ -68,6 +68,7 @@ A file definition can be used to define a file structure definition.
 |Field name|The field name.
 |Type|The field data type.
 |Format|The field format.
+See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Length|The field length.
-|Precision|The field precisiom.
+|Precision|The field precision.
 |===

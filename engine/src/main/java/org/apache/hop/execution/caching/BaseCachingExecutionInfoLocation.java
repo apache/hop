@@ -623,7 +623,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
       for (String id : getExecutionIds(true, 0)) {
         Execution execution = getExecution(id);
-        if (matcher.matches(execution)) {
+        if (execution != null && matcher.matches(execution)) {
           executions.add(execution);
         }
       }

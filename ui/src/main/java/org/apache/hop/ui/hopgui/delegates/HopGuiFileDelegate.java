@@ -35,6 +35,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditEvent;
@@ -49,6 +50,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -198,6 +200,9 @@ public class HopGuiFileDelegate {
    */
   public String fileSaveAs() {
     try {
+      if (!HopSecurityUi.check(Permission.FILE_SAVE)) {
+        return null;
+      }
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       FileObject file = null;
@@ -238,6 +243,9 @@ public class HopGuiFileDelegate {
 
   public void fileSave() {
     try {
+      if (!HopSecurityUi.check(Permission.FILE_SAVE)) {
+        return;
+      }
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_SAVE)) {
@@ -437,6 +445,9 @@ public class HopGuiFileDelegate {
   }
 
   public void exportToSvg() {
+    if (!HopSecurityUi.check(Permission.FILE_EXPORT)) {
+      return;
+    }
     try {
 
       String svgXml = null;

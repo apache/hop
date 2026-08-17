@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-libs-jdbc</artifactId>
@@ -35,7 +35,7 @@
         <duckdb.version>1.5.3.0</duckdb.version>
         <h2.version>2.4.240</h2.version>
         <hsqldb.version>2.7.4</hsqldb.version>
-        <jt400.version>21.0.6</jt400.version>
+        <jt400.version>21.0.7</jt400.version>
         <monetdb.version>12.2</monetdb.version>
         <mssqlnative.version>13.4.0.jre11</mssqlnative.version>
         <postgresql.version>42.7.12</postgresql.version>

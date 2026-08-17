@@ -52,6 +52,26 @@ public class HopMetadataInjector {
     // Hidden constructor
   }
 
+  private static String applyPrefix(String prefix, String key) {
+    if (StringUtils.isEmpty(prefix) || StringUtils.isEmpty(key)) {
+      return key;
+    }
+    return prefix + key;
+  }
+
+  /**
+   * Accumulated prefix for descendants of a field; empty field prefix keeps the incoming prefix.
+   */
+  private static String nextPrefix(String prefix, String fieldPrefix) {
+    if (StringUtils.isEmpty(fieldPrefix)) {
+      return prefix;
+    }
+    if (StringUtils.isEmpty(prefix)) {
+      return fieldPrefix;
+    }
+    return prefix + fieldPrefix;
+  }
+
   /**
    * For the given object we retrieve the mappings between injection groups and their keys.
    *
@@ -64,7 +84,7 @@ public class HopMetadataInjector {
       throw new HopException("The class to find injection group key mappings for is null");
     }
     Map<String, Set<String>> map = new HashMap<>();
-    findInjectionGroupKeys(objectClass, map);
+    findInjectionGroupKeys(objectClass, map, "");
     return map;
   }
 
@@ -78,6 +98,11 @@ public class HopMetadataInjector {
    */
   public static boolean isTopLevelInjectionKey(Class<?> objectClass, String targetKey)
       throws HopException {
+    return isTopLevelInjectionKey(objectClass, targetKey, "");
+  }
+
+  private static boolean isTopLevelInjectionKey(
+      Class<?> objectClass, String targetKey, String keyPrefix) throws HopException {
     if (objectClass == null || StringUtils.isEmpty(targetKey)) {
       return false;
     }
@@ -97,7 +122,8 @@ public class HopMetadataInjector {
         continue;
       }
       String injectionKey =
-          Const.coalesce(property.injectionKey(), property.key(), field.getName());
+          applyPrefix(
+              keyPrefix, Const.coalesce(property.injectionKey(), property.key(), field.getName()));
       if (targetKey.equals(injectionKey)) {
         return true;
       }
@@ -105,7 +131,8 @@ public class HopMetadataInjector {
           && !fieldClass.isPrimitive()
           && !fieldClass.equals(String.class)
           && !fieldClass.isArray()) {
-        if (isTopLevelInjectionKey(fieldClass, targetKey)) {
+        if (isTopLevelInjectionKey(
+            fieldClass, targetKey, nextPrefix(keyPrefix, property.injectionKeyPrefix()))) {
           return true;
         }
       }
@@ -122,6 +149,11 @@ public class HopMetadataInjector {
    */
   public static void findInjectionGroupKeys(Class<?> objectClass, Map<String, Set<String>> map)
       throws HopException {
+    findInjectionGroupKeys(objectClass, map, "");
+  }
+
+  private static void findInjectionGroupKeys(
+      Class<?> objectClass, Map<String, Set<String>> map, String keyPrefix) throws HopException {
     try {
       List<Field> fields =
           ReflectionUtil.findAllFields(objectClass, new MetadataPropertyKeyFunction());
@@ -131,7 +163,9 @@ public class HopMetadataInjector {
         if (property != null && !property.isExcludedFromInjection()) {
           // Does this have an injection group key?
           //
-          String injectionGroup = Const.NVL(property.injectionGroupKey(), property.groupKey());
+          String injectionGroup =
+              applyPrefix(keyPrefix, Const.NVL(property.injectionGroupKey(), property.groupKey()));
+          String childPrefix = nextPrefix(keyPrefix, property.injectionKeyPrefix());
           if (StringUtils.isNotEmpty(injectionGroup)) {
             if (fieldClass.equals(List.class)) {
               // Search in the generic type of the List
@@ -140,16 +174,20 @@ public class HopMetadataInjector {
               if (listItemClass.equals(String.class)) {
                 // We simply map the single injection key with the group key
                 //
-                map.put(injectionGroup, new HashSet<>(Set.of(property.injectionKey())));
+                String listKey =
+                    applyPrefix(
+                        childPrefix,
+                        Const.coalesce(property.injectionKey(), property.key(), field.getName()));
+                map.put(injectionGroup, new HashSet<>(Set.of(listKey)));
               } else {
-                findInjectionGroupKeys(listItemClass, injectionGroup, map);
+                findInjectionGroupKeys(listItemClass, injectionGroup, map, childPrefix);
               }
             }
           } else if (StringUtils.isEmpty(property.injectionGroupKey())) {
             // No injection key or group: we want to look further down.
             // If the class is no primitive, we look into it.
             //
-            findInjectionGroupKeys(fieldClass, map);
+            findInjectionGroupKeys(fieldClass, map, childPrefix);
           }
         }
       }
@@ -166,14 +204,16 @@ public class HopMetadataInjector {
    * @param map The map to add the keys to
    */
   private static void findInjectionGroupKeys(
-      Class<?> fieldClass, String injectionGroup, Map<String, Set<String>> map) {
+      Class<?> fieldClass, String injectionGroup, Map<String, Set<String>> map, String keyPrefix) {
     List<Field> fields =
         ReflectionUtil.findAllFields(fieldClass, new MetadataPropertyKeyFunction());
     for (Field field : fields) {
       HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
       if (property != null) {
         String injectionKey =
-            Const.coalesce(property.injectionKey(), property.key(), field.getName());
+            applyPrefix(
+                keyPrefix,
+                Const.coalesce(property.injectionKey(), property.key(), field.getName()));
         if (StringUtils.isNotEmpty(injectionKey)) {
           // Add to the set for this injection group
           Set<String> keySet = map.computeIfAbsent(injectionGroup, k -> new HashSet<>());
@@ -182,7 +222,11 @@ public class HopMetadataInjector {
           // Perhaps this is a subclass and the properties are located deeper.
           //
           Class<?> childClass = field.getType();
-          findInjectionGroupKeys(childClass, injectionGroup, map);
+          findInjectionGroupKeys(
+              childClass,
+              injectionGroup,
+              map,
+              nextPrefix(keyPrefix, property.injectionKeyPrefix()));
         }
       }
     }
@@ -208,6 +252,16 @@ public class HopMetadataInjector {
     // For these fields we see if we can find injection instructions.
     // If this is the case, we inject the metadata.
     //
+    inject(metadataProvider, object, injectionKeyMap, groupKeyMap, "");
+  }
+
+  private static void inject(
+      IHopMetadataProvider metadataProvider,
+      Object object,
+      Map<String, Object> injectionKeyMap,
+      Map<String, RowBuffer> groupKeyMap,
+      String keyPrefix)
+      throws HopException {
     if (object == null) {
       return;
     }
@@ -216,7 +270,8 @@ public class HopMetadataInjector {
       List<Field> fields =
           ReflectionUtil.findAllFields(objectClass, new MetadataPropertyKeyFunction());
       for (Field field : fields) {
-        injectField(metadataProvider, object, injectionKeyMap, groupKeyMap, field, objectClass);
+        injectField(
+            metadataProvider, object, injectionKeyMap, groupKeyMap, field, objectClass, keyPrefix);
       }
     } catch (Exception e) {
       throw new HopException("Error injecting source data into object", e);
@@ -229,7 +284,8 @@ public class HopMetadataInjector {
       Map<String, Object> injectionKeyMap,
       Map<String, RowBuffer> groupKeyMap,
       Field field,
-      Class<?> objectClass)
+      Class<?> objectClass,
+      String keyPrefix)
       throws Exception {
     HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
     if (property != null && !property.isExcludedFromInjection()) {
@@ -239,8 +295,11 @@ public class HopMetadataInjector {
       // This is some legacy or misunderstood functionality.
       // The key is the same as the field if none is given.
       String injectionKey =
-          Const.coalesce(property.injectionKey(), property.key(), field.getName());
-      String groupKey = Const.coalesce(property.injectionGroupKey(), property.groupKey());
+          applyPrefix(
+              keyPrefix, Const.coalesce(property.injectionKey(), property.key(), field.getName()));
+      String groupKey =
+          applyPrefix(keyPrefix, Const.coalesce(property.injectionGroupKey(), property.groupKey()));
+      String childPrefix = nextPrefix(keyPrefix, property.injectionKeyPrefix());
 
       boolean hasKey = StringUtils.isNotEmpty(injectionKey);
       boolean hasKeyData = hasKey && injectionKeyMap.containsKey(injectionKey);
@@ -253,7 +312,8 @@ public class HopMetadataInjector {
       if (hasKey && hasKeyData && !hasGroupData) {
         injectValue(property, metadataProvider, object, field, valueToSet);
       } else if (hasGroupData) {
-        injectList(metadataProvider, object, groupKeyMap, field, objectClass, groupKey);
+        injectList(
+            metadataProvider, object, groupKeyMap, field, objectClass, groupKey, childPrefix);
       } else if (!fieldClass.isEnum()
           && !fieldClass.isPrimitive()
           && !fieldClass.equals(String.class)
@@ -266,7 +326,13 @@ public class HopMetadataInjector {
         // or enums at this point.  The developer chose not to want this.
         //
         injectIntoInlineField(
-            metadataProvider, object, injectionKeyMap, groupKeyMap, field, objectClass);
+            metadataProvider,
+            object,
+            injectionKeyMap,
+            groupKeyMap,
+            field,
+            objectClass,
+            childPrefix);
       }
     }
   }
@@ -277,7 +343,8 @@ public class HopMetadataInjector {
       Map<String, Object> dataMap,
       Map<String, RowBuffer> listItemData,
       Field field,
-      Class<?> objectClass)
+      Class<?> objectClass,
+      String keyPrefix)
       throws IllegalAccessException,
           InvocationTargetException,
           NoSuchMethodException,
@@ -293,7 +360,7 @@ public class HopMetadataInjector {
               + objectClass.getName()
               + " has a value to inject into");
     }
-    inject(metadataProvider, fieldObject, dataMap, listItemData);
+    inject(metadataProvider, fieldObject, dataMap, listItemData, keyPrefix);
   }
 
   private static void injectValue(
@@ -516,7 +583,8 @@ public class HopMetadataInjector {
       Map<String, RowBuffer> listItemData,
       Field field,
       Class<?> objectClass,
-      String groupKey)
+      String groupKey,
+      String itemKeyPrefix)
       throws HopException {
     try {
       // What is the list?
@@ -575,7 +643,7 @@ public class HopMetadataInjector {
             } else {
               Map<String, Object> listItemValueMap = new HashMap<>();
               listItemValueMap.put(valueKey, value);
-              inject(metadataProvider, listItemObject, listItemValueMap, Map.of());
+              inject(metadataProvider, listItemObject, listItemValueMap, Map.of(), itemKeyPrefix);
             }
           }
         }

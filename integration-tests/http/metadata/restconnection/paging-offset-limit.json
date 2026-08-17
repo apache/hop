@@ -1,0 +1,11 @@
+{
+  "name": "paging-offset-limit",
+  "pagination_type": "OFFSET_LIMIT",
+  "offset_param_name": "offset",
+  "limit_param_name": "limit",
+  "default_limit": 2,
+  "auth_type": "No Auth",
+  "base_url": "http://${PAGING_HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false
+}

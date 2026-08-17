@@ -1,0 +1,98 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /metadata-types/redis/
+:language: en_US
+
+= Redis Connection
+
+== Description
+
+A Redis Connection describes how Apache Hop connects to Redis in Standalone, Sentinel or Cluster mode.
+Connections are managed in the Metadata perspective and serialized as JSON under:
+
+`metadata/redis-connection/`
+
+Use the *Test* button to verify connectivity with a Redis `PING`.
+
+The editor is split into two groups:
+
+* *Connection config* -- topology, authentication and timeouts (fields change with deployment mode)
+* *Pool config* -- shared Lettuce connection-pool settings for all three modes
+
+== Connection config
+
+|===
+|Option |Description
+
+|Deployment mode
+|`STANDALONE`, `SENTINEL` or `CLUSTER`
+
+|Hostname / Port
+|Standalone host and port (default `6379`). Hidden in Sentinel/Cluster mode.
+
+|Database
+|Logical database index for Standalone/Sentinel (default `0`). Hidden in Cluster mode (always `0`).
+
+|Master name
+|Sentinel master name. Visible only in Sentinel mode.
+
+|Sentinel nodes
+|Sentinel nodes as `host:port`, one per line (comma or semicolon also accepted). Visible only in Sentinel mode. Multi-line text field.
+
+|Cluster nodes
+|Cluster seed nodes as `host:port`, one per line (comma or semicolon also accepted). Visible only in Cluster mode. Multi-line text field.
+
+|Username / Password
+|Optional ACL credentials
+
+|Use SSL/TLS
+|Enable TLS for the connection
+
+|Timeout (ms)
+|Command timeout in milliseconds
+
+|===
+
+== Pool config
+
+Pool settings are **shared** by Standalone, Sentinel and Cluster.
+Enable pooling when you want Lettuce to manage a commons-pool2 connection pool.
+
+|===
+|Option |Description
+
+|Enable connection pooling
+|Turn on Lettuce `ConnectionPoolSupport` pooling
+
+|Max total
+|Maximum connections in the pool (default `8`)
+
+|Max idle
+|Maximum idle connections (default `8`)
+
+|Min idle
+|Minimum idle connections (default `0`)
+
+|Max wait (ms)
+|Borrow timeout (`-1` = wait forever)
+
+|===
+
+== Related transforms
+
+* xref:pipeline/transforms/redis-input.adoc[Redis Input]
+* xref:pipeline/transforms/redis-output.adoc[Redis Output]

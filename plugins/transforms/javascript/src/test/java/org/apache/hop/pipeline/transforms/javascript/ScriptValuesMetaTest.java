@@ -54,6 +54,7 @@ class ScriptValuesMetaTest {
     // See if after all that we still have the correct data
     //
     assertEquals("2", meta.getOptimizationLevel());
+    assertEquals("ES6", meta.getLanguageVersion());
 
     // The scripts
     assertEquals(3, meta.getJsScripts().size());
@@ -92,5 +93,53 @@ class ScriptValuesMetaTest {
     assertEquals(9, f.getLength());
     assertEquals(2, f.getPrecision());
     assertTrue(f.isReplace());
+  }
+
+  /**
+   * The copy constructor used to call the no-arg one, which seeds a default "Script 1" for brand
+   * new transforms. Every clone therefore added another phantom script.
+   */
+  @Test
+  void cloningDoesNotAddPhantomScripts() {
+    ScriptValuesMeta meta = new ScriptValuesMeta();
+    meta.getJsScripts().clear();
+    meta.getJsScripts()
+        .add(new ScriptValuesScript(ScriptValuesScript.TRANSFORM_SCRIPT, "Script 1", "a=1;"));
+
+    ScriptValuesMeta copy = (ScriptValuesMeta) meta.clone();
+    for (int i = 0; i < 5; i++) {
+      copy = (ScriptValuesMeta) copy.clone();
+    }
+
+    assertEquals(1, copy.getJsScripts().size());
+    ScriptValuesScript script = copy.getJsScripts().getFirst();
+    assertEquals("Script 1", script.getName());
+    assertEquals("a=1;", script.getScript());
+    assertEquals(ScriptValuesScript.TRANSFORM_SCRIPT, script.getType());
+  }
+
+  /** A clone has to be a deep copy: editing the copy may not touch the original. */
+  @Test
+  void cloningCopiesScriptsAndFields() {
+    ScriptValuesMeta meta = new ScriptValuesMeta();
+    meta.getJsScripts().clear();
+    meta.getJsScripts()
+        .add(new ScriptValuesScript(ScriptValuesScript.TRANSFORM_SCRIPT, "Script 1", "a=1;"));
+    ScriptValuesMeta.ScriptField field = new ScriptValuesMeta.ScriptField();
+    field.setName("a");
+    meta.getScriptFields().add(field);
+    meta.setOptimizationLevel("3");
+    meta.setLanguageVersion("1.8");
+
+    ScriptValuesMeta copy = (ScriptValuesMeta) meta.clone();
+    assertEquals("3", copy.getOptimizationLevel());
+    assertEquals("1.8", copy.getLanguageVersion());
+    assertEquals(1, copy.getScriptFields().size());
+    assertEquals("a", copy.getScriptFields().getFirst().getName());
+
+    copy.getJsScripts().getFirst().setScript("b=2;");
+    copy.getScriptFields().getFirst().setName("b");
+    assertEquals("a=1;", meta.getJsScripts().getFirst().getScript());
+    assertEquals("a", meta.getScriptFields().getFirst().getName());
   }
 }

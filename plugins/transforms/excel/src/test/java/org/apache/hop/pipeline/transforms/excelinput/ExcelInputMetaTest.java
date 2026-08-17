@@ -18,11 +18,25 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class ExcelInputMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
+    // Password fields require Encr.encoder (initialized by HopEnvironment)
+    HopEnvironment.init();
+  }
 
   @Test
   void testSerialization() throws Exception {
@@ -34,6 +48,9 @@ class ExcelInputMetaTest {
     assertEquals("file2.xls", meta.getFiles().get(1).getName());
     assertEquals(1, meta.getSheets().size());
     assertEquals(4, meta.getFields().size());
+    assertEquals("s3cr3t", meta.getPassword());
+    // the password is never written out in clear text
+    assertTrue(meta.getXml().contains("<password>Encrypted "));
   }
 
   @Test

@@ -290,7 +290,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
 
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
-      return true;
+      return info.getDepth() == 0 || isIncludeSubFolders();
     }
   }
 

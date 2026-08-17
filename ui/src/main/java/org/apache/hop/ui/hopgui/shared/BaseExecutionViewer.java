@@ -169,6 +169,21 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
     return Utils.getDurationHMS(durationMs / 1000.0);
   }
 
+  /**
+   * Logging interval from the execution information location, used to decide whether state is
+   * stalled. Defaults to 20s when the location is not loaded yet.
+   */
+  protected long loggingInterval() {
+    if (perspective == null || perspective.getLocationMap() == null) {
+      return 20000;
+    }
+    ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+    if (location == null) {
+      return 20000;
+    }
+    return Const.toLong(location.getDataLoggingInterval(), 20000);
+  }
+
   public abstract void drillDownOnLocation(Point location);
 
   @Override
@@ -197,8 +212,8 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
 
     Cursor cursor = null;
-    // Change cursor when dragging view or view port
-    if (viewDrag || viewPortNavigation) {
+    // Change cursor when dragging view or view port, or hovering the minimap
+    if (viewDrag || viewPortNavigation || isOverNavigationView(new Point(event.x, event.y))) {
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
     }
     // Change cursor when hover an action or transform icon
@@ -217,6 +232,12 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
 
   @Override
   public void mouseUp(MouseEvent event) {
+    // RAP does not send mouse-move events to the server. Apply the final viewport or
+    // pan position from the mouse-up coordinates, matching HopGuiPipelineGraph.
+    if (EnvironmentUtils.getInstance().isWeb() && (viewPortNavigation || viewDrag)) {
+      mouseMove(event);
+    }
+
     if (viewPortNavigation || viewDrag) {
       viewDrag = false;
       viewPortNavigation = false;

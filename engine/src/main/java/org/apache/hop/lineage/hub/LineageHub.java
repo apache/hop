@@ -32,7 +32,8 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageVariables;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.plugin.LineageSinkPluginType;
 import org.apache.hop.lineage.spi.ILineageSink;
@@ -85,8 +86,18 @@ public final class LineageHub {
 
   /** Invoked after {@link org.apache.hop.core.HopEnvironment} finishes plugin registration. */
   public void environmentReady() {
+    LineageConfiguration.invalidate();
     sinksInitialized.set(false);
     sinks = List.of();
+  }
+
+  /**
+   * Whether lineage observation is switched on. Callers that would do measurable work purely to
+   * build an event — e.g. accumulating per-row state — should check this first; it is a cheap read
+   * of the memoized configuration.
+   */
+  public boolean isEnabled() {
+    return resolveConfig().isEnabled();
   }
 
   /**
@@ -155,6 +166,7 @@ public final class LineageHub {
     shutdownSinks();
     sinksInitialized.set(false);
     sinks = List.of();
+    LineageConfiguration.invalidate();
   }
 
   /**
@@ -316,8 +328,7 @@ public final class LineageHub {
       if (sinksInitialized.get()) {
         return;
       }
-      Variables variables = new Variables();
-      variables.initializeFrom(null);
+      IVariables variables = LineageVariables.engineVariables();
 
       if (explicitSinks != null) {
         sinks = List.copyOf(explicitSinks);

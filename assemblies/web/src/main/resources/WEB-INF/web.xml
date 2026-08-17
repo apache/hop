@@ -31,6 +31,26 @@
         <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
     </listener>
 
+    <!-- Hop-managed BASIC auth (active only when mode is BASIC) -->
+    <filter>
+        <filter-name>HopBasicAuth</filter-name>
+        <filter-class>org.apache.hop.ui.hopgui.security.HopBasicAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HopBasicAuth</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Hop-managed OIDC / OAuth2 (active only when mode is OAUTH2) -->
+    <filter>
+        <filter-name>HopOidcAuth</filter-name>
+        <filter-class>org.apache.hop.ui.hopgui.security.HopOidcAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HopOidcAuth</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <servlet>
         <servlet-name>HopGui</servlet-name>
         <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>

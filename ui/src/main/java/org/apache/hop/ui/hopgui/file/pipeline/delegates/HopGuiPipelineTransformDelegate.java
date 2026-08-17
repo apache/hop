@@ -35,6 +35,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.security.Permission;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -52,10 +53,12 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.partition.PartitionMethodSelector;
@@ -203,7 +206,8 @@ public class HopGuiPipelineTransformDelegate {
         transformMeta.getTransform().convertIOMetaToTransformNames();
         // Snapshot after IO-meta normalization so OK-without-edits is not treated as a change.
         before = (TransformMeta) transformMeta.clone();
-        transformName = dialog.open();
+        // Subject stack covers legacy dialogs that never set BaseDialog.DIALOG_SUBJECT
+        transformName = BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open);
 
         dialogs.remove(name);
       }
@@ -596,7 +600,8 @@ public class HopGuiPipelineTransformDelegate {
                         settings.getTransformMeta(),
                         partitioningMeta,
                         settings.getPipelineMeta());
-                return dialog.open();
+                return BaseDialog.withDialogSubject(
+                    settings.getTransformMeta().getTransform(), dialog::open);
               });
         }
 
@@ -688,7 +693,8 @@ public class HopGuiPipelineTransformDelegate {
               transformErrorMeta,
               pipelineMeta,
               targetTransforms);
-      if (dialog.open()) {
+      if (Boolean.TRUE.equals(
+          BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open))) {
         transformMeta.setTransformErrorMeta(transformErrorMeta);
         TransformMeta after = (TransformMeta) transformMeta.clone();
         if (hasTransformMetaChanged(before, after)) {
@@ -726,6 +732,9 @@ public class HopGuiPipelineTransformDelegate {
   public void delTransforms(PipelineMeta pipelineMeta, List<TransformMeta> transforms) {
     if (Utils.isEmpty(transforms)) {
       return; // nothing to do
+    }
+    if (!HopSecurityUi.check(Permission.FILE_EDIT)) {
+      return;
     }
     try {
       ExtensionPointHandler.callExtensionPoint(

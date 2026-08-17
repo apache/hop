@@ -89,7 +89,16 @@ With this location type you can store execution information in a xref:technology
 
 === Elastic location
 
-The Elastic location type stores information in an Elastic index.  See the xref:metadata-types/elastic-location-type.adoc[Elastic location type]
+The Elastic location type is a caching location that stores one JSON document per execution in an Elasticsearch index.
+Authenticate with an API key.
+See the xref:metadata-types/elastic-location-type.adoc[Elastic location type].
+
+=== OpenSearch location
+
+The OpenSearch location type is the same idea as Elastic -- a caching location, one JSON document per execution -- for an https://opensearch.org/[OpenSearch] cluster.
+Authenticate with a username and password.
+Listing uses OpenSearch SQL (`/_plugins/_sql`) rather than Elasticsearch `_search`.
+See the xref:metadata-types/opensearch-location-type.adoc[OpenSearch location type] for the options and a comparison with Elastic.
 
 === Caching Database location
 

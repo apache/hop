@@ -42,7 +42,13 @@ import org.junit.jupiter.api.io.TempDir;
  */
 class HopVfsProvidersTest {
 
-  /** Schemes registered unconditionally in {@code HopVfs.createFileSystemManager}. */
+  /**
+   * Schemes registered unconditionally in {@code HopVfs.createFileSystemManager}. {@code sftp},
+   * {@code ftp} and {@code ftps} are deliberately absent: they are served by the SFTP and FTP
+   * technology plugins, which keep all the code for their protocol in one place. See {@code
+   * org.apache.hop.vfs.sftp.HopVfsSftpSchemeTest} and {@code
+   * org.apache.hop.vfs.ftp.HopVfsFtpSchemeTest}.
+   */
   private static final List<String> BUILTIN_SCHEMES =
       List.of(
           "ram",
@@ -53,9 +59,6 @@ class HopVfsProvidersTest {
           "jar",
           "http",
           "https",
-          "ftp",
-          "ftps",
-          "sftp",
           "war",
           "par",
           "ear",
@@ -229,11 +232,8 @@ class HopVfsProvidersTest {
   @DisplayName(
       "Remaining network providers are registered (round-trip in HopVfsNetworkProvidersTest)")
   void remainingNetworkProvidersAreRegistered() {
-    // http/https/ftp/ftps/sftp need real servers; HopVfsNetworkProvidersTest spins up embedded
-    // ones for those. This case just checks they're present (the round-trip tests would fail
-    // earlier if they weren't).
     DefaultFileSystemManager fsm = HopVfs.getFileSystemManager();
-    for (String scheme : new String[] {"http", "https", "ftp", "ftps", "sftp"}) {
+    for (String scheme : new String[] {"http", "https"}) {
       assertTrue(fsm.hasProvider(scheme), scheme + " provider must be registered");
     }
   }

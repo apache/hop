@@ -23,6 +23,7 @@ under the License.
 * xref:docker-build.adoc[Docker Build Script]
 * xref:integration-testing.adoc[Integration Testing]
 * xref:plugin-development.adoc[Plugin Development]
+* xref:gui-plugins-toolbars.adoc[GUI plugins and toolbars]
 * xref:lineage.adoc[Lineage observation hub]
 * xref:plugin-samples.adoc[Plugin Samples]
 * xref:svg-files.adoc[SVG Files]

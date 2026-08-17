@@ -320,7 +320,7 @@ public class ActionDeleteFiles extends ActionBase {
 
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
-      return true;
+      return info.getDepth() == 0 || includeSubfolders;
     }
   }
 

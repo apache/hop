@@ -32,7 +32,7 @@ The configuration perspective groups configuration options in the following tabs
 
 * **General** options control the behavior of Apache Hop and Hop Gui.
 * **Look &amp; Feel** control how Hop Gui looks like on your desktop or in your browser.
-* **Plugin** options provide configuration options to control the behavior of your available Apache Hop plugins.
+* **Plugin** options provide configuration options to control the behavior of your available Apache Hop plugins (including Explorer and xref:hop-gui/perspective-search.adoc[Search] limits).
 * **System variables** allows you to set and configure Apache Hop global variables.
 
 == Detailed configuration tabs overview
@@ -113,7 +113,7 @@ The `Look & Feel` configuration options allow you to configure various aspects o
 |Canvas Grid Size|default grid size to use for workflows and pipelines in the Hop GUI editor |16
 |Show Canvas Grid|show the grid (dotted) for workflows and pipelines in Hop GUI |no
 |Hide the menu bar|Do not show the menu bar. If enabled (default), the menu options are available from the Apache Hop icon in Hop GUI's upper left corner. |yes
-|Show a toolbar above tables|Show a toolbar with options to cut/copy/paste, move lines up/down etc in table views (e.g. in preview dialogs, transform configuration options)|yes
+|Show a toolbar above tables|Show a toolbar with options to cut/copy/paste, move lines up/down, navigate to a column, manage xref:pipeline/run-preview-debug-pipeline.adoc#table-views[table views] etc in table grids (e.g. in preview dialogs, transform configuration options)|yes
 |Dark mode|use dark mode. On Hop Web and Windows you can toggle this; on macOS and other desktop platforms it follows the operating system theme. Changing it in Hop Web reloads the page to apply the theme. |N/A
 |Preferred Language
 a|the default language to use in Hop GUI.

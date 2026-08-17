@@ -31,6 +31,7 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.FindReplaceDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -99,6 +100,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
   public static final String ID_CONTEXT_MENU_COPY = "ContentEditor-ContextMenu-30000-copy";
   public static final String ID_CONTEXT_MENU_PASTE = "ContentEditor-ContextMenu-30010-paste";
   public static final String ID_CONTEXT_MENU_CUT = "ContentEditor-ContextMenu-30020-cut";
+  public static final String ID_CONTEXT_MENU_FIND = "ContentEditor-ContextMenu-40000-find";
+  public static final String ID_CONTEXT_MENU_FIND_REPLACE =
+      "ContentEditor-ContextMenu-40010-find-replace";
 
   private static final char[] OPEN_BRACKETS = {'(', '[', '{'};
   private static final char[] CLOSE_BRACKETS = {')', ']', '}'};
@@ -290,6 +294,9 @@ public class ContentEditorWidget implements IContentEditorWidget {
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_CUT, canCut);
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_COPY, canCopy);
       toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_PASTE, canPaste);
+      toolbarWidgets.enableToolbarItem(ContentEditorActions.ID_TOOLBAR_FIND, true);
+      toolbarWidgets.enableToolbarItem(
+          ContentEditorActions.ID_TOOLBAR_FIND_REPLACE, sourceViewer.isEditable());
     }
 
     // Update the HopGui main menu items...
@@ -375,6 +382,91 @@ public class ContentEditorWidget implements IContentEditorWidget {
   @Override
   public void setReadOnly(boolean readOnly) {
     sourceViewer.setEditable(!readOnly);
+    updateGui();
+  }
+
+  @Override
+  public String getSelectionText() {
+    org.eclipse.swt.graphics.Point range = sourceViewer.getSelectedRange();
+    if (range == null || range.y <= 0) {
+      return "";
+    }
+    IDocument doc = sourceViewer.getDocument();
+    if (doc == null) {
+      return "";
+    }
+    try {
+      return doc.get(range.x, range.y);
+    } catch (org.eclipse.jface.text.BadLocationException e) {
+      return "";
+    }
+  }
+
+  @Override
+  public int getSelectionCount() {
+    org.eclipse.swt.graphics.Point range = sourceViewer.getSelectedRange();
+    return range != null && range.y > 0 ? range.y : 0;
+  }
+
+  @Override
+  public void setSelection(int start, int end) {
+    int safeStart = Math.max(0, start);
+    int length = Math.max(0, end - safeStart);
+    sourceViewer.setSelectedRange(safeStart, length);
+    sourceViewer.revealRange(safeStart, length);
+  }
+
+  @Override
+  public int getCaretPosition() {
+    StyledText textWidget = sourceViewer.getTextWidget();
+    if (textWidget == null || textWidget.isDisposed()) {
+      org.eclipse.swt.graphics.Point range = sourceViewer.getSelectedRange();
+      return range != null ? range.x + range.y : 0;
+    }
+    return textWidget.getCaretOffset();
+  }
+
+  @Override
+  public void setCaretPosition(int position) {
+    int safe = Math.max(0, position);
+    IDocument doc = sourceViewer.getDocument();
+    if (doc != null) {
+      safe = Math.min(safe, doc.getLength());
+    }
+    sourceViewer.setSelectedRange(safe, 0);
+    sourceViewer.revealRange(safe, 0);
+  }
+
+  @Override
+  public void insert(String text) {
+    String insertion = text != null ? text : "";
+    org.eclipse.swt.graphics.Point range = sourceViewer.getSelectedRange();
+    IDocument doc = sourceViewer.getDocument();
+    if (doc == null || range == null) {
+      return;
+    }
+    try {
+      doc.replace(range.x, range.y, insertion);
+      sourceViewer.setSelectedRange(range.x + insertion.length(), 0);
+    } catch (org.eclipse.jface.text.BadLocationException e) {
+      // ignore invalid range
+    }
+  }
+
+  @Override
+  public boolean isEditable() {
+    return sourceViewer != null && sourceViewer.isEditable();
+  }
+
+  @Override
+  public boolean setFocus() {
+    StyledText textWidget = sourceViewer.getTextWidget();
+    return textWidget != null && !textWidget.isDisposed() && textWidget.setFocus();
+  }
+
+  @Override
+  public void updateToolbar() {
+    updateGui();
   }
 
   @Override
@@ -485,6 +577,27 @@ public class ContentEditorWidget implements IContentEditorWidget {
   @Override
   public void paste() {
     sourceViewer.doOperation(SourceViewer.PASTE);
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = ID_CONTEXT_MENU_FIND,
+      label = "i18n::ContentEditorWidget.Menu.Find",
+      image = "ui/images/search.svg",
+      separator = true)
+  public void find() {
+    FindReplaceDialog.open(control.getShell(), this, false);
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = ID_CONTEXT_MENU_FIND_REPLACE,
+      label = "i18n::ContentEditorWidget.Menu.FindReplace",
+      image = "ui/images/find-replace.svg")
+  public void findAndReplace() {
+    FindReplaceDialog.open(control.getShell(), this, true);
   }
 
   private static void applyFontFromHop(SourceViewer sourceViewer) {
@@ -655,6 +768,27 @@ public class ContentEditorWidget implements IContentEditorWidget {
               ID_CONTEXT_MENU_COPY, sourceViewer.canDoOperation(ITextOperationTarget.COPY));
           contextMenuWidgets.enableMenuItem(
               ID_CONTEXT_MENU_PASTE, sourceViewer.canDoOperation(ITextOperationTarget.PASTE));
+          contextMenuWidgets.enableMenuItem(ID_CONTEXT_MENU_FIND, true);
+          contextMenuWidgets.enableMenuItem(
+              ID_CONTEXT_MENU_FIND_REPLACE, sourceViewer.isEditable());
+        });
+    styledText.addListener(
+        SWT.KeyDown,
+        event -> {
+          if ((event.stateMask & SWT.MOD1) == 0 || (event.stateMask & SWT.MOD2) != 0) {
+            return;
+          }
+          if (event.keyCode == 'f') {
+            find();
+            event.doit = false;
+          } else if (event.keyCode == 'h') {
+            if (sourceViewer.isEditable()) {
+              findAndReplace();
+            } else {
+              find();
+            }
+            event.doit = false;
+          }
         });
   }
 
