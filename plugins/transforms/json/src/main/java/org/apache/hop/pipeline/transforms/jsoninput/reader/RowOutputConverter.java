@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Map;
 import net.minidev.json.JSONObject;
@@ -54,20 +55,30 @@ public class RowOutputConverter {
         strValue, strConvertMeta, null, null, targetMeta.getTrimType());
   }
 
-  private String getStringValue(Object jo) {
-    String nodevalue = null;
-    if (jo != null) {
-      if (jo instanceof Map) {
-        Map<String, ?> asStrMap = (Map<String, ?>) jo;
-        nodevalue = JSONObject.toJSONString(asStrMap);
-      } else if (jo instanceof TextNode jot) {
-        // this avoids returning string enclosed by "" if JsonNode
-        nodevalue = jot.asText();
-      } else {
-        nodevalue = jo.toString();
-      }
+  // Package-private and static so RowOutputConverterTest can exercise it directly
+  // without instantiating the surrounding transform.
+  static String getStringValue(Object jo) {
+    if (jo == null) {
+      return null;
     }
-    return nodevalue;
+    // A JSON `null` (e.g. `{"foo": null}`) is parsed by Jackson into a NullNode -
+    // a non-null Java reference whose toString() returns the four-character literal
+    // "null". Without this branch it flows to jo.toString() at the bottom and the
+    // output field ends up containing the string "null" instead of a Hop null.
+    // MissingNode covers the JsonPath-returned-missing case for symmetry.
+    // See Apache Hop #7990.
+    if (jo instanceof JsonNode jsonNode && (jsonNode.isNull() || jsonNode.isMissingNode())) {
+      return null;
+    }
+    if (jo instanceof Map) {
+      Map<String, ?> asStrMap = (Map<String, ?>) jo;
+      return JSONObject.toJSONString(asStrMap);
+    }
+    if (jo instanceof TextNode jot) {
+      // this avoids returning string enclosed by "" if JsonNode
+      return jot.asText();
+    }
+    return jo.toString();
   }
 
   public Object[] getRow(Object[] baseOutputRow, Object[] rawPartRow, JsonInputData data)
