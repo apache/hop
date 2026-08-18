@@ -54,6 +54,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RemoteConfig;
@@ -926,6 +927,129 @@ public class UIGitTest extends RepositoryTestCase {
     assertTrue(
         message.getValue(),
         message.getValue().contains("Please commit or revert your changes before you merge"));
+  }
+
+  /**
+   * A merge has to be recorded as a merge. Committing the resolved conflict used to reset the whole
+   * index first, which cleared MERGE_HEAD and left an ordinary commit behind: git no longer
+   * considered the branch merged and replayed everything on the next merge.
+   */
+  @Test
+  public void testCommitPathsAfterAMergeRecordsBothParents() throws Exception {
+    RevCommit base = initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+    RevCommit develop = git.getRepository().parseCommit(git.getRepository().resolve("develop"));
+
+    // Let master change the same file, so merging develop conflicts
+    //
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Test.txt", "Hello from master");
+    git.add().addFilepattern("Test.txt").call();
+    RevCommit master = git.commit().setMessage("master commit").call();
+
+    assertTrue(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    assertEquals(RepositoryState.MERGING, uiGit.getRepositoryState());
+
+    // Resolve the conflict the way the commit perspective does: accept a side, then commit
+    //
+    uiGit.add("Test.txt.ours");
+    assertEquals(RepositoryState.MERGING_RESOLVED, uiGit.getRepositoryState());
+
+    assertTrue(
+        uiGit.commitPaths(List.of("Test.txt"), "John Doe <john@example.com>", "Merged", false));
+
+    RevCommit merged = git.getRepository().parseCommit(git.getRepository().resolve(Constants.HEAD));
+    assertEquals("The merge has to be recorded as a merge commit", 2, merged.getParentCount());
+    assertEquals(master, merged.getParent(0));
+    assertEquals(develop, merged.getParent(1));
+    assertEquals(RepositoryState.SAFE, uiGit.getRepositoryState());
+    assertNotEquals(base, merged);
+  }
+
+  /**
+   * The commit records the paths which were asked for and nothing else, whether or not the caller
+   * knew about everything that was staged.
+   */
+  @Test
+  public void testCommitPathsCommitsOnlyTheGivenPaths() throws Exception {
+    initialCommit();
+
+    writeTrashFile("Committed.txt", "in the commit");
+    writeTrashFile("Unchecked.txt", "left out of the commit");
+    git.add().addFilepattern("Committed.txt").call();
+    git.add().addFilepattern("Unchecked.txt").call();
+
+    // Staged after the caller read its file list, so it is not in the selection either
+    //
+    writeTrashFile("StagedInTheMeantime.txt", "staged behind the GUI's back");
+    git.add().addFilepattern("StagedInTheMeantime.txt").call();
+
+    assertTrue(
+        uiGit.commitPaths(
+            List.of("Committed.txt"), "John Doe <john@example.com>", "One file only", false));
+
+    String head = uiGit.getCommitId(Constants.HEAD);
+    List<UIFile> committed = uiGit.getStagedFiles(uiGit.getParentCommitId(head), head);
+    assertEquals(1, committed.size());
+    assertEquals("Committed.txt", committed.get(0).getName());
+
+    // Both of the others are out of the index and still on disk, nothing was thrown away
+    //
+    Status status = git.status().call();
+    assertTrue(status.getUntracked().contains("Unchecked.txt"));
+    assertTrue(status.getUntracked().contains("StagedInTheMeantime.txt"));
+    assertTrue(new File(db.getWorkTree(), "Unchecked.txt").exists());
+    assertTrue(new File(db.getWorkTree(), "StagedInTheMeantime.txt").exists());
+  }
+
+  /**
+   * Committing part of a merge is not possible, so the whole index goes in and the resolution the
+   * user staged is never quietly dropped.
+   */
+  @Test
+  public void testCommitPathsDuringAMergeKeepsTheRestOfTheIndexStaged() throws Exception {
+    initialCommit();
+    commitOnBranch("develop", "Test.txt", "Hello from develop");
+
+    git.checkout().setName(Constants.MASTER).call();
+    writeTrashFile("Test.txt", "Hello from master");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("master commit").call();
+
+    assertTrue(uiGit.mergeBranch("develop", MergeStrategy.RECURSIVE));
+    uiGit.add("Test.txt.ours");
+
+    // Another file staged during the merge has to survive into the merge commit
+    //
+    writeTrashFile("AlsoResolved.txt", "resolved as well");
+    git.add().addFilepattern("AlsoResolved.txt").call();
+
+    assertTrue(
+        uiGit.commitPaths(List.of("Test.txt"), "John Doe <john@example.com>", "Merged", false));
+
+    String head = uiGit.getCommitId(Constants.HEAD);
+    List<UIFile> committed = uiGit.getStagedFiles(uiGit.getParentCommitId(head), head);
+    assertTrue(committed.stream().anyMatch(file -> file.getName().equals("AlsoResolved.txt")));
+    assertTrue(uiGit.isClean());
+  }
+
+  /**
+   * A commit that fails must leave the files it was asked to commit staged, so nothing has to be
+   * staged a second time to retry.
+   */
+  @Test
+  public void testCommitPathsLeavesTheSelectionStagedWhenTheCommitFails() throws Exception {
+    initialCommit();
+
+    writeTrashFile("Staged.txt", "staged content");
+
+    // A malformed author name (no e-mail address) makes the commit itself fail
+    //
+    assertThrows(
+        Exception.class,
+        () -> uiGit.commitPaths(List.of("Staged.txt"), "no email address", "Nope", false));
+
+    assertTrue(git.status().call().getAdded().contains("Staged.txt"));
   }
 
   private void commitOnBranch(String branch, String file, String content) throws Exception {
