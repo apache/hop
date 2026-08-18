@@ -66,3 +66,8 @@ Like the prefix, this can be used to distinguish hash keys from different topics
 |Fields used in the checksum|The names of the fields to include in the checksum calculation.
 Note: You can use the "Get Fields" button to insert all input fields from previous transforms.
 |===
+
+== See also
+
+* xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots] — storing an MD5 or SHA hash of a row and comparing it on the next run
+

@@ -112,3 +112,8 @@ If you specify a field name for the differences in JSON, you will changes appear
   ]
 }
 ----
+
+== See also
+
+* xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots] — using this transform (or a stored hash key) as a Change Data Capture approach
+* xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize after merge]

@@ -231,3 +231,7 @@ Here are some options you need to set to make this work on a Confluent Cloud Kaf
 |ALL
 
 |===
+
+== See also
+
+* xref:how-to-guides/cdc-log-sniffing.adoc[CDC: log sniffing] — consuming Debezium, GoldenGate, or similar change events from a Kafka topic
