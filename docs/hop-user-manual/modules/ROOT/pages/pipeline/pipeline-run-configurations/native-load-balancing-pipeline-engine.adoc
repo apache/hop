@@ -1,0 +1,110 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[LoadBalancingPipelineEngine]]
+:imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
+:description: The load-balancing pipeline engine assigns each pipeline execution to one Hop Server from a configured group.
+
+= Load-balancing Pipeline Engine
+
+The load-balancing run configuration assigns *one entire pipeline execution* to one Hop Server from a group.
+
+It does not split a pipeline's transforms across machines.
+To process batches of rows on the pool, run a local pipeline that uses xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] with this run configuration.
+
+Each Hop Server in the group still needs a xref:metadata-types/hop-server.adoc[Hop Server metadata] definition.
+
+image:run-configuration/load-balance-pipeline-run-configuration-editor.png[Load-balancing pipeline run configuration editor]
+
+=== Options
+
+[options="header",cols="1,3"]
+|===
+|Option|Description
+
+|Run Configuration
+|The configuration to use *on* the selected Hop Server (usually a local engine on that server).
+Do not point this back at the load-balancing configuration or you get a cycle.
+
+|Distribution algorithm
+|*Even load* targets the same utilization on every eligible server.
+*Keep as few servers busy as possible* (pack) fills busy servers first so idle ones can be disabled and turned off.
+
+|Maximum retries
+|How many extra times to try another server after a submit or capacity failure.
+
+|Retry window (ms)
+|Stop retrying after this many milliseconds from the first attempt.
+`0` means retry count only.
+
+|Retry failed executions
+|Off by default.
+When enabled, also retry if the remote pipeline runs and fails (side effects possible).
+
+|Server probe timeout (ms)
+|How long to wait for each server status check.
+Default `3000`.
+
+|Configuration refresh interval (ms)
+|How often to re-read this run configuration from metadata so enable/disable and max concurrent changes take effect without restarting the dispatcher.
+Default `10000`.
+
+|Assignment state folder
+|Optional VFS folder for assignment ledger files, for example `{openvar}PROJECT_HOME{closevar}/loadbalance`.
+Leave empty to skip files.
+Results are also written to the run configuration's xref:metadata-types/execution-information-location.adoc[execution information location] when one is set.
+
+|Server poll delay / interval
+|Same meaning as on the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote pipeline engine].
+
+|Export linked resources
+|Same meaning as on the remote pipeline engine.
+
+|Hop servers
+|Table of workers: Hop Server name, whether it may receive new work, and the maximum number of unfinished pipelines *and* workflows on that server.
+
+|===
+
+=== How a server is chosen
+
+. The engine re-reads this run configuration from metadata.
+. It probes every enabled server (status, load, occupying executions, graceful shutdown).
+. Servers that are down, shutting down, disabled, or already at max concurrent are skipped.
+. The algorithm picks one eligible server.
+. The pipeline is registered with `max_concurrent` so the server itself refuses the work if it is already at capacity (`SERVER_AT_CAPACITY`).
+. On capacity or connectivity failure the engine retries another server until the retry budget is exhausted.
+
+=== Draining a server
+
+. Set *Enabled* to `N` in this table (picked up on the next configuration refresh), and/or
+. Shut the Hop Server down gracefully so it reports `shuttingDown` and refuses new work.
+
+Use the pack algorithm if you want idle machines to stay empty so they can be turned off.
+
+=== Kubernetes
+
+* Hop-aware pool: one Hop Server metadata object per pod (or StatefulSet DNS name).
+  Then even-load, pack, disable, and max concurrent work as described above.
+* A Kubernetes Service in front of several pods as a *single* remote Hop Server is still possible.
+  That is L4 round-robin from kube-proxy, not Hop-aware load balancing.
+
+=== See also
+
+* xref:workflow/workflow-run-configurations/native-load-balancing-workflow-engine.adoc[Load-balancing workflow engine]
+* xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline engine]
+* xref:hop-server/index.adoc[Hop Server]
