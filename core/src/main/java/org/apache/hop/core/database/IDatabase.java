@@ -749,6 +749,12 @@ public interface IDatabase extends Cloneable {
   boolean isRequiringTransactionsOnQueries();
 
   /** Handles the special case of Oracle where NUMBER(38) is interpreted as Integer or BigNumber */
+  /**
+   * @deprecated An Oracle-specific option that has no business on the interface every dialect *
+   *     implements. Oracle now expresses it through its own {@link #getTypeRules()}; this accessor
+   *     * remains so that existing dialects and callers keep working.
+   */
+  @Deprecated(since = "2.20")
   boolean isStrictBigNumberInterpretation();
 
   /**
@@ -918,75 +924,159 @@ public interface IDatabase extends Cloneable {
   List<SqlScriptStatement> getSqlScriptStatements(String sqlScript);
 
   /**
+   * The column type rules this dialect contributes, most specific first.
+   *
+   * <p>Rules are inherited through the class hierarchy in the ordinary Java way, so a dialect that
+   * extends another starts from its rules and can prepend its own. This is the replacement for the
+   * {@code isXVariant()} methods below: instead of core asking "is this Postgres-like?" and
+   * switching on the answer, the dialect states what it does.
+   *
+   * @return the rules, empty by default
+   */
+  default java.util.List<org.apache.hop.core.database.types.IDatabaseTypeRule> getTypeRules() {
+    return java.util.List.of();
+  }
+
+  /**
    * @return true if the database is a MySQL variant, like MySQL 5.1, InfiniDB, InfoBright, and so
    *     on.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isMySqlVariant();
 
   /**
    * @return true if the database is a Postgres variant like Postgres, Greenplum, Redshift, and so
    *     on.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isPostgresVariant();
 
   /**
    * @return true if the database is a Sybase variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isSybaseVariant();
 
   /**
    * @return true if the database is a SybaseIQ variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isSybaseIQVariant();
 
   /**
    * @return true if the database is a neoview variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isNeoviewVariant();
 
   /**
    * @return true if the database is a DuckDB variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isDuckDbVariant();
 
   /**
    * @return true if the database is a DuckDB variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isExasolVariant();
 
   /**
    * @return true if the database is an Informix variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isInformixVariant();
 
   /**
    * @return true if the database is a MS SQL Server (native) variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isMsSqlServerNativeVariant();
 
   /**
    * @return true if the database is a MS SQL Server variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isMsSqlServerVariant();
 
   /**
    * @return true if the database is an Oracle variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isOracleVariant();
 
   /**
    * @return true if the database is a Netezza variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isNetezzaVariant();
 
   /**
    * @return true if the database is a SQLite variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isSqliteVariant();
 
   /**
    * @return true if the database is a Terradata variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   boolean isTeradataVariant();
 
   /**

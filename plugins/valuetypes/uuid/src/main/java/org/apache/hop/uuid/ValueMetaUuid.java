@@ -221,13 +221,10 @@ public class ValueMetaUuid extends ValueMetaBase {
       boolean useAutoIncrement,
       boolean addFieldName,
       boolean addCr) {
+    // The neutral spelling. A dialect that spells it differently, such as SQL Server with
+    // UNIQUEIDENTIFIER, says so in its own type rules; see IDatabase#getTypeRules.
     final String col = addFieldName ? getName() + " " : "";
-    String def = "UUID";
-
-    if (iDatabase.isMsSqlServerNativeVariant()) {
-      def = "UNIQUEIDENTIFIER";
-    }
-    return col + def + (addCr ? Const.CR : "");
+    return col + "UUID" + (addCr ? Const.CR : "");
   }
 
   @Override

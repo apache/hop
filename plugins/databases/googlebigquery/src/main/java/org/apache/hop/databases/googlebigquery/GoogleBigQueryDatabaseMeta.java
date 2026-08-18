@@ -31,7 +31,8 @@ import org.apache.hop.i18n.BaseMessages;
     type = "GOOGLEBIGQUERY",
     typeDescription = "Google BigQuery",
     image = "bigquery.svg",
-    documentationUrl = "/database/databases/googlebigquery.html")
+    documentationUrl = "/database/databases/googlebigquery.html",
+    classLoaderGroup = "googlebigquery-db")
 @GuiPlugin(id = "GUI-GoogleBigQueryDatabaseMeta")
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

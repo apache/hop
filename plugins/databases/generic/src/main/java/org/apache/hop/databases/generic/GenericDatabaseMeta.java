@@ -18,12 +18,15 @@
 package org.apache.hop.databases.generic;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -34,7 +37,8 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "GENERIC",
     typeDescription = "Generic database",
-    documentationUrl = "/database/databases.html")
+    documentationUrl = "/database/databases.html",
+    classLoaderGroup = "generic-db")
 @GuiPlugin(description = "Generic database GUI Plugin")
 public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final String ATTRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
@@ -143,6 +147,22 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
+   * The type rules of the dialect this connection is standing in for.
+   *
+   * <p>Without this a Generic connection resolves column types differently depending on the route:
+   * a CREATE TABLE goes through DatabaseMeta and would ask this class, which has no rules of its
+   * own, while an ALTER TABLE is handed to the wrapped dialect and would ask that one. The same
+   * column would then be spelled two different ways in one table.
+   */
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    if (databaseDialect != null) {
+      return databaseDialect.getTypeRules();
+    }
+    return super.getTypeRules();
+  }
+
+  /**
    * Generates the SQL statement to add a column to the specified table For this generic type, i set
    * it to the most common possibility.
    *
@@ -170,7 +190,8 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -199,7 +220,8 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " MODIFY "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

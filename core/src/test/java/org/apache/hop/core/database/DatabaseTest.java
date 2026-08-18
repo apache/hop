@@ -383,7 +383,9 @@ class DatabaseTest {
     doReturn(v).when(fields).getValueMeta(0);
     boolean useAutoIncrement = true, semiColon = true;
 
-    doReturn("double foo").when(meta).getFieldDefinition(v, tk, pk, useAutoIncrement);
+    doReturn("double foo")
+        .when(meta)
+        .getFieldDefinition(any(IVariables.class), eq(v), eq(tk), eq(pk), eq(useAutoIncrement));
     doReturn(true).when(meta).requiresCreateTablePrimaryKeyAppend();
     String statement =
         db.getCreateTableStatement(tableName, fields, tk, useAutoIncrement, pk, semiColon);

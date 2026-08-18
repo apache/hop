@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -31,7 +32,8 @@ import org.apache.hop.core.util.Utils;
 @DatabaseMetaPlugin(
     type = "HYPERSONIC",
     typeDescription = "Hypersonic",
-    documentationUrl = "/database/databases/hypersonic.html")
+    documentationUrl = "/database/databases/hypersonic.html",
+    classLoaderGroup = "hypersonic-db")
 @GuiPlugin(id = "GUI-HypersonicDatabaseMeta")
 public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -101,7 +103,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -121,7 +123,8 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return "ALTER TABLE "
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

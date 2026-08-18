@@ -813,8 +813,10 @@ public class PostgreSqlDatabaseMetaTest {
         "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(12, 7)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
+    // An ALTER TABLE spells a column the way a CREATE TABLE does: through the dialect's type
+    // rules. Before those were consulted here, this produced "BAR  UNKNOWN".
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD COLUMN BAR INET",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

@@ -237,16 +237,10 @@ class ValueMetaJsonTest {
 
   @Test
   void testDatabaseColumnTypeDefinition() {
+    // The value type gives the neutral spelling and knows about no database. A dialect that spells
+    // it differently says so in its own type rules: see PostgreSqlColumnDefinitionTest for JSONB.
     ValueMetaJson vm = new ValueMetaJson("col");
-    IDatabase pg = mock(IDatabase.class);
-    when(pg.isPostgresVariant()).thenReturn(true);
     IDatabase other = mock(IDatabase.class);
-    when(other.isPostgresVariant()).thenReturn(false);
-
-    assertEquals("JSONB", vm.getDatabaseColumnTypeDefinition(pg, null, null, false, false, false));
-    assertEquals(
-        "col JSONB" + Const.CR,
-        vm.getDatabaseColumnTypeDefinition(pg, null, null, false, true, true));
 
     assertEquals(
         "JSON", vm.getDatabaseColumnTypeDefinition(other, null, null, false, false, false));

@@ -22,6 +22,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -29,7 +30,8 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "UNIVERSE",
     typeDescription = "IBM UniVerse database",
-    documentationUrl = "/database/databases/universe.html")
+    documentationUrl = "/database/databases/universe.html",
+    classLoaderGroup = "universe-db")
 @GuiPlugin(id = "GUI-UniVerseDatabaseMeta")
 public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int MAX_VARCHAR_LENGTH = 65535;
@@ -112,7 +114,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -132,7 +134,8 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return "ALTER TABLE "
         + tableName
         + " MODIFY "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

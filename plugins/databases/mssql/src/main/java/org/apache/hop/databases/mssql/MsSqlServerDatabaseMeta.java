@@ -25,6 +25,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -38,7 +39,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     type = "MSSQL",
     typeDescription = "MS SQL Server",
     image = "microsoft-sql.svg",
-    documentationUrl = "/database/databases/mssql.html")
+    documentationUrl = "/database/databases/mssql.html",
+    classLoaderGroup = "mssql-db")
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -232,7 +234,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return CONST_ALTER_TABLE
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -252,7 +254,8 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   /**

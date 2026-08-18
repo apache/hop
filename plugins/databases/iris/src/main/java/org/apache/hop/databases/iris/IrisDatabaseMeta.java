@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -31,7 +32,8 @@ import org.apache.hop.core.row.IValueMeta;
     type = "IRIS",
     typeDescription = "InterSystems Iris",
     image = "intersystems.svg",
-    documentationUrl = "/database/databases/iris.html")
+    documentationUrl = "/database/databases/iris.html",
+    classLoaderGroup = "iris-db")
 @GuiPlugin(id = "GUI-IrisDatabaseMeta")
 public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -115,7 +117,7 @@ public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN ( "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false)
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN)
         + " ) ";
   }
 
@@ -153,7 +155,8 @@ public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

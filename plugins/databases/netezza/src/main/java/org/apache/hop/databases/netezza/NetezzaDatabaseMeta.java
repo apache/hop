@@ -17,11 +17,21 @@
 
 package org.apache.hop.databases.netezza;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.IValueBinding;
+import org.apache.hop.core.database.types.JdbcDateValues;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -29,9 +39,52 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "NETEZZA",
     typeDescription = "Netezza",
-    documentationUrl = "/database/databases/netezza.html")
+    documentationUrl = "/database/databases/netezza.html",
+    classLoaderGroup = "netezza-db")
 @GuiPlugin(id = "GUI-NetezzaDatabaseMeta")
 public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /**
+   * The Netezza driver does not return a usable value from getDate on a TIME column, so the column
+   * has to be asked what it is first.
+   */
+  private static final IValueBinding DATE_BINDING =
+      new IValueBinding() {
+        @Override
+        public Object read(IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index)
+            throws SQLException {
+          return resultSet.getMetaData().getColumnType(index) == Types.TIME
+              ? resultSet.getTime(index)
+              : resultSet.getDate(index);
+        }
+
+        @Override
+        public void write(
+            IDatabase database,
+            IValueMeta valueMeta,
+            PreparedStatement preparedStatement,
+            int index,
+            Object value)
+            throws SQLException, HopValueException {
+          JdbcDateValues.write(database, valueMeta, preparedStatement, index, value, true);
+        }
+      };
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          .bind(
+              IValueMeta.TYPE_DATE,
+              // Only where the engine would otherwise fall back to getDate.
+              (database, valueMeta) ->
+                  valueMeta.getPrecision() == 1 || !database.isSupportsTimeStampToDateConversion(),
+              DATE_BINDING)
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
+
   public static final int MAX_CHAR_LEN = 32767;
   public static final String CONST_TIMESTAMP = "TIMESTAMP";
 

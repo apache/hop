@@ -32,7 +32,8 @@ import org.apache.hop.i18n.BaseMessages;
     type = "MARIADB",
     typeDescription = "MariaDB",
     image = "mariadb.svg",
-    documentationUrl = "/database/databases/mariadb.html")
+    documentationUrl = "/database/databases/mariadb.html",
+    classLoaderGroup = "mariadb-db")
 @GuiPlugin(id = "GUI-MariaDBDatabaseMeta")
 public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
   private static final Class<?> PKG = MariaDBDatabaseMeta.class;

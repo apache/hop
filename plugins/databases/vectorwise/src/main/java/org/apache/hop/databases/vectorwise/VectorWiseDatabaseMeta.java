@@ -20,6 +20,7 @@ package org.apache.hop.databases.vectorwise;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -29,7 +30,8 @@ import org.apache.hop.databases.ingres.IngresDatabaseMeta;
 @DatabaseMetaPlugin(
     type = "VECTORWISE",
     typeDescription = "Ingres VectorWise",
-    documentationUrl = "/database/databases/vectorwise.html")
+    documentationUrl = "/database/databases/vectorwise.html",
+    classLoaderGroup = "vectorwise-db")
 @GuiPlugin(id = "GUI-VectorWiseDatabaseMeta")
 public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatabase {
 
@@ -62,7 +64,7 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatab
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -82,7 +84,8 @@ public class VectorWiseDatabaseMeta extends IngresDatabaseMeta implements IDatab
     return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   /**

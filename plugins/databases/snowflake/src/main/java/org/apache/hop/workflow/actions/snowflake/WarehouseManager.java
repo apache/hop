@@ -50,7 +50,8 @@ import org.apache.hop.workflow.action.IAction;
     description = "i18n::Action.Description",
     keywords = "snowflake,warehouse,resume,suspend,manage",
     categoryDescription = "i18n::Category.Description",
-    documentationUrl = "/workflow/actions/snowflake-whm.html")
+    documentationUrl = "/workflow/actions/snowflake-whm.html",
+    classLoaderGroup = "snowflake")
 public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String MANAGEMENT_ACTION = "managementAction";
   public static final String REPLACE = "replace";

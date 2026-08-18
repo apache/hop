@@ -27,6 +27,7 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -125,7 +126,8 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return "ALTER TABLE "
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   @Override
@@ -136,10 +138,16 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       boolean useAutoIncrement,
       String pk,
       boolean semicolon) {
+    // The column name belongs to the ALTER syntax. getFieldDefinition here answers "" for every
+    // type, so before the column definition was resolved centrally this statement carried neither
+    // a name nor a type.
     return "ALTER TABLE "
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, false, false);
+        + v.getName()
+        + " TYPE "
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, false, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override
