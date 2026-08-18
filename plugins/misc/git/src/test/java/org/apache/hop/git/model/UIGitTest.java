@@ -1235,6 +1235,93 @@ public class UIGitTest extends RepositoryTestCase {
     assertTrue(git.status().call().getAdded().contains("Staged.txt"));
   }
 
+  /** Revert takes the version of the parent: what the file looked like before that commit. */
+  @Test
+  public void testRestorePathFromCommitPutsBackTheContentOfThatCommit() throws Exception {
+    writeTrashFile("Test.txt", "first");
+    git.add().addFilepattern("Test.txt").call();
+    RevCommit first = git.commit().setMessage("first").call();
+
+    writeTrashFile("Test.txt", "second");
+    git.add().addFilepattern("Test.txt").call();
+    git.commit().setMessage("second").call();
+
+    uiGit.restorePathFromCommit("Test.txt", first.getId().name());
+
+    assertEquals("first", read(new File(db.getWorkTree(), "Test.txt")));
+    assertTrue(git.status().call().getChanged().contains("Test.txt"));
+  }
+
+  /**
+   * Reverting a file which the commit added means removing it: its parent does not have the file,
+   * so restoring that state deletes it here.
+   */
+  @Test
+  public void testRestorePathFromCommitRemovesAPathTheCommitDoesNotHave() throws Exception {
+    RevCommit first = initialCommit();
+
+    writeTrashFile("Added.txt", "added later");
+    git.add().addFilepattern("Added.txt").call();
+    git.commit().setMessage("add a file").call();
+
+    uiGit.restorePathFromCommit("Added.txt", first.getId().name());
+
+    assertFalse(new File(db.getWorkTree(), "Added.txt").exists());
+    assertTrue(git.status().call().getRemoved().contains("Added.txt"));
+  }
+
+  /** Reverting a file which the commit deleted brings it back. */
+  @Test
+  public void testRestorePathFromCommitBringsBackADeletedPath() throws Exception {
+    RevCommit first = initialCommit();
+
+    git.rm().addFilepattern("Test.txt").call();
+    git.commit().setMessage("delete the file").call();
+    assertFalse(new File(db.getWorkTree(), "Test.txt").exists());
+
+    uiGit.restorePathFromCommit("Test.txt", first.getId().name());
+
+    assertEquals("Hello world", read(new File(db.getWorkTree(), "Test.txt")));
+  }
+
+  /**
+   * The commit records the one path it was given. Anything else which happened to be staged used to
+   * be swept into it under a message about a single file.
+   */
+  @Test
+  public void testCommitPathCommitsOnlyThatPath() throws Exception {
+    initialCommit();
+
+    writeTrashFile("Test.txt", "changed");
+    writeTrashFile("Unrelated.txt", "staged by someone else");
+    git.add().addFilepattern("Test.txt").call();
+    git.add().addFilepattern("Unrelated.txt").call();
+
+    assertTrue(uiGit.commitPath("Test.txt", "John Doe <john@example.com>", "One file only"));
+
+    String head = uiGit.getCommitId(Constants.HEAD);
+    List<UIFile> committed = uiGit.getStagedFiles(uiGit.getParentCommitId(head), head);
+    assertEquals(1, committed.size());
+    assertEquals("Test.txt", committed.get(0).getName());
+
+    // The unrelated file is still staged, waiting for a commit of its own
+    //
+    assertTrue(git.status().call().getAdded().contains("Unrelated.txt"));
+  }
+
+  /** A path which already holds the content asked for has nothing to commit. */
+  @Test
+  public void testCommitPathReportsWhenThereIsNothingToCommit() throws Exception {
+    RevCommit first = initialCommit();
+
+    // Restoring the file to the version it already has changes nothing
+    //
+    uiGit.restorePathFromCommit("Test.txt", first.getId().name());
+
+    assertFalse(uiGit.commitPath("Test.txt", "John Doe <john@example.com>", "Nothing to do"));
+    assertEquals(first, git.getRepository().parseCommit(git.getRepository().resolve("HEAD")));
+  }
+
   private void commitOnBranch(String branch, String file, String content) throws Exception {
     git.branchCreate().setName(branch).call();
     git.checkout().setName(branch).call();
