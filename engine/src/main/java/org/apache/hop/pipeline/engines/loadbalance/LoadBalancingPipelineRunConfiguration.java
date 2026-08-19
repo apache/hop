@@ -43,7 +43,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "20",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.METADATA,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RunConfiguration.Label",
@@ -55,7 +55,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "30",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.COMBO,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.LoadBalancingAlgorithm.Label",
@@ -67,7 +67,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "40",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.LoadBalancingMaxRetries.Label",
@@ -78,7 +78,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "50",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.LoadBalancingRetryWindow.Label",
@@ -89,7 +89,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "60",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.CHECKBOX,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.LoadBalancingRetryOnFailure.Label",
@@ -100,7 +100,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "70",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.LoadBalancingProbeTimeout.Label",
@@ -111,7 +111,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "80",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.LoadBalancingConfigRefresh.Label",
@@ -122,7 +122,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "90",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.FOLDER,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.LoadBalancingStateFolder.Label",
@@ -133,7 +133,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "100",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.ServerPollDelay.Label")
@@ -142,7 +142,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "110",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.ServerPollInterval.Label")
@@ -151,7 +151,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "120",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.CHECKBOX,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.ExportResources.Label",
@@ -162,7 +162,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "130",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.NamedResourceSourceFolder.Label",
@@ -173,7 +173,7 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   @GuiWidgetElement(
       order = "140",
-      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.NamedResourceTargetFolder.Label",

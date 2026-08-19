@@ -440,6 +440,14 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     for (Control child : wPluginSpecificComp.getChildren()) {
       child.dispose();
     }
+    guiCompositeWidgets = null;
+    loadBalancingWidgets = null;
+
+    if (workingConfiguration.getEngineRunConfiguration()
+        instanceof ILoadBalancingRunConfiguration) {
+      addLoadBalancingTable();
+      return;
+    }
 
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
@@ -494,17 +502,17 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             }
           });
     }
-    addLoadBalancingTable();
   }
 
   private void addLoadBalancingTable() {
     loadBalancingWidgets = null;
+    guiCompositeWidgets = null;
     if (workingConfiguration.getEngineRunConfiguration()
-        instanceof ILoadBalancingRunConfiguration) {
+        instanceof ILoadBalancingRunConfiguration loadBalancing) {
       loadBalancingWidgets =
           new LoadBalancingRunConfigurationWidgets(
               manager.getVariables(), manager.getMetadataProvider());
-      loadBalancingWidgets.addTo(wPluginSpecificComp, e -> setChanged());
+      loadBalancingWidgets.addTo(wPluginSpecificComp, loadBalancing, e -> setChanged());
     }
   }
 
@@ -591,18 +599,17 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
       if (!pluginName.equals(Const.NVL(wPluginType.getText(), ""))) {
         wPluginType.setText(pluginName);
       }
-      if (guiCompositeWidgets != null
+      if (loadBalancingWidgets != null
+          && workingConfiguration.getEngineRunConfiguration()
+              instanceof ILoadBalancingRunConfiguration loadBalancing) {
+        loadBalancingWidgets.setContents(loadBalancing);
+      } else if (guiCompositeWidgets != null
           && wPluginSpecificComp != null
           && !wPluginSpecificComp.isDisposed()) {
         guiCompositeWidgets.setWidgetsContents(
             workingConfiguration.getEngineRunConfiguration(),
             wPluginSpecificComp,
             PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
-      }
-      if (loadBalancingWidgets != null
-          && workingConfiguration.getEngineRunConfiguration()
-              instanceof ILoadBalancingRunConfiguration loadBalancing) {
-        loadBalancingWidgets.setServers(loadBalancing);
       }
     } else {
       if (!wPluginType.getText().isEmpty()) {
@@ -640,16 +647,15 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     // Get the plugin specific information from the widgets on the screen
     //
-    if (meta.getEngineRunConfiguration() != null
+    if (loadBalancingWidgets != null
+        && meta.getEngineRunConfiguration()
+            instanceof ILoadBalancingRunConfiguration loadBalancing) {
+      loadBalancingWidgets.getContents(loadBalancing);
+    } else if (meta.getEngineRunConfiguration() != null
         && guiCompositeWidgets != null
         && !guiCompositeWidgets.getWidgetsMap().isEmpty()) {
       guiCompositeWidgets.getWidgetsContents(
           meta.getEngineRunConfiguration(), PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
-    }
-    if (loadBalancingWidgets != null
-        && meta.getEngineRunConfiguration()
-            instanceof ILoadBalancingRunConfiguration loadBalancing) {
-      loadBalancingWidgets.getServers(loadBalancing);
     }
 
     meta.setExecutionDataProfileName(wProfile.getText());

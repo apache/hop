@@ -33,6 +33,24 @@ image:run-configuration/load-balance-pipeline-run-configuration-editor.png[Load-
 
 === Options
 
+The engine-specific options sit on three tabs under the selected engine type.
+
+==== Management
+
+[options="header",cols="1,3"]
+|===
+|Option|Description
+
+|Server poll delay / interval
+|Same meaning as on the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote pipeline engine].
+
+|Export linked resources
+|Same meaning as on the remote pipeline engine.
+
+|===
+
+==== Load-balancing
+
 [options="header",cols="1,3"]
 |===
 |Option|Description
@@ -69,11 +87,13 @@ Default `10000`.
 Leave empty to skip files.
 Results are also written to the run configuration's xref:metadata-types/execution-information-location.adoc[execution information location] when one is set.
 
-|Server poll delay / interval
-|Same meaning as on the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[remote pipeline engine].
+|===
 
-|Export linked resources
-|Same meaning as on the remote pipeline engine.
+==== Hop Servers
+
+[options="header",cols="1,3"]
+|===
+|Option|Description
 
 |Hop servers
 |Table of workers: Hop Server name, whether it may receive new work, and the maximum number of unfinished pipelines *and* workflows on that server.

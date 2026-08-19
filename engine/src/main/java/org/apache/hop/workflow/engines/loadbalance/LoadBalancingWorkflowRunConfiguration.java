@@ -43,7 +43,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "20",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.METADATA,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.RunConfiguration.Label",
@@ -55,7 +55,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "30",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.COMBO,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingAlgorithm.Label",
@@ -67,7 +67,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "40",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingMaxRetries.Label",
@@ -78,7 +78,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "50",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingRetryWindow.Label",
@@ -89,7 +89,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "60",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.CHECKBOX,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingRetryOnFailure.Label",
@@ -100,7 +100,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "70",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingProbeTimeout.Label",
@@ -111,7 +111,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "80",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingConfigRefresh.Label",
@@ -122,7 +122,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "90",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
       type = GuiElementType.FOLDER,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingStateFolder.Label",
@@ -133,7 +133,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "100",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.ServerPollDelay.Label")
@@ -142,7 +142,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "110",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.ServerPollInterval.Label")
@@ -151,7 +151,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "120",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.CHECKBOX,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.ExportResources.Label",
@@ -162,7 +162,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "130",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.FOLDER,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.NamedResourceSourceFolder.Label",
@@ -173,7 +173,7 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "140",
-      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.NamedResourceTargetFolder.Label",

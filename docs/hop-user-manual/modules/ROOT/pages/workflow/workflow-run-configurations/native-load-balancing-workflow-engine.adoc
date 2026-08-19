@@ -30,6 +30,8 @@ Each Hop Server in the group still needs a xref:metadata-types/hop-server.adoc[H
 
 image:run-configuration/load-balance-workflow-run-configuration-editor.png[Load-balancing workflow run configuration editor]
 
+The engine-specific options sit on the same three tabs as the pipeline engine: *Management* (poll and export), *Load-balancing* (run configuration, algorithm, retry, state folder), and *Hop Servers*.
+
 The run configuration to use *on* the selected server is usually a local workflow engine on that server.
 Do not point it back at this load-balancing configuration.
 
