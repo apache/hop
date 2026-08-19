@@ -1,0 +1,175 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[CdcFilteredSelection]]
+:imagesdir: ../../assets/images
+:description: Incremental CDC in Apache Hop using a timestamp or increasing ID and the last successful workflow or pipeline run.
+:openvar: ${
+:closevar: }
+
+= CDC: filtered selection
+
+Filtered selection is incremental extract by a `WHERE` clause. The source has a column that only moves forward — an update timestamp, a `last_modified` column, or an always-increasing ID — and you only read rows past the last value you already processed.
+
+The whole pattern answers one question: *what is the last time this workflow or pipeline ran successfully?* That value (or the last ID you applied) is the lower bound of the next query.
+
+== Prerequisite
+
+Every insert or update you care about must change the watermark column. If a row can be updated without touching that timestamp or without getting a new ID, this approach misses it. In that case use xref:how-to-guides/cdc-snapshot-comparison.adoc[snapshot comparison] or xref:how-to-guides/cdc-log-sniffing.adoc[log sniffing].
+
+Deletes are invisible unless the source sets a deleted flag, writes to a delete table, or never physically deletes. If you need delete detection and have no such signal, use snapshot comparison or log sniffing.
+
+== Write the watermark yourself
+
+The straightforward design is to persist the watermark *yourself* at the end of the workflow, on the success path only. Write it anywhere that the next run can read: a one-row control table, a small file, a properties file, even a Hop configuration you already use.
+
+Because you only write after a successful apply, a failed run does not advance the bound. The next success retries the same window.
+
+[source,text]
+----
+[workflow]
+
+Start
+  |
+  v
+Pipeline: read watermark --> extract WHERE col > bound --> apply
+  |
+  +-- success --> Pipeline or SQL action: write new watermark
+  |
+  +-- failure --> do not write; next run uses the old bound
+----
+
+A control table is enough:
+
+[source,sql]
+----
+-- read at the start of the extract pipeline
+SELECT last_ts FROM cdc_watermark WHERE pipeline_name = 'load_customer';
+
+-- write at the end of the workflow, success hop only
+UPDATE cdc_watermark
+   SET last_ts = ?
+ WHERE pipeline_name = 'load_customer';
+----
+
+The value you store is either the extract’s upper bound (`CURRENT_TIMESTAMP` / pipeline start time) or `MAX(watermark_column)` of the rows you just applied. Using the extract start time as the next lower bound is usually safer than `MAX(column)` if the source can still commit rows with an earlier timestamp while you run.
+
+xref:pipeline/transforms/tableinput.adoc[Table Input] can take the bound as a `?` parameter from the previous transform, or as a Hop variable after xref:pipeline/transforms/setvariable.adoc[Set Variables] (in a *parent* workflow or pipeline — variables set in the same pipeline are not visible to later transforms in that pipeline).
+
+.Timestamp window
+
+[source,sql]
+----
+SELECT id, name, city, last_modified
+  FROM customer
+ WHERE last_modified > ?
+   AND last_modified <= ?
+----
+
+.Increasing ID
+
+[source,sql]
+----
+SELECT id, name, city
+  FROM customer_events
+ WHERE event_id > ?
+----
+
+.Same query with a Hop variable (enable *Replace variables in script*)
+
+[source,sql]
+----
+SELECT id, name, city, last_modified
+  FROM customer
+ WHERE last_modified > '{openvar}LAST_SUCCESS_TS{closevar}'
+   AND last_modified <= '{openvar}THIS_RUN_TS{closevar}'
+----
+
+=== First run
+
+If the control table has no row yet, default the lower bound far enough back for a full load (for example `1900-01-01`, or `0` for an ID). xref:pipeline/transforms/detectemptystream.adoc[Detect empty stream] or a coalesce in SQL both work.
+
+=== Why the success path matters
+
+If you update the watermark in the extract pipeline *before* the apply finishes, a crash after the write skips those rows forever. Write the watermark in the workflow *after* the apply pipeline succeeds. That is also why you must not write it on the failure hop.
+
+== Timestamp versus increasing ID
+
+[cols="1,2,2",options="header"]
+|===
+|Watermark
+|Works when
+|Watch out for
+
+|Timestamp (`last_modified`, `update_ts`)
+|Every relevant change updates the column
+|Time zones; clock skew between source and Hop; many rows sharing the same timestamp. Prefer a half-open window (`>` last bound, `<=` this run’s start). Add a small overlap if the source can deliver late rows.
+
+|Increasing ID
+|Every new or changed row gets a *new, greater* ID (insert-only tables, event tables, change-log tables)
+|In-place updates that keep the same ID are invisible. Gaps are fine; going backwards is not.
+|===
+
+== Look the last success up from Execution information
+
+If the workflow already writes to an xref:metadata-types/execution-information-location.adoc[Execution Information Location], you do not have to keep a control table. The xref:pipeline/transforms/execinfo.adoc[Execution information] transform can find the previous successful run for you.
+
+Use operation *Find previous successful execution*. It needs two input fields:
+
+* *Execution name* — the pipeline or workflow name as stored in the location (usually the file name without path)
+* *Execution type* — `Pipeline` or `Workflow` (the `ExecutionType` enum name)
+
+A one-row xref:pipeline/transforms/rowgenerator.adoc[Generate Rows] (or Get Variables) is enough to feed those fields.
+
+Useful output columns:
+
+* `executionStartDate` / `executionEndDate` — the window bound
+* `failed`, `statusDescription` — sanity checks
+* no output row at all when there is no previous success (first run)
+
+[source,text]
+----
+Generate Rows          (name = load_customer, type = Workflow)
+        |
+        v
+Execution information  (Find previous successful execution)
+        |
+        v
+default if no row      (first run: 1900-01-01)
+        |
+        v
+Table Input            (WHERE last_modified > ? AND last_modified <= ?)
+        |
+        v
+Insert / Update
+----
+
+Use *Find previous successful execution*, not *Find last execution*. A failed run must not move the watermark, or the next success skips the failed window.
+
+The run configuration of the workflow or pipeline you look up must actually write to that Execution Information Location. Otherwise the transform never finds a row.
+
+== Other ways to get a date range
+
+These are alternatives to a control table or Execution information, not extra requirements:
+
+* xref:pipeline/transforms/getsystemdata.adoc[Get System Info] *Start / End date range (Pipeline)* and *Start / End date range (Workflow)* — the older log-table window, when those ETL log tables are in use
+* xref:pipeline/transforms/neo4j-getloginfo.adoc[Neo4j Get Logging Info] — previous (successful) execution dates when logging goes to `NEO4J_LOGGING_CONNECTION`
+
+== Applying the extract
+
+Filtered selection usually produces *new and changed* rows only. xref:pipeline/transforms/insertupdate.adoc[Insert / Update] is the typical apply. There is no `deleted` flag unless you added one in the source query.
+
+See also: xref:how-to-guides/change-data-capture.adoc[Change Data Capture overview].
