@@ -138,8 +138,9 @@
     </dependencies>
 
     <!-- The SWTBot UI-test stack above is on every plugin's test classpath. The @Tag("uitest")
-         gating and the uitest / swtbot-mac profiles are inherited from the root pom, so a plugin
-         needs no extra config to add a UI test extending org.apache.hop.ui.testing.SwtBotTestBase. -->
+         gating and the uitest / skip-uitest / swt-mac profiles are inherited from the root pom, so
+         a plugin needs no extra config to add a UI test extending
+         org.apache.hop.ui.testing.SwtBotTestBase. -->
 
     <build>
         <plugins>
