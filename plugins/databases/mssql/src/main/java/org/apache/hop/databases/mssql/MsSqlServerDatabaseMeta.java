@@ -44,6 +44,16 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /**
+   * SQL Server limits rows with TOP, between SELECT and the column list.
+   *
+   * <p>Inherited by the native dialect, which shares this syntax.
+   */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
+
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
   @GuiWidgetElement(

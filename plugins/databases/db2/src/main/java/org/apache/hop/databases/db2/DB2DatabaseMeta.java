@@ -37,6 +37,12 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-DB2DatabaseMeta")
 public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** DB2 limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " FETCH FIRST " + nrRows + " ROWS ONLY";
+  }
+
   private static final String ALTER_TABLE = "ALTER TABLE ";
 
   @Override

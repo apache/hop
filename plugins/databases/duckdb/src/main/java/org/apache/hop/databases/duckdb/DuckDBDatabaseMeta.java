@@ -41,6 +41,12 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-DuckDBDatabaseMeta")
 public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** DuckDB limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   private static final List<IDatabaseTypeRule> TYPE_RULES =
       DatabaseTypes.rules()
           // As of DuckDB JDBC 0.10.0 the Calendar overloads of setDate and setTimestamp are not

@@ -36,6 +36,12 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-InterbaseDatabaseMeta")
 public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** Interbase limits rows with FIRST, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " FIRST " + nrRows;
+  }
+
   public static final String CONST_SMALLINT = "SMALLINT";
   public static final String CONST_INTEGER = "INTEGER";
   public static final String CONST_VARCHAR = "VARCHAR";

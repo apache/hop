@@ -95,8 +95,14 @@ They are ordinary methods with sensible defaults, and the ones that matter most 
 |Set this false for databases that invalidate a statement, or the whole connection, when a statement fails. SQLite is the example in the tree.
 
 |`getLimitClause(int)`
-|The clause appended *after* the FROM clause to limit rows, such as `" LIMIT 10"`. It is a suffix; databases that limit rows with a prefix such as `TOP` cannot express it here.
+|The clause appended *after* the FROM clause to limit rows, such as `" LIMIT 10"`.
+
+|`getLimitClausePrefix(int)`
+|The clause placed directly after `SELECT` instead, such as `" TOP 10"`. Databases use one form or the other, so override this or `getLimitClause`, not both.
 |===
+
+Both include their own leading space, and both default to returning nothing.
+A dialect that offers neither still works: the row count is capped while reading, so it simply fetches a little more than it needs.
 
 Prefer overriding a capability over overriding behaviour.
 A capability is a fact about the database that Hop can act on in several places; overridden behaviour only fixes the one place you overrode.

@@ -240,6 +240,22 @@ public interface IDatabase extends Cloneable {
   String getLimitClause(int nrRows);
 
   /**
+   * The clause that limits the number of rows when the database puts it directly after SELECT,
+   * rather than at the end of the statement.
+   *
+   * <p>SQL Server and Sybase IQ write {@code SELECT TOP 10 * FROM t}, where PostgreSQL writes
+   * {@code SELECT * FROM t LIMIT 10}. A database uses one form or the other, so a dialect overrides
+   * this or {@link #getLimitClause(int)}, not both.
+   *
+   * @param nrRows the number of rows to limit the result to
+   * @return the clause to place after SELECT, with a leading space, or an empty string when this
+   *     database limits rows at the end of the statement instead
+   */
+  default String getLimitClausePrefix(int nrRows) {
+    return "";
+  }
+
+  /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given
    * database table
    *

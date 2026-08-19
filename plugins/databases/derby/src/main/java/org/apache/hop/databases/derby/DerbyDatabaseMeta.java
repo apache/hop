@@ -36,6 +36,13 @@ import org.apache.hop.core.util.Utils;
     classLoaderGroup = "derby-db")
 @GuiPlugin(id = "GUI-DerbyDatabaseMeta")
 public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** Derby limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " FETCH FIRST " + nrRows + " ROWS ONLY";
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};

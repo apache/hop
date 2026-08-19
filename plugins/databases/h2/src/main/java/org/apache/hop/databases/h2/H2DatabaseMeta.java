@@ -36,6 +36,13 @@ import org.apache.hop.core.util.Utils;
     classLoaderGroup = "h2-db")
 @GuiPlugin(id = "GUI-H2DatabaseMeta")
 public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /** H2 limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};

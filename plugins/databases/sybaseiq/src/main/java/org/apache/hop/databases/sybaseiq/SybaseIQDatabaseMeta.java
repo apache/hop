@@ -45,18 +45,10 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return true;
   }
 
-  /**
-   * Sybase IQ limits rows with TOP, which goes between SELECT and the column list rather than at
-   * the end of the statement. {@link IDatabase#getLimitClause} is appended after the FROM clause,
-   * so TOP cannot be expressed through it; returning it here would produce {@code SELECT * FROM t
-   * TOP 10}, which does not parse.
-   *
-   * <p>Callers cap the row count while reading, so the effect of having no clause here is that a
-   * few more rows cross the wire, not that too many are returned.
-   */
+  /** Sybase IQ limits rows with TOP, between SELECT and the column list. */
   @Override
-  public String getLimitClause(int nrRows) {
-    return "";
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
   }
 
   @Override

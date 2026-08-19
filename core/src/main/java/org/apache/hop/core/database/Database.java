@@ -3716,9 +3716,11 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public List<Object[]> getFirstRows(String tableName, int limit, IProgressMonitor monitor)
       throws HopDatabaseException {
     // How a database limits rows is its own syntax, so it is asked rather than recognised here.
-    // The row count is capped while reading in any case, so a dialect with no limit clause simply
-    // fetches a little more than it needs.
-    String sql = "SELECT * FROM " + tableName;
+    // Some put the clause directly after SELECT and others at the end of the statement, so both
+    // are asked for. The row count is capped while reading in any case, so a dialect offering
+    // neither simply fetches a little more than it needs.
+    String prefix = limit > 0 ? databaseMeta.getLimitClausePrefix(limit) : "";
+    String sql = "SELECT" + prefix + " * FROM " + tableName;
 
     if (limit > 0) {
       sql += databaseMeta.getLimitClause(limit);

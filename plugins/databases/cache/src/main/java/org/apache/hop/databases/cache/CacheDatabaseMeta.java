@@ -36,6 +36,12 @@ import org.apache.hop.core.row.IValueMeta;
 @GuiPlugin(id = "GUI-CacheDatabaseMeta")
 public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** Cache limits rows with TOP, between SELECT and the column list. */
+  @Override
+  public String getLimitClausePrefix(int nrRows) {
+    return " TOP " + nrRows;
+  }
+
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
 
   @Override

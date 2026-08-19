@@ -47,6 +47,12 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 @GuiPlugin(id = "GUI-SQLiteDatabaseMeta")
 public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  /** SQLite limits rows at the end of the statement. */
+  @Override
+  public String getLimitClause(int nrRows) {
+    return " LIMIT " + nrRows;
+  }
+
   private static final List<IDatabaseTypeRule> TYPE_RULES =
       DatabaseTypes.rules()
           // Dynamic typing means a binary column is as likely to hold text.
