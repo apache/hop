@@ -1,0 +1,8 @@
+{
+  "projectDirectory": "${PROJECT_HOME}/dbt-project",
+  "profilesDirectory": "${PROJECT_HOME}/dbt-project",
+  "defaultTarget": "dev",
+  "dbtExecutable": "dbt",
+  "dbtOlExecutable": "dbt-ol",
+  "name": "warehouse-models"
+}

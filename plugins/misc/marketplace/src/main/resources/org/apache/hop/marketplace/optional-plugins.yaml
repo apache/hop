@@ -86,6 +86,12 @@ plugins:
   #
   # Technology
   #
+  - artifactId: hop-action-dbt
+    name: dbt
+    category: Technology
+    description: Workflow action and metadata type that run dbt Core and stitch its OpenLineage into Hop. Needs dbt Core installed on the machine that runs the workflow.
+    installPath: plugins/actions/dbt
+    modulePath: plugins/actions/dbt
   - artifactId: hop-tech-cassandra
     name: Cassandra
     category: Technology
