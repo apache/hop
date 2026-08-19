@@ -23,12 +23,6 @@ import org.apache.hop.server.IRemoteCapableRunConfiguration;
 /** Engine-specific options for the load-balancing pipeline and workflow run configurations. */
 public interface ILoadBalancingRunConfiguration extends IRemoteCapableRunConfiguration {
 
-  /** Gui plugin parent for the Management tab (poll delay/interval and export). */
-  String GUI_WIDGETS_MANAGEMENT = "LoadBalancing-Management";
-
-  /** Gui plugin parent for the Load-balancing tab (run config, algorithm, retry, state). */
-  String GUI_WIDGETS_LOAD_BALANCING = "LoadBalancing-Options";
-
   List<LoadBalancingServerEntry> getServers();
 
   void setServers(List<LoadBalancingServerEntry> servers);

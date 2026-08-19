@@ -24,6 +24,7 @@ import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -43,7 +44,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "20",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.METADATA,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.RunConfiguration.Label",
@@ -55,7 +60,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "30",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.COMBO,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingAlgorithm.Label",
@@ -67,7 +76,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "40",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingMaxRetries.Label",
@@ -78,7 +91,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "50",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingRetryWindow.Label",
@@ -89,7 +106,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "60",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.CHECKBOX,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingRetryOnFailure.Label",
@@ -100,7 +121,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "70",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingProbeTimeout.Label",
@@ -111,7 +136,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "80",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingConfigRefresh.Label",
@@ -122,7 +151,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "90",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_LOAD_BALANCING,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.LoadBalancing",
+      groupOrder = "20",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.FOLDER,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.LoadBalancingStateFolder.Label",
@@ -133,7 +166,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "100",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.Management",
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.ServerPollDelay.Label")
@@ -142,7 +179,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "110",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.Management",
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.ServerPollInterval.Label")
@@ -151,7 +192,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "120",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.Management",
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.CHECKBOX,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.ExportResources.Label",
@@ -162,7 +207,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "130",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.Management",
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.FOLDER,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.NamedResourceSourceFolder.Label",
@@ -173,7 +222,11 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   @GuiWidgetElement(
       order = "140",
-      parentId = ILoadBalancingRunConfiguration.GUI_WIDGETS_MANAGEMENT,
+      parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group =
+          "i18n:org.apache.hop.ui.server.loadbalance:LoadBalancingRunConfiguration.Tab.Management",
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS,
       type = GuiElementType.TEXT,
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.NamedResourceTargetFolder.Label",

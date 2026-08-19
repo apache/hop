@@ -281,19 +281,17 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     guiCompositeWidgets = null;
     loadBalancingWidgets = null;
 
-    if (workingConfiguration.getEngineRunConfiguration()
-        instanceof ILoadBalancingRunConfiguration loadBalancing) {
-      loadBalancingWidgets =
-          new LoadBalancingRunConfigurationWidgets(
-              manager.getVariables(), manager.getMetadataProvider());
-      loadBalancingWidgets.addTo(wPluginSpecificComp, loadBalancing, e -> setChanged());
-      return;
-    }
-
     // Now add the run configuration plugin specific widgets
     //
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
+      if (workingConfiguration.getEngineRunConfiguration()
+          instanceof ILoadBalancingRunConfiguration) {
+        loadBalancingWidgets =
+            new LoadBalancingRunConfigurationWidgets(
+                manager.getVariables(), manager.getMetadataProvider());
+        loadBalancingWidgets.registerServersGroup(guiCompositeWidgets, e -> setChanged());
+      }
       guiCompositeWidgets.createCompositeWidgets(
           workingConfiguration.getEngineRunConfiguration(),
           null,
@@ -387,15 +385,16 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       wPluginType.setText(
           Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), ""));
-      if (loadBalancingWidgets != null
-          && workingConfiguration.getEngineRunConfiguration()
-              instanceof ILoadBalancingRunConfiguration loadBalancing) {
-        loadBalancingWidgets.setContents(loadBalancing);
-      } else if (guiCompositeWidgets != null) {
+      if (guiCompositeWidgets != null) {
         guiCompositeWidgets.setWidgetsContents(
             workingConfiguration.getEngineRunConfiguration(),
             wPluginSpecificComp,
             WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+      }
+      if (loadBalancingWidgets != null
+          && workingConfiguration.getEngineRunConfiguration()
+              instanceof ILoadBalancingRunConfiguration loadBalancing) {
+        loadBalancingWidgets.setServers(loadBalancing);
       }
     } else {
       wPluginType.setText("");
@@ -412,15 +411,16 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
     // Get the plugin specific information from the widgets on the screen
     //
-    if (loadBalancingWidgets != null
-        && meta.getEngineRunConfiguration()
-            instanceof ILoadBalancingRunConfiguration loadBalancing) {
-      loadBalancingWidgets.getContents(loadBalancing);
-    } else if (meta.getEngineRunConfiguration() != null
+    if (meta.getEngineRunConfiguration() != null
         && guiCompositeWidgets != null
         && !guiCompositeWidgets.getWidgetsMap().isEmpty()) {
       guiCompositeWidgets.getWidgetsContents(
           meta.getEngineRunConfiguration(), WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    }
+    if (loadBalancingWidgets != null
+        && meta.getEngineRunConfiguration()
+            instanceof ILoadBalancingRunConfiguration loadBalancing) {
+      loadBalancingWidgets.getServers(loadBalancing);
     }
   }
 
