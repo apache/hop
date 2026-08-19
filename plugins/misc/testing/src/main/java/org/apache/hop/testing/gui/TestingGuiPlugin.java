@@ -18,6 +18,7 @@
 package org.apache.hop.testing.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -74,6 +75,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboFilterPopup;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -1095,6 +1097,29 @@ public class TestingGuiPlugin {
   }
 
   /**
+   * Clicking the combo selects the current test name so the next keystroke replaces it. Typing then
+   * filters the list in a popup under the combo (issue #7890).
+   */
+  private void installUnitTestComboSearch(Combo combo) {
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    ComboFilterPopup.attach(
+        combo, () -> Arrays.asList(combo.getItems()), this::applyFilteredUnitTest);
+  }
+
+  private void applyFilteredUnitTest(String testName) {
+    Combo combo = getUnitTestsCombo();
+    if (combo == null || combo.isDisposed()) {
+      return;
+    }
+    if (!Const.NVL(testName, "").equals(combo.getText())) {
+      combo.setText(Const.NVL(testName, ""));
+    }
+    selectUnitTest();
+  }
+
+  /**
    * Enable or disable the unit test buttons (Edit, Detach, Delete) based on whether a unit test is
    * selected.
    */
@@ -1110,6 +1135,7 @@ public class TestingGuiPlugin {
     }
 
     Combo combo = getUnitTestsCombo();
+    installUnitTestComboSearch(combo);
     boolean hasSelection = combo != null && !StringUtils.isEmpty(combo.getText());
 
     if (log.isDebug()) {
@@ -1290,6 +1316,11 @@ public class TestingGuiPlugin {
       if (!Utils.isEmpty(testName)) {
         PipelineUnitTest unitTest = testSerializer.load(testName);
         if (unitTest == null) {
+          ComboFilterPopup filter = ComboFilterPopup.get(combo);
+          if (filter != null && filter.isPopupOpen()) {
+            // Still typing a search; do not treat the filter text as a missing test.
+            return;
+          }
           throw new HopException(
               BaseMessages.getString(
                   PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Exception", testName));
