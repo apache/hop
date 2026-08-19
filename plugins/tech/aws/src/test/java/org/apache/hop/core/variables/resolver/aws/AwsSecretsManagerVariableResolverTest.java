@@ -419,6 +419,46 @@ class AwsSecretsManagerVariableResolverTest {
   }
 
   @Test
+  void testRegionStoresOnlyTheCode() {
+    // Whatever the combo hands over, the field and therefore the metadata file keep just the code.
+    resolver.setRegion("eu-west-1 - Europe (Ireland)");
+    assertEquals("eu-west-1", resolver.getRegion());
+
+    resolver.setRegion("eu-west-1");
+    assertEquals("eu-west-1", resolver.getRegion());
+  }
+
+  @Test
+  void testRegionIsShownWithItsDescription() {
+    resolver.setRegion("eu-west-1");
+    assertEquals("eu-west-1 - Europe (Ireland)", resolver.getRegionLabel());
+  }
+
+  @Test
+  void testRegionLabelLeavesAVariableAlone() {
+    // A variable is not a region code, so there is nothing to decorate it with.
+    resolver.setRegion("${AWS_REGION}");
+    assertEquals("${AWS_REGION}", resolver.getRegion());
+    assertEquals("${AWS_REGION}", resolver.getRegionLabel());
+  }
+
+  @Test
+  void testRegionLabelIsEmptyWhenNoRegionIsSet() {
+    assertEquals(null, resolver.getRegionLabel());
+    resolver.setRegion("");
+    assertEquals("", resolver.getRegionLabel());
+  }
+
+  @Test
+  void testRegionLabelRoundTripsThroughTheCombo() {
+    // What the getter shows must be something the setter can take back without drift.
+    for (String item : resolver.getRegions(null, null)) {
+      resolver.setRegion(item);
+      assertEquals(item, resolver.getRegionLabel(), "round trip failed for combo entry " + item);
+    }
+  }
+
+  @Test
   void testRegionCodeIsReadBackFromTheDisplayedValue() {
     assertEquals(
         "eu-west-1", AwsSecretsManagerVariableResolver.regionCode("eu-west-1 - Europe (Ireland)"));

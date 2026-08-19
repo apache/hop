@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +92,10 @@ public class AwsSecretsManagerVariableResolver
   /** Separates the region code from its description in the region combo box. */
   private static final String REGION_DESCRIPTION_SEPARATOR = " - ";
 
+  /** The region codes the SDK knows, so that anything else can be left alone. */
+  private static final Set<String> KNOWN_REGION_IDS =
+      Region.regions().stream().map(Region::id).collect(Collectors.toUnmodifiableSet());
+
   static final String ID_REGION = "region";
   static final String ID_AUTHENTICATION_TYPE = "authenticationType";
   static final String ID_ACCESS_KEY = "accessKey";
@@ -121,6 +126,7 @@ public class AwsSecretsManagerVariableResolver
       parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.COMBO,
       comboValuesMethod = "getRegions",
+      getterMethod = "getRegionLabel",
       label = "i18n::AwsSecretsManagerVariableResolver.Region.Label",
       toolTip = "i18n::AwsSecretsManagerVariableResolver.Region.Tooltip")
   @HopMetadataProperty
@@ -229,6 +235,28 @@ public class AwsSecretsManagerVariableResolver
       toolTip = "i18n::AwsSecretsManagerVariableResolver.CacheTtlSeconds.Tooltip")
   @HopMetadataProperty
   private String cacheTtlSeconds;
+
+  /**
+   * The region combo shows "eu-west-1 - Europe (Ireland)" but only the code is worth keeping, so
+   * the description is stripped before it reaches the field and the metadata file. Hand written on
+   * purpose: this is the setter the widget layer calls, and Lombok leaves it alone.
+   */
+  public void setRegion(String region) {
+    this.region = regionCode(region);
+  }
+
+  /**
+   * The value to show in the region combo box: the stored code together with its description, so
+   * that it matches one of the entries {@link #getRegions} offers. Anything that is not a region
+   * code -- a variable reference, most likely -- is shown as it is.
+   */
+  public String getRegionLabel() {
+    String code = regionCode(region);
+    if (StringUtils.isEmpty(code) || !KNOWN_REGION_IDS.contains(code)) {
+      return region;
+    }
+    return code + REGION_DESCRIPTION_SEPARATOR + describeRegion(code);
+  }
 
   public AwsSecretsManagerVariableResolver() {
     authenticationType = AwsSecretsManagerAuthType.AUTOMATIC.name();
@@ -401,7 +429,8 @@ public class AwsSecretsManagerVariableResolver
     if (StringUtils.isEmpty(region)) {
       return region;
     }
-    return region.trim().split("\\s", 2)[0];
+    int index = region.indexOf(REGION_DESCRIPTION_SEPARATOR);
+    return index < 0 ? region.trim() : region.substring(0, index).trim();
   }
 
   AwsCredentialsProvider buildCredentialsProvider(
