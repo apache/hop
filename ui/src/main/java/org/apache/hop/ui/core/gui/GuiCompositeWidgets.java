@@ -1200,7 +1200,7 @@ public class GuiCompositeWidgets {
             break;
           case CHECKBOX:
             Button button = (Button) control;
-            button.setSelection((Boolean) value);
+            button.setSelection(Boolean.TRUE.equals(value));
             break;
           case COMBO:
             if (guiElements.isVariablesEnabled()) {
