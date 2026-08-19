@@ -20,7 +20,7 @@ under the License.
 
 = Hop Server
 
-Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configurations.
+Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline], xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow], or xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[load-balancing] run configurations.
 
 How you get a project onto a Hop Server is covered in xref:hop-server/deploying.adoc[Deploying Hop Server].
 

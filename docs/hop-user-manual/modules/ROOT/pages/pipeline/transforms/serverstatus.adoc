@@ -58,6 +58,8 @@ Here is the list of possible output fields:
 * OS version
 * OS architecture
 * # Active pipelines
+* # Finished pipelines
 * # Active workflows
+* # Finished workflows
 * Available
 * Response (ns)

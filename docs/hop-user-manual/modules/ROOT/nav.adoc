@@ -64,6 +64,7 @@ under the License.
 *** xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Beam Spark]
 *** xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[Native Local]
 *** xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Native Remote]
+*** xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[Native Load-balancing]
 *** xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark]
 ** xref:pipeline/pipeline-unit-testing.adoc[Pipeline Unit Tests]
 ** xref:pipeline/metadata-injection.adoc[Metadata Injection]
@@ -319,6 +320,9 @@ under the License.
 ** xref:workflow/create-workflow.adoc[Create a Workflow]
 ** xref:workflow/run-debug-workflow.adoc[Run and Debug a Workflow]
 ** xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations]
+*** xref:workflow/workflow-run-configurations/native-local-workflow-engine.adoc[Native Local]
+*** xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Native Remote]
+*** xref:workflow/workflow-run-configurations/native-load-balancing-workflow-engine.adoc[Native Load-balancing]
 ** xref:workflow/actions.adoc[Actions]
 //::=START AUTO GENERATED LINKS ACTIONS
 *** xref:workflow/actions/abort.adoc[Abort workflow]
