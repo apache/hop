@@ -21,6 +21,8 @@ package org.apache.hop.git.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.jgit.api.Git;
@@ -389,6 +392,84 @@ public class UIGitTest extends RepositoryTestCase {
     // The name is known, so no selection dialog is opened
     verify(uiGit, never()).getEnterSelectionDialog(any(), anyString(), anyString());
     git2.close();
+  }
+
+  @Test
+  public void testDeleteRemoteBranch() throws Exception {
+    Git git2 = new Git(db2);
+    UIGit uiGit2 = new UIGit();
+    uiGit2.setGit(git2);
+    setupRemote();
+
+    git.commit().setMessage("initial commit").call();
+    git.branchCreate().setName("feature/test").call();
+
+    // A branch name with a slash in it: the remote is origin, the branch is feature/test
+    assertTrue(uiGit.push(VCS.TYPE_BRANCH, "feature/test"));
+    git.fetch().call();
+    assertTrue(uiGit2.getLocalBranches().contains("feature/test"));
+    assertNotNull(db.findRef("refs/remotes/origin/feature/test"));
+
+    assertTrue(uiGit.deleteRemoteBranch("refs/remotes/origin/feature/test"));
+    assertFalse(uiGit2.getLocalBranches().contains("feature/test"));
+
+    // The tracking ref is removed as well, deleting on the remote doesn't prune it
+    assertNull(db.findRef("refs/remotes/origin/feature/test"));
+
+    git2.close();
+  }
+
+  @Test
+  public void testDeleteRemoteBranchWithoutRemote() throws Exception {
+    git.commit().setMessage("initial commit").call();
+
+    assertThrows(HopException.class, () -> uiGit.deleteRemoteBranch("refs/remotes/origin/feature"));
+  }
+
+  @Test
+  public void testRenameRemoteBranch() throws Exception {
+    Git git2 = new Git(db2);
+    UIGit uiGit2 = new UIGit();
+    uiGit2.setGit(git2);
+    setupRemote();
+
+    RevCommit commit = git.commit().setMessage("initial commit").call();
+    git.branchCreate().setName("old").call();
+    assertTrue(uiGit.push(VCS.TYPE_BRANCH, "old"));
+    git.fetch().call();
+
+    assertTrue(uiGit.renameRemoteBranch("refs/remotes/origin/old", "new"));
+
+    // The branch is created under its new name and removed under the old one, pointing at the
+    // same commit
+    assertTrue(uiGit2.getLocalBranches().contains("new"));
+    assertFalse(uiGit2.getLocalBranches().contains("old"));
+    assertEquals(commit.getId(), db2.resolve("refs/heads/new"));
+
+    // The tracking refs follow along, without needing a fetch
+    assertNull(db.findRef("refs/remotes/origin/old"));
+    assertNotNull(db.findRef("refs/remotes/origin/new"));
+
+    git2.close();
+  }
+
+  @Test
+  public void testIsRemoteHead() throws Exception {
+    setupRemote();
+
+    git.commit().setMessage("initial commit").call();
+    git.branchCreate().setName("feature").call();
+    assertTrue(uiGit.push(VCS.TYPE_BRANCH, "feature"));
+    git.fetch().call();
+
+    // Without a remote HEAD there is nothing to protect
+    assertFalse(uiGit.isRemoteHead("refs/remotes/origin/feature"));
+
+    db.updateRef("refs/remotes/origin/HEAD").link("refs/remotes/origin/feature");
+    assertTrue(uiGit.isRemoteHead("refs/remotes/origin/feature"));
+
+    // Local branches and tags are never a remote HEAD
+    assertFalse(uiGit.isRemoteHead("refs/heads/master"));
   }
 
   @Test

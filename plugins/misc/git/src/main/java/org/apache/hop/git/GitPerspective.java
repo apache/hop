@@ -392,12 +392,24 @@ public class GitPerspective implements IHopPerspective {
           boolean isRemotes = ref.getName().startsWith(Constants.R_REMOTES);
           boolean isTags = ref.getName().startsWith(Constants.R_TAGS);
 
+          // The default branch of the remote is off limits, renaming or deleting it breaks the
+          // repository for everyone. The remote is the one enforcing this, we only keep the
+          // obvious mistake out of reach.
+          //
+          boolean isProtectedRemote =
+              isRemotes && GitGuiPlugin.getInstance().getGit().isRemoteHead(ref.getName());
+
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_CHECKOUT, !isCurrentBranch);
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PUSH, isHeads || isTags);
           setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_PULL, isHeads);
-          setMenuItemEnabled(refMenuWidgets, REF_CONTEXT_MENU_RENAME, isHeads);
           setMenuItemEnabled(
-              refMenuWidgets, REF_CONTEXT_MENU_DELETE, !isCurrentBranch && (isHeads || isTags));
+              refMenuWidgets,
+              REF_CONTEXT_MENU_RENAME,
+              isHeads || (isRemotes && !isProtectedRemote));
+          setMenuItemEnabled(
+              refMenuWidgets,
+              REF_CONTEXT_MENU_DELETE,
+              !isCurrentBranch && (isHeads || isTags || (isRemotes && !isProtectedRemote)));
 
           MenuItem menuItem = refMenuWidgets.findMenuItem(REF_CONTEXT_MENU_CREATE_BRANCH);
           if (menuItem != null) {
@@ -1221,6 +1233,15 @@ public class GitPerspective implements IHopPerspective {
   public void renameReference() {
     Ref ref = this.getSelectedReference();
     if (ref != null) {
+      boolean isRemote = ref.getName().startsWith(Constants.R_REMOTES);
+      if (!isRemote && !ref.getName().startsWith(Constants.R_HEADS)) {
+        // Only branches can be renamed
+        return;
+      }
+      if (isRemote && GitGuiPlugin.getInstance().getGit().isRemoteHead(ref.getName())) {
+        return;
+      }
+
       UIGit git = GitGuiPlugin.getInstance().getGit();
       String oldName = git.getShortenedName(ref.getName());
 
@@ -1235,7 +1256,9 @@ public class GitPerspective implements IHopPerspective {
               case SWT.CR, SWT.KEYPAD_CR:
                 String newName = text.getText().trim();
                 if (!Utils.isEmpty(newName) && !newName.equals(oldName)) {
-                  if (git.renameBranch(oldName, newName)) {
+                  if (isRemote) {
+                    renameRemoteBranch(ref, oldName, newName);
+                  } else if (git.renameBranch(oldName, newName)) {
 
                     // If we rename the active branch
                     if (newName.equals(git.getBranch())) {
@@ -1276,6 +1299,8 @@ public class GitPerspective implements IHopPerspective {
     if (ref != null) {
       if (ref.getName().startsWith(Constants.R_HEADS)) {
         deleteBranch(ref);
+      } else if (ref.getName().startsWith(Constants.R_REMOTES)) {
+        deleteRemoteBranch(ref);
       } else if (ref.getName().startsWith(Constants.R_TAGS)) {
         deleteTag(ref);
       }
@@ -1306,6 +1331,116 @@ public class GitPerspective implements IHopPerspective {
         refresh(false);
       }
     }
+  }
+
+  /**
+   * Delete a branch on the remote. The branch is gone for everyone once this is pushed, so ask
+   * first and name the remote in the question.
+   */
+  protected void deleteRemoteBranch(Ref ref) {
+    if (ref == null) {
+      return;
+    }
+    UIGit git = GitGuiPlugin.getInstance().getGit();
+    String name = git.getShortenedName(ref.getName());
+
+    // The default branch of the remote is protected against an accidental delete
+    if (git.isRemoteHead(ref.getName())) {
+      return;
+    }
+
+    MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    dialog.setText(
+        BaseMessages.getString(
+            PKG, "GitGuiPlugin.Dialog.Branch.DeleteRemoteBranchConfirmation.Header"));
+    dialog.setMessage(
+        BaseMessages.getString(
+            PKG,
+            "GitGuiPlugin.Dialog.Branch.DeleteRemoteBranchConfirmation.Message",
+            getBranchOnRemote(name),
+            getRemoteName(name)));
+
+    if (dialog.open() == SWT.YES) {
+      try {
+        git.deleteRemoteBranch(ref.getName());
+      } catch (Exception e) {
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            e);
+      }
+
+      // Refresh refs and commit history
+      refresh(false);
+    }
+  }
+
+  /**
+   * Rename a branch on the remote. Git can't rename over the wire: the branch is pushed under its
+   * new name and the old one is deleted, so ask before doing it.
+   *
+   * @param ref the remote tracking ref of the branch
+   * @param oldName the current name including the remote, e.g. origin/feature
+   * @param newName the new name as typed by the user, with or without the remote prefix
+   */
+  private void renameRemoteBranch(Ref ref, String oldName, String newName) {
+    UIGit git = GitGuiPlugin.getInstance().getGit();
+
+    // The tree shows remote branches with their remote in front of them. Accept a new name with
+    // or without it, the branch is renamed on the same remote either way.
+    //
+    String remote = getRemoteName(oldName);
+    String newBranchName = newName.startsWith(remote + "/") ? getBranchOnRemote(newName) : newName;
+
+    if (Utils.isEmpty(newBranchName)
+        || !Repository.isValidRefName(Constants.R_HEADS + newBranchName)) {
+      MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.InvalidName.Header"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.Branch.InvalidName.Message", newName));
+      box.open();
+      return;
+    }
+
+    MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    dialog.setText(
+        BaseMessages.getString(
+            PKG, "GitGuiPlugin.Dialog.Branch.RenameRemoteBranchConfirmation.Header"));
+    dialog.setMessage(
+        BaseMessages.getString(
+            PKG,
+            "GitGuiPlugin.Dialog.Branch.RenameRemoteBranchConfirmation.Message",
+            getBranchOnRemote(oldName),
+            newBranchName,
+            remote));
+
+    if (dialog.open() == SWT.YES) {
+      try {
+        git.renameRemoteBranch(ref.getName(), newBranchName);
+      } catch (Exception e) {
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
+            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            e);
+      }
+
+      // Refresh refs and commit history
+      refresh(false);
+    }
+  }
+
+  /** The remote in a shortened remote branch name: origin/feature/hop gives origin. */
+  private static String getRemoteName(String shortenedName) {
+    int slashIndex = shortenedName.indexOf('/');
+    return slashIndex < 0 ? shortenedName : shortenedName.substring(0, slashIndex);
+  }
+
+  /** The branch name in a shortened remote branch name: origin/feature/hop gives feature/hop. */
+  private static String getBranchOnRemote(String shortenedName) {
+    int slashIndex = shortenedName.indexOf('/');
+    return slashIndex < 0 ? shortenedName : shortenedName.substring(slashIndex + 1);
   }
 
   protected void deleteTag(Ref ref) {
