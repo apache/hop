@@ -377,6 +377,7 @@ GET `hop/registerPipeline`
 parameters::
 * xml (optional): return the result as xml (default HTML) use `&xml=Y`
 * json (optional): return the result as json (default HTML) use `&json=Y`
+* max_concurrent (optional): refuse the registration with result `SERVER_AT_CAPACITY` when the number of unfinished pipelines plus workflows on this server is already at this value. Used by the load-balancing engines.
 
 The request body should contain the xml of a `pipeline_configuration` (a `pipeline` and a `pipeline_execution_configuration` wrapped in a `pipeline_configuration` tag).
 
@@ -579,6 +580,7 @@ GET `/hop/registerWorkflow`
 parameters::
 * xml (optional): return the result as xml (default HTML) use `&xml=Y`
 * json (optional): return the result as json (default HTML) use `&json=Y`
+* max_concurrent (optional): refuse the registration with result `SERVER_AT_CAPACITY` when the number of unfinished pipelines plus workflows on this server is already at this value. Used by the load-balancing engines.
 
 The request body should contain the xml of a `workflow_configuration` (a `workflow` and a `workflow_execution_configuration` wrapped in a `workflow_configuration` tag), in the same form as the <<Register Pipeline,`registerPipeline`>> payload.
 

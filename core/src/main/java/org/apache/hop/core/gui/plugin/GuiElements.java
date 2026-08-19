@@ -79,8 +79,14 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
   private Class<? extends IHopMetadata> metadata;
   private Method buttonMethod;
 
+  private String group;
+  private String groupOrder;
+  private String groupImage;
+  private GuiWidgetGroupType groupType;
+
   public GuiElements() {
     children = new ArrayList<>();
+    groupType = GuiWidgetGroupType.NONE;
   }
 
   public GuiElements(GuiWidgetElement guiElement, Field field) {
@@ -116,6 +122,7 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.typeFilename = guiElement.typeFilename();
     this.metadata = guiElement.metadata();
     this.buttonMethod = null;
+    copyGroup(guiElement, fieldPackageName, field.getDeclaringClass());
   }
 
   /**
@@ -157,6 +164,14 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
     this.metadata = guiElement.metadata();
     this.classLoader = classLoader;
     this.buttonMethod = method;
+    copyGroup(guiElement, methodPackageName, method.getDeclaringClass());
+  }
+
+  private void copyGroup(GuiWidgetElement guiElement, String i18nPackage, Class<?> resourceClass) {
+    this.group = getTranslation(guiElement.group(), i18nPackage, resourceClass);
+    this.groupOrder = guiElement.groupOrder();
+    this.groupImage = guiElement.groupImage();
+    this.groupType = guiElement.groupType();
   }
 
   /** Sort the children using the sort order. If no sort field is available we use the ID */
@@ -615,5 +630,41 @@ public class GuiElements extends BaseGuiElements implements Comparable<GuiElemen
    */
   public void setButtonMethod(Method buttonMethod) {
     this.buttonMethod = buttonMethod;
+  }
+
+  public String getGroup() {
+    return group;
+  }
+
+  public void setGroup(String group) {
+    this.group = group;
+  }
+
+  public String getGroupOrder() {
+    return groupOrder;
+  }
+
+  public void setGroupOrder(String groupOrder) {
+    this.groupOrder = groupOrder;
+  }
+
+  public String getGroupImage() {
+    return groupImage;
+  }
+
+  public void setGroupImage(String groupImage) {
+    this.groupImage = groupImage;
+  }
+
+  public GuiWidgetGroupType getGroupType() {
+    return groupType == null ? GuiWidgetGroupType.NONE : groupType;
+  }
+
+  public void setGroupType(GuiWidgetGroupType groupType) {
+    this.groupType = groupType;
+  }
+
+  public boolean hasGroup() {
+    return StringUtils.isNotEmpty(group);
   }
 }

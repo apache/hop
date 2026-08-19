@@ -25,7 +25,10 @@ concise — we will expand the sections below over time.
 - **Requirements:** Java 21 (JDK) and Maven 3.6.3+ — or use the bundled wrapper
   `./mvnw` (no local Maven needed).
 - **Build + unit tests:** `./mvnw clean install` (build with Java 21, otherwise
-  tests are skipped).
+  tests are skipped). On Linux wrap a desktop run with
+  `./tools/with-isolated-display.sh` so SWT UI tests do not steal the
+  interactive session. `-Pskip-uitest` excludes them; `-Puitest` runs *only*
+  those tests.
 
 ## Conventions
 

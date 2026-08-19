@@ -769,11 +769,22 @@
                 </dependencies>
             </dependencyManagement>
         </profile>
+        <!-- uitest: run ONLY @Tag("uitest") classes (needs a display).
+             skip-uitest: exclude them from the reactor run.
+             Default (neither): include them whenever a display is available.
+             On a desktop wrap Maven with tools/with-isolated-display.sh so the
+             shells do not steal the interactive session. -->
         <profile>
             <id>uitest</id>
             <properties>
                 <ui.test.excludedGroups></ui.test.excludedGroups>
                 <ui.test.includedGroups>uitest</ui.test.includedGroups>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-uitest</id>
+            <properties>
+                <ui.test.excludedGroups>uitest</ui.test.excludedGroups>
             </properties>
         </profile>
         <profile>

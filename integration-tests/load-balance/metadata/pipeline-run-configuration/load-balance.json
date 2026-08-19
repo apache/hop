@@ -1,0 +1,37 @@
+{
+  "engineRunConfiguration": {
+    "LoadBalancing": {
+      "run_config": "local",
+      "algorithm": "Even load",
+      "max_retries": "10",
+      "retry_window_ms": "30000",
+      "retry_on_execution_failure": false,
+      "probe_timeout_ms": "3000",
+      "config_refresh_ms": "2000",
+      "state_folder": "${PROJECT_HOME}/state",
+      "server_poll_delay": "200",
+      "server_poll_interval": "500",
+      "export_resources": true,
+      "resources_source_folder": "${PROJECT_HOME}",
+      "resources_target_folder": "",
+      "server": [
+        {
+          "hop_server": "hop-server-a",
+          "enabled": true,
+          "max_concurrent": "2"
+        },
+        {
+          "hop_server": "hop-server-b",
+          "enabled": true,
+          "max_concurrent": "2"
+        }
+      ]
+    }
+  },
+  "defaultSelection": false,
+  "configurationVariables": [],
+  "name": "load-balance",
+  "description": "Assigns each pipeline execution to hop-server-a or hop-server-b",
+  "dataProfile": "",
+  "executionInfoLocationName": ""
+}

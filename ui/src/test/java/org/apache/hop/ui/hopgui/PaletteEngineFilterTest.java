@@ -52,6 +52,9 @@ class PaletteEngineFilterTest {
         PaletteEngineFilter.HOP_ENGINE_GROUP_ID,
         PaletteEngineFilter.getPipelineEngineLabelForId("Remote"));
     assertEquals(
+        PaletteEngineFilter.HOP_ENGINE_GROUP_ID,
+        PaletteEngineFilter.getPipelineEngineLabelForId("LoadBalancing"));
+    assertEquals(
         PaletteEngineFilter.NO_FILTER_LABEL, PaletteEngineFilter.getPipelineEngineLabelForId(""));
   }
 
@@ -74,7 +77,8 @@ class PaletteEngineFilterTest {
     assertFalse(filter.isPluginAllowed(plugin(new String[] {"Beam*"}, new String[0])));
     assertFalse(
         filter.isPluginAllowed(
-            plugin(new String[0], new String[] {"Local", "Remote", "LocalSingle"})));
+            plugin(
+                new String[0], new String[] {"Local", "Remote", "LoadBalancing", "LocalSingle"})));
   }
 
   /** A stored single-member id from an older release still filters as the whole group. */
@@ -97,7 +101,8 @@ class PaletteEngineFilterTest {
         PaletteEngineFilter.forWorkflowEngineId(PaletteEngineFilter.HOP_ENGINE_GROUP_ID);
 
     assertFalse(
-        filter.isPluginAllowed(plugin(new String[0], new String[] {"Local", "Remote"})),
-        "action excluded on both Hop workflow engines must stay hidden");
+        filter.isPluginAllowed(
+            plugin(new String[0], new String[] {"Local", "Remote", "LoadBalancing"})),
+        "action excluded on every Hop workflow engine must stay hidden");
   }
 }

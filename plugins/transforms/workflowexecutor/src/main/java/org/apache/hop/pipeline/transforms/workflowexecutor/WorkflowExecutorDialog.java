@@ -42,6 +42,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -94,8 +95,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
   private boolean gotPreviousFields = false;
 
-  protected Label wlRunConfiguration;
-  protected ComboVar wRunConfiguration;
+  protected MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
 
   private CTabFolder wTabFolder;
 
@@ -240,24 +240,20 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
           }
         });
 
-    wlRunConfiguration = new Label(shell, SWT.RIGHT);
-    wlRunConfiguration.setText(
-        BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"));
-    PropsUi.setLook(wlRunConfiguration);
-    FormData fdlRunConfiguration = new FormData();
-    fdlRunConfiguration.left = new FormAttachment(0, 0);
-    fdlRunConfiguration.top = new FormAttachment(wWorkflowNameField, margin);
-    fdlRunConfiguration.right = new FormAttachment(middle, -margin);
-    wlRunConfiguration.setLayoutData(fdlRunConfiguration);
-
-    wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wlRunConfiguration);
+    wRunConfiguration =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            WorkflowRunConfiguration.class,
+            shell,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Label"),
+            BaseMessages.getString(PKG, "WorkflowExecutorDialog.RunConfiguration.Tooltip"));
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.left = new FormAttachment(middle, 0);
-    fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, 0, SWT.CENTER);
-    fdRunConfiguration.right = new FormAttachment(wbBrowse, -margin);
+    fdRunConfiguration.left = new FormAttachment(0, 0);
+    fdRunConfiguration.top = new FormAttachment(wWorkflowNameField, margin);
+    fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
-    PropsUi.setLook(wRunConfiguration);
 
     //
     // Add a tab folder for the parameters and various input and output

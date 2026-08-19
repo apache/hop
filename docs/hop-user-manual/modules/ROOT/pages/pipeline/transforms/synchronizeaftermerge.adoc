@@ -80,3 +80,8 @@ This field is used by the transform to obtain an operation flag for the current 
 If the lookup field is not found, then an exception is thrown.
 This option can be used as an extra check if you wish to check updates/deletes prior to their execution.|Not applicable
 |===
+
+== See also
+
+* xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
+* xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots]
