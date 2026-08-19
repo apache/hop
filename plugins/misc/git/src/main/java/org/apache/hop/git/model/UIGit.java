@@ -51,6 +51,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
@@ -61,6 +62,7 @@ import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.RemoteRemoveCommand;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.RevertCommand;
 import org.eclipse.jgit.api.Status;
@@ -349,6 +351,72 @@ public class UIGit extends VCS {
     } catch (Exception e) {
       throw new HopException("Error in git commit", e);
     }
+  }
+
+  /**
+   * The state git is in: whether it is in the middle of a merge, a cherry-pick or a revert. A
+   * commit has to record the whole index while one of those is in progress, so nothing may be left
+   * out of it.
+   *
+   * @return the state of the repository
+   */
+  public RepositoryState getRepositoryState() {
+    return git.getRepository().getRepositoryState();
+  }
+
+  /**
+   * Stage the given paths and commit them, so the commit records those paths and nothing else.
+   *
+   * <p>Anything else which was staged is taken back out of the index one path at a time. Resetting
+   * the whole index is the shorter way to write that, but it also clears MERGE_HEAD: the commit
+   * would record a merge as an ordinary commit and git would no longer consider the branch merged.
+   *
+   * <p>Nothing is unstaged while a merge, cherry-pick or revert is in progress. Git commits the
+   * whole index there, so a selection cannot be honoured and the caller is expected to offer all of
+   * it. See {@link #getRepositoryState()}.
+   *
+   * @param pathsToCommit the paths to stage and commit
+   * @param authorName the author of the commit, as "name &lt;email&gt;"
+   * @param message the commit message
+   * @param amend whether the commit should amend the previous commit
+   * @return true if the commit is successful; otherwise, false.
+   * @throws HopException if staging or the commit itself fails
+   */
+  public boolean commitPaths(
+      List<String> pathsToCommit, String authorName, String message, boolean amend)
+      throws HopException {
+    try {
+      Set<String> commitPaths = new HashSet<>();
+      for (String path : pathsToCommit) {
+        commitPaths.add(normalizePathForJGit(path));
+      }
+
+      // What is staged right now, rather than what the caller last saw: a file staged in the
+      // meantime must not be swept into this commit either.
+      //
+      if (getRepositoryState() == RepositoryState.SAFE) {
+        List<String> pathsToUnstage =
+            getStagedFiles().stream()
+                .map(UIFile::getName)
+                .filter(name -> !commitPaths.contains(name))
+                .toList();
+        if (!pathsToUnstage.isEmpty()) {
+          ResetCommand resetCommand = git.reset();
+          pathsToUnstage.forEach(resetCommand::addPath);
+          resetCommand.call();
+        }
+      }
+
+      if (!commitPaths.isEmpty()) {
+        AddCommand addCommand = git.add();
+        commitPaths.forEach(addCommand::addFilepattern);
+        addCommand.call();
+      }
+    } catch (Exception e) {
+      throw new HopException("Error staging the files to commit", e);
+    }
+
+    return commit(authorName, message, amend);
   }
 
   public List<ObjectRevision> getRevisions() {
