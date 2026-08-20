@@ -1,0 +1,100 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The dbt action runs a dbt Core operation against a dbt project and reports its per-model results back to the workflow.
+
+= dbt
+
+== Description
+
+The `dbt` action runs a https://docs.getdbt.com/[dbt Core] operation - `run`, `build`, `test`, `seed`, `snapshot`, `compile` or `source freshness` - against a project registered as a xref:metadata-types/dbt-project.adoc[dbt Project] metadata object.
+
+It invokes the dbt command line as a subprocess. dbt's own `run_results.json` is read back afterwards, so the workflow sees per-model outcomes rather than a single exit code, and the action follows the error hop when any node failed.
+
+Running dbt through this action instead of a xref:workflow/actions/shell.adoc[Shell] action adds four things:
+
+* **Target selection follows the Hop environment.** The dbt target comes from the action, or from the project default when the action leaves it empty, and both are variable-driven - so switching Hop environment switches the dbt target.
+* **Secrets never reach a file.** Values in the environment variables list are resolved through Hop's variable and secret resolvers (for example xref:metadata-types/variable-resolver/hashicorp-vault-variable-resolver.adoc[HashiCorp Vault] or xref:metadata-types/variable-resolver/azure-key-vault-variable-resolver.adoc[Azure Key Vault]) and handed to dbt in its process environment, where `env_var()` in `profiles.yml` picks them up. Nothing is written to disk and the values are masked in the Hop log.
+* **Per-model results.** Every node in `run_results.json` is logged with its status, execution time and relation, and any failed node fails the action - including a failing `dbt test`, which is what makes a data quality gate in a workflow possible.
+* **One lineage graph.** With lineage enabled, dbt's OpenLineage events are attached as a child of the Hop workflow run, so ingestion in Hop and transformation in dbt appear in the same graph.
+
+== Requirements
+
+dbt Core is a Python program and is not shipped with Hop. The `dbt` executable must be installed on the machine that runs the workflow and be either on the `PATH` or named with its full path on the dbt Project metadata.
+
+To emit lineage, the `openlineage-dbt` package must be installed as well; it provides the `dbt-ol` wrapper the action calls in that case.
+
+== Options
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
+|Action name|The name of the workflow action.
+|dbt project|The xref:metadata-types/dbt-project.adoc[dbt Project] metadata object to run against.
+|Operation|The dbt sub-command to run: `run`, `build`, `test`, `seed`, `snapshot`, `compile` or `source-freshness`.
+|Target|The dbt target (`--target`). Overrides the default target of the dbt project when set.
+|--select|Passed to dbt as `--select`, using dbt's node selection syntax. Several selectors can be given in one value, separated by spaces.
+|--exclude|Passed to dbt as `--exclude`.
+|--threads|Passed to dbt as `--threads`. Left empty, dbt uses the thread count from `profiles.yml`.
+|Timeout in seconds|Wall-clock limit for the dbt run. When it is reached, dbt and the processes it started are stopped and the action fails. Empty or `0` waits for dbt however long it takes.
+|--full-refresh|Passed to dbt as `--full-refresh`. dbt only accepts the flag for `run`, `build` and `seed`, so it is left out for the other operations.
+|Emit OpenLineage|Run dbt through `dbt-ol` and point it at the collector Hop's own lineage sink uses. See <<Lineage>>.
+|Variables (--vars)|Name/value pairs passed to dbt as `--vars`. See <<dbt variables>>.
+|Environment variables|Name/value pairs added to the environment of the dbt process. This is where credentials belong: the values are secret-resolved and masked in the log.
+|===
+
+== dbt variables
+
+The variables list is rendered as the JSON object dbt expects behind `--vars`, and the values keep their type: `true`, `false`, `null` and JSON numbers are passed through unquoted, and so is a value that already starts with `{` or `[`. Anything else becomes a string.
+
+Only a valid JSON number is treated as a number, so an identifier like `007` and a date like `2026-01-31` reach dbt as strings, which is nearly always what you want.
+
+== Results
+
+After dbt exits, the action reads `<project directory>/target/run_results.json` - or the directory named by a `DBT_TARGET_PATH` entry in the environment variables list, when there is one - and writes one line per node to the Hop log:
+
+[source]
+----
+dbt.node unique_id=model.shop.stg_orders status=success execution_time=0.420 relation="analytics"."staging"."orders"
+dbt.summary nodes=12 failures=0 elapsed_time=8.310
+----
+
+The action fails when dbt exits non-zero, when it was stopped or timed out, or when any node in `run_results.json` reports `error`, `fail` or `runtime error`. The previous run's `run_results.json` is removed before dbt starts, so a run that dies before writing one is never reported with stale results.
+
+Stopping the workflow stops dbt: the action kills the dbt process and the processes it started.
+
+== Lineage
+
+With **Emit OpenLineage** enabled, the action runs the project's `dbt-ol` executable and sets dbt's OpenLineage environment from Hop's own lineage configuration:
+
+[options="header", width="90%", cols="1,2"]
+|===
+|dbt environment variable|Value
+|`OPENLINEAGE_URL`|`HOP_LINEAGE_OPENLINEAGE_URL` - the collector Hop's xref:technology/openlineage/index.adoc[OpenLineage sink] delivers to. When it is not set the action logs a warning and leaves dbt to its own configuration.
+|`OPENLINEAGE_API_KEY`|`HOP_LINEAGE_OPENLINEAGE_API_KEY`, when set, so a secured collector accepts dbt's events on the same terms as Hop's.
+|`OPENLINEAGE_NAMESPACE`|`HOP_LINEAGE_OPENLINEAGE_NAMESPACE`, defaulting to `hop` - the same fallback the Hop sink uses.
+|`OPENLINEAGE_PARENT_ID`|`{namespace}/{workflow name}/{workflow run id}`, which makes the dbt run a child of the Hop workflow run through OpenLineage's `ParentRunFacet`.
+|===
+
+Warehouse tables are identified the same way on both sides. dbt's adapters emit datasets as `(namespace=postgres://host:port, name=database.schema.table)` following the OpenLineage naming specification, which is what xref:technology/openlineage/dataset-identity.adoc[Hop's dataset identity] adopts - so a table that Hop loads and dbt then transforms resolves to the *same* node in the graph, with no reconciliation step.
+
+NOTE: Lineage has to be enabled in Hop for any of this to be delivered: `HOP_LINEAGE_ENABLED=Y` and an OpenLineage sink in `HOP_LINEAGE_SINK_IDS`.
+
+== Scope
+
+The action invokes dbt at project and selector level. Turning a dbt project's `manifest.json` into one Hop action per dbt model is not supported.

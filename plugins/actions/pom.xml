@@ -39,6 +39,7 @@
         <module>copymoveresultfilenames</module>
         <module>createfile</module>
         <module>createfolder</module>
+        <module>dbt</module>
         <module>delay</module>
         <module>deletefile</module>
         <module>deletefiles</module>
