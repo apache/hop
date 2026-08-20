@@ -26,6 +26,7 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -43,6 +44,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -133,8 +135,14 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
       String realxmlfilename = getRealxmlfilename();
       xmlfile = getFile(realxmlfilename);
 
+      // The factory resolves the schema document itself, so it needs the same external-access
+      // restrictions as the validator it produces. Honour the action's own opt-in so a workflow
+      // that deliberately relies on remote schemas keeps working.
       SchemaFactory factorytXSDValidator1 =
-          SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+          isAllowExternalEntities()
+              ? SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+              : XmlParserFactoryProducer.createSecureSchemaFactory(
+                  XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
       if (xsdSource.equals(SPECIFY_FILENAME)) {
         validateNonNullFileName(xsdFilename, "ActionXSDValidator.XsdFileNotNull.Label", result);
