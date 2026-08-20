@@ -342,15 +342,18 @@ public class UIGit extends VCS {
    * @throws HopException If an error occurs during the commit operation.
    */
   public boolean commit(String authorName, String message, boolean amend) throws HopException {
-    PersonIdent author = RawParseUtils.parsePersonIdent(authorName);
-    // Set the local time and use the system time zone
-    PersonIdent committer = new PersonIdent(author, Instant.now());
+    PersonIdent committer = getCommitter(authorName);
     try {
       git.commit().setAuthor(committer).setMessage(message).setAmend(amend).call();
       return true;
     } catch (Exception e) {
       throw new HopException("Error in git commit", e);
     }
+  }
+
+  /** The author of a commit, stamped with the local time and the system time zone. */
+  private PersonIdent getCommitter(String authorName) {
+    return new PersonIdent(RawParseUtils.parsePersonIdent(authorName), Instant.now());
   }
 
   /**
@@ -417,6 +420,70 @@ public class UIGit extends VCS {
     }
 
     return commit(authorName, message, amend);
+  }
+
+  /**
+   * Make a single path look the way it does in a commit, in the working tree and in the index. A
+   * path the commit does not have is removed here as well: not having it is what that commit did to
+   * it.
+   *
+   * @param path the path to restore, relative to the repository root
+   * @param commitId the commit to take the path from
+   * @throws HopException when the path cannot be restored
+   */
+  public void restorePathFromCommit(String path, String commitId) throws HopException {
+    String normalizedPath = normalizePathForJGit(path);
+    try {
+      if (existsInCommit(normalizedPath, commitId)) {
+        git.checkout().setStartPoint(commitId).addPath(normalizedPath).call();
+      } else {
+        // Not in that commit, so it should not be here either. A path which is not in the index is
+        // simply left alone by git rm.
+        //
+        git.rm().addFilepattern(normalizedPath).call();
+      }
+    } catch (Exception e) {
+      throw new HopException("Error restoring '" + path + "' from commit '" + commitId + "'", e);
+    }
+  }
+
+  /** Whether a commit has the given path in its tree. */
+  private boolean existsInCommit(String path, String commitId) throws IOException {
+    RevCommit commit = resolve(commitId);
+    if (commit == null) {
+      return false;
+    }
+    try (TreeWalk treeWalk = TreeWalk.forPath(git.getRepository(), path, commit.getTree())) {
+      return treeWalk != null;
+    }
+  }
+
+  /**
+   * Commit a single path, leaving anything else which is staged out of the commit.
+   *
+   * @param path the only path to commit, relative to the repository root
+   * @param authorName the author of the commit, as "name &lt;email&gt;"
+   * @param message the commit message
+   * @return true when a commit was made, false when the path holds nothing to commit
+   * @throws HopException when the commit fails
+   */
+  public boolean commitPath(String path, String authorName, String message) throws HopException {
+    String normalizedPath = normalizePathForJGit(path);
+    try {
+      // Git has no empty commit to make here, and a path scoped commit of nothing is an error
+      //
+      if (!git.status().addPath(normalizedPath).call().hasUncommittedChanges()) {
+        return false;
+      }
+      git.commit()
+          .setOnly(normalizedPath)
+          .setAuthor(getCommitter(authorName))
+          .setMessage(message)
+          .call();
+      return true;
+    } catch (Exception e) {
+      throw new HopException("Error committing '" + path + "'", e);
+    }
   }
 
   public List<ObjectRevision> getRevisions() {
