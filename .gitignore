@@ -97,3 +97,11 @@ google-key-apache-hop-it.json
 # (it checks a folder ending in .jar isn't treated as a layered file system).
 # Without this the *.jar rule above silently keeps it out of the commit.
 !plugins/tech/sftp/src/test/resources/test-data/read-tests/dir1/subdir4.jar/
+
+# Hop writes its HOP_CONFIG_FOLDER content into the current working directory when
+# that variable isn't set, so running unit tests drops a config folder into the module
+# (e.g. core/config/security/users.json from HopUserStoreTest). Test artifacts, not sources.
+# Deliberately NOT a blanket "config/": ~20 tracked directories are named config, including
+# Java packages (org/apache/hop/core/config) and assemblies/static/src/main/resources/config.
+/core/config/
+config/security/

@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -30,7 +31,8 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
     type = "VERTICA",
     typeDescription = "Vertica",
-    documentationUrl = "/database/databases/vertica.html")
+    documentationUrl = "/database/databases/vertica.html",
+    classLoaderGroup = "vertica5")
 @GuiPlugin(id = "GUI-VerticaDatabaseMeta")
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -106,7 +108,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -128,7 +130,8 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         + " ALTER COLUMN "
         + v.getName()
         + " SET DATA TYPE "
-        + getFieldDefinition(v, tk, pk, useAutoinc, false, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, false, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

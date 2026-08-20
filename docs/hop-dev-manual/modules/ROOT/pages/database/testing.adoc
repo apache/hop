@@ -1,0 +1,113 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How database plugins are tested in Hop, and what a golden file diff means when you see one in review.
+[[Database-Testing]]
+= Testing a database plugin
+
+Most of what a dialect does is turn one thing into another: a JDBC column into a Hop value, a Hop value into a piece of SQL.
+That is straightforward to test without a database, and Hop does.
+
+== Golden files for generated DDL
+
+Every dialect has a golden file recording the column definition it generates for each Hop type at each size.
+They live next to the plugin's other tests and are generated, not written.
+
+[source,java]
+----
+class AcmeFieldDefinitionGoldenTest extends BaseFieldDefinitionGoldenTest {
+  @Override
+  protected IDatabase createDatabase() {
+    return new AcmeDatabaseMeta();
+  }
+}
+----
+
+That is the whole test.
+The base class walks every Hop type across a range of lengths and precisions, with and without keys and auto-increment, and compares the result against the recorded file.
+
+Generate or refresh it with:
+
+[source,bash]
+----
+mvn test -pl plugins/databases/acme -Dhop.golden.update=true
+----
+
+=== What a golden diff means
+
+A changed golden file is a change to the SQL Hop generates for a user's database.
+It is never noise.
+
+Read every changed line and be able to say why it changed.
+If you cannot, the change is not ready.
+Regenerating a golden to make a build go green is the one thing these files exist to prevent.
+
+Golden files also record behaviour that is *wrong* but current.
+Freezing a known bug is deliberate: it means the fix shows up later as a small reviewable diff instead of being lost in a refactor.
+A comment in the test explains which ones are which.
+
+== Testing type rules
+
+Rules are tested against the real dialect, using a fixture that builds the JDBC metadata for you.
+
+[source,java]
+----
+IValueMeta valueMeta =
+    DatabaseTypeMapper.getValueMeta(
+        new Variables(),
+        meta(new AcmeDatabaseMeta()),
+        column(Types.VARBINARY, "RAW", 8, 20),
+        false,
+        false);
+
+assertTrue(valueMeta.isString());
+----
+
+`TypeRuleFixture` provides `meta(...)`, `column(...)` and `numericColumn(...)`.
+Note the difference between the last two: `column(...)` takes a display size and leaves the scale at zero, while `numericColumn(...)` takes a scale.
+Numeric rules almost always want the second.
+
+Test the rule against the dialect, not against the rule object.
+Going through `DatabaseTypeMapper` exercises the resolution order too, which is where mistakes actually happen.
+
+== Testing value bindings
+
+Test through the engine, not through the value type.
+
+Hop asks for a binding in the dialect's `getValueFromResultSet` when reading, and in `Database.setValue` when writing.
+A test that calls `valueMeta.setPreparedStatementValue(...)` directly bypasses the point where the binding is chosen, and will pass whether or not your binding works.
+
+[source,java]
+----
+database.setValue(preparedStatement, valueMeta, value, 1);
+verify(preparedStatement).setObject(eq(1), any(), eq(Types.OTHER));
+----
+
+== Integration tests
+
+`integration-tests/database` runs pipelines against real databases in Docker.
+Use these for what cannot be checked without a server: that the SQL actually executes, that types survive a round trip, that a bulk loader loads.
+
+Unit tests are the right place for everything that is a pure transformation, because they run in milliseconds and do not need a container.
+
+== A trap worth knowing
+
+`DatabaseMeta` forwards many questions to the dialect.
+`databaseMeta.supportsTimeStampToDateConversion()` returns `iDatabase.isSupportsTimeStampToDateConversion()`, and there are several pairs like it.
+
+If a test mocks one and not the other, the two disagree in a way they never can in production, and the test then asserts something that is not true of the running system.
+This has bitten Hop's own tests more than once.
+Stub the dialect, which is the source of truth, or use a real dialect instance.

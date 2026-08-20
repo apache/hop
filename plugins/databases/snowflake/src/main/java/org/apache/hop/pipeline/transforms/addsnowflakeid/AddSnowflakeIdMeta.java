@@ -38,7 +38,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::BaseTransform.TypeTooltipDesc.AddSnowflakeId",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/snowflakeid.html",
-    keywords = "i18n::AddSnowflakeIdMeta.keyword")
+    keywords = "i18n::AddSnowflakeIdMeta.keyword",
+    classLoaderGroup = "snowflake")
 @Getter
 @Setter
 public class AddSnowflakeIdMeta extends BaseTransformMeta<AddSnowflakeId, AddSnowflakeIdData> {

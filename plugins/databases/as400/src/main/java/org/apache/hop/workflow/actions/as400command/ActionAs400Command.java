@@ -48,7 +48,8 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionAs400Command.keyword",
     documentationUrl = "/workflow/actions/as400command.html",
-    isIncludeJdbcDrivers = true)
+    isIncludeJdbcDrivers = true,
+    classLoaderGroup = "as400-db")
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class;
 

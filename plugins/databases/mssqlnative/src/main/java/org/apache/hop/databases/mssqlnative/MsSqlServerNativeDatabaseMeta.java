@@ -24,9 +24,12 @@ import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -39,10 +42,23 @@ import org.eclipse.swt.widgets.Control;
     type = "MSSQLNATIVE",
     typeDescription = "MS SQL Server (Native)",
     image = "microsoft-sql.svg",
-    documentationUrl = "/database/databases/mssqlnative.html")
+    documentationUrl = "/database/databases/mssqlnative.html",
+    classLoaderGroup = "mssqlnative-db")
 @GuiPlugin(id = "GUI-MSSQLServerNativeDatabaseMeta")
 public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     implements IGuiPluginCompositeWidgetsListener {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // SQL Server spells a UUID UNIQUEIDENTIFIER.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UNIQUEIDENTIFIER")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   public static final String ID_INTEGRATED_SECURITY_WIDGET = "usingIntegratedSecurity";
 

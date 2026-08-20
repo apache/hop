@@ -17,12 +17,17 @@
 
 package org.apache.hop.databases.duckdb;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.JdbcDateValues;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -31,9 +36,22 @@ import org.apache.hop.core.row.IValueMeta;
     type = "DuckDB",
     typeDescription = "DuckDB",
     image = "duckdb.svg",
-    documentationUrl = "/database/databases/duckdb.html")
+    documentationUrl = "/database/databases/duckdb.html",
+    classLoaderGroup = "duckdb-db")
 @GuiPlugin(id = "GUI-DuckDBDatabaseMeta")
 public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // As of DuckDB JDBC 0.10.0 the Calendar overloads of setDate and setTimestamp are not
+          // implemented, so a configured time zone cannot be passed to the driver.
+          .bind(IValueMeta.TYPE_DATE, JdbcDateValues.WITHOUT_CALENDAR_OVERLOADS)
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   @Override
   public String getCreateTableStatement() {
@@ -57,8 +75,6 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
     if (addFieldName) {
       retval += fieldname + " ";
-    } else {
-      retval += fieldname + " TYPE ";
     }
 
     int type = v.getType();
@@ -177,7 +193,8 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   @Override
@@ -188,10 +205,17 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       boolean useAutoIncrement,
       String pk,
       boolean semicolon) {
+    // The column name and the TYPE keyword belong to the ALTER syntax, not to the column
+    // definition. Asking for a definition without a field name has to return the type on its own,
+    // the way it does for every other dialect. See issue #3738, which was fixed the other way
+    // around, inside getFieldDefinition.
     return "ALTER TABLE "
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoIncrement, false, false);
+        + v.getName()
+        + " TYPE "
+        + getColumnDefinition(
+            v, tk, pk, useAutoIncrement, false, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

@@ -18,6 +18,8 @@
 package org.apache.hop.databases.oracle;
 
 import java.sql.ResultSet;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -33,6 +35,11 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.SqlScriptParser;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseColumn;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
+import org.apache.hop.core.database.types.StandardJdbcTypeMapper;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -53,10 +60,54 @@ import org.eclipse.swt.widgets.Control;
     type = "ORACLE",
     typeDescription = "Oracle",
     image = "oracle.svg",
-    documentationUrl = "/database/databases/oracle.html")
+    documentationUrl = "/database/databases/oracle.html",
+    classLoaderGroup = "oracle-db")
 @GuiPlugin(id = "GUI-OracleDatabaseMeta")
 public class OracleDatabaseMeta extends BaseDatabaseMeta
     implements IDatabase, IGuiPluginCompositeWidgetsListener {
+
+  /** RAW and LONG RAW arrive as variable length binary but are really strings. */
+  private static final List<IDatabaseTypeRule> RAW_RULES =
+      DatabaseTypes.rules()
+          .read(Types.VARBINARY, Types.LONGVARBINARY)
+          .where(
+              (variables, databaseMeta, column) ->
+                  !StandardJdbcTypeMapper.displaySizeIsTwiceThePrecision(databaseMeta, column))
+          .as(IValueMeta.TYPE_STRING, DatabaseColumn::getDisplaySize, column -> -1)
+          // A number with no usable size at all: the precision can be 38, too big for a double.
+          .read(Types.DECIMAL, Types.NUMERIC, Types.DOUBLE, Types.FLOAT, Types.REAL)
+          .where(
+              (variables, databaseMeta, column) ->
+                  StandardJdbcTypeMapper.numericScale(column) <= 0
+                      && StandardJdbcTypeMapper.numericLength(column) <= 0)
+          .as(IValueMeta.TYPE_BIGNUMBER, -1, -1)
+          .build();
+
+  private static final List<IDatabaseTypeRule> NUMBER_38_AS_INTEGER =
+      precision38(IValueMeta.TYPE_INTEGER);
+  private static final List<IDatabaseTypeRule> NUMBER_38_AS_BIGNUMBER =
+      precision38(IValueMeta.TYPE_BIGNUMBER);
+
+  private static List<IDatabaseTypeRule> precision38(int hopType) {
+    return DatabaseTypes.rules()
+        .read(Types.DECIMAL, Types.NUMERIC, Types.DOUBLE, Types.FLOAT, Types.REAL)
+        .where(
+            (variables, databaseMeta, column) ->
+                StandardJdbcTypeMapper.numericScale(column) == 0
+                    && StandardJdbcTypeMapper.numericLength(column) == 38)
+        .as(hopType, 38, 0)
+        .build();
+  }
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    // A 38 digit number is an integer unless this connection asked for the strict reading. That
+    // option used to sit on the interface every dialect implements; it is Oracle's own.
+    List<IDatabaseTypeRule> rules = new ArrayList<>(RAW_RULES.size() + 1);
+    rules.addAll(isStrictBigNumberInterpretation() ? NUMBER_38_AS_BIGNUMBER : NUMBER_38_AS_INTEGER);
+    rules.addAll(RAW_RULES);
+    return rules;
+  }
 
   private static final String STRICT_BIGNUMBER_INTERPRETATION = "STRICT_NUMBER_38_INTERPRETATION";
   public static final String CONST_SELECT = "SELECT ";
@@ -779,7 +830,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta
     return "ALTER TABLE "
         + tableName
         + " ADD ( "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false)
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN)
         + " ) ";
   }
 

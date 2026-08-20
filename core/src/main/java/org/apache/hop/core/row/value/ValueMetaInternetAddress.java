@@ -446,6 +446,12 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     }
   }
 
+  /**
+   * @deprecated Superseded by {@link org.apache.hop.core.database.types.StandardJdbcTypeMapper}.
+   *     This mapping had no callers left in Hop and had drifted from the one the engine actually
+   *     uses; use the mapper instead.
+   */
+  @Deprecated(since = "2.20")
   @Override
   public IValueMeta getMetadataPreview(
       IVariables variables, DatabaseMeta databaseMeta, ResultSet rs) throws HopDatabaseException {
@@ -469,6 +475,13 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     return null;
   }
 
+  /**
+   * @deprecated Superseded by {@link org.apache.hop.core.database.types.StandardJdbcTypeMapper},
+   *     which carries the single copy of these rules. This is one of three implementations that had
+   *     drifted apart; callers will be migrated to the mapper and this method removed in a later
+   *     release.
+   */
+  @Deprecated(since = "2.20")
   @Override
   public IValueMeta getValueFromSqlType(
       IVariables variables,
@@ -542,20 +555,9 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
       boolean addFieldName,
       boolean addCr) {
 
-    String retval = null;
-    if (iDatabase.isPostgresVariant()) {
-      if (addFieldName) {
-        retval = getName() + " ";
-      } else {
-        retval = "";
-      }
-      retval += "INET";
-      if (addCr) {
-        retval += Const.CR;
-      }
-    }
-
-    return retval;
+    // No neutral spelling for an internet address: the dialects that have a column type for it
+    // say so in their own type rules.
+    return null;
   }
 
   @Override

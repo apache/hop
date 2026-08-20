@@ -26,6 +26,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -38,7 +39,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     type = "HIVE",
     typeDescription = "Apache Hive",
     image = "hive.svg",
-    documentationUrl = "/database/databases/apache-hive.html")
+    documentationUrl = "/database/databases/apache-hive.html",
+    classLoaderGroup = "hive-db")
 @GuiPlugin(id = "GUI-HiveDatabaseMeta")
 public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -247,7 +249,7 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " ADD "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -267,7 +269,8 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "ALTER TABLE "
         + tableName
         + " MODIFY "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   @Override

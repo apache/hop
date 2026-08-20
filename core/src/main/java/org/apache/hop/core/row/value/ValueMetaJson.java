@@ -263,14 +263,8 @@ public class ValueMetaJson extends ValueMetaBase {
         return;
       }
 
-      // This handles both JSON and JSONB if Postgres.
-      // other dbs don't accept type OTHER
-      if (databaseMeta.getIDatabase().isPostgresVariant()) {
-        preparedStatement.setObject(index, jn, Types.OTHER);
-        return;
-      }
-
-      // generic fallback to String
+      // The neutral handling. A database that takes JSON as a typed object rather than a string
+      // says so with a binding of its own.
       preparedStatement.setString(index, this.convertJsonToString(jn));
     } catch (Exception e) {
       throw new HopDatabaseException(
@@ -340,13 +334,9 @@ public class ValueMetaJson extends ValueMetaBase {
       boolean useAutoIncrement,
       boolean addFieldName,
       boolean addCr) {
+    // The neutral spelling. A dialect that spells it differently, such as Postgres with JSONB,
+    // says so in its own type rules.
     final String col = addFieldName ? getName() + " " : "";
-    String def = "JSON";
-
-    // Postgres advices non-legacy app to use JSONB instead of JSON
-    if (iDatabase.isPostgresVariant()) {
-      def = "JSONB";
-    }
-    return col + def + (addCr ? Const.CR : "");
+    return col + "JSON" + (addCr ? Const.CR : "");
   }
 }

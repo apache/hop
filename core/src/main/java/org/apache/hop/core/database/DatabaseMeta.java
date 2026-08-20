@@ -33,6 +33,8 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypeMapper;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -1117,7 +1119,12 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public String getFieldDefinition(IValueMeta v, String tk, String pk, boolean useAutoIncrement) {
-    return getFieldDefinition(v, tk, pk, useAutoIncrement, true, true);
+    return getFieldDefinition(null, v, tk, pk, useAutoIncrement, true, true);
+  }
+
+  public String getFieldDefinition(
+      IVariables variables, IValueMeta v, String tk, String pk, boolean useAutoIncrement) {
+    return getFieldDefinition(variables, v, tk, pk, useAutoIncrement, true, true);
   }
 
   public String getFieldDefinition(
@@ -1127,6 +1134,35 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       boolean useAutoIncrement,
       boolean addFieldname,
       boolean addCr) {
+    return getFieldDefinition(null, v, tk, pk, useAutoIncrement, addFieldname, addCr);
+  }
+
+  /**
+   * Describe a value as a column in this database.
+   *
+   * @param variables the variables to resolve with. Type rules are handed these, so a rule can read
+   *     a variable or reach the metadata provider through them. May be null, in which case a rule
+   *     that needs either simply does not fire.
+   */
+  public String getFieldDefinition(
+      IVariables variables,
+      IValueMeta v,
+      String tk,
+      String pk,
+      boolean useAutoIncrement,
+      boolean addFieldname,
+      boolean addCr) {
+
+    // Ask the dialect first. A database knows how it spells its own types; a value type only
+    // knows what it is. Until a dialect declares a write rule this changes nothing, because the
+    // rule lists are empty.
+    ColumnContext context =
+        new ColumnContext(
+            ColumnContext.Purpose.CREATE, tk, pk, useAutoIncrement, addFieldname, addCr);
+    String columnType = DatabaseTypeMapper.getColumnType(variables, iDatabase, v, context);
+    if (!Utils.isEmpty(columnType)) {
+      return (addFieldname ? v.getName() + " " : "") + columnType + (addCr ? Const.CR : "");
+    }
 
     String definition =
         v.getDatabaseColumnTypeDefinition(iDatabase, tk, pk, useAutoIncrement, addFieldname, addCr);
@@ -2252,6 +2288,14 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.generateColumnAlias(columnIndex, suggestedName);
   }
 
+  /**
+   * @deprecated Dialects now describe their own column types through {@link
+   *     IDatabase#getTypeRules()}, which core matches by dialect plugin type and class hierarchy
+   *     rather * than by vendor name. This flag is still honoured for dialects that have not
+   *     migrated, so * existing implementations keep working, and will be removed once the
+   *     migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isMySqlVariant() {
     return iDatabase.isMySqlVariant();
   }

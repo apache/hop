@@ -58,7 +58,8 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     image = "MssqlBulkLoad.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
     keywords = "i18n::ActionMssqlBulkLoad.keyword",
-    documentationUrl = "/workflow/actions/mssqlbulkload.html")
+    documentationUrl = "/workflow/actions/mssqlbulkload.html",
+    classLoaderGroup = "mssqlnative-db")
 @Getter
 @Setter
 public class ActionMssqlBulkLoad extends ActionBase {

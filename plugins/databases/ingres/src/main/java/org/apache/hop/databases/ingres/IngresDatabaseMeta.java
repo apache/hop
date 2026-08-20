@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -31,7 +32,8 @@ import org.apache.hop.core.util.Utils;
 @DatabaseMetaPlugin(
     type = "INGRES",
     typeDescription = "Ingres",
-    documentationUrl = "/database/databases/ingres.html")
+    documentationUrl = "/database/databases/ingres.html",
+    classLoaderGroup = "ingres-db")
 @GuiPlugin(id = "GUI-IngresDatabaseMeta")
 public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -110,7 +112,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ADD COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.ADD_COLUMN);
   }
 
   /**
@@ -130,7 +132,8 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return CONST_ALTER_TABLE
         + tableName
         + " ALTER COLUMN "
-        + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        + getColumnDefinition(
+            v, tk, pk, useAutoinc, true, false, ColumnContext.Purpose.MODIFY_COLUMN);
   }
 
   /**

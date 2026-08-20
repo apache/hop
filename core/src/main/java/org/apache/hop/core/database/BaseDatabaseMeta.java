@@ -34,6 +34,9 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypeMapper;
+import org.apache.hop.core.database.types.IValueBinding;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -725,6 +728,53 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /**
+   * The definition of a single column, for whatever DDL is being assembled.
+   *
+   * <p>Dialects call this rather than {@link #getFieldDefinition} so that a column keeps the same
+   * spelling in an ALTER TABLE as it has in the CREATE TABLE. The type rules get first say; only
+   * when no rule claims the value does the dialect's own hand written mapping answer.
+   *
+   * <p>There are no variables to resolve with here. A dialect assembles an ALTER TABLE from a
+   * method that has never carried an {@link IVariables}, and adding one would move the statement
+   * body to a new signature, which would quietly stop calling the override of anything that
+   * subclasses a dialect. A rule that keys off a variable therefore only fires on the CREATE path,
+   * which does have them; none do today.
+   *
+   * @param v the value to describe
+   * @param tk the name of the technical key field
+   * @param pk the name of the primary key field
+   * @param useAutoIncrement whether this field uses auto increment
+   * @param addFieldName whether to prefix the definition with the column name
+   * @param addCr whether to end the definition with a carriage return
+   * @param purpose what the definition is going into
+   * @return the column definition
+   */
+  public String getColumnDefinition(
+      IValueMeta v,
+      String tk,
+      String pk,
+      boolean useAutoIncrement,
+      boolean addFieldName,
+      boolean addCr,
+      ColumnContext.Purpose purpose) {
+    ColumnContext context =
+        new ColumnContext(purpose, tk, pk, useAutoIncrement, addFieldName, addCr);
+    String columnType = DatabaseTypeMapper.getColumnType(null, this, v, context);
+    if (!Utils.isEmpty(columnType)) {
+      return (addFieldName ? v.getName() + " " : "") + columnType + (addCr ? Const.CR : "");
+    }
+
+    // The same fallback order DatabaseMeta uses for a CREATE TABLE, so that the two agree.
+    String definition =
+        v.getDatabaseColumnTypeDefinition(this, tk, pk, useAutoIncrement, addFieldName, addCr);
+    if (!Utils.isEmpty(definition)) {
+      return definition;
+    }
+
+    return getFieldDefinition(v, tk, pk, useAutoIncrement, addFieldName, addCr);
+  }
+
+  /**
    * Generates the SQL statement to drop a column from the specified table
    *
    * @param tableName The table to add
@@ -1205,6 +1255,12 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   @Override
+  /**
+   * @deprecated An Oracle-specific option that has no business on the interface every dialect *
+   *     implements. Oracle now expresses it through its own {@link #getTypeRules()}; this accessor
+   *     * remains so that existing dialects and callers keep working.
+   */
+  @Deprecated(since = "2.20")
   public boolean isStrictBigNumberInterpretation() {
     return false;
   }
@@ -1608,6 +1664,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     on.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isMySqlVariant() {
     return false;
   }
@@ -1617,6 +1680,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    *     on.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isPostgresVariant() {
     return false;
   }
@@ -1625,6 +1695,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a Teradata variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isTeradataVariant() {
     return false;
   }
@@ -1633,6 +1710,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a Sybase variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isSybaseVariant() {
     return false;
   }
@@ -1641,6 +1725,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a Sybase variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isSybaseIQVariant() {
     return false;
   }
@@ -1649,6 +1740,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a Neoview variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isNeoviewVariant() {
     return false;
   }
@@ -1657,13 +1755,25 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a Exasol variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isExasolVariant() {
     return false;
   }
 
   /**
    * @return true if the database is a DuckDb variant.
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so existing implementations
+   *     keep working, and will be removed once the migration completes.
    */
+  @Deprecated(since = "2.20")
   public boolean isDuckDbVariant() {
     return false;
   }
@@ -1672,6 +1782,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a Informix variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isInformixVariant() {
     return false;
   }
@@ -1680,6 +1797,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a MS SQL Server (native) variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isMsSqlServerNativeVariant() {
     return false;
   }
@@ -1688,6 +1812,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a MS SQL Server variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isMsSqlServerVariant() {
     return false;
   }
@@ -1696,6 +1827,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is an Oracle variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isOracleVariant() {
     return false;
   }
@@ -1704,6 +1842,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is an Netezza variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isNetezzaVariant() {
     return false;
   }
@@ -1712,6 +1857,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a SQLite variant.
    */
   @Override
+  /**
+   * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which
+   *     core matches by dialect plugin type and class hierarchy rather * than by vendor name. This
+   *     flag is still honoured for dialects that have not migrated, so * existing implementations
+   *     keep working, and will be removed once the migration completes.
+   */
+  @Deprecated(since = "2.20")
   public boolean isSqliteVariant() {
     return false;
   }
@@ -1803,7 +1955,18 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public Object getValueFromResultSet(ResultSet rs, IValueMeta val, int i)
       throws HopDatabaseException {
-
+    // Asked here rather than inside ValueMetaBase, so that a value type which handles its own
+    // reading still gets the binding its database declared.
+    IValueBinding binding = DatabaseTypeMapper.getBinding(this, val);
+    if (binding != null) {
+      try {
+        Object data = binding.read(this, val, rs, i + 1);
+        return rs.wasNull() ? null : data;
+      } catch (SQLException e) {
+        throw new HopDatabaseException(
+            "Unable to read value '" + val.getName() + "' from the result set", e);
+      }
+    }
     return val.getValueFromResultSet(this, rs, i);
   }
 
