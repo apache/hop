@@ -161,18 +161,18 @@ public class SalesforceDeleteMeta
         metadataProvider);
     CheckResult cr;
 
-    // See if we get input...
+    // See if we have input streams leading to this transform!
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInputExpected"),
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.NoInput"),
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SalesforceDeleteMeta.CheckResult.ExpectedInputError"),
               transformMeta);
     }
     remarks.add(cr);

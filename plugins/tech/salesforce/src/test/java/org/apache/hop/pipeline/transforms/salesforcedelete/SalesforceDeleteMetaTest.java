@@ -118,7 +118,8 @@ class SalesforceDeleteMetaTest {
     remarks.clear();
     meta.setDefault();
     meta.setUsername("user");
-    meta.check(remarks, null, null, null, null, null, null, null, null);
+    meta.check(
+        remarks, null, null, null, new String[] {"previousTransform"}, null, null, null, null);
     hasError = false;
     for (ICheckResult cr : remarks) {
       if (cr.getType() == ICheckResult.TYPE_RESULT_ERROR) {

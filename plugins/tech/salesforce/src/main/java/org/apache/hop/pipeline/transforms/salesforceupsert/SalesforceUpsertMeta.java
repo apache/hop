@@ -148,18 +148,18 @@ public class SalesforceUpsertMeta
 
     CheckResult cr;
 
-    // See if we get input...
+    // See if we have input streams leading to this transform!
     if (input != null && input.length > 0) {
       cr =
           new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.NoInputExpected"),
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.ExpectedInputOk"),
               transformMeta);
     } else {
       cr =
           new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.NoInput"),
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "SalesforceUpsertMeta.CheckResult.ExpectedInputError"),
               transformMeta);
     }
     remarks.add(cr);
