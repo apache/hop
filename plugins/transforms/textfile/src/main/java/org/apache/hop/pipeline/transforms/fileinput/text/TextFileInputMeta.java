@@ -397,6 +397,15 @@ public class TextFileInputMeta
       injectionKeyDescription = "TextFileInput.Injection.IGNORE_FIELDS")
   private boolean ignoreFields;
 
+  /**
+   * Optional Naming Scheme applied to discovered field names when using Get Fields. Empty means
+   * auto-apply only when a unique matching scheme exists.
+   */
+  @HopMetadataProperty(
+      key = "namingScheme",
+      hopMetadataPropertyType = HopMetadataPropertyType.NAMING_SCHEME)
+  private String namingScheme;
+
   @HopMetadataProperty(inline = true)
   protected BaseFileInputAdditionalFields additionalOutputFields;
 
@@ -487,6 +496,7 @@ public class TextFileInputMeta
     this.errorTextField = m.errorTextField;
     this.ignoreFields = m.ignoreFields;
     this.schemaDefinition = m.schemaDefinition;
+    this.namingScheme = m.namingScheme;
     this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
     this.fileInput = new BaseFileInput(m.fileInput);
     m.filters.forEach(filter -> this.filters.add(new TextFileFilter(filter)));

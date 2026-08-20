@@ -23,6 +23,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -85,7 +86,9 @@ public class ActionCreateFolderDialog extends ActionDialog {
     fdbFoldername.top = new FormAttachment(wlFoldername, 0, SWT.CENTER);
     wbFoldername.setLayoutData(fdbFoldername);
 
-    wFoldername = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFoldername =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.FOLDER);
     PropsUi.setLook(wFoldername);
     wFoldername.addModifyListener(lsMod);
     FormData fdFoldername = new FormData();

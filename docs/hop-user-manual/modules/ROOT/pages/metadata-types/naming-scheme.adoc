@@ -1,0 +1,150 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: A Naming Scheme defines reusable rules to normalize Hop field names, database identifiers, and file or folder names.
+
+= Naming Scheme
+
+== Description
+
+A *Naming Scheme* describes how free-form names should be turned into consistent identifiers.
+Typical uses include cleaning field names that arrive with spaces (for example `Order ID` → `order_id`) and applying a shared project convention (snake_case, camelCase, PascalCase, and so on).
+
+Naming Schemes are managed as project metadata. Apply one without adding buttons to every dialog:
+
+* **N indicator** -- widgets that accept a naming scheme show a small *N* on the right (same diamond plate as `$` for variables and `#` for expanded integers). Click *N* to open the matching scheme in a dialog. If several schemes of that type exist, pick one first.
+* **Keyboard shortcut** -- `CTRL-SHIFT-N` on a name field (transform/action name, field cell, table name, file name, …) lists schemes of the matching type and replaces the current identifier. When the field does *not* accept variables, `CTRL-SPACE` does the same thing.
+* **TableView toolbar** -- **Apply a Naming Scheme to a column** still rewrites a whole column at once (with undo).
+
+If only one scheme of the required type exists, apply and open both skip the picker.
+
+A *General* scheme is offered on every name field that does not have a scheme of its own type. Create one General scheme (for example lower-case + underscore) and it covers transform names, field names, tables, and files. Add a type-specific scheme only when that kind of name needs different rules; when such a scheme exists, General is no longer listed for that type.
+
+== Get Fields
+
+CSV File Input and Text File Input have an optional *Naming scheme* field. When you click *Get Fields*, discovered names are rewritten with that scheme.
+
+If the field is empty, Get Fields still auto-applies when exactly one matching scheme exists (a type-specific hop-field scheme, or a General scheme). The same automatic apply runs after Get Fields in other dialogs that fill annotated name columns (Excel, Parquet, Select Values, and so on).
+
+NOTE: Transform, action, pipeline, workflow and metadata name fields use the shortcut with *variable insertion disabled* -- they stay identifiers, not `${...}` expressions. They still show *N*, not `$`.
+
+== Options
+
+image:metadata-types/naming-scheme-editor.png[Naming Scheme editor, width="75%"]
+
+The screenshot above shows a scheme named `lowercase-dashes`: lower case words joined with dashes, so `Order ID` previews as `order-id`.
+
+[options="header"]
+|===
+|Option|Description
+|Name|Unique metadata name of this scheme.
+|Description|Optional free-text description.
+|Type|Target kind. *General* applies to every name field unless a scheme of the widget's specific type exists (Hop field, transform, action, pipeline, workflow, metadata, variable, database table, database column, file, or folder).
+|Case style|`As is`, `Lower case`, `Upper case`, `camelCase`, or `PascalCase`.
+|Word separator|How words are joined when not using camel/Pascal case: none, underscore (`_`), or dash (`-`).
+|Extra delimiters|Additional characters treated as word boundaries (beyond spaces, `_`, `-`, and camelCase edges).
+|Remove special characters|When enabled, strip non letter/digit characters from each word.
+|Collapse repeated separators|When enabled, collapse repeated separators such as `__` to a single separator.
+|Trim leading/trailing separators|When enabled, remove separators at the start or end of the result.
+|Prefix / Suffix|Optional strings prepended or appended after the transform.
+|Preview input / output|Live sample showing how the current options transform a name.
+|===
+
+== Examples
+
+[options="header"]
+|===
+|Input|Case style|Word separator|Result
+|`Order ID`|Lower case|Underscore (`_`)|`order_id`
+|`Order ID`|As is|Underscore (`_`)|`Order_ID`
+|`Order ID`|camelCase|_|`orderId`
+|`Order ID`|PascalCase|_|`OrderId`
+|`order-id`|Upper case|Underscore (`_`)|`ORDER_ID`
+|`Order ID`|Lower case|Dash (`-`)|`order-id`
+|===
+
+== Applying from a name field
+
+. Create at least one Naming Scheme in the Metadata perspective (pick the type that matches the field).
+. Focus a name widget -- transform name, action name, a field-name cell, a table name, a file name, …
+. Press `CTRL-SHIFT-N` (or `CTRL-SPACE` on name fields that do not accept variables).
+. If several schemes of that type exist, pick one. The list shows a live preview (`Order ID → order_id`).
+. The current identifier is replaced. Values that already contain `${...}` are left unchanged.
+
+To review or change the rules instead of applying them, click the *N* indicator. That opens the scheme editor (or a picker when more than one scheme matches the field type).
+
+The same shortcut works on *F2* inline rename in the Metadata and File Explorer trees (metadata names, file names, and folder names). There is no *N* indicator on those tiny tree editors -- press `CTRL-SHIFT-N` after F2.
+
+== Applying from TableView
+
+. Open a transform or dialog that shows a field list (or any other editable table).
+. Ensure table toolbars are visible (Hop Gui options).
+. Click the **Apply a Naming Scheme to a column** toolbar icon (label / tag icon on the TableView toolbar).
+. Select the column to rename if the table has more than one name column.
+. Select a Naming Scheme of the matching type.
+. Confirm — values in non-empty rows are updated. Use the table Undo action if needed.
+
+TIP: `CTRL-SHIFT-N` on a focused cell applies the scheme to that cell only. The toolbar is the bulk action.
+
+=== Example: CSV File Input fields
+
+The following example uses the `lowercase-dashes` scheme on the **Name** column of a xref:pipeline/transforms/csvinput.adoc[CSV File Input] field list.
+
+*Before* — mixed styles (`ID`, `FirstName`, `birth_date`, `stateCode`, …):
+
+image:metadata-types/naming-scheme-csv-input-before.png[CSV File Input fields before applying a Naming Scheme, width="90%"]
+
+*After* — consistent lower-case names with dashes (`id`, `first-name`, `birth-date`, `state-code`, …):
+
+image:metadata-types/naming-scheme-csv-input-after.png[CSV File Input fields after applying the lowercase-dashes Naming Scheme, width="90%"]
+
+== Types as plugins
+
+The *Type* combo lists every registered naming-scheme kind. Built-in kinds include General, Hop field/transform/action/pipeline/workflow/metadata/variable, database table/column, file, and folder.
+
+Other plugins can add kinds without changing Hop. For example hop-data-vault can register `dv-hub`, `dv-satellite`, `dv-link`, `dm-dimension`, `dm-fact`, and so on. Create one Naming Scheme metadata object per kind (or one General scheme). Use one scheme per type in a project so CI has a single expected spelling.
+
+== Checking names in CI
+
+A name is valid when applying the matching scheme leaves the string unchanged. Empty values, `<null>`, and values that contain `${...}` are skipped.
+
+The same check runs in Hop Gui *Verify this pipeline* / *Verify this workflow* (errors only) and from the command line:
+
+----
+hop naming-check --project my-project
+hop naming-check --path /path/to/project --format json --require-scheme
+hop naming-check --type hop-field,hop-transform
+----
+
+* Exit `0` when there are no errors.
+* Exit `1` when at least one name would be rewritten (or when `--require-scheme` is set and a type has no scheme).
+* Exit `2` on unexpected failure (file load issues are warnings).
+* `--format json` prints one object per finding for GitHub Actions or other reporters.
+
+Example GitHub Actions step after Hop is on `PATH` and the project is checked out:
+
+----
+- name: Check naming schemes
+  run: hop naming-check --project my-project --require-scheme
+----
+
+Create one *General* scheme (or one scheme per type) in the project's metadata. There is no `--fix` flag: rewriting committed pipelines is a separate, explicit action.
+
+== Related
+
+* GitHub issue https://github.com/apache/hop/issues/2683[#2683] — field name cleanup / naming toolbar

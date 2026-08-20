@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
@@ -105,6 +106,7 @@ public class StringCutDialog extends BaseTransformDialog {
             false);
 
     ciKey[2].setUsingVariables(true);
+    ciKey[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     ciKey[1].setToolTip(
         BaseMessages.getString(PKG, "StringCutDialog.ColumnInfo.OutStreamField.Tooltip"));
     ciKey[3].setUsingVariables(true);

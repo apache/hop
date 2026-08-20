@@ -30,6 +30,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -52,7 +53,7 @@ import org.eclipse.swt.widgets.Text;
 public class AddSequenceDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AddSequenceMeta.class;
 
-  private Text wValuename;
+  private TextVar wValuename;
 
   private Button wUseDatabase;
 
@@ -128,7 +129,9 @@ public class AddSequenceDialog extends BaseTransformDialog {
     fdlValuename.top = new FormAttachment(0, margin);
     fdlValuename.right = new FormAttachment(middle, -margin);
     wlValuename.setLayoutData(fdlValuename);
-    wValuename = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wValuename =
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_FIELD);
     wValuename.setText("");
     PropsUi.setLook(wValuename);
     wValuename.addModifyListener(lsMod);

@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -175,7 +176,9 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     fdlValName.right = new FormAttachment(middle, -margin);
     fdlValName.top = new FormAttachment(wDelimiterIsRegex, margin);
     wlValName.setLayoutData(fdlValName);
-    wValName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wValName =
+        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .enableNamingSchemes(NamingSchemeTypes.HOP_FIELD);
     wValName.setText("");
     PropsUi.setLook(wValName);
     wValName.addModifyListener(lsMod);

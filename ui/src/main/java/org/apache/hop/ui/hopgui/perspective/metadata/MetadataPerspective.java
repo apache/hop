@@ -83,6 +83,8 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.security.HopSecurityUi;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.widget.NamingSchemeWidgetSupport;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -1404,6 +1406,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
       text.setText(item.getText());
+      NamingSchemeWidgetSupport.attachShortcut(
+          text, hopGui.getVariables(), NamingSchemeTypes.HOP_METADATA);
       text.addListener(SWT.FocusOut, event -> text.dispose());
       text.addListener(
           SWT.KeyUp,

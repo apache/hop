@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -161,6 +162,7 @@ public class CalculatorDialog extends BaseTransformDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
+    colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     colinf[1].setSelectionAdapter(
         new SelectionAdapter() {

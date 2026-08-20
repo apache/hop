@@ -60,6 +60,7 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -79,7 +80,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.jspecify.annotations.Nullable;
@@ -95,7 +95,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private CTabFolder wTabFolder;
 
   private Composite wGeneralComp;
-  private Text wName;
+  private TextVar wName;
   private Combo wConnectionType;
   private Label wDriverInfo;
   private Button wbDownloadDriver;
@@ -215,7 +215,9 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdlName.left = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlName);
 
-    wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wName =
+        new TextVar(hopGui.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER)
+            .asNameField(NamingSchemeTypes.HOP_METADATA);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, margin);

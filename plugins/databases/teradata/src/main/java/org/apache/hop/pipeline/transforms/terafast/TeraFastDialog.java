@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PluginWidgetFactory;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -614,6 +615,7 @@ public class TeraFastDialog extends BaseTransformDialog {
     wlTable.setLayoutData(factory.createLabelLayoutData(topControl));
 
     this.wTable = factory.createSingleTextVarLeft();
+    this.wTable.enableNamingSchemes(NamingSchemeTypes.DATABASE_TABLE);
     PropsUi.setLook(this.wTable);
     this.wTable.setLayoutData(factory.createControlLayoutData(topControl));
 

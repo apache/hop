@@ -75,6 +75,7 @@ import org.w3c.dom.Node;
  */
 @Getter
 @Setter
+@org.apache.hop.core.naming.NamingSchemeKind("hop-action")
 public abstract class ActionBase
     implements IAction,
         Cloneable,
@@ -86,7 +87,8 @@ public abstract class ActionBase
         IDialogEditable {
 
   /** The name of the action */
-  @HopMetadataProperty private String name;
+  @HopMetadataProperty(namingSchemeType = "hop-action")
+  private String name;
 
   /** The description of the action */
   @HopMetadataProperty private String description;

@@ -37,6 +37,7 @@
         <module>import</module>
         <module>mail</module>
         <module>marketplace</module>
+        <module>naming</module>
         <module>passwords</module>
         <module>projects</module>
         <module>py4j</module>

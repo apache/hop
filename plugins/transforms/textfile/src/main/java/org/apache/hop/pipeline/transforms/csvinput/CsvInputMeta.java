@@ -174,6 +174,15 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
       injectionKeyDescription = "CsvInputMeta.Injection.IGNORE_FIELDS")
   public boolean ignoreFields;
 
+  /**
+   * Optional Naming Scheme applied to discovered field names when using Get Fields. Empty means
+   * auto-apply only when a unique matching scheme exists.
+   */
+  @HopMetadataProperty(
+      key = "namingScheme",
+      hopMetadataPropertyType = HopMetadataPropertyType.NAMING_SCHEME)
+  private String namingScheme;
+
   @HopMetadataProperty(
       key = "field",
       groupKey = "fields",
@@ -209,6 +218,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     this.rowNumField = m.rowNumField;
     this.runningInParallel = m.runningInParallel;
     this.schemaDefinition = m.schemaDefinition;
+    this.namingScheme = m.namingScheme;
     m.inputFields.forEach(field -> this.inputFields.add(new CsvInputField(field)));
   }
 
