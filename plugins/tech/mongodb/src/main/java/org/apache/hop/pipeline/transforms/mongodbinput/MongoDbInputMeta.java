@@ -74,12 +74,6 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   private boolean executeForEachIncomingRow = false;
 
   @Override
-  public Object clone() {
-    MongoDbInputMeta meta = (MongoDbInputMeta) super.clone();
-    return meta;
-  }
-
-  @Override
   public void setDefault() {
     jsonFieldName = "json";
   }

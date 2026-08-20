@@ -58,17 +58,6 @@ public class DataGridMeta extends BaseTransformMeta<DataGrid, DataGridData> {
     dataLines = new ArrayList<>();
   }
 
-  public DataGridMeta(DataGridMeta m) {
-    this();
-    this.dataGridFields = m.dataGridFields;
-    this.dataLines = m.dataLines;
-  }
-
-  @Override
-  public DataGridMeta clone() {
-    return new DataGridMeta(this);
-  }
-
   public List<DataGridDataMeta> getDataLines() {
     return dataLines;
   }

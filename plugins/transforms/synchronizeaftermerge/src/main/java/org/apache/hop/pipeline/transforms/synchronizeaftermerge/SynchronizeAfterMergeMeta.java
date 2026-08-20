@@ -130,25 +130,6 @@ public class SynchronizeAfterMergeMeta
     this.commitSize = "100";
   }
 
-  public SynchronizeAfterMergeMeta(SynchronizeAfterMergeMeta m) {
-    this.commitSize = m.commitSize;
-    this.connection = m.connection;
-    this.lookup = new Lookup(m.lookup);
-    this.orderDelete = m.orderDelete;
-    this.orderInsert = m.orderInsert;
-    this.orderUpdate = m.orderUpdate;
-    this.performingLookup = m.performingLookup;
-    this.tableNameField = m.tableNameField;
-    this.tableNameInField = m.tableNameInField;
-    this.usingBatchUpdates = m.usingBatchUpdates;
-    this.operationOrderField = m.operationOrderField;
-  }
-
-  @Override
-  public Object clone() {
-    return new SynchronizeAfterMergeMeta(this);
-  }
-
   @Override
   public void check(
       List<ICheckResult> remarks,

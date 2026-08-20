@@ -755,16 +755,6 @@ public class SnowflakeBulkLoaderMeta
     return fileDate;
   }
 
-  /**
-   * Clones the transform so that it can be copied and used in clusters
-   *
-   * @return A copy of the transform
-   */
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   /** Sets the default values for all metadata attributes. */
   @Override
   public void setDefault() {

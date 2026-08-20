@@ -34,7 +34,7 @@ class GroupByMetaTest {
   @Test
   void testClone() throws Exception {
     GroupByMeta meta1 = generateTestMeta();
-    GroupByMeta meta2 = meta1.clone();
+    GroupByMeta meta2 = (GroupByMeta) meta1.clone();
 
     compareMetas(meta1, meta2);
   }

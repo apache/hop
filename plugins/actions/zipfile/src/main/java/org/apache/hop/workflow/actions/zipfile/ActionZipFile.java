@@ -166,12 +166,6 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    ActionZipFile je = (ActionZipFile) super.clone();
-    return je;
-  }
-
-  @Override
   public boolean isEvaluation() {
     return true;
   }

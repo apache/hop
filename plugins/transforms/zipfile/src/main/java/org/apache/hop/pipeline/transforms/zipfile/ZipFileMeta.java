@@ -235,13 +235,6 @@ public class ZipFileMeta extends BaseTransformMeta<ZipFile, ZipFileData> {
   }
 
   @Override
-  public Object clone() {
-    ZipFileMeta retval = (ZipFileMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     addResultFilenames = false;
     overwriteZipEntry = false;

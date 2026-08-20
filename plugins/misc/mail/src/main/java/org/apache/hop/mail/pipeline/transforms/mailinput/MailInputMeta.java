@@ -198,20 +198,6 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   }
 
   @Override
-  public Object clone() {
-    MailInputMeta retval = (MailInputMeta) super.clone();
-    List<MailInputField> retvalFields = new ArrayList<>();
-    for (MailInputField inputField : inputFields) {
-      if (inputField != null) {
-        retvalFields.add((MailInputField) inputField.clone());
-      }
-    }
-    retval.setInputFields(retvalFields);
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     serverName = null;
     username = null;

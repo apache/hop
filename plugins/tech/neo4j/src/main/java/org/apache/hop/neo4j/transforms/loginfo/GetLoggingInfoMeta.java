@@ -66,13 +66,6 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
   }
 
   @Override
-  public Object clone() {
-    GetLoggingInfoMeta retval = (GetLoggingInfoMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
 
     fields = new ArrayList<>();

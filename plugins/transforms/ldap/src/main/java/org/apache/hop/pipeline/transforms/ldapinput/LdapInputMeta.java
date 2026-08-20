@@ -348,14 +348,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   @Override
   public Object clone() {
     LdapInputMeta retval = (LdapInputMeta) super.clone();
-    if (inputFields != null) {
-      retval.inputFields = new ArrayList<>();
-      for (LdapInputField field : inputFields) {
-        if (field != null) {
-          retval.inputFields.add((LdapInputField) field.clone());
-        }
-      }
-    } else {
+    if (retval.inputFields == null) {
       retval.inputFields = new ArrayList<>();
     }
     return retval;

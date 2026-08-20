@@ -87,12 +87,6 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionWriteToFile je = (ActionWriteToFile) super.clone();
-    return je;
-  }
-
   public void setFilename(String filename) {
     this.filename = filename;
   }

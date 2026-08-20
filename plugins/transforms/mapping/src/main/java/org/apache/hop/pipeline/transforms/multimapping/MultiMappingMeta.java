@@ -107,18 +107,6 @@ public class MultiMappingMeta extends TransformWithMappingMeta<MultiMapping, Mul
     ioMappings = new MultiIOMappings();
   }
 
-  public MultiMappingMeta(MultiMappingMeta m) {
-    super(m);
-    this.runConfigurationName = m.runConfigurationName;
-    this.ioMappings =
-        m.ioMappings != null ? new MultiIOMappings(m.ioMappings) : new MultiIOMappings();
-  }
-
-  @Override
-  public MultiMappingMeta clone() {
-    return new MultiMappingMeta(this);
-  }
-
   @Override
   public void setDefault() {
     MultiMappingInputDefinition inputDefinition = new MultiMappingInputDefinition(null, null);

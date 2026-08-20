@@ -88,22 +88,6 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
     files = new ArrayList<>();
   }
 
-  public GetSubFoldersMeta(GetSubFoldersMeta m) {
-    this();
-    this.includeRowNumber = m.includeRowNumber;
-    this.rowNumberField = m.rowNumberField;
-    this.dynamicFolderNameField = m.dynamicFolderNameField;
-    this.folderNameDynamic = m.folderNameDynamic;
-    this.rowLimit = m.rowLimit;
-    this.childrenFieldName = m.childrenFieldName;
-    m.files.forEach(f -> this.files.add(new GSFile(f)));
-  }
-
-  @Override
-  public GetSubFoldersMeta clone() {
-    return new GetSubFoldersMeta(this);
-  }
-
   @Override
   public void setDefault() {
     folderNameDynamic = false;

@@ -100,11 +100,6 @@ public class ExecProcessMeta extends BaseTransformMeta<ExecProcess, ExecProcessD
   }
 
   @Override
-  public ExecProcessMeta clone() {
-    return new ExecProcessMeta(this);
-  }
-
-  @Override
   public void setDefault() {
     resultFieldName = "Result output";
     errorFieldName = "Error output";

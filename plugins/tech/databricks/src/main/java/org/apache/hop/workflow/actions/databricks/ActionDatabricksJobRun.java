@@ -232,11 +232,6 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
     this("");
   }
 
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   public void setClientFactory(ClientFactory clientFactory) {
     this.clientFactory = clientFactory != null ? clientFactory : RestDatabricksJobsClient::create;
   }

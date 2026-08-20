@@ -73,21 +73,6 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
     outputFields = new ArrayList<>();
   }
 
-  public SasInputMeta(SasInputMeta m) {
-    this();
-    this.acceptingField = m.acceptingField;
-    this.metadataFilename = m.metadataFilename;
-    this.limit = m.limit;
-    for (SasInputField field : m.outputFields) {
-      outputFields.add(new SasInputField(field));
-    }
-  }
-
-  @Override
-  public SasInputMeta clone() {
-    return new SasInputMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

@@ -88,26 +88,6 @@ public class ODataInputMeta extends BaseTransformMeta<ODataInput, ODataInputData
     authType = "NONE";
   }
 
-  public ODataInputMeta(ODataInputMeta other) {
-    this();
-    this.url = other.url;
-    this.entitySet = other.entitySet;
-    this.authType = other.authType;
-    this.username = other.username;
-    this.password = other.password;
-    this.token = other.token;
-    this.querySelect = other.querySelect;
-    this.queryFilter = other.queryFilter;
-    this.queryOrder = other.queryOrder;
-    this.queryTop = other.queryTop;
-    this.querySkip = other.querySkip;
-    if (other.fields != null) {
-      for (ODataField f : other.fields) {
-        this.fields.add(new ODataField(f));
-      }
-    }
-  }
-
   @Override
   public void setDefault() {
     this.url = "";

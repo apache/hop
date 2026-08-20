@@ -73,21 +73,6 @@ public class SalesforceInsertMeta
   }
 
   @Override
-  public Object clone() {
-    SalesforceInsertMeta retval = (SalesforceInsertMeta) super.clone();
-    retval.fields = new ArrayList<>();
-    int nrFields = fields.size();
-    for (int i = 0; i < fields.size(); i++) {
-      if (fields.get(i) != null) {
-        //        retval.inputFields.get(i) = (SalesforceInputField) inputFields.get(i).clone();
-        retval.fields.add((SalesforceInsertField) fields.get(i).clone());
-      }
-    }
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     super.setDefault();
     setFields(new ArrayList<>());

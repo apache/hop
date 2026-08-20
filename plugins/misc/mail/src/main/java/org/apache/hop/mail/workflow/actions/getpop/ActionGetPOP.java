@@ -271,12 +271,6 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionGetPOP je = (ActionGetPOP) super.clone();
-    return je;
-  }
-
   public String getRealPort() {
     return resolve(getSslPort());
   }

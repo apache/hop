@@ -164,29 +164,6 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
     this.encoding = Const.UTF_8;
   }
 
-  public HttpMeta(HttpMeta m) {
-    this();
-    this.closeIdleConnectionsTime = m.closeIdleConnectionsTime;
-    this.connectionTimeout = m.connectionTimeout;
-    this.encoding = m.encoding;
-    this.httpLogin = m.httpLogin;
-    this.httpPassword = m.httpPassword;
-    this.ignoreSsl = m.ignoreSsl;
-    this.proxyHost = m.proxyHost;
-    this.proxyPort = m.proxyPort;
-    this.socketTimeout = m.socketTimeout;
-    this.url = m.url;
-    this.urlField = m.urlField;
-    this.urlInField = m.urlInField;
-    this.lookupParameters = new LookupParameters(m.lookupParameters);
-    this.resultFields = new ResultFields(m.resultFields);
-  }
-
-  @Override
-  public Object clone() {
-    return new HttpMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

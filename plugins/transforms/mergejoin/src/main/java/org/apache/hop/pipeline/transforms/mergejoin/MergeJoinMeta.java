@@ -106,19 +106,6 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
   }
 
   @Override
-  public MergeJoinMeta clone() {
-    MergeJoinMeta meta = new MergeJoinMeta();
-
-    meta.leftTransformName = this.leftTransformName;
-    meta.rightTransformName = this.rightTransformName;
-    meta.joinType = this.joinType;
-    meta.keyFields1.addAll(this.keyFields1);
-    meta.keyFields2.addAll(this.keyFields2);
-
-    return meta;
-  }
-
-  @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     if (infoStreams.size() < 2) {

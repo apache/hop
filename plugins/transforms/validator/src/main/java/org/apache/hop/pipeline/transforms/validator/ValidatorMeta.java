@@ -116,21 +116,6 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
     this.validations = new ArrayList<>();
   }
 
-  public ValidatorMeta(ValidatorMeta m) {
-    this();
-    m.validations.forEach(v -> this.validations.add(new Validation(v)));
-    this.validatingAll = m.validatingAll;
-    this.concatenatingErrors = m.concatenatingErrors;
-    this.concatenationSeparator = m.concatenationSeparator;
-    this.suppressingLogFailedData = m.suppressingLogFailedData;
-    this.suppressingErrorLog = m.suppressingErrorLog;
-  }
-
-  @Override
-  public ValidatorMeta clone() {
-    return new ValidatorMeta(this);
-  }
-
   @Override
   public void check(
       List remarks,

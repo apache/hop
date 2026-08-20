@@ -69,19 +69,6 @@ public class CreditCardValidatorMeta
     super(); // allocate BaseTransformMeta
   }
 
-  public CreditCardValidatorMeta(CreditCardValidatorMeta m) {
-    this.fieldName = m.fieldName;
-    this.cardType = m.cardType;
-    this.notValidMessage = m.notValidMessage;
-    this.resultFieldName = m.resultFieldName;
-    this.onlyDigits = m.onlyDigits;
-  }
-
-  @Override
-  public CreditCardValidatorMeta clone() {
-    return new CreditCardValidatorMeta(this);
-  }
-
   @Override
   public void setDefault() {
     resultFieldName = "result";

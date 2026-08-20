@@ -164,11 +164,6 @@ public class VerticaBulkLoaderMeta
     fields = new ArrayList<>();
   }
 
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   /**
    * @return returns the database connection name
    */

@@ -75,19 +75,6 @@ public class StandardizePhoneNumberMeta
     super();
   }
 
-  public StandardizePhoneNumberMeta(StandardizePhoneNumberMeta meta) {
-    super();
-
-    for (StandardizePhoneField field : meta.getFields()) {
-      fields.add(new StandardizePhoneField(field));
-    }
-  }
-
-  @Override
-  public Object clone() {
-    return new StandardizePhoneNumberMeta(this);
-  }
-
   @Override
   public void setDefault() {
     // Do nothing

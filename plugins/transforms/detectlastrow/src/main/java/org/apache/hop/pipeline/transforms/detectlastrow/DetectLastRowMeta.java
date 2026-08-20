@@ -65,13 +65,6 @@ public class DetectLastRowMeta extends BaseTransformMeta<DetectLastRow, DetectLa
   }
 
   @Override
-  public Object clone() {
-    DetectLastRowMeta retval = (DetectLastRowMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     resultFieldName = "result";
   }

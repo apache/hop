@@ -139,26 +139,6 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     createParentFolder = true;
   }
 
-  public MetaInjectMeta(MetaInjectMeta m) {
-    this();
-    this.allowEmptyStreamOnExecution = m.allowEmptyStreamOnExecution;
-    this.createParentFolder = m.createParentFolder;
-    this.noExecution = m.noExecution;
-    this.runConfigurationName = m.runConfigurationName;
-    this.sourceTransformName = m.sourceTransformName;
-    this.streamSourceTransformName = m.streamSourceTransformName;
-    this.streamTargetTransformName = m.streamTargetTransformName;
-    this.targetFile = m.targetFile;
-    this.templateFileName = m.templateFileName;
-    m.sourceOutputFields.forEach(f -> this.sourceOutputFields.add(new MetaInjectOutputField(f)));
-    m.mappings.forEach(map -> this.mappings.add(new MetaInjectMapping(map)));
-  }
-
-  @Override
-  public Object clone() {
-    return new MetaInjectMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta rowMeta,

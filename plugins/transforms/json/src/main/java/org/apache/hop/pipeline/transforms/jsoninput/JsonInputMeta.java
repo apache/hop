@@ -220,34 +220,6 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
     valueField = "";
   }
 
-  public JsonInputMeta(JsonInputMeta m) {
-    this();
-    this.addResultFile = m.addResultFile;
-    this.defaultPathLeafToNull = m.defaultPathLeafToNull;
-    this.doNotFailIfNoFile = m.doNotFailIfNoFile;
-    this.filenameField = m.filenameField;
-    this.ignoringMissingPath = m.ignoringMissingPath;
-    this.includeFilename = m.includeFilename;
-    this.includeRowNumber = m.includeRowNumber;
-    this.inFields = m.inFields;
-    this.sourceAFile = m.sourceAFile;
-    this.ignoringEmptyFile = m.ignoringEmptyFile;
-    this.readUrl = m.readUrl;
-    this.removeSourceField = m.removeSourceField;
-    this.rowLimit = m.rowLimit;
-    this.rowNumberField = m.rowNumberField;
-    this.valueField = m.valueField;
-    this.additionalOutputFields = new BaseFileInputAdditionalFields(m.additionalOutputFields);
-    this.fileInput = new BaseFileInput(m.fileInput);
-    m.inputFields.forEach(f -> inputFields.add(new JsonInputField(f)));
-    syncFieldSourceFlags();
-  }
-
-  @Override
-  public JsonInputMeta clone() {
-    return new JsonInputMeta(this);
-  }
-
   /**
    * @return Returns the shortFileFieldName.
    */

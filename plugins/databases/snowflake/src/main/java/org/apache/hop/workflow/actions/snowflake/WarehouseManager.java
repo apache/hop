@@ -170,11 +170,6 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     failIfNotExists = true;
   }
 
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   public int getManagementActionId() {
     if (managementAction != null) {
       for (int i = 0; i < MANAGEMENT_ACTIONS.length; i++) {

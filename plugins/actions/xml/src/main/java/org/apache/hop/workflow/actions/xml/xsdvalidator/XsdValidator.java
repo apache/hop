@@ -105,12 +105,6 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    XsdValidator je = (XsdValidator) super.clone();
-    return je;
-  }
-
   public String getRealxmlfilename() {
     return resolve(getXmlFilename());
   }

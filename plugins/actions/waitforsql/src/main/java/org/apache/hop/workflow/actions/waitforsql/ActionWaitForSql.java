@@ -194,11 +194,6 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
   public SuccessCondition getSuccessCondition() {
     return successCondition;
   }

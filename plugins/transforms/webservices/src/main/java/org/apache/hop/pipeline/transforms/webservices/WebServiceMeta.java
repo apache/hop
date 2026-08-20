@@ -136,34 +136,6 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     fieldsOut = new ArrayList<>();
   }
 
-  public WebServiceMeta(WebServiceMeta m) {
-    this();
-    this.callTransform = m.callTransform;
-    this.compatible = m.compatible;
-    this.httpLogin = m.httpLogin;
-    this.httpPassword = m.httpPassword;
-    this.inFieldArgumentName = m.inFieldArgumentName;
-    this.inFieldContainerName = m.inFieldContainerName;
-    this.operationName = m.operationName;
-    this.operationNamespace = m.operationNamespace;
-    this.operationRequestName = m.operationRequestName;
-    this.outFieldArgumentName = m.outFieldArgumentName;
-    this.outFieldContainerName = m.outFieldContainerName;
-    this.passingInputData = m.passingInputData;
-    this.proxyHost = m.proxyHost;
-    this.proxyPort = m.proxyPort;
-    this.repeatingElementName = m.repeatingElementName;
-    this.returningReplyAsString = m.returningReplyAsString;
-    this.url = m.url;
-    m.fieldsIn.forEach(field -> fieldsIn.add(new WebServiceField(field)));
-    m.fieldsOut.forEach(field -> fieldsOut.add(new WebServiceField(field)));
-  }
-
-  @Override
-  public WebServiceMeta clone() {
-    return new WebServiceMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta r,

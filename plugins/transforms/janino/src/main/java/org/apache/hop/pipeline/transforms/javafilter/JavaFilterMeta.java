@@ -100,12 +100,6 @@ public class JavaFilterMeta extends BaseTransformMeta<JavaFilter, JavaFilterData
   }
 
   @Override
-  public Object clone() {
-    JavaFilterMeta retval = (JavaFilterMeta) super.clone();
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     condition = "true";
   }

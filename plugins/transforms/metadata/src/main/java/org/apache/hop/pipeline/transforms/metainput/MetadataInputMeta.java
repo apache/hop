@@ -60,22 +60,6 @@ public class MetadataInputMeta extends BaseTransformMeta<MetadataInput, Metadata
     this.typeKeyFilters = new ArrayList<>();
   }
 
-  public MetadataInputMeta(MetadataInputMeta meta) {
-    this.providerFieldName = meta.providerFieldName;
-    this.typeKeyFieldName = meta.typeKeyFieldName;
-    this.typeNameFieldName = meta.typeNameFieldName;
-    this.typeDescriptionFieldName = meta.typeDescriptionFieldName;
-    this.typeClassFieldName = meta.typeClassFieldName;
-    this.nameFieldName = meta.nameFieldName;
-    this.jsonFieldName = meta.jsonFieldName;
-    this.typeKeyFilters = new ArrayList<>(meta.typeKeyFilters);
-  }
-
-  @Override
-  public MetadataInputMeta clone() {
-    return new MetadataInputMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

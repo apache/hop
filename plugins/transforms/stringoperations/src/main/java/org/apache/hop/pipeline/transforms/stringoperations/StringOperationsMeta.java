@@ -73,16 +73,6 @@ public class StringOperationsMeta
     this.operations = new ArrayList<>();
   }
 
-  public StringOperationsMeta(StringOperationsMeta m) {
-    this();
-    m.operations.forEach(op -> this.operations.add(new StringOperation(op)));
-  }
-
-  @Override
-  public Object clone() {
-    return new StringOperationsMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,

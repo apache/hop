@@ -182,25 +182,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
   }
 
   @Override
-  public GroupByMeta clone() {
-    GroupByMeta groupByMeta = (GroupByMeta) super.clone();
-
-    List<GroupingField> groupingFieldsCopy = new ArrayList<>();
-    for (GroupingField item : groupingFields) {
-      groupingFieldsCopy.add(item.clone());
-    }
-    groupByMeta.setGroupingFields(groupingFieldsCopy);
-
-    List<Aggregation> aggsCopy = new ArrayList<>();
-    for (Aggregation aggregation : aggregations) {
-      aggsCopy.add(aggregation.clone());
-    }
-    groupByMeta.setAggregations(aggsCopy);
-
-    return groupByMeta;
-  }
-
-  @Override
   public void setDefault() {
     directory = "${java.io.tmpdir}";
     prefix = "grp";

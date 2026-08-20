@@ -244,11 +244,6 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   }
 
   @Override
-  public Object clone() {
-    return super.clone();
-  }
-
-  @Override
   public void setDefault() {
     tableName = "";
     commitSize = "1000";

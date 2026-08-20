@@ -194,12 +194,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public Object clone() {
-    ActionUnZip je = (ActionUnZip) super.clone();
-    return je;
-  }
-
-  @Override
   public Result execute(Result previousResult, int nr) {
     Result result = previousResult;
     result.setResult(false);

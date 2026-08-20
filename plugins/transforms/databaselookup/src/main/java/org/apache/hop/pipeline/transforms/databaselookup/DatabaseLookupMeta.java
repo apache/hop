@@ -107,19 +107,6 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
     lookup = new Lookup();
   }
 
-  public DatabaseLookupMeta(DatabaseLookupMeta m) {
-    this.connection = m.connection;
-    this.cached = m.cached;
-    this.cacheSize = m.cacheSize;
-    this.loadingAllDataInCache = m.loadingAllDataInCache;
-    this.lookup = new Lookup(m.lookup);
-  }
-
-  @Override
-  public DatabaseLookupMeta clone() {
-    return new DatabaseLookupMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta row,

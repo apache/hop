@@ -110,13 +110,6 @@ public class SalesforceDeleteMeta
   }
 
   @Override
-  public Object clone() {
-    SalesforceDeleteMeta retval = (SalesforceDeleteMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     super.setDefault();
     setModule("Account");

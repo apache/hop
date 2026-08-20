@@ -111,25 +111,6 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
     caseTargets = new ArrayList<>();
   }
 
-  public SwitchCaseMeta(SwitchCaseMeta m) {
-    this();
-    this.fieldName = m.fieldName;
-    this.caseValueType = m.caseValueType;
-    this.caseValueFormat = m.caseValueFormat;
-    this.caseValueDecimal = m.caseValueDecimal;
-    this.caseValueGroup = m.caseValueGroup;
-    this.defaultTargetTransformName = m.defaultTargetTransformName;
-    this.usingContains = m.usingContains;
-    for (SwitchCaseTarget target : m.caseTargets) {
-      this.caseTargets.add(new SwitchCaseTarget(target));
-    }
-  }
-
-  @Override
-  public SwitchCaseMeta clone() {
-    return new SwitchCaseMeta(this);
-  }
-
   @Override
   public void getFields(
       IRowMeta rowMeta,

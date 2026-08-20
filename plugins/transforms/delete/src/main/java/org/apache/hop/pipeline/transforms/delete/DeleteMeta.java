@@ -122,11 +122,6 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   }
 
   @Override
-  public Object clone() {
-    return new DeleteMeta(this);
-  }
-
-  @Override
   public void setDefault() {
     commitSize = "100";
     lookup.setSchemaName("");

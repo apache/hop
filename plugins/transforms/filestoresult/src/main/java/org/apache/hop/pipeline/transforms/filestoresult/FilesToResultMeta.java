@@ -54,16 +54,6 @@ public class FilesToResultMeta extends BaseTransformMeta<FilesToResult, FilesToR
     fileType = FileType.GENERAL;
   }
 
-  public FilesToResultMeta(FilesToResultMeta m) {
-    this.filenameField = m.filenameField;
-    this.fileType = m.fileType;
-  }
-
-  @Override
-  public FilesToResultMeta clone() {
-    return new FilesToResultMeta(this);
-  }
-
   @Override
   public void setDefault() {
     filenameField = null;

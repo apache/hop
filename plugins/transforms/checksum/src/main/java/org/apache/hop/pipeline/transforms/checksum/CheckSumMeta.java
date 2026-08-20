@@ -213,21 +213,6 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
   }
 
   @Override
-  public CheckSumMeta clone() {
-    CheckSumMeta meta = new CheckSumMeta();
-    meta.checkSumType = checkSumType;
-    meta.resultFieldName = resultFieldName;
-    meta.resultType = resultType;
-    meta.separator = separator;
-    meta.prefix = prefix;
-    meta.suffix = suffix;
-    for (Field field : fields) {
-      meta.fields.add(new Field(field));
-    }
-    return meta;
-  }
-
-  @Override
   public void getFields(
       IRowMeta inputRowMeta,
       String name,

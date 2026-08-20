@@ -401,17 +401,6 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
   }
 
   @Override
-  public Object clone() {
-    AvroOutputMeta retval = new AvroOutputMeta();
-
-    for (AvroOutputField field : outputFields) {
-      retval.getOutputFields().add(new AvroOutputField(field));
-    }
-
-    return retval;
-  }
-
-  @Override
   public void setDefault() {
     createParentFolder = true; // Default createparentfolder to true
     createSchemaFile = false;

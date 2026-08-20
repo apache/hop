@@ -148,16 +148,6 @@ public class CombinationLookupMeta
     this.fields = new CFields();
   }
 
-  public CombinationLookupMeta(CombinationLookupMeta m) {
-    fields = new CFields();
-  }
-
-  @Override
-  public Object clone() {
-    CombinationLookupMeta retval = (CombinationLookupMeta) super.clone();
-    return retval;
-  }
-
   @Override
   public void setDefault() {
     schemaName = "";

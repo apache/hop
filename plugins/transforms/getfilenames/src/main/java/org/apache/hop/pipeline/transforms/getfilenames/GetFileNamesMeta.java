@@ -172,11 +172,6 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   }
 
   @Override
-  public Object clone() {
-    return (GetFileNamesMeta) super.clone();
-  }
-
-  @Override
   public void setDefault() {
     doNotFailIfNoFile = false;
     filterItemList.add(new FilterItem(FileTypeFilter.FILES_AND_FOLDERS.toString()));

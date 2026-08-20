@@ -67,18 +67,6 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
     super(); // allocate BaseTransformMeta
   }
 
-  public CubeOutputMeta(CubeOutputMeta m) {
-    this.filename = m.filename;
-    this.filenameCreatingParentFolders = m.filenameCreatingParentFolders;
-    this.addToResultFilenames = m.addToResultFilenames;
-    this.doNotOpenNewFileInit = m.doNotOpenNewFileInit;
-  }
-
-  @Override
-  public CubeOutputMeta clone() {
-    return new CubeOutputMeta(this);
-  }
-
   @Override
   public void setDefault() {
     addToResultFilenames = false;

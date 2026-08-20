@@ -66,11 +66,6 @@ public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
   }
 
   @Override
-  public FormulaMeta clone() {
-    return new FormulaMeta(this);
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     // Rows for which a formula can not be calculated can be diverted instead of stopping the
     // pipeline.
