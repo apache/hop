@@ -74,6 +74,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       "10900-google-cloud-service-connect-timeout";
   private static final String WIDGET_ID_GOOGLE_CLOUD_SERVICE_READ_TIMEOUT =
       "1100-google-cloud-service-read-timeout";
+  private static final String WIDGET_ID_GOOGLE_CLOUD_SERVICE_RETRY_NON_IDEMPOTENT =
+      "11000-google-cloud-service-retry-non-idempotent";
   private static final String WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS =
       "11100-google-cloud-cache-ttl-seconds";
 
@@ -189,6 +191,15 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
   private String readTimeout;
 
   @GuiWidgetElement(
+      id = WIDGET_ID_GOOGLE_CLOUD_SERVICE_RETRY_NON_IDEMPOTENT,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::GoogleCloudPlugin.RetryNonIdempotentOperations.Label",
+      toolTip = "i18n::GoogleCloudPlugin.RetryNonIdempotentOperations.Description")
+  private Boolean retryNonIdempotentOperations;
+
+  @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS,
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
@@ -218,6 +229,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
     instance.maxRpcTimeout = config.getMaxRpcTimeout();
     instance.connectTimeout = config.getConnectionTimeout();
     instance.readTimeout = config.getReadTimeout();
+    instance.retryNonIdempotentOperations = config.getRetryNonIdempotentOperations();
     instance.cacheTtlSeconds = config.getCacheTtlSeconds();
 
     return instance;
@@ -309,6 +321,14 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         changed = true;
       }
 
+      if (retryNonIdempotentOperations != null) {
+        config.setRetryNonIdempotentOperations(retryNonIdempotentOperations);
+        log.logBasic(
+            "Google Cloud service retry of non-idempotent operations set to "
+                + retryNonIdempotentOperations);
+        changed = true;
+      }
+
       if (cacheTtlSeconds != null) {
         config.setCacheTtlSeconds(cacheTtlSeconds);
         log.logBasic("Google Cloud list cache TTL (seconds) set to " + cacheTtlSeconds);
@@ -395,6 +415,11 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_READ_TIMEOUT:
           readTimeout = ((TextVar) control).getText();
           GoogleCloudConfigSingleton.getConfig().setReadTimeout(readTimeout);
+          break;
+        case WIDGET_ID_GOOGLE_CLOUD_SERVICE_RETRY_NON_IDEMPOTENT:
+          retryNonIdempotentOperations = ((Button) control).getSelection();
+          GoogleCloudConfigSingleton.getConfig()
+              .setRetryNonIdempotentOperations(retryNonIdempotentOperations);
           break;
         case WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS:
           cacheTtlSeconds = ((TextVar) control).getText();
