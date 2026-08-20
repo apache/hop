@@ -18,28 +18,11 @@
   -->
 <transform>
     <connection>h2</connection>
-    <execute_each_row>Y</execute_each_row>
-    <limit>100</limit>
-    <lookup>parameters</lookup>
-    <sql>SELECT ID, NAME FROM PUBLIC.DDLTEST WHERE NAME = ?</sql>
+    <execute_each_row>N</execute_each_row>
+    <limit>0</limit>
+    <lookup/>
+    <sql>SELECT ID, NAME FROM PUBLIC.DDLTEST WHERE NAME = {name}</sql>
     <sql_from_file/>
-    <variables_active>Y</variables_active>
-    <specify_fields>Y</specify_fields>
-    <validate_specified_fields>Y</validate_specified_fields>
-    <fields>
-        <field>
-            <name>ID</name>
-            <type>Integer</type>
-            <length>-1</length>
-            <precision>-1</precision>
-            <format/>
-        </field>
-        <field>
-            <name>NAME</name>
-            <type>String</type>
-            <length>-1</length>
-            <precision>-1</precision>
-            <format/>
-        </field>
-    </fields>
+    <variables_active>N</variables_active>
+    <use_named_parameters>Y</use_named_parameters>
 </transform>
