@@ -30,6 +30,12 @@ public final class ContextDialogPlacement {
   /** TextTransfer payload prefix so drop targets ignore unrelated text. */
   public static final String TRANSFER_PREFIX = "hop-context-placement:";
 
+  /**
+   * Same as {@link #TRANSFER_PREFIX} plus a chain marker: the drop target hops from the selected
+   * (or last) transform/action to the newly placed one (Shift-drag from the palette tree).
+   */
+  public static final String TRANSFER_PREFIX_CHAIN = "hop-context-placement-chain:";
+
   private ContextDialogPlacement() {
     // utility
   }
@@ -38,21 +44,39 @@ public final class ContextDialogPlacement {
     if (action == null || StringUtils.isEmpty(action.getId())) {
       return null;
     }
-    return TRANSFER_PREFIX + action.getId();
+    return encode(action.getId(), false);
+  }
+
+  public static String encode(String actionId, boolean chainHop) {
+    if (StringUtils.isEmpty(actionId)) {
+      return null;
+    }
+    return (chainHop ? TRANSFER_PREFIX_CHAIN : TRANSFER_PREFIX) + actionId;
   }
 
   public static boolean isPlacementPayload(Object data) {
-    return data instanceof String s && s.startsWith(TRANSFER_PREFIX);
+    return data instanceof String s
+        && (s.startsWith(TRANSFER_PREFIX_CHAIN) || s.startsWith(TRANSFER_PREFIX));
+  }
+
+  public static boolean isChainPayload(Object data) {
+    return data instanceof String s && s.startsWith(TRANSFER_PREFIX_CHAIN);
   }
 
   /**
    * @return the GuiAction id embedded in a placement payload, or null if not a placement payload
    */
   public static String decodeActionId(Object data) {
-    if (!isPlacementPayload(data)) {
+    if (!(data instanceof String s)) {
       return null;
     }
-    return ((String) data).substring(TRANSFER_PREFIX.length());
+    if (s.startsWith(TRANSFER_PREFIX_CHAIN)) {
+      return s.substring(TRANSFER_PREFIX_CHAIN.length());
+    }
+    if (s.startsWith(TRANSFER_PREFIX)) {
+      return s.substring(TRANSFER_PREFIX.length());
+    }
+    return null;
   }
 
   /**

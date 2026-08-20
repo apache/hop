@@ -45,6 +45,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -102,6 +103,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -150,11 +152,15 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegat
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowRunDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowUndoDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
+import org.apache.hop.ui.hopgui.palette.GraphPaletteTree;
+import org.apache.hop.ui.hopgui.palette.IGraphPaletteHost;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.IWebCanvasGraph;
+import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
@@ -220,6 +226,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         IHopFileTypeHandler,
         IGuiRefresher,
         IWebCanvasGraph,
+        IGraphPaletteHost,
         ISnapshotUndoSupport {
 
   private static final Class<?> PKG = HopGuiWorkflowGraph.class;
@@ -251,6 +258,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public static final String TOOLBAR_ITEM_DESIGN_ENGINE =
       "HopGuiWorkflowGraph-ToolBar-10550-Design-Engine";
+
+  public static final String TOOLBAR_ITEM_PALETTE_TREE =
+      "HopGuiWorkflowGraph-ToolBar-10537-Palette-Tree";
 
   public static final String TOOLBAR_ITEM_EDIT_WORKFLOW =
       "HopGuiWorkflowGraph-ToolBar-10450-EditWorkflow";
@@ -367,6 +377,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private NotePadMeta currentNotePad = null;
 
   @Getter private Object canvasZoomHandler; // For web/RAP zoom handling
+
+  private SashForm paletteSash;
+
+  private GraphPaletteTree paletteTree;
 
   private SashForm sashForm;
 
@@ -490,11 +504,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     fdMainComposite.bottom = new FormAttachment(100, 0);
     mainComposite.setLayoutData(fdMainComposite);
 
-    // To allow for a splitter later on, we will add the splitter here...
+    // Outer sash: Spoon-style palette tree on the left, graph (+ extra view) on the right.
     //
+    paletteSash = new SashForm(mainComposite, SWT.HORIZONTAL);
+    paletteTree = new GraphPaletteTree(paletteSash, this);
+
     sashForm =
         new SashForm(
-            mainComposite,
+            paletteSash,
             PropsUi.getInstance().isGraphExtraViewVerticalOrientation()
                 ? SWT.VERTICAL
                 : SWT.HORIZONTAL);
@@ -526,6 +543,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     canvas.setLayoutData(fdCanvas);
 
     sashForm.setWeights(100);
+    SashFormMemory.persist(
+        paletteSash, GraphPalette.SASH_AUDIT_KEY, GraphPalette.DEFAULT_SASH_WEIGHTS);
+    applyPaletteVisibility();
+    hopGui
+        .getEventsHandler()
+        .addEventListener(
+            paletteListenerId(),
+            e -> applyPaletteVisibility(),
+            HopGuiEvents.PaletteTreeVisibilityChanged.name());
 
     toolTip = new HopToolTip(getShell());
     toolTip.setAutoHide(true);
@@ -572,10 +598,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       canvas.addMouseMoveListener(this);
       canvas.addMouseTrackListener(this);
       canvas.addMouseWheelListener(this::mouseScrolled);
-    } else {
-      // Hop Web: accept create actions dragged from the context dialog (HTML5/SWT DnD).
-      installContextDialogPlacementDropTarget();
     }
+    // Palette tree (and Hop Web context dialog) place items via SWT DnD.
+    installContextDialogPlacementDropTarget();
 
     hopGui.replaceKeyboardShortcutListeners(this);
     setBackground(GuiResource.getInstance().getColorBackground());
@@ -593,6 +618,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   @Override
   public void dispose() {
+    hopGui.getEventsHandler().removeEventListeners(paletteListenerId());
     if (EnvironmentUtils.getInstance().isWeb() && canvas != null && !canvas.isDisposed()) {
       CanvasSvgFacade.unregisterCanvas(canvas);
     }
@@ -1452,7 +1478,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             }
             // DropTargetEvent x/y are relative to the Display in SWT/RAP — convert to canvas.
             org.eclipse.swt.graphics.Point canvasPos = canvas.toControl(event.x, event.y);
-            boolean placed = placeFromContextDialogActionId(actionId, canvasPos.x, canvasPos.y);
+            boolean chainHop = ContextDialogPlacement.isChainPayload(event.data);
+            boolean placed =
+                placeFromContextDialogActionId(actionId, canvasPos.x, canvasPos.y, chainHop);
             if (placed) {
               ContextDialogPlacement.markDropCompletedOnActiveDialog();
               event.detail = DND.DROP_COPY;
@@ -1480,6 +1508,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    * @return true if an action was created
    */
   public boolean placeFromContextDialogActionId(String actionId, int canvasX, int canvasY) {
+    return placeFromContextDialogActionId(actionId, canvasX, canvasY, false);
+  }
+
+  public boolean placeFromContextDialogActionId(
+      String actionId, int canvasX, int canvasY, boolean chainHop) {
     GuiActionFavorites.KindAndPluginId resolved = GuiActionFavorites.resolveFromId(actionId);
     if (resolved == null || resolved.kind() != GuiActionFavorites.Kind.WORKFLOW_ACTION) {
       return false;
@@ -1487,14 +1520,99 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (canvas == null || canvas.isDisposed()) {
       return false;
     }
+    return placeActionFromPalette(
+        resolved.pluginId(), placementLocationFromCanvas(canvasX, canvasY), chainHop);
+  }
 
-    Point location = placementLocationFromCanvas(canvasX, canvasY);
+  @Override
+  public String getPaletteHostId() {
+    return getId();
+  }
+
+  @Override
+  public GuiActionFavorites.Kind getPaletteKind() {
+    return GuiActionFavorites.Kind.WORKFLOW_ACTION;
+  }
+
+  @Override
+  public boolean placePaletteAction(String actionId, Point graphLocation, boolean chainHop) {
+    GuiActionFavorites.KindAndPluginId resolved = GuiActionFavorites.resolveFromId(actionId);
+    if (resolved == null || resolved.kind() != GuiActionFavorites.Kind.WORKFLOW_ACTION) {
+      return false;
+    }
+    // Keep a null location: placeActionFromPalette then sits the item to the right of the
+    // chain source. Filling in lastClick here is what put Shift-double-click at (0,0).
+    return placeActionFromPalette(resolved.pluginId(), graphLocation, chainHop);
+  }
+
+  @Override
+  public Point getPaletteDropLocation() {
+    if (lastClick != null) {
+      return new Point(lastClick.x, lastClick.y);
+    }
+    if (canvas == null || canvas.isDisposed()) {
+      return new Point(50, 50);
+    }
+    org.eclipse.swt.graphics.Rectangle client = canvas.getClientArea();
+    Point real = screen2real(Math.max(client.width / 2, 0), Math.max(client.height / 2, 0));
     int half = Math.max(iconSize / 2, 1);
-    String pluginName = resolved.pluginId();
+    return new Point(Math.max(0, real.x - half), Math.max(0, real.y - half));
+  }
+
+  @Override
+  public void applyPaletteVisibility() {
+    if (paletteSash == null || paletteSash.isDisposed()) {
+      return;
+    }
+    boolean visible = GraphPalette.isVisible();
+    if (visible) {
+      if (paletteTree != null && !paletteTree.isDisposed()) {
+        paletteTree.ensurePopulated();
+      }
+      paletteSash.setMaximizedControl(null);
+      SashFormMemory.restore(
+          paletteSash, GraphPalette.SASH_AUDIT_KEY, GraphPalette.DEFAULT_SASH_WEIGHTS);
+    } else {
+      paletteSash.setMaximizedControl(sashForm);
+    }
+    updatePaletteToolbarButton(visible);
+  }
+
+  @Override
+  public void persistFavoritesChange() {
+    try {
+      HopConfig.getInstance().saveToFile();
+    } catch (Exception e) {
+      log.logError("Error saving favorites", e);
+    }
+    GraphPalette.fireFavoritesChanged(hopGui);
+  }
+
+  private String paletteListenerId() {
+    return "HopGuiWorkflowGraph-Palette-" + getId();
+  }
+
+  private void updatePaletteToolbarButton(boolean visible) {
+    if (toolBarWidgets == null) {
+      return;
+    }
+    toolBarWidgets.setToolbarItemToolTip(
+        TOOLBAR_ITEM_PALETTE_TREE,
+        BaseMessages.getString(
+            org.apache.hop.ui.hopgui.palette.GraphPaletteTree.class,
+            visible ? "GraphPalette.Toolbar.Hide.Tooltip" : "GraphPalette.Toolbar.Show.Tooltip"));
+  }
+
+  private boolean placeActionFromPalette(String pluginId, Point location, boolean chainHop) {
+    ActionMeta chainSource = chainHop ? resolveChainSource() : null;
+    if (location == null) {
+      location = chainHop ? locationAfter(chainSource) : getPaletteDropLocation();
+    }
+    int half = Math.max(iconSize / 2, 1);
+    String pluginName = pluginId;
     try {
       IPlugin plugin =
-          PluginRegistry.getInstance()
-              .findPluginWithId(ActionPluginType.class, resolved.pluginId());
+          PluginRegistry.getInstance().findPluginWithId(ActionPluginType.class, pluginId);
       if (plugin != null && plugin.getName() != null) {
         pluginName = plugin.getName();
       }
@@ -1503,8 +1621,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     ActionMeta actionMeta =
-        workflowActionDelegate.newAction(
-            workflowMeta, resolved.pluginId(), pluginName, false, location);
+        workflowActionDelegate.newAction(workflowMeta, pluginId, pluginName, false, location);
     if (actionMeta == null) {
       return false;
     }
@@ -1534,13 +1651,50 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ((id & 0xFF) == 0) {
         workflowActionDelegate.insertAction(workflowMeta, hop, actionMeta);
       }
+    } else if (chainHop
+        && chainSource != null
+        && chainSource != actionMeta
+        && workflowMeta.findWorkflowHop(chainSource, actionMeta) == null) {
+      workflowHopDelegate.newHop(workflowMeta, chainSource, actionMeta);
     }
 
+    lastChained = actionMeta;
+    lastClick = new Point(location.x, location.y);
     workflowMeta.unselectAll();
     actionMeta.setSelected(true);
     avoidContextDialog = true;
     updateGui();
     return true;
+  }
+
+  private ActionMeta resolveChainSource() {
+    if (lastChained != null && workflowMeta.findAction(lastChained.getName()) == null) {
+      lastChained = null;
+    }
+    List<ActionMeta> selected = workflowMeta.getSelectedActions();
+    if (selected != null && selected.size() == 1) {
+      return selected.get(0);
+    }
+    if (lastChained != null) {
+      return lastChained;
+    }
+    int n = workflowMeta.nrActions();
+    return n > 0 ? workflowMeta.getAction(n - 1) : null;
+  }
+
+  /**
+   * Place the next chained action to the right of {@code source}. When hopping from an existing
+   * action the new icon sits {@link GraphPalette#CHAIN_OFFSET_X} further right.
+   */
+  private Point locationAfter(ActionMeta source) {
+    if (source == null) {
+      Point p = workflowMeta.getMaximum();
+      p.x -= 100;
+      p.x += 200;
+      return p;
+    }
+    Point loc = source.getLocation();
+    return new Point(loc.x + GraphPalette.CHAIN_OFFSET_X, loc.y);
   }
 
   /**
@@ -2338,6 +2492,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     String selected = combo.getText();
     String engineId = PaletteEngineFilter.getWorkflowEngineIdForLabel(selected);
     PaletteEngineFilter.setWorkflowDesignEngineId(engineId);
+    if (paletteTree != null && !paletteTree.isDisposed()) {
+      paletteTree.refresh();
+    }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_PALETTE_TREE,
+      toolTip = "i18n:org.apache.hop.ui.hopgui.palette:GraphPalette.Toolbar.Show.Tooltip",
+      image = "ui/images/palette.svg",
+      separator = true)
+  public void togglePaletteTree() {
+    GraphPalette.setVisible(!GraphPalette.isVisible());
+    GraphPalette.fireVisibilityChanged(hopGui);
   }
 
   /** Combo values for {@link #TOOLBAR_ITEM_DESIGN_ENGINE} — referenced by reflection. */

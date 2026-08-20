@@ -55,6 +55,21 @@ Hover over an item to see its description and these shortcuts in the tooltip.
 
 TIP: Dropping a new transform or action on top of an existing hop can split that hop (same confirmation dialog as when you move an icon onto a hop).
 
+[[palette-tree]]
+== Palette tree
+
+Pipeline and workflow graphs also have an optional Spoon-style palette tree on the left of the canvas.
+
+* Use the **palette** toolbar button on the graph to show or hide the tree. It is hidden by default; the choice is remembered across restarts.
+* Categories (with **Favorites** at the top when you have any) list every transform or action, each with a small icon. Hover for the description.
+* Filter the tree from the text field above it. **Expand all**, **Collapse all**, and **Clear filter** sit on the toolbar under the filter.
+* **Drag** an item onto the canvas to place it. **Shift-drag** also creates a hop from the selected transform/action (or the last one in the graph).
+* **Double-click** (or press Enter) places the item at the last canvas click, or at the center of the visible canvas.
+* **Shift-double-click** adds the item you clicked (not the canvas selection), hops from the selected or last chained transform/action, places it to the right, and selects it so the next Shift-double-click continues the chain.
+* **ALT-Click** (Option-Click on macOS) or the tree context menu adds or removes a favorite.
+
+The canvas popup dialog described above stays available.
+
 == Creating Items
 
 When you create a new item, the dialog will show you a list of metadata items that can be created with a single click of a button.

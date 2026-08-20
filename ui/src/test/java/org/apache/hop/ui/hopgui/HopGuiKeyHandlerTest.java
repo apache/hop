@@ -110,6 +110,56 @@ class HopGuiKeyHandlerTest {
     }
   }
 
+  /**
+   * Pipeline graphs bind Space to "show output fields". That must not eat Space in a filter Text
+   * (the palette tree search box).
+   */
+  public static class SpaceGraph {
+    public int spaces;
+    public int letters;
+
+    @GuiKeyboardShortcut(key = ' ')
+    @GuiOsxKeyboardShortcut(key = ' ')
+    public void showOutputFields() {
+      spaces++;
+    }
+
+    @GuiKeyboardShortcut(key = 'z')
+    @GuiOsxKeyboardShortcut(key = 'z')
+    public void openReferencedObject() {
+      letters++;
+    }
+  }
+
+  @Test
+  void spaceAndLettersAreLeftToTextWidgets() {
+    SpaceGraph graph = new SpaceGraph();
+    registerShortcutsLikeHopGuiEnvironment(SpaceGraph.class);
+
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(graph);
+    try {
+      KeyEvent spaceInText = keyEvent(mock(Text.class), SWT.SPACE, SWT.NONE);
+      spaceInText.character = ' ';
+      keyHandler.keyPressed(spaceInText);
+      assertEquals(0, graph.spaces, "Space must type into text widgets, not run graph shortcuts");
+      assertTrue(spaceInText.doit, "Space must not be consumed when a text widget has focus");
+
+      KeyEvent letterInText = keyEvent(mock(Text.class), 'z', SWT.NONE);
+      letterInText.character = 'z';
+      keyHandler.keyPressed(letterInText);
+      assertEquals(
+          0, graph.letters, "Letters must type into text widgets, not run graph shortcuts");
+
+      KeyEvent spaceOnCanvas = canvasKey(SWT.SPACE, SWT.NONE);
+      spaceOnCanvas.character = ' ';
+      keyHandler.keyPressed(spaceOnCanvas);
+      assertEquals(1, graph.spaces, "Space on the canvas still runs the graph shortcut");
+    } finally {
+      keyHandler.removeParentObjectToHandle(graph);
+    }
+  }
+
   @Test
   void arrowKeysAreLeftToTablesAndTrees() {
     NavigationGraph graph = new NavigationGraph();
