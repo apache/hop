@@ -72,6 +72,15 @@ public class TransformMeta
         IHasName {
   private static final Class<?> PKG = TransformMeta.class;
 
+  /**
+   * Tracks changes to the settings this wrapper owns - position, number of copies, row distribution
+   * - as opposed to the settings a transform dialog edits, which live on the inner {@link
+   * ITransformMeta}. Keeping the two apart means a dialog's Cancel, which restores the inner flag
+   * it captured when it opened, cannot discard a change made on the canvas in the meantime.
+   * Transform dialogs are not modal, so that overlap is easy to hit. See issue #8022.
+   */
+  private boolean wrapperChanged;
+
   public static final String XML_TAG = "transform";
   public static final String STRING_ID_MAPPING = "Mapping";
   public static final String STRING_ID_SINGLE_THREADER = "SingleThreader";
@@ -352,7 +361,7 @@ public class TransformMeta
    * @param c The number of copies.
    */
   public void setCopies(int c) {
-    setChanged();
+    setWrapperChanged();
     copiesString = Integer.toString(c);
     copiesCache = c;
   }
@@ -419,10 +428,11 @@ public class TransformMeta
   public synchronized boolean hasChanged() {
     // Check both the wrapper level changed flag and the inner metadata
     ITransformMeta meta = this.getTransform();
-    return meta != null && meta.hasChanged();
+    return wrapperChanged || (meta != null && meta.hasChanged());
   }
 
   public synchronized void setChanged(boolean ch) {
+    wrapperChanged = ch;
     // Propagate to inner metadata
     ITransformMeta meta = this.getTransform();
     if (meta != null) {
@@ -432,6 +442,14 @@ public class TransformMeta
 
   public synchronized void setChanged() {
     setChanged(true);
+  }
+
+  /**
+   * Marks the settings owned by this wrapper as changed, without touching the transform's own
+   * changed flag. See {@link #wrapperChanged}.
+   */
+  private synchronized void setWrapperChanged() {
+    wrapperChanged = true;
   }
 
   public boolean chosesTargetTransforms() {
@@ -539,7 +557,7 @@ public class TransformMeta
 
     Point loc = new Point(nx, ny);
     if (!loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -547,7 +565,7 @@ public class TransformMeta
   @Override
   public void setLocation(Point loc) {
     if (loc != null && !loc.equals(location)) {
-      setChanged();
+      setWrapperChanged();
     }
     location = loc;
   }
@@ -594,7 +612,7 @@ public class TransformMeta
   public void setDistributes(boolean distributes) {
     if (this.distributes != distributes) {
       this.distributes = distributes;
-      setChanged();
+      setWrapperChanged();
     }
   }
 
@@ -732,7 +750,7 @@ public class TransformMeta
     if (rowDistribution != null) {
       setDistributes(true);
     }
-    setChanged();
+    setWrapperChanged();
   }
 
   /**
