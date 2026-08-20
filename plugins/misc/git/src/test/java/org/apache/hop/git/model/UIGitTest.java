@@ -1011,6 +1011,108 @@ public class UIGitTest extends RepositoryTestCase {
   }
 
   /**
+   * Every rule has to end up on a line of its own. Appending without a newline glued the rules
+   * together into a single pattern which ignored neither file.
+   */
+  @Test
+  public void testAddPathToIgnoreWritesEachRuleOnItsOwnLine() throws Exception {
+    initialCommit();
+    writeTrashFile("first.txt", "first");
+    writeTrashFile("second.txt", "second");
+
+    uiGit.addPathToIgnore("first.txt");
+    uiGit.addPathToIgnore("second.txt");
+
+    assertEquals(
+        List.of("first.txt", "second.txt"), readLines(new File(db.getWorkTree(), ".gitignore")));
+
+    // Both rules are understood by git, which is what the newline is there for
+    //
+    Set<String> ignored = uiGit.getIgnored(null);
+    assertTrue(ignored.toString(), ignored.contains("first.txt"));
+    assertTrue(ignored.toString(), ignored.contains("second.txt"));
+  }
+
+  /**
+   * A .gitignore does not have to end with a newline. Appending to one that doesn't used to glue
+   * the new rule onto the last one, breaking a rule which was already there.
+   */
+  @Test
+  public void testAddPathToIgnoreKeepsARuleWrittenWithoutATrailingNewline() throws Exception {
+    initialCommit();
+    writeTrashFile(".gitignore", "existing.txt");
+    writeTrashFile("existing.txt", "existing");
+    writeTrashFile("added.txt", "added");
+
+    uiGit.addPathToIgnore("added.txt");
+
+    assertEquals(
+        List.of("existing.txt", "added.txt"), readLines(new File(db.getWorkTree(), ".gitignore")));
+
+    Set<String> ignored = uiGit.getIgnored(null);
+    assertTrue(ignored.toString(), ignored.contains("existing.txt"));
+    assertTrue(ignored.toString(), ignored.contains("added.txt"));
+  }
+
+  /** The same path twice leaves one rule: the duplicate check reads whole lines. */
+  @Test
+  public void testAddPathToIgnoreDoesNotWriteTheSamePathTwice() throws Exception {
+    initialCommit();
+    writeTrashFile("once.txt", "once");
+
+    uiGit.addPathToIgnore("once.txt");
+    uiGit.addPathToIgnore("once.txt");
+
+    assertEquals(List.of("once.txt"), readLines(new File(db.getWorkTree(), ".gitignore")));
+  }
+
+  /** A .gitignore written on Windows keeps its line endings instead of ending up mixed. */
+  @Test
+  public void testAddPathToIgnoreFollowsTheLineEndingsOfTheFile() throws Exception {
+    initialCommit();
+    writeTrashFile(".gitignore", "existing.txt\r\n");
+
+    uiGit.addPathToIgnore("added.txt");
+
+    String content =
+        new String(
+            java.nio.file.Files.readAllBytes(new File(db.getWorkTree(), ".gitignore").toPath()),
+            StandardCharsets.UTF_8);
+    assertEquals("existing.txt\r\nadded.txt\r\n", content);
+  }
+
+  /** The .gitignore is staged, so the new rule is part of the next commit. */
+  @Test
+  public void testAddPathToIgnoreStagesANewlyCreatedGitIgnore() throws Exception {
+    initialCommit();
+    writeTrashFile("generated.txt", "generated");
+
+    uiGit.addPathToIgnore("generated.txt");
+
+    assertTrue(git.status().call().getAdded().contains(".gitignore"));
+  }
+
+  /** A .gitignore which was already committed is staged too, not only a newly created one. */
+  @Test
+  public void testAddPathToIgnoreStagesAnExistingGitIgnore() throws Exception {
+    writeTrashFile(".gitignore", "existing.txt\n");
+    git.add().addFilepattern(".gitignore").call();
+    git.commit().setMessage("initial commit").call();
+    writeTrashFile("generated.txt", "generated");
+
+    uiGit.addPathToIgnore("generated.txt");
+
+    assertTrue(git.status().call().getChanged().contains(".gitignore"));
+    assertTrue(uiGit.getUnstagedFiles().stream().noneMatch(f -> f.getName().equals(".gitignore")));
+  }
+
+  private List<String> readLines(File file) throws Exception {
+    return java.nio.file.Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream()
+        .filter(line -> !line.isBlank())
+        .toList();
+  }
+
+  /**
    * A merge has to be recorded as a merge. Committing the resolved conflict used to reset the whole
    * index first, which cleared MERGE_HEAD and left an ordinary commit behind: git no longer
    * considered the branch merged and replayed everything on the next merge.

@@ -1297,33 +1297,43 @@ public class UIGit extends VCS {
   }
 
   /**
-   * Checks if a given path is already ignored in the specified .gitignore file.
+   * Checks whether a .gitignore already holds a rule for the given path.
    *
-   * @param gitIgnore The .gitignore file to be checked.
+   * @param gitIgnoreContent The content of the .gitignore file to be checked.
    * @param path The path to verify against the .gitignore file.
    * @return true if the path is already ignored; false otherwise.
-   * @throws IOException If an I/O error occurs while reading the .gitignore file.
    */
-  private boolean isAlreadyIgnored(File gitIgnore, String path) throws IOException {
-    List<String> lines = Files.readAllLines(gitIgnore.toPath(), StandardCharsets.UTF_8);
-    return lines.stream().map(String::trim).anyMatch(line -> line.equals(path.trim()));
+  private boolean isAlreadyIgnored(String gitIgnoreContent, String path) {
+    return gitIgnoreContent.lines().map(String::trim).anyMatch(line -> line.equals(path));
   }
 
   public void addPathToIgnore(String path) {
     try {
+      String rule = normalizePathForJGit(path);
+      if (StringUtils.isBlank(rule)) {
+        return;
+      }
+      rule = rule.trim();
+
       File gitIgnore = new File(getDirectory(), ".gitignore");
-
-      boolean created = gitIgnore.createNewFile();
-
-      // Checks if a given path is already ignored
-      if (!isAlreadyIgnored(gitIgnore, path)) {
-        Files.writeString(gitIgnore.toPath(), path, StandardOpenOption.APPEND);
+      String content =
+          gitIgnore.exists() ? Files.readString(gitIgnore.toPath(), StandardCharsets.UTF_8) : "";
+      if (isAlreadyIgnored(content, rule)) {
+        return;
       }
 
-      // If the .gitignore file is created, stage it
-      if (created) {
-        git.add().addFilepattern(".gitignore").call();
-      }
+      // Every rule is a line of its own. A .gitignore does not have to end with a newline, and
+      // appending to one that doesn't would glue the new rule onto the last one, leaving a single
+      // pattern which matches neither file.
+      //
+      String newline = content.contains("\r\n") ? "\r\n" : "\n";
+      String addition =
+          (content.isEmpty() || content.endsWith("\n") ? "" : newline) + rule + newline;
+      Files.writeString(
+          gitIgnore.toPath(), addition, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+      // Stage the .gitignore, so the new rule is part of the next commit
+      git.add().addFilepattern(".gitignore").call();
 
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
