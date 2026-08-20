@@ -291,7 +291,7 @@ public class HopGuiWorkflowActionDelegate {
         return;
       }
 
-      ActionMeta before = (ActionMeta) action.cloneDeep();
+      byte[] beforeSnapshot = workflowGraph.captureUndoSnapshot();
 
       IAction jei = action.getAction();
 
@@ -304,13 +304,7 @@ public class HopGuiWorkflowActionDelegate {
           // If so, we need to verify that the name is not already used in the workflow.
           //
           workflowMeta.renameActionIfNameCollides(action);
-
-          ActionMeta after = action.clone();
-          hopGui.undoDelegate.addUndoChange(
-              workflowMeta,
-              new ActionMeta[] {before},
-              new ActionMeta[] {after},
-              new int[] {workflowMeta.indexOfAction(action)});
+          workflowGraph.commitDialogUndo(beforeSnapshot);
         }
         workflowGraph.updateGui();
       } else {

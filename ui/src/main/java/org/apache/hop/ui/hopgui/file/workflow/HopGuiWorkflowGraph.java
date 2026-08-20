@@ -36,7 +36,6 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
@@ -57,6 +56,7 @@ import org.apache.hop.core.gui.CanvasSvgRenderResult;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
+import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.SnapAllignDistribute;
@@ -134,7 +134,9 @@ import org.apache.hop.ui.hopgui.file.delegates.HopGuiNoteLinkSupport;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
 import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiGraphSnapshotUndo;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
+import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
@@ -217,7 +219,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         ILogParentProvided,
         IHopFileTypeHandler,
         IGuiRefresher,
-        IWebCanvasGraph {
+        IWebCanvasGraph,
+        ISnapshotUndoSupport {
 
   private static final Class<?> PKG = HopGuiWorkflowGraph.class;
 
@@ -386,6 +389,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public HopGuiWorkflowClipboardDelegate workflowClipboardDelegate;
   public HopGuiWorkflowRunDelegate workflowRunDelegate;
   public HopGuiWorkflowUndoDelegate workflowUndoDelegate;
+  private final HopGuiGraphSnapshotUndo<WorkflowMeta> snapshotUndo;
   public HopGuiWorkflowActionDelegate workflowActionDelegate;
   public HopGuiWorkflowHopDelegate workflowHopDelegate;
   public HopGuiNotePadDelegate notePadDelegate;
@@ -442,6 +446,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowClipboardDelegate = new HopGuiWorkflowClipboardDelegate(hopGui, this);
     workflowRunDelegate = new HopGuiWorkflowRunDelegate(hopGui, this);
     workflowUndoDelegate = new HopGuiWorkflowUndoDelegate(hopGui, this);
+    snapshotUndo =
+        new HopGuiGraphSnapshotUndo<>(
+            hopGui,
+            WorkflowMeta.class,
+            WorkflowMeta.XML_TAG,
+            (target, node, provider, filename) ->
+                target.restoreContentFromXml(node, filename, provider),
+            () -> this.workflowMeta,
+            this::getFilename,
+            this::restoreAfterSnapshot);
+    snapshotUndo.initialize();
     workflowActionDelegate = new HopGuiWorkflowActionDelegate(hopGui, this);
     workflowHopDelegate = new HopGuiWorkflowHopDelegate(hopGui, this);
     notePadDelegate = new HopGuiNotePadDelegate(hopGui, this);
@@ -796,6 +811,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // SWT keeps the threshold behaviour to distinguish a click from a drag.
             if (EnvironmentUtils.getInstance().isWeb() && event.button == 1 && !shift && !control) {
               actionDragCommitted = true;
+              markPositionUndoPoint();
               dragSelection = true;
               canvas.setData("mode", "drag");
               selectedActions = workflowMeta.getSelectedActions();
@@ -1161,31 +1177,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Find out which Transforms & Notes are selected
           selectedActions = workflowMeta.getSelectedActions();
           selectedNotes = workflowMeta.getSelectedNotes();
-          // We moved around some items: store undo info...
-          //
-          boolean also = false;
-          if (!Utils.isEmpty(selectedNotes) && previousNoteLocations != null) {
-            int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
-
-            addUndoPosition(
-                selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
-                indexes,
-                previousNoteLocations,
-                workflowMeta.getSelectedNoteLocations(),
-                also);
-            also = !Utils.isEmpty(selectedActions);
-          }
-          if (selectedActions != null
-              && !selectedActions.isEmpty()
-              && previousActionLocations != null) {
-            int[] indexes = workflowMeta.getActionIndexes(selectedActions);
-            addUndoPosition(
-                selectedActions.toArray(new ActionMeta[selectedActions.size()]),
-                indexes,
-                previousActionLocations,
-                workflowMeta.getSelectedLocations(),
-                also);
-          }
+          // Position undo was recorded at drag start via markPositionUndoPoint().
         }
       }
 
@@ -1231,6 +1223,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       endHopLocation = null;
       actionDragStartScreen = null;
       actionDragCommitted = false;
+      resetPositionUndoMark();
       removePlacementDragFilters();
 
       updateGui();
@@ -1264,31 +1257,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // Track that actions/notes were selected
             if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {}
 
-            // We moved around some items: store undo info...
-            boolean also = false;
-            if (selectedNotes != null
-                && !selectedNotes.isEmpty()
-                && previousNoteLocations != null) {
-              int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
-              addUndoPosition(
-                  selectedNotes.toArray(new NotePadMeta[selectedNotes.size()]),
-                  indexes,
-                  previousNoteLocations,
-                  workflowMeta.getSelectedNoteLocations(),
-                  also);
-              also = !Utils.isEmpty(selectedActions);
-            }
-            if (selectedActions != null
-                && !selectedActions.isEmpty()
-                && previousActionLocations != null) {
-              int[] indexes = workflowMeta.getActionIndexes(selectedActions);
-              addUndoPosition(
-                  selectedActions.toArray(new ActionMeta[selectedActions.size()]),
-                  indexes,
-                  previousActionLocations,
-                  workflowMeta.getSelectedLocations(),
-                  also);
-            }
+            // Position undo was recorded at drag start via markPositionUndoPoint().
           }
         }
 
@@ -1956,6 +1925,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       int thresholdSq = ACTION_DRAG_THRESHOLD_PX * ACTION_DRAG_THRESHOLD_PX;
       if (dx * dx + dy * dy > thresholdSq) {
         actionDragCommitted = true;
+        markPositionUndoPoint();
         canvas.setData("mode", "drag");
         dragSelection = true;
         selectedActions = workflowMeta.getSelectedActions();
@@ -2095,6 +2065,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
        *
        * new : new position of the note (not the mouse pointer) dx : difference with previous position
        */
+      markPositionUndoPoint();
       int dx = note.x - selectedNote.getLocation().x;
       int dy = note.y - selectedNote.getLocation().y;
 
@@ -2311,48 +2282,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    */
   private void applyAutoLayout(boolean selectionOnly) {
     List<ActionMeta> subset = null;
-    List<ActionMeta> moving;
     if (selectionOnly) {
       subset = workflowMeta.getSelectedActions();
       if (subset == null || subset.size() < 2) {
         return; // Nothing meaningful to arrange.
       }
-      moving = new ArrayList<>(subset);
-    } else {
-      int n = workflowMeta.nrActions();
-      if (n == 0) {
-        return;
-      }
-      moving = new ArrayList<>(n);
-      for (int i = 0; i < n; i++) {
-        moving.add(workflowMeta.getAction(i));
-      }
+    } else if (workflowMeta.nrActions() == 0) {
+      return;
     }
 
-    // Auto-layout may also reposition notes; capture them so the whole thing is one undo step.
-    List<NotePadMeta> notes = new ArrayList<>(workflowMeta.getNotes());
-    Point[] notesBefore = captureNoteLocations(notes);
-
-    Point[] before = captureLocations(moving);
+    byte[] beforeSnapshot = captureUndoSnapshot();
     WorkflowMetaLayout.layout(workflowMeta, PropsUi.getInstance().getAutoLayoutOptions(), subset);
-    Point[] after = captureLocations(moving);
-    Point[] notesAfter = captureNoteLocations(notes);
-
-    // Record notes first, then actions, linked into a single undo action (nextAlso).
-    boolean also = false;
-    if (!notes.isEmpty()) {
-      also = true;
-      hopGui.undoDelegate.addUndoPosition(
-          workflowMeta,
-          notes.toArray(new NotePadMeta[0]),
-          workflowMeta.getNoteIndexes(notes),
-          notesBefore,
-          notesAfter,
-          also);
-    }
-    int[] indexes = workflowMeta.getActionIndexes(moving);
-    hopGui.undoDelegate.addUndoPosition(
-        workflowMeta, moving.toArray(new ActionMeta[0]), indexes, before, after, also);
+    commitDialogUndo(beforeSnapshot);
 
     workflowMeta.setChanged();
     updateGui();
@@ -3637,6 +3578,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     Point[] actionsBefore = captureLocations(actions);
     Point[] notesBefore = captureNoteLocations(notes);
+    byte[] beforeSnapshot = captureUndoSnapshot();
 
     moveSelected(dx, dy);
 
@@ -3647,26 +3589,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return true;
     }
 
-    // Record notes first, then actions, linked into a single undo action (nextAlso).
-    boolean also = false;
-    if (!Utils.isEmpty(notes)) {
-      also = !Utils.isEmpty(actions);
-      addUndoPosition(
-          notes.toArray(new NotePadMeta[0]),
-          workflowMeta.getNoteIndexes(notes),
-          notesBefore,
-          notesAfter,
-          also);
-    }
-    if (!Utils.isEmpty(actions)) {
-      addUndoPosition(
-          actions.toArray(new ActionMeta[0]),
-          workflowMeta.getActionIndexes(actions),
-          actionsBefore,
-          actionsAfter,
-          also);
-    }
-
+    commitDialogUndo(beforeSnapshot);
     workflowMeta.setChanged();
     updateGui();
     return true;
@@ -4271,7 +4194,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public SnapAllignDistribute createSnapAlignDistribute() {
     List<ActionMeta> elements = workflowMeta.getSelectedActions();
     int[] indices = workflowMeta.getActionIndexes(elements);
-    return new SnapAllignDistribute(workflowMeta, elements, indices, hopGui.undoDelegate, this);
+    return new SnapAllignDistribute(workflowMeta, elements, indices, null, this);
   }
 
   @GuiContextAction(
@@ -4350,6 +4273,66 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @Override
+  public boolean isUndoMeta(IUndo undoInterface) {
+    return undoInterface == workflowMeta;
+  }
+
+  @Override
+  public void markUndoPoint() {
+    snapshotUndo.markUndoPoint();
+  }
+
+  @Override
+  public byte[] captureUndoSnapshot() {
+    return snapshotUndo.captureUndoSnapshot();
+  }
+
+  @Override
+  public void commitDialogUndo(byte[] before) {
+    snapshotUndo.commitDialogUndo(before);
+  }
+
+  @Override
+  public void recordAfterChange(boolean nextAlso) {
+    snapshotUndo.recordAfterChange(nextAlso);
+  }
+
+  @Override
+  public void markPositionUndoPoint() {
+    snapshotUndo.markPositionUndoPoint();
+  }
+
+  @Override
+  public void resetPositionUndoMark() {
+    snapshotUndo.resetPositionUndoMark();
+  }
+
+  @Override
+  public void rememberSavedSnapshot() {
+    snapshotUndo.rememberSavedSnapshot();
+  }
+
+  @Override
+  public boolean canUndo() {
+    return snapshotUndo.canUndo();
+  }
+
+  @Override
+  public boolean canRedo() {
+    return snapshotUndo.canRedo();
+  }
+
+  private void restoreAfterSnapshot() {
+    if (workflowMeta != null) {
+      workflowMeta.setInternalHopVariables(variables);
+    }
+    clearSettings();
+    snapshotUndo.resetPositionUndoMark();
+    updateGui();
+    redraw();
+  }
+
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_UNDO_ID,
@@ -4361,7 +4344,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(command = true, key = 'z')
   @Override
   public void undo() {
-    workflowUndoDelegate.undoWorkflowAction(this, workflowMeta);
+    snapshotUndo.undo();
     forceFocus();
   }
 
@@ -4375,7 +4358,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
   @Override
   public void redo() {
-    workflowUndoDelegate.redoWorkflowAction(this, workflowMeta);
+    snapshotUndo.redo();
     forceFocus();
   }
 
@@ -4413,10 +4396,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
               // Enable/disable the undo/redo toolbar buttons...
               //
-              toolBarWidgets.enableToolbarItem(
-                  TOOLBAR_ITEM_UNDO_ID, workflowMeta.viewThisUndo() != null);
-              toolBarWidgets.enableToolbarItem(
-                  TOOLBAR_ITEM_REDO_ID, workflowMeta.viewNextUndo() != null);
+              snapshotUndo.refreshLastSnapshot();
+              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_UNDO_ID, snapshotUndo.canUndo());
+              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_REDO_ID, snapshotUndo.canRedo());
 
               // Enable/disable the execution toolbar buttons
               //
@@ -4438,7 +4420,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(
                   TOOLBAR_ITEM_TO_EXECUTION_INFO, hasExecutionInfoLocations);
 
-              hopGui.setUndoMenu(workflowMeta);
+              hopGui.setUndoMenu(snapshotUndo.canUndo(), snapshotUndo.canRedo());
               hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
 
               // Enable the align/distribute toolbar menus if one or more actions are selected.
@@ -4533,6 +4515,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
         out.write(xml.getBytes(StandardCharsets.UTF_8));
         workflowMeta.clearChanged();
+        rememberSavedSnapshot();
         updateGui();
       } finally {
         out.flush();
@@ -5231,17 +5214,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return () -> getWorkflow() != null ? getWorkflow().getLogChannel() : LogChannel.GENERAL;
   }
 
-  // Change of transform, connection, hop or note...
   public void addUndoPosition(Object[] obj, int[] pos, Point[] prev, Point[] curr) {
     addUndoPosition(obj, pos, prev, curr, false);
   }
 
-  // Change of transform, connection, hop or note...
   public void addUndoPosition(
       Object[] obj, int[] pos, Point[] prev, Point[] curr, boolean nextAlso) {
-    // It's better to store the indexes of the objects, not the objects itself!
-    workflowMeta.addUndo(obj, null, pos, prev, curr, AbstractMeta.TYPE_UNDO_POSITION, nextAlso);
-    hopGui.setUndoMenu(workflowMeta);
+    recordAfterChange(nextAlso);
+    hopGui.setUndoMenu(canUndo(), canRedo());
   }
 
   /**

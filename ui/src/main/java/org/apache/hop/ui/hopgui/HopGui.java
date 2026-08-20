@@ -119,6 +119,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectiveManager;
@@ -2053,40 +2054,60 @@ public class HopGui
   }
 
   public void setUndoMenu(IUndo undoInterface) {
-    // Grab the undo and redo menu items...
-    //
-    MenuItem undoItem = mainMenuWidgets.findMenuItem(ID_MAIN_MENU_EDIT_UNDO);
-    MenuItem redoItem = mainMenuWidgets.findMenuItem(ID_MAIN_MENU_EDIT_REDO);
+    try {
+      IHopFileTypeHandler handler = getActiveFileTypeHandler();
+      if (handler instanceof ISnapshotUndoSupport support
+          && (undoInterface == null || support.isUndoMeta(undoInterface))) {
+        setUndoMenu(support.canUndo(), support.canRedo());
+        return;
+      }
+    } catch (Exception e) {
+      // Menu is built before a file handler exists.
+    }
+
+    ChangeAction prev = undoInterface != null ? undoInterface.viewThisUndo() : null;
+    ChangeAction next = undoInterface != null ? undoInterface.viewNextUndo() : null;
+    setUndoMenuItems(prev != null, next != null, prev, next);
+  }
+
+  public void setUndoMenu(boolean canUndo, boolean canRedo) {
+    setUndoMenuItems(canUndo, canRedo, null, null);
+  }
+
+  private void setUndoMenuItems(
+      boolean canUndo, boolean canRedo, ChangeAction prev, ChangeAction next) {
+    GuiMenuWidgets widgets = getMainMenuWidgets();
+    if (widgets == null) {
+      return;
+    }
+    MenuItem undoItem = widgets.findMenuItem(ID_MAIN_MENU_EDIT_UNDO);
+    MenuItem redoItem = widgets.findMenuItem(ID_MAIN_MENU_EDIT_REDO);
     if (undoItem == null || redoItem == null || undoItem.isDisposed() || redoItem.isDisposed()) {
       return;
     }
 
-    ChangeAction prev = null;
-    ChangeAction next = null;
-
-    if (undoInterface != null) {
-      prev = undoInterface.viewThisUndo();
-      next = undoInterface.viewNextUndo();
-    }
-
-    undoItem.setEnabled(prev != null);
-    if (prev == null) {
+    undoItem.setEnabled(canUndo);
+    if (!canUndo) {
       undoItem.setText(UNDO_UNAVAILABLE);
-    } else {
+    } else if (prev != null) {
       undoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Undo.Available", prev.toString()));
+    } else {
+      undoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Edit.Undo"));
     }
-    KeyboardShortcut undoShortcut = mainMenuWidgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_UNDO);
+    KeyboardShortcut undoShortcut = widgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_UNDO);
     if (undoShortcut != null) {
       GuiMenuWidgets.appendShortCut(undoItem, undoShortcut);
     }
 
-    redoItem.setEnabled(next != null);
-    if (next == null) {
+    redoItem.setEnabled(canRedo);
+    if (!canRedo) {
       redoItem.setText(REDO_UNAVAILABLE);
-    } else {
+    } else if (next != null) {
       redoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Redo.Available", next.toString()));
+    } else {
+      redoItem.setText(BaseMessages.getString(PKG, "HopGui.Menu.Edit.Redo"));
     }
-    KeyboardShortcut redoShortcut = mainMenuWidgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_REDO);
+    KeyboardShortcut redoShortcut = widgets.findKeyboardShortcut(ID_MAIN_MENU_EDIT_REDO);
     if (redoShortcut != null) {
       GuiMenuWidgets.appendShortCut(redoItem, redoShortcut);
     }

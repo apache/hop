@@ -199,6 +199,7 @@ public class HopGuiPipelineTransformDelegate {
 
       dialog = getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
       TransformMeta before = null;
+      byte[] beforeSnapshot = null;
       if (dialog != null) {
         dialogs.put(name, dialog);
 
@@ -206,6 +207,7 @@ public class HopGuiPipelineTransformDelegate {
         transformMeta.getTransform().convertIOMetaToTransformNames();
         // Snapshot after IO-meta normalization so OK-without-edits is not treated as a change.
         before = (TransformMeta) transformMeta.clone();
+        beforeSnapshot = pipelineGraph.captureUndoSnapshot();
         // Subject stack covers legacy dialogs that never set BaseDialog.DIALOG_SUBJECT
         transformName = BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open);
 
@@ -261,13 +263,9 @@ public class HopGuiPipelineTransformDelegate {
         transformMeta.setName(transformName);
 
         TransformMeta after = (TransformMeta) transformMeta.clone();
+        pipelineGraph.commitDialogUndo(beforeSnapshot);
         if (hasTransformMetaChanged(before, after)) {
           transformMeta.setChanged();
-          hopGui.undoDelegate.addUndoChange(
-              pipelineMeta,
-              new TransformMeta[] {before},
-              new TransformMeta[] {after},
-              new int[] {pipelineMeta.indexOfTransform(transformMeta)});
         } else {
           transformMeta.setChanged(before.hasChanged());
         }
@@ -549,6 +547,7 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public void editTransformPartitioning(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
     String[] schemaNames;
     try {
       schemaNames = hopGui.partitionManager.getNamesArray();
@@ -607,17 +606,9 @@ public class HopGuiPipelineTransformDelegate {
 
         TransformMeta partitionBefore = partitionSettings.getBefore();
         TransformMeta partitionAfter = partitionSettings.getAfter();
+        pipelineGraph.commitDialogUndo(beforeSnapshot);
         if (hasTransformMetaChanged(partitionBefore, partitionAfter)) {
           transformMeta.setChanged();
-          hopGui.undoDelegate.addUndoChange(
-              partitionSettings.getPipelineMeta(),
-              new TransformMeta[] {partitionBefore},
-              new TransformMeta[] {partitionAfter},
-              new int[] {
-                partitionSettings
-                    .getPipelineMeta()
-                    .indexOfTransform(partitionSettings.getTransformMeta())
-              });
         } else {
           transformMeta.setChanged(partitionBefore.hasChanged());
         }
@@ -686,6 +677,7 @@ public class HopGuiPipelineTransformDelegate {
 
       // now edit this transformErrorMeta object:
       TransformMeta before = (TransformMeta) transformMeta.clone();
+      byte[] beforeSnapshot = pipelineGraph.captureUndoSnapshot();
       TransformErrorMetaDialog dialog =
           new TransformErrorMetaDialog(
               hopGui.getActiveShell(),
@@ -697,6 +689,7 @@ public class HopGuiPipelineTransformDelegate {
           BaseDialog.withDialogSubject(transformMeta.getTransform(), dialog::open))) {
         transformMeta.setTransformErrorMeta(transformErrorMeta);
         TransformMeta after = (TransformMeta) transformMeta.clone();
+        pipelineGraph.commitDialogUndo(beforeSnapshot);
         if (hasTransformMetaChanged(before, after)) {
           transformMeta.setChanged();
         } else {
