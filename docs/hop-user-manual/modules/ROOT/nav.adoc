@@ -502,6 +502,7 @@ under the License.
 ** xref:metadata-types/jms-connection.adoc[JMS connection]
 ** xref:metadata-types/spark-catalog.adoc[Spark Catalog]
 ** xref:metadata-types/variable-resolver/index.adoc[Variable Resolver]
+*** xref:metadata-types/variable-resolver/aws-secrets-manager-variable-resolver.adoc[AWS Secrets Manager variable resolver]
 *** xref:metadata-types/variable-resolver/azure-key-vault-variable-resolver.adoc[Azure Key Vault variable resolver]
 *** xref:metadata-types/variable-resolver/google-secret-manager-variable-resolver.adoc[Google Secret Manager variable resolver]
 *** xref:metadata-types/variable-resolver/hashicorp-vault-variable-resolver.adoc[Hashicorp Vault variable resolver]
