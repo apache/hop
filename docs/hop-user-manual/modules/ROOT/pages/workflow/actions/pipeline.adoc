@@ -65,6 +65,7 @@ Select the desired run configuration to control where and how the pipeline is ex
 |Clear results rows before execution|Makes sure the results rows are cleared before the pipeline starts.
 |Clear results files before execution|Makes sure the results files are cleared before the pipeline starts.
 |Wait for remote pipeline to finish|If you selected Server as your environment type, choose this option to block the workflow until the pipeline runs on the server.
+|Stop after (milliseconds)|Maximum time to wait for the pipeline to complete. Empty or 0 means wait indefinitely. When the time is reached the pipeline is stopped and this action fails. Only used when wait-to-finish is enabled. The value may contain a variable.
 |Follow local abort to remote pipeline|If you selected Server as your environment type, choose this option to send the local abort signal remotely.
 |===
 

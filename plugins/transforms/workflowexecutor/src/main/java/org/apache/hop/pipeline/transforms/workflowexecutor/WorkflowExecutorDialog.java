@@ -97,6 +97,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
   protected MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
 
+  private Label wlWaitTimeout;
+  private TextVar wWaitTimeout;
+
   private CTabFolder wTabFolder;
 
   private WorkflowMeta executorWorkflowMeta = null;
@@ -255,6 +258,25 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
 
+    wlWaitTimeout = new Label(shell, SWT.RIGHT);
+    PropsUi.setLook(wlWaitTimeout);
+    wlWaitTimeout.setText(BaseMessages.getString(PKG, "WorkflowExecutorDialog.WaitTimeout.Label"));
+    FormData fdlWaitTimeout = new FormData();
+    fdlWaitTimeout.left = new FormAttachment(0, 0);
+    fdlWaitTimeout.top = new FormAttachment(wRunConfiguration, margin);
+    fdlWaitTimeout.right = new FormAttachment(middle, -margin);
+    wlWaitTimeout.setLayoutData(fdlWaitTimeout);
+
+    wWaitTimeout = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wWaitTimeout);
+    wWaitTimeout.setToolTipText(
+        BaseMessages.getString(PKG, "WorkflowExecutorDialog.WaitTimeout.Tooltip"));
+    FormData fdWaitTimeout = new FormData();
+    fdWaitTimeout.left = new FormAttachment(middle, 0);
+    fdWaitTimeout.top = new FormAttachment(wlWaitTimeout, 0, SWT.CENTER);
+    fdWaitTimeout.right = new FormAttachment(100, 0);
+    wWaitTimeout.setLayoutData(fdWaitTimeout);
+
     //
     // Add a tab folder for the parameters and various input and output
     // streams
@@ -265,7 +287,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
+    fdTabFolder.top = new FormAttachment(wWaitTimeout, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -419,6 +441,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting workflow run configurations", e);
     }
+
+    wWaitTimeout.setText(Const.NVL(workflowExecutorMeta.getWaitTimeout(), ""));
 
     try {
       String[] prevTransforms = pipelineMeta.getTransformNames();
@@ -1165,6 +1189,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     workflowExecutorMeta.setFilenameInField(wbWorkflowNameInField.getSelection());
     workflowExecutorMeta.setFilenameField(wWorkflowNameField.getText());
     workflowExecutorMeta.setRunConfigurationName(wRunConfiguration.getText());
+    workflowExecutorMeta.setWaitTimeout(wWaitTimeout.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...

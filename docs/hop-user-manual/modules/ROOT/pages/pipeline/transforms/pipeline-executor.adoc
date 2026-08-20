@@ -104,6 +104,7 @@ The filename may contain variables (for example, you can use the built-in Intern
 
 *NOTE:* It must be considered that, by specifying the pipeline file name using this option, we can experience a little performance penalty because the pipeline that will be executed will be initialized at runtime and not during the initialization phase as usual. On the other side this option gives greater flexibility in specifying the pipeline filename dynamically and this could be useful for many use-cases.
 |Run configuration|Specify the Pipeline Run Configuration to be used for execution.
+|Stop after (milliseconds)|Maximum time to wait for the child pipeline to complete. Empty or 0 means wait indefinitely. When the time is reached the child pipeline is stopped and the execution-results stream reports a failure (`ExecutionResult=N`, `ExecutionNrErrors>=1`). The value may contain a variable.
 
 |===
 

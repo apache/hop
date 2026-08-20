@@ -43,6 +43,7 @@ import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -174,6 +175,13 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "wait_until_finished")
   private boolean waitingToFinish = true;
+
+  /**
+   * Maximum time to wait for the workflow to complete, in milliseconds. Empty or 0 means wait
+   * indefinitely. Only used when {@link #waitingToFinish} is true.
+   */
+  @HopMetadataProperty(key = "wait_timeout")
+  private String waitTimeout;
 
   @HopMetadataProperty(key = "parameters")
   private ParameterDefinition parameterDefinition;
@@ -513,20 +521,20 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflowRunnerThread.start();
 
         if (isWaitingToFinish()) {
-          // Keep running until we're done.
-          //
-          while (!runner.isFinished() && !parentWorkflow.isStopped()) {
-            try {
-              Thread.sleep(0, 1);
-            } catch (InterruptedException e) {
-              // Ignore
-            }
-          }
+          long timeoutMs = ExecutionWait.parseTimeoutMs(this, waitTimeout);
+          boolean finishedInTime =
+              ExecutionWait.waitFor(
+                  runner::isFinished, () -> parentWorkflow.isStopped(), timeoutMs);
 
-          // if the parent-workflow was stopped, stop the sub-workflow too...
-          if (parentWorkflow.isStopped()) {
+          // Stop the sub-workflow when the parent was stopped or the wait timed out.
+          if (!finishedInTime || parentWorkflow.isStopped()) {
+            if (!finishedInTime) {
+              logError(
+                  BaseMessages.getString(
+                      PKG, "ActionWorkflow.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
+            }
             workflow.stopExecution();
-            runner.waitUntilFinished(); // Wait until finished!
+            runner.waitUntilFinished();
           }
 
           oneResult = runner.getResult();
@@ -543,6 +551,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
           //
           if (oneResult.isResult() == false) {
             result.setNrErrors(result.getNrErrors() + 1);
+          }
+          if (!finishedInTime && result.getNrErrors() == 0) {
+            result.setNrErrors(1);
           }
         }
 
@@ -844,6 +855,14 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
    */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
+  }
+
+  public String getWaitTimeout() {
+    return waitTimeout;
+  }
+
+  public void setWaitTimeout(String waitTimeout) {
+    this.waitTimeout = waitTimeout;
   }
 
   public IWorkflowEngine<WorkflowMeta> getWorkflow() {

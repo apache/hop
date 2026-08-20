@@ -91,6 +91,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
   protected MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
 
+  private Label wlWaitTimeout;
+  private TextVar wWaitTimeout;
+
   private Button wbPipelineNameInField;
 
   private Label wlPipelineNameField;
@@ -255,6 +258,25 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
 
+    wlWaitTimeout = new Label(shell, SWT.RIGHT);
+    PropsUi.setLook(wlWaitTimeout);
+    wlWaitTimeout.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.WaitTimeout.Label"));
+    FormData fdlWaitTimeout = new FormData();
+    fdlWaitTimeout.left = new FormAttachment(0, 0);
+    fdlWaitTimeout.top = new FormAttachment(wRunConfiguration, margin);
+    fdlWaitTimeout.right = new FormAttachment(middle, -margin);
+    wlWaitTimeout.setLayoutData(fdlWaitTimeout);
+
+    wWaitTimeout = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wWaitTimeout);
+    wWaitTimeout.setToolTipText(
+        BaseMessages.getString(PKG, "PipelineExecutorDialog.WaitTimeout.Tooltip"));
+    FormData fdWaitTimeout = new FormData();
+    fdWaitTimeout.left = new FormAttachment(middle, 0);
+    fdWaitTimeout.top = new FormAttachment(wlWaitTimeout, 0, SWT.CENTER);
+    fdWaitTimeout.right = new FormAttachment(100, 0);
+    wWaitTimeout.setLayoutData(fdWaitTimeout);
+
     //
     // Add a tab folder for the parameters and various input and output
     // streams
@@ -265,7 +287,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
+    fdTabFolder.top = new FormAttachment(wWaitTimeout, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -403,6 +425,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting pipeline run configurations", e);
     }
+
+    wWaitTimeout.setText(Const.NVL(pipelineExecutorMeta.getWaitTimeout(), ""));
 
     //  throw in a separate thread.
     //
@@ -1184,6 +1208,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     pipelineExecutorMeta.setFilenameInField(wbPipelineNameInField.getSelection());
     pipelineExecutorMeta.setFilenameField(wPipelineNameField.getText());
     pipelineExecutorMeta.setRunConfigurationName(wRunConfiguration.getText());
+    pipelineExecutorMeta.setWaitTimeout(wWaitTimeout.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...

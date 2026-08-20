@@ -36,6 +36,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.execution.ExecutionWait;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -262,9 +263,20 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       executorPipeline.startThreads();
 
       // Wait a while until we're done with the pipeline
-      executorPipeline.waitUntilFinished();
+      long timeoutMs = ExecutionWait.parseTimeoutMs(this, meta.getWaitTimeout());
+      boolean finishedInTime = ExecutionWait.waitForPipeline(executorPipeline, timeoutMs);
 
       result = executorPipeline.getResult();
+      if (!finishedInTime) {
+        logError(
+            BaseMessages.getString(
+                PKG, "PipelineExecutor.Log.WaitTimeoutReached", Long.toString(timeoutMs)));
+        if (result == null) {
+          result = new Result();
+        }
+        result.setResult(false);
+        result.setNrErrors(Math.max(1, result.getNrErrors()));
+      }
     } catch (HopException e) {
       logError("An error occurred executing the pipeline: ", e);
       result.setResult(false);
