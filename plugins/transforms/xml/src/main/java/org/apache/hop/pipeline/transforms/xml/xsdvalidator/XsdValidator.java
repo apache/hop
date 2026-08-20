@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -132,8 +133,14 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
 
       try {
 
+        // The factory resolves the schema document itself, so it needs the same external-access
+        // restrictions as the validator it produces. Honour the transform's own opt-in so a
+        // pipeline that deliberately relies on remote schemas keeps working.
         SchemaFactory factoryXSDValidator =
-            SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            meta.isAllowExternalEntities()
+                ? SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+                : XmlParserFactoryProducer.createSecureSchemaFactory(
+                    XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         // Get XML stream
         Source sourceXML = getSourceXML(getInputRowMeta().getString(row, data.xmlindex));
