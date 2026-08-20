@@ -107,6 +107,7 @@
         <commonmark.version>0.30.0</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <grpc.version>1.83.1</grpc.version>
+        <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jandex.version>3.6.0</jandex.version>
