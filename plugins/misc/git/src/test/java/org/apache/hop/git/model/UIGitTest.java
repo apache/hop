@@ -1110,6 +1110,9 @@ public class UIGitTest extends RepositoryTestCase {
     return java.nio.file.Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).stream()
         .filter(line -> !line.isBlank())
         .toList();
+  }
+
+  /**
    * A merge has to be recorded as a merge. Committing the resolved conflict used to reset the whole
    * index first, which cleared MERGE_HEAD and left an ordinary commit behind: git no longer
    * considered the branch merged and replayed everything on the next merge.
