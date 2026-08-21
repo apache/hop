@@ -49,9 +49,11 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.ContextDialogPlacement;
 import org.apache.hop.ui.hopgui.context.GuiActionFavorites;
+import org.apache.hop.ui.hopgui.palette.GraphPalette;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -861,6 +863,7 @@ public class ContextDialog extends Dialog {
                   BaseMessages.getString(PKG, "ContextDialog.SaveConfig.Error.Dialog.Message"),
                   e);
             }
+            GraphPalette.fireFavoritesChanged(HopGui.getInstance());
             refreshActionsFromSupplier();
             return;
           }

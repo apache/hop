@@ -425,8 +425,12 @@ public class HopGuiKeyHandler extends KeyAdapter {
 
   /**
    * Keys that text-like widgets must handle themselves: copy/cut/paste/select-all,
-   * delete/backspace, and caret / selection navigation (arrows, home/end, page up/down) without
-   * CTRL/CMD/ALT. Shift alone is allowed so Shift+Arrow selection stays in the widget.
+   * delete/backspace, caret / selection navigation (arrows, home/end, page up/down) without
+   * CTRL/CMD/ALT, and unmodified printable characters (including space).
+   *
+   * <p>Graph shortcuts such as Space (output fields) and {@code z} (open referenced object) must
+   * not steal those keys from filter and search fields. App shortcuts with CTRL/CMD/ALT (e.g.
+   * Ctrl+S) still run.
    */
   private static boolean isNativeTextEditingKey(KeyEvent event) {
     if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND)) != 0) {
@@ -438,7 +442,24 @@ public class HopGuiKeyHandler extends KeyAdapter {
     if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
       return true;
     }
-    return isCaretNavigationKey(event);
+    if (isCaretNavigationKey(event)) {
+      return true;
+    }
+    return isUnmodifiedPrintableCharacter(event);
+  }
+
+  /**
+   * Space, letters and punctuation with no CTRL/CMD/ALT. Shift may be held for capitals. SWT
+   * reports space as {@link SWT#SPACE} and/or {@code character == ' '}.
+   */
+  private static boolean isUnmodifiedPrintableCharacter(KeyEvent event) {
+    if ((event.stateMask & (SWT.CONTROL | SWT.COMMAND | SWT.ALT)) != 0) {
+      return false;
+    }
+    if (event.keyCode == SWT.SPACE || event.character == ' ') {
+      return true;
+    }
+    return event.character >= 32 && event.character != SWT.DEL;
   }
 
   /**

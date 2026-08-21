@@ -46,5 +46,11 @@ public enum HopGuiEvents {
   ProjectDeleted,
   ProjectActivated,
   ProjectDeactivated,
+
+  /** A transform or workflow-action favorite was added or removed. */
+  FavoritesChanged,
+
+  /** The Spoon-style graph palette tree was shown or hidden. */
+  PaletteTreeVisibilityChanged,
   ;
 }
