@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.tableinput;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -99,8 +101,46 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
   @HopMetadataProperty(key = "sql_from_file", injectionKey = "SQL_FROM_FILE")
   private String sqlFromFile;
 
+  /**
+   * When true, {@code {fieldName}} in SQL is bound as a prepared-statement parameter. Defaults to
+   * false for existing metadata (HopMetadataProperty default). New transforms enable this in the
+   * constructor.
+   */
+  @HopMetadataProperty(
+      key = "use_named_parameters",
+      injectionKey = "USE_NAMED_PARAMETERS",
+      injectionKeyDescription = "TableInputMeta.Injection.UseNamedParameters")
+  private boolean useNamedParameters;
+
+  /** When true, output fields come from {@link #fields} instead of the database query metadata. */
+  @HopMetadataProperty(
+      key = "specify_fields",
+      injectionKey = "SPECIFY_FIELDS",
+      injectionKeyDescription = "TableInputMeta.Injection.SpecifyFields")
+  private boolean specifyFields;
+
+  /**
+   * When true (and {@link #specifyFields} is true), the query result metadata is compared with
+   * {@link #fields} and the transform fails on missing columns or type mismatches.
+   */
+  @HopMetadataProperty(
+      key = "validate_specified_fields",
+      injectionKey = "VALIDATE_SPECIFIED_FIELDS",
+      injectionKeyDescription = "TableInputMeta.Injection.ValidateSpecifiedFields")
+  private boolean validateSpecifiedFields;
+
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupKey = "OUTPUT_FIELDS",
+      injectionGroupDescription = "TableInputMeta.Injection.OutputFields",
+      injectionKeyDescription = "TableInputMeta.Injection.OutputField")
+  private List<TableInputField> fields;
+
   public TableInputMeta() {
     super();
+    this.fields = new ArrayList<>();
+    this.useNamedParameters = true;
   }
 
   @Override
@@ -118,6 +158,14 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    IRowMeta incomingParameters = row.clone();
+    row.clear();
+
+    if (specifyFields) {
+      addSpecifiedFields(row, origin, variables);
+      return;
+    }
 
     boolean param = false;
 
@@ -150,12 +198,21 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       }
     }
 
+    String jdbcSql = sNewSql;
+    if (useNamedParameters) {
+      try {
+        jdbcSql = TableInputSql.parse(sNewSql).getJdbcSql();
+      } catch (HopException e) {
+        throw new HopTransformException(e.getMessage(), e);
+      }
+    }
+
     IRowMeta add = null;
     try {
-      add = db.getQueryFields(sNewSql, param);
+      add = db.getQueryFields(jdbcSql, param);
     } catch (HopDatabaseException dbe) {
       throw new HopTransformException(
-          "Unable to get queryfields for SQL: " + Const.CR + sNewSql, dbe);
+          "Unable to get queryfields for SQL: " + Const.CR + jdbcSql, dbe);
     }
 
     if (add != null) {
@@ -171,16 +228,14 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
         IRowMeta paramRowMeta = null;
         Object[] paramData = null;
 
-        IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
-        if (!Utils.isEmpty(infoStream.getTransformName())) {
+        IRowMeta incoming = parameterRowMeta(info, incomingParameters);
+        if (incoming != null && !incoming.isEmpty()) {
           param = true;
-          if (info.length > 0 && info[0] != null) {
-            paramRowMeta = info[0];
-            paramData = RowDataUtil.allocateRowData(paramRowMeta.size());
-          }
+          paramRowMeta = incoming;
+          paramData = RowDataUtil.allocateRowData(paramRowMeta.size());
         }
 
-        add = db.getQueryFields(sNewSql, param, paramRowMeta, paramData);
+        add = db.getQueryFields(jdbcSql, param, paramRowMeta, paramData);
 
         if (add == null) {
           return;
@@ -192,7 +247,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
         row.addRowMeta(add);
       } catch (HopException ke) {
         throw new HopTransformException(
-            "Unable to get queryfields for SQL: " + Const.CR + sNewSql, ke);
+            "Unable to get queryfields for SQL: " + Const.CR + jdbcSql, ke);
       } finally {
         db.disconnect();
       }
@@ -286,6 +341,24 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
             remarks.add(cr);
           }
         }
+
+        if (specifyFields) {
+          if (Utils.isEmpty(fields) || fields.stream().allMatch(f -> Utils.isEmpty(f.getName()))) {
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"),
+                    transformMeta);
+            remarks.add(cr);
+          } else {
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_OK,
+                    BaseMessages.getString(PKG, "TableInputMeta.CheckResult.SpecifiedFieldsOk"),
+                    transformMeta);
+            remarks.add(cr);
+          }
+        }
       } catch (HopException e) {
         cr =
             new CheckResult(
@@ -305,98 +378,88 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       remarks.add(cr);
     }
 
-    // See if we have an informative transform...
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
+    IRowMeta parameterFields = parameterRowMeta(new IRowMeta[] {info}, prev);
+    boolean hasIncoming = (input != null && input.length > 0) || (prev != null && !prev.isEmpty());
+
     if (!Utils.isEmpty(infoStream.getTransformName())) {
       boolean found = false;
-      for (String s : input) {
-        if (infoStream.getTransformName().equalsIgnoreCase(s)) {
-          found = true;
+      if (input != null) {
+        for (String s : input) {
+          if (infoStream.getTransformName().equalsIgnoreCase(s)) {
+            found = true;
+          }
         }
       }
       if (found) {
-        cr =
+        remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
                 "Previous transform to read info from ["
                     + infoStream.getTransformName()
                     + "] is found.",
-                transformMeta);
-        remarks.add(cr);
-      } else {
-        cr =
+                transformMeta));
+      } else if (!hasIncoming) {
+        remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 "Previous transform to read info from ["
                     + infoStream.getTransformName()
                     + "] is not found.",
-                transformMeta);
-        remarks.add(cr);
-      }
-
-      // Count the number of ? in the SQL string:
-      int count = 0;
-      String sqlForParams = (effectiveSql != null) ? effectiveSql : "";
-      for (int i = 0; i < sqlForParams.length(); i++) {
-        char c = sqlForParams.charAt(i);
-        if (c == '\'') { // skip to next quote!
-          do {
-            i++;
-            c = sqlForParams.charAt(i);
-          } while (c != '\'');
-        }
-        if (c == '?') {
-          count++;
-        }
-      }
-      // Verify with the number of informative fields...
-      if (info != null) {
-        if (count == info.size()) {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_OK,
-                  "This transform is expecting and receiving "
-                      + info.size()
-                      + " fields of input from the previous transform.",
-                  transformMeta);
-          remarks.add(cr);
-        } else {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_ERROR,
-                  "This transform is receiving "
-                      + info.size()
-                      + " but not the expected "
-                      + count
-                      + " fields of input from the previous transform.",
-                  transformMeta);
-          remarks.add(cr);
-        }
-      } else {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                "Input transform name is not recognized!",
-                transformMeta);
-        remarks.add(cr);
-      }
-    } else {
-      if (input.length > 0) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                "Transform is not expecting info from input transforms.",
-                transformMeta);
-        remarks.add(cr);
-      } else {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_OK,
-                "No input expected, no input provided.",
-                transformMeta);
-        remarks.add(cr);
+                transformMeta));
       }
     }
+
+    String sqlForParams = (effectiveSql != null) ? effectiveSql : "";
+    if (isVariableReplacementActive() && variables != null) {
+      sqlForParams = variables.resolve(sqlForParams);
+    }
+
+    if (parameterFields != null && !parameterFields.isEmpty()) {
+      checkSqlParameters(remarks, transformMeta, parameterFields, sqlForParams);
+    } else if (effectiveSql != null && useNamedParameters) {
+      try {
+        TableInputSql.Parsed parsedSql = TableInputSql.parse(sqlForParams);
+        if (parsedSql.hasNamedParameters()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "TableInputMeta.CheckResult.NamedParametersNeedIncoming"),
+                  transformMeta));
+        }
+      } catch (HopException e) {
+        remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta));
+      }
+    }
+
+    if (hasIncoming) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "TableInputMeta.CheckResult.ReadsIncomingHops"),
+              transformMeta));
+    } else {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "TableInputMeta.CheckResult.NoInputExpected"),
+              transformMeta));
+    }
+  }
+
+  /**
+   * Parameter-row layout from incoming hops. The optional info stream (when {@code lookup} is set)
+   * is preferred so named informational hops keep working; otherwise previous hops are used.
+   */
+  IRowMeta parameterRowMeta(IRowMeta[] info, IRowMeta prev) {
+    if (info != null && info.length > 0 && info[0] != null && !info[0].isEmpty()) {
+      return info[0];
+    }
+    if (prev != null && !prev.isEmpty()) {
+      return prev;
+    }
+    return null;
   }
 
   /**
@@ -482,5 +545,164 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     }
 
     return ioMeta;
+  }
+
+  /**
+   * Build output row metadata from the specified field list. Used when {@link #specifyFields} is
+   * enabled.
+   */
+  public IRowMeta createSpecifiedRowMeta(String origin, IVariables variables)
+      throws HopTransformException {
+    IRowMeta specified = new RowMeta();
+    addSpecifiedFields(specified, origin, variables);
+    return specified;
+  }
+
+  /**
+   * Map specified output fields onto JDBC result columns by name.
+   *
+   * @param jdbcMeta metadata returned by the query
+   * @param specifiedMeta metadata from {@link #createSpecifiedRowMeta}
+   * @param validateTypes when true, Hop types must match; when false, values are converted later
+   * @return jdbc index for each specified field
+   */
+  public int[] createSpecifiedMapping(
+      IRowMeta jdbcMeta, IRowMeta specifiedMeta, boolean validateTypes) throws HopException {
+    if (jdbcMeta == null) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "TableInput.Exception.SpecifiedFieldMissing", ""));
+    }
+    int[] mapping = new int[specifiedMeta.size()];
+    for (int i = 0; i < specifiedMeta.size(); i++) {
+      IValueMeta specified = specifiedMeta.getValueMeta(i);
+      int index = jdbcMeta.indexOfValue(specified.getName());
+      if (index < 0) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "TableInput.Exception.SpecifiedFieldMissing", specified.getName()));
+      }
+      mapping[i] = index;
+      if (validateTypes) {
+        IValueMeta jdbc = jdbcMeta.getValueMeta(index);
+        if (jdbc.getType() != specified.getType()) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG,
+                  "TableInput.Exception.SpecifiedFieldTypeMismatch",
+                  specified.getName(),
+                  specified.getTypeDesc(),
+                  jdbc.getTypeDesc()));
+        }
+      }
+    }
+    return mapping;
+  }
+
+  private void addSpecifiedFields(IRowMeta row, String origin, IVariables variables)
+      throws HopTransformException {
+    if (Utils.isEmpty(fields)) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"));
+    }
+    boolean added = false;
+    try {
+      for (TableInputField field : fields) {
+        if (field == null || Utils.isEmpty(field.getName())) {
+          continue;
+        }
+        IValueMeta valueMeta = field.toValueMeta(origin, variables);
+        row.addValueMeta(valueMeta);
+        added = true;
+      }
+    } catch (HopPluginException e) {
+      throw new HopTransformException(e.getMessage(), e);
+    }
+    if (!added) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"));
+    }
+  }
+
+  private void checkSqlParameters(
+      List<ICheckResult> remarks, TransformMeta transformMeta, IRowMeta info, String sqlForParams) {
+    if (useNamedParameters) {
+      try {
+        TableInputSql.Parsed parsedSql = TableInputSql.parse(sqlForParams);
+        if (parsedSql.hasNamedParameters()) {
+          List<String> missing = new ArrayList<>();
+          for (String name : parsedSql.getNamedParameters()) {
+            if (info.indexOfValue(name) < 0 && !missing.contains(name)) {
+              missing.add(name);
+            }
+          }
+          if (missing.isEmpty()) {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_OK,
+                    BaseMessages.getString(
+                        PKG,
+                        "TableInputMeta.CheckResult.NamedParametersOk",
+                        Integer.toString(parsedSql.getNamedParameters().size())),
+                    transformMeta));
+          } else {
+            remarks.add(
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR,
+                    BaseMessages.getString(
+                        PKG,
+                        "TableInputMeta.CheckResult.NamedParametersMissing",
+                        String.join(", ", missing)),
+                    transformMeta));
+          }
+          return;
+        }
+        checkPositionalParameters(
+            remarks, transformMeta, info, parsedSql.getPositionalParameterCount());
+      } catch (HopException e) {
+        remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, e.getMessage(), transformMeta));
+      }
+      return;
+    }
+
+    int count = 0;
+    for (int i = 0; i < sqlForParams.length(); i++) {
+      char c = sqlForParams.charAt(i);
+      if (c == '\'') {
+        do {
+          i++;
+          if (i >= sqlForParams.length()) {
+            break;
+          }
+          c = sqlForParams.charAt(i);
+        } while (c != '\'');
+      }
+      if (c == '?') {
+        count++;
+      }
+    }
+    checkPositionalParameters(remarks, transformMeta, info, count);
+  }
+
+  private void checkPositionalParameters(
+      List<ICheckResult> remarks, TransformMeta transformMeta, IRowMeta info, int count) {
+    if (count == info.size()) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              "This transform is expecting and receiving "
+                  + info.size()
+                  + " fields of input from the previous transform.",
+              transformMeta));
+    } else {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              "This transform is receiving "
+                  + info.size()
+                  + " but not the expected "
+                  + count
+                  + " fields of input from the previous transform.",
+              transformMeta));
+    }
   }
 }

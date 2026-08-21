@@ -19,6 +19,8 @@ under the License.
 :description: The Table Input transform is used to read information from a database, using a connection and SQL.
 :openvar: ${
 :closevar: }
+:openfield: {
+:closefield: }
 
 = image:transforms/icons/tableinput.svg[Table Input transform Icon, role="image-doc-icon"] Table Input
 
@@ -30,8 +32,12 @@ a|
 The Table Input transform is one of the most frequently used transforms in Apache Hop. It reads data from a relational database using a connection and an SQL query, and introduces that data into a pipeline.
 
 This transform supports parameterization using:
+
 - Apache Hop variables (e.g., `{openvar}customerId{closevar}`)
-- Input fields from a previous transform (JDBC prepared statements using `?` placeholders)
+- Named input fields from a previous transform (JDBC prepared statements using `{openfield}fieldName{closefield}` placeholders)
+- Positional input fields from a previous transform (JDBC prepared statements using `?` placeholders)
+
+The dialog is split into *SQL*, *Options*, and *Fields* tabs.
 
 These features make Table Input ideal for dynamic and reusable data retrieval logic.
 
@@ -59,16 +65,49 @@ This opens the database explorer, allowing you to select a table or view. Once s
 
 == Use Fields from a Previous Transform
 
-To pass dynamic values into your SQL query at runtime, use the `Insert data from transform` option. This creates a JDBC Prepared Statement using `?` placeholders.
+Incoming hops are parameter sources. Table Input reads **all** of them, not only the transform named in `Insert data from transform`. Parameter rows are never copied to the output; only the SQL result is.
 
-Use `?` in your SQL where values from the input transform should be inserted. Values are passed in the order of fields in the incoming stream. Use a `Select Values` transform to ensure the correct field order.
+`Insert data from transform` is optional. When you select a transform there, that hop is informational (the usual Hop info hop used for lookup-style data). You can leave it empty and still bind parameters from any incoming hop. Enabling *Use named parameters* turns on *Execute for each row* when hops exist and, when there is a single incoming hop, fills *Insert data from transform* for you.
+
+Prefer *named parameters* `{openfield}fieldName{closefield}` so the SQL does not depend on incoming field order. Enable *Use named parameters* on the *SQL* tab (on by default for new transforms, off when opening existing Table Input metadata). Use *Insert field...* to pick an incoming field and insert `{openfield}fieldName{closefield}` at the cursor.
+
+*Execute for each row* is the usual case: run the query once per incoming row. Disable it only for the legacy assemble-all path, where every incoming row is concatenated into one parameter list. That is how positional SQL such as `WHERE bar IN (?,?,?)` can be filled from three one-field rows.
+
+If two hops into Table Input have different layouts, Hop still warns about mixing rows. That check is unchanged.
+
+.Named parameter with an informational hop from the previous transform:
+
+image:transforms/tableinput/table-input-named-parameters-segment-example.png[Table Input using named parameter segment from an informational hop, width="70%"]
+
+[source,sql]
+----
+SELECT *
+FROM public.tableinput
+WHERE id > {openfield}id{closefield}
+  AND changed_date >= {openfield}fromDate{closefield};
+----
+
+Named parameters:
+
+- Are opt-in so existing SQL that already uses curly braces is left unchanged
+- Bind by incoming field name (case-insensitive)
+- Can be used more than once
+- Ignore extra incoming fields
+- Cannot be mixed with positional `?` in the same statement
+- Do not conflict with Hop variables `{openvar}variable{closevar}`
+- Work best with a single parameter row, or with *Execute for each row*
+
+Classic positional `?` placeholders remain supported. Values are passed in the order of fields in the incoming stream. Use a `Select Values` transform to ensure the correct field order if you use `?`.
 
 Prepared statements:
 
 - Improve security by preventing SQL injection
 - Cannot parameterize all parts of a SQL statement (e.g., `IN (?)` or table names)
 
-You can also combine this with variable substitution.
+You can also combine named or positional parameters with variable substitution.
+
+Sample pipeline:
+link:https://github.com/apache/hop/blob/main/plugins/transforms/tableinput/src/main/samples/transforms/tableinput-named-parameters.hpl[tableinput-named-parameters.hpl]
 
 === Examples
 
@@ -84,7 +123,7 @@ WHERE id > ?;
 ----
 
 - Replace variables in script: *unchecked*
-- Insert data from transform: *Select the previous transform providing NameId and AddressId*
+- Insert data from transform: *optional; select the previous transform to mark the hop as informational, or leave empty if a hop is already connected*
 
 Sample pipeline:
 link:https://github.com/apache/hop/blob/main/plugins/transforms/tableinput/src/main/samples/transforms/tableinput-accept-input.hpl[tableinput-accept-input.hpl]
@@ -157,7 +196,7 @@ TIP: If you are getting unexpected query results, try clearing the database cach
 
 TIP: A cartesian join transform will combine a different number of fields from multiple table inputs without requiring key join fields.
 
-TIP: Using the "insert data from transform" drop down will block until the transform selected has completed.
+TIP: When *Execute for each row* is off, Table Input waits until every incoming hop has completed so it can concatenate the parameter rows.
 
 TIP: For better performance with large datasets you can use indexed columns in `WHERE` clauses and avoid `SELECT *` and only retrieve needed fields.
 
@@ -190,6 +229,10 @@ You can inject metadata into the following fields of the Table Input transform:
 - Insert data from transform
 - Execute for each row?
 - Limit size
+- Use named parameters
+- Specify output fields
+- Validate specified fields
+- Output field name, type, format, length, and precision
 
 == Preview
 
@@ -197,6 +240,13 @@ The *Preview* button opens a dialog where you set how many rows to fetch and a *
 
 * The timeout applies **only while the pipeline is running in preview mode** from the Hop GUI (not during a normal pipeline run from a run configuration or xref:hop-run/index.adoc[Hop Run]).
 * You can set a default for the timeout field with the xref:variables.adoc#_available_global_variables[`HOP_QUERY_PREVIEW_TIMEOUT`] application variable (`0` = no default from the variable). When the variable is `0` or unset, the dialog still suggests `5` seconds for the initial value.
+
+== Specify output fields
+
+On the *Fields* tab you can define the output schema instead of asking the database for column metadata. This is the offline design case: developers without database access can still build the pipeline, while Hop Server (or another runtime) executes the query later.
+
+* *Specify output fields*: use the field list as the transform output (name, type, length, precision, format). `Get fields` can still fill the list from the query when a connection is available.
+* *Validate specified fields*: after the query runs, compare the result columns with the specified list. The transform fails if a specified field is missing or the Hop types do not match. Extra columns returned by the query are ignored. When validation is off, missing specified fields still fail (they cannot be mapped) and type differences are converted.
 
 == Options
 
@@ -206,11 +256,14 @@ The *Preview* button opens a dialog where you set how many rows to fetch and a *
 
 |Transform name|Name of the transform instance.
 |Connection|Database connection to execute the query against.
-|SQL|SQL statement used to retrieve data. Use `Get SQL select statement` to auto-generate.
+|SQL tab|SQL statement, optional SQL file, `Get SQL select statement`, `Use named parameters`, and `Insert field...` for `{openfield}fieldName{closefield}`.
+|Use named parameters|When enabled, `{openfield}fieldName{closefield}` in SQL is bound to an incoming field. Off for existing Table Input metadata, on for new transforms. Disable if curly braces are used for something else. Checking this option also enables *Execute for each row* when hops exist, and selects the incoming transform when there is only one.
 |Replace variables in script?|Enable to substitute variables (e.g., `{openvar}param{closevar}`) in your SQL before execution.
-|Insert data from transform|Select a transform to use its fields as input for `?` parameters in a prepared statement.
-|Execute for each row?|Runs the SQL query once for each incoming row, using that row’s values as parameters. Only applies when “Insert data from transform” is enabled. Useful for row-specific lookups, but may be slower on large datasets.
+|Insert data from transform|Optional. Names the hop that should be treated as informational (parameter rows, not the SQL result). Parameter values are read from **all** incoming hops. Leave empty when you only need the connected hops as parameter sources.
+|Execute for each row?|When incoming hops exist, run the SQL query once for each incoming row. Disable to concatenate all incoming rows into a single parameter list (legacy `WHERE bar IN (?,?,?)` from several one-field rows). Incoming hops with different layouts still produce the mixed-layout warning.
 |Limit size|Maximum number of rows to return from the query. `0` means no limit. See <<limit-size-vs-sql-limit,Limit size vs. SQL LIMIT>> below.
+|Specify output fields|Define the output field list instead of reading column metadata from the database.
+|Validate specified fields|When specifying fields, fail if the query result names or types do not match the list.
 |===
 
 [#limit-size-vs-sql-limit]
