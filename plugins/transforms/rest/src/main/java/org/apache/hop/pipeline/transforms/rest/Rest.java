@@ -2254,7 +2254,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       data.trustStoreFile = resolve(meta.getTrustStoreFile());
-      data.trustStorePassword = resolve(meta.getTrustStorePassword());
+      // Decrypt the resolved trust store password like every other password field in Hop
+      // (see RestConnection.java, OracleDatabaseMeta.java, LdapSslProtocol.java, and the
+      // httpPassword branch a dozen lines above). Without this, an encrypted value that
+      // reaches the field through a variable is passed to the trust store loader verbatim
+      // and the SSL context cannot be built. See Apache Hop #8054.
+      data.trustStorePassword =
+          Encr.decryptPasswordOptionallyEncrypted(resolve(meta.getTrustStorePassword()));
 
       String applicationType = NVL(meta.getApplicationType(), "");
       switch (applicationType) {
