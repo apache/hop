@@ -17,6 +17,7 @@
 
 package org.apache.hop.databases.h2;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -24,6 +25,8 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.ColumnContext;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -37,7 +40,20 @@ import org.apache.hop.core.util.Utils;
 @GuiPlugin(id = "GUI-H2DatabaseMeta")
 public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-  /** H2 limits rows at the end of the statement. */
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // H2 has both of these as column types of its own.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UUID")
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
+
   @Override
   public String getLimitClause(int nrRows) {
     return " LIMIT " + nrRows;

@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0030-mssql-bulk-load</name>
+  <name>0003-bulk-load</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -58,7 +58,7 @@ limitations under the License.
       <batchsize>0</batchsize>
       <checkconstraints>N</checkconstraints>
       <codepage>RAW</codepage>
-      <connection>mssql-test-db</connection>
+      <connection>${MSSQL_CONNECTION}</connection>
       <datafiletype>char</datafiletype>
       <endfile>0</endfile>
       <errorfilename/>
@@ -89,7 +89,7 @@ limitations under the License.
       <description/>
       <type>EVAL_TABLE_CONTENT</type>
       <attributes/>
-      <connection>mssql-test-db</connection>
+      <connection>${MSSQL_CONNECTION}</connection>
       <schemaname>dbo</schemaname>
       <tablename>[test-table]</tablename>
       <success_condition>rows_count_equal</success_condition>
@@ -109,9 +109,11 @@ limitations under the License.
       <description/>
       <type>SQL</type>
       <attributes/>
-      <connection>mssql-test-db</connection>
+      <connection>${MSSQL_CONNECTION}</connection>
       <sendOneStatement>N</sendOneStatement>
-      <sql>CREATE TABLE master.dbo.[test-table] (
+      <sql>DROP TABLE IF EXISTS master.dbo.[test-table];
+
+CREATE TABLE master.dbo.[test-table] (
 	Column1 varchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Column2 varchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 );</sql>
@@ -127,7 +129,7 @@ limitations under the License.
       <description/>
       <type>SQL</type>
       <attributes/>
-      <connection>mssql-test-db</connection>
+      <connection>${MSSQL_CONNECTION}</connection>
       <sendOneStatement>N</sendOneStatement>
       <sql>DROP TABLE master.dbo.[test-table];</sql>
       <sqlfromfile>N</sqlfromfile>

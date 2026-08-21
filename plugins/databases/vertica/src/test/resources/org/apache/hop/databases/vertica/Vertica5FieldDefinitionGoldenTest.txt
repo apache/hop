@@ -75,24 +75,24 @@ BINARY       len=      18 prec=   0 -        -> VARBINARY(18)
 BINARY       len=      20 prec=   0 -        -> VARBINARY(20)
 BINARY       len=      10 prec=   2 -        -> VARBINARY(10)
 BINARY       len= 9999999 prec=   0 -        -> LONG VARBINARY(9999999)
-INET         len=      -1 prec=  -1 -        -> UNKNOWN
-INET         len=       0 prec=   0 -        -> UNKNOWN
-INET         len=       4 prec=   0 -        -> UNKNOWN
-INET         len=       9 prec=   0 -        -> UNKNOWN
-INET         len=      15 prec=   0 -        -> UNKNOWN
-INET         len=      18 prec=   0 -        -> UNKNOWN
-INET         len=      20 prec=   0 -        -> UNKNOWN
-INET         len=      10 prec=   2 -        -> UNKNOWN
-INET         len= 9999999 prec=   0 -        -> UNKNOWN
-JSON         len=      -1 prec=  -1 -        -> JSON
-JSON         len=       0 prec=   0 -        -> JSON
-JSON         len=       4 prec=   0 -        -> JSON
-JSON         len=       9 prec=   0 -        -> JSON
-JSON         len=      15 prec=   0 -        -> JSON
-JSON         len=      18 prec=   0 -        -> JSON
-JSON         len=      20 prec=   0 -        -> JSON
-JSON         len=      10 prec=   2 -        -> JSON
-JSON         len= 9999999 prec=   0 -        -> JSON
+INET         len=      -1 prec=  -1 -        -> VARCHAR(45)
+INET         len=       0 prec=   0 -        -> VARCHAR(45)
+INET         len=       4 prec=   0 -        -> VARCHAR(45)
+INET         len=       9 prec=   0 -        -> VARCHAR(45)
+INET         len=      15 prec=   0 -        -> VARCHAR(45)
+INET         len=      18 prec=   0 -        -> VARCHAR(45)
+INET         len=      20 prec=   0 -        -> VARCHAR(45)
+INET         len=      10 prec=   2 -        -> VARCHAR(45)
+INET         len= 9999999 prec=   0 -        -> VARCHAR(45)
+JSON         len=      -1 prec=  -1 -        -> LONG VARCHAR(9999999)
+JSON         len=       0 prec=   0 -        -> LONG VARCHAR(9999999)
+JSON         len=       4 prec=   0 -        -> VARCHAR(4)
+JSON         len=       9 prec=   0 -        -> VARCHAR(9)
+JSON         len=      15 prec=   0 -        -> VARCHAR(15)
+JSON         len=      18 prec=   0 -        -> VARCHAR(18)
+JSON         len=      20 prec=   0 -        -> VARCHAR(20)
+JSON         len=      10 prec=   2 -        -> VARCHAR(10)
+JSON         len= 9999999 prec=   0 -        -> LONG VARCHAR(9999999)
 
 [keys]
 INTEGER      len=      -1 prec=  -1 tk       -> INTEGER
@@ -226,15 +226,15 @@ BINARY       len=      15 prec=   0 add      -> --NOTE: Table cannot be altered 
 BINARY       len=      15 prec=   0 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE VARBINARY(15)
 BINARY       len=      10 prec=   2 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL VARBINARY(10)
 BINARY       len=      10 prec=   2 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE VARBINARY(10)
-INET         len=      -1 prec=  -1 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      -1 prec=  -1 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE UNKNOWN
-INET         len=      15 prec=   0 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      15 prec=   0 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE UNKNOWN
-INET         len=      10 prec=   2 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL UNKNOWN
-INET         len=      10 prec=   2 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE UNKNOWN
-JSON         len=      -1 prec=  -1 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL JSON
-JSON         len=      -1 prec=  -1 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE JSON
-JSON         len=      15 prec=   0 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL JSON
-JSON         len=      15 prec=   0 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE JSON
-JSON         len=      10 prec=   2 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL JSON
-JSON         len=      10 prec=   2 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE JSON
+INET         len=      -1 prec=  -1 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL VARCHAR(45)
+INET         len=      -1 prec=  -1 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE VARCHAR(45)
+INET         len=      15 prec=   0 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL VARCHAR(45)
+INET         len=      15 prec=   0 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE VARCHAR(45)
+INET         len=      10 prec=   2 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL VARCHAR(45)
+INET         len=      10 prec=   2 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE VARCHAR(45)
+JSON         len=      -1 prec=  -1 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL LONG VARCHAR(9999999)
+JSON         len=      -1 prec=  -1 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE LONG VARCHAR(9999999)
+JSON         len=      15 prec=   0 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL VARCHAR(15)
+JSON         len=      15 prec=   0 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE VARCHAR(15)
+JSON         len=      10 prec=   2 add      -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ADD COL VARCHAR(10)
+JSON         len=      10 prec=   2 modify   -> --NOTE: Table cannot be altered unless all projections are dropped. ALTER TABLE TBL ALTER COLUMN COL SET DATA TYPE VARCHAR(10)

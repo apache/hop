@@ -79,6 +79,32 @@ ORACLE_PID=$!
   # so without this it cannot read the wallet it is supposed to connect with.
   chmod 644 "${WALLET_DIR}"/* 2>/dev/null
 
+  # configTcps.sh writes two aliases into the wallet's tnsnames.ora: one for the CDB
+  # (${ORACLE_SID}) and one called ORCLPDB1, which is a name this image does not have - it points
+  # at a service that does not exist. The application PDB is ${APP_PDB} and the test user only
+  # exists there, so the alias the tests connect through is ours to add. Guarded by name because
+  # a wallet kept from an earlier run needs it too.
+  if ! grep -q "^${APP_PDB}=" "${WALLET_DIR}/tnsnames.ora" 2>/dev/null; then
+    echo "hop-it: adding the ${APP_PDB} alias to ${WALLET_DIR}/tnsnames.ora"
+    cat >> "${WALLET_DIR}/tnsnames.ora" <<TNS
+
+# Added by the Hop integration tests: the PDB alias, over the same TCPS endpoint as the rest.
+${APP_PDB}=
+(DESCRIPTION=
+  (ADDRESS=
+    (PROTOCOL=TCPS)
+    (HOST=${TCPS_HOSTNAME})
+    (PORT=${TCPS_PORT})
+  )
+  (CONNECT_DATA=
+    (SERVER=dedicated)
+    (SERVICE_NAME=${APP_PDB})
+  )
+)
+TNS
+    chmod 644 "${WALLET_DIR}/tnsnames.ora"
+  fi
+
   echo "hop-it: creating application user ${APP_USER} in ${APP_PDB}"
   sqlplus -s / as sysdba <<SQL >/tmp/createUser.log 2>&1
 whenever sqlerror exit 1

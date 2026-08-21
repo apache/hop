@@ -16,10 +16,14 @@
  */
 package org.apache.hop.databases.redshift;
 
+import java.util.List;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
+import org.apache.hop.core.database.types.DatabaseTypes;
+import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
 @DatabaseMetaPlugin(
@@ -30,6 +34,19 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
     classLoaderGroup = "redshift-db")
 @GuiPlugin(id = "GUI-RedshiftDatabaseMeta")
 public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
+
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // Redshift is Postgres derived but has neither JSONB nor INET: semi structured data
+          // goes in a SUPER, and an address is text like anything else.
+          .write(IValueMeta.TYPE_JSON)
+          .as("SUPER")
+          .build();
+
+  @Override
+  public List<IDatabaseTypeRule> getTypeRules() {
+    return TYPE_RULES;
+  }
 
   public RedshiftDatabaseMeta() {
     addExtraOption("REDSHIFT", "tcpKeepAlive", "true");

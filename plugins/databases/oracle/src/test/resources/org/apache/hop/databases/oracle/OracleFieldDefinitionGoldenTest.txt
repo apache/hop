@@ -75,15 +75,15 @@ BINARY       len=      18 prec=   0 -        -> BLOB
 BINARY       len=      20 prec=   0 -        -> BLOB
 BINARY       len=      10 prec=   2 -        -> BLOB
 BINARY       len= 9999999 prec=   0 -        -> BLOB
-INET         len=      -1 prec=  -1 -        -> UNKNOWN
-INET         len=       0 prec=   0 -        -> UNKNOWN
-INET         len=       4 prec=   0 -        -> UNKNOWN
-INET         len=       9 prec=   0 -        -> UNKNOWN
-INET         len=      15 prec=   0 -        -> UNKNOWN
-INET         len=      18 prec=   0 -        -> UNKNOWN
-INET         len=      20 prec=   0 -        -> UNKNOWN
-INET         len=      10 prec=   2 -        -> UNKNOWN
-INET         len= 9999999 prec=   0 -        -> UNKNOWN
+INET         len=      -1 prec=  -1 -        -> VARCHAR2(45)
+INET         len=       0 prec=   0 -        -> VARCHAR2(45)
+INET         len=       4 prec=   0 -        -> VARCHAR2(45)
+INET         len=       9 prec=   0 -        -> VARCHAR2(45)
+INET         len=      15 prec=   0 -        -> VARCHAR2(45)
+INET         len=      18 prec=   0 -        -> VARCHAR2(45)
+INET         len=      20 prec=   0 -        -> VARCHAR2(45)
+INET         len=      10 prec=   2 -        -> VARCHAR2(45)
+INET         len= 9999999 prec=   0 -        -> VARCHAR2(45)
 JSON         len=      -1 prec=  -1 -        -> JSON
 JSON         len=       0 prec=   0 -        -> JSON
 JSON         len=       4 prec=   0 -        -> JSON
@@ -226,12 +226,12 @@ BINARY       len=      15 prec=   0 add      -> ALTER TABLE TBL ADD ( COL BLOB )
 BINARY       len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD ( COL_KTL BLOB ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL BLOB ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
 BINARY       len=      10 prec=   2 add      -> ALTER TABLE TBL ADD ( COL BLOB )
 BINARY       len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD ( COL_KTL BLOB ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL BLOB ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
-INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD ( COL UNKNOWN )
-INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD ( COL_KTL UNKNOWN ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL UNKNOWN ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
-INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD ( COL UNKNOWN )
-INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD ( COL_KTL UNKNOWN ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL UNKNOWN ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
-INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD ( COL UNKNOWN )
-INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD ( COL_KTL UNKNOWN ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL UNKNOWN ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
+INET         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD ( COL VARCHAR2(45) )
+INET         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD ( COL_KTL VARCHAR2(45) ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL VARCHAR2(45) ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
+INET         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD ( COL VARCHAR2(45) )
+INET         len=      15 prec=   0 modify   -> ALTER TABLE TBL ADD ( COL_KTL VARCHAR2(45) ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL VARCHAR2(45) ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
+INET         len=      10 prec=   2 add      -> ALTER TABLE TBL ADD ( COL VARCHAR2(45) )
+INET         len=      10 prec=   2 modify   -> ALTER TABLE TBL ADD ( COL_KTL VARCHAR2(45) ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL VARCHAR2(45) ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
 JSON         len=      -1 prec=  -1 add      -> ALTER TABLE TBL ADD ( COL JSON )
 JSON         len=      -1 prec=  -1 modify   -> ALTER TABLE TBL ADD ( COL_KTL JSON ) ; UPDATE TBL SET COL_KTL=COL; ALTER TABLE TBL DROP ( COL ) ; ALTER TABLE TBL ADD ( COL JSON ) ; UPDATE TBL SET COL=COL_KTL; ALTER TABLE TBL DROP ( COL_KTL )
 JSON         len=      15 prec=   0 add      -> ALTER TABLE TBL ADD ( COL JSON )

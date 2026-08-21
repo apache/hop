@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -62,6 +63,7 @@ import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.database.types.DatabaseTypeMapper;
 import org.apache.hop.core.database.types.IValueBinding;
+import org.apache.hop.core.database.types.ServerInfo;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -1072,6 +1074,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       try {
         binding.write(iDatabase, v, ps, pos, object);
         return;
+      } catch (UnsupportedOperationException e) {
+        // A binding declared for reading only. Writing is whatever it was before the binding
+        // existed, which is the value type's own handling below.
       } catch (SQLException | HopValueException e) {
         throw new HopDatabaseException(
             "Unable to write value '" + v.getName() + "' to the prepared statement", e);
@@ -3174,6 +3179,44 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   /**
+   * Tells the dialect what the driver says about the server behind this connection.
+   *
+   * <p>A dialect covers every version of its database, but a type does not: SQL Server grew a JSON
+   * type in 2025 and Oracle in 21c, so the same dialect connected to an older server must write
+   * something else. The dialect decides that from the version and type list gathered here, which
+   * beats asking the user to tick a box for each type.
+   *
+   * <p>Read once per connection, and only when a definition is about to be generated, so nothing
+   * pays for it on the row paths. A driver that cannot answer leaves the declared types standing.
+   */
+  private void loadServerInfo() {
+    IDatabase iDatabase = databaseMeta.getIDatabase();
+    if (iDatabase.getServerInfo() != null || connection == null) {
+      return;
+    }
+    int majorVersion = -1;
+    int minorVersion = -1;
+    Set<String> typeNames = new HashSet<>();
+    try {
+      DatabaseMetaData metaData = connection.getMetaData();
+      majorVersion = metaData.getDatabaseMajorVersion();
+      minorVersion = metaData.getDatabaseMinorVersion();
+      try (ResultSet resultSet = metaData.getTypeInfo()) {
+        while (resultSet.next()) {
+          String typeName = resultSet.getString("TYPE_NAME");
+          if (typeName != null) {
+            typeNames.add(typeName.trim().toUpperCase(Locale.ROOT));
+          }
+        }
+      }
+    } catch (Exception e) {
+      // Not knowing is the same as not being told: the declared types stand.
+      log.logDebug("Unable to read the server version or its column types from the driver", e);
+    }
+    iDatabase.setServerInfo(new ServerInfo(majorVersion, minorVersion, typeNames));
+  }
+
+  /**
    * Generates SQL
    *
    * @param tableName the table name or schema/table combination: this needs to be quoted properly
@@ -3192,6 +3235,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       boolean useAutoIncrement,
       String pk,
       boolean semicolon) {
+    // Ask the driver about the server before spelling any type out. See loadServerInfo.
+    loadServerInfo();
+
     StringBuilder retval = new StringBuilder();
     IDatabase iDatabase = databaseMeta.getIDatabase();
     retval.append(iDatabase.getCreateTableStatement());
@@ -3238,6 +3284,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       String pk,
       boolean semicolon)
       throws HopDatabaseException {
+    // Ask the driver about the server before spelling any type out. See loadServerInfo.
+    loadServerInfo();
+
     StringBuilder retval = new StringBuilder();
 
     // Get the fields that are in the table now:

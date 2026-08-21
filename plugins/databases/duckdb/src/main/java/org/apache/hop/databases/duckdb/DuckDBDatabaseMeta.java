@@ -52,6 +52,11 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           // As of DuckDB JDBC 0.10.0 the Calendar overloads of setDate and setTimestamp are not
           // implemented, so a configured time zone cannot be passed to the driver.
           .bind(IValueMeta.TYPE_DATE, JdbcDateValues.WITHOUT_CALENDAR_OVERLOADS)
+          // Both are DuckDB types of their own.
+          .write(IValueMeta.TYPE_UUID)
+          .as("UUID")
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
           .build();
 
   @Override

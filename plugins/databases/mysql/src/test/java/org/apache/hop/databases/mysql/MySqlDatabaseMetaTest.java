@@ -429,8 +429,9 @@ class MySqlDatabaseMetaTest {
         "ALTER TABLE FOO ADD BAR DOUBLE",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaNumber("BAR", 5, 7), "", false, "", false));
+    // MySQL has no address type, so the dialect names the column that holds one.
     assertEquals(
-        "ALTER TABLE FOO ADD BAR  UNKNOWN",
+        "ALTER TABLE FOO ADD BAR VARCHAR(45)",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

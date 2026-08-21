@@ -275,7 +275,7 @@ class CrateDBDatabaseMetaTest {
     // rules, inherited here from PostgreSQL. Before those were consulted here, this produced
     // "BAR  UNKNOWN".
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR INET",
+        "ALTER TABLE FOO ADD COLUMN BAR IP",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaInternetAddress("BAR"), "", false, "", false));
 

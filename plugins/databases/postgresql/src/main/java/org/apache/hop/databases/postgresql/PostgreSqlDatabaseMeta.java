@@ -76,7 +76,42 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         }
       };
 
-  private static final List<IDatabaseTypeRule> TYPE_RULES =
+  /**
+   * Postgres has column types, uuid and inet among them, that the driver will not take a plain
+   * string for, and will not take a null for at all without being told which type is meant. So the
+   * neutral handling of those values, which writes them as strings, cannot serve here.
+   *
+   * <p>Leaving the type unspecified hands the resolution to the server, which reads the string as
+   * whatever the column is: uuid or inet on Postgres, character varying on a Redshift that has
+   * neither.
+   */
+  private static final IValueBinding UNSPECIFIED_STRING_BINDING =
+      new IValueBinding() {
+        @Override
+        public Object read(
+            IDatabase database, IValueMeta valueMeta, ResultSet resultSet, int index) {
+          throw new UnsupportedOperationException("This binding only writes values");
+        }
+
+        @Override
+        public void write(
+            IDatabase database,
+            IValueMeta valueMeta,
+            PreparedStatement preparedStatement,
+            int index,
+            Object value)
+            throws SQLException, HopValueException {
+          String string = valueMeta.getString(value);
+          if (string == null) {
+            preparedStatement.setNull(index, Types.OTHER);
+          } else {
+            preparedStatement.setObject(index, string, Types.OTHER);
+          }
+        }
+      };
+
+  /** Visible so a dialect that derives from Postgres can prepend its own and keep these. */
+  public static final List<IDatabaseTypeRule> POSTGRES_TYPE_RULES =
       DatabaseTypes.rules()
           // The driver reports the widest a double can hold rather than a declared size.
           .read(Types.DOUBLE)
@@ -92,17 +127,25 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
                   StandardJdbcTypeMapper.numericLength(column) == 0
                       && StandardJdbcTypeMapper.numericScale(column) == 0)
           .as(IValueMeta.TYPE_BIGNUMBER, -1, -1)
+          // An address is Types.OTHER, which the standard mapping takes as a string, so without
+          // this the value type Hop has for addresses never sees the column.
+          .readNative("INET")
+          .as(IValueMeta.TYPE_INET)
           // Non-legacy applications are advised to use JSONB rather than JSON.
           .write(IValueMeta.TYPE_JSON)
           .as("JSONB")
+          .write(IValueMeta.TYPE_UUID)
+          .as("UUID")
           .write(IValueMeta.TYPE_INET)
           .as("INET")
           .bind(IValueMeta.TYPE_JSON, JSON_BINDING)
+          .bind(IValueMeta.TYPE_UUID, UNSPECIFIED_STRING_BINDING)
+          .bind(IValueMeta.TYPE_INET, UNSPECIFIED_STRING_BINDING)
           .build();
 
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {
-    return TYPE_RULES;
+    return POSTGRES_TYPE_RULES;
   }
 
   private static final int GB_LIMIT = 1_073_741_824;

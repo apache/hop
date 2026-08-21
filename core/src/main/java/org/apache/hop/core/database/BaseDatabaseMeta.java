@@ -37,6 +37,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypeMapper;
 import org.apache.hop.core.database.types.IValueBinding;
+import org.apache.hop.core.database.types.ServerInfo;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -749,6 +750,27 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @param purpose what the definition is going into
    * @return the column definition
    */
+  /** What the driver said about the server, once something asked it. See IDatabase. */
+  private transient ServerInfo serverInfo;
+
+  @Override
+  public ServerInfo getServerInfo() {
+    return serverInfo;
+  }
+
+  @Override
+  public void setServerInfo(ServerInfo serverInfo) {
+    this.serverInfo = serverInfo;
+  }
+
+  /**
+   * Whether the server is at least this major version, for a dialect deciding about a type its
+   * database grew at a known release. An unknown version answers true: not knowing is not a no.
+   */
+  protected boolean serverIsAtLeast(int majorVersion) {
+    return ServerInfo.atLeast(serverInfo, majorVersion);
+  }
+
   public String getColumnDefinition(
       IValueMeta v,
       String tk,
@@ -759,19 +781,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
       ColumnContext.Purpose purpose) {
     ColumnContext context =
         new ColumnContext(purpose, tk, pk, useAutoIncrement, addFieldName, addCr);
-    String columnType = DatabaseTypeMapper.getColumnType(null, this, v, context);
-    if (!Utils.isEmpty(columnType)) {
-      return (addFieldName ? v.getName() + " " : "") + columnType + (addCr ? Const.CR : "");
-    }
-
-    // The same fallback order DatabaseMeta uses for a CREATE TABLE, so that the two agree.
-    String definition =
-        v.getDatabaseColumnTypeDefinition(this, tk, pk, useAutoIncrement, addFieldName, addCr);
-    if (!Utils.isEmpty(definition)) {
-      return definition;
-    }
-
-    return getFieldDefinition(v, tk, pk, useAutoIncrement, addFieldName, addCr);
+    return DatabaseTypeMapper.getColumnDefinition(null, this, v, context);
   }
 
   /**
@@ -1962,6 +1972,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
       try {
         Object data = binding.read(this, val, rs, i + 1);
         return rs.wasNull() ? null : data;
+      } catch (UnsupportedOperationException e) {
+        // A binding declared for writing only. Reading is whatever it was before the binding
+        // existed, which is the value type's own handling below.
       } catch (SQLException e) {
         throw new HopDatabaseException(
             "Unable to read value '" + val.getName() + "' from the result set", e);

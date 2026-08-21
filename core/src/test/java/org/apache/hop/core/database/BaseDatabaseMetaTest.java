@@ -363,4 +363,22 @@ class BaseDatabaseMetaTest {
     assertEquals(pre.getOriginalColumnType(), out.getOriginalColumnType());
     assertEquals(pre.getOriginalColumnTypeName(), out.getOriginalColumnTypeName());
   }
+
+  @Test
+  void testCustomizeValueFromSqlTypeJson() throws Exception {
+    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    when(rm.getColumnTypeName(1)).thenReturn("jsonb");
+
+    IValueMeta out = nativeMeta.customizeValueFromSqlType(buildPreMeta(), rm, 1);
+
+    assertEquals(IValueMeta.TYPE_JSON, out.getType());
+  }
+
+  @Test
+  void testCustomizeValueFromSqlTypeLeavesOtherTypesAlone() throws Exception {
+    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    when(rm.getColumnTypeName(1)).thenReturn("varchar");
+
+    assertNull(nativeMeta.customizeValueFromSqlType(buildPreMeta(), rm, 1));
+  }
 }

@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 import org.apache.hop.core.HopClientEnvironment;
@@ -31,7 +32,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaJson;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,5 +79,47 @@ class PostgreSqlValueBindingTest {
     database.setValue(preparedStatement, valueMeta, null, 1);
 
     verify(preparedStatement).setNull(1, Types.OTHER);
+  }
+
+  @Test
+  void aUuidIsSentAsAnUnspecifiedString() throws Exception {
+    String uuid = "123e4567-e89b-12d3-a456-426655440000";
+    database.setValue(preparedStatement, uuidValueMeta(uuid), uuid, 1);
+
+    verify(preparedStatement).setObject(1, uuid, Types.OTHER);
+  }
+
+  @Test
+  void aNullUuidIsSentAsANullOfTheSameType() throws Exception {
+    database.setValue(preparedStatement, uuidValueMeta(null), null, 1);
+
+    verify(preparedStatement).setNull(1, Types.OTHER);
+  }
+
+  @Test
+  void anInternetAddressIsSentAsAnUnspecifiedString() throws Exception {
+    IValueMeta valueMeta = new ValueMetaInternetAddress("host");
+    database.setValue(preparedStatement, valueMeta, InetAddress.getByName("10.0.0.1"), 1);
+
+    verify(preparedStatement).setObject(1, "10.0.0.1", Types.OTHER);
+  }
+
+  @Test
+  void aNullInternetAddressIsSentAsANullOfTheSameType() throws Exception {
+    IValueMeta valueMeta = new ValueMetaInternetAddress("host");
+    database.setValue(preparedStatement, valueMeta, null, 1);
+
+    verify(preparedStatement).setNull(1, Types.OTHER);
+  }
+
+  /**
+   * The UUID value type lives in a plugin this one does not depend on, and the binding is chosen on
+   * the Hop type alone, so the type is all the test needs to supply.
+   */
+  private IValueMeta uuidValueMeta(String uuid) throws Exception {
+    IValueMeta valueMeta = mock(ValueMetaString.class);
+    when(valueMeta.getType()).thenReturn(IValueMeta.TYPE_UUID);
+    when(valueMeta.getString(any())).thenReturn(uuid);
+    return valueMeta;
   }
 }

@@ -535,7 +535,15 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
     try {
 
-      preparedStatement.setObject(index, getString(data), Types.OTHER);
+      String address = getString(data);
+      if (address == null) {
+        // A null of the type the neutral handling writes, which is a string. Types.OTHER is what
+        // a database with a native address type wants, and it says so with a binding of its own;
+        // Oracle rejects it outright with "invalid column type".
+        preparedStatement.setNull(index, Types.VARCHAR);
+      } else {
+        preparedStatement.setString(index, address);
+      }
 
     } catch (Exception e) {
       throw new HopDatabaseException(

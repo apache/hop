@@ -1159,18 +1159,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     ColumnContext context =
         new ColumnContext(
             ColumnContext.Purpose.CREATE, tk, pk, useAutoIncrement, addFieldname, addCr);
-    String columnType = DatabaseTypeMapper.getColumnType(variables, iDatabase, v, context);
-    if (!Utils.isEmpty(columnType)) {
-      return (addFieldname ? v.getName() + " " : "") + columnType + (addCr ? Const.CR : "");
-    }
-
-    String definition =
-        v.getDatabaseColumnTypeDefinition(iDatabase, tk, pk, useAutoIncrement, addFieldname, addCr);
-    if (!Utils.isEmpty(definition)) {
-      return definition;
-    }
-
-    return iDatabase.getFieldDefinition(v, tk, pk, useAutoIncrement, addFieldname, addCr);
+    return DatabaseTypeMapper.getColumnDefinition(variables, iDatabase, v, context);
   }
 
   public String getLimitClause(int nrRows) {

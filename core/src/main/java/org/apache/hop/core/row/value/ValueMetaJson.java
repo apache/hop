@@ -24,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -259,7 +258,10 @@ public class ValueMetaJson extends ValueMetaBase {
     try {
       JsonNode jn = getJson(data);
       if (jn == null) {
-        preparedStatement.setNull(index, Types.OTHER);
+        // A null of the type the neutral handling below writes, which is a string. Types.OTHER
+        // is what a database taking JSON as a typed object wants, and it says so with a binding
+        // of its own; Oracle rejects it outright with "invalid column type".
+        preparedStatement.setNull(index, Types.VARCHAR);
         return;
       }
 
@@ -324,19 +326,5 @@ public class ValueMetaJson extends ValueMetaBase {
    */
   public void setPrettyPrinting(boolean prettyPrinting) {
     this.prettyPrinting = prettyPrinting;
-  }
-
-  @Override
-  public String getDatabaseColumnTypeDefinition(
-      IDatabase iDatabase,
-      String tk,
-      String pk,
-      boolean useAutoIncrement,
-      boolean addFieldName,
-      boolean addCr) {
-    // The neutral spelling. A dialect that spells it differently, such as Postgres with JSONB,
-    // says so in its own type rules.
-    final String col = addFieldName ? getName() + " " : "";
-    return col + "JSON" + (addCr ? Const.CR : "");
   }
 }

@@ -33,6 +33,7 @@ import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.ColumnTypeRules;
+import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -55,9 +56,18 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+  private static final List<IDatabaseTypeRule> TYPE_RULES =
+      DatabaseTypes.rules()
+          // MySQL has a JSON type. It has no UUID and no address type, and both of those fall
+          // back to text on their own.
+          .write(IValueMeta.TYPE_JSON)
+          .as("JSON")
+          .include(ColumnTypeRules.MYSQL_COMPATIBLE)
+          .build();
+
   @Override
   public List<IDatabaseTypeRule> getTypeRules() {
-    return ColumnTypeRules.MYSQL_COMPATIBLE;
+    return TYPE_RULES;
   }
 
   private static final Class<?> PKG = MySqlDatabaseMeta.class;
